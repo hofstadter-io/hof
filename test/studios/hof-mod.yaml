@@ -2,7 +2,7 @@ name: "studios"
 type: "design"
 path: "github.com/hofstadter-io/studios"
 
-entrypoint: "design"
+entrypoint: "."
 
 deps:
   - package: "github.com/hofstadter-io/apollokit"

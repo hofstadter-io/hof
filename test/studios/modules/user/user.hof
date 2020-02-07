@@ -5,10 +5,10 @@ import (
 )
 
 def User apollokit.Type {
-  Name: "user"
+  name: "user"
 
-  Fields: {
-    Email: { }
+  fields: {
+    email: { }
   }
 
 }

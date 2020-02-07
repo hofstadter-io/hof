@@ -6,7 +6,7 @@ import (
 
 def StudiosAuth apollokit.App.Auth {
 
-  login_redirect: "/"
+  login-redirect: "/"
 
   password: {
     enabled: true

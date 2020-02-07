@@ -5,5 +5,5 @@ import (
 )
 
 def Module apollokit.Module {
-  Name: "app"
+  name: "app"
 }
