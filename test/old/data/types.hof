@@ -1,0 +1,81 @@
+def User type {
+
+  ORM: sql
+
+  Fields: [
+    /* These should be built into the ORM
+    Id int {
+      tags: {
+        orm: [
+          primary_key,
+        ],
+      }
+    },
+    UUID uuid,
+    */
+
+    Name string {
+      validation: [
+        minLength: 1,
+        maxLength: 128,
+      ]
+    },
+
+    Email string {
+      validation: [
+        regex: email,
+      ]
+    },
+  ]
+
+  Relations: [
+    hasMany Posts,
+    manyToMany Groups,
+  ]
+
+  Views: [
+
+  ]
+
+}
+
+def Group type {
+
+  ORM: sql
+
+  Fields: [
+    /* These should be built into the ORM
+    Id int {
+      tags: {
+        orm: [
+          primary_key,
+        ],
+      }
+    },
+    UUID uuid,
+    */
+
+    Name string {
+      validation: [
+        minLength: 1,
+        maxLength: 128,
+      ]
+    },
+
+    Email string {
+      validation: [
+        regex: email,
+      ]
+    },
+  ]
+
+  Relations: [
+    hasMany Posts,
+    manyToMany Groups,
+  ]
+
+  Views: [
+
+  ]
+
+}

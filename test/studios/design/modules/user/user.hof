@@ -1,0 +1,15 @@
+package user
+
+import (
+  "github.com/hofstadter-io/apollokit/spec"
+)
+
+def User apollokit.Type {
+  Name: "user"
+
+  Fields: {
+    Email: { }
+  }
+
+}
+

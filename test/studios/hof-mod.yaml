@@ -1,0 +1,9 @@
+name: "studios"
+type: "design"
+path: "github.com/hofstadter-io/studios"
+
+entrypoint: "design"
+
+deps:
+  - package: "github.com/hofstadter-io/apollokit"
+    version: "0.0.0"

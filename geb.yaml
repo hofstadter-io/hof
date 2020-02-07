@@ -1,0 +1,24 @@
+name: "hof"
+about: "The hof command-line tool."
+
+# output-dir: "contracrostipunctus"
+output-dir: "."
+
+design-dir: "design"
+skip-validate: true
+diff: true
+
+dsl-config:
+  paths:
+    - "../../../dsls/dsl-library"
+  default:
+    - dsl: cli
+      gen:
+        - golang
+      output-dir: "."
+
+log-config:
+  default:
+    level: warn
+    stack: false
+

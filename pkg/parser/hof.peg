@@ -1,0 +1,136 @@
+{
+// Package 'parser' implements the basic parser for 'hof-lang'
+package parser
+}
+
+HOF <- pkg:PackageDecl __ imports:Imports? __ defs:Definitions? EOF {
+  return FileCallback(c, pkg, imports, defs)
+}
+
+PackageDecl <- __ PACKAGE _ name:NAME __ {
+  return PackageDeclCallback(c, name)
+}
+
+Imports <- IMPORT _ '(' __ imports:( Import )* __ ')' __ {
+  return ImportsCallback(c, imports)
+}
+
+Import <- __ name:ID? _ path:String __ {
+  return ImportCallback(c, name, path)
+}
+
+Definitions <- defs:( Definition )* __ {
+  return DefinitionsCallback(c, defs)
+}
+
+Definition <- __ DEF _ name:ID _ path:PATH _ body:DefnBody __ {
+  return DefinitionCallback(c, name, path, body)
+}
+
+DefnBody <- '{' __ defs:( DefnField )* __ '}' __ {
+  return DefinitionBodyCallback(c, defs)
+}
+
+DefnField <- __ val:( TypeDecl / Field ) __ {
+  return val, nil
+}
+
+TypeDecl <- _ id:ID _ path:PATH _ obj:Object? __ {
+  return TypeDeclCallback(c, id, path, obj)
+}
+
+Value <- val:( Boolean / TypeDecl / Object / Array / Number / Integer / String / PATH / Null ) {
+  return val, nil
+}
+
+Field <- __ id:ID _ ':' _ val:Value __ {
+  return FieldCallback(c, id, val)
+}
+
+Object <- '{' fields:( Field )* __ '}' {
+  return ObjectCallback(c, fields)
+}
+
+Elem <- __ val:Value _ ',' __ {
+	return val, nil
+}
+
+Array <- '[' elems:( Elem )* __ ']' {
+  return ArrayCallback(c, elems)
+}
+
+Number <- '-'? Integer '.' DecimalDigit+ Exponent? {
+  return NumberCallback(c)
+}
+
+Integer <- '0' / NonZeroDecimalDigit DecimalDigit* {
+  return IntegerCallback(c)
+}
+
+Exponent <- 'e'i [+-]? DecimalDigit+
+
+String <- '"' ( !EscapedChar . / '\\' EscapeSequence )* '"' {
+  return StringCallback(c)
+}
+
+AlphaNumericExtra <- Alphabetic / DecimalDigit / '-' / '_'
+
+AlphaNumeric <- Alphabetic / DecimalDigit
+
+Alphabetic <- [a-zA-Z]
+
+EscapedChar <- [\x00-\x1f"\\]
+
+EscapeSequence <- SingleCharEscape / UnicodeEscape
+
+SingleCharEscape <- ["\\/bfnrt]
+
+UnicodeEscape <- 'u' HexDigit HexDigit HexDigit HexDigit
+
+DecimalDigit <- [0-9]
+
+NonZeroDecimalDigit <- [1-9]
+
+HexDigit <- [0-9a-f]i
+
+Boolean <- "true" { return &ast.Bool { Value: true }, nil } / "false" { return &ast.Bool{ Value: false }, nil }
+// Boolean <- "true" / "false"
+
+
+Null <- "null" { return nil, nil }
+
+__ <- ( Whitespace / EOL / Comment )*
+_ <- ( Whitespace / MultiLineCommentNoLineTerminator )*
+
+Whitespace <- [ \t\r]
+EOL <- '\n'
+EOS <- __ ';' / _ SingleLineComment? EOL / __ EOF
+
+EOF <- !.
+
+SourceChar <- .
+Comment <- MultiLineComment / SingleLineComment
+MultiLineComment <- "/*" ( !"*/" SourceChar )* "*/"
+MultiLineCommentNoLineTerminator <- "/*" ( !( "*/" / EOL ) SourceChar )* "*/"
+SingleLineComment <- "//" ( !EOL SourceChar )*
+
+DEF <- "def"
+PACKAGE <- "package"
+IMPORT <- "import"
+
+PATH <- val:( ID ( '.' ID )* ) {
+  return PathCallback(c, val)
+}
+
+ID <- val:( AlphaNumeric AlphaNumericExtra* ) {
+  return IdCallback(c, val)
+}
+
+NAME <- val:( Alphabetic AlphaNumeric* ) {
+  return NameCallback(c, val)
+}
+
+Token <- val:( Alphabetic AlphaNumeric* ) {
+  return TokenCallback(c, val)
+}
+

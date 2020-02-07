@@ -1,0 +1,7 @@
+name: "apollokit"
+type: "dsl"
+path: "github.com/hofstadter-io/apollokit"
+
+entrypoint: "./spec"
+
+deps: []

@@ -1,0 +1,9 @@
+package user
+
+import (
+  "github.com/hofstadter-io/apollokit/spec"
+)
+
+def Module apollokit.Module {
+  Name: "user"
+}

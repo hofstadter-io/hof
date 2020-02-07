@@ -1,0 +1,20 @@
+package studios
+
+import (
+  "github.com/hofstadter-io/apollokit/spec"
+
+  "github.com/hofstadter-io/studios/modules/user"
+  "github.com/hofstadter-io/studios/modules/app"
+)
+
+def Studios apollokit.App {
+  name: "studios"
+
+  auth: StudiosAuth
+
+  modules: [
+    user.Module,
+    app.Module,
+  ]
+}
+

@@ -1,0 +1,14 @@
+package foo
+
+def User type {
+
+}
+
+def Group type {
+
+}
+
+def Org type {
+
+}
+
