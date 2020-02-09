@@ -14,7 +14,7 @@ type Token struct {
 	Value string
 }
 
-func (N *TokenPath) Walk(FN func(ASTNode) (error)) error {
+func (N *TokenPath) Visit(FN func(ASTNode) (error)) error {
 	err := FN(N)
 	if err != nil {
 		return err
@@ -23,7 +23,7 @@ func (N *TokenPath) Walk(FN func(ASTNode) (error)) error {
 	return nil
 }
 
-func (N *Token) Walk(FN func(ASTNode) (error)) error {
+func (N *Token) Visit(FN func(ASTNode) (error)) error {
 	err := FN(N)
 	if err != nil {
 		return err

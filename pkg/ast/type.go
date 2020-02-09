@@ -1,6 +1,6 @@
 package ast
 
-type TypeDecl struct {
+type TypeDef struct {
 	// Parser filled
 	ParseInfo *ParseInfo
 	Name *Token
@@ -10,7 +10,7 @@ type TypeDecl struct {
 	// Phases filled
 }
 
-func (N *TypeDecl) Walk(FN func(ASTNode) (error)) error {
+func (N *TypeDef) Visit(FN func(ASTNode) (error)) error {
 	err := FN(N)
 	if err != nil {
 		return err

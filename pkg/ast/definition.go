@@ -13,7 +13,7 @@ type Definition struct {
 	// Phases filled
 }
 
-func (N *Definitions) Walk(FN func(ASTNode) (error)) error {
+func (N *Definitions) Visit(FN func(ASTNode) (error)) error {
 	err := FN(N)
 	if err != nil {
 		return err
@@ -22,7 +22,7 @@ func (N *Definitions) Walk(FN func(ASTNode) (error)) error {
 	return nil
 }
 
-func (N *Definition) Walk(FN func(ASTNode) (error)) error {
+func (N *Definition) Visit(FN func(ASTNode) (error)) error {
 	err := FN(N)
 	if err != nil {
 		return err

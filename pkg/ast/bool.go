@@ -6,11 +6,20 @@ type Bool struct {
 	Value bool
 }
 
-func (N *Bool) Walk(FN func(ASTNode) (error)) error {
+func (N *Bool) Visit(FN func(ASTNode) (error)) error {
 	err := FN(N)
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+type BoolDef struct {
+	// Parser filled
+	ParseInfo *ParseInfo
+}
+
+func (N *BoolDef) Visit(FN func(ASTNode) (error)) error {
+	return FN(N)
 }

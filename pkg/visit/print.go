@@ -1,4 +1,4 @@
-package walkers
+package visit
 
 import (
 	"errors"
@@ -14,13 +14,13 @@ func Print(node ast.ASTNode) error {
 	case *ast.File:
 		// fmt.Println("File:", n.Path)
 
-		err := n.PackageDecl.Walk(Print)
+		err := n.PackageDecl.Visit(Print)
 		if err != nil {
 			return err
 		}
 
 		for _, defn := range n.Definitions {
-			err := defn.Walk(Print)
+			err := defn.Visit(Print)
 			if err != nil {
 				return err
 			}

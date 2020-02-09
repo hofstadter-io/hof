@@ -1,0 +1,10 @@
+package cli
+
+def Flag type {
+  type:    builtin
+  default: builtin
+  help:    string
+  long:    string
+  short:   string
+}
+

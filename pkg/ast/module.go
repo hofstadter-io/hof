@@ -15,7 +15,7 @@ type Module struct {
 	Config *config.Config
 }
 
-func (N *Module) Walk(FN func(ASTNode) (error)) error {
+func (N *Module) Visit(FN func(ASTNode) (error)) error {
 	err := FN(N)
 	if err != nil {
 		return err

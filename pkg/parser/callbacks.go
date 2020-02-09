@@ -60,7 +60,7 @@ func ImportsCallback(c *current, imports interface{}) (interface{}, error) {
 
 func ImportCallback(c *current, name, path interface{}) (interface{}, error) {
 	ret := &ast.Import {
-		ImportPath: path.(*ast.Token),
+		ImportPath: path.(*ast.String),
     ParseInfo: &ast.ParseInfo {
       Line: c.pos.line,
       Col: c.pos.col,
@@ -115,8 +115,8 @@ func DefinitionBodyCallback(c *current, defs interface{}) (interface{}, error) {
 	return ret, nil
 }
 
-func TypeDeclCallback(c *current, id, path, obj interface{}) (interface{}, error) {
-	ret := &ast.TypeDecl {
+func TypeDefCallback(c *current, id, path, obj interface{}) (interface{}, error) {
+	ret := &ast.TypeDef {
 		Name: id.(*ast.Token),
 		Path: path.(*ast.TokenPath),
     ParseInfo: &ast.ParseInfo {
@@ -129,6 +129,34 @@ func TypeDeclCallback(c *current, id, path, obj interface{}) (interface{}, error
 	if obj != nil {
 		objVal := obj.(*ast.Object)
 		ret.Extra = objVal
+	}
+
+	return ret, nil
+}
+
+func FieldTypeCallback(c *current, val interface{}) (interface{}, error) {
+	ret := &ast.FieldType {
+    Value: val.(ast.ASTNode),
+    ParseInfo: &ast.ParseInfo {
+      Line: c.pos.line,
+      Col: c.pos.col,
+      Offset: c.pos.offset,
+      Text: string(c.text),
+    },
+	}
+
+	return ret, nil
+}
+
+func FieldValueCallback(c *current, val interface{}) (interface{}, error) {
+	ret := &ast.FieldValue {
+    Value: val.(ast.ASTNode),
+    ParseInfo: &ast.ParseInfo {
+      Line: c.pos.line,
+      Col: c.pos.col,
+      Offset: c.pos.offset,
+      Text: string(c.text),
+    },
 	}
 
 	return ret, nil
@@ -165,6 +193,20 @@ func ObjectCallback(c *current, fields interface{}) (interface{}, error) {
   for _, val := range vals {
       ret.Fields = append(ret.Fields, val.(*ast.Field))
   }
+
+	return ret, nil
+}
+
+func ArrayDefCallback(c *current, path interface{}) (interface{}, error) {
+	ret := &ast.ArrayDef {
+		Path: path.(*ast.TokenPath),
+    ParseInfo: &ast.ParseInfo {
+      Line: c.pos.line,
+      Col: c.pos.col,
+      Offset: c.pos.offset,
+      Text: string(c.text),
+    },
+	}
 
 	return ret, nil
 }
@@ -269,6 +311,46 @@ func IntegerCallback(c *current) (interface{}, error) {
 	return ret, nil
 }
 
+func IntegerDefCallback(c *current) (interface{}, error) {
+	ret := &ast.IntegerDef {
+    ParseInfo: &ast.ParseInfo {
+      Line: c.pos.line,
+      Col: c.pos.col,
+      Offset: c.pos.offset,
+      Text: string(c.text),
+    },
+  }
+
+	return ret, nil
+}
+
+func BoolCallback(c *current, val bool) (interface{}, error) {
+	ret := &ast.Bool {
+    Value: val,
+    ParseInfo: &ast.ParseInfo {
+      Line: c.pos.line,
+      Col: c.pos.col,
+      Offset: c.pos.offset,
+      Text: string(c.text),
+    },
+  }
+
+	return ret, nil
+}
+
+func BoolDefCallback(c *current) (interface{}, error) {
+	ret := &ast.BoolDef {
+    ParseInfo: &ast.ParseInfo {
+      Line: c.pos.line,
+      Col: c.pos.col,
+      Offset: c.pos.offset,
+      Text: string(c.text),
+    },
+  }
+
+	return ret, nil
+}
+
 func StringCallback(c *current) (interface{}, error) {
   // TODO : the forward slash (solidus) is not a valid escape in Go, it will
   // fail if there's one in the string
@@ -277,7 +359,7 @@ func StringCallback(c *current) (interface{}, error) {
       return &ast.Token{}, err
   }
 
-  ret := &ast.Token {
+  ret := &ast.String {
     Value: text,
     ParseInfo: &ast.ParseInfo {
       Line: c.pos.line,
@@ -288,3 +370,17 @@ func StringCallback(c *current) (interface{}, error) {
   }
   return ret, nil
 }
+
+func StringDefCallback(c *current) (interface{}, error) {
+	ret := &ast.StringDef {
+    ParseInfo: &ast.ParseInfo {
+      Line: c.pos.line,
+      Col: c.pos.col,
+      Offset: c.pos.offset,
+      Text: string(c.text),
+    },
+  }
+
+	return ret, nil
+}
+

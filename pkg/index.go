@@ -45,12 +45,10 @@ func Do(entrypoint string) error {
 		}
 	}
 
-	/*
-	err = dump(context)
+	err = dump(ctx)
 	if err != nil {
 		return err
 	}
-	*/
 
 	return nil
 }
@@ -65,6 +63,7 @@ func dump(thing interface{}) error {
 		return err
 	}
 
+	fmt.Println("============================================")
 	fmt.Printf("Context:\n%s\n", b.String())
 	return nil
 }

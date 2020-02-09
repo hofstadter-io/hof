@@ -15,7 +15,7 @@ Imports <- IMPORT _ '(' __ imports:( Import )* __ ')' __ {
   return ImportsCallback(c, imports)
 }
 
-Import <- __ name:ID? _ path:String __ {
+Import <- __ name:NAME? _ path:String __ {
   return ImportCallback(c, name, path)
 }
 
@@ -31,19 +31,23 @@ DefnBody <- '{' __ defs:( DefnField )* __ '}' __ {
   return DefinitionBodyCallback(c, defs)
 }
 
-DefnField <- __ val:( TypeDecl / Field ) __ {
+DefnField <- __ val:( TypeDef / Field ) __ {
   return val, nil
 }
 
-TypeDecl <- _ id:ID _ path:PATH _ obj:Object? __ {
-  return TypeDeclCallback(c, id, path, obj)
+TypeDef <- _ id:ID _ path:PATH _ obj:Object? __ {
+  return TypeDefCallback(c, id, path, obj)
 }
 
-Value <- val:( Boolean / TypeDecl / Object / Array / Number / Integer / String / PATH / Null ) {
-  return val, nil
+FieldType <- val:( BoolDef / IntegerDef / StringDef / PATH / TypeDef / ArrayDef ) {
+  return FieldTypeCallback(c, val)
 }
 
-Field <- __ id:ID _ ':' _ val:Value __ {
+FieldValue <- val:( Bool / Object / Array / Number / Integer / String / Null ) {
+  return FieldValueCallback(c, val)
+}
+
+Field <- __ id:ID _ ':' _ val:( FieldType / FieldValue ) __ {
   return FieldCallback(c, id, val)
 }
 
@@ -53,6 +57,10 @@ Object <- '{' fields:( Field )* __ '}' {
 
 Elem <- __ val:Value _ ',' __ {
 	return val, nil
+}
+
+ArrayDef <- __ "[]" path:PATH __ {
+  return ArrayDefCallback(c, path)
 }
 
 Array <- '[' elems:( Elem )* __ ']' {
@@ -67,11 +75,20 @@ Integer <- '0' / NonZeroDecimalDigit DecimalDigit* {
   return IntegerCallback(c)
 }
 
+IntegerDef <- INT { return IntegerDefCallback(c) }
+
 Exponent <- 'e'i [+-]? DecimalDigit+
 
 String <- '"' ( !EscapedChar . / '\\' EscapeSequence )* '"' {
   return StringCallback(c)
 }
+
+StringDef <- STRING { return StringDefCallback(c) }
+
+Bool <- "true" { return BoolCallback(c, true) } / "false" { return BoolCallback(c, false) }
+
+BoolDef <- BOOL { return BoolDefCallback(c) }
+
 
 AlphaNumericExtra <- Alphabetic / DecimalDigit / '-' / '_'
 
@@ -93,10 +110,6 @@ NonZeroDecimalDigit <- [1-9]
 
 HexDigit <- [0-9a-f]i
 
-Boolean <- "true" { return &ast.Bool { Value: true }, nil } / "false" { return &ast.Bool{ Value: false }, nil }
-// Boolean <- "true" / "false"
-
-
 Null <- "null" { return nil, nil }
 
 __ <- ( Whitespace / EOL / Comment )*
@@ -117,6 +130,11 @@ SingleLineComment <- "//" ( !EOL SourceChar )*
 DEF <- "def"
 PACKAGE <- "package"
 IMPORT <- "import"
+TYPE <- "type"
+STRING <- "string"
+INT <- "int"
+FLOAT <- "float"
+BOOL <- "bool"
 
 PATH <- val:( ID ( '.' ID )* ) {
   return PathCallback(c, val)
@@ -128,9 +146,5 @@ ID <- val:( AlphaNumeric AlphaNumericExtra* ) {
 
 NAME <- val:( Alphabetic AlphaNumeric* ) {
   return NameCallback(c, val)
-}
-
-Token <- val:( Alphabetic AlphaNumeric* ) {
-  return TokenCallback(c, val)
 }
 

@@ -1,0 +1,23 @@
+package hof
+
+import (
+  "github.com/hofstadter-io/dsl-cli-golang/spec"
+)
+
+def Gen cli.Command {
+
+  usage: "gen <entrypoint>"
+  aliases:
+    - g
+  short: "Generate a project."
+  long: "Generate a project starting from the file."
+
+  args: [
+    entrypoint: cli.Arg {
+      name: "entrypoint"
+      type: "string"
+      default: "."
+    }
+  ]
+
+}

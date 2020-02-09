@@ -20,7 +20,7 @@ type File struct {
 	Package *Package
 }
 
-func (N *File) Walk(FN func(ASTNode) (error)) error {
+func (N *File) Visit(FN func(ASTNode) (error)) error {
 	err := FN(N)
 	if err != nil {
 		return err

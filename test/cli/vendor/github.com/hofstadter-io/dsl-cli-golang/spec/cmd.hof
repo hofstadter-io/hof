@@ -1,0 +1,23 @@
+package cli
+
+def Command type {
+  aliases: []string
+
+  usage: string
+  short: string
+  long: string
+
+  persistent-prerun: bool
+  prerun: bool
+  omit-run: bool
+  postrun: bool
+  persistent-postrun: bool
+
+  pflags: []Flag
+  flags:  []Flag
+  args:   []Arg
+
+  // subcommands
+  commands: []Command
+}
+

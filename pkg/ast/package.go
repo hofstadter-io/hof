@@ -6,7 +6,7 @@ type PackageDecl struct {
 	Name *Token
 }
 
-func (N *PackageDecl) Walk(FN func(ASTNode) (error)) error {
+func (N *PackageDecl) Visit(FN func(ASTNode) (error)) error {
 	err := FN(N)
 	if err != nil {
 		return err
