@@ -80,7 +80,8 @@ ArrayDef <- __ "[]" path:PATH __ {
 Array <- '[' elems:( Elem )* ']' {
   return ArrayCallback(c, elems)
 } / '[' elems:( Elem )* !']' {
-  return nil, errors.New("Unclosed array, did you forget the final ']'?")
+  bad := &ast.BadNode{ ParseInfo: ExtractParseInfo(c) }
+  return bad, errors.New("Unclosed array, did you forget the final ']'?")
 }
 
 Number <- '-'? Integer '.' DecimalDigit+ Exponent? {
@@ -98,7 +99,8 @@ Exponent <- 'e'i [+-]? DecimalDigit+
 String <- '"' ( !EscapedChar . / '\\' EscapeSequence )* '"' {
   return StringCallback(c)
 } / '"' ( !EscapedChar . / '\\' EscapeSequence )* !'"' {
-  return "", errors.New("Unescaped string, did you forget the closing '\"'?")
+  bad := &ast.BadNode{ ParseInfo: ExtractParseInfo(c) }
+  return bad, errors.New("Unescaped string, did you forget the closing '\"'?")
 }
 
 StringDef <- STRING { return StringDefCallback(c) }
