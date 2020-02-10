@@ -39,6 +39,11 @@ func (ctx *Context) ReadPackage(dir string, cfg *config.Config) (*ast.Package, e
 
 	pkg := ast.NewPackage()
 	pkg.Path = dir
+	// Are we just undoing here? (does not seem like it, because we use dir below for filesystem path, and this is just a "import path")
+	if !strings.HasPrefix(pkg.Path, "vendor") {
+		pkg.Path = filepath.Join(ctx.Module.Path, pkg.Path)
+		// fmt.Printf("PKG: %#+v\n", *file.Package)
+	}
 
 	ctx.AddPackage(pkg)
 	if rootModule {

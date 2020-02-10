@@ -9,6 +9,7 @@ import (
 
 	"github.com/hofstadter-io/hof/pkg/context"
 	"github.com/hofstadter-io/hof/pkg/phases"
+	"github.com/hofstadter-io/hof/pkg/visit"
 )
 
 var Phases = []phases.Phase {
@@ -31,12 +32,15 @@ func Do(entrypoint string) error {
 		}
 	}
 
-	/*
-	err := dump(ctx.Module)
+	data, err := visit.ToData(ctx.Module)
 	if err != nil {
 		return err
 	}
-	*/
+
+	err = dump(data)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -52,7 +56,7 @@ func dump(thing interface{}) error {
 	}
 
 	fmt.Println("============================================")
-	fmt.Printf("Context:\n%s\n", b.String())
+	fmt.Println(b.String())
 	return nil
 }
 

@@ -13,16 +13,22 @@ func FindDefinitions(ctx *context.Context) error {
     for _, file := range pkg.Files {
       fmt.Println(" -", file.Path)
       for _, def := range file.Definitions {
+
 				switch D := def.(type) {
-				case *ast.Generator:
+				case *ast.GeneratorDef:
 					fmt.Println("   + gen:", D.Name.Value)
 					existing, ok := pkg.Generators[D.Name.Value]
 					if ok {
-						err := fmt.Errorf("Generator '%s' defined twice in package '%s'\n%v\n%v", D.Name.Value, pkg.Path, existing.ParseInfo, D.ParseInfo)
+						err := fmt.Errorf("Generator '%s' defined twice in package '%s'\n%v\n%v", D.Name.Value, pkg.Path, existing.Parsed.ParseInfo, D.ParseInfo)
 						ctx.AddError(err)
 						continue
 					}
-					pkg.Generators[D.Name.Value] = D
+					G := &ast.Generator {
+						Parsed: D,
+						Name: D.Name.Value,
+						Paths: D.Path.Paths,
+					}
+					pkg.Generators[G.Name] = G
 
 				case *ast.Definition:
 					fmt.Println("   + def:", D.Name.Value)

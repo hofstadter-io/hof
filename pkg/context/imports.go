@@ -2,6 +2,8 @@ package context
 
 import (
 	"fmt"
+	"path/filepath"
+	"strings"
 
 	"github.com/hofstadter-io/hof/pkg/ast"
 )
@@ -14,12 +16,15 @@ func (ctx *Context) LoadFileImports(file *ast.File) error {
 	// fmt.Printf("Load imports for: %#+v\n", file)
 	if len(ctx.ImportStack) == 0 {
 		path := file.Package.Path
-		if path == "." {
-			path = ctx.Module.Path
+
+		// fix local module packages
+		if !strings.HasPrefix(path, "vendor") {
+			path = filepath.Join(ctx.Module.Path, path)
 			// fmt.Printf("PKG: %#+v\n", *file.Package)
 		}
+
+		// Push and defer pop
 		ctx.ImportStack = append(ctx.ImportStack, path)
-		// fmt.Println("PSH-IS", ctx.ImportStack)
 		defer popImportStack()
 	}
 
@@ -32,13 +37,13 @@ func (ctx *Context) LoadFileImports(file *ast.File) error {
 			}
 		}
 
-		ctx.ImportStack = append(ctx.ImportStack, path)
-		// fmt.Println("PSH-IS", ctx.ImportStack)
-		defer popImportStack()
-
 		_, ok := ctx.Packages[path]
 		if !ok {
+			ctx.ImportStack = append(ctx.ImportStack, path)
 			_, err := ctx.ReadPackage(path, ctx.Module.Config)
+			// don't defer pop here
+			popImportStack()
+
 			if err != nil {
 				werr := fmt.Errorf("Loading import '%s' in '%s'\n%w", path, file.Path, err)
 				ctx.AddError(werr)

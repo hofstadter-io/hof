@@ -19,16 +19,24 @@ Import <- __ name:NAME? _ path:String __ {
   return ImportCallback(c, name, path)
 }
 
-Definitions <- defs:( Definition / Generator )* __ {
+Definitions <- defs:( GeneratorDefinition / TypeDefinition / EtlDefinition )* __ {
   return DefinitionsCallback(c, defs)
 }
 
-Generator <- __ GEN _ name:ID _ path:PATH _ body:Object __ {
+GeneratorDefinition <- __ GEN _ name:ID _ path:PATH _ body:Object __ {
   return GeneratorCallback(c, name, path, body)
 }
 
-Definition <- __ DEF _ name:ID _ path:PATH _ body:DefnBody __ {
-  return DefinitionCallback(c, name, path, body)
+EtlDefinition <- __ ETL _ name:ID _ '(' _ args:(( EtlArg ',' )* EtlArg )? _ ')' _ ret:PATH _ body:DefnBody __ {
+  return EtlDefinitionCallback(c, name, args, ret, body)
+}
+
+EtlArg <- _ name:NAME _ path:PATH _ {
+  return EtlArgCallback(c, name, path)
+}
+
+TypeDefinition <- __ TYPE _ name:ID _ path:PATH _ body:DefnBody __ {
+  return TypeDefinitionCallback(c, name, path, body)
 }
 
 DefnBody <- '{' __ defs:( DefnField )* __ '}' __ {
@@ -138,10 +146,11 @@ MultiLineCommentNoLineTerminator <- "/*" ( !( "*/" / EOL ) SourceChar )* "*/"
 SingleLineComment <- "//" ( !EOL SourceChar )*
 
 DEF <- "def"
+TYPE <- "type"
+ETL <- "etl"
 GEN <- "gen"
 PACKAGE <- "package"
 IMPORT <- "import"
-TYPE <- "type"
 STRING <- "string"
 INT <- "int"
 FLOAT <- "float"

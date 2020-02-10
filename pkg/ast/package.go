@@ -52,6 +52,10 @@ func NewPackage() *Package {
 	}
 }
 
+func (N *Package) Visit(FN func(ASTNode) (error)) error {
+	return FN(N)
+}
+
 func (pkg *Package) AddFile(file *File) error {
 	path := file.Path
 	_, ok := pkg.Files[path]

@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"strconv"
   "strings"
 
@@ -77,7 +78,7 @@ func DefinitionsCallback(c *current, defs interface{}) (interface{}, error) {
 	return ret, nil
 }
 
-func DefinitionCallback(c *current, name, path, body interface{}) (interface{}, error) {
+func TypeDefinitionCallback(c *current, name, path, body interface{}) (interface{}, error) {
 	ret := &ast.Definition {
 		Name: name.(*ast.Token),
 		Target: path.(*ast.TokenPath),
@@ -101,7 +102,7 @@ func DefinitionBodyCallback(c *current, defs interface{}) (interface{}, error) {
 }
 
 func GeneratorCallback(c *current, id, path, obj interface{}) (interface{}, error) {
-	ret := &ast.Generator {
+	ret := &ast.GeneratorDef {
 		Name: id.(*ast.Token),
 		Path: path.(*ast.TokenPath),
 		ParseInfo: ExtractParseInfo(c),
@@ -109,6 +110,39 @@ func GeneratorCallback(c *current, id, path, obj interface{}) (interface{}, erro
 	if obj != nil {
 		objVal := obj.(*ast.Object)
 		ret.Extra = objVal
+	}
+
+	return ret, nil
+}
+
+func EtlDefinitionCallback(c *current, name, args, ret, body interface{}) (interface{}, error) {
+	fmt.Println("EtlDefCallback", name)
+	fmt.Printf("args: %#+v\n", args)
+	vals := toIfaceSlice(args)
+
+	es := []*ast.EtlArg{}
+  for _, val := range vals {
+		switch t := val.(type) {
+		case *ast.EtlArg:
+			es = append(es, t)
+		}
+  }
+	etl := &ast.EtlDefinition {
+		Name: name.(*ast.Token),
+		Args: es,
+		Return: ret.(*ast.TokenPath),
+		Body: body.([]ast.ASTNode),
+		ParseInfo: ExtractParseInfo(c),
+	}
+
+	return etl, nil
+}
+
+func EtlArgCallback(c *current, name, path interface{}) (interface{}, error) {
+	ret := &ast.EtlArg {
+		Name: name.(*ast.Token),
+		Path: path.(*ast.TokenPath),
+		ParseInfo: ExtractParseInfo(c),
 	}
 
 	return ret, nil

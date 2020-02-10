@@ -1,6 +1,6 @@
 package cli
 
-def Flag type {
+type Flag struct {
   type:    builtin
   default: builtin
   help:    string

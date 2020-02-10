@@ -1,6 +1,6 @@
 package cli
 
-def Cli type {
+type Cli struct {
   package: string
 
   usage: string

@@ -1,12 +1,13 @@
 package hof
 
 import (
+  spec "github.com/hofstadter-io/dsl-cli/spec"
   "github.com/hofstadter-io/gen-cli-golang"
 
   "github.com/hofstadter-io/hof/commands"
 )
 
-def Hof cli.Cli {
+type Hof cli.Cli {
   short: "HofLang framework CLI tool"
   package: "github.com/hofstadter-io/hof"
 
@@ -27,3 +28,18 @@ def Hof cli.Cli {
   ]
 }
 
+etl CommandDefaults0() spec.Command {
+  short: "this needs to be filled in"
+  long: "this needs to be filled in"
+}
+
+etl CommandDefaults1( cmd spec.Command ) spec.Command {
+  short: "this needs to be filled in"
+  long: "this needs to be filled in"
+}
+
+etl CommandDefaults2( cmd spec.Command, parent spec.Command ) spec.Command {
+  short: "this needs to be filled in"
+  long: "this needs to be filled in"
+  parent: parent
+}

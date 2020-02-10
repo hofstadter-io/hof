@@ -1,6 +1,6 @@
 package cli
 
-def Command type {
+type Command struct {
   aliases: []string
 
   usage: string
