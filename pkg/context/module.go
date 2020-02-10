@@ -1,6 +1,7 @@
 package context
 
 import (
+	// "fmt"
 	"path/filepath"
 
 	"github.com/hofstadter-io/hof/pkg/ast"
@@ -15,8 +16,11 @@ func (ctx *Context) LoadModule(entrypoint string) (*ast.Module, error) {
 		return nil, err
 	}
 
+	// fmt.Printf("CFG: %#+v\n", cfg )
+
 	mod := &ast.Module {
 		Name: cfg.Name,
+		Path: cfg.Path,
 		Config: cfg,
 		Packages: map[string]*ast.Package{},
 	}

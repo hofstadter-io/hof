@@ -69,6 +69,7 @@ func (ctx *Context) ReadPackage(dir string, cfg *config.Config) (*ast.Package, e
 		}
 
 		file.Name = info.Name()
+		file.Package = pkg
 		pkg.AddFile(file)
 
 		err = ctx.LoadFileImports(file)

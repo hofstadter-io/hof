@@ -8,6 +8,7 @@ import (
 
 type Context struct {
 	Entrypoint string
+	ImportStack []string
 
 	Module   *ast.Module
 	Packages map[string]*ast.Package
@@ -18,6 +19,7 @@ type Context struct {
 
 func NewContext() *Context {
 	return &Context{
+		ImportStack: []string{},
 		Packages: map[string]*ast.Package{},
 		Scope: map[string]interface{}{},
 		Errors: []error{},

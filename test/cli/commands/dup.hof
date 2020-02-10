@@ -4,7 +4,7 @@ import (
   "github.com/hofstadter-io/dsl-cli/spec"
 )
 
-def Gen cli.Command {
+def Dup cli.Command {
 
   usage: "gen <entrypoint>"
   aliases: [
