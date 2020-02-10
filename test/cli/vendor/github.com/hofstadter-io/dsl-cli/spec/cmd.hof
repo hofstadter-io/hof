@@ -20,4 +20,3 @@ def Command type {
   // subcommands
   commands: []Command
 }
-

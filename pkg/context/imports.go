@@ -1,7 +1,7 @@
 package context
 
 import (
-	// "fmt"
+	"fmt"
 
 	"github.com/hofstadter-io/hof/pkg/ast"
 )
@@ -16,7 +16,8 @@ func (ctx *Context) LoadFileImports(file *ast.File) error {
 		if !ok {
 			_, err := ctx.ReadPackage(path, ctx.Module.Config)
 			if err != nil {
-				ctx.AddError(err)
+				werr := fmt.Errorf("Loading import '%s' in '%s'\n%w", path, file.Path, err)
+				ctx.AddError(werr)
 				ctx.AddPackage(&ast.Package{
 					Path: path,
 				})

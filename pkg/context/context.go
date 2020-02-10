@@ -7,6 +7,8 @@ import (
 )
 
 type Context struct {
+	Entrypoint string
+
 	Module   *ast.Module
 	Packages map[string]*ast.Package
 

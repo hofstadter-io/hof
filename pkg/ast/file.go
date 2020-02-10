@@ -8,7 +8,7 @@ type File struct {
 	// Parser filled
 	PackageDecl *PackageDecl
 	Imports []*Import
-	Definitions []*Definition
+	Definitions []ASTNode
 
 	// Phases filled
 	Errors []error

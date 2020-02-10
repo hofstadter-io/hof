@@ -27,7 +27,7 @@ func FileCallback(c *current, pkg, imports, defs  interface{}) (interface{}, err
     ret.Imports = imports.([]*ast.Import)
 	}
 	if defs != nil {
-		ret.Definitions = defs.([]*ast.Definition)
+		ret.Definitions = defs.([]ast.ASTNode)
 	}
 
 	return ret, nil
@@ -36,12 +36,7 @@ func FileCallback(c *current, pkg, imports, defs  interface{}) (interface{}, err
 func PackageDeclCallback(c *current, name interface{}) (interface{}, error) {
   ret := &ast.PackageDecl {
 		Name: name.(*ast.Token),
-    ParseInfo: &ast.ParseInfo {
-      Line: c.pos.line,
-      Col: c.pos.col,
-      Offset: c.pos.offset,
-      Text: string(c.text),
-    },
+		ParseInfo: ExtractParseInfo(c),
   }
 
   return ret, nil
@@ -61,12 +56,7 @@ func ImportsCallback(c *current, imports interface{}) (interface{}, error) {
 func ImportCallback(c *current, name, path interface{}) (interface{}, error) {
 	ret := &ast.Import {
 		ImportPath: path.(*ast.String),
-    ParseInfo: &ast.ParseInfo {
-      Line: c.pos.line,
-      Col: c.pos.col,
-      Offset: c.pos.offset,
-      Text: string(c.text),
-    },
+		ParseInfo: ExtractParseInfo(c),
 	}
 
   if name != nil {
@@ -77,11 +67,11 @@ func ImportCallback(c *current, name, path interface{}) (interface{}, error) {
 }
 
 func DefinitionsCallback(c *current, defs interface{}) (interface{}, error) {
-	ret := []*ast.Definition {}
+	ret := []ast.ASTNode {}
 	vals := toIfaceSlice(defs)
 
   for _, def := range vals {
-    ret = append(ret, def.(*ast.Definition))
+    ret = append(ret, def.(ast.ASTNode))
   }
 
 	return ret, nil
@@ -92,12 +82,7 @@ func DefinitionCallback(c *current, name, path, body interface{}) (interface{}, 
 		Name: name.(*ast.Token),
 		Target: path.(*ast.TokenPath),
 		Body: body.([]ast.ASTNode),
-    ParseInfo: &ast.ParseInfo {
-      Line: c.pos.line,
-      Col: c.pos.col,
-      Offset: c.pos.offset,
-      Text: string(c.text),
-    },
+		ParseInfo: ExtractParseInfo(c),
 	}
 
 	return ret, nil
@@ -115,16 +100,25 @@ func DefinitionBodyCallback(c *current, defs interface{}) (interface{}, error) {
 	return ret, nil
 }
 
+func GeneratorCallback(c *current, id, path, obj interface{}) (interface{}, error) {
+	ret := &ast.Generator {
+		Name: id.(*ast.Token),
+		Path: path.(*ast.TokenPath),
+		ParseInfo: ExtractParseInfo(c),
+	}
+	if obj != nil {
+		objVal := obj.(*ast.Object)
+		ret.Extra = objVal
+	}
+
+	return ret, nil
+}
+
 func TypeDefCallback(c *current, id, path, obj interface{}) (interface{}, error) {
 	ret := &ast.TypeDef {
 		Name: id.(*ast.Token),
 		Path: path.(*ast.TokenPath),
-    ParseInfo: &ast.ParseInfo {
-      Line: c.pos.line,
-      Col: c.pos.col,
-      Offset: c.pos.offset,
-      Text: string(c.text),
-    },
+		ParseInfo: ExtractParseInfo(c),
 	}
 	if obj != nil {
 		objVal := obj.(*ast.Object)
@@ -137,12 +131,7 @@ func TypeDefCallback(c *current, id, path, obj interface{}) (interface{}, error)
 func FieldTypeCallback(c *current, val interface{}) (interface{}, error) {
 	ret := &ast.FieldType {
     Value: val.(ast.ASTNode),
-    ParseInfo: &ast.ParseInfo {
-      Line: c.pos.line,
-      Col: c.pos.col,
-      Offset: c.pos.offset,
-      Text: string(c.text),
-    },
+		ParseInfo: ExtractParseInfo(c),
 	}
 
 	return ret, nil
@@ -151,12 +140,7 @@ func FieldTypeCallback(c *current, val interface{}) (interface{}, error) {
 func FieldValueCallback(c *current, val interface{}) (interface{}, error) {
 	ret := &ast.FieldValue {
     Value: val.(ast.ASTNode),
-    ParseInfo: &ast.ParseInfo {
-      Line: c.pos.line,
-      Col: c.pos.col,
-      Offset: c.pos.offset,
-      Text: string(c.text),
-    },
+		ParseInfo: ExtractParseInfo(c),
 	}
 
 	return ret, nil
@@ -166,12 +150,7 @@ func FieldCallback(c *current, id, val interface{}) (interface{}, error) {
 	ret := &ast.Field {
     Key: id.(*ast.Token),
     Value: val.(ast.ASTNode),
-    ParseInfo: &ast.ParseInfo {
-      Line: c.pos.line,
-      Col: c.pos.col,
-      Offset: c.pos.offset,
-      Text: string(c.text),
-    },
+		ParseInfo: ExtractParseInfo(c),
 	}
 
 	return ret, nil
@@ -182,12 +161,7 @@ func ObjectCallback(c *current, fields interface{}) (interface{}, error) {
 
   ret := &ast.Object {
     Fields: make([]*ast.Field, 0, len(vals)),
-    ParseInfo: &ast.ParseInfo {
-      Line: c.pos.line,
-      Col: c.pos.col,
-      Offset: c.pos.offset,
-      Text: string(c.text),
-    },
+		ParseInfo: ExtractParseInfo(c),
   }
 
   for _, val := range vals {
@@ -200,12 +174,7 @@ func ObjectCallback(c *current, fields interface{}) (interface{}, error) {
 func ArrayDefCallback(c *current, path interface{}) (interface{}, error) {
 	ret := &ast.ArrayDef {
 		Path: path.(*ast.TokenPath),
-    ParseInfo: &ast.ParseInfo {
-      Line: c.pos.line,
-      Col: c.pos.col,
-      Offset: c.pos.offset,
-      Text: string(c.text),
-    },
+		ParseInfo: ExtractParseInfo(c),
 	}
 
 	return ret, nil
@@ -225,48 +194,28 @@ func PathCallback(c *current, val interface{}) (interface{}, error) {
   paths := strings.Split(text, ".")
   return &ast.TokenPath {
     Paths: paths,
-    ParseInfo: &ast.ParseInfo {
-      Line: c.pos.line,
-      Col: c.pos.col,
-      Offset: c.pos.offset,
-      Text: string(c.text),
-    },
+		ParseInfo: ExtractParseInfo(c),
   }, nil
 }
 
 func IdCallback(c *current, val interface{}) (interface{}, error) {
   return &ast.Token {
     Value: string(c.text),
-    ParseInfo: &ast.ParseInfo {
-      Line: c.pos.line,
-      Col: c.pos.col,
-      Offset: c.pos.offset,
-      Text: string(c.text),
-    },
+		ParseInfo: ExtractParseInfo(c),
   }, nil
 }
 
 func NameCallback(c *current, val interface{}) (interface{}, error) {
   return &ast.Token {
     Value: string(c.text),
-    ParseInfo: &ast.ParseInfo {
-      Line: c.pos.line,
-      Col: c.pos.col,
-      Offset: c.pos.offset,
-      Text: string(c.text),
-    },
+		ParseInfo: ExtractParseInfo(c),
   }, nil
 }
 
 func TokenCallback(c *current, val interface{}) (interface{}, error) {
   return &ast.Token {
     Value: string(c.text),
-    ParseInfo: &ast.ParseInfo {
-      Line: c.pos.line,
-      Col: c.pos.col,
-      Offset: c.pos.offset,
-      Text: string(c.text),
-    },
+		ParseInfo: ExtractParseInfo(c),
   }, nil
 }
 
@@ -280,12 +229,7 @@ func NumberCallback(c *current) (interface{}, error) {
 
 	ret := &ast.Decimal {
     Value: val,
-    ParseInfo: &ast.ParseInfo {
-      Line: c.pos.line,
-      Col: c.pos.col,
-      Offset: c.pos.offset,
-      Text: string(c.text),
-    },
+		ParseInfo: ExtractParseInfo(c),
   }
 
 	return ret, nil
@@ -300,12 +244,7 @@ func IntegerCallback(c *current) (interface{}, error) {
 
 	ret := &ast.Integer {
     Value: int(val),
-    ParseInfo: &ast.ParseInfo {
-      Line: c.pos.line,
-      Col: c.pos.col,
-      Offset: c.pos.offset,
-      Text: string(c.text),
-    },
+		ParseInfo: ExtractParseInfo(c),
   }
 
 	return ret, nil
@@ -313,12 +252,7 @@ func IntegerCallback(c *current) (interface{}, error) {
 
 func IntegerDefCallback(c *current) (interface{}, error) {
 	ret := &ast.IntegerDef {
-    ParseInfo: &ast.ParseInfo {
-      Line: c.pos.line,
-      Col: c.pos.col,
-      Offset: c.pos.offset,
-      Text: string(c.text),
-    },
+		ParseInfo: ExtractParseInfo(c),
   }
 
 	return ret, nil
@@ -327,12 +261,7 @@ func IntegerDefCallback(c *current) (interface{}, error) {
 func BoolCallback(c *current, val bool) (interface{}, error) {
 	ret := &ast.Bool {
     Value: val,
-    ParseInfo: &ast.ParseInfo {
-      Line: c.pos.line,
-      Col: c.pos.col,
-      Offset: c.pos.offset,
-      Text: string(c.text),
-    },
+		ParseInfo: ExtractParseInfo(c),
   }
 
 	return ret, nil
@@ -340,12 +269,7 @@ func BoolCallback(c *current, val bool) (interface{}, error) {
 
 func BoolDefCallback(c *current) (interface{}, error) {
 	ret := &ast.BoolDef {
-    ParseInfo: &ast.ParseInfo {
-      Line: c.pos.line,
-      Col: c.pos.col,
-      Offset: c.pos.offset,
-      Text: string(c.text),
-    },
+		ParseInfo: ExtractParseInfo(c),
   }
 
 	return ret, nil
@@ -361,26 +285,25 @@ func StringCallback(c *current) (interface{}, error) {
 
   ret := &ast.String {
     Value: text,
-    ParseInfo: &ast.ParseInfo {
-      Line: c.pos.line,
-      Col: c.pos.col,
-      Offset: c.pos.offset,
-      Text: string(c.text),
-    },
+		ParseInfo: ExtractParseInfo(c),
   }
   return ret, nil
 }
 
 func StringDefCallback(c *current) (interface{}, error) {
 	ret := &ast.StringDef {
-    ParseInfo: &ast.ParseInfo {
-      Line: c.pos.line,
-      Col: c.pos.col,
-      Offset: c.pos.offset,
-      Text: string(c.text),
-    },
+		ParseInfo: ExtractParseInfo(c),
   }
 
 	return ret, nil
 }
 
+func ExtractParseInfo(c *current) *ast.ParseInfo {
+  return &ast.ParseInfo {
+		File: c.globalStore["filename"].(string),
+		Line: c.pos.line,
+		Col: c.pos.col,
+		Offset: c.pos.offset,
+		Text: string(c.text),
+	}
+}

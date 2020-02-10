@@ -4,51 +4,39 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"os"
 
 	"gopkg.in/yaml.v3"
 
 	"github.com/hofstadter-io/hof/pkg/context"
-	// "github.com/hofstadter-io/hof/pkg/walkers"
+	"github.com/hofstadter-io/hof/pkg/phases"
 )
 
+var Phases = []phases.Phase {
+	phases.LoadModule,
+	phases.CheckPackages,
+	phases.FindDefinitions,
+	// phases.Debug,
+}
+
 func Do(entrypoint string) error {
-	info, err := os.Lstat(entrypoint)
-	if err != nil {
-		return err
-	}
-
-	if !info.IsDir() {
-		return errors.New("Entrypoint should be a directory")
-	}
-
 	ctx := context.NewContext()
+	ctx.Entrypoint = entrypoint
 
-	_, err = ctx.LoadModule(entrypoint)
-	if err != nil {
-		return err
-	}
+	for _, phase := range Phases {
+		phase(ctx)
 
-	if len(ctx.Errors) > 0 {
-		hadErrors := ctx.PrintErrors()
-		if hadErrors {
+		if len(ctx.Errors) > 0 {
+			ctx.PrintErrors()
 			return errors.New("Failed to load")
 		}
 	}
-	// ctx.Print()
 
-	for pname, pkg := range ctx.Packages {
-		fmt.Println("Walking", pname)
-		for fname, _ := range pkg.Files {
-			fmt.Println(" -", fname)
-			// walkers.Print(file)
-		}
-	}
-
-	err = dump(ctx)
+	/*
+	err := dump(ctx.Module)
 	if err != nil {
 		return err
 	}
+	*/
 
 	return nil
 }

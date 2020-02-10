@@ -1,7 +1,9 @@
 package hof
 
 import (
-  "github.com/hofstadter-io/dsl-cli-golang/spec"
+  "github.com/hofstadter-io/gen-cli-golang"
+
+  "github.com/hofstadter-io/hof/commands"
 )
 
 def Hof cli.Cli {
@@ -17,4 +19,11 @@ def Hof cli.Cli {
 
   persistent-prerun: true
   omit-run: true
+
+  commands: [
+    commands.Gen,
+    commands.Validate,
+    commands.Foo,
+  ]
 }
+

@@ -1,0 +1,7 @@
+name: "cli-golang"
+version: "0.0.0"
+
+deps:
+  - package: "github.com/hofstadter-io/dsl-cli"
+    version: "0.0.0"
+

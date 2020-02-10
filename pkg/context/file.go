@@ -8,7 +8,7 @@ import (
 
 func (ctx *Context) ReadFile(filepath string, cfg *config.Config) (*ast.File, error) {
 
-	parseTree, err := parser.ParseFile(filepath)
+	parseTree, err := parser.ParseHofFile(filepath)
 	if err != nil {
 		return nil, err
 	}

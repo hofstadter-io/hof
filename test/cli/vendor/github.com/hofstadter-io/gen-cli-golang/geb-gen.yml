@@ -1,0 +1,81 @@
+name: golang-cli
+version: "0.1"
+language: golang
+type: cli
+about: A golang viper/cobra cli dsl
+
+dependencies:
+  generators:
+    - dsl: common
+      gen:
+        - golang
+      output-dir: "."
+    - dsl: type
+      gen:
+        - golang
+      output-dir: "."
+    - dsl: pkg
+      gen:
+        - golang
+      output-dir: "."
+
+template-configs:
+
+  - name: once-files
+    field: "."
+    templates:
+      - in: "main.go"
+        out: "main.go"
+      - in: "root.go"
+        out: "commands/root.go"
+      - unless: commands
+        in: "rootonlylog.go"
+        out: "commands/log.go"
+      - when: commands
+        in: "log.go"
+        out: "commands/log.go"
+
+  - name: command
+    field: commands
+    templates:
+      - in: "cmd.go"
+        out: "commands/{{trimto_first pkgPath '/' false}}.go"
+      - when: commands
+        in: "log.go"
+        out: "commands/{{name}}/log.go"
+
+  - name: sub-command
+    field: commands.[:].commands
+    templates:
+      - in: "cmd.go"
+        out: "commands/{{trimto_first pkgPath '/' false}}.go"
+      - when: commands
+        in: "log.go"
+        out: "commands/{{parent}}/{{name}}/log.go"
+
+  - name: sub-sub-command
+    field: commands.[:].commands.[:].commands
+    flatten: 1
+    templates:
+      - in: "cmd.go"
+        out: "commands/{{trimto_first pkgPath '/' false}}.go"
+      - when: commands
+        out: "commands/{{trimto_first pkgPath '/' false}}/log.go"
+        in: "log.go"
+
+  - name: sub-sub-sub-command
+    field: commands.[:].commands.[:].commands.[:].commands
+    flatten: 1
+    templates:
+      - in: "cmd.go"
+        out: "commands/{{trimto_first pkgPath '/' false}}.go"
+
+new-configs:
+
+  default:
+    name: "default"
+    field: "."
+    templates:
+      - in: "cli.yaml"
+        out: "cli.yaml"
+

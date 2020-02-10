@@ -35,6 +35,9 @@ type Package struct {
 
 	Files map[string]*File
 
+	Generators map[string]*Generator
+	Definitions map[string]*Definition
+
 	SelfScope map[string]interface{}
 	Exports   map[string]interface{}
 }
@@ -42,6 +45,8 @@ type Package struct {
 func NewPackage() *Package {
 	return &Package {
 		Files: map[string]*File{},
+		Generators: map[string]*Generator{},
+		Definitions: map[string]*Definition{},
 		SelfScope: map[string]interface{}{},
 		Exports: map[string]interface{}{},
 	}

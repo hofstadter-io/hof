@@ -1,7 +1,6 @@
 package context
 
 import (
-	// "fmt"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
@@ -14,16 +13,19 @@ import (
 func (ctx *Context) ReadPackage(dir string, cfg *config.Config) (*ast.Package, error) {
 	// fmt.Println("\nReadPackage:", dir, cfg.Entrypoint, cfg.Path)
 
+	var rootModule = false
 	if dir == cfg.Entrypoint {
 		// Do nothing because this is the first package to be read
 	} else if strings.HasPrefix(dir, cfg.Path) {
 		// Check for within module import
+		rootModule = true
 		subdir := strings.TrimPrefix(dir, cfg.Path)
 		dir = filepath.Join(cfg.Entrypoint, subdir)
 	} else {
 		// Assume this is a vendor package, add prefix: <entrypoint>/vendor/
 		dir = filepath.Join(cfg.Entrypoint, "vendor", dir)
 	}
+
 	// fmt.Println("DynamicDir:", dir)
 	epkg, ok := ctx.Packages[dir]
 	if ok {
@@ -39,6 +41,9 @@ func (ctx *Context) ReadPackage(dir string, cfg *config.Config) (*ast.Package, e
 	pkg.Path = dir
 
 	ctx.AddPackage(pkg)
+	if rootModule {
+		ctx.Module.AddPackage(pkg)
+	}
 
 	for _, info := range infos {
 		// only want hof files from this directory

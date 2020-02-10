@@ -19,8 +19,12 @@ Import <- __ name:NAME? _ path:String __ {
   return ImportCallback(c, name, path)
 }
 
-Definitions <- defs:( Definition )* __ {
+Definitions <- defs:( Definition / Generator )* __ {
   return DefinitionsCallback(c, defs)
+}
+
+Generator <- __ GEN _ name:ID _ path:PATH _ body:Object __ {
+  return GeneratorCallback(c, name, path, body)
 }
 
 Definition <- __ DEF _ name:ID _ path:PATH _ body:DefnBody __ {
@@ -51,20 +55,24 @@ Field <- __ id:ID _ ':' _ val:( FieldType / FieldValue ) __ {
   return FieldCallback(c, id, val)
 }
 
-Object <- '{' fields:( Field )* __ '}' {
+Object <- '{' __ fields:( Field )* __ '}' {
   return ObjectCallback(c, fields)
 }
 
-Elem <- __ val:Value _ ',' __ {
+Elem <- __ val:( PATH / FieldValue ) _ ',' __ {
 	return val, nil
+} / __ val:( TypeDef / PATH / FieldValue ) _ !',' __ {
+  return val, errors.New("Missing ',' after array element")
 }
 
 ArrayDef <- __ "[]" path:PATH __ {
   return ArrayDefCallback(c, path)
 }
 
-Array <- '[' elems:( Elem )* __ ']' {
+Array <- '[' elems:( Elem )* ']' {
   return ArrayCallback(c, elems)
+} / '[' elems:( Elem )* !']' {
+  return nil, errors.New("Unclosed array, did you forget the final ']'?")
 }
 
 Number <- '-'? Integer '.' DecimalDigit+ Exponent? {
@@ -81,6 +89,8 @@ Exponent <- 'e'i [+-]? DecimalDigit+
 
 String <- '"' ( !EscapedChar . / '\\' EscapeSequence )* '"' {
   return StringCallback(c)
+} / '"' ( !EscapedChar . / '\\' EscapeSequence )* !'"' {
+  return "", errors.New("Unescaped string, did you forget the closing '\"'?")
 }
 
 StringDef <- STRING { return StringDefCallback(c) }
@@ -128,6 +138,7 @@ MultiLineCommentNoLineTerminator <- "/*" ( !( "*/" / EOL ) SourceChar )* "*/"
 SingleLineComment <- "//" ( !EOL SourceChar )*
 
 DEF <- "def"
+GEN <- "gen"
 PACKAGE <- "package"
 IMPORT <- "import"
 TYPE <- "type"
