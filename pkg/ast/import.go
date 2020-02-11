@@ -7,9 +7,28 @@ import (
 
 type Imports []*Import
 
+func (N *Imports) GetParseInfo() *ParseInfo {
+	return nil
+}
+
+func (N *Imports) Parent() ASTNode {
+	return nil
+}
+
+func (N *Imports) Visit(FN func(ASTNode) (error)) error {
+	err := FN(N)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 type Import struct {
 	// Parser filled
 	ParseInfo *ParseInfo
+	parent    ASTNode
+
 	ImportPath   *String
 	NameOverride *Token
 
@@ -25,21 +44,12 @@ type Import struct {
 	Package *Package
 }
 
-func (N *Imports) GetParseInfo() *ParseInfo {
-	return nil
-}
-
-func (N *Imports) Visit(FN func(ASTNode) (error)) error {
-	err := FN(N)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (N *Import) GetParseInfo() *ParseInfo {
 	return N.ParseInfo
+}
+
+func (N *Import) Parent() ASTNode {
+	return N.parent
 }
 
 func (N *Import) Visit(FN func(ASTNode) (error)) error {
@@ -48,6 +58,10 @@ func (N *Import) Visit(FN func(ASTNode) (error)) error {
 		return err
 	}
 
+	return nil
+}
+
+func (N *Import) DefineInScope(name string, node ASTNode) error {
 	return nil
 }
 

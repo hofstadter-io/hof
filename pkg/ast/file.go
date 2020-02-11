@@ -26,6 +26,10 @@ func (N *File) GetParseInfo() *ParseInfo {
 	return nil
 }
 
+func (N *File) Parent() ASTNode {
+	return N.Package
+}
+
 func (N *File) Visit(FN func(ASTNode) (error)) error {
 	err := FN(N)
 	if err != nil {

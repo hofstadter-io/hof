@@ -3,6 +3,8 @@ package ast
 type Field struct {
 	// Parser filled
 	ParseInfo *ParseInfo
+	parent    ASTNode
+
 	Key   *Token
 	Value ASTNode
 
@@ -11,6 +13,10 @@ type Field struct {
 
 func (N *Field) GetParseInfo() *ParseInfo {
 	return N.ParseInfo
+}
+
+func (N *Field) Parent() ASTNode {
+	return N.parent
 }
 
 func (N *Field) Visit(FN func(ASTNode) (error)) error {
@@ -25,6 +31,8 @@ func (N *Field) Visit(FN func(ASTNode) (error)) error {
 type FieldType struct {
 	// Parser filled
 	ParseInfo *ParseInfo
+	parent    ASTNode
+
 	Value ASTNode
 
 	// Phases filled
@@ -32,6 +40,10 @@ type FieldType struct {
 
 func (N *FieldType) GetParseInfo() *ParseInfo {
 	return N.ParseInfo
+}
+
+func (N *FieldType) Parent() ASTNode {
+	return N.parent
 }
 
 func (N *FieldType) Visit(FN func(ASTNode) (error)) error {
@@ -43,16 +55,22 @@ func (N *FieldType) Visit(FN func(ASTNode) (error)) error {
 	return nil
 }
 
+type FieldValue struct {
+	// Parser filled
+	ParseInfo *ParseInfo
+	parent    ASTNode
+
+	Value ASTNode
+
+	// Phases filled
+}
+
 func (N *FieldValue) GetParseInfo() *ParseInfo {
 	return N.ParseInfo
 }
 
-type FieldValue struct {
-	// Parser filled
-	ParseInfo *ParseInfo
-	Value ASTNode
-
-	// Phases filled
+func (N *FieldValue) Parent() ASTNode {
+	return N.parent
 }
 
 func (N *FieldValue) Visit(FN func(ASTNode) (error)) error {

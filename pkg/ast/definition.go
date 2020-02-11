@@ -10,6 +10,10 @@ func (N *Definitions) GetParseInfo() *ParseInfo {
 	return nil
 }
 
+func (N *Definitions) Parent() ASTNode {
+	return nil
+}
+
 func (N *Definitions) Visit(FN func(ASTNode) (error)) error {
 	err := FN(N)
 	if err != nil {
@@ -22,6 +26,8 @@ func (N *Definitions) Visit(FN func(ASTNode) (error)) error {
 type Definition struct {
 	// Parser filled
 	ParseInfo *ParseInfo
+	parent    ASTNode
+
 	Name   *Token
 	Target *TokenPath
 	Body []ASTNode
@@ -32,6 +38,10 @@ type Definition struct {
 
 func (N *Definition) GetParseInfo() *ParseInfo {
 	return N.ParseInfo
+}
+
+func (N *Definition) Parent() ASTNode {
+	return N.parent
 }
 
 func (N *Definition) Visit(FN func(ASTNode) (error)) error {
