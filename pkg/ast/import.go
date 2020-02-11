@@ -1,5 +1,10 @@
 package ast
 
+import (
+	"fmt"
+	"unicode"
+)
+
 type Imports []*Import
 
 type Import struct {
@@ -20,6 +25,10 @@ type Import struct {
 	Package *Package
 }
 
+func (N *Imports) GetParseInfo() *ParseInfo {
+	return nil
+}
+
 func (N *Imports) Visit(FN func(ASTNode) (error)) error {
 	err := FN(N)
 	if err != nil {
@@ -27,6 +36,10 @@ func (N *Imports) Visit(FN func(ASTNode) (error)) error {
 	}
 
 	return nil
+}
+
+func (N *Import) GetParseInfo() *ParseInfo {
+	return N.ParseInfo
 }
 
 func (N *Import) Visit(FN func(ASTNode) (error)) error {
@@ -38,3 +51,14 @@ func (N *Import) Visit(FN func(ASTNode) (error)) error {
 	return nil
 }
 
+func (N *Import) LookupInScope(path []string) (ASTNode, error) {
+	name := path[0]
+	// Check first rune to determine public/private
+	// Upper Is Public, lower is private
+	r := []rune(name)[0]
+	if unicode.IsUpper(r) {
+		return N.Package.LookupInScope(path)
+	}
+
+	return nil, fmt.Errorf("Cannot refer to unexported package definitions in '%s'", path)
+}

@@ -10,6 +10,10 @@ type TypeDef struct {
 	// Phases filled
 }
 
+func (N *TypeDef) GetParseInfo() *ParseInfo {
+	return N.ParseInfo
+}
+
 func (N *TypeDef) Visit(FN func(ASTNode) (error)) error {
 	err := FN(N)
 	if err != nil {

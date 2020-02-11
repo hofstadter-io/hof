@@ -15,6 +15,10 @@ type Module struct {
 	Config *config.Config
 }
 
+func (N *Module) GetParseInfo() *ParseInfo {
+	return nil
+}
+
 func (N *Module) Visit(FN func(ASTNode) (error)) error {
 	err := FN(N)
 	if err != nil {

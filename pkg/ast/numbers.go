@@ -12,6 +12,14 @@ type Decimal struct {
 	Value float64
 }
 
+func (N *Integer) GetParseInfo() *ParseInfo {
+	return N.ParseInfo
+}
+
+func (N *Decimal) GetParseInfo() *ParseInfo {
+	return N.ParseInfo
+}
+
 func (N *Integer) Visit(FN func(ASTNode) (error)) error {
 	err := FN(N)
 	if err != nil {
@@ -35,6 +43,10 @@ type IntegerDef struct {
 	ParseInfo *ParseInfo
 }
 
+func (N *IntegerDef) GetParseInfo() *ParseInfo {
+	return N.ParseInfo
+}
+
 func (N *IntegerDef) Visit(FN func(ASTNode) (error)) error {
 	return FN(N)
 }
@@ -42,6 +54,10 @@ func (N *IntegerDef) Visit(FN func(ASTNode) (error)) error {
 type DecimalDef struct {
 	// Parser filled
 	ParseInfo *ParseInfo
+}
+
+func (N *DecimalDef) GetParseInfo() *ParseInfo {
+	return N.ParseInfo
 }
 
 func (N *DecimalDef) Visit(FN func(ASTNode) (error)) error {

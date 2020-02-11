@@ -11,8 +11,16 @@ type EtlDefinition struct {
 	// Phases filled
 }
 
+func (N *EtlDefinition) GetParseInfo() *ParseInfo {
+	return N.ParseInfo
+}
+
 func (N *EtlDefinition) Visit(FN func(ASTNode) (error)) error {
 	return FN(N)
+}
+
+func (N *EtlArg) GetParseInfo() *ParseInfo {
+	return N.ParseInfo
 }
 
 type EtlArg struct {

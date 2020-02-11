@@ -8,6 +8,10 @@ type Object struct {
 	// Phases filled
 }
 
+func (N *Object) GetParseInfo() *ParseInfo {
+	return N.ParseInfo
+}
+
 func (N *Object) Visit(FN func(ASTNode) (error)) error {
 	err := FN(N)
 	if err != nil {

@@ -5,6 +5,10 @@ type BadNode struct {
 	ParseInfo *ParseInfo
 }
 
+func (N *BadNode) GetParseInfo() *ParseInfo {
+	return N.ParseInfo
+}
+
 func (N *BadNode) Visit(FN func(ASTNode) (error)) error {
 	return FN(N)
 }

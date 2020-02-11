@@ -8,6 +8,10 @@ type ArrayDef struct {
 	// Phases filled
 }
 
+func (N *ArrayDef) GetParseInfo() *ParseInfo {
+	return N.ParseInfo
+}
+
 func (N *ArrayDef) Visit(FN func(ASTNode) (error)) error {
 	err := FN(N)
 	if err != nil {
@@ -23,6 +27,10 @@ type Array struct {
 	Elems []ASTNode
 
 	// Phases filled
+}
+
+func (N *Array) GetParseInfo() *ParseInfo {
+	return N.ParseInfo
 }
 
 func (N *Array) Visit(FN func(ASTNode) (error)) error {
