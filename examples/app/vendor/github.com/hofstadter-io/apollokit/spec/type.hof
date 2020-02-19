@@ -1,0 +1,19 @@
+package apollokit
+
+Type : {
+  Name: common.NAME_REGEX
+  Owned: {
+    Type: "has-one" | "has-many"
+    By: Entity
+  }
+
+  Fields: []Field
+
+  // Views: [View]
+}
+
+Field : {
+  Name: string
+  Type: common.Builtin
+  Validation: {}
+}

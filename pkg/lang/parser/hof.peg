@@ -1,0 +1,200 @@
+{
+// Package 'parser' implements the basic parser for 'hof-lang'
+package parser
+}
+
+HOF <- pkg:PackageDecl __ imports:Imports? __ defs:Definitions? EOF {
+  return FileCallback(c, pkg, imports, defs)
+}
+
+PackageDecl <- __ PACKAGE _ name:NAME __ {
+  return PackageDeclCallback(c, name)
+}
+
+Imports <- IMPORT _ '(' __ imports:( Import )* __ ')' __ {
+  return ImportsCallback(c, imports)
+}
+
+Import <- __ name:NAME? _ path:String __ {
+  return ImportCallback(c, name, path)
+}
+
+Definitions <- defs:( TypeDefinition / GeneratorDefinition / EtlDefinition )* __ {
+  return DefinitionsCallback(c, defs)
+}
+
+GeneratorDefinition <- __ name:ID _ GEN _ paths:( PATH _ '&' _ )* _ path:PATH __ {
+  pp := path.(*ast.TokenPath)
+  ps := paths.([]interface{})
+  ps = append(ps, []interface{}{pp})
+  return GeneratorCallback(c, name, ps, nil)
+
+} / __ name:ID _ GEN _ paths:( PATH _ '&' _ )* _ body:DefnBody? __ {
+  return GeneratorCallback(c, name, paths, body)
+} 
+
+EtlDefinition <- __ ETL _ name:ID _ '(' _ args:(( EtlArg ',' )* EtlArg )? _ ')' _ ret:PATH _ body:DefnBody __ {
+  return EtlDefinitionCallback(c, name, args, ret, body)
+}
+
+EtlArg <- _ name:NAME _ path:PATH _ {
+  return EtlArgCallback(c, name, path)
+}
+
+TypeDefinition <- __ name:ID _ open:( CLOSEDTYPE / OPENTYPE ) _ paths:( PATH _ '&' _ )* _ path:PATH __ {
+  isOpen := string(open.([]byte)) == ":"
+  pp := path.(*ast.TokenPath)
+  ps := paths.([]interface{})
+  ps = append(ps, []interface{}{pp})
+  return TypeDefinitionCallback(c, name, ps, nil, isOpen)
+
+} / __ name:ID _ open:( CLOSEDTYPE / OPENTYPE ) _ paths:( PATH _ '&' _ )* _ body:DefnBody? __ {
+  isOpen := string(open.([]byte)) == ":"
+  return TypeDefinitionCallback(c, name, paths, body, isOpen)
+} 
+
+DefnBody <- '{' __ defs:( DefnField )* __ '}' __ {
+  return DefinitionBodyCallback(c, defs)
+}
+
+DefnField <- __ val:( TypeDef / Field ) __ {
+  return val, nil
+}
+
+TypeDef <- _ id:ID _ path:PATH _ obj:Object? __ {
+  return TypeDefCallback(c, id, path, obj)
+}
+
+FieldType <- val:( BoolDef / IntegerDef / StringDef / PATH / TypeDef / ArrayDef ) {
+  return FieldTypeCallback(c, val)
+}
+
+FieldValue <- val:( Bool / Object / Array / Number / Integer / String / MultilineString / Null ) {
+  return FieldValueCallback(c, val)
+}
+
+Field <- __ id:ID _ ':' _ val:( FieldType / FieldValue ) __ {
+  return FieldCallback(c, id, val)
+}
+
+Object <- '{' __ fields:( Field )* __ '}' {
+  return ObjectCallback(c, fields)
+}
+
+Elem <- __ val:( PATH / FieldValue ) _ ',' __ {
+	return val, nil
+} / __ val:( TypeDef / PATH / FieldValue ) _ !',' __ {
+  return val, errors.New("Missing ',' after array element")
+}
+
+ArrayDef <- __ "[]" path:PATH __ {
+  return ArrayDefCallback(c, path)
+}
+
+Array <- '[' elems:( Elem )* ']' {
+  return ArrayCallback(c, elems)
+} / '[' elems:( Elem )* !']' {
+  bad := &ast.BadNode{ 
+		BaseNode: ast.BaseNode {
+			ParseInfo: ExtractParseInfo(c),
+		},
+  }
+  return bad, errors.New("Unclosed array, did you forget the final ']'?")
+}
+
+Number <- '-'? Integer '.' DecimalDigit+ Exponent? {
+  return NumberCallback(c)
+}
+
+Integer <- '0' / NonZeroDecimalDigit DecimalDigit* {
+  return IntegerCallback(c)
+}
+
+IntegerDef <- INT { return IntegerDefCallback(c) }
+
+Exponent <- 'e'i [+-]? DecimalDigit+
+
+String <- '"' ( !EscapedChar . / '\\' EscapeSequence )* '"' {
+  return StringCallback(c)
+} / '"' ( !EscapedChar . / '\\' EscapeSequence )* !'"' {
+  bad := &ast.BadNode{ 
+		BaseNode: ast.BaseNode {
+			ParseInfo: ExtractParseInfo(c),
+		},
+  }
+  return bad, errors.New("Unescaped string, did you forget the closing '\"'?")
+}
+
+StringDef <- STRING { return StringDefCallback(c) }
+
+MultilineString <- "`" ( !"`" SourceChar )* "`" {
+  return StringCallback(c)
+}
+
+Bool <- "true" { return BoolCallback(c, true) } / "false" { return BoolCallback(c, false) }
+
+BoolDef <- BOOL { return BoolDefCallback(c) }
+
+
+AlphaNumericExtra <- Alphabetic / DecimalDigit / '-' / '_'
+
+AlphaNumeric <- Alphabetic / DecimalDigit
+
+Alphabetic <- [a-zA-Z]
+
+EscapedChar <- [\x00-\x1f"\\]
+
+EscapeSequence <- SingleCharEscape / UnicodeEscape
+
+SingleCharEscape <- ["\\/bfnrt]
+
+UnicodeEscape <- 'u' HexDigit HexDigit HexDigit HexDigit
+
+DecimalDigit <- [0-9]
+
+NonZeroDecimalDigit <- [1-9]
+
+HexDigit <- [0-9a-f]i
+
+Null <- "null" { return nil, nil }
+
+__ <- ( Whitespace / EOL / Comment )*
+_ <- ( Whitespace / MultiLineCommentNoLineTerminator )*
+
+Whitespace <- [ \t\r]
+EOL <- '\n'
+EOS <- __ ';' / _ SingleLineComment? EOL / __ EOF
+
+EOF <- !.
+
+SourceChar <- .
+Comment <- MultiLineComment / SingleLineComment
+MultiLineComment <- "/*" ( !"*/" SourceChar )* "*/"
+MultiLineCommentNoLineTerminator <- "/*" ( !( "*/" / EOL ) SourceChar )* "*/"
+SingleLineComment <- "//" ( !EOL SourceChar )*
+
+DEF <- "def"
+TYPE <- "type"
+OPENTYPE <- ":"
+CLOSEDTYPE <- "::"
+ETL <- "etl"
+GEN <- "<-"
+PACKAGE <- "package"
+IMPORT <- "import"
+STRING <- "string"
+INT <- "int"
+FLOAT <- "float"
+BOOL <- "bool"
+
+PATH <- val:( ID ( '.' ID )* ) {
+  return PathCallback(c, val)
+}
+
+ID <- val:( AlphaNumeric AlphaNumericExtra* ) {
+  return IdCallback(c, val)
+}
+
+NAME <- val:( Alphabetic AlphaNumeric* ) {
+  return NameCallback(c, val)
+}
+

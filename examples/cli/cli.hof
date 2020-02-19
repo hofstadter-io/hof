@@ -1,0 +1,52 @@
+package hof
+
+import (
+  gen  "github.com/hofstadter-io/gen-cli-golang"
+
+  "github.com/hofstadter-io/hof/commands"
+)
+
+HofSecret :: gen.Secret & {
+  dir: ".hof"
+  file: "credentials.yaml"
+}
+
+HofConfig :: gen.Config & {
+  dir: ".hof"
+  file: "config.yaml"
+}
+
+HofCli : gen.Cli & {
+  cli-name:  "hof"
+  package:  "github.com/hofstadter-io/hof"
+  version:   "0.0.0"
+  config:    HofConfig
+  secret:    HofSecret
+
+  short: "HofLang framework CLI tool"
+  long: `
+    HofLang is a language and transpiler
+    for building data-centric DSLs and designs.
+  `
+
+  // For loading config/secret
+  // TODO, infer this 
+  persistent-prerun: true
+
+  // root command does nothing, prints help instead
+  omit-run: true
+
+  // First level commands
+  commands: [
+    // gen.VersionCommand(version),
+    // gen.ConfigCommand(HofConfig),
+    commands.Eval,
+    commands.Gen,
+    commands.Run,
+  ]
+}
+
+// This is temporarily here for testing purposes
+HofCliDocs :: gen.Command & gen.Docs & gen.DocsSite
+
+Hof <- HofCli

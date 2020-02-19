@@ -1,0 +1,6 @@
+package auth
+
+Owned : object & {
+  Type: "has-one" | "has-many"
+  By: Entity
+}

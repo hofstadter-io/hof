@@ -1,0 +1,21 @@
+package apollokit
+
+def App type {
+  Name: common.NAME_REGEX
+
+  auth: {
+    password: {
+      enable: bool
+    }
+    apikey: {
+      enable: bool
+    }
+  }
+
+  Modules: []Module
+
+  Files: []client.File
+  Components: []client.Component
+  Pages: []client.Page
+  Translations: []common.I18N
+}

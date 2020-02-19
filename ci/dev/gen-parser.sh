@@ -4,7 +4,7 @@ set -euo pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 ROOT="$DIR/../.."
 
-pigeon $@ \
-  -o $ROOT/pkg/parser/hof.go \
-  $ROOT/pkg/parser/hof.peg
+PDIR=$ROOT/pkg/lang/parser
+
+pigeon $@ -o $PDIR/hof.go $PDIR/hof.peg
 

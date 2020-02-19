@@ -1,0 +1,6 @@
+package apollokit
+
+NAME_REGEX :: string & regex('^[[:alpha:]][[:word:]-]*$')
+SEMVER_REGEX :: string & regex('^[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$')
+
+JSONFILE_REGEX :: string & regex('^([[:word:]-]+\/)+[[:word:]-]+\.json$')

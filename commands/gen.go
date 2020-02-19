@@ -10,7 +10,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/hofstadter-io/hof/pkg"
+	"github.com/hofstadter-io/hof/pkg/lang"
 )
 
 // Tool:   hof
@@ -51,7 +51,7 @@ var GenCmd = &cobra.Command{
 		)
 		*/
 
-		err := pkg.Do(entrypoint)
+		err := lang.Eval(entrypoint)
 		if err != nil {
 			fmt.Println("Error:", err)
 			os.Exit(1)

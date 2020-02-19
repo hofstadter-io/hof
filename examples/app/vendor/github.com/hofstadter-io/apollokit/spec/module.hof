@@ -1,0 +1,15 @@
+package apollokit
+
+def Module type {
+  Name: common.NAME_REGEX
+
+  Types: []Type
+
+  Seeds: []storage.Seed
+
+  Files: []client.File
+  Components: []client.Component
+  Pages: []client.Page
+  Translations: []common.I18N
+}
+

@@ -1,0 +1,33 @@
+package hofapp
+
+import (
+  "github.com/hofstadter-io/apollokit/spec"
+)
+
+def AppAuth apollokit.App.Auth {
+
+  login-redirect: "/"
+
+  password: {
+    enabled: true
+  }
+
+  apikey: {
+    enabled: true
+  }
+
+  oauth: {
+    google: {
+      enabled: false
+    }
+    facebook: {
+      enabled: false
+    }
+    linkedin: {
+      enabled: false
+    }
+    github: {
+      enabled: false
+    }
+  }
+}

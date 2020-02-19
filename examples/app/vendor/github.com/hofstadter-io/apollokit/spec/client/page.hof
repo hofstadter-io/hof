@@ -1,0 +1,22 @@
+package client
+
+import (
+  "github.com/hofstadter-io/apollokit/spec/common"
+)
+
+type Page struct {
+  Name: common.NAME_REGEX
+
+  Route: common.ROUTE_REGEX
+
+  Layout: string
+  Content: []common.FILEPATH_REGEX
+  Style: []common.FILEPATH_REGEX
+  Translations: []common.JSONFILE_REGEX
+
+  Components: []Component
+
+  CurrentUser?: bool
+  Data?: Data
+}
+

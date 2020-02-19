@@ -1,0 +1,22 @@
+package hof
+
+import (
+  spec "github.com/hofstadter-io/dsl-cli/spec"
+)
+
+etl CommandDefaults0() spec.Command {
+  short: "this needs to be filled in"
+  long: "this needs to be filled in"
+}
+
+etl CommandDefaults1( cmd spec.Command ) spec.Command {
+  short: "this needs to be filled in"
+  long: "this needs to be filled in"
+}
+
+etl CommandDefaults2( cmd spec.Command, parent spec.Command ) spec.Command {
+  short: "this needs to be filled in"
+  long: "this needs to be filled in"
+  parent: parent
+}
+

@@ -1,0 +1,27 @@
+package commands
+
+import (
+  "github.com/hofstadter-io/dsl-cli/spec"
+)
+
+Eval : cli.Command & {
+
+  usage: "eval <entrypoint> ['package','module','project']"
+  short: "Output hof-lang in yaml or json."
+  long: "Evalutate and generate [yaml,json,xml] starting from an entrypoint."
+
+  args: [
+    {
+      name: "entrypoint"
+      type: "string"
+      default: "."
+    },
+    {
+      name: "what"
+      type: "string"
+      default: ""
+    },
+  ]
+
+}
+

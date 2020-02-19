@@ -1,0 +1,16 @@
+package apollokit
+
+type Data struct {
+  Name: string
+  Type: Type
+  Query?: {
+    Type: "view" | "list"
+    Sync?: bool
+    Filter: ANY
+    Variables: ANY
+  }
+  Mutations?: []struct {
+    Mutation: Mutation
+    As?: string
+  }
+}

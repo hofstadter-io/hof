@@ -1,0 +1,6 @@
+package test
+
+Moo : Foo & Goo & beep.Boop & {
+  Say: cowspeak
+  Bell: bool
+}

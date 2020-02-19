@@ -1,0 +1,29 @@
+package auth
+
+type AppConfig {
+
+  login-redirect: string | *"/"
+
+  password: {
+    enabled?: bool | *true
+  }
+
+  apikey?: {
+    enabled?: bool | *false
+  }
+
+  oauth?: {
+    google: {
+      enabled?: bool | *false
+    }
+    facebook?: {
+      enabled?: bool | *false
+    }
+    linkedin?: {
+      enabled?: bool | *false
+    }
+    github?: {
+      enabled?: bool | *false
+    }
+  }
+}

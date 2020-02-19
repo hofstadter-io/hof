@@ -1,0 +1,10 @@
+package apollokit
+
+type Seed struct {
+  File: string & regex('^([[:word:]-]+\/)+[[:word:]-]+\.json$')
+  Types: []{
+    Name: string & required
+    Data: string
+    Type: Type
+  }
+}

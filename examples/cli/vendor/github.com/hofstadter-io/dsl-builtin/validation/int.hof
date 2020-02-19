@@ -1,0 +1,14 @@
+package validation
+
+type Ranged {
+  min?: int
+  max?: int
+}
+
+type NonNegative & Ranged {
+  min: >=0
+}
+
+type Positive & Ranged {
+  min?: >0
+}
