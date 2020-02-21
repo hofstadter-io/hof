@@ -15,6 +15,7 @@ type Scoped interface {
 }
 
 type SimpleScopedNode struct {
+	BaseNode
 	scope     Scope
 }
 
@@ -51,6 +52,8 @@ func (N *SimpleScopedNode) LookupInScope(path []string) (ASTNode, error) {
 		}
 		return existing, nil
 	}
+
+	// TODO check parent scope
 
 	err = fmt.Errorf("unknown reference to %s", strings.Join(path, "."))
 	return nil, err

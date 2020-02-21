@@ -41,7 +41,13 @@ func fillPackageScope(ctx *context.Context, pkg *ast.Package) error {
 					Paths: D.Paths,
 				}
 
-				err := pkg.DefineInScope(G.Name, G)
+				err := fillGeneratorDefinitionScope(ctx, G)
+				if err != nil {
+					ctx.AddError(err)
+					continue
+				}
+
+				err = pkg.DefineInScope(G.Name, G)
 				if err != nil {
 					ctx.AddError(err)
 					continue
@@ -67,6 +73,35 @@ func fillPackageScope(ctx *context.Context, pkg *ast.Package) error {
 					ctx.AddError(err)
 					continue
 				}
+
+			case *ast.EtlDefinition:
+				// fmt.Println("   + def:", D.Name.Value)
+				existing, _ := pkg.LookupInScope([]string{D.Name.Value})
+				if existing != nil {
+					err := fmt.Errorf("'%s' defined twice in package '%s' %s\n", D.Name.Value, pkg.Path, file.Path)
+					ctx.AddError(err)
+					continue
+				}
+
+				err := fillEtlDefinitionScope(ctx, D)
+				if err != nil {
+					ctx.AddError(err)
+					continue
+				}
+
+				err = pkg.DefineInScope(D.Name.Value, D)
+				if err != nil {
+					ctx.AddError(err)
+					continue
+				}
+
+			default:
+				p := reflect.ValueOf(D)
+				v := reflect.Indirect(p)
+				t := v.Type()
+				err := fmt.Errorf("Unknown Definition Type in file '%s:%d'\n%v", file.Path, D.GetParseInfo().Line, t.Name())
+				ctx.AddError(err)
+				continue
 
 			}
 		}
@@ -98,6 +133,43 @@ func fillTypeDefinitionScope(ctx *context.Context, typ *ast.TypeDefinition) erro
 			fmt.Printf("%-16s%v\n", "unknown field type:", t.Name())
 
 		}
+	}
+
+	return nil
+}
+
+func fillGeneratorDefinitionScope(ctx *context.Context, gen *ast.Generator) error {
+
+	for _, node := range gen.Parsed.Body {
+
+		switch N := node.(type) {
+
+		case *ast.Field:
+			name := N.Key.Value
+
+			p := reflect.ValueOf(N.Value)
+			v := reflect.Indirect(p)
+			t := v.Type()
+			fmt.Printf("%-16s%v\n", name, t.Name())
+
+			gen.DefineInScope(name, N.Value)
+
+		default:
+			p := reflect.ValueOf(node)
+			v := reflect.Indirect(p)
+			t := v.Type()
+			fmt.Printf("%-16s%v\n", "unknown field type:", t.Name())
+
+		}
+	}
+
+	return nil
+}
+
+func fillEtlDefinitionScope(ctx *context.Context, etl *ast.EtlDefinition) error {
+
+	for _, arg := range etl.Args {
+		etl.DefineInScope(arg.Name.Value, arg)
 	}
 
 	return nil

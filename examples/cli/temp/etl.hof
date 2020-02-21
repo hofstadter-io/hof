@@ -4,6 +4,12 @@ import (
   spec "github.com/hofstadter-io/dsl-cli/spec"
 )
 
+etl CommandDefaults( name string ) spec.Command {
+  name: name
+  short: "this needs to be filled in"
+  long: "this needs to be filled in"
+}
+
 etl CommandDefaults0() spec.Command {
   short: "this needs to be filled in"
   long: "this needs to be filled in"

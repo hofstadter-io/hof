@@ -2,6 +2,7 @@ package phases
 
 import (
 	"fmt"
+	// "reflect"
 
 	"github.com/hofstadter-io/hof/pkg/lang/ast"
 	"github.com/hofstadter-io/hof/pkg/lang/context"
@@ -40,6 +41,16 @@ func FindDefinitions(ctx *context.Context) error {
 						continue
 					}
 					pkg.Definitions[D.Name.Value] = D
+
+				/*
+				default:
+					p := reflect.ValueOf(D)
+					v := reflect.Indirect(p)
+					t := v.Type()
+					err := fmt.Errorf("Unknown Definition in file '%s:%d'\n%v", file.Path, D.GetParseInfo().Line, t.Name())
+					ctx.AddError(err)
+					continue
+					*/
 				}
       }
     }

@@ -1,0 +1,17 @@
+package gen
+
+import (
+  spec "github.com/hofstadter-io/dsl-cli/spec"
+)
+
+etl VersionCommand(version string) spec.Command {
+  usage: "version"
+  short: "print version information"
+  long: "print version information"
+
+  args: [{
+    Name: "v"
+    Default: version
+    Help: "The version identifier"
+  },]
+}

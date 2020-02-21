@@ -46,6 +46,11 @@ func ScopeDebug(ctx *context.Context) error {
 				nkeys := N.GetScopeKeys()
 				fmt.Printf("    %v\n", nkeys)
 
+			case *ast.EtlDefinition:
+				fmt.Println("  - etl:", key)
+				nkeys := N.GetScopeKeys()
+				fmt.Printf("    %v\n", nkeys)
+
 			}
 		}
 

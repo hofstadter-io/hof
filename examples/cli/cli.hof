@@ -6,6 +6,11 @@ import (
   "github.com/hofstadter-io/hof/commands"
 )
 
+HofMetaInfo :: {
+  package:  "github.com/hofstadter-io/hof"
+  version:   "0.0.0"
+}
+
 HofSecret :: gen.Secret & {
   dir: ".hof"
   file: "credentials.yaml"
@@ -17,9 +22,9 @@ HofConfig :: gen.Config & {
 }
 
 HofCli : gen.Cli & {
+  // ...HofMetaInfo
+
   cli-name:  "hof"
-  package:  "github.com/hofstadter-io/hof"
-  version:   "0.0.0"
   config:    HofConfig
   secret:    HofSecret
 
@@ -40,6 +45,7 @@ HofCli : gen.Cli & {
   commands: [
     // gen.VersionCommand(version),
     // gen.ConfigCommand(HofConfig),
+    // ...gen.AuthCommand(HofConfig),
     commands.Eval,
     commands.Gen,
     commands.Run,
@@ -47,6 +53,23 @@ HofCli : gen.Cli & {
 }
 
 // This is temporarily here for testing purposes
+// The docs ones won't resolve
 HofCliDocs :: gen.Command & gen.Docs & gen.DocsSite
 
-Hof <- HofCli
+// This would be better, like open/closed for generators
+// Hof <= HofCli
+Hof <- HofCli & {
+  output-dir: "output"
+}
+
+/*
+All <= Hof, HofCliDocs
+
+cmd GenAll(args) {
+  bash: `
+    rm -rf output
+    hof gen Hof
+    hof gen HfoCliDocs
+  `
+}
+*/
