@@ -1,0 +1,9 @@
+package cli
+
+Arg : {
+  Name:        string
+  Type:        string
+  Default:     Type
+  Help:        string
+  Validation:  v.BuiltinValidation
+}

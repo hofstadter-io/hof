@@ -51,7 +51,7 @@ var GenCmd = &cobra.Command{
 		)
 		*/
 
-		err := lang.Eval(entrypoint)
+		err := lang.Gen(entrypoint)
 		if err != nil {
 			fmt.Println("Error:", err)
 			os.Exit(1)

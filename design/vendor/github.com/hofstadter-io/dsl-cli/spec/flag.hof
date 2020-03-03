@@ -1,0 +1,11 @@
+package cli
+
+Flag : {
+  type:        builtin
+  default:     builtin
+  help:        string
+  long:        string
+  short:       string
+  validation:  object
+}
+

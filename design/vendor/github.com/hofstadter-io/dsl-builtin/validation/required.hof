@@ -1,0 +1,13 @@
+package validation
+
+type Required struct {
+  required: bool
+}
+
+type PreferRquired struct {
+  required: bool | *true
+}
+
+type MaybeRequired struct {
+  required?: bool
+}

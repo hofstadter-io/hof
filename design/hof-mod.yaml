@@ -1,0 +1,10 @@
+name: "hof"
+type: "design"
+path: "github.com/hofstadter-io/hof"
+
+entrypoint: "."
+
+deps:
+  - package: "github.com/hofstadter-io/gen-cli-golang"
+    version: "0.0.0"
+
