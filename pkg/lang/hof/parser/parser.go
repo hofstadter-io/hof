@@ -309,6 +309,18 @@ func (p *parser) consumeCommentGroup(n int) (comments *ast.CommentGroup, endline
 	return
 }
 
+func (p *parser) Next() {
+	p.next()
+}
+
+func (p *parser) Tok() token.Token {
+	return p.tok
+}
+
+func (p *parser) Lit() string {
+	return p.lit
+}
+
 // Advance to the next non-comment  In the process, collect
 // any comment groups encountered, and refield the last lead and
 // and line comments.

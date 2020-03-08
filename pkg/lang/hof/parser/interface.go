@@ -125,6 +125,19 @@ const (
 	allErrorsMode         // report all errors (not just the first 10 on different lines)
 )
 
+func AParser(filename string) (*parser, error) {
+	text, err := source.Read(filename, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var pp parser
+
+	pp.init("test.cue", text, []Option{})
+
+	return &pp, nil
+}
+
 // ParseFile parses the source code of a single CUE source file and returns
 // the corresponding File node. The source code may be provided via
 // the filename of the source file, or via the src parameter.
