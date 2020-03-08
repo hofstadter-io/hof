@@ -1,6 +1,6 @@
 module github.com/hofstadter-io/hof
 
-go 1.13
+go 1.14
 
 require (
 	github.com/aymerick/raymond v2.0.2+incompatible

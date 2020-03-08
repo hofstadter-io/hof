@@ -53,12 +53,7 @@ is an explicit statement because data keys often start with lowercase letters.
 
 #### Getting started
 
-##### 1. Install the hof tool with
-
-```bash
-go get github.com/hofstadter-io/hof
-```
-
+##### 1. [Install the hof-lang tool](./docs/install.md)
 ##### 2. [Read over the documentation](./docs)
 ##### 3. [Explore the examples](./examples)
 ##### 4. [Join the conversation on Gitter](https://gitter.im/hofstadter-io/hof)
