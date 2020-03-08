@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/hofstadter-io/hof/lib/util"
+	"github.com/hofstadter-io/hof/pkg/util"
 )
 
 func ImportAddBundle(bundle string) (string, error) {

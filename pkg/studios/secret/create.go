@@ -3,7 +3,7 @@ package secret
 import (
 	"fmt"
 
-	"github.com/hofstadter-io/hof/lib/util"
+	"github.com/hofstadter-io/hof/pkg/util"
 )
 
 const secretCreateQuery = `

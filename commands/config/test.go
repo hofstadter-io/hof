@@ -1,12 +1,6 @@
 package config
 
 import (
-	// "fmt"
-
-	// custom imports
-
-	// infered imports
-
 	"fmt"
 	"os"
 
@@ -14,11 +8,6 @@ import (
 
 	"github.com/hofstadter-io/hof/pkg/util"
 )
-
-// Tool:   hof
-// Name:   test
-// Usage:  test
-// Parent: config
 
 var TestLong = `Test the context for authenticated connectivity`
 
@@ -31,8 +20,6 @@ var TestCmd = &cobra.Command{
 	Long: TestLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		logger.Debug("In testCmd", "args", args)
-		// Argument Parsing
 
 		// fmt.Println("hof config test:")
 
@@ -43,9 +30,4 @@ var TestCmd = &cobra.Command{
 		}
 
 	},
-}
-
-func init() {
-	// add sub-commands to this command when present
-
 }

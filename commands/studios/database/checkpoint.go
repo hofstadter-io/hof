@@ -1,11 +1,12 @@
-package db
+package database
 
 import (
 	"fmt"
 	"os"
 
-	"github.com/hofstadter-io/hof/pkg/studios/db"
 	"github.com/spf13/cobra"
+
+	"github.com/hofstadter-io/hof/pkg/studios/database"
 )
 
 var CheckpointLong = `Checkpoints the DB, making only the necessary changes to the schema.`
@@ -26,7 +27,7 @@ var CheckpointCmd = &cobra.Command{
 
 		// fmt.Println("hof db checkpoint:")
 
-		err := db.Migrate()
+		err := database.Migrate()
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

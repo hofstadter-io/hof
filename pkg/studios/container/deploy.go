@@ -1,4 +1,4 @@
-package crun
+package container
 
 import (
 	"errors"
@@ -8,8 +8,8 @@ import (
 
 	"github.com/parnurzeal/gorequest"
 
-	"github.com/hofstadter-io/hof/lib/config"
-	"github.com/hofstadter-io/hof/lib/util"
+	"github.com/hofstadter-io/hof/pkg/config"
+	"github.com/hofstadter-io/hof/pkg/util"
 )
 
 func Deploy(name string, push bool, memory string, concurrency int, timeout string, envs string) error {

@@ -1,4 +1,4 @@
-package crun
+package container
 
 import (
 	"errors"
@@ -6,8 +6,8 @@ import (
 
 	"github.com/parnurzeal/gorequest"
 
-	"github.com/hofstadter-io/hof/lib/config"
-	"github.com/hofstadter-io/hof/lib/util"
+	"github.com/hofstadter-io/hof/pkg/config"
+	"github.com/hofstadter-io/hof/pkg/util"
 )
 
 func Push(name string) error {

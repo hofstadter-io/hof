@@ -1,15 +1,15 @@
 package extern
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/pkg/errors"
-
 	"github.com/hofstadter-io/data-utils/io"
-	"github.com/hofstadter-io/hof/lib/util"
+
+	"github.com/hofstadter-io/hof/pkg/util"
 )
 
 func NewEntry(what, name, template, strData string) (string, error) {

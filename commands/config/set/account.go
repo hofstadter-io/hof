@@ -2,21 +2,13 @@ package set
 
 import (
 	"fmt"
-
-	// custom imports
-
-	// infered imports
 	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
 	"github.com/hofstadter-io/hof/pkg/config"
 )
-
-// Tool:   hof
-// Name:   account
-// Usage:  account <name>
-// Parent: set
 
 var AccountLong = `Set your account ID`
 
@@ -29,11 +21,7 @@ var AccountCmd = &cobra.Command{
 	Long: AccountLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		logger.Debug("In accountCmd", "args", args)
-		// Argument Parsing
-		// [0]name:   account
-		//     help:
-		//     req'd:  true
+
 		if 0 >= len(args) {
 			fmt.Println("missing required argument: 'account'\n")
 			cmd.Usage()
@@ -41,9 +29,7 @@ var AccountCmd = &cobra.Command{
 		}
 
 		var account string
-
 		if 0 < len(args) {
-
 			account = args[0]
 		}
 
@@ -56,9 +42,4 @@ var AccountCmd = &cobra.Command{
 		context := viper.GetString("context")
 		config.SetAccount(context, account)
 	},
-}
-
-func init() {
-	// add sub-commands to this command when present
-
 }

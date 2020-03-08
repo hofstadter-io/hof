@@ -1,0 +1,11 @@
+language: go
+
+go:
+  - 1.6
+  - 1.7.x
+
+install: true
+
+script:
+  - cd ${TRAVIS_BUILD_DIR}/examples && go build test.go
+

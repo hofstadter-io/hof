@@ -1,10 +1,10 @@
-package db
+package database
 
 import (
 	"fmt"
 	"os"
 
-	"github.com/hofstadter-io/hof/pkg/studios/db"
+	"github.com/hofstadter-io/hof/pkg/studios/database"
 	"github.com/spf13/cobra"
 )
 
@@ -22,7 +22,7 @@ var StatusCmd = &cobra.Command{
 
 		// fmt.Println("hof db status:")
 
-		err := db.Status()
+		err := database.Status()
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

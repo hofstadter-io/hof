@@ -1,4 +1,4 @@
-package crun
+package container
 
 var CrunFiles = []string{
 	".",

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"os"
 
-	"github.com/hofstadter-io/hof/pkg/lang/context"
+	"github.com/hofstadter-io/hof/pkg/old-lang/context"
 )
 
 func LoadModule(ctx *context.Context) error {

@@ -4,7 +4,7 @@ import (
 	"strconv"
   "strings"
 
-	"github.com/hofstadter-io/hof/pkg/lang/ast"
+	"github.com/hofstadter-io/hof/pkg/old-lang/ast"
 )
 
 func toIfaceSlice(v interface{}) []interface{} {

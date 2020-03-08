@@ -1,9 +1,9 @@
 package context
 
 import (
-	"github.com/hofstadter-io/hof/pkg/lang/ast"
-	"github.com/hofstadter-io/hof/pkg/lang/module"
-	"github.com/hofstadter-io/hof/pkg/lang/parser"
+	"github.com/hofstadter-io/hof/pkg/old-lang/ast"
+	"github.com/hofstadter-io/hof/pkg/old-lang/module"
+	"github.com/hofstadter-io/hof/pkg/old-lang/parser"
 )
 
 func (ctx *Context) ReadFile(filepath string, cfg *module.Config) (*ast.File, error) {

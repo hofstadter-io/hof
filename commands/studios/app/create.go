@@ -36,11 +36,7 @@ var CreateCmd = &cobra.Command{
 	Long: CreateLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		logger.Debug("In createCmd", "args", args)
-		// Argument Parsing
-		// [0]name:   name
-		//     help:
-		//     req'd:  true
+
 		if 0 >= len(args) {
 			fmt.Println("missing required argument: 'name'\n")
 			cmd.Usage()
@@ -48,9 +44,7 @@ var CreateCmd = &cobra.Command{
 		}
 
 		var name string
-
 		if 0 < len(args) {
-
 			name = args[0]
 		}
 

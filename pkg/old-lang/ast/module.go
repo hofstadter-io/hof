@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"github.com/hofstadter-io/hof/pkg/lang/module"
+	"github.com/hofstadter-io/hof/pkg/old-lang/module"
 )
 
 type Module struct {

@@ -5,8 +5,8 @@ import (
 	// "reflect"
 	"sort"
 
-	"github.com/hofstadter-io/hof/pkg/lang/ast"
-	"github.com/hofstadter-io/hof/pkg/lang/context"
+	"github.com/hofstadter-io/hof/pkg/old-lang/ast"
+	"github.com/hofstadter-io/hof/pkg/old-lang/context"
 )
 
 func ScopeDebug(ctx *context.Context) error {

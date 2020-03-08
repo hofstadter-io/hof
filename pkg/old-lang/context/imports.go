@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/hofstadter-io/hof/pkg/lang/ast"
+	"github.com/hofstadter-io/hof/pkg/old-lang/ast"
 )
 
 func (ctx *Context) LoadFileImports(file *ast.File) error {

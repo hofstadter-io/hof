@@ -2,12 +2,13 @@ package util
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/hofstadter-io/dotpath"
-	"github.com/hofstadter-io/hof/lib/config"
 	"github.com/parnurzeal/gorequest"
-	"github.com/pkg/errors"
+
+	"github.com/hofstadter-io/hof/pkg/config"
 )
 
 func SendRequest(queryTemplate string, vars interface{}) (interface{}, error) {

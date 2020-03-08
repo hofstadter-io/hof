@@ -1,12 +1,12 @@
-package crun
+package container
 
 import (
 	"fmt"
 	"path/filepath"
 	"strings"
 
-	"github.com/hofstadter-io/hof/lib/extern"
-	"github.com/hofstadter-io/hof/lib/util"
+	"github.com/hofstadter-io/hof/pkg/extern"
+	"github.com/hofstadter-io/hof/pkg/util"
 )
 
 const crunCreateQuery = `

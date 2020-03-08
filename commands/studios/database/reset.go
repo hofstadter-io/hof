@@ -1,4 +1,4 @@
-package db
+package database
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/hofstadter-io/hof/pkg/studios/db"
+	"github.com/hofstadter-io/hof/pkg/studios/database"
 )
 
 var ResetLong = `Resets the DB to the latest checkpoint & schema, also adding seed data.`
@@ -34,7 +34,7 @@ var ResetCmd = &cobra.Command{
 
 		// fmt.Println("hof db reset:")
 
-		err := db.Reset(ResetHardFlag)
+		err := database.Reset(ResetHardFlag)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

@@ -2,19 +2,9 @@ package commands
 
 import (
 	// "fmt"
-
-	// custom imports
-
-	// infered imports
-
 	"os"
 	"github.com/spf13/cobra"
 )
-
-// Tool:   hof
-// Name:   bash-completion
-// Usage:  bash-completion
-// Parent: hof
 
 var BashCompletionLong = `Generate Bash completions
 
@@ -42,9 +32,6 @@ var BashCompletionCmd = &cobra.Command{
 	Long: BashCompletionLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		logger.Debug("In bash-completionCmd", "args", args)
-		// Argument Parsing
-
 		// fmt.Println("hof bash-completion:")
 
 		RootCmd.GenBashCompletion(os.Stdout);
@@ -53,9 +40,4 @@ var BashCompletionCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(BashCompletionCmd)
-}
-
-func init() {
-	// add sub-commands to this command when present
-
 }

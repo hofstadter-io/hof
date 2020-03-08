@@ -2,21 +2,13 @@ package set
 
 import (
 	"fmt"
-
-	// custom imports
-
-	// infered imports
 	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
 	"github.com/hofstadter-io/hof/pkg/config"
 )
-
-// Tool:   hof
-// Name:   apikey
-// Usage:  apikey <key>
-// Parent: set
 
 var ApikeyLong = `Set your API Key`
 
@@ -29,11 +21,7 @@ var ApikeyCmd = &cobra.Command{
 	Long: ApikeyLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		logger.Debug("In apikeyCmd", "args", args)
-		// Argument Parsing
-		// [0]name:   key
-		//     help:
-		//     req'd:  true
+
 		if 0 >= len(args) {
 			fmt.Println("missing required argument: 'key'\n")
 			cmd.Usage()
@@ -41,9 +29,7 @@ var ApikeyCmd = &cobra.Command{
 		}
 
 		var key string
-
 		if 0 < len(args) {
-
 			key = args[0]
 		}
 
@@ -56,9 +42,4 @@ var ApikeyCmd = &cobra.Command{
 		context := viper.GetString("context")
 		config.SetAPIKey(context, key)
 	},
-}
-
-func init() {
-	// add sub-commands to this command when present
-
 }

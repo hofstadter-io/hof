@@ -1,20 +1,10 @@
 package config
 
 import (
-
-	// custom imports
-
-	// infered imports
-
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/commands/config/set"
 )
-
-// Tool:   hof
-// Name:   set
-// Usage:  set
-// Parent: config
 
 var SetLong = `Get configuration values`
 
