@@ -19,7 +19,7 @@ import (
 
 	"github.com/cockroachdb/apd/v2"
 
-	"cuelang.org/go/internal"
+	"github.com/hofstadter-io/hof/pkg/lang/internal"
 )
 
 // Avg returns the average value of a non empty list xs.

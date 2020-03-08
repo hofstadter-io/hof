@@ -17,7 +17,7 @@ package main
 import (
 	"os"
 
-	"cuelang.org/go/cmd/cue/cmd"
+	"github.com/hofstadter-io/hof/pkg/lang/cmd/cue/cmd"
 )
 
 func main() {

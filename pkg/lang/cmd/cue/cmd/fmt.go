@@ -20,9 +20,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"cuelang.org/go/cue/format"
-	"cuelang.org/go/cue/load"
-	"cuelang.org/go/cue/parser"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/format"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/load"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/parser"
 )
 
 func newFmtCmd(c *Command) *cobra.Command {

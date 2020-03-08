@@ -15,7 +15,7 @@
 // Package internal exposes some cue internals to other packages.
 //
 // A better name for this package would be technicaldebt.
-package internal // import "cuelang.org/go/internal"
+package internal // import "github.com/hofstadter-io/hof/pkg/lang/internal"
 
 // TODO: refactor packages as to make this package unnecessary.
 
@@ -25,9 +25,9 @@ import (
 
 	"github.com/cockroachdb/apd/v2"
 
-	"cuelang.org/go/cue/ast"
-	"cuelang.org/go/cue/errors"
-	"cuelang.org/go/cue/token"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/ast"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/errors"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/token"
 )
 
 // A Decimal is an arbitrary-precision binary-coded decimal number.

@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"text/tabwriter"
 
-	"cuelang.org/go/cue"
+	"github.com/hofstadter-io/hof/pkg/lang/hof"
 )
 
 // Write formats text in columns. See golang.org/pkg/text/tabwriter for more

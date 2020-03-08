@@ -17,7 +17,7 @@ package regexp
 import (
 	"regexp"
 
-	"cuelang.org/go/cue/errors"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/errors"
 )
 
 var errNoMatch = errors.New("no match")

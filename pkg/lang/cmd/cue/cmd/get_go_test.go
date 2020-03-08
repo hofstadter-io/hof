@@ -21,7 +21,7 @@ import (
 	"strings"
 	"testing"
 
-	"cuelang.org/go/internal/copy"
+	"github.com/hofstadter-io/hof/pkg/lang/internal/copy"
 )
 
 func TestGetGo(t *testing.T) {
@@ -71,7 +71,7 @@ func TestGetGo(t *testing.T) {
 		t.Skip("files updated")
 	}
 
-	prefix := "testdata/pkg/cuelang.org/go/cmd/cue/cmd/testdata/code/go/"
+	prefix := "testdata/pkg/github.com/hofstadter-io/hof/pkg/lang/cmd/cue/cmd/testdata/code/go/"
 	_ = filepath.Walk(dst, func(path string, info os.FileInfo, err error) error {
 		if info.IsDir() {
 			return nil

@@ -21,8 +21,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"cuelang.org/go/cue"
-	"cuelang.org/go/internal/task"
+	"github.com/hofstadter-io/hof/pkg/lang/hof"
+	"github.com/hofstadter-io/hof/pkg/lang/internal/task"
 )
 
 func init() {

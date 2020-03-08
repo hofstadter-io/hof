@@ -31,8 +31,8 @@
 package jsonschema
 
 import (
-	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/ast"
+	"github.com/hofstadter-io/hof/pkg/lang/hof"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/ast"
 )
 
 // Extract converts JSON Schema data into an equivalent CUE representation.

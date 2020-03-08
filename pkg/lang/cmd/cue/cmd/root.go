@@ -23,8 +23,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"cuelang.org/go/cue/errors"
-	"cuelang.org/go/cue/token"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/errors"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/token"
 )
 
 // TODO: commands

@@ -19,7 +19,7 @@ import (
 	"encoding/csv"
 	"io"
 
-	"cuelang.org/go/cue"
+	"github.com/hofstadter-io/hof/pkg/lang/hof"
 )
 
 // Encode encode the given list of lists to CSV.

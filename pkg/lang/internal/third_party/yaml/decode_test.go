@@ -10,9 +10,9 @@ import (
 	"strings"
 	"testing"
 
-	"cuelang.org/go/cue/ast"
-	"cuelang.org/go/cue/format"
-	"cuelang.org/go/internal/third_party/yaml"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/ast"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/format"
+	"github.com/hofstadter-io/hof/pkg/lang/internal/third_party/yaml"
 )
 
 var update = flag.Bool("update", false, "update test data")

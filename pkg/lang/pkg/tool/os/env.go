@@ -20,11 +20,11 @@ import (
 	"os"
 	"strings"
 
-	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/ast"
-	"cuelang.org/go/cue/errors"
-	"cuelang.org/go/internal/cli"
-	"cuelang.org/go/internal/task"
+	"github.com/hofstadter-io/hof/pkg/lang/hof"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/ast"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/errors"
+	"github.com/hofstadter-io/hof/pkg/lang/internal/cli"
+	"github.com/hofstadter-io/hof/pkg/lang/internal/task"
 )
 
 func init() {

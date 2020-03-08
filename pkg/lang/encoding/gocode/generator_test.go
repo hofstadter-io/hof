@@ -25,9 +25,9 @@ import (
 
 	"github.com/kylelemons/godebug/diff"
 
-	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/errors"
-	"cuelang.org/go/cue/load"
+	"github.com/hofstadter-io/hof/pkg/lang/hof"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/errors"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/load"
 )
 
 var update = flag.Bool("update", false, "update test files")
@@ -53,7 +53,7 @@ func TestGenerate(t *testing.T) {
 			inst := cue.Build(load.Instances([]string{pkg}, &load.Config{
 				Dir:        dir,
 				ModuleRoot: dir,
-				Module:     "cuelang.org/go/encoding/gocode/testdata",
+				Module:     "github.com/hofstadter-io/hof/pkg/lang/encoding/gocode/testdata",
 			}))[0]
 			if err := inst.Err; err != nil {
 				t.Fatal(err)

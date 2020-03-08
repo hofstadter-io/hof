@@ -19,7 +19,7 @@ import (
 	"encoding/base64"
 	"fmt"
 
-	"cuelang.org/go/cue"
+	"github.com/hofstadter-io/hof/pkg/lang/hof"
 )
 
 // EncodedLen returns the length in bytes of the base64 encoding

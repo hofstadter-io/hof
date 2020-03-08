@@ -20,8 +20,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"cuelang.org/go/cue/format"
-	"cuelang.org/go/encoding/protobuf"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/format"
+	"github.com/hofstadter-io/hof/pkg/lang/encoding/protobuf"
 )
 
 func ExampleExtract() {

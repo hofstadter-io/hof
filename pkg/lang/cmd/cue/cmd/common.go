@@ -25,14 +25,14 @@ import (
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 
-	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/ast"
-	"cuelang.org/go/cue/build"
-	"cuelang.org/go/cue/errors"
-	"cuelang.org/go/cue/load"
-	"cuelang.org/go/cue/parser"
-	"cuelang.org/go/cue/token"
-	"cuelang.org/go/internal/encoding"
+	"github.com/hofstadter-io/hof/pkg/lang/hof"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/ast"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/build"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/errors"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/load"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/parser"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/token"
+	"github.com/hofstadter-io/hof/pkg/lang/internal/encoding"
 )
 
 // Disallow

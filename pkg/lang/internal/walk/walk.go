@@ -21,7 +21,7 @@
 // satisfactory API has been established, it can be made public.
 package walk
 
-import "cuelang.org/go/cue"
+import "github.com/hofstadter-io/hof/pkg/lang/hof"
 
 // TODO:
 // - allow overriding options for descendants.

@@ -37,7 +37,7 @@ const (
 )
 
 // set by goreleaser or other builder using
-// -ldflags='-X cuelang.org/go/cmd/cue/cmd.version=<version>'
+// -ldflags='-X github.com/hofstadter-io/hof/pkg/lang/cmd/cue/cmd.version=<version>'
 var (
 	version = defaultVersion
 )

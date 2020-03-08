@@ -27,12 +27,12 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/build"
-	"cuelang.org/go/cue/format"
-	"cuelang.org/go/cue/load"
-	"cuelang.org/go/cue/parser"
-	"cuelang.org/go/internal"
+	"github.com/hofstadter-io/hof/pkg/lang/hof"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/build"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/format"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/load"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/parser"
+	"github.com/hofstadter-io/hof/pkg/lang/internal"
 )
 
 func newAddCmd(c *Command) *cobra.Command {

@@ -20,11 +20,11 @@ import (
 	"math/big"
 	"strings"
 
-	"cuelang.org/go/cue/ast"
-	"cuelang.org/go/cue/errors"
-	"cuelang.org/go/cue/literal"
-	"cuelang.org/go/cue/token"
-	"cuelang.org/go/internal"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/ast"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/errors"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/literal"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/token"
+	"github.com/hofstadter-io/hof/pkg/lang/internal"
 )
 
 // Encode converts a CUE AST to JSON.

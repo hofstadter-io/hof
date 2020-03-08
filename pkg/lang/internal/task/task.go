@@ -20,8 +20,8 @@ import (
 	"io"
 	"sync"
 
-	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/errors"
+	"github.com/hofstadter-io/hof/pkg/lang/hof"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/errors"
 )
 
 // A Context provides context for running a task.

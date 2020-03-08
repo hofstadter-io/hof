@@ -18,7 +18,7 @@ import (
 	"strings"
 	"testing"
 
-	"cuelang.org/go/cue/build"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/build"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 )

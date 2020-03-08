@@ -20,11 +20,11 @@ import (
 	"bytes"
 	"io"
 
-	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/ast"
-	cueyaml "cuelang.org/go/internal/encoding/yaml"
-	"cuelang.org/go/internal/third_party/yaml"
-	pkgyaml "cuelang.org/go/pkg/encoding/yaml"
+	"github.com/hofstadter-io/hof/pkg/lang/hof"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/ast"
+	cueyaml "github.com/hofstadter-io/hof/pkg/lang/internal/encoding/yaml"
+	"github.com/hofstadter-io/hof/pkg/lang/internal/third_party/yaml"
+	pkgyaml "github.com/hofstadter-io/hof/pkg/lang/pkg/encoding/yaml"
 )
 
 // Extract parses the YAML to a CUE expression. Streams are returned as a list

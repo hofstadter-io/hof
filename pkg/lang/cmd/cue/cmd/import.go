@@ -23,15 +23,15 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"cuelang.org/go/cue/ast"
-	"cuelang.org/go/cue/ast/astutil"
-	"cuelang.org/go/cue/format"
-	"cuelang.org/go/cue/literal"
-	"cuelang.org/go/cue/load"
-	"cuelang.org/go/cue/parser"
-	"cuelang.org/go/cue/token"
-	"cuelang.org/go/encoding/json"
-	"cuelang.org/go/internal/third_party/yaml"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/ast"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/ast/astutil"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/format"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/literal"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/load"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/parser"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/token"
+	"github.com/hofstadter-io/hof/pkg/lang/encoding/json"
+	"github.com/hofstadter-io/hof/pkg/lang/internal/third_party/yaml"
 )
 
 func newImportCmd(c *Command) *cobra.Command {

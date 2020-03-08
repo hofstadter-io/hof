@@ -19,9 +19,9 @@ import (
 	"reflect"
 	"sync"
 
-	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/parser"
-	"cuelang.org/go/internal"
+	"github.com/hofstadter-io/hof/pkg/lang/hof"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/parser"
+	"github.com/hofstadter-io/hof/pkg/lang/internal"
 )
 
 // DefaultContext is the shared context used with top-level functions.

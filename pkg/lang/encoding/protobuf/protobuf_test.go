@@ -26,9 +26,9 @@ import (
 
 	"github.com/kr/pretty"
 
-	"cuelang.org/go/cue/ast"
-	"cuelang.org/go/cue/errors"
-	"cuelang.org/go/cue/format"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/ast"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/errors"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/format"
 )
 
 var update = flag.Bool("update", false, "update the test output")

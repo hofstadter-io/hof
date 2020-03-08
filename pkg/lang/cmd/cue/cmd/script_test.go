@@ -15,8 +15,8 @@ import (
 	"github.com/rogpeppe/testscript"
 	"github.com/rogpeppe/testscript/txtar"
 
-	"cuelang.org/go/cue/errors"
-	"cuelang.org/go/cue/parser"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/errors"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/parser"
 )
 
 // TestLatest checks that the examples match the latest language standard,

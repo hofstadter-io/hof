@@ -17,10 +17,10 @@ package trim
 import (
 	"testing"
 
-	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/ast"
-	"cuelang.org/go/cue/format"
-	"cuelang.org/go/cue/parser"
+	"github.com/hofstadter-io/hof/pkg/lang/hof"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/ast"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/format"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/parser"
 )
 
 func TestFiles(t *testing.T) {

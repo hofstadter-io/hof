@@ -34,12 +34,12 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/tools/go/packages"
 
-	cueast "cuelang.org/go/cue/ast"
-	"cuelang.org/go/cue/format"
-	"cuelang.org/go/cue/load"
-	"cuelang.org/go/cue/parser"
-	cuetoken "cuelang.org/go/cue/token"
-	"cuelang.org/go/internal"
+	cueast "github.com/hofstadter-io/hof/pkg/lang/hof/ast"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/format"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/load"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/parser"
+	cuetoken "github.com/hofstadter-io/hof/pkg/lang/hof/token"
+	"github.com/hofstadter-io/hof/pkg/lang/internal"
 )
 
 // TODO:
@@ -282,7 +282,7 @@ func initInterfaces() error {
 	cfg := &packages.Config{
 		Mode: packages.LoadAllSyntax,
 	}
-	p, err := packages.Load(cfg, "cuelang.org/go/cmd/cue/cmd/interfaces")
+	p, err := packages.Load(cfg, "github.com/hofstadter-io/hof/pkg/lang/cmd/cue/cmd/interfaces")
 	if err != nil {
 		return err
 	}

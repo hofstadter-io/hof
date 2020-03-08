@@ -19,7 +19,7 @@ import (
 	"os"
 	"testing"
 
-	"cuelang.org/go/cue/errors"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/errors"
 )
 
 var _ = errors.Print

@@ -16,7 +16,7 @@
 package structs
 
 import (
-	"cuelang.org/go/cue"
+	"github.com/hofstadter-io/hof/pkg/lang/hof"
 )
 
 // MinFields validates the minimum number of fields that are part of a struct.

@@ -30,16 +30,16 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
 
-	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/errors"
-	"cuelang.org/go/internal"
-	itask "cuelang.org/go/internal/task"
-	"cuelang.org/go/internal/walk"
-	_ "cuelang.org/go/pkg/tool/cli" // Register tasks
-	_ "cuelang.org/go/pkg/tool/exec"
-	_ "cuelang.org/go/pkg/tool/file"
-	_ "cuelang.org/go/pkg/tool/http"
-	_ "cuelang.org/go/pkg/tool/os"
+	"github.com/hofstadter-io/hof/pkg/lang/hof"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/errors"
+	"github.com/hofstadter-io/hof/pkg/lang/internal"
+	itask "github.com/hofstadter-io/hof/pkg/lang/internal/task"
+	"github.com/hofstadter-io/hof/pkg/lang/internal/walk"
+	_ "github.com/hofstadter-io/hof/pkg/lang/pkg/tool/cli" // Register tasks
+	_ "github.com/hofstadter-io/hof/pkg/lang/pkg/tool/exec"
+	_ "github.com/hofstadter-io/hof/pkg/lang/pkg/tool/file"
+	_ "github.com/hofstadter-io/hof/pkg/lang/pkg/tool/http"
+	_ "github.com/hofstadter-io/hof/pkg/lang/pkg/tool/os"
 )
 
 const (

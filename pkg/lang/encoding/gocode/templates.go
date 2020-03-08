@@ -26,8 +26,8 @@ package {{.pkgName}}
 import (
 	"fmt"
 
-	"cuelang.org/go/cue"
-	"cuelang.org/go/encoding/gocode/gocodec"
+	"github.com/hofstadter-io/hof/pkg/lang/hof"
+	"github.com/hofstadter-io/hof/pkg/lang/encoding/gocode/gocodec"
 )
 
 `))

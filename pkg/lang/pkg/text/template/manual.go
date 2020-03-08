@@ -18,7 +18,7 @@ import (
 	"bytes"
 	"text/template"
 
-	"cuelang.org/go/cue"
+	"github.com/hofstadter-io/hof/pkg/lang/hof"
 )
 
 // Execute executes a Go-style template.

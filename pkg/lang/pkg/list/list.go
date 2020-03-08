@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"sort"
 
-	"cuelang.org/go/cue"
+	"github.com/hofstadter-io/hof/pkg/lang/hof"
 )
 
 // Drop reports the suffix of list x after the first n elements,

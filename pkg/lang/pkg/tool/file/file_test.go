@@ -22,10 +22,10 @@ import (
 	"reflect"
 	"testing"
 
-	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/parser"
-	"cuelang.org/go/internal"
-	"cuelang.org/go/internal/task"
+	"github.com/hofstadter-io/hof/pkg/lang/hof"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/parser"
+	"github.com/hofstadter-io/hof/pkg/lang/internal"
+	"github.com/hofstadter-io/hof/pkg/lang/internal/task"
 )
 
 func parse(t *testing.T, kind, expr string) cue.Value {

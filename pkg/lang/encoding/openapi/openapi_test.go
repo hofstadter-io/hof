@@ -25,10 +25,10 @@ import (
 
 	"github.com/kylelemons/godebug/diff"
 
-	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/ast"
-	"cuelang.org/go/cue/errors"
-	"cuelang.org/go/cue/load"
+	"github.com/hofstadter-io/hof/pkg/lang/hof"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/ast"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/errors"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/load"
 )
 
 var update *bool = flag.Bool("update", false, "update the test output")

@@ -21,14 +21,14 @@ import (
 	"strconv"
 	"strings"
 
-	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/ast"
-	"cuelang.org/go/cue/ast/astutil"
-	"cuelang.org/go/cue/errors"
-	"cuelang.org/go/cue/literal"
-	"cuelang.org/go/cue/parser"
-	"cuelang.org/go/cue/token"
-	"cuelang.org/go/pkg/encoding/json"
+	"github.com/hofstadter-io/hof/pkg/lang/hof"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/ast"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/ast/astutil"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/errors"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/literal"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/parser"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/token"
+	"github.com/hofstadter-io/hof/pkg/lang/pkg/encoding/json"
 )
 
 // Valid reports whether data is a valid JSON encoding.

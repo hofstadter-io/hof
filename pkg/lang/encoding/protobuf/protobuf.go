@@ -93,13 +93,13 @@ import (
 
 	"github.com/mpvl/unique"
 
-	"cuelang.org/go/cue/ast"
-	"cuelang.org/go/cue/build"
-	"cuelang.org/go/cue/errors"
-	"cuelang.org/go/cue/format"
-	"cuelang.org/go/cue/load"
-	"cuelang.org/go/cue/parser"
-	"cuelang.org/go/cue/token"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/ast"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/build"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/errors"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/format"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/load"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/parser"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/token"
 )
 
 // Config specifies the environment into which to parse a proto definition file.
@@ -178,7 +178,7 @@ func NewExtractor(c *Config) *Extractor {
 }
 
 // Err returns the errors accumulated during testing. The returned error may be
-// of type cuelang.org/go/cue/errors.List.
+// of type github.com/hofstadter-io/hof/pkg/lang/hof/errors.List.
 func (b *Extractor) Err() error {
 	return b.errs
 }

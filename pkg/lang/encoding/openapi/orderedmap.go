@@ -15,8 +15,8 @@
 package openapi
 
 import (
-	"cuelang.org/go/cue/ast"
-	"cuelang.org/go/internal/encoding/json"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/ast"
+	"github.com/hofstadter-io/hof/pkg/lang/internal/encoding/json"
 )
 
 // An OrderedMap is a set of key-value pairs that preserves the order in which

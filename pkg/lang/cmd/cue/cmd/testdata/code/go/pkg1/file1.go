@@ -22,7 +22,7 @@ import (
 	"encoding/json"
 	"time"
 
-	p2 "cuelang.org/go/cmd/cue/cmd/testdata/code/go/pkg2"
+	p2 "github.com/hofstadter-io/hof/pkg/lang/cmd/cue/cmd/testdata/code/go/pkg2"
 )
 
 // Foozer foozes a jaman.

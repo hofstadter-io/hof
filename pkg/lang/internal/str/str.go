@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // Package str provides string manipulation utilities.
-package str // import "cuelang.org/go/internal/str"
+package str // import "github.com/hofstadter-io/hof/pkg/lang/internal/str"
 
 import (
 	"bytes"

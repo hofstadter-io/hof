@@ -18,10 +18,10 @@ import (
 	"fmt"
 	"strings"
 
-	"cuelang.org/go/cue/ast"
-	"cuelang.org/go/cue/ast/astutil"
-	"cuelang.org/go/cue/parser"
-	"cuelang.org/go/cue/token"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/ast"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/ast/astutil"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/parser"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/token"
 )
 
 func fix(f *ast.File) *ast.File {

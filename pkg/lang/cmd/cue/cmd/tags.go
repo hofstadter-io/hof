@@ -17,13 +17,13 @@ package cmd
 import (
 	"strings"
 
-	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/ast"
-	"cuelang.org/go/cue/build"
-	"cuelang.org/go/cue/errors"
-	"cuelang.org/go/cue/token"
-	"cuelang.org/go/internal"
-	"cuelang.org/go/internal/cli"
+	"github.com/hofstadter-io/hof/pkg/lang/hof"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/ast"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/build"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/errors"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/token"
+	"github.com/hofstadter-io/hof/pkg/lang/internal"
+	"github.com/hofstadter-io/hof/pkg/lang/internal/cli"
 )
 
 func decorateInstances(cmd *Command, tags []string, a []*build.Instance) {

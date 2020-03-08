@@ -17,8 +17,8 @@ package cmd
 import (
 	"testing"
 
-	"cuelang.org/go/cue/format"
-	"cuelang.org/go/cue/parser"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/format"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/parser"
 )
 
 func TestFix(t *testing.T) {

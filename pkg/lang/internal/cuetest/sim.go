@@ -26,7 +26,7 @@ import (
 
 	"github.com/kylelemons/godebug/diff"
 
-	"cuelang.org/go/cmd/cue/cmd"
+	"github.com/hofstadter-io/hof/pkg/lang/cmd/cue/cmd"
 )
 
 type Config struct {

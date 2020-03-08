@@ -14,7 +14,7 @@
 
 package strconv
 
-import "cuelang.org/go/cue/literal"
+import "github.com/hofstadter-io/hof/pkg/lang/hof/literal"
 
 // Unquote interprets s as a single-quoted, double-quoted,
 // or backquoted CUE string literal, returning the string value

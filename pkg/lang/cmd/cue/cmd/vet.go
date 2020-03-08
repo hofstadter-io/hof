@@ -18,10 +18,10 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/text/message"
 
-	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/errors"
-	"cuelang.org/go/internal"
-	"cuelang.org/go/internal/encoding"
+	"github.com/hofstadter-io/hof/pkg/lang/hof"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/errors"
+	"github.com/hofstadter-io/hof/pkg/lang/internal"
+	"github.com/hofstadter-io/hof/pkg/lang/internal/encoding"
 )
 
 const vetDoc = `vet validates CUE and other data files

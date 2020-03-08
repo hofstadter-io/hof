@@ -21,9 +21,9 @@ import (
 	"log"
 	"os"
 
-	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/load"
-	"cuelang.org/go/encoding/gocode"
+	"github.com/hofstadter-io/hof/pkg/lang/hof"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/load"
+	"github.com/hofstadter-io/hof/pkg/lang/encoding/gocode"
 )
 
 func main() {
@@ -35,7 +35,7 @@ func main() {
 	inst := cue.Build(load.Instances([]string{"types.cue"}, &load.Config{
 		Dir:        cwd,
 		ModuleRoot: cwd,
-		Module:     "cuelang.org/go/cue/build",
+		Module:     "github.com/hofstadter-io/hof/pkg/lang/hof/build",
 	}))[0]
 	if inst.Err != nil {
 		log.Fatal(inst.Err)

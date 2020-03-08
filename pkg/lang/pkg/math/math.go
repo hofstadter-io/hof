@@ -23,7 +23,7 @@ import (
 
 	"github.com/cockroachdb/apd/v2"
 
-	"cuelang.org/go/internal"
+	"github.com/hofstadter-io/hof/pkg/lang/internal"
 )
 
 var apdContext = apd.BaseContext.WithPrecision(24)

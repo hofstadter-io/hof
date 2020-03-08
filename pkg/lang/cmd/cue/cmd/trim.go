@@ -22,11 +22,11 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"cuelang.org/go/cue/format"
-	"cuelang.org/go/cue/load"
-	"cuelang.org/go/internal"
-	"cuelang.org/go/internal/diff"
-	"cuelang.org/go/tools/trim"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/format"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/load"
+	"github.com/hofstadter-io/hof/pkg/lang/internal"
+	"github.com/hofstadter-io/hof/pkg/lang/internal/diff"
+	"github.com/hofstadter-io/hof/pkg/lang/tools/trim"
 )
 
 // TODO:

@@ -18,9 +18,9 @@ import (
 	"fmt"
 	"io"
 
-	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/errors"
-	"cuelang.org/go/cue/format"
+	"github.com/hofstadter-io/hof/pkg/lang/hof"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/errors"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/format"
 )
 
 // Print the differences between two structs represented by an edit script.

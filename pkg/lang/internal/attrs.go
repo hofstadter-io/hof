@@ -19,9 +19,9 @@ import (
 	"strconv"
 	"strings"
 
-	"cuelang.org/go/cue/errors"
-	"cuelang.org/go/cue/literal"
-	"cuelang.org/go/cue/token"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/errors"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/literal"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/token"
 )
 
 // Attr holds positional information for a single Attr.

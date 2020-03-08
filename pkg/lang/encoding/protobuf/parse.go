@@ -28,11 +28,11 @@ import (
 
 	"github.com/emicklei/proto"
 
-	"cuelang.org/go/cue/ast"
-	"cuelang.org/go/cue/errors"
-	"cuelang.org/go/cue/parser"
-	"cuelang.org/go/cue/token"
-	"cuelang.org/go/internal/source"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/ast"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/errors"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/parser"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/token"
+	"github.com/hofstadter-io/hof/pkg/lang/internal/source"
 )
 
 func (s *Extractor) parse(filename string, src interface{}) (p *protoConverter, err error) {

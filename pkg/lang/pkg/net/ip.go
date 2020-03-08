@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"net"
 
-	"cuelang.org/go/cue"
+	"github.com/hofstadter-io/hof/pkg/lang/hof"
 )
 
 // IP address lengths (bytes).

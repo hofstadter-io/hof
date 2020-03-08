@@ -18,11 +18,11 @@ import (
 	"bytes"
 	"io"
 
-	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/ast"
-	"cuelang.org/go/internal"
-	cueyaml "cuelang.org/go/internal/encoding/yaml"
-	"cuelang.org/go/internal/third_party/yaml"
+	"github.com/hofstadter-io/hof/pkg/lang/hof"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/ast"
+	"github.com/hofstadter-io/hof/pkg/lang/internal"
+	cueyaml "github.com/hofstadter-io/hof/pkg/lang/internal/encoding/yaml"
+	"github.com/hofstadter-io/hof/pkg/lang/internal/third_party/yaml"
 )
 
 // Marshal returns the YAML encoding of v.

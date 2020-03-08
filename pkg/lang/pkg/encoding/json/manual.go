@@ -19,10 +19,10 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/ast"
-	"cuelang.org/go/cue/parser"
-	"cuelang.org/go/internal"
+	"github.com/hofstadter-io/hof/pkg/lang/hof"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/ast"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/parser"
+	"github.com/hofstadter-io/hof/pkg/lang/internal"
 )
 
 // Compact generates the JSON-encoded src with insignificant space characters

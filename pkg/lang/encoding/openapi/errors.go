@@ -15,8 +15,8 @@
 package openapi
 
 import (
-	"cuelang.org/go/cue/errors"
-	"cuelang.org/go/cue/token"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/errors"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/token"
 )
 
 var _ errors.Error = &openapiError{}

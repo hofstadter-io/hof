@@ -19,7 +19,7 @@ import (
 	"strings"
 	"testing"
 
-	"cuelang.org/go/cue/token"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/token"
 )
 
 func TestAttributeBody(t *testing.T) {
