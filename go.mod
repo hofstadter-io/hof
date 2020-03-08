@@ -24,15 +24,13 @@ require (
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/pflag v1.0.3
 	github.com/spf13/viper v1.6.2
-	github.com/spf13/viper v1.6.2
 	github.com/ulikunitz/xz v0.5.7 // indirect
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
-	golang.org/x/net v0.0.0-20190522155817-f3200d17e092
-	golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4
-	golang.org/x/text v0.3.0
-	golang.org/x/tools v0.0.0-20190328211700-ab21143f2384
+	golang.org/x/net v0.0.0-20190724013045-ca1201d0de80
+	golang.org/x/sync v0.0.0-20190423024810-112230192c58
+	golang.org/x/text v0.3.2
+	golang.org/x/tools v0.0.0-20190729092621-ff9f1409240a
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
-	gopkg.in/inconshreveable/log15.v2 v2.0.0-20200109203555-b30bc20e4fd1 // indirect
 	gopkg.in/inconshreveable/log15.v2 v2.0.0-20200109203555-b30bc20e4fd1
 	gopkg.in/src-d/go-git.v4 v4.13.1
 	gopkg.in/yaml.v2 v2.2.4
