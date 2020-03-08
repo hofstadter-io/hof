@@ -7,9 +7,9 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/hofstadter-io/hof/pkg/lang/context"
-	"github.com/hofstadter-io/hof/pkg/lang/phases"
-	"github.com/hofstadter-io/hof/pkg/lang/visit"
+	"github.com/hofstadter-io/hof/pkg/old-lang/context"
+	"github.com/hofstadter-io/hof/pkg/old-lang/phases"
+	"github.com/hofstadter-io/hof/pkg/old-lang/visit"
 )
 
 var Phases = []phases.Phase {

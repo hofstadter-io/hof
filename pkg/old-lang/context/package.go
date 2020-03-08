@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/hofstadter-io/hof/pkg/lang/ast"
-	"github.com/hofstadter-io/hof/pkg/lang/module"
+	"github.com/hofstadter-io/hof/pkg/old-lang/ast"
+	"github.com/hofstadter-io/hof/pkg/old-lang/module"
 )
 
 

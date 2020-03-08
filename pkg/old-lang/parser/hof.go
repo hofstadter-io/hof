@@ -18,7 +18,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/hofstadter-io/hof/pkg/lang/ast"
+	"github.com/hofstadter-io/hof/pkg/old-lang/ast"
 )
 
 var g = &grammar{

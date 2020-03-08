@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/hofstadter-io/hof/pkg/lang/ast"
+	"github.com/hofstadter-io/hof/pkg/old-lang/ast"
 )
 
 func Print(node ast.ASTNode) error {

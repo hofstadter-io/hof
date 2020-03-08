@@ -1,19 +1,19 @@
 package cli
 
 Cli : {
-  package:  string
-  usage:    string
-  short:    string
-  long:     string
+  Package:  string
+  Usage:    string
+  Short:    string
+  Long:     string
 
-  persistent-prerun:   bool
-  prerun:              bool
-  omit-run:            bool
-  postrun:             bool
-  persistent-postrun:  bool
+  PersistentPrerun:   bool
+  Prerun:             bool
+  OmitRun:            bool
+  Postrun:            bool
+  PersistentPostrun:  bool
 
-  pflags:    []Flag
-  flags:     []Flag
-  args:      []Arg
-  commands:  []Command
+  Pflags:    []Flag
+  Flags:     []Flag
+  Args:      []Arg
+  Commands:  []Command
 }

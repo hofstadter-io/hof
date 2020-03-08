@@ -8,64 +8,68 @@ import (
 
 // Meta information for the CLI
 HofMetaInfo :: {
-  package:  "github.com/hofstadter-io/hof"
-  version:   "0.0.0"
+  Package:  "github.com/hofstadter-io/hof"
+  Version:   "0.0.0"
 }
 
 // System-wide secret file for the Hof CLI
 // Used to store credentials for the API
 HofSecret :: gen.Secret & {
-  dir: "$HOME/.hof"
-  file: "credentials.yaml"
+  Dir: "$HOME/.hof"
+  File: "credentials.yaml"
 }
 
 // System-wide configuration for the Hof CLI
 HofConfig :: gen.Config & {
-  dir: "$HOME/.hof"
-  file: "config.yaml"
+  Dir: "$HOME/.hof"
+  File: "config.yaml"
 }
-
-// HMM, how to define lists / slices at top level?
-GlobalFlags : []gen.Flag & [
-  context: gen.Flag & {
-    long: "context"
-    short: "C"
-    type: "string"
-    default: ""
-    help: "the context to use for the hof tool and commands"
-  },
-]
 
 HofCli : gen.Cli & {
   // ...HofMetaInfo
 
-  cli-name:  "hof"
-  config:    HofConfig
-  secret:    HofSecret
+  Name:    "hof"
+  Config:  HofConfig
+  Secret:  HofSecret
 
-  short: "HofLang framework CLI tool"
-  long: `
+  Short: "HofLang framework CLI tool"
+
+  // Should trim long-string prefix here
+  Long: `
     HofLang is a language and transpiler
     for building data-centric DSLs and designs.
   `
 
+  BashCompletion: true
+
   // For loading config/secret
   // TODO, infer this 
-  persistent-prerun: true
+  PersistentPrerun: true
 
   // root command does nothing, prints help instead
-  omit-run: true
+  OmitRun: true
 
-  pflags: GlobalFlags
+  Pflags: GlobalFlags
 
   // First level commands
-  commands: [
+  Commands: [
     // gen.VersionCommand(version),
     // gen.ConfigCommand(HofConfig),
     // ...gen.AuthCommand(HofConfig),
-    commands.Eval,
+
+    commands.Auth,
+    commands.Config,
+
+    commands.New,
     commands.Gen,
+    commands.Mod
     commands.Run,
+
+    commands.Eval,
+    commands.Vet,
+
+    commands.Studios
+    // commands.Hack,
   ]
 }
 
@@ -76,7 +80,7 @@ HofCliDocs :: gen.Command & gen.Docs & gen.DocsSite
 // This would be better, like open/closed for generators
 // Hof <= HofCli
 Hof <- HofCli & {
-  output-dir: "output"
+  OutputDir: "output"
 }
 
 /*

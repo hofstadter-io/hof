@@ -1,0 +1,37 @@
+package hof
+
+import (
+  "github.com/hofstadter-io/dsl-cli/spec"
+)
+
+// HMM, how to define lists / slices at top level?
+GlobalFlags : []cli.Flag [
+  contextFlag,
+  accountFlag,
+  projectFlag,
+]
+
+contextFlag : gen.Flag & {
+  Long: "context"
+  Short: "C"
+  Type: "string"
+  Default: ""
+  Help: "the Studios Auth Context to use during this hof execution"
+}
+
+accountFlag : gen.Flag & {
+  Long: "account"
+  Short: "A"
+  Type: "string"
+  Default: ""
+  Help: "the Studios Account to use during this hof execution"
+}
+
+projectFlag : gen.Flag & {
+  Long: "project"
+  Short: "A"
+  Type: "string"
+  Default: ""
+  Help: "the Studios Project to use during this hof execution"
+}
+

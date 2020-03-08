@@ -1,0 +1,258 @@
+{
+// Package 'parser' implements the basic parser for 'hof-lang'
+// i.e. there is no ast or validation
+package parser
+
+import (
+    "github.com/hofstadter-io/hof-lang/ast"
+    "github.com/kr/pretty"
+)
+
+func toIfaceSlice(v interface{}) []interface{} {
+	if v == nil {
+		return nil
+	}
+	switch v.(type) {
+	case []interface{}:
+		return v.([]interface{})
+	default:
+		return []interface{}{v}
+	}
+}
+
+}
+
+HOF <- defs:Definitions EOF {
+	ret := ast.HofFile {
+		Definitions: defs.([]ast.Definition),
+	}
+
+	return ret, nil
+}
+
+Definitions <- defs:( Definition )* __ {
+
+	ret := []ast.Definition {}
+	vals := toIfaceSlice(defs)
+
+    for _, def := range vals {
+    	ret = append(ret, def.(ast.Definition))
+    }
+
+	return ret, nil
+}
+
+Definition <- __ DEF _ name:ID _ dsl:DSL _ body:DefnBody __ {
+	ret := ast.Definition {
+		Name: name.(ast.Token),
+		DSL: dsl.(ast.Token),
+		Body: body.([]ast.ASTNode),
+	}
+
+	return ret, nil
+}
+
+DefnBody <- '{' __ defs:( DefnField )* __ '}' __ {
+
+	ret := []ast.ASTNode {}
+
+	vals := toIfaceSlice(defs)
+
+    for _, val := range vals {
+    	ret = append(ret, val.(ast.ASTNode))
+    }
+
+	return ret, nil
+}
+
+DefnField <- __ val:( TypeDecl / Field ) __ {
+    return val, nil
+}
+
+TypeDecl <- _ id:ID _ typ:TYPE _ obj:Object? __ {
+	ret := ast.TypeDecl {
+		Name: id.(ast.Token),
+		Type: typ.(ast.Token),
+	}
+	if obj != nil {
+		objVal := obj.(ast.Object)
+		ret.Extra = &objVal
+	}
+
+	return ret, nil
+}
+
+Value <- val:( Boolean / TypeDecl / Object / Array / Number / Integer / String / TypeRef / Null ) {
+    return val, nil
+}
+
+Field <- __ tok:Token _ ':' _ val:Value __ {
+	ret := ast.Field {
+        Key: tok.(ast.Token), 
+        Value: val.(ast.ASTNode),
+	}
+
+	return ret, nil
+}
+
+Object <- '{' fields:( Field )* __ '}' {
+	vals := toIfaceSlice(fields)
+    ret := ast.Object { Fields: make([]ast.Field, 0, len(vals)) }
+
+    for _, val := range vals {
+        ret.Fields = append(ret.Fields, val.(ast.Field))
+    }
+
+	return ret, nil
+}
+
+Elem <- __ val:Value _ ',' __ {
+	return val, nil
+}
+
+Array <- '[' elems:( Elem )* __ ']' {
+    vals := toIfaceSlice(elems)
+    ret := ast.Array { Elems: make([]ast.ASTNode, 0, len(vals)) }
+    for _, val := range vals {
+        ret.Elems = append(ret.Elems, val.(ast.ASTNode))
+    }
+    return ret, nil
+}
+
+CodeBlock <- Code __ {
+	text := string(c.text)
+	return text, nil
+}
+
+Code <- ( ( ![{}] . )+ / '{' Code '}' )*
+
+Number <- '-'? Integer '.' DecimalDigit+ Exponent? {
+	// JSON numbers have the same syntax as Go's, and are parseable using
+	// strconv.
+	val, err := strconv.ParseFloat(string(c.text), 64)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := ast.Decimal { Value: val }
+
+	return ret, nil
+}
+
+Index <- Integer {
+    // JSON numbers have the same syntax as Go's, and are parseable using
+    return strconv.ParseInt(string(c.text), 10, 64)
+}
+
+
+Integer <- '0' / NonZeroDecimalDigit DecimalDigit* {
+	// JSON numbers have the same syntax as Go's, and are parseable using
+	val, err := strconv.ParseInt(string(c.text), 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := ast.Integer { Value: int(val) }
+
+	return ret, nil
+}
+
+
+Exponent <- 'e'i [+-]? DecimalDigit+
+
+String <- '"' ( !EscapedChar . / '\\' EscapeSequence )* '"' {
+    // TODO : the forward slash (solidus) is not a valid escape in Go, it will
+    // fail if there's one in the string
+    text, err := strconv.Unquote(string(c.text))
+    if err != nil {
+        return ast.Token{}, err
+    }
+
+    ret := ast.Token {
+        Value: text,
+    }
+    return ret, nil
+}
+
+AlphaNumeric <- Alphabetic / DecimalDigit
+
+Alphabetic <- [a-zA-Z]
+
+EscapedChar <- [\x00-\x1f"\\]
+
+EscapeSequence <- SingleCharEscape / UnicodeEscape
+
+SingleCharEscape <- ["\\/bfnrt]
+
+UnicodeEscape <- 'u' HexDigit HexDigit HexDigit HexDigit
+
+DecimalDigit <- [0-9]
+
+NonZeroDecimalDigit <- [1-9]
+
+HexDigit <- [0-9a-f]i
+
+Boolean <- "true" { return ast.Bool { Value: true }, nil } / "false" { return ast.Bool{ Value: false }, nil }
+// Boolean <- "true" / "false"
+
+
+Null <- "null" { return nil, nil }
+
+__ ← ( Whitespace / EOL / Comment )*
+_ ← ( Whitespace / MultiLineCommentNoLineTerminator )*
+
+Whitespace ← [ \t\r]
+EOL ← '\n'
+EOS ← __ ';' / _ SingleLineComment? EOL / __ EOF
+
+EOF ← !.
+
+
+SourceChar ← .
+Comment ← MultiLineComment / SingleLineComment
+MultiLineComment ← "/*" ( !"*/" SourceChar )* "*/"
+MultiLineCommentNoLineTerminator ← "/*" ( !( "*/" / EOL ) SourceChar )* "*/"
+SingleLineComment ← "//" ( !EOL SourceChar )*
+
+DEF <- "def"
+
+TypeRef <- val:( Alphabetic ( TokenCharactors / [.] )* ) {
+	text := string(c.text)
+    ret := ast.Token {
+        Value: text,
+    }
+	return ret, nil
+}
+
+TYPE <- val:( Alphabetic AlphaNumeric* ) {
+	text := string(c.text)
+    ret := ast.Token {
+        Value: text,
+    }
+	return ret, nil
+}
+
+ID <- val:( Alphabetic AlphaNumeric* ) {
+	text := string(c.text)
+    ret := ast.Token {
+        Value: text,
+    }
+	return ret, nil
+}
+
+DSL <- val:( Alphabetic ( AlphaNumeric / [/] )* ) {
+	text := string(c.text)
+    ret := ast.Token {
+        Value: text,
+    }
+	return ret, nil
+}
+
+Token <- val:( Alphabetic AlphaNumeric* ) {
+	text := string(c.text)
+    ret := ast.Token {
+        Value: text,
+    }
+	return ret, nil
+}
+

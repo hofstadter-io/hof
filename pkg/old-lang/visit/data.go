@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hofstadter-io/hof/pkg/lang/ast"
+	"github.com/hofstadter-io/hof/pkg/old-lang/ast"
 )
 
 func ToData(node ast.ASTNode) (interface{}, error) {

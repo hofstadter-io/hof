@@ -1,8 +1,8 @@
 package phases
 
 import (
-	"github.com/hofstadter-io/hof/pkg/lang/context"
-	"github.com/hofstadter-io/hof/pkg/lang/visit"
+	"github.com/hofstadter-io/hof/pkg/old-lang/context"
+	"github.com/hofstadter-io/hof/pkg/old-lang/visit"
 )
 
 func CheckPackages(ctx *context.Context) error {
