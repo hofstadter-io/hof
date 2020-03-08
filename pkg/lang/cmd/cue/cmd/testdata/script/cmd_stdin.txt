@@ -1,0 +1,26 @@
+stdin stdin.txt
+cue cmd echo
+cmp stdout expect-stdout
+
+
+-- expect-stdout --
+Hello World!
+-- stdin.txt --
+Hello World!
+-- hello_tool.cue --
+package hello
+
+command: echo: {
+    echo: {
+        kind:   "exec"
+        cmd:    "cat"
+        stdout: string
+    }
+
+    pass: {
+        kind:   "exec"
+        cmd:    "cat"
+        stdin:  echo.stdout
+    }
+}
+-- cue.mod --

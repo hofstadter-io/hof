@@ -1,0 +1,37 @@
+cue cmd print
+cmp stdout expect-stdout
+
+-- expect-stdout --
+t.1.
+.t.2.
+
+-- task_tool.cue --
+package home
+
+import (
+	"tool/exec"
+	"tool/cli"
+	"strings"
+)
+
+command: print: {
+	runs: t1: exec.Run & {
+		cmd: ["sh", "-c", "sleep 1; echo t1"]
+		stdout: string
+	}
+	runs: t2: exec.Run & {
+		cmd: ["sh", "-c", "sleep 1; echo t2"]
+		stdout: string
+	}
+	print: cli.Print & {
+		text: (f & {arg: runs.t1.stdout + runs.t2.stdout}).result
+	}
+}
+
+f :: {
+    arg: string
+    result: strings.Join(strings.Split(arg, ""), ".")
+}
+-- task.cue --
+package home
+-- cue.mod --

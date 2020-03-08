@@ -1,0 +1,70 @@
+{
+   "openapi": "3.0.0",
+   "info": {
+      "title": "test",
+      "version": "v1"
+   },
+   "paths": {},
+   "components": {
+      "schemas": {
+         "MYSTRING": {
+            "description": "Randomly picked description from a set of size one.",
+            "type": "object",
+            "oneOf": [
+               {
+                  "required": [
+                     "exact"
+                  ],
+                  "properties": {
+                     "exact": {
+                        "description": "Randomly picked description from a set of size one.",
+                        "type": "string",
+                        "format": "string"
+                     }
+                  }
+               },
+               {
+                  "required": [
+                     "regex"
+                  ],
+                  "properties": {
+                     "regex": {
+                        "description": "Randomly picked description from a set of size one.",
+                        "type": "string",
+                        "format": "string"
+                     }
+                  }
+               }
+            ]
+         },
+         "MYINT": {
+            "description": "Randomly picked description from a set of size one.",
+            "type": "integer"
+         },
+         "FOO": {
+            "description": "Randomly picked description from a set of size one.",
+            "type": "object",
+            "required": [
+               "include",
+               "exclude",
+               "count"
+            ],
+            "properties": {
+               "include": {
+                  "$ref": "#/components/schemas/MYSTRING"
+               },
+               "exclude": {
+                  "description": "Randomly picked description from a set of size one.",
+                  "type": "array",
+                  "items": {
+                     "$ref": "#/components/schemas/MYSTRING"
+                  }
+               },
+               "count": {
+                  "$ref": "#/components/schemas/MYINT"
+               }
+            }
+         }
+      }
+   }
+}

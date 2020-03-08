@@ -1,0 +1,33 @@
+cue cmd run
+stdout 'Hello world!'
+
+-- task.cue --
+package home
+message: "Hello world!"
+
+-- task_tool.cue --
+package home
+
+command: run: RunBase & {
+	task: echo: cmd: "echo \(message)"
+}
+
+-- base_tool.cue --
+package home
+
+import (
+	"tool/cli"
+	"tool/exec"
+)
+
+// deliberately put in another file to test resolving top-level identifiers
+// in different files.
+RunBase :: {
+	task: echo: exec.Run & {
+		stdout: string
+	}
+
+	task: display: cli.Print & {
+		text: task.echo.stdout
+	}
+}

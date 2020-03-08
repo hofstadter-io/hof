@@ -1,0 +1,106 @@
+{
+   "openapi": "3.0.0",
+   "info": {
+      "title": "test",
+      "version": "v1"
+   },
+   "paths": {},
+   "components": {
+      "schemas": {
+         "MyString": {
+            "type": "object",
+            "properties": {
+               "exact": {
+                  "type": "string",
+                  "format": "string"
+               },
+               "regex": {
+                  "type": "string",
+                  "format": "string"
+               }
+            },
+            "oneOf": [
+               {
+                  "required": [
+                     "exact"
+                  ]
+               },
+               {
+                  "required": [
+                     "regex"
+                  ]
+               }
+            ]
+         },
+         "MyInt": {
+            "type": "integer"
+         },
+         "Foo": {
+            "type": "object",
+            "required": [
+               "include",
+               "exclude",
+               "count"
+            ],
+            "properties": {
+               "include": {
+                  "type": "object",
+                  "properties": {
+                     "exact": {
+                        "type": "string",
+                        "format": "string"
+                     },
+                     "regex": {
+                        "type": "string",
+                        "format": "string"
+                     }
+                  },
+                  "oneOf": [
+                     {
+                        "required": [
+                           "exact"
+                        ]
+                     },
+                     {
+                        "required": [
+                           "regex"
+                        ]
+                     }
+                  ]
+               },
+               "exclude": {
+                  "type": "array",
+                  "items": {
+                     "type": "object",
+                     "properties": {
+                        "exact": {
+                           "type": "string",
+                           "format": "string"
+                        },
+                        "regex": {
+                           "type": "string",
+                           "format": "string"
+                        }
+                     },
+                     "oneOf": [
+                        {
+                           "required": [
+                              "exact"
+                           ]
+                        },
+                        {
+                           "required": [
+                              "regex"
+                           ]
+                        }
+                     ]
+                  }
+               },
+               "count": {
+                  "type": "integer"
+               }
+            }
+         }
+      }
+   }
+}

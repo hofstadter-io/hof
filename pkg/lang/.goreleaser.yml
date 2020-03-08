@@ -1,0 +1,69 @@
+project_name: cue
+
+before:
+  hooks:
+    - go mod download
+
+builds:
+- env:
+  - CGO_ENABLED=0
+  main: ./cmd/cue
+  binary: cue
+  ldflags:
+    - -s -w
+    - -X cuelang.org/go/cmd/cue/cmd.version={{.Version}}
+    # TODO: consider adding the following for a verbose mode
+    # - -X cuelang.org/go/cmd/cue/cmd.commit={{.ShortCommit}}
+    # - -X cuelang.org/go/cmd/cue/cmd.date={{.Date}}
+    # - -X cuelang.org/cmd/cue/cmd.date={{.Env.GOVERSION}}
+  goos:
+    # File and Issue to request including other platforms.
+    - darwin
+    - linux
+    - windows
+  goarch:
+    - amd64
+    - arm64
+
+archives:
+- replacements:
+    darwin: Darwin
+    linux: Linux
+    windows: Windows
+    386: i386
+    amd64: x86_64
+  files:
+    - LICENSE
+    - README.md
+    - doc/tutorial/**/*
+    - doc/ref/spec.md
+  format_overrides:
+    - goos: windows
+      format: zip
+
+release:
+  disable: false
+
+checksum:
+  name_template: 'checksums.txt'
+
+snapshot:
+  name_template: "{{ .Tag }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+    - '^test:'
+
+brews:
+- github:
+    owner: cuelang
+    name: homebrew-tap
+  commit_author:
+    name: cue-bot
+    email: noreply@cuelang.org
+  homepage: "https://github.com/cuelang/cue"
+  description: "CUE is an open source data constraint language which aims to simplify tasks involving defining and using data."
+  test: |
+    system "#{bin}/cue version"

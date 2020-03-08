@@ -1,0 +1,26 @@
+{
+   "openapi": "3.0.0",
+   "info": {},
+   "paths": {},
+   "components": {
+      "schemas": {
+         "mul": {
+            "type": "number",
+            "multipleOf": 5
+         },
+         "neq": {
+            "type": "number",
+            "not": {
+               "allOff": [
+                  {
+                     "minimum": 4
+                  },
+                  {
+                     "maximum": 4
+                  }
+               ]
+            }
+         }
+      }
+   }
+}

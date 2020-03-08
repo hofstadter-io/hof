@@ -1,0 +1,23 @@
+env TESTNUM=10
+env MYTEXT=World
+cue cmd env
+cmp stdout cmd_env.out
+-- cmd_env.out --
+Hello World!
+-- task_tool.cue --
+package home
+
+import (
+    "tool/os"
+    "tool/cli"
+)
+
+command: env: {
+	env: os.Getenv & {
+        TESTNUM: *<10 | string
+        MYTEXT:  string
+	}
+	print: cli.Print & {
+		text: "Hello \(env.MYTEXT)!"
+	}
+}
