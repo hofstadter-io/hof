@@ -4,8 +4,10 @@ go 1.13
 
 require (
 	github.com/aymerick/raymond v2.0.2+incompatible
+	github.com/cockroachdb/apd/v2 v2.0.1
 	github.com/dsnet/compress v0.0.1 // indirect
 	github.com/elazarl/goproxy v0.0.0-20200220113713-29f9e0ba54ea // indirect
+	github.com/emicklei/proto v1.9.0
 	github.com/frankban/quicktest v1.7.3 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/hofstadter-io/data-utils v0.0.0-20200128210141-0a3e569b27ed
@@ -20,10 +22,15 @@ require (
 	github.com/pierrec/lz4 v2.4.1+incompatible // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/spf13/cobra v0.0.5
+	github.com/spf13/pflag v1.0.3
 	github.com/spf13/viper v1.6.2
 	github.com/spf13/viper v1.6.2
 	github.com/ulikunitz/xz v0.5.7 // indirect
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
+	golang.org/x/net v0.0.0-20190522155817-f3200d17e092
+	golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4
+	golang.org/x/text v0.3.0
+	golang.org/x/tools v0.0.0-20190328211700-ab21143f2384
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 	gopkg.in/inconshreveable/log15.v2 v2.0.0-20200109203555-b30bc20e4fd1 // indirect
 	gopkg.in/inconshreveable/log15.v2 v2.0.0-20200109203555-b30bc20e4fd1
