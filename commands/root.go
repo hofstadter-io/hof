@@ -1,11 +1,6 @@
 package commands
 
 import (
-
-	// custom imports
-
-	// infered imports
-
 	"github.com/spf13/cobra"
 )
 

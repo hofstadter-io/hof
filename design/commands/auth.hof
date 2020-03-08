@@ -1,0 +1,104 @@
+package commands
+
+import (
+  "github.com/hofstadter-io/dsl-cli/spec"
+)
+
+Auth : cli.Command & {
+  Name: "auth"
+  Usage: "auth <cmd>"
+  Short: "Authentication commands"
+  Long: `
+    Manage authentication configurations
+    for the hof tool and studios platform
+  `
+
+  OmitRun: true
+
+  Commands: [
+    AuthLogin,
+    AuthTestContext,
+    AuthListContext,
+    AuthGetContext,
+    AuthUseContext,
+    AuthSetContext,
+    AuthSetContextValue,
+  ]
+}
+
+AuthTestContext : cli.Command & {
+  Name:   "test"
+  Usage:  "test [name]"
+  Short:  "Test an auth context"
+  Long:   "Test the current (or provided) auth context for valid connectivity"
+  Args: [
+    contextArg
+  ]
+}
+
+AuthListContext : cli.Command & {
+  Name:   "list"
+  Usage:  "list"
+  Short:  "List available auth contexts"
+  Long:   "List available auth contexts"
+  Args: [
+    contextArg
+  ]
+}
+
+AuthGetContext : cli.Command & {
+  Name:     "get"
+  Usage:    "get <name>"
+  Short:    "Prints the current default context"
+  Long:     "Prints the current default context"
+  Args: [
+    contextArg & {
+      Required: true
+    }
+  ]
+}
+
+AuthUseContext : cli.Command & {
+  Name:     "use-context"
+  Usage:    "use-context <name>"
+  Aliases:  ["use"]
+  Short:    "Sets the default context"
+  Long:     "Sets the default context, override when running commands with the --context flag"
+  Args: [
+    contextArg & {
+      Required: true
+    }
+  ]
+}
+
+AuthSetContext : cli.Command & {
+  Name:     "set-context"
+  Usage:    "set-context <name> <identity> <apikey> [studios-url]"
+  Aliases:  ["use"]
+  Short:    "Set a contex with the provided values"
+  Long:    `
+    Set a contex with the provided values.
+      <name>: name for the context, will overwrite existing.
+      <identity>: user or service account email
+      <apikey>: an API key
+      [host]: URL for Hofstadter Studios (commonly used with enterprise deployments)
+  `
+  Args: [
+    contextArg & {
+      Required: true
+    },
+    identityArg & {
+      Required: true
+    },
+    apikeyArg & {
+      Required: true
+    },
+    cli.Arg & {
+      Name: "url"
+      Type: "string"
+      Help: "The URL for Hofstadter Studios"
+      Default: "https://studios.hofstadter.io"
+    }
+  ]
+}
+

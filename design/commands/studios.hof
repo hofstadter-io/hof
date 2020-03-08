@@ -1,0 +1,23 @@
+package commands
+
+import (
+  "github.com/hofstadter-io/dsl-cli/spec"
+)
+
+Secret : cli.Command & {
+
+  Name: "studios"
+  Usage: "studios <cmd>"
+  Aliases: [
+    "s",
+  ]
+  Short: "Work with Hofstadter Studios resources"
+  Long: "Work with Hofstadter Studios resources"
+
+  Commands: [
+    Secret,
+    App,
+    Database,
+  ]
+}
+

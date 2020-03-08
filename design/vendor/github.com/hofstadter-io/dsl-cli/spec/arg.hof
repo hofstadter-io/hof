@@ -1,12 +1,12 @@
 package cli
 
 Arg : {
-  name:        string
-  type:        string
+  Name:        string
+  Type:        string
 
   // "this".Type
-  default:     Type
+  Default:     Type
 
-  help:        string
-  validation:  object
+  Help:        string
+  Validation:  object
 }
