@@ -2,20 +2,12 @@ package secret
 
 import (
 	"fmt"
-
-	// custom imports
-
-	// infered imports
 	"os"
 
-	"github.com/hofstadter-io/hof/lib/secret"
 	"github.com/spf13/cobra"
-)
 
-// Tool:   hof
-// Name:   update
-// Usage:  update <name> <env-file>
-// Parent: secret
+	"github.com/hofstadter-io/hof/pkg/studios/secret"
+)
 
 var UpdateLong = `Update a secret file that can be injected as environment variables`
 
@@ -28,11 +20,7 @@ var UpdateCmd = &cobra.Command{
 	Long: UpdateLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		logger.Debug("In updateCmd", "args", args)
-		// Argument Parsing
-		// [0]name:   name
-		//     help:
-		//     req'd:  true
+
 		if 0 >= len(args) {
 			fmt.Println("missing required argument: 'name'\n")
 			cmd.Usage()
@@ -40,15 +28,10 @@ var UpdateCmd = &cobra.Command{
 		}
 
 		var name string
-
 		if 0 < len(args) {
-
 			name = args[0]
 		}
 
-		// [1]name:   file
-		//     help:
-		//     req'd:  true
 		if 1 >= len(args) {
 			fmt.Println("missing required argument: 'file'\n")
 			cmd.Usage()
@@ -56,9 +39,7 @@ var UpdateCmd = &cobra.Command{
 		}
 
 		var file string
-
 		if 1 < len(args) {
-
 			file = args[1]
 		}
 
@@ -77,9 +58,4 @@ var UpdateCmd = &cobra.Command{
 		}
 
 	},
-}
-
-func init() {
-	// add sub-commands to this command when present
-
 }

@@ -4,18 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	// custom imports
-
-	// infered imports
-
-	"github.com/hofstadter-io/hof/lib/app"
 	"github.com/spf13/cobra"
-)
 
-// Tool:   hof
-// Name:   push
-// Usage:  push
-// Parent: app
+	"github.com/hofstadter-io/hof/pkg/studios/app"
+)
 
 var PushLong = `Uploads the local copy and makes it the latest copy in Studios`
 
@@ -28,8 +20,6 @@ var PushCmd = &cobra.Command{
 	Long: PushLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		logger.Debug("In pushCmd", "args", args)
-		// Argument Parsing
 
 		// fmt.Println("hof app push:")
 
@@ -39,9 +29,4 @@ var PushCmd = &cobra.Command{
 			os.Exit(1)
 		}
 	},
-}
-
-func init() {
-	// add sub-commands to this command when present
-
 }

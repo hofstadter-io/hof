@@ -1,22 +1,12 @@
 package db
 
 import (
-	// "fmt"
-
-	// custom imports
-
-	// infered imports
-
+	"fmt"
 	"os"
 
-	"github.com/hofstadter-io/hof/lib/db"
+	"github.com/hofstadter-io/hof/pkg/studios/db"
 	"github.com/spf13/cobra"
 )
-
-// Tool:   hof
-// Name:   status
-// Usage:  status
-// Parent: db
 
 var StatusLong = `Get the status of your DB`
 
@@ -29,19 +19,13 @@ var StatusCmd = &cobra.Command{
 	Long: StatusLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		logger.Debug("In statusCmd", "args", args)
-		// Argument Parsing
 
 		// fmt.Println("hof db status:")
 
 		err := db.Status()
 		if err != nil {
+			fmt.Println(err)
 			os.Exit(1)
 		}
 	},
-}
-
-func init() {
-	// add sub-commands to this command when present
-
 }

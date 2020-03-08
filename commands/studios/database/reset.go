@@ -1,24 +1,14 @@
 package db
 
 import (
-	// "fmt"
-
-	// custom imports
-
-	// infered imports
-
+	"fmt"
 	"os"
 
-	"github.com/hofstadter-io/hof/lib/db"
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/spf13/cobra"
+	"github.com/hofstadter-io/hof/pkg/studios/db"
 )
-
-// Tool:   hof
-// Name:   reset
-// Usage:  reset
-// Parent: db
 
 var ResetLong = `Resets the DB to the latest checkpoint & schema, also adding seed data.`
 
@@ -41,19 +31,13 @@ var ResetCmd = &cobra.Command{
 	Long: ResetLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		logger.Debug("In resetCmd", "args", args)
-		// Argument Parsing
 
 		// fmt.Println("hof db reset:")
 
 		err := db.Reset(ResetHardFlag)
 		if err != nil {
+			fmt.Println(err)
 			os.Exit(1)
 		}
 	},
-}
-
-func init() {
-	// add sub-commands to this command when present
-
 }

@@ -2,22 +2,13 @@ package app
 
 import (
 	"fmt"
-
-	// custom imports
-
-	// infered imports
 	"os"
 
-	"github.com/hofstadter-io/hof/lib/app"
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/spf13/cobra"
+	"github.com/hofstadter-io/hof/pkg/studios/app"
 )
-
-// Tool:   hof
-// Name:   create
-// Usage:  create <name> <app-version> <template>[@version]
-// Parent: app
 
 var CreateLong = `Create an app from a template or existing directory`
 
@@ -76,9 +67,4 @@ var CreateCmd = &cobra.Command{
 		}
 
 	},
-}
-
-func init() {
-	// add sub-commands to this command when present
-
 }

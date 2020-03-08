@@ -4,32 +4,19 @@ import (
 	"fmt"
 	"os"
 
-	// custom imports
-
-	// infered imports
-
-	"github.com/hofstadter-io/hof/lib/crun"
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/spf13/cobra"
+	"github.com/hofstadter-io/hof/pkg/studios/container"
 )
-
-// Tool:   hof
-// Name:   deploy
-// Usage:  deploy [name]
-// Parent: container
 
 var DeployLong = `Deploys a container by name or from the current directory`
 
 var (
 	DeployPushFlag bool
-
 	DeployMemoryFlag string
-
 	DeployConcurrencyFlag int
-
 	DeployTimeoutFlag string
-
 	DeployEnvsFlag string
 )
 
@@ -48,7 +35,6 @@ func init() {
 
 	DeployCmd.Flags().StringVarP(&DeployEnvsFlag, "envs", "e", "", "set env vars KEY=VALUE,[KEY=VALUE]...")
 	viper.BindPFlag("envs", DeployCmd.Flags().Lookup("envs"))
-
 }
 
 var DeployCmd = &cobra.Command{
@@ -60,16 +46,9 @@ var DeployCmd = &cobra.Command{
 	Long: DeployLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		logger.Debug("In deployCmd", "args", args)
-		// Argument Parsing
-		// [0]name:   name
-		//     help:
-		//     req'd:
 
 		var name string
-
 		if 0 < len(args) {
-
 			name = args[0]
 		}
 
@@ -79,7 +58,7 @@ var DeployCmd = &cobra.Command{
 			)
 		*/
 
-		err := crun.Deploy(name, DeployPushFlag, DeployMemoryFlag, DeployConcurrencyFlag, DeployTimeoutFlag, DeployEnvsFlag)
+		err := container.Deploy(name, DeployPushFlag, DeployMemoryFlag, DeployConcurrencyFlag, DeployTimeoutFlag, DeployEnvsFlag)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -88,7 +67,3 @@ var DeployCmd = &cobra.Command{
 	},
 }
 
-func init() {
-	// add sub-commands to this command when present
-
-}

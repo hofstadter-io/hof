@@ -2,23 +2,13 @@ package function
 
 import (
 	"fmt"
-
-	// custom imports
-
-	// infered imports
 	"os"
 
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/spf13/cobra"
-
-	"github.com/hofstadter-io/hof/lib/fns"
+	"github.com/hofstadter-io/hof/pkg/studios/function"
 )
-
-// Tool:   hof
-// Name:   create
-// Usage:  create [path/to]<name> <template>[@version][#template-subpath]
-// Parent: function
 
 var CreateLong = `Create a new function from a template. The path prefix says where, the last part will be the name`
 
@@ -46,11 +36,6 @@ var CreateCmd = &cobra.Command{
 	Long: CreateLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		logger.Debug("In createCmd", "args", args)
-		// Argument Parsing
-		// [0]name:   name
-		//     help:
-		//     req'd:  true
 		if 0 >= len(args) {
 			fmt.Println("missing required argument: 'name'\n")
 			cmd.Usage()
@@ -58,9 +43,7 @@ var CreateCmd = &cobra.Command{
 		}
 
 		var name string
-
 		if 0 < len(args) {
-
 			name = args[0]
 		}
 
@@ -72,16 +55,11 @@ var CreateCmd = &cobra.Command{
 			)
 		*/
 
-		err := fns.Create(name, CreateTemplateFlag, CreateHereFlag)
+		err := function.Create(name, CreateTemplateFlag, CreateHereFlag)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
 	},
-}
-
-func init() {
-	// add sub-commands to this command when present
-
 }

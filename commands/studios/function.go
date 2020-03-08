@@ -1,20 +1,10 @@
 package commands
 
 import (
-
-	// custom imports
-
-	// infered imports
-
 	"github.com/spf13/cobra"
 
-	"github.com/hofstadter-io/hof/commands/function"
+	"github.com/hofstadter-io/hof/commands/studios/function"
 )
-
-// Tool:   hof
-// Name:   function
-// Usage:  function
-// Parent: hof
 
 var FunctionLong = `Work with your Studios Functions`
 
@@ -36,12 +26,7 @@ var FunctionCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(FunctionCmd)
-}
-
-func init() {
-	// add sub-commands to this command when present
-
+	// add sub-commands
 	FunctionCmd.AddCommand(function.VersionsCmd)
 	FunctionCmd.AddCommand(function.StatusCmd)
 	FunctionCmd.AddCommand(function.LogsCmd)

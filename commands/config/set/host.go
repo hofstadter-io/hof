@@ -10,7 +10,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/hofstadter-io/hof/lib/config"
+	"github.com/hofstadter-io/hof/pkg/config"
 )
 
 // Tool:   hof

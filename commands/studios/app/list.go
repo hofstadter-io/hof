@@ -2,21 +2,12 @@ package app
 
 import (
 	"fmt"
-
-	// custom imports
-
-	// infered imports
-
 	"os"
 
-	"github.com/hofstadter-io/hof/lib/app"
 	"github.com/spf13/cobra"
-)
 
-// Tool:   hof
-// Name:   list
-// Usage:  list
-// Parent: app
+	"github.com/hofstadter-io/hof/pkg/studios/app"
+)
 
 var ListLong = `List app of your Apps`
 
@@ -29,8 +20,6 @@ var ListCmd = &cobra.Command{
 	Long: ListLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		logger.Debug("In listCmd", "args", args)
-		// Argument Parsing
 
 		// fmt.Println("hof app list:")
 
@@ -40,9 +29,4 @@ var ListCmd = &cobra.Command{
 			os.Exit(1)
 		}
 	},
-}
-
-func init() {
-	// add sub-commands to this command when present
-
 }

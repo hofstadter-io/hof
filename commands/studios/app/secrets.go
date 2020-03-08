@@ -2,22 +2,12 @@ package app
 
 import (
 	"fmt"
-
-	// custom imports
-
-	// infered imports
-
 	"os"
 
 	"github.com/spf13/cobra"
 
-	"github.com/hofstadter-io/hof/lib/app"
+	"github.com/hofstadter-io/hof/pkg/studios/app"
 )
-
-// Tool:   hof
-// Name:   secrets
-// Usage:  secrets
-// Parent: app
 
 var SecretsLong = `Set the App Secrets`
 
@@ -30,8 +20,6 @@ var SecretsCmd = &cobra.Command{
 	Long: SecretsLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		logger.Debug("In secretsCmd", "args", args)
-		// Argument Parsing
 
 		// fmt.Println("hof app secrets:")
 
@@ -41,9 +29,4 @@ var SecretsCmd = &cobra.Command{
 			os.Exit(1)
 		}
 	},
-}
-
-func init() {
-	// add sub-commands to this command when present
-
 }

@@ -2,21 +2,12 @@ package app
 
 import (
 	"fmt"
-
-	// custom imports
-
-	// infered imports
-
 	"os"
 
-	"github.com/hofstadter-io/hof/lib/app"
 	"github.com/spf13/cobra"
-)
 
-// Tool:   hof
-// Name:   deploy
-// Usage:  deploy
-// Parent: app
+	"github.com/hofstadter-io/hof/pkg/studios/app"
+)
 
 var DeployLong = `Deploys the App`
 
@@ -29,16 +20,9 @@ var DeployCmd = &cobra.Command{
 	Long: DeployLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		logger.Debug("In deployCmd", "args", args)
-		// Argument Parsing
-		// [0]name:   name
-		//     help:
-		//     req'd:  false
 
 		var name string
-
 		if 0 < len(args) {
-
 			name = args[0]
 		}
 

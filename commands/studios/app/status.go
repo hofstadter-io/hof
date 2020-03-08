@@ -2,22 +2,12 @@ package app
 
 import (
 	"fmt"
-
-	// custom imports
-
-	// infered imports
-
 	"os"
 
 	"github.com/spf13/cobra"
 
-	"github.com/hofstadter-io/hof/lib/app"
+	"github.com/hofstadter-io/hof/pkg/studios/app"
 )
-
-// Tool:   hof
-// Name:   status
-// Usage:  status
-// Parent: app
 
 var StatusLong = `Get the status of your App`
 
@@ -30,11 +20,6 @@ var StatusCmd = &cobra.Command{
 	Long: StatusLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		logger.Debug("In statusCmd", "args", args)
-		// Argument Parsing
-		// [0]name:   name
-		//     help:
-		//     req'd:  false
 
 		var name string
 
@@ -55,9 +40,4 @@ var StatusCmd = &cobra.Command{
 			os.Exit(1)
 		}
 	},
-}
-
-func init() {
-	// add sub-commands to this command when present
-
 }

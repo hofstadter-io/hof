@@ -1,20 +1,10 @@
 package commands
 
 import (
-
-	// custom imports
-
-	// infered imports
-
 	"github.com/spf13/cobra"
 
-	"github.com/hofstadter-io/hof/commands/container"
+	"github.com/hofstadter-io/hof/commands/studios/container"
 )
-
-// Tool:   hof
-// Name:   container
-// Usage:  container
-// Parent: hof
 
 var ContainerLong = `Work with your Studios Container Run`
 
@@ -33,12 +23,7 @@ var ContainerCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(ContainerCmd)
-}
-
-func init() {
-	// add sub-commands to this command when present
-
+	// add sub-commands
 	ContainerCmd.AddCommand(container.StatusCmd)
 	ContainerCmd.AddCommand(container.LogsCmd)
 	ContainerCmd.AddCommand(container.ListCmd)

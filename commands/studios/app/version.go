@@ -2,21 +2,11 @@ package app
 
 import (
 	"fmt"
-
-	// custom imports
-
-	// infered imports
-
 	"os"
 
-	"github.com/hofstadter-io/hof/lib/app"
+	"github.com/hofstadter-io/hof/pkg/studios/app"
 	"github.com/spf13/cobra"
 )
-
-// Tool:   hof
-// Name:   version
-// Usage:  version
-// Parent: app
 
 var VersionLong = `Get the runtime version of your App`
 
@@ -33,11 +23,6 @@ var VersionCmd = &cobra.Command{
 	Long: VersionLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		logger.Debug("In versionCmd", "args", args)
-		// Argument Parsing
-		// [0]name:   name
-		//     help:
-		//     req'd:  false
 
 		var name string
 
@@ -58,9 +43,4 @@ var VersionCmd = &cobra.Command{
 			os.Exit(1)
 		}
 	},
-}
-
-func init() {
-	// add sub-commands to this command when present
-
 }

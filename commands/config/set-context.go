@@ -8,7 +8,7 @@ import (
 	// infered imports
 	"os"
 
-	"github.com/hofstadter-io/hof/lib/config"
+	"github.com/hofstadter-io/hof/pkg/config"
 	"github.com/spf13/cobra"
 )
 
