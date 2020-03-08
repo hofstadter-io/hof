@@ -1,8 +1,0 @@
-name: "cli-golang"
-version: "0.0.0"
-path: "github.com/hofstadter-io/geb-cli-golang"
-
-deps:
-  - package: "github.com/hofstadter-io/dsl-cli"
-    version: "0.0.0"
-

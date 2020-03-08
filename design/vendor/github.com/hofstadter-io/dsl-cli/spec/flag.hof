@@ -1,11 +1,15 @@
 package cli
 
 Flag : {
-  type:        builtin
+  type:        any
   default:     builtin
   help:        string
   long:        string
   short:       string
-  validation:  object
+  validation:  Validation
 }
 
+NewFlag <- (typ any) & Flag {
+  type: typ
+  validation: Validation(typ)
+}

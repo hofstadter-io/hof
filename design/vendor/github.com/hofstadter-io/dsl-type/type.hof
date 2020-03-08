@@ -1,0 +1,21 @@
+package dsl_type
+
+Type : {
+  doc: string
+  name: string
+  fields: []Field
+  methods: []Method
+}
+
+Field : {
+  doc: string
+  name: string
+  type: string
+}
+
+Method : {
+  doc: string
+  name: string
+  args: []any
+  return: []any
+}

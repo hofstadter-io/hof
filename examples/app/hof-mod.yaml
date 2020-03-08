@@ -1,9 +1,0 @@
-name: "hofapp"
-type: "design"
-path: "github.com/hofstadter-io/hofapp"
-
-entrypoint: "."
-
-deps:
-  - package: "github.com/hofstadter-io/apollokit"
-    version: "0.0.0"

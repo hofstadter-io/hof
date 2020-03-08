@@ -1,0 +1,10 @@
+package cli
+
+// Empty definition
+Validation : {}
+
+NewValidation <- (typ any) {
+  switch typ.(type) {
+    case: 
+  }
+}

@@ -1,0 +1,53 @@
+package gen_type_golang
+
+import (
+  dsl "github.com/hofstadter-io/dsl-type"
+)
+
+Type : dsl.Type & {
+  public: boolean | *false
+
+  // fields... overridden...
+  fields: []Field
+
+  // another option, with some other symbol for syntax besides '&' ???
+  // can this be supported with the dsl.Type above?
+  ...dsl.Type & {
+    // only override the fields def
+    fields: []Field
+  }
+}
+
+// dsl.Field is open, so we can extend here
+Field : dsl.Field & {
+  tags: []Tag
+}
+
+Tag : {
+  key: string
+  val: string
+}
+
+// This one is more of an ETL
+CommonTags <- (name string) []Tag & [
+  json: Tag & { key: "json", val: name },
+  yaml: Tag & { key: "yaml", val: name },
+  xml:  Tag & { key: "xml",  val: name },
+  // TODO, protobuf, need to figure out indexing, may require versioning and diff outside of language? as an etl
+]
+
+// This is more of a GENERATOR
+Gen <= Type & {
+  templates: [
+    {
+      name: "once-files"
+      field: "."
+      files: [
+        {
+          in: "type.go"
+          oout: "{{name}}.go"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+package hof
+
+import (
+  // Don't need this actually, because we are using the generator's
+  // extended or refined Type spec
+  //dsl  "github.com/hofstadter-io/dsl-type"
+
+  gen  "github.com/hofstadter-io/gen-type-golang"
+)
+
+
+HofConfigType :: gen.Type & {
+  fields: [
+    StudiosURL: gen.Field & {
+      doc: "API URL for the studios platform"
+      name: "StudiosURL"
+      type: "string"
+      // pass in "this".name
+      tags: gen.CommonTags(name)
+    }
+  ]
+}
+

@@ -1,9 +1,12 @@
 package cli
 
 Arg : {
-  Name:        string
-  Type:        string
-  Default:     Type
-  Help:        string
-  Validation:  v.BuiltinValidation
+  name:        string
+  type:        string
+
+  // "this".Type
+  default:     Type
+
+  help:        string
+  validation:  object
 }

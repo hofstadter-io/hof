@@ -6,20 +6,35 @@ import (
   "github.com/hofstadter-io/hof/commands"
 )
 
+// Meta information for the CLI
 HofMetaInfo :: {
   package:  "github.com/hofstadter-io/hof"
   version:   "0.0.0"
 }
 
+// System-wide secret file for the Hof CLI
+// Used to store credentials for the API
 HofSecret :: gen.Secret & {
-  dir: ".hof"
+  dir: "$HOME/.hof"
   file: "credentials.yaml"
 }
 
+// System-wide configuration for the Hof CLI
 HofConfig :: gen.Config & {
-  dir: ".hof"
+  dir: "$HOME/.hof"
   file: "config.yaml"
 }
+
+// HMM, how to define lists / slices at top level?
+GlobalFlags : []gen.Flag & [
+  context: gen.Flag & {
+    long: "context"
+    short: "C"
+    type: "string"
+    default: ""
+    help: "the context to use for the hof tool and commands"
+  },
+]
 
 HofCli : gen.Cli & {
   // ...HofMetaInfo
@@ -40,6 +55,8 @@ HofCli : gen.Cli & {
 
   // root command does nothing, prints help instead
   omit-run: true
+
+  pflags: GlobalFlags
 
   // First level commands
   commands: [

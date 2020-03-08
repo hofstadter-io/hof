@@ -1,0 +1,9 @@
+name: "type-golang"
+version: "0.0.0"
+path: "github.com/hofstadter-io/geb-type-golang"
+
+deps:
+  - package: "github.com/hofstadter-io/dsl-type"
+    version: "0.0.0"
+
+

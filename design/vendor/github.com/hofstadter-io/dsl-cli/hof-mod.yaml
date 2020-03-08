@@ -2,5 +2,5 @@ name: "cli"
 type: "dsl"
 
 deps:
-  - package: "github.com/hofstadter-io/dsl-builtin"
+  - package: "github.com/hofstadter-io/dsl-type"
     version: "0.0.0"

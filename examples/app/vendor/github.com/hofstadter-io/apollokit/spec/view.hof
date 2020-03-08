@@ -1,9 +1,0 @@
-package apollokit
-
-def View type {
-  /*
-  Name: string {
-    valid: regex("[a-zA-Z0-9]+")
-  }
-  */
-}
