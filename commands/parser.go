@@ -10,7 +10,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/hofstadter-io/hof/pkg/lang"
+	"github.com/hofstadter-io/hof/pkg/lang/hof/parser"
 )
 
 // Tool:   hof
@@ -30,7 +30,8 @@ var ParserCmd = &cobra.Command{
 
 	Run: func(cmd *cobra.Command, args []string) {
 
-		err := lang.Parser(args)
+		// TODO Update to call a real entrypoint into the language
+		_, err := parser.ParseFile(args[1], nil)
 		if err != nil {
 			fmt.Println("Error:", err)
 			os.Exit(1)

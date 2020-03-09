@@ -1,0 +1,51 @@
+cue cmd after
+cmp stdout expect-stdout
+
+-- expect-stdout --
+run also
+run
+true
+
+SUCCESS
+-- after_tool.cue --
+package home
+
+import (
+	"tool/exec"
+	"tool/cli"
+	"strings"
+)
+
+top0: cli.Print & { text: "run also" }
+top1: cli.Print & { text: "run", $after: top0 }
+top2: cli.Print & { text: "don't run also" }
+top3: cli.Print & { text: "don't", $after: top2 }
+
+command: after: {
+	group: {
+		t1: exec.Run & {
+			cmd: ["sh", "-c", "sleep 2; date +%s"]
+			stdout: string
+			$after: top1
+		}
+		t2: exec.Run & {
+			cmd: ["sh", "-c", "date +%s"]
+			stdout: string
+			$after: t1
+		}
+	}
+	t3: exec.Run & {
+		cmd: ["sh", "-c", "a=\(strings.TrimSpace(group.t1.stdout));b=\(strings.TrimSpace(group.t2.stdout));if [ $a -le $b ]; then echo 'true'; fi"]
+		stdout: string
+	}
+	t4: cli.Print & { text: t3.stdout }
+	t5: cli.Print & {
+		text: "SUCCESS"
+		$after: [ group, t4 ]
+	}
+}
+
+-- task.cue --
+package home
+
+-- cue.mod --

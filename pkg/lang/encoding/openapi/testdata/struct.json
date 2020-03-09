@@ -1,0 +1,25 @@
+{
+   "openapi": "3.0.0",
+   "info": {},
+   "paths": {},
+   "components": {
+      "schemas": {
+         "MyMap": {
+            "type": "object",
+            "minProperties": 4,
+            "maxProperties": 9
+         },
+         "MyType": {
+            "type": "object",
+            "required": [
+               "map"
+            ],
+            "properties": {
+               "map": {
+                  "$ref": "#/components/schemas/MyMap"
+               }
+            }
+         }
+      }
+   }
+}

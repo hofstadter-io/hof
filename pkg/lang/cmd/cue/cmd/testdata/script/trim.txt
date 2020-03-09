@@ -1,0 +1,135 @@
+cue trim -o - ./trim
+cmp stdout expect-stdout
+-- expect-stdout --
+package trim
+
+foo: [string]: {
+	_value: string
+
+	a: 4
+	b: string
+	d: 8
+	e: "foo"
+	f: ">> \( _value) <<"
+	n: 5
+
+	list: ["foo", 8.0]
+
+	struct: {a: 3.0}
+
+	sList: [{a: 8, b: string}, {a: 9, b: *"foo" | string}]
+	rList: [{a: "a"}]
+	rcList: [{a: "a", c: b}]
+
+	t: [string]: {
+		x: >=0 & <=5
+	}
+}
+
+foo: bar: {
+	_value: "here"
+	b:      "foo"
+	c:      45
+	f:      ">> here <<" // TODO: remove
+
+	sList: [{b: "foo"}, {}]
+}
+
+foo: baz: {}
+
+foo: multipath: {
+	t: [string]: {
+		// Combined with the other constraints, we know the value must be 5 and
+		// thus the entry below can be eliminated.
+		x: >=5 & <=8 & int
+	}
+
+	t: u: {
+	}
+}
+
+// TODO: top-level fields are currently not removed.
+group: {
+	for k, v in foo {
+		comp: "\(k)": v
+	}
+
+	comp: bar: {
+		aa: 8 // new value
+	}
+}
+-- trim/trim.cue --
+package trim
+
+foo: [string]: {
+	_value: string
+
+	a: 4
+	b: string
+	d: 8
+	e: "foo"
+	f: ">> \( _value) <<"
+	n: 5
+
+	list: ["foo", 8.0]
+
+	struct: {a: 3.0}
+
+	sList: [{a: 8, b: string}, {a: 9, b: *"foo" | string}]
+	rList: [{a: "a"}]
+	rcList: [{a: "a", c: b}]
+
+	t: [string]: {
+		x: >=0 & <=5
+	}
+}
+
+foo: bar: {
+	_value: "here"
+
+	a: 4
+	b: "foo"
+	c: 45
+	e: string
+	f: ">> here <<"  // TODO: remove
+
+	// 5 is an integer, so this can be removed.
+	n: int
+
+	struct: {a: 3.0}
+
+	list: ["foo", float]
+
+	sList: [{a: 8, b: "foo"}, {b: "foo"}]
+	rList: [{a: string}]
+	rcList: [{a: "a", c: "foo"}]
+}
+
+foo: baz: {}
+
+foo: multipath: {
+	t: [string]: {
+		// Combined with the other constraints, we know the value must be 5 and
+		// thus the entry below can be eliminated.
+		x: >=5 & <=8 & int
+	}
+
+	t: u: {
+		x: 5
+	}
+}
+
+// TODO: top-level fields are currently not removed.
+group: {
+	for k, v in foo {
+		comp: "\(k)": v
+	}
+
+	comp: bar: {
+		a:  4
+		aa: 8 // new value
+	}
+
+	comp: baz: {} // removed: fully implied by comprehension above
+}
+-- cue.mod --

@@ -1,0 +1,44 @@
+{
+   "openapi": "3.0.0",
+   "info": {
+      "title": "test",
+      "version": "v1"
+   },
+   "paths": {},
+   "components": {
+      "schemas": {
+         "MyStruct": {
+            "type": "object",
+            "required": [
+               "mediumNum",
+               "smallNum",
+               "float",
+               "double",
+               "deprecatedField"
+            ],
+            "properties": {
+               "mediumNum": {
+                  "type": "integer",
+                  "format": "int32"
+               },
+               "smallNum": {
+                  "type": "integer"
+               },
+               "float": {
+                  "type": "number",
+                  "format": "float"
+               },
+               "double": {
+                  "type": "number",
+                  "format": "double"
+               },
+               "deprecatedField": {
+                  "type": "string",
+                  "format": "string",
+                  "deprecated": true
+               }
+            }
+         }
+      }
+   }
+}
