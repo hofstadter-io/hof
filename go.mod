@@ -10,10 +10,11 @@ require (
 	github.com/emicklei/proto v1.9.0
 	github.com/frankban/quicktest v1.7.3 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
+	github.com/google/go-cmp v0.4.0
 	github.com/hofstadter-io/data-utils v0.0.0-20200128210141-0a3e569b27ed
 	github.com/hofstadter-io/dotpath v0.0.0-20191027071558-52e2819b7d2d
 	github.com/kr/pretty v0.2.0
-	github.com/kylelemons/godebug v1.1.0 // indirect
+	github.com/kylelemons/godebug v1.1.0
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/mholt/archiver v3.1.1+incompatible
 	github.com/mpvl/unique v0.0.0-20150818121801-cbe035fff7de
@@ -21,17 +22,19 @@ require (
 	github.com/parnurzeal/gorequest v0.2.16
 	github.com/pierrec/lz4 v2.4.1+incompatible // indirect
 	github.com/pkg/errors v0.8.1
+	github.com/rogpeppe/testscript v1.1.0
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/pflag v1.0.3
 	github.com/spf13/viper v1.6.2
+	github.com/stretchr/testify v1.3.0
 	github.com/ulikunitz/xz v0.5.7 // indirect
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
-	golang.org/x/net v0.0.0-20190724013045-ca1201d0de80
-	golang.org/x/sync v0.0.0-20190423024810-112230192c58
+	golang.org/x/net v0.0.0-20200226121028-0de0cce0169b
+	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
 	golang.org/x/text v0.3.2
-	golang.org/x/tools v0.0.0-20190729092621-ff9f1409240a
+	golang.org/x/tools v0.0.0-20200308013534-11ec41452d41
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
-	gopkg.in/inconshreveable/log15.v2 v2.0.0-20200109203555-b30bc20e4fd1
+	gopkg.in/inconshreveable/log15.v2 v2.0.0-20200109203555-b30bc20e4fd1 // indirect
 	gopkg.in/src-d/go-git.v4 v4.13.1
 	gopkg.in/yaml.v2 v2.2.4
 	gopkg.in/yaml.v3 v3.0.0-20200121175148-a6ecf24a6d71
