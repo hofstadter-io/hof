@@ -55,7 +55,7 @@
 // value and there is a JSON field tag with the omitempty flag.
 // A Complete will implicitly validate a struct.
 //
-package cuego // import "github.com/hofstadter-io/hof/pkg/lang/hofgo"
+package cuego // import "github.com/hofstadter-io/hof/pkg/lang/cuego"
 
 // The first goal of this packages is to get the semantics right. After that,
 // there are a lot of performance gains to be made:

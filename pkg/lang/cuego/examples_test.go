@@ -17,7 +17,7 @@ package cuego_test
 import (
 	"fmt"
 
-	"github.com/hofstadter-io/hof/pkg/lang/hofgo"
+	"github.com/hofstadter-io/hof/pkg/lang/cuego"
 )
 
 func ExampleComplete_structTag() {

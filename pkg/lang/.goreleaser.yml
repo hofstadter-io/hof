@@ -11,7 +11,7 @@ builds:
   binary: cue
   ldflags:
     - -s -w
-    - -X cuelang.org/go/cmd/cue/cmd.version={{.Version}}
+    - -X github.com/hofstadter-io/hof/pkg/cmd/cue/cmd.version={{.Version}}
     # TODO: consider adding the following for a verbose mode
     # - -X cuelang.org/go/cmd/cue/cmd.commit={{.ShortCommit}}
     # - -X cuelang.org/go/cmd/cue/cmd.date={{.Date}}

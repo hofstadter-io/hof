@@ -53,7 +53,7 @@ func TestGetGo(t *testing.T) {
 		if root != "" {
 			return filepath.SkipDir
 		}
-		if filepath.Base(path) == "cuelang.org" {
+		if filepath.Base(path) == "github.com" {
 			root = filepath.Dir(path)
 			return filepath.SkipDir
 		}

@@ -1,8 +1,8 @@
 package foo
 
 import (
-    "cuelang.org/go/foo"
-    "cuelang.org/go/bar"
+    "github.com/hofstadter-io/hof/pkg/lang/foo"
+    "github.com/hofstadter-io/hof/pkg/lang/bar"
     "time"
 )
 
@@ -10,15 +10,15 @@ import (
     "time"
 
     // comment f2
-    f2 "cuelang.org/go/foo"
-    f1 "cuelang.org/go/foo"
+    f2 "github.com/hofstadter-io/hof/pkg/lang/foo"
+    f1 "github.com/hofstadter-io/hof/pkg/lang/foo"
 )
 
 import (
     "time"
 
-    same "cuelang.org/go/foo" // comment 2
-    same "cuelang.org/go/foo" // comment 1
+    same "github.com/hofstadter-io/hof/pkg/lang/foo" // comment 2
+    same "github.com/hofstadter-io/hof/pkg/lang/foo" // comment 1
 )
 
 

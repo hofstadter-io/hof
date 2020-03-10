@@ -4,7 +4,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
 
-  "$id": "http://cuelang.org/go/encoding/openapi/testdata/order.json",
+  "$id": "http://github.com/hofstadter-io/hof/pkg/lang/encoding/openapi/testdata/order.json",
 
   "definitions": {
     "address": {
@@ -39,7 +39,7 @@
 }
 
 -- out.cue --
-Schema :: _ @jsonschema(schema="http://json-schema.org/draft-07/schema#",id="http://cuelang.org/go/encoding/openapi/testdata/order.json")
+Schema :: _ @jsonschema(schema="http://json-schema.org/draft-07/schema#",id="http://github.com/hofstadter-io/hof/pkg/lang/encoding/openapi/testdata/order.json")
 Schema :: {
 	person?:           def.person
 	billing_address?:  def.address

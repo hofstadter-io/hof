@@ -144,7 +144,7 @@ Commands are defined at the top-level of the configuration:
 
 Available tasks can be found in the package documentation at
 
-	https://godoc.org/cuelang.org/go/pkg/tool
+	https://godoc.org/github.com/hofstadter-io/hof/pkg/lang/pkg/tool
 
 More on tasks can be found in the tasks topic.
 
