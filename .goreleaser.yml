@@ -1,0 +1,86 @@
+build:
+  main: main.go
+  binary: hof
+  ldflags: -s -w -X main.builddate={{.Date}}
+  env:
+    - CGO_ENABLED=0
+  goos:
+    - darwin
+    - linux
+    - windows
+    # - freebsd
+    # - netbsd
+    # - openbsd
+    # - dragonfly
+  goarch:
+    - amd64
+    - 386
+    - arm
+    - arm64
+  ignore:
+    - goos: darwin
+      goarch: 386
+    - goos: openbsd
+      goarch: arm
+      goarm: 6
+
+nfpm:
+  formats:
+      - deb
+      - rpm
+  vendor: "hofstadter.io"
+  homepage: "https://github.com/hofstadter-io/hof"
+  maintainer: "Hofstadter <support@hofstadter.io>"
+  description: "The Hof CLI tool for interacting with studios."
+  license: "BSD 3-Clause"
+  name_template: "{{.Binary}}_{{.Version}}_{{.Os}}-{{.Arch}}"
+  replacements:
+    amd64: 64bit
+    386: 32bit
+    arm: ARM
+    arm64: ARM64
+    darwin: MacOS
+    linux: Linux
+    windows: Windows
+    openbsd: OpenBSD
+    netbsd: NetBSD
+    freebsd: FreeBSD
+    dragonfly: DragonFlyBSD
+
+
+archive:
+  format: tar.gz
+  format_overrides:
+    - goos: windows
+      format: zip
+  name_template: "{{.Binary}}_{{.Version}}_{{.Os}}-{{.Arch}}"
+  replacements:
+    amd64: 64bit
+    386: 32bit
+    arm: ARM
+    arm64: ARM64
+    darwin: MacOS
+    linux: Linux
+    windows: Windows
+    openbsd: OpenBSD
+    netbsd: NetBSD
+    freebsd: FreeBSD
+    dragonfly: DragonFlyBSD
+  files:
+    - README.md
+    - LICENSE
+
+brew:
+  name: hof
+  github:
+    owner: hofstadter-io
+    name: homebrew-tap
+  folder: Formula
+  commit_author:
+    name: verdverm
+    email: tony@hofstadter.io
+  homepage: https://github.com/hofstadter-io/hof
+  description: 'Hofstadter Studios CLI'
+
+release:
+  draft: false
