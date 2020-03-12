@@ -1,4 +1,4 @@
-package dsl_cli
+package schema
 
 Flag : {
   Type:        string

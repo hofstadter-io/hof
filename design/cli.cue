@@ -1,9 +1,25 @@
 package cli
 
 import (
-  dsl "github.com/hofstadter-io/dsl-cli:dsl_cli"
+  "github.com/hofstadter-io/dsl-cli:cli"
+  "github.com/hofstadter-io/dsl-cli/schema"
 )
 
-Hof : dsl.Cli & {
-  Name: "hof"
+GEN : cli.Generator & {
+  _Cli: CLI
 }
+
+CLI : cli.Schema & {
+  Name: "hof"
+  Package: "github.com/hofstadter-io/hof"
+
+  Commands: [
+    schema.Command & {
+      Name: "auth"
+    },
+    schema.Command & {
+      Name: "config"
+    },
+  ]
+}
+
