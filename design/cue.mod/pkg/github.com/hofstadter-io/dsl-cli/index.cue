@@ -29,4 +29,7 @@ Generator : {
 
 	_All: [_OnceFiles, _Commands]
 	_Out: _All
+
+	// Having issues with flattening lists here
+	// _Out: list.FlattenN(_All , 1)
 }
