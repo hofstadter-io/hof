@@ -3,6 +3,7 @@ package schema
 Command : {
   Name:     string
   Aliases?: [...string]
+  PackageName?: string
 
   // TODO, generate usage, and maybe long help
   Usage?:    string
@@ -15,9 +16,9 @@ Command : {
   Postrun?:            bool | *false
   PersistentPostrun?:  bool | *false
 
-  Pflags?:    [...Flag]
-  Flags?:     [...Flag]
-  Args?:      [...Arg]
-  Commands?:  [...Command]
+  Pflags?:   [...Flag]
+  Flags?:    [...Flag]
+  Args?:     [...Arg]
+  Commands:  [...Command] | *[]
 }
 

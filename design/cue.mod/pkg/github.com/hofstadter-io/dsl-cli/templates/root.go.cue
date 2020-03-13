@@ -102,6 +102,15 @@ var (
 		{{ end }}
 	}
 )
+
+{{if .CLI.Commands}}
+func init() {
+	{{ range $i, $C := .CLI.Commands }}
+	RootCmd.AddCommand({{ $C.Name }}Cmd)
+	{{ end }}
+}
+{{ end }}
+
 """
 
 RootRootTemplate : """

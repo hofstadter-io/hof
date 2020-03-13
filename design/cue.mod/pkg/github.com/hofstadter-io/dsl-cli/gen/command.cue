@@ -13,7 +13,12 @@ CommandGen : {
     CMD: schema.Command
   }
   Template: templates.CommandTemplate
-  Filename: "commands/\(In.CMD.Name).go"
+  if In.CMD.Parent == _|_ {
+    Filename: "commands/\(In.CMD.Name).go"
+  } 
+  if In.CMD.Parent != _|_ {
+    Filename: "commands/\(In.CMD.Parent.Name)/\(In.CMD.Name).go"
+  }
   Out: template.Execute(Template, In)
 }
 

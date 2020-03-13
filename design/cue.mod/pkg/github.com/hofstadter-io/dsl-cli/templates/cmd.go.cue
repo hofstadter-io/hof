@@ -5,7 +5,11 @@ CommandTemplate : RealCommandTemplate
 FakeCommandTemplate : "FakeCommandTemplate"
 
 RealCommandTemplate : """
-package commands
+{{ if .CMD.Parent }}
+package {{ .CMD.Parent.Name }}
+{{ else }}
+package {{ .CMD.PackageName }}
+{{ end }}
 
 """
 

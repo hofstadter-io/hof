@@ -28,13 +28,29 @@ Generator : {
       gen.CommandGen & {
         In: {
           CLI: Cli
+          CMD: C & {
+            PackageName: "commands"
+          }
+        }
+      },
+    }
+    for _, C in Cli.Commands
+  ]
+
+  _SubCmds:  [[C & { Parent: P.In.CMD } for _, C in P.In.CMD.Commands] for _, P in _Commands]
+
+  _SubCommands: [ // List comprehension
+    {
+      gen.CommandGen & {
+        In: {
+          CLI: Cli
           CMD: C
         }
       },
     }
-    for i, C in Cli.Commands
+    for _, C in list.FlattenN( _SubCmds, 1)
   ]
 
-  _All: [_OnceFiles, _Commands]
+  _All: [_OnceFiles, _Commands, _SubCommands]
   Out: list.FlattenN(_All , 1)
 }
