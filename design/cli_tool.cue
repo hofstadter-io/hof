@@ -37,16 +37,58 @@ command: gen: {
 
   task: format: exec.Run & {
     cnt : len(GEN.Out) - 1
-    deps: [ 
+    deps: [
       task["write-0"].stdout,
+      task["write-1"].stdout,
+      task["write-2"].stdout,
+      task["write-\(cnt -2)"].stdout,
+      task["write-\(cnt -1)"].stdout,
       task["write-\(cnt)"].stdout
     ]
     cmd: ["bash", "-c", "cd \(var.outdir) && go fmt ./..."]
     stdout: string
   }
 
-  task: print: cli.Print & {
-    text: task.format.stdout
-  }
 }
 
+command: init: {
+  var: {
+    outdir: "output/"
+  }
+
+  task: shell: exec.Run & {
+    cmd: ["bash", "-c", "cd \(var.outdir) && go mod init \(CLI.Package)"]
+    stdout: string
+  }
+
+  task: vendor: exec.Run & {
+    dep: [ task.shell.stdout ]
+    cmd: ["bash", "-c", "cd \(var.outdir) && go mod vendor"]
+    stdout: string
+  }
+
+}
+
+command: vendor: {
+  var: {
+    outdir: "output/"
+  }
+
+  task: vendor: exec.Run & {
+    cmd: ["bash", "-c", "cd \(var.outdir) && go mod vendor"]
+    stdout: string
+  }
+
+}
+
+command: build: {
+  var: {
+    outdir: "output/"
+  }
+
+  task: shell: exec.Run & {
+    cmd: ["bash", "-c", "cd \(var.outdir) && go build -o \(CLI.Name) ."]
+    stdout: string
+  }
+
+}
