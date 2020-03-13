@@ -1,10 +1,11 @@
 package templates
 
-CommandTemplate : FakeCommandTemplate
+CommandTemplate : RealCommandTemplate
 
 FakeCommandTemplate : "FakeCommandTemplate"
 
 RealCommandTemplate : """
+package commands
 
 """
 

@@ -4,12 +4,9 @@ FlagInit : RealFlagInit
 
 RealFlagInit : """
 {{ define "flag-init" }}
-
-// FlagInit!
+// FlagInit
 
 {{ end }}
-
-
 """
 
 OrigFlagInit : """

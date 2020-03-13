@@ -1,6 +1,15 @@
 package partials
 
-PackageName : """
+PackageName : RealPackageName
+
+RealPackageName : """
+{{ define "package-name" }}
+// PackageName
+
+{{ end }}
+"""
+
+OrigPackageName : """
 {{#if CTX.package-identifier}}
 package {{camel CTX.package-identifier}}
 {{else if DslContext.module}}

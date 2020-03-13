@@ -1,6 +1,15 @@
 package partials
 
-ArgsParse : """
+ArgsParse : RealArgsParse
+
+RealArgsParse : """
+{{ define "args-parse" }}
+// Argument Parsing
+
+{{ end }}
+"""
+
+OrigArgsParse : """
 // Argument Parsing
 {{#with . as |CMD| }}
 {{#each CMD.args}}

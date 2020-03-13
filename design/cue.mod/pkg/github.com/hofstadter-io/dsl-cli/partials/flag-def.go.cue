@@ -1,6 +1,15 @@
 package partials
 
-FlagDef : """
+FlagDef : RealFlagDef
+
+RealFlagDef : """
+{{ define "flag-def" }}
+// FlagDef
+
+{{ end }}
+"""
+
+OrigFlagDef : """
 {{#if (eq FLAG.type "bool")}}
 {{CMDNAME}}Cmd.{{PERSIST}}Flags().BoolVarP(&{{CMDNAME}}{{camelT FLAG.name }}{{#if (eq PERSIST "Persistent")}}P{{/if}}Flag, "{{FLAG.long}}", "{{FLAG.short}}", {{#if FLAG.default}}{{FLAG.default}}{{else}}false{{/if}}, "{{{FLAG.help}}}")
 {{else if (eq FLAG.type "array:bool")}}

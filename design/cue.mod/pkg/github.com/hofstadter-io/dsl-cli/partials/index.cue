@@ -1,3 +1,10 @@
 package partials
 
-AllPartials : FlagVar + FlagInit
+AllPartials :
+  ArgsParse +
+  FlagDef +
+  FlagVar +
+  FlagInit +
+  GoType +
+  PackageName +
+  ParseBuiltin

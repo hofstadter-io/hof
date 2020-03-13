@@ -1,6 +1,15 @@
 package partials
 
-ParseBuiltin : """
+ParseBuiltin : RealParseBuiltin
+
+RealParseBuiltin : """
+{{ define "parse-builtin" }}
+// ParseBuiltin
+
+{{ end }}
+"""
+
+OrigParseBuiltin : """
 {{#if (eq TYP "string")}}
 	{{OUT_NAME}} = {{IN_NAME}}
 {{else if (eq TYP "int")}}

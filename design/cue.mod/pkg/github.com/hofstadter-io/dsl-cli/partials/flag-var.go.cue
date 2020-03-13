@@ -4,8 +4,7 @@ FlagVar : RealFlagVar
 
 RealFlagVar : """
 {{ define "flag-vars" }}
-
-// FlagVars!
+// FlagVars
 
 {{ end }}
 

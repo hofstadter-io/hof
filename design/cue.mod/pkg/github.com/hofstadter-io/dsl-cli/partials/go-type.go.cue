@@ -1,6 +1,15 @@
 package partials
 
-GoType : """
+GoType : RealGoType
+
+RealGoType : """
+{{ define "go-type" }}
+// GoType
+
+{{ end }}
+"""
+
+OrigGoType : """
 {{#with . as |T| }}
 {{#if (contains T ":")}}
 	{{#if (hasprefix T "array")}}
