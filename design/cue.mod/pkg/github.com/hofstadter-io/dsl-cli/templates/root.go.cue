@@ -1,10 +1,35 @@
 package templates
 
-RootTemplate : FakeRootTemplate
+import (
+  "github.com/hofstadter-io/dsl-cli/partials"
+)
+
+RootTemplate : partials.AllPartials + RealRootTemplate
 
 FakeRootTemplate : "FakeRootTemplate"
 
 RealRootTemplate : """
+package commands
+
+import (
+  "fmt"
+  "os"
+
+	"github.com/spf13/cobra"
+  {{ if or .CLI.Flags .CLI.Pflags }}
+	"github.com/spf13/viper"
+  {{ end }}
+)
+
+{{ if .CLI.Long }}
+var {{ .CLI.Name }}Long = `{{ .CLI.Long }}`
+{{ end }}
+
+{{ template "flag-vars" }}
+{{ template "flag-init" }}
+"""
+
+RootRootTemplate : """
 {{#with DslContext as |CLI| }}
 package commands
 
@@ -36,6 +61,7 @@ import (
 	"github.com/spf13/viper"
 		{{/if}}
 	{{/if}}
+	"github.com/spf13/viper"
 	"github.com/spf13/cobra"
 )
 

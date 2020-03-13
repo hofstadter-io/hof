@@ -1,6 +1,18 @@
 package partials
 
-FlagInit : """
+FlagInit : RealFlagInit
+
+RealFlagInit : """
+{{ define "flag-init" }}
+
+// FlagInit!
+
+{{ end }}
+
+
+"""
+
+OrigFlagInit : """
 {{#with . as |Cmd| }}
 {{#if Cmd.pflags}}
 func init() {

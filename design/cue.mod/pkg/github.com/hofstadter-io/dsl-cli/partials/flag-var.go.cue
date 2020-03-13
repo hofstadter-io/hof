@@ -1,6 +1,18 @@
 package partials
 
-FlagVar : """
+FlagVar : RealFlagVar
+
+RealFlagVar : """
+{{ define "flag-vars" }}
+
+// FlagVars!
+
+{{ end }}
+
+
+"""
+
+OrigFlagVar : """
 {{#with . as |Cmd| }}
 {{#if Cmd.pflags}}
 var (

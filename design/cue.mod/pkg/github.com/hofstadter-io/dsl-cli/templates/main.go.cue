@@ -1,10 +1,31 @@
 package templates
 
-MainTemplate : FakeRootTemplate
+MainTemplate : RealMainTemplate
 
-FakeMainTemplate: "MainTemplate"
+FakeMainTemplate: "FakeMainTemplate"
 
 RealMainTemplate : """
+package main
+
+import (
+	"fmt"
+	"os"
+
+	"github.com/spf13/viper"
+
+	"{{ .CLI.Package }}/commands"
+)
+
+func main() {
+	if err := commands.RootCmd.Execute(); err != nil {
+		fmt.Println(err)
+		os.Exit(-1)
+	}
+}
+"""
+
+// golang raymond Mustache templates
+OrigMainTemplate : """
 {{#with DslContext as |CLI| }}
 package main
 
