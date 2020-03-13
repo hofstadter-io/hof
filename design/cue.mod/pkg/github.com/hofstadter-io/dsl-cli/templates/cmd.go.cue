@@ -1,6 +1,10 @@
 package templates
 
-CmdTemplate : """
+CommandTemplate : FakeCommandTemplate
+
+FakeCommandTemplate : "CommandTemplate"
+
+RealCommandTemplate : """
 {{> package-name.go CTX=RepeatedContext}}
 
 {{#with RepeatedContext as |RC| }}

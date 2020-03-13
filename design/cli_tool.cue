@@ -12,30 +12,19 @@ command: gen: {
     outdir: "output/"
   }
 
-  task: clean: exec.Run & {
-    cmd:    ["rm", "-rf", var.outdir]
-    stdout: string  // capture stdout
-  }
-  task: mkdir: exec.Run & {
-    cmd:    ["mkdir", "-p", var.outdir]
-    stdout: string
-    deps: [ task["clean"].stdout ]
-  }
+  for i, F in GEN.Out {
 
-  for i, FS in GEN._Out {
-		for j, F in FS {
-			task: "mkdir-\(i)-\(j)": exec.Run & {
-				cmd:    ["mkdir", "-p", var.outdir + path.Dir(F._Filename)]
-				stdout: string
-				deps: [ task["mkdir"].stdout ]
-			}
-			task: "write-\(i)-\(j)": file.Create & {
-				filename: var.outdir + F._Filename
-				contents: F._Out
-				deps: [ task["mkdir-\(i)-\(j)"].stdout ]
-			}
+    task: "mkdir-\(i)": exec.Run & {
+      cmd:    ["mkdir", "-p", var.outdir + path.Dir(F.Filename)]
+      stdout: string
+    }
 
-		}
+    task: "write-\(i)": file.Create & {
+      filename: var.outdir + F.Filename
+      contents: F.Out
+      deps: [ task["mkdir-\(i)"].stdout ]
+    }
+
   }
 
 }

@@ -6,7 +6,7 @@ import (
 )
 
 GEN : cli.Generator & {
-  _Cli: CLI
+  Cli: CLI
 }
 
 CLI : cli.Schema & {

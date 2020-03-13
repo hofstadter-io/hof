@@ -1,6 +1,10 @@
 package templates
 
-MainTemplate : """
+MainTemplate : FakeRootTemplate
+
+FakeMainTemplate: "MainTemplate"
+
+RealMainTemplate : """
 {{#with DslContext as |CLI| }}
 package main
 

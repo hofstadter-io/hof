@@ -7,12 +7,12 @@ import (
   "github.com/hofstadter-io/dsl-cli/templates"
 )
 
-TestGen : {
-  _In: {
+MainGen : {
+  In: {
     CLI: schema.Cli
   }
-  _Template: templates.TestTemplate
-  _Filename: "main.go"
-  _Out: mustache.Render(_Template, _In)
+  Template: templates.MainTemplate
+  Filename: "main.go"
+  Out: mustache.Render(Template, In)
 }
 

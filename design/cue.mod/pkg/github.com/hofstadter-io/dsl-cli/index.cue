@@ -10,26 +10,31 @@ import (
 Schema : schema.Cli
 
 Generator : {
-  _Cli: schema.Cli
+  Cli: schema.Cli
   _OnceFiles: [
-    gen.TestGen & {
-      _In: {
-        CLI: _Cli
+    gen.MainGen & {
+      In: {
+        CLI: Cli
       }
     },
-	]
-	_Commands: [ {
-			gen.MultiGen & {
-				_In: {
-					CLI: _Cli
-					CMD: C
-				}
-			},
-		} for i, C in _Cli.Commands ]
+    gen.RootGen & {
+      In: {
+        CLI: Cli
+      }
+    },
+  ]
+  _Commands: [ // List comprehension
+    {
+      gen.CommandGen & {
+        In: {
+          CLI: Cli
+          CMD: C
+        }
+      },
+    }
+    for i, C in Cli.Commands
+  ]
 
-	_All: [_OnceFiles, _Commands]
-	_Out: _All
-
-	// Having issues with flattening lists here
-	// _Out: list.FlattenN(_All , 1)
+  _All: [_OnceFiles, _Commands]
+  Out: list.FlattenN(_All , 1)
 }
