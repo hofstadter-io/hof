@@ -14,3 +14,4 @@
 
 # GoReleaser
 dist
+/design/output

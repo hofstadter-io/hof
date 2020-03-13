@@ -1,7 +1,7 @@
 package gen
 
 import (
-  "text/mustache"
+  "text/template"
 
   "github.com/hofstadter-io/dsl-cli/schema"
   "github.com/hofstadter-io/dsl-cli/templates"
@@ -14,6 +14,6 @@ CommandGen : {
   }
   Template: templates.CommandTemplate
   Filename: "commands/\(In.CMD.Name).go"
-  Out: mustache.Render(Template, In)
+  Out: template.Execute(Template, In)
 }
 

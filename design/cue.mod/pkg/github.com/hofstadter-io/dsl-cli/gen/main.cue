@@ -1,7 +1,7 @@
 package gen
 
 import (
-  "text/mustache"
+  "text/template"
 
   "github.com/hofstadter-io/dsl-cli/schema"
   "github.com/hofstadter-io/dsl-cli/templates"
@@ -13,6 +13,6 @@ MainGen : {
   }
   Template: templates.MainTemplate
   Filename: "main.go"
-  Out: mustache.Render(Template, In)
+  Out: template.Execute(Template, In)
 }
 
