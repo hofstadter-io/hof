@@ -45,7 +45,7 @@ command: gen: {
       task["write-\(cnt -1)"].stdout,
       task["write-\(cnt)"].stdout
     ]
-    cmd: ["bash", "-c", "cd \(var.outdir) && go fmt ./..."]
+    cmd: ["bash", "-c", "cd \(var.outdir) && goimports -w -l ."]
     stdout: string
   }
 
