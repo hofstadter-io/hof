@@ -1,7 +1,14 @@
 package schema
 
+import (
+  "strings"
+)
+
 Cli : {
   Name:     string
+  cliName: strings.ToCamel(Name)
+  CliName: strings.ToTitle(Name)
+
   Package:  string
 
   Usage?:    string

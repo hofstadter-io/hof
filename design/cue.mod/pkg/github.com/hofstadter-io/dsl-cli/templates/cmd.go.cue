@@ -1,173 +1,129 @@
 package templates
 
-CommandTemplate : RealCommandTemplate
+import (
+  "github.com/hofstadter-io/dsl-cli/partials"
+)
 
-FakeCommandTemplate : "FakeCommandTemplate"
+CommandTemplate : partials.AllPartials + RealCommandTemplate
 
 RealCommandTemplate : """
 {{ if .CMD.Parent }}
 package {{ .CMD.Parent.Name }}
 {{ else }}
-package {{ .CMD.PackageName }}
+package commands
 {{ end }}
 
-"""
-
-OrigCommandTemplate : """
-{{> package-name.go CTX=RepeatedContext}}
-
-{{#with RepeatedContext as |RC| }}
-{{#with DslContext as |CLI| }}
-
 import (
-	{{#if (or RC.omit-run RC.body)}}
-	{{else}}
-	"fmt"
-	{{/if}}
+  "fmt"
+  "os"
 
-	// custom imports
-	{{#each RC.imports as |I|}}
-	{{I.as}} "{{{ I.path }}}"
-	{{/each}}
+  "github.com/spf13/cobra"
+  {{ if or .CMD.Flags .CMD.Pflags }}
+  "github.com/spf13/viper"
+  {{ end }}
 
-	// infered imports
-	{{#dotpath "args.required" RC false}}
-	{{#with . as |D|}}
-	{{#if (contains D "Error")}}
-	{{else}}
-	"os"
-	{{/if}}
-	{{/with}}
-	{{/dotpath}}
+  {{ if .CMD.Imports }}
+	{{ range $i, $I := .CMD.imports }}
+	{{ $I.As }} "{{ $I.Path }}"
+	{{ end }}
+	{{ end }}
 
-	{{#if RC.flags}}
-	"github.com/spf13/viper"
-	{{else}}
-		{{#if RC.pflags}}
-	"github.com/spf13/viper"
-		{{/if}}
-	{{/if}}
-	"github.com/spf13/cobra"
-
-	{{#if RC.commands}}
-	"{{CLI.package}}/{{lower RC.name}}"
-	{{/if}}
+	{{ if .CMD.Commands }}
+	"{{ .CLI.Package }}/{{ .CMD.cmdName }}"
+	{{ end }}
 )
 
-// Tool:   {{CLI.name}}
-// Name:   {{RC.name}}
-// Usage:  {{{RC.usage}}}
-// Parent: {{{RC.parent}}}
+{{ if .CMD.Long }}
+var {{ .CMD.Name }}Long = `{{ .CMD.Long }}`
+{{ end }}
 
+{{ template "flag-vars" .CMD }}
+{{ template "flag-init" .CMD }}
 
-{{#if RC.long}}
-var {{camelT RC.name}}Long = `{{{RC.long}}}`
-{{/if}}
+var {{ .CMD.CmdName }}Cmd = &cobra.Command{
 
-{{> "flag-var.go" RC }}
+  {{ if .CMD.Usage}}
+  Use: "{{ .CMD.Usage }}",
+  {{ else }}
+  Use: "{{ .CMD.Name }}",
+  {{ end }}
 
-{{> "flag-init.go" RC }}
-
-var {{camelT RC.name}}Cmd = &cobra.Command {
-	{{#if RC.hidden}}
+	{{ if .CMD.Hidden }}
 	Hidden: true,
-	{{/if}}
+	{{ end }}
 
-	{{#if RC.usage}}
-	Use: "{{{RC.usage}}}",
-	{{else}}
-	Use: "{{{RC.name}}}",
-	{{/if}}
-
-	{{#if RC.aliases}}
+	{{ if .CMD.Aliases }}
 	Aliases: []string{
-		{{#each RC.aliases as |AL|}}"{{AL}}",
-		{{/each}}
+		{{range $i, $AL := .CMD.Aliases}}"{{$AL}}",
+		{{end}}
 	},
-	{{/if}}
+	{{ end }}
 
-	{{#if RC.short}}
-	Short: "{{{RC.short}}}",
-	{{/if}}
+  {{ if .CMD.Short}}
+  Short: "{{ .CMD.Short }}",
+  {{ end }}
 
-	{{#if RC.long}}
-	Long: {{camelT RC.name}}Long,
-	{{/if}}
+  {{ if .CMD.Long }}
+  Long: {{ .CMD.Name }}Long,
+  {{ end }}
 
-	{{#if RC.persistent-prerun}}
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		logger.Debug("In PersistentPreRun {{RC.name}}Cmd", "args", args)
-		{{> args-parse.go RC }}
+  {{ if .CMD.PersistentPrerun }}
+  PersistentPreRun: func(cmd *cobra.Command, args []string) {
+    {{ template "args-parse" .CMD }}
 
-		{{#if RC.persistent-prerun-body}}
-		{{{ RC.persistent-prerun-body}}}
-		{{/if}}
-	},
-	{{/if}}
-	{{#if RC.prerun}}
-	PreRun: func(cmd *cobra.Command, args []string) {
-		logger.Debug("In PreRun {{RC.name}}Cmd", "args", args)
-		{{> args-parse.go RC }}
+    {{ if .CMD.PersistentPrerunBody }}
+    {{ .CMD.PersistentPrerunBody }}
+    {{ end }}
+  },
+  {{ end }}
 
-		{{#if RC.prerun-body}}
-		{{{ RC.prerun-body}}}
-		{{/if}}
-	},
-	{{/if}}
-	{{#unless RC.omit-run}}
-	Run: func(cmd *cobra.Command, args []string) {
-		logger.Debug("In {{RC.name}}Cmd", "args", args)
-		{{> args-parse.go RC }}
+  {{ if .CMD.Prerun }}
+  PreRun: func(cmd *cobra.Command, args []string) {
+    {{ template "args-parse" .CMD }}
 
-		{{#if RC.body}}
-		{{{ RC.body}}}
-		{{else}}
-		fmt.Println("{{replace RC.pkgPath "/" " " -1}}:", {{#each RC.args}}
-		{{camel name}},
-		{{/each}})
-		{{/if}}
-	},
-	{{/unless}}
-	{{#if RC.persistent-postrun}}
-	PersistentPostRun: func(cmd *cobra.Command, args []string) {
-		logger.Debug("In PersistentPostRun {{RC.name}}Cmd", "args", args)
-		{{> args-parse.go RC }}
+    {{ if .CMD.PrerunBody }}
+    {{ .CMD.PrerunBody }}
+    {{ end }}
+  },
+  {{ end }}
 
-		{{#if RC.persistent-postrun-body}}
-		{{{ RC.persistent-postrun-body}}}
-		{{/if}}
-	},
-	{{/if}}
-	{{#if RC.postrun}}
-	PostRun: func(cmd *cobra.Command, args []string) {
-		logger.Debug("In PostRun {{RC.name}}Cmd", "args", args)
-		{{> args-parse.go RC }}
+  {{ if not .CMD.OmitRun}}
+  Run: func(cmd *cobra.Command, args []string) {
+    {{ template "args-parse" .CMD }}
 
-		{{#if RC.postrun-body}}
-		{{{ RC.postrun-body}}}
-		{{/if}}
-	},
-	{{/if}}
+    {{ if .CMD.Body}}
+    {{ .CMD.Body}}
+    {{ end }}
+  },
+  {{ end }}
+
+  {{ if .CMD.PersistentPostrun}}
+  PersistentPostRun: func(cmd *cobra.Command, args []string) {
+    {{ template "args-parse" .CMD }}
+
+    {{ if .CMD.PersistentPostrunBody}}
+    {{ .CMD.PersistentPostrunBody}}
+    {{ end }}
+  },
+  {{ end }}
+
+  {{ if .CMD.Postrun}}
+  PostRun: func(cmd *cobra.Command, args []string) {
+    {{ template "args-parse" .CMD }}
+
+    {{ if .CMD.PostrunBody }}
+    {{ .CMD.PostrunBody }}
+    {{ end }}
+  },
+  {{ end }}
 }
 
-
-{{#if (eq RC.parent CLI.name) }}
+{{if .CMD.Commands}}
 func init() {
-	RootCmd.AddCommand({{camelT RC.name}}Cmd)
+	{{ range $i, $C := .CMD.Commands -}}
+  {{ $.CMD.CmdName }}Cmd.AddCommand({{ $.CMD.cmdName }}.{{ $C.CmdName }}Cmd)
+	{{ end -}}
 }
-{{/if}}
-
-{{#if commands}}
-func init() {
-	// add sub-commands to this command when present
-
-	{{#each RC.commands as |C|}}
-	{{camelT RC.name}}Cmd.AddCommand({{lower RC.name}}.{{camelT C.name}}Cmd)
-	{{/each}}
-}
-{{/if}}
-
-{{/with}}
-{{/with}}
+{{ end }}
 
 """
