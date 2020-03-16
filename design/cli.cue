@@ -12,6 +12,8 @@ GEN : cli.Generator & {
 CLI : cli.Schema & {
   Name: "hof"
   Package: "github.com/hofstadter-io/hof"
+  Short: "hof is a CLI"
+  OmitRun: true
 
   Commands: [
     schema.Command & {
@@ -19,6 +21,14 @@ CLI : cli.Schema & {
     },
     schema.Command & {
       Name: "config"
+      Commands: [
+        schema.Command & {
+          Name: "get"
+        },
+        schema.Command & {
+          Name: "set"
+        },
+      ]
     },
   ]
 }
