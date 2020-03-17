@@ -5,7 +5,7 @@ import (
   "github.com/hof-lang/cuemod--cli-golang/schema"
 )
 
-Outdir: "./output"
+Outdir: "./output/"
 
 GEN : cli.Generator & {
   Cli: CLI

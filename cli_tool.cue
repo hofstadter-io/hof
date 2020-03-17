@@ -8,6 +8,18 @@ import (
 )
 
 command: gen: {
+  task: step_1: exec.Run & {
+    cmd: ["cue", "render"]
+    stdout: string
+  }
+  task: step_2: exec.Run & {
+    $after: task.step_1
+    cmd: ["cue", "format"]
+    stdout: string
+  }
+}
+
+command: render: {
 
   var: {
     outdir: Outdir
@@ -33,20 +45,6 @@ command: gen: {
       text: task["write-\(i)"].filename
     }
 
-  }
-
-  task: format: exec.Run & {
-    cnt : len(GEN.Out) - 1
-    deps: [
-      task["write-0"].stdout,
-      task["write-1"].stdout,
-      task["write-2"].stdout,
-      task["write-\(cnt -2)"].stdout,
-      task["write-\(cnt -1)"].stdout,
-      task["write-\(cnt)"].stdout
-    ]
-    cmd: ["bash", "-c", "cd \(var.outdir) && goimports -w -l ."]
-    stdout: string
   }
 
 }
