@@ -10,7 +10,7 @@ import (
 command: gen: {
 
   var: {
-    outdir: "output/"
+    outdir: Outdir
   }
 
   for i, F in GEN.Out {
@@ -51,9 +51,20 @@ command: gen: {
 
 }
 
+command: format: {
+  var: {
+    outdir: Outdir
+  }
+
+  task: shell: exec.Run & {
+    cmd: ["bash", "-c", "cd \(var.outdir) && goimports -w -l ."]
+    stdout: string
+  }
+}
+
 command: init: {
   var: {
-    outdir: "output/"
+    outdir: Outdir
   }
 
   task: shell: exec.Run & {
@@ -71,7 +82,7 @@ command: init: {
 
 command: vendor: {
   var: {
-    outdir: "output/"
+    outdir: Outdir
   }
 
   task: vendor: exec.Run & {
@@ -83,7 +94,7 @@ command: vendor: {
 
 command: build: {
   var: {
-    outdir: "output/"
+    outdir: Outdir
   }
 
   task: shell: exec.Run & {

@@ -1,0 +1,10 @@
+module github.com/hofstadter-io/hof
+
+cue 0.0.15
+
+require (
+  github.com/hof-lang/cuemod--cli-golang v0.0.0
+)
+
+replace github.com/hof-lang/cuemod--cli-golang => ../../hoflang/cuemod--cli-golang
+

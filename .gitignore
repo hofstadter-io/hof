@@ -15,3 +15,4 @@
 # GoReleaser
 dist
 /design/output
+/cue.mod/pkg/
