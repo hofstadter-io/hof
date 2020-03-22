@@ -29,7 +29,7 @@ func GetContext(context string) error {
 	ctx, ok := c.Contexts[context]
 	if !ok {
 		fmt.Println("Unknown Context:", context)
-		return errors.New("Unknown Context: "+ context)
+		return errors.New("Unknown Context: " + context)
 	}
 
 	b, err := yaml.Marshal(ctx)

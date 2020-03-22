@@ -30,4 +30,3 @@ func init() {
 	StudiosCmd.AddCommand(studios.FunctionCmd)
 	StudiosCmd.AddCommand(studios.SecretCmd)
 }
-

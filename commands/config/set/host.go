@@ -34,9 +34,9 @@ var HostCmd = &cobra.Command{
 		}
 
 		/*
-		fmt.Println("hof config set host:",
-			host,
-		)
+			fmt.Println("hof config set host:",
+				host,
+			)
 		*/
 
 		context := viper.GetString("context")

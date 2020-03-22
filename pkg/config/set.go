@@ -9,8 +9,8 @@ func SetContext(context, account, apikey, host string) {
 
 	ctx := Context{
 		Account: account,
-		APIKey: apikey,
-		Host: host,
+		APIKey:  apikey,
+		Host:    host,
 	}
 
 	if c.Contexts == nil {
@@ -88,5 +88,3 @@ func SetHost(context, host string) {
 
 	write()
 }
-
-

@@ -13,11 +13,11 @@ import (
 var DeployLong = `Deploys a container by name or from the current directory`
 
 var (
-	DeployPushFlag bool
-	DeployMemoryFlag string
+	DeployPushFlag        bool
+	DeployMemoryFlag      string
 	DeployConcurrencyFlag int
-	DeployTimeoutFlag string
-	DeployEnvsFlag string
+	DeployTimeoutFlag     string
+	DeployEnvsFlag        string
 )
 
 func init() {
@@ -66,4 +66,3 @@ var DeployCmd = &cobra.Command{
 
 	},
 }
-

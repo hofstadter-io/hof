@@ -18,13 +18,12 @@ type Config struct {
 	CurrentContext string `yaml: "CurrentContext"`
 
 	Contexts map[string]Context
-
 }
 
 type Context struct {
-	APIKey   string `yaml: "APIKey"`
-	Account  string `yaml: "Account"`
-	Host     string `yaml: "Host"`
+	APIKey  string `yaml: "APIKey"`
+	Account string `yaml: "Account"`
+	Host    string `yaml: "Host"`
 }
 
 func Get() Config {
@@ -50,7 +49,7 @@ func GetConfigContext(context string) (Context, error) {
 	return ctx, nil
 }
 
-func GetCurrentContext() (Context) {
+func GetCurrentContext() Context {
 	load()
 
 	context := c.CurrentContext
@@ -84,13 +83,13 @@ func write() (err error) {
 
 	home := os.Getenv("HOME")
 	if runtime.GOOS == "windows" {
-			home = os.Getenv("HOMEDRIVE") + os.Getenv("HOMEPATH")
-			if home == "" {
-					home = os.Getenv("USERPROFILE")
-			}
+		home = os.Getenv("HOMEDRIVE") + os.Getenv("HOMEPATH")
+		if home == "" {
+			home = os.Getenv("USERPROFILE")
+		}
 	}
 
-  dir := filepath.Join(home, ".hof")
+	dir := filepath.Join(home, ".hof")
 
 	err = os.MkdirAll(dir, 0755)
 	if err != nil {

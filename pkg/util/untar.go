@@ -3,6 +3,7 @@ package util
 import (
 	"archive/tar"
 	"compress/gzip"
+
 	// "fmt"
 	"io"
 	"io/ioutil"
@@ -22,7 +23,6 @@ func UntarFiles(files []string, dst string, content []byte) error {
 		}
 	}
 
-
 	for _, dir := range files {
 		err := os.RemoveAll(filepath.Join(dst, dir))
 		if err != nil {
@@ -30,7 +30,7 @@ func UntarFiles(files []string, dst string, content []byte) error {
 		}
 	}
 
-  err := ioutil.WriteFile(tarfile, content, 0644)
+	err := ioutil.WriteFile(tarfile, content, 0644)
 	if err != nil {
 		return err
 	}
@@ -41,10 +41,10 @@ func UntarFiles(files []string, dst string, content []byte) error {
 	}
 
 	/*
-	err = os.RemoveAll(tarfile)
-	if err != nil {
-		return data, err
-	}
+		err = os.RemoveAll(tarfile)
+		if err != nil {
+			return data, err
+		}
 	*/
 
 	return nil
@@ -58,7 +58,6 @@ func OldUntarFiles(files []string, dst string, r io.Reader) error {
 			return err
 		}
 	}
-
 
 	gzr, err := gzip.NewReader(r)
 	if err != nil {
@@ -129,5 +128,3 @@ func OldUntarFiles(files []string, dst string, r io.Reader) error {
 		}
 	}
 }
-
-

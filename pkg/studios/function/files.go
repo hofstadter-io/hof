@@ -1,6 +1,5 @@
 package function
 
-var FuncFiles = []string {
+var FuncFiles = []string{
 	".",
 }
-

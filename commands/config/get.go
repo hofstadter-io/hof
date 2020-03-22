@@ -30,9 +30,9 @@ var GetCmd = &cobra.Command{
 		}
 
 		/*
-		fmt.Println("hof config get:",
-			context,
-		)
+			fmt.Println("hof config get:",
+				context,
+			)
 		*/
 
 		config.GetContext(context)

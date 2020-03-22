@@ -6,5 +6,3 @@ var (
 		"design-vendor",
 	}
 )
-
-

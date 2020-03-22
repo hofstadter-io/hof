@@ -34,9 +34,9 @@ var AccountCmd = &cobra.Command{
 		}
 
 		/*
-		fmt.Println("hof config set account:",
-			account,
-		)
+			fmt.Println("hof config set account:",
+				account,
+			)
 		*/
 
 		context := viper.GetString("context")

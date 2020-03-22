@@ -5,18 +5,17 @@ import (
 	"os"
 	"strings"
 
-  "gopkg.in/src-d/go-git.v4"
-  "gopkg.in/src-d/go-git.v4/plumbing"
+	"gopkg.in/src-d/go-git.v4"
+	"gopkg.in/src-d/go-git.v4/plumbing"
 	"gopkg.in/src-d/go-git.v4/plumbing/transport/http"
 )
-
 
 func CloneRepo(srcUrl, srcVer string) (string, error) {
 
 	co := &git.CloneOptions{
-			URL: srcUrl,
-			// Progress: os.Stdout,
-			// SingleBranch: true,
+		URL: srcUrl,
+		// Progress: os.Stdout,
+		// SingleBranch: true,
 	}
 
 	if strings.Contains(srcUrl, "github.com") && os.Getenv("GITHUB_TOKEN") != "" {

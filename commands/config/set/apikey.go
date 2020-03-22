@@ -34,9 +34,9 @@ var ApikeyCmd = &cobra.Command{
 		}
 
 		/*
-		fmt.Println("hof config set apikey:",
-			key,
-		)
+			fmt.Println("hof config set apikey:",
+				key,
+			)
 		*/
 
 		context := viper.GetString("context")

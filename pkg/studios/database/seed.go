@@ -7,4 +7,3 @@ import (
 func Seed() error {
 	return util.SimpleGet("/studios/db/seed")
 }
-

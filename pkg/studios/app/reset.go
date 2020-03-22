@@ -1,8 +1,8 @@
 package app
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 
 	"github.com/parnurzeal/gorequest"
 

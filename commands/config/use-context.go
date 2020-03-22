@@ -37,9 +37,9 @@ var UseContextCmd = &cobra.Command{
 		}
 
 		/*
-		fmt.Println("hof config use-context:",
-			context,
-		)
+			fmt.Println("hof config use-context:",
+				context,
+			)
 		*/
 
 		config.UseContext(context)

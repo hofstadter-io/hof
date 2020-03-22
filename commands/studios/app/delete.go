@@ -27,9 +27,9 @@ var DeleteCmd = &cobra.Command{
 		}
 
 		/*
-		fmt.Println("hof app delete:",
-			name,
-		)
+			fmt.Println("hof app delete:",
+				name,
+			)
 		*/
 
 		err := app.Delete(name)
