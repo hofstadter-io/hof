@@ -16,3 +16,4 @@
 dist
 /design/output
 /cue.mod/pkg/
+/vendor/

@@ -3,7 +3,7 @@ module github.com/hofstadter-io/hof
 go 1.14
 
 require (
-	cuelang.org/go v0.0.0
+	cuelang.org/go v0.0.15
 	github.com/aymerick/raymond v2.0.2+incompatible
 	github.com/dsnet/compress v0.0.1 // indirect
 	github.com/elazarl/goproxy v0.0.0-20200310082302-296d8939dc5a // indirect
@@ -24,4 +24,4 @@ require (
 	moul.io/http2curl v1.0.0 // indirect
 )
 
-replace cuelang.org/go => ../cue
+// replace cuelang.org/go => ../cue
