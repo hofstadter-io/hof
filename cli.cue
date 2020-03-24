@@ -3,6 +3,7 @@ package cli
 import (
 	"github.com/hofstadter-io/cuemod--cli-golang:cli"
 	"github.com/hofstadter-io/cuemod--cli-golang/schema"
+  "github.com/hofstadter-io/mvs"
 )
 
 Outdir: "./output/"
@@ -18,6 +19,18 @@ CLI: cli.Schema & {
 	Usage: "hof"
 	Short: "hof is the cli for hof-lang, a low-code framework for developers"
 	Long:  Short
+
+  Releases: schema.GoReleaser & {
+    Author: "Tony Worm"
+    Homepage: "https://github.com/hofstadter-io/hof"
+
+    Brew: {
+      GitHubOwner: "hofstadter-io"
+      GitHubRepoName: "homebrew-tap"
+      GitHubUsername: "verdverm"
+      GitHubEmail: "tony@hofstadter.io"
+    }
+  }
 
 	OmitRun: true
 
@@ -70,6 +83,7 @@ CLI: cli.Schema & {
   """
 
 	Commands: [
+
 		schema.Command & {
 			Name:    "auth"
 			Usage:   "auth"
@@ -90,6 +104,7 @@ CLI: cli.Schema & {
 				},
 			]
 		},
+
 		schema.Command & {
 			Name:  "config"
 			Usage: "config"
@@ -178,6 +193,7 @@ CLI: cli.Schema & {
 			Aliases: ["m"]
 			Short: "manage project modules"
 			Long:  "Hof has mvs embedded, so you can do all the same things from this subcommand"
+      Commands: mvs.CLI.Commands
 		},
 		schema.Command & {
 			Name:  "gen"
