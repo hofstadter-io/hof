@@ -12,6 +12,10 @@ GEN: cli.Generator & {
 	Cli: CLI
 }
 
+_PkgImport :: [
+	schema.Import & {Path: CLI.Package + "/pkg"},
+]
+
 CLI: cli.Schema & {
 	Name:    "hof"
 	Package: "github.com/hofstadter-io/hof"
@@ -200,12 +204,41 @@ CLI: cli.Schema & {
 			Commands: mvs.CLI.Commands
 		},
 		schema.Command & {
+			Name:  "cmd"
+			Usage: "cmd [flags] [cmd] [args]"
+			Short: "run commands defined in _tool.cue files"
+			Long:  Short
+			Imports: [
+				schema.Import & {Path: CLI.Package + "/pkg"},
+			]
+			Body: """
+        flags := []string{}
+        msg, err := pkg.Cmd(flags, args, "")
+        if err != nil {
+          fmt.Println(err)
+          os.Exit(1)
+        }
+        fmt.Println(msg)
+      """
+		},
+		schema.Command & {
 			Name:  "gen"
 			Usage: "gen [files...]"
 			Aliases: ["g"]
 			Short: "generate code, data, and config"
 			Long: """
         generate all the things, from code to data to config...
+      """
+			Imports: [
+				schema.Import & {Path: CLI.Package + "/pkg"},
+			]
+			Body: """
+        msg, err := pkg.Gen(args, []string{}, "")
+        if err != nil {
+          fmt.Println(err)
+          os.Exit(1)
+        }
+        fmt.Println(msg)
       """
 		},
 		schema.Command & {

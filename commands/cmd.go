@@ -9,25 +9,22 @@ import (
 	"github.com/hofstadter-io/hof/pkg"
 )
 
-var genLong = `  generate all the things, from code to data to config...`
+var cmdLong = `run commands defined in _tool.cue files`
 
-var GenCmd = &cobra.Command{
+var CmdCmd = &cobra.Command{
 
-	Use: "gen [files...]",
+	Use: "cmd [flags] [cmd] [args]",
 
-	Aliases: []string{
-		"g",
-	},
+	Short: "run commands defined in _tool.cue files",
 
-	Short: "generate code, data, and config",
-
-	Long: genLong,
+	Long: cmdLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
 
 		// Argument Parsing
 
-		msg, err := pkg.Gen(args, []string{}, "")
+		flags := []string{}
+		msg, err := pkg.Cmd(flags, args, "")
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

@@ -52,6 +52,7 @@ func init() {
 	RootCmd.AddCommand(ConfigCmd)
 	RootCmd.AddCommand(NewCmd)
 	RootCmd.AddCommand(ModCmd)
+	RootCmd.AddCommand(CmdCmd)
 	RootCmd.AddCommand(GenCmd)
 	RootCmd.AddCommand(StudiosCmd)
 	RootCmd.AddCommand(CueCmd)
