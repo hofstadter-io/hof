@@ -1,7 +1,6 @@
 package commands
 
 import (
-	// "fmt"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -33,7 +32,6 @@ var BashCompletionCmd = &cobra.Command{
 	Long: BashCompletionLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		// fmt.Println("hof bash-completion:")
 
 		RootCmd.GenBashCompletion(os.Stdout)
 	},

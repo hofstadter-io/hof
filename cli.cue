@@ -1,15 +1,20 @@
-package cli
+package hof
 
 import (
 	"github.com/hofstadter-io/cuemod--cli-golang:cli"
 	"github.com/hofstadter-io/cuemod--cli-golang/schema"
+	"github.com/hofstadter-io/mvs"
 )
 
-Outdir: "./output/"
+Outdir: "./"
 
 GEN: cli.Generator & {
 	Cli: CLI
 }
+
+_PkgImport :: [
+	schema.Import & {Path: CLI.Package + "/pkg"},
+]
 
 CLI: cli.Schema & {
 	Name:    "hof"
@@ -18,6 +23,18 @@ CLI: cli.Schema & {
 	Usage: "hof"
 	Short: "hof is the cli for hof-lang, a low-code framework for developers"
 	Long:  Short
+
+	Releases: schema.GoReleaser & {
+		Author:   "Tony Worm"
+		Homepage: "https://github.com/hofstadter-io/hof"
+
+		Brew: {
+			GitHubOwner:    "hofstadter-io"
+			GitHubRepoName: "homebrew-tap"
+			GitHubUsername: "verdverm"
+			GitHubEmail:    "tony@hofstadter.io"
+		}
+	}
 
 	OmitRun: true
 
@@ -64,12 +81,17 @@ CLI: cli.Schema & {
 		},
 	]
 
+	Imports: [
+		schema.Import & {Path: "github.com/hofstadter-io/mvs/lib"},
+	]
+
 	PersistentPrerun: true
 	PersistentPrerunBody: """
-    fmt.Println("PersistentPrerun", RootConfigPflag, args)
+    lib.InitLangs()
   """
 
 	Commands: [
+
 		schema.Command & {
 			Name:    "auth"
 			Usage:   "auth"
@@ -85,11 +107,12 @@ CLI: cli.Schema & {
 					Long:  Short
 
 					Body: """
-            fmt.Println("login not implemented")
+            fmt.Println("\(CLI.Name) \(Name) login not implemented")
           """
 				},
 			]
 		},
+
 		schema.Command & {
 			Name:  "config"
 			Usage: "config"
@@ -176,8 +199,27 @@ CLI: cli.Schema & {
 			Name:  "mod"
 			Usage: "mod"
 			Aliases: ["m"]
-			Short: "manage project modules"
-			Long:  "Hof has mvs embedded, so you can do all the same things from this subcommand"
+			Short:    "manage project modules"
+			Long:     "Hof has mvs embedded, so you can do all the same things from this subcommand"
+			Commands: mvs.CLI.Commands
+		},
+		schema.Command & {
+			Name:  "cmd"
+			Usage: "cmd [flags] [cmd] [args]"
+			Short: "run commands defined in _tool.cue files"
+			Long:  Short
+			Imports: [
+				schema.Import & {Path: CLI.Package + "/pkg"},
+			]
+			Body: """
+        flags := []string{}
+        msg, err := pkg.Cmd(flags, args, "")
+        if err != nil {
+          fmt.Println(err)
+          os.Exit(1)
+        }
+        fmt.Println(msg)
+      """
 		},
 		schema.Command & {
 			Name:  "gen"
@@ -186,6 +228,17 @@ CLI: cli.Schema & {
 			Short: "generate code, data, and config"
 			Long: """
         generate all the things, from code to data to config...
+      """
+			Imports: [
+				schema.Import & {Path: CLI.Package + "/pkg"},
+			]
+			Body: """
+        msg, err := pkg.Gen(args, []string{}, "")
+        if err != nil {
+          fmt.Println(err)
+          os.Exit(1)
+        }
+        fmt.Println(msg)
       """
 		},
 		schema.Command & {

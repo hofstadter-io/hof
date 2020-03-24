@@ -1,12 +1,14 @@
 package studios
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/commands/studios/secret"
 )
 
-var SecretLong = `Work with your Studios Secrets`
+var secretLong = `Work with Hofstadter Studios secrets`
 
 var SecretCmd = &cobra.Command{
 
@@ -17,14 +19,24 @@ var SecretCmd = &cobra.Command{
 		"shh",
 	},
 
-	Short: "Work with your Studios Secrets",
+	Short: "Work with Hofstadter Studios secrets",
 
-	Long: SecretLong,
+	Long: secretLong,
+
+	Run: func(cmd *cobra.Command, args []string) {
+
+		// Argument Parsing
+
+		// Default body
+
+		fmt.Println("hof studios secret")
+
+	},
 }
 
 func init() {
-	// add sub-commands
 	SecretCmd.AddCommand(secret.ListCmd)
+	SecretCmd.AddCommand(secret.GetCmd)
 	SecretCmd.AddCommand(secret.CreateCmd)
 	SecretCmd.AddCommand(secret.UpdateCmd)
 	SecretCmd.AddCommand(secret.DeleteCmd)

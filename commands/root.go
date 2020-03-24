@@ -3,33 +3,57 @@ package commands
 import (
 	"github.com/spf13/cobra"
 
-	"cuelang.org/go/cue/load"
+	"github.com/hofstadter-io/mvs/lib"
 )
 
-var HofLong = `HofLang is a language and transpiler
-for building data-centric DSLs and designs.
-`
+var hofLong = `hof is the cli for hof-lang, a low-code framework for developers`
 
 var (
-	CueConfig *load.Config
+	RootConfigPflag   string
+	RootIdentityPflag string
+	RootContextPflag  string
+	RootAccountPflag  string
+	RootProjectPflag  string
 )
 
 func init() {
-	CueConfig = &load.Config{}
+
+	RootCmd.PersistentFlags().StringVarP(&RootConfigPflag, "config", "c", "", "Some config file path")
+
+	RootCmd.PersistentFlags().StringVarP(&RootIdentityPflag, "identity", "I", "", "the Studios Auth Identity to use during this hof execution")
+
+	RootCmd.PersistentFlags().StringVarP(&RootContextPflag, "context", "C", "", "the Studios Context to use during this hof execution")
+
+	RootCmd.PersistentFlags().StringVarP(&RootAccountPflag, "account", "A", "", "the Studios Account to use during this hof execution")
+
+	RootCmd.PersistentFlags().StringVarP(&RootProjectPflag, "project", "P", "", "the Studios Project to use during this hof execution")
+
 }
 
-var (
-	RootCmd = &cobra.Command{
+var RootCmd = &cobra.Command{
 
-		Use: "hof",
+	Use: "hof",
 
-		Short: "HofLang framework CLI tool",
+	Short: "hof is the cli for hof-lang, a low-code framework for developers",
 
-		Long: HofLong,
+	Long: hofLong,
 
-		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			// Argument Parsing
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 
-		},
-	}
-)
+		// Argument Parsing
+
+		lib.InitLangs()
+
+	},
+}
+
+func init() {
+	RootCmd.AddCommand(AuthCmd)
+	RootCmd.AddCommand(ConfigCmd)
+	RootCmd.AddCommand(NewCmd)
+	RootCmd.AddCommand(ModCmd)
+	RootCmd.AddCommand(CmdCmd)
+	RootCmd.AddCommand(GenCmd)
+	RootCmd.AddCommand(StudiosCmd)
+	RootCmd.AddCommand(CueCmd)
+}
