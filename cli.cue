@@ -1,4 +1,4 @@
-package cli
+package hof
 
 import (
 	"github.com/hofstadter-io/cuemod--cli-golang:cli"
@@ -6,7 +6,7 @@ import (
   "github.com/hofstadter-io/mvs"
 )
 
-Outdir: "./output/"
+Outdir: "./"
 
 GEN: cli.Generator & {
 	Cli: CLI
@@ -77,9 +77,13 @@ CLI: cli.Schema & {
 		},
 	]
 
+	Imports: [
+		schema.Import & {Path: "github.com/hofstadter-io/mvs/lib"},
+	]
+
 	PersistentPrerun: true
 	PersistentPrerunBody: """
-    fmt.Println("PersistentPrerun", RootConfigPflag, args)
+    lib.InitLangs()
   """
 
 	Commands: [
@@ -99,7 +103,7 @@ CLI: cli.Schema & {
 					Long:  Short
 
 					Body: """
-            fmt.Println("login not implemented")
+            fmt.Println("\(CLI.Name) \(Name) login not implemented")
           """
 				},
 			]

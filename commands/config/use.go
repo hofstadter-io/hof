@@ -7,15 +7,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var getLong = `print a configuration`
+var useLong = `set the default configuration`
 
-var GetCmd = &cobra.Command{
+var UseCmd = &cobra.Command{
 
-	Use: "get",
+	Use: "use",
 
-	Short: "print a configuration",
+	Short: "set the default configuration",
 
-	Long: getLong,
+	Long: useLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
 
@@ -37,7 +37,7 @@ var GetCmd = &cobra.Command{
 
 		// Default body
 
-		fmt.Println("hof config get", name)
+		fmt.Println("hof config use", name)
 
 	},
 }

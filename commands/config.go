@@ -1,42 +1,25 @@
 package commands
 
 import (
-
-	// custom imports
-
-	// infered imports
-
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/commands/config"
 )
 
-// Tool:   hof
-// Name:   config
-// Usage:  config <cmd>
-// Parent: hof
-
-var ConfigLong = `Configure the Hof CLI`
+var configLong = `configuration subcommands`
 
 var ConfigCmd = &cobra.Command{
 
-	Use: "config <cmd>",
+	Use: "config",
 
-	Short: "Configure the Hof CLI",
+	Short: "configuration subcommands",
 
-	Long: ConfigLong,
+	Long: configLong,
 }
 
 func init() {
-	RootCmd.AddCommand(ConfigCmd)
-}
-
-func init() {
-	// add sub-commands to this command when present
-
-	ConfigCmd.AddCommand(config.TestCmd)
-	ConfigCmd.AddCommand(config.UseContextCmd)
-	ConfigCmd.AddCommand(config.SetContextCmd)
+	ConfigCmd.AddCommand(config.ListCmd)
 	ConfigCmd.AddCommand(config.GetCmd)
 	ConfigCmd.AddCommand(config.SetCmd)
+	ConfigCmd.AddCommand(config.UseCmd)
 }

@@ -5,43 +5,39 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-
-	"github.com/hofstadter-io/hof/pkg/studios/secret"
 )
 
-var DeleteLong = `Delete a secret file`
+var deleteLong = `Delete a Studios secret. Must not be in use`
 
 var DeleteCmd = &cobra.Command{
 
 	Use: "delete <name or id>",
 
-	Short: "Delete a secret",
+	Short: "Delete a Studios secret. Must not be in use",
 
-	Long: DeleteLong,
+	Long: deleteLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
 
+		// Argument Parsing
+
 		if 0 >= len(args) {
-			fmt.Println("missing required argument: 'name'\n")
+			fmt.Println("missing required argument: 'Ident'")
 			cmd.Usage()
 			os.Exit(1)
 		}
 
-		var name string
+		var ident string
+
 		if 0 < len(args) {
-			name = args[0]
+
+			ident = args[0]
+
 		}
 
-		/*
-			fmt.Println("hof secret delete:",
-				name,
-			)
-		*/
+		// Default body
 
-		err := secret.Delete(name)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
+		fmt.Println("hof studios secret delete", ident)
+
 	},
 }

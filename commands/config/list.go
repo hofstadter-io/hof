@@ -1,4 +1,4 @@
-package secret
+package config
 
 import (
 	"fmt"
@@ -6,13 +6,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var listLong = `List your Studios secrets`
+var listLong = `list configurations`
 
 var ListCmd = &cobra.Command{
 
 	Use: "list",
 
-	Short: "List your secrets",
+	Short: "list configurations",
 
 	Long: listLong,
 
@@ -22,7 +22,7 @@ var ListCmd = &cobra.Command{
 
 		// Default body
 
-		fmt.Println("hof studios secret list")
+		fmt.Println("hof config list")
 
 	},
 }

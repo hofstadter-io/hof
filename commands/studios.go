@@ -6,27 +6,22 @@ import (
 	"github.com/hofstadter-io/hof/commands/studios"
 )
 
-var StudiosLong = `Studios subcommands for the Hof CLI`
+var studiosLong = `  Hofstadter Studios makes it easy to develop and launch both
+  hof-lang modules as well as pretty much any code or application`
 
 var StudiosCmd = &cobra.Command{
 
-	Use: "studios <cmd>",
+	Use: "studios",
 
-	Short: "Studios subcommands for the Hof CLI",
+	Aliases: []string{
+		"s",
+	},
 
-	Long: StudiosLong,
+	Short: "commands for working with Hofstadter Studios",
+
+	Long: studiosLong,
 }
 
 func init() {
-	RootCmd.AddCommand(StudiosCmd)
-}
-
-func init() {
-	// add sub-commands to this command when present
-
-	StudiosCmd.AddCommand(studios.AppCmd)
-	StudiosCmd.AddCommand(studios.ContainerCmd)
-	StudiosCmd.AddCommand(studios.DatabaseCmd)
-	StudiosCmd.AddCommand(studios.FunctionCmd)
 	StudiosCmd.AddCommand(studios.SecretCmd)
 }

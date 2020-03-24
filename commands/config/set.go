@@ -1,26 +1,79 @@
 package config
 
 import (
-	"github.com/spf13/cobra"
+	"fmt"
+	"os"
 
-	"github.com/hofstadter-io/hof/commands/config/set"
+	"github.com/spf13/cobra"
 )
 
-var SetLong = `Get configuration values`
+var setLong = `set configuration values`
 
 var SetCmd = &cobra.Command{
 
-	Use: "set",
+	Use: "set <name> <host> <account> [project]",
 
-	Short: "Get configuration values",
+	Short: "set configuration values",
 
-	Long: SetLong,
-}
+	Long: setLong,
 
-func init() {
-	// add sub-commands to this command when present
+	Run: func(cmd *cobra.Command, args []string) {
 
-	SetCmd.AddCommand(set.ApikeyCmd)
-	SetCmd.AddCommand(set.AccountCmd)
-	SetCmd.AddCommand(set.HostCmd)
+		// Argument Parsing
+
+		if 0 >= len(args) {
+			fmt.Println("missing required argument: 'Name'")
+			cmd.Usage()
+			os.Exit(1)
+		}
+
+		var name string
+
+		if 0 < len(args) {
+
+			name = args[0]
+
+		}
+
+		if 1 >= len(args) {
+			fmt.Println("missing required argument: 'Host'")
+			cmd.Usage()
+			os.Exit(1)
+		}
+
+		var host string
+
+		if 1 < len(args) {
+
+			host = args[1]
+
+		}
+
+		if 2 >= len(args) {
+			fmt.Println("missing required argument: 'Account'")
+			cmd.Usage()
+			os.Exit(1)
+		}
+
+		var account string
+
+		if 2 < len(args) {
+
+			account = args[2]
+
+		}
+
+		var project string
+
+		if 3 < len(args) {
+
+			project = args[3]
+
+		}
+
+		// Default body
+
+		fmt.Println("hof config set", name, host, account, project)
+
+	},
 }

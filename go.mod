@@ -3,7 +3,6 @@ module github.com/hofstadter-io/hof
 go 1.14
 
 require (
-	cuelang.org/go v0.0.15
 	github.com/aymerick/raymond v2.0.2+incompatible
 	github.com/dsnet/compress v0.0.1 // indirect
 	github.com/elazarl/goproxy v0.0.0-20200310082302-296d8939dc5a // indirect
@@ -11,6 +10,7 @@ require (
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/hofstadter-io/data-utils v0.0.0-20200128210141-0a3e569b27ed
 	github.com/hofstadter-io/dotpath v0.0.0-20191027071558-52e2819b7d2d
+	github.com/hofstadter-io/mvs v0.1.0
 	github.com/mholt/archiver v3.1.1+incompatible
 	github.com/nwaples/rardecode v1.1.0 // indirect
 	github.com/parnurzeal/gorequest v0.2.16
@@ -24,4 +24,4 @@ require (
 	moul.io/http2curl v1.0.0 // indirect
 )
 
-// replace cuelang.org/go => ../cue
+replace github.com/hofstadter-io/mvs v0.0.0 => ../mvs

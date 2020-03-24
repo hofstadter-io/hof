@@ -1,4 +1,4 @@
-package cli
+package hof
 
 import (
 	"path"
@@ -64,13 +64,43 @@ command: render: {
 
 command: format: {
 	var: {
-		outdir: "."
+		outdir: Outdir
 	}
 
 	task: shell: exec.Run & {
 		cmd: ["bash", "-c", "cd \(var.outdir) && goimports -w -l ."]
 		stdout: string
 	}
+}
+
+command: init: {
+	var: {
+		outdir: Outdir
+	}
+
+	task: shell: exec.Run & {
+		cmd: ["bash", "-c", "cd \(var.outdir) && go mod init \(CLI.Package)"]
+		stdout: string
+	}
+
+	task: vendor: exec.Run & {
+		dep: [ task.shell.stdout]
+		cmd: ["bash", "-c", "cd \(var.outdir) && go mod vendor"]
+		stdout: string
+	}
+
+}
+
+command: vendor: {
+	var: {
+		outdir: Outdir
+	}
+
+	task: vendor: exec.Run & {
+		cmd: ["bash", "-c", "cd \(var.outdir) && go mod vendor"]
+		stdout: string
+	}
+
 }
 
 command: build: {

@@ -1,4 +1,4 @@
-package config
+package secret
 
 import (
 	"fmt"
@@ -7,13 +7,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var getLong = `print a configuration`
+var getLong = `Get a Studios secret`
 
 var GetCmd = &cobra.Command{
 
-	Use: "get",
+	Use: "get <name or id>",
 
-	Short: "print a configuration",
+	Short: "Get a Studios secret",
 
 	Long: getLong,
 
@@ -22,22 +22,22 @@ var GetCmd = &cobra.Command{
 		// Argument Parsing
 
 		if 0 >= len(args) {
-			fmt.Println("missing required argument: 'Name'")
+			fmt.Println("missing required argument: 'Ident'")
 			cmd.Usage()
 			os.Exit(1)
 		}
 
-		var name string
+		var ident string
 
 		if 0 < len(args) {
 
-			name = args[0]
+			ident = args[0]
 
 		}
 
 		// Default body
 
-		fmt.Println("hof config get", name)
+		fmt.Println("hof studios secret get", ident)
 
 	},
 }
