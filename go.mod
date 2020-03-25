@@ -3,6 +3,7 @@ module github.com/hofstadter-io/hof
 go 1.14
 
 require (
+	cuelang.org/go v0.0.15
 	github.com/aymerick/raymond v2.0.2+incompatible
 	github.com/dsnet/compress v0.0.1 // indirect
 	github.com/elazarl/goproxy v0.0.0-20200310082302-296d8939dc5a // indirect
@@ -23,4 +24,3 @@ require (
 	gopkg.in/yaml.v2 v2.2.8
 	moul.io/http2curl v1.0.0 // indirect
 )
-
