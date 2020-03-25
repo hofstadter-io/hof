@@ -3,7 +3,7 @@ package function
 import (
 	"fmt"
 
-	"github.com/hofstadter-io/hof/pkg/util"
+	"github.com/hofstadter-io/hof/lib/util"
 )
 
 const fnListQuery = `

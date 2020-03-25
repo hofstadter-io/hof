@@ -3,7 +3,7 @@ package container
 import (
 	"fmt"
 
-	"github.com/hofstadter-io/hof/pkg/util"
+	"github.com/hofstadter-io/hof/lib/util"
 )
 
 const crunDeleteQuery = `

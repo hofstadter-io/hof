@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/hofstadter-io/hof/pkg/util"
+	"github.com/hofstadter-io/hof/lib/util"
 )
 
 func Hello() error {

@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/hofstadter-io/hof/pkg/extern"
-	"github.com/hofstadter-io/hof/pkg/util"
+	"github.com/hofstadter-io/hof/lib/extern"
+	"github.com/hofstadter-io/hof/lib/util"
 )
 
 const crunCreateQuery = `

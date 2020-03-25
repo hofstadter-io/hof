@@ -9,7 +9,7 @@ import (
 
 	"github.com/hofstadter-io/data-utils/io"
 
-	"github.com/hofstadter-io/hof/pkg/util"
+	"github.com/hofstadter-io/hof/lib/util"
 )
 
 func NewEntry(what, name, template, strData string) (string, error) {

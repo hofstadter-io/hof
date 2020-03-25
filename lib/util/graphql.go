@@ -8,7 +8,7 @@ import (
 	"github.com/hofstadter-io/dotpath"
 	"github.com/parnurzeal/gorequest"
 
-	"github.com/hofstadter-io/hof/pkg/config"
+	"github.com/hofstadter-io/hof/lib/config"
 )
 
 func SendRequest(queryTemplate string, vars interface{}) (interface{}, error) {

@@ -8,8 +8,8 @@ import (
 
 	"github.com/parnurzeal/gorequest"
 
-	"github.com/hofstadter-io/hof/pkg/config"
-	"github.com/hofstadter-io/hof/pkg/util"
+	"github.com/hofstadter-io/hof/lib/config"
+	"github.com/hofstadter-io/hof/lib/util"
 )
 
 func Deploy(name string, push bool, memory string, concurrency int, timeout string, envs string) error {
