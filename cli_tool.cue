@@ -6,7 +6,7 @@ import (
 	"tool/exec"
 	"tool/file"
 
-	"github.com/hofstadter-io/cuelib/template"
+  "github.com/hofstadter-io/cuelib/template"
 )
 
 command: gen: {
@@ -29,34 +29,34 @@ command: render: {
 
 	for i, F in GEN.Out {
 
-		if F.Filename != _|_ {
-			TMP = {
-				if F.Alt == _|_ {
-					Out: (template.RenderTemplate & {Template: F.Template, Values: F.In}).Out
-				}
-				if F.Alt != _|_ {
-					Out: (template.AltDelimTemplate & {Template: F.Template, Values: F.In}).Out
-				}
-			}
+    if F.Filename != _|_ {
+      TMP = {
+        if F.Alt == _|_ {
+          Out: (template.RenderTemplate & { Template: F.Template, Values: F.In}).Out
+        }
+        if F.Alt != _|_ {
+          Out: (template.AltDelimTemplate & { Template: F.Template, Values: F.In}).Out
+        }
+      }
 
-			task: "mkdir-\(i)": exec.Run & {
-				cmd: ["mkdir", "-p", var.outdir + path.Dir(F.Filename)]
-				stdout: string
-			}
+      task: "mkdir-\(i)": exec.Run & {
+        cmd: ["mkdir", "-p", var.outdir + path.Dir(F.Filename)]
+        stdout: string
+      }
 
-			task: "write-\(i)": file.Create & {
-				deps: [ task["mkdir-\(i)"].stdout]
+      task: "write-\(i)": file.Create & {
+        deps: [ task["mkdir-\(i)"].stdout]
 
-				filename: var.outdir + F.Filename
-				contents: TMP.Out
-				stdout:   string
-			}
+        filename: var.outdir + F.Filename
+        contents: TMP.Out
+        stdout:   string
+      }
 
-			task: "print-\(i)": cli.Print & {
-				deps: [ task["write-\(i)"].stdout]
-				text: task["write-\(i)"].filename
-			}
-		}
+      task: "print-\(i)": cli.Print & {
+        deps: [ task["write-\(i)"].stdout]
+        text: task["write-\(i)"].filename
+      }
+    } 
 
 	}
 

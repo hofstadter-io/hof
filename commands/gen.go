@@ -6,7 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/hofstadter-io/hof/pkg"
+	"github.com/hofstadter-io/hof/lib"
 )
 
 var genLong = `  generate all the things, from code to data to config...`
@@ -27,7 +27,7 @@ var GenCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		msg, err := pkg.Gen(args, []string{}, "")
+		msg, err := lib.Gen(args, []string{}, "")
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

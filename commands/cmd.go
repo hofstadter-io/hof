@@ -6,7 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/hofstadter-io/hof/pkg"
+	"github.com/hofstadter-io/hof/lib"
 )
 
 var cmdLong = `run commands defined in _tool.cue files`
@@ -24,7 +24,7 @@ var CmdCmd = &cobra.Command{
 		// Argument Parsing
 
 		flags := []string{}
-		msg, err := pkg.Cmd(flags, args, "")
+		msg, err := lib.Cmd(flags, args, "")
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

@@ -12,8 +12,8 @@ GEN: cli.Generator & {
 	Cli: CLI
 }
 
-_PkgImport :: [
-	schema.Import & {Path: CLI.Package + "/pkg"},
+_LibImport :: [
+	schema.Import & {Path: CLI.Package + "/lib"},
 ]
 
 CLI: cli.Schema & {
@@ -209,11 +209,11 @@ CLI: cli.Schema & {
 			Short: "run commands defined in _tool.cue files"
 			Long:  Short
 			Imports: [
-				schema.Import & {Path: CLI.Package + "/pkg"},
+				schema.Import & {Path: CLI.Package + "/lib"},
 			]
 			Body: """
         flags := []string{}
-        msg, err := pkg.Cmd(flags, args, "")
+        msg, err := lib.Cmd(flags, args, "")
         if err != nil {
           fmt.Println(err)
           os.Exit(1)
@@ -230,10 +230,10 @@ CLI: cli.Schema & {
         generate all the things, from code to data to config...
       """
 			Imports: [
-				schema.Import & {Path: CLI.Package + "/pkg"},
+				schema.Import & {Path: CLI.Package + "/lib"},
 			]
 			Body: """
-        msg, err := pkg.Gen(args, []string{}, "")
+        msg, err := lib.Gen(args, []string{}, "")
         if err != nil {
           fmt.Println(err)
           os.Exit(1)
