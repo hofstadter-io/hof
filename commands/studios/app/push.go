@@ -2,31 +2,43 @@ package app
 
 import (
 	"fmt"
+
 	"os"
 
 	"github.com/spf13/cobra"
-
-	"github.com/hofstadter-io/hof/pkg/studios/app"
 )
 
-var PushLong = `Uploads the local copy and makes it the latest copy in Studios`
+var pushLong = `Push a Studios app.`
 
 var PushCmd = &cobra.Command{
 
-	Use: "push",
+	Use: "push <name or id>",
 
-	Short: "Send and make the latest version on Studios",
+	Short: "Push a Studios app.",
 
-	Long: PushLong,
+	Long: pushLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
 
-		// fmt.Println("hof app push:")
+		// Argument Parsing
 
-		err := app.Push()
-		if err != nil {
-			fmt.Println(err)
+		if 0 >= len(args) {
+			fmt.Println("missing required argument: 'Ident'")
+			cmd.Usage()
 			os.Exit(1)
 		}
+
+		var ident string
+
+		if 0 < len(args) {
+
+			ident = args[0]
+
+		}
+
+		// Default body
+
+		fmt.Println("hof studios app push", ident)
+
 	},
 }

@@ -1,6 +1,9 @@
 package commands
 
 import (
+
+	// hello... something might need to go here
+
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/commands/studios"
@@ -23,5 +26,10 @@ var StudiosCmd = &cobra.Command{
 }
 
 func init() {
+	StudiosCmd.AddCommand(studios.AppCmd)
+	StudiosCmd.AddCommand(studios.DatabaseCmd)
+	StudiosCmd.AddCommand(studios.ContainerCmd)
+	StudiosCmd.AddCommand(studios.FunctionCmd)
+	StudiosCmd.AddCommand(studios.ConfigCmd)
 	StudiosCmd.AddCommand(studios.SecretCmd)
 }

@@ -2,43 +2,43 @@ package container
 
 import (
 	"fmt"
+
 	"os"
 
 	"github.com/spf13/cobra"
-
-	"github.com/hofstadter-io/hof/pkg/studios/container"
 )
 
-var StatusLong = `Get the status of your container.
-If name is not specified, the current directory is used.
-`
+var statusLong = `Get the status of a Studios container.`
 
 var StatusCmd = &cobra.Command{
 
-	Use: "status [name]",
+	Use: "status <name or id>",
 
-	Short: "Get the status of your container",
+	Short: "Get the status of a Studios container.",
 
-	Long: StatusLong,
+	Long: statusLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
 
-		var name string
-		if 0 < len(args) {
-			name = args[0]
-		}
+		// Argument Parsing
 
-		/*
-			fmt.Println("hof containers status:",
-				name,
-			)
-		*/
-
-		err := container.Status(name)
-		if err != nil {
-			fmt.Println(err)
+		if 0 >= len(args) {
+			fmt.Println("missing required argument: 'Ident'")
+			cmd.Usage()
 			os.Exit(1)
 		}
+
+		var ident string
+
+		if 0 < len(args) {
+
+			ident = args[0]
+
+		}
+
+		// Default body
+
+		fmt.Println("hof studios container status", ident)
 
 	},
 }

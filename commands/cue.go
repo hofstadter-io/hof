@@ -1,9 +1,12 @@
 package commands
 
 import (
-	"fmt"
+
+	// hello... something might need to go here
 
 	"github.com/spf13/cobra"
+
+	"fmt"
 )
 
 var cueLong = `Hof has cuelang embedded, so you can use hof anywhere you use cue`

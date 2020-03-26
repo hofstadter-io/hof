@@ -2,45 +2,57 @@ package function
 
 import (
 	"fmt"
+
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-
-	"github.com/hofstadter-io/hof/pkg/studios/function"
 )
 
-var DeployLong = `Deploy the function <name> from the current directory`
-
-var (
-	DeployPushFlag   bool
-	DeployMemoryFlag int
-)
-
-func init() {
-	DeployCmd.Flags().BoolVarP(&DeployPushFlag, "push", "p", true, "push the latest function code with the deploy.")
-	viper.BindPFlag("push", DeployCmd.Flags().Lookup("push"))
-
-	DeployCmd.Flags().IntVarP(&DeployMemoryFlag, "memory", "m", 0, "set the memory for this service (in megabytes).")
-	viper.BindPFlag("memory", DeployCmd.Flags().Lookup("memory"))
-}
+var deployLong = `Deploy a Studios function by name with extra update values as input`
 
 var DeployCmd = &cobra.Command{
 
-	Use: "deploy",
+	Use: "deploy <name> <input>",
 
-	Short: "Deploys the function <name>",
+	Short: "Deploy a Studios function",
 
-	Long: DeployLong,
+	Long: deployLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
 
-		// fmt.Println("hof function deploy:")
+		// Argument Parsing
 
-		err := function.Deploy(DeployPushFlag, DeployMemoryFlag)
-		if err != nil {
-			fmt.Println(err)
+		if 0 >= len(args) {
+			fmt.Println("missing required argument: 'Name'")
+			cmd.Usage()
 			os.Exit(1)
 		}
+
+		var name string
+
+		if 0 < len(args) {
+
+			name = args[0]
+
+		}
+
+		if 1 >= len(args) {
+			fmt.Println("missing required argument: 'Input'")
+			cmd.Usage()
+			os.Exit(1)
+		}
+
+		var input string
+
+		if 1 < len(args) {
+
+			input = args[1]
+
+		}
+
+		// Default body
+
+		fmt.Println("hof studios function deploy", name, input)
+
 	},
 }

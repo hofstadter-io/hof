@@ -1,6 +1,9 @@
 package commands
 
 import (
+
+	// hello... something might need to go here
+
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/commands/config"
@@ -18,6 +21,7 @@ var ConfigCmd = &cobra.Command{
 }
 
 func init() {
+	ConfigCmd.AddCommand(config.TestCmd)
 	ConfigCmd.AddCommand(config.ListCmd)
 	ConfigCmd.AddCommand(config.GetCmd)
 	ConfigCmd.AddCommand(config.SetCmd)

@@ -2,41 +2,43 @@ package app
 
 import (
 	"fmt"
+
 	"os"
 
 	"github.com/spf13/cobra"
-
-	"github.com/hofstadter-io/hof/pkg/studios/app"
 )
 
-var DeleteLong = `Delete an App and all associated data`
+var deleteLong = `Delete a Studios app.`
 
 var DeleteCmd = &cobra.Command{
 
 	Use: "delete <name or id>",
 
-	Short: "Delete an App",
+	Short: "Delete a Studios app.",
 
-	Long: DeleteLong,
+	Long: deleteLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
 
-		var name string
-		if 0 < len(args) {
-			name = args[0]
-		}
+		// Argument Parsing
 
-		/*
-			fmt.Println("hof app delete:",
-				name,
-			)
-		*/
-
-		err := app.Delete(name)
-		if err != nil {
-			fmt.Println(err)
+		if 0 >= len(args) {
+			fmt.Println("missing required argument: 'Ident'")
+			cmd.Usage()
 			os.Exit(1)
 		}
+
+		var ident string
+
+		if 0 < len(args) {
+
+			ident = args[0]
+
+		}
+
+		// Default body
+
+		fmt.Println("hof studios app delete", ident)
 
 	},
 }

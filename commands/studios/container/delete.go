@@ -2,48 +2,43 @@ package container
 
 import (
 	"fmt"
+
 	"os"
 
 	"github.com/spf13/cobra"
-
-	"github.com/hofstadter-io/hof/pkg/studios/container"
 )
 
-var DeleteLong = `Deletes a container by <id> and all associated data in Studios.
-You can find the id by running 'hof cont list'
-`
+var deleteLong = `Delete a Studios container.`
 
 var DeleteCmd = &cobra.Command{
 
 	Use: "delete <name or id>",
 
-	Short: "Deletes a container",
+	Short: "Delete a Studios container.",
 
-	Long: DeleteLong,
+	Long: deleteLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
 
+		// Argument Parsing
+
 		if 0 >= len(args) {
-			fmt.Println("missing required argument: 'name'\n")
+			fmt.Println("missing required argument: 'Ident'")
 			cmd.Usage()
 			os.Exit(1)
 		}
 
-		var name string
+		var ident string
+
 		if 0 < len(args) {
-			name = args[0]
+
+			ident = args[0]
+
 		}
 
-		/*
-			fmt.Println("hof containers delete:",
-				id,
-			)
-		*/
+		// Default body
 
-		err := container.Delete(name)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
+		fmt.Println("hof studios container delete", ident)
+
 	},
 }

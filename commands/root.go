@@ -3,6 +3,8 @@ package commands
 import (
 	"github.com/spf13/cobra"
 
+	// "github.com/spf13/viper"
+
 	"github.com/hofstadter-io/mvs/lib"
 )
 
@@ -51,9 +53,9 @@ func init() {
 	RootCmd.AddCommand(AuthCmd)
 	RootCmd.AddCommand(ConfigCmd)
 	RootCmd.AddCommand(NewCmd)
-	RootCmd.AddCommand(ModCmd)
-	RootCmd.AddCommand(CmdCmd)
 	RootCmd.AddCommand(GenCmd)
 	RootCmd.AddCommand(StudiosCmd)
+	RootCmd.AddCommand(CmdCmd)
+	RootCmd.AddCommand(ModCmd)
 	RootCmd.AddCommand(CueCmd)
 }

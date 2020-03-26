@@ -2,14 +2,11 @@ package container
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/spf13/cobra"
-
-	"github.com/hofstadter-io/hof/pkg/studios/container"
 )
 
-var ListLong = `List your containers`
+var listLong = `List your Studios containers`
 
 var ListCmd = &cobra.Command{
 
@@ -17,19 +14,15 @@ var ListCmd = &cobra.Command{
 
 	Short: "List your containers",
 
-	Long: ListLong,
+	Long: listLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
 
-		/*
-			fmt.Println("hof containers list:")
-		*/
+		// Argument Parsing
 
-		err := container.List()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
+		// Default body
+
+		fmt.Println("hof studios container list")
 
 	},
 }
