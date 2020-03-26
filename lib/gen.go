@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	// "strings"
-
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/load"
 )
@@ -43,8 +41,8 @@ func Gen(entrypoints, expressions []string, mode string) (string, error) {
 			label := iter.Label()
 			value := iter.Value()
 
-			// 	ev := value
-			ev := value.Eval()
+			ev := value
+			// ev := value.Eval()
 
 			/*
 				err = ev.Validate()

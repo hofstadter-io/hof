@@ -7,8 +7,8 @@ import (
 
 Outdir :: "./"
 
-GenCli: cli.Generator & {
-	Cli: CLI
+GenCli: cli.CueGenerator & {
+  Cli: CLI
 }
 
 _LibImport :: [
@@ -38,6 +38,8 @@ CLI :: cli.Schema & {
 	OmitRun: true
 
   Pflags: CliPflags
+
+  EnablePProf: true
 
 
 	Imports: [

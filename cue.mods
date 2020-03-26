@@ -4,6 +4,8 @@ cue 0.0.15
 
 require (
   github.com/hofstadter-io/cuelib v0.0.5
-  github.com/hofstadter-io/cuemod--cli-golang v0.1.5
+  github.com/hofstadter-io/cuemod--cli-golang v0.2.0
   github.com/hofstadter-io/mvs v0.1.3
 )
+
+// replace github.com/hofstadter-io/cuemod--cli-golang => ../cuemod--cli-golang
