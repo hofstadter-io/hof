@@ -11,7 +11,8 @@ require (
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/hofstadter-io/data-utils v0.0.0-20200128210141-0a3e569b27ed
 	github.com/hofstadter-io/dotpath v0.0.0-20191027071558-52e2819b7d2d
-	github.com/hofstadter-io/mvs v0.1.3
+	github.com/hofstadter-io/mvs v0.2.0
+	github.com/kr/pretty v0.1.0
 	github.com/mholt/archiver v3.1.1+incompatible
 	github.com/nwaples/rardecode v1.1.0 // indirect
 	github.com/parnurzeal/gorequest v0.2.16
@@ -24,3 +25,5 @@ require (
 	gopkg.in/yaml.v2 v2.2.8
 	moul.io/http2curl v1.0.0 // indirect
 )
+
+// replace cuelang.org/go => ../../cuelang/cue

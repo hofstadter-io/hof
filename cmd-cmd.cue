@@ -9,9 +9,13 @@ CmdCommand :: schema.Command & {
   Usage: "cmd [flags] [cmd] [args]"
   Short: "run commands defined in _tool.cue files"
   Long:  Short
+
   Imports: [
-    schema.Import & {Path: CLI.Package + "/lib"},
+    {Path: "fmt"},
+    {Path: "os"},
+    {Path: CLI.Package + "/lib"},
   ]
+
   Body: """
     flags := []string{}
     msg, err := lib.Cmd(flags, args, "")

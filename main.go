@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 
+	"log"
 	"runtime/pprof"
 
 	"github.com/hofstadter-io/hof/commands"

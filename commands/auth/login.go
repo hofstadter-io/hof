@@ -1,9 +1,12 @@
 package auth
 
 import (
-	"fmt"
+
+	// hello... something might need to go here
 
 	"github.com/spf13/cobra"
+
+	"fmt"
 )
 
 var loginLong = `login to an account`
@@ -20,7 +23,7 @@ var LoginCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		fmt.Println("hof login login not implemented")
+		fmt.Println("login login not implemented")
 
 	},
 }

@@ -18,8 +18,13 @@ AuthCommand :: schema.Command & {
       Short: "login to an account"
       Long:  Short
 
+      Imports: [
+        {Path: "fmt"}
+        // {Path: "github.com/hofstadter-io/mvs/lib"},
+      ]
+
       Body: """
-        fmt.Println("\(CLI.Name) \(Name) login not implemented")
+        fmt.Println("\(Name) login not implemented")
       """
     },
   ]

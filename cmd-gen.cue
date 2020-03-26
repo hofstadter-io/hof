@@ -12,9 +12,13 @@ GenCommand :: schema.Command & {
   Long: """
     generate all the things, from code to data to config...
   """
+
   Imports: [
-    schema.Import & {Path: CLI.Package + "/lib"},
+    {Path: "fmt"},
+    {Path: "os"},
+    {Path: CLI.Package + "/lib"},
   ]
+
   Body: """
     msg, err := lib.Gen(args, []string{}, "")
     if err != nil {

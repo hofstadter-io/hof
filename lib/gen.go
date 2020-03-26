@@ -1,21 +1,21 @@
 package lib
 
 import (
-	// "bytes"
+	"bytes"
 	"fmt"
-	// "go/format"
-	// "io/ioutil"
+	"go/format"
+	"io/ioutil"
 	"os"
-	// "path"
+	"path"
 	"strings"
 	"text/template"
 
-	// "github.com/kr/pretty"
+	"github.com/kr/pretty"
 
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/load"
 
-	"github.com/hofstadter-io/hof/lib/util"
+	// "github.com/hofstadter-io/hof/lib/util"
 )
 
 func Gen(entrypoints, expressions []string, mode string) (string, error) {
@@ -91,6 +91,12 @@ func Gen(entrypoints, expressions []string, mode string) (string, error) {
 				}
 
 				IN, ok := gen["In"].(map[string]interface{})
+
+				fmt.Println("IN:===============")
+				fmt.Printf("%# v\n", pretty.Formatter(IN))
+				fmt.Println("IN:===============")
+
+
 				OUT, ok := gen["Out"].([]interface{})
 				if !ok {
 					return "", fmt.Errorf("Generator: %q is missing 'Out' field.", label)
@@ -127,75 +133,84 @@ func Gen(entrypoints, expressions []string, mode string) (string, error) {
 		// TODO see if we can parse and introspect *_tool.cue files
 	*/
 
-	stdout, err := util.Exec([]string{"goimports", "-w", "-l", "."})
-	if err != nil {
-		return "", err
-	}
+	/*
+		stdout, err := util.Exec([]string{"goimports", "-w", "-l", "."})
+		if err != nil {
+			return "", err
+		}
+	*/
 
-	return stdout, nil
+	return "", nil
 }
 
 func renderFile(IN, file map[string]interface{}) error {
 	// Look for input on the file
+	fn := file["Filename"].(string)
+	tp := file["Template"].(string)
 	in, ok := file["In"].(map[string]interface{})
+
+	fmt.Println(file["Filename"])
 
 	// If not there, use the global IN
 	if !ok {
-		file["In"] = IN
+		fmt.Println("missing In, replacing with global")
+		in = IN
 
 	} else {
+		fmt.Println("checking In, filling in gaps with global")
 
 		// Else, 'IN' has key and 'in' does not, add it
 		for key, val := range IN {
 			if _, ok := in[key]; !ok {
+				fmt.Println("checking In, filling", key)
 				in[key] = val
 			}
 		}
 	}
 
-	fmt.Println(file["Filename"])
+	for key, _ := range in {
+		fmt.Println(" -", key)
+	}
 
-	fn := file["Filename"].(string)
-	tp := file["Template"].(string)
 	// alt := file["Alt"].(bool)
 
 	t := template.Must(template.New(fn).Parse(tp))
 
-	f, err := os.Create(fn)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	err = t.Execute(f, in)
-	if err != nil {
-		return err
-	}
-
 	/*
-		var b bytes.Buffer
-		var err error
-
-		err = t.Execute(&b, in)
+		f, err := os.Create(fn)
 		if err != nil {
 			return err
 		}
+		defer f.Close()
 
-		fmtd, err := format.Source(b.Bytes())
-		if err != nil {
-			return err
-		}
-
-		err = os.MkdirAll(path.Dir(fn), 0755)
-		if err != nil {
-			return err
-		}
-
-		err = ioutil.WriteFile(fn, fmtd, 0644)
+		err = t.Execute(f, in)
 		if err != nil {
 			return err
 		}
 	*/
+
+	var b bytes.Buffer
+	var err error
+
+	err = t.Execute(&b, in)
+	if err != nil {
+		return err
+	}
+
+	fmtd, err := format.Source(b.Bytes())
+	if err != nil {
+		return err
+	}
+
+	err = os.MkdirAll(path.Dir(fn), 0755)
+	if err != nil {
+		return err
+	}
+
+	err = ioutil.WriteFile(fn, fmtd, 0644)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

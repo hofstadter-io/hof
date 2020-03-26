@@ -7,7 +7,7 @@ import (
 
 Outdir :: "./"
 
-GenCli: cli.CueGenerator & {
+GenCli: cli.HofGenerator & {
   Cli: CLI
 }
 
@@ -43,7 +43,7 @@ CLI :: cli.Schema & {
 
 
 	Imports: [
-		schema.Import & {Path: "github.com/hofstadter-io/mvs/lib"},
+		{Path: "github.com/hofstadter-io/mvs/lib"},
 	]
 
 	PersistentPrerun: true

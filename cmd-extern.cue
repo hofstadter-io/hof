@@ -24,4 +24,7 @@ CueCommand :: schema.Command & {
   Body: """
     fmt.Println("run: cue", args)
   """
+  Imports: [
+    {Path: "fmt"},
+  ]
 }
