@@ -23,5 +23,10 @@ var StudiosCmd = &cobra.Command{
 }
 
 func init() {
+	StudiosCmd.AddCommand(studios.AppCmd)
+	StudiosCmd.AddCommand(studios.DatabaseCmd)
+	StudiosCmd.AddCommand(studios.ContainerCmd)
+	StudiosCmd.AddCommand(studios.FunctionCmd)
+	StudiosCmd.AddCommand(studios.ConfigCmd)
 	StudiosCmd.AddCommand(studios.SecretCmd)
 }

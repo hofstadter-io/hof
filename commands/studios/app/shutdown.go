@@ -4,37 +4,40 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/hofstadter-io/hof/pkg/studios/app"
 	"github.com/spf13/cobra"
 )
 
-var ShutdownLong = `Shutdowns the App`
+var shutdownLong = `Shutdown a Studios app.`
 
 var ShutdownCmd = &cobra.Command{
 
-	Use: "shutdown",
+	Use: "shutdown <name or id>",
 
-	Short: "Shutdowns the App",
+	Short: "Shutdown a Studios app.",
 
-	Long: ShutdownLong,
+	Long: shutdownLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
 
-		var name string
-		if 0 < len(args) {
-			name = args[0]
-		}
+		// Argument Parsing
 
-		/*
-			fmt.Println("hof app shutdown:",
-				name,
-			)
-		*/
-
-		err := app.Shutdown(name)
-		if err != nil {
-			fmt.Println(err)
+		if 0 >= len(args) {
+			fmt.Println("missing required argument: 'Ident'")
+			cmd.Usage()
 			os.Exit(1)
 		}
+
+		var ident string
+
+		if 0 < len(args) {
+
+			ident = args[0]
+
+		}
+
+		// Default body
+
+		fmt.Println("hof studios app shutdown", ident)
+
 	},
 }

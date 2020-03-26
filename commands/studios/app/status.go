@@ -5,39 +5,39 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-
-	"github.com/hofstadter-io/hof/pkg/studios/app"
 )
 
-var StatusLong = `Get the status of your App`
+var statusLong = `Get the status of a Studios app.`
 
 var StatusCmd = &cobra.Command{
 
-	Use: "status",
+	Use: "status <name or id>",
 
-	Short: "Get the status of your App",
+	Short: "Get the status of a Studios app.",
 
-	Long: StatusLong,
+	Long: statusLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
 
-		var name string
+		// Argument Parsing
+
+		if 0 >= len(args) {
+			fmt.Println("missing required argument: 'Ident'")
+			cmd.Usage()
+			os.Exit(1)
+		}
+
+		var ident string
 
 		if 0 < len(args) {
 
-			name = args[0]
+			ident = args[0]
+
 		}
 
-		/*
-			fmt.Println("hof app status:",
-				name,
-			)
-		*/
+		// Default body
 
-		err := app.Status(name)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
+		fmt.Println("hof studios app status", ident)
+
 	},
 }

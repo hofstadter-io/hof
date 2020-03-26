@@ -2,32 +2,35 @@ package config
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/spf13/cobra"
-
-	"github.com/hofstadter-io/hof/pkg/util"
 )
 
-var TestLong = `Test the context for authenticated connectivity`
+var testLong = `test your auth configuration, defaults to current`
 
 var TestCmd = &cobra.Command{
 
-	Use: "test",
+	Use: "test [name]",
 
-	Short: "Test a context configuration",
+	Short: "test your auth configuration, defaults to current",
 
-	Long: TestLong,
+	Long: testLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
 
-		// fmt.Println("hof config test:")
+		// Argument Parsing
 
-		err := util.TestConfigAuth()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+		var name string
+
+		if 0 < len(args) {
+
+			name = args[0]
+
 		}
+
+		// Default body
+
+		fmt.Println("hof config test", name)
 
 	},
 }

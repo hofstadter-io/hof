@@ -1,41 +1,44 @@
 package studios
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/commands/studios/app"
 )
 
-var AppLong = `Work with your Studios App`
+var appLong = `Work with Hofstadter Studios apps`
 
 var AppCmd = &cobra.Command{
 
 	Use: "app",
 
-	Aliases: []string{
-		"apps",
+	Short: "Work with Hofstadter Studios apps",
+
+	Long: appLong,
+
+	Run: func(cmd *cobra.Command, args []string) {
+
+		// Argument Parsing
+
+		// Default body
+
+		fmt.Println("hof studios app")
+
 	},
-
-	Short: "Work with your Studios App",
-
-	Long: AppLong,
 }
 
 func init() {
-	// add sub-commands
-	AppCmd.AddCommand(app.StatusCmd)
-	AppCmd.AddCommand(app.VersionCmd)
-	AppCmd.AddCommand(app.AvailableVersionCmd)
 	AppCmd.AddCommand(app.ListCmd)
+	AppCmd.AddCommand(app.GetCmd)
 	AppCmd.AddCommand(app.CreateCmd)
-	AppCmd.AddCommand(app.DeleteCmd)
 	AppCmd.AddCommand(app.UpdateCmd)
-	AppCmd.AddCommand(app.ResetCmd)
-	AppCmd.AddCommand(app.ValidateCmd)
-	AppCmd.AddCommand(app.GenerateCmd)
-	AppCmd.AddCommand(app.SecretsCmd)
-	AppCmd.AddCommand(app.PullCmd)
-	AppCmd.AddCommand(app.PushCmd)
 	AppCmd.AddCommand(app.DeployCmd)
+	AppCmd.AddCommand(app.StatusCmd)
+	AppCmd.AddCommand(app.PushCmd)
+	AppCmd.AddCommand(app.PullCmd)
+	AppCmd.AddCommand(app.ResetCmd)
 	AppCmd.AddCommand(app.ShutdownCmd)
+	AppCmd.AddCommand(app.DeleteCmd)
 }

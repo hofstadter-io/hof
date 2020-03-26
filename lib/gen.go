@@ -3,12 +3,11 @@ package lib
 import (
 	"fmt"
 	"os"
-	"strings"
+
+	// "strings"
 
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/load"
-	cueyaml "cuelang.org/go/encoding/yaml"
-	"gopkg.in/yaml.v2"
 )
 
 func Gen(entrypoints, expressions []string, mode string) (string, error) {
@@ -16,10 +15,11 @@ func Gen(entrypoints, expressions []string, mode string) (string, error) {
 
 	var rt cue.Runtime
 
-	out := make(map[string]interface{})
+	// out := make(map[string]interface{})
 
 	bis := load.Instances([]string{}, nil)
-	for _, bi := range bis {
+	for i, bi := range bis {
+		fmt.Println("BI", i)
 		if bi.Err != nil {
 			fmt.Println(bi.Err)
 			os.Exit(1)
@@ -36,38 +36,72 @@ func Gen(entrypoints, expressions []string, mode string) (string, error) {
 			fmt.Println(err)
 			continue
 		}
+
 		iter := toplevel.Fields()
 		for iter.Next() {
+
 			label := iter.Label()
 			value := iter.Value()
 
-			// Put anything starting with Gen into
-			// our out map
-			bytes, err := cueyaml.Encode(value)
-			if err != nil {
-				fmt.Println(err)
-				continue
-			}
-			if strings.HasPrefix(label, "Gen") {
-				var ym interface{}
-				err = yaml.Unmarshal(bytes, &ym)
+			// 	ev := value
+			ev := value.Eval()
+
+			/*
+				err = ev.Validate()
 				if err != nil {
 					fmt.Println(err)
 					continue
 				}
-				out[label] = ym
-			}
+			*/
+
+			fmt.Printf(" - %v %b\n\n%#+v\n\n\n", label, ev.IsConcrete(), ev)
+
+			vi := 0
+
+			value.Walk(func(val cue.Value) bool {
+				// l, _ := val.Label()
+				// k := val.Kind()
+				// fmt.Println(vi, l, k)
+				vi += 1
+
+				return true
+			}, nil)
+
+			fmt.Println("VI: ", vi)
+
+			// Put anything starting with Gen into
+			// our out map
+
+			/*
+				if strings.HasPrefix(label, "Gen") {
+					var obj map[string]interface{}
+					err = value.Decode(&obj)
+					if err != nil {
+						fmt.Println(err)
+						continue
+					}
+					out[label] = obj
+				}
+			*/
 		}
 	}
 
-	bytes, err := yaml.Marshal(out)
-	if err != nil {
-		fmt.Println(err)
-		return "", nil
-	}
-	fmt.Println(string(bytes))
+	/*
+		GenCli := out["GenCli"].(map[string]interface{})
+		All := GenCli["All"].([]interface{})
+		Zero := All[0]
 
-	// TODO see if we can parse and introspect *_tool.cue files
+		what := Zero
+
+		bytes, err := yaml.Marshal(what)
+		if err != nil {
+			fmt.Println(err)
+			return "", nil
+		}
+		fmt.Println(string(bytes))
+
+		// TODO see if we can parse and introspect *_tool.cue files
+	*/
 
 	return "", nil
 }

@@ -5,42 +5,53 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-
-	"github.com/hofstadter-io/hof/pkg/studios/app"
 )
 
-var DeployLong = `Deploys the App`
+var deployLong = `Deploy a Studios app by name with extra update values as input`
 
 var DeployCmd = &cobra.Command{
 
-	Use: "deploy",
+	Use: "deploy <name> <input>",
 
-	Short: "Deploys the App",
+	Short: "Deploy a Studios app",
 
-	Long: DeployLong,
+	Long: deployLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
 
-		var name string
-		if 0 < len(args) {
-			name = args[0]
-		}
+		// Argument Parsing
 
-		/*
-			fmt.Println("hof app deploy:",
-				name,
-			)
-		*/
-
-		err := app.Deploy(name)
-		if err != nil {
-			fmt.Println(err)
+		if 0 >= len(args) {
+			fmt.Println("missing required argument: 'Name'")
+			cmd.Usage()
 			os.Exit(1)
 		}
+
+		var name string
+
+		if 0 < len(args) {
+
+			name = args[0]
+
+		}
+
+		if 1 >= len(args) {
+			fmt.Println("missing required argument: 'Input'")
+			cmd.Usage()
+			os.Exit(1)
+		}
+
+		var input string
+
+		if 1 < len(args) {
+
+			input = args[1]
+
+		}
+
+		// Default body
+
+		fmt.Println("hof studios app deploy", name, input)
+
 	},
-}
-
-func init() {
-	// add sub-commands to this command when present
-
 }

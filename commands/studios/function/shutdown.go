@@ -5,37 +5,39 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-
-	"github.com/hofstadter-io/hof/pkg/studios/function"
 )
 
-var ShutdownLong = `Shutsdown the function <name>, while preserving code in Studios.`
+var shutdownLong = `Shutdown a Studios function.`
 
 var ShutdownCmd = &cobra.Command{
 
-	Use: "shutdown",
+	Use: "shutdown <name or id>",
 
-	Short: "Shutsdown the function <name>",
+	Short: "Shutdown a Studios function.",
 
-	Long: ShutdownLong,
+	Long: shutdownLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
 
-		var name string
-		if 0 < len(args) {
-			name = args[0]
-		}
+		// Argument Parsing
 
-		/*
-			fmt.Println("hof function shutdown:",
-				name,
-			)
-		*/
-
-		err := function.Shutdown(name)
-		if err != nil {
-			fmt.Println(err)
+		if 0 >= len(args) {
+			fmt.Println("missing required argument: 'Ident'")
+			cmd.Usage()
 			os.Exit(1)
 		}
+
+		var ident string
+
+		if 0 < len(args) {
+
+			ident = args[0]
+
+		}
+
+		// Default body
+
+		fmt.Println("hof studios function shutdown", ident)
+
 	},
 }

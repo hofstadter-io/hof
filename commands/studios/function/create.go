@@ -5,61 +5,53 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-
-	"github.com/hofstadter-io/hof/pkg/studios/function"
 )
 
-var CreateLong = `Create a new function from a template. The path prefix says where, the last part will be the name`
-
-var (
-	CreateHereFlag bool
-
-	CreateTemplateFlag string
-)
-
-func init() {
-	CreateCmd.Flags().BoolVarP(&CreateHereFlag, "here", "h", false, "create in the current directory (uses dir as name)")
-	viper.BindPFlag("here", CreateCmd.Flags().Lookup("here"))
-
-	CreateCmd.Flags().StringVarP(&CreateTemplateFlag, "template", "t", "https://github.com/hofstadter-io/studios-functions#custom-default", "create with a template, set to empty '-t' to omit dir/file creation")
-	viper.BindPFlag("template", CreateCmd.Flags().Lookup("template"))
-
-}
+var createLong = `Create a Studios function by name with extra creation values as input`
 
 var CreateCmd = &cobra.Command{
 
-	Use: "create [path/to]<name> <template>[@version][#template-subpath]",
+	Use: "create <name> [input]",
 
-	Short: "Create a new function",
+	Short: "Create a Studios function",
 
-	Long: CreateLong,
+	Long: createLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
+
+		// Argument Parsing
+
 		if 0 >= len(args) {
-			fmt.Println("missing required argument: 'name'\n")
+			fmt.Println("missing required argument: 'Name'")
 			cmd.Usage()
 			os.Exit(1)
 		}
 
 		var name string
+
 		if 0 < len(args) {
+
 			name = args[0]
+
 		}
 
-		/*
-			fmt.Println("hof function create:",
-				name,
-
-				template,
-			)
-		*/
-
-		err := function.Create(name, CreateTemplateFlag, CreateHereFlag)
-		if err != nil {
-			fmt.Println(err)
+		if 1 >= len(args) {
+			fmt.Println("missing required argument: 'Input'")
+			cmd.Usage()
 			os.Exit(1)
 		}
+
+		var input string
+
+		if 1 < len(args) {
+
+			input = args[1]
+
+		}
+
+		// Default body
+
+		fmt.Println("hof studios function create", name, input)
 
 	},
 }

@@ -5,38 +5,39 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-
-	"github.com/hofstadter-io/hof/pkg/studios/container"
 )
 
-var ShutdownLong = `Shutsdown a container by name or from the current directory`
+var shutdownLong = `Shutdown a Studios container.`
 
 var ShutdownCmd = &cobra.Command{
 
-	Use: "shutdown [name]",
+	Use: "shutdown <name or id>",
 
-	Short: "Shutsdown a container",
+	Short: "Shutdown a Studios container.",
 
-	Long: ShutdownLong,
+	Long: shutdownLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
 
-		var name string
-		if 0 < len(args) {
-			name = args[0]
-		}
+		// Argument Parsing
 
-		/*
-			fmt.Println("hof containers shutdown:",
-				name,
-			)
-		*/
-
-		err := container.Shutdown(name)
-		if err != nil {
-			fmt.Println(err)
+		if 0 >= len(args) {
+			fmt.Println("missing required argument: 'Ident'")
+			cmd.Usage()
 			os.Exit(1)
 		}
+
+		var ident string
+
+		if 0 < len(args) {
+
+			ident = args[0]
+
+		}
+
+		// Default body
+
+		fmt.Println("hof studios container shutdown", ident)
 
 	},
 }

@@ -2,60 +2,27 @@ package function
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/spf13/cobra"
-
-	"github.com/hofstadter-io/hof/pkg/studios/function"
 )
 
-var CallLong = `Call the function <name> with <data>
-data may be a JSON string or @filename.json
-`
+var callLong = `Call your Studios function`
 
 var CallCmd = &cobra.Command{
 
-	Use: "call <name> <data>",
+	Use: "call",
 
-	Short: "Call a function by name",
+	Short: "Call a function",
 
-	Long: CallLong,
+	Long: callLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
 
-		if 0 >= len(args) {
-			fmt.Println("missing required argument: 'name'\n")
-			cmd.Usage()
-			os.Exit(1)
-		}
+		// Argument Parsing
 
-		var name string
-		if 0 < len(args) {
-			name = args[0]
-		}
+		// Default body
 
-		if 1 >= len(args) {
-			fmt.Println("missing required argument: 'data'\n")
-			cmd.Usage()
-			os.Exit(1)
-		}
+		fmt.Println("hof studios function call")
 
-		var data string
-		if 1 < len(args) {
-			data = args[1]
-		}
-
-		/*
-			fmt.Println("hof function call:",
-				name,
-				data,
-			)
-		*/
-
-		err := function.Call(name, data)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
 	},
 }

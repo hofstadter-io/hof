@@ -4,28 +4,40 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/hofstadter-io/hof/pkg/studios/database"
 	"github.com/spf13/cobra"
 )
 
-var StatusLong = `Get the status of your DB`
+var statusLong = `Get the status of a Studios database.`
 
 var StatusCmd = &cobra.Command{
 
-	Use: "status",
+	Use: "status <name or id>",
 
-	Short: "Get the status of your DB",
+	Short: "Get the status of a Studios database.",
 
-	Long: StatusLong,
+	Long: statusLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
 
-		// fmt.Println("hof db status:")
+		// Argument Parsing
 
-		err := database.Status()
-		if err != nil {
-			fmt.Println(err)
+		if 0 >= len(args) {
+			fmt.Println("missing required argument: 'Ident'")
+			cmd.Usage()
 			os.Exit(1)
 		}
+
+		var ident string
+
+		if 0 < len(args) {
+
+			ident = args[0]
+
+		}
+
+		// Default body
+
+		fmt.Println("hof studios database status", ident)
+
 	},
 }

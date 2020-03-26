@@ -5,28 +5,39 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-
-	"github.com/hofstadter-io/hof/pkg/studios/app"
 )
 
-var PullLong = `Replaces the local copy with the latest copy in Studios`
+var pullLong = `Pull a Studios app.`
 
 var PullCmd = &cobra.Command{
 
-	Use: "pull",
+	Use: "pull <name or id>",
 
-	Short: "Get the latest version from Studios",
+	Short: "Pull a Studios app.",
 
-	Long: PullLong,
+	Long: pullLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
 
-		// fmt.Println("hof app pull:")
+		// Argument Parsing
 
-		err := app.Pull()
-		if err != nil {
-			fmt.Println(err)
+		if 0 >= len(args) {
+			fmt.Println("missing required argument: 'Ident'")
+			cmd.Usage()
 			os.Exit(1)
 		}
+
+		var ident string
+
+		if 0 < len(args) {
+
+			ident = args[0]
+
+		}
+
+		// Default body
+
+		fmt.Println("hof studios app pull", ident)
+
 	},
 }
