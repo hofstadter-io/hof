@@ -7,6 +7,7 @@ import (
 
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/load"
+	"github.com/fatih/color"
 
 	"github.com/hofstadter-io/hof/lib/gen"
 )
@@ -51,6 +52,7 @@ func Gen(entrypoints, expressions []string, mode string) (string, error) {
 		if err != nil {
 			return "", err
 		}
+
 	}
 
 	// Finally, cleanup anything that remains in shadow
@@ -59,6 +61,13 @@ func Gen(entrypoints, expressions []string, mode string) (string, error) {
 		G.Stats.CalcTotals(G)
 		fmt.Printf("\n%s\n==========================\n", G.Name)
 		fmt.Println(G.Stats)
+
+		for _, F := range G.Files {
+			if F.IsConflicted > 0 {
+				msg := fmt.Sprint("MERGE CONFLICT in:", F.Filename)
+				color.Red(msg)
+			}
+		}
 	}
 	veryend := time.Now()
 

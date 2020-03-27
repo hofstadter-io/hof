@@ -15,10 +15,11 @@ type GeneratorStats struct {
 	NumDeleted   int
 	NumWritten   int
 	NumErr       int
+	TotalFiles   int
 
 	NumModified       int
+	NumModifiedRender int
 	NumModifiedOutput int
-	NumModifiedDesign int
 	NumModifiedDiff3  int
 	NumConflicted     int
 
@@ -37,8 +38,8 @@ type FileStats struct {
 	IsErr      int
 
 	IsModified       int
+	IsModifiedRender int
 	IsModifiedOutput int
-	IsModifiedDesign int
 	IsModifiedDiff3  int
 	IsConflicted     int
 
@@ -54,6 +55,7 @@ func (S *GeneratorStats) CalcTotals(G *Generator) error {
 	sum = sum.Add(S.RenderingTime)
 
 	S.TotalTime = sum.Sub(time.Time{})
+	S.TotalFiles = len(G.Files)
 
 	// Sum across files
 	for _, file := range G.Files {
@@ -66,8 +68,8 @@ func (S *GeneratorStats) CalcTotals(G *Generator) error {
 		S.NumErr += file.IsErr
 
 		S.NumModified += file.IsModified
+		S.NumModifiedRender += file.IsModifiedRender
 		S.NumModifiedOutput += file.IsModifiedOutput
-		S.NumModifiedDesign += file.IsModifiedDesign
 		S.NumModifiedDiff3 += file.IsModifiedDiff3
 		S.NumConflicted += file.IsConflicted
 	}
@@ -106,8 +108,8 @@ NumWritten          {{ .NumWritten }}
 NumErr              {{ .NumErr }}
 
 NumModified         {{ .NumModified }}
+NumModifiedRender   {{ .NumModifiedRender }}
 NumModifiedOutput   {{ .NumModifiedOutput }}
-NumModifiedDesign   {{ .NumModifiedDesign }}
 NumModifiedDiff3    {{ .NumModifiedDiff3 }}
 NumConflicted       {{ .NumConflicted }}
 

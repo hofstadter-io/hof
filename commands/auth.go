@@ -20,6 +20,8 @@ var AuthCmd = &cobra.Command{
 	Long: authLong,
 }
 
+// HELLO
+
 func init() {
 	AuthCmd.AddCommand(auth.LoginCmd)
 }
