@@ -165,7 +165,7 @@ func extractGenerators(entrypoints []string) (gen.Generators, error) {
 			label := iter.Label()
 			value := iter.Value()
 
-			if strings.HasPrefix(label, "Gen") {
+			if strings.HasPrefix(label, "HofGen") {
 				G := gen.NewGenerator(label, value)
 				GS[G.Name] = G
 			}
