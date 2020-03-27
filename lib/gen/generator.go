@@ -2,6 +2,7 @@ package gen
 
 import (
 	"fmt"
+	"time"
 
 	"cuelang.org/go/cue"
 )
@@ -42,6 +43,8 @@ func NewGenerator(label string, value cue.Value) *Generator{
 func (G *Generator) GenerateFiles() error {
 	errs := []error{}
 
+	start := time.Now()
+
 	// Todo, make this a parallel work queue
 	for _, F := range G.Files {
 		if F.Filename == "" {
@@ -57,6 +60,9 @@ func (G *Generator) GenerateFiles() error {
 	if len(errs) > 0 {
 		return fmt.Errorf("Errors while rendering files:\n%v\n", errs)
 	}
+
+	elapsed := time.Now().Sub(start).Round(time.Millisecond)
+	G.Stats.RenderingTime = elapsed
 
 	return nil
 }

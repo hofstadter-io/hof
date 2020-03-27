@@ -56,6 +56,19 @@ func (F *File) Render() error {
 	if F.ShadowFile != nil {
 		F.ReadShadow()
 		if bytes.Compare(F.RenderContent, F.ShadowFile.FinalContent) == 0 {
+			// Let's check if there is a user file or not
+			_, err := os.Lstat(F.Filename)
+			if err != nil {
+				// make sure we check err for something actually bad
+				if _, ok := err.(*os.PathError); !ok && err.Error() != "file does not exist" {
+					return err
+				}
+				// file does not exist
+				F.IsNew = 1
+				F.DoWrite = true
+				F.FinalContent = F.RenderContent
+				return nil
+			}
 			F.IsSame = 1
 			return nil
 		}

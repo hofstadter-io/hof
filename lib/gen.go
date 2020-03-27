@@ -63,7 +63,11 @@ func Gen(entrypoints, expressions []string, mode string) (string, error) {
 
 	// Finally, cleanup anything that remains in shadow
 
+
 	for _, G := range GS {
+
+		writestart := time.Now()
+
 		for _, F := range G.Files {
 			// Write the actual output
 			if F.DoWrite {
@@ -102,6 +106,9 @@ func Gen(entrypoints, expressions []string, mode string) (string, error) {
 			}
 			G.Stats.NumDeleted += 1
 		}
+
+		writeend := time.Now()
+		G.Stats.WritingTime = writeend.Sub(writestart).Round(time.Millisecond)
 
 		// Calc and print stats
 		G.Stats.CalcTotals(G)

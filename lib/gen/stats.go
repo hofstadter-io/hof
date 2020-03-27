@@ -24,6 +24,7 @@ type GeneratorStats struct {
 
 	CueLoadingTime time.Duration
 	RenderingTime  time.Duration
+	WritingTime    time.Duration
 	TotalTime      time.Duration
 }
 
@@ -101,6 +102,7 @@ NumSkipped          {{ .NumSkipped }}
 NumDeleted          {{ .NumDeleted }}
 NumWritten          {{ .NumWritten }}
 NumErr              {{ .NumErr }}
+TotalFiles          {{ .TotalFiles }}
 
 NumModified         {{ .NumModified }}
 NumModifiedRender   {{ .NumModifiedRender }}
@@ -110,5 +112,6 @@ NumConflicted       {{ .NumConflicted }}
 
 CueLoadingTime      {{ .CueLoadingTime }}
 RenderingTime       {{ .RenderingTime }}
+WritingTime         {{ .WritingTime }}
 TotalTime           {{ .TotalTime }}
 `
