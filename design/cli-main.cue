@@ -1,21 +1,16 @@
-package hof
+package design
 
 import (
-	"github.com/hofstadter-io/cuemod--cli-golang:cli"
-	"github.com/hofstadter-io/cuemod--cli-golang/schema"
+	"github.com/hofstadter-io/hofmod-cli/schema"
 )
 
 Outdir :: "./"
-
-GenCli: cli.HofGenerator & {
-  Cli: CLI
-}
 
 _LibImport :: [
 	schema.Import & {Path: CLI.Package + "/lib"},
 ]
 
-CLI :: cli.Schema & {
+CLI :: schema.Cli & {
 	Name:    "hof"
 	Package: "github.com/hofstadter-io/hof"
 

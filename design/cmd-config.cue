@@ -1,7 +1,7 @@
-package hof
+package design
 
 import (
-	"github.com/hofstadter-io/cuemod--cli-golang/schema"
+	"github.com/hofstadter-io/hofmod-cli/schema"
 )
 
 ConfigCommand :: schema.Command & {
