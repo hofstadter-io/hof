@@ -64,6 +64,10 @@ func (F *File) Render() error {
 
 	// figure out if / how to merge
 	doWrite, err := F.UnifyContent()
+	if err != nil {
+		F.IsErr = 1
+		return err
+	}
 
 	if doWrite {
 		F.WriteOutput()
@@ -107,6 +111,7 @@ func (F *File) UnifyContent() (write bool, err error) {
 			// Need to compare all 3
 			// But first a shortcut
 			if bytes.Compare(F.UserFile.FinalContent, F.ShadowFile.FinalContent) == 0 {
+				// fmt.Println("User == Shadow", len(F.UserFile.FinalContent), len(F.ShadowFile.FinalContent))
 				// Just write it out, no user modifications
 				F.IsModified = 1
 				F.IsModifiedRender = 1

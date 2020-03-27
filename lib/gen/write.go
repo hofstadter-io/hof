@@ -35,7 +35,7 @@ func (F *File) WriteShadow() error {
 		return err
 	}
 
-	err = ioutil.WriteFile(fn, F.FinalContent, 0644)
+	err = ioutil.WriteFile(fn, F.RenderContent, 0644)
 	if err != nil {
 		return err
 	}
