@@ -11,7 +11,6 @@ type GeneratorStats struct {
 	NumNew       int
 	NumSame      int
 	NumSkipped   int
-	NumFixed     int
 	NumDeleted   int
 	NumWritten   int
 	NumErr       int
@@ -33,7 +32,6 @@ type FileStats struct {
 	IsNew      int
 	IsSame     int
 	IsSkipped  int
-	IsFixed    int
 	IsWritten  int
 	IsErr      int
 
@@ -62,8 +60,6 @@ func (S *GeneratorStats) CalcTotals(G *Generator) error {
 		S.NumNew += file.IsNew
 		S.NumSame += file.IsSame
 		S.NumSkipped += file.IsSkipped
-		S.NumFixed += file.IsFixed
-		// S.NumDeleted_
 		S.NumWritten += file.IsWritten
 		S.NumErr += file.IsErr
 
@@ -102,7 +98,6 @@ const statsTemplate = `
 NumNew              {{ .NumNew }}
 NumSame             {{ .NumSame }}
 NumSkipped          {{ .NumSkipped }}
-NumFixed            {{ .NumFixed }}
 NumDeleted          {{ .NumDeleted }}
 NumWritten          {{ .NumWritten }}
 NumErr              {{ .NumErr }}

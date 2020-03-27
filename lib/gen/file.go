@@ -30,6 +30,8 @@ type File struct {
 	ShadowFile *File
 	UserFile   *File
 
+	DoWrite bool
+
 	// Bookkeeping
 	FileStats
 }
@@ -62,16 +64,11 @@ func (F *File) Render() error {
 	// Possibly read user
 	F.ReadUser()
 
-	// figure out if / how to merge
-	doWrite, err := F.UnifyContent()
+	// figure out if / how to merge and produce final content
+	F.DoWrite, err = F.UnifyContent()
 	if err != nil {
 		F.IsErr = 1
 		return err
-	}
-
-	if doWrite {
-		F.WriteOutput()
-		F.WriteShadow()
 	}
 
 	return nil

@@ -2,6 +2,8 @@ package lib
 
 import (
 	"fmt"
+	"os"
+	"path"
 	"strings"
 	"time"
 
@@ -34,6 +36,10 @@ func Gen(entrypoints, expressions []string, mode string) (string, error) {
 		}
 	}
 
+	if len(errs) > 0 {
+		return "", fmt.Errorf("Errors while loading Cue files:\n%w\n", errs)
+	}
+
 	// TODO, the rest, in parallel? Templates and all the file work
 	// could probably go parallel across the generators
 
@@ -58,10 +64,51 @@ func Gen(entrypoints, expressions []string, mode string) (string, error) {
 	// Finally, cleanup anything that remains in shadow
 
 	for _, G := range GS {
+		for _, F := range G.Files {
+			// Write the actual output
+			if F.DoWrite {
+				err = F.WriteOutput()
+				if err != nil {
+					errs = append(errs)
+					continue
+				}
+			}
+
+			// Write the shadow too, or if it doesn't exist
+			if F.DoWrite || (F.IsSame > 0 && F.ShadowFile == nil) {
+				err = F.WriteShadow()
+				if err != nil {
+					errs = append(errs)
+					continue
+				}
+			}
+
+			// remove from shadows map so we can cleanup what remains
+			delete(G.Shadow, F.Filename)
+		}
+
+		// Cleanup File & Shadow
+		for f, _ := range G.Shadow {
+			fmt.Println("Removing:", f)
+			err := os.Remove(f)
+			if err != nil {
+				errs = append(errs)
+				continue
+			}
+			err = os.Remove(path.Join(gen.SHADOW_DIR, f))
+			if err != nil {
+				errs = append(errs)
+				continue
+			}
+			G.Stats.NumDeleted += 1
+		}
+
+		// Calc and print stats
 		G.Stats.CalcTotals(G)
 		fmt.Printf("\n%s\n==========================\n", G.Name)
 		fmt.Println(G.Stats)
 
+		// Print mrege issues
 		for _, F := range G.Files {
 			if F.IsConflicted > 0 {
 				msg := fmt.Sprint("MERGE CONFLICT in:", F.Filename)
@@ -69,10 +116,15 @@ func Gen(entrypoints, expressions []string, mode string) (string, error) {
 			}
 		}
 	}
-	veryend := time.Now()
 
+	// Print final timings
+	veryend := time.Now()
 	elapsed := veryend.Sub(verystart).Round(time.Millisecond)
 	fmt.Printf("\nTotal Elapsed Time: %s\n\n", elapsed)
+
+	if len(errs) > 0 {
+		return "", fmt.Errorf("Errors while loading Cue files:\n%w\n", errs)
+	}
 
 	return "", nil
 }
