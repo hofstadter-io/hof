@@ -2,11 +2,14 @@ package gen
 
 import (
 	"fmt"
-	"path/filepath"
+	"io/ioutil"
 	"os"
+	"path"
+	"path/filepath"
+	"strings"
 )
 
-const SHADOW_DIR = ".hof"
+const SHADOW_DIR = ".hof/"
 
 func LoadShadow(verbose bool) (map[string]*File, error) {
 	if verbose {
@@ -28,7 +31,7 @@ func LoadShadow(verbose bool) (map[string]*File, error) {
 		return shadow, nil
 	}
 
-	err = filepath.Walk(SHADOW_DIR, func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(SHADOW_DIR, func(fpath string, info os.FileInfo, err error) error {
 		// Don't need to save directories
 		if info.IsDir() {
 			return nil
@@ -38,8 +41,9 @@ func LoadShadow(verbose bool) (map[string]*File, error) {
 			fmt.Println("  adding:", info.Name())
 		}
 
-		shadow[path] = &File {
-			Filename: info.Name(),
+		fpath = strings.TrimPrefix(fpath, SHADOW_DIR)
+		shadow[fpath] = &File {
+			Filename: fpath,
 		}
 
 		return nil
@@ -51,5 +55,22 @@ func LoadShadow(verbose bool) (map[string]*File, error) {
 	}
 
 	return shadow, nil
+}
+
+func (F *File) ReadShadow() error {
+	if F.ShadowFile == nil {
+		return nil
+	}
+
+	// Should have already been confirmed to exist at this point
+
+	bytes, err := ioutil.ReadFile(path.Join(SHADOW_DIR, F.ShadowFile.Filename))
+	if err != nil {
+		return err
+	}
+
+	F.ShadowFile.FinalContent = bytes
+
+	return nil
 }
 

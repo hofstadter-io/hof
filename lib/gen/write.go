@@ -28,12 +28,14 @@ func (F *File) WriteOutput() error {
 func (F *File) WriteShadow() error {
 	var err error
 
-	err = mkdir(path.Join(SHADOW_DIR, F.Filename))
+	fn := path.Join(SHADOW_DIR, F.Filename)
+
+	err = mkdir(fn)
 	if err != nil {
 		return err
 	}
 
-	err = ioutil.WriteFile(F.Filename, F.FinalContent, 0644)
+	err = ioutil.WriteFile(fn, F.FinalContent, 0644)
 	if err != nil {
 		return err
 	}

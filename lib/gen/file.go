@@ -1,5 +1,10 @@
 package gen
 
+import (
+	"bytes"
+	"fmt"
+)
+
 type File struct {
 	// Inputs
 	Filename string
@@ -41,6 +46,16 @@ func (F *File) Render() error {
 		return err
 	}
 
+	// Check to see if they are the same, if so, then "skip"
+	fmt.Println(F.Filename, len(F.RenderContent), F.ShadowFile)
+	if F.ShadowFile != nil {
+		F.ReadShadow()
+		if bytes.Compare(F.RenderContent, F.ShadowFile.FinalContent) == 0 {
+			F.IsSame = 1
+			return nil
+		}
+	}
+
 	// TODO, check for user file
 
 	F.FinalContent = F.RenderContent
@@ -49,5 +64,4 @@ func (F *File) Render() error {
 
 	return nil
 }
-
 

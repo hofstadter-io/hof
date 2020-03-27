@@ -42,8 +42,13 @@ func NewGenerator(label string, value cue.Value) *Generator{
 func (G *Generator) GenerateFiles() error {
 	errs := []error{}
 
+	fmt.Println("Shadow", G.Shadow)
+
 	// Todo, make this a parallel work queue
 	for _, F := range G.Files {
+		if F.Filename == "" {
+			continue
+		}
 		F.ShadowFile = G.Shadow[F.Filename]
 		err := F.Render()
 		if err != nil {
