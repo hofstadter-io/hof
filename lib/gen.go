@@ -1,216 +1,117 @@
 package lib
 
 import (
-	"bytes"
 	"fmt"
-	"go/format"
-	"io/ioutil"
-	"os"
-	"path"
 	"strings"
-	"text/template"
-
-	"github.com/kr/pretty"
+	"time"
 
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/load"
+	"github.com/fatih/color"
 
-	// "github.com/hofstadter-io/hof/lib/util"
+	"github.com/hofstadter-io/hof/lib/gen"
 )
 
 func Gen(entrypoints, expressions []string, mode string) (string, error) {
-	fmt.Println("Gen", entrypoints, expressions)
+	verystart := time.Now()
 
-	var rt cue.Runtime
+	verbose := false
 
-	out := make(map[string]interface{})
+	GS, err := extractGenerators(entrypoints)
+	if err != nil {
+		return "", err
+	}
 
-	bis := load.Instances([]string{}, nil)
-	for i, bi := range bis {
-		fmt.Println("BI", i)
-		if bi.Err != nil {
-			fmt.Println(bi.Err)
-			os.Exit(1)
-		}
-		i, err := rt.Build(bi)
+	var errs []error
+
+	// Don't do in parallel yet, Cue is slow and hungry for memory @ v0.0.16
+	for _, G := range GS {
+		// TODO compare against expressions
+
+		err := G.LoadCue()
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			errs = append(errs, err)
+		}
+	}
+
+	// TODO, the rest, in parallel? Templates and all the file work
+	// could probably go parallel across the generators
+
+	// Load shadow, can this be done in parallel with the last step?
+	shadow, err := gen.LoadShadow(verbose)
+	if err != nil {
+		return "", err
+	}
+
+	// Yes, we are sharing this here
+	// TODO add a lock to the files eventually
+	for _, G := range GS {
+		G.Shadow = shadow
+
+		err = G.GenerateFiles()
+		if err != nil {
+			return "", err
+		}
+
+	}
+
+	// Finally, cleanup anything that remains in shadow
+
+	for _, G := range GS {
+		G.Stats.CalcTotals(G)
+		fmt.Printf("\n%s\n==========================\n", G.Name)
+		fmt.Println(G.Stats)
+
+		for _, F := range G.Files {
+			if F.IsConflicted > 0 {
+				msg := fmt.Sprint("MERGE CONFLICT in:", F.Filename)
+				color.Red(msg)
+			}
+		}
+	}
+	veryend := time.Now()
+
+	elapsed := veryend.Sub(verystart).Round(time.Millisecond)
+	fmt.Printf("\nTotal Elapsed Time: %s\n\n", elapsed)
+
+	return "", nil
+}
+
+
+func extractGenerators(entrypoints []string) (gen.Generators, error) {
+	GS := gen.Generators{}
+	var RT cue.Runtime
+
+	// TODO, config the second "config" arg here based on flags
+	BIS := load.Instances(entrypoints, nil)
+	for _, bi := range BIS {
+		if bi.Err != nil {
+			return GS, bi.Err
+		}
+		i, err := RT.Build(bi)
+		if err != nil {
+			return GS, err
+		}
+
+		// Get top level struct from cuelang
+		toplevel, err := i.Value().Struct()
+		if err != nil {
+			return GS, err
 		}
 
 		// Loop through all top level fields
-		toplevel, err := i.Value().Struct()
-		if err != nil {
-			fmt.Println(err)
-			continue
-		}
-
 		iter := toplevel.Fields()
 		for iter.Next() {
 
 			label := iter.Label()
 			value := iter.Value()
 
-			ev := value
-			// ev := value.Eval()
-
-			/*
-				err = ev.Validate()
-				if err != nil {
-					fmt.Println(err)
-					continue
-				}
-			*/
-
-			fmt.Printf(" - %v %b\n\n%#+v\n\n\n", label, ev.IsConcrete(), ev)
-
-			/*
-				vi := 0
-
-				value.Walk(func(val cue.Value) bool {
-					// l, _ := val.Label()
-					// k := val.Kind()
-					// fmt.Println(vi, l, k)
-					vi += 1
-
-					return true
-				}, nil)
-
-				fmt.Println("VI: ", vi)
-			*/
-
-			// Put anything starting with Gen into
-			// our out map
-
 			if strings.HasPrefix(label, "Gen") {
-				var gen map[string]interface{}
-				err = value.Decode(&gen)
-				if err != nil {
-					fmt.Println(err)
-					continue
-				}
-
-				IN, ok := gen["In"].(map[string]interface{})
-
-				fmt.Println("IN:===============")
-				fmt.Printf("%# v\n", pretty.Formatter(IN))
-				fmt.Println("IN:===============")
-
-
-				OUT, ok := gen["Out"].([]interface{})
-				if !ok {
-					return "", fmt.Errorf("Generator: %q is missing 'Out' field.", label)
-				}
-
-				for _, O := range OUT {
-					o := O.(map[string]interface{})
-					renderFile(IN, o)
-				}
-
-				// obj := OUT
-				// fmt.Printf("%# v\n\n", pretty.Formatter(obj))
-				out[label] = OUT
-
-				break
+				G := gen.NewGenerator(label, value)
+				GS[G.Name] = G
 			}
 		}
 	}
 
-	/*
-		GenCli := out["GenCli"].(map[string]interface{})
-		All := GenCli["All"].([]interface{})
-		Zero := All[0]
-
-		what := Zero
-
-		bytes, err := yaml.Marshal(what)
-		if err != nil {
-			fmt.Println(err)
-			return "", nil
-		}
-		fmt.Println(string(bytes))
-
-		// TODO see if we can parse and introspect *_tool.cue files
-	*/
-
-	/*
-		stdout, err := util.Exec([]string{"goimports", "-w", "-l", "."})
-		if err != nil {
-			return "", err
-		}
-	*/
-
-	return "", nil
-}
-
-func renderFile(IN, file map[string]interface{}) error {
-	// Look for input on the file
-	fn := file["Filename"].(string)
-	tp := file["Template"].(string)
-	in, ok := file["In"].(map[string]interface{})
-
-	fmt.Println(file["Filename"])
-
-	// If not there, use the global IN
-	if !ok {
-		fmt.Println("missing In, replacing with global")
-		in = IN
-
-	} else {
-		fmt.Println("checking In, filling in gaps with global")
-
-		// Else, 'IN' has key and 'in' does not, add it
-		for key, val := range IN {
-			if _, ok := in[key]; !ok {
-				fmt.Println("checking In, filling", key)
-				in[key] = val
-			}
-		}
-	}
-
-	for key, _ := range in {
-		fmt.Println(" -", key)
-	}
-
-	// alt := file["Alt"].(bool)
-
-	t := template.Must(template.New(fn).Parse(tp))
-
-	/*
-		f, err := os.Create(fn)
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-
-		err = t.Execute(f, in)
-		if err != nil {
-			return err
-		}
-	*/
-
-	var b bytes.Buffer
-	var err error
-
-	err = t.Execute(&b, in)
-	if err != nil {
-		return err
-	}
-
-	fmtd, err := format.Source(b.Bytes())
-	if err != nil {
-		return err
-	}
-
-	err = os.MkdirAll(path.Dir(fn), 0755)
-	if err != nil {
-		return err
-	}
-
-	err = ioutil.WriteFile(fn, fmtd, 0644)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return GS, nil
 }

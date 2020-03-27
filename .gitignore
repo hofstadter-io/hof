@@ -17,3 +17,5 @@ dist
 /design/output
 /cue.mod/pkg/
 /vendor/
+/.hof/
+/hof-cpu.prof
