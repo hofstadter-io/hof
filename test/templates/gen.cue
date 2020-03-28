@@ -1,4 +1,4 @@
-package basic
+package templates
 
 import (
   "github.com/hofstadter-io/hof/schema"
@@ -20,11 +20,12 @@ TestGen :: schema.HofGenerator & {
     ...
   }
   Out: [
+    // Defaults
     schema.HofGeneratorFile & {
       Template: "Val.a = '{{ .Val.a }}'\n"
       Filepath: "default.txt"
-      AltDelims: false
     },
+    // Alternate delims
     schema.HofGeneratorFile & {
       Template: "Val.a = '{% .Val.a %}'\n"
       Filepath: "altdelim.txt"
@@ -34,6 +35,7 @@ TestGen :: schema.HofGenerator & {
       LHS3_D: "{%%"
       RHS3_D: "%%}"
     },
+    // Swap delims, using defaults delims for swap/temp
     schema.HofGeneratorFile & {
       Template: "Val.a = '{% .Val.a %}' and also this should stay {{ .Hello }}\n"
       Filepath: "swapdelim.txt"
@@ -44,5 +46,14 @@ TestGen :: schema.HofGenerator & {
       LHS3_D: "{%%"
       RHS3_D: "%%}"
     },
+    // TODO Swap delims, using custom delims for swap/temp
+
+    // Mustache system
+    schema.HofGeneratorFile & {
+      Template: "Val.a = '{{ Val.a }}'\n"
+      TemplateSystem: "mustache"
+      Filepath: "mustache.txt"
+    },
+
   ]
 }

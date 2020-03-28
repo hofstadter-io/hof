@@ -16,6 +16,7 @@ func (F *File) RenderTemplate() error {
 	// Will check to see what the situation is
 	F.SwitchDelimsBefore()
 
+	fmt.Printf("template system: %q\n", sys)
 	switch sys {
 		case "mustache", "raymond", "handlebars":
 			F.RenderRaymondTemplate()

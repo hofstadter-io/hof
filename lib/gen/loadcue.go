@@ -75,6 +75,7 @@ func (G *Generator) LoadCue() (error) {
 		fn := file["Filepath"].(string)
 		tc := file["Template"].(string)
 		tn := file["TemplateName"].(string)
+		ts := file["TemplateSystem"].(string)
 
 		// deleimters
 		ALT  := file["AltDelims"].(bool)
@@ -101,6 +102,7 @@ func (G *Generator) LoadCue() (error) {
 			Filepath: fn,
 			Template: tc,
 			TemplateName: tn,
+			TemplateSystem: ts,
 
 			AltDelims: ALT,
 			SwapDelims: SWAP,
