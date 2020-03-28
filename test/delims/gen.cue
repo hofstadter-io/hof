@@ -43,10 +43,6 @@ TestGen :: schema.HofGenerator & {
       RHS2_D: "%}"
       LHS3_D: "{%%"
       RHS3_D: "%%}"
-      LHS2_T: "#{#"
-      RHS2_T: "#}#"
-      LHS3_T: "#{{#"
-      RHS3_T: "#}}#"
     },
   ]
 }

@@ -61,10 +61,10 @@ HofGeneratorFile :: {
 	// You need this when you are double templating a file and the top-level system is not the default
   LHS_T: LHS2_T
   RHS_T: RHS2_T
-  LHS2_T: string | *"#{{#"
-  RHS2_T: string | *"#}}#"
-  LHS3_T: string | *"#{{{#"
-  RHS3_T: string | *"#}}}#"
+  LHS2_T: string | *"#_hof_l2_#"
+  RHS2_T: string | *"#_hof_r2_#"
+  LHS3_T: string | *"#_hof_l3_#"
+  RHS3_T: string | *"#_hof_r3_#"
 
   // Open for whatever else you may need, not sure about this case though
   ...
