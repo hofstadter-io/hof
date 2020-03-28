@@ -66,6 +66,4 @@ HofGeneratorFile :: {
   LHS3_T: string | *"#_hof_l3_#"
   RHS3_T: string | *"#_hof_r3_#"
 
-  // Open for whatever else you may need, not sure about this case though
-  ...
 }

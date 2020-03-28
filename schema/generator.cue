@@ -40,8 +40,4 @@ HofGenerator :: {
   // Filepath globs for static files to load
   StaticGlobs: [...string] | * ""
 
-  //
-  // Open for whatever else you may need
-  //   often hidden fields are used
-  ...
 } 
