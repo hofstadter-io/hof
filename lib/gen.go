@@ -37,7 +37,10 @@ func Gen(entrypoints, expressions []string, mode string) (string, error) {
 	}
 
 	if len(errs) > 0 {
-		return "", fmt.Errorf("Errors while loading Cue files:\n%w\n", errs)
+		for _, e := range errs {
+			fmt.Println(e)
+		}
+		return "", fmt.Errorf("\nErrors while loading Cue files:\n%v\n", entrypoints)
 	}
 
 	// TODO, the rest, in parallel? Templates and all the file work
@@ -130,7 +133,10 @@ func Gen(entrypoints, expressions []string, mode string) (string, error) {
 	fmt.Printf("\nTotal Elapsed Time: %s\n\n", elapsed)
 
 	if len(errs) > 0 {
-		return "", fmt.Errorf("Errors while loading Cue files:\n%w\n", errs)
+		for _, e := range errs {
+			fmt.Println(e)
+		}
+		return "", fmt.Errorf("\nErrors while writing files\n")
 	}
 
 	return "", nil
