@@ -4,11 +4,11 @@ import (
 	"github.com/hofstadter-io/hofmod-cli/schema"
 )
 
-CmdCommand :: schema.Command & {
-  Name:  "cmd"
-  Usage: "cmd [flags] [cmd] [args]"
-  Short: "run commands defined in _tool.cue files"
-  Long:  Short
+RunCommand :: schema.Command & {
+  Name:  "run"
+  Usage: "run [flags] [cmd] [args]"
+  Short: "run commands defined by HofCmd"
+  Long: "run commands defined by HofCmd. Falls back on cue commands, which also falls back to their own run system"
 
   Imports: [
     {Path: "fmt"},

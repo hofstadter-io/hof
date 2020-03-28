@@ -15,16 +15,3 @@ ModCommand :: schema.Command & {
   Commands: mvs.CLI.Commands
 }
 
-CueCommand :: schema.Command & {
-  Name:  "cue"
-  Usage: "cue"
-  Aliases: ["c"]
-  Short: "Call a cue command"
-  Long:  "Hof has cuelang embedded, so you can use hof anywhere you use cue"
-  Body: """
-    fmt.Println("run: cue", args)
-  """
-  Imports: [
-    {Path: "fmt"},
-  ]
-}

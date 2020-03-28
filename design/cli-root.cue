@@ -34,7 +34,7 @@ CLI :: schema.Cli & {
 
   Pflags: CliPflags
 
-  EnablePProf: true
+  // EnablePProf: true
 
 
 	Imports: [
@@ -57,8 +57,8 @@ CLI :: schema.Cli & {
     StudiosCommand,
 
     // extern
-    CmdCommand,
     ModCommand,
+    RunCommand,
     CueCommand,
 
 	]
