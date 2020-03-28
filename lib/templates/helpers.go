@@ -3,6 +3,7 @@ package templates
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"reflect"
 	"strings"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/clbanning/mxj"
 	"github.com/codemodus/kace"
 	"github.com/ghodss/yaml"
+	"github.com/hofstadter-io/dotpath"
 	"github.com/kr/pretty"
 	"github.com/naoina/toml"
 )
@@ -96,6 +98,10 @@ func addTemplateHelpers(tpl *raymond.Template) {
 	tpl.RegisterHelper("add", Helper_add)
 	tpl.RegisterHelper("inc", Helper_inc)
 
+	tpl.RegisterHelper("file", Helper_file)
+	tpl.RegisterHelper("dref", Helper_dref)
+
+	return
 }
 
 func Helper_concat2(s1, s2 string) string {
@@ -580,5 +586,34 @@ func Helper_add(lhs, rhs int) int {
 
 func Helper_inc(val int) int {
 	return val + 1
+}
+
+func Helper_file(filename string) string {
+	body, err := ioutil.ReadFile(filename)
+
+	// return content when non-error
+	if err == nil {
+		return string(body)
+	}
+
+	// return error on fallthrough, as a string for intemplate prcessing
+	return fmt.Sprintf("ERROR: %v", err)
+}
+
+func Helper_dref(path string, data interface{}, options *raymond.Options) interface{} {
+	if data == nil {
+		return options.FnWith("Nil data supplied for " + path)
+	}
+
+	obj, err := dotpath.Get(path, data, true)
+	if err != nil {
+		return options.FnWith("Error during path search: " + err.Error())
+	}
+
+	if obj == nil {
+		return options.FnWith("Path not found: " + path + fmt.Sprintf("\n%+v", data))
+	}
+
+	return options.FnWith(obj)
 }
 
