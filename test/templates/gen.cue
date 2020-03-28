@@ -16,6 +16,8 @@ HofGenTest: TestGen & { In: Val: A }
 
 TestGen :: schema.HofGenerator & {
 
+  PackageName: "github.com/hof/test"
+
   In: {
     Val: _
     ...
@@ -82,8 +84,8 @@ TestGen :: schema.HofGenerator & {
   }
 
   StaticFiles: {
-    "static.txt": """
-    Hello, I am a static file
+    "static-cue.txt": """
+    Hello, I am a static file in cue
     """
   }
 }

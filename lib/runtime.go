@@ -165,9 +165,9 @@ func (R *Runtime) RunGenerators() []error {
 
 		G.Shadow = shadow
 
-		err = G.GenerateFiles()
-		if err != nil {
-			errs = append(errs, err)
+		errsG := G.GenerateFiles()
+		if len(errsG) > 0 {
+			errs = append(errs, errsG...)
 			continue
 		}
 

@@ -38,7 +38,7 @@ HofGenerator :: {
   PartialsDir: string | * ""
 
   // Filepath globs for static files to load
-  StaticGlobs: [...string] | * ""
+  StaticGlobs: [...string] | * [...string]
 
   //
   // Open for whatever else you may need

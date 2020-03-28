@@ -45,19 +45,28 @@ func (G *Generator) decodeGenerator(gen map[string]interface{}) ([]error) {
 
 	// In cue code
 	G.NamedTemplates = make(map[string]string)
-	nt := gen["NamedTemplates"].(map[string]interface{})
+	nt, ok := gen["NamedTemplates"].(map[string]interface{})
+	if !ok {
+		return []error{fmt.Errorf("Generator: %q field 'NamedTemplates' is not an object.", G.Name)}
+	}
 	for k, t := range nt {
 		G.NamedTemplates[k] = t.(string)
 	}
 
 	G.NamedPartials = make(map[string]string)
-	np := gen["NamedPartials"].(map[string]interface{})
+	np, ok := gen["NamedPartials"].(map[string]interface{})
+	if !ok {
+		return []error{fmt.Errorf("Generator: %q field 'NamedParitals' is not an object.", G.Name)}
+	}
 	for k, p := range np {
 		G.NamedPartials[k] = p.(string)
 	}
 
 	G.StaticFiles = make(map[string]string)
-	sf := gen["StaticFiles"].(map[string]interface{})
+	sf, ok := gen["StaticFiles"].(map[string]interface{})
+	if !ok {
+		return []error{fmt.Errorf("Generator: %q field 'StaticFiles' is not an object.", G.Name)}
+	}
 	for k, s := range sf {
 		G.StaticFiles[k] = s.(string)
 	}
@@ -66,7 +75,10 @@ func (G *Generator) decodeGenerator(gen map[string]interface{}) ([]error) {
 	G.TemplatesDir = gen["TemplatesDir"].(string)
 	G.PartialsDir  = gen["PartialsDir"].(string)
 	G.StaticGlobs = make([]string, 0)
-	sg := gen["StaticGlobs"].([]interface{})
+	sg, ok := gen["StaticGlobs"].([]interface{})
+	if !ok {
+		return []error{fmt.Errorf("Generator: %q field 'StaticGlobs' is not a list.", G.Name)}
+	}
 	for _, s := range sg {
 		G.StaticGlobs = append(G.StaticGlobs, s.(string))
 	}
@@ -155,22 +167,6 @@ func (G *Generator) decodeFile(i int, file map[string]interface{}) (*File, error
 	F.RHS2_T = file["RHS2_T"].(string)
 	F.LHS3_T = file["LHS3_T"].(string)
 	F.RHS3_T = file["RHS3_T"].(string)
-
-	// Template content or name?
-	if F.Template == "" && F.TemplateName != "" {
-		// TODO, lookup template
-		content, ok := G.NamedTemplates[F.TemplateName]
-		if !ok {
-			err := fmt.Errorf("Named template %q not found for %s %s\n", F.TemplateName, G.Name, F.Filepath)
-			F.DoWrite = false
-			F.IsErr = 1
-			F.Errors = append(F.Errors, err)
-			return F, err
-		} else {
-			F.TemplateContent = content
-		}
-
-	}
 
 	return F, nil
 }

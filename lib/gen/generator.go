@@ -32,6 +32,7 @@ type Generator struct {
   // under its name for reference in GenFiles  and partials in templates
   NamedTemplates map[string]string
   NamedPartials  map[string]string
+
   // Static files are available for pure cue generators that want to have static files
   // These should be named by their filepath, but be the content of the file
   StaticFiles map[string]string
@@ -83,14 +84,16 @@ func NewGenerator(label string, value cue.Value) *Generator{
 	}
 }
 
-func (G *Generator) GenerateFiles() error {
+func (G *Generator) GenerateFiles() []error {
 	errs := []error{}
+
+	errs = G.ResolveTemplateContent()
 
 	start := time.Now()
 
 	// Todo, make this a parallel work queue
 	for _, F := range G.Files {
-		if F.Filepath == "" {
+		if F.Filepath == "" || F.IsErr != 0 || !F.DoWrite {
 			continue
 		}
 		F.ShadowFile = G.Shadow[F.Filepath]
@@ -101,7 +104,7 @@ func (G *Generator) GenerateFiles() error {
 	}
 
 	if len(errs) > 0 {
-		return fmt.Errorf("Errors while rendering files:\n%v\n", errs)
+		return errs
 	}
 
 	elapsed := time.Now().Sub(start).Round(time.Millisecond)
@@ -110,3 +113,28 @@ func (G *Generator) GenerateFiles() error {
 	return nil
 }
 
+
+func (G *Generator) ResolveTemplateContent() ([]error) {
+	var errs []error
+
+	for _, F := range G.Files {
+		// Template content or name?
+		if F.Template == "" && F.TemplateName != "" {
+			// TODO, lookup template
+			content, ok := G.NamedTemplates[F.TemplateName]
+			if !ok {
+				err := fmt.Errorf("Named template %q not found for %s %s\n", F.TemplateName, G.Name, F.Filepath)
+				F.DoWrite = false
+				F.IsErr = 1
+				F.Errors = append(F.Errors, err)
+				errs = append(errs, err)
+				continue
+			} else {
+				F.TemplateContent = content
+			}
+
+		}
+	}
+
+	return errs
+}

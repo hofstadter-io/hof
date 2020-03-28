@@ -1,0 +1,1 @@
+Hi, I'm a partial file on disk {{ .Val.a }}
