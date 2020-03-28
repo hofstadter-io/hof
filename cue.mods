@@ -7,3 +7,5 @@ require (
   github.com/hofstadter-io/hofmod-cli v0.3.0
   github.com/hofstadter-io/mvs v0.3.0
 )
+
+replace github.com/hofstadter-io/hofmod-cli => ../mods/hofmod-cli

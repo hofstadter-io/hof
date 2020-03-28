@@ -31,12 +31,11 @@ var GenCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		msg, err := lib.Gen(args, []string{}, "")
+		err := lib.Gen(args, []string{}, "")
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		fmt.Println(msg)
 
 	},
 }

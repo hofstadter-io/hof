@@ -7,8 +7,6 @@ import (
 	"cuelang.org/go/cue"
 )
 
-// A map to generators
-type Generators map[string]*Generator
 
 // A generator pulled from the cue instances
 type Generator struct {
@@ -59,6 +57,10 @@ type Generator struct {
 	//
 	// Hof internal usage
 	//
+
+	// Disabled? we do this when looking at expressions and optimizing
+	// TODO, make this field available in cuelang?
+	Disabled bool
 
 	// Files and the shadow dir for doing neat things
 	Files map[string]*File
