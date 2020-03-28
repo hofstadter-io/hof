@@ -55,6 +55,7 @@ func (G *Generator) LoadCue() (error) {
 
 		// TODO, better checking and/or decode directly into golang structs
 		// But... they do all have defaults in the schema, so we will probably be OK
+		// EXCEPT, spelling errors...
 
 		// Build up the files "In" value
 		in, ok := file["In"].(map[string]interface{})
@@ -76,6 +77,7 @@ func (G *Generator) LoadCue() (error) {
 		tn := file["TemplateName"].(string)
 
 		// deleimters
+		ALT  := file["AltDelims"].(bool)
 		SWAP := file["SwapDelims"].(bool)
 
 		LHS2_D := file["LHS2_D"].(string)
@@ -100,6 +102,7 @@ func (G *Generator) LoadCue() (error) {
 			Template: tc,
 			TemplateName: tn,
 
+			AltDelims: ALT,
 			SwapDelims: SWAP,
 
 			LHS2_D: LHS2_D,

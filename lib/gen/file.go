@@ -28,6 +28,13 @@ type File struct {
   //
   //   these are for advanced usage, you shouldn't have to modify them normally
 
+  // Alt and Swap Delims,
+	//   becuase the defaulttemplate systems use `{{` and `}}`
+	//   and you may choose to use other delimiters, but the lookup system is still based on the template system
+  //   and if you want to preserve those, we need three sets of delimiters
+  AltDelims  bool
+  SwapDelims bool
+
   // The default delimiters
   // You should change these when using alternative style like jinjas {% ... %}
   // They also need to be different when using the swap system
@@ -47,14 +54,11 @@ type File struct {
 
   // The temporary delims to replace swap with while also swapping
   // the defaults you set to the swap that is required by the current templet systems
+	// You need this when you are double templating a file and the top-level system is not the default
   LHS2_T string
   RHS2_T string
   LHS3_T string
   RHS3_T string
-
-  // Swap delimiters, becuase the template systems use `{{` and `}}`
-  //   and if you want to preserve those, we need three sets of delimiters
-  SwapDelims bool
 
 	//
 	// Hof internal usage
