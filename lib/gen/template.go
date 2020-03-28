@@ -11,11 +11,11 @@ import (
 )
 
 func (F *File) RenderTemplate() error {
-	sys := strings.ToLower(F.TemplateSystem)
 
 	// Will check to see what the situation is
 	F.SwitchDelimsBefore()
 
+	sys := strings.ToLower(F.TemplateSystem)
 	switch sys {
 		case "mustache", "raymond", "handlebars":
 			F.RenderRaymondTemplate()

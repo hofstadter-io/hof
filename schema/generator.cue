@@ -17,11 +17,11 @@ HofGenerator :: {
 
   // The following will be automatically added to the template context
   // under its name for reference in GenFiles  and partials in templates
-  NamedTemplates: [Name=string]: { "\(Name)": string }
-  NamedPartials: [Name=string]: { "\(Name)": string }
+  NamedTemplates: { [Name=string]: string }
+  NamedPartials:  { [Name=string]: string }
   // Static files are available for pure cue generators that want to have static files
   // These should be named by their filepath, but be the content of the file
-  StaticFiles: [Name=string]: { "\(Name)": string }
+  StaticFiles: { [Name=string]:  string }
 
   //
   // For file based generators

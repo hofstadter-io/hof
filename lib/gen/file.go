@@ -76,6 +76,7 @@ type File struct {
 	DoWrite bool
 
 	// Bookkeeping
+	Errors []error
 	FileStats
 }
 

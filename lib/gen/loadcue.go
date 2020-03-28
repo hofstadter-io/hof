@@ -7,7 +7,7 @@ import (
 	"cuelang.org/go/cue"
 )
 
-func (G *Generator) LoadCue() (error) {
+func (G *Generator) LoadCue() ([]error) {
 	// fmt.Println("Gen Load:", G.Name)
 
 	var gen map[string]interface{}
@@ -16,7 +16,7 @@ func (G *Generator) LoadCue() (error) {
 	// Decode the value into a temporary "generator" with timing
 	err := G.CueValue.Decode(&gen)
 	if err != nil {
-		return err
+		return []error{err}
 	}
 
 	// finalize load timing stats
@@ -26,12 +26,13 @@ func (G *Generator) LoadCue() (error) {
 	return G.decodeGenerator(gen)
 }
 
-func (G *Generator) decodeGenerator(gen map[string]interface{}) (error) {
+func (G *Generator) decodeGenerator(gen map[string]interface{}) ([]error) {
+	var errs []error
 
 	// Get Out, or the files we want to render, required
 	Out, ok := gen["Out"].([]interface{})
 	if !ok {
-		return fmt.Errorf("Generator: %q is missing 'Out' field.", G.Name)
+		return []error{fmt.Errorf("Generator: %q is missing 'Out' field.", G.Name)}
 	}
 
 	// Get the Generator Input (if it has one)
@@ -43,14 +44,32 @@ func (G *Generator) decodeGenerator(gen map[string]interface{}) (error) {
 	G.PackageName, _  = gen["PackageName"].(string)
 
 	// In cue code
-	G.NamedTemplates, _ = gen["NamedTemplates"].(map[string]string)
-	G.NamedPartials,  _ = gen["NamedPartials"].(map[string]string)
-	G.StaticFiles,    _ = gen["StaticFiles"].(map[string]string)
+	G.NamedTemplates = make(map[string]string)
+	nt := gen["NamedTemplates"].(map[string]interface{})
+	for k, t := range nt {
+		G.NamedTemplates[k] = t.(string)
+	}
+
+	G.NamedPartials = make(map[string]string)
+	np := gen["NamedPartials"].(map[string]interface{})
+	for k, p := range np {
+		G.NamedPartials[k] = p.(string)
+	}
+
+	G.StaticFiles = make(map[string]string)
+	sf := gen["StaticFiles"].(map[string]interface{})
+	for k, s := range sf {
+		G.StaticFiles[k] = s.(string)
+	}
 
 	// Eventually loaded from disk
-	G.TemplatesDir, _ = gen["TemplatesDir"].(string)
-	G.PartialsDir, _  = gen["PartialsDir"].(string)
-	G.StaticGlobs, _  = gen["StaticGlobs"].([]string)
+	G.TemplatesDir = gen["TemplatesDir"].(string)
+	G.PartialsDir  = gen["PartialsDir"].(string)
+	G.StaticGlobs = make([]string, 0)
+	sg := gen["StaticGlobs"].([]interface{})
+	for _, s := range sg {
+		G.StaticGlobs = append(G.StaticGlobs, s.(string))
+	}
 
 	// TODO, load subgenerators
 
@@ -59,7 +78,10 @@ func (G *Generator) decodeGenerator(gen map[string]interface{}) (error) {
 	for i, O := range Out {
 		file := O.(map[string]interface{})
 
-		F := G.decodeFile(i, file)
+		F, err := G.decodeFile(i, file)
+		if err != nil {
+			errs = append(errs, err)
+		}
 
 		G.Files[F.Filepath] = F
 
@@ -69,10 +91,10 @@ func (G *Generator) decodeGenerator(gen map[string]interface{}) (error) {
 	//       for now, yes we will
 	G.CueValue = cue.Value{}
 
-	return nil
+	return errs
 }
 
-func (G *Generator) decodeFile(i int, file map[string]interface{}) *File {
+func (G *Generator) decodeFile(i int, file map[string]interface{}) (*File, error) {
 
 	// Is this output missing a filename? then skip it
 	if _, ok := file["Filepath"]; !ok {
@@ -83,8 +105,8 @@ func (G *Generator) decodeFile(i int, file map[string]interface{}) *File {
 			},
 			FinalContent: []byte(mockname),
 		}
-		return F
-
+		// We skip files this way, probably want to continue to do that as convention
+		return F, nil
 	}
 
 	// TODO, better checking and/or decode directly into golang structs
@@ -134,5 +156,21 @@ func (G *Generator) decodeFile(i int, file map[string]interface{}) *File {
 	F.LHS3_T = file["LHS3_T"].(string)
 	F.RHS3_T = file["RHS3_T"].(string)
 
-	return F
+	// Template content or name?
+	if F.Template == "" && F.TemplateName != "" {
+		// TODO, lookup template
+		content, ok := G.NamedTemplates[F.TemplateName]
+		if !ok {
+			err := fmt.Errorf("Named template %q not found for %s %s\n", F.TemplateName, G.Name, F.Filepath)
+			F.DoWrite = false
+			F.IsErr = 1
+			F.Errors = append(F.Errors, err)
+			return F, err
+		} else {
+			F.TemplateContent = content
+		}
+
+	}
+
+	return F, nil
 }

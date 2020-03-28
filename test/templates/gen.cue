@@ -15,10 +15,12 @@ A :: {
 HofGenTest: TestGen & { In: Val: A }
 
 TestGen :: schema.HofGenerator & {
+
   In: {
     Val: _
     ...
   }
+
   Out: [
     // Defaults
     schema.HofGeneratorFile & {
@@ -55,5 +57,33 @@ TestGen :: schema.HofGenerator & {
       Filepath: "mustache.txt"
     },
 
+
+    // Named things
+    schema.HofGeneratorFile & {
+      TemplateName: "named"
+      Filepath: "named-things.txt"
+    },
   ]
+
+  TemplatesDir: "templates/"
+  PartialsDir: "partials/"
+  StaticGlobs: ["static/**"]
+
+  NamedTemplates: {
+    named: """
+    named is '{{ .Val.a }}'
+    """
+  }
+
+  NamedPartials: {
+    named: """
+    partial is '{{ .Val.a }}'
+    """
+  }
+
+  StaticFiles: {
+    "static.txt": """
+    Hello, I am a static file
+    """
+  }
 }

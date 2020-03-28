@@ -134,9 +134,9 @@ func (R *Runtime) LoadGenerators() []error {
 		}
 
 		// Load the Generator!
-		err := G.LoadCue()
-		if err != nil {
-			errs = append(errs, err)
+		errsL := G.LoadCue()
+		if len(errsL) != 0 {
+			errs = append(errs, errsL...)
 			continue
 		}
 
