@@ -88,12 +88,15 @@ func (G *Generator) GenerateFiles() []error {
 	errs := []error{}
 
 	errs = G.ResolveTemplateContent()
+	if len(errs) > 0 {
+		return errs
+	}
 
 	start := time.Now()
 
-	// Todo, make this a parallel work queue
 	for _, F := range G.Files {
-		if F.Filepath == "" || F.IsErr != 0 || !F.DoWrite {
+		if F.Filepath == "" {
+			F.IsSkipped = 1
 			continue
 		}
 		F.ShadowFile = G.Shadow[F.Filepath]
@@ -120,7 +123,6 @@ func (G *Generator) ResolveTemplateContent() ([]error) {
 	for _, F := range G.Files {
 		// Template content or name?
 		if F.Template == "" && F.TemplateName != "" {
-			// TODO, lookup template
 			content, ok := G.NamedTemplates[F.TemplateName]
 			if !ok {
 				err := fmt.Errorf("Named template %q not found for %s %s\n", F.TemplateName, G.Name, F.Filepath)
@@ -137,4 +139,9 @@ func (G *Generator) ResolveTemplateContent() ([]error) {
 	}
 
 	return errs
+}
+
+func (G *Generator) LoadFiles() error {
+
+	return nil
 }
