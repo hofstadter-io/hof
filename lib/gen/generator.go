@@ -12,12 +12,53 @@ type Generators map[string]*Generator
 
 // A generator pulled from the cue instances
 type Generator struct {
+	//
+	// Set by Hof via cuelang extraction
 	// Label in Cuelang
 	Name string
 
-	// These will be set externally
+  // "Global" input, merged with out replacing onto the files
 	In map[string]interface{}
+
+  // The list fo files for hof to generate, in cue values
 	Out []map[string]interface{}
+
+	//
+	// Generator configuration set in Cue code
+	//
+
+  // Subgenerators for composition
+  Generators []*Generator
+
+  // The following will be automatically added to the template context
+  // under its name for reference in GenFiles  and partials in templates
+  NamedTemplates map[string]string
+  NamedPartials  map[string]string
+  // Static files are available for pure cue generators that want to have static files
+  // These should be named by their filepath, but be the content of the file
+  StaticFiles map[string]string
+
+  //
+  // For file based generators
+  //   files here will be automatically added to the template context
+  //   under its filepath for reference in GenFiles and partials in templates
+
+  // Used for indexing into the vendor directory...
+  PackageName string
+
+  // Base directory of entrypoint templates to load
+  TemplatesDir string
+
+  // Base directory of partial templatess to load
+  PartialsDir string
+
+  // Filepath globs for static files to load
+  StaticGlobs []string
+
+
+	//
+	// Hof internal usage
+	//
 
 	// Files and the shadow dir for doing neat things
 	Files map[string]*File
@@ -47,13 +88,13 @@ func (G *Generator) GenerateFiles() error {
 
 	// Todo, make this a parallel work queue
 	for _, F := range G.Files {
-		if F.Filename == "" {
+		if F.Filepath == "" {
 			continue
 		}
-		F.ShadowFile = G.Shadow[F.Filename]
+		F.ShadowFile = G.Shadow[F.Filepath]
 		err := F.Render()
 		if err != nil {
-			errs = append(errs, fmt.Errorf("In file %q, error %w", F.Filename, err))
+			errs = append(errs, fmt.Errorf("In file %q, error %w", F.Filepath, err))
 		}
 	}
 

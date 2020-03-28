@@ -88,7 +88,7 @@ func Gen(entrypoints, expressions []string, mode string) (string, error) {
 			}
 
 			// remove from shadows map so we can cleanup what remains
-			delete(G.Shadow, F.Filename)
+			delete(G.Shadow, F.Filepath)
 		}
 
 		// Cleanup File & Shadow
@@ -118,7 +118,7 @@ func Gen(entrypoints, expressions []string, mode string) (string, error) {
 		// Print mrege issues
 		for _, F := range G.Files {
 			if F.IsConflicted > 0 {
-				msg := fmt.Sprint("MERGE CONFLICT in:", F.Filename)
+				msg := fmt.Sprint("MERGE CONFLICT in:", F.Filepath)
 				color.Red(msg)
 			}
 		}

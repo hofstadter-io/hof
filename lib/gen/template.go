@@ -13,6 +13,9 @@ import (
 func (F *File) RenderTemplate() error {
 	sys := strings.ToLower(F.TemplateSystem)
 
+	// Will check to see what the situation is
+	F.SwapDelimsBefore()
+
 	switch sys {
 		case "mustache", "raymond", "handlebars":
 			F.RenderRaymondTemplate()
@@ -25,14 +28,27 @@ func (F *File) RenderTemplate() error {
 			return fmt.Errorf("Unknown template system: ", sys)
 	}
 
+	// Will check to see what the situation is
+	F.SwapDelimsAfter()
+
 	F.FormatRendered()
+
+	return nil
+}
+
+func (F *File) SwapDelimsBefore() error {
+
+	return nil
+}
+
+func (F *File) SwapDelimsAfter() error {
 
 	return nil
 }
 
 func (F *File) RenderGolangTemplate() error {
 
-	t := template.Must(template.New(F.Filename).Parse(F.TemplateContent))
+	t := template.Must(template.New(F.Filepath).Parse(F.TemplateContent))
 
 	var b bytes.Buffer
 	var err error
@@ -49,7 +65,7 @@ func (F *File) RenderGolangTemplate() error {
 
 func (F *File) RenderRaymondTemplate() error {
 
-	t, err := templates.CreateTemplateFromString(F.Filename, F.TemplateContent)
+	t, err := templates.CreateTemplateFromString(F.Filepath, F.TemplateContent)
 	if err != nil {
 		return err
 	}
@@ -68,7 +84,7 @@ func (F *File) RenderRaymondTemplate() error {
 func (F *File) FormatRendered() error {
 
 	// If Golang only
-	if strings.HasSuffix(F.Filename, ".go") {
+	if strings.HasSuffix(F.Filepath, ".go") {
 		fmtd, err := format.Source(F.RenderContent)
 		if err != nil {
 			return err

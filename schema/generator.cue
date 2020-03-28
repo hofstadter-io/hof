@@ -15,9 +15,18 @@ HofGen :: {
   // Subgenerators for composition
   Generators: [...HofGen] | *{...}
 
+  // The following will be automatically added to the template context
+  // under its name for reference in GenFiles  and partials in templates
+  NamedTemplates: [Name=string]: { "\(Name)": string }
+  NamedPartials: [Name=string]: { "\(Name)": string }
+  // Static files are available for pure cue generators that want to have static files
+  // These should be named by their filepath, but be the content of the file
+  StaticFiles: [Name=string]: { "\(Name)": string }
+
   //
   // For file based generators
-  //
+  //   files here will be automatically added to the template context
+  //   under its filepath for reference in GenFiles and partials in templates
 
   // Used for indexing into the vendor directory...
   PackageName: string | * ""
@@ -31,6 +40,7 @@ HofGen :: {
   // Filepath globs for static files to load
   StaticGlobs: [...string] | * ""
 
+  //
   // Open for whatever else you may need
   //   often hidden fields are used
   ...
@@ -41,11 +51,9 @@ GenFile :: {
   // The local input data
   In: { ... }
 
-  // The full path to the output location
-  Filename: string
-  // for starting the migration
-  Filepath: string
-  Filepath: Filename
+  // The full path under the output location
+  // empty implies don't generate, even though it may endup in the list
+  Filepath: string | *""
 
   //
   // Template parameters
@@ -55,7 +63,7 @@ GenFile :: {
   Template: string | *""
 
   // Relative name from TemplatesDir
-  TemplateFile: string | *""
+  TemplatePath: string | *""
 
   // System params
   TemplateSystem: *"text/template" | "mustache"
@@ -63,14 +71,15 @@ GenFile :: {
   //
   // Template delimiters
   //
+  //   these are for advanced usage, you shouldn't have to modify them normally
 
   // The default delimiters
   // You should change these when using alternative style like jinjas {% ... %} 
   // They also need to be different when using the swap system
-  LHS_D: string | *"{{"
-  RHS_D: string | *"}}"
-  LHS2_D: LHS_D
-  RHS2_D: RHS_D
+  LHS_D: LHS2_D
+  RHS_D: RHS2_D
+  LHS2_D: string | *"{{"
+  RHS2_D: string | *"}}"
   LHS3_D: string | *"{{{"
   RHS3_D: string | *"}}}"
 
@@ -78,28 +87,25 @@ GenFile :: {
   // the current template systems require these.
   //   So these should really never change or be overriden until there is a new template system
   //     supporting setting the delimiters dynamicalldelimiters dynamicallyy
-  LHS_S: string | *"{{"
-  RHS_S: string | *"}}"
-  LHS2_S: LHS_D
-  RHS2_S: RHS_D
+  LHS_S: LHS2_S
+  RHS_S: RHS2_S
+  LHS2_S: string | *"{{"
+  RHS2_S: string | *"}}"
   LHS3_S: string | *"{{{"
   RHS3_S: string | *"}}}"
 
   // The temporary delims to replace swap with while also swapping
   // the defaults you set to the swap that is required by the current templet systems
-  LHS_S: string | *"{{"
-  RHS_S: string | *"}}"
-  LHS2_S: LHS_D
-  RHS2_S: RHS_D
-  LHS3_S: string | *"{{{"
-  RHS3_S: string | *"}}}"
+  LHS_T: LHS2_T
+  RHS_T: RHS2_T
+  LHS2_T: string | *"{{"
+  RHS2_T: string | *"}}"
+  LHS3_T: string | *"{{{"
+  RHS3_T: string | *"}}}"
 
   // Swap delimiters, becuase the template systems use `{{` and `}}`
   //   and if you want to preserve those, we need three sets of delimiters
-  Alt: bool | *false
-  // for starting the migration
   SwapDelims: bool
-  SwapDelims: Alt
 
   // Open for whatever else you may need, not sure about this case though
   ...

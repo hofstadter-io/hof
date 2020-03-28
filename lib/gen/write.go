@@ -10,12 +10,12 @@ import (
 func (F *File) WriteOutput() error {
 	var err error
 
-	err = mkdir(path.Join(F.Filename))
+	err = mkdir(path.Join(F.Filepath))
 	if err != nil {
 		return err
 	}
 
-	err = ioutil.WriteFile(F.Filename, F.FinalContent, 0644)
+	err = ioutil.WriteFile(F.Filepath, F.FinalContent, 0644)
 	if err != nil {
 		return err
 	}
@@ -28,7 +28,7 @@ func (F *File) WriteOutput() error {
 func (F *File) WriteShadow() error {
 	var err error
 
-	fn := path.Join(SHADOW_DIR, F.Filename)
+	fn := path.Join(SHADOW_DIR, F.Filepath)
 
 	err = mkdir(fn)
 	if err != nil {

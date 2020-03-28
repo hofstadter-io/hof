@@ -43,7 +43,7 @@ func LoadShadow(verbose bool) (map[string]*File, error) {
 
 		fpath = strings.TrimPrefix(fpath, SHADOW_DIR)
 		shadow[fpath] = &File {
-			Filename: fpath,
+			Filepath: fpath,
 		}
 
 		return nil
@@ -64,7 +64,7 @@ func (F *File) ReadShadow() error {
 
 	// Should have already been confirmed to exist at this point
 
-	bytes, err := ioutil.ReadFile(path.Join(SHADOW_DIR, F.ShadowFile.Filename))
+	bytes, err := ioutil.ReadFile(path.Join(SHADOW_DIR, F.ShadowFile.Filepath))
 	if err != nil {
 		return err
 	}

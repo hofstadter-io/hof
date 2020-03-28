@@ -40,7 +40,7 @@ func (G *Generator) LoadCue() (error) {
 		file := O.(map[string]interface{})
 
 		// Is this output missing a filename? then skip it
-		if _, ok := file["Filename"]; !ok {
+		if _, ok := file["Filepath"]; !ok {
 			mockname := fmt.Sprintf("noname-%d", i)
 			F := &File {
 				FileStats: FileStats{
@@ -53,9 +53,8 @@ func (G *Generator) LoadCue() (error) {
 			continue
 		}
 
-		// Otherwise, we want to do something with this file
-		fn := file["Filename"].(string)
-		tp := file["Template"].(string)
+		// TODO, better checking and/or decode directly into golang structs
+		// But... they do all have defaults in the schema, so we will probably be OK
 
 		// Build up the files "In" value
 		in, ok := file["In"].(map[string]interface{})
@@ -71,14 +70,56 @@ func (G *Generator) LoadCue() (error) {
 			}
 		}
 
+		// Meta information
+		fn := file["Filepath"].(string)
+		tc := file["Template"].(string)
+		tn := file["TemplateName"].(string)
+
+		// deleimters
+		SWAP := file["SwapDelims"].(bool)
+
+		LHS2_D := file["LHS2_D"].(string)
+		RHS2_D := file["RHS2_D"].(string)
+		LHS3_D := file["LHS3_D"].(string)
+		RHS3_D := file["RHS3_D"].(string)
+
+		LHS2_S := file["LHS2_S"].(string)
+		RHS2_S := file["RHS2_S"].(string)
+		LHS3_S := file["LHS3_S"].(string)
+		RHS3_S := file["RHS3_S"].(string)
+
+		LHS2_T := file["LHS2_T"].(string)
+		RHS2_T := file["RHS2_T"].(string)
+		LHS3_T := file["LHS3_T"].(string)
+		RHS3_T := file["RHS3_T"].(string)
+
 		// Store the file in the generator
 		F := &File {
-			Filename: fn,
-			Template: tp,
 			In: in,
+			Filepath: fn,
+			Template: tc,
+			TemplateName: tn,
+
+			SwapDelims: SWAP,
+
+			LHS2_D: LHS2_D,
+			RHS2_D: RHS2_D,
+			LHS3_D: LHS3_D,
+			RHS3_D: RHS3_D,
+
+			LHS2_S: LHS2_S,
+			RHS2_S: RHS2_S,
+			LHS3_S: LHS3_S,
+			RHS3_S: RHS3_S,
+
+			LHS2_T: LHS2_T,
+			RHS2_T: RHS2_T,
+			LHS3_T: LHS3_T,
+			RHS3_T: RHS3_T,
+
 		}
 
-		G.Files[F.Filename] = F
+		G.Files[F.Filepath] = F
 
 	}
 
