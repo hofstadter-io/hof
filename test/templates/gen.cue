@@ -16,8 +16,6 @@ HofGenTest: TestGen & { In: Val: A }
 
 TestGen :: schema.HofGenerator & {
 
-  PackageName: "github.com/hof/test"
-
   In: {
     Val: _
     ...
@@ -71,6 +69,13 @@ TestGen :: schema.HofGenerator & {
       TemplateName: "named"
       Filepath: "named-things.txt"
     },
+
+    // File based
+    schema.HofGeneratorFile & {
+      TemplateName: "template-file.txt"
+      Filepath: "template-file.txt"
+    },
+
   ]
 
   TemplatesDir: "templates/"

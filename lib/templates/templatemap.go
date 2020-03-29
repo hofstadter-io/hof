@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type TemplateMap map[string]*Template
@@ -53,7 +54,7 @@ func (M TemplateMap) ImportFromFolder(folder, system string, config *Config) err
 }
 
 func (M TemplateMap) import_template(basePath, filePath, system string, config *Config) error {
-	source, err := ioutil.ReadFile(filepath.Join(basePath, filePath))
+	source, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return err
 	}
@@ -66,6 +67,7 @@ func (M TemplateMap) import_template(basePath, filePath, system string, config *
 		return fmt.Errorf("While parsing template file: %s\n%w", filePath, err)
 	}
 
-	M[filePath] = T
+	relFilePath := strings.TrimPrefix(filePath, basePath)
+	M[relFilePath] = T
 	return nil
 }

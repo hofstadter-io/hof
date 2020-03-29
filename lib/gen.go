@@ -17,7 +17,7 @@ func Gen(entrypoints, expressions []string, mode string) (error) {
 		for _, e := range errs {
 			fmt.Println(e)
 		}
-		return fmt.Errorf("\nErrors while loading cue files:\n%v\n", entrypoints)
+		return fmt.Errorf("\nErrors while loading cue files\n")
 	}
 
 	errs = R.LoadGenerators()
@@ -25,7 +25,7 @@ func Gen(entrypoints, expressions []string, mode string) (error) {
 		for _, e := range errs {
 			fmt.Println(e)
 		}
-		return fmt.Errorf("\nErrors while loading generators:\n%v\n", entrypoints)
+		return fmt.Errorf("\nErrors while loading generators\n")
 	}
 
 	errs = R.RunGenerators()
@@ -33,7 +33,7 @@ func Gen(entrypoints, expressions []string, mode string) (error) {
 		for _, e := range errs {
 			fmt.Println(e)
 		}
-		return fmt.Errorf("\nErrors while generating output:\n%v\n", entrypoints)
+		return fmt.Errorf("\nErrors while generating output\n")
 	}
 
 	// wait to print error as this is the last thing
