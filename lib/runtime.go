@@ -140,6 +140,12 @@ func (R *Runtime) LoadGenerators() []error {
 			continue
 		}
 
+		errsI := G.Initialize()
+		if len(errsI) != 0 {
+			errs = append(errs, errsI...)
+			continue
+		}
+
 		// TODO, flatten any nested generators?
 	}
 

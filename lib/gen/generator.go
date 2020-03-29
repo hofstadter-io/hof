@@ -2,9 +2,12 @@ package gen
 
 import (
 	"fmt"
+	"path"
 	"time"
 
 	"cuelang.org/go/cue"
+
+	"github.com/hofstadter-io/hof/lib/templates"
 )
 
 
@@ -27,6 +30,9 @@ type Generator struct {
 
   // Subgenerators for composition
   Generators []*Generator
+
+  // Template delimiters
+	TemplateConfig *templates.Config
 
   // The following will be automatically added to the template context
   // under its name for reference in GenFiles  and partials in templates
@@ -63,6 +69,10 @@ type Generator struct {
 	// TODO, make this field available in cuelang?
 	Disabled bool
 
+	// Template System Cache
+	PartialsMap templates.TemplateMap
+	TemplateMap templates.TemplateMap
+
 	// Files and the shadow dir for doing neat things
 	Files map[string]*File
 	Shadow map[string]*File
@@ -78,6 +88,8 @@ func NewGenerator(label string, value cue.Value) *Generator{
 	return &Generator {
 		Name: label,
 		CueValue: value,
+		PartialsMap: templates.NewMap(),
+		TemplateMap: templates.NewMap(),
 		Files: make(map[string]*File),
 		Shadow: make(map[string]*File),
 		Stats: &GeneratorStats{},
@@ -87,14 +99,10 @@ func NewGenerator(label string, value cue.Value) *Generator{
 func (G *Generator) GenerateFiles() []error {
 	errs := []error{}
 
-	errs = G.ResolveTemplateContent()
-	if len(errs) > 0 {
-		return errs
-	}
-
 	start := time.Now()
 
 	for _, F := range G.Files {
+		fmt.Println("GenerateFile:", F.Filepath, F.TemplateInstance)
 		if F.Filepath == "" {
 			F.IsSkipped = 1
 			continue
@@ -117,31 +125,170 @@ func (G *Generator) GenerateFiles() []error {
 }
 
 
-func (G *Generator) ResolveTemplateContent() ([]error) {
+func (G *Generator) Initialize() ([]error) {
 	var errs []error
 
-	for _, F := range G.Files {
-		// Template content or name?
-		if F.Template == "" && F.TemplateName != "" {
-			content, ok := G.NamedTemplates[F.TemplateName]
-			if !ok {
-				err := fmt.Errorf("Named template %q not found for %s %s\n", F.TemplateName, G.Name, F.Filepath)
-				F.DoWrite = false
-				F.IsErr = 1
-				F.Errors = append(F.Errors, err)
-				errs = append(errs, err)
-				continue
-			} else {
-				F.TemplateContent = content
-			}
+	// First do partials, so available to all templates
+	errs = G.initPartials()
+	if len(errs) > 0 {
+		return errs
+	}
 
+	errs = G.initTemplates()
+	if len(errs) > 0 {
+		return errs
+	}
+
+	errs = G.initFileGens()
+	if len(errs) > 0 {
+		return errs
+	}
+
+	return errs
+}
+
+const CUE_VENDOR_DIR = "./cue.mod/pkg/"
+
+func (G *Generator) initPartials() []error {
+	var errs []error
+
+	// First named
+	for k, content := range G.NamedPartials {
+		T, err := templates.CreateFromString(k, content, G.TemplateConfig.TemplateSystem, G.TemplateConfig)
+		if err != nil {
+			errs = append(errs, err)
+			continue
+		}
+
+		G.PartialsMap[k] = T
+	}
+
+	// Then file based partials, but don't overwrite
+	pDir := G.PartialsDir
+	if G.PackageName != "" {
+		pDir = path.Join(CUE_VENDOR_DIR, G.PackageName, G.PartialsDir)
+	}
+	pMap, err := templates.CreateTemplateMapFromFolder(pDir, G.TemplateConfig.TemplateSystem, G.TemplateConfig)
+	if err != nil {
+		return append(errs, err)
+	}
+
+	for k, T := range pMap {
+		_, ok := G.PartialsMap[k]
+		if !ok {
+			G.PartialsMap[k] = T
 		}
 	}
 
 	return errs
 }
 
-func (G *Generator) LoadFiles() error {
+func (G *Generator) initTemplates() []error {
+	var errs []error
+
+	// First named
+	for k, content := range G.NamedTemplates {
+		T, err := templates.CreateFromString(k, content, G.TemplateConfig.TemplateSystem, G.TemplateConfig)
+		if err != nil {
+			errs = append(errs, err)
+			continue
+		}
+		G.TemplateMap[k] = T
+	}
+
+	// Then file based template, but don't overwrite
+	tDir := G.TemplatesDir
+	if G.PackageName != "" {
+		tDir = path.Join(CUE_VENDOR_DIR, G.PackageName, G.TemplatesDir)
+	}
+	tMap, err := templates.CreateTemplateMapFromFolder(tDir, G.TemplateConfig.TemplateSystem, G.TemplateConfig)
+	if err != nil {
+		return append(errs, err)
+	}
+
+	for k, T := range tMap {
+		_, ok := G.TemplateMap[k]
+		if !ok {
+			G.TemplateMap[k] = T
+		}
+	}
+
+	// Now register partials with all templates
+
+	return errs
+}
+
+func (G *Generator) initFileGens() []error {
+	var errs []error
+
+	for _, F := range G.Files {
+		err := G.ResolveFile(F)
+		if err != nil {
+			errs = append(errs, err)
+		}
+	}
+
+	return errs
+}
+
+func (G *Generator) ResolveFile(F *File) error {
+	fmt.Println("ResolveFile", G.Name, F.Filepath)
+
+	// Override delims
+	if F.TemplateConfig == nil {
+		// Just use gen's if nil
+		F.TemplateConfig = G.TemplateConfig
+	} else {
+		// Override "default" '.'
+		F.TemplateConfig.OverrideDotDefaults(G.TemplateConfig)
+	}
+
+	// both valued?
+	if F.Template != "" && F.TemplateName != "" {
+		err := fmt.Errorf("Cannot specify both Template and TemplateName in Gen: %q File: %q TName: %q\n", G.Name, F.Filepath, F.TemplateName)
+		F.IsErr = 1
+		F.Errors = append(F.Errors, err)
+		return err
+	}
+	// both emtpy?
+	if F.Template != "" && F.TemplateName != "" {
+		err := fmt.Errorf("Must specify one of Template and TemplateName in Gen: %q File: %q TName: %q\n", G.Name, F.Filepath, F.TemplateName)
+		F.IsErr = 1
+		F.Errors = append(F.Errors, err)
+		return err
+	}
+
+	// Named or File Template
+	if F.Template == "" && F.TemplateName != "" {
+		T, ok := G.TemplateMap[F.TemplateName]
+		if !ok {
+			err := fmt.Errorf("Named template %q not found for %s %s\n", F.TemplateName, G.Name, F.Filepath)
+			F.IsErr = 1
+			F.Errors = append(F.Errors, err)
+			return err
+		}
+
+		F.TemplateInstance = T
+		return nil
+	}
+
+	if F.Template != "" {
+
+		T, err := templates.CreateFromString(F.Filepath, F.Template, F.TemplateConfig.TemplateSystem, F.TemplateConfig)
+		if err != nil {
+			return err
+		}
+
+		F.TemplateInstance = T
+
+		// Now register partials with all templates
+	}
+
+	fmt.Println("    TI:", F.TemplateInstance)
 
 	return nil
+}
+
+func (G *Generator) registerPartials(T *templates.Template) {
+
 }

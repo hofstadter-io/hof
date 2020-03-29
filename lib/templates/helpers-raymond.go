@@ -19,7 +19,7 @@ import (
 /*
 Where's your docs doc?!
 */
-func addTemplateHelpers(tpl *raymond.Template) {
+func addRaymondHelpers(tpl *raymond.Template) {
 
 	tpl.RegisterHelper("concat2", Helper_concat2)
 	tpl.RegisterHelper("concat3", Helper_concat3)

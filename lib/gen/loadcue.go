@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"cuelang.org/go/cue"
+
+	"github.com/hofstadter-io/hof/lib/templates"
 )
 
 func (G *Generator) LoadCue() ([]error) {
@@ -39,6 +41,36 @@ func (G *Generator) decodeGenerator(gen map[string]interface{}) ([]error) {
 	In, ok := gen["In"].(map[string]interface{})
 	if ok {
 		G.In = In
+	}
+
+	//
+	// From common
+	//
+
+		// deleimters
+	configI, ok := gen["TemplateConfig"]
+	if ok {
+		config := configI.(map[string]interface{})
+		G.TemplateConfig = &templates.Config{}
+
+		G.TemplateConfig.TemplateSystem = config["TemplateSystem"].(string)
+		G.TemplateConfig.AltDelims  = config["AltDelims"].(bool)
+		G.TemplateConfig.SwapDelims = config["SwapDelims"].(bool)
+
+		G.TemplateConfig.LHS2_D = config["LHS2_D"].(string)
+		G.TemplateConfig.RHS2_D = config["RHS2_D"].(string)
+		G.TemplateConfig.LHS3_D = config["LHS3_D"].(string)
+		G.TemplateConfig.RHS3_D = config["RHS3_D"].(string)
+
+		G.TemplateConfig.LHS2_S = config["LHS2_S"].(string)
+		G.TemplateConfig.RHS2_S = config["RHS2_S"].(string)
+		G.TemplateConfig.LHS3_S = config["LHS3_S"].(string)
+		G.TemplateConfig.RHS3_S = config["RHS3_S"].(string)
+
+		G.TemplateConfig.LHS2_T = config["LHS2_T"].(string)
+		G.TemplateConfig.RHS2_T = config["RHS2_T"].(string)
+		G.TemplateConfig.LHS3_T = config["LHS3_T"].(string)
+		G.TemplateConfig.RHS3_T = config["RHS3_T"].(string)
 	}
 
 	G.PackageName, _  = gen["PackageName"].(string)
@@ -147,26 +179,32 @@ func (G *Generator) decodeFile(i int, file map[string]interface{}) (*File, error
 	F.Filepath = file["Filepath"].(string)
 	F.Template = file["Template"].(string)
 	F.TemplateName = file["TemplateName"].(string)
-	F.TemplateSystem = file["TemplateSystem"].(string)
 
-	// deleimters
-	F.AltDelims  = file["AltDelims"].(bool)
-	F.SwapDelims = file["SwapDelims"].(bool)
+		// deleimters
+	configI, ok := file["TemplateConfig"]
+	if ok {
+		config := configI.(map[string]interface{})
+		F.TemplateConfig = &templates.Config{}
 
-	F.LHS2_D = file["LHS2_D"].(string)
-	F.RHS2_D = file["RHS2_D"].(string)
-	F.LHS3_D = file["LHS3_D"].(string)
-	F.RHS3_D = file["RHS3_D"].(string)
+		F.TemplateConfig.TemplateSystem = config["TemplateSystem"].(string)
+		F.TemplateConfig.AltDelims  = config["AltDelims"].(bool)
+		F.TemplateConfig.SwapDelims = config["SwapDelims"].(bool)
 
-	F.LHS2_S = file["LHS2_S"].(string)
-	F.RHS2_S = file["RHS2_S"].(string)
-	F.LHS3_S = file["LHS3_S"].(string)
-	F.RHS3_S = file["RHS3_S"].(string)
+		F.TemplateConfig.LHS2_D = config["LHS2_D"].(string)
+		F.TemplateConfig.RHS2_D = config["RHS2_D"].(string)
+		F.TemplateConfig.LHS3_D = config["LHS3_D"].(string)
+		F.TemplateConfig.RHS3_D = config["RHS3_D"].(string)
 
-	F.LHS2_T = file["LHS2_T"].(string)
-	F.RHS2_T = file["RHS2_T"].(string)
-	F.LHS3_T = file["LHS3_T"].(string)
-	F.RHS3_T = file["RHS3_T"].(string)
+		F.TemplateConfig.LHS2_S = config["LHS2_S"].(string)
+		F.TemplateConfig.RHS2_S = config["RHS2_S"].(string)
+		F.TemplateConfig.LHS3_S = config["LHS3_S"].(string)
+		F.TemplateConfig.RHS3_S = config["RHS3_S"].(string)
+
+		F.TemplateConfig.LHS2_T = config["LHS2_T"].(string)
+		F.TemplateConfig.RHS2_T = config["RHS2_T"].(string)
+		F.TemplateConfig.LHS3_T = config["LHS3_T"].(string)
+		F.TemplateConfig.RHS3_T = config["RHS3_T"].(string)
+	}
 
 	return F, nil
 }

@@ -2,12 +2,10 @@ package gen
 
 import (
 	"bytes"
-	"fmt"
 	"go/format"
 	"io/ioutil"
 	"os"
 	"strings"
-	"text/template"
 
 	"github.com/epiclabs-io/diff3"
 	"github.com/sergi/go-diff/diffmatchpatch"
@@ -28,49 +26,19 @@ type File struct {
 	Template       string  // The content, takes precedence over next option
 	TemplateName   string  // Named template
 
-  //
   // Template delimiters
-  //
-  //   these are for advanced usage, you shouldn't have to modify them normally
-
-  // Alt and Swap Delims,
-	//   becuase the defaulttemplate systems use `{{` and `}}`
-	//   and you may choose to use other delimiters, but the lookup system is still based on the template system
-  //   and if you want to preserve those, we need three sets of delimiters
-  AltDelims  bool
-  SwapDelims bool
-
-  // The default delimiters
-  // You should change these when using alternative style like jinjas {% ... %}
-  // They also need to be different when using the swap system
-  LHS2_D string
-  RHS2_D string
-  LHS3_D string
-  RHS3_D string
-
-  // These are the same as the default becuase
-  // the current template systems require these.
-  //   So these should really never change or be overriden until there is a new template system
-  //     supporting setting the delimiters dynamicalldelimiters dynamicallyy
-  LHS2_S string
-  RHS2_S string
-  LHS3_S string
-  RHS3_S string
-
-  // The temporary delims to replace swap with while also swapping
-  // the defaults you set to the swap that is required by the current templet systems
-	// You need this when you are double templating a file and the top-level system is not the default
-  LHS2_T string
-  RHS2_T string
-  LHS3_T string
-  RHS3_T string
+	TemplateConfig *templates.Config
 
 	//
 	// Hof internal usage
 	//
 
+	// Template Instance Pointer
+	//   If local, this will be created when the template content is laoded
+	//   If a named template, acutal template lives in the generator and is created at folder import time
+	TemplateInstance *templates.Template
+
 	// Content
-	TemplateContent string
 	RenderContent   []byte
 	FinalContent    []byte
 
@@ -87,13 +55,6 @@ type File struct {
 
 func (F *File) Render() error {
 	var err error
-
-	// TODO eventually look for template file by file name
-	// in some cache, but do this somewhere else, so that
-	// we have an abstract template system
-	if F.TemplateContent == "" {
-		F.TemplateContent = F.Template
-	}
 
 	err = F.RenderTemplate()
 	if err != nil {
@@ -246,116 +207,9 @@ func (F *File) UnifyContent() (write bool, err error) {
 
 func (F *File) RenderTemplate() error {
 
-	// Will check to see what the situation is
-	F.SwitchDelimsBefore()
-
-	sys := strings.ToLower(F.TemplateSystem)
-	switch sys {
-		case "mustache", "raymond", "handlebars":
-			F.RenderRaymondTemplate()
-
-		// sudo default
-		case "", "golang", "text", "text/template":
-			F.RenderGolangTemplate()
-
-		default:
-			return fmt.Errorf("Unknown template system: ", sys)
-	}
-
-	// Will check to see what the situation is
-	F.SwitchDelimsAfter()
+	F.TemplateInstance.Render(F.In)
 
 	F.FormatRendered()
-
-	return nil
-}
-
-func (F *File) SwitchDelimsTemplate(OLD, NEW string) {
-	replace := F.TemplateContent
-
-	replace = strings.ReplaceAll(replace, OLD, NEW)
-
-	F.TemplateContent = replace
-}
-
-func (F *File) SwitchDelimsRendered(OLD, NEW string) {
-	replace := F.RenderContent
-
-	replace = bytes.ReplaceAll(replace, []byte(OLD), []byte(NEW))
-
-	F.RenderContent = replace
-}
-
-func (F *File) SwitchDelimsBefore() {
-
-	// Multi switch with temporary
-	if F.AltDelims && F.SwapDelims {
-		// Replace the swap or secondary with temp (this is the default for the template system)
-		F.SwitchDelimsTemplate(F.LHS3_S, F.LHS3_T)
-		F.SwitchDelimsTemplate(F.RHS3_S, F.RHS3_T)
-		F.SwitchDelimsTemplate(F.LHS2_S, F.LHS2_T)
-		F.SwitchDelimsTemplate(F.RHS2_S, F.RHS2_T)
-	}
-
-	if F.AltDelims {
-		// Switch Swap for Default, which if you only set default, will work
-		// do triple first, douvle second
-		F.SwitchDelimsTemplate(F.LHS3_D, F.LHS3_S)
-		F.SwitchDelimsTemplate(F.RHS3_D, F.RHS3_S)
-		F.SwitchDelimsTemplate(F.LHS2_D, F.LHS2_S)
-		F.SwitchDelimsTemplate(F.RHS2_D, F.RHS2_S)
-	}
-
-}
-
-func (F *File) SwitchDelimsAfter() {
-
-	// Multi switch undo
-	if F.AltDelims && F.SwapDelims {
-		// Undo the default to temp swap
-		F.SwitchDelimsRendered(F.LHS3_T, F.LHS3_S)
-		F.SwitchDelimsRendered(F.RHS3_T, F.RHS3_S)
-		F.SwitchDelimsRendered(F.LHS2_T, F.LHS2_S)
-		F.SwitchDelimsRendered(F.RHS2_T, F.RHS2_S)
-
-	}
-
-	// shouldn't have to do anything since we rendered by now
-	//   and there should have been only one template system
-	//   or  another that is not effected by renering
-
-}
-
-func (F *File) RenderGolangTemplate() error {
-
-	t := template.Must(template.New(F.Filepath).Parse(F.TemplateContent))
-
-	var b bytes.Buffer
-	var err error
-
-	err = t.Execute(&b, F.In)
-	if err != nil {
-		return err
-	}
-
-	F.RenderContent = b.Bytes()
-
-	return nil
-}
-
-func (F *File) RenderRaymondTemplate() error {
-
-	t, err := templates.CreateTemplateFromString(F.Filepath, F.TemplateContent)
-	if err != nil {
-		return err
-	}
-
-	out, err := t.Render(F.In)
-	if err != nil {
-		return err
-	}
-
-	F.RenderContent = []byte(out)
 
 	return nil
 }
