@@ -12,9 +12,16 @@ A :: {
   }
 }
 
-HofGenTest: TestGen & { In: Val: A }
+HofGenTest: TestGen & {
+  In: {
+    Val: A 
+  }
+  ...
+}
+
 
 TestGen :: schema.HofGenerator & {
+  Outdir: string | *"output"
 
   In: {
     Val: _
@@ -25,12 +32,15 @@ TestGen :: schema.HofGenerator & {
     // Defaults
     schema.HofGeneratorFile & {
       Template: "Val.a = '{{ .Val.a }}'\n"
-      Filepath: "default.txt"
+      Filepath: "\(Outdir)/default.txt"
+      TemplateConfig: {
+        TemplateSystem: "golang"
+      }
     },
     // Alternate delims
     schema.HofGeneratorFile & {
       Template: "Val.a = '{% .Val.a %}'\n"
-      Filepath: "altdelim.txt"
+      Filepath: "\(Outdir)/altdelim.txt"
       TemplateConfig: {
         AltDelims: true
         LHS2_D: "{%"
@@ -42,7 +52,7 @@ TestGen :: schema.HofGenerator & {
     // Swap delims, using defaults delims for swap/temp
     schema.HofGeneratorFile & {
       Template: "Val.a = '{% .Val.a %}' and also this should stay {{ .Hello }}\n"
-      Filepath: "swapdelim.txt"
+      Filepath: "\(Outdir)/swapdelim.txt"
       TemplateConfig: {
         AltDelims: true
         SwapDelims: true
@@ -57,7 +67,7 @@ TestGen :: schema.HofGenerator & {
     // Mustache system
     schema.HofGeneratorFile & {
       Template: "Val.a = '{{ Val.a }}'\n"
-      Filepath: "mustache.txt"
+      Filepath: "\(Outdir)/mustache.txt"
       TemplateConfig: {
         TemplateSystem: "raymond"
       }
@@ -67,13 +77,13 @@ TestGen :: schema.HofGenerator & {
     // Named things
     schema.HofGeneratorFile & {
       TemplateName: "named"
-      Filepath: "named-things.txt"
+      Filepath: "\(Outdir)/named-things.txt"
     },
 
     // File based
     schema.HofGeneratorFile & {
       TemplateName: "template-file.txt"
-      Filepath: "template-file.txt"
+      Filepath: "\(Outdir)/template-file.txt"
     },
 
   ]

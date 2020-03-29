@@ -28,6 +28,7 @@ require (
 	github.com/spf13/viper v1.6.2
 	github.com/ulikunitz/xz v0.5.7 // indirect
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
+	golang.org/x/text v0.3.2
 	gopkg.in/src-d/go-git.v4 v4.13.1
 	gopkg.in/yaml.v2 v2.2.8
 	moul.io/http2curl v1.0.0 // indirect
