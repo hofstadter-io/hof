@@ -10,6 +10,9 @@ import (
 func (F *File) WriteOutput() error {
 	var err error
 
+	// fmt.Println("WriteFile:", F.Filepath)
+	// fmt.Printf("%#+v\n\n", F)
+
 	err = mkdir(path.Join(F.Filepath))
 	if err != nil {
 		return err

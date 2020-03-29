@@ -60,6 +60,7 @@ func (F *File) Render() error {
 	if err != nil {
 		return err
 	}
+	// fmt.Println("   rendered:", F.Filepath, len(F.RenderContent))
 
 	// Check to see if they are the same, if so, then "skip"
 	// fmt.Println(F.Filepath, len(F.RenderContent), F.ShadowFile)
@@ -206,10 +207,17 @@ func (F *File) UnifyContent() (write bool, err error) {
 }
 
 func (F *File) RenderTemplate() error {
+	var err error
 
-	F.TemplateInstance.Render(F.In)
+	F.RenderContent, err = F.TemplateInstance.Render(F.In)
+	if err != nil {
+		return err
+	}
 
-	F.FormatRendered()
+	err = F.FormatRendered()
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

@@ -102,7 +102,8 @@ func (G *Generator) GenerateFiles() []error {
 	start := time.Now()
 
 	for _, F := range G.Files {
-		fmt.Println("GenerateFile:", F.Filepath, F.TemplateInstance)
+
+		// fmt.Printf("GenerateFile: %s\n%#+v\n\n", F.Filepath, F)
 		if F.Filepath == "" {
 			F.IsSkipped = 1
 			continue
@@ -232,7 +233,7 @@ func (G *Generator) initFileGens() []error {
 }
 
 func (G *Generator) ResolveFile(F *File) error {
-	fmt.Println("ResolveFile", G.Name, F.Filepath)
+	// fmt.Println("ResolveFile", G.Name, F.Filepath)
 
 	// Override delims
 	if F.TemplateConfig == nil {
@@ -284,7 +285,7 @@ func (G *Generator) ResolveFile(F *File) error {
 		// Now register partials with all templates
 	}
 
-	fmt.Println("    TI:", F.TemplateInstance)
+	// fmt.Println("    TI:", F.TemplateInstance)
 
 	return nil
 }

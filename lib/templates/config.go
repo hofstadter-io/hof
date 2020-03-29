@@ -1,7 +1,6 @@
 package templates
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -92,7 +91,6 @@ func (D *Config) SwitchAfter(content string) string {
 
 // Override this Delim's dot defaults with 'delim' values
 func (D *Config) OverrideDotDefaults(delim *Config) {
-	fmt.Printf("\nOverride:\n%#+v\n%#+v\n\n", D, delim)
 
 	if D.TemplateSystem == "." {
 		D.TemplateSystem = delim.TemplateSystem
@@ -139,7 +137,5 @@ func (D *Config) OverrideDotDefaults(delim *Config) {
 	if D.RHS3_T == "." {
 		D.RHS3_T = delim.RHS3_T
 	}
-
-	fmt.Printf("Result:\n%#+v\n\n", D)
 
 }

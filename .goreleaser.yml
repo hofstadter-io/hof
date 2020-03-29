@@ -1,7 +1,7 @@
 build:
   main: main.go
-  binary: {% .CLI.cliName %}
-  ldflags: -s -w -X {% .CLI.Package %}/commands.Version=<no value> -X {% .CLI.Package %}/commands.Commit=<no value> -X {% .CLI.Package %}/commands.BuildDate=<no value>
+  binary: hof
+  ldflags: -s -w -X github.com/hofstadter-io/hof/commands.Version={{.Version}} -X github.com/hofstadter-io/hof/commands.Commit={{.ShortCommit}} -X github.com/hofstadter-io/hof/commands.BuildDate={{.Date}}
   env:
     - CGO_ENABLED=0
   goos:
@@ -17,7 +17,7 @@ archive:
   format_overrides:
     - goos: windows
       format: zip
-  name_template: "<no value>_<no value>_<no value>-<no value>"
+  name_template: "{{.Binary}}_{{.Version}}_{{.Os}}-{{.Arch}}"
   replacements:
     amd64: 64bit
     arm: ARM
@@ -30,16 +30,16 @@ archive:
     - LICENSE
 
 brew:
-  name: {% .CLI.cliName %}
+  name: hof
   github:
-    owner: {% .CLI.Releases.Brew.GitHubOwner %}
-    name: {%  .CLI.Releases.Brew.GitHubRepoName %}
+    owner: hofstadter-io
+    name: homebrew-tap
   folder: Formula
   commit_author:
-    name: {% .CLI.Releases.Brew.GitHubUsername %}
-    email: {% .CLI.Releases.Brew.GitHubEmail %}
-  homepage: {% .CLI.Releases.Homepage %}
-  description: '{% .CLI.Short %}'
+    name: verdverm
+    email: tony@hofstadter.io
+  homepage: https://github.com/hofstadter-io/hof
+  description: 'hof is the cli for hof-lang, a low-code framework for developers'
 
 release:
-  draft: {% .CLI.Releases.Draft %}
+  draft: true
