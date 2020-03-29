@@ -11,8 +11,10 @@ import (
 	"cuelang.org/go/cue/build"
 	"cuelang.org/go/cue/load"
 	"github.com/fatih/color"
+	"github.com/mattn/go-zglob"
 
 	"github.com/hofstadter-io/hof/lib/gen"
+	"github.com/hofstadter-io/hof/lib/util"
 )
 
 type Runtime struct {
@@ -185,6 +187,7 @@ func (R *Runtime) RunGenerators() []error {
 func (R *Runtime) WriteOutput() []error {
 	var errs []error
 
+
 	for _, G := range R.Generators {
 		if G.Disabled {
 			continue
@@ -192,6 +195,66 @@ func (R *Runtime) WriteOutput() []error {
 
 		writestart := time.Now()
 
+		// Order is important here for implicit overriding of content
+
+		// Start with static file globs
+		for _, Glob := range G.StaticGlobs {
+			bdir := ""
+			if G.PackageName != "" {
+				bdir = path.Join("cue.mod/pkg", G.PackageName)
+			}
+			matches, err := zglob.Glob(path.Join(bdir, Glob))
+			if err != nil {
+				err = fmt.Errorf("while globbing %s / %s\n%w\n", bdir, Glob, err)
+				errs = append(errs, err)
+				continue
+			}
+			for _, match := range matches {
+				// trim first level directory
+				clean := Glob[:strings.Index(Glob, "/")]
+				mo := strings.TrimPrefix(match, clean)
+				src := path.Join(bdir, match)
+				dst := path.Join(G.Outdir, mo)
+
+				// normal location
+				err := util.CopyFile(src, dst)
+				if err != nil {
+					err = fmt.Errorf("while copying static file %q\n%w\n", match, err)
+					errs = append(errs, err)
+					continue
+				}
+
+				// shadow location
+				err = util.CopyFile(src, path.Join(".hof", dst))
+				if err != nil {
+					err = fmt.Errorf("while copying static file %q\n%w\n", match, err)
+					errs = append(errs, err)
+					continue
+				}
+
+			}
+
+		}
+
+		// Then the static files in cue
+		for p, content := range G.StaticFiles {
+			F := &gen.File {
+				Filepath: path.Join(G.Outdir, p),
+				FinalContent: []byte(content),
+			}
+			err := F.WriteOutput()
+			if err != nil {
+				errs = append(errs, err)
+				continue
+			}
+			err = F.WriteShadow()
+			if err != nil {
+				errs = append(errs, err)
+				continue
+			}
+		}
+
+		// Finally write the generator files
 		for _, F := range G.Files {
 			// Write the actual output
 			if F.DoWrite {

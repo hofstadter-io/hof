@@ -5,7 +5,7 @@
 // From https://github.com/golang/go/blob/b39fb9ec85c95cd760b8916eb85c92a185ca7a48/src/cmd/go/internal/par/work.go
 
 // Package par implements parallel execution helpers.
-package par
+package util
 
 import (
 	"math/rand"

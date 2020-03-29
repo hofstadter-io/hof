@@ -74,11 +74,13 @@ func (G *Generator) decodeGenerator(gen map[string]interface{}) ([]error) {
 		G.In = In
 	}
 
+	G.Outdir = gen["Outdir"].(string)
+
 	//
 	// From common
 	//
 
-		// deleimters
+	// deleimters
 	configI, ok := gen["TemplateConfig"]
 	if ok {
 		config := configI.(map[string]interface{})

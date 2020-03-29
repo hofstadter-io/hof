@@ -18,6 +18,7 @@ require (
 	github.com/hofstadter-io/dotpath v0.0.0-20191027071558-52e2819b7d2d
 	github.com/hofstadter-io/mvs v0.3.0
 	github.com/kr/pretty v0.1.0
+	github.com/mattn/go-zglob v0.0.1
 	github.com/mholt/archiver v3.1.1+incompatible
 	github.com/naoina/toml v0.1.1
 	github.com/nwaples/rardecode v1.1.0 // indirect

@@ -68,6 +68,9 @@ go get -u github.com/hofstadter-io/hof
 
 This example is taken from the `test/templates` directory.
 
+You can find the schemas for `HofGenerator` and `HofGeneratorFile`
+in the [schemas directory](./schema).
+
 To run:
 
 ```
@@ -219,3 +222,13 @@ TestGen :: schema.HofGenerator & {
 }
 ```
 
+Output:
+
+```
+$ tree output
+...
+
+$ find output -type f -ex cat {};
+...
+
+```

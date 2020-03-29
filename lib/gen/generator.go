@@ -18,6 +18,9 @@ type Generator struct {
 	// Label in Cuelang
 	Name string
 
+	// Base directory for output
+	Outdir string
+
   // "Global" input, merged with out replacing onto the files
 	In map[string]interface{}
 
