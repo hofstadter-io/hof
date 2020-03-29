@@ -1,16 +1,16 @@
-# hof
+# Hof - A Polyglot Code Generation Framework for Cuelang
 
-__hof__ is a framework for creating
+__Hof__ is a framework for creating
 code generation libraries, modules, and tools
 for any technology, system, process, or platform.
 Being built on [Cuelang](https://cuelang.org)
 you get all the type safety and expressiveness
 that comes with the language.
-__hof__ extends cuelang to make
+__Hof__ extends cuelang to make
 code generation a first-class concept,
 optimizing for large scale code generation.
 
-__hof__ also has roots in
+__Hof__ also has roots in
 declarative programming and DSLs,
 where your write your high-level
 "designs" in the "language" of a DSL.
@@ -19,12 +19,12 @@ and use polyglot generators to output the implementation
 in one or more computer languages and technologies.
 You can modify the code in the output,
 update your designs, and regenrate the output.
-__hof__ allows you to work in both sides 
+__Hof__ allows you to work in both sides 
 of the transformation, using diff3 to
 merge the files together.
 
 
-#### Concepts in hof
+### Concepts in hof
 
 Designs + Generators -> __hof__ => All the things
 
@@ -44,7 +44,7 @@ into advanced, cloud native applications.
 
 
 
-#### Installation
+### Installation
 
 The best method is to clone and checkout the [latest release](https://github.com/hofstadter-io/hof/releases).
 
@@ -64,7 +64,7 @@ go get -u github.com/hofstadter-io/hof
 ```
 
 
-#### An example
+### An example
 
 This example is taken from the `test/templates` directory.
 
