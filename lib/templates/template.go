@@ -103,7 +103,7 @@ func createGolangTemplate(name, content string, config *Config) (*template.Templ
 		t = t.Delims(config.LHS2_D, config.RHS2_D)
 	}
 
-	addGolangHelpers(t)
+	AddGolangHelpers(t)
 
 	t, err := t.Parse(content)
 
@@ -120,7 +120,7 @@ func createRaymondTemplate(name, content string, config *Config) (*raymond.Templ
 		return nil, fmt.Errorf("While parsing file: %s\n%w\n", name, err)
 	}
 
-	addRaymondHelpers(r)
+	AddRaymondHelpers(r)
 
 	return r, nil
 }

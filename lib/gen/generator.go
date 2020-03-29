@@ -222,7 +222,13 @@ func (G *Generator) initTemplates() []error {
 		}
 	}
 
-	// Now register partials with all templates
+	// Now register partials with all patrials and templates
+	for _, P := range G.PartialsMap {
+		G.registerPartials(P)
+	}
+	for _, T := range G.TemplateMap {
+		G.registerPartials(T)
+	}
 
 	return errs
 }
@@ -288,9 +294,10 @@ func (G *Generator) ResolveFile(F *File) error {
 			return err
 		}
 
-		F.TemplateInstance = T
-
 		// Now register partials with all templates
+		G.registerPartials(T)
+
+		F.TemplateInstance = T
 	}
 
 	// fmt.Println("    TI:", F.TemplateInstance)
@@ -299,5 +306,27 @@ func (G *Generator) ResolveFile(F *File) error {
 }
 
 func (G *Generator) registerPartials(T *templates.Template) {
+	if T.R != nil {
+		for k, P := range G.PartialsMap {
+			if T.Config.TemplateSystem == P.Config.TemplateSystem {
+				T.R.RegisterPartialTemplate(k, P.R)
+			}
+		}
+	}
+
+	if T.T != nil {
+		for k, P := range G.PartialsMap {
+			// fmt.Println("Partial - Golang -", k)
+			if T.Config.TemplateSystem == P.Config.TemplateSystem {
+				t := T.T.New(k)
+				// TODO Delims again here?
+				templates.AddGolangHelpers(t)
+
+				t.Parse(P.Source)
+
+				// T.T = t
+			}
+		}
+	}
 
 }

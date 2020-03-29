@@ -4,6 +4,8 @@ import (
 	"text/template"
 )
 
-func addGolangHelpers(tpl *template.Template) {
+// https://golang.org/pkg/text/template/#Template.Funcs
+
+func AddGolangHelpers(tpl *template.Template) {
 
 }

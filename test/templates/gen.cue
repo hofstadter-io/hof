@@ -6,6 +6,7 @@ import (
 
 A :: {
   a: "a"
+  b: "b"
   N: {
     x: "x"
     y: "y"
@@ -21,7 +22,7 @@ HofGenTest: TestGen & {
 
 
 TestGen :: schema.HofGenerator & {
-  Outdir: string | *"output"
+  Outdir: "output"
 
   In: {
     Val: _
