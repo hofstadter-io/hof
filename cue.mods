@@ -4,8 +4,6 @@ cue 0.0.15
 
 require (
   github.com/hofstadter-io/cuelib v0.0.5
-  github.com/hofstadter-io/hofmod-cli v0.3.0
+  github.com/hofstadter-io/hofmod-cli v0.3.1
   github.com/hofstadter-io/mvs v0.3.0
 )
-
-replace github.com/hofstadter-io/hofmod-cli => ../mods/hofmod-cli
