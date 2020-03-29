@@ -23,6 +23,10 @@ func AddGolangHelpers(t *template.Template) (*template.Template) {
 
 func AddRaymondHelpers(t *raymond.Template) (*raymond.Template) {
 	for k, f := range funcMap {
+		if k == "dref" {
+			t.RegisterHelper(k, Helper_dref_raymond)
+			continue
+		}
 		t.RegisterHelper(k, f)
 	}
 
@@ -108,7 +112,8 @@ var funcMap = template.FuncMap {
 	"inc": Helper_inc,
 
 	"file": Helper_file,
-	"dref": Helper_dref,
+
+	"dref": Helper_dref_golang,
 }
 
 
@@ -152,79 +157,46 @@ func Helper_indent(value, indent string) string {
 	return ret
 }
 
-func Helper_yaml(value interface{}, options *raymond.Options) string {
+func Helper_yaml(value interface{}) string {
 	bytes, err := yaml.Marshal(value)
 	if err != nil {
 		return err.Error()
 	}
 	ret := string(bytes)
-
-	if indent := options.HashStr("indent"); indent != "" {
-		ret = Helper_indent(ret, indent)
-		if options.HashStr("skipFirst") != "" {
-			ret = strings.TrimPrefix(ret, indent)
-		}
-	}
 	return ret
 }
 
-func Helper_toml(value interface{}, options *raymond.Options) string {
+func Helper_toml(value interface{}) string {
 	bytes, err := toml.Marshal(value)
 	if err != nil {
 		return err.Error()
 	}
-	ret := string(bytes)
-
-	if indent := options.HashStr("indent"); indent != "" {
-		ret = Helper_indent(ret, indent)
-		if options.HashStr("skipFirst") != "" {
-			ret = strings.TrimPrefix(ret, indent)
-		}
-	}
-	return ret
+	return string(bytes)
 }
 
-func Helper_json(value interface{}, options *raymond.Options) string {
-	var bytes []byte
-	if options.HashStr("inline") != "" {
-		bytes, err := json.Marshal(value)
-		if err != nil {
-			return err.Error()
-		}
-		ret := string(bytes)
-		return ret
-	}
-
+func Helper_json(value interface{}) string {
 	bytes, err := json.MarshalIndent(value, "", "  ")
 	if err != nil {
 		return err.Error()
 	}
-	ret := string(bytes)
-
-	if indent := options.HashStr("indent"); indent != "" {
-		ret = Helper_indent(ret, indent)
-		if options.HashStr("skipFirst") != "" {
-			ret = strings.TrimPrefix(ret, indent)
-		}
-	}
-	return ret
+	return string(bytes)
 }
 
-func Helper_xml(value interface{}, options *raymond.Options) string {
+func Helper_jsoninline(value interface{}) string {
+	bytes, err := json.Marshal(value)
+	if err != nil {
+		return err.Error()
+	}
+	return string(bytes)
+}
+
+func Helper_xml(value interface{}) string {
 	mv := mxj.Map(value.(map[string]interface{}))
 	bytes, err := mv.XmlIndent("", "  ")
 	if err != nil {
 		return err.Error()
 	}
-	ret := string(bytes)
-
-	if indent := options.HashStr("indent"); indent != "" {
-		ret = Helper_indent(ret, indent)
-		if options.HashStr("skipFirst") != "" {
-			ret = strings.TrimPrefix(ret, indent)
-		}
-	}
-	return ret
+	return string(bytes)
 }
 
 func Helper_lwidth(width string, value string) string {
@@ -608,7 +580,24 @@ func Helper_file(filename string) string {
 	return fmt.Sprintf("ERROR: %v", err)
 }
 
-func Helper_dref(path string, data interface{}, options *raymond.Options) interface{} {
+func Helper_dref_golang(path string, data interface{}) interface{} {
+	if data == nil {
+		return fmt.Sprint("Nil data supplied for " + path)
+	}
+
+	obj, err := dotpath.Get(path, data, true)
+	if err != nil {
+		return fmt.Sprint("Error during path search: " + err.Error())
+	}
+
+	if obj == nil {
+		return fmt.Sprint("Path not found: " + path + fmt.Sprintf("\n%+v", data))
+	}
+
+	return obj
+}
+
+func Helper_dref_raymond(path string, data interface{}, options *raymond.Options) interface{} {
 	if data == nil {
 		return options.FnWith("Nil data supplied for " + path)
 	}
