@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"reflect"
 	"strings"
+	"text/template"
 
 	"github.com/aymerick/raymond"
 	"github.com/clbanning/mxj"
@@ -16,93 +17,100 @@ import (
 	"github.com/naoina/toml"
 )
 
-/*
-Where's your docs doc?!
-*/
-func AddRaymondHelpers(tpl *raymond.Template) {
-
-	tpl.RegisterHelper("concat2", Helper_concat2)
-	tpl.RegisterHelper("concat3", Helper_concat3)
-	tpl.RegisterHelper("concat4", Helper_concat4)
-	tpl.RegisterHelper("concat5", Helper_concat5)
-	tpl.RegisterHelper("join2", Helper_join2)
-	tpl.RegisterHelper("join3", Helper_join3)
-	tpl.RegisterHelper("join4", Helper_join4)
-	tpl.RegisterHelper("join5", Helper_join5)
-
-	tpl.RegisterHelper("yaml", Helper_yaml)
-	tpl.RegisterHelper("toml", Helper_toml)
-	tpl.RegisterHelper("json", Helper_json)
-	tpl.RegisterHelper("xml", Helper_xml)
-	tpl.RegisterHelper("indent", Helper_indent)
-	tpl.RegisterHelper("pprint", Helper_pretty)
-	tpl.RegisterHelper("pretty", Helper_pretty)
-	tpl.RegisterHelper("lwidth", Helper_lwidth)
-	tpl.RegisterHelper("rwidth", Helper_rwidth)
-	tpl.RegisterHelper("string", Helper_string)
-	tpl.RegisterHelper("printf1", Helper_printf1)
-	tpl.RegisterHelper("printf", Helper_printf)
-	tpl.RegisterHelper("lower", Helper_lower)
-	tpl.RegisterHelper("upper", Helper_upper)
-	tpl.RegisterHelper("title", Helper_title)
-
-	tpl.RegisterHelper("camel", Helper_camel)
-	tpl.RegisterHelper("camelT", Helper_camelT)
-	tpl.RegisterHelper("snake", Helper_snake)
-	tpl.RegisterHelper("snakeU", Helper_snakeU)
-	tpl.RegisterHelper("kebab", Helper_kebab)
-	tpl.RegisterHelper("kebabU", Helper_kebabU)
-
-	tpl.RegisterHelper("contains", Helper_contains)
-	tpl.RegisterHelper("split", Helper_split)
-	tpl.RegisterHelper("replace", Helper_replace)
-	tpl.RegisterHelper("hasprefix", Helper_hasprefix)
-	tpl.RegisterHelper("hassuffix", Helper_hassuffix)
-	tpl.RegisterHelper("trimprefix", Helper_trimprefix)
-	tpl.RegisterHelper("trimsuffix", Helper_trimsuffix)
-	tpl.RegisterHelper("trimto", Helper_trimto_first)
-	tpl.RegisterHelper("trimfrom", Helper_trimfrom_first)
-	tpl.RegisterHelper("trimto_first", Helper_trimto_first)
-	tpl.RegisterHelper("trimfrom_first", Helper_trimfrom_first)
-	tpl.RegisterHelper("trimto_last", Helper_trimto_last)
-	tpl.RegisterHelper("trimfrom_last", Helper_trimfrom_last)
-	tpl.RegisterHelper("substr", Helper_substr)
-	tpl.RegisterHelper("getprefix", Helper_getprefix)
-	tpl.RegisterHelper("getsuffix", Helper_getsuffix)
-	tpl.RegisterHelper("getbetween", Helper_getbetween)
-
-	tpl.RegisterHelper("gokind", Helper_gokind)
-	tpl.RegisterHelper("builtin", Helper_builtin)
-	tpl.RegisterHelper("ternary", Helper_ternary)
-
-	tpl.RegisterHelper("length", Helper_length)
-	tpl.RegisterHelper("identity", Helper_identity)
-	tpl.RegisterHelper("thelist", Helper_thelist)
-	tpl.RegisterHelper("sublist", Helper_sublist)
-	tpl.RegisterHelper("rsublist", Helper_rsublist)
-	tpl.RegisterHelper("reverse", Helper_reverse)
-	tpl.RegisterHelper("listelem", Helper_listelem)
-
-	tpl.RegisterHelper("eq", Helper_eq)
-	tpl.RegisterHelper("ne", Helper_ne)
-	tpl.RegisterHelper("or", Helper_or)
-	tpl.RegisterHelper("and", Helper_and)
-
-	tpl.RegisterHelper("int_eq", Helper_int_eq)
-	tpl.RegisterHelper("int_ne", Helper_int_ne)
-	tpl.RegisterHelper("int_gte", Helper_int_gte)
-	tpl.RegisterHelper("int_gt", Helper_int_gt)
-	tpl.RegisterHelper("int_lte", Helper_int_lte)
-	tpl.RegisterHelper("int_lt", Helper_int_lt)
-
-	tpl.RegisterHelper("add", Helper_add)
-	tpl.RegisterHelper("inc", Helper_inc)
-
-	tpl.RegisterHelper("file", Helper_file)
-	tpl.RegisterHelper("dref", Helper_dref)
-
-	return
+func AddGolangHelpers(t *template.Template) (*template.Template) {
+	return t.Funcs(funcMap)
 }
+
+func AddRaymondHelpers(t *raymond.Template) (*raymond.Template) {
+	for k, f := range funcMap {
+		t.RegisterHelper(k, f)
+	}
+
+	return t
+}
+
+var funcMap = template.FuncMap {
+	"concat2": Helper_concat2,
+	"concat3": Helper_concat3,
+	"concat4": Helper_concat4,
+	"concat5": Helper_concat5,
+	"join2": Helper_join2,
+	"join3": Helper_join3,
+	"join4": Helper_join4,
+	"join5": Helper_join5,
+
+	"yaml": Helper_yaml,
+	"toml": Helper_toml,
+	"json": Helper_json,
+	"xml": Helper_xml,
+	"indent": Helper_indent,
+	"pprint": Helper_pretty,
+	"pretty": Helper_pretty,
+	"lwidth": Helper_lwidth,
+	"rwidth": Helper_rwidth,
+	"string": Helper_string,
+	"printf1": Helper_printf1,
+	"printf": Helper_printf,
+	"lower": Helper_lower,
+	"upper": Helper_upper,
+	"title": Helper_title,
+
+	"camel": Helper_camel,
+	"camelT": Helper_camelT,
+	"snake": Helper_snake,
+	"snakeU": Helper_snakeU,
+	"kebab": Helper_kebab,
+	"kebabU": Helper_kebabU,
+
+	"contains": Helper_contains,
+	"split": Helper_split,
+	"replace": Helper_replace,
+	"hasprefix": Helper_hasprefix,
+	"hassuffix": Helper_hassuffix,
+	"trimprefix": Helper_trimprefix,
+	"trimsuffix": Helper_trimsuffix,
+	"trimto": Helper_trimto_first,
+	"trimfrom": Helper_trimfrom_first,
+	"trimto_first": Helper_trimto_first,
+	"trimfrom_first": Helper_trimfrom_first,
+	"trimto_last": Helper_trimto_last,
+	"trimfrom_last": Helper_trimfrom_last,
+	"substr": Helper_substr,
+	"getprefix": Helper_getprefix,
+	"getsuffix": Helper_getsuffix,
+	"getbetween": Helper_getbetween,
+
+	"gokind": Helper_gokind,
+	"builtin": Helper_builtin,
+	"ternary": Helper_ternary,
+
+	"length": Helper_length,
+	"identity": Helper_identity,
+	"thelist": Helper_thelist,
+	"sublist": Helper_sublist,
+	"rsublist": Helper_rsublist,
+	"reverse": Helper_reverse,
+	"listelem": Helper_listelem,
+
+	"eq": Helper_eq,
+	"ne": Helper_ne,
+	"or": Helper_or,
+	"and": Helper_and,
+
+	"int_eq": Helper_int_eq,
+	"int_ne": Helper_int_ne,
+	"int_gte": Helper_int_gte,
+	"int_gt": Helper_int_gt,
+	"int_lte": Helper_int_lte,
+	"int_lt": Helper_int_lt,
+
+	"add": Helper_add,
+	"inc": Helper_inc,
+
+	"file": Helper_file,
+	"dref": Helper_dref,
+}
+
 
 func Helper_concat2(s1, s2 string) string {
 	return s1 + s2
