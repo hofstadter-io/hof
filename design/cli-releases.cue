@@ -1,0 +1,21 @@
+package design
+
+import (
+	"github.com/hofstadter-io/hofmod-cli/schema"
+)
+
+CliReleases :: schema.GoReleaser & {
+  Author:   "Tony Worm"
+  Homepage: "https://github.com/hofstadter-io/hof"
+
+  GitHub: {
+    Owner:    "hofstadter-io"
+    Repo: "homebrew-tap"
+  }
+
+  Docker: {
+    Maintainer: "Hofstadter, Inc <open-source@hofstadter.io>"
+    Repo: "hofstadter"
+  }
+}
+

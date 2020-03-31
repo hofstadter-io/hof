@@ -18,17 +18,7 @@ CLI :: schema.Cli & {
 	Short: "hof is the cli for hof-lang, a low-code framework for developers"
 	Long:  Short
 
-	Releases: schema.GoReleaser & {
-		Author:   "Tony Worm"
-		Homepage: "https://github.com/hofstadter-io/hof"
-
-		Brew: {
-			GitHubOwner:    "hofstadter-io"
-			GitHubRepoName: "homebrew-tap"
-			GitHubUsername: "verdverm"
-			GitHubEmail:    "tony@hofstadter.io"
-		}
-	}
+	Releases: CliReleases
 
 	OmitRun: true
 

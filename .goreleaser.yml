@@ -1,9 +1,26 @@
-build:
+project_name: "hof"
+
+before:
+  hooks:
+    - go mod vendor
+
+builds:
+- binary: "hof"
   main: main.go
-  binary: hof
-  ldflags: -s -w -X github.com/hofstadter-io/hof/commands.Version={{.Version}} -X github.com/hofstadter-io/hof/commands.Commit={{.ShortCommit}} -X github.com/hofstadter-io/hof/commands.BuildDate={{.Date}}
+
+  ldflags:
+    - -s -w
+    - -X github.com/hofstadter-io/hof/commands.Version={{.Version}}
+    - -X github.com/hofstadter-io/hof/commands.Commit={{.FullCommit}}
+    - -X github.com/hofstadter-io/hof/commands.BuildDate={{.Date}}
+    - -X github.com/hofstadter-io/hof/commands.GoVersion=go1.14
+    - -X github.com/hofstadter-io/hof/commands.BuildOS={{.Os}}
+    - -X github.com/hofstadter-io/hof/commands.BuildArch={{.Arch}}
+    - -X github.com/hofstadter-io/hof/commands.BuildArm={{.Arm}}
+
   env:
-    - CGO_ENABLED=0
+  - CGO_ENABLED=0
+
   goos:
     - darwin
     - linux
@@ -11,35 +28,70 @@ build:
   goarch:
     - amd64
     - arm64
+    - arm
 
-archive:
-  format: tar.gz
-  format_overrides:
-    - goos: windows
-      format: zip
-  name_template: "{{.Binary}}_{{.Version}}_{{.Os}}-{{.Arch}}"
+  ignore:
+  - goos: linux
+    goarch: arm
+
+
+snapshot:
+  name_template: "{{ .Tag }}-SNAPSHOT-{{.ShortCommit}}"
+
+archives:
+- format: binary
   replacements:
-    amd64: 64bit
-    arm: ARM
-    arm64: ARM64
-    darwin: MacOS
+    darwin: Darwin
     linux: Linux
     windows: Windows
+    amd64: x86_64
+  # Needed hack for binary only uploads
+  # For more information, check #602
   files:
-    - README.md
-    - LICENSE
+   - "thisfiledoesnotexist*"
 
-brew:
-  name: hof
+
+checksum:
+  name_template: '{{ .ProjectName }}_{{ .Version }}_checksums.txt'
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+    - '^docs:'
+    - '^test:'
+
+
+release:
+  disable: false
+  draft: false
   github:
     owner: hofstadter-io
     name: homebrew-tap
-  folder: Formula
-  commit_author:
-    name: verdverm
-    email: tony@hofstadter.io
-  homepage: https://github.com/hofstadter-io/hof
-  description: 'hof is the cli for hof-lang, a low-code framework for developers'
 
-release:
-  draft: true
+dockers:
+- binaries:
+    - hof
+  skip_push: false
+  dockerfile: ci/docker/Dockerfile.jessie
+  image_templates:
+  - "hofstadter/{{.ProjectName}}:{{.Tag}}"
+  - "hofstadter/{{.ProjectName}}:v{{ .Major }}.{{ .Minor }}"
+  - "hofstadter/{{.ProjectName}}:v{{ .Major }}"
+  - "hofstadter/{{.ProjectName}}:latest"
+
+  - "hofstadter/{{.ProjectName}}:{{.Tag}}-debian"
+  - "hofstadter/{{.ProjectName}}:v{{ .Major }}.{{ .Minor }}-debian"
+  - "hofstadter/{{.ProjectName}}:v{{ .Major }}-debian"
+  - "hofstadter/{{.ProjectName}}:latest-debian"
+
+
+- binaries:
+    - hof
+  skip_push: false
+  dockerfile: ci/docker/Dockerfile.scratch
+  image_templates:
+  - "hofstadter/{{.ProjectName}}:{{.Tag}}-scrath"
+  - "hofstadter/{{.ProjectName}}:v{{ .Major }}.{{ .Minor }}-scrath"
+  - "hofstadter/{{.ProjectName}}:v{{ .Major }}-scrath"
+  - "hofstadter/{{.ProjectName}}:latest-scrath"
