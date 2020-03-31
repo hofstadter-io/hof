@@ -67,7 +67,7 @@ release:
   draft: false
   github:
     owner: hofstadter-io
-    name: homebrew-tap
+    name: hof
 
 dockers:
 - binaries:
@@ -91,7 +91,7 @@ dockers:
   skip_push: false
   dockerfile: ci/docker/Dockerfile.scratch
   image_templates:
-  - "hofstadter/{{.ProjectName}}:{{.Tag}}-scrath"
-  - "hofstadter/{{.ProjectName}}:v{{ .Major }}.{{ .Minor }}-scrath"
-  - "hofstadter/{{.ProjectName}}:v{{ .Major }}-scrath"
-  - "hofstadter/{{.ProjectName}}:latest-scrath"
+  - "hofstadter/{{.ProjectName}}:{{.Tag}}-scratch"
+  - "hofstadter/{{.ProjectName}}:v{{ .Major }}.{{ .Minor }}-scratch"
+  - "hofstadter/{{.ProjectName}}:v{{ .Major }}-scratch"
+  - "hofstadter/{{.ProjectName}}:latest-scratch"

@@ -9,8 +9,8 @@ CliReleases :: schema.GoReleaser & {
   Homepage: "https://github.com/hofstadter-io/hof"
 
   GitHub: {
-    Owner:    "hofstadter-io"
-    Repo: "homebrew-tap"
+    Owner: "hofstadter-io"
+    Repo:  "hof"
   }
 
   Docker: {
