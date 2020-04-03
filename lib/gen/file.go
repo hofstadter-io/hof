@@ -2,6 +2,7 @@ package gen
 
 import (
 	"bytes"
+	"fmt"
 	"go/format"
 	"io/ioutil"
 	"os"
@@ -216,6 +217,9 @@ func (F *File) RenderTemplate() error {
 
 	err = F.FormatRendered()
 	if err != nil {
+		fmt.Println("----")
+		fmt.Println(string(F.RenderContent))
+		fmt.Println("----")
 		return err
 	}
 

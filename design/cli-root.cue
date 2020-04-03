@@ -15,7 +15,7 @@ CLI :: schema.Cli & {
 	Package: "github.com/hofstadter-io/hof"
 
 	Usage: "hof"
-	Short: "hof is the cli for hof-lang, a low-code framework for developers"
+	Short: "Polyglot Code Gereration Framework"
 	Long:  Short
 
 	Releases: CliReleases
