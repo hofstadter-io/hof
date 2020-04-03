@@ -75,8 +75,8 @@ into advanced, cloud native applications.
 
 ### Installation
 
-Prebuilt binaries are available in the [Releases section].
-There are also docker images available.
+Prebuilt binaries are available in the [Releases section](https://github.com/hofstadter-io/hof/releases/).
+There are also [docker images available](https://hub.docker.com/repository/docker/hofstadter/hof).
 
 To install from source:
 
@@ -309,11 +309,11 @@ Projects:
 
 Modules:
 
-- [hofmod-model] - A module for representing types and their relations. Batteries are being included.
-- [hofmod-config](https://github.com/hofstadter-io/hofmod-config) - Cloud native config and secret files using the Golang Viper library and adding dynamic reload in Kubernetes.
+- [hofmod-model](https://github.com/hofstadter-io/hofmod-model) - A module for representing types and their relations. Batteries are being included.
 - [hofmod-cli](https://github.com/hofstadter-io/hofmod-cli) - Create CLI infrastructure based on the Golang Cobra library.
-- [hofmod-hugo](https://github.com/hofstadter-io/hofmod-hugo) - Create documenation sites with [Hugo](https://gohugo.io) and [Docsy](https://docsy.dev)
 - [hofmod-releaser](https://github.com/hofstadter-io/hofmod-releaser) - Release code or binaries to GitHub and Docker with minimal configuration. Based on [GoReleaser](https://goreleaser.com/).
-- [hofmod-rest] - Generate Golang REST servers that are ready for production. This makes use of many of the other modules here.
+- [hofmod-config](https://github.com/hofstadter-io/hofmod-config) - Cloud native config and secret files using the Golang Viper library and adding dynamic reload in Kubernetes.
+- [hofmod-rest](https://github.com/hofstadter-io/hofmod-rest) - Generate Golang REST servers that are ready for production. This makes use of many of the other modules here.
+- [hofmod-hugo](https://github.com/hofstadter-io/hofmod-hugo) - Create documenation sites with [Hugo](https://gohugo.io) and [Docsy](https://docsy.dev)
 
 
