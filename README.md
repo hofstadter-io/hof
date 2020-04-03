@@ -1,4 +1,33 @@
-# Hof - A Polyglot Code Generation Framework for Cuelang
+# Hof - Polyglot Code Generation Framework
+
+Hof is a Polyglot Code Generate Framework.
+You write designs in Cue, very similar to yaml or json,
+and Hofstadter validates and feeds these into
+generators to create directories and files.
+These directories and files can be what ever you choose,
+and language, technology or combination.
+
+Under the hood, Hofstadter is using a templating engine.
+Cuelang is used to provide type safety with incredible expressiveness.
+Modules can be used like other languages
+to share and import functionality from small to entire applications and systems.
+You can write custom code in the generated output while
+still modifying design and regenerating code.
+Hofstadter manages the diff process to ensure your work is not disrupted.
+
+The Hofstadter Framework provides conventions and a specification
+for writing generators. It wraps Cuelang and the templating engine
+to enable you to generate code at scale.
+Feed directories of data through the same generator,
+the same data through multiple generators,
+or any combination.
+
+Hofstadter extends the flexibility and safety of Cue to code generation.
+
+
+### [Documentation](https://hofstadter.io/docs)
+
+Alternate description:
 
 __Hof__ is a framework for creating
 code generation libraries, modules, and tools
@@ -46,14 +75,16 @@ into advanced, cloud native applications.
 
 ### Installation
 
-The best method is to clone and checkout the [latest release](https://github.com/hofstadter-io/hof/releases).
+Prebuilt binaries are available in the [Releases section].
+There are also docker images available.
+
+To install from source:
 
 ```
 git clone https://github.com/hofstadter-io/hof
 cd hof
 git checkout vX.Y.Z
 
-go mod vendor
 go install
 ```
 
@@ -226,9 +257,63 @@ Output:
 
 ```
 $ tree output
-...
+output/
+├── altdelim.txt
+├── default.txt
+├── mustache.txt
+├── named-things.txt
+├── static-cue.txt
+├── static-file.txt
+├── swapdelim.txt
+└── template-file.txt
 
-$ find output -type f -ex cat {};
-...
+$ find output -type f -exec echo "{}" \; -exec cat "{}" \; -exec echo \;
+output/swapdelim.txt
+Val.a = 'a' and also this should stay {{ .Hello }}
+
+output/named-things.txt
+named is 'a'
+output/template-file.txt
+Hi, I'm a template file on disk 'a'
+ ... and I'm a partial Hi, I'm a partial file on disk 'b'
+
+
+---
+HellWorld
+---
+
+output/static-file.txt
+Hello, I am a static file from the filesystem
+
+output/mustache.txt
+Val.a = 'a'
+
+output/default.txt
+Val.a = 'a'
+
+output/static-cue.txt
+Hello, I am a static file in cue
+output/altdelim.txt
+Val.a = 'a'
+
 
 ```
+
+
+### Modules and Examples
+
+Projects:
+
+- This project uses itself to generate various pieces like the cli structure and the release process.
+- [MVS](https://github.com/hofstadter-io/mvs) is a dependency management system based on `go mod`. It uses the `hofmod-cli` generator and is imported into `hof` here.
+
+Modules:
+
+- [hofmod-model] - A module for representing types and their relations. Batteries are being included.
+- [hofmod-config](https://github.com/hofstadter-io/hofmod-config) - Cloud native config and secret files using the Golang Viper library and adding dynamic reload in Kubernetes.
+- [hofmod-cli](https://github.com/hofstadter-io/hofmod-cli) - Create CLI infrastructure based on the Golang Cobra library.
+- [hofmod-hugo](https://github.com/hofstadter-io/hofmod-hugo) - Create documenation sites with [Hugo](https://gohugo.io) and [Docsy](https://docsy.dev)
+- [hofmod-releaser](https://github.com/hofstadter-io/hofmod-releaser) - Release code or binaries to GitHub and Docker with minimal configuration. Based on [GoReleaser](https://goreleaser.com/).
+- [hofmod-rest] - Generate Golang REST servers that are ready for production. This makes use of many of the other modules here.
+
+
