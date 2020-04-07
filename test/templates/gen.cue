@@ -22,7 +22,6 @@ HofGenTest: TestGen & {
 
 
 TestGen :: schema.HofGenerator & {
-  PackageName: ""
   Outdir: "output"
 
   In: {

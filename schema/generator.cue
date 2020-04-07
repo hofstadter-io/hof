@@ -29,7 +29,7 @@ HofGenerator :: {
   //   under its filepath for reference in GenFiles and partials in templates
 
   // Used for indexing into the vendor directory...
-  PackageName: string
+  PackageName?: string
 
   // Base directory of entrypoint templates to load
   TemplatesDir: string | * "templates"
