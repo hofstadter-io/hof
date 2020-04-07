@@ -111,8 +111,9 @@ func (G *Generator) GenerateFiles() []error {
 			F.IsSkipped = 1
 			continue
 		}
-		F.ShadowFile = G.Shadow[F.Filepath]
-		err := F.Render()
+		shadowFN := path.Join(G.Name, F.Filepath)
+		F.ShadowFile = G.Shadow[shadowFN]
+		err := F.Render(path.Join(SHADOW_DIR, shadowFN))
 		if err != nil {
 			errs = append(errs, fmt.Errorf("In file %q, error %w", F.Filepath, err))
 		}

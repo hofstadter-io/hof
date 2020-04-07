@@ -34,6 +34,13 @@ type File struct {
 	// Hof internal usage
 	//
 
+	// Generator that owns this file
+	// TODO, does this break with the multi-generator hack?
+	//       or is this the behavior defined by the way generators are included together
+	//       because the user will be able to do it both ways, the hack doesn't to away,
+	// there's just a more recommended way to do it
+	Gen *Generator
+
 	// Template Instance Pointer
 	//   If local, this will be created when the template content is laoded
 	//   If a named template, acutal template lives in the generator and is created at folder import time
@@ -54,7 +61,7 @@ type File struct {
 	FileStats
 }
 
-func (F *File) Render() error {
+func (F *File) Render(shadow_basedir string) error {
 	var err error
 
 	err = F.RenderTemplate()

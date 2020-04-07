@@ -1,6 +1,7 @@
 package util
 
 import (
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -18,9 +19,15 @@ func CopyFile(src, dst string) error {
 
 	srcfd, err = os.Open(src)
 	if err != nil {
+		fmt.Println("Error in COPY FILE", src, dst)
 		return err
 	}
 	defer srcfd.Close()
+
+	err = Mkdir(dst)
+	if err != nil {
+		return err
+	}
 
 	dstfd, err = os.Create(dst)
 	if err != nil {

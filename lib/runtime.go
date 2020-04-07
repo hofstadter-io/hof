@@ -216,21 +216,27 @@ func (R *Runtime) WriteOutput() []error {
 				src := path.Join(bdir, match)
 				dst := path.Join(G.Outdir, mo)
 
+				// TODO, make comparison and decide to write or not
+
 				// normal location
 				err := util.CopyFile(src, dst)
 				if err != nil {
-					err = fmt.Errorf("while copying static file %q\n%w\n", match, err)
+					err = fmt.Errorf("while copying static real file %q\n%w\n", match, err)
 					errs = append(errs, err)
 					continue
 				}
 
 				// shadow location
-				err = util.CopyFile(src, path.Join(".hof", dst))
+				err = util.CopyFile(src, path.Join(".hof", G.Name, dst))
 				if err != nil {
-					err = fmt.Errorf("while copying static file %q\n%w\n", match, err)
+					err = fmt.Errorf("while copying static shadow file %q\n%w\n", match, err)
 					errs = append(errs, err)
 					continue
 				}
+
+				delete(G.Shadow, path.Join(G.Name, dst))
+				G.Stats.NumStatic += 1
+				G.Stats.NumWritten += 1
 
 			}
 
@@ -247,11 +253,14 @@ func (R *Runtime) WriteOutput() []error {
 				errs = append(errs, err)
 				continue
 			}
-			err = F.WriteShadow()
+			err = F.WriteShadow(path.Join(gen.SHADOW_DIR, G.Name))
 			if err != nil {
 				errs = append(errs, err)
 				continue
 			}
+			delete(G.Shadow, path.Join(G.Name, F.Filepath))
+			G.Stats.NumStatic += 1
+			G.Stats.NumWritten += 1
 		}
 
 		// Finally write the generator files
@@ -267,7 +276,7 @@ func (R *Runtime) WriteOutput() []error {
 
 			// Write the shadow too, or if it doesn't exist
 			if F.DoWrite || (F.IsSame > 0 && F.ShadowFile == nil) {
-				err := F.WriteShadow()
+				err := F.WriteShadow(path.Join(gen.SHADOW_DIR, G.Name))
 				if err != nil {
 					errs = append(errs, err)
 					continue
@@ -275,12 +284,12 @@ func (R *Runtime) WriteOutput() []error {
 			}
 
 			// remove from shadows map so we can cleanup what remains
-			delete(G.Shadow, F.Filepath)
+			delete(G.Shadow, path.Join(G.Name, F.Filepath))
 		}
 
 		// Cleanup File & Shadow
 		for f, _ := range G.Shadow {
-			err := os.Remove(f)
+			err := os.Remove(strings.TrimPrefix(f, G.Name + "/"))
 			if err != nil {
 				errs = append(errs, err)
 				continue

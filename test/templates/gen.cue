@@ -88,6 +88,11 @@ TestGen :: schema.HofGenerator & {
       Filepath: "\(Outdir)/template-file.txt"
     },
 
+    // User file
+    schema.HofGeneratorFile & {
+      Template: "User file: '{{ file \"userfile.txt\" }}'\n"
+      Filepath: "\(Outdir)/user-file.txt"
+    },
   ]
 
   TemplatesDir: "templates/"

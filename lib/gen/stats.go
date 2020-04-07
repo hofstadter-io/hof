@@ -13,6 +13,7 @@ type GeneratorStats struct {
 	NumSkipped   int
 	NumDeleted   int
 	NumWritten   int
+	NumStatic    int
 	NumErr       int
 	TotalFiles   int
 
@@ -54,7 +55,7 @@ func (S *GeneratorStats) CalcTotals(G *Generator) error {
 	sum = sum.Add(S.RenderingTime)
 
 	S.TotalTime = sum.Sub(time.Time{})
-	S.TotalFiles = len(G.Files)
+	S.TotalFiles = len(G.Files) + S.NumStatic
 
 	// Sum across files
 	for _, file := range G.Files {
@@ -101,6 +102,7 @@ NumSame             {{ .NumSame }}
 NumSkipped          {{ .NumSkipped }}
 NumDeleted          {{ .NumDeleted }}
 NumWritten          {{ .NumWritten }}
+NumStatic           {{ .NumStatic }}
 NumErr              {{ .NumErr }}
 TotalFiles          {{ .TotalFiles }}
 

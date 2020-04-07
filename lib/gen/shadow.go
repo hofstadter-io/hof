@@ -63,8 +63,9 @@ func (F *File) ReadShadow() error {
 	}
 
 	// Should have already been confirmed to exist at this point
-
-	bytes, err := ioutil.ReadFile(path.Join(SHADOW_DIR, F.ShadowFile.Filepath))
+	shadowFN := path.Join(SHADOW_DIR, F.ShadowFile.Filepath)
+	fmt.Println("ReadShadow", shadowFN)
+	bytes, err := ioutil.ReadFile(shadowFN)
 	if err != nil {
 		return err
 	}
