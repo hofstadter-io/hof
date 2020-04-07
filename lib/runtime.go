@@ -9,6 +9,7 @@ import (
 
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/build"
+	"cuelang.org/go/cue/errors"
 	"cuelang.org/go/cue/load"
 	"github.com/fatih/color"
 	"github.com/mattn/go-zglob"
@@ -35,6 +36,7 @@ type Runtime struct {
 
 	// Hof related
 	Generators map[string]*gen.Generator
+	Shadow map[string]*gen.File
 }
 
 func NewRuntime(entrypoints, expressions [] string) (*Runtime) {
@@ -58,14 +60,22 @@ func (R *Runtime) LoadCue() []error {
 
 	for _, bi := range BIS {
 		if bi.Err != nil {
-			errs = append(errs, bi.Err)
+			// fmt.Println("BI ERR", bi.Err, bi.Incomplete, bi.DepsErrors)
+		  es := errors.Errors(bi.Err)
+			for _, e := range es {
+				errs = append(errs, e.(error))
+			}
 			continue
 		}
 
 		// Build the Instance
 		I, err := R.CueRT.Build(bi)
 		if err != nil {
-			errs = append(errs, bi.Err)
+		  es := errors.Errors(err)
+			// fmt.Println("BUILD ERR", es, I)
+			for _, e := range es {
+				errs = append(errs, e.(error))
+			}
 			continue
 		}
 		R.CueInstances = append(R.CueInstances, I)
@@ -77,7 +87,11 @@ func (R *Runtime) LoadCue() []error {
 		// Get top level struct from cuelang
 		S, err := V.Struct()
 		if err != nil {
-			errs = append(errs, err)
+			// fmt.Println("STRUCT ERR", err)
+		  es := errors.Errors(err)
+			for _, e := range es {
+				errs = append(errs, e.(error))
+			}
 			continue
 		}
 		R.TopLevelStructs = append(R.TopLevelStructs, S)
@@ -157,18 +171,25 @@ func (R *Runtime) LoadGenerators() []error {
 
 func (R *Runtime) RunGenerators() []error {
 	var errs []error
+	var err error
 
-	// Load shadow, can this be done in parallel with the last step?
-	shadow, err := gen.LoadShadow(R.verbose)
+	R.Shadow, err = gen.LoadShadow("", R.verbose)
 	if err != nil {
 		errs = append(errs, err)
 		return errs
 	}
 
+	// Load shadow, can this be done in parallel with the last step?
 	// Don't do in parallel yet, Cue is slow and hungry for memory @ v0.0.16
 	for _, G := range R.Generators {
 		if G.Disabled {
 			continue
+		}
+
+		shadow, err := gen.LoadShadow(G.Name, R.verbose)
+		if err != nil {
+			errs = append(errs, err)
+			return errs
 		}
 
 		G.Shadow = shadow
@@ -189,6 +210,7 @@ func (R *Runtime) WriteOutput() []error {
 
 
 	for _, G := range R.Generators {
+		fmt.Println("Write Output", G.Name)
 		if G.Disabled {
 			continue
 		}
@@ -234,6 +256,7 @@ func (R *Runtime) WriteOutput() []error {
 					continue
 				}
 
+				delete(R.Shadow, path.Join(G.Name, dst))
 				delete(G.Shadow, path.Join(G.Name, dst))
 				G.Stats.NumStatic += 1
 				G.Stats.NumWritten += 1
@@ -258,6 +281,7 @@ func (R *Runtime) WriteOutput() []error {
 				errs = append(errs, err)
 				continue
 			}
+			delete(R.Shadow, path.Join(G.Name, F.Filepath))
 			delete(G.Shadow, path.Join(G.Name, F.Filepath))
 			G.Stats.NumStatic += 1
 			G.Stats.NumWritten += 1
@@ -284,18 +308,23 @@ func (R *Runtime) WriteOutput() []error {
 			}
 
 			// remove from shadows map so we can cleanup what remains
+			delete(R.Shadow, path.Join(G.Name, F.Filepath))
 			delete(G.Shadow, path.Join(G.Name, F.Filepath))
 		}
 
 		// Cleanup File & Shadow
+		fmt.Println("Clean Shadow", G.Name)
 		for f, _ := range G.Shadow {
-			err := os.Remove(strings.TrimPrefix(f, G.Name + "/"))
+			fmt.Println("  -", G.Name, f, strings.TrimPrefix(f, G.Name + "/"))
+			err := os.Remove(f)
 			if err != nil {
+				fmt.Println("GOT HERE 1")
 				errs = append(errs, err)
 				continue
 			}
 			err = os.Remove(path.Join(gen.SHADOW_DIR, f))
 			if err != nil {
+				fmt.Println("GOT HERE 2")
 				errs = append(errs, err)
 				continue
 			}
@@ -306,6 +335,25 @@ func (R *Runtime) WriteOutput() []error {
 		G.Stats.WritingTime = writeend.Sub(writestart).Round(time.Millisecond)
 
 	}
+
+	// Clean global shadow, incase any generators were removed
+	for f, _ := range R.Shadow {
+		fmt.Println("  -", f, f[strings.Index(f,"/"):])
+		err := os.Remove(f[strings.Index(f,"/")+1:])
+		if err != nil {
+			fmt.Println("GOT HERE 1")
+			errs = append(errs, err)
+			continue
+		}
+		err = os.Remove(path.Join(gen.SHADOW_DIR, f))
+		if err != nil {
+			fmt.Println("GOT HERE 2")
+			errs = append(errs, err)
+			continue
+		}
+		// G.Stats.NumDeleted += 1
+	}
+
 
 	return errs
 }

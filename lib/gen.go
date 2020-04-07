@@ -26,7 +26,6 @@ func Gen(entrypoints, expressions []string, mode string) (error) {
 	if len(errs) > 0 {
 		for _, e := range errs {
 			util.PrintCueError(e)
-			// fmt.Println(e)
 		}
 		return fmt.Errorf("\nErrors while loading generators\n")
 	}

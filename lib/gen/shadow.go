@@ -11,14 +11,16 @@ import (
 
 const SHADOW_DIR = ".hof/"
 
-func LoadShadow(verbose bool) (map[string]*File, error) {
+func LoadShadow(subdir string, verbose bool) (map[string]*File, error) {
 	if verbose {
 		fmt.Printf("Loading shadow @ %q\n", SHADOW_DIR)
 	}
 
+	shadowDir := filepath.Join(SHADOW_DIR, subdir)
+
 	shadow := map[string]*File{}
 
-	_, err := os.Lstat(SHADOW_DIR)
+	_, err := os.Lstat(shadowDir)
 	if err != nil {
 		// make sure we check err for something actually bad
 		if _, ok := err.(*os.PathError); !ok && err.Error() != "file does not exist" {
@@ -31,7 +33,7 @@ func LoadShadow(verbose bool) (map[string]*File, error) {
 		return shadow, nil
 	}
 
-	err = filepath.Walk(SHADOW_DIR, func(fpath string, info os.FileInfo, err error) error {
+	err = filepath.Walk(shadowDir, func(fpath string, info os.FileInfo, err error) error {
 		// Don't need to save directories
 		if info.IsDir() {
 			return nil
@@ -64,7 +66,7 @@ func (F *File) ReadShadow() error {
 
 	// Should have already been confirmed to exist at this point
 	shadowFN := path.Join(SHADOW_DIR, F.ShadowFile.Filepath)
-	fmt.Println("ReadShadow", shadowFN)
+	// fmt.Println("ReadShadow", shadowFN)
 	bytes, err := ioutil.ReadFile(shadowFN)
 	if err != nil {
 		return err
