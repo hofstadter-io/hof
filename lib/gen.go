@@ -3,6 +3,8 @@ package lib
 import (
 	"fmt"
 	"time"
+
+	"github.com/hofstadter-io/hof/lib/util"
 )
 
 func Gen(entrypoints, expressions []string, mode string) (error) {
@@ -15,7 +17,7 @@ func Gen(entrypoints, expressions []string, mode string) (error) {
 	errs = R.LoadCue()
 	if len(errs) > 0 {
 		for _, e := range errs {
-			fmt.Println(e)
+			util.PrintCueError(e)
 		}
 		return fmt.Errorf("\nErrors while loading cue files\n")
 	}
@@ -23,7 +25,8 @@ func Gen(entrypoints, expressions []string, mode string) (error) {
 	errs = R.LoadGenerators()
 	if len(errs) > 0 {
 		for _, e := range errs {
-			fmt.Println(e)
+			util.PrintCueError(e)
+			// fmt.Println(e)
 		}
 		return fmt.Errorf("\nErrors while loading generators\n")
 	}
