@@ -210,7 +210,7 @@ func (R *Runtime) WriteOutput() []error {
 
 
 	for _, G := range R.Generators {
-		fmt.Println("Write Output", G.Name)
+		// fmt.Println("Write Output", G.Name)
 		if G.Disabled {
 			continue
 		}
@@ -313,18 +313,18 @@ func (R *Runtime) WriteOutput() []error {
 		}
 
 		// Cleanup File & Shadow
-		fmt.Println("Clean Shadow", G.Name)
+		// fmt.Println("Clean Shadow", G.Name)
 		for f, _ := range G.Shadow {
 			fmt.Println("  -", G.Name, f, strings.TrimPrefix(f, G.Name + "/"))
 			err := os.Remove(f)
 			if err != nil {
-				fmt.Println("GOT HERE 1")
+				// fmt.Println("GOT HERE 1")
 				errs = append(errs, err)
 				continue
 			}
 			err = os.Remove(path.Join(gen.SHADOW_DIR, f))
 			if err != nil {
-				fmt.Println("GOT HERE 2")
+				// fmt.Println("GOT HERE 2")
 				errs = append(errs, err)
 				continue
 			}
@@ -341,13 +341,13 @@ func (R *Runtime) WriteOutput() []error {
 		fmt.Println("  -", f, f[strings.Index(f,"/"):])
 		err := os.Remove(f[strings.Index(f,"/")+1:])
 		if err != nil {
-			fmt.Println("GOT HERE 1")
+			// fmt.Println("GOT HERE 1")
 			errs = append(errs, err)
 			continue
 		}
 		err = os.Remove(path.Join(gen.SHADOW_DIR, f))
 		if err != nil {
-			fmt.Println("GOT HERE 2")
+			// fmt.Println("GOT HERE 2")
 			errs = append(errs, err)
 			continue
 		}
