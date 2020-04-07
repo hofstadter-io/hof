@@ -115,18 +115,16 @@ func (G *Generator) GenerateFiles() []error {
 		F.ShadowFile = G.Shadow[shadowFN]
 		err := F.Render(path.Join(SHADOW_DIR, shadowFN))
 		if err != nil {
-			errs = append(errs, fmt.Errorf("In file %q, error %w", F.Filepath, err))
+			F.IsErr = 1
+			F.Errors = append(F.Errors, err)
+			continue
 		}
-	}
-
-	if len(errs) > 0 {
-		return errs
 	}
 
 	elapsed := time.Now().Sub(start).Round(time.Millisecond)
 	G.Stats.RenderingTime = elapsed
 
-	return nil
+	return errs
 }
 
 

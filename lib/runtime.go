@@ -290,7 +290,7 @@ func (R *Runtime) WriteOutput() []error {
 		// Finally write the generator files
 		for _, F := range G.Files {
 			// Write the actual output
-			if F.DoWrite {
+			if F.DoWrite && len(F.Errors) == 0 {
 				err := F.WriteOutput()
 				if err != nil {
 					errs = append(errs, err)

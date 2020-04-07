@@ -22,24 +22,17 @@ func Gen(entrypoints, expressions []string, mode string) (error) {
 		return fmt.Errorf("\nErrors while loading cue files\n")
 	}
 
-	errs = R.LoadGenerators()
-	if len(errs) > 0 {
-		for _, e := range errs {
+	errsL := R.LoadGenerators()
+	if len(errsL) > 0 {
+		for _, e := range errsL {
 			util.PrintCueError(e)
 		}
 		return fmt.Errorf("\nErrors while loading generators\n")
 	}
 
-	errs = R.RunGenerators()
-	if len(errs) > 0 {
-		for _, e := range errs {
-			fmt.Println(e)
-		}
-		return fmt.Errorf("\nErrors while generating output\n")
-	}
-
-	// wait to print error as this is the last thing
-	errs = R.WriteOutput()
+	// issue #20 - Don't print and exit on error here, wait until after we have written, so we can still write good files
+	errsG := R.RunGenerators()
+	errsW := R.WriteOutput()
 
 	// final timing
 	veryend := time.Now()
@@ -49,12 +42,19 @@ func Gen(entrypoints, expressions []string, mode string) (error) {
 	R.PrintStats()
 	fmt.Printf("\nTotal Elapsed Time: %s\n\n", elapsed)
 
-	if len(errs) > 0 {
-		for _, e := range errs {
+	if len(errsG) > 0 {
+		for _, e := range errsG {
+			fmt.Println(e)
+		}
+		return fmt.Errorf("\nErrors while generating output\n")
+	}
+	if len(errsW) > 0 {
+		for _, e := range errsW {
 			fmt.Println(e)
 		}
 		return fmt.Errorf("\nErrors while writing output\n")
 	}
+
 	R.PrintMergeConflicts()
 
 	return nil

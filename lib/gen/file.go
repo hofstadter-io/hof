@@ -66,6 +66,8 @@ func (F *File) Render(shadow_basedir string) error {
 
 	err = F.RenderTemplate()
 	if err != nil {
+		F.Err = 1
+		F.Errors = append(F.Errors, err)
 		return err
 	}
 	// fmt.Println("   rendered:", F.Filepath, len(F.RenderContent))
