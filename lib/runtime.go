@@ -179,11 +179,6 @@ func (R *Runtime) RunGenerators() []error {
 		return errs
 	}
 
-	for path, _ := range R.Shadow {
-		fmt.Println("R.Shadow", path)
-	}
-
-
 	// Load shadow, can this be done in parallel with the last step?
 	// Don't do in parallel yet, Cue is slow and hungry for memory @ v0.0.16
 	for _, G := range R.Generators {
