@@ -179,6 +179,11 @@ func (R *Runtime) RunGenerators() []error {
 		return errs
 	}
 
+	for path, _ := range R.Shadow {
+		fmt.Println("R.Shadow", path)
+	}
+
+
 	// Load shadow, can this be done in parallel with the last step?
 	// Don't do in parallel yet, Cue is slow and hungry for memory @ v0.0.16
 	for _, G := range R.Generators {
@@ -338,8 +343,16 @@ func (R *Runtime) WriteOutput() []error {
 
 	// Clean global shadow, incase any generators were removed
 	for f, _ := range R.Shadow {
-		fmt.Println("  -", f, f[strings.Index(f,"/"):])
-		err := os.Remove(f[strings.Index(f,"/")+1:])
+		// deal with leading shadow dir name?
+		idx := strings.Index(f,"/")
+		if idx < 0 {
+			idx = 0
+		} else {
+			idx += 1
+		}
+		fmt.Println("  +", f, idx)
+		fmt.Println("  -", f, f[idx:])
+		err := os.Remove(f[idx:])
 		if err != nil {
 			// fmt.Println("GOT HERE 1")
 			errs = append(errs, err)

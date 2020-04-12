@@ -66,7 +66,7 @@ func (F *File) Render(shadow_basedir string) error {
 
 	err = F.RenderTemplate()
 	if err != nil {
-		F.Err = 1
+		F.FileStats.IsErr = 1
 		F.Errors = append(F.Errors, err)
 		return err
 	}
