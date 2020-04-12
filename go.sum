@@ -133,6 +133,8 @@ github.com/hofstadter-io/mvs v0.4.4 h1:tVwUid226z8w2pciJmtF+qW0TqP5jFz+j+9I17Tdq
 github.com/hofstadter-io/mvs v0.4.4/go.mod h1:E3TB2ISvNyI9CiNPg/OxS2M8FSJldIF85uLtQzHLMCU=
 github.com/hofstadter-io/mvs v0.4.5 h1:yd22u8T2FWkW5QWTrOCc62PWiod9nMbY6X18yZco18c=
 github.com/hofstadter-io/mvs v0.4.5/go.mod h1:E3TB2ISvNyI9CiNPg/OxS2M8FSJldIF85uLtQzHLMCU=
+github.com/hofstadter-io/mvs v0.4.6 h1:KL9JLsYs7vSJUnZVzbkFIdRJs/7f71gjnHYeXvtl6Ic=
+github.com/hofstadter-io/mvs v0.4.6/go.mod h1:E3TB2ISvNyI9CiNPg/OxS2M8FSJldIF85uLtQzHLMCU=
 github.com/inconshreveable/mousetrap v1.0.0 h1:Z8tu5sraLXCXIcARxBp/8cbvlwVa7Z1NHg9XEKhtSvM=
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
 github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 h1:BQSFePA1RWJOlocH6Fxy8MmwDt+yVQYULKfN0RoTN8A=
