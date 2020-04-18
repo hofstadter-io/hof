@@ -32,7 +32,9 @@ func Gen(entrypoints, expressions []string, mode string) (error) {
 
 	// issue #20 - Don't print and exit on error here, wait until after we have written, so we can still write good files
 	errsG := R.RunGenerators()
+	// fmt.Println("errsG", errsG)
 	errsW := R.WriteOutput()
+	// fmt.Println("errsW", errsW)
 
 	// final timing
 	veryend := time.Now()

@@ -118,6 +118,7 @@ func (G *Generator) GenerateFiles() []error {
 		if err != nil {
 			F.IsErr = 1
 			F.Errors = append(F.Errors, err)
+			errs = append(errs, err)
 			continue
 		}
 	}
@@ -136,18 +137,21 @@ func (G *Generator) Initialize() ([]error) {
 	// First do partials, so available to all templates
 	errs = G.initPartials()
 	if len(errs) > 0 {
+		// fmt.Printf("initPartials Errors:\n%v\n", errs)
 		return errs
 	}
 	// fmt.Println("  Partials:", G.PartialsMap )
 
 	errs = G.initTemplates()
 	if len(errs) > 0 {
+		// fmt.Printf("initTemplates Errors:\n%v\n", errs)
 		return errs
 	}
 	// fmt.Println("  Templates:", G.TemplateMap )
 
 	errs = G.initFileGens()
 	if len(errs) > 0 {
+		// fmt.Printf("initFileGens Errors:\n%v\n", errs)
 		return errs
 	}
 
