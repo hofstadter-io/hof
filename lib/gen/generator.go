@@ -3,6 +3,7 @@ package gen
 import (
 	"fmt"
 	"path"
+	"strings"
 	"time"
 
 	"cuelang.org/go/cue"
@@ -184,6 +185,9 @@ func (G *Generator) initPartials() []error {
 	// fmt.Println("pFileMap", pDir, pMap)
 
 	for k, T := range pMap {
+		if strings.HasPrefix(k, "/") {
+			k = k[1:]
+		}
 		_, ok := G.PartialsMap[k]
 		if !ok {
 			G.PartialsMap[k] = T
@@ -218,6 +222,9 @@ func (G *Generator) initTemplates() []error {
 	// fmt.Println("tFileMap", tDir, tMap)
 
 	for k, T := range tMap {
+		if strings.HasPrefix(k, "/") {
+			k = k[1:]
+		}
 		_, ok := G.TemplateMap[k]
 		if !ok {
 			G.TemplateMap[k] = T
