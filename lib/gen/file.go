@@ -226,7 +226,9 @@ func (F *File) RenderTemplate() error {
 
 	err = F.FormatRendered()
 	if err != nil {
-		fmt.Println("Rendering error for\n ", *F)
+		fmt.Println("---- Rendering error for", F.TemplateName, F.Filepath)
+		fmt.Println(string(F.RenderContent))
+		fmt.Println("----")
 		return err
 	}
 
@@ -240,7 +242,6 @@ func (F *File) FormatRendered() error {
 	if strings.HasSuffix(F.Filepath, ".go") {
 		fmtd, err := format.Source(F.RenderContent)
 		if err != nil {
-			fmt.Println("GOFMT ERROR", err)
 			return err
 		}
 
