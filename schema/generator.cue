@@ -29,13 +29,13 @@ HofGenerator :: {
   //   under its filepath for reference in GenFiles and partials in templates
 
   // Used for indexing into the vendor directory...
-  PackageName?: string
+  PackageName: string
 
   // Base directory of entrypoint templates to load
-  TemplatesDir: string | * "templates"
+  TemplatesDir: string | * "/templates"
 
   // Base directory of partial templatess to load
-  PartialsDir: string | * "partials"
+  PartialsDir: string | * "/partials"
 
   // Filepath globs for static files to load
   StaticGlobs: [...string] | *[]
