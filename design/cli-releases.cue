@@ -4,7 +4,7 @@ import (
 	"github.com/hofstadter-io/hofmod-cli/schema"
 )
 
-CliReleases :: schema.GoReleaser & {
+#CliReleases: schema.#GoReleaser & {
   Author:   "Tony Worm"
   Homepage: "https://github.com/hofstadter-io/hof"
 

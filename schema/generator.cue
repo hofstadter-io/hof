@@ -2,7 +2,7 @@ package schema
 
 
 // Definition for a generator
-HofGenerator :: {
+#HofGenerator: {
   // Base directory for the output
   Outdir: string | *"./"
 

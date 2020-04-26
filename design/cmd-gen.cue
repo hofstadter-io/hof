@@ -4,7 +4,7 @@ import (
 	"github.com/hofstadter-io/hofmod-cli/schema"
 )
 
-GenCommand :: schema.Command & {
+#GenCommand: schema.#Command & {
   Name:  "gen"
   Usage: "gen [files...]"
   Aliases: ["g"]
@@ -14,16 +14,10 @@ GenCommand :: schema.Command & {
   """
 
   Imports: [
-    {Path: "fmt"},
-    {Path: "os"},
-    {Path: CLI.Package + "/lib"},
+    {Path: #Module + "/lib"},
   ]
 
   Body: """
-    err := lib.Gen(args, []string{}, "")
-    if err != nil {
-      fmt.Println(err)
-      os.Exit(1)
-    }
+    return lib.Gen([]string{}, []string{}, "")
   """
 }

@@ -60,7 +60,7 @@ func (R *Runtime) LoadCue() []error {
 
 	for _, bi := range BIS {
 		if bi.Err != nil {
-			// fmt.Println("BI ERR", bi.Err, bi.Incomplete, bi.DepsErrors)
+			fmt.Println("BI ERR", bi.Err, bi.Incomplete, bi.DepsErrors)
 		  es := errors.Errors(bi.Err)
 			for _, e := range es {
 				errs = append(errs, e.(error))
@@ -95,6 +95,10 @@ func (R *Runtime) LoadCue() []error {
 			continue
 		}
 		R.TopLevelStructs = append(R.TopLevelStructs, S)
+	}
+
+	if len(errs) > 0 {
+		return errs
 	}
 
 	R.ExtractHofItems()

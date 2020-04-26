@@ -4,7 +4,7 @@ import (
 	"github.com/hofstadter-io/hofmod-cli/schema"
 )
 
-ConfigCommand :: schema.Command & {
+#ConfigCommand: schema.#Command & {
   Name:  "config"
   Usage: "config"
   Short: "configuration subcommands"
@@ -13,32 +13,32 @@ ConfigCommand :: schema.Command & {
   OmitRun: true
 
   Commands: [
-    schema.Command & {
+    schema.#Command & {
       Name:  "test"
       Usage: "test [name]"
       Short: "test your auth configuration, defaults to current"
       Long:  Short
       Args: [
-        schema.Arg & {
+        schema.#Arg & {
           Name:     "name"
           Type:     "string"
           Help:     "configuration name"
         },
       ]
     },
-    schema.Command & {
+    schema.#Command & {
       Name:  "list"
       Usage: "list"
       Short: "list configurations"
       Long:  Short
     },
-    schema.Command & {
+    schema.#Command & {
       Name:  "get"
       Usage: "get"
       Short: "print a configuration"
       Long:  Short
       Args: [
-        schema.Arg & {
+        schema.#Arg & {
           Name:     "name"
           Type:     "string"
           Required: true
@@ -46,44 +46,44 @@ ConfigCommand :: schema.Command & {
         },
       ]
     },
-    schema.Command & {
+    schema.#Command & {
       Name:  "set"
       Usage: "set <name> <host> <account> [project]"
       Short: "set configuration values"
       Long:  Short
       Args: [
-        schema.Arg & {
+        schema.#Arg & {
           Name:     "name"
           Type:     "string"
           Required: true
           Help:     "name for the configuration"
         },
-        schema.Arg & {
+        schema.#Arg & {
           Name:     "host"
           Type:     "string"
           Required: true
           Help:     "host for this configuration"
         },
-        schema.Arg & {
+        schema.#Arg & {
           Name:     "account"
           Type:     "string"
           Required: true
           Help:     "account for this configuration"
         },
-        schema.Arg & {
+        schema.#Arg & {
           Name: "project"
           Type: "string"
           Help: "default project for this configuration"
         },
       ]
     },
-    schema.Command & {
+    schema.#Command & {
       Name:  "use"
       Usage: "use"
       Short: "set the default configuration"
       Long:  Short
       Args: [
-        schema.Arg & {
+        schema.#Arg & {
           Name:     "name"
           Type:     "string"
           Required: true

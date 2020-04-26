@@ -4,7 +4,7 @@ import (
 	"github.com/hofstadter-io/hofmod-cli/schema"
 )
 
-CliPflags :: [...schema.Flag] & [
+#CliPflags: [...schema.#Flag] & [
   {
     Name:    "config"
     Type:    "string"
