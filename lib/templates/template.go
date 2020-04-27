@@ -97,9 +97,18 @@ func CreateFromString(name, content, templateSystem string, config *Config) (t *
 func createGolangTemplate(name, content string, config *Config) (*template.Template, error) {
 
 	// Golang wants helpers before parsing, and catches these errors early
-
 	t := template.New(name)
+
+	fmt.Println("CREATE GOLANG", name, config.LHS2_D)
+
+
 	if config.LHS2_D != "{{" {
+		fmt.Println("NAME: ", name, *config)
+		fmt.Println("------------")
+		fmt.Println(content)
+		// content = config.SwitchBefore(content)
+		//fmt.Println(content)
+		//fmt.Println("------------")
 		t = t.Delims(config.LHS2_D, config.RHS2_D)
 	}
 
@@ -135,8 +144,10 @@ func inferTemplateSystem(content string, config *Config) string {
 
 	// pretty liberally assume golang
 	if rayLhsCnt > 0 {
+		fmt.Println("INFER RAYMOND")
 		return "raymond"
 	} else {
+		fmt.Println("INFER GOLANG")
 		return "golang"
 	}
 

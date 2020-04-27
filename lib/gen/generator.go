@@ -57,9 +57,11 @@ type Generator struct {
 
   // Base directory of entrypoint templates to load
   TemplatesDir string
+	TemplatesDirConfig map[string]*templates.Config
 
   // Base directory of partial templatess to load
   PartialsDir string
+	PartialsDirConfig map[string]*templates.Config
 
   // Filepath globs for static files to load
   StaticGlobs []string
@@ -182,7 +184,7 @@ func (G *Generator) initPartials() []error {
 	if G.PackageName != "" {
 		pDir = path.Join(CUE_VENDOR_DIR, G.PackageName, G.PartialsDir)
 	}
-	pMap, err := templates.CreateTemplateMapFromFolder(pDir, G.TemplateConfig.TemplateSystem, G.TemplateConfig)
+	pMap, err := templates.CreateTemplateMapFromFolder(pDir, G.TemplateConfig.TemplateSystem, G.TemplateConfig, G.PartialsDirConfig)
 	if err != nil {
 		return append(errs, err)
 	}
@@ -219,7 +221,7 @@ func (G *Generator) initTemplates() []error {
 	if G.PackageName != "" {
 		tDir = path.Join(CUE_VENDOR_DIR, G.PackageName, G.TemplatesDir)
 	}
-	tMap, err := templates.CreateTemplateMapFromFolder(tDir, G.TemplateConfig.TemplateSystem, G.TemplateConfig)
+	tMap, err := templates.CreateTemplateMapFromFolder(tDir, G.TemplateConfig.TemplateSystem, G.TemplateConfig, G.TemplatesDirConfig)
 	if err != nil {
 		return append(errs, err)
 	}
@@ -260,7 +262,6 @@ func (G *Generator) initFileGens() []error {
 }
 
 func (G *Generator) ResolveFile(F *File) error {
-	// fmt.Println("ResolveFile", G.Name, F.Filepath)
 
 	// Override delims
 	if F.TemplateConfig == nil {

@@ -21,8 +21,10 @@ HofGenTest: TestGen & {
 }
 
 
-TestGen :: schema.HofGenerator & {
+TestGen :: schema.#HofGenerator & {
   Outdir: "output"
+
+  PackageName: ""
 
   In: {
     Val: _
@@ -31,7 +33,7 @@ TestGen :: schema.HofGenerator & {
 
   Out: [
     // Defaults
-    schema.HofGeneratorFile & {
+    schema.#HofGeneratorFile & {
       Template: "Val.a = '{{ .Val.a }}'\n"
       Filepath: "\(Outdir)/default.txt"
       TemplateConfig: {
@@ -39,7 +41,7 @@ TestGen :: schema.HofGenerator & {
       }
     },
     // Alternate delims
-    schema.HofGeneratorFile & {
+    schema.#HofGeneratorFile & {
       Template: "Val.a = '{% .Val.a %}'\n"
       Filepath: "\(Outdir)/altdelim.txt"
       TemplateConfig: {
@@ -51,7 +53,7 @@ TestGen :: schema.HofGenerator & {
       }
     },
     // Swap delims, using defaults delims for swap/temp
-    schema.HofGeneratorFile & {
+    schema.#HofGeneratorFile & {
       Template: "Val.a = '{% .Val.a %}' and also this should stay {{ .Hello }}\n"
       Filepath: "\(Outdir)/swapdelim.txt"
       TemplateConfig: {
@@ -66,7 +68,7 @@ TestGen :: schema.HofGenerator & {
     // TODO Swap delims, using custom delims for swap/temp
 
     // Mustache system
-    schema.HofGeneratorFile & {
+    schema.#HofGeneratorFile & {
       Template: "Val.a = '{{ Val.a }}'\n"
       Filepath: "\(Outdir)/mustache.txt"
       TemplateConfig: {
@@ -76,27 +78,41 @@ TestGen :: schema.HofGenerator & {
 
 
     // Named things
-    schema.HofGeneratorFile & {
+    schema.#HofGeneratorFile & {
       TemplateName: "named"
       Filepath: "\(Outdir)/named-things.txt"
     },
 
     // File based
-    schema.HofGeneratorFile & {
+    schema.#HofGeneratorFile & {
       TemplateName: "template-file.txt"
       Filepath: "\(Outdir)/template-file.txt"
     },
+    schema.#HofGeneratorFile & {
+      TemplateName: "template-altfile.txt"
+      Filepath: "\(Outdir)/template-altfile.txt"
+    },
 
     // User file
-    schema.HofGeneratorFile & {
+    schema.#HofGeneratorFile & {
       Template: "User file: '{{ file \"userfile.txt\" }}'\n"
       Filepath: "\(Outdir)/user-file.txt"
     },
   ]
 
-  TemplatesDir: "templates/"
-  PartialsDir: "partials/"
   StaticGlobs: ["static/**"]
+  PartialsDir:  "partials/"
+  TemplatesDir: "templates/"
+  TemplatesDirConfig: {
+    "templates/template-altfile.txt": {
+      AltDelims: true
+      SwapDelims: true
+      LHS2_D: "{%"
+      RHS2_D: "%}"
+      LHS3_D: "{%%"
+      RHS3_D: "%%}"
+    }
+  }
 
   NamedTemplates: {
     named: """

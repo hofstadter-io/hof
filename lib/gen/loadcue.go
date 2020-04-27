@@ -17,7 +17,7 @@ func (G *Generator) LoadCue() ([]error) {
 
 	// Decode the value into a temporary "generator" with timing
 	err := G.CueValue.Decode(&gen)
-	if err != nil {
+		if err != nil {
 		return []error{err}
 	}
 
@@ -106,8 +106,6 @@ func (G *Generator) decodeGenerator(gen map[string]interface{}) ([]error) {
 	}
 
 	// Eventually loaded from disk
-	G.TemplatesDir = gen["TemplatesDir"].(string)
-	G.PartialsDir  = gen["PartialsDir"].(string)
 	G.StaticGlobs = make([]string, 0)
 	sg, ok := gen["StaticGlobs"].([]interface{})
 	if !ok {
@@ -116,6 +114,80 @@ func (G *Generator) decodeGenerator(gen map[string]interface{}) ([]error) {
 	for _, s := range sg {
 		G.StaticGlobs = append(G.StaticGlobs, s.(string))
 	}
+
+	// Eventually loaded from disk
+	G.PartialsDir  = gen["PartialsDir"].(string)
+	// Config fileglobs for things loaded from disk
+	G.PartialsDirConfig = make(map[string]*templates.Config, 0)
+	pdirConfigI, ok := gen["PartialsDirConfig"]
+	if ok {
+		globs, gok := pdirConfigI.(map[string]interface{})
+		if gok {
+			for fn, cI := range globs {
+				config := cI.(map[string]interface{})
+				c := &templates.Config{}
+
+				c.TemplateSystem = config["TemplateSystem"].(string)
+				c.AltDelims  = config["AltDelims"].(bool)
+				c.SwapDelims = config["SwapDelims"].(bool)
+
+				c.LHS2_D = config["LHS2_D"].(string)
+				c.RHS2_D = config["RHS2_D"].(string)
+				c.LHS3_D = config["LHS3_D"].(string)
+				c.RHS3_D = config["RHS3_D"].(string)
+
+				c.LHS2_S = config["LHS2_S"].(string)
+				c.RHS2_S = config["RHS2_S"].(string)
+				c.LHS3_S = config["LHS3_S"].(string)
+				c.RHS3_S = config["RHS3_S"].(string)
+
+				c.LHS2_T = config["LHS2_T"].(string)
+				c.RHS2_T = config["RHS2_T"].(string)
+				c.LHS3_T = config["LHS3_T"].(string)
+				c.RHS3_T = config["RHS3_T"].(string)
+
+				G.PartialsDirConfig[fn] = c
+			}
+		}
+	}
+
+
+	// Eventually loaded from disk
+	G.TemplatesDir = gen["TemplatesDir"].(string)
+	// Config fileglobs for things loaded from disk
+	G.TemplatesDirConfig = make(map[string]*templates.Config, 0)
+	tdirConfigI, ok := gen["TemplatesDirConfig"]
+	if ok {
+		globs, gok := tdirConfigI.(map[string]interface{})
+		if gok {
+			for fn, cI := range globs {
+				config := cI.(map[string]interface{})
+				c := &templates.Config{}
+
+				c.TemplateSystem = config["TemplateSystem"].(string)
+				c.AltDelims  = config["AltDelims"].(bool)
+				c.SwapDelims = config["SwapDelims"].(bool)
+
+				c.LHS2_D = config["LHS2_D"].(string)
+				c.RHS2_D = config["RHS2_D"].(string)
+				c.LHS3_D = config["LHS3_D"].(string)
+				c.RHS3_D = config["RHS3_D"].(string)
+
+				c.LHS2_S = config["LHS2_S"].(string)
+				c.RHS2_S = config["RHS2_S"].(string)
+				c.LHS3_S = config["LHS3_S"].(string)
+				c.RHS3_S = config["RHS3_S"].(string)
+
+				c.LHS2_T = config["LHS2_T"].(string)
+				c.RHS2_T = config["RHS2_T"].(string)
+				c.LHS3_T = config["LHS3_T"].(string)
+				c.RHS3_T = config["RHS3_T"].(string)
+
+				G.TemplatesDirConfig[fn] = c
+			}
+		}
+	}
+
 
 	// TODO, load subgenerators
 
@@ -128,6 +200,8 @@ func (G *Generator) decodeGenerator(gen map[string]interface{}) ([]error) {
 		if err != nil {
 			errs = append(errs, err)
 		}
+
+		fmt.Println("CONFIG-FILE", F.TemplateName, F.TemplateConfig)
 
 		G.Files[F.Filepath] = F
 

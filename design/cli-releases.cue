@@ -5,6 +5,8 @@ import (
 )
 
 #CliReleases: schema.#GoReleaser & {
+  Disabled: false
+  Draft: false
   Author:   "Tony Worm"
   Homepage: "https://github.com/hofstadter-io/hof"
 
