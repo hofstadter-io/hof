@@ -63,7 +63,7 @@ changelog:
 
 
 release:
-  disable: true
+  disable: false
   draft: false
   github:
     owner: hofstadter-io
