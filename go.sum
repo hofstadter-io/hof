@@ -149,6 +149,8 @@ github.com/hofstadter-io/mvs v0.4.5 h1:yd22u8T2FWkW5QWTrOCc62PWiod9nMbY6X18yZco1
 github.com/hofstadter-io/mvs v0.4.5/go.mod h1:E3TB2ISvNyI9CiNPg/OxS2M8FSJldIF85uLtQzHLMCU=
 github.com/hofstadter-io/mvs v0.4.6 h1:KL9JLsYs7vSJUnZVzbkFIdRJs/7f71gjnHYeXvtl6Ic=
 github.com/hofstadter-io/mvs v0.4.6/go.mod h1:E3TB2ISvNyI9CiNPg/OxS2M8FSJldIF85uLtQzHLMCU=
+github.com/hofstadter-io/mvs v0.5.0 h1:JAmoIaEzxwuSDyGUC4FVlO6Z0DV9UIelCcyOhrThWuY=
+github.com/hofstadter-io/mvs v0.5.0/go.mod h1:Cvq23OVa/x1wA720bNCHPgvNuS5+4g2ZWFsWgXfLMUU=
 github.com/hofstadter-io/mvs v0.5.1 h1:nQkmturqhJHkabn0XxDAi0WTb0Hx95EJ3nX1N6rqVUk=
 github.com/hofstadter-io/mvs v0.5.1/go.mod h1:Cvq23OVa/x1wA720bNCHPgvNuS5+4g2ZWFsWgXfLMUU=
 github.com/inconshreveable/mousetrap v1.0.0 h1:Z8tu5sraLXCXIcARxBp/8cbvlwVa7Z1NHg9XEKhtSvM=

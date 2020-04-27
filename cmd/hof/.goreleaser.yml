@@ -10,13 +10,13 @@ builds:
 
   ldflags:
     - -s -w
-    - -X github.com/hofstadter-io/hof/cmd/hof/commands.Version={{.Version}}
-    - -X github.com/hofstadter-io/hof/cmd/hof/commands.Commit={{.FullCommit}}
-    - -X github.com/hofstadter-io/hof/cmd/hof/commands.BuildDate={{.Date}}
-    - -X github.com/hofstadter-io/hof/cmd/hof/commands.GoVersion=go1.14
-    - -X github.com/hofstadter-io/hof/cmd/hof/commands.BuildOS={{.Os}}
-    - -X github.com/hofstadter-io/hof/cmd/hof/commands.BuildArch={{.Arch}}
-    - -X github.com/hofstadter-io/hof/cmd/hof/commands.BuildArm={{.Arm}}
+    - -X github.com/hofstadter-io/hof/cmd/hof/cmd.Version={{.Version}}
+    - -X github.com/hofstadter-io/hof/cmd/hof/cmd.Commit={{.FullCommit}}
+    - -X github.com/hofstadter-io/hof/cmd/hof/cmd.BuildDate={{.Date}}
+    - -X github.com/hofstadter-io/hof/cmd/hof/cmd.GoVersion=go1.14
+    - -X github.com/hofstadter-io/hof/cmd/hof/cmd.BuildOS={{.Os}}
+    - -X github.com/hofstadter-io/hof/cmd/hof/cmd.BuildArch={{.Arch}}
+    - -X github.com/hofstadter-io/hof/cmd/hof/cmd.BuildArm={{.Arm}}
 
   env:
   - CGO_ENABLED=0
@@ -73,7 +73,7 @@ dockers:
 - binaries:
     - hof
   skip_push: false
-  dockerfile: ci/docker/Dockerfile.jessie
+  dockerfile: ../../ci/hof/docker/Dockerfile.jessie
   image_templates:
   - "hofstadter/{{.ProjectName}}:{{.Tag}}"
   - "hofstadter/{{.ProjectName}}:v{{ .Major }}.{{ .Minor }}"
@@ -89,7 +89,7 @@ dockers:
 - binaries:
     - hof
   skip_push: false
-  dockerfile: ci/docker/Dockerfile.scratch
+  dockerfile: ../../ci/hof/docker/Dockerfile.scratch
   image_templates:
   - "hofstadter/{{.ProjectName}}:{{.Tag}}-scratch"
   - "hofstadter/{{.ProjectName}}:v{{ .Major }}.{{ .Minor }}-scratch"

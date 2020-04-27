@@ -6,6 +6,8 @@ github.com/hofstadter-io/hofmod-cli v0.0.0 h1:QlL53XCCwLCzIpN6Y8n9+veyTmQH7BywSG
 github.com/hofstadter-io/hofmod-cli v0.0.0/cue.mods h1:CZbXtU+Ia+oNdgLkkVeT/Mr4AG735lmVF/ngrbbCf28=
 github.com/hofstadter-io/hofmod-cli v0.3.5 h1:AKf1BeHDiVvRZLPoNC0gaRq+8H3vwnQrW/1IryOOydM=
 github.com/hofstadter-io/hofmod-cli v0.3.5/cue.mods h1:YmxImIIBaXUl/P54xJqbLzLTFvpYCNQBhoyVCCfmad0=
+github.com/hofstadter-io/hofmod-cli v0.4.0 h1:M9qmHyUW9AxmOAgeAwbfa24L3+GBAuiBhbv9jFeWCEg=
+github.com/hofstadter-io/hofmod-cli v0.4.0/cue.mods h1:8TVLRMLOvfcVRZu6NqDr4VFmvuw/9Ca7YpCMo1fTRmU=
 github.com/hofstadter-io/mvs v0.0.0 h1:/rMWV7c92qpH/hyl8Ibi/DSUhrGDgDeKBtFkZeD+SMo=
 github.com/hofstadter-io/mvs v0.0.0/cue.mods h1:Bt+zMXYlsncBuI+lyMWfRLObqOt+HNOCAO/DDh1Mf+M=
 github.com/hofstadter-io/mvs v0.4.4 h1:hw65QjfvxPjeUimqurEbTuwnDLSj/GUABKsHUymaW2g=
@@ -14,3 +16,5 @@ github.com/hofstadter-io/mvs v0.4.5 h1:MBUqQskE0YJpQ73VOu1qWCJ222Kq85NnZwcIIorZD
 github.com/hofstadter-io/mvs v0.4.5/cue.mods h1:iyCPYWG4Xl3ngG5mVsWgzOMlI8bXgde3m1OOCW3nFMw=
 github.com/hofstadter-io/mvs v0.4.6 h1:H/cxiYr75x0KdPpxY8Vu8MRAqBDIOqXWSU3TOSCEStc=
 github.com/hofstadter-io/mvs v0.4.6/cue.mods h1:iyCPYWG4Xl3ngG5mVsWgzOMlI8bXgde3m1OOCW3nFMw=
+github.com/hofstadter-io/mvs v0.5.0 h1:ynUB7z6ReyS8DwTfjcQbUPF+MpWBJRLrqqMSRwwixCo=
+github.com/hofstadter-io/mvs v0.5.0/cue.mods h1:3zTO9yBRvH0ML28h37/T/hWbOFG9d09eR1rTNKn60PU=
