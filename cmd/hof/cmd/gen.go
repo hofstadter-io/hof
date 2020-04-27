@@ -11,7 +11,22 @@ import (
 
 var genLong = `  generate all the things, from code to data to config...`
 
+var (
+	GenGeneratorFlag []string
+)
+
+func init() {
+
+	GenCmd.Flags().StringSliceVarP(&GenGeneratorFlag, "generator", "g", nil, "Generators to run")
+}
+
+func init() {
+
+}
+
 func GenRun(args []string) (err error) {
+
+	fmt.Println("GenFlags", GenGeneratorFlag)
 
 	return lib.Gen([]string{}, []string{}, "")
 
