@@ -18,15 +18,10 @@ var hofLong = `Polyglot Code Gereration Framework`
 func init() {
 
 	RootCmd.PersistentFlags().StringVarP(&pflags.RootConfigPflag, "config", "c", "", "Some config file path")
-
 	RootCmd.PersistentFlags().StringVarP(&pflags.RootIdentityPflag, "identity", "I", "", "the Studios Auth Identity to use during this hof execution")
-
 	RootCmd.PersistentFlags().StringVarP(&pflags.RootContextPflag, "context", "C", "", "the Studios Context to use during this hof execution")
-
 	RootCmd.PersistentFlags().StringVarP(&pflags.RootAccountPflag, "account", "A", "", "the Studios Account to use during this hof execution")
-
 	RootCmd.PersistentFlags().StringVarP(&pflags.RootProjectPflag, "project", "P", "", "the Studios Project to use during this hof execution")
-
 }
 
 func RootPersistentPreRun(args []string) (err error) {

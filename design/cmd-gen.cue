@@ -13,6 +13,17 @@ import (
     generate all the things, from code to data to config...
   """
 
+  Flags: [...schema.#Flag] & [
+    {
+      Name:    "generator"
+      Type:    "[]string"
+      Default: "nil"
+      Help:    "Generators to run"
+      Long:    "generator"
+      Short:   "g"
+    },
+  ]
+
   Imports: [
     {Path: #Module + "/lib"},
   ]
