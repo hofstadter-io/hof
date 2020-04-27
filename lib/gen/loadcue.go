@@ -201,8 +201,6 @@ func (G *Generator) decodeGenerator(gen map[string]interface{}) ([]error) {
 			errs = append(errs, err)
 		}
 
-		fmt.Println("CONFIG-FILE", F.TemplateName, F.TemplateConfig)
-
 		G.Files[F.Filepath] = F
 
 	}

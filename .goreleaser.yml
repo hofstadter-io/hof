@@ -1,22 +1,22 @@
-project_name: "{% .CLI.cliName %}"
+project_name: "hof"
 
 before:
   hooks:
     - go mod vendor
 
 builds:
-- binary: "{% .CLI.cliName %}"
+- binary: "hof"
   main: main.go
 
   ldflags:
     - -s -w
-    - -X {% .CLI.Package %}/commands.Version=<no value>
-    - -X {% .CLI.Package %}/commands.Commit=<no value>
-    - -X {% .CLI.Package %}/commands.BuildDate=<no value>
-    - -X {% .CLI.Package %}/commands.GoVersion=go1.14
-    - -X {% .CLI.Package %}/commands.BuildOS=<no value>
-    - -X {% .CLI.Package %}/commands.BuildArch=<no value>
-    - -X {% .CLI.Package %}/commands.BuildArm=<no value>
+    - -X github.com/hofstadter-io/hof/cmd/hof/commands.Version={{.Version}}
+    - -X github.com/hofstadter-io/hof/cmd/hof/commands.Commit={{.FullCommit}}
+    - -X github.com/hofstadter-io/hof/cmd/hof/commands.BuildDate={{.Date}}
+    - -X github.com/hofstadter-io/hof/cmd/hof/commands.GoVersion=go1.14
+    - -X github.com/hofstadter-io/hof/cmd/hof/commands.BuildOS={{.Os}}
+    - -X github.com/hofstadter-io/hof/cmd/hof/commands.BuildArch={{.Arch}}
+    - -X github.com/hofstadter-io/hof/cmd/hof/commands.BuildArm={{.Arm}}
 
   env:
   - CGO_ENABLED=0
@@ -36,7 +36,7 @@ builds:
 
 
 snapshot:
-  name_template: "<no value>-SNAPSHOT-<no value>"
+  name_template: "{{ .Tag }}-SNAPSHOT-{{.ShortCommit}}"
 
 archives:
 - format: binary
@@ -52,7 +52,7 @@ archives:
 
 
 checksum:
-  name_template: '<no value>_<no value>_checksums.txt'
+  name_template: '{{ .ProjectName }}_{{ .Version }}_checksums.txt'
 
 changelog:
   sort: asc
@@ -63,35 +63,35 @@ changelog:
 
 
 release:
-  disable: {% .CLI.Releases.Disable %}
-  draft: {% .CLI.Releases.Draft %}
+  disable: true
+  draft: false
   github:
-    owner: {% .CLI.Releases.GitHub.Owner %}
-    name: {%  .CLI.Releases.GitHub.Repo %}
+    owner: hofstadter-io
+    name: hof
 
 dockers:
 - binaries:
-    - {% .CLI.cliName %}
-  skip_push: {% .CLI.Releases.Disabled %}
+    - hof
+  skip_push: false
   dockerfile: ci/docker/Dockerfile.jessie
   image_templates:
-  - "{% .CLI.Releases.Docker.Repo %}/<no value>:<no value>"
-  - "{% .CLI.Releases.Docker.Repo %}/<no value>:v<no value>.<no value>"
-  - "{% .CLI.Releases.Docker.Repo %}/<no value>:v<no value>"
-  - "{% .CLI.Releases.Docker.Repo %}/<no value>:latest"
+  - "hofstadter/{{.ProjectName}}:{{.Tag}}"
+  - "hofstadter/{{.ProjectName}}:v{{ .Major }}.{{ .Minor }}"
+  - "hofstadter/{{.ProjectName}}:v{{ .Major }}"
+  - "hofstadter/{{.ProjectName}}:latest"
 
-  - "{% .CLI.Releases.Docker.Repo %}/<no value>:<no value>-debian"
-  - "{% .CLI.Releases.Docker.Repo %}/<no value>:v<no value>.<no value>-debian"
-  - "{% .CLI.Releases.Docker.Repo %}/<no value>:v<no value>-debian"
-  - "{% .CLI.Releases.Docker.Repo %}/<no value>:latest-debian"
+  - "hofstadter/{{.ProjectName}}:{{.Tag}}-debian"
+  - "hofstadter/{{.ProjectName}}:v{{ .Major }}.{{ .Minor }}-debian"
+  - "hofstadter/{{.ProjectName}}:v{{ .Major }}-debian"
+  - "hofstadter/{{.ProjectName}}:latest-debian"
 
 
 - binaries:
-    - {% .CLI.cliName %}
-  skip_push: {% .CLI.Releases.Disabled %}
+    - hof
+  skip_push: false
   dockerfile: ci/docker/Dockerfile.scratch
   image_templates:
-  - "{% .CLI.Releases.Docker.Repo %}/<no value>:<no value>-scratch"
-  - "{% .CLI.Releases.Docker.Repo %}/<no value>:v<no value>.<no value>-scratch"
-  - "{% .CLI.Releases.Docker.Repo %}/<no value>:v<no value>-scratch"
-  - "{% .CLI.Releases.Docker.Repo %}/<no value>:latest-scratch"
+  - "hofstadter/{{.ProjectName}}:{{.Tag}}-scratch"
+  - "hofstadter/{{.ProjectName}}:v{{ .Major }}.{{ .Minor }}-scratch"
+  - "hofstadter/{{.ProjectName}}:v{{ .Major }}-scratch"
+  - "hofstadter/{{.ProjectName}}:latest-scratch"

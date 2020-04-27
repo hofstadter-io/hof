@@ -5,6 +5,8 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+
+	"github.com/hofstadter-io/hof/cmd/hof/pflags"
 )
 
 var loginLong = `login to an account`
@@ -26,6 +28,8 @@ var LoginCmd = &cobra.Command{
 		var err error
 
 		// Argument Parsing
+
+		fmt.Printf("login: %q\n", pflags.RootConfigPflag)
 
 		err = LoginRun(args)
 		if err != nil {

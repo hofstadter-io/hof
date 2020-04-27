@@ -44,14 +44,15 @@ func (M TemplateMap) ImportFromFolder(folder, system string, config *Config, con
 				return nil
 			}
 
+			cfg := config
 			c, err := LookupConfig(path, configGlobs)
 			if err != nil {
 				return err
 			}
 			if c != nil {
-				config = c
+				cfg = c
 			}
-			return local_m.import_template(base_path, path, system, config)
+			return local_m.import_template(base_path, path, system, cfg)
 		}
 	}
 
@@ -83,7 +84,7 @@ func (M TemplateMap) import_template(basePath, filePath, system string, config *
 }
 
 func LookupConfig(fn string, cfgs map[string]*Config) (*Config, error) {
-	fmt.Println("Lookup", fn)
+	// fmt.Println("Lookup", fn)
 	for glob, cfg := range cfgs {
 		match, err := zglob.Match(glob, fn)
 		if err != nil {
