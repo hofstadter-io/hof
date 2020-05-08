@@ -4,11 +4,15 @@ import (
 	"fmt"
 	"os"
 
+	"strings"
+
 	"github.com/spf13/cobra"
 
 	// "github.com/spf13/viper"
 
 	"github.com/hofstadter-io/mvs/lib"
+
+	"github.com/hofstadter-io/hof/cmd/hof/ga"
 
 	"github.com/hofstadter-io/hof/cmd/hof/pflags"
 )
@@ -50,9 +54,26 @@ var RootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 	},
+
+	PreRun: func(cmd *cobra.Command, args []string) {
+
+		ga.SendGaEvent("root", strings.Join(args, "/"), 0)
+
+	},
 }
 
 func init() {
+
+	hf := RootCmd.HelpFunc()
+	f := func(cmd *cobra.Command, args []string) {
+		if RootCmd.Name() == cmd.Name() {
+			as := strings.Join(args, "/")
+			ga.SendGaEvent("root/help", as, 0)
+		}
+		hf(cmd, args)
+	}
+	RootCmd.SetHelpFunc(f)
+
 	cobra.OnInitialize(initConfig)
 	RootCmd.AddCommand(AuthCmd)
 	RootCmd.AddCommand(ConfigCmd)

@@ -4,7 +4,11 @@ import (
 	"fmt"
 	"os"
 
+	"strings"
+
 	"github.com/spf13/cobra"
+
+	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var shutdownLong = `Shutdown a Studios container.`
@@ -21,6 +25,14 @@ var ShutdownCmd = &cobra.Command{
 	Short: "Shutdown a Studios container.",
 
 	Long: shutdownLong,
+
+	PreRun: func(cmd *cobra.Command, args []string) {
+
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c, strings.Join(args, "/"), 0)
+
+	},
 
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error

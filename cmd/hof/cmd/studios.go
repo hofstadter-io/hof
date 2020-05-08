@@ -1,9 +1,13 @@
 package cmd
 
 import (
+	"strings"
+
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/cmd/studios"
+
+	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var studiosLong = `  Hofstadter Studios makes it easy to develop and launch both
@@ -20,9 +24,26 @@ var StudiosCmd = &cobra.Command{
 	Short: "commands for working with Hofstadter Studios",
 
 	Long: studiosLong,
+
+	PreRun: func(cmd *cobra.Command, args []string) {
+
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c, strings.Join(args, "/"), 0)
+
+	},
 }
 
 func init() {
+	hf := StudiosCmd.HelpFunc()
+	f := func(cmd *cobra.Command, args []string) {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		as := strings.Join(args, "/")
+		ga.SendGaEvent(c+"/help", as, 0)
+		hf(cmd, args)
+	}
+	StudiosCmd.SetHelpFunc(f)
 	StudiosCmd.AddCommand(cmdstudios.AppCmd)
 	StudiosCmd.AddCommand(cmdstudios.DatabaseCmd)
 	StudiosCmd.AddCommand(cmdstudios.ContainerCmd)

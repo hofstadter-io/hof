@@ -4,9 +4,13 @@ import (
 	"fmt"
 	"os"
 
+	"strings"
+
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/cmd/studios/database"
+
+	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var databaseLong = `Work with Hofstadter Studios databases`
@@ -24,6 +28,14 @@ var DatabaseCmd = &cobra.Command{
 
 	Long: databaseLong,
 
+	PreRun: func(cmd *cobra.Command, args []string) {
+
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c, strings.Join(args, "/"), 0)
+
+	},
+
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
 
@@ -38,6 +50,15 @@ var DatabaseCmd = &cobra.Command{
 }
 
 func init() {
+	hf := DatabaseCmd.HelpFunc()
+	f := func(cmd *cobra.Command, args []string) {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		as := strings.Join(args, "/")
+		ga.SendGaEvent(c+"/help", as, 0)
+		hf(cmd, args)
+	}
+	DatabaseCmd.SetHelpFunc(f)
 	DatabaseCmd.AddCommand(cmddatabase.ListCmd)
 	DatabaseCmd.AddCommand(cmddatabase.GetCmd)
 	DatabaseCmd.AddCommand(cmddatabase.CreateCmd)

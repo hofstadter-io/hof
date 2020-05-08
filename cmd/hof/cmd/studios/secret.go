@@ -4,9 +4,13 @@ import (
 	"fmt"
 	"os"
 
+	"strings"
+
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/cmd/studios/secret"
+
+	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var secretLong = `Work with Hofstadter Studios secrets`
@@ -29,6 +33,14 @@ var SecretCmd = &cobra.Command{
 
 	Long: secretLong,
 
+	PreRun: func(cmd *cobra.Command, args []string) {
+
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c, strings.Join(args, "/"), 0)
+
+	},
+
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
 
@@ -43,6 +55,15 @@ var SecretCmd = &cobra.Command{
 }
 
 func init() {
+	hf := SecretCmd.HelpFunc()
+	f := func(cmd *cobra.Command, args []string) {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		as := strings.Join(args, "/")
+		ga.SendGaEvent(c+"/help", as, 0)
+		hf(cmd, args)
+	}
+	SecretCmd.SetHelpFunc(f)
 	SecretCmd.AddCommand(cmdsecret.ListCmd)
 	SecretCmd.AddCommand(cmdsecret.GetCmd)
 	SecretCmd.AddCommand(cmdsecret.CreateCmd)

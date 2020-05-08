@@ -4,9 +4,13 @@ import (
 	"fmt"
 	"os"
 
+	"strings"
+
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/cmd/mod"
+
+	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var modLong = `Hof has mvs embedded, so you can do all the same things from this subcommand`
@@ -28,6 +32,14 @@ var ModCmd = &cobra.Command{
 
 	Long: modLong,
 
+	PreRun: func(cmd *cobra.Command, args []string) {
+
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c, strings.Join(args, "/"), 0)
+
+	},
+
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
 
@@ -42,6 +54,15 @@ var ModCmd = &cobra.Command{
 }
 
 func init() {
+	hf := ModCmd.HelpFunc()
+	f := func(cmd *cobra.Command, args []string) {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		as := strings.Join(args, "/")
+		ga.SendGaEvent(c+"/help", as, 0)
+		hf(cmd, args)
+	}
+	ModCmd.SetHelpFunc(f)
 	ModCmd.AddCommand(cmdmod.InfoCmd)
 	ModCmd.AddCommand(cmdmod.ConvertCmd)
 	ModCmd.AddCommand(cmdmod.GraphCmd)

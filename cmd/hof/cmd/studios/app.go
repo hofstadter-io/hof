@@ -4,9 +4,13 @@ import (
 	"fmt"
 	"os"
 
+	"strings"
+
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/cmd/studios/app"
+
+	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var appLong = `Work with Hofstadter Studios apps`
@@ -24,6 +28,14 @@ var AppCmd = &cobra.Command{
 
 	Long: appLong,
 
+	PreRun: func(cmd *cobra.Command, args []string) {
+
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c, strings.Join(args, "/"), 0)
+
+	},
+
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
 
@@ -38,6 +50,15 @@ var AppCmd = &cobra.Command{
 }
 
 func init() {
+	hf := AppCmd.HelpFunc()
+	f := func(cmd *cobra.Command, args []string) {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		as := strings.Join(args, "/")
+		ga.SendGaEvent(c+"/help", as, 0)
+		hf(cmd, args)
+	}
+	AppCmd.SetHelpFunc(f)
 	AppCmd.AddCommand(cmdapp.ListCmd)
 	AppCmd.AddCommand(cmdapp.GetCmd)
 	AppCmd.AddCommand(cmdapp.CreateCmd)

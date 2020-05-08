@@ -1,9 +1,13 @@
 package cmd
 
 import (
+	"strings"
+
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/cmd/config"
+
+	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var configLong = `configuration subcommands`
@@ -15,9 +19,26 @@ var ConfigCmd = &cobra.Command{
 	Short: "configuration subcommands",
 
 	Long: configLong,
+
+	PreRun: func(cmd *cobra.Command, args []string) {
+
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c, strings.Join(args, "/"), 0)
+
+	},
 }
 
 func init() {
+	hf := ConfigCmd.HelpFunc()
+	f := func(cmd *cobra.Command, args []string) {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		as := strings.Join(args, "/")
+		ga.SendGaEvent(c+"/help", as, 0)
+		hf(cmd, args)
+	}
+	ConfigCmd.SetHelpFunc(f)
 	ConfigCmd.AddCommand(cmdconfig.TestCmd)
 	ConfigCmd.AddCommand(cmdconfig.ListCmd)
 	ConfigCmd.AddCommand(cmdconfig.GetCmd)

@@ -4,9 +4,13 @@ import (
 	"fmt"
 	"os"
 
+	"strings"
+
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/mvs/lib"
+
+	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var verifyLong = `verify dependencies have expected content`
@@ -29,6 +33,14 @@ var VerifyCmd = &cobra.Command{
 	Short: "verify dependencies have expected content",
 
 	Long: verifyLong,
+
+	PreRun: func(cmd *cobra.Command, args []string) {
+
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c, strings.Join(args, "/"), 0)
+
+	},
 
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error

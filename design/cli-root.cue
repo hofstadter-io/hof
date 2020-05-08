@@ -21,6 +21,8 @@ import (
 
 	Releases: #CliReleases
 
+  Telemetry: "UA-103579574-5"
+
 	OmitRun: true
 
   Pflags: #CliPflags

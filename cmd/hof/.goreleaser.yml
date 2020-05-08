@@ -10,13 +10,13 @@ builds:
 
   ldflags:
     - -s -w
-    - -X github.com/hofstadter-io/hof/cmd/hof/cmd.Version={{.Version}}
-    - -X github.com/hofstadter-io/hof/cmd/hof/cmd.Commit={{.FullCommit}}
-    - -X github.com/hofstadter-io/hof/cmd/hof/cmd.BuildDate={{.Date}}
-    - -X github.com/hofstadter-io/hof/cmd/hof/cmd.GoVersion=go1.14
-    - -X github.com/hofstadter-io/hof/cmd/hof/cmd.BuildOS={{.Os}}
-    - -X github.com/hofstadter-io/hof/cmd/hof/cmd.BuildArch={{.Arch}}
-    - -X github.com/hofstadter-io/hof/cmd/hof/cmd.BuildArm={{.Arm}}
+    - -X github.com/hofstadter-io/hof/cmd/hof/verinfo.Version={{.Version}}
+    - -X github.com/hofstadter-io/hof/cmd/hof/verinfo.Commit={{.FullCommit}}
+    - -X github.com/hofstadter-io/hof/cmd/hof/verinfo.BuildDate={{.Date}}
+    - -X github.com/hofstadter-io/hof/cmd/hof/verinfo.GoVersion=go1.14
+    - -X github.com/hofstadter-io/hof/cmd/hof/verinfo.BuildOS={{.Os}}
+    - -X github.com/hofstadter-io/hof/cmd/hof/verinfo.BuildArch={{.Arch}}
+    - -X github.com/hofstadter-io/hof/cmd/hof/verinfo.BuildArm={{.Arm}}
 
   env:
   - CGO_ENABLED=0

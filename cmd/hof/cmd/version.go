@@ -2,18 +2,12 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
-)
 
-var (
-	Version = "Local"
-	Commit  = "Dirty"
-
-	BuildDate = "Unknown"
-	GoVersion = "Unknown"
-	BuildOS   = "Unknown"
-	BuildArch = "Unknown"
+	"github.com/hofstadter-io/hof/cmd/hof/verinfo"
 )
 
 const versionMessage = `
@@ -40,14 +34,18 @@ var VersionCmd = &cobra.Command{
 	Long: VersionLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
+
+		s, e := os.UserConfigDir()
+		fmt.Printf("hof ConfigDir %q %v\n", filepath.Join(s, "hof"), e)
+
 		fmt.Printf(
 			versionMessage,
-			Version,
-			Commit,
-			BuildDate,
-			GoVersion,
-			BuildOS,
-			BuildArch,
+			verinfo.Version,
+			verinfo.Commit,
+			verinfo.BuildDate,
+			verinfo.GoVersion,
+			verinfo.BuildOS,
+			verinfo.BuildArch,
 		)
 	},
 }
