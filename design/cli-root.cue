@@ -22,6 +22,7 @@ import (
 	Releases: #CliReleases
 
   Telemetry: "UA-103579574-5"
+  TelemetryIdDir: ".hof"
 
 	OmitRun: true
 

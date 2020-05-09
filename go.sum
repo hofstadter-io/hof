@@ -96,6 +96,8 @@ github.com/google/go-github/v30 v30.1.0 h1:VLDx+UolQICEOKu2m4uAoMti1SxuEBAl7RSEG
 github.com/google/go-github/v30 v30.1.0/go.mod h1:n8jBpHl45a/rlBUtRJMOG4GhNADUQFEufcolZ95JfU8=
 github.com/google/go-querystring v1.0.0 h1:Xkwi/a1rcvNg1PPYe5vI8GbeBY/jrVuDX5ASuANWTrk=
 github.com/google/go-querystring v1.0.0/go.mod h1:odCYkC5MyYFN7vkCjXpyrEuKhc/BUO6wN/zVPAxq5ck=
+github.com/google/uuid v1.1.1 h1:Gkbcsh/GbpXz7lPftLA3P6TYMwjCLYm83jiFQZF/3gY=
+github.com/google/uuid v1.1.1/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1/go.mod h1:wJfORRmW1u3UXTncJ5qlYoELFm8eSnnEO6hX4iZ3EWY=
 github.com/gorilla/websocket v1.4.0/go.mod h1:E7qHFY5m1UJ88s3WnNqhKjPHQ0heANvMoAMk2YaljkQ=
 github.com/grpc-ecosystem/go-grpc-middleware v1.0.0/go.mod h1:FiyG127CGDf3tlThmgyCl78X/SZQqEOJBCDaAfeWzPs=
@@ -118,6 +120,7 @@ github.com/hofstadter-io/mvs v0.6.0/go.mod h1:Cvq23OVa/x1wA720bNCHPgvNuS5+4g2ZWF
 github.com/hofstadter-io/mvs v0.7.0 h1:nBPwfK1wY7NFMlGooYkiXNE6rqbtr4maGtmDU/rmRno=
 github.com/hofstadter-io/mvs v0.7.0/go.mod h1:EJm3JgN0ogwttI5KsKVx1V+Nf3lBctDSCJAirph37YQ=
 github.com/hofstadter-io/structural v0.1.0/go.mod h1:9TuYfLVHsi8pkqfz7K2SYiE8OAmog7KyX/IHy4BzjRM=
+github.com/hofstadter-io/structural v0.1.2/go.mod h1:aBIZ/puy20x0pol1GrIkWg1cy+4+h9pLCBn4NY32z5A=
 github.com/hofstadter-io/yagu v0.0.1 h1:WNtWyXH2vu8C/Il7R2itvgFHHLy/WLqzbm+A+yPYFSc=
 github.com/hofstadter-io/yagu v0.0.1/go.mod h1:UWTxRZtLMwWDfYcKPaWS6Bc4VZT+ue5P6yJcpS323rM=
 github.com/inconshreveable/mousetrap v1.0.0 h1:Z8tu5sraLXCXIcARxBp/8cbvlwVa7Z1NHg9XEKhtSvM=
