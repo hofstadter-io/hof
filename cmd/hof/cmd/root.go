@@ -33,6 +33,13 @@ func RootPersistentPreRun(args []string) (err error) {
 	return err
 }
 
+func RootPersistentPostRun(args []string) (err error) {
+
+	PrintUpdateAvailable()
+
+	return err
+}
+
 var RootCmd = &cobra.Command{
 
 	Use: "hof",
@@ -57,6 +64,18 @@ var RootCmd = &cobra.Command{
 
 		ga.SendGaEvent("root", "<omit>", 0)
 
+	},
+
+	PersistentPostRun: func(cmd *cobra.Command, args []string) {
+		var err error
+
+		// Argument Parsing
+
+		err = RootPersistentPostRun(args)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 	},
 }
 
