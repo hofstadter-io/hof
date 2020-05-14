@@ -119,10 +119,14 @@ github.com/hofstadter-io/mvs v0.6.0 h1:QDqGHaq+3Yna/dMSScFJ2Ou/AmYivHgItoC4ugKKv
 github.com/hofstadter-io/mvs v0.6.0/go.mod h1:Cvq23OVa/x1wA720bNCHPgvNuS5+4g2ZWFsWgXfLMUU=
 github.com/hofstadter-io/mvs v0.7.0 h1:nBPwfK1wY7NFMlGooYkiXNE6rqbtr4maGtmDU/rmRno=
 github.com/hofstadter-io/mvs v0.7.0/go.mod h1:EJm3JgN0ogwttI5KsKVx1V+Nf3lBctDSCJAirph37YQ=
+github.com/hofstadter-io/mvs v0.7.2 h1:SM88LC28Ldd8bkOYB5OYVkkwKES0TxLmosTaM3rW98c=
+github.com/hofstadter-io/mvs v0.7.2/go.mod h1:Nt41lfR7rrqMf9SVjgDy4eoN8PJne+iL8CRI2Po4vQA=
 github.com/hofstadter-io/structural v0.1.0/go.mod h1:9TuYfLVHsi8pkqfz7K2SYiE8OAmog7KyX/IHy4BzjRM=
 github.com/hofstadter-io/structural v0.1.2/go.mod h1:aBIZ/puy20x0pol1GrIkWg1cy+4+h9pLCBn4NY32z5A=
 github.com/hofstadter-io/yagu v0.0.1 h1:WNtWyXH2vu8C/Il7R2itvgFHHLy/WLqzbm+A+yPYFSc=
 github.com/hofstadter-io/yagu v0.0.1/go.mod h1:UWTxRZtLMwWDfYcKPaWS6Bc4VZT+ue5P6yJcpS323rM=
+github.com/hofstadter-io/yagu v0.0.3 h1:VheQUfbnC7IJ93BN5d1BFBEr6r3CN7loVcG/EpW690o=
+github.com/hofstadter-io/yagu v0.0.3/go.mod h1:UWTxRZtLMwWDfYcKPaWS6Bc4VZT+ue5P6yJcpS323rM=
 github.com/inconshreveable/mousetrap v1.0.0 h1:Z8tu5sraLXCXIcARxBp/8cbvlwVa7Z1NHg9XEKhtSvM=
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
 github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 h1:BQSFePA1RWJOlocH6Fxy8MmwDt+yVQYULKfN0RoTN8A=

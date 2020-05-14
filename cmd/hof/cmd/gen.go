@@ -53,7 +53,7 @@ var GenCmd = &cobra.Command{
 
 		cs := strings.Fields(cmd.CommandPath())
 		c := strings.Join(cs[1:], "/")
-		ga.SendGaEvent(c, strings.Join(args, "/"), 0)
+		ga.SendGaEvent(c, "<omit>", 0)
 
 	},
 

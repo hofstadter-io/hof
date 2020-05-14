@@ -24,7 +24,7 @@ var AuthCmd = &cobra.Command{
 
 		cs := strings.Fields(cmd.CommandPath())
 		c := strings.Join(cs[1:], "/")
-		ga.SendGaEvent(c, strings.Join(args, "/"), 0)
+		ga.SendGaEvent(c, "<omit>", 0)
 
 	},
 }
@@ -34,8 +34,7 @@ func init() {
 	f := func(cmd *cobra.Command, args []string) {
 		cs := strings.Fields(cmd.CommandPath())
 		c := strings.Join(cs[1:], "/")
-		as := strings.Join(args, "/")
-		ga.SendGaEvent(c+"/help", as, 0)
+		ga.SendGaEvent(c+"/help", "<omit>", 0)
 		hf(cmd, args)
 	}
 	AuthCmd.SetHelpFunc(f)
