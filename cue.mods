@@ -4,5 +4,5 @@ cue master
 
 require (
   github.com/hofstadter-io/hofmod-cli v0.5.3
-  github.com/hofstadter-io/mvs v0.7.2
+  github.com/hofstadter-io/mvs v0.7.3
 )

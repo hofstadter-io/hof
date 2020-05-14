@@ -13,9 +13,8 @@
 *.out
 
 # GoReleaser
-dist
+dist/
 /design/output
 /cue.mod/pkg/
 /vendor/
-/.hof/
 /hof-cpu.prof

@@ -121,6 +121,8 @@ github.com/hofstadter-io/mvs v0.7.0 h1:nBPwfK1wY7NFMlGooYkiXNE6rqbtr4maGtmDU/rmR
 github.com/hofstadter-io/mvs v0.7.0/go.mod h1:EJm3JgN0ogwttI5KsKVx1V+Nf3lBctDSCJAirph37YQ=
 github.com/hofstadter-io/mvs v0.7.2 h1:SM88LC28Ldd8bkOYB5OYVkkwKES0TxLmosTaM3rW98c=
 github.com/hofstadter-io/mvs v0.7.2/go.mod h1:Nt41lfR7rrqMf9SVjgDy4eoN8PJne+iL8CRI2Po4vQA=
+github.com/hofstadter-io/mvs v0.7.3 h1:CinQy820oyZ3isKnNzIzjknjPhMkPoOIYxdadPNKARY=
+github.com/hofstadter-io/mvs v0.7.3/go.mod h1:Nt41lfR7rrqMf9SVjgDy4eoN8PJne+iL8CRI2Po4vQA=
 github.com/hofstadter-io/structural v0.1.0/go.mod h1:9TuYfLVHsi8pkqfz7K2SYiE8OAmog7KyX/IHy4BzjRM=
 github.com/hofstadter-io/structural v0.1.2/go.mod h1:aBIZ/puy20x0pol1GrIkWg1cy+4+h9pLCBn4NY32z5A=
 github.com/hofstadter-io/yagu v0.0.1 h1:WNtWyXH2vu8C/Il7R2itvgFHHLy/WLqzbm+A+yPYFSc=
