@@ -72,6 +72,7 @@ var UpdateCmd = &cobra.Command{
 			return
 		} else {
 			if UpdateCheckFlag {
+				PrintUpdateAvailable()
 				return
 			}
 		}
@@ -180,7 +181,10 @@ func CheckUpdate(manual bool) (ver ProgramVersion, err error) {
 	return ver, nil
 }
 
-func WaitPrintUpdateAvail() {
+func WaitPrintUpdateAvailable() {
+	if os.Getenv("HOF_UPDATES_DISABLED") != "" {
+		return
+	}
 	for i := 0; i < 20 && !UpdateStarted && !UpdateChecked && !UpdateErrored; i++ {
 		time.Sleep(50 * time.Millisecond)
 	}
