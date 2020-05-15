@@ -109,7 +109,7 @@ func init() {
 	RootCmd.AddCommand(ModCmd)
 	RootCmd.AddCommand(RunCmd)
 	RootCmd.AddCommand(CueCmd)
-	RootCmd.AddCommand(ModelsetCmd)
+	RootCmd.AddCommand(ModelCmd)
 	RootCmd.AddCommand(StoreCmd)
 	RootCmd.AddCommand(ImportCmd)
 	RootCmd.AddCommand(ExportCmd)
