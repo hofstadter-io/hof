@@ -39,10 +39,7 @@ import (
 	]
 
 	PersistentPrerun: true
-	PersistentPrerunBody: """
-    lib.InitLangs()
-		runtime.Init()
-  """
+	PersistentPrerunBody: "lib.InitLangs(); runtime.Init()"
 
 	Commands: [
     // meta

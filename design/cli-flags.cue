@@ -62,7 +62,7 @@ import (
     Help:    "turn off output and assume defaults at prompts"
   },
   {
-    Name:    "impersonate-account"
+    Name:    "ImpersonateAccount"
     Long:    "impersonate-account"
     Short:   "I"
     Type:    "string"
@@ -70,7 +70,7 @@ import (
     Help:    "account to impersonate for this hof execution, relies on having permission to impersonate and avoids need for credentials"
   },
   {
-    Name:    "trace-token"
+    Name:    "traceToken"
     Long:    "trace-token"
     Short:   ""
     Type:    "string"
@@ -78,12 +78,22 @@ import (
     Help:    "used to help debug issues"
   },
   {
-    Name:    "log-http"
+    Name:    "LogHTTP"
     Long:    "log-http"
     Short:   ""
     Type:    "string"
     Default: ""
     Help:    "used to help debug issues"
+  },
+
+	// Keep this around for DMA legacy for the moment
+	{
+    Name:    "creds"
+    Long:    "creds"
+    Short:   ""
+    Type:    "string"
+    Default: ""
+    Help:    "The path to a hof creds file"
   },
 ]
 

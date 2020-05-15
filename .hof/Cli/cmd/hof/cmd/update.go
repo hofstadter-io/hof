@@ -49,7 +49,7 @@ var UpdateCmd = &cobra.Command{
 
 	Use: "update",
 
-	Short: "update the dma tool",
+	Short: "update the hof tool",
 
 	Long: UpdateLong,
 

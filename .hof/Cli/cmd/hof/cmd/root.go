@@ -10,6 +10,8 @@ import (
 
 	"github.com/hofstadter-io/mvs/lib"
 
+	"github.com/hofstadter-io/hof/lib/runtime"
+
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 
 	"github.com/hofstadter-io/hof/cmd/hof/pflags"
@@ -19,16 +21,23 @@ var hofLong = `Polyglot Code Gereration Framework`
 
 func init() {
 
-	RootCmd.PersistentFlags().StringVarP(&pflags.RootConfigPflag, "config", "c", "", "Some config file path")
-	RootCmd.PersistentFlags().StringVarP(&pflags.RootIdentityPflag, "identity", "I", "", "the Studios Auth Identity to use during this hof execution")
-	RootCmd.PersistentFlags().StringVarP(&pflags.RootContextPflag, "context", "C", "", "the Studios Context to use during this hof execution")
-	RootCmd.PersistentFlags().StringVarP(&pflags.RootAccountPflag, "account", "A", "", "the Studios Account to use during this hof execution")
-	RootCmd.PersistentFlags().StringVarP(&pflags.RootProjectPflag, "project", "P", "", "the Studios Project to use during this hof execution")
+	RootCmd.PersistentFlags().StringVarP(&pflags.RootConfigPflag, "config", "C", "", "Path to a hof configuration file")
+	RootCmd.PersistentFlags().StringVarP(&pflags.RootAccountPflag, "account", "A", "", "the account context to use during this hof execution")
+	RootCmd.PersistentFlags().StringVarP(&pflags.RootBillingPflag, "billing", "B", "", "the billing context to use during this hof execution")
+	RootCmd.PersistentFlags().StringVarP(&pflags.RootProjectPflag, "project", "P", "", "the project context to use during this hof execution")
+	RootCmd.PersistentFlags().StringSliceVarP(&pflags.RootLabelsPflag, "label", "L", nil, "Labels for use across all commands")
+	RootCmd.PersistentFlags().StringVarP(&pflags.RootVerbosityPflag, "verbosity", "v", "", "set the verbosity of output")
+	RootCmd.PersistentFlags().StringVarP(&pflags.RootQuietPflag, "quiet", "q", "", "turn off output and assume defaults at prompts")
+	RootCmd.PersistentFlags().StringVarP(&pflags.RootImpersonateAccountPflag, "impersonate-account", "I", "", "account to impersonate for this hof execution, relies on having permission to impersonate and avoids need for credentials")
+	RootCmd.PersistentFlags().StringVarP(&pflags.RootTraceTokenPflag, "trace-token", "", "", "used to help debug issues")
+	RootCmd.PersistentFlags().StringVarP(&pflags.RootLogHTTPPflag, "log-http", "", "", "used to help debug issues")
+	RootCmd.PersistentFlags().StringVarP(&pflags.RootCredsPflag, "creds", "", "", "The path to a hof creds file")
 }
 
 func RootPersistentPreRun(args []string) (err error) {
 
 	lib.InitLangs()
+	runtime.Init()
 
 	return err
 }
@@ -91,6 +100,7 @@ func init() {
 	RootCmd.SetHelpFunc(f)
 
 	cobra.OnInitialize(initConfig)
+	RootCmd.AddCommand(InitCmd)
 	RootCmd.AddCommand(AuthCmd)
 	RootCmd.AddCommand(ConfigCmd)
 	RootCmd.AddCommand(NewCmd)
@@ -99,6 +109,12 @@ func init() {
 	RootCmd.AddCommand(ModCmd)
 	RootCmd.AddCommand(RunCmd)
 	RootCmd.AddCommand(CueCmd)
+	RootCmd.AddCommand(ModelsetCmd)
+	RootCmd.AddCommand(StoreCmd)
+	RootCmd.AddCommand(ImportCmd)
+	RootCmd.AddCommand(ExportCmd)
+	RootCmd.AddCommand(UiCmd)
+	RootCmd.AddCommand(HackCmd)
 }
 
 func initConfig() {

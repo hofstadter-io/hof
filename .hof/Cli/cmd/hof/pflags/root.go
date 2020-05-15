@@ -1,9 +1,15 @@
 package pflags
 
 var (
-	RootConfigPflag   string
-	RootIdentityPflag string
-	RootContextPflag  string
-	RootAccountPflag  string
-	RootProjectPflag  string
+	RootConfigPflag             string
+	RootAccountPflag            string
+	RootBillingPflag            string
+	RootProjectPflag            string
+	RootLabelsPflag             []string
+	RootVerbosityPflag          string
+	RootQuietPflag              string
+	RootImpersonateAccountPflag string
+	RootTraceTokenPflag         string
+	RootLogHTTPPflag            string
+	RootCredsPflag              string
 )
