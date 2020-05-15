@@ -1,7 +1,12 @@
 steps:
 
 - name: 'gcr.io/cloud-builders/go:debian'
-  args: [ 'build', '-o', 'hof-$TAG_NAME']
+  args: [ 'mod', 'vendor']
+  env:
+    - 'PROJECT_ROOT=github.com/hofstadter-io/hof'
+
+- name: 'gcr.io/cloud-builders/go:debian'
+  args: [ 'build', '-o', 'hof-$TAG_NAME', 'cmd/hof/main.go']
   env:
     - 'PROJECT_ROOT=github.com/hofstadter-io/hof'
 
