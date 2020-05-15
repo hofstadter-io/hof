@@ -7,7 +7,7 @@ import (
 #InitCommand: schema.#Command & {
   Name:    "init"
   Usage:   "init"
-  Short:   "init the current directory for dma usage."
+  Short:   "init the current directory for hof usage."
   Long:    Short
 }
 

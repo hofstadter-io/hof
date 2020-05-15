@@ -4,7 +4,7 @@ import (
 	"github.com/hofstadter-io/hofmod-cuefig/schema"
 )
 
-#DmaConfig: schema.#Config & {
+#HofConfig: schema.#Config & {
   Name: "config"
   Entrypoint: "\(#CLI.ConfigDir)/config.cue"
 
@@ -19,7 +19,7 @@ import (
   }
 }
 
-#DmaCredentials: schema.#Config & {
+#HofCredentials: schema.#Config & {
   Name: "creds"
   Entrypoint: "\(#CLI.ConfigDir)/credentials.cue"
 
