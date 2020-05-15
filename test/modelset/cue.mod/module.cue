@@ -1,0 +1,1 @@
+	module: "github.com/hofstadter-io/dma/test"

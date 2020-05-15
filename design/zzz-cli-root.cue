@@ -8,7 +8,7 @@ import (
 #Module: "github.com/hofstadter-io/hof"
 
 #_LibImport: [
-	schema.#Import & {Path: #CLI.Package + "/lib"},
+	schema.#Import & {Path: #Module + "/lib"},
 ]
 
 #CLI: schema.#Cli & {
@@ -28,20 +28,25 @@ import (
 
   Pflags: #CliPflags
 
+  PersistentPrerun: true
+  PersistentPostrun: true
   // EnablePProf: true
 
 
 	Imports: [
 		{Path: "github.com/hofstadter-io/mvs/lib"},
+		{Path: "github.com/hofstadter-io/hof/lib/runtime"},
 	]
 
 	PersistentPrerun: true
 	PersistentPrerunBody: """
     lib.InitLangs()
+		runtime.Init()
   """
 
 	Commands: [
     // meta
+    #InitCommand,
     #AuthCommand,
     #ConfigCommand,
 
@@ -55,6 +60,21 @@ import (
     #RunCommand,
     #CueCommand,
 
+    #ModelCommand,
+    #StoreCommand,
+
+    #ImportCommand,
+    #ExportCommand,
+
+    #UiCommand,
+
+    // for dev
+    schema.#Command & {
+      Name:    "hack"
+      Usage:   "hack ..."
+      Short:   "development command"
+      Long: Short
+    },
 	]
 }
 

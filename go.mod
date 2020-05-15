@@ -18,9 +18,10 @@ require (
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/google/uuid v1.1.1
 	github.com/hofstadter-io/data-utils v0.0.0-20200128210141-0a3e569b27ed
+	github.com/hofstadter-io/dma v0.0.5
 	github.com/hofstadter-io/dotpath v0.0.0-20191027071558-52e2819b7d2d
 	github.com/hofstadter-io/mvs v0.7.6
-	github.com/hofstadter-io/structural v0.1.2 // indirect
+	github.com/hofstadter-io/structural v0.1.3 // indirect
 	github.com/hofstadter-io/yagu v0.0.3
 	github.com/kr/pretty v0.1.0
 	github.com/mattn/go-zglob v0.0.1
@@ -48,3 +49,4 @@ require (
 
 replace cuelang.org/go => ../../../cue/cue
 
+replace github.com/hofstadter-io/structural => ../structural
