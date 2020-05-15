@@ -12,4 +12,4 @@ jobs:
 
       # specify any bash command here prefixed with `run: `
       - run: go mod vendor
-      - run: go build
+      - run: go build -o hof cmd/hof/main.go
