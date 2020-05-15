@@ -2,16 +2,217 @@ package design
 
 import (
 	"github.com/hofstadter-io/hofmod-cli/schema"
-
-	"github.com/hofstadter-io/mvs"
 )
+
+#_ModCmdImports: [
+	{Path: #Module + "/lib/mod", ...},
+]
 
 #ModCommand: schema.#Command & {
   Name:  "mod"
   Usage: "mod"
   Aliases: ["m"]
-  Short:    "manage project modules"
-  Long:     "Hof has mvs embedded, so you can do all the same things from this subcommand"
-  Commands: mvs.#CLI.Commands
-}
+	Short: "mod subcmd is a polyglot dependency management tool based on go mods"
+	Long: """
+  The mod subcmd is a polyglot dependency management tool based on go mods.
 
+  mod file format:
+
+    module = "<module path>"
+
+    <name> = "version"
+
+    require (
+      ...
+    )
+
+    replace <module path> => <local path>
+    ...
+  """
+
+	OmitRun: true
+
+	Imports: [
+		schema.#Import & {Path: #Module + "/lib/mod"},
+	]
+
+	PersistentPrerun: true
+	PersistentPrerunBody: """
+    mod.InitLangs()
+  """
+	Commands: [
+		schema.#Command & {
+			Name:  "info"
+			Usage: "info [language]"
+			Short: "print info about languages and modders known to mvs"
+			Long: """
+        print info about languages and modders known to mvs
+          - no arg prints a list of known languages
+          - an arg prints info about the language modder configuration that would be used
+      """
+
+			Args: [
+				schema.#Arg & {
+					Name: "lang"
+					Type: "string"
+					Help: "name of the language to print info about"
+				},
+			]
+
+			Imports: #_ModCmdImports
+
+			Body: """
+      msg, err := mod.LangInfo(lang)
+      if err != nil {
+        fmt.Println(err)
+        os.Exit(1)
+      }
+      fmt.Println(msg)
+      """
+		},
+		schema.#Command & {
+			Name:  "convert"
+			Usage: "convert <lang> <file>"
+			Short: "convert another package system to MVS."
+			Long:  Short
+
+			Args: [
+				schema.#Arg & {
+					Name:     "lang"
+					Type:     "string"
+					Required: true
+					Help:     "name of the language to print info about"
+				},
+				schema.#Arg & {
+					Name:     "filename"
+					Type:     "string"
+					Required: true
+					Help:     "existing package filename, depending on language"
+				},
+			]
+
+			Imports: #_ModCmdImports
+
+			Body: """
+      err = mod.Convert(lang, filename)
+      if err != nil {
+        fmt.Println(err)
+        os.Exit(1)
+      }
+      """
+		},
+		schema.#Command & {
+			Name:  "graph"
+			Usage: "graph"
+			Short: "print module requirement graph"
+			Long:  Short
+
+			Imports: #_ModCmdImports
+
+			Body: """
+      err = mod.ProcessLangs("graph", args)
+      if err != nil {
+        fmt.Println(err)
+        os.Exit(1)
+      }
+      """
+		},
+		schema.#Command & {
+			Name:  "status"
+			Usage: "status"
+			Short: "print module dependencies status"
+			Long:  Short
+
+			Imports: #_ModCmdImports
+
+			Body: """
+      err = mod.ProcessLangs("status", args)
+      if err != nil {
+        fmt.Println(err)
+        os.Exit(1)
+      }
+      """
+		},
+		schema.#Command & {
+			Name:  "init"
+			Usage: "init <lang> <module>"
+			Short: "initialize a new module in the current directory"
+			Long:  Short
+
+			Args: [
+				schema.#Arg & {
+					Name:     "lang"
+					Type:     "string"
+					Required: true
+					Help:     "name of the language to print info about"
+				},
+				schema.#Arg & {
+					Name:     "module"
+					Type:     "string"
+					Required: true
+					Help:     "module name or path, depending on language"
+				},
+			]
+
+			Imports: #_ModCmdImports
+
+			Body: """
+      err = mod.Init(lang, module)
+      if err != nil {
+        fmt.Println(err)
+        os.Exit(1)
+      }
+      """
+		},
+		schema.#Command & {
+			Name:  "tidy"
+			Usage: "tidy [langs...]"
+			Short: "add missinad and remove unused modules"
+			Long:  Short
+
+			Imports: #_ModCmdImports
+
+			Body: """
+      err = mod.ProcessLangs("tidy", args)
+      if err != nil {
+        fmt.Println(err)
+        os.Exit(1)
+      }
+      """
+		},
+		schema.#Command & {
+			Name:  "vendor"
+			Usage: "vendor [langs...]"
+			Short: "make a vendored copy of dependencies"
+			Long:  Short
+
+			Imports: #_ModCmdImports
+
+			Body: """
+      err = mod.ProcessLangs("vendor", args)
+      if err != nil {
+        fmt.Println(err)
+        os.Exit(1)
+      }
+      """
+		},
+		schema.#Command & {
+			Name:  "verify"
+			Usage: "verify [langs...]"
+			Short: "verify dependencies have expected content"
+			Long:  Short
+
+			Imports: #_ModCmdImports
+
+			Body: """
+      err = mod.ProcessLangs("verify", args)
+      if err != nil {
+        fmt.Println(err)
+        os.Exit(1)
+      }
+      """
+		},
+
+	]
+
+}
