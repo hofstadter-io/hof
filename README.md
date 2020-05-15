@@ -299,17 +299,30 @@ Val.a = 'a'
 
 ```
 
+### Directory structure
+
+`schema` holds the Cue code which implements the very core and foundational concepts in hofland.
+
+`hof` main development files
+- `lib` houses much of the hand written code, libraries, and core logic 
+- `docs` holds some project oriented development. There is a full site dedicated to user facing docs.
+- `test` contains many cases, files, scenarios, and drivers for testing.
+
+`hof` generated files (or self-referential development;)
+- `design` contains the Cue code for the capabilities generated here
+- `ci` files for cloud builds with mainly testing
+- `cmd` files for the cli structure and helpers
+- `gen` files implementing the other capabilities here
 
 ### Modules and Examples
 
 Projects:
 
 - This project uses itself to generate various pieces like the cli structure and the release process.
-- [MVS](https://github.com/hofstadter-io/mvs) is a dependency management system based on `go mod`. It uses the `hofmod-cli` generator and is imported into `hof` here.
 
 Modules:
 
-- [hofmod-model](https://github.com/hofstadter-io/hofmod-model) - A module for representing types and their relations. Batteries are being included.
+- [hofmod-model](https://github.com/hofstadter-io/hofmod-model) - A module for representing common types and their relations.
 - [hofmod-cli](https://github.com/hofstadter-io/hofmod-cli) - Create CLI infrastructure based on the Golang Cobra library.
 - [hofmod-releaser](https://github.com/hofstadter-io/hofmod-releaser) - Release code or binaries to GitHub and Docker with minimal configuration. Based on [GoReleaser](https://goreleaser.com/).
 - [hofmod-config](https://github.com/hofstadter-io/hofmod-config) - Cloud native config and secret files using the Golang Viper library and adding dynamic reload in Kubernetes.
