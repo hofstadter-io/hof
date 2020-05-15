@@ -2,4 +2,4 @@ module github.com/hofstadter-io/dma/test
 
 cue master
 
-replace github.com/hofstadter-io/dma => ../
+replace github.com/hofstadter-io/dma => ../../

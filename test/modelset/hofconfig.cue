@@ -1,7 +1,7 @@
-package dma
+package hofconfig
 
 import (
-	"github.com/hofstadter-io/dma/schema"
+	"github.com/hofstadter-io/hof/schema"
 )
 
 modelsets: schema.#Modelsets & {

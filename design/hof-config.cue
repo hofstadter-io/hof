@@ -6,7 +6,7 @@ import (
 
 #HofConfig: schema.#Config & {
   Name: "config"
-  Entrypoint: "\(#CLI.ConfigDir)/config.cue"
+  Entrypoint: "hofconfig.cue"
 
   ConfigSchema: {
     models: {
