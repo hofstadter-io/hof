@@ -9,5 +9,5 @@ require (
   github.com/hofstadter-io/hofmod-cuefig v0.0.1
 )
 
-replace github.com/hofstadter-io/hofmod-cli    => ../../mods/hofmod-cli
-replace github.com/hofstadter-io/hofmod-cuefig => ../../mods/hofmod-cuefig
+replace github.com/hofstadter-io/hofmod-cli    => ../mods/hofmod-cli
+replace github.com/hofstadter-io/hofmod-cuefig => ../mods/hofmod-cuefig

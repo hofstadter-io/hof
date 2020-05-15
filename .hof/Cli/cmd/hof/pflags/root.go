@@ -7,7 +7,7 @@ var (
 	RootProjectPflag            string
 	RootLabelsPflag             []string
 	RootVerbosityPflag          string
-	RootQuietPflag              string
+	RootQuietPflag              bool
 	RootImpersonateAccountPflag string
 	RootTraceTokenPflag         string
 	RootLogHTTPPflag            string

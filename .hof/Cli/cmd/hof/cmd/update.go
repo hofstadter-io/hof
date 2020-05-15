@@ -33,7 +33,7 @@ var (
 
 func init() {
 	UpdateCmd.Flags().BoolVarP(&UpdateCheckFlag, "check", "", false, "set to only check for an update")
-	UpdateCmd.Flags().StringVarP(&UpdateVersionFlag, "version", "v", "", "the version to update to")
+	UpdateCmd.Flags().StringVarP(&UpdateVersionFlag, "version", "V", "", "the version to update to")
 }
 
 const updateMessage = `

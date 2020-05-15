@@ -27,7 +27,7 @@ func init() {
 	RootCmd.PersistentFlags().StringVarP(&pflags.RootProjectPflag, "project", "P", "", "the project context to use during this hof execution")
 	RootCmd.PersistentFlags().StringSliceVarP(&pflags.RootLabelsPflag, "label", "L", nil, "Labels for use across all commands")
 	RootCmd.PersistentFlags().StringVarP(&pflags.RootVerbosityPflag, "verbosity", "v", "", "set the verbosity of output")
-	RootCmd.PersistentFlags().StringVarP(&pflags.RootQuietPflag, "quiet", "q", "", "turn off output and assume defaults at prompts")
+	RootCmd.PersistentFlags().BoolVarP(&pflags.RootQuietPflag, "quiet", "q", false, "turn off output and assume defaults at prompts")
 	RootCmd.PersistentFlags().StringVarP(&pflags.RootImpersonateAccountPflag, "impersonate-account", "I", "", "account to impersonate for this hof execution, relies on having permission to impersonate and avoids need for credentials")
 	RootCmd.PersistentFlags().StringVarP(&pflags.RootTraceTokenPflag, "trace-token", "", "", "used to help debug issues")
 	RootCmd.PersistentFlags().StringVarP(&pflags.RootLogHTTPPflag, "log-http", "", "", "used to help debug issues")

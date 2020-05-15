@@ -57,7 +57,7 @@ import (
     Name:    "quiet"
     Long:    "quiet"
     Short:   "q"
-    Type:    "string"
+    Type:    "bool"
     Default: ""
     Help:    "turn off output and assume defaults at prompts"
   },
