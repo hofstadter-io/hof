@@ -8,7 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/hofstadter-io/mvs/lib"
+	"github.com/hofstadter-io/hof/lib/mod"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
@@ -17,7 +17,7 @@ var graphLong = `print module requirement graph`
 
 func GraphRun(args []string) (err error) {
 
-	err = lib.ProcessLangs("graph", args)
+	err = mod.ProcessLangs("graph", args)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

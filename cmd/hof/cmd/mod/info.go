@@ -8,7 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/hofstadter-io/mvs/lib"
+	"github.com/hofstadter-io/hof/lib/mod"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
@@ -19,7 +19,7 @@ var infoLong = `  print info about languages and modders known to mvs
 
 func InfoRun(lang string) (err error) {
 
-	msg, err := lib.LangInfo(lang)
+	msg, err := mod.LangInfo(lang)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

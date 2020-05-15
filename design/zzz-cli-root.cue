@@ -34,12 +34,11 @@ import (
 
 
 	Imports: [
-		{Path: "github.com/hofstadter-io/mvs/lib"},
 		{Path: "github.com/hofstadter-io/hof/lib/runtime"},
 	]
 
 	PersistentPrerun: true
-	PersistentPrerunBody: "lib.InitLangs(); runtime.Init()"
+	PersistentPrerunBody: "runtime.Init()"
 
 	Commands: [
     // meta

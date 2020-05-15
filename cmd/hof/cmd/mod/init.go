@@ -8,7 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/hofstadter-io/mvs/lib"
+	"github.com/hofstadter-io/hof/lib/mod"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
@@ -17,7 +17,7 @@ var initLong = `initialize a new module in the current directory`
 
 func InitRun(lang string, module string) (err error) {
 
-	err = lib.Init(lang, module)
+	err = mod.Init(lang, module)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

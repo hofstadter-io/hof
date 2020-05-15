@@ -8,8 +8,6 @@ import (
 
 	// "github.com/spf13/viper"
 
-	"github.com/hofstadter-io/mvs/lib"
-
 	"github.com/hofstadter-io/hof/lib/runtime"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
@@ -36,7 +34,6 @@ func init() {
 
 func RootPersistentPreRun(args []string) (err error) {
 
-	lib.InitLangs()
 	runtime.Init()
 
 	return err

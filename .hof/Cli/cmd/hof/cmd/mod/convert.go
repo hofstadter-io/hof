@@ -8,7 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/hofstadter-io/mvs/lib"
+	"github.com/hofstadter-io/hof/lib/mod"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
@@ -17,7 +17,7 @@ var convertLong = `convert another package system to MVS.`
 
 func ConvertRun(lang string, filename string) (err error) {
 
-	err = lib.Convert(lang, filename)
+	err = mod.Convert(lang, filename)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

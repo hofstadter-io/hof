@@ -8,14 +8,31 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/hofstadter-io/hof/lib/mod"
+
 	"github.com/hofstadter-io/hof/cmd/hof/cmd/mod"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var modLong = `Hof has mvs embedded, so you can do all the same things from this subcommand`
+var modLong = `The mod subcmd is a polyglot dependency management tool based on go mods.
 
-func ModRun(args []string) (err error) {
+mod file format:
+
+  module = "<module path>"
+
+  <name> = "version"
+
+  require (
+    ...
+  )
+
+  replace <module path> => <local path>
+  ...`
+
+func ModPersistentPreRun(args []string) (err error) {
+
+	mod.InitLangs()
 
 	return err
 }
@@ -28,9 +45,21 @@ var ModCmd = &cobra.Command{
 		"m",
 	},
 
-	Short: "manage project modules",
+	Short: "mod subcmd is a polyglot dependency management tool based on go mods",
 
 	Long: modLong,
+
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		var err error
+
+		// Argument Parsing
+
+		err = ModPersistentPreRun(args)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	},
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
@@ -38,18 +67,6 @@ var ModCmd = &cobra.Command{
 		c := strings.Join(cs[1:], "/")
 		ga.SendGaEvent(c, "<omit>", 0)
 
-	},
-
-	Run: func(cmd *cobra.Command, args []string) {
-		var err error
-
-		// Argument Parsing
-
-		err = ModRun(args)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
 	},
 }
 
@@ -70,5 +87,4 @@ func init() {
 	ModCmd.AddCommand(cmdmod.TidyCmd)
 	ModCmd.AddCommand(cmdmod.VendorCmd)
 	ModCmd.AddCommand(cmdmod.VerifyCmd)
-	ModCmd.AddCommand(cmdmod.HackCmd)
 }
