@@ -30,14 +30,26 @@ var AuthCmd = &cobra.Command{
 }
 
 func init() {
-	hf := AuthCmd.HelpFunc()
-	f := func(cmd *cobra.Command, args []string) {
+
+	help := AuthCmd.HelpFunc()
+	usage := AuthCmd.UsageFunc()
+
+	thelp := func(cmd *cobra.Command, args []string) {
 		cs := strings.Fields(cmd.CommandPath())
 		c := strings.Join(cs[1:], "/")
 		ga.SendGaEvent(c+"/help", "<omit>", 0)
-		hf(cmd, args)
+		help(cmd, args)
 	}
-	AuthCmd.SetHelpFunc(f)
+	tusage := func(cmd *cobra.Command) error {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		return usage(cmd)
+	}
+	AuthCmd.SetHelpFunc(thelp)
+	AuthCmd.SetUsageFunc(tusage)
+
 	AuthCmd.AddCommand(cmdauth.LoginCmd)
 	AuthCmd.AddCommand(cmdauth.TestCmd)
+
 }

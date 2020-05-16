@@ -13,7 +13,7 @@ import (
 
   OmitRun: true
 
-  Commands: [...schema.#Command] & [
+  Commands: [
 		{
 			Name:    "set"
 			Usage:   "set"
@@ -22,14 +22,14 @@ import (
 
 			OmitRun: true
 
-			Commands: [...schema.#Command] & [
+			Commands: [
 				{
 					Name:  "create"
 					Usage: "create"
 					Short: "create a modelset"
 					Long:  Short
 
-					Args: [...schema.#Arg] & [
+					Args: [
 						{
 							Name:     "name"
 							Type:     "string"
@@ -49,7 +49,7 @@ import (
 					Usage: "view"
 					Short: "view modelset information"
 					Long:  Short
-					Args: [...schema.#Arg] & [
+					Args: [
 						{
 							Name:     "name"
 							Type:     "string"
@@ -69,7 +69,7 @@ import (
 					Usage: "status"
 					Short: "show the current status for a modelset"
 					Long:  Short
-					Args: [...schema.#Arg] & [
+					Args: [
 						{
 							Name:     "name"
 							Type:     "string"
@@ -83,7 +83,7 @@ import (
 					Usage: "graph"
 					Short: "show the relationship graph for a modelset"
 					Long:  Short
-					Args: [...schema.#Arg] & [
+					Args: [
 						{
 							Name:     "name"
 							Type:     "string"
@@ -97,7 +97,7 @@ import (
 					Usage: "diff"
 					Short: "show the current diff for a modelset"
 					Long:  Short
-					Args: [...schema.#Arg] & [
+					Args: [
 						{
 							Name:     "name"
 							Type:     "string"
@@ -111,7 +111,7 @@ import (
 					Usage: "migrate"
 					Short: "create the next migration for a modelset"
 					Long:  Short
-					Args: [...schema.#Arg] & [
+					Args: [
 						{
 							Name:     "name"
 							Type:     "string"
@@ -125,7 +125,7 @@ import (
 					Usage: "test"
 					Short: "test the current migration and diff for a modelset"
 					Long:  Short
-					Args: [...schema.#Arg] & [
+					Args: [
 						{
 							Name:     "name"
 							Type:     "string"
@@ -139,7 +139,7 @@ import (
 					Usage: "delete"
 					Short: "delete a modelset permentantly"
 					Long:  Short
-					Args: [...schema.#Arg] & [
+					Args: [
 						{
 							Name:     "name"
 							Type:     "string"
@@ -157,7 +157,7 @@ import (
 			Short: "create a modelset"
 			Long:  Short
 
-			Args: [...schema.#Arg] & [
+			Args: [
 				{
 					Name:     "name"
 					Type:     "string"
@@ -177,7 +177,7 @@ import (
 			Usage: "view"
 			Short: "view modelset information"
 			Long:  Short
-			Args: [...schema.#Arg] & [
+			Args: [
 				{
 					Name:     "name"
 					Type:     "string"
@@ -197,7 +197,7 @@ import (
 			Usage: "status"
 			Short: "show the current status for a modelset"
 			Long:  Short
-			Args: [...schema.#Arg] & [
+			Args: [
 				{
 					Name:     "name"
 					Type:     "string"
@@ -211,7 +211,7 @@ import (
 			Usage: "graph"
 			Short: "show the relationship graph for a modelset"
 			Long:  Short
-			Args: [...schema.#Arg] & [
+			Args: [
 				{
 					Name:     "name"
 					Type:     "string"
@@ -225,7 +225,7 @@ import (
 			Usage: "diff"
 			Short: "show the current diff for a modelset"
 			Long:  Short
-			Args: [...schema.#Arg] & [
+			Args: [
 				{
 					Name:     "name"
 					Type:     "string"
@@ -239,7 +239,7 @@ import (
 			Usage: "migrate"
 			Short: "create the next migration for a modelset"
 			Long:  Short
-			Args: [...schema.#Arg] & [
+			Args: [
 				{
 					Name:     "name"
 					Type:     "string"
@@ -253,7 +253,7 @@ import (
 			Usage: "test"
 			Short: "test the current migration and diff for a modelset"
 			Long:  Short
-			Args: [...schema.#Arg] & [
+			Args: [
 				{
 					Name:     "name"
 					Type:     "string"
@@ -267,7 +267,7 @@ import (
 			Usage: "delete"
 			Short: "delete a modelset permentantly"
 			Long:  Short
-			Args: [...schema.#Arg] & [
+			Args: [
 				{
 					Name:     "name"
 					Type:     "string"

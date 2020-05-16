@@ -47,6 +47,15 @@ import (
     Default: ""
     Help:    "the project context to use during this hof execution"
   },
+	// these are more cue specific with a dash of hof
+  {
+    Name:    "package"
+    Long:    "package"
+    Short:   "p"
+    Type:    "string"
+    Default: ""
+    Help:    "the package context to use during this hof execution"
+  },
 	{
 		Name:    "labels"
 		Long:    "label"

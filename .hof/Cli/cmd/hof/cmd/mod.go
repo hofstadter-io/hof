@@ -71,14 +71,25 @@ var ModCmd = &cobra.Command{
 }
 
 func init() {
-	hf := ModCmd.HelpFunc()
-	f := func(cmd *cobra.Command, args []string) {
+
+	help := ModCmd.HelpFunc()
+	usage := ModCmd.UsageFunc()
+
+	thelp := func(cmd *cobra.Command, args []string) {
 		cs := strings.Fields(cmd.CommandPath())
 		c := strings.Join(cs[1:], "/")
 		ga.SendGaEvent(c+"/help", "<omit>", 0)
-		hf(cmd, args)
+		help(cmd, args)
 	}
-	ModCmd.SetHelpFunc(f)
+	tusage := func(cmd *cobra.Command) error {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		return usage(cmd)
+	}
+	ModCmd.SetHelpFunc(thelp)
+	ModCmd.SetUsageFunc(tusage)
+
 	ModCmd.AddCommand(cmdmod.InfoCmd)
 	ModCmd.AddCommand(cmdmod.ConvertCmd)
 	ModCmd.AddCommand(cmdmod.GraphCmd)
@@ -87,4 +98,5 @@ func init() {
 	ModCmd.AddCommand(cmdmod.TidyCmd)
 	ModCmd.AddCommand(cmdmod.VendorCmd)
 	ModCmd.AddCommand(cmdmod.VerifyCmd)
+
 }

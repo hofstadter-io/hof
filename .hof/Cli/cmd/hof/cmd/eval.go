@@ -46,3 +46,25 @@ var EvalCmd = &cobra.Command{
 		}
 	},
 }
+
+func init() {
+
+	help := EvalCmd.HelpFunc()
+	usage := EvalCmd.UsageFunc()
+
+	thelp := func(cmd *cobra.Command, args []string) {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		help(cmd, args)
+	}
+	tusage := func(cmd *cobra.Command) error {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		return usage(cmd)
+	}
+	EvalCmd.SetHelpFunc(thelp)
+	EvalCmd.SetUsageFunc(tusage)
+
+}

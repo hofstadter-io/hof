@@ -54,13 +54,25 @@ var TopicCmd = &cobra.Command{
 }
 
 func init() {
-	hf := TopicCmd.HelpFunc()
-	f := func(cmd *cobra.Command, args []string) {
+
+	help := TopicCmd.HelpFunc()
+	usage := TopicCmd.UsageFunc()
+
+	thelp := func(cmd *cobra.Command, args []string) {
 		cs := strings.Fields(cmd.CommandPath())
 		c := strings.Join(cs[1:], "/")
 		ga.SendGaEvent(c+"/help", "<omit>", 0)
-		hf(cmd, args)
+		help(cmd, args)
 	}
-	TopicCmd.SetHelpFunc(f)
+	tusage := func(cmd *cobra.Command) error {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		return usage(cmd)
+	}
+	TopicCmd.SetHelpFunc(thelp)
+	TopicCmd.SetUsageFunc(tusage)
+
 	TopicCmd.AddCommand(cmdtopic.WorkspaceCmd)
+
 }

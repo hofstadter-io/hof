@@ -34,14 +34,25 @@ var ModelCmd = &cobra.Command{
 }
 
 func init() {
-	hf := ModelCmd.HelpFunc()
-	f := func(cmd *cobra.Command, args []string) {
+
+	help := ModelCmd.HelpFunc()
+	usage := ModelCmd.UsageFunc()
+
+	thelp := func(cmd *cobra.Command, args []string) {
 		cs := strings.Fields(cmd.CommandPath())
 		c := strings.Join(cs[1:], "/")
 		ga.SendGaEvent(c+"/help", "<omit>", 0)
-		hf(cmd, args)
+		help(cmd, args)
 	}
-	ModelCmd.SetHelpFunc(f)
+	tusage := func(cmd *cobra.Command) error {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		return usage(cmd)
+	}
+	ModelCmd.SetHelpFunc(thelp)
+	ModelCmd.SetUsageFunc(tusage)
+
 	ModelCmd.AddCommand(cmdmodel.SetCmd)
 	ModelCmd.AddCommand(cmdmodel.CreateCmd)
 	ModelCmd.AddCommand(cmdmodel.ViewCmd)
@@ -52,4 +63,5 @@ func init() {
 	ModelCmd.AddCommand(cmdmodel.MigrateCmd)
 	ModelCmd.AddCommand(cmdmodel.TestCmd)
 	ModelCmd.AddCommand(cmdmodel.DeleteCmd)
+
 }

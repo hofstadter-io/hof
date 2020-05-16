@@ -6,6 +6,7 @@ var (
 	RootAccountPflag            string
 	RootBillingPflag            string
 	RootProjectPflag            string
+	RootPackagePflag            string
 	RootLabelsPflag             []string
 	RootErrorsPflag             bool
 	RootIgnorePflag             bool

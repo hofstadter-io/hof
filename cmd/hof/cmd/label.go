@@ -46,3 +46,25 @@ var LabelCmd = &cobra.Command{
 		}
 	},
 }
+
+func init() {
+
+	help := LabelCmd.HelpFunc()
+	usage := LabelCmd.UsageFunc()
+
+	thelp := func(cmd *cobra.Command, args []string) {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		help(cmd, args)
+	}
+	tusage := func(cmd *cobra.Command) error {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		return usage(cmd)
+	}
+	LabelCmd.SetHelpFunc(thelp)
+	LabelCmd.SetUsageFunc(tusage)
+
+}

@@ -10,4 +10,3 @@ import (
   Short: "extract, transform, and load data"
 	Long: Short
 }
-

@@ -82,3 +82,25 @@ var InitCmd = &cobra.Command{
 		}
 	},
 }
+
+func init() {
+
+	help := InitCmd.HelpFunc()
+	usage := InitCmd.UsageFunc()
+
+	thelp := func(cmd *cobra.Command, args []string) {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		help(cmd, args)
+	}
+	tusage := func(cmd *cobra.Command) error {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		return usage(cmd)
+	}
+	InitCmd.SetHelpFunc(thelp)
+	InitCmd.SetUsageFunc(tusage)
+
+}

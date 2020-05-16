@@ -46,3 +46,25 @@ var ImportCmd = &cobra.Command{
 		}
 	},
 }
+
+func init() {
+
+	help := ImportCmd.HelpFunc()
+	usage := ImportCmd.UsageFunc()
+
+	thelp := func(cmd *cobra.Command, args []string) {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		help(cmd, args)
+	}
+	tusage := func(cmd *cobra.Command) error {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		return usage(cmd)
+	}
+	ImportCmd.SetHelpFunc(thelp)
+	ImportCmd.SetUsageFunc(tusage)
+
+}

@@ -11,4 +11,3 @@ import (
   Short: "add dependencies and new components to the current module or workspace"
 	Long: Short
 }
-

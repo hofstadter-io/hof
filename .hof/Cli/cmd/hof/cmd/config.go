@@ -30,17 +30,29 @@ var ConfigCmd = &cobra.Command{
 }
 
 func init() {
-	hf := ConfigCmd.HelpFunc()
-	f := func(cmd *cobra.Command, args []string) {
+
+	help := ConfigCmd.HelpFunc()
+	usage := ConfigCmd.UsageFunc()
+
+	thelp := func(cmd *cobra.Command, args []string) {
 		cs := strings.Fields(cmd.CommandPath())
 		c := strings.Join(cs[1:], "/")
 		ga.SendGaEvent(c+"/help", "<omit>", 0)
-		hf(cmd, args)
+		help(cmd, args)
 	}
-	ConfigCmd.SetHelpFunc(f)
+	tusage := func(cmd *cobra.Command) error {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		return usage(cmd)
+	}
+	ConfigCmd.SetHelpFunc(thelp)
+	ConfigCmd.SetUsageFunc(tusage)
+
 	ConfigCmd.AddCommand(cmdconfig.CreateCmd)
 	ConfigCmd.AddCommand(cmdconfig.ListCmd)
 	ConfigCmd.AddCommand(cmdconfig.GetCmd)
 	ConfigCmd.AddCommand(cmdconfig.SetCmd)
 	ConfigCmd.AddCommand(cmdconfig.UseCmd)
+
 }

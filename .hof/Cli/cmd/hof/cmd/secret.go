@@ -30,17 +30,29 @@ var SecretCmd = &cobra.Command{
 }
 
 func init() {
-	hf := SecretCmd.HelpFunc()
-	f := func(cmd *cobra.Command, args []string) {
+
+	help := SecretCmd.HelpFunc()
+	usage := SecretCmd.UsageFunc()
+
+	thelp := func(cmd *cobra.Command, args []string) {
 		cs := strings.Fields(cmd.CommandPath())
 		c := strings.Join(cs[1:], "/")
 		ga.SendGaEvent(c+"/help", "<omit>", 0)
-		hf(cmd, args)
+		help(cmd, args)
 	}
-	SecretCmd.SetHelpFunc(f)
+	tusage := func(cmd *cobra.Command) error {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		return usage(cmd)
+	}
+	SecretCmd.SetHelpFunc(thelp)
+	SecretCmd.SetUsageFunc(tusage)
+
 	SecretCmd.AddCommand(cmdsecret.CreateCmd)
 	SecretCmd.AddCommand(cmdsecret.ListCmd)
 	SecretCmd.AddCommand(cmdsecret.GetCmd)
 	SecretCmd.AddCommand(cmdsecret.SetCmd)
 	SecretCmd.AddCommand(cmdsecret.UseCmd)
+
 }
