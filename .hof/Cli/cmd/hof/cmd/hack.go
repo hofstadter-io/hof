@@ -22,6 +22,8 @@ var HackCmd = &cobra.Command{
 
 	Use: "hack ...",
 
+	Hidden: true,
+
 	Short: "development command",
 
 	Long: hackLong,

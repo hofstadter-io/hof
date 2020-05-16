@@ -21,9 +21,9 @@ var ConfigFilepath string
 func init() {
 	cfgdir, err := os.UserConfigDir()
 	if err == nil {
-		ConfigFilepath = filepath.Join(cfgdir, "hofconfig.cue")
+		ConfigFilepath = filepath.Join(cfgdir, ".hofcfg.cue")
 	} else {
-		ConfigFilepath = "hofconfig.cue"
+		ConfigFilepath = ".hofcfg.cue"
 	}
 }
 

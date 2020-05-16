@@ -54,9 +54,9 @@ func (R *Runtime) Init() error {
 		val1, err = cuefig.LoadConfigDefault(R.Config)
 	}
 	if pflags.RootCredsPflag != "" {
-		val2, err = cuefig.LoadCredsConfig(pflags.RootCredsPflag, R.Creds)
+		val2, err = cuefig.LoadSecretConfig(pflags.RootCredsPflag, R.Creds)
 	} else {
-		val2, err = cuefig.LoadCredsDefault(R.Creds)
+		val2, err = cuefig.LoadSecretDefault(R.Creds)
 	}
 
 	if err != nil {

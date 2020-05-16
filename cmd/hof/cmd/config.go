@@ -38,7 +38,7 @@ func init() {
 		hf(cmd, args)
 	}
 	ConfigCmd.SetHelpFunc(f)
-	ConfigCmd.AddCommand(cmdconfig.TestCmd)
+	ConfigCmd.AddCommand(cmdconfig.CreateCmd)
 	ConfigCmd.AddCommand(cmdconfig.ListCmd)
 	ConfigCmd.AddCommand(cmdconfig.GetCmd)
 	ConfigCmd.AddCommand(cmdconfig.SetCmd)

@@ -1,22 +1,24 @@
 package hof
 
 import (
-	cuefig "github.com/hofstadter-io/hofmod-cuefig/gen"
-	cli "github.com/hofstadter-io/hofmod-cli/gen"
-	"github.com/hofstadter-io/hof/design"
+	g_cuefig "github.com/hofstadter-io/hofmod-cuefig/gen"
+	g_cli "github.com/hofstadter-io/hofmod-cli/gen"
+
+	d_cli "github.com/hofstadter-io/hof/design/cli"
+	d_cfg "github.com/hofstadter-io/hof/design/config"
 )
 
-HofGenCli: cli.#HofGenerator & {
+HofGenCli: g_cli.#HofGenerator & {
   Outdir: "./"
-  Cli: design.#CLI
+  Cli: d_cli.#CLI
 }
 
-HofGenConfig: cuefig.#HofGenerator & {
+HofGenConfig: g_cuefig.#HofGenerator & {
   Outdir: "./"
-  Config: design.#HofConfig
+  Config: d_cfg.#HofConfig
 }
 
-HofGenCreds: cuefig.#HofGenerator & {
+HofGenCreds: g_cuefig.#HofGenerator & {
   Outdir: "./"
-  Config: design.#HofCredentials
+  Config: d_cfg.#HofCredentials
 }

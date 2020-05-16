@@ -13,7 +13,7 @@ import (
 
 var getLong = `print a configuration`
 
-func GetRun(name string) (err error) {
+func GetRun(args []string) (err error) {
 
 	return err
 }
@@ -39,21 +39,7 @@ var GetCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		if 0 >= len(args) {
-			fmt.Println("missing required argument: 'Name'")
-			cmd.Usage()
-			os.Exit(1)
-		}
-
-		var name string
-
-		if 0 < len(args) {
-
-			name = args[0]
-
-		}
-
-		err = GetRun(name)
+		err = GetRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

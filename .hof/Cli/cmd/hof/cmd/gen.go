@@ -10,8 +10,6 @@ import (
 
 	"github.com/spf13/viper"
 
-	"github.com/hofstadter-io/hof/lib"
-
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
@@ -31,8 +29,6 @@ func init() {
 }
 
 func GenRun(args []string) (err error) {
-
-	return lib.Gen([]string{}, []string{}, "")
 
 	return err
 }

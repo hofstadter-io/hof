@@ -11,8 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var importLong = `Import and create a data model from a multitude of sources such as
-SQL, NoSQL, object storage, and buckets.`
+var importLong = `convert other formats and systems to hofland`
 
 func ImportRun(args []string) (err error) {
 
@@ -23,7 +22,7 @@ var ImportCmd = &cobra.Command{
 
 	Use: "import",
 
-	Short: "import and create a data model from a multitude of sources",
+	Short: "convert other formats and systems to hofland",
 
 	Long: importLong,
 

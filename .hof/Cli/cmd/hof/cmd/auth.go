@@ -39,4 +39,5 @@ func init() {
 	}
 	AuthCmd.SetHelpFunc(f)
 	AuthCmd.AddCommand(cmdauth.LoginCmd)
+	AuthCmd.AddCommand(cmdauth.TestCmd)
 }

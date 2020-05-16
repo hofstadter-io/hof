@@ -8,9 +8,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/hofstadter-io/hof/lib"
-
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+	"github.com/hofstadter-io/hof/lib"
 )
 
 var genLong = `  generate all the things, from code to data to config...`
@@ -24,13 +23,9 @@ func init() {
 	GenCmd.Flags().StringSliceVarP(&GenGeneratorFlag, "generator", "g", nil, "Generators to run")
 }
 
-func init() {
-
-}
-
 func GenRun(args []string) (err error) {
 
-	fmt.Println("GenFlags", GenGeneratorFlag)
+	// fmt.Println("GenFlags", GenGeneratorFlag)
 
 	return lib.Gen([]string{}, []string{}, "")
 
