@@ -16,24 +16,30 @@ import (
 	"github.com/hofstadter-io/hof/lib/util"
 )
 
-var SecretFilepath string
-
-func init() {
-	cfgdir, err := os.UserConfigDir()
-	if err == nil {
-		SecretFilepath = filepath.Join(cfgdir, ".hofshh.cue")
-	} else {
-		SecretFilepath = ".hofshh.cue"
-	}
-}
+const (
+	SecretEntrypoint = ".hofshh.cue"
+	SecretWorkpath   = ""
+	SecretLocation   = "local"
+)
 
 func LoadSecretDefault(cfg interface{}) (cue.Value, error) {
-	return LoadSecretConfig(SecretFilepath, cfg)
+	return LoadSecretConfig(SecretWorkpath, SecretEntrypoint, cfg)
 }
 
-func LoadSecretConfig(entry string, cfg interface{}) (val cue.Value, err error) {
+func LoadSecretConfig(workpath, entrypoint string, cfg interface{}) (val cue.Value, err error) {
 
-	_, err = os.Lstat(SecretFilepath)
+	fpath := filepath.Join(workpath, entrypoint)
+	_, err = os.Lstat(workpath)
+	if err != nil {
+		if _, ok := err.(*os.PathError); !ok && (strings.Contains(err.Error(), "file does not exist") || strings.Contains(err.Error(), "no such file")) {
+			// error is worse than non-existant
+			return val, err
+		}
+		// otherwise, does not exist, so we should init?
+		// XXX want to let applications decide how to handle this
+		return val, err
+	}
+	_, err = os.Lstat(fpath)
 	if err != nil {
 		if _, ok := err.(*os.PathError); !ok && (strings.Contains(err.Error(), "file does not exist") || strings.Contains(err.Error(), "no such file")) {
 			// error is worse than non-existant
@@ -47,7 +53,7 @@ func LoadSecretConfig(entry string, cfg interface{}) (val cue.Value, err error) 
 	var errs []error
 
 	CueRT := &cue.Runtime{}
-	BIS := load.Instances([]string{entry}, nil)
+	BIS := load.Instances([]string{fpath}, nil)
 	for _, bi := range BIS {
 
 		if bi.Err != nil {

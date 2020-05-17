@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var replLong = `run hof's REPL system`
+var replLong = `Run hof's local REPL`
 
 func ReplRun(args []string) (err error) {
 
@@ -22,7 +22,7 @@ var ReplCmd = &cobra.Command{
 
 	Use: "repl",
 
-	Short: "run hof's REPL system",
+	Short: "Run hof's local REPL",
 
 	Long: replLong,
 

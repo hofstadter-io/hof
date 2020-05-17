@@ -11,20 +11,20 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var devLong = `run hof's local dev setup`
+var tuiLong = `Run hof's terminal ui`
 
-func DevRun(args []string) (err error) {
+func TuiRun(args []string) (err error) {
 
 	return err
 }
 
-var DevCmd = &cobra.Command{
+var TuiCmd = &cobra.Command{
 
-	Use: "dev",
+	Use: "tui",
 
-	Short: "run hof's local dev setup",
+	Short: "Run hof's terminal ui",
 
-	Long: devLong,
+	Long: tuiLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
@@ -39,7 +39,7 @@ var DevCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		err = DevRun(args)
+		err = TuiRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -49,8 +49,8 @@ var DevCmd = &cobra.Command{
 
 func init() {
 
-	help := DevCmd.HelpFunc()
-	usage := DevCmd.UsageFunc()
+	help := TuiCmd.HelpFunc()
+	usage := TuiCmd.UsageFunc()
 
 	thelp := func(cmd *cobra.Command, args []string) {
 		cs := strings.Fields(cmd.CommandPath())
@@ -64,7 +64,7 @@ func init() {
 		ga.SendGaEvent(c+"/help", "<omit>", 0)
 		return usage(cmd)
 	}
-	DevCmd.SetHelpFunc(thelp)
-	DevCmd.SetUsageFunc(tusage)
+	TuiCmd.SetHelpFunc(thelp)
+	TuiCmd.SetUsageFunc(tusage)
 
 }

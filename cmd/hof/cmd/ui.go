@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var uiLong = `run hof's local web ui`
+var uiLong = `Run hof's local web ui`
 
 func UiRun(args []string) (err error) {
 
@@ -22,7 +22,7 @@ var UiCmd = &cobra.Command{
 
 	Use: "ui",
 
-	Short: "run hof's local web ui",
+	Short: "Run hof's local web ui",
 
 	Long: uiLong,
 

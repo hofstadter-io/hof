@@ -165,8 +165,8 @@ func init() {
 	RootCmd.AddCommand(GetCmd)
 	RootCmd.AddCommand(DeleteCmd)
 	RootCmd.AddCommand(TopicCmd)
-	RootCmd.AddCommand(DevCmd)
 	RootCmd.AddCommand(UiCmd)
+	RootCmd.AddCommand(TuiCmd)
 	RootCmd.AddCommand(ReplCmd)
 	RootCmd.AddCommand(HackCmd)
 
@@ -235,11 +235,12 @@ Colloaborate (see also 'hof topic collaborate'):
   pull          Fetch from and integrate with another repository or a local branch
   push           Update remote refs along with associated objects
   propose       Propose to include your changeset in a remote repository
-
+ 
 Local development commands:
-  dev           run hof's local dev setup
-  ui            run hof's local web ui
-  repl          run hof's REPL system
+  ui            Run hof's local web ui
+  tui           Run hof's terminal ui
+  repl          Run hof's local REPL
+  (run pprof)   HOF_CPU_PROFILE="hof-cpu.prof" hof ...
 
 Additional commands:
   help          Help about any command

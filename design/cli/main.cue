@@ -89,8 +89,8 @@ import (
 		cmds.#TopicCommand,
 
 		// dev & more st commands
-		cmds.#DevCommand,
 		cmds.#UiCommand,
+		cmds.#TuiCommand,
 		cmds.#ReplCommand,
 
 		{
@@ -111,7 +111,7 @@ import (
   Telemetry: "UA-103579574-5"
   TelemetryIdDir: "hof"
 
-  // EnablePProf: true
+  EnablePProf: true
 
 }
 
@@ -181,11 +181,12 @@ Colloaborate (see also 'hof topic collaborate'):
   \(cmds.#PullCommand.Help)
   \(cmds.#PushCommand.Help)
   \(cmds.#ProposeCommand.Help)
-
+ 
 Local development commands:
-  \(cmds.#DevCommand.Help)
   \(cmds.#UiCommand.Help)
+  \(cmds.#TuiCommand.Help)
   \(cmds.#ReplCommand.Help)
+  (run pprof)   HOF_CPU_PROFILE="hof-cpu.prof" hof ...
 
 Additional commands:
   help          Help about any command
