@@ -6,4 +6,4 @@ package schema
 
   // field: [type] @attrs(...)
   ...
-} @model()
+}

@@ -1,13 +1,11 @@
 package schema
 
-#Modelsets: [N=string]: #Modelset & { Name: N, ... }
+#Modelsets: [ModelsetName=string]: #Modelset & { Name: ModelsetName, ... }
 #Modelset: {
+	// The name is used to collect the models
   Name: string
+	Entrypoint: string
+	Workbase: string | *""
 
-  Tags: [...string]
-
-  Models: #Model
-  Modelsets: #Modelset
-
-  Stores: #Store
+	Stores: [Key=string]: string
 }

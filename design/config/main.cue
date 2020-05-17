@@ -1,6 +1,8 @@
 package config
 
 import (
+	hof "github.com/hofstadter-io/hof/schema"
+
 	"github.com/hofstadter-io/hofmod-cuefig/schema"
 )
 
@@ -9,13 +11,8 @@ import (
   Entrypoint: ".hofcfg.cue"
 
   ConfigSchema: {
-    models: {
-      name: "string"
-    }
-    stores: {
-      name: "string"
-      type: "string"
-    }
+    Modelset: hof.#Modelsets
+    Datastores: hof.#Datastores
   }
 }
 
@@ -24,8 +21,10 @@ import (
   Entrypoint: ".hofshh.cue"
 
   ConfigSchema: {
-    [Cred=string]: {
-      [Key=string]: string
+    [Group=string]: {
+      [Cred=string]: {
+        [Key=string]: string
+      }
     }
   }
 }

@@ -49,6 +49,14 @@ import (
   },
 	// these are more cue specific with a dash of hof
   {
+    Name:    "workspace"
+    Long:    "workspace"
+    Short:   "W"
+    Type:    "string"
+    Default: ""
+    Help:    "the workspace context to use during this hof execution"
+  },
+  {
     Name:    "package"
     Long:    "package"
     Short:   "p"

@@ -26,6 +26,7 @@ func init() {
 	RootCmd.PersistentFlags().StringVarP(&pflags.RootAccountPflag, "account", "A", "", "the account context to use during this hof execution")
 	RootCmd.PersistentFlags().StringVarP(&pflags.RootBillingPflag, "billing", "B", "", "the billing context to use during this hof execution")
 	RootCmd.PersistentFlags().StringVarP(&pflags.RootProjectPflag, "project", "P", "", "the project context to use during this hof execution")
+	RootCmd.PersistentFlags().StringVarP(&pflags.RootWorkspacePflag, "workspace", "W", "", "the workspace context to use during this hof execution")
 	RootCmd.PersistentFlags().StringVarP(&pflags.RootPackagePflag, "package", "p", "", "the package context to use during this hof execution")
 	RootCmd.PersistentFlags().StringSliceVarP(&pflags.RootLabelsPflag, "label", "L", nil, "Labels for use across all commands")
 	RootCmd.PersistentFlags().BoolVarP(&pflags.RootErrorsPflag, "all-errors", "E", false, "print all available errors")
@@ -235,7 +236,7 @@ Colloaborate (see also 'hof topic collaborate'):
   pull          Fetch from and integrate with another repository or a local branch
   push           Update remote refs along with associated objects
   propose       Propose to include your changeset in a remote repository
- 
+
 Local development commands:
   ui            Run hof's local web ui
   tui           Run hof's terminal ui

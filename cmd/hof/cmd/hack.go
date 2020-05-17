@@ -9,11 +9,15 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib/hack"
 )
 
 var hackLong = `development command`
 
 func HackRun(args []string) (err error) {
+
+	err = hack.Hack(args)
 
 	return err
 }

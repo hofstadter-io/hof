@@ -14,11 +14,11 @@ HofGenCli: g_cli.#HofGenerator & {
 }
 
 HofGenConfig: g_cuefig.#HofGenerator & {
-  Outdir: "./"
+  Outdir: "lib/"
   Config: d_cfg.#HofConfig
 }
 
 HofGenCreds: g_cuefig.#HofGenerator & {
-  Outdir: "./"
+  Outdir: "lib/"
   Config: d_cfg.#HofCredentials
 }

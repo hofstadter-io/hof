@@ -19,7 +19,6 @@ import (
 const (
 	SecretEntrypoint = ".hofshh.cue"
 	SecretWorkpath   = ""
-	SecretLocation   = "local"
 )
 
 func LoadSecretDefault(cfg interface{}) (cue.Value, error) {
@@ -28,17 +27,24 @@ func LoadSecretDefault(cfg interface{}) (cue.Value, error) {
 
 func LoadSecretConfig(workpath, entrypoint string, cfg interface{}) (val cue.Value, err error) {
 
+	// TODO Fallback order: local / user / global
 	fpath := filepath.Join(workpath, entrypoint)
-	_, err = os.Lstat(workpath)
-	if err != nil {
-		if _, ok := err.(*os.PathError); !ok && (strings.Contains(err.Error(), "file does not exist") || strings.Contains(err.Error(), "no such file")) {
-			// error is worse than non-existant
+
+	// possibly, check for workpath
+	if workpath != "" {
+		_, err = os.Lstat(workpath)
+		if err != nil {
+			if _, ok := err.(*os.PathError); !ok && (strings.Contains(err.Error(), "file does not exist") || strings.Contains(err.Error(), "no such file")) {
+				// error is worse than non-existant
+				return val, err
+			}
+			// otherwise, does not exist, so we should init?
+			// XXX want to let applications decide how to handle this
 			return val, err
 		}
-		// otherwise, does not exist, so we should init?
-		// XXX want to let applications decide how to handle this
-		return val, err
 	}
+
+	// check for entrypoint
 	_, err = os.Lstat(fpath)
 	if err != nil {
 		if _, ok := err.(*os.PathError); !ok && (strings.Contains(err.Error(), "file does not exist") || strings.Contains(err.Error(), "no such file")) {
@@ -93,7 +99,7 @@ func LoadSecretConfig(workpath, entrypoint string, cfg interface{}) (val cue.Val
 		for _, e := range errs {
 			util.PrintCueError(e)
 		}
-		return val, fmt.Errorf("Errors while reading DMA config file")
+		return val, fmt.Errorf("Errors while reading Secret file: %q", fpath)
 	}
 
 	return val, nil

@@ -4,7 +4,7 @@ import (
 	"github.com/hofstadter-io/dma/schema"
 )
 
-#Epic: schema.#Model & {
+Epic: schema.#Model & {
 	Name: "epic"
 }
 

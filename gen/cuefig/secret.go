@@ -1,6 +1,6 @@
 package cuefig
 
-// Name: config
+// Name: secret
 
 import (
 	"fmt"
@@ -17,17 +17,19 @@ import (
 )
 
 const (
-	ConfigEntrypoint = ".hofcfg.cue"
-	ConfigWorkpath   = ""
+	SecretEntrypoint = ".hofshh.cue"
+	SecretWorkpath   = ""
+	SecretLocation   = "local"
 )
 
-func LoadConfigDefault(cfg interface{}) (cue.Value, error) {
-	return LoadConfigConfig(ConfigWorkpath, ConfigEntrypoint, cfg)
+func LoadSecretDefault(cfg interface{}) (cue.Value, error) {
+	return LoadSecretConfig(SecretWorkpath, SecretEntrypoint, cfg)
 }
 
-func LoadConfigConfig(workpath, entrypoint string, cfg interface{}) (val cue.Value, err error) {
+func LoadSecretConfig(workpath, entrypoint string, cfg interface{}) (val cue.Value, err error) {
+	fmt.Println("Cuefig[Secret].Load:", workpath, entrypoint)
 
-	// TODO Fallback order: local / user / global
+	// Fallback order: local / user / global
 	fpath := filepath.Join(workpath, entrypoint)
 
 	// possibly, check for workpath
@@ -40,6 +42,7 @@ func LoadConfigConfig(workpath, entrypoint string, cfg interface{}) (val cue.Val
 			}
 			// otherwise, does not exist, so we should init?
 			// XXX want to let applications decide how to handle this
+			fmt.Println("missing:", workpath)
 			return val, err
 		}
 	}
@@ -53,8 +56,11 @@ func LoadConfigConfig(workpath, entrypoint string, cfg interface{}) (val cue.Val
 		}
 		// otherwise, does not exist, so we should init?
 		// XXX want to let applications decide how to handle this
+		fmt.Println("missing:", fpath)
 		return val, err
 	}
+
+	fmt.Println(" - found cue file:", fpath)
 
 	var errs []error
 
@@ -99,7 +105,7 @@ func LoadConfigConfig(workpath, entrypoint string, cfg interface{}) (val cue.Val
 		for _, e := range errs {
 			util.PrintCueError(e)
 		}
-		return val, fmt.Errorf("Errors while reading Config file: %q", fpath)
+		return val, fmt.Errorf("Errors while reading Secret file: %q", fpath)
 	}
 
 	return val, nil

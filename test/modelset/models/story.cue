@@ -4,7 +4,7 @@ import (
 	"github.com/hofstadter-io/dma/schema"
 )
 
-#Story: schema.#Model & {
+Story: schema.#Model & {
 	Name: "story"
 }
 

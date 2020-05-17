@@ -19,6 +19,7 @@ import (
 const (
 	ConfigEntrypoint = ".hofcfg.cue"
 	ConfigWorkpath   = ""
+	ConfigLocation   = "local"
 )
 
 func LoadConfigDefault(cfg interface{}) (cue.Value, error) {
@@ -26,8 +27,9 @@ func LoadConfigDefault(cfg interface{}) (cue.Value, error) {
 }
 
 func LoadConfigConfig(workpath, entrypoint string, cfg interface{}) (val cue.Value, err error) {
+	fmt.Println("Cuefig[Config].Load:", workpath, entrypoint)
 
-	// TODO Fallback order: local / user / global
+	// Fallback order: local / user / global
 	fpath := filepath.Join(workpath, entrypoint)
 
 	// possibly, check for workpath
@@ -40,6 +42,7 @@ func LoadConfigConfig(workpath, entrypoint string, cfg interface{}) (val cue.Val
 			}
 			// otherwise, does not exist, so we should init?
 			// XXX want to let applications decide how to handle this
+			fmt.Println("missing:", workpath)
 			return val, err
 		}
 	}
@@ -53,8 +56,11 @@ func LoadConfigConfig(workpath, entrypoint string, cfg interface{}) (val cue.Val
 		}
 		// otherwise, does not exist, so we should init?
 		// XXX want to let applications decide how to handle this
+		fmt.Println("missing:", fpath)
 		return val, err
 	}
+
+	fmt.Println(" - found cue file:", fpath)
 
 	var errs []error
 
