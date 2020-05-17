@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var uiLong = `run hof's local web ui`
+var uiLong = `Run hof's local web ui`
 
 func UiRun(args []string) (err error) {
 
@@ -22,7 +22,7 @@ var UiCmd = &cobra.Command{
 
 	Use: "ui",
 
-	Short: "run hof's local web ui",
+	Short: "Run hof's local web ui",
 
 	Long: uiLong,
 
@@ -45,4 +45,26 @@ var UiCmd = &cobra.Command{
 			os.Exit(1)
 		}
 	},
+}
+
+func init() {
+
+	help := UiCmd.HelpFunc()
+	usage := UiCmd.UsageFunc()
+
+	thelp := func(cmd *cobra.Command, args []string) {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		help(cmd, args)
+	}
+	tusage := func(cmd *cobra.Command) error {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		return usage(cmd)
+	}
+	UiCmd.SetHelpFunc(thelp)
+	UiCmd.SetUsageFunc(tusage)
+
 }

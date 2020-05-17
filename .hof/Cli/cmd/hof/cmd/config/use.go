@@ -13,7 +13,7 @@ import (
 
 var useLong = `set the default configuration`
 
-func UseRun(name string) (err error) {
+func UseRun(args []string) (err error) {
 
 	return err
 }
@@ -39,24 +39,32 @@ var UseCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		if 0 >= len(args) {
-			fmt.Println("missing required argument: 'Name'")
-			cmd.Usage()
-			os.Exit(1)
-		}
-
-		var name string
-
-		if 0 < len(args) {
-
-			name = args[0]
-
-		}
-
-		err = UseRun(name)
+		err = UseRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 	},
+}
+
+func init() {
+
+	help := UseCmd.HelpFunc()
+	usage := UseCmd.UsageFunc()
+
+	thelp := func(cmd *cobra.Command, args []string) {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		help(cmd, args)
+	}
+	tusage := func(cmd *cobra.Command) error {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		return usage(cmd)
+	}
+	UseCmd.SetHelpFunc(thelp)
+	UseCmd.SetUsageFunc(tusage)
+
 }

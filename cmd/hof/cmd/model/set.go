@@ -30,14 +30,25 @@ var SetCmd = &cobra.Command{
 }
 
 func init() {
-	hf := SetCmd.HelpFunc()
-	f := func(cmd *cobra.Command, args []string) {
+
+	help := SetCmd.HelpFunc()
+	usage := SetCmd.UsageFunc()
+
+	thelp := func(cmd *cobra.Command, args []string) {
 		cs := strings.Fields(cmd.CommandPath())
 		c := strings.Join(cs[1:], "/")
 		ga.SendGaEvent(c+"/help", "<omit>", 0)
-		hf(cmd, args)
+		help(cmd, args)
 	}
-	SetCmd.SetHelpFunc(f)
+	tusage := func(cmd *cobra.Command) error {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		return usage(cmd)
+	}
+	SetCmd.SetHelpFunc(thelp)
+	SetCmd.SetUsageFunc(tusage)
+
 	SetCmd.AddCommand(cmdset.CreateCmd)
 	SetCmd.AddCommand(cmdset.ViewCmd)
 	SetCmd.AddCommand(cmdset.ListCmd)
@@ -47,4 +58,5 @@ func init() {
 	SetCmd.AddCommand(cmdset.MigrateCmd)
 	SetCmd.AddCommand(cmdset.TestCmd)
 	SetCmd.AddCommand(cmdset.DeleteCmd)
+
 }

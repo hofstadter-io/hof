@@ -49,14 +49,14 @@ func (R *Runtime) Init() error {
 	var val1, val2 cue.Value
 	var err error
 	if pflags.RootConfigPflag != "" {
-		val1, err = cuefig.LoadConfigConfig(pflags.RootConfigPflag, R.Config)
+		val1, err = cuefig.LoadConfigConfig("", pflags.RootConfigPflag, R.Config)
 	} else {
 		val1, err = cuefig.LoadConfigDefault(R.Config)
 	}
 	if pflags.RootCredsPflag != "" {
-		val2, err = cuefig.LoadCredsConfig(pflags.RootCredsPflag, R.Creds)
+		val2, err = cuefig.LoadSecretConfig("", pflags.RootCredsPflag, R.Creds)
 	} else {
-		val2, err = cuefig.LoadCredsDefault(R.Creds)
+		val2, err = cuefig.LoadSecretDefault(R.Creds)
 	}
 
 	if err != nil {

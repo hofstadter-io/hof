@@ -54,3 +54,25 @@ var VendorCmd = &cobra.Command{
 		}
 	},
 }
+
+func init() {
+
+	help := VendorCmd.HelpFunc()
+	usage := VendorCmd.UsageFunc()
+
+	thelp := func(cmd *cobra.Command, args []string) {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		help(cmd, args)
+	}
+	tusage := func(cmd *cobra.Command) error {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		return usage(cmd)
+	}
+	VendorCmd.SetHelpFunc(thelp)
+	VendorCmd.SetUsageFunc(tusage)
+
+}

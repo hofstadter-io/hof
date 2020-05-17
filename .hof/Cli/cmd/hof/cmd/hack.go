@@ -22,6 +22,8 @@ var HackCmd = &cobra.Command{
 
 	Use: "hack ...",
 
+	Hidden: true,
+
 	Short: "development command",
 
 	Long: hackLong,
@@ -45,4 +47,26 @@ var HackCmd = &cobra.Command{
 			os.Exit(1)
 		}
 	},
+}
+
+func init() {
+
+	help := HackCmd.HelpFunc()
+	usage := HackCmd.UsageFunc()
+
+	thelp := func(cmd *cobra.Command, args []string) {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		help(cmd, args)
+	}
+	tusage := func(cmd *cobra.Command) error {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		return usage(cmd)
+	}
+	HackCmd.SetHelpFunc(thelp)
+	HackCmd.SetUsageFunc(tusage)
+
 }

@@ -8,9 +8,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/hofstadter-io/hof/lib"
-
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+	"github.com/hofstadter-io/hof/lib"
 )
 
 var genLong = `  generate all the things, from code to data to config...`
@@ -24,13 +23,9 @@ func init() {
 	GenCmd.Flags().StringSliceVarP(&GenGeneratorFlag, "generator", "g", nil, "Generators to run")
 }
 
-func init() {
-
-}
-
 func GenRun(args []string) (err error) {
 
-	fmt.Println("GenFlags", GenGeneratorFlag)
+	// fmt.Println("GenFlags", GenGeneratorFlag)
 
 	return lib.Gen([]string{}, []string{}, "")
 
@@ -68,4 +63,26 @@ var GenCmd = &cobra.Command{
 			os.Exit(1)
 		}
 	},
+}
+
+func init() {
+
+	help := GenCmd.HelpFunc()
+	usage := GenCmd.UsageFunc()
+
+	thelp := func(cmd *cobra.Command, args []string) {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		help(cmd, args)
+	}
+	tusage := func(cmd *cobra.Command) error {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		return usage(cmd)
+	}
+	GenCmd.SetHelpFunc(thelp)
+	GenCmd.SetUsageFunc(tusage)
+
 }

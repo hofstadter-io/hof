@@ -10,8 +10,6 @@ import (
 
 	"github.com/spf13/viper"
 
-	"github.com/hofstadter-io/hof/lib"
-
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
@@ -31,8 +29,6 @@ func init() {
 }
 
 func GenRun(args []string) (err error) {
-
-	return lib.Gen([]string{}, []string{}, "")
 
 	return err
 }
@@ -68,4 +64,26 @@ var GenCmd = &cobra.Command{
 			os.Exit(1)
 		}
 	},
+}
+
+func init() {
+
+	help := GenCmd.HelpFunc()
+	usage := GenCmd.UsageFunc()
+
+	thelp := func(cmd *cobra.Command, args []string) {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		help(cmd, args)
+	}
+	tusage := func(cmd *cobra.Command) error {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		return usage(cmd)
+	}
+	GenCmd.SetHelpFunc(thelp)
+	GenCmd.SetUsageFunc(tusage)
+
 }
