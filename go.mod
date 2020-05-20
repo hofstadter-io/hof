@@ -3,7 +3,7 @@ module github.com/hofstadter-io/hof
 go 1.14
 
 require (
-	cuelang.org/go v0.1.3-0.20200424192631-12927e83d318
+	cuelang.org/go v0.2.0
 	github.com/aymerick/raymond v2.0.2+incompatible
 	github.com/bmatcuk/doublestar v1.3.0
 	github.com/clbanning/mxj v1.8.4
@@ -39,4 +39,6 @@ require (
 	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
 )
 
+// We have a single "Attributes" function patched into Cue for returning all attrs on a value
+// https://gist.github.com/verdverm/3455a4bdc1e8232f55ab8522f523f60f
 replace cuelang.org/go => ../../cue/cue

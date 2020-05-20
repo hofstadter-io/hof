@@ -106,9 +106,16 @@ import (
 		// fix
 		// simplify
 		// test
+		// bench
+		// scan
 		// note / knowledge graph
 		// todo / scrum
-		// security
+
+
+		// TODO: SECURITY
+		// - report
+		// - scan
+		// - fix
 
 		cmds.#UiCommand,
 		cmds.#TuiCommand,
