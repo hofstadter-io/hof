@@ -4,6 +4,7 @@ var (
 	RootLabelsPflag             []string
 	RootConfigPflag             string
 	RootSecretPflag             string
+	RootContextFilePflag        string
 	RootContextPflag            string
 	RootGlobalPflag             bool
 	RootLocalPflag              bool

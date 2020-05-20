@@ -6,11 +6,16 @@ import (
 	"github.com/hofstadter-io/hofmod-cuefig/schema"
 )
 
+// Local context
+#HofContext: schema.#Config & {
+	Name:         "context"
+	Entrypoint:   ".hofctx.cue"
+	ConfigSchema: #ContextSchema
+}
 // Local config
 #HofConfig: schema.#Config & {
 	Name:       "config"
 	Entrypoint: ".hofcfg.cue"
-
 	ConfigSchema: #ConfigSchema
 }
 
@@ -20,6 +25,15 @@ import (
 	Name:         "secret"
 	Entrypoint:   ".hofshh.cue"
 	ConfigSchema: #SecretSchema
+}
+
+// (user/app config dir) context
+#HofUserContext: schema.#Config & {
+	Name:         "hofctx"
+	Entrypoint:   ".hofctx.cue"
+	Workpath:     "hof"
+	Location:     "user"
+	ConfigSchema: #ContextSchema
 }
 
 // (user/app config dir) config
@@ -41,6 +55,22 @@ import (
 	ConfigSchema: #SecretSchema
 }
 
+#ContextSchema: {
+	Current?: #ContextSchemaItem
+	Contexts?: [ContextName=string]: #ContextSchemaItem & {name: ContextName}
+}
+
+#ContextItemSchema: {
+	Name:         string
+	Credentials?: string
+	Workspace?:   string
+	Environment?: string
+	Account?:     string
+	Billing?:     string
+	Project?:     string
+	Package?:     string
+}
+
 #SecretSchema: {
 	[Group=string]: {
 		[Cred=string]: {
@@ -50,8 +80,6 @@ import (
 }
 
 #ConfigSchema: {
-	Current?: #ContextSchema
-	Contexts?: [ContextName=string]: #ContextSchema & {name: ContextName}
 	// This should only be used from the global context, local ought to be determined from walking up to find a .hofcfg.cue file
 	// Unless... we want to subdivide workspaces, monorepo style (probably do want ot do this)
 	// We can also associate developer setups with this
@@ -61,17 +89,6 @@ import (
 	// TODO add these to the config like above?
 	Modelsets:  hof.#Modelsets
 	Datastores: hof.#Datastores
-}
-
-#ContextSchema: {
-	Name:         string
-	Credentials?: string
-	Workspace?:   string
-	Environment?: string
-	Account?:     string
-	Billing?:     string
-	Project?:     string
-	Package?:     string
 }
 
 #WorkspaceSchema: {

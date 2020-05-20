@@ -15,12 +15,14 @@ import (
 var genLong = `  generate all the things, from code to data to config...`
 
 var (
+	GenStatsFlag     bool
 	GenGeneratorFlag []string
 )
 
 func init() {
 
-	GenCmd.Flags().StringSliceVarP(&GenGeneratorFlag, "generator", "g", nil, "Generators to run")
+	GenCmd.Flags().BoolVarP(&GenStatsFlag, "stats", "", false, "Print generator statistics")
+	GenCmd.Flags().StringSliceVarP(&GenGeneratorFlag, "generator", "g", nil, "Generators to run, default is all discovered")
 }
 
 func GenRun(args []string) (err error) {

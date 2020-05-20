@@ -13,6 +13,11 @@ HofGenCli: g_cli.#HofGenerator & {
   Cli: d_cli.#CLI
 }
 
+HofGenContext: g_cuefig.#HofGenerator & {
+  Outdir: "gen/"
+  Config: d_cfg.#HofContext
+}
+
 HofGenConfig: g_cuefig.#HofGenerator & {
   Outdir: "gen/"
   Config: d_cfg.#HofConfig
@@ -21,6 +26,11 @@ HofGenConfig: g_cuefig.#HofGenerator & {
 HofGenSecret: g_cuefig.#HofGenerator & {
   Outdir: "gen/"
   Config: d_cfg.#HofSecret
+}
+
+HofGenUserContext: g_cuefig.#HofGenerator & {
+  Outdir: "gen/"
+  Config: d_cfg.#HofUserContext
 }
 
 HofGenUserConfig: g_cuefig.#HofGenerator & {

@@ -9,23 +9,60 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"cuelang.org/go/cue"
+	"cuelang.org/go/cue/format"
+
+	"github.com/hofstadter-io/hof/lib/runtime"
 )
 
-var getLong = `print a context, defauts to current`
+var getLong = `print a context or value(s) at path(s)`
 
 func GetRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
 
-	return err
+	if len(args) == 0 {
+		val, err := runtime.GetRuntime().ContextGet("")
+		if err != nil {
+			return err
+		}
+
+		z := cue.Value{}
+		if val == z {
+			return fmt.Errorf("no context found, use 'hof context -h' to learn create and use contexts")
+		}
+
+		bytes, err := format.Node(val.Syntax())
+		if err != nil {
+			return err
+		}
+		fmt.Println(string(bytes))
+		return nil
+	}
+
+	for _, a := range args {
+		val, err := runtime.GetRuntime().ContextGet(a)
+		if err != nil {
+			return err
+		}
+
+		bytes, err := format.Node(val.Syntax())
+		if err != nil {
+			return err
+		}
+		fmt.Printf("%s: %s\n\n", a, string(bytes))
+	}
+
+	return nil
 }
 
 var GetCmd = &cobra.Command{
 
-	Use: "get <all> | <name>",
+	Use: "get <key.path>",
 
-	Short: "print a context, defauts to current",
+	Short: "print a context or value(s) at path(s)",
 
 	Long: getLong,
 

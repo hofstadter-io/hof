@@ -15,10 +15,18 @@ import (
 
 	Flags: [...schema.#Flag] & [
 		{
+			Name:    "stats"
+			Type:    "bool"
+			Default: "false"
+			Help:    "Print generator statistics"
+			Long:    "stats"
+			Short:   ""
+		},
+		{
 			Name:    "generator"
 			Type:    "[]string"
 			Default: "nil"
-			Help:    "Generators to run"
+			Help:    "Generators to run, default is all discovered"
 			Long:    "generator"
 			Short:   "g"
 		},

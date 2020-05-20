@@ -10,6 +10,7 @@ import (
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 
+	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/format"
 
 	"github.com/hofstadter-io/hof/lib/runtime"
@@ -22,11 +23,15 @@ func GetRun(args []string) (err error) {
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	// TODO, name, def, and validate args via design
 	if len(args) == 0 {
 		val, err := runtime.GetRuntime().ConfigGet("")
 		if err != nil {
 			return err
+		}
+
+		z := cue.Value{}
+		if val == z {
+			return fmt.Errorf("no config found, use 'hof config -h' to learn create and use configurations")
 		}
 
 		bytes, err := format.Node(val.Syntax())

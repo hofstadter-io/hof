@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var getLong = `print a context, defauts to current`
+var getLong = `print a context or value(s) at path(s)`
 
 func GetRun(args []string) (err error) {
 
@@ -23,9 +23,9 @@ func GetRun(args []string) (err error) {
 
 var GetCmd = &cobra.Command{
 
-	Use: "get <all> | <name>",
+	Use: "get <key.path>",
 
-	Short: "print a context, defauts to current",
+	Short: "print a context or value(s) at path(s)",
 
 	Long: getLong,
 

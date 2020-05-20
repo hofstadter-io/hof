@@ -4,6 +4,8 @@ import (
 	"github.com/hofstadter-io/hofmod-cli/schema"
 )
 
+// TODO add: --non-intreactive (-y) ;  --no-color
+
 #CliPflags: [...schema.#Flag] & [
 		// Labels will be core
 		{
@@ -31,12 +33,20 @@ import (
 		Help:    "The path to a hof secret file"
 	},
 	{
-		Name:    "context"
-		Long:    "context"
-		Short:   "C"
+		Name:    "contextFile"
+		Long:    "context-file"
+		Short:   ""
 		Type:    "string"
 		Default: ""
-		Help:    "The path to a hof creds file"
+		Help:    "The path to a hof context file"
+	},
+	{
+		Name:    "context"
+		Long:    "context"
+		Short:   ""
+		Type:    "string"
+		Default: ""
+		Help:    "The of an entry in the context file"
 	},
 	{
 		Name:    "global"
@@ -127,7 +137,7 @@ import (
 		Short:   ""
 		Type:    "bool"
 		Default: "false"
-		Help:    "trace computation"
+		Help:    "trace cue computation"
 	},
 	{
 		Name:    "strict"
@@ -156,7 +166,7 @@ import (
 	{
 		Name:    "ImpersonateAccount"
 		Long:    "impersonate-account"
-		Short:   "I"
+		Short:   ""
 		Type:    "string"
 		Default: ""
 		Help:    "account to impersonate for this hof execution"
