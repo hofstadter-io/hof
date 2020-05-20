@@ -9,20 +9,52 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"cuelang.org/go/cue/format"
+
+	"github.com/hofstadter-io/hof/lib/runtime"
 )
 
-var getLong = `print a configuration`
+var getLong = `print a config or value(s) at path(s)`
 
 func GetRun(args []string) (err error) {
 
-	return err
+	// you can safely comment this print out
+	// fmt.Println("not implemented")
+
+	// TODO, name, def, and validate args via design
+	if len(args) == 0 {
+		val := runtime.GetRuntime().ConfigValue
+
+		bytes, err := format.Node(val.Syntax())
+		if err != nil {
+			return err
+		}
+		fmt.Println(string(bytes))
+		return nil
+	}
+
+	for _, a := range args {
+		val, err := runtime.GetRuntime().ConfigGet(a)
+		if err != nil {
+			return err
+		}
+
+		bytes, err := format.Node(val.Syntax())
+		if err != nil {
+			return err
+		}
+		fmt.Printf("%s: %s\n\n", a, string(bytes))
+	}
+
+	return nil
 }
 
 var GetCmd = &cobra.Command{
 
-	Use: "get",
+	Use: "get <key.path>",
 
-	Short: "print a configuration",
+	Short: "print a config or value(s) at path(s)",
 
 	Long: getLong,
 
@@ -61,7 +93,7 @@ func init() {
 	tusage := func(cmd *cobra.Command) error {
 		cs := strings.Fields(cmd.CommandPath())
 		c := strings.Join(cs[1:], "/")
-		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		ga.SendGaEvent(c+"/usage", "<omit>", 0)
 		return usage(cmd)
 	}
 	GetCmd.SetHelpFunc(thelp)

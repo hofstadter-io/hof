@@ -11,18 +11,21 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var getLong = `print a configuration`
+var getLong = `print a config or value(s) at path(s)`
 
 func GetRun(args []string) (err error) {
+
+	// you can safely comment this print out
+	fmt.Println("not implemented")
 
 	return err
 }
 
 var GetCmd = &cobra.Command{
 
-	Use: "get",
+	Use: "get <key.path>",
 
-	Short: "print a configuration",
+	Short: "print a config or value(s) at path(s)",
 
 	Long: getLong,
 
@@ -61,7 +64,7 @@ func init() {
 	tusage := func(cmd *cobra.Command) error {
 		cs := strings.Fields(cmd.CommandPath())
 		c := strings.Join(cs[1:], "/")
-		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		ga.SendGaEvent(c+"/usage", "<omit>", 0)
 		return usage(cmd)
 	}
 	GetCmd.SetHelpFunc(thelp)

@@ -1,14 +1,17 @@
 package pflags
 
 var (
+	RootLabelsPflag             []string
 	RootConfigPflag             string
+	RootSecretPflag             string
 	RootContextPflag            string
+	RootGlobalPflag             bool
+	RootLocalPflag              bool
 	RootAccountPflag            string
 	RootBillingPflag            string
 	RootProjectPflag            string
 	RootWorkspacePflag          string
 	RootPackagePflag            string
-	RootLabelsPflag             []string
 	RootErrorsPflag             bool
 	RootIgnorePflag             bool
 	RootSimplifyPflag           bool
@@ -19,5 +22,6 @@ var (
 	RootImpersonateAccountPflag string
 	RootTraceTokenPflag         string
 	RootLogHTTPPflag            string
-	RootCredsPflag              string
+	RootRunUIPflag              bool
+	RootRunTUIPflag             bool
 )

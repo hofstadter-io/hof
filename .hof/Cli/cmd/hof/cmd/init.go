@@ -15,6 +15,9 @@ var initLong = `Create an empty Workspace or initialize an existing directory to
 
 func InitRun(args []string) (err error) {
 
+	// you can safely comment this print out
+	fmt.Println("not implemented")
+
 	return err
 }
 
@@ -61,7 +64,7 @@ func init() {
 	tusage := func(cmd *cobra.Command) error {
 		cs := strings.Fields(cmd.CommandPath())
 		c := strings.Join(cs[1:], "/")
-		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		ga.SendGaEvent(c+"/usage", "<omit>", 0)
 		return usage(cmd)
 	}
 	InitCmd.SetHelpFunc(thelp)

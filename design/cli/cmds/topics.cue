@@ -5,12 +5,14 @@ import (
 )
 
 #TopicCommand: schema.#Command & {
-	Name: "topic"
+	TBD:   "+ "
+	Name:  "topic"
 	Usage: "topic"
 	Aliases: ["topics"]
 
-	Short: "Help for various topics and concepts"
-	Long: Short
+	Short:   "Help for various topics and concepts"
+	Long:    Short
+	OmitRun: true
 
 	Commands: [
 		#TopicWorkspaceCommand,
@@ -19,11 +21,13 @@ import (
 }
 
 #TopicWorkspaceCommand: schema.#Command & {
-  Name:    "workspace"
-  Usage:   "workspace"
+	Name:    "workspace"
+	Usage:   "workspace"
+	OmitRun: true
 
-  Short:   "Help for learning about workspaces and workflows" 
-	Long: """
+	Short: "Help for learning about workspaces and workflows"
+	Long:  Short
+	CustomHelp: """
 	These are common Workspace and Dataset commands used in various situations:
 
 	start a working area (see also: git help tutorial)
@@ -53,6 +57,4 @@ import (
 		 propose    Propose to include your changeset in a remote repository
 
 	"""
-
 }
-

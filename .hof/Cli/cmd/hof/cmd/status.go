@@ -15,6 +15,9 @@ var statusLong = `Show workspace information and status`
 
 func StatusRun(args []string) (err error) {
 
+	// you can safely comment this print out
+	fmt.Println("not implemented")
+
 	return err
 }
 
@@ -61,7 +64,7 @@ func init() {
 	tusage := func(cmd *cobra.Command) error {
 		cs := strings.Fields(cmd.CommandPath())
 		c := strings.Join(cs[1:], "/")
-		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		ga.SendGaEvent(c+"/usage", "<omit>", 0)
 		return usage(cmd)
 	}
 	StatusCmd.SetHelpFunc(thelp)

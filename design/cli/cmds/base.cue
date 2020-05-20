@@ -5,109 +5,150 @@ import (
 )
 
 #AuthCommand: schema.#Command & {
-  Name:    "auth"
-  Usage:   "auth"
-  Short:   "authentication subcommands"
-  Long:    Short
+	TBD:   "+ "
+	Name:  "auth"
+	Usage: "auth"
+	Short: "authentication subcommands"
+	Long:  Short
 
-  OmitRun: true
+	OmitRun: true
 
-  Commands: [
-    {
-      Name:  "login"
-      Usage: "login"
-      Short: "login to an account"
-      Long:  Short
-    },
-    {
-      Name:  "test"
-      Usage: "test [name]"
-      Short: "test your auth configuration, defaults to current"
-      Long:  Short
-    },
-  ]
-},
+	Commands: [
+		{
+			TBD:   "+ "
+			Name:  "login"
+			Usage: "login <where>"
+			Short: "login to an account, provider, system, or url"
+			Long:  Short
+			Args: [
+				{
+					Name: "where"
+					Type: "string"
+					Help: "the account, provider, system, or url you wish to authenticate with"
+				},
+			]
+		},
+		{
+			TBD:   "+ "
+			Name:  "logout"
+			Usage: "logout <name>"
+			Short: "logout of an authenticated session"
+			Long:  Short
+		},
+		{
+			TBD:   "+ "
+			Name:  "list"
+			Usage: "list"
+			Short: "list known auth configurations and sessions"
+			Long:  Short
+		},
+		{
+			TBD:   "+ "
+			Name:  "test"
+			Usage: "test [name]"
+			Short: "test your auth configuration, defaults to current context"
+			Long:  Short
+		},
+	]
+}
+
+#ContextCommand: schema.#Command & {
+	TBD:   "+ "
+	Name:  "context"
+	Usage: "context"
+	Short: "Get, set, and use contexts"
+	Long:  Short
+
+	OmitRun: true
+
+	Commands: [
+		{
+			TBD:   "+ "
+			Name:  "get"
+			Usage: "get <all> | <name>"
+			Short: "print a context, defauts to current"
+			Long:  Short
+		},
+		{
+			TBD:   "+ "
+			Name:  "set"
+			Usage: "set [key.path] [value]"
+			Short: "set context value, defaults to current"
+			Long:  Short
+		},
+		{
+			TBD:   "+ "
+			Name:  "use"
+			Usage: "use [name]"
+			Short: "set a context as the current default"
+			Long:  Short
+		},
+	]
+}
 
 #ConfigCommand: schema.#Command & {
-  Name:  "config"
-  Usage: "config"
-  Short: "configuration subcommands"
-  Long:  Short
+	Name:  "config"
+	Usage: "config"
+	Short: "Manage local configurations"
+	Long:  Short
 
-  OmitRun: true
+	OmitRun: true
 
-  Commands: [
-    {
-      Name:  "create"
-      Usage: "create"
-      Short: "create a configuration"
-      Long:  Short
-    },
-    {
-      Name:  "list"
-      Usage: "list"
-      Short: "list configurations"
-      Long:  Short
-    },
-    {
-      Name:  "get"
-      Usage: "get"
-      Short: "print a configuration"
-      Long:  Short
-    },
-    {
-      Name:  "set"
-      Usage:  "set"
-      Short: "set configuration value(s)"
-      Long:  Short
-    },
-    {
-      Name:  "use"
-      Usage: "use"
-      Short: "set the default configuration"
-      Long:  Short
-    },
-  ]
+	Commands: [
+		{
+			Name:  "get"
+			Usage: "get <key.path>"
+			Short: "print a config or value(s) at path(s)"
+			Long:  Short
+		},
+		{
+			TBD:   "+ "
+			Name:  "set"
+			Usage: "set [expr]"
+			Short: "set config values with expr"
+			Long:  Short
+			Args: [{
+				Name:     "expr"
+				Type:     "string"
+				Required: true
+				Help:     "Cue expr for value you'd like to merge into your config"
+			}]
+		},
+	]
 }
 
 #SecretCommand: schema.#Command & {
-  Name:  "secret"
-  Usage: "secret"
-  Short: "secret subcommands"
-  Long:  Short
+	Name:  "secret"
+	Usage: "secret"
+	Short: "Manage local secrets"
+	Long:  Short
 
-  OmitRun: true
+	OmitRun: true
 
-  Commands: [
-    {
-      Name:  "create"
-      Usage: "create"
-      Short: "create secrets"
-      Long:  Short
-    },
-    {
-      Name:  "list"
-      Usage: "list"
-      Short: "list secrets"
-      Long:  Short
-    },
-    {
-      Name:  "get"
-      Usage: "get"
-      Short: "print a secret"
-      Long:  Short
-    },
-    {
-      Name:  "set"
-      Usage:  "set"
-      Short: "set secret value(s)"
-      Long:  Short
-    },
-    {
-      Name:  "use"
-      Usage: "use"
-      Short: "set the default configuration"
-      Long:  Short
-    },
-  ]
+	Commands: [
+		{
+			Name:  "get"
+			Usage: "get <key.path>"
+			Short: "print a secret or value(s) at path(s)"
+			Long:  Short
+		},
+		{
+			TBD:   "+ "
+			Name:  "set"
+			Usage: "set [key.path] [value]"
+			Short: "set secret value at path"
+			Long:  Short
+			Args: [{
+				Name:     "path"
+				Type:     "string"
+				Required: true
+				Help:     "Cue path to the value you'd like, if none, everything is printed"
+			},{
+				Name:     "value"
+				Type:     "string"
+				Required: true
+				Help:     "Cue value is a string, or use @filename.cue"
+			}]
+		},
+	]
 }

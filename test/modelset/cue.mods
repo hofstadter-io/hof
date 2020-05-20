@@ -1,5 +1,0 @@
-module github.com/hofstadter-io/dma/test
-
-cue master
-
-replace github.com/hofstadter-io/dma => ../../

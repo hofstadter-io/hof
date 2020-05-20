@@ -10,7 +10,7 @@ func Cueload(args []string) (err error) {
 	if len(args) == 0 {
 		args = []string{"./"}
 	}
-	fmt.Println("CueLoad:", args)
+	// fmt.Println("CueLoad:", args)
 
 	crt, err := runtime.CueRuntimeFromArgsAndFlags(args)
 	if err != nil {
@@ -18,7 +18,7 @@ func Cueload(args []string) (err error) {
 		return err
 	}
 
-	fmt.Println("errs:", crt.CueErrors)
+	// fmt.Println("errs:", crt.CueErrors)
 
 	crt.PrintValue()
 

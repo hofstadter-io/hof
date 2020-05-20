@@ -5,72 +5,97 @@ import (
 )
 
 #CliPflags: [...schema.#Flag] & [
-  {
-    Name:    "config"
-    Long:    "config"
-    Short:   "C"
-    Type:    "string"
-    Default: ""
-    Help:    "Path to a hof configuration file"
-  },
-	{
-    Name:    "context"
-    Long:    "context"
-    Short:   "X"
-    Type:    "string"
-    Default: ""
-    Help:    "The path to a hof creds file"
-  },
-
-	// context should encapsulate the next three
-  {
-    Name:    "account"
-    Long:    "account"
-    Short:   "A"
-    Type:    "string"
-    Default: ""
-    Help:    "the account context to use during this hof execution"
-  },
-  {
-    Name:    "billing"
-    Long:    "billing"
-    Short:   "B"
-    Type:    "string"
-    Default: ""
-    Help:    "the billing context to use during this hof execution"
-  },
-  {
-    Name:    "project"
-    Long:    "project"
-    Short:   "P"
-    Type:    "string"
-    Default: ""
-    Help:    "the project context to use during this hof execution"
-  },
-	// these are more cue specific with a dash of hof
-  {
-    Name:    "workspace"
-    Long:    "workspace"
-    Short:   "W"
-    Type:    "string"
-    Default: ""
-    Help:    "the workspace context to use during this hof execution"
-  },
-  {
-    Name:    "package"
-    Long:    "package"
-    Short:   "p"
-    Type:    "string"
-    Default: ""
-    Help:    "the package context to use during this hof execution"
-  },
-	{
+		// Labels will be core
+		{
 		Name:    "labels"
 		Long:    "label"
-		Short:   "L"
+		Short:   "l"
 		Type:    "[]string"
 		Default: "nil"
 		Help:    "Labels for use across all commands"
+	},
+	{
+		Name:    "config"
+		Long:    "config"
+		Short:   ""
+		Type:    "string"
+		Default: ""
+		Help:    "Path to a hof configuration file"
+	},
+	{
+		Name:    "secret"
+		Long:    "secret"
+		Short:   ""
+		Type:    "string"
+		Default: ""
+		Help:    "The path to a hof secret file"
+	},
+	{
+		Name:    "context"
+		Long:    "context"
+		Short:   "C"
+		Type:    "string"
+		Default: ""
+		Help:    "The path to a hof creds file"
+	},
+	{
+		Name:    "global"
+		Long:    "global"
+		Short:   ""
+		Type:    "bool"
+		Default: "false"
+		Help:    "Operate using only the global config/secret context"
+	},
+	{
+		Name:    "local"
+		Long:    "local"
+		Short:   ""
+		Type:    "bool"
+		Default: "false"
+		Help:    "Operate using only the local config/secret context"
+	},
+
+	// context should encapsulate the next three
+	{
+		Name:    "account"
+		Long:    "account"
+		Short:   ""
+		Type:    "string"
+		Default: ""
+		Help:    "the account context to use during this hof execution"
+	},
+	{
+		Name:    "billing"
+		Long:    "billing"
+		Short:   ""
+		Type:    "string"
+		Default: ""
+		Help:    "the billing context to use during this hof execution"
+	},
+	{
+		Name:    "project"
+		Long:    "project"
+		Short:   ""
+		Type:    "string"
+		Default: ""
+		Help:    "the project context to use during this hof execution"
+	},
+	{
+		Name:    "workspace"
+		Long:    "workspace"
+		Short:   ""
+		Type:    "string"
+		Default: ""
+		Help:    "the workspace context to use during this hof execution"
+	},
+	// these are more cue specific with a dash of hof
+	{
+		Name:    "package"
+		Long:    "package"
+		Short:   "p"
+		Type:    "string"
+		Default: ""
+		Help:    "the package context to use during this hof execution"
 	},
 	{
 		Name:    "errors"
@@ -83,7 +108,7 @@ import (
 	{
 		Name:    "ignore"
 		Long:    "ignore"
-		Short:   "i"
+		Short:   ""
 		Type:    "bool"
 		Default: "false"
 		Help:    "proceed in the presence of errors"
@@ -91,7 +116,7 @@ import (
 	{
 		Name:    "simplify"
 		Long:    "simplify"
-		Short:   "s"
+		Short:   "S"
 		Type:    "bool"
 		Default: "false"
 		Help:    "simplify output"
@@ -112,55 +137,60 @@ import (
 		Default: "false"
 		Help:    "report errors for lossy mappings"
 	},
-  {
-    Name:    "verbose"
-    Long:    "verbose"
-    Short:   "v"
-    Type:    "string"
-    Default: ""
-    Help:    "set the verbosity of output"
-  },
-  {
-    Name:    "quiet"
-    Long:    "quiet"
-    Short:   "q"
-    Type:    "bool"
-    Default: ""
-    Help:    "turn off output and assume defaults at prompts"
-  },
-  {
-    Name:    "ImpersonateAccount"
-    Long:    "impersonate-account"
-    Short:   "I"
-    Type:    "string"
-    Default: ""
-    Help:    "account to impersonate for this hof execution"
-  },
-  {
-    Name:    "traceToken"
-    Long:    "trace-token"
-    Short:   ""
-    Type:    "string"
-    Default: ""
-    Help:    "used to help debug issues"
-  },
-  {
-    Name:    "LogHTTP"
-    Long:    "log-http"
-    Short:   ""
-    Type:    "string"
-    Default: ""
-    Help:    "used to help debug issues"
-  },
-
-	// Keep this around for DMA legacy for the moment
 	{
-    Name:    "creds"
-    Long:    "creds"
-    Short:   ""
-    Type:    "string"
-    Default: ""
-    Help:    "The path to a hof creds file"
-  },
+		Name:    "verbose"
+		Long:    "verbose"
+		Short:   "v"
+		Type:    "string"
+		Default: ""
+		Help:    "set the verbosity of output"
+	},
+	{
+		Name:    "quiet"
+		Long:    "quiet"
+		Short:   "q"
+		Type:    "bool"
+		Default: ""
+		Help:    "turn off output and assume defaults at prompts"
+	},
+	{
+		Name:    "ImpersonateAccount"
+		Long:    "impersonate-account"
+		Short:   "I"
+		Type:    "string"
+		Default: ""
+		Help:    "account to impersonate for this hof execution"
+	},
+	{
+		Name:    "traceToken"
+		Long:    "trace-token"
+		Short:   "T"
+		Type:    "string"
+		Default: ""
+		Help:    "used to help debug issues"
+	},
+	{
+		Name:    "LogHTTP"
+		Long:    "log-http"
+		Short:   ""
+		Type:    "string"
+		Default: ""
+		Help:    "used to help debug issues"
+	},
+	{
+		Name:    "RunUI"
+		Long:    "ui"
+		Short:   ""
+		Type:    "bool"
+		Default: "false"
+		Help:    "run the command from the web ui"
+	},
+	{
+		Name:    "RunTUI"
+		Long:    "tui"
+		Short:   ""
+		Type:    "bool"
+		Default: "false"
+		Help:    "run the command from the terminal ui"
+	},
 ]
-

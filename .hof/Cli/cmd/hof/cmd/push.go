@@ -11,9 +11,12 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var pushLong = ` Update remote refs along with associated objects`
+var pushLong = `Update remote refs along with associated objects`
 
 func PushRun(args []string) (err error) {
+
+	// you can safely comment this print out
+	fmt.Println("not implemented")
 
 	return err
 }
@@ -22,7 +25,7 @@ var PushCmd = &cobra.Command{
 
 	Use: "push",
 
-	Short: " Update remote refs along with associated objects",
+	Short: "Update remote refs along with associated objects",
 
 	Long: pushLong,
 
@@ -61,7 +64,7 @@ func init() {
 	tusage := func(cmd *cobra.Command) error {
 		cs := strings.Fields(cmd.CommandPath())
 		c := strings.Join(cs[1:], "/")
-		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		ga.SendGaEvent(c+"/usage", "<omit>", 0)
 		return usage(cmd)
 	}
 	PushCmd.SetHelpFunc(thelp)

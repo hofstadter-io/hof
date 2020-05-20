@@ -11,9 +11,12 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var testLong = `test your auth configuration, defaults to current`
+var testLong = `test your auth configuration, defaults to current context`
 
 func TestRun(args []string) (err error) {
+
+	// you can safely comment this print out
+	fmt.Println("not implemented")
 
 	return err
 }
@@ -22,7 +25,7 @@ var TestCmd = &cobra.Command{
 
 	Use: "test [name]",
 
-	Short: "test your auth configuration, defaults to current",
+	Short: "test your auth configuration, defaults to current context",
 
 	Long: testLong,
 
@@ -61,7 +64,7 @@ func init() {
 	tusage := func(cmd *cobra.Command) error {
 		cs := strings.Fields(cmd.CommandPath())
 		c := strings.Join(cs[1:], "/")
-		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		ga.SendGaEvent(c+"/usage", "<omit>", 0)
 		return usage(cmd)
 	}
 	TestCmd.SetHelpFunc(thelp)

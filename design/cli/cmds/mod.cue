@@ -9,9 +9,9 @@ import (
 ]
 
 #ModCommand: schema.#Command & {
-  Name:  "mod"
-  Usage: "mod"
-  Aliases: ["m"]
+	Name:  "mod"
+	Usage: "mod"
+	Aliases: ["m"]
 	Short: "mod subcmd is a polyglot dependency management tool based on go mods"
 	Long: """
   The mod subcmd is a polyglot dependency management tool based on go mods.
@@ -69,6 +69,7 @@ import (
       """
 		},
 		{
+			TBD:   "+ "
 			Name:  "convert"
 			Usage: "convert <lang> <file>"
 			Short: "convert another package system to MVS."
@@ -100,6 +101,7 @@ import (
       """
 		},
 		{
+			TBD:   "+ "
 			Name:  "graph"
 			Usage: "graph"
 			Short: "print module requirement graph"
@@ -116,6 +118,7 @@ import (
       """
 		},
 		{
+			TBD:   "+ "
 			Name:  "status"
 			Usage: "status"
 			Short: "print module dependencies status"
@@ -163,6 +166,7 @@ import (
       """
 		},
 		{
+			TBD:   "+ "
 			Name:  "tidy"
 			Usage: "tidy [langs...]"
 			Short: "add missinad and remove unused modules"
@@ -195,6 +199,7 @@ import (
       """
 		},
 		{
+			TBD:   "+ "
 			Name:  "verify"
 			Usage: "verify [langs...]"
 			Short: "verify dependencies have expected content"

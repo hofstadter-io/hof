@@ -4,13 +4,23 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+
+	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
+
+var (
+	CompletionVanillaFlag bool
+)
+
+func init() {
+	CompletionCmd.Flags().BoolVarP(&CompletionVanillaFlag, "vanilla", "8", false, "set to only check for an update")
+}
 
 var CompletionCmd = &cobra.Command{
 	Use:     "completion",
 	Aliases: []string{"completions"},
-	Short:   "Generate completion helpers for your terminal",
-	Long:    "Generate completion helpers for your terminal",
+	Short:   "Generate completion helpers for popular terminals",
+	Long:    "Generate completion helpers for popular terminals",
 }
 
 var BashCompletionLong = `Generate Bash completions
@@ -49,7 +59,7 @@ var FishCompletionCmd = &cobra.Command{
 	Long:  "Generate Fish completions",
 
 	Run: func(cmd *cobra.Command, args []string) {
-		RootCmd.GenZshCompletion(os.Stdout)
+		RootCmd.GenFishCompletion(os.Stdout, true)
 	},
 }
 
@@ -70,5 +80,22 @@ func init() {
 	CompletionCmd.AddCommand(FishCompletionCmd)
 	CompletionCmd.AddCommand(PowerShellCompletionCmd)
 
-	RootCmd.AddCommand(CompletionCmd)
+	help := CompletionCmd.HelpFunc()
+	usage := CompletionCmd.UsageFunc()
+
+	thelp := func(cmd *cobra.Command, args []string) {
+		if CompletionCmd.Name() == cmd.Name() {
+			ga.SendGaEvent("completion/help", "<omit>", 0)
+		}
+		help(cmd, args)
+	}
+	tusage := func(cmd *cobra.Command) error {
+		if CompletionCmd.Name() == cmd.Name() {
+			ga.SendGaEvent("completion/usage", "<omit>", 0)
+		}
+		return usage(cmd)
+	}
+	CompletionCmd.SetHelpFunc(thelp)
+	CompletionCmd.SetUsageFunc(tusage)
+
 }

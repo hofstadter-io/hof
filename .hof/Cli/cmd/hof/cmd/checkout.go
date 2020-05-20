@@ -15,6 +15,9 @@ var checkoutLong = `Switch branches or restore working tree files`
 
 func CheckoutRun(args []string) (err error) {
 
+	// you can safely comment this print out
+	fmt.Println("not implemented")
+
 	return err
 }
 
@@ -61,7 +64,7 @@ func init() {
 	tusage := func(cmd *cobra.Command) error {
 		cs := strings.Fields(cmd.CommandPath())
 		c := strings.Join(cs[1:], "/")
-		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		ga.SendGaEvent(c+"/usage", "<omit>", 0)
 		return usage(cmd)
 	}
 	CheckoutCmd.SetHelpFunc(thelp)

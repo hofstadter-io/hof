@@ -1,9 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -14,11 +11,6 @@ import (
 )
 
 var topicLong = `Help for various topics and concepts`
-
-func TopicRun(args []string) (err error) {
-
-	return err
-}
 
 var TopicCmd = &cobra.Command{
 
@@ -39,18 +31,6 @@ var TopicCmd = &cobra.Command{
 		ga.SendGaEvent(c, "<omit>", 0)
 
 	},
-
-	Run: func(cmd *cobra.Command, args []string) {
-		var err error
-
-		// Argument Parsing
-
-		err = TopicRun(args)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-	},
 }
 
 func init() {
@@ -67,7 +47,7 @@ func init() {
 	tusage := func(cmd *cobra.Command) error {
 		cs := strings.Fields(cmd.CommandPath())
 		c := strings.Join(cs[1:], "/")
-		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		ga.SendGaEvent(c+"/usage", "<omit>", 0)
 		return usage(cmd)
 	}
 	TopicCmd.SetHelpFunc(thelp)

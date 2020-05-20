@@ -2,7 +2,6 @@ package cmdtopic
 
 import (
 	"fmt"
-	"os"
 
 	"strings"
 
@@ -11,7 +10,59 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var workspaceLong = `These are common Workspace and Dataset commands used in various situations:
+var workspaceLong = `Help for learning about workspaces and workflows`
+
+var WorkspaceCmd = &cobra.Command{
+
+	Use: "workspace",
+
+	Short: "Help for learning about workspaces and workflows",
+
+	Long: workspaceLong,
+
+	PreRun: func(cmd *cobra.Command, args []string) {
+
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c, "<omit>", 0)
+
+	},
+}
+
+func init() {
+
+	help := func(cmd *cobra.Command, args []string) {
+		fu := WorkspaceCmd.Flags().FlagUsages()
+		ch := strings.Replace(WorkspaceCustomHelp, "<<flag-usage>>", fu, 1)
+		fmt.Println(ch)
+
+	}
+	usage := func(cmd *cobra.Command) error {
+		fu := WorkspaceCmd.Flags().FlagUsages()
+		ch := strings.Replace(WorkspaceCustomHelp, "<<flag-usage>>", fu, 1)
+		fmt.Println(ch)
+
+		return fmt.Errorf("unknown command %q", cmd.Name())
+	}
+
+	thelp := func(cmd *cobra.Command, args []string) {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		help(cmd, args)
+	}
+	tusage := func(cmd *cobra.Command) error {
+		cs := strings.Fields(cmd.CommandPath())
+		c := strings.Join(cs[1:], "/")
+		ga.SendGaEvent(c+"/usage", "<omit>", 0)
+		return usage(cmd)
+	}
+	WorkspaceCmd.SetHelpFunc(thelp)
+	WorkspaceCmd.SetUsageFunc(tusage)
+
+}
+
+const WorkspaceCustomHelp = `These are common Workspace and Dataset commands used in various situations:
 
 start a working area (see also: git help tutorial)
 	 clone      Clone a Workspace into a new directory
@@ -39,59 +90,3 @@ collaborate and work with remote members
 	 push       Update remote refs along with associated objects
 	 propose    Propose to include your changeset in a remote repository
 `
-
-func WorkspaceRun(args []string) (err error) {
-
-	return err
-}
-
-var WorkspaceCmd = &cobra.Command{
-
-	Use: "workspace",
-
-	Short: "Help for learning about workspaces and workflows",
-
-	Long: workspaceLong,
-
-	PreRun: func(cmd *cobra.Command, args []string) {
-
-		cs := strings.Fields(cmd.CommandPath())
-		c := strings.Join(cs[1:], "/")
-		ga.SendGaEvent(c, "<omit>", 0)
-
-	},
-
-	Run: func(cmd *cobra.Command, args []string) {
-		var err error
-
-		// Argument Parsing
-
-		err = WorkspaceRun(args)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-	},
-}
-
-func init() {
-
-	help := WorkspaceCmd.HelpFunc()
-	usage := WorkspaceCmd.UsageFunc()
-
-	thelp := func(cmd *cobra.Command, args []string) {
-		cs := strings.Fields(cmd.CommandPath())
-		c := strings.Join(cs[1:], "/")
-		ga.SendGaEvent(c+"/help", "<omit>", 0)
-		help(cmd, args)
-	}
-	tusage := func(cmd *cobra.Command) error {
-		cs := strings.Fields(cmd.CommandPath())
-		c := strings.Join(cs[1:], "/")
-		ga.SendGaEvent(c+"/help", "<omit>", 0)
-		return usage(cmd)
-	}
-	WorkspaceCmd.SetHelpFunc(thelp)
-	WorkspaceCmd.SetUsageFunc(tusage)
-
-}

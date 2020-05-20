@@ -10,6 +10,7 @@ require (
 	github.com/codemodus/kace v0.5.1
 	github.com/epiclabs-io/diff3 v0.0.0-20181217103619-05282cece609
 	github.com/fatih/color v1.9.0
+	github.com/franela/goblin v0.0.0-20200512143142-b260c999b2d7
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-git/go-billy/v5 v5.0.0
 	github.com/go-git/go-git/v5 v5.0.0
@@ -18,6 +19,7 @@ require (
 	github.com/hofstadter-io/data-utils v0.0.0-20200128210141-0a3e569b27ed
 	github.com/hofstadter-io/dotpath v0.0.0-20191027071558-52e2819b7d2d
 	github.com/hofstadter-io/yagu v0.0.3
+	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
 	github.com/kr/pretty v0.1.0
 	github.com/mattn/go-zglob v0.0.1
 	github.com/mholt/archiver v3.1.1+incompatible
@@ -25,7 +27,7 @@ require (
 	github.com/parnurzeal/gorequest v0.2.16
 	github.com/sergi/go-diff v1.1.0
 	github.com/spf13/cobra v1.0.0
-	github.com/spf13/viper v1.6.2
+	github.com/spf13/viper v1.6.2 // indirect
 	github.com/stretchr/testify v1.4.0
 	golang.org/x/crypto v0.0.0-20200427165652-729f1e841bcc // indirect
 	golang.org/x/mod v0.2.0
@@ -33,7 +35,7 @@ require (
 	golang.org/x/sys v0.0.0-20200428200454-593003d681fa // indirect
 	golang.org/x/text v0.3.2
 	gopkg.in/src-d/go-git.v4 v4.13.1
-	gopkg.in/yaml.v2 v2.2.8
+	gopkg.in/yaml.v2 v2.2.8 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
 )
 

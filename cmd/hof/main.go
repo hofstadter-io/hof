@@ -27,6 +27,7 @@ func main() {
 		defer pprof.StopCPUProfile()
 	}
 
+	cmd.RootInit()
 	if err := cmd.RootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(-1)

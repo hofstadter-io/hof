@@ -11,18 +11,21 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var loginLong = `login to an account`
+var loginLong = `login to an account, provider, system, or url`
 
-func LoginRun(args []string) (err error) {
+func LoginRun(where string) (err error) {
+
+	// you can safely comment this print out
+	fmt.Println("not implemented")
 
 	return err
 }
 
 var LoginCmd = &cobra.Command{
 
-	Use: "login",
+	Use: "login <where>",
 
-	Short: "login to an account",
+	Short: "login to an account, provider, system, or url",
 
 	Long: loginLong,
 
@@ -39,7 +42,15 @@ var LoginCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		err = LoginRun(args)
+		var where string
+
+		if 0 < len(args) {
+
+			where = args[0]
+
+		}
+
+		err = LoginRun(where)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -61,7 +72,7 @@ func init() {
 	tusage := func(cmd *cobra.Command) error {
 		cs := strings.Fields(cmd.CommandPath())
 		c := strings.Join(cs[1:], "/")
-		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		ga.SendGaEvent(c+"/usage", "<omit>", 0)
 		return usage(cmd)
 	}
 	LoginCmd.SetHelpFunc(thelp)

@@ -32,8 +32,9 @@ var (
 )
 
 func init() {
-	UpdateCmd.Flags().BoolVarP(&UpdateCheckFlag, "check", "", false, "set to only check for an update")
-	UpdateCmd.Flags().StringVarP(&UpdateVersionFlag, "version", "V", "", "the version to update to")
+	UpdateCmd.Flags().BoolVarP(&UpdateCheckFlag, "check", "", false, "only check for an update")
+	UpdateCmd.Flags().BoolVarP(&UpdateCheckFlag, "list", "", false, "show local installed version")
+	UpdateCmd.Flags().StringVarP(&UpdateVersionFlag, "version", "V", "", "the version to update or install")
 }
 
 const updateMessage = `
@@ -86,9 +87,26 @@ var UpdateCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(UpdateCmd)
-
 	go CheckUpdate(false)
+
+	help := UpdateCmd.HelpFunc()
+	usage := UpdateCmd.UsageFunc()
+
+	thelp := func(cmd *cobra.Command, args []string) {
+		if UpdateCmd.Name() == cmd.Name() {
+			ga.SendGaEvent("update/help", "<omit>", 0)
+		}
+		help(cmd, args)
+	}
+	tusage := func(cmd *cobra.Command) error {
+		if UpdateCmd.Name() == cmd.Name() {
+			ga.SendGaEvent("update/usage", "<omit>", 0)
+		}
+		return usage(cmd)
+	}
+	UpdateCmd.SetHelpFunc(thelp)
+	UpdateCmd.SetUsageFunc(tusage)
+
 }
 
 type ProgramVersion struct {
@@ -320,9 +338,9 @@ func downloadAndInstall(url string) error {
 
 	// Sudo copy the file
 	cmd := exec.Command("/bin/sh", "-c",
-		fmt.Sprintf("export OWNER=$(ls -l %s | awk '{ print $3 \":\" $4 }') && sudo mv %s %s.backup && sudo cp %s %s && sudo chown $OWNER %s && sudo chmod 0755 %s && sudo rm %s.backup",
-			real,       // get owner
-			real, real, // mv
+		fmt.Sprintf("export OWNER=$(ls -l %s | awk '{ print $3 \":\" $4 }') && sudo mv %s %s-v%s && sudo cp %s %s && sudo chown $OWNER %s && sudo chmod 0755 %s",
+			real,                        // get owner
+			real, real, verinfo.Version, // backup
 			tmpfile.Name(), real, // cp
 			real, // chown
 			real, // chmod

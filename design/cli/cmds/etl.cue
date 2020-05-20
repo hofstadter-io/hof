@@ -5,8 +5,9 @@ import (
 )
 
 #EtlCommand: schema.#Command & {
-  Name:  "etl"
-  Usage: "etl"
-  Short: "extract, transform, and load data"
-	Long: Short
+	TBD:   "+ "
+	Name:  "etl"
+	Usage: "etl"
+	Short: "extract, transform, and load data"
+	Long:  Short
 }

@@ -8,12 +8,13 @@ import (
 	"github.com/hofstadter-io/dotpath"
 	"github.com/parnurzeal/gorequest"
 
-	"github.com/hofstadter-io/hof/lib/config"
+	// "github.com/hofstadter-io/hof/lib/config"
 )
 
 func SendRequest(queryTemplate string, vars interface{}) (interface{}, error) {
-	ctx := config.GetCurrentContext()
-	apikey := ctx.APIKey
+	// ctx := config.GetCurrentContext()
+	// apikey := ctx.APIKey
+	apikey := "#super-secret!"
 	host := ServerHost() + "/graphql"
 	acct, _ := GetAcctAndName()
 

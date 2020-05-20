@@ -2,7 +2,6 @@ package structural
 
 import (
 	"fmt"
-	"reflect"
 
 	"cuelang.org/go/cue"
 )
@@ -97,28 +96,55 @@ func cueMerge(out *pvStruct, vorig, vnew cue.Value) error {
 
 ///////////
 
-func Merge(orig, last interface{}) (interface{}, error) {
+func Merge(orig, last interface{}) (cue.Value, error) {
 
 	O, ook := orig.(cue.Value)
+	if !ook {
+		switch T := orig.(type) {
+		case string:
+			i, err := r.Compile("", orig)
+			if err != nil {
+				return O, err
+			}
+			v := i.Value()
+			if v.Err() != nil {
+				return v, v.Err()
+			}
+			O = v
+
+		default:
+			return O, fmt.Errorf("unknown type %v in Merge(orig,_)", T)
+		}
+	}
+
 	L, lok := last.(cue.Value)
+	if !lok {
+		switch T := last.(type) {
+		case string:
+			i, err := r.Compile("", last)
+			if err != nil {
+				return O, err
+			}
+			v := i.Value()
+			if v.Err() != nil {
+				return v, v.Err()
+			}
+			L = v
 
-	if ook && lok {
-		return MergeCue(O, L)
+		default:
+			return L, fmt.Errorf("unknown type %v in Merge(_,last)", T)
+		}
 	}
 
-	if !(ook || lok) {
-		return MergeGo(orig, last)
+	return MergeValues(O, L)
+}
+
+func MergeValues(orig, last cue.Value) (cue.Value, error) {
+	out := NewpvStruct()
+	err := cueMerge(out, orig, last)
+	if err != nil {
+		return cue.Value{}, err
 	}
-
-	return nil, fmt.Errorf("structural.Merge - Incompatible types %v and %v", reflect.TypeOf(orig), reflect.TypeOf(last))
-}
-
-func MergeCue(orig, last cue.Value) (cue.Value, error) {
-	fmt.Println("MergeCue - no implemented")
-	return cue.Value{}, nil
-}
-
-func MergeGo(orig, last interface{}) (interface{}, error) {
-	fmt.Println("MergeGo - no implemented")
-	return nil, nil
+	c, err := out.ToValue()
+	return *c, err
 }

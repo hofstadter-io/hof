@@ -15,6 +15,9 @@ var tagLong = `Create, list, delete or verify a tag object signed with GPG`
 
 func TagRun(args []string) (err error) {
 
+	// you can safely comment this print out
+	fmt.Println("not implemented")
+
 	return err
 }
 
@@ -61,7 +64,7 @@ func init() {
 	tusage := func(cmd *cobra.Command) error {
 		cs := strings.Fields(cmd.CommandPath())
 		c := strings.Join(cs[1:], "/")
-		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		ga.SendGaEvent(c+"/usage", "<omit>", 0)
 		return usage(cmd)
 	}
 	TagCmd.SetHelpFunc(thelp)

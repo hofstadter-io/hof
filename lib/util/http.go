@@ -3,19 +3,20 @@ package util
 import (
 	"errors"
 	"fmt"
-	"os"
-	"path/filepath"
+	//"os"
+	//"path/filepath"
 	"strings"
 
 	"github.com/parnurzeal/gorequest"
 
-	"github.com/hofstadter-io/hof/lib/config"
+	// "github.com/hofstadter-io/hof/lib/config"
 )
 
 func BuildRequest(path string) *gorequest.SuperAgent {
-	ctx := config.GetCurrentContext()
-	apikey := ctx.APIKey
+	//ctx := config.GetCurrentContext()
+	//apikey := ctx.APIKey
 
+	apikey := "#super-secret!"
 	url := ServerHost() + path
 	acct, name := GetAcctAndName()
 
@@ -28,15 +29,17 @@ func BuildRequest(path string) *gorequest.SuperAgent {
 }
 
 func ServerHost() string {
-	return config.GetCurrentContext().Host
+	return "not implemented"
+	// return config.GetCurrentContext().Host
 }
 
 func GetAcctAndName() (string, string) {
-	account := config.GetCurrentContext().Account
+	return "not implemented", ""
+	//account := config.GetCurrentContext().Account
 
-	dir, _ := os.Getwd()
-	name := filepath.Base(dir)
-	return account, name
+	//dir, _ := os.Getwd()
+	//name := filepath.Base(dir)
+	//return account, name
 }
 
 func SimpleGet(path string) error {

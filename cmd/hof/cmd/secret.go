@@ -10,13 +10,13 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var secretLong = `secret subcommands`
+var secretLong = `Manage local secrets`
 
 var SecretCmd = &cobra.Command{
 
 	Use: "secret",
 
-	Short: "secret subcommands",
+	Short: "Manage local secrets",
 
 	Long: secretLong,
 
@@ -43,16 +43,13 @@ func init() {
 	tusage := func(cmd *cobra.Command) error {
 		cs := strings.Fields(cmd.CommandPath())
 		c := strings.Join(cs[1:], "/")
-		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		ga.SendGaEvent(c+"/usage", "<omit>", 0)
 		return usage(cmd)
 	}
 	SecretCmd.SetHelpFunc(thelp)
 	SecretCmd.SetUsageFunc(tusage)
 
-	SecretCmd.AddCommand(cmdsecret.CreateCmd)
-	SecretCmd.AddCommand(cmdsecret.ListCmd)
 	SecretCmd.AddCommand(cmdsecret.GetCmd)
 	SecretCmd.AddCommand(cmdsecret.SetCmd)
-	SecretCmd.AddCommand(cmdsecret.UseCmd)
 
 }

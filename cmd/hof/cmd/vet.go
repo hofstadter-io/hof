@@ -15,6 +15,9 @@ var vetLong = `validate data`
 
 func VetRun(args []string) (err error) {
 
+	// you can safely comment this print out
+	fmt.Println("not implemented")
+
 	return err
 }
 
@@ -53,15 +56,17 @@ func init() {
 	usage := VetCmd.UsageFunc()
 
 	thelp := func(cmd *cobra.Command, args []string) {
+		fmt.Println("thelp", cmd.Name(), args)
 		cs := strings.Fields(cmd.CommandPath())
 		c := strings.Join(cs[1:], "/")
 		ga.SendGaEvent(c+"/help", "<omit>", 0)
 		help(cmd, args)
 	}
 	tusage := func(cmd *cobra.Command) error {
+		fmt.Println("tusage", cmd.Name())
 		cs := strings.Fields(cmd.CommandPath())
 		c := strings.Join(cs[1:], "/")
-		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		ga.SendGaEvent(c+"/usage", "<omit>", 0)
 		return usage(cmd)
 	}
 	VetCmd.SetHelpFunc(thelp)
