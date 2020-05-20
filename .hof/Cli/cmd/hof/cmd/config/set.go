@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var setLong = `set config values with expr`
+var setLong = `set config values with an expr`
 
 func SetRun(expr string) (err error) {
 
@@ -25,7 +25,7 @@ var SetCmd = &cobra.Command{
 
 	Use: "set [expr]",
 
-	Short: "set config values with expr",
+	Short: "set config values with an expr",
 
 	Long: setLong,
 

@@ -108,6 +108,7 @@ import (
 		// test
 		// note / knowledge graph
 		// todo / scrum
+		// security
 
 		cmds.#UiCommand,
 		cmds.#TuiCommand,

@@ -2,10 +2,10 @@ package runtime
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/format"
 
 	"github.com/hofstadter-io/hof/cmd/hof/pflags"
 	"github.com/hofstadter-io/hof/gen/cuefig"
@@ -176,6 +176,7 @@ func (R *Runtime) PrintSecret() error {
 }
 
 func (R *Runtime) ConfigGet(path string) (cue.Value, error) {
+	fmt.Println("ConfigGet", pflags.RootGlobalPflag)
 	var orig cue.Value
 	var err error
 	if pflags.RootConfigPflag != "" {
@@ -193,6 +194,9 @@ func (R *Runtime) ConfigGet(path string) (cue.Value, error) {
 		return orig, err
 	}
 
+	if path == "" {
+		return orig, nil
+	}
 	paths := strings.Split(path, ".")
 	val := orig.Lookup(paths...)
 	return val, nil
@@ -216,6 +220,9 @@ func (R *Runtime) SecretGet(path string) (cue.Value, error) {
 		return orig, err
 	}
 
+	if path == "" {
+		return orig, nil
+	}
 	paths := strings.Split(path, ".")
 	val := orig.Lookup(paths...)
 	return val, nil
@@ -223,7 +230,10 @@ func (R *Runtime) SecretGet(path string) (cue.Value, error) {
 
 func (R *Runtime) ConfigSet(expr string) (error) {
 	var orig cue.Value
+	var val cue.Value
 	var err error
+
+	// Check which config we want to work with
 	if pflags.RootConfigPflag != "" {
 		orig, err = cuefig.LoadConfigConfig("", pflags.RootConfigPflag)
 	} else if pflags.RootLocalPflag {
@@ -234,38 +244,92 @@ func (R *Runtime) ConfigSet(expr string) (error) {
 		orig = R.ConfigValue
 	}
 
-	// now check for error
+	// now check for error from that config selection process
 	if err != nil {
-		return err
-	}
+		if _, ok := err.(*os.PathError); !ok && (strings.Contains(err.Error(), "file does not exist") || strings.Contains(err.Error(), "no such file")) {
+			// error is worse than non-existant
+			return err
+		}
+		// file does not exist, so we should just set
+		var r cue.Runtime
+		inst, err := r.Compile("", expr)
+		if err != nil {
+			return err
+		}
+		val = inst.Value()
+		if val.Err() != nil {
+			return val.Err()
+		}
 
-	val, err := structural.Merge(orig, expr)
-	if err != nil {
-		return err
+	} else {
+		val, err = structural.Merge(orig, expr)
+		if err != nil {
+			return err
+		}
 	}
-
-	bytes, err := format.Node(val.Syntax())
-	if err != nil {
-		return err
-	}
-	fmt.Println(string(bytes))
 
 	// Now save
-	/*
 	if pflags.RootConfigPflag != "" {
-		orig, err = cuefig.LoadConfigConfig("", pflags.RootConfigPflag)
+		err = cuefig.SaveConfigConfig("", pflags.RootConfigPflag, val)
 	} else if pflags.RootLocalPflag {
-		orig, err = cuefig.LoadConfigDefault()
+		err = cuefig.SaveConfigDefault(val)
 	} else if pflags.RootGlobalPflag {
-		orig, err = cuefig.LoadHofcfgDefault()
+		err = cuefig.SaveHofcfgDefault(val)
 	} else {
-		orig = R.ConfigValue
+		err = cuefig.SaveConfigDefault(val)
 	}
-	*/
-	return nil
+	return err
 }
 
-func (R *Runtime) SecretSet(path string, str string) (error) {
+func (R *Runtime) SecretSet(expr string) (error) {
+	var orig cue.Value
+	var val cue.Value
+	var err error
 
-	return nil
+	// Check which config we want to work with
+	if pflags.RootSecretPflag != "" {
+		orig, err = cuefig.LoadSecretConfig("", pflags.RootSecretPflag)
+	} else if pflags.RootLocalPflag {
+		orig, err = cuefig.LoadSecretDefault()
+	} else if pflags.RootGlobalPflag {
+		orig, err = cuefig.LoadHofshhDefault()
+	} else {
+		orig = R.SecretValue
+	}
+
+	// now check for error from that config selection process
+	if err != nil {
+		if _, ok := err.(*os.PathError); !ok && (strings.Contains(err.Error(), "file does not exist") || strings.Contains(err.Error(), "no such file")) {
+			// error is worse than non-existant
+			return err
+		}
+		// file does not exist, so we should just set
+		var r cue.Runtime
+		inst, err := r.Compile("", expr)
+		if err != nil {
+			return err
+		}
+		val = inst.Value()
+		if val.Err() != nil {
+			return val.Err()
+		}
+
+	} else {
+		val, err = structural.Merge(orig, expr)
+		if err != nil {
+			return err
+		}
+	}
+
+	// Now save
+	if pflags.RootSecretPflag != "" {
+		err = cuefig.SaveSecretConfig("", pflags.RootSecretPflag, val)
+	} else if pflags.RootLocalPflag {
+		err = cuefig.SaveSecretDefault(val)
+	} else if pflags.RootGlobalPflag {
+		err = cuefig.SaveHofshhDefault(val)
+	} else {
+		err = cuefig.SaveSecretDefault(val)
+	}
+	return err
 }

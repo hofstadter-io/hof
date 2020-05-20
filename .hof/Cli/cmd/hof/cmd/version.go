@@ -18,6 +18,12 @@ Commit:      %s
 BuildDate:   %s
 GoVersion:   %s
 OS / Arch:   %s %s
+
+
+Author:   Hofstadter, Inc
+Homepage: https://hofstadter.io
+GitHub:   https://github.com/hofstadter-io/hof
+
 `
 
 var VersionLong = `Print the build version for hof`

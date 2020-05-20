@@ -24,7 +24,10 @@ func GetRun(args []string) (err error) {
 
 	// TODO, name, def, and validate args via design
 	if len(args) == 0 {
-		val := runtime.GetRuntime().ConfigValue
+		val, err := runtime.GetRuntime().ConfigGet("")
+		if err != nil {
+			return err
+		}
 
 		bytes, err := format.Node(val.Syntax())
 		if err != nil {

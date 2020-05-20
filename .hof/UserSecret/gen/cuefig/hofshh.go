@@ -4,7 +4,7 @@ package cuefig
 
 import (
 	"fmt"
-	// "io/ioutil"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -199,12 +199,10 @@ func SaveHofshhConfig(workpath, entrypoint string, val cue.Value) (err error) {
 	fmt.Println(str)
 
 	// write the file
-	/*
-		err = ioutil.WriteFile(fpath, bytes, 0644)
-		if err != nil {
-			return err
-		}
-	*/
+	err = ioutil.WriteFile(fpath, bytes, 0644)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

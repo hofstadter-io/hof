@@ -7,8 +7,8 @@ import (
 #CliReleases: schema.#GoReleaser & {
 	Disabled: false
 	Draft:    false
-	Author:   "Tony Worm"
-	Homepage: "https://github.com/hofstadter-io/hof"
+	Author:   "Hofstadter, Inc"
+	Homepage: "https://hofstadter.io"
 
 	GitHub: {
 		Owner: "hofstadter-io"

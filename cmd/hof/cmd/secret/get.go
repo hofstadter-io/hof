@@ -9,6 +9,10 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"cuelang.org/go/cue/format"
+
+	"github.com/hofstadter-io/hof/lib/runtime"
 )
 
 var getLong = `print a secret or value(s) at path(s)`
@@ -16,9 +20,36 @@ var getLong = `print a secret or value(s) at path(s)`
 func GetRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
 
-	return err
+	if len(args) == 0 {
+		val, err := runtime.GetRuntime().SecretGet("")
+		if err != nil {
+			return err
+		}
+
+		bytes, err := format.Node(val.Syntax())
+		if err != nil {
+			return err
+		}
+		fmt.Println(string(bytes))
+		return nil
+	}
+
+	for _, a := range args {
+		val, err := runtime.GetRuntime().SecretGet(a)
+		if err != nil {
+			return err
+		}
+
+		bytes, err := format.Node(val.Syntax())
+		if err != nil {
+			return err
+		}
+		fmt.Printf("%s: %s\n\n", a, string(bytes))
+	}
+
+	return nil
 }
 
 var GetCmd = &cobra.Command{

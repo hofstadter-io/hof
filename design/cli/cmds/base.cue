@@ -94,27 +94,23 @@ import (
 
 	OmitRun: true
 
-	Commands: [
-		{
-			Name:  "get"
-			Usage: "get <key.path>"
-			Short: "print a config or value(s) at path(s)"
-			Long:  Short
-		},
-		{
-			TBD:   "+ "
-			Name:  "set"
-			Usage: "set [expr]"
-			Short: "set config values with expr"
-			Long:  Short
-			Args: [{
-				Name:     "expr"
-				Type:     "string"
-				Required: true
-				Help:     "Cue expr for value you'd like to merge into your config"
-			}]
-		},
-	]
+	Commands: [{
+		Name:  "get"
+		Usage: "get <key.path>"
+		Short: "print a config or value(s) at path(s)"
+		Long:  Short
+	}, {
+		Name:  "set"
+		Usage: "set [expr]"
+		Short: "set config values with an expr"
+		Long:  Short
+		Args: [{
+			Name:     "expr"
+			Type:     "string"
+			Required: true
+			Help:     "Cue expr for value you'd like to merge into your config"
+		}]
+	}]
 }
 
 #SecretCommand: schema.#Command & {
@@ -125,30 +121,21 @@ import (
 
 	OmitRun: true
 
-	Commands: [
-		{
-			Name:  "get"
-			Usage: "get <key.path>"
-			Short: "print a secret or value(s) at path(s)"
-			Long:  Short
-		},
-		{
-			TBD:   "+ "
-			Name:  "set"
-			Usage: "set [key.path] [value]"
-			Short: "set secret value at path"
-			Long:  Short
-			Args: [{
-				Name:     "path"
-				Type:     "string"
-				Required: true
-				Help:     "Cue path to the value you'd like, if none, everything is printed"
-			},{
-				Name:     "value"
-				Type:     "string"
-				Required: true
-				Help:     "Cue value is a string, or use @filename.cue"
-			}]
-		},
-	]
+	Commands: [{
+		Name:  "get"
+		Usage: "get <key.path>"
+		Short: "print a secret or value(s) at path(s)"
+		Long:  Short
+	}, {
+		Name:  "set"
+		Usage: "set [expr]"
+		Short: "set secret values with an expr"
+		Long:  Short
+		Args: [{
+			Name:     "expr"
+			Type:     "string"
+			Required: true
+			Help:     "Cue expr for value you'd like to merge into your secret"
+		}]
+	}]
 }
