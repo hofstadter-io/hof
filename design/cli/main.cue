@@ -32,6 +32,7 @@ import (
 
 	Commands: [
 		// start
+		// cmds.#SetupCommand, // setup the hof tool, or reset up
 		cmds.#InitCommand,
 		cmds.#CloneCommand,
 
@@ -44,6 +45,8 @@ import (
 		cmds.#ModCommand,
 		cmds.#AddCommand,
 		cmds.#CmdCommand,
+		// cmds.#RunCommand, // (hof-lang) / (or at first, a step in that direction)
+		// Runtimes (docker, node, go, cue, python)
 
 		// resources
 		cmds.#LabelCommand,
@@ -110,6 +113,8 @@ import (
 		// scan
 		// note / knowledge graph
 		// todo / scrum
+		// TOOLS (same as runtime?)
+		//   what is docker based
 
 
 		// TODO: SECURITY

@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-const SHADOW_DIR = ".hof/"
+const SHADOW_DIR = ".hof/shadow/"
 
 func LoadShadow(subdir string, verbose bool) (map[string]*File, error) {
 	if verbose {
