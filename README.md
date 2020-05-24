@@ -5,6 +5,38 @@ and has since expanded to helping make dev work fun again.
 This is a large body of work in progress,
 contributions are warmly welcomed.
 
+### getting started
+
+You will have to download `hof` the first time.
+After that `hof` will prompt you to update and
+install new releases as they become available
+
+```
+# Install (Linux, Mac, Windows)
+curl -LO https://github.com/hofstadter-io/hof/releases/download/v0.5.3/hof_0.5.3_$(uname)_$(uname -m)
+mv hof_0.5.3_$(uname)_$(uname -m) /usr/local/bin/hof
+
+# Shell Completions (bash, zsh, fish, power-shell)
+echo “. <(hof completion bash)” >> $HOME/.profile
+source $HOME/.profile
+
+# Show the help text (also seen below)
+hof
+
+# Setup hof (optional)
+hof setup
+```
+
+You can always find the latest version from the
+[releases page]
+
+Go Docs: https://pkg.go.dev/mod/github.com/hofstadter-io/hof
+
+Chat: https://gitter.im/hofstadter-io
+
+
+### top-level commands
+
 ```text
 hof - a polyglot tool for building software
 
@@ -109,8 +141,6 @@ Additional topics:
   schema, codegen, modeling, mirgrations
   resources, labels, context, querying
   workflow, changesets, collaboration
-
-(+) command is yet to be implemented
 
 Flags:
       --account string               the account context to use during this hof execution
