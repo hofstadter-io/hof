@@ -11,13 +11,13 @@ You will have to download `hof` the first time.
 After that `hof` will prompt you to update and
 install new releases as they become available
 
-```
+```text
 # Install (Linux, Mac, Windows)
 curl -LO https://github.com/hofstadter-io/hof/releases/download/v0.5.3/hof_0.5.3_$(uname)_$(uname -m)
 mv hof_0.5.3_$(uname)_$(uname -m) /usr/local/bin/hof
 
 # Shell Completions (bash, zsh, fish, power-shell)
-echo “. <(hof completion bash)” >> $HOME/.profile
+echo ". <(hof completion bash)" >> $HOME/.profile
 source $HOME/.profile
 
 # Show the help text (also seen below)
