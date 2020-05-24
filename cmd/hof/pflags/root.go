@@ -12,6 +12,8 @@ var (
 	RootBillingPflag            string
 	RootProjectPflag            string
 	RootWorkspacePflag          string
+	RootResourcesDirPflag       string
+	RootRuntimesDirPflag        string
 	RootPackagePflag            string
 	RootErrorsPflag             bool
 	RootIgnorePflag             bool

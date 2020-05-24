@@ -98,6 +98,23 @@ import (
 		Default: ""
 		Help:    "the workspace context to use during this hof execution"
 	},
+	{
+		Name:    "resourcesDir"
+		Long:    "resources-dir"
+		Short:   ""
+		Type:    "string"
+		Default: ""
+		Help:    "directory for discovering resources"
+	},
+	{
+		Name:    "runtimesDir"
+		Long:    "runtimes-dir"
+		Short:   ""
+		Type:    "string"
+		Default: ""
+		Help:    "directory for discovering runtimes"
+	},
+
 	// these are more cue specific with a dash of hof
 	{
 		Name:    "package"

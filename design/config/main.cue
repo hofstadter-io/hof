@@ -12,10 +12,11 @@ import (
 	Entrypoint:   ".hofctx.cue"
 	ConfigSchema: #ContextSchema
 }
+
 // Local config
 #HofConfig: schema.#Config & {
-	Name:       "config"
-	Entrypoint: ".hofcfg.cue"
+	Name:         "config"
+	Entrypoint:   ".hofcfg.cue"
 	ConfigSchema: #ConfigSchema
 }
 

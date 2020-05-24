@@ -31,28 +31,35 @@ import (
 	Pflags: #CliPflags
 
 	Commands: [
+
 		// start
-		// cmds.#SetupCommand, // setup the hof tool, or reset up
+		cmds.#SetupCommand, // setup the hof tool, or reset up
 		cmds.#InitCommand,
 		cmds.#CloneCommand,
 
 		// hof
-		cmds.#GenCommand,
 		cmds.#ModelsetCommand,
-		// #EtlCommand,
+		cmds.#GenCommand,
+		cmds.#RunCommand,      // (hof-lang) / (or at first, a step in that direction)
+		cmds.#RuntimesCommand, // (docker, node, go, cue, python)
+
+		// learn
+		cmds.#DocCommand,
+		cmds.#TourCommand,
+		cmds.#TutorialCommand,
 
 		// hof + cue
 		cmds.#ModCommand,
 		cmds.#AddCommand,
 		cmds.#CmdCommand,
-		// cmds.#RunCommand, // (hof-lang) / (or at first, a step in that direction)
-		// Runtimes (docker, node, go, cue, python)
 
 		// resources
+		cmds.#InfoCommand,
 		cmds.#LabelCommand,
 		cmds.#CreateCommand,
 		cmds.#ApplyCommand,
 		cmds.#GetCommand,
+		cmds.#EditCommand,
 		cmds.#DeleteCommand,
 
 		// cue
@@ -90,20 +97,16 @@ import (
 		cmds.#PullCommand,
 		cmds.#PushCommand,
 		cmds.#ProposeCommand,
+		cmds.#ReproCommand,
 		// publish
 		// release
 
-		// additional help topics
-		cmds.#TopicCommand,
-		cmds.#FeedbackCommand,
-		// bugreport
-		// crashreport
-		// changelog --version
-
 		// dev & more st commands
-		cmds.#DocCommand,
 		cmds.#JumpCommand,
 		cmds.#BuildCommand,
+		cmds.#UiCommand,
+		cmds.#TuiCommand,
+		cmds.#ReplCommand,
 		// lint
 		// fmt
 		// fix
@@ -116,15 +119,17 @@ import (
 		// TOOLS (same as runtime?)
 		//   what is docker based
 
-
 		// TODO: SECURITY
 		// - report
 		// - scan
 		// - fix
 
-		cmds.#UiCommand,
-		cmds.#TuiCommand,
-		cmds.#ReplCommand,
+		// additional help topics
+		cmds.#TopicCommand,
+		cmds.#FeedbackCommand,
+		// bugreport
+		// crashreport
+		// changelog --version
 
 		// hacks down this way
 		{

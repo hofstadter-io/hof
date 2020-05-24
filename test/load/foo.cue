@@ -1,7 +1,9 @@
 package foo
 
+// More docs
 #Ex1: {
-	a: string
+	// a doc?
+	a: string @hello()
 	b: int
 }
 

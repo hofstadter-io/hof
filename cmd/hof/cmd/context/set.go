@@ -10,7 +10,7 @@ import (
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 
-	"github.com/hofstadter-io/hof/lib/runtime"
+	"github.com/hofstadter-io/hof/lib/config"
 )
 
 var setLong = `set context values with an expr`
@@ -20,7 +20,7 @@ func SetRun(expr string) (err error) {
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = runtime.GetRuntime().ContextSet(expr)
+	err = config.GetRuntime().ContextSet(expr)
 
 	return err
 }

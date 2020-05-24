@@ -22,7 +22,7 @@ Otherwise, the <op> is interpreted as a complete Cue value.
 	Usage: "st"
 	Aliases: ["structural"]
 	Short: "Structural diff, merge, mask, pick, and query helpers for Cue"
-	Long: #StLong
+	Long:  #StLong
 
 	OmitRun: true
 
@@ -35,108 +35,108 @@ Otherwise, the <op> is interpreted as a complete Cue value.
 		"""
 
 		Args: [{
-			Name: "orig"
-			Type: "string"
+			Name:     "orig"
+			Type:     "string"
 			Required: true
-			Help: "original value to calc diff from, see 'hof st --help' for format"
+			Help:     "original value to calc diff from, see 'hof st --help' for format"
 		}, {
-			Name: "next"
-			Type: "string"
+			Name:     "next"
+			Type:     "string"
 			Required: true
-			Help: "next value to calc diff to, see 'hof st --help' for format"
+			Help:     "next value to calc diff to, see 'hof st --help' for format"
 		}, {
 			Name: "entrypoints"
 			Type: "[]string"
 			Rest: true
 			Help: "Cue entrypoints"
 		}]
-	},{
+	}, {
 		Name:  "merge"
 		Usage: "merge <orig> <update> [...entrypoints]"
 		Short: "Merge <new> onto <orig>, replacing values and adding new ones"
-		Long: Short
+		Long:  Short
 
 		Args: [{
-			Name: "orig"
-			Type: "string"
+			Name:     "orig"
+			Type:     "string"
 			Required: true
-			Help: "original value to update, see 'hof st --help' for format"
+			Help:     "original value to update, see 'hof st --help' for format"
 		}, {
-			Name: "update"
-			Type: "string"
+			Name:     "update"
+			Type:     "string"
 			Required: true
-			Help: "update value to layer on, see 'hof st --help' for format"
+			Help:     "update value to layer on, see 'hof st --help' for format"
 		}, {
 			Name: "entrypoints"
 			Type: "[]string"
 			Rest: true
 			Help: "Cue entrypoints"
 		}]
-	},{
+	}, {
 		Name:  "pick"
 		Usage: "pick <orig> <what> [...entrypoints]"
 		Short: "Pick <what> Cue value(s) from <orig>"
-		Long: Short
+		Long:  Short
 
 		Args: [{
-			Name: "orig"
-			Type: "string"
+			Name:     "orig"
+			Type:     "string"
 			Required: true
-			Help: "original value to pick value(s) from, see 'hof st --help' for format"
+			Help:     "original value to pick value(s) from, see 'hof st --help' for format"
 		}, {
-			Name: "pick"
-			Type: "string"
+			Name:     "pick"
+			Type:     "string"
 			Required: true
-			Help: "the Cue value shape to extract from orig, see 'hof st --help' for format"
+			Help:     "the Cue value shape to extract from orig, see 'hof st --help' for format"
 		}, {
 			Name: "entrypoints"
 			Type: "[]string"
 			Rest: true
 			Help: "Cue entrypoints"
 		}]
-	},{
+	}, {
 		Name:  "mask"
 		Usage: "mask <orig> <what> [...entrypoints]"
 		Short: "Mask <what> Cue value(s) from <orig>, thereby 'filtering' the original"
-		Long: Short
+		Long:  Short
 
 		Args: [{
-			Name: "orig"
-			Type: "string"
+			Name:     "orig"
+			Type:     "string"
 			Required: true
-			Help: "original value to filter with mask, see 'hof st --help' for format"
+			Help:     "original value to filter with mask, see 'hof st --help' for format"
 		}, {
-			Name: "what"
-			Type: "string"
+			Name:     "what"
+			Type:     "string"
 			Required: true
-			Help: "the mask to filter orig with, see 'hof st --help' for format"
+			Help:     "the mask to filter orig with, see 'hof st --help' for format"
 		}, {
 			Name: "entrypoints"
 			Type: "[]string"
 			Rest: true
 			Help: "Cue entrypoints"
 		}]
-	},{
+	}, {
 		Name:  "query"
 		Usage: "query <orig> <expr> [...entrypoints]"
 		Short: "Query for values matching an expr and/or attributes"
-		Long: Short
+		Long:  Short
 
 		Args: [{
-			Name: "orig"
-			Type: "string"
+			Name:     "orig"
+			Type:     "string"
 			Required: true
-			Help: "Cue value to query values from, see 'hof st --help' for format"
+			Help:     "Cue value to query values from, see 'hof st --help' for format"
 		}, {
-			Name: "expr"
-			Type: "string"
+			Name:     "expr"
+			Type:     "string"
 			Required: true
-			Help: "Cue expression to query with, see 'hof st --help' for format"
+			Help:     "Cue expression to query with, see 'hof st --help' for format"
 		}, {
 			Name: "entrypoints"
 			Type: "[]string"
 			Rest: true
 			Help: "Cue entrypoints"
 		}]
-	} ]
+	}]
 }

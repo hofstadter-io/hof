@@ -8,22 +8,6 @@ import (
 // (data requires a different, git like backing store)
 // git//obj-db/dolt as layer between datasets and  data lake
 
-#CloneCommand: schema.#Command & {
-	TBD:   "+ "
-	Name:  "clone"
-	Usage: "clone"
-	Short: "Clone a Workspace into a new directory"
-	Long:  Short
-}
-
-#InitCommand: schema.#Command & {
-	TBD:   "+ "
-	Name:  "init"
-	Usage: "init"
-	Short: "Create an empty Workspace or initialize an existing directory to one"
-	Long:  Short
-}
-
 #StatusCommand: schema.#Command & {
 	TBD:   "+ "
 	Name:  "status"

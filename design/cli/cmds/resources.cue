@@ -6,6 +6,14 @@ import (
 
 // Kubernetes inspired commands (maybe some hyper-cloud too)
 
+#InfoCommand: schema.#Command & {
+	TBD:   "+ "
+	Name:  "info"
+	Usage: "info"
+	Short: "print information about known resources"
+	Long:  Short
+}
+
 #LabelCommand: schema.#Command & {
 	TBD:   "+ "
 	Name:  "label"
@@ -35,6 +43,14 @@ import (
 	Name:  "get"
 	Usage: "get"
 	Short: "find and display resources"
+	Long:  Short
+}
+
+#EditCommand: schema.#Command & {
+	TBD:   "+ "
+	Name:  "edit"
+	Usage: "edit"
+	Short: "edit resources"
 	Long:  Short
 }
 

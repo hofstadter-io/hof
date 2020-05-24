@@ -13,27 +13,39 @@ Usage:
   hof [flags] [command] [args]
 
 
-Create or clone workspaces and datasets:
+Setup hof and create workspaces and datasets:
+  \(cmds.#SetupCommand.Help)
   \(cmds.#InitCommand.Help)
   \(cmds.#CloneCommand.Help)
 
-Model your world and generate implementation:
+Model your designs, generate implementation, run anything:
   \(cmds.#ModelsetCommand.Help)
   \(cmds.#GenCommand.Help)
+  \(cmds.#RunCommand.Help)
+  \(cmds.#RuntimesCommand.Help)
 
-Download modules, add content, and run commands:
+Learn more about hof and the _ you can do:
+  \(cmds.#DocCommand.Help)
+  \(cmds.#TourCommand.Help)
+  \(cmds.#TutorialCommand.Help)
+
+
+Download modules, add content, and execute commands:
   \(cmds.#ModCommand.Help)
   \(cmds.#AddCommand.Help)
   \(cmds.#CmdCommand.Help)
 
 Manage resources (see also 'hof topic resources'):
+  \(cmds.#InfoCommand.Help)
   \(cmds.#LabelCommand.Help)
   \(cmds.#CreateCommand.Help)
   \(cmds.#ApplyCommand.Help)
   \(cmds.#GetCommand.Help)
+  \(cmds.#EditCommand.Help)
   \(cmds.#DeleteCommand.Help)
 
 Configure, Unify, Execute (see also https://cuelang.org):
+  (also a whole bunch of other awesome things)
   \(cmds.#DefCommand.Help)
   \(cmds.#EvalCommand.Help)
   \(cmds.#ExportCommand.Help)
@@ -74,7 +86,6 @@ Colloaborate (see also 'hof topic collaborate'):
   \(cmds.#ReproCommand.Help)
  
 Local development commands:
-  \(cmds.#DocCommand.Help)
   \(cmds.#JumpCommand.Help)
   \(cmds.#BuildCommand.Help)
   \(cmds.#ReproCommand.Help)

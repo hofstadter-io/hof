@@ -13,7 +13,7 @@ import (
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/format"
 
-	"github.com/hofstadter-io/hof/lib/runtime"
+	"github.com/hofstadter-io/hof/lib/config"
 )
 
 var getLong = `print a config or value(s) at path(s)`
@@ -24,7 +24,7 @@ func GetRun(args []string) (err error) {
 	// fmt.Println("not implemented")
 
 	if len(args) == 0 {
-		val, err := runtime.GetRuntime().ConfigGet("")
+		val, err := config.GetRuntime().ConfigGet("")
 		if err != nil {
 			return err
 		}
@@ -43,7 +43,7 @@ func GetRun(args []string) (err error) {
 	}
 
 	for _, a := range args {
-		val, err := runtime.GetRuntime().ConfigGet(a)
+		val, err := config.GetRuntime().ConfigGet(a)
 		if err != nil {
 			return err
 		}

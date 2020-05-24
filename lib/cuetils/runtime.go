@@ -1,11 +1,8 @@
-package runtime
-
-// Name: config
+package cuetils
 
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/go-git/go-billy/v5"
 
@@ -16,11 +13,13 @@ import (
 )
 
 type CueRuntime struct {
+
 	Entrypoints []string
 	Workspace   string
 	FS billy.Filesystem
 
 	CueRuntime *cue.Runtime
+	CueConfig *load.Config
 	BuildInstances []*build.Instance
 	CueErrors []error
 
@@ -30,35 +29,11 @@ type CueRuntime struct {
 
 }
 
-// CueRuntimeFromArgs builds up a CueRuntime
-//  by processing the args passed in
-func CueRuntimeFromArgs(args []string) (crt *CueRuntime, err error) {
-	crt = &CueRuntime{
-		Entrypoints: args,
-	}
-
-	err = crt.Load()
-
-	return crt, err
-}
-
-// CueRuntimeFromArgsAndFlags builds up a CueRuntime
-//  by processing the args passed in AND the current flag values
-func CueRuntimeFromArgsAndFlags(args []string) (crt *CueRuntime, err error) {
-	crt = &CueRuntime{
-		Entrypoints: args,
-	}
-
-	// XXX TODO XXX
-	// Buildup out arg to load.Instances second arg
-	// Add this configuration to our runtime struct
-
-	err = crt.Load()
-
-	return crt, err
-}
-
 func (CRT *CueRuntime) Load() (err error) {
+	return CRT.load()
+}
+
+func (CRT *CueRuntime) load() (err error) {
 	// possibly, check for workpath
 	if CRT.Workspace != "" {
 		_, err = os.Lstat(CRT.Workspace)
@@ -132,30 +107,3 @@ func (CRT *CueRuntime) Load() (err error) {
 	return nil
 }
 
-func (CRT *CueRuntime) PrintValue() error {
-	// Get top level struct from cuelang
-	S, err := CRT.CueValue.Struct()
-	if err != nil {
-		return err
-	}
-
-	iter := S.Fields()
-	for iter.Next() {
-
-		label := iter.Label()
-		value := iter.Value()
-		fmt.Println("  -", label, value)
-		for attrKey, attrVal := range value.Attributes() {
-			fmt.Println("  --", attrKey)
-			for i := 0; i < 5; i++ {
-				str, err := attrVal.String(i)
-				if err != nil {
-					break
-				}
-				fmt.Println("  ---", str)
-			}
-		}
-	}
-
-	return nil
-}
