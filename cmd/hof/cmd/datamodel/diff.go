@@ -1,4 +1,4 @@
-package cmdmodelset
+package cmddatamodel
 
 import (
 	"fmt"
@@ -11,9 +11,9 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var createLong = `create a modelset`
+var diffLong = `show the current diff for a modelset`
 
-func CreateRun(name string, entrypoint string) (err error) {
+func DiffRun(args []string) (err error) {
 
 	// you can safely comment this print out
 	fmt.Println("not implemented")
@@ -21,13 +21,13 @@ func CreateRun(name string, entrypoint string) (err error) {
 	return err
 }
 
-var CreateCmd = &cobra.Command{
+var DiffCmd = &cobra.Command{
 
-	Use: "create",
+	Use: "diff",
 
-	Short: "create a modelset",
+	Short: "show the current diff for a modelset",
 
-	Long: createLong,
+	Long: diffLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
@@ -42,30 +42,7 @@ var CreateCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		if 0 >= len(args) {
-			fmt.Println("missing required argument: 'name'")
-			cmd.Usage()
-			os.Exit(1)
-		}
-
-		var name string
-
-		if 0 < len(args) {
-
-			name = args[0]
-
-		}
-
-		var entrypoint string
-		entrypoint = "models"
-
-		if 1 < len(args) {
-
-			entrypoint = args[1]
-
-		}
-
-		err = CreateRun(name, entrypoint)
+		err = DiffRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -75,8 +52,8 @@ var CreateCmd = &cobra.Command{
 
 func init() {
 
-	help := CreateCmd.HelpFunc()
-	usage := CreateCmd.UsageFunc()
+	help := DiffCmd.HelpFunc()
+	usage := DiffCmd.UsageFunc()
 
 	thelp := func(cmd *cobra.Command, args []string) {
 		cs := strings.Fields(cmd.CommandPath())
@@ -90,7 +67,7 @@ func init() {
 		ga.SendGaEvent(c+"/usage", "<omit>", 0)
 		return usage(cmd)
 	}
-	CreateCmd.SetHelpFunc(thelp)
-	CreateCmd.SetUsageFunc(tusage)
+	DiffCmd.SetHelpFunc(thelp)
+	DiffCmd.SetUsageFunc(tusage)
 
 }

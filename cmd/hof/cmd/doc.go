@@ -13,7 +13,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/docs"
 )
 
-var docLong = `Generate and view documentation.`
+var docLong = `Generate and view documentation`
 
 func DocRun(args []string) (err error) {
 
@@ -33,7 +33,7 @@ var DocCmd = &cobra.Command{
 		"docs",
 	},
 
-	Short: "Generate and view documentation.",
+	Short: "Generate and view documentation",
 
 	Long: docLong,
 

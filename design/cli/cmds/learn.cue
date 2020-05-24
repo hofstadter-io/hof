@@ -9,7 +9,7 @@ import (
 	Name:  "doc"
 	Usage: "doc"
 	Aliases: ["docs"]
-	Short: "Generate and view documentation."
+	Short: "Generate and view documentation"
 	Long:  Short
 }
 

@@ -5,24 +5,24 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/hofstadter-io/hof/cmd/hof/cmd/modelset"
+	"github.com/hofstadter-io/hof/cmd/hof/cmd/datamodel"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var modelsetLong = `create, view, diff, calculate / migrate, and manage your data models`
+var datamodelLong = `create, view, diff, calculate / migrate, and manage your data models`
 
-var ModelsetCmd = &cobra.Command{
+var DatamodelCmd = &cobra.Command{
 
-	Use: "modelset",
+	Use: "datamodel",
 
 	Aliases: []string{
-		"mset",
+		"dmod",
 	},
 
 	Short: "create, view, diff, calculate / migrate, and manage your data models",
 
-	Long: modelsetLong,
+	Long: datamodelLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
@@ -35,8 +35,8 @@ var ModelsetCmd = &cobra.Command{
 
 func init() {
 
-	help := ModelsetCmd.HelpFunc()
-	usage := ModelsetCmd.UsageFunc()
+	help := DatamodelCmd.HelpFunc()
+	usage := DatamodelCmd.UsageFunc()
 
 	thelp := func(cmd *cobra.Command, args []string) {
 		cs := strings.Fields(cmd.CommandPath())
@@ -50,17 +50,16 @@ func init() {
 		ga.SendGaEvent(c+"/usage", "<omit>", 0)
 		return usage(cmd)
 	}
-	ModelsetCmd.SetHelpFunc(thelp)
-	ModelsetCmd.SetUsageFunc(tusage)
+	DatamodelCmd.SetHelpFunc(thelp)
+	DatamodelCmd.SetUsageFunc(tusage)
 
-	ModelsetCmd.AddCommand(cmdmodelset.CreateCmd)
-	ModelsetCmd.AddCommand(cmdmodelset.ViewCmd)
-	ModelsetCmd.AddCommand(cmdmodelset.ListCmd)
-	ModelsetCmd.AddCommand(cmdmodelset.StatusCmd)
-	ModelsetCmd.AddCommand(cmdmodelset.GraphCmd)
-	ModelsetCmd.AddCommand(cmdmodelset.DiffCmd)
-	ModelsetCmd.AddCommand(cmdmodelset.MigrateCmd)
-	ModelsetCmd.AddCommand(cmdmodelset.TestCmd)
-	ModelsetCmd.AddCommand(cmdmodelset.DeleteCmd)
+	DatamodelCmd.AddCommand(cmddatamodel.ViewCmd)
+	DatamodelCmd.AddCommand(cmddatamodel.ListCmd)
+	DatamodelCmd.AddCommand(cmddatamodel.StatusCmd)
+	DatamodelCmd.AddCommand(cmddatamodel.GraphCmd)
+	DatamodelCmd.AddCommand(cmddatamodel.DiffCmd)
+	DatamodelCmd.AddCommand(cmddatamodel.MigrateCmd)
+	DatamodelCmd.AddCommand(cmddatamodel.TestCmd)
+	DatamodelCmd.AddCommand(cmddatamodel.DeleteCmd)
 
 }

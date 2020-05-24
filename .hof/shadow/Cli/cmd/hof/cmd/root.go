@@ -140,7 +140,7 @@ func RootInit() {
 
 	RootCmd.AddCommand(InitCmd)
 	RootCmd.AddCommand(CloneCmd)
-	RootCmd.AddCommand(ModelsetCmd)
+	RootCmd.AddCommand(DatamodelCmd)
 	RootCmd.AddCommand(GenCmd)
 	RootCmd.AddCommand(RunCmd)
 	RootCmd.AddCommand(RuntimesCmd)
@@ -213,13 +213,13 @@ Initialize and create new hof workspaces:
   clone           β     clone a workspace or repository into a new directory
 
 Model your designs, generate implementation, run anything:
-  modelset        Ø     create, view, diff, calculate / migrate, and manage your data models
+  datamodel       α     create, view, diff, calculate / migrate, and manage your data models
   gen             ✓     generate code, data, and config from your data models and designs
   run             α     run polyglot command and scripts seamlessly across runtimes
   runtimes        α     work with runtimes (go, js, py, bash, custom)
 
 Learn more about hof and the _ you can do:
-  doc             Ø     Generate and view documentation.
+  doc             Ø     Generate and view documentation
   tour            Ø     take a tour of the hof tool
   tutorial        Ø     tutorials to help you learn hof right in hof
 

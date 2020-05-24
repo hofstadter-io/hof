@@ -18,7 +18,7 @@ Initialize and create new hof workspaces:
   \(cmds.#CloneCommand.Help)
 
 Model your designs, generate implementation, run anything:
-  \(cmds.#ModelsetCommand.Help)
+  \(cmds.#DatamodelCommand.Help)
   \(cmds.#GenCommand.Help)
   \(cmds.#RunCommand.Help)
   \(cmds.#RuntimesCommand.Help)

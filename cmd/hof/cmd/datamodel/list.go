@@ -1,4 +1,4 @@
-package cmdmodelset
+package cmddatamodel
 
 import (
 	"fmt"
@@ -11,9 +11,9 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var graphLong = `show the relationship graph for a modelset`
+var listLong = `list the known modelsets`
 
-func GraphRun(name string) (err error) {
+func ListRun(args []string) (err error) {
 
 	// you can safely comment this print out
 	fmt.Println("not implemented")
@@ -21,13 +21,13 @@ func GraphRun(name string) (err error) {
 	return err
 }
 
-var GraphCmd = &cobra.Command{
+var ListCmd = &cobra.Command{
 
-	Use: "graph",
+	Use: "list",
 
-	Short: "show the relationship graph for a modelset",
+	Short: "list the known modelsets",
 
-	Long: graphLong,
+	Long: listLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
@@ -42,21 +42,7 @@ var GraphCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		if 0 >= len(args) {
-			fmt.Println("missing required argument: 'name'")
-			cmd.Usage()
-			os.Exit(1)
-		}
-
-		var name string
-
-		if 0 < len(args) {
-
-			name = args[0]
-
-		}
-
-		err = GraphRun(name)
+		err = ListRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -66,8 +52,8 @@ var GraphCmd = &cobra.Command{
 
 func init() {
 
-	help := GraphCmd.HelpFunc()
-	usage := GraphCmd.UsageFunc()
+	help := ListCmd.HelpFunc()
+	usage := ListCmd.UsageFunc()
 
 	thelp := func(cmd *cobra.Command, args []string) {
 		cs := strings.Fields(cmd.CommandPath())
@@ -81,7 +67,7 @@ func init() {
 		ga.SendGaEvent(c+"/usage", "<omit>", 0)
 		return usage(cmd)
 	}
-	GraphCmd.SetHelpFunc(thelp)
-	GraphCmd.SetUsageFunc(tusage)
+	ListCmd.SetHelpFunc(thelp)
+	ListCmd.SetUsageFunc(tusage)
 
 }

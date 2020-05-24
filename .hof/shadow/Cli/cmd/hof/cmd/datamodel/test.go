@@ -1,4 +1,4 @@
-package cmdmodelset
+package cmddatamodel
 
 import (
 	"fmt"
@@ -11,9 +11,9 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var statusLong = `show the current status for a modelset`
+var testLong = `test the current migration and diff for a modelset`
 
-func StatusRun(name string) (err error) {
+func TestRun(args []string) (err error) {
 
 	// you can safely comment this print out
 	fmt.Println("not implemented")
@@ -21,13 +21,13 @@ func StatusRun(name string) (err error) {
 	return err
 }
 
-var StatusCmd = &cobra.Command{
+var TestCmd = &cobra.Command{
 
-	Use: "status",
+	Use: "test",
 
-	Short: "show the current status for a modelset",
+	Short: "test the current migration and diff for a modelset",
 
-	Long: statusLong,
+	Long: testLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
@@ -42,21 +42,7 @@ var StatusCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		if 0 >= len(args) {
-			fmt.Println("missing required argument: 'name'")
-			cmd.Usage()
-			os.Exit(1)
-		}
-
-		var name string
-
-		if 0 < len(args) {
-
-			name = args[0]
-
-		}
-
-		err = StatusRun(name)
+		err = TestRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -66,8 +52,8 @@ var StatusCmd = &cobra.Command{
 
 func init() {
 
-	help := StatusCmd.HelpFunc()
-	usage := StatusCmd.UsageFunc()
+	help := TestCmd.HelpFunc()
+	usage := TestCmd.UsageFunc()
 
 	thelp := func(cmd *cobra.Command, args []string) {
 		cs := strings.Fields(cmd.CommandPath())
@@ -81,7 +67,7 @@ func init() {
 		ga.SendGaEvent(c+"/usage", "<omit>", 0)
 		return usage(cmd)
 	}
-	StatusCmd.SetHelpFunc(thelp)
-	StatusCmd.SetUsageFunc(tusage)
+	TestCmd.SetHelpFunc(thelp)
+	TestCmd.SetUsageFunc(tusage)
 
 }

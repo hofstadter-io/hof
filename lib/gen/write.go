@@ -12,8 +12,8 @@ func (F *File) WriteOutput() error {
 
 	// fmt.Println("WriteFile:", F.Filepath)
 	// fmt.Printf("%#+v\n\n", F)
-
-	err = yagu.Mkdir(path.Join(F.Filepath))
+	dir := path.Dir(F.Filepath)
+	err = yagu.Mkdir(dir)
 	if err != nil {
 		return err
 	}
@@ -31,9 +31,11 @@ func (F *File) WriteOutput() error {
 func (F *File) WriteShadow(basedir string) error {
 	var err error
 
+	// need to join and then find dir
 	fn := path.Join(basedir, F.Filepath)
+	dir := path.Dir(fn)
 
-	err = yagu.Mkdir(fn)
+	err = yagu.Mkdir(dir)
 	if err != nil {
 		return err
 	}
