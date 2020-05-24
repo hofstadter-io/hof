@@ -42,7 +42,7 @@ import (
 	Name:  "jump"
 	Usage: "jump"
 	Aliases: ["j", "leap"]
-	Short: "Jumps help you get things done faster."
+	Short: "Jumps help you do things with fewer keystrokes."
 	Long:  Short
 }
 

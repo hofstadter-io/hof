@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func Apply(args []string) error {
+func RunApplyFromArgs(args []string) error {
 	fmt.Println("lib/resources.Apply", args)
 
 	return nil

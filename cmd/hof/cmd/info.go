@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib/resources"
 )
 
 var infoLong = `print information about known resources`
@@ -16,7 +18,9 @@ var infoLong = `print information about known resources`
 func InfoRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = resources.RunInfoFromArgs(args)
 
 	return err
 }

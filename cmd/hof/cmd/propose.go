@@ -9,14 +9,18 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib/workspace"
 )
 
-var proposeLong = `Propose to include your changeset in a remote repository`
+var proposeLong = `Propose to incorporate your changeset in a repository`
 
 func ProposeRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = workspace.RunProposeFromArgs(args)
 
 	return err
 }
@@ -25,7 +29,7 @@ var ProposeCmd = &cobra.Command{
 
 	Use: "propose",
 
-	Short: "Propose to include your changeset in a remote repository",
+	Short: "Propose to incorporate your changeset in a repository",
 
 	Long: proposeLong,
 

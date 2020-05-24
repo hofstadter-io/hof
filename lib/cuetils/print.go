@@ -2,15 +2,6 @@ package cuetils
 
 import (
 	"fmt"
-	"os"
-	"strings"
-
-	"github.com/go-git/go-billy/v5"
-
-	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/build"
-	"cuelang.org/go/cue/errors"
-	"cuelang.org/go/cue/load"
 )
 
 

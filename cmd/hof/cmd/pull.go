@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib/workspace"
 )
 
 var pullLong = `Fetch from and integrate with another repository or a local branch`
@@ -16,7 +18,9 @@ var pullLong = `Fetch from and integrate with another repository or a local bran
 func PullRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = workspace.RunPullFromArgs(args)
 
 	return err
 }

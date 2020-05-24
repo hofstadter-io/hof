@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func Delete(args []string) error {
+func RunDeleteFromArgs(args []string) error {
 	fmt.Println("lib/resources.Delete", args)
 
 	return nil

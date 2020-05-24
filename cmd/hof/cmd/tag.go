@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib/workspace"
 )
 
 var tagLong = `Create, list, delete or verify a tag object signed with GPG`
@@ -16,7 +18,9 @@ var tagLong = `Create, list, delete or verify a tag object signed with GPG`
 func TagRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = workspace.RunTagFromArgs(args)
 
 	return err
 }

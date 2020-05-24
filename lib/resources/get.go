@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func Get(args []string) error {
+func RunGetFromArgs(args []string) error {
 	fmt.Println("lib/resources.Get", args)
 
 	return nil

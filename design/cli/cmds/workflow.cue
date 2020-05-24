@@ -137,6 +137,22 @@ import (
 	TBD:   "+ "
 	Name:  "propose"
 	Usage: "propose"
-	Short: "Propose to include your changeset in a remote repository"
+	Short: "Propose to incorporate your changeset in a repository"
+	Long:  Short
+}
+
+#PublishCommand: schema.#Command & {
+	TBD:   "+ "
+	Name:  "publish"
+	Usage: "publish"
+	Short: "Publish a tagged version to a repository"
+	Long:  Short
+}
+
+#RemotesCommand: schema.#Command & {
+	TBD:   "+ "
+	Name:  "remotes"
+	Usage: "remotes"
+	Short: "Manage remote repositories"
 	Long:  Short
 }

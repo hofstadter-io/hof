@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib/ops"
 )
 
 var runLong = `run polyglot command and scripts seamlessly across runtimes`
@@ -16,7 +18,9 @@ var runLong = `run polyglot command and scripts seamlessly across runtimes`
 func RunRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = ops.RunRunFromArgs(args)
 
 	return err
 }

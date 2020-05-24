@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib/workspace"
 )
 
 var bisectLong = `Use binary search to find the commit that introduced a bug`
@@ -16,7 +18,9 @@ var bisectLong = `Use binary search to find the commit that introduced a bug`
 func BisectRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = workspace.RunBisectFromArgs(args)
 
 	return err
 }

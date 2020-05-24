@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var proposeLong = `Propose to include your changeset in a remote repository`
+var proposeLong = `Propose to incorporate your changeset in a repository`
 
 func ProposeRun(args []string) (err error) {
 
@@ -25,7 +25,7 @@ var ProposeCmd = &cobra.Command{
 
 	Use: "propose",
 
-	Short: "Propose to include your changeset in a remote repository",
+	Short: "Propose to incorporate your changeset in a repository",
 
 	Long: proposeLong,
 

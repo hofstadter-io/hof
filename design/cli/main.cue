@@ -40,7 +40,7 @@ import (
 		// hof
 		cmds.#ModelsetCommand,
 		cmds.#GenCommand,
-		cmds.#RunCommand,      // (hof-lang) / (or at first, a step in that direction)
+		cmds.#RunCommand,      // imperatively oriented commands from cue
 		cmds.#RuntimesCommand, // (docker, node, go, cue, python)
 
 		// learn
@@ -51,7 +51,7 @@ import (
 		// hof + cue
 		cmds.#ModCommand,
 		cmds.#AddCommand,
-		cmds.#CmdCommand,
+		cmds.#CmdCommand, // Cue's cmd, but processed by hof
 
 		// resources
 		cmds.#InfoCommand,
@@ -84,6 +84,7 @@ import (
 		cmds.#DiffCommand,
 		cmds.#BisectCommand,
 
+		// changeset related
 		cmds.#IncludeCommand,
 		cmds.#BranchCommand,
 		cmds.#CheckoutCommand,
@@ -93,17 +94,17 @@ import (
 		cmds.#ResetCommand,
 		cmds.#TagCommand,
 
+		// collab
 		cmds.#FetchCommand,
 		cmds.#PullCommand,
 		cmds.#PushCommand,
 		cmds.#ProposeCommand,
-		cmds.#ReproCommand,
-		// publish
-		// release
+		cmds.#PublishCommand,
+		cmds.#RemotesCommand,
 
 		// dev & more st commands
+		cmds.#ReproCommand,
 		cmds.#JumpCommand,
-		cmds.#BuildCommand,
 		cmds.#UiCommand,
 		cmds.#TuiCommand,
 		cmds.#ReplCommand,

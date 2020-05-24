@@ -4,8 +4,8 @@ import (
 	"fmt"
 )
 
-func InitRunFromArgs(args []string) error {
-	fmt.Println("workspace.Init", args)
+func RunInitFromArgs(args []string) error {
+	fmt.Println("lib/workspace.Init", args)
 
 	return nil
 }

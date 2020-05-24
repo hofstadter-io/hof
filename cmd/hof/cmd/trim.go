@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib/cuetils"
 )
 
 var trimLong = `cleanup code, configuration, and more`
@@ -16,7 +18,9 @@ var trimLong = `cleanup code, configuration, and more`
 func TrimRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = cuetils.RunTrimFromArgs(args)
 
 	return err
 }

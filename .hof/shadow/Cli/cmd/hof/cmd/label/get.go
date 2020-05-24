@@ -1,4 +1,4 @@
-package cmd
+package cmdlabel
 
 import (
 	"fmt"
@@ -11,9 +11,9 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var buildLong = `Build assets for modules and generated output`
+var getLong = `find and display labels on resources`
 
-func BuildRun(args []string) (err error) {
+func GetRun(args []string) (err error) {
 
 	// you can safely comment this print out
 	fmt.Println("not implemented")
@@ -21,13 +21,13 @@ func BuildRun(args []string) (err error) {
 	return err
 }
 
-var BuildCmd = &cobra.Command{
+var GetCmd = &cobra.Command{
 
-	Use: "build [flags] [cmd] [args]",
+	Use: "get",
 
-	Short: "Build assets for modules and generated output",
+	Short: "find and display labels on resources",
 
-	Long: buildLong,
+	Long: getLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
@@ -42,7 +42,7 @@ var BuildCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		err = BuildRun(args)
+		err = GetRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -52,8 +52,8 @@ var BuildCmd = &cobra.Command{
 
 func init() {
 
-	help := BuildCmd.HelpFunc()
-	usage := BuildCmd.UsageFunc()
+	help := GetCmd.HelpFunc()
+	usage := GetCmd.UsageFunc()
 
 	thelp := func(cmd *cobra.Command, args []string) {
 		cs := strings.Fields(cmd.CommandPath())
@@ -67,7 +67,7 @@ func init() {
 		ga.SendGaEvent(c+"/usage", "<omit>", 0)
 		return usage(cmd)
 	}
-	BuildCmd.SetHelpFunc(thelp)
-	BuildCmd.SetUsageFunc(tusage)
+	GetCmd.SetHelpFunc(thelp)
+	GetCmd.SetUsageFunc(tusage)
 
 }

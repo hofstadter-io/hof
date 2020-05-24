@@ -9,7 +9,7 @@ import (
 func CueRuntimeFromArgs(args []string) (crt *CueRuntime, err error) {
 	crt = &CueRuntime{
 		Entrypoints: args,
-		CueConfig: *load.Config{
+		CueConfig: &load.Config{
 			ModuleRoot: "",
 			Module: "",
 			Package: "",
@@ -18,8 +18,8 @@ func CueRuntimeFromArgs(args []string) (crt *CueRuntime, err error) {
 			Tests: false,
 			Tools: false,
 			DataFiles: false,
-			Overlay: map[string]load.Source,
-		}
+			Overlay: map[string]load.Source{},
+		},
 	}
 
 	err = crt.Load()

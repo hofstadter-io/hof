@@ -14,14 +14,6 @@ import (
 	Long:  Short
 }
 
-#LabelCommand: schema.#Command & {
-	TBD:   "+ "
-	Name:  "label"
-	Usage: "label"
-	Short: "manage resource labels"
-	Long:  Short
-}
-
 #CreateCommand: schema.#Command & {
 	TBD:   "+ "
 	Name:  "create"

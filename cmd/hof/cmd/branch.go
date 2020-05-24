@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib/workspace"
 )
 
 var branchLong = `List, create, or delete branches`
@@ -16,7 +18,9 @@ var branchLong = `List, create, or delete branches`
 func BranchRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = workspace.RunBranchFromArgs(args)
 
 	return err
 }

@@ -29,7 +29,6 @@ Learn more about hof and the _ you can do:
   \(cmds.#TourCommand.Help)
   \(cmds.#TutorialCommand.Help)
 
-
 Download modules, add content, and execute commands:
   \(cmds.#ModCommand.Help)
   \(cmds.#AddCommand.Help)
@@ -54,7 +53,6 @@ Configure, Unify, Execute (see also https://cuelang.org):
   \(cmds.#TrimCommand.Help)
   \(cmds.#VetCommand.Help)
   \(cmds.#StCommand.Help)
-
 
 Manage logins, config, secrets, and context:
   \(cmds.#AuthCommand.Help)
@@ -83,27 +81,28 @@ Colloaborate (see also 'hof topic collaborate'):
   \(cmds.#PullCommand.Help)
   \(cmds.#PushCommand.Help)
   \(cmds.#ProposeCommand.Help)
-  \(cmds.#ReproCommand.Help)
+  \(cmds.#PublishCommand.Help)
+  \(cmds.#RemotesCommand.Help)
  
 Local development commands:
-  \(cmds.#JumpCommand.Help)
-  \(cmds.#BuildCommand.Help)
   \(cmds.#ReproCommand.Help)
+  \(cmds.#JumpCommand.Help)
   \(cmds.#UiCommand.Help)
   \(cmds.#TuiCommand.Help)
   \(cmds.#ReplCommand.Help)
-  pprof         Go pprof by setting HOF_CPU_PROFILE="hof-cpu.prof" hof <cmd>
+  pprof                 Go pprof by setting HOF_CPU_PROFILE="hof-cpu.prof" hof <cmd>
 
 
 Send us feedback or say hello:
   \(cmds.#FeedbackCommand.Help)
+                        you can also chat with us on https://gitter.im/hofstadter-io
 
 Additional commands:
-  help          Help about any command
-  topic         Additional information for various subjects and concepts
-  update        Check for new versions and run self-updates
-  version       Print detailed version information
-  completion    Generate completion helpers for your terminal
+  help                  Help about any command
+  topic                 Additional information for various subjects and concepts
+  update                Check for new versions and run self-updates
+  version               Print detailed version information
+  completion            Generate completion helpers for your terminal
 
 Additional topics:
   schema, codegen, modeling, mirgrations

@@ -20,7 +20,7 @@ func CloneRun(args []string) (err error) {
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = workspace.InitRunFromArgs(args)
+	err = workspace.RunCloneFromArgs(args)
 
 	return err
 }

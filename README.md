@@ -30,7 +30,6 @@ Learn more about hof and the _ you can do:
   tour                  Take a tour of the hof tool
   tutorial              Tutorials to help you learn hof right in hof
 
-
 Download modules, add content, and execute commands:
   mod                   mod subcmd is a polyglot dependency management tool based on go mods
   add                   add dependencies and new components to the current module or workspace
@@ -38,7 +37,7 @@ Download modules, add content, and execute commands:
 
 Manage resources (see also 'hof topic resources'):
   info                  print information about known resources
-  label                 manage resource labels
+  label                 manage labels for resources and more
   create                create resources
   apply                 apply resource configuration
   get                   find and display resources
@@ -55,7 +54,6 @@ Configure, Unify, Execute (see also https://cuelang.org):
   trim                  cleanup code, configuration, and more
   vet                   validate data
   st                    Structural diff, merge, mask, pick, and query helpers for Cue
-
 
 Manage logins, config, secrets, and context:
   auth                  authentication subcommands
@@ -83,28 +81,29 @@ Colloaborate (see also 'hof topic collaborate'):
   fetch                 Download objects and refs from another repository
   pull                  Fetch from and integrate with another repository or a local branch
   push                  Update remote refs along with associated objects
-  propose               Propose to include your changeset in a remote repository
-  reproduce             Record, share, and replay reproducible environments and processes
+  propose               Propose to incorporate your changeset in a repository
+  publish               Publish a tagged version to a repository
+  remotes               Manage remote repositories
 
 Local development commands:
-  jump                  Jumps help you get things done faster.
-  build                 Build assets for modules and generated output
   reproduce             Record, share, and replay reproducible environments and processes
+  jump                  Jumps help you do things with fewer keystrokes.
   ui                    Run hof's local web ui
   tui                   Run hof's terminal ui
   repl                  Run hof's local REPL
-  pprof         Go pprof by setting HOF_CPU_PROFILE="hof-cpu.prof" hof <cmd>
+  pprof                 Go pprof by setting HOF_CPU_PROFILE="hof-cpu.prof" hof <cmd>
 
 
 Send us feedback or say hello:
   feedback              send feedback, bug reports, or any message :]
+                        you can also chat with us on https://gitter.im/hofstadter-io
 
 Additional commands:
-  help          Help about any command
-  topic         Additional information for various subjects and concepts
-  update        Check for new versions and run self-updates
-  version       Print detailed version information
-  completion    Generate completion helpers for your terminal
+  help                  Help about any command
+  topic                 Additional information for various subjects and concepts
+  update                Check for new versions and run self-updates
+  version               Print detailed version information
+  completion            Generate completion helpers for your terminal
 
 Additional topics:
   schema, codegen, modeling, mirgrations
@@ -144,6 +143,4 @@ Flags:
 
 Use "hof [command] --help" for more information about a command.
 Use "hof topic [subject]"  for more information about a subject.
-
-hof hof []
 ```

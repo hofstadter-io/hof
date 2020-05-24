@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib/learn"
 )
 
 var tutorialLong = `Tutorials to help you learn hof right in hof`
@@ -16,7 +18,9 @@ var tutorialLong = `Tutorials to help you learn hof right in hof`
 func TutorialRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = learn.RunTutorialFromArgs(args)
 
 	return err
 }

@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib"
 )
 
 var setupLong = `Setup the hof tool`
@@ -16,7 +18,9 @@ var setupLong = `Setup the hof tool`
 func SetupRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = lib.SetupHof(args)
 
 	return err
 }

@@ -1,4 +1,4 @@
-package cmd
+package cmdlabel
 
 import (
 	"fmt"
@@ -9,25 +9,29 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib/labels"
 )
 
-var buildLong = `Build assets for modules and generated output`
+var removeLong = `find and remove labels from resources`
 
-func BuildRun(args []string) (err error) {
+func RemoveRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = labels.RunRemoveFromArgs(args)
 
 	return err
 }
 
-var BuildCmd = &cobra.Command{
+var RemoveCmd = &cobra.Command{
 
-	Use: "build [flags] [cmd] [args]",
+	Use: "remove",
 
-	Short: "Build assets for modules and generated output",
+	Short: "find and remove labels from resources",
 
-	Long: buildLong,
+	Long: removeLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
@@ -42,7 +46,7 @@ var BuildCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		err = BuildRun(args)
+		err = RemoveRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -52,8 +56,8 @@ var BuildCmd = &cobra.Command{
 
 func init() {
 
-	help := BuildCmd.HelpFunc()
-	usage := BuildCmd.UsageFunc()
+	help := RemoveCmd.HelpFunc()
+	usage := RemoveCmd.UsageFunc()
 
 	thelp := func(cmd *cobra.Command, args []string) {
 		cs := strings.Fields(cmd.CommandPath())
@@ -67,7 +71,7 @@ func init() {
 		ga.SendGaEvent(c+"/usage", "<omit>", 0)
 		return usage(cmd)
 	}
-	BuildCmd.SetHelpFunc(thelp)
-	BuildCmd.SetUsageFunc(tusage)
+	RemoveCmd.SetHelpFunc(thelp)
+	RemoveCmd.SetUsageFunc(tusage)
 
 }

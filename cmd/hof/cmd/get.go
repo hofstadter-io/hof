@@ -20,7 +20,7 @@ func GetRun(args []string) (err error) {
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = resources.Get(args)
+	err = resources.RunGetFromArgs(args)
 
 	return err
 }

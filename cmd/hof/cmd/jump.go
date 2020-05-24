@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var jumpLong = `Jumps help you get things done faster.`
+var jumpLong = `Jumps help you do things with fewer keystrokes.`
 
 func JumpRun(args []string) (err error) {
 
@@ -30,7 +30,7 @@ var JumpCmd = &cobra.Command{
 		"leap",
 	},
 
-	Short: "Jumps help you get things done faster.",
+	Short: "Jumps help you do things with fewer keystrokes.",
 
 	Long: jumpLong,
 
