@@ -77,15 +77,14 @@ Manage resources (see also 'hof topic resources'):
   delete                delete resources
 
 Configure, Unify, Execute (see also https://cuelang.org):
-  (also a whole bunch of other awesome things)
   def                   print consolidated definitions
-  eval                  print consolidated definitions
+  eval                  evaluate and print a configuration
   export                export your data model to various formats
   fmt                   formats code and files
-  import                convert other formats and systems to hofland
+  import                convert other formats and systems to hof
   trim                  cleanup code, configuration, and more
-  vet                   validate data
-  st                    Structural diff, merge, mask, pick, and query helpers for Cue
+  vet                   validate your data and configurations
+  st                    Structural diff, merge, mask, pick, and query helpers
 
 Manage logins, config, secrets, and context:
   auth                  authentication subcommands
@@ -109,13 +108,13 @@ Grow, mark, and tweak your shared history (see also 'hof topic changesets'):
   reset                 Reset current HEAD to the specified state
   tag                   Create, list, delete or verify a tag object signed with GPG
 
-Colloaborate (see also 'hof topic collaborate'):
+Collaborate (see also 'hof topic collaborate'):
   fetch                 Download objects and refs from another repository
   pull                  Fetch from and integrate with another repository or a local branch
   push                  Update remote refs along with associated objects
   propose               Propose to incorporate your changeset in a repository
-  publish               Publish a tagged version to a repository
-  remotes               Manage remote repositories
+  publish               Publish a tagged version to a remote
+  remotes               Manage remote repositories and registries
 
 Local development commands:
   reproduce             Record, share, and replay reproducible environments and processes
