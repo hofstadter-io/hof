@@ -43,7 +43,7 @@ var MaskCmd = &cobra.Command{
 		// Argument Parsing
 
 		if 0 >= len(args) {
-			fmt.Println("missing required argument: 'Orig'")
+			fmt.Println("missing required argument: 'orig'")
 			cmd.Usage()
 			os.Exit(1)
 		}
@@ -57,7 +57,7 @@ var MaskCmd = &cobra.Command{
 		}
 
 		if 1 >= len(args) {
-			fmt.Println("missing required argument: 'What'")
+			fmt.Println("missing required argument: 'what'")
 			cmd.Usage()
 			os.Exit(1)
 		}

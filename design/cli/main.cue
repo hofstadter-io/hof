@@ -33,7 +33,6 @@ import (
 	Commands: [
 
 		// start
-		cmds.#SetupCommand, // setup the hof tool, or reset up
 		cmds.#InitCommand,
 		cmds.#CloneCommand,
 

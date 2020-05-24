@@ -48,7 +48,7 @@ var InitCmd = &cobra.Command{
 		// Argument Parsing
 
 		if 0 >= len(args) {
-			fmt.Println("missing required argument: 'Lang'")
+			fmt.Println("missing required argument: 'lang'")
 			cmd.Usage()
 			os.Exit(1)
 		}
@@ -62,7 +62,7 @@ var InitCmd = &cobra.Command{
 		}
 
 		if 1 >= len(args) {
-			fmt.Println("missing required argument: 'Module'")
+			fmt.Println("missing required argument: 'module'")
 			cmd.Usage()
 			os.Exit(1)
 		}

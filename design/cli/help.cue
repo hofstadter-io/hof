@@ -13,8 +13,7 @@ Usage:
   hof [flags] [command] [args]
 
 
-Setup hof and create workspaces and datasets:
-  \(cmds.#SetupCommand.Help)
+Initialize and create new hof workspaces:
   \(cmds.#InitCommand.Help)
   \(cmds.#CloneCommand.Help)
 

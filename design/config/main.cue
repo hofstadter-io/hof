@@ -17,7 +17,7 @@ import (
 #HofConfig: schema.#Config & {
 	Name:         "config"
 	Entrypoint:   ".hofcfg.cue"
-	ConfigSchema: #ConfigSchema
+	ConfigSchema: #WorkspaceSchema
 }
 
 // Local secret
@@ -64,14 +64,15 @@ import (
 #ContextItemSchema: {
 	Name:         string
 	Credentials?: string
-	Workspace?:   string
 	Environment?: string
 	Account?:     string
 	Billing?:     string
 	Project?:     string
 	Package?:     string
+	...
 }
 
+// Secrets at both local / global level
 #SecretSchema: {
 	[Group=string]: {
 		[Cred=string]: {
@@ -80,27 +81,22 @@ import (
 	}
 }
 
+// Hof tool configuration
 #ConfigSchema: {
 	// This should only be used from the global context, local ought to be determined from walking up to find a .hofcfg.cue file
 	// Unless... we want to subdivide workspaces, monorepo style (probably do want ot do this)
 	// We can also associate developer setups with this
+	// ... rethinking having multiple workspaces per repo, doesn't fit with the latest UX (in particular workspace/workflow integration)
 	Workspaces?: [WorkspaceName=string]:     #WorkspaceSchema & {name:   WorkspaceName}
-	Environments?: [EnvironmentName=string]: #EnvironmentSchema & {name: EnvironmentName}
 
-	// TODO add these to the config like above?
-	Modelsets:  hof.#Modelsets
-	Datastores: hof.#Datastores
+	...
 }
 
+// Workspace specfic config
 #WorkspaceSchema: {
-	Name: string
-	Dir:  string
-	// TODO, reference these from the local schema
-	Modelsets:  hof.#Modelsets
-	Datastores: hof.#Datastores
-}
+	Name: string | *""
+	Dir:  string | *""
 
-#EnvironmentSchema: {
-	Name:     string
-	Provider: "local" | "docker" | *"local-kind" | "remote-kind" | "gke"
+	ModelsDir: string | *"models"
+	ResourcesDir: string | *"resources"
 }

@@ -4,8 +4,8 @@ import (
 	"fmt"
 )
 
-func RunCloneFromArgs(args []string) error {
-	fmt.Println("lib/workspace.Clone", args)
+func RunCloneFromArgs(module, name string) error {
+	fmt.Println("lib/workspace.Clone", module, name)
 
 	return nil
 }

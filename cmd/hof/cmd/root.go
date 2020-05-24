@@ -138,7 +138,6 @@ func RootInit() {
 
 	RootCmd.AddCommand(CompletionCmd)
 
-	RootCmd.AddCommand(SetupCmd)
 	RootCmd.AddCommand(InitCmd)
 	RootCmd.AddCommand(CloneCmd)
 	RootCmd.AddCommand(ModelsetCmd)
@@ -209,10 +208,9 @@ Usage:
   hof [flags] [command] [args]
 
 
-Setup hof and create workspaces and datasets:
-  setup           α     setup the hof tool
-  init            α     create an empty workspace or initialize an existing directory to one
-  clone           α     clone a workspace or repository into a new directory
+Initialize and create new hof workspaces:
+  init            β     create an empty workspace or initialize an existing directory to one
+  clone           β     clone a workspace or repository into a new directory
 
 Model your designs, generate implementation, run anything:
   modelset        Ø     create, view, diff, calculate / migrate, and manage your data models

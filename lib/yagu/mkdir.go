@@ -3,6 +3,7 @@ package yagu
 import (
 	"fmt"
 	"os"
+	"strings"
 )
 
 func Mkdir(dir string) error {
@@ -11,8 +12,7 @@ func Mkdir(dir string) error {
 	// Let's look for the directory
 	info, err := os.Lstat(dir)
 	if err != nil {
-
-		// make sure we check err for something actually bad
+// make sure we check err for something actually bad
 		if _, ok := err.(*os.PathError); !ok && err.Error() != "file does not exist" {
 			return err
 		}
@@ -40,5 +40,21 @@ func Mkdir(dir string) error {
 	}
 
 	return nil
+}
+
+func CheckPathExists(path string) (bool, error) {
+
+	_, err := os.Lstat(path)
+	if err != nil {
+		if _, ok := err.(*os.PathError); !ok && (strings.Contains(err.Error(), "file does not exist") || strings.Contains(err.Error(), "no such file")) {
+			// error is worse than non-existant
+			return false, err
+		}
+
+		// file non-existant
+		return false, nil
+	}
+
+	return true, nil
 }
 

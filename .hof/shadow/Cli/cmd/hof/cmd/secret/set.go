@@ -43,7 +43,7 @@ var SetCmd = &cobra.Command{
 		// Argument Parsing
 
 		if 0 >= len(args) {
-			fmt.Println("missing required argument: 'Expr'")
+			fmt.Println("missing required argument: 'expr'")
 			cmd.Usage()
 			os.Exit(1)
 		}

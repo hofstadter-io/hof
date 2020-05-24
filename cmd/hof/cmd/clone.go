@@ -15,12 +15,12 @@ import (
 
 var cloneLong = `clone a workspace or repository into a new directory`
 
-func CloneRun(args []string) (err error) {
+func CloneRun(module string, name string) (err error) {
 
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = workspace.RunCloneFromArgs(args)
+	err = workspace.RunCloneFromArgs(module, name)
 
 	return err
 }
@@ -46,7 +46,29 @@ var CloneCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		err = CloneRun(args)
+		if 0 >= len(args) {
+			fmt.Println("missing required argument: 'module'")
+			cmd.Usage()
+			os.Exit(1)
+		}
+
+		var module string
+
+		if 0 < len(args) {
+
+			module = args[0]
+
+		}
+
+		var name string
+
+		if 1 < len(args) {
+
+			name = args[1]
+
+		}
+
+		err = CloneRun(module, name)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

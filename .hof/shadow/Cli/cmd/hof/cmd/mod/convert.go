@@ -48,7 +48,7 @@ var ConvertCmd = &cobra.Command{
 		// Argument Parsing
 
 		if 0 >= len(args) {
-			fmt.Println("missing required argument: 'Lang'")
+			fmt.Println("missing required argument: 'lang'")
 			cmd.Usage()
 			os.Exit(1)
 		}
@@ -62,7 +62,7 @@ var ConvertCmd = &cobra.Command{
 		}
 
 		if 1 >= len(args) {
-			fmt.Println("missing required argument: 'Filename'")
+			fmt.Println("missing required argument: 'filename'")
 			cmd.Usage()
 			os.Exit(1)
 		}

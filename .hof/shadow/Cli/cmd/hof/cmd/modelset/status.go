@@ -43,7 +43,7 @@ var StatusCmd = &cobra.Command{
 		// Argument Parsing
 
 		if 0 >= len(args) {
-			fmt.Println("missing required argument: 'Name'")
+			fmt.Println("missing required argument: 'name'")
 			cmd.Usage()
 			os.Exit(1)
 		}
