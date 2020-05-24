@@ -5,11 +5,11 @@ import (
 )
 
 #GenCommand: schema.#Command & {
-	TBD: "✓"
+	TBD:   "✓"
 	Name:  "gen"
 	Usage: "gen [files...]"
 	Aliases: ["g"]
-	Short: "generate code, data, and config"
+	Short: "generate code, data, and config from your data models and designs"
 	Long: """
     generate all the things, from code to data to config...
   """

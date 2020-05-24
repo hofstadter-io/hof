@@ -10,13 +10,13 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var configLong = `Manage local configurations`
+var configLong = `manage local configurations`
 
 var ConfigCmd = &cobra.Command{
 
 	Use: "config",
 
-	Short: "Manage local configurations",
+	Short: "manage local configurations",
 
 	Long: configLong,
 
@@ -51,5 +51,6 @@ func init() {
 
 	ConfigCmd.AddCommand(cmdconfig.GetCmd)
 	ConfigCmd.AddCommand(cmdconfig.SetCmd)
+	ConfigCmd.AddCommand(cmdconfig.UseCmd)
 
 }

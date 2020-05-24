@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var publishLong = `Publish a tagged version to a repository`
+var publishLong = `publish a tagged version to a repository`
 
 func PublishRun(args []string) (err error) {
 
@@ -25,7 +25,7 @@ var PublishCmd = &cobra.Command{
 
 	Use: "publish",
 
-	Short: "Publish a tagged version to a repository",
+	Short: "publish a tagged version to a repository",
 
 	Long: publishLong,
 

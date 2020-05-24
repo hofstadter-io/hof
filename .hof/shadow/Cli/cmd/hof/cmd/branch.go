@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var branchLong = `List, create, or delete branches`
+var branchLong = `list, create, or delete branches`
 
 func BranchRun(args []string) (err error) {
 
@@ -25,7 +25,7 @@ var BranchCmd = &cobra.Command{
 
 	Use: "branch",
 
-	Short: "List, create, or delete branches",
+	Short: "list, create, or delete branches",
 
 	Long: branchLong,
 

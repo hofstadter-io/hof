@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var tutorialLong = `Tutorials to help you learn hof right in hof`
+var tutorialLong = `tutorials to help you learn hof right in hof`
 
 func TutorialRun(args []string) (err error) {
 
@@ -25,7 +25,7 @@ var TutorialCmd = &cobra.Command{
 
 	Use: "tutorial",
 
-	Short: "Tutorials to help you learn hof right in hof",
+	Short: "tutorials to help you learn hof right in hof",
 
 	Long: tutorialLong,
 

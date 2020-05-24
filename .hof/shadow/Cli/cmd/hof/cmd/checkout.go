@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var checkoutLong = `Switch branches or restore working tree files`
+var checkoutLong = `switch branches or restore working tree files`
 
 func CheckoutRun(args []string) (err error) {
 
@@ -25,7 +25,7 @@ var CheckoutCmd = &cobra.Command{
 
 	Use: "checkout",
 
-	Short: "Switch branches or restore working tree files",
+	Short: "switch branches or restore working tree files",
 
 	Long: checkoutLong,
 

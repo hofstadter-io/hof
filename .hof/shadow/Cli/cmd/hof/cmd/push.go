@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var pushLong = `Update remote refs along with associated objects`
+var pushLong = `update remote refs along with associated objects`
 
 func PushRun(args []string) (err error) {
 
@@ -25,7 +25,7 @@ var PushCmd = &cobra.Command{
 
 	Use: "push",
 
-	Short: "Update remote refs along with associated objects",
+	Short: "update remote refs along with associated objects",
 
 	Long: pushLong,
 

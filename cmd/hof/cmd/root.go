@@ -210,25 +210,25 @@ Usage:
 
 
 Setup hof and create workspaces and datasets:
-  setup           α     Setup the hof tool
-  init            α     Create an empty workspace or initialize an existing directory to one
-  clone           α     Clone a workspace or repository into a new directory
+  setup           α     setup the hof tool
+  init            α     create an empty workspace or initialize an existing directory to one
+  clone           α     clone a workspace or repository into a new directory
 
 Model your designs, generate implementation, run anything:
-  modelset        α     create, view, migrate, and understand your modelsets.
-  gen             ✓     generate code, data, and config
+  modelset        Ø     create, view, diff, calculate / migrate, and manage your data models
+  gen             ✓     generate code, data, and config from your data models and designs
   run             α     run polyglot command and scripts seamlessly across runtimes
-  runtimes        α     work with runtimes
+  runtimes        α     work with runtimes (go, js, py, bash, custom)
 
 Learn more about hof and the _ you can do:
   doc             Ø     Generate and view documentation.
-  tour            Ø     Take a tour of the hof tool
-  tutorial        Ø     Tutorials to help you learn hof right in hof
+  tour            Ø     take a tour of the hof tool
+  tutorial        Ø     tutorials to help you learn hof right in hof
 
 Download modules, add content, and execute commands:
   mod             β     mod subcmd is a polyglot dependency management tool based on go mods
   add             α     add dependencies and new components to the current module or workspace
-  cmd             α     Run commands from the scripting layer
+  cmd             α     run commands from the scripting layer and your _tool.cue files
 
 Manage resources (see also 'hof topic resources'):
   info            α     print information about known resources
@@ -248,37 +248,37 @@ Configure, Unify, Execute (see also https://cuelang.org):
   import          α     convert other formats and systems to hofland
   trim            α     cleanup code, configuration, and more
   vet             α     validate data
-  st              α     Structural diff, merge, mask, pick, and query helpers for Cue
+  st              α     recursive diff, merge, mask, pick, and query helpers for Cue
 
 Manage logins, config, secrets, and context:
   auth            Ø     authentication subcommands
-  config          β     Manage local configurations
-  secret          β     Manage local secrets
-  context         α     Get, set, and use contexts
+  config          β     manage local configurations
+  secret          β     manage local secrets
+  context         α     get, set, and use contexts
 
 Examine workpsace history and state:
-  status          α     Show workspace information and status
-  log             α     Show workspace logs and history
-  diff            α     Show the difference between workspace versions
-  bisect          α     Use binary search to find the commit that introduced a bug
+  status          α     show workspace information and status
+  log             α     show workspace logs and history
+  diff            α     show the difference between workspace versions
+  bisect          α     use binary search to find the commit that introduced a bug
 
 Grow, mark, and tweak your shared history (see also 'hof topic changesets'):
-  include         α     Include changes into the changeset
-  branch          α     List, create, or delete branches
-  checkout        α     Switch branches or restore working tree files
-  commit          α     Record changes to the repository
-  merge           α     Join two or more development histories together
-  rebase          α     Reapply commits on top of another base tip
-  reset           α     Reset current HEAD to the specified state
-  tag             α     Create, list, delete or verify a tag object signed with GPG
+  include         α     include changes into the changeset
+  branch          α     list, create, or delete branches
+  checkout        α     switch branches or restore working tree files
+  commit          α     record changes to the repository
+  merge           α     join two or more development histories together
+  rebase          α     reapply commits on top of another base tip
+  reset           α     reset current HEAD to the specified state
+  tag             α     create, list, delete or verify a tag object signed with GPG
 
 Colloaborate (see also 'hof topic collaborate'):
-  fetch           α     Download objects and refs from another repository
-  pull            α     Fetch from and integrate with another repository or a local branch
-  push            α     Update remote refs along with associated objects
-  propose         α     Propose to incorporate your changeset in a repository
-  publish         α     Publish a tagged version to a repository
-  remotes         α     Manage remote repositories
+  fetch           α     download objects and refs from another repository
+  pull            α     fetch from and integrate with another repository or a local branch
+  push            α     update remote refs along with associated objects
+  propose         α     propose to incorporate your changeset in a repository
+  publish         α     publish a tagged version to a repository
+  remotes         α     manage remote repositories
 
 Local development commands:
   reproduce       Ø     Record, share, and replay reproducible environments and processes
@@ -286,7 +286,7 @@ Local development commands:
   ui              Ø     Run hof's local web ui
   tui             Ø     Run hof's terminal ui
   repl            Ø     Run hof's local REPL
-  pprof                 Go pprof by setting HOF_CPU_PROFILE="hof-cpu.prof" hof <cmd>
+  pprof                 go pprof by setting HOF_CPU_PROFILE="hof-cpu.prof" hof <cmd>
 
 
 Send us feedback or say hello:
@@ -294,11 +294,11 @@ Send us feedback or say hello:
                         you can also chat with us on https://gitter.im/hofstadter-io
 
 Additional commands:
-  help                  Help about any command
-  topic                 Additional information for various subjects and concepts
-  update                Check for new versions and run self-updates
-  version               Print detailed version information
-  completion            Generate completion helpers for your terminal
+  help                  help about any command
+  topic                 additional information for various subjects and concepts
+  update                check for new versions and run self-updates
+  version               print detailed version information
+  completion            generate completion helpers for your terminal
 
 Additional topics:
   schema, codegen, modeling, mirgrations

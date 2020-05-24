@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var maskLong = `Mask <what> Cue value(s) from <orig>, thereby 'filtering' the original`
+var maskLong = `mask <what> Cue value(s) from <orig>, thereby 'filtering' the original`
 
 func MaskRun(orig string, what string, entrypoints []string) (err error) {
 
@@ -25,7 +25,7 @@ var MaskCmd = &cobra.Command{
 
 	Use: "mask <orig> <what> [...entrypoints]",
 
-	Short: "Mask <what> Cue value(s) from <orig>, thereby 'filtering' the original",
+	Short: "mask <what> Cue value(s) from <orig>, thereby 'filtering' the original",
 
 	Long: maskLong,
 

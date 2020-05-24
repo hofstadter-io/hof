@@ -13,7 +13,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/workspace"
 )
 
-var mergeLong = `Join two or more development histories together`
+var mergeLong = `join two or more development histories together`
 
 func MergeRun(args []string) (err error) {
 
@@ -29,7 +29,7 @@ var MergeCmd = &cobra.Command{
 
 	Use: "merge",
 
-	Short: "Join two or more development histories together",
+	Short: "join two or more development histories together",
 
 	Long: mergeLong,
 

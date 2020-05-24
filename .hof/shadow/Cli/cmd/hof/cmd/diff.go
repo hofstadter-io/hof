@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var diffLong = `Show the difference between workspace versions`
+var diffLong = `show the difference between workspace versions`
 
 func DiffRun(args []string) (err error) {
 
@@ -25,7 +25,7 @@ var DiffCmd = &cobra.Command{
 
 	Use: "diff",
 
-	Short: "Show the difference between workspace versions",
+	Short: "show the difference between workspace versions",
 
 	Long: diffLong,
 

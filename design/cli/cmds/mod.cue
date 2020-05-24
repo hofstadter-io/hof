@@ -40,27 +40,27 @@ import (
     mod.InitLangs()
   """
 	Commands: [{
-			TBD: "✓"
-			Name:  "info"
-			Usage: "info [language]"
-			Short: "print info about languages and modders known to mvs"
-			Long: """
+		TBD:   "✓"
+		Name:  "info"
+		Usage: "info [language]"
+		Short: "print info about languages and modders known to mvs"
+		Long: """
         print info about languages and modders known to mvs
           - no arg prints a list of known languages
           - an arg prints info about the language modder configuration that would be used
       """
 
-			Args: [
-				{
-					Name: "lang"
-					Type: "string"
-					Help: "name of the language to print info about"
-				},
-			]
+		Args: [
+			{
+				Name: "lang"
+				Type: "string"
+				Help: "name of the language to print info about"
+			},
+		]
 
-			Imports: #ModCmdImports
+		Imports: #ModCmdImports
 
-			Body: """
+		Body: """
       msg, err := mod.LangInfo(lang)
       if err != nil {
         fmt.Println(err)
@@ -68,7 +68,7 @@ import (
       }
       fmt.Println(msg)
       """
-		},
+	},
 		{
 			TBD:   "Ø"
 			Name:  "convert"
@@ -136,7 +136,7 @@ import (
       """
 		},
 		{
-			TBD: "✓"
+			TBD:   "✓"
 			Name:  "init"
 			Usage: "init <lang> <module>"
 			Short: "initialize a new module in the current directory"

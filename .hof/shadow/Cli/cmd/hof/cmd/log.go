@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var logLong = `Show workspace logs and history`
+var logLong = `show workspace logs and history`
 
 func LogRun(args []string) (err error) {
 
@@ -25,7 +25,7 @@ var LogCmd = &cobra.Command{
 
 	Use: "log",
 
-	Short: "Show workspace logs and history",
+	Short: "show workspace logs and history",
 
 	Long: logLong,
 

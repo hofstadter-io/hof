@@ -18,20 +18,20 @@ Otherwise, the <op> is interpreted as a complete Cue value.
 """
 
 #StCommand: schema.#Command & {
-	TBD:  "α"
+	TBD:   "α"
 	Name:  "st"
 	Usage: "st"
 	Aliases: ["structural"]
-	Short: "Structural diff, merge, mask, pick, and query helpers for Cue"
+	Short: "recursive diff, merge, mask, pick, and query helpers for Cue"
 	Long:  #StLong
 
 	OmitRun: true
 
 	Commands: [{
-		TBD:  "α"
+		TBD:   "α"
 		Name:  "diff"
 		Usage: "diff <orig> <next> [...entrypoints]"
-		Short: "Calculate the difference between two Cue values"
+		Short: "calculate the difference between two Cue values"
 		Long: """
 		Calculate the difference between two Cue values
 		"""
@@ -53,10 +53,10 @@ Otherwise, the <op> is interpreted as a complete Cue value.
 			Help: "Cue entrypoints"
 		}]
 	}, {
-		TBD:  "α"
+		TBD:   "α"
 		Name:  "merge"
 		Usage: "merge <orig> <update> [...entrypoints]"
-		Short: "Merge <new> onto <orig>, replacing values and adding new ones"
+		Short: "merge <new> onto <orig>, replacing values and adding new ones"
 		Long:  Short
 
 		Args: [{
@@ -76,10 +76,10 @@ Otherwise, the <op> is interpreted as a complete Cue value.
 			Help: "Cue entrypoints"
 		}]
 	}, {
-		TBD:  "α"
+		TBD:   "α"
 		Name:  "pick"
 		Usage: "pick <orig> <what> [...entrypoints]"
-		Short: "Pick <what> Cue value(s) from <orig>"
+		Short: "pick <what> Cue value(s) from <orig>"
 		Long:  Short
 
 		Args: [{
@@ -99,10 +99,10 @@ Otherwise, the <op> is interpreted as a complete Cue value.
 			Help: "Cue entrypoints"
 		}]
 	}, {
-		TBD:  "α"
+		TBD:   "α"
 		Name:  "mask"
 		Usage: "mask <orig> <what> [...entrypoints]"
-		Short: "Mask <what> Cue value(s) from <orig>, thereby 'filtering' the original"
+		Short: "mask <what> Cue value(s) from <orig>, thereby 'filtering' the original"
 		Long:  Short
 
 		Args: [{
@@ -122,10 +122,10 @@ Otherwise, the <op> is interpreted as a complete Cue value.
 			Help: "Cue entrypoints"
 		}]
 	}, {
-		TBD:  "α"
+		TBD:   "α"
 		Name:  "query"
 		Usage: "query <orig> <expr> [...entrypoints]"
-		Short: "Query for values matching an expr and/or attributes"
+		Short: "query for values matching an expr and/or attributes"
 		Long:  Short
 
 		Args: [{

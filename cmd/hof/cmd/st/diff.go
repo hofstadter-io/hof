@@ -25,7 +25,7 @@ var DiffCmd = &cobra.Command{
 
 	Use: "diff <orig> <next> [...entrypoints]",
 
-	Short: "Calculate the difference between two Cue values",
+	Short: "calculate the difference between two Cue values",
 
 	Long: diffLong,
 

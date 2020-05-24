@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var commitLong = `Record changes to the repository`
+var commitLong = `record changes to the repository`
 
 func CommitRun(args []string) (err error) {
 
@@ -25,7 +25,7 @@ var CommitCmd = &cobra.Command{
 
 	Use: "commit",
 
-	Short: "Record changes to the repository",
+	Short: "record changes to the repository",
 
 	Long: commitLong,
 

@@ -5,12 +5,12 @@ import (
 )
 
 #TopicCommand: schema.#Command & {
-	TBD:  "α"
+	TBD:   "α"
 	Name:  "topic"
 	Usage: "topic"
 	Aliases: ["topics"]
 
-	Short:   "Help for various topics and concepts"
+	Short:   "help for various topics and concepts"
 	Long:    Short
 	OmitRun: true
 
@@ -25,7 +25,7 @@ import (
 	Usage:   "workspace"
 	OmitRun: true
 
-	Short: "Help for learning about workspaces and workflows"
+	Short: "help for learning about workspaces and workflows"
 	Long:  Short
 	CustomHelp: """
 	These are common Workspace and Dataset commands used in various situations:

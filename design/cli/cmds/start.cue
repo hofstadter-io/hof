@@ -5,25 +5,25 @@ import (
 )
 
 #SetupCommand: schema.#Command & {
-	TBD:  "α"
+	TBD:   "α"
 	Name:  "setup"
 	Usage: "setup"
-	Short: "Setup the hof tool"
+	Short: "setup the hof tool"
 	Long:  Short
 }
 
 #CloneCommand: schema.#Command & {
-	TBD:  "α"
+	TBD:   "α"
 	Name:  "clone"
 	Usage: "clone"
-	Short: "Clone a workspace or repository into a new directory"
+	Short: "clone a workspace or repository into a new directory"
 	Long:  Short
 }
 
 #InitCommand: schema.#Command & {
-	TBD:  "α"
+	TBD:   "α"
 	Name:  "init"
 	Usage: "init"
-	Short: "Create an empty workspace or initialize an existing directory to one"
+	Short: "create an empty workspace or initialize an existing directory to one"
 	Long:  Short
 }

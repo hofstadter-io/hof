@@ -13,6 +13,15 @@ import (
 	Long:  Short
 }
 
+#JumpCommand: schema.#Command & {
+	TBD:   "α"
+	Name:  "jump"
+	Usage: "jump"
+	Aliases: ["j", "leap"]
+	Short: "Jumps help you do things with fewer keystrokes."
+	Long:  Short
+}
+
 #UiCommand: schema.#Command & {
 	TBD:   "Ø"
 	Name:  "ui"
@@ -34,23 +43,5 @@ import (
 	Name:  "repl"
 	Usage: "repl"
 	Short: "Run hof's local REPL"
-	Long:  Short
-}
-
-#JumpCommand: schema.#Command & {
-	TBD:  "α"
-	Name:  "jump"
-	Usage: "jump"
-	Aliases: ["j", "leap"]
-	Short: "Jumps help you do things with fewer keystrokes."
-	Long:  Short
-}
-
-#DocCommand: schema.#Command & {
-	TBD:   "Ø"
-	Name:  "doc"
-	Usage: "doc"
-	Aliases: ["docs"]
-	Short: "Generate and view documentation."
 	Long:  Short
 }

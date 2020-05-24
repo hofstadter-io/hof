@@ -13,7 +13,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/workspace"
 )
 
-var bisectLong = `Use binary search to find the commit that introduced a bug`
+var bisectLong = `use binary search to find the commit that introduced a bug`
 
 func BisectRun(args []string) (err error) {
 
@@ -29,7 +29,7 @@ var BisectCmd = &cobra.Command{
 
 	Use: "bisect",
 
-	Short: "Use binary search to find the commit that introduced a bug",
+	Short: "use binary search to find the commit that introduced a bug",
 
 	Long: bisectLong,
 

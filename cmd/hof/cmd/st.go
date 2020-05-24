@@ -29,7 +29,7 @@ var StCmd = &cobra.Command{
 		"structural",
 	},
 
-	Short: "Structural diff, merge, mask, pick, and query helpers for Cue",
+	Short: "recursive diff, merge, mask, pick, and query helpers for Cue",
 
 	Long: stLong,
 

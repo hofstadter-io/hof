@@ -9,11 +9,11 @@ import (
 // git//obj-db/dolt as layer between datasets and  data lake
 
 #StatusCommand: schema.#Command & {
-	TBD:  "α"
+	TBD:   "α"
 	Name:  "status"
 	Usage: "status"
 	Alias: ["s"]
-	Short: "Show workspace information and status"
+	Short: "show workspace information and status"
 	Long:  Short
 }
 
@@ -21,7 +21,7 @@ import (
 	TBD:   "α"
 	Name:  "log"
 	Usage: "log"
-	Short: "Show workspace logs and history"
+	Short: "show workspace logs and history"
 	Long:  Short
 }
 
@@ -29,7 +29,7 @@ import (
 	TBD:   "α"
 	Name:  "diff"
 	Usage: "diff"
-	Short: "Show the difference between workspace versions"
+	Short: "show the difference between workspace versions"
 	Long:  Short
 }
 
@@ -37,7 +37,7 @@ import (
 	TBD:   "α"
 	Name:  "bisect"
 	Usage: "bisect"
-	Short: "Use binary search to find the commit that introduced a bug"
+	Short: "use binary search to find the commit that introduced a bug"
 	Long:  Short
 }
 
@@ -46,7 +46,7 @@ import (
 	Name:  "include"
 	Usage: "include"
 	Alias: ["i"]
-	Short: "Include changes into the changeset"
+	Short: "include changes into the changeset"
 	Long:  Short
 }
 
@@ -55,7 +55,7 @@ import (
 	Name:  "branch"
 	Usage: "branch"
 	Alias: ["b"]
-	Short: "List, create, or delete branches"
+	Short: "list, create, or delete branches"
 	Long:  Short
 }
 
@@ -64,7 +64,7 @@ import (
 	Name:  "checkout"
 	Usage: "checkout"
 	Alias: ["co"]
-	Short: "Switch branches or restore working tree files"
+	Short: "switch branches or restore working tree files"
 	Long:  Short
 }
 
@@ -73,7 +73,7 @@ import (
 	Name:  "commit"
 	Usage: "commit"
 	Alias: ["c"]
-	Short: "Record changes to the repository"
+	Short: "record changes to the repository"
 	Long:  Short
 }
 
@@ -81,7 +81,7 @@ import (
 	TBD:   "α"
 	Name:  "merge"
 	Usage: "merge"
-	Short: "Join two or more development histories together"
+	Short: "join two or more development histories together"
 	Long:  Short
 }
 
@@ -89,7 +89,7 @@ import (
 	TBD:   "α"
 	Name:  "rebase"
 	Usage: "rebase"
-	Short: "Reapply commits on top of another base tip"
+	Short: "reapply commits on top of another base tip"
 	Long:  Short
 }
 
@@ -97,7 +97,7 @@ import (
 	TBD:   "α"
 	Name:  "reset"
 	Usage: "reset"
-	Short: "Reset current HEAD to the specified state"
+	Short: "reset current HEAD to the specified state"
 	Long:  Short
 }
 
@@ -105,7 +105,7 @@ import (
 	TBD:   "α"
 	Name:  "tag"
 	Usage: "tag"
-	Short: "Create, list, delete or verify a tag object signed with GPG"
+	Short: "create, list, delete or verify a tag object signed with GPG"
 	Long:  Short
 }
 
@@ -113,7 +113,7 @@ import (
 	TBD:   "α"
 	Name:  "fetch"
 	Usage: "fetch"
-	Short: "Download objects and refs from another repository"
+	Short: "download objects and refs from another repository"
 	Long:  Short
 }
 
@@ -121,7 +121,7 @@ import (
 	TBD:   "α"
 	Name:  "pull"
 	Usage: "pull"
-	Short: "Fetch from and integrate with another repository or a local branch"
+	Short: "fetch from and integrate with another repository or a local branch"
 	Long:  Short
 }
 
@@ -129,7 +129,7 @@ import (
 	TBD:   "α"
 	Name:  "push"
 	Usage: "push"
-	Short: "Update remote refs along with associated objects"
+	Short: "update remote refs along with associated objects"
 	Long:  Short
 }
 
@@ -137,7 +137,7 @@ import (
 	TBD:   "α"
 	Name:  "propose"
 	Usage: "propose"
-	Short: "Propose to incorporate your changeset in a repository"
+	Short: "propose to incorporate your changeset in a repository"
 	Long:  Short
 }
 
@@ -145,7 +145,7 @@ import (
 	TBD:   "α"
 	Name:  "publish"
 	Usage: "publish"
-	Short: "Publish a tagged version to a repository"
+	Short: "publish a tagged version to a repository"
 	Long:  Short
 }
 
@@ -153,6 +153,6 @@ import (
 	TBD:   "α"
 	Name:  "remotes"
 	Usage: "remotes"
-	Short: "Manage remote repositories"
+	Short: "manage remote repositories"
 	Long:  Short
 }

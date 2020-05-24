@@ -1,4 +1,4 @@
-package cmd
+package cmdcontext
 
 import (
 	"fmt"
@@ -9,29 +9,25 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
-
-	"github.com/hofstadter-io/hof/lib/workspace"
 )
 
-var pullLong = `fetch from and integrate with another repository or a local branch`
+var sourceLong = `source a context into your environment`
 
-func PullRun(args []string) (err error) {
+func SourceRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	// fmt.Println("not implemented")
-
-	err = workspace.RunPullFromArgs(args)
+	fmt.Println("not implemented")
 
 	return err
 }
 
-var PullCmd = &cobra.Command{
+var SourceCmd = &cobra.Command{
 
-	Use: "pull",
+	Use: "source [name]",
 
-	Short: "fetch from and integrate with another repository or a local branch",
+	Short: "source a context into your environment",
 
-	Long: pullLong,
+	Long: sourceLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
@@ -46,7 +42,7 @@ var PullCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		err = PullRun(args)
+		err = SourceRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -56,8 +52,8 @@ var PullCmd = &cobra.Command{
 
 func init() {
 
-	help := PullCmd.HelpFunc()
-	usage := PullCmd.UsageFunc()
+	help := SourceCmd.HelpFunc()
+	usage := SourceCmd.UsageFunc()
 
 	thelp := func(cmd *cobra.Command, args []string) {
 		cs := strings.Fields(cmd.CommandPath())
@@ -71,7 +67,7 @@ func init() {
 		ga.SendGaEvent(c+"/usage", "<omit>", 0)
 		return usage(cmd)
 	}
-	PullCmd.SetHelpFunc(thelp)
-	PullCmd.SetUsageFunc(tusage)
+	SourceCmd.SetHelpFunc(thelp)
+	SourceCmd.SetUsageFunc(tusage)
 
 }

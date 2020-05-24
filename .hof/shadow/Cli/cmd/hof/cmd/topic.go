@@ -10,7 +10,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var topicLong = `Help for various topics and concepts`
+var topicLong = `help for various topics and concepts`
 
 var TopicCmd = &cobra.Command{
 
@@ -20,7 +20,7 @@ var TopicCmd = &cobra.Command{
 		"topics",
 	},
 
-	Short: "Help for various topics and concepts",
+	Short: "help for various topics and concepts",
 
 	Long: topicLong,
 

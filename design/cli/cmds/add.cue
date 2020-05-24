@@ -6,7 +6,7 @@ import (
 
 // cue get + hof add
 #AddCommand: schema.#Command & {
-	TBD:  "α"
+	TBD:   "α"
 	Name:  "add"
 	Usage: "add"
 	Short: "add dependencies and new components to the current module or workspace"

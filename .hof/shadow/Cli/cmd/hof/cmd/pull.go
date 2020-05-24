@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var pullLong = `Fetch from and integrate with another repository or a local branch`
+var pullLong = `fetch from and integrate with another repository or a local branch`
 
 func PullRun(args []string) (err error) {
 
@@ -25,7 +25,7 @@ var PullCmd = &cobra.Command{
 
 	Use: "pull",
 
-	Short: "Fetch from and integrate with another repository or a local branch",
+	Short: "fetch from and integrate with another repository or a local branch",
 
 	Long: pullLong,
 

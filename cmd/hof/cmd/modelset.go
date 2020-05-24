@@ -10,7 +10,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var modelsetLong = `create, view, migrate, and understand your modelsets.`
+var modelsetLong = `create, view, diff, calculate / migrate, and manage your data models`
 
 var ModelsetCmd = &cobra.Command{
 
@@ -20,7 +20,7 @@ var ModelsetCmd = &cobra.Command{
 		"mset",
 	},
 
-	Short: "create, view, migrate, and understand your modelsets.",
+	Short: "create, view, diff, calculate / migrate, and manage your data models",
 
 	Long: modelsetLong,
 

@@ -13,7 +13,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/workspace"
 )
 
-var initLong = `Create an empty workspace or initialize an existing directory to one`
+var initLong = `create an empty workspace or initialize an existing directory to one`
 
 func InitRun(args []string) (err error) {
 
@@ -29,7 +29,7 @@ var InitCmd = &cobra.Command{
 
 	Use: "init",
 
-	Short: "Create an empty workspace or initialize an existing directory to one",
+	Short: "create an empty workspace or initialize an existing directory to one",
 
 	Long: initLong,
 

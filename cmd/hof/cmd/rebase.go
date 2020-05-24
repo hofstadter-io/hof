@@ -13,7 +13,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/workspace"
 )
 
-var rebaseLong = `Reapply commits on top of another base tip`
+var rebaseLong = `reapply commits on top of another base tip`
 
 func RebaseRun(args []string) (err error) {
 
@@ -29,7 +29,7 @@ var RebaseCmd = &cobra.Command{
 
 	Use: "rebase",
 
-	Short: "Reapply commits on top of another base tip",
+	Short: "reapply commits on top of another base tip",
 
 	Long: rebaseLong,
 

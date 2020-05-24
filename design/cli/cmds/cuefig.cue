@@ -5,10 +5,10 @@ import (
 )
 
 #ContextCommand: schema.#Command & {
-	TBD:  "α"
+	TBD:   "α"
 	Name:  "context"
 	Usage: "context"
-	Short: "Get, set, and use contexts"
+	Short: "get, set, and use contexts"
 	Long:  Short
 
 	OmitRun: true
@@ -37,6 +37,18 @@ import (
 		Usage: "use [name]"
 		Short: "set a context as the current default"
 		Long:  Short
+	}, {
+		TBD:   "Ø"
+		Name:  "source"
+		Usage: "source [name]"
+		Short: "source a context into your environment"
+		Long:  Short
+	}, {
+		TBD:   "Ø"
+		Name:  "clear"
+		Usage: "clear"
+		Short: "clear your context and environment"
+		Long:  Short
 	}]
 }
 
@@ -44,7 +56,7 @@ import (
 	TBD:   "β"
 	Name:  "config"
 	Usage: "config"
-	Short: "Manage local configurations"
+	Short: "manage local configurations"
 	Long:  Short
 
 	OmitRun: true
@@ -67,6 +79,12 @@ import (
 			Required: true
 			Help:     "Cue expr for value you'd like to merge into your config"
 		}]
+	}, {
+		TBD:   "Ø"
+		Name:  "use"
+		Usage: "use [name]"
+		Short: "bring a config into the current"
+		Long:  Short
 	}]
 }
 
@@ -74,7 +92,7 @@ import (
 	TBD:   "β"
 	Name:  "secret"
 	Usage: "secret"
-	Short: "Manage local secrets"
+	Short: "manage local secrets"
 	Long:  Short
 
 	OmitRun: true
@@ -97,5 +115,11 @@ import (
 			Required: true
 			Help:     "Cue expr for value you'd like to merge into your secret"
 		}]
+	}, {
+		TBD:   "Ø"
+		Name:  "use"
+		Usage: "use [name]"
+		Short: "bring a secret into the current"
+		Long:  Short
 	}]
 }

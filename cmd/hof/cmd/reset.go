@@ -13,7 +13,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/workspace"
 )
 
-var resetLong = `Reset current HEAD to the specified state`
+var resetLong = `reset current HEAD to the specified state`
 
 func ResetRun(args []string) (err error) {
 
@@ -29,7 +29,7 @@ var ResetCmd = &cobra.Command{
 
 	Use: "reset",
 
-	Short: "Reset current HEAD to the specified state",
+	Short: "reset current HEAD to the specified state",
 
 	Long: resetLong,
 

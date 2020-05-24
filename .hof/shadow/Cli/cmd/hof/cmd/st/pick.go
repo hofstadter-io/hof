@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var pickLong = `Pick <what> Cue value(s) from <orig>`
+var pickLong = `pick <what> Cue value(s) from <orig>`
 
 func PickRun(orig string, pick string, entrypoints []string) (err error) {
 
@@ -25,7 +25,7 @@ var PickCmd = &cobra.Command{
 
 	Use: "pick <orig> <what> [...entrypoints]",
 
-	Short: "Pick <what> Cue value(s) from <orig>",
+	Short: "pick <what> Cue value(s) from <orig>",
 
 	Long: pickLong,
 

@@ -13,7 +13,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/workspace"
 )
 
-var tagLong = `Create, list, delete or verify a tag object signed with GPG`
+var tagLong = `create, list, delete or verify a tag object signed with GPG`
 
 func TagRun(args []string) (err error) {
 
@@ -29,7 +29,7 @@ var TagCmd = &cobra.Command{
 
 	Use: "tag",
 
-	Short: "Create, list, delete or verify a tag object signed with GPG",
+	Short: "create, list, delete or verify a tag object signed with GPG",
 
 	Long: tagLong,
 

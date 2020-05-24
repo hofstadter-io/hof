@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var includeLong = `Include changes into the changeset`
+var includeLong = `include changes into the changeset`
 
 func IncludeRun(args []string) (err error) {
 
@@ -25,7 +25,7 @@ var IncludeCmd = &cobra.Command{
 
 	Use: "include",
 
-	Short: "Include changes into the changeset",
+	Short: "include changes into the changeset",
 
 	Long: includeLong,
 

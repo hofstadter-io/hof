@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var queryLong = `Query for values matching an expr and/or attributes`
+var queryLong = `query for values matching an expr and/or attributes`
 
 func QueryRun(orig string, expr string, entrypoints []string) (err error) {
 
@@ -25,7 +25,7 @@ var QueryCmd = &cobra.Command{
 
 	Use: "query <orig> <expr> [...entrypoints]",
 
-	Short: "Query for values matching an expr and/or attributes",
+	Short: "query for values matching an expr and/or attributes",
 
 	Long: queryLong,
 

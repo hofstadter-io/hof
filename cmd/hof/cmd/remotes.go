@@ -13,7 +13,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/workspace"
 )
 
-var remotesLong = `Manage remote repositories`
+var remotesLong = `manage remote repositories`
 
 func RemotesRun(args []string) (err error) {
 
@@ -29,7 +29,7 @@ var RemotesCmd = &cobra.Command{
 
 	Use: "remotes",
 
-	Short: "Manage remote repositories",
+	Short: "manage remote repositories",
 
 	Long: remotesLong,
 

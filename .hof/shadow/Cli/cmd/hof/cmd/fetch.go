@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var fetchLong = `Download objects and refs from another repository`
+var fetchLong = `download objects and refs from another repository`
 
 func FetchRun(args []string) (err error) {
 
@@ -25,7 +25,7 @@ var FetchCmd = &cobra.Command{
 
 	Use: "fetch",
 
-	Short: "Download objects and refs from another repository",
+	Short: "download objects and refs from another repository",
 
 	Long: fetchLong,
 

@@ -7,7 +7,7 @@ import (
 // Commands drawn from Cue with a touch of hof
 
 #DefCommand: schema.#Command & {
-	TBD:  "α"
+	TBD:   "α"
 	Name:  "def"
 	Usage: "def"
 	Short: "print consolidated definitions"
@@ -15,7 +15,7 @@ import (
 }
 
 #EvalCommand: schema.#Command & {
-	TBD:  "α"
+	TBD:   "α"
 	Name:  "eval"
 	Usage: "eval"
 	Short: "print consolidated definitions"
@@ -23,7 +23,7 @@ import (
 }
 
 #ExportCommand: schema.#Command & {
-	TBD:  "α"
+	TBD:   "α"
 	Name:  "export"
 	Usage: "export"
 	Short: "export your data model to various formats"
@@ -31,7 +31,7 @@ import (
 }
 
 #FormatCommand: schema.#Command & {
-	TBD:  "α"
+	TBD:   "α"
 	Name:  "fmt"
 	Usage: "fmt"
 	Short: "formats code and files"
@@ -39,7 +39,7 @@ import (
 }
 
 #ImportCommand: schema.#Command & {
-	TBD:  "α"
+	TBD:   "α"
 	Name:  "import"
 	Usage: "import"
 	Short: "convert other formats and systems to hofland"
@@ -47,7 +47,7 @@ import (
 }
 
 #TrimCommand: schema.#Command & {
-	TBD:  "α"
+	TBD:   "α"
 	Name:  "trim"
 	Usage: "trim"
 	Short: "cleanup code, configuration, and more"
@@ -55,7 +55,7 @@ import (
 }
 
 #VetCommand: schema.#Command & {
-	TBD:  "α"
+	TBD:   "α"
 	Name:  "vet"
 	Usage: "vet"
 	Short: "validate data"

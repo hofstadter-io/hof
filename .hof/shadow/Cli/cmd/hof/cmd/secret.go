@@ -10,13 +10,13 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var secretLong = `Manage local secrets`
+var secretLong = `manage local secrets`
 
 var SecretCmd = &cobra.Command{
 
 	Use: "secret",
 
-	Short: "Manage local secrets",
+	Short: "manage local secrets",
 
 	Long: secretLong,
 
@@ -51,5 +51,6 @@ func init() {
 
 	SecretCmd.AddCommand(cmdsecret.GetCmd)
 	SecretCmd.AddCommand(cmdsecret.SetCmd)
+	SecretCmd.AddCommand(cmdsecret.UseCmd)
 
 }

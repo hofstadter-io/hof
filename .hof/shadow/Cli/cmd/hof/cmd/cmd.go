@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var cmdLong = `Run commands from the scripting layer`
+var cmdLong = `run commands from the scripting layer and your _tool.cue files`
 
 func CmdRun(args []string) (err error) {
 
@@ -25,7 +25,7 @@ var CmdCmd = &cobra.Command{
 
 	Use: "cmd [flags] [cmd] [args]",
 
-	Short: "Run commands from the scripting layer",
+	Short: "run commands from the scripting layer and your _tool.cue files",
 
 	Long: cmdLong,
 

@@ -90,7 +90,7 @@ Local development commands:
   \(cmds.#UiCommand.Help)
   \(cmds.#TuiCommand.Help)
   \(cmds.#ReplCommand.Help)
-  pprof                 Go pprof by setting HOF_CPU_PROFILE="hof-cpu.prof" hof <cmd>
+  pprof                 go pprof by setting HOF_CPU_PROFILE="hof-cpu.prof" hof <cmd>
 
 
 Send us feedback or say hello:
@@ -98,11 +98,11 @@ Send us feedback or say hello:
                         you can also chat with us on https://gitter.im/hofstadter-io
 
 Additional commands:
-  help                  Help about any command
-  topic                 Additional information for various subjects and concepts
-  update                Check for new versions and run self-updates
-  version               Print detailed version information
-  completion            Generate completion helpers for your terminal
+  help                  help about any command
+  topic                 additional information for various subjects and concepts
+  update                check for new versions and run self-updates
+  version               print detailed version information
+  completion            generate completion helpers for your terminal
 
 Additional topics:
   schema, codegen, modeling, mirgrations

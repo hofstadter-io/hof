@@ -13,7 +13,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/learn"
 )
 
-var tourLong = `Take a tour of the hof tool`
+var tourLong = `take a tour of the hof tool`
 
 func TourRun(args []string) (err error) {
 
@@ -29,7 +29,7 @@ var TourCmd = &cobra.Command{
 
 	Use: "tour",
 
-	Short: "Take a tour of the hof tool",
+	Short: "take a tour of the hof tool",
 
 	Long: tourLong,
 

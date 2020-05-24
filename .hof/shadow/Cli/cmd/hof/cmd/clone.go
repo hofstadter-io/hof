@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var cloneLong = `Clone a workspace or repository into a new directory`
+var cloneLong = `clone a workspace or repository into a new directory`
 
 func CloneRun(args []string) (err error) {
 
@@ -25,7 +25,7 @@ var CloneCmd = &cobra.Command{
 
 	Use: "clone",
 
-	Short: "Clone a workspace or repository into a new directory",
+	Short: "clone a workspace or repository into a new directory",
 
 	Long: cloneLong,
 

@@ -7,40 +7,40 @@ import (
 // Kubernetes inspired commands (maybe some hyper-cloud too)
 
 #RuntimesCommand: schema.#Command & {
-	TBD:  "α"
+	TBD:   "α"
 	Name:  "runtimes"
 	Usage: "runtimes"
-	Short: "work with runtimes"
+	Short: "work with runtimes (go, js, py, bash, custom)"
 	Long:  Short
 
 	OmitRun: true
 
 	Commands: [{
-		TBD:  "α"
+		TBD:   "α"
 		Name:  "info"
 		Usage: "info"
 		Short: "print information about known runtimes"
 		Long:  Short
 	}, {
-		TBD:  "α"
+		TBD:   "α"
 		Name:  "add"
 		Usage: "add"
 		Short: "add a runtime to your system or workspace"
 		Long:  Short
 	}, {
-		TBD:  "α"
+		TBD:   "α"
 		Name:  "get"
 		Usage: "get"
 		Short: "find and display runtimes"
 		Long:  Short
 	}, {
-		TBD:  "α"
+		TBD:   "α"
 		Name:  "edit"
 		Usage: "edit"
 		Short: "edit a runtime configuration"
 		Long:  Short
 	}, {
-		TBD:  "α"
+		TBD:   "α"
 		Name:  "remove"
 		Usage: "remove"
 		Short: "remove a runtime"

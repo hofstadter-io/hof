@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var mergeLong = `Merge <new> onto <orig>, replacing values and adding new ones`
+var mergeLong = `merge <new> onto <orig>, replacing values and adding new ones`
 
 func MergeRun(orig string, update string, entrypoints []string) (err error) {
 
@@ -25,7 +25,7 @@ var MergeCmd = &cobra.Command{
 
 	Use: "merge <orig> <update> [...entrypoints]",
 
-	Short: "Merge <new> onto <orig>, replacing values and adding new ones",
+	Short: "merge <new> onto <orig>, replacing values and adding new ones",
 
 	Long: mergeLong,
 

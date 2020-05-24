@@ -13,7 +13,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/workspace"
 )
 
-var statusLong = `Show workspace information and status`
+var statusLong = `show workspace information and status`
 
 func StatusRun(args []string) (err error) {
 
@@ -29,7 +29,7 @@ var StatusCmd = &cobra.Command{
 
 	Use: "status",
 
-	Short: "Show workspace information and status",
+	Short: "show workspace information and status",
 
 	Long: statusLong,
 

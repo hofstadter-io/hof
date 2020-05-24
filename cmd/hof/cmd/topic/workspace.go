@@ -10,13 +10,13 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var workspaceLong = `Help for learning about workspaces and workflows`
+var workspaceLong = `help for learning about workspaces and workflows`
 
 var WorkspaceCmd = &cobra.Command{
 
 	Use: "workspace",
 
-	Short: "Help for learning about workspaces and workflows",
+	Short: "help for learning about workspaces and workflows",
 
 	Long: workspaceLong,
 

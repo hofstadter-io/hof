@@ -45,7 +45,7 @@ var GenCmd = &cobra.Command{
 		"g",
 	},
 
-	Short: "generate code, data, and config",
+	Short: "generate code, data, and config from your data models and designs",
 
 	Long: genLong,
 

@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var setupLong = `Setup the hof tool`
+var setupLong = `setup the hof tool`
 
 func SetupRun(args []string) (err error) {
 
@@ -25,7 +25,7 @@ var SetupCmd = &cobra.Command{
 
 	Use: "setup",
 
-	Short: "Setup the hof tool",
+	Short: "setup the hof tool",
 
 	Long: setupLong,
 

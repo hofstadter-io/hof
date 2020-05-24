@@ -10,13 +10,13 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var contextLong = `Get, set, and use contexts`
+var contextLong = `get, set, and use contexts`
 
 var ContextCmd = &cobra.Command{
 
 	Use: "context",
 
-	Short: "Get, set, and use contexts",
+	Short: "get, set, and use contexts",
 
 	Long: contextLong,
 
@@ -52,5 +52,7 @@ func init() {
 	ContextCmd.AddCommand(cmdcontext.GetCmd)
 	ContextCmd.AddCommand(cmdcontext.SetCmd)
 	ContextCmd.AddCommand(cmdcontext.UseCmd)
+	ContextCmd.AddCommand(cmdcontext.SourceCmd)
+	ContextCmd.AddCommand(cmdcontext.ClearCmd)
 
 }
