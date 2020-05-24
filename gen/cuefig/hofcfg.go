@@ -16,7 +16,6 @@ import (
 	"cuelang.org/go/cue/load"
 	"github.com/kirsle/configdir"
 
-	"github.com/hofstadter-io/hof/lib/util"
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
@@ -146,7 +145,7 @@ func LoadHofcfgConfig(workpath, entrypoint string) (val cue.Value, err error) {
 
 	if len(errs) > 0 {
 		for _, e := range errs {
-			util.PrintCueError(e)
+			yagu.PrintCueError(e)
 		}
 		return val, fmt.Errorf("Errors while reading Hofcfg file: %q", fpath)
 	}

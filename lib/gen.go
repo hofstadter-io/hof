@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/hofstadter-io/hof/lib/util"
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 func Gen(entrypoints, expressions []string, mode string) (error) {
@@ -17,7 +17,7 @@ func Gen(entrypoints, expressions []string, mode string) (error) {
 	errs = R.LoadCue()
 	if len(errs) > 0 {
 		for _, e := range errs {
-			util.PrintCueError(e)
+			yagu.PrintCueError(e)
 		}
 		return fmt.Errorf("\nErrors while loading cue files\n")
 	}
@@ -25,7 +25,7 @@ func Gen(entrypoints, expressions []string, mode string) (error) {
 	errsL := R.LoadGenerators()
 	if len(errsL) > 0 {
 		for _, e := range errsL {
-			util.PrintCueError(e)
+			yagu.PrintCueError(e)
 		}
 		return fmt.Errorf("\nErrors while loading generators\n")
 	}

@@ -22,7 +22,7 @@ require (
 	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
 	github.com/kr/pretty v0.1.0
 	github.com/mattn/go-zglob v0.0.1
-	github.com/mholt/archiver v3.1.1+incompatible
+	github.com/mholt/archiver v3.1.1+incompatible // indirect
 	github.com/naoina/toml v0.1.1
 	github.com/parnurzeal/gorequest v0.2.16
 	github.com/sergi/go-diff v1.1.0
@@ -34,7 +34,7 @@ require (
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	golang.org/x/sys v0.0.0-20200428200454-593003d681fa // indirect
 	golang.org/x/text v0.3.2
-	gopkg.in/src-d/go-git.v4 v4.13.1
+	gopkg.in/src-d/go-git.v4 v4.13.1 // indirect
 	gopkg.in/yaml.v2 v2.2.8 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
 )

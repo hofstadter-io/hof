@@ -15,7 +15,7 @@ import (
 	"github.com/mattn/go-zglob"
 
 	"github.com/hofstadter-io/hof/lib/gen"
-	"github.com/hofstadter-io/hof/lib/util"
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 type Runtime struct {
@@ -245,7 +245,7 @@ func (R *Runtime) WriteOutput() []error {
 				// TODO, make comparison and decide to write or not
 
 				// normal location
-				err := util.CopyFile(src, dst)
+				err := yagu.CopyFile(src, dst)
 				if err != nil {
 					err = fmt.Errorf("while copying static real file %q\n%w\n", match, err)
 					errs = append(errs, err)
@@ -253,7 +253,7 @@ func (R *Runtime) WriteOutput() []error {
 				}
 
 				// shadow location
-				err = util.CopyFile(src, path.Join(".hof", G.Name, dst))
+				err = yagu.CopyFile(src, path.Join(".hof", G.Name, dst))
 				if err != nil {
 					err = fmt.Errorf("while copying static shadow file %q\n%w\n", match, err)
 					errs = append(errs, err)

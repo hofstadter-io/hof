@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/hofstadter-io/hof/lib/util/configdir"
+	"github.com/hofstadter-io/hof/lib/yagu/configdir"
 )
 
 // Quick start example for a common use case of this module.

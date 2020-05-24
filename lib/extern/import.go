@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/hofstadter-io/hof/lib/util"
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 func ImportAddBundle(bundle string) (string, error) {
@@ -25,24 +25,24 @@ func ImportAddBundle(bundle string) (string, error) {
 }
 
 func cloneAndRenderImport(srcUrl, srcVer, srcPath string) error {
-	_, appname := util.GetAcctAndName()
+	_, appname := yagu.GetAcctAndName()
 	data := map[string]interface{}{
 		"AppName": appname,
 	}
 
-	dir, err := util.CloneRepo(srcUrl, srcVer)
+	dir, err := yagu.CloneRepo(srcUrl, srcVer)
 	if err != nil {
 		return err
 	}
 
-	err = util.RenderDir(filepath.Join(dir, srcPath, "design"), "design-vendor", data)
+	err = yagu.RenderDir(filepath.Join(dir, srcPath, "design"), "design-vendor", data)
 	if err != nil {
 		return err
 	}
 
 	if _, err := os.Stat(filepath.Join(dir, srcPath, "design-vendor")); !os.IsNotExist(err) {
 		// path exists
-		err = util.RenderDir(filepath.Join(dir, srcPath, "design-vendor"), "design-vendor", data)
+		err = yagu.RenderDir(filepath.Join(dir, srcPath, "design-vendor"), "design-vendor", data)
 		if err != nil {
 			return err
 		}

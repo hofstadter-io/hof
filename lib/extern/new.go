@@ -9,7 +9,7 @@ import (
 
 	"github.com/hofstadter-io/data-utils/io"
 
-	"github.com/hofstadter-io/hof/lib/util"
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 func NewEntry(what, name, template, strData string) (string, error) {
@@ -59,7 +59,7 @@ func NewEntry(what, name, template, strData string) (string, error) {
 	}
 
 	// Prep contextual data
-	_, appname := util.GetAcctAndName()
+	_, appname := yagu.GetAcctAndName()
 	data["AppName"] = appname
 
 	// A bit hacky
@@ -128,7 +128,7 @@ func cloneAndRenderNewThing(srcUrl, srcVer, srcSubpath, destBasePath, name strin
 	var dir string
 
 	if strings.HasPrefix(srcUrl, "https") {
-		dir, err = util.CloneRepo(srcUrl, srcVer)
+		dir, err = yagu.CloneRepo(srcUrl, srcVer)
 		if err != nil {
 			return err
 		}
@@ -137,13 +137,13 @@ func cloneAndRenderNewThing(srcUrl, srcVer, srcSubpath, destBasePath, name strin
 		dir = srcUrl
 	}
 
-	err = util.RenderDirNameSub(filepath.Join(dir, srcSubpath, "design"), destBasePath, data)
+	err = yagu.RenderDirNameSub(filepath.Join(dir, srcSubpath, "design"), destBasePath, data)
 	if err != nil {
 		return err
 	}
 	if _, err := os.Stat(filepath.Join(dir, srcSubpath, "design-vendor")); !os.IsNotExist(err) {
 		// path exists
-		err = util.RenderDirNameSub(filepath.Join(dir, srcSubpath, "design-vendor"), destBasePath, data)
+		err = yagu.RenderDirNameSub(filepath.Join(dir, srcSubpath, "design-vendor"), destBasePath, data)
 		if err != nil {
 			return err
 		}

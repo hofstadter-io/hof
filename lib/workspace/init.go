@@ -79,6 +79,11 @@ func RunInitFromArgs(module, name string) error {
 		return err
 	}
 
+	err = initWorkspaceGit(module, name)
+	if err != nil {
+		return err
+	}
+
 	// get latest CWD
 	nwd, err := os.Getwd()
 	if err != nil {
@@ -183,6 +188,11 @@ func initWorkspaceMods(module, name string) error {
 	if err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func initWorkspaceGit(module, name string) error {
 
 	return nil
 }

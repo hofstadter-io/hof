@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"path"
 
-	"github.com/hofstadter-io/hof/lib/util"
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 func (F *File) WriteOutput() error {
@@ -13,7 +13,7 @@ func (F *File) WriteOutput() error {
 	// fmt.Println("WriteFile:", F.Filepath)
 	// fmt.Printf("%#+v\n\n", F)
 
-	err = util.Mkdir(path.Join(F.Filepath))
+	err = yagu.Mkdir(path.Join(F.Filepath))
 	if err != nil {
 		return err
 	}
@@ -33,7 +33,7 @@ func (F *File) WriteShadow(basedir string) error {
 
 	fn := path.Join(basedir, F.Filepath)
 
-	err = util.Mkdir(fn)
+	err = yagu.Mkdir(fn)
 	if err != nil {
 		return err
 	}

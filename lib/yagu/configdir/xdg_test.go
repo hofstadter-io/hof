@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/hofstadter-io/hof/lib/util/configdir"
+	"github.com/hofstadter-io/hof/lib/yagu/configdir"
 )
 
 func reset() {
