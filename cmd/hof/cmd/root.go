@@ -210,87 +210,87 @@ Usage:
 
 
 Setup hof and create workspaces and datasets:
-  setup                 Setup the hof tool
-  init                  Create an empty workspace or initialize an existing directory to one
-  clone                 Clone a workspace or repository into a new directory
+  setup           α     Setup the hof tool
+  init            α     Create an empty workspace or initialize an existing directory to one
+  clone           α     Clone a workspace or repository into a new directory
 
 Model your designs, generate implementation, run anything:
-  modelset              create, view, migrate, and understand your modelsets.
-  gen                   generate code, data, and config
-  run                   run polyglot command and scripts seamlessly across runtimes
-  runtimes              work with runtimes
+  modelset        α     create, view, migrate, and understand your modelsets.
+  gen             ✓     generate code, data, and config
+  run             α     run polyglot command and scripts seamlessly across runtimes
+  runtimes        α     work with runtimes
 
 Learn more about hof and the _ you can do:
-  doc                   Generate and view documentation.
-  tour                  Take a tour of the hof tool
-  tutorial              Tutorials to help you learn hof right in hof
+  doc             Ø     Generate and view documentation.
+  tour            Ø     Take a tour of the hof tool
+  tutorial        Ø     Tutorials to help you learn hof right in hof
 
 Download modules, add content, and execute commands:
-  mod                   mod subcmd is a polyglot dependency management tool based on go mods
-  add                   add dependencies and new components to the current module or workspace
-  cmd                   Run commands from the scripting layer
+  mod             β     mod subcmd is a polyglot dependency management tool based on go mods
+  add             α     add dependencies and new components to the current module or workspace
+  cmd             α     Run commands from the scripting layer
 
 Manage resources (see also 'hof topic resources'):
-  info                  print information about known resources
-  label                 manage labels for resources and more
-  create                create resources
-  apply                 apply resource configuration
-  get                   find and display resources
-  edit                  edit resources
-  delete                delete resources
+  info            α     print information about known resources
+  label           α     manage labels for resources and more
+  create          α     create resources
+  apply           α     apply resource configuration
+  get             α     find and display resources
+  edit            α     edit resources
+  delete          α     delete resources
 
 Configure, Unify, Execute (see also https://cuelang.org):
   (also a whole bunch of other awesome things)
-  def                   print consolidated definitions
-  eval                  print consolidated definitions
-  export                export your data model to various formats
-  fmt                   formats code and files
-  import                convert other formats and systems to hofland
-  trim                  cleanup code, configuration, and more
-  vet                   validate data
-  st                    Structural diff, merge, mask, pick, and query helpers for Cue
+  def             α     print consolidated definitions
+  eval            α     print consolidated definitions
+  export          α     export your data model to various formats
+  fmt             α     formats code and files
+  import          α     convert other formats and systems to hofland
+  trim            α     cleanup code, configuration, and more
+  vet             α     validate data
+  st              α     Structural diff, merge, mask, pick, and query helpers for Cue
 
 Manage logins, config, secrets, and context:
-  auth                  authentication subcommands
-  config                Manage local configurations
-  secret                Manage local secrets
-  context               Get, set, and use contexts
+  auth            Ø     authentication subcommands
+  config          β     Manage local configurations
+  secret          β     Manage local secrets
+  context         α     Get, set, and use contexts
 
 Examine workpsace history and state:
-  status                Show workspace information and status
-  log                   Show workspace logs and history
-  diff                  Show the difference between workspace versions
-  bisect                Use binary search to find the commit that introduced a bug
+  status          α     Show workspace information and status
+  log             α     Show workspace logs and history
+  diff            α     Show the difference between workspace versions
+  bisect          α     Use binary search to find the commit that introduced a bug
 
 Grow, mark, and tweak your shared history (see also 'hof topic changesets'):
-  include               Include changes into the changeset
-  branch                List, create, or delete branches
-  checkout              Switch branches or restore working tree files
-  commit                Record changes to the repository
-  merge                 Join two or more development histories together
-  rebase                Reapply commits on top of another base tip
-  reset                 Reset current HEAD to the specified state
-  tag                   Create, list, delete or verify a tag object signed with GPG
+  include         α     Include changes into the changeset
+  branch          α     List, create, or delete branches
+  checkout        α     Switch branches or restore working tree files
+  commit          α     Record changes to the repository
+  merge           α     Join two or more development histories together
+  rebase          α     Reapply commits on top of another base tip
+  reset           α     Reset current HEAD to the specified state
+  tag             α     Create, list, delete or verify a tag object signed with GPG
 
 Colloaborate (see also 'hof topic collaborate'):
-  fetch                 Download objects and refs from another repository
-  pull                  Fetch from and integrate with another repository or a local branch
-  push                  Update remote refs along with associated objects
-  propose               Propose to incorporate your changeset in a repository
-  publish               Publish a tagged version to a repository
-  remotes               Manage remote repositories
+  fetch           α     Download objects and refs from another repository
+  pull            α     Fetch from and integrate with another repository or a local branch
+  push            α     Update remote refs along with associated objects
+  propose         α     Propose to incorporate your changeset in a repository
+  publish         α     Publish a tagged version to a repository
+  remotes         α     Manage remote repositories
 
 Local development commands:
-  reproduce             Record, share, and replay reproducible environments and processes
-  jump                  Jumps help you do things with fewer keystrokes.
-  ui                    Run hof's local web ui
-  tui                   Run hof's terminal ui
-  repl                  Run hof's local REPL
+  reproduce       Ø     Record, share, and replay reproducible environments and processes
+  jump            α     Jumps help you do things with fewer keystrokes.
+  ui              Ø     Run hof's local web ui
+  tui             Ø     Run hof's terminal ui
+  repl            Ø     Run hof's local REPL
   pprof                 Go pprof by setting HOF_CPU_PROFILE="hof-cpu.prof" hof <cmd>
 
 
 Send us feedback or say hello:
-  feedback              send feedback, bug reports, or any message :]
+  feedback        Ø     send feedback, bug reports, or any message :]
                         you can also chat with us on https://gitter.im/hofstadter-io
 
 Additional commands:
@@ -305,10 +305,13 @@ Additional topics:
   resources, labels, context, querying
   workflow, changesets, collaboration
 
-(+) command is yet to be implemented
+(✓) command is generally available
+(β) command is beta and ready for testing
+(α) command is alpha and under developmenr
+(Ø) command is null and yet to be implemented
 
 Flags:
 <<flag-usage>>
-Use "hof [command] --help" for more information about a command.
+Use "hof [command] --help / -h" for more information about a command.
 Use "hof topic [subject]"  for more information about a subject.
 `

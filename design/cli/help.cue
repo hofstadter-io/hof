@@ -83,7 +83,7 @@ Colloaborate (see also 'hof topic collaborate'):
   \(cmds.#ProposeCommand.Help)
   \(cmds.#PublishCommand.Help)
   \(cmds.#RemotesCommand.Help)
- 
+
 Local development commands:
   \(cmds.#ReproCommand.Help)
   \(cmds.#JumpCommand.Help)
@@ -109,11 +109,14 @@ Additional topics:
   resources, labels, context, querying
   workflow, changesets, collaboration
 
-(+) command is yet to be implemented
+(✓) command is generally available
+(β) command is beta and ready for testing
+(α) command is alpha and under developmenr
+(Ø) command is null and yet to be implemented
 
 Flags:
 <<flag-usage>>
-Use "hof [command] --help" for more information about a command.
+Use "hof [command] --help / -h" for more information about a command.
 Use "hof topic [subject]"  for more information about a subject.
 
 """

@@ -57,8 +57,8 @@ import (
 }
 
 #ContextSchema: {
-	Current?: #ContextSchemaItem
-	Contexts?: [ContextName=string]: #ContextSchemaItem & {name: ContextName}
+	Current?: #ContextItemSchema
+	Contexts?: [ContextName=string]: #ContextItemSchema & {name: ContextName}
 }
 
 #ContextItemSchema: {

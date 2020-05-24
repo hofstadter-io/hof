@@ -9,6 +9,7 @@ import (
 ]
 
 #ModCommand: schema.#Command & {
+	TBD:   "β"
 	Name:  "mod"
 	Usage: "mod"
 	Aliases: ["m"]
@@ -38,8 +39,8 @@ import (
 	PersistentPrerunBody: """
     mod.InitLangs()
   """
-	Commands: [
-		{
+	Commands: [{
+			TBD: "✓"
 			Name:  "info"
 			Usage: "info [language]"
 			Short: "print info about languages and modders known to mvs"
@@ -69,7 +70,7 @@ import (
       """
 		},
 		{
-			TBD:   "+ "
+			TBD:   "Ø"
 			Name:  "convert"
 			Usage: "convert <lang> <file>"
 			Short: "convert another package system to MVS."
@@ -101,7 +102,7 @@ import (
       """
 		},
 		{
-			TBD:   "+ "
+			TBD:   "Ø"
 			Name:  "graph"
 			Usage: "graph"
 			Short: "print module requirement graph"
@@ -118,7 +119,7 @@ import (
       """
 		},
 		{
-			TBD:   "+ "
+			TBD:   "Ø"
 			Name:  "status"
 			Usage: "status"
 			Short: "print module dependencies status"
@@ -135,6 +136,7 @@ import (
       """
 		},
 		{
+			TBD: "✓"
 			Name:  "init"
 			Usage: "init <lang> <module>"
 			Short: "initialize a new module in the current directory"
@@ -164,9 +166,8 @@ import (
         os.Exit(1)
       }
       """
-		},
-		{
-			TBD:   "+ "
+		}, {
+			TBD:   "Ø"
 			Name:  "tidy"
 			Usage: "tidy [langs...]"
 			Short: "add missinad and remove unused modules"
@@ -181,8 +182,8 @@ import (
         os.Exit(1)
       }
       """
-		},
-		{
+		}, {
+			TBD:   "β"
 			Name:  "vendor"
 			Usage: "vendor [langs...]"
 			Short: "make a vendored copy of dependencies"
@@ -197,9 +198,8 @@ import (
         os.Exit(1)
       }
       """
-		},
-		{
-			TBD:   "+ "
+		}, {
+			TBD:   "Ø"
 			Name:  "verify"
 			Usage: "verify [langs...]"
 			Short: "verify dependencies have expected content"
@@ -214,7 +214,6 @@ import (
         os.Exit(1)
       }
       """
-		},
-	]
+		}]
 
 }

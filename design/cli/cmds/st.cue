@@ -18,6 +18,7 @@ Otherwise, the <op> is interpreted as a complete Cue value.
 """
 
 #StCommand: schema.#Command & {
+	TBD:  "α"
 	Name:  "st"
 	Usage: "st"
 	Aliases: ["structural"]
@@ -27,6 +28,7 @@ Otherwise, the <op> is interpreted as a complete Cue value.
 	OmitRun: true
 
 	Commands: [{
+		TBD:  "α"
 		Name:  "diff"
 		Usage: "diff <orig> <next> [...entrypoints]"
 		Short: "Calculate the difference between two Cue values"
@@ -51,6 +53,7 @@ Otherwise, the <op> is interpreted as a complete Cue value.
 			Help: "Cue entrypoints"
 		}]
 	}, {
+		TBD:  "α"
 		Name:  "merge"
 		Usage: "merge <orig> <update> [...entrypoints]"
 		Short: "Merge <new> onto <orig>, replacing values and adding new ones"
@@ -73,6 +76,7 @@ Otherwise, the <op> is interpreted as a complete Cue value.
 			Help: "Cue entrypoints"
 		}]
 	}, {
+		TBD:  "α"
 		Name:  "pick"
 		Usage: "pick <orig> <what> [...entrypoints]"
 		Short: "Pick <what> Cue value(s) from <orig>"
@@ -95,6 +99,7 @@ Otherwise, the <op> is interpreted as a complete Cue value.
 			Help: "Cue entrypoints"
 		}]
 	}, {
+		TBD:  "α"
 		Name:  "mask"
 		Usage: "mask <orig> <what> [...entrypoints]"
 		Short: "Mask <what> Cue value(s) from <orig>, thereby 'filtering' the original"
@@ -117,6 +122,7 @@ Otherwise, the <op> is interpreted as a complete Cue value.
 			Help: "Cue entrypoints"
 		}]
 	}, {
+		TBD:  "α"
 		Name:  "query"
 		Usage: "query <orig> <expr> [...entrypoints]"
 		Short: "Query for values matching an expr and/or attributes"

@@ -5,7 +5,7 @@ import (
 )
 
 #AuthCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:   "Ø"
 	Name:  "auth"
 	Usage: "auth"
 	Short: "authentication subcommands"
@@ -14,7 +14,7 @@ import (
 	OmitRun: true
 
 	Commands: [{
-		TBD:   "+ "
+		TBD:   "Ø"
 		Name:  "login"
 		Usage: "login <where>"
 		Short: "login to an account, provider, system, or url"
@@ -27,19 +27,19 @@ import (
 			},
 		]
 	}, {
-		TBD:   "+ "
+		TBD:   "Ø"
 		Name:  "logout"
 		Usage: "logout <name>"
 		Short: "logout of an authenticated session"
 		Long:  Short
 	}, {
-		TBD:   "+ "
+		TBD:   "Ø"
 		Name:  "list"
 		Usage: "list"
 		Short: "list known auth configurations and sessions"
 		Long:  Short
 	}, {
-		TBD:   "+ "
+		TBD:   "Ø"
 		Name:  "test"
 		Usage: "test [name]"
 		Short: "test your auth configuration, defaults to current context"

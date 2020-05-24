@@ -5,7 +5,7 @@ import (
 )
 
 #ContextCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:  "α"
 	Name:  "context"
 	Usage: "context"
 	Short: "Get, set, and use contexts"
@@ -14,11 +14,13 @@ import (
 	OmitRun: true
 
 	Commands: [{
+		TBD:   "β"
 		Name:  "get"
 		Usage: "get <key.path>"
 		Short: "print a context or value(s) at path(s)"
 		Long:  Short
 	}, {
+		TBD:   "β"
 		Name:  "set"
 		Usage: "set [expr]"
 		Short: "set context values with an expr"
@@ -30,7 +32,7 @@ import (
 			Help:     "Cue expr for value you'd like to merge into your context"
 		}]
 	}, {
-		TBD:   "+ "
+		TBD:   "Ø"
 		Name:  "use"
 		Usage: "use [name]"
 		Short: "set a context as the current default"
@@ -39,6 +41,7 @@ import (
 }
 
 #ConfigCommand: schema.#Command & {
+	TBD:   "β"
 	Name:  "config"
 	Usage: "config"
 	Short: "Manage local configurations"
@@ -47,11 +50,13 @@ import (
 	OmitRun: true
 
 	Commands: [{
+		TBD:   "β"
 		Name:  "get"
 		Usage: "get <key.path>"
 		Short: "print a config or value(s) at path(s)"
 		Long:  Short
 	}, {
+		TBD:   "β"
 		Name:  "set"
 		Usage: "set [expr]"
 		Short: "set config values with an expr"
@@ -66,6 +71,7 @@ import (
 }
 
 #SecretCommand: schema.#Command & {
+	TBD:   "β"
 	Name:  "secret"
 	Usage: "secret"
 	Short: "Manage local secrets"
@@ -74,11 +80,13 @@ import (
 	OmitRun: true
 
 	Commands: [{
+		TBD:   "β"
 		Name:  "get"
 		Usage: "get <key.path>"
 		Short: "print a secret or value(s) at path(s)"
 		Long:  Short
 	}, {
+		TBD:   "β"
 		Name:  "set"
 		Usage: "set [expr]"
 		Short: "set secret values with an expr"

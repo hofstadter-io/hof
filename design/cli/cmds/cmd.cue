@@ -6,7 +6,7 @@ import (
 
 // cue run + hof extra
 #CmdCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:  "α"
 	Name:  "cmd"
 	Usage: "cmd [flags] [cmd] [args]"
 	Short: "Run commands from the scripting layer"

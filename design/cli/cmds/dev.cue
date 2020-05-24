@@ -5,7 +5,7 @@ import (
 )
 
 #ReproCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:   "Ø"
 	Name:  "reproduce"
 	Usage: "reproduce"
 	Aliases: ["repro"]
@@ -14,7 +14,7 @@ import (
 }
 
 #UiCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:   "Ø"
 	Name:  "ui"
 	Usage: "ui"
 	Short: "Run hof's local web ui"
@@ -22,7 +22,7 @@ import (
 }
 
 #TuiCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:   "Ø"
 	Name:  "tui"
 	Usage: "tui"
 	Short: "Run hof's terminal ui"
@@ -30,7 +30,7 @@ import (
 }
 
 #ReplCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:   "Ø"
 	Name:  "repl"
 	Usage: "repl"
 	Short: "Run hof's local REPL"
@@ -38,7 +38,7 @@ import (
 }
 
 #JumpCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:  "α"
 	Name:  "jump"
 	Usage: "jump"
 	Aliases: ["j", "leap"]
@@ -47,7 +47,7 @@ import (
 }
 
 #DocCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:   "Ø"
 	Name:  "doc"
 	Usage: "doc"
 	Aliases: ["docs"]

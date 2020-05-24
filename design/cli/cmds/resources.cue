@@ -7,7 +7,7 @@ import (
 // Kubernetes inspired commands (maybe some hyper-cloud too)
 
 #InfoCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:  "α"
 	Name:  "info"
 	Usage: "info"
 	Short: "print information about known resources"
@@ -15,7 +15,7 @@ import (
 }
 
 #CreateCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:  "α"
 	Name:  "create"
 	Usage: "create"
 	Short: "create resources"
@@ -23,7 +23,7 @@ import (
 }
 
 #ApplyCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:  "α"
 	Name:  "apply"
 	Usage: "apply"
 	Short: "apply resource configuration"
@@ -31,7 +31,7 @@ import (
 }
 
 #GetCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:  "α"
 	Name:  "get"
 	Usage: "get"
 	Short: "find and display resources"
@@ -39,7 +39,7 @@ import (
 }
 
 #EditCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:  "α"
 	Name:  "edit"
 	Usage: "edit"
 	Short: "edit resources"
@@ -47,7 +47,7 @@ import (
 }
 
 #DeleteCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:  "α"
 	Name:  "delete"
 	Usage: "delete"
 	Short: "delete resources"

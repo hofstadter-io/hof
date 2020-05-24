@@ -6,6 +6,7 @@ import (
 
 // TODO, JAMStack / HofKit
 #RunCommand: schema.#Command & {
+	TBD:  "α"
 	Name:  "run"
 	Usage: "run"
 	Aliases: ["r"]

@@ -9,7 +9,7 @@ import (
 // git//obj-db/dolt as layer between datasets and  data lake
 
 #StatusCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:  "α"
 	Name:  "status"
 	Usage: "status"
 	Alias: ["s"]
@@ -18,7 +18,7 @@ import (
 }
 
 #LogCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:   "α"
 	Name:  "log"
 	Usage: "log"
 	Short: "Show workspace logs and history"
@@ -26,7 +26,7 @@ import (
 }
 
 #DiffCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:   "α"
 	Name:  "diff"
 	Usage: "diff"
 	Short: "Show the difference between workspace versions"
@@ -34,7 +34,7 @@ import (
 }
 
 #BisectCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:   "α"
 	Name:  "bisect"
 	Usage: "bisect"
 	Short: "Use binary search to find the commit that introduced a bug"
@@ -42,7 +42,7 @@ import (
 }
 
 #IncludeCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:   "α"
 	Name:  "include"
 	Usage: "include"
 	Alias: ["i"]
@@ -51,7 +51,7 @@ import (
 }
 
 #BranchCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:   "α"
 	Name:  "branch"
 	Usage: "branch"
 	Alias: ["b"]
@@ -60,7 +60,7 @@ import (
 }
 
 #CheckoutCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:   "α"
 	Name:  "checkout"
 	Usage: "checkout"
 	Alias: ["co"]
@@ -69,7 +69,7 @@ import (
 }
 
 #CommitCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:   "α"
 	Name:  "commit"
 	Usage: "commit"
 	Alias: ["c"]
@@ -78,7 +78,7 @@ import (
 }
 
 #MergeCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:   "α"
 	Name:  "merge"
 	Usage: "merge"
 	Short: "Join two or more development histories together"
@@ -86,7 +86,7 @@ import (
 }
 
 #RebaseCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:   "α"
 	Name:  "rebase"
 	Usage: "rebase"
 	Short: "Reapply commits on top of another base tip"
@@ -94,7 +94,7 @@ import (
 }
 
 #ResetCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:   "α"
 	Name:  "reset"
 	Usage: "reset"
 	Short: "Reset current HEAD to the specified state"
@@ -102,7 +102,7 @@ import (
 }
 
 #TagCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:   "α"
 	Name:  "tag"
 	Usage: "tag"
 	Short: "Create, list, delete or verify a tag object signed with GPG"
@@ -110,7 +110,7 @@ import (
 }
 
 #FetchCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:   "α"
 	Name:  "fetch"
 	Usage: "fetch"
 	Short: "Download objects and refs from another repository"
@@ -118,7 +118,7 @@ import (
 }
 
 #PullCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:   "α"
 	Name:  "pull"
 	Usage: "pull"
 	Short: "Fetch from and integrate with another repository or a local branch"
@@ -126,7 +126,7 @@ import (
 }
 
 #PushCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:   "α"
 	Name:  "push"
 	Usage: "push"
 	Short: "Update remote refs along with associated objects"
@@ -134,7 +134,7 @@ import (
 }
 
 #ProposeCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:   "α"
 	Name:  "propose"
 	Usage: "propose"
 	Short: "Propose to incorporate your changeset in a repository"
@@ -142,7 +142,7 @@ import (
 }
 
 #PublishCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:   "α"
 	Name:  "publish"
 	Usage: "publish"
 	Short: "Publish a tagged version to a repository"
@@ -150,7 +150,7 @@ import (
 }
 
 #RemotesCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:   "α"
 	Name:  "remotes"
 	Usage: "remotes"
 	Short: "Manage remote repositories"

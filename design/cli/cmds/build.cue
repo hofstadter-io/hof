@@ -5,7 +5,7 @@ import (
 )
 
 #BuildCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:   "Ø"
 	Name:  "build"
 	Usage: "build [flags] [cmd] [args]"
 	Short: "Build assets for modules and generated output"

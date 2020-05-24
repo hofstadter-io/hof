@@ -5,7 +5,7 @@ import (
 )
 
 #TopicCommand: schema.#Command & {
-	TBD:   "+ "
+	TBD:  "α"
 	Name:  "topic"
 	Usage: "topic"
 	Aliases: ["topics"]

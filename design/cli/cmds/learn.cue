@@ -5,7 +5,7 @@ import (
 )
 
 #TourCommand: schema.#Command & {
-	TBD:   " "
+	TBD:   "Ø"
 	Name:  "tour"
 	Usage: "tour"
 	Short: "Take a tour of the hof tool"
@@ -13,7 +13,7 @@ import (
 }
 
 #TutorialCommand: schema.#Command & {
-	TBD:   " "
+	TBD:   "Ø"
 	Name:  "tutorial"
 	Usage: "tutorial"
 	Short: "Tutorials to help you learn hof right in hof"
