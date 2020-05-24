@@ -52,10 +52,10 @@ Setup hof and create workspaces and datasets:
   clone                 Clone a workspace or repository into a new directory
 
 Model your designs, generate implementation, run anything:
-  modelset              create, view, migrate, and understand your modelsets.
-  gen                   generate code, data, and config
+  modelset              create, view, migrate, and manage your data models
+  gen                   generate code, data, and config from your data models
   run                   run polyglot command and scripts seamlessly across runtimes
-  runtimes              work with runtimes
+  runtimes              work with runtimes (go, js, py, bash, custom)
 
 Learn more about hof and the _ you can do:
   doc                   Generate and view documentation.
