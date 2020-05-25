@@ -37,7 +37,7 @@ var GenCmd = &cobra.Command{
 	Use: "gen [files...]",
 
 	Aliases: []string{
-		"g",
+		"G",
 	},
 
 	Short: "generate code, data, and config from your data models and designs",
