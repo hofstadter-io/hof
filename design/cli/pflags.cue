@@ -65,6 +65,58 @@ import (
 		Help:    "Operate using only the local config/secret context"
 	},
 
+	// i/o formats and streams
+	{
+		Name:    "input"
+		Long:    "input"
+		Short:   "i"
+		Type:    "[]string"
+		Default: "nil"
+		Help:    "input streams, depending on the command context"
+	},
+	{
+		Name:    "inputFormat"
+		Long:    "input-format"
+		Short:   "I"
+		Type:    "string"
+		Default: ""
+		Help:    "input format, defaults to infered"
+	},
+
+	{
+		Name:    "output"
+		Long:    "output"
+		Short:   "o"
+		Type:    "[]string"
+		Default: "nil"
+		Help:    "output streams, depending on the command context"
+	},
+	{
+		Name:    "outputFormat"
+		Long:    "output-format"
+		Short:   "O"
+		Type:    "string"
+		Default: ""
+		Help:    "output format, defaults to cue"
+	},
+
+	{
+		Name:    "error"
+		Long:    "error"
+		Short:   ""
+		Type:    "[]string"
+		Default: "nil"
+		Help:    "error streams, depending on the command context"
+	},
+	{
+		Name:    "errorFormat"
+		Long:    "error-format"
+		Short:   ""
+		Type:    "string"
+		Default: ""
+		Help:    "error format, defaults to cue"
+	},
+
 	// context should encapsulate the next three
 	{
 		Name:    "account"

@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib/ops"
 )
 
 var jumpLong = `Jumps help you do things with fewer keystrokes.`
@@ -16,7 +18,9 @@ var jumpLong = `Jumps help you do things with fewer keystrokes.`
 func JumpRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = ops.RunJumpFromArgs(args)
 
 	return err
 }

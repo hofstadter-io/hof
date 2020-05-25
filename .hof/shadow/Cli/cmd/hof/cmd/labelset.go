@@ -17,6 +17,7 @@ var LabelsetCmd = &cobra.Command{
 	Use: "labelset",
 
 	Aliases: []string{
+		"L",
 		"lset",
 	},
 

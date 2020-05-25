@@ -77,7 +77,7 @@ import (
 	TBD:   "α"
 	Name:  "labelset"
 	Usage: "labelset"
-	Aliases: ["lset"]
+	Aliases: ["L", "lset"]
 	Short: "group resources, datamodels, labelsets, and more"
 	Long:  Short
 

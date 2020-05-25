@@ -8,6 +8,12 @@ var (
 	RootContextPflag            string
 	RootGlobalPflag             bool
 	RootLocalPflag              bool
+	RootInputPflag              []string
+	RootInputFormatPflag        string
+	RootOutputPflag             []string
+	RootOutputFormatPflag       string
+	RootErrorPflag              []string
+	RootErrorFormatPflag        string
 	RootAccountPflag            string
 	RootBillingPflag            string
 	RootProjectPflag            string
