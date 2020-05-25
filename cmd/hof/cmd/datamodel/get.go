@@ -9,25 +9,29 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib/datamodel"
 )
 
-var viewLong = `view data model information`
+var getLong = `find and display data models`
 
-func ViewRun(args []string) (err error) {
+func GetRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = datamodel.RunGetFromArgs(args)
 
 	return err
 }
 
-var ViewCmd = &cobra.Command{
+var GetCmd = &cobra.Command{
 
-	Use: "view",
+	Use: "get",
 
-	Short: "view data model information",
+	Short: "find and display data models",
 
-	Long: viewLong,
+	Long: getLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
@@ -42,7 +46,7 @@ var ViewCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		err = ViewRun(args)
+		err = GetRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -52,8 +56,8 @@ var ViewCmd = &cobra.Command{
 
 func init() {
 
-	help := ViewCmd.HelpFunc()
-	usage := ViewCmd.UsageFunc()
+	help := GetCmd.HelpFunc()
+	usage := GetCmd.UsageFunc()
 
 	thelp := func(cmd *cobra.Command, args []string) {
 		cs := strings.Fields(cmd.CommandPath())
@@ -67,7 +71,7 @@ func init() {
 		ga.SendGaEvent(c+"/usage", "<omit>", 0)
 		return usage(cmd)
 	}
-	ViewCmd.SetHelpFunc(thelp)
-	ViewCmd.SetUsageFunc(tusage)
+	GetCmd.SetHelpFunc(thelp)
+	GetCmd.SetUsageFunc(tusage)
 
 }

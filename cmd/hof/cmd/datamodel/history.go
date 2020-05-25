@@ -9,25 +9,29 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib/datamodel"
 )
 
-var deleteLong = `delete a modelset permentantly`
+var historyLong = `show the history for a data model`
 
-func DeleteRun(args []string) (err error) {
+func HistoryRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = datamodel.RunHistoryFromArgs(args)
 
 	return err
 }
 
-var DeleteCmd = &cobra.Command{
+var HistoryCmd = &cobra.Command{
 
-	Use: "delete",
+	Use: "history",
 
-	Short: "delete a modelset permentantly",
+	Short: "show the history for a data model",
 
-	Long: deleteLong,
+	Long: historyLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
@@ -42,7 +46,7 @@ var DeleteCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		err = DeleteRun(args)
+		err = HistoryRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -52,8 +56,8 @@ var DeleteCmd = &cobra.Command{
 
 func init() {
 
-	help := DeleteCmd.HelpFunc()
-	usage := DeleteCmd.UsageFunc()
+	help := HistoryCmd.HelpFunc()
+	usage := HistoryCmd.UsageFunc()
 
 	thelp := func(cmd *cobra.Command, args []string) {
 		cs := strings.Fields(cmd.CommandPath())
@@ -67,7 +71,7 @@ func init() {
 		ga.SendGaEvent(c+"/usage", "<omit>", 0)
 		return usage(cmd)
 	}
-	DeleteCmd.SetHelpFunc(thelp)
-	DeleteCmd.SetUsageFunc(tusage)
+	HistoryCmd.SetHelpFunc(thelp)
+	HistoryCmd.SetUsageFunc(tusage)
 
 }

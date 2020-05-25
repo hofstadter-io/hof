@@ -11,9 +11,9 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var listLong = `list the known modelsets`
+var historyLong = `show the history for a data model`
 
-func ListRun(args []string) (err error) {
+func HistoryRun(args []string) (err error) {
 
 	// you can safely comment this print out
 	fmt.Println("not implemented")
@@ -21,13 +21,13 @@ func ListRun(args []string) (err error) {
 	return err
 }
 
-var ListCmd = &cobra.Command{
+var HistoryCmd = &cobra.Command{
 
-	Use: "list",
+	Use: "history",
 
-	Short: "list the known modelsets",
+	Short: "show the history for a data model",
 
-	Long: listLong,
+	Long: historyLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
@@ -42,7 +42,7 @@ var ListCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		err = ListRun(args)
+		err = HistoryRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -52,8 +52,8 @@ var ListCmd = &cobra.Command{
 
 func init() {
 
-	help := ListCmd.HelpFunc()
-	usage := ListCmd.UsageFunc()
+	help := HistoryCmd.HelpFunc()
+	usage := HistoryCmd.UsageFunc()
 
 	thelp := func(cmd *cobra.Command, args []string) {
 		cs := strings.Fields(cmd.CommandPath())
@@ -67,7 +67,7 @@ func init() {
 		ga.SendGaEvent(c+"/usage", "<omit>", 0)
 		return usage(cmd)
 	}
-	ListCmd.SetHelpFunc(thelp)
-	ListCmd.SetUsageFunc(tusage)
+	HistoryCmd.SetHelpFunc(thelp)
+	HistoryCmd.SetUsageFunc(tusage)
 
 }

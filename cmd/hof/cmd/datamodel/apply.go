@@ -9,25 +9,29 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib/datamodel"
 )
 
-var listLong = `list the known modelsets`
+var applyLong = `apply a migraion sequence against a data store`
 
-func ListRun(args []string) (err error) {
+func ApplyRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = datamodel.RunApplyFromArgs(args)
 
 	return err
 }
 
-var ListCmd = &cobra.Command{
+var ApplyCmd = &cobra.Command{
 
-	Use: "list",
+	Use: "apply",
 
-	Short: "list the known modelsets",
+	Short: "apply a migraion sequence against a data store",
 
-	Long: listLong,
+	Long: applyLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
@@ -42,7 +46,7 @@ var ListCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		err = ListRun(args)
+		err = ApplyRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -52,8 +56,8 @@ var ListCmd = &cobra.Command{
 
 func init() {
 
-	help := ListCmd.HelpFunc()
-	usage := ListCmd.UsageFunc()
+	help := ApplyCmd.HelpFunc()
+	usage := ApplyCmd.UsageFunc()
 
 	thelp := func(cmd *cobra.Command, args []string) {
 		cs := strings.Fields(cmd.CommandPath())
@@ -67,7 +71,7 @@ func init() {
 		ga.SendGaEvent(c+"/usage", "<omit>", 0)
 		return usage(cmd)
 	}
-	ListCmd.SetHelpFunc(thelp)
-	ListCmd.SetUsageFunc(tusage)
+	ApplyCmd.SetHelpFunc(thelp)
+	ApplyCmd.SetUsageFunc(tusage)
 
 }

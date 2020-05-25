@@ -11,9 +11,9 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var testLong = `test the current migration and diff for a modelset`
+var applyLong = `apply a migraion sequence against a data store`
 
-func TestRun(args []string) (err error) {
+func ApplyRun(args []string) (err error) {
 
 	// you can safely comment this print out
 	fmt.Println("not implemented")
@@ -21,13 +21,13 @@ func TestRun(args []string) (err error) {
 	return err
 }
 
-var TestCmd = &cobra.Command{
+var ApplyCmd = &cobra.Command{
 
-	Use: "test",
+	Use: "apply",
 
-	Short: "test the current migration and diff for a modelset",
+	Short: "apply a migraion sequence against a data store",
 
-	Long: testLong,
+	Long: applyLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
@@ -42,7 +42,7 @@ var TestCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		err = TestRun(args)
+		err = ApplyRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -52,8 +52,8 @@ var TestCmd = &cobra.Command{
 
 func init() {
 
-	help := TestCmd.HelpFunc()
-	usage := TestCmd.UsageFunc()
+	help := ApplyCmd.HelpFunc()
+	usage := ApplyCmd.UsageFunc()
 
 	thelp := func(cmd *cobra.Command, args []string) {
 		cs := strings.Fields(cmd.CommandPath())
@@ -67,7 +67,7 @@ func init() {
 		ga.SendGaEvent(c+"/usage", "<omit>", 0)
 		return usage(cmd)
 	}
-	TestCmd.SetHelpFunc(thelp)
-	TestCmd.SetUsageFunc(tusage)
+	ApplyCmd.SetHelpFunc(thelp)
+	ApplyCmd.SetUsageFunc(tusage)
 
 }

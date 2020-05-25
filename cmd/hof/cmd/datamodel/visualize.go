@@ -9,25 +9,29 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib/datamodel"
 )
 
-var testLong = `test the current migration and diff for a modelset`
+var visualizeLong = `visualize a data model`
 
-func TestRun(args []string) (err error) {
+func VisualizeRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = datamodel.RunVisualizeFromArgs(args)
 
 	return err
 }
 
-var TestCmd = &cobra.Command{
+var VisualizeCmd = &cobra.Command{
 
-	Use: "test",
+	Use: "visualize",
 
-	Short: "test the current migration and diff for a modelset",
+	Short: "visualize a data model",
 
-	Long: testLong,
+	Long: visualizeLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
@@ -42,7 +46,7 @@ var TestCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		err = TestRun(args)
+		err = VisualizeRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -52,8 +56,8 @@ var TestCmd = &cobra.Command{
 
 func init() {
 
-	help := TestCmd.HelpFunc()
-	usage := TestCmd.UsageFunc()
+	help := VisualizeCmd.HelpFunc()
+	usage := VisualizeCmd.UsageFunc()
 
 	thelp := func(cmd *cobra.Command, args []string) {
 		cs := strings.Fields(cmd.CommandPath())
@@ -67,7 +71,7 @@ func init() {
 		ga.SendGaEvent(c+"/usage", "<omit>", 0)
 		return usage(cmd)
 	}
-	TestCmd.SetHelpFunc(thelp)
-	TestCmd.SetUsageFunc(tusage)
+	VisualizeCmd.SetHelpFunc(thelp)
+	VisualizeCmd.SetUsageFunc(tusage)
 
 }

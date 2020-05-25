@@ -9,14 +9,18 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib/datamodel"
 )
 
-var migrateLong = `create the next migration for a modelset`
+var migrateLong = `calculate a changeset for a data model`
 
 func MigrateRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = datamodel.RunMigrateFromArgs(args)
 
 	return err
 }
@@ -25,7 +29,7 @@ var MigrateCmd = &cobra.Command{
 
 	Use: "migrate",
 
-	Short: "create the next migration for a modelset",
+	Short: "calculate a changeset for a data model",
 
 	Long: migrateLong,
 

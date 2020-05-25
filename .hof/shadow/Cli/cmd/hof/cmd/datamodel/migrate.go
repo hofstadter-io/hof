@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var migrateLong = `create the next migration for a modelset`
+var migrateLong = `calculate a changeset for a data model`
 
 func MigrateRun(args []string) (err error) {
 
@@ -25,7 +25,7 @@ var MigrateCmd = &cobra.Command{
 
 	Use: "migrate",
 
-	Short: "create the next migration for a modelset",
+	Short: "calculate a changeset for a data model",
 
 	Long: migrateLong,
 

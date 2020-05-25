@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var diffLong = `show the current diff for a modelset`
+var diffLong = `show the current diff for a data model`
 
 func DiffRun(args []string) (err error) {
 
@@ -25,7 +25,7 @@ var DiffCmd = &cobra.Command{
 
 	Use: "diff",
 
-	Short: "show the current diff for a modelset",
+	Short: "show the current diff for a data model",
 
 	Long: diffLong,
 

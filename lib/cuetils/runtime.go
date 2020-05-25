@@ -49,7 +49,7 @@ func (CRT *CueRuntime) load() (err error) {
 		}
 	}
 
-	fmt.Println("CRT.Load", CRT.Workspace, CRT.Entrypoints)
+	// fmt.Println("CRT.Load", CRT.Workspace, CRT.Entrypoints)
 
 	var errs []error
 
@@ -57,8 +57,8 @@ func (CRT *CueRuntime) load() (err error) {
 	//  add the second arg from our runtime when implemented
 	CRT.CueRuntime = &cue.Runtime{}
 	CRT.BuildInstances = load.Instances(CRT.Entrypoints, nil)
-	for i, bi := range CRT.BuildInstances {
-		fmt.Println("%d: start", i)
+	for _, bi := range CRT.BuildInstances {
+		// fmt.Printf("%d: start\n", i)
 
 		if bi.Err != nil {
 			fmt.Println("BI ERR", bi.Err, bi.Incomplete, bi.DepsErrors)
@@ -80,14 +80,14 @@ func (CRT *CueRuntime) load() (err error) {
 			continue
 		}
 
-		fmt.Println(i, "built", I)
+		// fmt.Println(i, "built", I)
 
 		CRT.CueInstance = I
 
 		// Get top level value from cuelang
 		V := I.Value()
 		CRT.CueValue = V
-		fmt.Println(i, "valued", V)
+		// fmt.Println(i, "valued", V)
 
 		// Decode? we want to be lazy
 		err = V.Decode(&CRT.Value)
@@ -96,7 +96,7 @@ func (CRT *CueRuntime) load() (err error) {
 			continue
 		}
 
-		fmt.Println(i, "decoded", CRT.Value)
+		// fmt.Println(i, "decoded", CRT.Value)
 
 	}
 

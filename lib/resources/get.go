@@ -11,6 +11,11 @@ func RunGetFromArgs(args []string) error {
 	labels := flags.RootLabelsPflag
 	fmt.Println("lib/resources.Get")
 
+	if flags.RootGlobalPflag {
+	} else if flags.RootLocalPflag {
+	} else {
+	}
+
 	// TODO, handle config/secret/context like datamodel/modelset/model/view
 	// (separate from builtin/custom resources, as they have different Cue entrypoints / file locations)
 

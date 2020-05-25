@@ -18,14 +18,21 @@ import (
 		Default: "false"
 		Help:    "Only print builtin resources"
 		Long:    "builtin"
-		Short:   "b"
+		Short:   ""
 	}, {
 		Name:    "custom"
 		Type:    "bool"
 		Default: "false"
 		Help:    "Only print custom resources"
 		Long:    "custom"
-		Short:   "c"
+		Short:   ""
+	}, {
+		Name:    "local"
+		Type:    "bool"
+		Default: "false"
+		Help:    "Only print workspace resources"
+		Long:    "here"
+		Short:   ""
 	}]
 }
 

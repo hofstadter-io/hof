@@ -53,13 +53,12 @@ func init() {
 	DatamodelCmd.SetHelpFunc(thelp)
 	DatamodelCmd.SetUsageFunc(tusage)
 
-	DatamodelCmd.AddCommand(cmddatamodel.ViewCmd)
-	DatamodelCmd.AddCommand(cmddatamodel.ListCmd)
+	DatamodelCmd.AddCommand(cmddatamodel.GetCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.StatusCmd)
-	DatamodelCmd.AddCommand(cmddatamodel.GraphCmd)
+	DatamodelCmd.AddCommand(cmddatamodel.VisualizeCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.DiffCmd)
+	DatamodelCmd.AddCommand(cmddatamodel.HistoryCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.MigrateCmd)
-	DatamodelCmd.AddCommand(cmddatamodel.TestCmd)
-	DatamodelCmd.AddCommand(cmddatamodel.DeleteCmd)
+	DatamodelCmd.AddCommand(cmddatamodel.ApplyCmd)
 
 }

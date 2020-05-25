@@ -19,8 +19,9 @@ var infoLong = `print information about known resources`
 
 func init() {
 
-	InfoCmd.Flags().BoolVarP(&(flags.InfoFlags.Builtin), "builtin", "b", false, "Only print builtin resources")
-	InfoCmd.Flags().BoolVarP(&(flags.InfoFlags.Custom), "custom", "c", false, "Only print custom resources")
+	InfoCmd.Flags().BoolVarP(&(flags.InfoFlags.Builtin), "builtin", "", false, "Only print builtin resources")
+	InfoCmd.Flags().BoolVarP(&(flags.InfoFlags.Custom), "custom", "", false, "Only print custom resources")
+	InfoCmd.Flags().BoolVarP(&(flags.InfoFlags.Local), "here", "", false, "Only print workspace resources")
 }
 
 func InfoRun(args []string) (err error) {

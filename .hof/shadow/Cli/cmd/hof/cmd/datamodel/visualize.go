@@ -11,9 +11,9 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var viewLong = `view data model information`
+var visualizeLong = `visualize a data model`
 
-func ViewRun(args []string) (err error) {
+func VisualizeRun(args []string) (err error) {
 
 	// you can safely comment this print out
 	fmt.Println("not implemented")
@@ -21,13 +21,13 @@ func ViewRun(args []string) (err error) {
 	return err
 }
 
-var ViewCmd = &cobra.Command{
+var VisualizeCmd = &cobra.Command{
 
-	Use: "view",
+	Use: "visualize",
 
-	Short: "view data model information",
+	Short: "visualize a data model",
 
-	Long: viewLong,
+	Long: visualizeLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
@@ -42,7 +42,7 @@ var ViewCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		err = ViewRun(args)
+		err = VisualizeRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -52,8 +52,8 @@ var ViewCmd = &cobra.Command{
 
 func init() {
 
-	help := ViewCmd.HelpFunc()
-	usage := ViewCmd.UsageFunc()
+	help := VisualizeCmd.HelpFunc()
+	usage := VisualizeCmd.UsageFunc()
 
 	thelp := func(cmd *cobra.Command, args []string) {
 		cs := strings.Fields(cmd.CommandPath())
@@ -67,7 +67,7 @@ func init() {
 		ga.SendGaEvent(c+"/usage", "<omit>", 0)
 		return usage(cmd)
 	}
-	ViewCmd.SetHelpFunc(thelp)
-	ViewCmd.SetUsageFunc(tusage)
+	VisualizeCmd.SetHelpFunc(thelp)
+	VisualizeCmd.SetUsageFunc(tusage)
 
 }

@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var statusLong = `show the current status for a modelset`
+var statusLong = `print the data model status`
 
 func StatusRun(args []string) (err error) {
 
@@ -25,7 +25,7 @@ var StatusCmd = &cobra.Command{
 
 	Use: "status",
 
-	Short: "show the current status for a modelset",
+	Short: "print the data model status",
 
 	Long: statusLong,
 

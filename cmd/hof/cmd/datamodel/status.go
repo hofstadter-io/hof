@@ -9,14 +9,18 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib/datamodel"
 )
 
-var statusLong = `show the current status for a modelset`
+var statusLong = `print the data model status`
 
 func StatusRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = datamodel.RunStatusFromArgs(args)
 
 	return err
 }
@@ -25,7 +29,7 @@ var StatusCmd = &cobra.Command{
 
 	Use: "status",
 
-	Short: "show the current status for a modelset",
+	Short: "print the data model status",
 
 	Long: statusLong,
 
