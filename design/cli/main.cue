@@ -56,7 +56,6 @@ import (
 		cmds.#InfoCommand,
 		cmds.#LabelCommand,
 		cmds.#CreateCommand,
-		cmds.#ApplyCommand,
 		cmds.#GetCommand,
 		cmds.#EditCommand,
 		cmds.#DeleteCommand,

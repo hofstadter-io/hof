@@ -8,10 +8,20 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/spf13/viper"
+
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
 )
 
 var infoLong = `print information about known resources`
+
+func init() {
+
+	InfoCmd.Flags().BoolVarP(&(flags.InfoFlags.Builtin), "builtin", "b", false, "Only print builtin resources")
+	InfoCmd.Flags().BoolVarP(&(flags.InfoFlags.Custom), "custom", "c", false, "Only print custom resources")
+}
 
 func InfoRun(args []string) (err error) {
 

@@ -4,11 +4,15 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/hofstadter-io/hof/lib/yagu"
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
+	"github.com/hofstadter-io/hof/lib/cuetils"
 )
 
-func Gen(entrypoints, expressions []string, mode string) (error) {
+func Gen(args []string, cmdflags flags.GenFlagpole) (error) {
 	verystart := time.Now()
+
+	entrypoints := args
+	expressions := []string{}
 
 	var errs []error
 
@@ -17,7 +21,7 @@ func Gen(entrypoints, expressions []string, mode string) (error) {
 	errs = R.LoadCue()
 	if len(errs) > 0 {
 		for _, e := range errs {
-			yagu.PrintCueError(e)
+			cuetils.PrintCueError(e)
 		}
 		return fmt.Errorf("\nErrors while loading cue files\n")
 	}
@@ -25,7 +29,7 @@ func Gen(entrypoints, expressions []string, mode string) (error) {
 	errsL := R.LoadGenerators()
 	if len(errsL) > 0 {
 		for _, e := range errsL {
-			yagu.PrintCueError(e)
+			cuetils.PrintCueError(e)
 		}
 		return fmt.Errorf("\nErrors while loading generators\n")
 	}

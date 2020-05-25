@@ -1,4 +1,4 @@
-package schema
+package datamodel
 
 #Models: [N=string]: #Model & { Name: N, ... }
 #Model: {

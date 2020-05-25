@@ -12,6 +12,21 @@ import (
 	Usage: "info"
 	Short: "print information about known resources"
 	Long:  Short
+	Flags: [{
+		Name:    "builtin"
+		Type:    "bool"
+		Default: "false"
+		Help:    "Only print builtin resources"
+		Long:    "builtin"
+		Short:   "b"
+	}, {
+		Name:    "custom"
+		Type:    "bool"
+		Default: "false"
+		Help:    "Only print custom resources"
+		Long:    "custom"
+		Short:   "c"
+	}]
 }
 
 #CreateCommand: schema.#Command & {
@@ -19,14 +34,6 @@ import (
 	Name:  "create"
 	Usage: "create"
 	Short: "create resources"
-	Long:  Short
-}
-
-#ApplyCommand: schema.#Command & {
-	TBD:   "α"
-	Name:  "apply"
-	Usage: "apply"
-	Short: "apply resource configuration"
 	Long:  Short
 }
 

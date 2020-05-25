@@ -16,6 +16,7 @@ import (
 	"cuelang.org/go/cue/load"
 	"github.com/kirsle/configdir"
 
+	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
@@ -145,7 +146,7 @@ func LoadSecretConfig(workpath, entrypoint string) (val cue.Value, err error) {
 
 	if len(errs) > 0 {
 		for _, e := range errs {
-			yagu.PrintCueError(e)
+			cuetils.PrintCueError(e)
 		}
 		return val, fmt.Errorf("Errors while reading Secret file: %q", fpath)
 	}

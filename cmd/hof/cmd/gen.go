@@ -9,30 +9,25 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib"
 )
 
 var genLong = `  generate all the things, from code to data to config...`
 
-var (
-	GenStatsFlag     bool
-	GenGeneratorFlag []string
-)
-
 func init() {
 
-	GenCmd.Flags().BoolVarP(&GenStatsFlag, "stats", "", false, "Print generator statistics")
-	GenCmd.Flags().StringSliceVarP(&GenGeneratorFlag, "generator", "g", nil, "Generators to run, default is all discovered")
+	GenCmd.Flags().BoolVarP(&(flags.GenFlags.Stats), "stats", "", false, "Print generator statistics")
+	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.Generator), "generator", "g", nil, "Generators to run, default is all discovered")
 }
 
 func GenRun(args []string) (err error) {
 
-	// fmt.Println("GenFlags", GenGeneratorFlag)
-
-	return lib.Gen([]string{}, []string{}, "")
+	return lib.Gen(args, flags.GenFlags)
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
 
 	return err
 }

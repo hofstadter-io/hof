@@ -103,7 +103,7 @@ func initWorkspaceDirs() error {
 
 	dirs := []string{
 		"design",
-		"models",
+		"datamodel",
 		"resources",
 	}
 

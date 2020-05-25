@@ -1,4 +1,4 @@
-package pflags
+package flags
 
 var (
 	RootLabelsPflag             []string
@@ -12,6 +12,7 @@ var (
 	RootBillingPflag            string
 	RootProjectPflag            string
 	RootWorkspacePflag          string
+	RootDatamodelDirPflag       string
 	RootResourcesDirPflag       string
 	RootRuntimesDirPflag        string
 	RootPackagePflag            string

@@ -1,4 +1,4 @@
-package schema
+package resources
 
 #Datastores: [N=string]: #Datastore & { Name: N, ... }
 #Datastore: {

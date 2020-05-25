@@ -37,7 +37,6 @@ Manage resources (see also 'hof topic resources'):
   \(cmds.#InfoCommand.Help)
   \(cmds.#LabelCommand.Help)
   \(cmds.#CreateCommand.Help)
-  \(cmds.#ApplyCommand.Help)
   \(cmds.#GetCommand.Help)
   \(cmds.#EditCommand.Help)
   \(cmds.#DeleteCommand.Help)

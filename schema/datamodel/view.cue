@@ -1,4 +1,4 @@
-package schema
+package datamodel
 
 #Views: [N=string]: #View & { Name: N, ... }
 #View: {

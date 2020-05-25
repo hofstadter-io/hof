@@ -99,6 +99,14 @@ import (
 		Help:    "the workspace context to use during this hof execution"
 	},
 	{
+		Name:    "datamodelDir"
+		Long:    "datamodel-dir"
+		Short:   ""
+		Type:    "string"
+		Default: ""
+		Help:    "directory for discovering resources"
+	},
+	{
 		Name:    "resourcesDir"
 		Long:    "resources-dir"
 		Short:   ""

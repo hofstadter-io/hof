@@ -11,23 +11,16 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
 )
 
 var genLong = `  generate all the things, from code to data to config...`
 
-var (
-	GenStatsFlag     bool
-	GenGeneratorFlag []string
-)
-
 func init() {
 
-	GenCmd.Flags().BoolVarP(&GenStatsFlag, "stats", "", false, "Print generator statistics")
-	GenCmd.Flags().StringSliceVarP(&GenGeneratorFlag, "generator", "g", nil, "Generators to run, default is all discovered")
-}
-
-func init() {
-
+	GenCmd.Flags().BoolVarP(&(flags.GenFlags.Stats), "stats", "", false, "Print generator statistics")
+	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.Generator), "generator", "g", nil, "Generators to run, default is all discovered")
 }
 
 func GenRun(args []string) (err error) {
