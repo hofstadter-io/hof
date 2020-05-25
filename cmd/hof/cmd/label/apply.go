@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib/labels"
 )
 
 var applyLong = `find and apply labels to resources`
@@ -16,7 +18,9 @@ var applyLong = `find and apply labels to resources`
 func ApplyRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = labels.RunApplyLabelFromArgs(args)
 
 	return err
 }

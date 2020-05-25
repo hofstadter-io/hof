@@ -4,8 +4,14 @@ import (
 	"fmt"
 )
 
-func RunInfoFromArgs(args []string) error {
-	fmt.Println("lib/labels.Info", args)
+func RunInfoLabelFromArgs(args []string) error {
+	fmt.Println("lib/labels.InfoLabel", args)
+
+	return nil
+}
+
+func RunInfoLabelsetFromArgs(args []string) error {
+	fmt.Println("lib/labels.InfoLabelset", args)
 
 	return nil
 }

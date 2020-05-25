@@ -1,8 +1,16 @@
 package structural
 
 import (
+	"fmt"
+
 	"cuelang.org/go/cue"
 )
+
+func RunMaskFromArgs(orig, mask string, entrypoints []string) error {
+	fmt.Println("lib/st.Mask", orig, mask, entrypoints)
+
+	return nil
+}
 
 func CueMask(sorig, smask string) (string, error) {
 	out := NewpvStruct()

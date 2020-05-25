@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib/datamodel"
 )
 
 var deleteLong = `find and delete data models`
@@ -16,7 +18,9 @@ var deleteLong = `find and delete data models`
 func DeleteRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = datamodel.RunDeleteFromArgs(args)
 
 	return err
 }

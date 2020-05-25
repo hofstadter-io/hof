@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib/structural"
 )
 
 var pickLong = `pick <what> Cue value(s) from <orig>`
@@ -16,7 +18,9 @@ var pickLong = `pick <what> Cue value(s) from <orig>`
 func PickRun(orig string, pick string, entrypoints []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = structural.RunPickFromArgs(orig, pick, entrypoints)
 
 	return err
 }

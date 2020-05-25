@@ -7,6 +7,12 @@ import (
 	"cuelang.org/go/cue"
 )
 
+func RunPickFromArgs(orig, pick string, entrypoints []string) error {
+	fmt.Println("lib/st.Pick", orig, pick, entrypoints)
+
+	return nil
+}
+
 func CuePick(sorig, spick string) (string, error) {
 	out := NewpvStruct()
 

@@ -20,7 +20,7 @@ func DeleteRun(args []string) (err error) {
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = labels.RunDeleteFromArgs(args)
+	err = labels.RunDeleteLabelFromArgs(args)
 
 	return err
 }

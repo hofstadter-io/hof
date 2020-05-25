@@ -4,8 +4,14 @@ import (
 	"fmt"
 )
 
-func RunDeleteFromArgs(args []string) error {
-	fmt.Println("lib/labels.Delete", args)
+func RunDeleteLabelFromArgs(args []string) error {
+	fmt.Println("lib/labels.DeleteLabel", args)
+
+	return nil
+}
+
+func RunDeleteLabelsetFromArgs(args []string) error {
+	fmt.Println("lib/labels.DeleteLabelset", args)
 
 	return nil
 }

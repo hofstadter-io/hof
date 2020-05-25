@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib/structural"
 )
 
 var maskLong = `mask <what> Cue value(s) from <orig>, thereby 'filtering' the original`
@@ -16,7 +18,9 @@ var maskLong = `mask <what> Cue value(s) from <orig>, thereby 'filtering' the or
 func MaskRun(orig string, what string, entrypoints []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = structural.RunMaskFromArgs(orig, what, entrypoints)
 
 	return err
 }

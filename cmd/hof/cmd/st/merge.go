@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib/structural"
 )
 
 var mergeLong = `merge <new> onto <orig>, replacing values and adding new ones`
@@ -16,7 +18,9 @@ var mergeLong = `merge <new> onto <orig>, replacing values and adding new ones`
 func MergeRun(orig string, update string, entrypoints []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = structural.RunMergeFromArgs(orig, update, entrypoints)
 
 	return err
 }

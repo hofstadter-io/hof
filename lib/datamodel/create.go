@@ -1,11 +1,11 @@
-package runtimes
+package datamodel
 
 import (
 	"fmt"
 )
 
 func RunCreateFromArgs(args []string) error {
-	fmt.Println("lib/runtimes.Create", args)
+	fmt.Println("lib/datamodel.Create", args)
 
 	return nil
 }

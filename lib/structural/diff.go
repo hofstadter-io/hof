@@ -7,6 +7,12 @@ import (
 	"cuelang.org/go/cue"
 )
 
+func RunDiffFromArgs(orig, next string, entrypoints []string) error {
+	fmt.Println("lib/st.Diff", orig, next, entrypoints)
+
+	return nil
+}
+
 func reportInplace(out *pvStruct, key string, val *pvStruct) {
 	out.Ensure("inplace")
 	inplace := out.Get("inplace")

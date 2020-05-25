@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib/structural"
 )
 
 var diffLong = `Calculate the difference between two Cue values`
@@ -16,7 +18,9 @@ var diffLong = `Calculate the difference between two Cue values`
 func DiffRun(orig string, next string, entrypoints []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = structural.RunDiffFromArgs(orig, next, entrypoints)
 
 	return err
 }

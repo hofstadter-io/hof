@@ -20,7 +20,7 @@ func GetRun(args []string) (err error) {
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = labels.RunGetFromArgs(args)
+	err = labels.RunGetLabelFromArgs(args)
 
 	return err
 }

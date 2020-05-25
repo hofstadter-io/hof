@@ -20,7 +20,7 @@ func EditRun(args []string) (err error) {
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = labels.RunEditFromArgs(args)
+	err = labels.RunEditLabelFromArgs(args)
 
 	return err
 }

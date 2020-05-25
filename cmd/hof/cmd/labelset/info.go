@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib/labels"
 )
 
 var infoLong = `print info about labelsets in your workspace or system`
@@ -16,7 +18,9 @@ var infoLong = `print info about labelsets in your workspace or system`
 func InfoRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = labels.RunInfoLabelsetFromArgs(args)
 
 	return err
 }

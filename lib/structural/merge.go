@@ -6,6 +6,12 @@ import (
 	"cuelang.org/go/cue"
 )
 
+func RunMergeFromArgs(orig, update string, entrypoints []string) error {
+	fmt.Println("lib/st.Merge", orig, update, entrypoints)
+
+	return nil
+}
+
 func CueMerge(sorig, snew string) (string, error) {
 	out := NewpvStruct()
 

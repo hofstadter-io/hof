@@ -1,8 +1,16 @@
 package structural
 
 import (
+	"fmt"
+
 	"cuelang.org/go/cue"
 )
+
+func RunQueryFromArgs(orig, expr string, entrypoints []string) error {
+	fmt.Println("lib/st.Query", orig, expr, entrypoints)
+
+	return nil
+}
 
 func CueQuery(squery, sdata string) (string, error) {
 	out := NewpvList()

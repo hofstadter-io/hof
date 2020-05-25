@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib/labels"
 )
 
 var setLong = `find and configure labelsets from your workspace`
@@ -16,7 +18,9 @@ var setLong = `find and configure labelsets from your workspace`
 func SetRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = labels.RunSetLabelsetFromArgs(args)
 
 	return err
 }
