@@ -13,7 +13,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/runtimes"
 )
 
-var getLong = `find and display runtimes`
+var getLong = `find and display runtime configurations`
 
 func GetRun(args []string) (err error) {
 
@@ -29,7 +29,11 @@ var GetCmd = &cobra.Command{
 
 	Use: "get",
 
-	Short: "find and display runtimes",
+	Aliases: []string{
+		"g",
+	},
+
+	Short: "find and display runtime configurations",
 
 	Long: getLong,
 

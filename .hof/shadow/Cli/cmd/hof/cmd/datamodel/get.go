@@ -25,6 +25,10 @@ var GetCmd = &cobra.Command{
 
 	Use: "get",
 
+	Aliases: []string{
+		"g",
+	},
+
 	Short: "find and display data models",
 
 	Long: getLong,

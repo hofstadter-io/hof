@@ -17,6 +17,7 @@ var LabelCmd = &cobra.Command{
 	Use: "label",
 
 	Aliases: []string{
+		"l",
 		"labels",
 		"attrs",
 	},
@@ -55,11 +56,12 @@ func init() {
 	LabelCmd.SetUsageFunc(tusage)
 
 	LabelCmd.AddCommand(cmdlabel.InfoCmd)
-	LabelCmd.AddCommand(cmdlabel.AddCmd)
-	LabelCmd.AddCommand(cmdlabel.EditCmd)
-	LabelCmd.AddCommand(cmdlabel.DeleteCmd)
+	LabelCmd.AddCommand(cmdlabel.CreateCmd)
 	LabelCmd.AddCommand(cmdlabel.GetCmd)
 	LabelCmd.AddCommand(cmdlabel.SetCmd)
+	LabelCmd.AddCommand(cmdlabel.EditCmd)
+	LabelCmd.AddCommand(cmdlabel.DeleteCmd)
+	LabelCmd.AddCommand(cmdlabel.ApplyCmd)
 	LabelCmd.AddCommand(cmdlabel.RemoveCmd)
 
 }

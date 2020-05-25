@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var setLong = `find and apply labels to resources`
+var setLong = `find and configure labels from your workspace`
 
 func SetRun(args []string) (err error) {
 
@@ -25,7 +25,11 @@ var SetCmd = &cobra.Command{
 
 	Use: "set",
 
-	Short: "find and apply labels to resources",
+	Aliases: []string{
+		"s",
+	},
+
+	Short: "find and configure labels from your workspace",
 
 	Long: setLong,
 

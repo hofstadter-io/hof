@@ -29,6 +29,10 @@ var DeleteCmd = &cobra.Command{
 
 	Use: "delete",
 
+	Aliases: []string{
+		"del",
+	},
+
 	Short: "delete resources",
 
 	Long: deleteLong,

@@ -25,6 +25,11 @@ var DeleteCmd = &cobra.Command{
 
 	Use: "delete",
 
+	Aliases: []string{
+		"del",
+		"remove",
+	},
+
 	Short: "delete labels from your workspace or system",
 
 	Long: deleteLong,

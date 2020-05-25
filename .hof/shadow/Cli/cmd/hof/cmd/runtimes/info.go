@@ -25,6 +25,10 @@ var InfoCmd = &cobra.Command{
 
 	Use: "info",
 
+	Aliases: []string{
+		"i",
+	},
+
 	Short: "print information about known runtimes",
 
 	Long: infoLong,

@@ -10,6 +10,7 @@ import (
 	TBD:   "α"
 	Name:  "info"
 	Usage: "info"
+	Aliases: ["i"]
 	Short: "print information about known resources"
 	Long:  Short
 	Flags: [{
@@ -40,6 +41,7 @@ import (
 	TBD:   "α"
 	Name:  "create"
 	Usage: "create"
+	Aliases: ["c"]
 	Short: "create resources"
 	Long:  Short
 }
@@ -48,7 +50,17 @@ import (
 	TBD:   "α"
 	Name:  "get"
 	Usage: "get"
+	Aliases: ["g"]
 	Short: "find and display resources"
+	Long:  Short
+}
+
+#SetCommand: schema.#Command & {
+	TBD:   "α"
+	Name:  "set"
+	Usage: "set"
+	Aliases: ["s"]
+	Short: "find and configure resources"
 	Long:  Short
 }
 
@@ -56,6 +68,7 @@ import (
 	TBD:   "α"
 	Name:  "edit"
 	Usage: "edit"
+	Aliases: ["e"]
 	Short: "edit resources"
 	Long:  Short
 }
@@ -64,6 +77,7 @@ import (
 	TBD:   "α"
 	Name:  "delete"
 	Usage: "delete"
+	Aliases: ["del"]
 	Short: "delete resources"
 	Long:  Short
 }

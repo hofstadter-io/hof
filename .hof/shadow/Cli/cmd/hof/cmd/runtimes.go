@@ -50,9 +50,12 @@ func init() {
 	RuntimesCmd.SetUsageFunc(tusage)
 
 	RuntimesCmd.AddCommand(cmdruntimes.InfoCmd)
-	RuntimesCmd.AddCommand(cmdruntimes.AddCmd)
+	RuntimesCmd.AddCommand(cmdruntimes.CreateCmd)
 	RuntimesCmd.AddCommand(cmdruntimes.GetCmd)
+	RuntimesCmd.AddCommand(cmdruntimes.SetCmd)
 	RuntimesCmd.AddCommand(cmdruntimes.EditCmd)
-	RuntimesCmd.AddCommand(cmdruntimes.RemoveCmd)
+	RuntimesCmd.AddCommand(cmdruntimes.DeleteCmd)
+	RuntimesCmd.AddCommand(cmdruntimes.InstallCmd)
+	RuntimesCmd.AddCommand(cmdruntimes.UninstallCmd)
 
 }

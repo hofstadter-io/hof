@@ -53,7 +53,11 @@ func init() {
 	DatamodelCmd.SetHelpFunc(thelp)
 	DatamodelCmd.SetUsageFunc(tusage)
 
+	DatamodelCmd.AddCommand(cmddatamodel.CreateCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.GetCmd)
+	DatamodelCmd.AddCommand(cmddatamodel.SetCmd)
+	DatamodelCmd.AddCommand(cmddatamodel.EditCmd)
+	DatamodelCmd.AddCommand(cmddatamodel.DeleteCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.StatusCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.VisualizeCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.DiffCmd)

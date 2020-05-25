@@ -25,6 +25,10 @@ var DiffCmd = &cobra.Command{
 
 	Use: "diff",
 
+	Aliases: []string{
+		"d",
+	},
+
 	Short: "show the current diff for a data model",
 
 	Long: diffLong,

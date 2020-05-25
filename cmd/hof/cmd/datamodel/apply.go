@@ -29,6 +29,10 @@ var ApplyCmd = &cobra.Command{
 
 	Use: "apply",
 
+	Aliases: []string{
+		"a",
+	},
+
 	Short: "apply a migraion sequence against a data store",
 
 	Long: applyLong,

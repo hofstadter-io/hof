@@ -29,6 +29,12 @@ var VisualizeCmd = &cobra.Command{
 
 	Use: "visualize",
 
+	Aliases: []string{
+		"v",
+		"viz",
+		"show",
+	},
+
 	Short: "visualize a data model",
 
 	Long: visualizeLong,

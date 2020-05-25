@@ -1,4 +1,4 @@
-package cmdruntimes
+package cmdlabelset
 
 import (
 	"fmt"
@@ -9,29 +9,29 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
-
-	"github.com/hofstadter-io/hof/lib/runtimes"
 )
 
-var addLong = `add a runtime to your system or workspace`
+var infoLong = `print info about labelsets in your workspace or system`
 
-func AddRun(args []string) (err error) {
+func InfoRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	// fmt.Println("not implemented")
-
-	err = runtimes.RunAddFromArgs(args)
+	fmt.Println("not implemented")
 
 	return err
 }
 
-var AddCmd = &cobra.Command{
+var InfoCmd = &cobra.Command{
 
-	Use: "add",
+	Use: "info",
 
-	Short: "add a runtime to your system or workspace",
+	Aliases: []string{
+		"i",
+	},
 
-	Long: addLong,
+	Short: "print info about labelsets in your workspace or system",
+
+	Long: infoLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
@@ -46,7 +46,7 @@ var AddCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		err = AddRun(args)
+		err = InfoRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -56,8 +56,8 @@ var AddCmd = &cobra.Command{
 
 func init() {
 
-	help := AddCmd.HelpFunc()
-	usage := AddCmd.UsageFunc()
+	help := InfoCmd.HelpFunc()
+	usage := InfoCmd.UsageFunc()
 
 	thelp := func(cmd *cobra.Command, args []string) {
 		cs := strings.Fields(cmd.CommandPath())
@@ -71,7 +71,7 @@ func init() {
 		ga.SendGaEvent(c+"/usage", "<omit>", 0)
 		return usage(cmd)
 	}
-	AddCmd.SetHelpFunc(thelp)
-	AddCmd.SetUsageFunc(tusage)
+	InfoCmd.SetHelpFunc(thelp)
+	InfoCmd.SetUsageFunc(tusage)
 
 }

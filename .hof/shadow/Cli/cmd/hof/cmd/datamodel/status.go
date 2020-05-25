@@ -25,6 +25,10 @@ var StatusCmd = &cobra.Command{
 
 	Use: "status",
 
+	Aliases: []string{
+		"st",
+	},
+
 	Short: "print the data model status",
 
 	Long: statusLong,

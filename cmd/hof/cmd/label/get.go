@@ -13,7 +13,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/labels"
 )
 
-var getLong = `find and display labels on resources`
+var getLong = `find and display labels from your workspace`
 
 func GetRun(args []string) (err error) {
 
@@ -29,7 +29,11 @@ var GetCmd = &cobra.Command{
 
 	Use: "get",
 
-	Short: "find and display labels on resources",
+	Aliases: []string{
+		"g",
+	},
+
+	Short: "find and display labels from your workspace",
 
 	Long: getLong,
 

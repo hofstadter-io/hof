@@ -145,6 +145,8 @@ func RootInit() {
 	RootCmd.AddCommand(GenCmd)
 	RootCmd.AddCommand(RunCmd)
 	RootCmd.AddCommand(RuntimesCmd)
+	RootCmd.AddCommand(LabelCmd)
+	RootCmd.AddCommand(LabelsetCmd)
 	RootCmd.AddCommand(DocCmd)
 	RootCmd.AddCommand(TourCmd)
 	RootCmd.AddCommand(TutorialCmd)
@@ -152,9 +154,9 @@ func RootInit() {
 	RootCmd.AddCommand(AddCmd)
 	RootCmd.AddCommand(CmdCmd)
 	RootCmd.AddCommand(InfoCmd)
-	RootCmd.AddCommand(LabelCmd)
 	RootCmd.AddCommand(CreateCmd)
 	RootCmd.AddCommand(GetCmd)
+	RootCmd.AddCommand(SetCmd)
 	RootCmd.AddCommand(EditCmd)
 	RootCmd.AddCommand(DeleteCmd)
 	RootCmd.AddCommand(DefCmd)
@@ -218,6 +220,10 @@ Model your designs, generate implementation, run anything:
   run             α     run polyglot command and scripts seamlessly across runtimes
   runtimes        α     work with runtimes (go, js, py, bash, custom)
 
+Labels are used _ for _ (see also 'hof topic labels'):
+  label           α     manage labels for resources and more
+  labelset        α     group resources, datamodels, labelsets, and more
+
 Learn more about hof and the _ you can do:
   doc             Ø     Generate and view documentation
   tour            Ø     take a tour of the hof tool
@@ -230,9 +236,9 @@ Download modules, add content, and execute commands:
 
 Manage resources (see also 'hof topic resources'):
   info            α     print information about known resources
-  label           α     manage labels for resources and more
   create          α     create resources
   get             α     find and display resources
+  set             α     find and configure resources
   edit            α     edit resources
   delete          α     delete resources
 

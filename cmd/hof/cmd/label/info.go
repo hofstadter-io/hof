@@ -29,6 +29,10 @@ var InfoCmd = &cobra.Command{
 
 	Use: "info",
 
+	Aliases: []string{
+		"i",
+	},
+
 	Short: "print info about labels in your workspace or system",
 
 	Long: infoLong,

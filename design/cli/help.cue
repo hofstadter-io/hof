@@ -23,6 +23,10 @@ Model your designs, generate implementation, run anything:
   \(cmds.#RunCommand.Help)
   \(cmds.#RuntimesCommand.Help)
 
+Labels are used _ for _ (see also 'hof topic labels'):
+  \(cmds.#LabelCommand.Help)
+  \(cmds.#LabelsetCommand.Help)
+
 Learn more about hof and the _ you can do:
   \(cmds.#DocCommand.Help)
   \(cmds.#TourCommand.Help)
@@ -35,9 +39,9 @@ Download modules, add content, and execute commands:
 
 Manage resources (see also 'hof topic resources'):
   \(cmds.#InfoCommand.Help)
-  \(cmds.#LabelCommand.Help)
   \(cmds.#CreateCommand.Help)
   \(cmds.#GetCommand.Help)
+  \(cmds.#SetCommand.Help)
   \(cmds.#EditCommand.Help)
   \(cmds.#DeleteCommand.Help)
 

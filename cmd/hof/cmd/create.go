@@ -29,6 +29,10 @@ var CreateCmd = &cobra.Command{
 
 	Use: "create",
 
+	Aliases: []string{
+		"c",
+	},
+
 	Short: "create resources",
 
 	Long: createLong,

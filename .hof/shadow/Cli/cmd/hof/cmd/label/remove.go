@@ -25,6 +25,10 @@ var RemoveCmd = &cobra.Command{
 
 	Use: "remove",
 
+	Aliases: []string{
+		"r",
+	},
+
 	Short: "find and remove labels from resources",
 
 	Long: removeLong,

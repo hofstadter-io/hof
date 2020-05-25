@@ -25,6 +25,13 @@ var HistoryCmd = &cobra.Command{
 
 	Use: "history",
 
+	Aliases: []string{
+		"hist",
+		"h",
+		"log",
+		"l",
+	},
+
 	Short: "show the history for a data model",
 
 	Long: historyLong,

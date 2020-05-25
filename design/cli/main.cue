@@ -42,6 +42,10 @@ import (
 		cmds.#RunCommand,      // imperatively oriented commands from cue
 		cmds.#RuntimesCommand, // (docker, node, go, cue, python)
 
+		// labels
+		cmds.#LabelCommand,
+		cmds.#LabelsetCommand,
+
 		// learn
 		cmds.#DocCommand,
 		cmds.#TourCommand,
@@ -54,9 +58,9 @@ import (
 
 		// resources
 		cmds.#InfoCommand,
-		cmds.#LabelCommand,
 		cmds.#CreateCommand,
 		cmds.#GetCommand,
+		cmds.#SetCommand,
 		cmds.#EditCommand,
 		cmds.#DeleteCommand,
 

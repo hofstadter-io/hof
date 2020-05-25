@@ -25,6 +25,10 @@ var EditCmd = &cobra.Command{
 
 	Use: "edit",
 
+	Aliases: []string{
+		"e",
+	},
+
 	Short: "edit a runtime configuration",
 
 	Long: editLong,

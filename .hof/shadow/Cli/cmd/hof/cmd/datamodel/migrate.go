@@ -25,6 +25,12 @@ var MigrateCmd = &cobra.Command{
 
 	Use: "migrate",
 
+	Aliases: []string{
+		"mig",
+		"migs",
+		"migrations",
+	},
+
 	Short: "calculate a changeset for a data model",
 
 	Long: migrateLong,

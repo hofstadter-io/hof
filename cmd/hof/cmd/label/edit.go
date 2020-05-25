@@ -29,6 +29,10 @@ var EditCmd = &cobra.Command{
 
 	Use: "edit",
 
+	Aliases: []string{
+		"e",
+	},
+
 	Short: "edit labels in your workspace or system configurations",
 
 	Long: editLong,
