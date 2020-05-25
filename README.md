@@ -128,7 +128,7 @@ Grow, mark, and tweak your shared history (see also 'hof topic changesets'):
   reset           α     reset current HEAD to the specified state
   tag             α     create, list, delete or verify a tag object signed with GPG
 
-Colloaborate (see also 'hof topic collaborate'):
+Collaborate (see also 'hof topic collaborate'):
   fetch           α     download objects and refs from another repository
   pull            α     fetch from and integrate with another repository or a local branch
   push            α     update remote refs along with associated objects

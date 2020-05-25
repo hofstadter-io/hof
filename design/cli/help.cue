@@ -78,7 +78,7 @@ Grow, mark, and tweak your shared history (see also 'hof topic changesets'):
   \(cmds.#ResetCommand.Help)
   \(cmds.#TagCommand.Help)
 
-Colloaborate (see also 'hof topic collaborate'):
+Collaborate (see also 'hof topic collaborate'):
   \(cmds.#FetchCommand.Help)
   \(cmds.#PullCommand.Help)
   \(cmds.#PushCommand.Help)
