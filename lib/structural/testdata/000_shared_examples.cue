@@ -1,5 +1,33 @@
 @examples(shared)
 #SharedExamples: {
+
+	a1: {
+		a: "a"
+	}
+	a2: {
+		a: "a"
+		b: "b"
+	}
+	a3: {
+		a: "a"
+		b: "b"
+		c: "c"
+	}
+	b1: {
+		a: "a"
+	}
+	b2: {
+		a: "a"
+		b: 1
+	}
+	b3: {
+		a: "a"
+		b: 1
+		c: d: "e"
+	}
+
+
+
 	A: {
 		a: "a"
 		b: "b"

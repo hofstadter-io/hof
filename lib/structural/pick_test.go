@@ -35,7 +35,7 @@ func TestPickTestSuites(t *testing.T) {
 
 func PickOp(name string, args cue.Value) (val cue.Value, err error) {
 	aSyn, aErr := cuetils.PrintCueValue(args)
-	fmt.Println(name, "args:", aSyn)
+	// fmt.Println(name, "args:", aSyn)
 	if aErr != nil {
 		fmt.Println(name, "args:", aSyn)
 		return val, aErr
