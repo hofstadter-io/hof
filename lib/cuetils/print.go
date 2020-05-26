@@ -7,12 +7,56 @@ import (
 	"os"
 	"strings"
 
-	// "cuelang.org/go/cue"
+	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/errors"
-	// "cuelang.org/go/cue/format"
+	"cuelang.org/go/cue/format"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 )
+
+
+func PrintCueValue(val cue.Value) (string, error) {
+	node := val.Syntax(
+		cue.Attributes(true),
+		cue.Concrete(false),
+		cue.Definitions(true),
+		cue.Docs(true),
+		cue.Hidden(true),
+		cue.Final(),
+		cue.Optional(false),
+	)
+
+	bytes, err := format.Node(
+		node,
+		format.TabIndent(false),
+		format.UseSpaces(2),
+		format.Simplify(),
+	)
+	if err != nil {
+		return "", err
+	}
+
+	return string(bytes), nil
+}
+
+func ValueToSyntaxString(val cue.Value) (string, error) {
+	src, err := format.Node(val.Syntax())
+	str := string(src)
+	return str, err
+}
+
+func (CRT *CueRuntime) ParseCueExpr(expr string) (cue.Value, error) {
+	inst, err := CRT.CueRuntime.Compile("", expr)
+	if err != nil {
+		return cue.Value{}, err
+	}
+	val := inst.Value()
+	if val.Err() != nil {
+		return val, val.Err()
+	}
+
+	return val, nil
+}
 
 func (CRT *CueRuntime) PrintValue() error {
 	// Get top level struct from cuelang
@@ -73,4 +117,9 @@ func PrintCueError(err error) {
 	s := w.String()
 	fmt.Println(s)
 
+}
+func (CR *CueRuntime) PrintCueErrors() {
+	for _, err := range CR.CueErrors {
+		PrintCueError(err)
+	}
 }

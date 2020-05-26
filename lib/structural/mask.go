@@ -6,6 +6,16 @@ import (
 	"cuelang.org/go/cue"
 )
 
+func MaskValues(orig, mask cue.Value) (cue.Value, error) {
+	out := NewpvStruct()
+	err := cueMask(out, orig, mask)
+	if err != nil {
+		return cue.Value{}, err
+	}
+	c, err := out.ToValue()
+	return *c, err
+}
+
 func RunMaskFromArgs(orig, mask string, entrypoints []string) error {
 	fmt.Println("lib/st.Mask", orig, mask, entrypoints)
 

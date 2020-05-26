@@ -13,6 +13,37 @@ import (
 	"cuelang.org/go/cue/load"
 )
 
+type CueSyntaxOptions struct {
+	Attributes  bool
+	Concrete    bool
+	Definitions bool
+	Docs        bool
+	Hidden      bool
+	Optional    bool
+}
+
+func (CSO CueSyntaxOptions) MakeOpts() []cue.Option {
+	return []cue.Option{
+		cue.Attributes(CSO.Attributes),
+		cue.Concrete(CSO.Concrete),
+		cue.Definitions(CSO.Definitions),
+		cue.Docs(CSO.Docs),
+		cue.Hidden(CSO.Hidden),
+		cue.Optional(CSO.Optional),
+	}
+}
+
+var (
+	DefaultSyntaxOpts = CueSyntaxOptions{
+		Attributes: true,
+		Concrete: false,
+		Definitions: true,
+		Docs: true,
+		Hidden: true,
+		Optional: true,
+	}
+)
+
 type CueRuntime struct {
 
 	Entrypoints []string
@@ -23,11 +54,35 @@ type CueRuntime struct {
 	CueConfig *load.Config
 	BuildInstances []*build.Instance
 	CueErrors []error
+	FieldOpts []cue.Option
 
 	CueInstance *cue.Instance
 	CueValue cue.Value
 	Value    interface{}
 
+}
+
+func (CRT *CueRuntime) ConvertToValue(in interface{}) (cue.Value, error) {
+	O, ook := in.(cue.Value)
+	if !ook {
+		switch T := in.(type) {
+		case string:
+			i, err := CRT.CueRuntime.Compile("", in)
+			if err != nil {
+				return O, err
+			}
+			v := i.Value()
+			if v.Err() != nil {
+				return v, v.Err()
+			}
+			O = v
+
+		default:
+			return O, fmt.Errorf("unknown type %v in convertToValue(in)", T)
+		}
+	}
+
+	return O, nil
 }
 
 func (CRT *CueRuntime) Load() (err error) {

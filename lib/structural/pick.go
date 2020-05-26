@@ -2,14 +2,70 @@ package structural
 
 import (
 	"fmt"
-	"reflect"
+	"strings"
 
 	"cuelang.org/go/cue"
+
+	"github.com/hofstadter-io/hof/lib/cuetils"
 )
 
 func RunPickFromArgs(orig, pick string, entrypoints []string) error {
 	fmt.Println("lib/st.Pick", orig, pick, entrypoints)
 
+	crt, err := cuetils.CueRuntimeFromEntrypointsAndFlags(entrypoints)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("loaded")
+	fmt.Println("-------------")
+	lSyn, err := cuetils.ValueToSyntaxString(crt.CueValue)
+	if err != nil {
+		return err
+	}
+	fmt.Println(lSyn)
+	fmt.Println("-------------")
+
+	fmt.Println("orig")
+	fmt.Println("-------------")
+	oPath := strings.Split(orig, ".")
+	oVal := crt.CueValue.Lookup(oPath...)
+	oSyn, err := cuetils.ValueToSyntaxString(oVal)
+	if err != nil {
+		return err
+	}
+	fmt.Println(oSyn)
+	fmt.Println("-------------")
+
+	fmt.Println("pick")
+	fmt.Println("-------------")
+	fmt.Println(pick)
+	/*
+	pVal, err := crt.ConvertToValue(pick)
+	if err != nil {
+		return err
+	}
+	*/
+	fmt.Println("-------------")
+
+	fmt.Println("result")
+	fmt.Println("-------------")
+	rSyn, err := CuePick(oSyn, pick)
+	if err != nil {
+		return err
+	}
+	/*
+	rVal, err := PickValues(oVal, pVal)
+	if err != nil {
+		return err
+	}
+	rSyn, err := cuetils.ValueToSyntaxString(rVal)
+	if err != nil {
+		return err
+	}
+	*/
+	fmt.Println(rSyn)
+	fmt.Println("-------------")
 	return nil
 }
 
@@ -111,28 +167,27 @@ func cuePick(out *pvStruct, vorig, vpick cue.Value) error {
 
 ///////////
 
-func Pick(orig, pick interface{}) (interface{}, error) {
+func Pick(orig, pick interface{}) (cue.Value, error) {
 
-	O, ook := orig.(cue.Value)
-	P, pok := pick.(cue.Value)
-
-	if ook && pok {
-		return PickCue(O, P)
+	O, err := convertToValue(orig)
+	if err != nil {
+		return cue.Value{}, err
 	}
 
-	if !(ook || pok) {
-		return PickGo(orig, pick)
+	P, err := convertToValue(pick)
+	if err != nil {
+		return cue.Value{}, err
 	}
 
-	return nil, fmt.Errorf("structural.Pick - Incompatible types %v and %v", reflect.TypeOf(orig), reflect.TypeOf(pick))
+	return PickValues(O, P)
 }
 
-func PickCue(orig, pick cue.Value) (cue.Value, error) {
-	fmt.Println("PickCue - no implemented")
-	return cue.Value{}, nil
-}
-
-func PickGo(orig, pick interface{}) (interface{}, error) {
-	fmt.Println("PickGo - no implemented")
-	return nil, nil
+func PickValues(orig, last cue.Value) (cue.Value, error) {
+	out := NewpvStruct()
+	err := cuePick(out, orig, last)
+	if err != nil {
+		return cue.Value{}, err
+	}
+	c, err := out.ToValue()
+	return *c, err
 }

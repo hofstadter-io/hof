@@ -1,6 +1,7 @@
 package structural
 
 import (
+	"fmt"
 	"strings"
 
 	"cuelang.org/go/cue"
@@ -175,4 +176,27 @@ func isBuiltin(val cue.Value) bool {
 		k == cue.FloatKind ||
 		k == cue.StringKind ||
 		k == cue.BytesKind
+}
+
+func convertToValue(in interface{}) (cue.Value, error) {
+	O, ook := in.(cue.Value)
+	if !ook {
+		switch T := in.(type) {
+		case string:
+			i, err := r.Compile("", in)
+			if err != nil {
+				return O, err
+			}
+			v := i.Value()
+			if v.Err() != nil {
+				return v, v.Err()
+			}
+			O = v
+
+		default:
+			return O, fmt.Errorf("unknown type %v in convertToValue(in)", T)
+		}
+	}
+
+	return O, nil
 }

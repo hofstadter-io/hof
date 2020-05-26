@@ -6,6 +6,15 @@ import (
 	"cuelang.org/go/cue"
 )
 
+func QueryValues(orig, query cue.Value) (cue.Value, error) {
+	out := NewpvList()
+	err := cueQuery(out, orig, query)
+	if err != nil {
+		return cue.Value{}, err
+	}
+	c, err := out.ToValue()
+	return *c, err
+}
 func RunQueryFromArgs(orig, expr string, entrypoints []string) error {
 	fmt.Println("lib/st.Query", orig, expr, entrypoints)
 

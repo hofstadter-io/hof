@@ -1,6 +1,8 @@
 package structural_test
 
 import (
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
@@ -9,8 +11,10 @@ import (
 
 type CommonTestSuite struct {
 	suite.Suite
+}
 
-	commonRT *structural.CueRuntime
+func TestCommonTestSuites(t *testing.T) {
+	suite.Run(t, new(CommonTestSuite))
 }
 
 func (suit *CommonTestSuite) TestPV() {

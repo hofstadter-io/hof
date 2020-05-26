@@ -1,32 +1,77 @@
 package structural_test
 
 import (
-	"regexp"
+	"fmt"
+	"testing"
+
+	"cuelang.org/go/cue"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/hofstadter-io/hof/lib/structural"
+	"github.com/hofstadter-io/hof/lib/cuetils"
+)
+
+var (
+	PickFmtStr = "PickCases[%v]: %v"
+	PickTestCases = []string{
+		"#PickCases",
+	}
 )
 
 type PickTestSuite struct {
-	suite.Suite
-
-	pickRT *structural.CueRuntime
+	*cuetils.TestSuite
 }
 
-func (suit *PickTestSuite) TestPick() {
-	result, err := structural.CuePick("{a:1, cc: [1,2,3], c:[1,2], x:1, s: {ssss: 2, ss: 2}}", "{a: int, cc: [1,1,1], c: <3, s: {a: int, ss: <5}}")
-	assert.Nil(suit.T(), err)
-	expected := `a: 1
-c: [1, 2]
-s: {
-        ss: 2
+func NewPickTestSuite() *PickTestSuite {
+	ts := cuetils.NewTestSuite(nil, PickOp)
+	return &PickTestSuite{ ts }
 }
-cc: [1]`
 
-	space := regexp.MustCompile(`\s+`)
-	result = space.ReplaceAllString(result, " ")
-	expected = space.ReplaceAllString(expected, " ")
-	assert.Equal(suit.T(), result, expected)
+func TestPickTestSuites(t *testing.T) {
+	suite.Run(t, NewPickTestSuite())
+}
+
+func PickOp(name string, args cue.Value) (val cue.Value, err error) {
+	aSyn, aErr := cuetils.ValueToSyntaxString(args)
+	if aErr != nil {
+		fmt.Println(aSyn)
+		return val, aErr
+	}
+
+	orig := args.Lookup("orig")
+	oSyn, oErr := cuetils.ValueToSyntaxString(orig)
+	if oErr != nil {
+		fmt.Println(oSyn)
+		return val, oErr
+	}
+
+	pick := args.Lookup("pick")
+	pSyn, pErr := cuetils.ValueToSyntaxString(pick)
+	if pErr != nil {
+		fmt.Println(pSyn)
+		return val, pErr
+	}
+
+	return structural.PickValues(orig, pick)
+}
+
+func (PTS *PickTestSuite) TestPickCases() {
+
+	err := PTS.SetupCue()
+	assert.Nil(PTS.T(), err, fmt.Sprintf(PickFmtStr, "setup", "Loading test cases should return non-nil error"))
+	if err != nil {
+		return
+	}
+
+	tSyn, err := cuetils.ValueToSyntaxString(PTS.CRT.CueValue)
+	assert.Nil(PTS.T(), err, fmt.Sprintf(PickFmtStr, "syntax", "Printing test cases should return non-nil error"))
+	if err != nil {
+		fmt.Println(tSyn)
+		return
+	}
+
+	PTS.Op = PickOp
+	PTS.RunCases(PickTestCases)
 }

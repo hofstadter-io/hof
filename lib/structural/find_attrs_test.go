@@ -1,20 +1,109 @@
 package structural_test
 
 import (
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/suite"
-
-	"github.com/hofstadter-io/hof/lib/structural"
+	"fmt"
+	"testing"
 
 	"cuelang.org/go/cue"
+
+	"github.com/stretchr/testify/assert"
+	// "github.com/stretchr/testify/suite"
+
+	"github.com/hofstadter-io/hof/lib/structural"
+	"github.com/hofstadter-io/hof/lib/cuetils"
 )
 
-type FindAttrsTestSuite struct {
-	suite.Suite
+var (
+	AttrsFmtStr = "AttrsCases[%v]: %v"
+	AttrsTestCases = []string{
+		"#AttrsCases",
+	}
+)
 
-	findAttrsRT *structural.CueRuntime
+type AttrsTestSuite struct {
+	*cuetils.TestSuite
 }
 
+func NewAttrsTestSuite() *AttrsTestSuite {
+	ts := cuetils.NewTestSuite(nil, AttrsOp)
+	return &AttrsTestSuite{ ts }
+}
+
+func TestAttrsTestSuites(t *testing.T) {
+	// suite.Run(t, NewAttrsTestSuite())
+}
+
+func AttrsOp(name string, args cue.Value) (val cue.Value, err error) {
+	aSyn, aErr := cuetils.ValueToSyntaxString(args)
+	if aErr != nil {
+		fmt.Println(aSyn)
+		return val, aErr
+	}
+
+	orig := args.Lookup("orig")
+	oSyn, oErr := cuetils.ValueToSyntaxString(orig)
+	if oErr != nil {
+		fmt.Println(oSyn)
+		return val, oErr
+	}
+
+	aVal := args.Lookup("attrs")
+	aValK := args.Lookup("attrsK")
+	aValKV := args.Lookup("attrsKV")
+
+	var (
+		attrs   []string
+		attrsK  map[string][]string
+		attrsKV map[string]map[string]string
+	)
+
+	if aVal.Kind() != cue.BottomKind {
+		err = aVal.Decode(attrs)
+		if err != nil {
+			return val, err
+		}
+	}
+	if aValK.Kind() != cue.BottomKind {
+		err = aValK.Decode(attrsK)
+		if err != nil {
+			return val, err
+		}
+	}
+	if aValKV.Kind() != cue.BottomKind {
+		err = aValKV.Decode(attrsKV)
+		if err != nil {
+			return val, err
+		}
+	}
+
+	vals, err := structural.FindByAttrs(orig, attrs, attrsK, attrsKV)
+	if err != nil {
+		return val, err
+	}
+
+	return vals[0], nil
+}
+
+func (PTS *AttrsTestSuite) TestAttrsCases() {
+
+	err := PTS.SetupCue()
+	assert.Nil(PTS.T(), err, fmt.Sprintf(AttrsFmtStr, "setup", "Loading test cases should return non-nil error"))
+	if err != nil {
+		return
+	}
+
+	tSyn, err := cuetils.ValueToSyntaxString(PTS.CRT.CueValue)
+	assert.Nil(PTS.T(), err, fmt.Sprintf(AttrsFmtStr, "syntax", "Printing test cases should return non-nil error"))
+	if err != nil {
+		fmt.Println(tSyn)
+		return
+	}
+
+	PTS.Op = AttrsOp
+	PTS.RunCases(AttrsTestCases)
+}
+
+/*
 func (suit *FindAttrsTestSuite) TestFindAttrs() {
 	var r cue.Runtime
 	input := `
@@ -50,3 +139,4 @@ abb: _ @hasthis(eeds,hese)
 	assert.Nil(suit.T(), err)
 	assert.Len(suit.T(), vs, 7)
 }
+*/

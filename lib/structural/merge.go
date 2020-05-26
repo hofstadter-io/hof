@@ -6,6 +6,16 @@ import (
 	"cuelang.org/go/cue"
 )
 
+func MergeValues(orig, update cue.Value) (cue.Value, error) {
+	out := NewpvStruct()
+	err := cueMerge(out, orig, update)
+	if err != nil {
+		return cue.Value{}, err
+	}
+	c, err := out.ToValue()
+	return *c, err
+}
+
 func RunMergeFromArgs(orig, update string, entrypoints []string) error {
 	fmt.Println("lib/st.Merge", orig, update, entrypoints)
 
@@ -143,14 +153,4 @@ func Merge(orig, last interface{}) (cue.Value, error) {
 	}
 
 	return MergeValues(O, L)
-}
-
-func MergeValues(orig, last cue.Value) (cue.Value, error) {
-	out := NewpvStruct()
-	err := cueMerge(out, orig, last)
-	if err != nil {
-		return cue.Value{}, err
-	}
-	c, err := out.ToValue()
-	return *c, err
 }

@@ -7,6 +7,16 @@ import (
 	"cuelang.org/go/cue"
 )
 
+func DiffValues(orig, next cue.Value) (cue.Value, error) {
+	out := NewpvStruct()
+	err := cueDiff(out, orig, next)
+	if err != nil {
+		return cue.Value{}, err
+	}
+	c, err := out.ToValue()
+	return *c, err
+}
+
 func RunDiffFromArgs(orig, next string, entrypoints []string) error {
 	fmt.Println("lib/st.Diff", orig, next, entrypoints)
 
