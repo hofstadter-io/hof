@@ -8,12 +8,28 @@ import (
 	"strings"
 
 	"cuelang.org/go/cue"
+	"cuelang.org/go/cue/ast"
 	"cuelang.org/go/cue/errors"
 	"cuelang.org/go/cue/format"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 )
 
+
+func CueSyntax(val cue.Value, opts []cue.Option) (ast.Node) {
+	if len(opts) > 0 {
+		return val.Syntax(opts...)
+	}
+	return val.Syntax(
+		cue.Attributes(true),
+		cue.Concrete(false),
+		cue.Definitions(true),
+		cue.Docs(true),
+		cue.Hidden(true),
+		cue.Final(),
+		cue.Optional(false),
+	)
+}
 
 func PrintCueValue(val cue.Value) (string, error) {
 	node := val.Syntax(

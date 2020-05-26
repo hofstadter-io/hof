@@ -34,21 +34,22 @@ func TestPickTestSuites(t *testing.T) {
 }
 
 func PickOp(name string, args cue.Value) (val cue.Value, err error) {
-	aSyn, aErr := cuetils.ValueToSyntaxString(args)
+	aSyn, aErr := cuetils.PrintCueValue(args)
+	fmt.Println(name, "args:", aSyn)
 	if aErr != nil {
-		fmt.Println(aSyn)
+		fmt.Println(name, "args:", aSyn)
 		return val, aErr
 	}
 
 	orig := args.Lookup("orig")
-	oSyn, oErr := cuetils.ValueToSyntaxString(orig)
+	oSyn, oErr := cuetils.PrintCueValue(orig)
 	if oErr != nil {
 		fmt.Println(oSyn)
 		return val, oErr
 	}
 
 	pick := args.Lookup("pick")
-	pSyn, pErr := cuetils.ValueToSyntaxString(pick)
+	pSyn, pErr := cuetils.PrintCueValue(pick)
 	if pErr != nil {
 		fmt.Println(pSyn)
 		return val, pErr
@@ -65,7 +66,7 @@ func (PTS *PickTestSuite) TestPickCases() {
 		return
 	}
 
-	tSyn, err := cuetils.ValueToSyntaxString(PTS.CRT.CueValue)
+	tSyn, err := cuetils.PrintCueValue(PTS.CRT.CueValue)
 	assert.Nil(PTS.T(), err, fmt.Sprintf(PickFmtStr, "syntax", "Printing test cases should return non-nil error"))
 	if err != nil {
 		fmt.Println(tSyn)
