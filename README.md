@@ -6,12 +6,13 @@ code generation, flexible resource and runtime systems,
 sharable workspaces, contexts, dev setups,
 and much much more.
 
-All to help you get more done with less.
+`hof` helps you get more done with less
 
 
 ### features
 
-- __cuelang__: powered by the logic and unification which therein lies https://cuelang.org
+- __single source of truth__: designs mean you can write your idea down in one place, and make all the things from that.
+  The `hof` tool takes in two directories (designs and generators) and outputs any number of files and directories.
 - __data models__: create, view, diff, calculate / migrate, and manage your data models
 - __code gen__: generate code, data, and config from your data models and designs
 - __poly run__: run polyglot command and scripts seamlessly across runtimes (go, js, py, bash, custom)
@@ -20,6 +21,8 @@ All to help you get more done with less.
 - __resources__: builtin and custom resources, inspired by k8s, which cover a wide range of developer needs
 - __workspaces__: manage all of the above with contexts on a per-project basis
 - __workflow__: simplified git workflow plus extras for debugging and reporducing errors
+- __cuelang__: powered by the logic and unification which therein lies https://cuelang.org
+- __extensible__: you can make your own versions of all of the things you find around here without modifying `hof` itself, by design.
 - __your way__: everything is backed by files and git, so you can use your usual tools and team practices
 
 ### getting started
