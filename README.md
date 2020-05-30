@@ -17,7 +17,7 @@ and much much more.
 - __code gen__: generate code, data, and config from your data models and designs
 - __poly run__: run polyglot command and scripts seamlessly across runtimes (go, js, py, bash, custom)
 - __poly mod__: leverage modules which span languages and technologies
-- __label(set)s__: manage label(set)s for resources, datamodels, labelsets, and more
+- __label, sets__: manage labels and labelsets for resources, datamodels, (nested) labelsets, and more
 - __resources__: builtin and custom resources, inspired by k8s, which cover a wide range of developer needs
 - __workspaces__: manage all of the above with contexts on a per-project basis
 - __workflow__: simplified git workflow plus extras for debugging and reporducing errors
@@ -33,8 +33,8 @@ install new releases as they become available
 
 ```text
 # Install (Linux, Mac, Windows)
-curl -LO https://github.com/hofstadter-io/hof/releases/download/v0.5.3/hof_0.5.3_$(uname)_$(uname -m)
-mv hof_0.5.3_$(uname)_$(uname -m) /usr/local/bin/hof
+curl -LO https://github.com/hofstadter-io/hof/releases/download/v0.5.4/hof_0.5.4_$(uname)_$(uname -m)
+mv hof_0.5.4_$(uname)_$(uname -m) /usr/local/bin/hof
 
 # Shell Completions (bash, zsh, fish, power-shell)
 echo ". <(hof completion bash)" >> $HOME/.profile
