@@ -1,0 +1,26 @@
+# hof mod vendor - new module
+exec hof mod init cue github.com/test/mod
+! stdout .
+
+exec hof mod vendor
+exec hof mod vendor cue
+
+exists cue.mods
+cmp cue.mods match/cue.mods
+
+exists cue.sums
+cmp cue.sums match/cue.sums
+
+exists cue.mod/module.cue
+cmp cue.mod/module.cue match/cue.mod/module.cue
+
+-- match/cue.mods --
+module github.com/test/mod
+
+cue v0.2.0
+-- match/cue.sums --
+-- match/cue.mod/module.cue --
+module: "github.com/test/mod"
+-- dummy_end --
+
+

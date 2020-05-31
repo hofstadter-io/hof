@@ -1,0 +1,4 @@
+# hof mod init cue blah // this should fail because the module format is incorrect
+! exec hof mod init cue blah
+stdout '.+'
+stderr '.'

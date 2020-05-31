@@ -13,7 +13,7 @@ and much much more.
 
 - __single source of truth__: designs mean you can write your idea down in one place, and make all the things from that.
   The `hof` tool takes in two directories (designs and generators) and outputs any number of files and directories.
-- __data models__: create, view, diff, calculate / migrate, and manage your data models
+- __data models__: create, view, diff, calculate / migrate, and manage your data models, like a full service data assistant [should](should)
 - __code gen__: generate code, data, and config from your data models and designs
 - __poly run__: run polyglot command and scripts seamlessly across runtimes (go, js, py, bash, custom)
 - __poly mod__: leverage modules which span languages and technologies

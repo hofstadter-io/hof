@@ -1,0 +1,19 @@
+# hof mod init cue github.com/test/mod
+exec hof mod init cue github.com/test/mod
+! stdout .
+
+exists cue.mods
+exists cue.mod/module.cue
+
+cmp cue.mods match/cue.mods
+cmp cue.mod/module.cue match/cue.mod/module.cue
+
+-- match/cue.mods --
+module github.com/test/mod
+
+cue v0.2.0
+-- match/cue.mod/module.cue --
+module: "github.com/test/mod"
+-- dummy_end --
+
+

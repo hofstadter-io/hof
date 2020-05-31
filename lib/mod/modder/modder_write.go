@@ -118,6 +118,11 @@ func (mdr *Modder) WriteVendor() error {
 
 	}
 
+	// possibly no deps, so lets write an empty sumfile
+	if mdr.module.SumFile == nil {
+		mdr.module.SumFile = &sumfile.Sum{}
+	}
+
 	// Write sumfile
 	out, err := mdr.module.SumFile.Write()
 	if err != nil {

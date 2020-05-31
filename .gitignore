@@ -23,6 +23,9 @@
 /vendor/
 /**/vendor/
 
+# Testscript workdirs
+/**/.workdir/
+
 # Hof related
 /hof-cpu.prof
 /hof

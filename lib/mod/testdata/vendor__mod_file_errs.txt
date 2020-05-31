@@ -1,0 +1,15 @@
+# hof mod vendor - double require
+! exec hof mod vendor cue
+stdout 'Dependency "github.com/hofstadter-io/hof" required twice in ""'
+! stderr .
+
+-- cue.mods --
+module github.com/test/2x-req
+
+require (
+    github.com/hofstadter-io/hof v0.0.0
+    github.com/hofstadter-io/hof v0.5.4
+)
+
+cue v0.2.0
+-- dummy-end --

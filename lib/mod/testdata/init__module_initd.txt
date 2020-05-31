@@ -1,0 +1,11 @@
+# hof mod init - already exists
+! exec hof mod init cue github.com/test/overmod
+stdout '^cue.mods already exists\n$'
+! stderr .
+
+-- cue.mods --
+module github.com/test/existsmod
+
+cue v0.2.0
+-- dummy-end --
+
