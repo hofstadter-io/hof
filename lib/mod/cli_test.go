@@ -1,6 +1,7 @@
 package mod_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/rogpeppe/go-internal/testscript"
@@ -9,6 +10,9 @@ import (
 )
 
 func envSetup(env *testscript.Env) error {
+	if token := os.Getenv("GITHUB_TOKEN"); token != "" {
+		env.Vars = append(env.Vars, "GITHUB_TOKEN="+token)
+	}
 	env.Vars = append(env.Vars, "HOF_TELEMETRY_DISABLED=1")
 	return nil
 }

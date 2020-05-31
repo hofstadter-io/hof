@@ -30,34 +30,22 @@ func GetTagsSplit(client *github.Client, module string) ([]*github.RepositoryTag
 
 func GetRepo(client *github.Client, owner, repo string) (*github.Repository, error) {
 	r, _, err := client.Repositories.Get(context.Background(), owner, repo)
-	if err != nil {
-		return nil, err
-	}
-	return r, nil
+	return r, err
 }
 
 func GetBranch(client *github.Client, owner, repo, branch string) (*github.Branch, error) {
 	b, _, err := client.Repositories.GetBranch(context.Background(), owner, repo, branch)
-	if err != nil {
-		return nil, err
-	}
-	return b, nil
+	return b, err
 }
 
 func GetBranches(client *github.Client, owner, repo, branch string) ([]*github.Branch, error) {
 	bs, _, err := client.Repositories.ListBranches(context.Background(), owner, repo, nil)
-	if err != nil {
-		return nil, err
-	}
-	return bs, nil
+	return bs, err
 }
 
 func GetTags(client *github.Client, owner, repo string) ([]*github.RepositoryTag, error) {
 	tags, _, err := client.Repositories.ListTags(context.Background(), owner, repo, nil)
-	if err != nil {
-		return nil, err
-	}
-	return tags, nil
+	return tags, err
 }
 
 func FetchTagZip(client *github.Client, tag *github.RepositoryTag) (*zip.Reader, error) {

@@ -65,6 +65,7 @@ func fetchGitHub(lang, owner, repo, tag string) (err error) {
 		return fmt.Errorf("While fetching from github\n%w\n", err)
 	}
 
+	/*
 	fmt.Println("filelist:")
 	files, err := yagu.BillyGetFilelist(FS)
 	if err != nil {
@@ -76,6 +77,7 @@ func fetchGitHub(lang, owner, repo, tag string) (err error) {
 	}
 
 	fmt.Println("Writing...", )
+	*/
 	err = Write(lang, "github.com", owner, repo, tag, FS)
 	if err != nil {
 		return fmt.Errorf("While writing to cache\n%w\n", err)
@@ -100,7 +102,7 @@ func fetchGitHubBranch(FS billy.Filesystem, lang, owner, repo, branch string) er
 		fmt.Printf("%#+v\n", *r)
 	}
 
-	fmt.Println("Fetch github branch", lang, owner, repo, branch)
+	// fmt.Println("Fetch github BRANCH", lang, owner, repo, branch)
 
 	zReader, err := github.FetchBranchZip(client, branch)
 	if err != nil {
@@ -115,7 +117,7 @@ func fetchGitHubBranch(FS billy.Filesystem, lang, owner, repo, branch string) er
 	return nil
 }
 func fetchGitHubTag(FS billy.Filesystem, lang, owner, repo, tag string) error {
-	fmt.Println("Fetch github tag", lang, owner, repo, tag)
+	// fmt.Println("Fetch github TAG", lang, owner, repo, tag)
 	client, err := github.NewClient()
 	if err != nil {
 		return err
@@ -131,14 +133,13 @@ func fetchGitHubTag(FS billy.Filesystem, lang, owner, repo, tag string) error {
 	for _, t := range tags {
 		if tag != "" && tag == *t.Name {
 			T = t
-			fmt.Printf("FOUND  %v\n", *t)
+			// fmt.Printf("FOUND  %v\n", *t.Name)
 		}
-		// fmt.Println(*t.Name, *t.Commit.SHA)
 	}
-
 	if T == nil {
 		return fmt.Errorf("Did not find tag %q for 'https://github.com/%s/%s' @%s", tag, owner, repo, tag)
 	}
+
 	zReader, err := github.FetchTagZip(client, T)
 	if err != nil {
 		return fmt.Errorf("While fetching tag zipfile\n%w\n", err)

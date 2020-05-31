@@ -1,0 +1,17 @@
+# hof mod vendor - keep me so go test does not complaing
+exec hof mod vendor
+
+-- cue.mods --
+module github.com/test/withsolo
+
+cue v0.2.0
+
+require (
+    github.com/hofstadter-io/hof v0.5.4
+)
+-- cue.mod/module.cue --
+module: "github.com/test/withsolo"
+-- dummy_end --
+
+
+
