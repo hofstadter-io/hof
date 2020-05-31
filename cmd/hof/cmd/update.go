@@ -299,6 +299,15 @@ func downloadAndInstall(url string) error {
 		req = req.SetBasicAuth("github-token", os.Getenv("GITHUB_TOKEN"))
 	}
 
+	// handle redirects
+	req.RedirectPolicy(func(r gorequest.Request, via []gorequest.Request) error {
+		viaURL := []string{}
+		for _, v := range via {
+			viaURL = append(viaURL, v.URL.String())
+		}
+		return nil
+	})
+
 	resp, content, errs := req.Get(url).EndBytes()
 
 	check := "http2: server sent GOAWAY and closed the connection"
@@ -337,16 +346,15 @@ func downloadAndInstall(url string) error {
 	}
 
 	// Sudo copy the file
-	cmd := exec.Command("/bin/sh", "-c",
-		fmt.Sprintf("export OWNER=$(ls -l %s | awk '{ print $3 \":\" $4 }') && sudo mv %s %s-v%s && sudo cp %s %s && sudo chown $OWNER %s && sudo chmod 0755 %s",
-			real,                        // get owner
-			real, real, verinfo.Version, // backup
-			tmpfile.Name(), real, // cp
-			real, // chown
-			real, // chmod
-			real, // rm
-		),
+	cmdStr := fmt.Sprintf("export OWNER=$(ls -l %s | awk '{ print $3 \":\" $4 }') && sudo mv %s %s-v%s && sudo cp %s %s && sudo chown $OWNER %s && sudo chmod 0755 %s",
+		real,                        // get owner
+		real, real, verinfo.Version, // backup
+		tmpfile.Name(), real, // cp
+		real, // chown
+		real, // chmod
 	)
+	// fmt.Println("CMDSTR:", cmdStr)
+	cmd := exec.Command("/bin/sh", "-c", cmdStr)
 
 	// prep stdin for password
 	stdin, err := cmd.StdinPipe()

@@ -7,6 +7,8 @@ import (
 	"path"
 	"text/template"
 
+	gomod "golang.org/x/mod/module"
+
 	"github.com/hofstadter-io/hof/lib/mod/parse/modfile"
 	"github.com/hofstadter-io/hof/lib/mod/util"
 )
@@ -46,8 +48,13 @@ func (mdr *Modder) initModFile(module string) error {
 	lang := mdr.Name
 	filename := mdr.ModFile
 
+	err := gomod.CheckPath(module)
+	if err != nil {
+		return fmt.Errorf("bad module format %q, should be 'domain.com/repo/proj'", module)
+	}
+
 	// make sure file does not exist
-	_, err := ioutil.ReadFile(filename)
+	_, err = ioutil.ReadFile(filename)
 	// we read the file and it exists
 	if err == nil {
 		return fmt.Errorf("%s already exists", filename)
