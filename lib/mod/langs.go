@@ -11,13 +11,13 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"cuelang.org/go/cue"
+
 	"github.com/hofstadter-io/hof/lib/mod/langs"
 	"github.com/hofstadter-io/hof/lib/mod/modder"
-	"github.com/hofstadter-io/hof/lib/mod/util"
 )
 
 // FROM the USER's HOME dir
-const GLOBAL_MVS_CONFIG = ".mvs/config.cue"
+const GLOBAL_MVS_CONFIG = "hof/.mvsconfig.cue"
 const LOCAL_MVS_CONFIG = ".mvsconfig.cue"
 
 var (
@@ -107,7 +107,8 @@ func LangInfo(lang string) (string, error) {
 func InitLangs() {
 	var err error
 
-	cueSpec, err := util.CueRuntime.Compile("spec.cue", langs.ModderSpec)
+	rt := cue.Runtime{}
+	cueSpec, err := rt.Compile("spec.cue", langs.ModderSpec)
 	if err != nil {
 		panic(err)
 	}
@@ -117,7 +118,8 @@ func InitLangs() {
 	}
 	for lang, cueString := range langs.DefaultModdersCue {
 		var mdrMap map[string]*modder.Modder
-		cueLang, err := util.CueRuntime.Compile(lang, cueString)
+
+		cueLang, err := rt.Compile(lang, cueString)
 		if err != nil {
 			panic(err)
 		}
@@ -138,7 +140,10 @@ func InitLangs() {
 		langs.DefaultModders[lang] = mdrMap[lang]
 	}
 
-	homedir := util.UserHomeDir()
+	homedir, err := os.UserConfigDir()
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	// Global Language Modder Config
 	err = initFromFile(path.Join(homedir, GLOBAL_MVS_CONFIG))
@@ -151,7 +156,6 @@ func InitLangs() {
 	if err != nil {
 		fmt.Println(err)
 	}
-
 }
 
 func initFromFile(filepath string) error {
@@ -168,7 +172,8 @@ func initFromFile(filepath string) error {
 	var mdrMap map[string]*modder.Modder
 
 	// Compile the config into cue
-	i, err := util.CueRuntime.Compile(filepath, string(bytes))
+	rt := cue.Runtime{}
+	i, err := rt.Compile(filepath, string(bytes))
 	if err != nil {
 		return err
 	}
@@ -193,7 +198,6 @@ func initFromFile(filepath string) error {
 			fmt.Printf("trying to customize unknown language %s\n", lang)
 		}
 	}
-	// util.PrintCueInstance(iMerged)
 
 	err = iMerged.Value().Decode(&mdrMap)
 	if err != nil {

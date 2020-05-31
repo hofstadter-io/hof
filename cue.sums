@@ -20,6 +20,8 @@ github.com/hofstadter-io/hofmod-cli v0.5.5 h1:U39psc0wrKEEdYiNZ5+9b+50PyxFLCeQ7b
 github.com/hofstadter-io/hofmod-cli v0.5.5/cue.mods h1:8TVLRMLOvfcVRZu6NqDr4VFmvuw/9Ca7YpCMo1fTRmU=
 github.com/hofstadter-io/hofmod-cli v0.5.6 h1:o64aCgzhH62fZvpa2uK+bENIfXrEcMHfXCHuMJTxoFw=
 github.com/hofstadter-io/hofmod-cli v0.5.6/cue.mods h1:8TVLRMLOvfcVRZu6NqDr4VFmvuw/9Ca7YpCMo1fTRmU=
+github.com/hofstadter-io/hofmod-cli v0.5.9 h1:8j7ZfA/NmmLP85tIMLzYLslLUZqUNCYrdm7US3pQpxM=
+github.com/hofstadter-io/hofmod-cli v0.5.9/cue.mods h1:8TVLRMLOvfcVRZu6NqDr4VFmvuw/9Ca7YpCMo1fTRmU=
 github.com/hofstadter-io/hofmod-client v0.0.0 h1:CjwsIJVLSPca2EHIVwiMrLCko4BGtH6QE5muWkpcNtU=
 github.com/hofstadter-io/hofmod-client v0.0.0/cue.mods h1:U7nb/fqOz92SgTVIgDb4DWMhF5Fp+bLmWxRTQc5+c3Y=
 github.com/hofstadter-io/hofmod-config v0.0.0 h1:QIfhuP79XdMR94NVSxZtpqIrPOyvpO9ps6ChT2hUPIs=

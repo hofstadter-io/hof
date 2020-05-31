@@ -3,7 +3,7 @@ package modder
 import (
 	"fmt"
 
-	"github.com/hofstadter-io/hof/lib/mod/util"
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 func (mdr *Modder) Graph() error {
@@ -11,7 +11,7 @@ func (mdr *Modder) Graph() error {
 	// Graph Command Override
 	if len(mdr.CommandGraph) > 0 {
 		for _, cmd := range mdr.CommandGraph {
-			out, err := util.Exec(cmd)
+			out, err := yagu.Exec(cmd)
 			fmt.Println(out)
 			if err != nil {
 				return err

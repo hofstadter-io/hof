@@ -10,7 +10,7 @@ import (
 	gomod "golang.org/x/mod/module"
 
 	"github.com/hofstadter-io/hof/lib/mod/parse/modfile"
-	"github.com/hofstadter-io/hof/lib/mod/util"
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 /* TODO
@@ -21,7 +21,7 @@ func (mdr *Modder) Init(module string) error {
 	// exec commands override configurable behavior
 	if len(mdr.CommandInit) > 0 {
 		for _, cmd := range mdr.CommandGraph {
-			out, err := util.Exec(cmd)
+			out, err := yagu.Exec(cmd)
 			fmt.Println(out)
 			if err != nil {
 				return err

@@ -30,6 +30,10 @@ func BillyReadAll(filename string, FS billy.Filesystem) ([]byte, error) {
 	return ioutil.ReadAll(f)
 }
 
+func BillyGetFilelist(FS billy.Filesystem) ([]os.FileInfo, error) {
+	return FS.ReadDir("/")
+}
+
 // Writes dir in FS onto the os filesystem at baseDir
 func BillyWriteDirToOS(baseDir string, dir string, FS billy.Filesystem) error {
 	// fmt.Println("DIR:  ", baseDir, dir)

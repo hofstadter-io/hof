@@ -7,7 +7,7 @@ import (
 	"github.com/go-git/go-billy/v5/osfs"
 
 	"github.com/hofstadter-io/hof/lib/mod/cache"
-	"github.com/hofstadter-io/hof/lib/mod/util"
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 /* Vendor reads in a module, determines dependencies, and writes out the vendor folder.
@@ -45,7 +45,7 @@ func (mdr *Modder) Vendor() error {
 	// Vendor Command Override
 	if len(mdr.CommandVendor) > 0 {
 		for _, cmd := range mdr.CommandVendor {
-			out, err := util.Exec(cmd)
+			out, err := yagu.Exec(cmd)
 			fmt.Println(out)
 			if err != nil {
 				return err

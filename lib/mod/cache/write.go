@@ -4,9 +4,8 @@ import (
 	"path/filepath"
 
 	"github.com/go-git/go-billy/v5"
-	"github.com/hofstadter-io/yagu"
 
-	"github.com/hofstadter-io/hof/lib/mod/util"
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 func Outdir(lang, remote, owner, repo, tag string) string {
@@ -27,5 +26,5 @@ func Write(lang, remote, owner, repo, tag string, FS billy.Filesystem) error {
 	if err != nil {
 		return err
 	}
-	return util.BillyWriteDirToOS(outdir, "/", FS)
+	return yagu.BillyWriteDirToOS(outdir, "/", FS)
 }

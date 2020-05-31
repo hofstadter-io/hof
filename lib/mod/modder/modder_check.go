@@ -9,8 +9,8 @@ import (
 	"golang.org/x/mod/semver"
 
 	"github.com/hofstadter-io/hof/lib/mod/parse/sumfile"
-	"github.com/hofstadter-io/hof/lib/mod/repos/git"
-	"github.com/hofstadter-io/hof/lib/mod/util"
+	"github.com/hofstadter-io/hof/lib/yagu"
+	"github.com/hofstadter-io/hof/lib/yagu/repos/git"
 )
 
 func (mdr *Modder) CheckAndFetchRootDeps() error {
@@ -332,14 +332,14 @@ func (mdr *Modder) CompareSumEntryToVendor(R Replace) error {
 	FS := osfs.New(vpath)
 
 	// Calc hashes for vendor from billy
-	vdrDirhash, err := util.BillyCalcHash(FS)
+	vdrDirhash, err := yagu.BillyCalcHash(FS)
 	if err != nil {
 		merr := fmt.Errorf("While calculating vendor dirhash for '%v' from '%v'\n%w\n", dirver, R, err)
 		// mdr.errors = append(mdr.errors, merr)
 		return merr
 	}
 
-	vdrModhash, err := util.BillyCalcFileHash(mdr.ModFile, FS)
+	vdrModhash, err := yagu.BillyCalcFileHash(mdr.ModFile, FS)
 	if err != nil {
 		merr := fmt.Errorf("While calculating vendor modhash for '%v' from '%v'\n%w\n", modver, R, err)
 		// mdr.errors = append(mdr.errors, merr)
@@ -373,14 +373,14 @@ func (mdr *Modder) CompareLocalReplaceToVendor(R Replace) error {
 	VFS := osfs.New(path.Join(mdr.ModsDir, R.OldPath))
 
 	// Calc hashes for replace from billy
-	localDirhash, err := util.BillyGlobCalcHash(LFS, mdr.VendorIncludeGlobs, mdr.VendorExcludeGlobs)
+	localDirhash, err := yagu.BillyGlobCalcHash(LFS, mdr.VendorIncludeGlobs, mdr.VendorExcludeGlobs)
 	if err != nil {
 		merr := fmt.Errorf("While calculating local dirhash for '%#+v'\n%w\n", R, err)
 		mdr.errors = append(mdr.errors, merr)
 		return merr
 	}
 
-	localModhash, err := util.BillyCalcFileHash(mdr.ModFile, LFS)
+	localModhash, err := yagu.BillyCalcFileHash(mdr.ModFile, LFS)
 	if err != nil {
 		merr := fmt.Errorf("While calculating local modhash for '%#+v'\n%w\n", R, err)
 		mdr.errors = append(mdr.errors, merr)
@@ -389,14 +389,14 @@ func (mdr *Modder) CompareLocalReplaceToVendor(R Replace) error {
 	// fmt.Println("LCLHASH", localDirhash, localModhash)
 
 	// Calc hashes for vendor from billy
-	vdrDirhash, err := util.BillyGlobCalcHash(VFS, mdr.VendorIncludeGlobs, mdr.VendorExcludeGlobs)
+	vdrDirhash, err := yagu.BillyGlobCalcHash(VFS, mdr.VendorIncludeGlobs, mdr.VendorExcludeGlobs)
 	if err != nil {
 		merr := fmt.Errorf("While calculating vendor dirhash for '%#+v'\n%w\n", R, err)
 		mdr.errors = append(mdr.errors, merr)
 		return merr
 	}
 
-	vdrModhash, err := util.BillyCalcFileHash(mdr.ModFile, VFS)
+	vdrModhash, err := yagu.BillyCalcFileHash(mdr.ModFile, VFS)
 	if err != nil {
 		merr := fmt.Errorf("While calculating vendor modhash for '%#+v'\n%w\n", R, err)
 		mdr.errors = append(mdr.errors, merr)

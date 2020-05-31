@@ -7,7 +7,8 @@ import (
 	"github.com/go-git/go-billy/v5"
 
 	"cuelang.org/go/cue"
-	"github.com/hofstadter-io/hof/lib/mod/util"
+
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 // This modder is for more complex, yet configurable module processing.
@@ -80,7 +81,7 @@ type Modder struct {
 
 func NewFromFile(lang, filepath string, FS billy.Filesystem) (*Modder, error) {
 
-	bytes, err := util.BillyReadAll(filepath, FS)
+	bytes, err := yagu.BillyReadAll(filepath, FS)
 	if err != nil {
 		if _, ok := err.(*os.PathError); !ok && err.Error() != "file does not exist" && err.Error() != "no such file or directory" {
 			return nil, err
@@ -91,7 +92,8 @@ func NewFromFile(lang, filepath string, FS billy.Filesystem) (*Modder, error) {
 
 	var mdrMap map[string]*Modder
 
-	i, err := util.CueRuntime.Compile(filepath, string(bytes))
+	rt := cue.Runtime{}
+	i, err := rt.Compile(filepath, string(bytes))
 	if err != nil {
 		return nil, err
 	}

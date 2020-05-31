@@ -7,10 +7,8 @@ import (
 	"path"
 	"strings"
 
-	"github.com/hofstadter-io/yagu"
-
 	"github.com/hofstadter-io/hof/lib/mod/parse/sumfile"
-	"github.com/hofstadter-io/hof/lib/mod/util"
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 var (
@@ -42,18 +40,19 @@ func (mdr *Modder) WriteVendor() error {
 
 	// write out each dep
 	for _, m := range mdr.depsMap {
+		// fmt.Printf("  writing: %#+v\n", m)
 		// XXX, this only (?) happens with local replaces with no matching require entry
 		if m.Version == "" {
 			m.Version = "v0.0.0"
 		}
 
-		dirhash, err := util.BillyCalcHash(m.FS)
+		dirhash, err := yagu.BillyCalcHash(m.FS)
 		if err != nil {
 			mdr.errors = append(mdr.errors, err)
 			return fmt.Errorf("While calculating billy dir hash for %q\n%w\n", mdr.ModsDir, err)
 		}
 
-		modhash, err := util.BillyCalcFileHash(mdr.ModFile, m.FS)
+		modhash, err := yagu.BillyCalcFileHash(mdr.ModFile, m.FS)
 		if err != nil {
 			mdr.errors = append(mdr.errors, err)
 			return fmt.Errorf("While calculating billy mod hash\n%w\n", err)
@@ -89,7 +88,7 @@ func (mdr *Modder) WriteVendor() error {
 				// Found one!
 				if strings.HasPrefix(strings.ToUpper(file.Name()), fn) {
 					// TODO, these functions should just take 2 billy FS
-					err = util.BillyWriteFileToOS(baseDir, "/"+file.Name(), m.FS)
+					err = yagu.BillyWriteFileToOS(baseDir, "/"+file.Name(), m.FS)
 					if err != nil {
 						return err
 					}
@@ -101,7 +100,7 @@ func (mdr *Modder) WriteVendor() error {
 		if len(mdr.VendorIncludeGlobs) > 0 || len(mdr.VendorExcludeGlobs) > 0 {
 			// Just copy everything
 			// TODO, these functions should just take 2 billy FS
-			err = util.BillyGlobWriteDirToOS(baseDir, "/", m.FS, mdr.VendorIncludeGlobs, mdr.VendorExcludeGlobs)
+			err = yagu.BillyGlobWriteDirToOS(baseDir, "/", m.FS, mdr.VendorIncludeGlobs, mdr.VendorExcludeGlobs)
 			if err != nil {
 				return err
 			}
@@ -109,7 +108,7 @@ func (mdr *Modder) WriteVendor() error {
 		} else {
 			// Just copy everything
 			// TODO, these functions should just take 2 billy FS
-			err = util.BillyWriteDirToOS(baseDir, "/", m.FS)
+			err = yagu.BillyWriteDirToOS(baseDir, "/", m.FS)
 			if err != nil {
 				return err
 			}

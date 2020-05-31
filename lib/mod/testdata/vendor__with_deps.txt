@@ -1,0 +1,65 @@
+# hof mod vendor - with deps
+exec hof mod vendor
+
+-- cue.mods --
+module github.com/test/withsolo
+
+cue v0.2.0
+
+require (
+    github.com/hofstadter-io/hof v0.5.4
+)
+-- cue.mod/module.cue --
+module: "github.com/test/withsolo"
+-- dummy_end --
+
+
+
+# hof mod vendor - with deps
+exec hof mod vendor
+
+-- cue.mods --
+module github.com/test/withmulti
+
+cue v0.2.0
+
+require (
+    github.com/hofstadter-io/hof v0.5.4
+    github.com/hofstadter-io/hofmod-cli v0.5.9
+)
+-- cue.mod/module.cue --
+module: "github.com/test/withmulti"
+-- dummy_end --
+
+
+# hof mod vendor - require v0.0.0 - A
+exec hof mod vendor
+
+-- cue.mods --
+module github.com/test/mod-v000-a
+
+cue v0.2.0
+
+require (
+    github.com/hofstadter-io/hofmod-cuefig v0.0.0
+)
+-- cue.mod/module.cue --
+module: "github.com/test/mod-v000-a"
+-- dummy_end --
+
+# hof mod vendor - BUG require v0.0.0 - B
+exec hof mod vendor
+
+-- cue.mods --
+module github.com/test/mod-v000-b
+
+cue v0.2.0
+
+require (
+    github.com/hofstadter-io/hofmod-cuefig v0.0.0
+    github.com/hofstadter-io/hof v0.0.0
+)
+-- cue.mod/module.cue --
+module: "github.com/test/mod-v000-b"
+-- dummy_end --
+

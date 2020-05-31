@@ -7,12 +7,12 @@ import (
 	"github.com/hofstadter-io/hof/lib/mod/parse/mappingfile"
 	"github.com/hofstadter-io/hof/lib/mod/parse/modfile"
 	"github.com/hofstadter-io/hof/lib/mod/parse/sumfile"
-	"github.com/hofstadter-io/hof/lib/mod/util"
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 func (m *Module) LoadModFile(fn string, ignoreReplace bool) error {
 
-	modBytes, err := util.BillyReadAll(fn, m.FS)
+	modBytes, err := yagu.BillyReadAll(fn, m.FS)
 	if err != nil {
 		if _, ok := err.(*os.PathError); !ok && err.Error() != "file does not exist" && err.Error() != "no such file or directory" {
 			return err
@@ -89,7 +89,7 @@ func (m *Module) MergeSelfDeps(ignoreReplace bool) error {
 
 func (m *Module) LoadSumFile(fn string) error {
 
-	sumBytes, err := util.BillyReadAll(fn, m.FS)
+	sumBytes, err := yagu.BillyReadAll(fn, m.FS)
 	if err != nil {
 		if _, ok := err.(*os.PathError); !ok && err.Error() != "file does not exist" && err.Error() != "no such file or directory" {
 			return err
@@ -107,7 +107,7 @@ func (m *Module) LoadSumFile(fn string) error {
 
 func (m *Module) LoadMappingFile(fn string) error {
 
-	mapBytes, err := util.BillyReadAll(fn, m.FS)
+	mapBytes, err := yagu.BillyReadAll(fn, m.FS)
 	if err != nil {
 		if _, ok := err.(*os.PathError); !ok && err.Error() != "file does not exist" && err.Error() != "no such file or directory" {
 			return err

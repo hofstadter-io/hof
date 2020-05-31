@@ -3,7 +3,7 @@ package modder
 import (
 	"fmt"
 
-	"github.com/hofstadter-io/hof/lib/mod/util"
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 func (mdr *Modder) Tidy() error {
@@ -11,7 +11,7 @@ func (mdr *Modder) Tidy() error {
 	// Tidy Command Override
 	if len(mdr.CommandTidy) > 0 {
 		for _, cmd := range mdr.CommandTidy {
-			out, err := util.Exec(cmd)
+			out, err := yagu.Exec(cmd)
 			fmt.Println(out)
 			if err != nil {
 				return err

@@ -1,14 +1,21 @@
 package cache
 
 import (
+	"os"
 	"path/filepath"
-
-	"github.com/hofstadter-io/hof/lib/mod/util"
 )
 
-var (
-	LocalCacheBaseDir = filepath.Join(util.UserHomeDir(), ".mvs")
-)
+var LocalCacheBaseDir = ".hof/mods"
+
+func init() {
+	d, err := os.UserConfigDir()
+	if err != nil {
+		return
+	}
+
+	// save to hof dir for cache across projects
+	LocalCacheBaseDir = filepath.Join(d, "hof/mods")
+}
 
 func SetBaseDir(basedir string) {
 	LocalCacheBaseDir = basedir

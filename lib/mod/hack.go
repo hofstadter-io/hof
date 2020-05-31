@@ -10,8 +10,8 @@ import (
 
 	"github.com/hofstadter-io/hof/lib/mod/cache"
 	"github.com/hofstadter-io/hof/lib/mod/parse/sumfile"
-	"github.com/hofstadter-io/hof/lib/mod/repos/github"
-	"github.com/hofstadter-io/hof/lib/mod/util"
+	"github.com/hofstadter-io/hof/lib/yagu"
+	"github.com/hofstadter-io/hof/lib/yagu/repos/github"
 )
 
 func Hack(lang string, args []string) error {
@@ -49,7 +49,7 @@ func Hack(lang string, args []string) error {
 		}
 		FS := memfs.New()
 
-		err = util.BillyLoadFromZip(zReader, FS, true)
+		err = yagu.BillyLoadFromZip(zReader, FS, true)
 		if err != nil {
 			return fmt.Errorf("While reading zipfile\n%w\n", err)
 		}
@@ -63,12 +63,12 @@ func Hack(lang string, args []string) error {
 
 		// fmt.Println("GOT HERE 2")
 
-		dirhash, err := util.BillyCalcHash(FS)
+		dirhash, err := yagu.BillyCalcHash(FS)
 		if err != nil {
 			return fmt.Errorf("While calculating dir hash\n%w\n", err)
 		}
 
-		modhash, err := util.BillyCalcFileHash("cue.mods", FS)
+		modhash, err := yagu.BillyCalcFileHash("cue.mods", FS)
 		if err != nil {
 			return fmt.Errorf("While calculating mod hash\n%w\n", err)
 		}
