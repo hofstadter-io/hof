@@ -33,8 +33,8 @@ install new releases as they become available
 
 ```text
 # Install (Linux, Mac, Windows)
-curl -LO https://github.com/hofstadter-io/hof/releases/download/v0.5.4/hof_0.5.4_$(uname)_$(uname -m)
-mv hof_0.5.4_$(uname)_$(uname -m) /usr/local/bin/hof
+curl -LO https://github.com/hofstadter-io/hof/releases/download/v0.5.5/hof_0.5.5_$(uname)_$(uname -m)
+mv hof_0.5.5_$(uname)_$(uname -m) /usr/local/bin/hof
 
 # Shell Completions (bash, zsh, fish, power-shell)
 echo ". <(hof completion bash)" >> $HOME/.profile
