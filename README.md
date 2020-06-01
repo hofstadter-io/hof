@@ -8,7 +8,7 @@ and much much more.
 
 `hof` helps you get more done with less
 
-[![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white)](https://pkg.go.dev/github.com/hofstadter-io/hof)
+[![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white)](https://pkg.go.dev/mod/github.com/hofstadter-io/hof)
 [![GitHub Release](https://img.shields.io/github/v/release/hofstadter-io/hof)](https://github.com/hofstadter-io/hof/releases)
 [![GitHub milestone](https://img.shields.io/github/milestones/progress/hofstadter-io/hof/2)](https://github.com/hofstadter-io/hof/projects/1)
 [![Gitter](https://img.shields.io/gitter/room/hofstadter/hof)](https://gitter.im/hofstadter-io)
