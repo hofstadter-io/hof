@@ -40,6 +40,9 @@ require (
 	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
 )
 
-// We have a single "Attributes" function patched into Cue for returning all attrs on a value
-// https://gist.github.com/verdverm/3455a4bdc1e8232f55ab8522f523f60f
-replace cuelang.org/go => ../../cue/cue
+// Until the open PR is accepted and merged
+// https://github.com/cuelang/cue/pull/413
+//
+// we have an artificial version bump on our fork
+replace cuelang.org/go => github.com/hofstadter-io/cue v0.2.1
+// replace cuelang.org/go => ../../cue/cue

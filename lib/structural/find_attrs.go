@@ -27,7 +27,8 @@ func FindByAttrs(s cue.Value, attrs []string, attrsK map[string][]string, attrsK
 		// label := siter.Label()
 		value := siter.Value()
 		attrs := value.Attributes()
-		for k, attr := range attrs {
+		for _, attr := range attrs {
+			k := attr.Name()
 			if _, ok := attrsSet[k]; ok {
 				out = append(out, value)
 				break
