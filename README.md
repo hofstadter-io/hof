@@ -9,12 +9,12 @@ and much much more.
 `hof` helps you get more done with less
 
 [![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white)](https://pkg.go.dev/github.com/hofstadter-io/hof)
-![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/hofstadter-io/hof)
+[![GitHub Release](https://img.shields.io/github/v/release/hofstadter-io/hof)](https://github.com/hofstadter-io/hof/releases)
 ![GitHub All Releases](https://img.shields.io/github/downloads/hofstadter-io/hof/total)
-![Gitter](https://img.shields.io/gitter/room/hofstadter/hof)
-![Twitter Follow](https://img.shields.io/twitter/follow/hofstadter_io?style=social)
+[![Gitter](https://img.shields.io/gitter/room/hofstadter/hof)](https://gitter.im/hofstadter-io)
+[![Twitter Follow](https://img.shields.io/twitter/follow/hofstadter_io?style=social)](https://twitter.com/hofstadter_io)
 
-![CircleCI](https://img.shields.io/circleci/build/gh/hofstadter-io/hof/master)
+[![CircleCI](https://img.shields.io/circleci/build/gh/hofstadter-io/hof/master)](https://circleci.com/gh/hofstadter-io/workflows/hof)
 [![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=hofstadter-io_hof&metric=alert_status)](https://sonarcloud.io/dashboard?id=hofstadter-io_hof) 
 [![SonarCloud Coverage](https://sonarcloud.io/api/project_badges/measure?project=hofstadter-io_hof&metric=coverage)](https://sonarcloud.io/component_measures/metric/coverage/list?id=hofstadter-io_hof)
 [![SonarCloud Bugs](https://sonarcloud.io/api/project_badges/measure?project=hofstadter-io_hof&metric=bugs)](https://sonarcloud.io/component_measures/metric/reliability_rating/list?id=hofstadter-io_hof)
