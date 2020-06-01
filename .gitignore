@@ -20,8 +20,8 @@
 /test/**/cue.mod/pkg/
 
 # Go mods
-/vendor/
-/**/vendor/
+/vendor/*/
+/*/**/vendor/
 
 # Testscript workdirs
 /**/.workdir/
