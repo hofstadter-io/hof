@@ -8,8 +8,19 @@ and much much more.
 
 `hof` helps you get more done with less
 
+[![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white)](https://pkg.go.dev/github.com/hofstadter-io/hof)
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/hofstadter-io/hof)
+![GitHub All Releases](https://img.shields.io/github/downloads/hofstadter-io/hof/total)
+![Gitter](https://img.shields.io/gitter/room/hofstadter/hof)
+![Twitter Follow](https://img.shields.io/twitter/follow/hofstadter_io?style=social)
 
-### features
+![CircleCI](https://img.shields.io/circleci/build/gh/hofstadter-io/hof/master)
+[![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=hofstadter-io_hof&metric=alert_status)](https://sonarcloud.io/dashboard?id=hofstadter-io_hof) 
+[![SonarCloud Coverage](https://sonarcloud.io/api/project_badges/measure?project=hofstadter-io_hof&metric=coverage)](https://sonarcloud.io/component_measures/metric/coverage/list?id=hofstadter-io_hof)
+[![SonarCloud Bugs](https://sonarcloud.io/api/project_badges/measure?project=hofstadter-io_hof&metric=bugs)](https://sonarcloud.io/component_measures/metric/reliability_rating/list?id=hofstadter-io_hof)
+[![SonarCloud Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=hofstadter-io_hof&metric=vulnerabilities)](https://sonarcloud.io/component_measures/metric/security_rating/list?id=hofstadter-io_hof)
+
+## features
 
 - __single source of truth__: designs mean you can write your idea down in one place, and make all the things from that.
   The `hof` tool takes in two directories (designs and generators) and outputs any number of files and directories.
@@ -25,11 +36,11 @@ and much much more.
 - __extensible__: you can make your own versions of all of the things you find around here without modifying `hof` itself, by design.
 - __your way__: everything is backed by files and git, so you can use your usual tools and team practices
 
-### getting started
+## getting started
 
 You will have to download `hof` the first time.
 After that `hof` will prompt you to update and
-install new releases as they become available
+install new releases as they become available.
 
 ```text
 # Install (Linux, Mac, Windows)
@@ -49,13 +60,11 @@ hof setup
 
 You can always find the latest version from the
 [releases page](https://github.com/hofstadter-io/hof/releases)
-
-##### [Go Docs: https://pkg.go.dev/mod/github.com/hofstadter-io/hof](https://pkg.go.dev/mod/github.com/hofstadter-io/hof)
-
-##### [Chat: https://gitter.im/hofstadter-io](https://gitter.im/hofstadter-io)
+or use `hof` to install a specific version of itself with `hof update --version vX.Y.Z`.
 
 
-### top-level commands
+
+## top-level commands
 
 ```text
 hof - a polyglot tool for building software
