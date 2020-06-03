@@ -8,16 +8,16 @@ and much much more.
 
 `hof` helps you get more done with less
 
-[![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white)](https://pkg.go.dev/mod/github.com/hofstadter-io/hof)
 [![GitHub Release](https://img.shields.io/github/v/release/hofstadter-io/hof)](https://github.com/hofstadter-io/hof/releases)
 [![GitHub milestone](https://img.shields.io/github/milestones/progress/hofstadter-io/hof/2)](https://github.com/hofstadter-io/hof/projects/1)
+[![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white)](https://pkg.go.dev/mod/github.com/hofstadter-io/hof)
 [![Gitter](https://img.shields.io/gitter/room/hofstadter/hof)](https://gitter.im/hofstadter-io)
 [![Twitter Follow](https://img.shields.io/twitter/follow/hofstadter_io?style=social)](https://twitter.com/hofstadter_io)
 
 [![CircleCI Builds](https://circleci.com/gh/hofstadter-io/hof.svg?style=shield)](https://circleci.com/gh/hofstadter-io/workflows/hof)
-[![SonarCloud Status](https://sonarcloud.io/api/project_badges/measure?project=hofstadter-io_hof&metric=alert_status)](https://sonarcloud.io/dashboard?id=hofstadter-io_hof) 
-[![SonarCloud Coverage](https://sonarcloud.io/api/project_badges/measure?project=hofstadter-io_hof&metric=coverage)](https://sonarcloud.io/component_measures/metric/coverage/list?id=hofstadter-io_hof)
+[![SonarCloud Status](https://sonarcloud.io/api/project_badges/measure?project=hofstadter-io_hof&metric=alert_status)](https://sonarcloud.io/dashboard?id=hofstadter-io_hof)
 [![SonarCloud Security](https://sonarcloud.io/api/project_badges/measure?project=hofstadter-io_hof&metric=security_rating)](https://sonarcloud.io/dashboard?id=hofstadter-io_hof)
+[![SonarCloud Coverage](https://sonarcloud.io/api/project_badges/measure?project=hofstadter-io_hof&metric=coverage)](https://sonarcloud.io/component_measures/metric/coverage/list?id=hofstadter-io_hof)
 [![SonarCloud Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=hofstadter-io_hof&metric=vulnerabilities)](https://sonarcloud.io/component_measures/metric/security_rating/list?id=hofstadter-io_hof)
 
 ## features
