@@ -74,9 +74,9 @@ command: "run-tests": {
 				script: """
 				echo "testing \(d.name)..."
 
-				pushd ../../\(d.dir)
+				pushd ../../\(d.dir) > /dev/null
 				\(d.cmd)
-				popd
+				popd > /dev/null
 				"""
 				cmd: ["bash", "-c", script]
 			}
