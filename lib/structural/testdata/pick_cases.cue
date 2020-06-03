@@ -50,13 +50,13 @@ package testdata
 			}
 			ex: {a: "a"}
 		}
-		neg_diffval: {
-			args: {
-				orig: #SharedExamples.a1
-				pick: {a: "b"}
-			}
-			ex: {}
-		}
+		//neg_diffval: {
+			//args: {
+				//orig: #SharedExamples.a1
+				//pick: {a: "b"}
+			//}
+			//ex: {}
+		//}
 		neg_difftype_1: {
 			args: {
 				orig: #SharedExamples.a1

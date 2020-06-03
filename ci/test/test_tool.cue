@@ -61,7 +61,7 @@ command: peek: {
 	}
 }
 
-command: run: {
+command: "run-tests": {
 	d1: [ for s, suite in #Actual { suite } ]
 	d2: [ for suite in d1 { [for t, test in suite { test }] } ]
 	f: list.FlattenN(d2, 1)
@@ -69,11 +69,17 @@ command: run: {
 	data: f
 
 	for i, d in data {
-		"run-\(i)": exec.Run & {
-			script: """
-			echo "testing \(d.name)..."
-			"""
-			cmd: ["bash", "-c", script]
+		if d.pass == false {
+			"run-\(d.name)": exec.Run & {
+				script: """
+				echo "testing \(d.name)..."
+
+				pushd ../../\(d.dir)
+				\(d.cmd)
+				popd
+				"""
+				cmd: ["bash", "-c", script]
+			}
 		}
 	}
 }

@@ -1,7 +1,8 @@
 # Golang CircleCI 2.0 configuration file
 version: 2
+
 jobs:
-  build:
+  build-n-test:
     docker:
       # specify the version
       - image: circleci/golang:1.14
@@ -10,6 +11,21 @@ jobs:
     steps:
       - checkout
 
-      # specify any bash command here prefixed with `run: `
+      # get Cue
+      - run: curl -LO https://github.com/cuelang/cue/releases/download/v0.2.0/cue_0.2.0_Linux_x86_64.tar.gz
+      - run: tar -xf cue_0.2.0_Linux_x86_64.tar.gz
+      - run: sudo mv cue /usr/local/bin/cue
+
+      # get modules
       - run: go mod vendor
+
+      # run unit tests
+      - run: cd ci/test && cue -t unit run-tests
+
+      # build hof
       - run: go build -o hof cmd/hof/main.go
+      - run: sudo mv hof /usr/local/bin/hof
+
+      # run cli tests
+      - run: cd ci/test && cue -t cli run-tests
+
