@@ -7,9 +7,10 @@ package test
 
 #Tester: {
 	name: string
+	lang: string
 	type: string
 
-	pass: bool | *false
+	skip: bool | *false
 
 	dir: string
 	cmd: string
@@ -24,32 +25,38 @@ Suites: #Suites & {
 
 	st: {
 		cli: {
-			pass: true
+			skip: true
+			lang: "go"
 			type: "testsuite"
 			dir: "lib/structural"
 			cmd: "go test ./"
 		}
 
 		unit: {
+			lang: "go"
 			type: "gotest"
 			dir: "lib/structural"
-			cmd: "go test ./"
+			cmd: "go test ./ -v -covermode=count"
+			sonar: "go test ./ -v -covermode=count -coverprofile cover.out -json > tests.out"
 		}
 	}
 
 
 	mod: {
 		cli: {
+			lang: "go"
 			type: "testsuite"
 			dir: "lib/mod"
 			cmd: "go test ./"
 		}
 
 		unit: {
-			pass: true
+			skip: true
+			lang: "go"
 			type: "gotest"
 			dir: "lib/mod"
-			cmd: "go test ./"
+			cmd: "go test ./ -v -covermode=count"
+			sonar: "go test ./ -v -covermode=count -coverprofile cover.out -json > tests.out"
 		}
 	}
 
