@@ -29,17 +29,22 @@ jobs:
       # hof build and test
       - run: |
           # run unit tests
+          echo "unit testing"
           pushd ci/test > /dev/null
           cue -t unit run-tests
           popd > /dev/null
 
+      - run: |
           # build hof
+          echo "building cli"
           go build -o hof cmd/hof/main.go
           sudo mv hof /usr/local/bin/hof
 
+      - run: |
           # run cli tests
+          echo "testing cli"
           pushd ci/test > /dev/null
-          cd ci/test && cue -t cli run-tests
+          cue -t cli run-tests
           popd > /dev/null
 
       # Scan and upload reports
