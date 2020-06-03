@@ -15,9 +15,9 @@ and much much more.
 [![Twitter Follow](https://img.shields.io/twitter/follow/hofstadter_io?style=social)](https://twitter.com/hofstadter_io)
 
 [![CircleCI Builds](https://circleci.com/gh/hofstadter-io/hof.svg?style=shield)](https://circleci.com/gh/hofstadter-io/workflows/hof)
-[![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=hofstadter-io_hof&metric=alert_status)](https://sonarcloud.io/dashboard?id=hofstadter-io_hof) 
+[![SonarCloud Status](https://sonarcloud.io/api/project_badges/measure?project=hofstadter-io_hof&metric=alert_status)](https://sonarcloud.io/dashboard?id=hofstadter-io_hof) 
 [![SonarCloud Coverage](https://sonarcloud.io/api/project_badges/measure?project=hofstadter-io_hof&metric=coverage)](https://sonarcloud.io/component_measures/metric/coverage/list?id=hofstadter-io_hof)
-[![SonarCloud Bugs](https://sonarcloud.io/api/project_badges/measure?project=hofstadter-io_hof&metric=bugs)](https://sonarcloud.io/component_measures/metric/reliability_rating/list?id=hofstadter-io_hof)
+[![SonarCloud Security](https://sonarcloud.io/api/project_badges/measure?project=hofstadter-io_hof&metric=security_rating)](https://sonarcloud.io/dashboard?id=hofstadter-io_hof)
 [![SonarCloud Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=hofstadter-io_hof&metric=vulnerabilities)](https://sonarcloud.io/component_measures/metric/security_rating/list?id=hofstadter-io_hof)
 
 ## features
