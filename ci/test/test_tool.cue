@@ -102,13 +102,13 @@ command: "run-tests": {
 
 						pushd ../../ >/dev/null
 
-						mkdir -p sonar-cloud/\(d.lang)/\(d.name)
+						mkdir -p sonar-reports/\(d.lang)/\(d.name)
 
 						pushd \(d.dir) > /dev/null
 						\(d.sonar)
 						popd > /dev/null
 
-						cp \(d.dir)/{cover,tests}.out sonar-cloud/\(d.lang)/\(d.name)
+						cp \(d.dir)/{cover,tests}.out sonar-reports/\(d.lang)/\(d.name)
 
 						popd > /dev/null
 						"""
