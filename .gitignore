@@ -9,7 +9,9 @@
 *.test
 
 # Output of the go coverage tool, specifically when used with LiteIDE
-*.out
+/**/tests.out
+/**/cover.out
+/**/cover.html
 
 # GoReleaser / Binaries
 /cmd/**/dist/

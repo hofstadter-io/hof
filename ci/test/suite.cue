@@ -12,52 +12,44 @@ package test
 
 	skip: bool | *false
 
-	dir: string
-	cmd: string
+	dir:  string
+	test: string
 
+	cover?: string
 	sonar?: string
 	bench?: string
 
 	...
 }
 
+#Defaults: {
+	gocli: {
+		lang: "go"
+		type: "testsuite"
+		test: string | *"go test ./"
+		...
+	}
+	gounit: {
+		lang:  "go"
+		type:  "gotest"
+		test:  string | *"go test ./ -v -covermode=count"
+		cover: string | *"\(test) -coverprofile cover.out && go tool cover -html=cover.out -o cover.html"
+		sonar: string | *"go test ./ -v -covermode=count -coverprofile cover.out -json > tests.out"
+		...
+	}
+}
+
 Suites: #Suites & {
 
 	st: {
-		cli: {
-			skip: true
-			lang: "go"
-			type: "testsuite"
-			dir: "lib/structural"
-			cmd: "go test ./"
-		}
-
-		unit: {
-			lang: "go"
-			type: "gotest"
-			dir: "lib/structural"
-			cmd: "go test ./ -v -covermode=count"
-			sonar: "go test ./ -v -covermode=count -coverprofile cover.out -json > tests.out"
-		}
+		cli:  #Defaults.gocli  & { skip: true, dir: "lib/structural" }
+		unit: #Defaults.gounit & { dir: "lib/structural" }
 	}
 
 
 	mod: {
-		cli: {
-			lang: "go"
-			type: "testsuite"
-			dir: "lib/mod"
-			cmd: "go test ./"
-		}
-
-		unit: {
-			skip: true
-			lang: "go"
-			type: "gotest"
-			dir: "lib/mod"
-			cmd: "go test ./ -v -covermode=count"
-			sonar: "go test ./ -v -covermode=count -coverprofile cover.out -json > tests.out"
-		}
+		cli:  #Defaults.gocli  & { dir: "lib/mod" }
+		unit: #Defaults.gounit & { skip: true, dir: "lib/mod" }
 	}
 
 }

@@ -14,6 +14,7 @@ if [ -z $SONAR_TOKEN ]; then
 fi
 
 docker run \
+  -it \
   -e SONAR_TOKEN=$SONAR_TOKEN \
   -e SONAR_BRANCH=$GIT_BRANCH \
   -v "$PWD:/usr/src" \

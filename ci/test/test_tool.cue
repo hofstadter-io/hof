@@ -8,9 +8,9 @@ import (
 )
 
 #Flags: {
-	suite: string | *"all" @tag(suite,short=st|mod)
-	tests: string | *"all" @tag(test,short=api|bench|cli|unit)
-	sonar: "sonar" | *"" @tag(sonar,short=sonar)
+	suite:  string | *"all" @tag(suite,short=st|mod)
+	tests:  string | *"all" @tag(test,short=api|bench|cli|unit)
+	subcmd: *"test" | "cover" | "sonar" @tag(subcmd,short=test|cover|sonar)
 }
 
 #Actual: #Suites & {
@@ -76,7 +76,7 @@ command: "run-tests": {
 		if d.skip == false {
 
 			// run tests in normal mode
-			if #Flags.sonar == "" {
+			if #Flags.subcmd == "test" {
 				"run-\(d.name)": exec.Run & {
 					cmd: ["bash", "-c", script]
 
@@ -84,14 +84,30 @@ command: "run-tests": {
 					echo "testing \(d.name)..."
 
 					pushd ../../\(d.dir) > /dev/null
-					\(d.cmd)
+					\(d.test)
 					popd > /dev/null
 					"""
 				}
 			}
 
+			if #Flags.subcmd == "cover" {
+				if d.cover != _|_ {
+					"run-\(d.name)": exec.Run & {
+						cmd: ["bash", "-c", script]
+
+						script: """
+						echo "testing \(d.name)..."
+
+						pushd ../../\(d.dir) > /dev/null
+						\(d.cover)
+						popd > /dev/null
+						"""
+					}
+				}
+			}
+
 				// run tests with sonar output enabled
-			if #Flags.sonar == "sonar" {
+			if #Flags.subcmd == "sonar" {
 				if d.sonar != _|_ {
 					"run-\(d.name)": exec.Run & {
 
