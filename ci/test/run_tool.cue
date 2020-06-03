@@ -7,6 +7,37 @@ import (
 	"tool/exec"
 )
 
+#Flags: {
+	suite: string | *"all" @tag(suite,short=st|mod)
+	tests: string | *"all" @tag(test,short=api|bench|cli|unit)
+}
+
+#Actual: #Suites & {
+
+	if #Flags.suite == "all" {
+		if #Flags.tests == "all" {
+			Suites
+		}
+
+		if #Flags.tests != "all" {
+			for sname, suite in Suites { 
+				"\(sname)": "\(#Flags.tests)": suite[#Flags.tests]
+			}
+		}
+	}
+
+	if #Flags.suite != "all" {
+		if #Flags.tests == "all" {
+			"\(#Flags.suite)": Suites[#Flags.suite]
+		}
+
+		if #Flags.tests != "all" {
+			"\(#Flags.suite)": "\(#Flags.tests)": Suites[#Flags.suite][#Flags.tests]
+		}
+	}
+
+}
+
 command: info: {
 	data: #Actual
 

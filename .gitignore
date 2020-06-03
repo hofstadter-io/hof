@@ -29,3 +29,8 @@
 # Hof related
 /hof-cpu.prof
 /hof
+
+# Sonar Cloud
+/.sonar/
+/.scannerwork/
+/sonar-reports/
