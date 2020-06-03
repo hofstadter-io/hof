@@ -29,14 +29,18 @@ jobs:
       # hof build and test
       - run: |
           # run unit tests
-          cd ci/test && cue -t unit run-tests
+          pushd ci/test > /devnull
+          cue -t unit run-tests
+          popd > /devnull
 
           # build hof
           go build -o hof cmd/hof/main.go
           sudo mv hof /usr/local/bin/hof
 
           # run cli tests
+          pushd ci/test > /devnull
           cd ci/test && cue -t cli run-tests
+          popd > /devnull
 
       # Scan and upload reports
       - sonarcloud/scan
