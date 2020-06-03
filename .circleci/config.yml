@@ -1,6 +1,12 @@
 # Golang CircleCI 2.0 configuration file
 version: 2
 
+workflows:
+  main:
+    jobs:
+      - build:
+          context: sonar
+
 jobs:
   build:
     docker:
@@ -11,21 +17,30 @@ jobs:
     steps:
       - checkout
 
-      # get Cue
-      - run: curl -LO https://github.com/cuelang/cue/releases/download/v0.2.0/cue_0.2.0_Linux_x86_64.tar.gz
-      - run: tar -xf cue_0.2.0_Linux_x86_64.tar.gz
-      - run: sudo mv cue /usr/local/bin/cue
+      # setup and dep fetches
+      - run: |
+          # install Cue
+          curl -LO https://github.com/cuelang/cue/releases/download/v0.2.0/cue_0.2.0_Linux_x86_64.tar.gz
+          tar -xf cue_0.2.0_Linux_x86_64.tar.gz
+          sudo mv cue /usr/local/bin/cue
 
-      # get modules
-      - run: go mod vendor
+          # fetch deps
+          go mod vendor
 
-      # run unit tests
-      - run: cd ci/test && cue -t unit run-tests
+      # hof build and test
+      - run: |
+          # run unit tests
+          cd ci/test && cue -t unit run-tests
 
-      # build hof
-      - run: go build -o hof cmd/hof/main.go
-      - run: sudo mv hof /usr/local/bin/hof
+          # build hof
+          go build -o hof cmd/hof/main.go
+          sudo mv hof /usr/local/bin/hof
 
-      # run cli tests
-      - run: cd ci/test && cue -t cli run-tests
+          # run cli tests
+          cd ci/test && cue -t cli run-tests
 
+      # Scan and upload reports
+      - sonarcloud/scan
+
+orbs:
+  sonarcloud: sonarsource/sonarcloud@1.0.1
