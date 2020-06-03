@@ -10,6 +10,7 @@ import (
 #Flags: {
 	suite: string | *"all" @tag(suite,short=st|mod)
 	tests: string | *"all" @tag(test,short=api|bench|cli|unit)
+	sonar: "sonar" | *"" @tag(sonar,short=sonar)
 }
 
 #Actual: #Suites & {
@@ -42,7 +43,10 @@ command: info: {
 	data: #Actual
 
 	print: cli.Print & {
-		text: yaml.Marshal(data)
+		text: """
+		sonar: "\(#Flags.sonar)"
+		\(yaml.Marshal(data))
+		"""
 	}
 }
 
@@ -70,15 +74,46 @@ command: "run-tests": {
 
 	for i, d in data {
 		if d.pass == false {
-			"run-\(d.name)": exec.Run & {
-				script: """
-				echo "testing \(d.name)..."
 
-				pushd ../../\(d.dir) > /dev/null
-				\(d.cmd)
-				popd > /dev/null
-				"""
-				cmd: ["bash", "-c", script]
+			// run tests in normal mode
+			if #Flags.sonar == "" {
+				"run-\(d.name)": exec.Run & {
+					cmd: ["bash", "-c", script]
+
+					script: """
+					echo "testing \(d.name)..."
+
+					pushd ../../\(d.dir) > /dev/null
+					\(d.cmd)
+					popd > /dev/null
+					"""
+				}
+			}
+
+				// run tests with sonar output enabled
+			if #Flags.sonar == "sonar" {
+				if d.sonar != _|_ {
+					"run-\(d.name)": exec.Run & {
+
+						cmd: ["bash", "-c", script]
+
+						script: """
+						echo "testing \(d.name)..."
+
+						pushd ../../ >/dev/null
+
+						mkdir -p sonar-cloud/\(d.name)
+
+						pushd \(d.dir) > /dev/null
+						\(d.sonar)
+						popd > /dev/null
+
+						cp \(d.dir)/{cover,tests}.out sonar-cloud/\(d.name)
+
+						popd > /dev/null
+						"""
+					}
+				}
 			}
 		}
 	}

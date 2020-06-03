@@ -47,6 +47,13 @@ jobs:
           cue -t cli run-tests
           popd > /dev/null
 
+      - run: |
+          # run cli tests
+          echo "rerunning tests with sonar enable"
+          pushd ci/test > /dev/null
+          cue -t sonar run-tests
+          popd > /dev/null
+
       # Scan and upload reports
       - sonarcloud/scan
 

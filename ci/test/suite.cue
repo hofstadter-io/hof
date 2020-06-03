@@ -33,7 +33,8 @@ Suites: #Suites & {
 		unit: {
 			type: "gotest"
 			dir: "lib/structural"
-			cmd: "go test ./"
+			cmd: "go test ./ -v -covermode=count"
+			sonar: "go test ./ -v -covermode=count -coverprofile cover.out -json > tests.out"
 		}
 	}
 
@@ -49,7 +50,8 @@ Suites: #Suites & {
 			pass: true
 			type: "gotest"
 			dir: "lib/mod"
-			cmd: "go test ./"
+			cmd: "go test ./ -v -covermode=count"
+			sonar: "go test ./ -v -covermode=count -coverprofile cover.out -json > tests.out"
 		}
 	}
 
