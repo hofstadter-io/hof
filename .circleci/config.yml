@@ -1,11 +1,10 @@
-# Golang CircleCI 2.0 configuration file
-version: 2
+version: 2.1
 
 workflows:
   main:
     jobs:
       - build:
-          context: sonar
+          context: SonarCloud
 
 jobs:
   build:
