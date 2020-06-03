@@ -11,8 +11,9 @@ and much much more.
 [![GitHub Release](https://img.shields.io/github/v/release/hofstadter-io/hof)](https://github.com/hofstadter-io/hof/releases)
 [![GitHub milestone](https://img.shields.io/github/milestones/progress/hofstadter-io/hof/2)](https://github.com/hofstadter-io/hof/projects/1)
 [![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white)](https://pkg.go.dev/mod/github.com/hofstadter-io/hof)
-[![Gitter](https://img.shields.io/gitter/room/hofstadter/hof)](https://gitter.im/hofstadter-io)
+[![hof docs](https://img.shields.io/badge/__docs.hofstadter.io-02344d)]
 [![GitHub All Releases](https://img.shields.io/github/downloads/hofstadter-io/hof/total?color=02344d)](https://github.com/hofstadter-io/hof/releases)
+[![Gitter](https://img.shields.io/gitter/room/hofstadter/hof)](https://gitter.im/hofstadter-io)
 
 [![CircleCI Builds](https://circleci.com/gh/hofstadter-io/hof.svg?style=shield)](https://circleci.com/gh/hofstadter-io/workflows/hof)
 [![SonarCloud Status](https://sonarcloud.io/api/project_badges/measure?project=hofstadter-io_hof&metric=alert_status)](https://sonarcloud.io/dashboard?id=hofstadter-io_hof)
