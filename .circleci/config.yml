@@ -54,6 +54,8 @@ jobs:
           cue -t sonar run-tests
           popd > /dev/null
 
+          ls -lh sonar-cloud/*/*
+
       # Scan and upload reports
       - sonarcloud/scan
 

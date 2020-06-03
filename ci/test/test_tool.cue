@@ -73,7 +73,7 @@ command: "run-tests": {
 	data: f
 
 	for i, d in data {
-		if d.pass == false {
+		if d.skip == false {
 
 			// run tests in normal mode
 			if #Flags.sonar == "" {
@@ -102,13 +102,13 @@ command: "run-tests": {
 
 						pushd ../../ >/dev/null
 
-						mkdir -p sonar-cloud/\(d.name)
+						mkdir -p sonar-cloud/\(d.lang)/\(d.name)
 
 						pushd \(d.dir) > /dev/null
 						\(d.sonar)
 						popd > /dev/null
 
-						cp \(d.dir)/{cover,tests}.out sonar-cloud/\(d.name)
+						cp \(d.dir)/{cover,tests}.out sonar-cloud/\(d.lang)/\(d.name)
 
 						popd > /dev/null
 						"""
