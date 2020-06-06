@@ -55,7 +55,7 @@ var UpdateCmd = &cobra.Command{
 	Long: UpdateLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
-		ga.SendGaEvent("update", "<omit>", 0)
+		ga.SendCommandPath("update")
 
 	},
 
@@ -94,13 +94,13 @@ func init() {
 
 	thelp := func(cmd *cobra.Command, args []string) {
 		if UpdateCmd.Name() == cmd.Name() {
-			ga.SendGaEvent("update/help", "<omit>", 0)
+			ga.SendCommandPath("update help")
 		}
 		help(cmd, args)
 	}
 	tusage := func(cmd *cobra.Command) error {
 		if UpdateCmd.Name() == cmd.Name() {
-			ga.SendGaEvent("update/usage", "<omit>", 0)
+			ga.SendCommandPath("update usage")
 		}
 		return usage(cmd)
 	}

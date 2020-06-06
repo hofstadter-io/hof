@@ -85,13 +85,13 @@ func init() {
 
 	thelp := func(cmd *cobra.Command, args []string) {
 		if CompletionCmd.Name() == cmd.Name() {
-			ga.SendGaEvent("completion/help", "<omit>", 0)
+			ga.SendCommandPath("completion help")
 		}
 		help(cmd, args)
 	}
 	tusage := func(cmd *cobra.Command) error {
 		if CompletionCmd.Name() == cmd.Name() {
-			ga.SendGaEvent("completion/usage", "<omit>", 0)
+			ga.SendCommandPath("completion usage")
 		}
 		return usage(cmd)
 	}

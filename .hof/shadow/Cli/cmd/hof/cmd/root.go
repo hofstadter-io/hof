@@ -94,7 +94,7 @@ var RootCmd = &cobra.Command{
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
-		ga.SendGaEvent("root", "<omit>", 0)
+		ga.SendCommandPath("root")
 
 	},
 
@@ -128,13 +128,13 @@ func RootInit() {
 
 	thelp := func(cmd *cobra.Command, args []string) {
 		if RootCmd.Name() == cmd.Name() {
-			ga.SendGaEvent("root/help", "<omit>", 0)
+			ga.SendCommandPath("root help")
 		}
 		help(cmd, args)
 	}
 	tusage := func(cmd *cobra.Command) error {
 		if RootCmd.Name() == cmd.Name() {
-			ga.SendGaEvent("root/usage", "<omit>", 0)
+			ga.SendCommandPath("root usage")
 		}
 		return usage(cmd)
 	}

@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"strings"
-
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/cmd/auth"
@@ -22,9 +20,7 @@ var AuthCmd = &cobra.Command{
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
-		cs := strings.Fields(cmd.CommandPath())
-		c := strings.Join(cs[1:], "/")
-		ga.SendGaEvent(c, "", 0)
+		ga.SendCommandPath(cmd.CommandPath())
 
 	},
 }
@@ -35,15 +31,11 @@ func init() {
 	usage := AuthCmd.UsageFunc()
 
 	thelp := func(cmd *cobra.Command, args []string) {
-		cs := strings.Fields(cmd.CommandPath())
-		c := strings.Join(cs[1:], "/")
-		ga.SendGaEvent(c+"/help", "", 0)
+		ga.SendCommandPath(cmd.CommandPath() + " help")
 		help(cmd, args)
 	}
 	tusage := func(cmd *cobra.Command) error {
-		cs := strings.Fields(cmd.CommandPath())
-		c := strings.Join(cs[1:], "/")
-		ga.SendGaEvent(c+"/usage", "", 0)
+		ga.SendCommandPath(cmd.CommandPath() + " usage")
 		return usage(cmd)
 	}
 	AuthCmd.SetHelpFunc(thelp)

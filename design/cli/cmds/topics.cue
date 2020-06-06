@@ -25,6 +25,8 @@ import (
 	Usage:   "workspace"
 	OmitRun: true
 
+	Imports: [{Path: "strings", ...}]
+
 	Short: "help for learning about workspaces and workflows"
 	Long:  Short
 	CustomHelp: """
