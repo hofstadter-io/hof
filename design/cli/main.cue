@@ -41,6 +41,7 @@ import (
 		cmds.#GenCommand,
 		cmds.#RunCommand,      // imperatively oriented commands from cue
 		cmds.#RuntimesCommand, // (docker, node, go, cue, python)
+		cmds.#TestCommand,
 
 		// labels
 		cmds.#LabelCommand,

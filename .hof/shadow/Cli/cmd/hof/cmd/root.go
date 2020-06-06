@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"os"
 
+	"log"
+	"runtime/pprof"
+
 	"strings"
 
+	"github.com/rogpeppe/go-internal/testscript"
 	"github.com/spf13/cobra"
-
-	// "github.com/spf13/viper"
 
 	"github.com/hofstadter-io/hof/lib/runtime"
 
@@ -121,7 +123,7 @@ func RootInit() {
 		fu := RootCmd.Flags().FlagUsages()
 		rh := strings.Replace(RootCustomHelp, "<<flag-usage>>", fu, 1)
 		fmt.Println(rh)
-		return fmt.Errorf("unknown HOF command")
+		return fmt.Errorf("unknown hof command")
 	}
 
 	thelp := func(cmd *cobra.Command, args []string) {
@@ -151,6 +153,7 @@ func RootInit() {
 	RootCmd.AddCommand(GenCmd)
 	RootCmd.AddCommand(RunCmd)
 	RootCmd.AddCommand(RuntimesCmd)
+	RootCmd.AddCommand(TestCmd)
 	RootCmd.AddCommand(LabelCmd)
 	RootCmd.AddCommand(LabelsetCmd)
 	RootCmd.AddCommand(DocCmd)
@@ -220,11 +223,12 @@ Initialize and create new hof workspaces:
   init            β     create an empty workspace or initialize an existing directory to one
   clone           β     clone a workspace or repository into a new directory
 
-Model your designs, generate implementation, run anything:
+Model your designs, generate implementation, run or test anything:
   datamodel       α     create, view, diff, calculate / migrate, and manage your data models
   gen             ✓     generate code, data, and config from your data models and designs
   run             α     run polyglot command and scripts seamlessly across runtimes
   runtimes        α     work with runtimes (go, js, py, bash, custom)
+  test            α     test all sorts of things
 
 Labels are used _ for _ (see also 'hof topic labels'):
   label           α     manage labels for resources and more
@@ -324,3 +328,48 @@ Flags:
 Use "hof [command] --help / -h" for more information about a command.
 Use "hof topic [subject]"  for more information about a subject.
 `
+
+func RunExit() {
+	if err := RunErr(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+}
+
+func RunInt() int {
+	if err := RunErr(); err != nil {
+		fmt.Println(err)
+		return 1
+	}
+	return 0
+}
+
+func RunErr() error {
+
+	if fn := os.Getenv("HOF_CPU_PROFILE"); fn != "" {
+		f, err := os.Create(fn)
+		if err != nil {
+			log.Fatal("Could not create file for CPU profile:", err)
+		}
+		defer f.Close()
+
+		err = pprof.StartCPUProfile(f)
+		if err != nil {
+			log.Fatal("Could not start CPU profile process:", err)
+		}
+
+		defer pprof.StopCPUProfile()
+	}
+
+	RootInit()
+	return RootCmd.Execute()
+}
+
+func CallTS(ts *testscript.TestScript, args []string) error {
+	RootCmd.SetArgs(args)
+
+	err := RootCmd.Execute()
+	ts.Check(err)
+
+	return err
+}

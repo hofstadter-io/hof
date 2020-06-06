@@ -179,7 +179,7 @@ func (TS *TestSuite) RunTestCase(cases, group, test string, V cue.Value) (err er
 		fmt.Println(vSyn)
 		fmt.Println("-------- EXPECT --------")
 		fmt.Println(exSyn)
-		fmt.Println("-------- OUTPUT --------")
+		fmt.Println("-------- ACTUAL --------")
 		fmt.Println(retSyn)
 		fmt.Println("========================")
 		return fmt.Errorf("Result did not match expected in:", name)

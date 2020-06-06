@@ -1,0 +1,9 @@
+### Test "labelset --help" prints help
+call __hof labelset --help
+
+### Test "labelset -h" prints help
+call __hof labelset -h
+
+### Test "labelset" (without any args) prints help
+call __hof labelset
+

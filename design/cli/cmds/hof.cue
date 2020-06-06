@@ -54,6 +54,7 @@ import (
 	Short:  ""
 	Long:   ""
 	Hidden: true
+	OmitTests: true
 }
 
 #LogoCommand: schema.#Command & {
@@ -62,4 +63,5 @@ import (
 	Short:  ""
 	Long:   ""
 	Hidden: true
+	OmitTests: true
 }

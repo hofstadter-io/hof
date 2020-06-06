@@ -1,0 +1,7 @@
+### Test "eval --help" prints help
+call __hof eval --help
+
+### Test "eval -h" prints help
+call __hof eval -h
+
+

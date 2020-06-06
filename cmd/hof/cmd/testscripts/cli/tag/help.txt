@@ -1,0 +1,7 @@
+### Test "tag --help" prints help
+call __hof tag --help
+
+### Test "tag -h" prints help
+call __hof tag -h
+
+

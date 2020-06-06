@@ -276,7 +276,7 @@ func InstallUpdate() (err error) {
 		}
 	}
 
-	fmt.Println("Download URL: ", url, "\n")
+	fmt.Println("Download URL: ", url)
 
 	switch verinfo.BuildOS {
 	case "linux":
@@ -286,10 +286,11 @@ func InstallUpdate() (err error) {
 		return downloadAndInstall(url)
 
 	case "windows":
-		fmt.Println("Please downlaod and install manually from the link above.\n")
+		fmt.Println("Please downlaod and install manually from the link above.")
 		return nil
 	}
 
+	fmt.Println()
 	return nil
 }
 

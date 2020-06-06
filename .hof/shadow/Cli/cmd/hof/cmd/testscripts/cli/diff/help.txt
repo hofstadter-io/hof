@@ -1,0 +1,7 @@
+### Test "diff --help" prints help
+call __hof diff --help
+
+### Test "diff -h" prints help
+call __hof diff -h
+
+
