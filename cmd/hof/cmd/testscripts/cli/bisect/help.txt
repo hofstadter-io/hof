@@ -1,0 +1,7 @@
+### Test "bisect --help" prints help
+call __hof bisect --help
+
+### Test "bisect -h" prints help
+call __hof bisect -h
+
+

@@ -3,9 +3,9 @@ package cmdtopic
 import (
 	"fmt"
 
-	"strings"
-
 	"github.com/spf13/cobra"
+
+	"strings"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
@@ -22,9 +22,7 @@ var WorkspaceCmd = &cobra.Command{
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
-		cs := strings.Fields(cmd.CommandPath())
-		c := strings.Join(cs[1:], "/")
-		ga.SendGaEvent(c, "<omit>", 0)
+		ga.SendCommandPath(cmd.CommandPath())
 
 	},
 }
@@ -46,15 +44,11 @@ func init() {
 	}
 
 	thelp := func(cmd *cobra.Command, args []string) {
-		cs := strings.Fields(cmd.CommandPath())
-		c := strings.Join(cs[1:], "/")
-		ga.SendGaEvent(c+"/help", "<omit>", 0)
+		ga.SendCommandPath(cmd.CommandPath() + " help")
 		help(cmd, args)
 	}
 	tusage := func(cmd *cobra.Command) error {
-		cs := strings.Fields(cmd.CommandPath())
-		c := strings.Join(cs[1:], "/")
-		ga.SendGaEvent(c+"/usage", "<omit>", 0)
+		ga.SendCommandPath(cmd.CommandPath() + " usage")
 		return usage(cmd)
 	}
 	WorkspaceCmd.SetHelpFunc(thelp)

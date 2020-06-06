@@ -1,0 +1,7 @@
+### Test "branch --help" prints help
+call __hof branch --help
+
+### Test "branch -h" prints help
+call __hof branch -h
+
+

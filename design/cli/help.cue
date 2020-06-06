@@ -4,6 +4,11 @@ import (
 	"github.com/hofstadter-io/hof/design/cli/cmds"
 )
 
+// TBD:   "Ø"
+// TBD:   "α"
+// TBD:   "β"
+// TBD:   "✓"
+
 #RootCustomHelp: """
 hof - a polyglot tool for building software
 
@@ -17,11 +22,12 @@ Initialize and create new hof workspaces:
   \(cmds.#InitCommand.Help)
   \(cmds.#CloneCommand.Help)
 
-Model your designs, generate implementation, run anything:
+Model your designs, generate implementation, run or test anything:
   \(cmds.#DatamodelCommand.Help)
   \(cmds.#GenCommand.Help)
   \(cmds.#RunCommand.Help)
   \(cmds.#RuntimesCommand.Help)
+  \(cmds.#TestCommand.Help)
 
 Labels are used _ for _ (see also 'hof topic labels'):
   \(cmds.#LabelCommand.Help)

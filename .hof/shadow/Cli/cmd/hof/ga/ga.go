@@ -5,12 +5,19 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/hofstadter-io/yagu"
 
 	"github.com/hofstadter-io/hof/cmd/hof/verinfo"
 )
+
+func SendCommandPath(cmd string) {
+	cs := strings.Fields(cmd)
+	c := strings.Join(cs[1:], "/")
+	SendGaEvent(c, "", 0)
+}
 
 func SendGaEvent(action, label string, value int) {
 	if os.Getenv("HOF_TELEMETRY_DISABLED") != "" {

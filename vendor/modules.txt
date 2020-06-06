@@ -208,7 +208,7 @@ github.com/pelletier/go-toml
 github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
-# github.com/rogpeppe/go-internal v1.6.0
+# github.com/rogpeppe/go-internal v1.6.0 => github.com/hofstadter-io/go-internal v1.7.0
 ## explicit
 github.com/rogpeppe/go-internal/imports
 github.com/rogpeppe/go-internal/internal/os/execpath
@@ -420,3 +420,4 @@ gopkg.in/yaml.v3
 # moul.io/http2curl v1.0.0
 moul.io/http2curl
 # cuelang.org/go => github.com/hofstadter-io/cue v0.2.1
+# github.com/rogpeppe/go-internal => github.com/hofstadter-io/go-internal v1.7.0
