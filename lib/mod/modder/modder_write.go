@@ -76,7 +76,7 @@ func (mdr *Modder) WriteVendor() error {
 
 		baseDir := path.Join(mdr.ModsDir, m.Module)
 
-		fmt.Printf("Writing %-48s => %s\n", m.ReplaceModule + "@" + m.ReplaceVersion, baseDir)
+		// fmt.Printf("Writing %-48s => %s\n", m.ReplaceModule + "@" + m.ReplaceVersion, baseDir)
 
 		// copy definite files always
 		files, err := m.FS.ReadDir("/")

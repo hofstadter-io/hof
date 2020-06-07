@@ -14,12 +14,12 @@ import (
 	"testing"
 
 	"github.com/hofstadter-io/hof/lib/gotils/gotooltest"
-	"github.com/hofstadter-io/hof/lib/gotils/internal/os/execpath"
-	"github.com/hofstadter-io/hof/lib/gotils/testscript"
+	"github.com/hofstadter-io/hof/lib/gotils/intern/os/execpath"
+	"github.com/hofstadter-io/hof/script"
 )
 
 func TestMain(m *testing.M) {
-	os.Exit(testscript.RunMain(m, map[string]func() int{
+	os.Exit(script.RunMain(m, map[string]func() int{
 		"testscript": main1,
 	}))
 }
@@ -42,16 +42,16 @@ func TestScripts(t *testing.T) {
 		t.Fatalf("apparently we are not running in module mode?")
 	}
 
-	p := testscript.Params{
+	p := script.Params{
 		Dir: "testdata",
-		Setup: func(env *testscript.Env) error {
+		Setup: func(env *script.Env) error {
 			env.Vars = append(env.Vars,
 				"GOINTERNALMODPATH="+filepath.Dir(gomod),
 				"GONOSUMDB=*",
 			)
 			return nil
 		},
-		Cmds: map[string]func(ts *testscript.TestScript, neg bool, args []string){
+		Cmds: map[string]func(ts *script.Script, neg bool, args []string){
 			"dropgofrompath": dropgofrompath,
 			"setfilegoproxy": setfilegoproxy,
 		},
@@ -59,10 +59,10 @@ func TestScripts(t *testing.T) {
 	if err := gotooltest.Setup(&p); err != nil {
 		t.Fatal(err)
 	}
-	testscript.Run(t, p)
+	script.Run(t, p)
 }
 
-func dropgofrompath(ts *testscript.TestScript, neg bool, args []string) {
+func dropgofrompath(ts *script.Script, neg bool, args []string) {
 	if neg {
 		ts.Fatalf("unsupported: ! dropgofrompath")
 	}
@@ -81,7 +81,7 @@ func dropgofrompath(ts *testscript.TestScript, neg bool, args []string) {
 	ts.Setenv("PATH", strings.Join(newPath, string(filepath.ListSeparator)))
 }
 
-func setfilegoproxy(ts *testscript.TestScript, neg bool, args []string) {
+func setfilegoproxy(ts *script.Script, neg bool, args []string) {
 	if neg {
 		ts.Fatalf("unsupported: ! setfilegoproxy")
 	}

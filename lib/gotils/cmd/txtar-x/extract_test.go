@@ -10,25 +10,25 @@ import (
 	"os"
 	"testing"
 
-	"github.com/hofstadter-io/hof/lib/gotils/testscript"
+	"github.com/hofstadter-io/hof/script"
 )
 
 func TestMain(m *testing.M) {
-	os.Exit(testscript.RunMain(m, map[string]func() int{
+	os.Exit(script.RunMain(m, map[string]func() int{
 		"txtar-x": main1,
 	}))
 }
 
 func TestScripts(t *testing.T) {
-	testscript.Run(t, testscript.Params{
+	script.Run(t, script.Params{
 		Dir: "testdata",
-		Cmds: map[string]func(ts *testscript.TestScript, neg bool, args []string){
+		Cmds: map[string]func(ts *script.Script, neg bool, args []string){
 			"unquote": unquote,
 		},
 	})
 }
 
-func unquote(ts *testscript.TestScript, neg bool, args []string) {
+func unquote(ts *script.Script, neg bool, args []string) {
 	if neg {
 		ts.Fatalf("unsupported: ! unquote")
 	}

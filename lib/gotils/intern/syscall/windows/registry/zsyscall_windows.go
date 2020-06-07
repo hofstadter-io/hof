@@ -6,7 +6,7 @@ import (
 	"syscall"
 	"unsafe"
 
-	"github.com/hofstadter-io/hof/lib/gotils/internal/syscall/windows/sysdll"
+	"github.com/hofstadter-io/hof/lib/gotils/intern/syscall/windows/sysdll"
 )
 
 var _ unsafe.Pointer

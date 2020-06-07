@@ -14,7 +14,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hofstadter-io/hof/lib/gotils/internal/textutil"
+	"github.com/hofstadter-io/hof/lib/gotils/intern/textutil"
 )
 
 // exists reports whether the named file exists.

@@ -8,17 +8,17 @@ import (
 	"os"
 	"testing"
 
-	"github.com/hofstadter-io/hof/lib/gotils/testscript"
+	"github.com/hofstadter-io/hof/script"
 )
 
 func TestMain(m *testing.M) {
-	os.Exit(testscript.RunMain(m, map[string]func() int{
+	os.Exit(script.RunMain(m, map[string]func() int{
 		"txtar-c": main1,
 	}))
 }
 
 func TestScripts(t *testing.T) {
-	testscript.Run(t, testscript.Params{
+	script.Run(t, script.Params{
 		Dir: "testdata",
 	})
 }

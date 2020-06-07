@@ -8,15 +8,15 @@ import (
 	"testing"
 
 	"github.com/hofstadter-io/hof/lib/gotils/gotooltest"
-	"github.com/hofstadter-io/hof/lib/gotils/testscript"
+	"github.com/hofstadter-io/hof/script"
 )
 
 func TestSimple(t *testing.T) {
-	p := testscript.Params{
+	p := script.Params{
 		Dir: "testdata",
 	}
 	if err := gotooltest.Setup(&p); err != nil {
 		t.Fatal(err)
 	}
-	testscript.Run(t, p)
+	script.Run(t, p)
 }

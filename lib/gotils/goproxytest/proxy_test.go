@@ -10,7 +10,7 @@ import (
 
 	"github.com/hofstadter-io/hof/lib/gotils/goproxytest"
 	"github.com/hofstadter-io/hof/lib/gotils/gotooltest"
-	"github.com/hofstadter-io/hof/lib/gotils/testscript"
+	"github.com/hofstadter-io/hof/script"
 )
 
 func TestScripts(t *testing.T) {
@@ -18,9 +18,9 @@ func TestScripts(t *testing.T) {
 	if err != nil {
 		t.Fatalf("cannot start proxy: %v", err)
 	}
-	p := testscript.Params{
+	p := script.Params{
 		Dir: "testdata",
-		Setup: func(e *testscript.Env) error {
+		Setup: func(e *script.Env) error {
 			e.Vars = append(e.Vars,
 				"GOPROXY="+srv.URL,
 				"GONOSUMDB=*",
@@ -31,5 +31,5 @@ func TestScripts(t *testing.T) {
 	if err := gotooltest.Setup(&p); err != nil {
 		t.Fatal(err)
 	}
-	testscript.Run(t, p)
+	script.Run(t, p)
 }

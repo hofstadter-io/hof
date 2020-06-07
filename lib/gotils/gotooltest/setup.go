@@ -18,7 +18,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/hofstadter-io/hof/lib/gotils/testscript"
+	"github.com/hofstadter-io/hof/script"
 )
 
 var (
@@ -84,7 +84,7 @@ func initGoEnv() error {
 //
 // It checks go command can run, but not that it can build or run
 // binaries.
-func Setup(p *testscript.Params) error {
+func Setup(p *script.Params) error {
 	goEnv.once.Do(func() {
 		goEnv.err = initGoEnv()
 	})
@@ -93,7 +93,7 @@ func Setup(p *testscript.Params) error {
 	}
 
 	origSetup := p.Setup
-	p.Setup = func(e *testscript.Env) error {
+	p.Setup = func(e *script.Env) error {
 		e.Vars = goEnviron(e.Vars)
 		if origSetup != nil {
 			return origSetup(e)
@@ -101,7 +101,7 @@ func Setup(p *testscript.Params) error {
 		return nil
 	}
 	if p.Cmds == nil {
-		p.Cmds = make(map[string]func(ts *testscript.TestScript, neg bool, args []string))
+		p.Cmds = make(map[string]func(ts *script.Script, neg bool, args []string))
 	}
 	p.Cmds["go"] = cmdGo
 	origCondition := p.Condition
@@ -143,7 +143,7 @@ func goEnviron(env0 []string) []string {
 	}...)
 }
 
-func cmdGo(ts *testscript.TestScript, neg bool, args []string) {
+func cmdGo(ts *script.Script, neg bool, args []string) {
 	if len(args) < 1 {
 		ts.Fatalf("usage: go subcommand ...")
 	}

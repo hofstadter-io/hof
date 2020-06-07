@@ -44,7 +44,7 @@ testdata module directory as understood by the goproxytest package
 
 The dir argument names to directory to add the module to. If dir is "-",
 the result will instead be written to the standard output in a form
-suitable for embedding directly into a testscript txtar file, with each
+suitable for embedding directly into a script txtar file, with each
 file prefixed with the ".gomodproxy" directory.
 
 In general, txtar-addmod is intended to be used only for very small

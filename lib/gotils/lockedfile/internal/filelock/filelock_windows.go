@@ -10,7 +10,7 @@ import (
 	"os"
 	"syscall"
 
-	"github.com/hofstadter-io/hof/lib/gotils/internal/syscall/windows"
+	"github.com/hofstadter-io/hof/lib/gotils/intern/syscall/windows"
 )
 
 type lockType uint32

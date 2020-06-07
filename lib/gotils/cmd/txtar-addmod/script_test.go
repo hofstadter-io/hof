@@ -11,13 +11,13 @@ import (
 
 	"github.com/hofstadter-io/hof/lib/gotils/goproxytest"
 	"github.com/hofstadter-io/hof/lib/gotils/gotooltest"
-	"github.com/hofstadter-io/hof/lib/gotils/testscript"
+	"github.com/hofstadter-io/hof/script"
 )
 
 var proxyURL string
 
 func TestMain(m *testing.M) {
-	os.Exit(testscript.RunMain(gobinMain{m}, map[string]func() int{
+	os.Exit(script.RunMain(gobinMain{m}, map[string]func() int{
 		"txtar-addmod": main1,
 	}))
 }
@@ -39,9 +39,9 @@ func (m gobinMain) Run() int {
 }
 
 func TestScripts(t *testing.T) {
-	p := testscript.Params{
+	p := script.Params{
 		Dir: "testdata",
-		Setup: func(e *testscript.Env) error {
+		Setup: func(e *script.Env) error {
 			e.Vars = append(e.Vars,
 				"GOPROXY="+proxyURL,
 				"GONOSUMDB=*",
@@ -52,5 +52,5 @@ func TestScripts(t *testing.T) {
 	if err := gotooltest.Setup(&p); err != nil {
 		t.Fatal(err)
 	}
-	testscript.Run(t, p)
+	script.Run(t, p)
 }

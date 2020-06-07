@@ -17,8 +17,8 @@ import (
 
 	"github.com/hofstadter-io/hof/lib/gotils/goproxytest"
 	"github.com/hofstadter-io/hof/lib/gotils/gotooltest"
-	"github.com/hofstadter-io/hof/lib/gotils/testscript"
 	"github.com/hofstadter-io/hof/lib/gotils/txtar"
+	"github.com/hofstadter-io/hof/script"
 )
 
 const (
@@ -131,9 +131,9 @@ func (r runner) FailNow() {
 	panic(failedRun)
 }
 
-func (r runner) Run(n string, f func(t testscript.T)) {
+func (r runner) Run(n string, f func(t script.T)) {
 	// For now we we don't top/tail the run of a subtest. We are currently only
-	// running a single script in a testscript instance, which means that we
+	// running a single script in a cript instance, which means that we
 	// will only have a single subtest.
 	f(r)
 }
@@ -189,7 +189,7 @@ func run(runDir, fileName string, verbose bool, envVars []string) error {
 		return fmt.Errorf("failed to write script for %v: %v", fileName, err)
 	}
 
-	p := testscript.Params{
+	p := script.Params{
 		Dir: runDir,
 	}
 
@@ -199,9 +199,9 @@ func run(runDir, fileName string, verbose bool, envVars []string) error {
 		}
 	}
 
-	addSetup := func(f func(env *testscript.Env) error) {
+	addSetup := func(f func(env *script.Env) error) {
 		origSetup := p.Setup
-		p.Setup = func(env *testscript.Env) error {
+		p.Setup = func(env *script.Env) error {
 			if origSetup != nil {
 				if err := origSetup(env); err != nil {
 					return err
@@ -218,7 +218,7 @@ func run(runDir, fileName string, verbose bool, envVars []string) error {
 		}
 		defer srv.Close()
 
-		addSetup(func(env *testscript.Env) error {
+		addSetup(func(env *script.Env) error {
 			// Add GOPROXY after calling the original setup
 			// so that it overrides any GOPROXY set there.
 			env.Vars = append(env.Vars,
@@ -230,7 +230,7 @@ func run(runDir, fileName string, verbose bool, envVars []string) error {
 	}
 
 	if len(envVars) > 0 {
-		addSetup(func(env *testscript.Env) error {
+		addSetup(func(env *script.Env) error {
 			for _, v := range envVars {
 				if v == "WORK" {
 					// cannot override WORK
@@ -256,7 +256,7 @@ func run(runDir, fileName string, verbose bool, envVars []string) error {
 				panic(fmt.Errorf("unexpected panic: %v [%T]", err, err))
 			}
 		}()
-		testscript.RunT(r, p)
+		script.RunT(r, p)
 	}()
 
 	if err != nil {

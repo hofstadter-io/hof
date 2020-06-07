@@ -227,8 +227,7 @@ Initialize and create new hof workspaces:
 Model your designs, generate implementation, run or test anything:
   datamodel       α     create, view, diff, calculate / migrate, and manage your data models
   gen             ✓     generate code, data, and config from your data models and designs
-  run             α     run polyglot command and scripts seamlessly across runtimes
-  runtimes        α     work with runtimes (go, js, py, bash, custom)
+  run             α     Hof Line Script (HLS) is a successor to bash and python based scripting
   test            α     test all sorts of things
 
 Labels are used _ for _ (see also 'hof topic labels'):
@@ -240,10 +239,10 @@ Learn more about hof and the _ you can do:
   tour            Ø     take a tour of the hof tool
   tutorial        Ø     tutorials to help you learn hof right in hof
 
-Download modules, add content, and execute commands:
+Download modules, add instances or content, and manage runtimes:
   mod             β     mod subcmd is a polyglot dependency management tool based on go mods
   add             α     add dependencies and new components to the current module or workspace
-  cmd             α     run commands from the scripting layer and your _tool.cue files
+  runtimes        α     work with runtimes (go, js, py, bash, docker, cloud-vms, k8s, custom)
 
 Manage resources (see also 'hof topic resources'):
   info            α     print information about known resources
@@ -254,7 +253,7 @@ Manage resources (see also 'hof topic resources'):
   delete          α     delete resources
 
 Configure, Unify, Execute (see also https://cuelang.org):
-  (also a whole bunch of other awesome things)
+  cmd             α     run commands from the scripting layer and your _tool.cue files
   def             α     print consolidated definitions
   eval            α     print consolidated definitions
   export          α     export your data model to various formats
