@@ -17,5 +17,6 @@ docker run \
   -it \
   -e SONAR_TOKEN=$SONAR_TOKEN \
   -e SONAR_BRANCH=$GIT_BRANCH \
+  -e SONAR_CONFIG_FILE="ci/sc/sonar-scanner.properties" \
   -v "$PWD:/usr/src" \
   hof/sonar-scanner-cli
