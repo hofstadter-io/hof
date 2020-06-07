@@ -1,6 +1,6 @@
 // +build !windows
 
-package testscript
+package script
 
 func envvarname(k string) string {
 	return k

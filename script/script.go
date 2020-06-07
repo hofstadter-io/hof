@@ -5,7 +5,7 @@
 // Script-driven tests.
 // See testdata/script/README for an overview.
 
-package testscript
+package script
 
 import (
 	"bytes"
@@ -28,7 +28,7 @@ import (
 	"github.com/parnurzeal/gorequest"
 
 	"github.com/hofstadter-io/hof/lib/gotils/imports"
-	"github.com/hofstadter-io/hof/lib/gotils/internal/os/execpath"
+	"github.com/hofstadter-io/hof/lib/gotils/intern/os/execpath"
 	"github.com/hofstadter-io/hof/lib/gotils/par"
 	"github.com/hofstadter-io/hof/lib/gotils/testenv"
 	"github.com/hofstadter-io/hof/lib/gotils/txtar"
@@ -56,12 +56,12 @@ type Env struct {
 	// values (not just strings) through to custom commands.
 	Values map[interface{}]interface{}
 
-	ts *TestScript
+	ts *Script
 }
 
 // Value returns a value from Env.Values, or nil if no
 // value was set by Setup.
-func (ts *TestScript) Value(key interface{}) interface{} {
+func (ts *Script) Value(key interface{}) interface{} {
 	return ts.values[key]
 }
 
@@ -131,12 +131,12 @@ type Params struct {
 
 	// Cmds holds a map of commands available to the script.
 	// It will only be consulted for commands not part of the standard set.
-	Cmds map[string]func(ts *TestScript, neg int, args []string)
+	Cmds map[string]func(ts *Script, neg int, args []string)
 
 	// Funcs holds a map of functions available to the script.
 	// These work like exec and use 'call' instead.
 	// Use these to facilitate code coverage (exec does not capture this).
-	Funcs map[string]func(ts *TestScript, args []string) error
+	Funcs map[string]func(ts *Script, args []string) error
 
 	// TestWork specifies that working directories should be
 	// left intact for later inspection.
@@ -259,7 +259,7 @@ func RunT(t T, p Params) {
 		name := strings.TrimSuffix(filepath.Base(file), ".txt")
 		t.Run(name, func(t T) {
 			t.Parallel()
-			ts := &TestScript{
+			ts := &Script{
 				t:             t,
 				testTempDir:   testTempDir,
 				name:          name,
@@ -286,8 +286,8 @@ func RunT(t T, p Params) {
 	}
 }
 
-// A TestScript holds execution state for a single test script.
-type TestScript struct {
+// A Script holds execution state for a single test script.
+type Script struct {
 	params        Params
 	t             T
 	testTempDir   string
@@ -316,7 +316,7 @@ type TestScript struct {
 
 	httpClients map[string]*gorequest.SuperAgent
 
-	ctxt context.Context // per TestScript context
+	ctxt context.Context // per Script context
 }
 
 type backgroundCmd struct {
@@ -327,7 +327,7 @@ type backgroundCmd struct {
 
 // setup sets up the test execution temporary directory and environment.
 // It returns the comment section of the txtar archive.
-func (ts *TestScript) setup() string {
+func (ts *Script) setup() string {
 	ts.workdir = filepath.Join(ts.testTempDir, "script-"+ts.name)
 	ts.Check(os.MkdirAll(filepath.Join(ts.workdir, "tmp"), 0777))
 	env := &Env{
@@ -385,7 +385,7 @@ func (ts *TestScript) setup() string {
 }
 
 // run runs the test script.
-func (ts *TestScript) run() {
+func (ts *Script) run() {
 	// Truncate log at end of last phase marker,
 	// discarding details of successful phase.
 	rewind := func() {
@@ -553,7 +553,7 @@ Script:
 	}
 }
 
-func (ts *TestScript) applyScriptUpdates() {
+func (ts *Script) applyScriptUpdates() {
 	if len(ts.scriptUpdates) == 0 {
 		return
 	}
@@ -588,7 +588,7 @@ func (ts *TestScript) applyScriptUpdates() {
 }
 
 // condition reports whether the given condition is satisfied.
-func (ts *TestScript) condition(cond string) (bool, error) {
+func (ts *Script) condition(cond string) (bool, error) {
 	switch cond {
 	case "short":
 		return testing.Short(), nil
@@ -623,7 +623,7 @@ func (ts *TestScript) condition(cond string) (bool, error) {
 // Helpers for command implementations.
 
 // abbrev abbreviates the actual work directory in the string s to the literal string "$WORK".
-func (ts *TestScript) abbrev(s string) string {
+func (ts *Script) abbrev(s string) string {
 	s = strings.Replace(s, ts.workdir, "$WORK", -1)
 	if *testWork || ts.params.TestWork {
 		// Expose actual $WORK value in environment dump on first line of work script,
@@ -637,7 +637,7 @@ func (ts *TestScript) abbrev(s string) string {
 // of the test. If Defer is called multiple times, the
 // defers are executed in reverse order (similar
 // to Go's defer statement)
-func (ts *TestScript) Defer(f func()) {
+func (ts *Script) Defer(f func()) {
 	old := ts.deferred
 	ts.deferred = func() {
 		defer old()
@@ -646,21 +646,21 @@ func (ts *TestScript) Defer(f func()) {
 }
 
 // Check calls ts.Fatalf if err != nil.
-func (ts *TestScript) Check(err error) {
+func (ts *Script) Check(err error) {
 	if err != nil {
 		ts.Fatalf("%v", err)
 	}
 }
 
 // Logf appends the given formatted message to the test log transcript.
-func (ts *TestScript) Logf(format string, args ...interface{}) {
+func (ts *Script) Logf(format string, args ...interface{}) {
 	format = strings.TrimSuffix(format, "\n")
 	fmt.Fprintf(&ts.log, format, args...)
 	ts.log.WriteByte('\n')
 }
 
 // call runs the given function and then returns collected standard output and standard error.
-func (ts *TestScript) call(function string, args ...string) (string, string, error) {
+func (ts *Script) call(function string, args ...string) (string, string, error) {
 
 	fn, ok := ts.params.Funcs[function]
 	if !ok {
@@ -717,7 +717,7 @@ func (ts *TestScript) call(function string, args ...string) (string, string, err
 
 // exec runs the given command line (an actual subprocess, not simulated)
 // in ts.cd with environment ts.env and then returns collected standard output and standard error.
-func (ts *TestScript) exec(command string, args ...string) (stdout, stderr string, err error) {
+func (ts *Script) exec(command string, args ...string) (stdout, stderr string, err error) {
 	cmd, err := ts.buildExecCmd(command, args...)
 	if err != nil {
 		return "", "", err
@@ -738,7 +738,7 @@ func (ts *TestScript) exec(command string, args ...string) (stdout, stderr strin
 
 // execBackground starts the given command line (an actual subprocess, not simulated)
 // in ts.cd with environment ts.env.
-func (ts *TestScript) execBackground(command string, args ...string) (*exec.Cmd, error) {
+func (ts *Script) execBackground(command string, args ...string) (*exec.Cmd, error) {
 	cmd, err := ts.buildExecCmd(command, args...)
 	if err != nil {
 		return nil, err
@@ -753,7 +753,7 @@ func (ts *TestScript) execBackground(command string, args ...string) (*exec.Cmd,
 	return cmd, cmd.Start()
 }
 
-func (ts *TestScript) buildExecCmd(command string, args ...string) (*exec.Cmd, error) {
+func (ts *Script) buildExecCmd(command string, args ...string) (*exec.Cmd, error) {
 	if filepath.Base(command) == command {
 		if lp, err := execpath.Look(command, ts.Getenv); err != nil {
 			return nil, err
@@ -767,7 +767,7 @@ func (ts *TestScript) buildExecCmd(command string, args ...string) (*exec.Cmd, e
 // BackgroundCmds returns a slice containing all the commands that have
 // been started in the background since the most recent wait command, or
 // the start of the script if wait has not been called.
-func (ts *TestScript) BackgroundCmds() []*exec.Cmd {
+func (ts *Script) BackgroundCmds() []*exec.Cmd {
 	cmds := make([]*exec.Cmd, len(ts.background))
 	for i, b := range ts.background {
 		cmds[i] = b.cmd
@@ -804,7 +804,7 @@ func interruptProcess(p *os.Process) {
 
 // Exec runs the given command and saves its stdout and stderr so
 // they can be inspected by subsequent script commands.
-func (ts *TestScript) Exec(command string, args ...string) error {
+func (ts *Script) Exec(command string, args ...string) error {
 	var err error
 	ts.stdout, ts.stderr, err = ts.exec(command, args...)
 	if ts.stdout != "" {
@@ -817,7 +817,7 @@ func (ts *TestScript) Exec(command string, args ...string) error {
 }
 
 // expand applies environment variable expansion to the string s.
-func (ts *TestScript) expand(s string) string {
+func (ts *Script) expand(s string) string {
 	return os.Expand(s, func(key string) string {
 		if key1 := strings.TrimSuffix(key, "@R"); len(key1) != len(key) {
 			return regexp.QuoteMeta(ts.Getenv(key1))
@@ -827,14 +827,14 @@ func (ts *TestScript) expand(s string) string {
 }
 
 // fatalf aborts the test with the given failure message.
-func (ts *TestScript) Fatalf(format string, args ...interface{}) {
+func (ts *Script) Fatalf(format string, args ...interface{}) {
 	fmt.Fprintf(&ts.log, "FAIL: %s:%d: %s\n", ts.file, ts.lineno, fmt.Sprintf(format, args...))
 	ts.t.FailNow()
 }
 
 // MkAbs interprets file relative to the test script's current directory
 // and returns the corresponding absolute path.
-func (ts *TestScript) MkAbs(file string) string {
+func (ts *Script) MkAbs(file string) string {
 	if filepath.IsAbs(file) {
 		return file
 	}
@@ -848,7 +848,7 @@ func (ts *TestScript) MkAbs(file string) string {
 // the most recent exec or wait command respectively.
 //
 // If the file cannot be read, the script fails.
-func (ts *TestScript) ReadFile(file string) string {
+func (ts *Script) ReadFile(file string) string {
 	switch file {
 	case "stdout":
 		return ts.stdout
@@ -863,13 +863,13 @@ func (ts *TestScript) ReadFile(file string) string {
 }
 
 // Setenv sets the value of the environment variable named by the key.
-func (ts *TestScript) Setenv(key, value string) {
+func (ts *Script) Setenv(key, value string) {
 	ts.env = append(ts.env, key+"="+value)
 	ts.envMap[envvarname(key)] = value
 }
 
 // Getenv gets the value of the environment variable named by the key.
-func (ts *TestScript) Getenv(key string) string {
+func (ts *Script) Getenv(key string) string {
 	return ts.envMap[envvarname(key)]
 }
 
@@ -877,7 +877,7 @@ func (ts *TestScript) Getenv(key string) string {
 // subject to environment variable expansion (but not resplitting).
 // Single quotes around text disable splitting and expansion.
 // To embed a single quote, double it: 'Don''t communicate by sharing memory.'
-func (ts *TestScript) parse(line string) []string {
+func (ts *Script) parse(line string) []string {
 	ts.line = line
 
 	var (
@@ -974,7 +974,7 @@ func tempEnvName() string {
 const HTTP2_GOAWAY_CHECK = "http2: server sent GOAWAY and closed the connection"
 
 // call runs the given function and then returns collected standard output and standard error.
-func (ts *TestScript) http(args []string) (string, string, int, error) {
+func (ts *Script) http(args []string) (string, string, int, error) {
 	// TODO, turn this into a log line
 	// fmt.Println("HTTP:", args)
 
@@ -1006,7 +1006,7 @@ func (ts *TestScript) http(args []string) (string, string, int, error) {
 	return body, "", resp.StatusCode, nil
 }
 
-func (ts *TestScript) manageHttpClient(args []string) error {
+func (ts *Script) manageHttpClient(args []string) error {
 	L := len(args)
 	if L < 1 {
 		ts.Fatalf("usage: http client [new,del] <name> http-args...")
@@ -1053,7 +1053,7 @@ func (ts *TestScript) manageHttpClient(args []string) error {
 	return nil
 }
 
-func (ts *TestScript) reqFromArgs(args []string) (*gorequest.SuperAgent, error) {
+func (ts *Script) reqFromArgs(args []string) (*gorequest.SuperAgent, error) {
 	// first arg is a known client
 	if req, ok := ts.httpClients[args[0]]; ok {
 		R := req.Clone()
@@ -1062,21 +1062,21 @@ func (ts *TestScript) reqFromArgs(args []string) (*gorequest.SuperAgent, error) 
 	return ts.newReqFromArgs(args)
 }
 
-func (ts *TestScript) newReqFromArgs(args []string) (*gorequest.SuperAgent, error) {
+func (ts *Script) newReqFromArgs(args []string) (*gorequest.SuperAgent, error) {
 	// otherwise create a one-time req obj
 	req := gorequest.New()
 	req = ts.applyDefaultsToReq(req)
 	return ts.applyArgsToReq(req, args)
 }
 
-func (ts *TestScript) applyDefaultsToReq(req *gorequest.SuperAgent) *gorequest.SuperAgent {
+func (ts *Script) applyDefaultsToReq(req *gorequest.SuperAgent) *gorequest.SuperAgent {
 
 	req.Method = "GET"
 
 	return req
 }
 
-func (ts *TestScript) applyArgsToReq(req *gorequest.SuperAgent, args []string) (*gorequest.SuperAgent, error) {
+func (ts *Script) applyArgsToReq(req *gorequest.SuperAgent, args []string) (*gorequest.SuperAgent, error) {
 	var err error
 	for _, arg := range args {
 		req, err = ts.applyArgToReq(req, arg)
@@ -1088,7 +1088,7 @@ func (ts *TestScript) applyArgsToReq(req *gorequest.SuperAgent, args []string) (
 	return req, nil
 }
 
-func (ts *TestScript) applyArgToReq(req *gorequest.SuperAgent, arg string) (*gorequest.SuperAgent, error) {
+func (ts *Script) applyArgToReq(req *gorequest.SuperAgent, arg string) (*gorequest.SuperAgent, error) {
 	// fmt.Printf("  APPLY: %q\n", flds)
 
 	flds := strings.SplitN(arg, "=", 2)

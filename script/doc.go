@@ -320,4 +320,4 @@ for manual debugging of failing tests:
 	func F() { p2.F() }
 	$
 */
-package testscript
+package script

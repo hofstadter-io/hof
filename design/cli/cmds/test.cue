@@ -23,6 +23,15 @@ import (
 			...
 		},
 		{
+			Name:    "keep"
+			Type:    "bool"
+			Default: "false"
+			Help:    "keep any generated test files"
+			Long:    "keep"
+			Short:   ""
+			...
+		},
+		{
 			Name:    "suite"
 			Type:    "[]string"
 			Default: "nil"

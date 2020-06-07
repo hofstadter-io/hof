@@ -9,7 +9,7 @@ import (
 
 	"strings"
 
-	"github.com/hofstadter-io/hof/lib/gotils/testscript"
+	"github.com/hofstadter-io/hof/script"
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/lib/runtime"
@@ -365,7 +365,7 @@ func RunErr() error {
 	return RootCmd.Execute()
 }
 
-func CallTS(ts *testscript.TestScript, args []string) error {
+func CallTS(ts *script.Script, args []string) error {
 	RootCmd.SetArgs(args)
 
 	err := RootCmd.Execute()

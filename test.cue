@@ -21,7 +21,7 @@ human: {
 		dir: "lib/mod"
 		scripts: [ "testdata/*.txt" ]
 	}
-	st: _ @test(exec,lib/st)
+	st: _ @test(exec=bash,lib/st)
 	st: {
 		dir: "lib/structural"
 		script: """

@@ -81,6 +81,7 @@ Testers:
 func init() {
 
 	TestCmd.Flags().BoolVarP(&(flags.TestFlags.List), "list", "", false, "list matching tests that would run")
+	TestCmd.Flags().BoolVarP(&(flags.TestFlags.Keep), "keep", "", false, "keep any generated test files")
 	TestCmd.Flags().StringSliceVarP(&(flags.TestFlags.Suite), "suite", "s", nil, "<name>: _ @test(suite)'s to run")
 	TestCmd.Flags().StringSliceVarP(&(flags.TestFlags.Tester), "tester", "t", nil, "<name>: _ @test(<tester>)'s to run")
 	TestCmd.Flags().StringSliceVarP(&(flags.TestFlags.Environment), "env", "e", nil, "environment")

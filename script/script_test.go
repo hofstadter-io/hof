@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package testscript
+package script
 
 import (
 	"errors"
@@ -139,12 +139,12 @@ func TestScripts(t *testing.T) {
 	testDeferCount := 0
 	Run(t, Params{
 		Dir: "testdata",
-		Cmds: map[string]func(ts *TestScript, neg int, args []string){
+		Cmds: map[string]func(ts *Script, neg int, args []string){
 			"setSpecialVal":    setSpecialVal,
 			"ensureSpecialVal": ensureSpecialVal,
 			"interrupt":        interrupt,
 			"waitfile":         waitFile,
-			"testdefer": func(ts *TestScript, neg int, args []string) {
+			"testdefer": func(ts *Script, neg int, args []string) {
 				testDeferCount++
 				n := testDeferCount
 				ts.Defer(func() {
@@ -154,13 +154,13 @@ func TestScripts(t *testing.T) {
 					testDeferCount--
 				})
 			},
-			"setup-filenames": func(ts *TestScript, neg int, want []string) {
+			"setup-filenames": func(ts *Script, neg int, want []string) {
 				got := ts.Value("setupFilenames")
 				if !reflect.DeepEqual(want, got) {
 					ts.Fatalf("setup did not see expected files; got %q want %q", got, want)
 				}
 			},
-			"test-values": func(ts *TestScript, neg int, args []string) {
+			"test-values": func(ts *Script, neg int, args []string) {
 				if ts.Value("somekey") != 1234 {
 					ts.Fatalf("test-values did not see expected value")
 				}
@@ -171,7 +171,7 @@ func TestScripts(t *testing.T) {
 					ts.Fatalf("test-values t does not implement testing.TB")
 				}
 			},
-			"testreadfile": func(ts *TestScript, neg int, args []string) {
+			"testreadfile": func(ts *Script, neg int, args []string) {
 				if len(args) != 1 {
 					ts.Fatalf("testreadfile <filename>")
 				}
@@ -181,7 +181,7 @@ func TestScripts(t *testing.T) {
 					ts.Fatalf("reading %q; got %q want %q", args[0], got, want)
 				}
 			},
-			"testscript-update": func(ts *TestScript, neg int, args []string) {
+			"testscript-update": func(ts *Script, neg int, args []string) {
 				// Run testscript in testscript. Oooh! Meta!
 				if len(args) != 1 {
 					ts.Fatalf("testscript <dir>")

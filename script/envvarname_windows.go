@@ -1,4 +1,4 @@
-package testscript
+package script
 
 import "strings"
 
