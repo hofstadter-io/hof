@@ -188,13 +188,15 @@ func (R *Runtime) LoadGenerators() []error {
 
 func (R *Runtime) RunGenerators() []error {
 	var errs []error
-	var err error
+	// var err error
 
+	/*
 	R.Shadow, err = gen.LoadShadow("", R.verbose)
 	if err != nil {
 		errs = append(errs, err)
 		return errs
 	}
+	*/
 
 	// Load shadow, can this be done in parallel with the last step?
 	// Don't do in parallel yet, Cue is slow and hungry for memory @ v0.0.16
@@ -227,10 +229,10 @@ func (R *Runtime) WriteOutput() []error {
 
 
 	for _, G := range R.Generators {
-		// fmt.Println("Write Output", G.Name)
 		if G.Disabled {
 			continue
 		}
+		fmt.Println("Write Output", G.Name)
 
 		writestart := time.Now()
 

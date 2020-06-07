@@ -49,6 +49,3 @@ UserSecret: g_cuefig.#HofGenerator & {
   Outdir: "gen/"
   Config: d_cfg.#HofUserSecret
 }
-
-Foo: _ @gen(foo,bar=fuck)
-
