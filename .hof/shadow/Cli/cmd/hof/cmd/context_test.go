@@ -3,8 +3,8 @@ package cmd_test
 import (
 	"testing"
 
+	"github.com/hofstadter-io/hof/lib/gotils/testscript"
 	"github.com/hofstadter-io/hof/lib/yagu"
-	"github.com/rogpeppe/go-internal/testscript"
 
 	"github.com/hofstadter-io/hof/cmd/hof/cmd"
 )

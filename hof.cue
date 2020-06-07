@@ -8,37 +8,47 @@ import (
 	d_cfg "github.com/hofstadter-io/hof/design/config"
 )
 
-HofGenCli: g_cli.#HofGenerator & {
+Cli: _ @gen(cli,hof)
+Cli: g_cli.#HofGenerator & {
   Outdir: "./"
   Cli: d_cli.#CLI
 }
 
-HofGenContext: g_cuefig.#HofGenerator & {
+Context: _ @gen(cuefig,context,ctx)
+Context: g_cuefig.#HofGenerator & {
   Outdir: "gen/"
   Config: d_cfg.#HofContext
 }
 
-HofGenConfig: g_cuefig.#HofGenerator & {
+Config: _ @gen(cuefig,config,cfg)
+Config: g_cuefig.#HofGenerator & {
   Outdir: "gen/"
   Config: d_cfg.#HofConfig
 }
 
-HofGenSecret: g_cuefig.#HofGenerator & {
+Secret: _ @gen(cuefig,secret,shh,ssh)
+Secret: g_cuefig.#HofGenerator & {
   Outdir: "gen/"
   Config: d_cfg.#HofSecret
 }
 
-HofGenUserContext: g_cuefig.#HofGenerator & {
+UserContext: _ @gen(cuefig,ucontext,uctx)
+UserContext: g_cuefig.#HofGenerator & {
   Outdir: "gen/"
   Config: d_cfg.#HofUserContext
 }
 
-HofGenUserConfig: g_cuefig.#HofGenerator & {
+UserConfig: _ @gen(cuefig,uconfig,ucfg)
+UserConfig: g_cuefig.#HofGenerator & {
   Outdir: "gen/"
   Config: d_cfg.#HofUserConfig
 }
 
-HofGenUserSecret: g_cuefig.#HofGenerator & {
+UserSecret: _ @gen(cuefig,usecret,ushh,ussh)
+UserSecret: g_cuefig.#HofGenerator & {
   Outdir: "gen/"
   Config: d_cfg.#HofUserSecret
 }
+
+Foo: _ @gen(foo,bar=fuck)
+

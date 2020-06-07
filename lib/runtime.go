@@ -14,6 +14,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/mattn/go-zglob"
 
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/gen"
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
@@ -21,7 +22,7 @@ import (
 type Runtime struct {
 	// Setup options
 	Entrypoints []string
-	Expressions []string
+	Flagpole flags.GenFlagpole
 
 	// TODO configuration
 	mode string
@@ -39,10 +40,10 @@ type Runtime struct {
 	Shadow map[string]*gen.File
 }
 
-func NewRuntime(entrypoints, expressions [] string) (*Runtime) {
+func NewRuntime(entrypoints [] string, cmdflags flags.GenFlagpole) (*Runtime) {
 	return &Runtime {
 		Entrypoints: entrypoints,
-		Expressions: expressions,
+		Flagpole: cmdflags,
 
 		CueRT: &cue.Runtime{},
 
@@ -60,8 +61,8 @@ func (R *Runtime) LoadCue() []error {
 
 	for _, bi := range BIS {
 		if bi.Err != nil {
-			fmt.Println("BI ERR", bi.Err, bi.Incomplete, bi.DepsErrors)
-		  es := errors.Errors(bi.Err)
+			fmt.Println("LoadCue:", bi.Err, bi.Incomplete, bi.DepsErrors)
+			es := errors.Errors(bi.Err)
 			for _, e := range es {
 				errs = append(errs, e.(error))
 			}
@@ -101,13 +102,12 @@ func (R *Runtime) LoadCue() []error {
 		return errs
 	}
 
-	R.ExtractHofItems()
+	R.ExtractGenerators()
 
 	return errs
 }
 
-func (R *Runtime) ExtractHofItems() {
-	// TODO, what about other things in top level values? or instances?
+func (R *Runtime) ExtractGenerators() {
 	// loop ever all top level structs
 	for _, S := range R.TopLevelStructs {
 
@@ -117,29 +117,42 @@ func (R *Runtime) ExtractHofItems() {
 
 			label := iter.Label()
 			value := iter.Value()
+			attrs := value.Attributes()
 
-			// is generator?
-			if strings.HasPrefix(label, "HofGen") {
-				short := strings.TrimPrefix(label, "HofGen")
-				G := gen.NewGenerator(short, value)
-				R.Generators[short] = G
+			// find top-level with gen attr
+			hasgen := false
+			for _, A := range attrs {
+				// does it have "@gen()"
+				if A.Name() == "gen" {
 
-				// Disbale if not in expressions
-				if len(R.Expressions) > 0 {
-					found := false
-					for _, expr := range R.Expressions {
-						if short == expr {
-							found = true
-							break
+					// are there flags to match?
+					if len(R.Flagpole.Generator) > 0 {
+						vals := A.Vals()
+						match := false
+						for _, g := range R.Flagpole.Generator {
+							if _, ok := vals[g]; ok {
+								match = true
+								break
+							}
+						}
+
+						if !match {
+							continue
 						}
 					}
 
-					if !found {
-						G.Disabled = true
-					}
+					// passed, we should generate
+					hasgen = true
+					break
 				}
 			}
-			// end generator
+
+			if !hasgen {
+				continue
+			}
+
+			G := gen.NewGenerator(label, value)
+			R.Generators[label] = G
 		}
 	}
 }

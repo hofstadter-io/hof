@@ -1,0 +1,5 @@
+# Hello world test
+
+exec echo 'hello world'
+status 0
+

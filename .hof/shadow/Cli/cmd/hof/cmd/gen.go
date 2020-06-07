@@ -17,7 +17,7 @@ var genLong = `  generate all the things, from code to data to config...`
 
 func init() {
 
-	GenCmd.Flags().BoolVarP(&(flags.GenFlags.Stats), "stats", "", false, "Print generator statistics")
+	GenCmd.Flags().BoolVarP(&(flags.GenFlags.Stats), "stats", "s", false, "Print generator statistics")
 	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.Generator), "generator", "g", nil, "Generators to run, default is all discovered")
 }
 

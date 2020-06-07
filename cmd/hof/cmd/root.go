@@ -9,7 +9,7 @@ import (
 
 	"strings"
 
-	"github.com/rogpeppe/go-internal/testscript"
+	"github.com/hofstadter-io/hof/lib/gotils/testscript"
 	"github.com/spf13/cobra"
 
 

@@ -21,7 +21,7 @@ import (
 			Default: "false"
 			Help:    "Print generator statistics"
 			Long:    "stats"
-			Short:   ""
+			Short:   "s"
 		},
 		{
 			Name:    "generator"

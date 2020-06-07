@@ -11,12 +11,9 @@ import (
 func Gen(args []string, cmdflags flags.GenFlagpole) (error) {
 	verystart := time.Now()
 
-	entrypoints := args
-	expressions := []string{}
-
 	var errs []error
 
-	R := NewRuntime(entrypoints, expressions)
+	R := NewRuntime(args, cmdflags)
 
 	errs = R.LoadCue()
 	if len(errs) > 0 {
@@ -45,8 +42,10 @@ func Gen(args []string, cmdflags flags.GenFlagpole) (error) {
 	elapsed := veryend.Sub(verystart).Round(time.Millisecond)
 
 
-	R.PrintStats()
-	fmt.Printf("\nTotal Elapsed Time: %s\n\n", elapsed)
+	if cmdflags.Stats {
+		R.PrintStats()
+		fmt.Printf("\nTotal Elapsed Time: %s\n\n", elapsed)
+	}
 
 	if len(errsG) > 0 {
 		for _, e := range errsG {

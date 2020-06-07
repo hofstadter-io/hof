@@ -25,7 +25,7 @@ require (
 	github.com/mholt/archiver v3.1.1+incompatible // indirect
 	github.com/naoina/toml v0.1.1
 	github.com/parnurzeal/gorequest v0.2.16
-	github.com/rogpeppe/go-internal v1.6.0
+	github.com/rogpeppe/go-internal v1.6.0 // indirect
 	github.com/sergi/go-diff v1.1.0
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/viper v1.6.2 // indirect
@@ -35,6 +35,7 @@ require (
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	golang.org/x/sys v0.0.0-20200428200454-593003d681fa // indirect
 	golang.org/x/text v0.3.2
+	gopkg.in/errgo.v2 v2.1.0
 	gopkg.in/src-d/go-git.v4 v4.13.1 // indirect
 	gopkg.in/yaml.v2 v2.2.8 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
@@ -44,7 +45,6 @@ require (
 // https://github.com/cuelang/cue/pull/413
 //
 // we have an artificial version bump on our fork
-replace cuelang.org/go => github.com/hofstadter-io/cue v0.2.1
-// replace cuelang.org/go => ../../cue/cue
+// replace cuelang.org/go => github.com/hofstadter-io/cue v0.2.1
+replace cuelang.org/go => ../../cue/cue
 
-replace github.com/rogpeppe/go-internal => github.com/hofstadter-io/go-internal v1.7.0
