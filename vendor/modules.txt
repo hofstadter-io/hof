@@ -1,4 +1,4 @@
-# cuelang.org/go v0.2.0 => ../../cue/cue
+# cuelang.org/go v0.2.0 => github.com/hofstadter-io/cue v0.2.2
 ## explicit
 cuelang.org/go/cue
 cuelang.org/go/cue/ast
@@ -413,4 +413,4 @@ gopkg.in/yaml.v2
 gopkg.in/yaml.v3
 # moul.io/http2curl v1.0.0
 moul.io/http2curl
-# cuelang.org/go => ../../cue/cue
+# cuelang.org/go => github.com/hofstadter-io/cue v0.2.2

@@ -45,6 +45,6 @@ require (
 // https://github.com/cuelang/cue/pull/413
 //
 // we have an artificial version bump on our fork
-// replace cuelang.org/go => github.com/hofstadter-io/cue v0.2.1
-replace cuelang.org/go => ../../cue/cue
+replace cuelang.org/go => github.com/hofstadter-io/cue v0.2.2
+// replace cuelang.org/go => ../../cue/cue
 
