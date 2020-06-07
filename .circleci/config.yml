@@ -10,11 +10,18 @@ jobs:
   build:
     docker:
       # specify the version
-      - image: circleci/golang:1.14
+      - image: circleci/golang:1.14-alpine
 
     working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
     steps:
       - checkout
+
+      # Install and prop docker
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Install Docker client
+          command: apk add docker-cli
 
       # setup and dep fetches
       - run: |
@@ -39,7 +46,7 @@ jobs:
       # complete testing setup with tasks like collectiong and reporting coverage statistics
       - run: |
           # run all tests
-          hof test
+          hof test test.cue
 
       # Upload reports now that they have been generated and collected
       - run: |
