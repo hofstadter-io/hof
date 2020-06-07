@@ -1,7 +1,8 @@
 package hof
 
-generated: _ @test(suite,gen/cli)
-generated: {
+// Test generated code
+gen: _ @test(suite,gen)
+gen: {
 	// TODO before / after
 	cmds: _ @test(script)
 	cmds: {
@@ -14,8 +15,18 @@ generated: {
 	}
 }
 
-human: _ @test(suite,ppl)
-human: {
+// Test Hof Linear Script (hls)
+hls: _ @test(suite,hls)
+hls: {
+	self: _ @test(script,hsl,self)
+	self: {
+		dir: "script"
+		scripts: [ "testdata/*.txt" ]
+	}
+}
+
+hof: _ @test(suite,hof)
+hof: {
 	mod: _ @test(script,lib/mod)
 	mod: {
 		dir: "lib/mod"
