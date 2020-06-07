@@ -232,7 +232,6 @@ func (R *Runtime) WriteOutput() []error {
 		if G.Disabled {
 			continue
 		}
-		fmt.Println("Write Output", G.Name)
 
 		writestart := time.Now()
 
@@ -334,7 +333,7 @@ func (R *Runtime) WriteOutput() []error {
 		// Cleanup File & Shadow
 		// fmt.Println("Clean Shadow", G.Name)
 		for f, _ := range G.Shadow {
-			fmt.Println("  -", G.Name, f, strings.TrimPrefix(f, G.Name + "/"))
+			// fmt.Println("  -", G.Name, f, strings.TrimPrefix(f, G.Name + "/"))
 			err := os.Remove(f)
 			if err != nil {
 				// fmt.Println("GOT HERE 1")
@@ -364,8 +363,8 @@ func (R *Runtime) WriteOutput() []error {
 		} else {
 			idx += 1
 		}
-		fmt.Println("  +", f, idx)
-		fmt.Println("  -", f, f[idx:])
+		// fmt.Println("  +", f, idx)
+		// fmt.Println("  -", f, f[idx:])
 		err := os.Remove(f[idx:])
 		if err != nil {
 			// fmt.Println("GOT HERE 1")

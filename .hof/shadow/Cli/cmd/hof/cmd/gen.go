@@ -6,8 +6,6 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/spf13/viper"
-
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"

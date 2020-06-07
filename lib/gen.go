@@ -9,6 +9,7 @@ import (
 )
 
 func Gen(args []string, cmdflags flags.GenFlagpole) (error) {
+
 	verystart := time.Now()
 
 	var errs []error
