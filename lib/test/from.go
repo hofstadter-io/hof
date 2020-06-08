@@ -43,16 +43,23 @@ func RunTestFromArgsFlags(args []string, cmdflags flags.TestFlagpole) (error) {
 
 	// Run all of our suites
 	_, err = RunSuites(suites, -1)
-	if err != nil {
-		return err
-	}
-
-	// TODO, print errors
 
 	// Print our final tests and stats
 	fmt.Printf("\n\n\n======= FINAL RESULTS ======\n")
 	printTests(suites, true)
 	fmt.Println("============================")
+
+	// Finally, check for errors and exit appropriately
+	if err != nil {
+		return err
+	}
+
+	for _, s := range suites {
+		if len(s.Errors) > 0 {
+			return fmt.Errorf("\nErrors during testing")
+		}
+	}
+
 
 	return nil
 }

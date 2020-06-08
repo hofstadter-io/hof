@@ -38,7 +38,8 @@ jobs:
 
       # build Hof cli
       - run: |
-          go build -o hof cmd/hof/main.go
+          go build -o /usr/local/bin/hof cmd/hof/main.go
+
 
       # fetch Cue dependencies
       #- run: |
@@ -50,7 +51,7 @@ jobs:
       # complete testing setup with tasks like collectiong and reporting coverage statistics
       - run: |
           # run all tests
-          ./hof test test.cue
+          hof test test.cue -s
 
       # Build our custom SonarCloud image
       - run: |

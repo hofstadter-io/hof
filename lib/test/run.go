@@ -38,7 +38,6 @@ func RunSuites(suites []Suite, verbose int) (TS Stats, err error) {
 		suites[s] = S
 	}
 
-
 	// stats work
 	TS.End = time.Now()
 
