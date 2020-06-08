@@ -1,6 +1,8 @@
 package test
 
 import (
+	"fmt"
+
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/cuetils"
 )
@@ -48,7 +50,9 @@ func RunTestFromArgsFlags(args []string, cmdflags flags.TestFlagpole) (error) {
 	// TODO, print errors
 
 	// Print our final tests and stats
+	fmt.Printf("\n\n\n======= FINAL RESULTS ======\n")
 	printTests(suites, true)
+	fmt.Println("============================")
 
 	return nil
 }

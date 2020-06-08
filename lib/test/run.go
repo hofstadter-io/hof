@@ -2,6 +2,8 @@ package test
 
 import (
 	"fmt"
+	"os/exec"
+	"strings"
 	"time"
 )
 
@@ -84,6 +86,11 @@ func RunTest(T *Tester, verbose int) (err error) {
 		T.Stats.Fail += 1
 		T.Errors = append(T.Errors, err)
 		err = fmt.Errorf("Test Failed: %s", T.Name)
+
+		fmt.Println("!!!!!!!  BEG Failure: ", T.Name)
+		fmt.Println(T.Output)
+		fmt.Println(T.Errors)
+		fmt.Println("!!!!!!   END Failure: ", T.Name)
 	} else {
 		T.Stats.Pass += 1
 	}
@@ -91,16 +98,86 @@ func RunTest(T *Tester, verbose int) (err error) {
 	return err
 }
 
-func RunBash(T *Tester, verbose int) (err error) {
-	// fmt.Println("bash:", T.Name)
+type BaseTester struct {
+	Dir    string
+	Env    map[string]string
+	Sysenv bool
+}
 
-	return nil
+type BashTester struct {
+	BaseTester
+
+	Script string
+}
+
+func RunBash(T *Tester, verbose int) (err error) {
+	// Decode our BT
+	var BT BashTester
+	err = T.Value.Decode(&BT)
+
+	// Check for errors and validate
+	if err != nil {
+		return err
+	}
+	if BT.Script == "" {
+		return fmt.Errorf("Bash tester %q has empty script field", T.Name)
+	}
+
+	// Prep our command
+	cmd := exec.Command("bash", "-p", "-c", BT.Script)
+	cmd.Dir = BT.Dir
+
+	// add env vars if needed
+	if len(BT.Env) > 0 {
+		for k,v := range BT.Env {
+			cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", k, v))
+		}
+	}
+
+	// Run and save output
+	out, err := cmd.CombinedOutput()
+	T.Output = string(out)
+
+	return err
+}
+
+type ExecTester struct {
+	BaseTester
+
+	Command string
 }
 
 func RunExec(T *Tester, verbose int) (err error) {
-	// fmt.Println("exec:", T.Name)
+	// Decode our ET
+	var ET ExecTester
+	err = T.Value.Decode(&ET)
 
-	return nil
+	// Check for errors and validate
+	if err != nil {
+		return err
+	}
+	if ET.Command == "" {
+		return fmt.Errorf("Bash tester %q has empty script field", T.Name)
+	}
+
+	args := strings.Fields(ET.Command)
+
+	// Prep our command
+	cmd := exec.Command(args[0], args[1:]...)
+	cmd.Dir = ET.Dir
+
+	// add env vars if needed
+	if len(ET.Env) > 0 {
+		for k,v := range ET.Env {
+			cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", k, v))
+		}
+	}
+
+	// Run and save output
+	out, err := cmd.CombinedOutput()
+	T.Output = string(out)
+
+	return err
 }
 
 func RunScript(T *Tester, verbose int) (err error) {

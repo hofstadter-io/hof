@@ -114,7 +114,7 @@ type Params struct {
 	// Dir is interpreted relative to the current test directory.
 	Dir string
 
-	// Glob holds the patter to match, defaults to '*.txt'
+	// Glob holds the patter to match, defaults to '*.hls'
 	Glob string
 
 	// Setup is called, if not nil, to complete any setup required
@@ -210,7 +210,7 @@ func (t tshim) Verbose() bool {
 
 func paramDefaults(p Params) Params {
 	if p.Glob == "" {
-		p.Glob = "*.txt"
+		p.Glob = "*.hls"
 	}
 	if p.PhasePrefix == "" {
 		p.PhasePrefix = "#"

@@ -49,6 +49,9 @@ type Tester struct {
 	// Cue Value for the Tester
 	Value cue.Value
 
+	// Execution output
+	Output string
+
 	// pass/fail/skip stats
 	Stats Stats
 

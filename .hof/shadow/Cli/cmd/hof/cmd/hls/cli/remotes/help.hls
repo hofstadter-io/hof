@@ -1,0 +1,7 @@
+### Test "remotes --help" prints help
+call __hof remotes --help
+
+### Test "remotes -h" prints help
+call __hof remotes -h
+
+

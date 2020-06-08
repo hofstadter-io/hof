@@ -313,11 +313,11 @@ func TestBadDir(t *testing.T) {
 	}
 }
 
-func setSpecialVal(ts *TestScript, neg int, args []string) {
+func setSpecialVal(ts *Script, neg int, args []string) {
 	ts.Setenv("SPECIALVAL", "42")
 }
 
-func ensureSpecialVal(ts *TestScript, neg int, args []string) {
+func ensureSpecialVal(ts *Script, neg int, args []string) {
 	want := "42"
 	if got := ts.Getenv("SPECIALVAL"); got != want {
 		ts.Fatalf("expected SPECIALVAL to be %q; got %q", want, got)
@@ -326,7 +326,7 @@ func ensureSpecialVal(ts *TestScript, neg int, args []string) {
 
 // interrupt interrupts the current background command.
 // Note that this will not work under Windows.
-func interrupt(ts *TestScript, neg int, args []string) {
+func interrupt(ts *Script, neg int, args []string) {
 	if neg != 0 {
 		ts.Fatalf("interrupt does not support neg")
 	}
@@ -340,7 +340,7 @@ func interrupt(ts *TestScript, neg int, args []string) {
 	bg[0].Process.Signal(os.Interrupt)
 }
 
-func waitFile(ts *TestScript, neg int, args []string) {
+func waitFile(ts *Script, neg int, args []string) {
 	if neg != 0 {
 		ts.Fatalf("waitfile does not support neg")
 	}
@@ -362,7 +362,7 @@ func waitFile(ts *TestScript, neg int, args []string) {
 }
 
 type fakeT struct {
-	ts       *TestScript
+	ts       *Script
 	failMsgs []string
 }
 

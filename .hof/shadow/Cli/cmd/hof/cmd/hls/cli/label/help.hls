@@ -1,0 +1,9 @@
+### Test "label --help" prints help
+call __hof label --help
+
+### Test "label -h" prints help
+call __hof label -h
+
+### Test "label" (without any args) prints help
+call __hof label
+

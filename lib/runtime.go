@@ -336,13 +336,17 @@ func (R *Runtime) WriteOutput() []error {
 			// fmt.Println("  -", G.Name, f, strings.TrimPrefix(f, G.Name + "/"))
 			err := os.Remove(f)
 			if err != nil {
-				// fmt.Println("GOT HERE 1")
+				if strings.Contains(err.Error(), "no such file or directory") {
+					continue
+				}
 				errs = append(errs, err)
 				continue
 			}
 			err = os.Remove(path.Join(gen.SHADOW_DIR, f))
 			if err != nil {
-				// fmt.Println("GOT HERE 2")
+				if strings.Contains(err.Error(), "no such file or directory") {
+					continue
+				}
 				errs = append(errs, err)
 				continue
 			}
@@ -367,19 +371,23 @@ func (R *Runtime) WriteOutput() []error {
 		// fmt.Println("  -", f, f[idx:])
 		err := os.Remove(f[idx:])
 		if err != nil {
-			// fmt.Println("GOT HERE 1")
+			if strings.Contains(err.Error(), "no such file or directory") {
+				continue
+			}
 			errs = append(errs, err)
 			continue
 		}
+
 		err = os.Remove(path.Join(gen.SHADOW_DIR, f))
 		if err != nil {
-			// fmt.Println("GOT HERE 2")
+			if strings.Contains(err.Error(), "no such file or directory") {
+				continue
+			}
+
 			errs = append(errs, err)
 			continue
 		}
-		// G.Stats.NumDeleted += 1
 	}
-
 
 	return errs
 }
