@@ -22,7 +22,9 @@ jobs:
           CUE_VER=0.2.0
 
           # Cleaup
-          sudo apt-get remove --purge -y golang
+          which go
+          sudo rm -f $(which go)
+          sudo rm -rf /usr/local/go
 
           # Install Go
           curl -LO https://dl.google.com/go/go${GO_VER}.linux-amd64.tar.gz
