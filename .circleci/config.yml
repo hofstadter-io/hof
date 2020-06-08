@@ -52,22 +52,13 @@ jobs:
           # run all tests
           ./hof test test.cue
 
-          # TODO, temp hack until tests are actually running
-          mkdir -p sonar-reports/go
-
-      # Debug step
-      - run: |
-          echo "------  root dir   ------"
-          ls -lh .
-          echo "------  sonar dir  ------"
-          ls -lh sonar-reports
-          echo "------  end debug  ------"
-
       # Build our custom SonarCloud image
       - run: |
           ./ci/sc/build.sh
 
       # Upload reports now that they have been generated and collected
       - run: |
+          mkdir -p sonar-reports/go
+
           ./ci/sc/run.sh
 
