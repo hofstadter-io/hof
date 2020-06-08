@@ -17,13 +17,6 @@ jobs:
     steps:
       - checkout
 
-      # Install and prop docker
-      - setup_remote_docker:
-
-      - run:
-          name: Install Docker client
-          command: apk add docker-cli
-
       # setup and dep fetches
       - run: |
           # install Cue
