@@ -27,7 +27,9 @@ jobs:
           # Install Go
           curl -LO https://dl.google.com/go/go${GO_VER}.linux-amd64.tar.gz
           sudo tar -C /usr/local -xzf go${G)_VER}.linux-amd64.tar.gz
-          echo "PATH=/usr/local/go/bin:$PATH" >> $HOME/.profile
+          echo "export PATH=/usr/local/go/bin:$PATH" >> $HOME/.profile
+          cat $HOME/.profile
+          source $HOME/.profile
 
           # Install Cue
           curl -LO https://github.com/cuelang/cue/releases/download/v${CUE_VER}/cue_${CUE_VER}_Linux_x86_64.tar.gz
