@@ -30,7 +30,6 @@ jobs:
       - run: |
           # build hof
           go build -o hof cmd/hof/main.go
-          sudo mv hof /usr/local/bin/hof
 
       # Hof has a built in test command to facilitate running tests
       # en masse, regardless of the language, technology, or framework
@@ -38,7 +37,7 @@ jobs:
       # complete testing setup with tasks like collectiong and reporting coverage statistics
       - run: |
           # run all tests
-          hof test test.cue
+          ./hof test test.cue
 
           # TODO, temp hack until tests are actually running
           mkdir -p sonar-reports/go
