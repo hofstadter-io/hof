@@ -21,7 +21,14 @@ if [ "${SONAR_PROJECT_BASE_DIR:-}" ]; then
 fi
 
 SONAR_CONFIG_FILE=${SONAR_CONFIG_FILE:-sonar-project.properties}
+add_env_var_as_env_prop "${SONAR_CONFIG_FILE:-}" "project.settings"
 
-export SONAR_USER_HOME="$PROJECT_BASE_DIR/.sonar"
-sonar-scanner "${args[@]}" \
- -Dproject.settings="$SONAR_CONFIG_FILE"
+echo "------- sonar config ------------"
+pwd
+ls -lh .
+echo "---------------------------------"
+cat $SONAR_CONFIG_FILE
+echo "---------------------------------"
+
+
+sonar-scanner "${args[@]}"
