@@ -38,7 +38,8 @@ jobs:
 
       # build Hof cli
       - run: |
-          go build -o /usr/local/bin/hof cmd/hof/main.go
+          go build -o hof cmd/hof/main.go
+          sudo mv /usr/local/bin/hof
 
 
       # fetch Cue dependencies
