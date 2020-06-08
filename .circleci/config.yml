@@ -3,35 +3,48 @@ version: 2.1
 workflows:
   main:
     jobs:
-      - build:
+      - hof_ci:
           context: SonarCloud
 
 jobs:
-  build:
-    docker:
-      # specify the version
-      - image: circleci/golang:1.14
 
-    working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
+  # Build and test hof, in that order!
+  hof_ci:
+    machine: true
+
     steps:
       - checkout
 
-      # setup and dep fetches
+      # setup and prep fetch
       - run: |
-          # install Cue
-          # curl -LO https://github.com/cuelang/cue/releases/download/v0.2.0/cue_0.2.0_Linux_x86_64.tar.gz
-          # tar -xf cue_0.2.0_Linux_x86_64.tar.gz
-          # sudo mv cue /usr/local/bin/cue
+          # Version info
+          GO_VER=1.14.4
+          CUE_VER=0.2.0
 
-          # fetch deps
+          # Install Go
+          sudo rm -rf /usr/local/go
+          curl -LO https://dl.google.com/go/go${GO_VER}.linux-amd64.tar.gz
+          sudo tar -C /usr/local -xzf go${GO_VER}.linux-amd64.tar.gz
+
+          # Install Cue
+          curl -LO https://github.com/cuelang/cue/releases/download/v${CUE_VER}/cue_${CUE_VER}_Linux_x86_64.tar.gz
+          tar -xf cue_${CUE_VER}_Linux_x86_64.tar.gz
+          sudo mv cue /usr/local/bin/cue
+
+
+      # fetch Go dependencies
+      - run: |
           go mod vendor
 
-      # This seems backwards, we ought to test, but...
+      # build Hof cli
       - run: |
-          # build hof
-          echo "building cli"
           go build -o hof cmd/hof/main.go
-          sudo mv hof /usr/local/bin/hof
+          sudo cp hof /usr/local/bin/hof
+
+
+      # fetch Cue dependencies
+      #- run: |
+          #./hof mod vendor cue
 
       # Hof has a built in test command to facilitate running tests
       # en masse, regardless of the language, technology, or framework
@@ -39,18 +52,15 @@ jobs:
       # complete testing setup with tasks like collectiong and reporting coverage statistics
       - run: |
           # run all tests
-          hof test
+          hof test test.cue -s
+
+      # Build our custom SonarCloud image
+      - run: |
+          ./ci/sc/build.sh
 
       # Upload reports now that they have been generated and collected
       - run: |
-          # build our own sonar container
-          ./ci/sc/build.sh
+          mkdir -p sonar-reports/go
 
-          # run our own sonar containers
           ./ci/sc/run.sh
 
-      # Scan and upload reports
-      # - sonarcloud/scan
-
-orbs:
-  sonarcloud: sonarsource/sonarcloud@1.0.1

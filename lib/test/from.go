@@ -9,13 +9,11 @@ import (
 
 func RunTestFromArgsFlags(args []string, cmdflags flags.TestFlagpole) (error) {
 
-	// fmt.Printf("Test: %v %#+v\n", args, cmdflags)
-
+	// Loadup our Cue files
 	crt, err := cuetils.CueRuntimeFromEntrypointsAndFlags(args)
 	if err != nil {
 		return err
 	}
-
 	err = crt.Load()
 	if err != nil {
 		return err
@@ -37,20 +35,32 @@ func RunTestFromArgsFlags(args []string, cmdflags flags.TestFlagpole) (error) {
 		suites[s].Tests = ts
 	}
 
+	// Is the user only looking for information
 	if cmdflags.List {
 		printTests(suites, false)
 		return nil
 	}
 
-	TS, err := RunSuites(suites, -1)
+	// Run all of our suites
+	_, err = RunSuites(suites, -1)
+
+	// Print our final tests and stats
+	fmt.Printf("\n\n\n======= FINAL RESULTS ======\n")
+	printTests(suites, true)
+	fmt.Println("============================")
+
+	// Finally, check for errors and exit appropriately
 	if err != nil {
 		return err
 	}
 
+	for _, s := range suites {
+		if len(s.Errors) > 0 {
+			return fmt.Errorf("\nErrors during testing")
+		}
+	}
 
-	printTests(suites, true)
-	fmt.Printf("Final TS: %#+v\n", TS)
+
 	return nil
-
 }
 

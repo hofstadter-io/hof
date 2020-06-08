@@ -1,0 +1,7 @@
+### Test "tour --help" prints help
+call __hof tour --help
+
+### Test "tour -h" prints help
+call __hof tour -h
+
+

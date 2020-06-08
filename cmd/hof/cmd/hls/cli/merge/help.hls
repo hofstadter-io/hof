@@ -1,0 +1,7 @@
+### Test "merge --help" prints help
+call __hof merge --help
+
+### Test "merge -h" prints help
+call __hof merge -h
+
+

@@ -1,42 +1,62 @@
 package hof
 
+//
+////// Defined (partially) test configuration
+//
+
+#GoBaseTest: {
+	skip: bool | *false
+
+	sysenv: bool | *false
+	env?: [string]: string
+	...
+}
+
+#GoBashTest: #GoBaseTest & {
+	script: string | *"""
+	rm -rf .workdir
+	go test -cover ./
+	"""
+	...
+}
+
+#GoExecTest: #GoBaseTest & {
+	command: string | *"go test -cover ./"
+	...
+}
+
+//
+////// Actual test configuration
+//
+
 // Test generated code
 gen: _ @test(suite,gen)
 gen: {
 	// TODO before / after
-	cmds: _ @test(script)
+	cmds: #GoBashTest @test(bash,cmd)
 	cmds: {
 		dir: "cmd/hof/cmd"
-		scripts: [ "**/*.txt" ]
-		env: {
-			HELLO: "WORLD"
-			FOO: "$FOO"
-		}
 	}
 }
 
 // Test Hof Linear Script (hls)
 hls: _ @test(suite,hls)
 hls: {
-	self: _ @test(script,hsl,self)
+	self: #GoBashTest @test(bash,hls)
 	self: {
 		dir: "script"
-		scripts: [ "testdata/*.txt" ]
 	}
 }
 
 hof: _ @test(suite,hof)
 hof: {
-	mod: _ @test(script,lib/mod)
+	mod: #GoBashTest @test(bash,lib/mod)
 	mod: {
 		dir: "lib/mod"
-		scripts: [ "testdata/*.txt" ]
 	}
-	st: _ @test(exec=bash,lib/st)
+	st: #GoBashTest @test(bash,lib/st)
 	st: {
+		skip: true
 		dir: "lib/structural"
-		script: """
-		go test -cover ./
-		"""
 	}
 }

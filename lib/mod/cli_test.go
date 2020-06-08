@@ -21,6 +21,7 @@ func TestModTests(t *testing.T) {
 	script.Run(t, script.Params{
 		Setup: envSetup,
 		Dir: "testdata",
+		Glob: "*.txt",
 		WorkdirRoot: ".workdir/tests",
 	})
 }
@@ -30,6 +31,7 @@ func TestModBugs(t *testing.T) {
 	script.Run(t, script.Params{
 		Setup: envSetup,
 		Dir: "testdata/bugs",
+		Glob: "*.txt",
 		WorkdirRoot: ".workdir/bugs",
 	})
 }

@@ -79,7 +79,7 @@ func TestCRLFInput(t *testing.T) {
 		t.Fatalf("failed to write to %v: %v", tf, err)
 	}
 	t.Run("_", func(t *testing.T) {
-		Run(t, Params{Dir: td})
+		Run(t, Params{Dir: td, Glob: "*.txt" })
 	})
 }
 
@@ -131,6 +131,7 @@ func TestEnv(t *testing.T) {
 func TestHttp(t *testing.T) {
 	Run(t, Params{
 		Dir: "testhttp",
+		Glob: "*.txt",
 	})
 }
 
@@ -139,6 +140,7 @@ func TestScripts(t *testing.T) {
 	testDeferCount := 0
 	Run(t, Params{
 		Dir: "testdata",
+		Glob: "*.txt",
 		Cmds: map[string]func(ts *Script, neg int, args []string){
 			"setSpecialVal":    setSpecialVal,
 			"ensureSpecialVal": ensureSpecialVal,
@@ -197,6 +199,7 @@ func TestScripts(t *testing.T) {
 					}()
 					RunT(t, Params{
 						Dir:           ts.MkAbs(args[0]),
+						Glob: "*.txt",
 						UpdateScripts: true,
 					})
 				}()
@@ -270,6 +273,7 @@ func TestWorkdirRoot(t *testing.T) {
 	defer os.RemoveAll(td)
 	params := Params{
 		Dir:         filepath.Join("testdata", "nothing"),
+		Glob: "*.txt",
 		WorkdirRoot: td,
 	}
 	// Run as a sub-test so that this call blocks until the sub-tests created by
@@ -301,6 +305,7 @@ func TestBadDir(t *testing.T) {
 		}()
 		RunT(ft, Params{
 			Dir: "thiswillnevermatch",
+			Glob: "*.txt",
 		})
 	}()
 	wantCount := 1
@@ -313,11 +318,11 @@ func TestBadDir(t *testing.T) {
 	}
 }
 
-func setSpecialVal(ts *TestScript, neg int, args []string) {
+func setSpecialVal(ts *Script, neg int, args []string) {
 	ts.Setenv("SPECIALVAL", "42")
 }
 
-func ensureSpecialVal(ts *TestScript, neg int, args []string) {
+func ensureSpecialVal(ts *Script, neg int, args []string) {
 	want := "42"
 	if got := ts.Getenv("SPECIALVAL"); got != want {
 		ts.Fatalf("expected SPECIALVAL to be %q; got %q", want, got)
@@ -326,7 +331,7 @@ func ensureSpecialVal(ts *TestScript, neg int, args []string) {
 
 // interrupt interrupts the current background command.
 // Note that this will not work under Windows.
-func interrupt(ts *TestScript, neg int, args []string) {
+func interrupt(ts *Script, neg int, args []string) {
 	if neg != 0 {
 		ts.Fatalf("interrupt does not support neg")
 	}
@@ -340,7 +345,7 @@ func interrupt(ts *TestScript, neg int, args []string) {
 	bg[0].Process.Signal(os.Interrupt)
 }
 
-func waitFile(ts *TestScript, neg int, args []string) {
+func waitFile(ts *Script, neg int, args []string) {
 	if neg != 0 {
 		ts.Fatalf("waitfile does not support neg")
 	}
@@ -362,7 +367,7 @@ func waitFile(ts *TestScript, neg int, args []string) {
 }
 
 type fakeT struct {
-	ts       *TestScript
+	ts       *Script
 	failMsgs []string
 }
 

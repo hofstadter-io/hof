@@ -1,0 +1,7 @@
+### Test "fmt --help" prints help
+call __hof fmt --help
+
+### Test "fmt -h" prints help
+call __hof fmt -h
+
+

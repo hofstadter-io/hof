@@ -1,0 +1,7 @@
+### Test "reset --help" prints help
+call __hof reset --help
+
+### Test "reset -h" prints help
+call __hof reset -h
+
+
