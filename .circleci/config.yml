@@ -15,22 +15,35 @@ jobs:
     steps:
       - checkout
 
-      # setup and dependencies fetch
+      # setup and prep fetch
       - run: |
-          # fetch deps
+          # Version info
+          GO_VER=1.14.4
+          CUE_VER=0.2.0
+
+          # Cleaup
+          sudo apt-get remove --purge -y golang
+
+          # Install Go
+          curl -LO https://dl.google.com/go/go${GO_VER}.linux-amd64.tar.gz
+          sudo tar -C /usr/local -xzf go${G)_VER}.linux-amd64.tar.gz
+
+          # Install Cue
+          curl -LO https://github.com/cuelang/cue/releases/download/v${CUE_VER}/cue_${CUE_VER}_Linux_x86_64.tar.gz
+          tar -xf cue_${CUE_VER}_Linux_x86_64.tar.gz
+          sudo mv cue /usr/local/bin/cue
+
+
+
+      # fetch Go dependencies
+      - run: |
           go mod vendor
 
-          # install Cue
-          # curl -LO https://github.com/cuelang/cue/releases/download/v0.2.0/cue_0.2.0_Linux_x86_64.tar.gz
-          # tar -xf cue_0.2.0_Linux_x86_64.tar.gz
-          # sudo mv cue /usr/local/bin/cue
-
-      # This seems backwards, we ought to test, but...
+      # build Hof cli
       - run: |
-          # build hof
           go build -o hof cmd/hof/main.go
 
-      # Fetch cue deps
+      # fetch Cue dependencies
       - run: |
           ./hof mod vendor cue
 
@@ -45,7 +58,7 @@ jobs:
           # TODO, temp hack until tests are actually running
           mkdir -p sonar-reports/go
 
-      # Debug stip
+      # Debug step
       - run: |
           echo "------  root dir   ------"
           ls -lh .
@@ -53,13 +66,11 @@ jobs:
           ls -lh sonar-reports
           echo "------  end debug  ------"
 
-      # Build our custom image
+      # Build our custom SonarCloud image
       - run: |
-          # build our own sonar container
           ./ci/sc/build.sh
 
       # Upload reports now that they have been generated and collected
       - run: |
-          # run our own sonar containers
           ./ci/sc/run.sh
 
