@@ -41,8 +41,8 @@ jobs:
           go build -o hof cmd/hof/main.go
 
       # fetch Cue dependencies
-      - run: |
-          ./hof mod vendor cue
+      #- run: |
+          #./hof mod vendor cue
 
       # Hof has a built in test command to facilitate running tests
       # en masse, regardless of the language, technology, or framework
