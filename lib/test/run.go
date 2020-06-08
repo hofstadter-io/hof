@@ -2,7 +2,6 @@ package test
 
 import (
 	"fmt"
-	"strings"
 	"time"
 )
 
@@ -49,21 +48,29 @@ func RunTest(T *Tester, verbose int) (err error) {
 	T.Stats.Start = time.Now()
 
 	// TODO< find and possibly skip
-	// skip := T.Value.Lookup("skip")
+	skip := T.Value.Lookup("skip")
+	if skip.Exists() {
+		doskip, err := skip.Bool()
+		if err != nil {
+			return err
+		}
+		if doskip {
+			T.Stats.Skip += 1
+			return nil
+		}
+	}
+
 
 	// switch type
-	ts := strings.SplitN(T.Type, "=", 2)
-	tkey, tval := ts[0], ""
-	if len(ts) == 2 {
-		tval = ts[1]
-	}
-	fmt.Printf("TYPE: '%v' '%v'\n", tkey, tval)
-	switch tkey {
+	switch T.Type {
 
-	case "exec":
+	case "bash", "shell":
+		err = RunBash(T, verbose)
+
+	case "exec", "custom":
 		err = RunExec(T, verbose)
 
-	case "script":
+	case "hls", "script":
 		err = RunScript(T, verbose)
 
 	default:
@@ -81,31 +88,23 @@ func RunTest(T *Tester, verbose int) (err error) {
 		T.Stats.Pass += 1
 	}
 
-	fmt.Println()
-
 	return err
 }
 
+func RunBash(T *Tester, verbose int) (err error) {
+	// fmt.Println("bash:", T.Name)
+
+	return nil
+}
+
 func RunExec(T *Tester, verbose int) (err error) {
-	fmt.Println("#!/", T.Name)
-	ts := strings.SplitN(T.Type, "=", 2)
-	tkey, tval := ts[0], ""
-	if len(ts) == 2 {
-		tval = ts[1]
-	}
-	fmt.Printf("  type: '%v' '%v'\n", tkey, tval)
+	// fmt.Println("exec:", T.Name)
 
 	return nil
 }
 
 func RunScript(T *Tester, verbose int) (err error) {
-	fmt.Println(">>>", T.Name)
-	ts := strings.SplitN(T.Type, "=", 2)
-	tkey, tval := ts[0], ""
-	if len(ts) == 2 {
-		tval = ts[1]
-	}
-	fmt.Printf("  type: '%v' '%v'\n", tkey, tval)
+	// fmt.Println("hls:", T.Name)
 
 	return nil
 }

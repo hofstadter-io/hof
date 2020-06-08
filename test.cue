@@ -1,13 +1,21 @@
 package hof
 
+#GoTest: {
+	script: """
+	go test -cover ./
+	"""
+
+	skip: bool | *false
+	...
+}
+
 // Test generated code
 gen: _ @test(suite,gen)
 gen: {
 	// TODO before / after
-	cmds: _ @test(script)
-	cmds: {
+	cmds: _ @test(bash,gen/cmd)
+	cmds: #GoTest & {
 		dir: "cmd/hof/cmd"
-		scripts: [ "**/*.txt" ]
 		env: {
 			HELLO: "WORLD"
 			FOO: "$FOO"
@@ -18,25 +26,20 @@ gen: {
 // Test Hof Linear Script (hls)
 hls: _ @test(suite,hls)
 hls: {
-	self: _ @test(script,hsl,self)
+	self: #GoTest @test(bash,hsl)
 	self: {
 		dir: "script"
-		scripts: [ "testdata/*.txt" ]
 	}
 }
 
 hof: _ @test(suite,hof)
 hof: {
-	mod: _ @test(script,lib/mod)
+	mod: #GoTest @test(bash,lib/mod)
 	mod: {
 		dir: "lib/mod"
-		scripts: [ "testdata/*.txt" ]
 	}
-	st: _ @test(exec=bash,lib/st)
+	st: #GoTest @test(bash,lib/st)
 	st: {
 		dir: "lib/structural"
-		script: """
-		go test -cover ./
-		"""
 	}
 }

@@ -1,21 +1,17 @@
 package test
 
 import (
-	"fmt"
-
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/cuetils"
 )
 
 func RunTestFromArgsFlags(args []string, cmdflags flags.TestFlagpole) (error) {
 
-	// fmt.Printf("Test: %v %#+v\n", args, cmdflags)
-
+	// Loadup our Cue files
 	crt, err := cuetils.CueRuntimeFromEntrypointsAndFlags(args)
 	if err != nil {
 		return err
 	}
-
 	err = crt.Load()
 	if err != nil {
 		return err
@@ -37,20 +33,23 @@ func RunTestFromArgsFlags(args []string, cmdflags flags.TestFlagpole) (error) {
 		suites[s].Tests = ts
 	}
 
+	// Is the user only looking for information
 	if cmdflags.List {
 		printTests(suites, false)
 		return nil
 	}
 
-	TS, err := RunSuites(suites, -1)
+	// Run all of our suites
+	_, err = RunSuites(suites, -1)
 	if err != nil {
 		return err
 	}
 
+	// TODO, print errors
 
+	// Print our final tests and stats
 	printTests(suites, true)
-	fmt.Printf("Final TS: %#+v\n", TS)
-	return nil
 
+	return nil
 }
 
