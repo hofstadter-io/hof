@@ -3,33 +3,36 @@ version: 2.1
 workflows:
   main:
     jobs:
-      - build_n_test
-      - scan:
+      - hof_ci:
           context: SonarCloud
-          requires:
-            - build_n_test
 
 jobs:
 
   # Build and test hof, in that order!
-  build_n_test:
-    docker:
-      # specify the version
-      - image: circleci/golang:1.14
+  hof_ci:
+    machine: true
 
-    working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
     steps:
       - checkout
 
-      # setup and dep fetches
+      # setup and dependencies fetch
       - run: |
           # fetch deps
           go mod vendor
+
+          # install Cue
+          # curl -LO https://github.com/cuelang/cue/releases/download/v0.2.0/cue_0.2.0_Linux_x86_64.tar.gz
+          # tar -xf cue_0.2.0_Linux_x86_64.tar.gz
+          # sudo mv cue /usr/local/bin/cue
 
       # This seems backwards, we ought to test, but...
       - run: |
           # build hof
           go build -o hof cmd/hof/main.go
+
+      # Fetch cue deps
+      - run: |
+          ./hof mod vendor cue
 
       # Hof has a built in test command to facilitate running tests
       # en masse, regardless of the language, technology, or framework
@@ -41,14 +44,6 @@ jobs:
 
           # TODO, temp hack until tests are actually running
           mkdir -p sonar-reports/go
-
-
-  # SonarCloud scan and upload
-  scan:
-    machine: true
-
-    steps:
-      - checkout
 
       # Debug stip
       - run: |
@@ -68,8 +63,3 @@ jobs:
           # run our own sonar containers
           ./ci/sc/run.sh
 
-      # Scan and upload reports
-      # - sonarcloud/scan
-
-#orbs:
-  #sonarcloud: sonarsource/sonarcloud@1.0.1
