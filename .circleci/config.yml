@@ -21,17 +21,10 @@ jobs:
           GO_VER=1.14.4
           CUE_VER=0.2.0
 
-          # Cleaup
-          which go
-          sudo rm -f $(which go)
-          sudo rm -rf /usr/local/go
-
           # Install Go
+          sudo rm -rf /usr/local/go
           curl -LO https://dl.google.com/go/go${GO_VER}.linux-amd64.tar.gz
-          sudo tar -C /usr/local -xzf go${G)_VER}.linux-amd64.tar.gz
-          echo "export PATH=/usr/local/go/bin:$PATH" >> $HOME/.profile
-          cat $HOME/.profile
-          source $HOME/.profile
+          sudo tar -C /usr/local -xzf go${GO_VER}.linux-amd64.tar.gz
 
           # Install Cue
           curl -LO https://github.com/cuelang/cue/releases/download/v${CUE_VER}/cue_${CUE_VER}_Linux_x86_64.tar.gz
