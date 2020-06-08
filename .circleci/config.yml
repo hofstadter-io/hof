@@ -40,6 +40,10 @@ jobs:
           # run all tests
           hof test test.cue
 
+          # TODO, temp hack until tests are actually running
+          mkdir -p sonar-reports/go
+
+
   # SonarCloud scan and upload
   scan:
     machine: true
