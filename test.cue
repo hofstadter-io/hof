@@ -14,6 +14,7 @@ package hof
 
 #GoBashTest: #GoBaseTest & {
 	script: string | *"""
+	rm -rf .workdir
 	go test -cover ./
 	"""
 	...
@@ -32,20 +33,16 @@ package hof
 gen: _ @test(suite,gen)
 gen: {
 	// TODO before / after
-	cmds: #GoBashTest @test(bash,gen/cmd)
+	cmds: #GoBashTest @test(bash,cmd)
 	cmds: {
 		dir: "cmd/hof/cmd"
-		env: {
-			HELLO: "WORLD"
-			FOO: "$FOO"
-		}
 	}
 }
 
 // Test Hof Linear Script (hls)
 hls: _ @test(suite,hls)
 hls: {
-	self: #GoBashTest @test(bash,hsl)
+	self: #GoBashTest @test(bash,hls)
 	self: {
 		dir: "script"
 	}
@@ -59,6 +56,7 @@ hof: {
 	}
 	st: #GoBashTest @test(bash,lib/st)
 	st: {
+		skip: true
 		dir: "lib/structural"
 	}
 }

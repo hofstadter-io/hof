@@ -11,6 +11,11 @@ func printTests(suites []Suite, stats bool) {
 	totalStats := Stats{}
 
 	for _, S := range suites {
+		S.Stats.Time = 0
+		for _, t := range S.Tests {
+			S.Stats.add(t.Stats)
+		}
+
 		A := S.Value.Attribute("test")
 		as := []string{}
 		for k, v := range A.Vals() {

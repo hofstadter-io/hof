@@ -79,7 +79,7 @@ func TestCRLFInput(t *testing.T) {
 		t.Fatalf("failed to write to %v: %v", tf, err)
 	}
 	t.Run("_", func(t *testing.T) {
-		Run(t, Params{Dir: td})
+		Run(t, Params{Dir: td, Glob: "*.txt" })
 	})
 }
 
@@ -131,6 +131,7 @@ func TestEnv(t *testing.T) {
 func TestHttp(t *testing.T) {
 	Run(t, Params{
 		Dir: "testhttp",
+		Glob: "*.txt",
 	})
 }
 
@@ -139,6 +140,7 @@ func TestScripts(t *testing.T) {
 	testDeferCount := 0
 	Run(t, Params{
 		Dir: "testdata",
+		Glob: "*.txt",
 		Cmds: map[string]func(ts *Script, neg int, args []string){
 			"setSpecialVal":    setSpecialVal,
 			"ensureSpecialVal": ensureSpecialVal,
@@ -197,6 +199,7 @@ func TestScripts(t *testing.T) {
 					}()
 					RunT(t, Params{
 						Dir:           ts.MkAbs(args[0]),
+						Glob: "*.txt",
 						UpdateScripts: true,
 					})
 				}()
@@ -270,6 +273,7 @@ func TestWorkdirRoot(t *testing.T) {
 	defer os.RemoveAll(td)
 	params := Params{
 		Dir:         filepath.Join("testdata", "nothing"),
+		Glob: "*.txt",
 		WorkdirRoot: td,
 	}
 	// Run as a sub-test so that this call blocks until the sub-tests created by
@@ -301,6 +305,7 @@ func TestBadDir(t *testing.T) {
 		}()
 		RunT(ft, Params{
 			Dir: "thiswillnevermatch",
+			Glob: "*.txt",
 		})
 	}()
 	wantCount := 1
