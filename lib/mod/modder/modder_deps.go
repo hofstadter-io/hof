@@ -83,9 +83,9 @@ func (mdr *Modder) MvsMergeDependency(m *Module) error {
 
 	}
 
-	fmt.Printf("Merge   %-48s => %s\n", m.Module + "@" + m.Version, m.ReplaceModule + "@" + m.ReplaceVersion)
+	// fmt.Printf("Merge   %-48s => %s\n", m.Module + "@" + m.Version, m.ReplaceModule + "@" + m.ReplaceVersion)
 
-	// XXX This is what basically makes us BFS
+	// NOTE This is what basically makes us BFS
 	for _, R := range m.SelfDeps {
 		err := mdr.VendorDep(R)
 		if err != nil {

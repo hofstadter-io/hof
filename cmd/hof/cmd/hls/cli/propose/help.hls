@@ -1,0 +1,7 @@
+### Test "propose --help" prints help
+call __hof propose --help
+
+### Test "propose -h" prints help
+call __hof propose -h
+
+

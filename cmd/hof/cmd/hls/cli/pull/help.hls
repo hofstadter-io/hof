@@ -1,0 +1,7 @@
+### Test "pull --help" prints help
+call __hof pull --help
+
+### Test "pull -h" prints help
+call __hof pull -h
+
+

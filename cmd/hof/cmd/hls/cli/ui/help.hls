@@ -1,0 +1,7 @@
+### Test "ui --help" prints help
+call __hof ui --help
+
+### Test "ui -h" prints help
+call __hof ui -h
+
+

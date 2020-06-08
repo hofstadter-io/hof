@@ -1,0 +1,9 @@
+### Test "st --help" prints help
+call __hof st --help
+
+### Test "st -h" prints help
+call __hof st -h
+
+### Test "st" (without any args) prints help
+call __hof st
+

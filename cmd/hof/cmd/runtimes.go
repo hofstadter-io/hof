@@ -8,13 +8,13 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var runtimesLong = `work with runtimes (go, js, py, bash, custom)`
+var runtimesLong = `work with runtimes (go, js, py, bash, docker, cloud-vms, k8s, custom)`
 
 var RuntimesCmd = &cobra.Command{
 
 	Use: "runtimes",
 
-	Short: "work with runtimes (go, js, py, bash, custom)",
+	Short: "work with runtimes (go, js, py, bash, docker, cloud-vms, k8s, custom)",
 
 	Long: runtimesLong,
 

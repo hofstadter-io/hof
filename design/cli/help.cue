@@ -26,7 +26,6 @@ Model your designs, generate implementation, run or test anything:
   \(cmds.#DatamodelCommand.Help)
   \(cmds.#GenCommand.Help)
   \(cmds.#RunCommand.Help)
-  \(cmds.#RuntimesCommand.Help)
   \(cmds.#TestCommand.Help)
 
 Labels are used _ for _ (see also 'hof topic labels'):
@@ -38,10 +37,10 @@ Learn more about hof and the _ you can do:
   \(cmds.#TourCommand.Help)
   \(cmds.#TutorialCommand.Help)
 
-Download modules, add content, and execute commands:
+Download modules, add instances or content, and manage runtimes:
   \(cmds.#ModCommand.Help)
   \(cmds.#AddCommand.Help)
-  \(cmds.#CmdCommand.Help)
+  \(cmds.#RuntimesCommand.Help)
 
 Manage resources (see also 'hof topic resources'):
   \(cmds.#InfoCommand.Help)
@@ -52,7 +51,7 @@ Manage resources (see also 'hof topic resources'):
   \(cmds.#DeleteCommand.Help)
 
 Configure, Unify, Execute (see also https://cuelang.org):
-  (also a whole bunch of other awesome things)
+  \(cmds.#CmdCommand.Help)
   \(cmds.#DefCommand.Help)
   \(cmds.#EvalCommand.Help)
   \(cmds.#ExportCommand.Help)

@@ -1,0 +1,7 @@
+### Test "push --help" prints help
+call __hof push --help
+
+### Test "push -h" prints help
+call __hof push -h
+
+

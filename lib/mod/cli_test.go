@@ -4,12 +4,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/rogpeppe/go-internal/testscript"
-
 	"github.com/hofstadter-io/hof/lib/yagu"
+	"github.com/hofstadter-io/hof/script"
 )
 
-func envSetup(env *testscript.Env) error {
+func envSetup(env *script.Env) error {
 	if token := os.Getenv("GITHUB_TOKEN"); token != "" {
 		env.Vars = append(env.Vars, "GITHUB_TOKEN="+token)
 	}
@@ -19,18 +18,20 @@ func envSetup(env *testscript.Env) error {
 
 func TestModTests(t *testing.T) {
 	yagu.Mkdir(".workdir/tests")
-	testscript.Run(t, testscript.Params{
+	script.Run(t, script.Params{
 		Setup: envSetup,
 		Dir: "testdata",
+		Glob: "*.txt",
 		WorkdirRoot: ".workdir/tests",
 	})
 }
 
 func TestModBugs(t *testing.T) {
 	yagu.Mkdir(".workdir/bugs")
-	testscript.Run(t, testscript.Params{
+	script.Run(t, script.Params{
 		Setup: envSetup,
 		Dir: "testdata/bugs",
+		Glob: "*.txt",
 		WorkdirRoot: ".workdir/bugs",
 	})
 }

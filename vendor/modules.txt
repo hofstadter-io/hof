@@ -1,4 +1,4 @@
-# cuelang.org/go v0.2.0 => github.com/hofstadter-io/cue v0.2.1
+# cuelang.org/go v0.2.0 => github.com/hofstadter-io/cue v0.2.2
 ## explicit
 cuelang.org/go/cue
 cuelang.org/go/cue/ast
@@ -208,15 +208,8 @@ github.com/pelletier/go-toml
 github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
-# github.com/rogpeppe/go-internal v1.6.0 => github.com/hofstadter-io/go-internal v1.7.0
+# github.com/rogpeppe/go-internal v1.6.0
 ## explicit
-github.com/rogpeppe/go-internal/imports
-github.com/rogpeppe/go-internal/internal/os/execpath
-github.com/rogpeppe/go-internal/internal/textutil
-github.com/rogpeppe/go-internal/par
-github.com/rogpeppe/go-internal/testenv
-github.com/rogpeppe/go-internal/testscript
-github.com/rogpeppe/go-internal/txtar
 # github.com/sergi/go-diff v1.1.0
 ## explicit
 github.com/sergi/go-diff/diffmatchpatch
@@ -354,6 +347,7 @@ google.golang.org/protobuf/reflect/protoregistry
 google.golang.org/protobuf/runtime/protoiface
 google.golang.org/protobuf/runtime/protoimpl
 # gopkg.in/errgo.v2 v2.1.0
+## explicit
 gopkg.in/errgo.v2/errors
 gopkg.in/errgo.v2/fmt/errors
 # gopkg.in/inconshreveable/log15.v2 v2.0.0-20180818164646-67afb5ed74ec
@@ -419,5 +413,4 @@ gopkg.in/yaml.v2
 gopkg.in/yaml.v3
 # moul.io/http2curl v1.0.0
 moul.io/http2curl
-# cuelang.org/go => github.com/hofstadter-io/cue v0.2.1
-# github.com/rogpeppe/go-internal => github.com/hofstadter-io/go-internal v1.7.0
+# cuelang.org/go => github.com/hofstadter-io/cue v0.2.2

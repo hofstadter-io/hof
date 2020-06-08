@@ -1,0 +1,7 @@
+### Test "clone --help" prints help
+call __hof clone --help
+
+### Test "clone -h" prints help
+call __hof clone -h
+
+

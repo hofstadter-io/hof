@@ -1,0 +1,7 @@
+### Test "rebase --help" prints help
+call __hof rebase --help
+
+### Test "rebase -h" prints help
+call __hof rebase -h
+
+
