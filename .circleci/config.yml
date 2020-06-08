@@ -52,7 +52,7 @@ jobs:
       # complete testing setup with tasks like collectiong and reporting coverage statistics
       - run: |
           # run all tests
-          hof test test.cue -s
+          hof test test.cue
 
       # Build our custom SonarCloud image
       - run: |
