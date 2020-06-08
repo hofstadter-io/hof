@@ -3,7 +3,8 @@ version: 2.1
 workflows:
   main:
     jobs:
-      - build:
+      - build
+      - scan:
           context: SonarCloud
 
 jobs:
@@ -18,7 +19,7 @@ jobs:
 
       # Install and prop docker
       - setup_remote_docker:
-          docker_layer_caching: true
+
       - run:
           name: Install Docker client
           command: apk add docker-cli
@@ -48,16 +49,30 @@ jobs:
           # run all tests
           hof test test.cue
 
-      # Upload reports now that they have been generated and collected
+  scan:
+    machine: true
+
+    steps:
+      # Debug stip
+      - run: |
+          echo "------  root dir   ------"
+          ls -lh .
+          echo "------  sonar dir  ------"
+          ls -lh sonar-reports
+          echo "------  end debug  ------"
+
+      # Build our custom image
       - run: |
           # build our own sonar container
           ./ci/sc/build.sh
 
+      # Upload reports now that they have been generated and collected
+      - run: |
           # run our own sonar containers
           ./ci/sc/run.sh
 
       # Scan and upload reports
       # - sonarcloud/scan
 
-orbs:
-  sonarcloud: sonarsource/sonarcloud@1.0.1
+#orbs:
+  #sonarcloud: sonarsource/sonarcloud@1.0.1
