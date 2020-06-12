@@ -19,6 +19,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"sort"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -108,8 +109,12 @@ func (e *Env) T() T {
 
 // Params holds parameters for a call to Run.
 type Params struct {
+	// Mode is the top level operation mode for script
+	// It can be "test" or "run" to control how scripts are isolated (or not)
+	Mode string
+
 	// Dir holds the name of the directory holding the scripts.
-	// All files in the directory with a .txt suffix will be considered
+	// All files in the directory with a .hls suffix will be considered
 	// as test scripts. By default the current directory is used.
 	// Dir is interpreted relative to the current test directory.
 	Dir string
@@ -174,7 +179,7 @@ type Params struct {
 	CommentPrefix string
 }
 
-// RunDir runs the tests in the given directory. All files in dir with a ".txt"
+// RunDir runs the tests in the given directory. All files in dir with a ".hls"
 // are considered to be test files.
 func Run(t *testing.T, p Params) {
 	RunT(tshim{t}, p)
@@ -209,14 +214,17 @@ func (t tshim) Verbose() bool {
 }
 
 func paramDefaults(p Params) Params {
+	if p.Mode == "" {
+		p.Mode = "test"
+	}
 	if p.Glob == "" {
 		p.Glob = "*.hls"
 	}
 	if p.PhasePrefix == "" {
-		p.PhasePrefix = "#"
+		p.PhasePrefix = "###"
 	}
 	if p.CommentPrefix == "" {
-		p.CommentPrefix = "~"
+		p.CommentPrefix = "#"
 	}
 
 	return p
@@ -236,6 +244,9 @@ func RunT(t T, p Params) {
 	if len(files) == 0 {
 		t.Fatal(fmt.Sprintf("no scripts found matching glob: %v", glob))
 	}
+
+	sort.Strings(files)
+
 	testTempDir := p.WorkdirRoot
 	if testTempDir == "" {
 		testTempDir, err = ioutil.TempDir(os.Getenv("GOTMPDIR"), "go-test-script")
@@ -256,7 +267,7 @@ func RunT(t T, p Params) {
 	refCount := int32(len(files))
 	for _, file := range files {
 		file := file
-		name := strings.TrimSuffix(filepath.Base(file), ".txt")
+		name := strings.TrimSuffix(filepath.Base(file), ".hls")
 		t.Run(name, func(t T) {
 			t.Parallel()
 			ts := &Script{
@@ -296,7 +307,7 @@ type Script struct {
 	mark          int                         // offset of next log truncation
 	cd            string                      // current directory during test execution; initially $WORK/gopath/src
 	name          string                      // short name of test ("foo")
-	file          string                      // full file name ("testdata/script/foo.txt")
+	file          string                      // full file name ("testdata/script/foo.hls")
 	lineno        int                         // line number currently executing
 	line          string                      // line currently executing
 	env           []string                    // environment list (for os/exec)
@@ -327,13 +338,14 @@ type backgroundCmd struct {
 
 // setup sets up the test execution temporary directory and environment.
 // It returns the comment section of the txtar archive.
-func (ts *Script) setup() string {
+func (ts *Script) setupTest() string {
 	ts.workdir = filepath.Join(ts.testTempDir, "script-"+ts.name)
 	ts.Check(os.MkdirAll(filepath.Join(ts.workdir, "tmp"), 0777))
 	env := &Env{
 		Vars: []string{
 			"WORK=" + ts.workdir, // must be first for ts.abbrev
 			"PATH=" + os.Getenv("PATH"),
+			"USER=" + os.Getenv("USER"),
 			homeEnvName() + "=/no-home",
 			tempEnvName() + "=" + filepath.Join(ts.workdir, "tmp"),
 			"devnull=" + os.DevNull,
@@ -384,6 +396,69 @@ func (ts *Script) setup() string {
 	return string(a.Comment)
 }
 
+// setup sets up the test execution temporary directory and environment.
+// It returns the comment section of the txtar archive.
+func (ts *Script) setupRun() string {
+	// ts.workdir = filepath.Join(ts.testTempDir, "script-"+ts.name)
+	// ts.Check(os.MkdirAll(filepath.Join(ts.workdir, "tmp"), 0777))
+
+	// expose external ENV here
+
+	env := &Env{
+		Vars: os.Environ(),
+		WorkDir: ts.workdir,
+		Values:  make(map[interface{}]interface{}),
+		Cd:      ts.workdir,
+		ts:      ts,
+	}
+
+	// Must preserve SYSTEMROOT on Windows: https://github.com/golang/go/issues/25513 et al
+	if runtime.GOOS == "windows" {
+		env.Vars = append(env.Vars,
+			"SYSTEMROOT="+os.Getenv("SYSTEMROOT"),
+			"exe=.exe",
+		)
+	} else {
+		env.Vars = append(env.Vars,
+			"exe=",
+		)
+	}
+
+	ts.cd = env.Cd
+
+	// Unpack archive.
+	a, err := txtar.ParseFile(ts.file)
+	ts.Check(err)
+	ts.archive = a
+	for _, f := range a.Files {
+		name := ts.MkAbs(ts.expand(f.Name))
+		ts.scriptFiles[name] = f.Name
+		ts.Check(os.MkdirAll(filepath.Dir(name), 0777))
+		ts.Check(ioutil.WriteFile(name, f.Data, 0666))
+	}
+
+	// Run any user-defined setup.
+	if ts.params.Setup != nil {
+		ts.Check(ts.params.Setup(env))
+	}
+
+	// setup more values on ts from env
+	ts.cd = env.Cd
+	ts.env = env.Vars
+	ts.values = env.Values
+
+	// fmt.Println("EnvArr:", ts.env)
+
+	ts.envMap = make(map[string]string)
+	for _, kv := range ts.env {
+		if i := strings.Index(kv, "="); i >= 0 {
+			ts.envMap[envvarname(kv[:i])] = kv[i+1:]
+		}
+	}
+
+	return string(a.Comment)
+}
+
 // run runs the test script.
 func (ts *Script) run() {
 	// Truncate log at end of last phase marker,
@@ -424,14 +499,25 @@ func (ts *Script) run() {
 	defer func() {
 		ts.deferred()
 	}()
-	script := ts.setup()
+
+	var script string
+	if ts.params.Mode == "test" {
+		script = ts.setupTest()
+	} else if ts.params.Mode == "run" {
+		script = ts.setupRun()
+	} else {
+		fmt.Errorf("Unknown HLS mode in Params: %q", ts.params.Mode)
+		return
+	}
 
 	// With -v or -testwork, start log with full environment.
 	if *testWork || ts.t.Verbose() {
-		// Display environment.
-		ts.cmdEnv(0, nil)
-		fmt.Fprintf(&ts.log, "\n")
-		ts.mark = ts.log.Len()
+		if ts.params.Mode == "test" {
+			// Display environment.
+			ts.cmdEnv(0, nil)
+			fmt.Fprintf(&ts.log, "\n")
+			ts.mark = ts.log.Len()
+		}
 	}
 	defer ts.applyScriptUpdates()
 
@@ -479,7 +565,7 @@ Script:
 		}
 
 		// Echo command to log.
-		fmt.Fprintf(&ts.log, "> %s\n", line)
+		fmt.Fprintf(&ts.log, "\n>>> %s\n", line)
 
 		// Command prefix [cond] means only run this command if cond is satisfied.
 		for strings.HasPrefix(args[0], "[") && strings.HasSuffix(args[0], "]") {
@@ -549,7 +635,12 @@ Script:
 	rewind()
 	markTime()
 	if !ts.stopped {
-		fmt.Fprintf(&ts.log, "PASS\n")
+		if ts.params.Mode == "test" {
+			fmt.Fprintf(&ts.log, "PASS\n")
+		}
+		if ts.params.Mode == "run" {
+			fmt.Fprintf(&ts.log, "DONE\n")
+		}
 	}
 }
 
@@ -624,6 +715,9 @@ func (ts *Script) condition(cond string) (bool, error) {
 
 // abbrev abbreviates the actual work directory in the string s to the literal string "$WORK".
 func (ts *Script) abbrev(s string) string {
+	if ts.params.Mode != "test" {
+		return s
+	}
 	s = strings.Replace(s, ts.workdir, "$WORK", -1)
 	if *testWork || ts.params.TestWork {
 		// Expose actual $WORK value in environment dump on first line of work script,

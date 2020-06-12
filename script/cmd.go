@@ -36,8 +36,10 @@ var scriptCmds = map[string]func(*Script, int, []string){
 	"grep":    (*Script).cmdGrep,
 	"http":    (*Script).cmdHttp,
 	"mkdir":   (*Script).cmdMkdir,
+	"regexp":  (*Script).cmdRegexp,
 	"rm":      (*Script).cmdRm,
 	"unquote": (*Script).cmdUnquote,
+	"sed":     (*Script).cmdSed,
 	"skip":    (*Script).cmdSkip,
 	"stdin":   (*Script).cmdStdin,
 	"stderr":  (*Script).cmdStderr,
@@ -275,7 +277,20 @@ func (ts *Script) cmdEnv(neg int, args []string) {
 			ts.Logf("%s=%s\n", env, ts.Getenv(env))
 			continue
 		}
-		ts.Setenv(env[:i], env[i+1:])
+		k, v := env[:i], env[i+1:]
+		if v[0] == '@' {
+			fname := v[1:] // for error messages
+			if fname == "stdout" {
+				v = ts.stdout
+			} else if fname == "stderr" {
+				v = ts.stderr
+			} else {
+				data, err := ioutil.ReadFile(ts.MkAbs(fname))
+				ts.Check(err)
+				v = string(data)
+			}
+		}
+		ts.Setenv(k,v)
 	}
 }
 
@@ -469,10 +484,22 @@ func (ts *Script) cmdStatus(neg int, args []string) {
 
 }
 
-// grep checks that file content matches a regexp.
-// Like stdout/stderr and unlike Unix grep, it accepts Go regexp syntax.
+// regexp checks that file content matches a regexp.
+// it accepts Go regexp syntax.
+func (ts *Script) cmdRegexp(neg int, args []string) {
+	scriptMatch(ts, neg, args, "", "regexp")
+}
+
+// regexp checks that file content matches a regexp.
+// it accepts Go regexp syntax and returns the matches
 func (ts *Script) cmdGrep(neg int, args []string) {
 	scriptMatch(ts, neg, args, "", "grep")
+}
+
+// sed finds and replaces in text content
+// it accepts Go regexp syntax and returns the replaced content
+func (ts *Script) cmdSed(neg int, args []string) {
+	scriptMatch(ts, neg, args, "", "sed")
 }
 
 // stop stops execution of the test (marking it passed).
@@ -568,26 +595,90 @@ func scriptMatch(ts *Script, neg int, args []string, text, name string) {
 		args = args[1:]
 	}
 
+	isRegexp := name == "regexp"
+	isGrep := name == "grep"
+	isSed := name == "sed"
+
 	extraUsage := ""
 	want := 1
-	if name == "grep" {
+	if isRegexp || isGrep {
 		extraUsage = " file"
 		want = 2
+	}
+	if isSed {
+		extraUsage = " replace file"
+		want = 3
 	}
 	if len(args) != want {
 		ts.Fatalf("usage: %s [-count=N] 'pattern'%s", name, extraUsage)
 	}
 
 	pattern := args[0]
+	switch pattern {
+	case "stdout":
+		pattern = ts.stdout
+	case "stderr":
+		pattern = ts.stderr
+
+	default:
+		if pattern[0] == '@' {
+			fname := pattern[1:] // for error messages
+			data, err := ioutil.ReadFile(ts.MkAbs(fname))
+			ts.Check(err)
+			pattern = string(data)
+		}
+	}
 	re, err := regexp.Compile(`(?m)` + pattern)
 	ts.Check(err)
 
-	isGrep := name == "grep"
-	if isGrep {
-		name = args[1] // for error messages
-		data, err := ioutil.ReadFile(ts.MkAbs(args[1]))
-		ts.Check(err)
-		text = string(data)
+
+	if isRegexp || isGrep {
+		content := args[1]
+		switch  content {
+		case "stdout", "$WORK/stdout":
+			text = ts.stdout
+		case "stderr", "$WORK/stderr":
+			text = ts.stderr
+
+		default:
+			name = args[1] // for error messages
+			data, err := ioutil.ReadFile(ts.MkAbs(args[1]))
+			ts.Check(err)
+			text = string(data)
+		}
+	}
+	replace := ""
+	if isSed {
+		replace = args[1]
+		switch  replace {
+		case "stdout", "$WORK/stdout":
+			text = ts.stdout
+		case "stderr", "$WORK/stderr":
+			text = ts.stderr
+
+		default:
+			if replace[0] == '@' {
+				fname := replace[1:] // for error messages
+				data, err := ioutil.ReadFile(ts.MkAbs(fname))
+				ts.Check(err)
+				replace = string(data)
+			}
+		}
+		content := args[2]
+		switch  content {
+		case "stdout", "$WORK/stdout":
+			text = ts.stdout
+		case "stderr", "$WORK/stderr":
+			text = ts.stderr
+
+		default:
+			if content[0] == '@' {
+				fname := content[1:] // for error messages
+				data, err := ioutil.ReadFile(ts.MkAbs(fname))
+				ts.Check(err)
+				content = string(data)
+			}
+		}
 	}
 
 	if neg > 0 {
@@ -597,7 +688,25 @@ func scriptMatch(ts *Script, neg int, args []string, text, name string) {
 			}
 			ts.Fatalf("unexpected match for %#q found in %s: %s", pattern, name, re.FindString(text))
 		}
+
+		if isGrep {
+			c := -1
+			if n > 0 {
+				c = n
+			}
+			matches := re.FindAllString(text, c)
+			if c > 0 && len(matches) > c {
+				matches = matches[:c]
+			}
+			ts.stdout = strings.Join(matches, "\n")
+		}
+		if isSed {
+			ts.stdout = re.ReplaceAllString(text, replace)
+		}
 	} else {
+		if isGrep || isSed {
+			ts.Fatalf("%s does not support status checking", name)
+		}
 		if !re.MatchString(text) {
 			if isGrep {
 				ts.Logf("[%s]\n%s\n", name, text)
@@ -615,3 +724,65 @@ func scriptMatch(ts *Script, neg int, args []string, text, name string) {
 		}
 	}
 }
+
+// cmdExpectExec starts an expect session.
+func (ts *Script) cmdExpectExec(neg int, args []string) {
+	fmt.Println("expect-exec:", neg, args)
+
+}
+
+// cmdExpectRepl is the main expect function which looks for a string match and sends something in reply.
+func (ts *Script) cmdExpectRepl(neg int, args []string) {
+	fmt.Println("expect-repl:", neg, args)
+
+}
+
+// cmdExpectDone finishes and cleans up an expect session.
+func (ts *Script) cmdExpectDone(neg int, args []string) {
+	fmt.Println("expect-done:", neg, args)
+	/*
+	if len(args) < 1 || (len(args) == 1 && args[0] == "&") {
+		ts.Fatalf("usage: exec program [args...] [&]")
+	}
+
+	var err error
+	if len(args) > 0 && args[len(args)-1] == "&" {
+		var cmd *exec.Cmd
+		cmd, err = ts.execBackground(args[0], args[1:len(args)-1]...)
+		if err == nil {
+			wait := make(chan struct{})
+			go func() {
+				werr := ctxWait(ts.ctxt, cmd)
+				close(wait)
+				ts.status = cmd.ProcessState.ExitCode()
+				err = werr
+			}()
+			ts.background = append(ts.background, backgroundCmd{cmd, wait, neg})
+		}
+		ts.stdout, ts.stderr = "", ""
+	} else {
+		ts.stdout, ts.stderr, err = ts.exec(args[0], args[1:]...)
+		if ts.stdout != "" {
+			fmt.Fprintf(&ts.log, "[stdout]\n%s", ts.stdout)
+		}
+		if ts.stderr != "" {
+			fmt.Fprintf(&ts.log, "[stderr]\n%s", ts.stderr)
+		}
+		if err == nil && neg > 0 {
+			ts.Fatalf("unexpected command success")
+		}
+	}
+
+	if err != nil {
+		fmt.Fprintf(&ts.log, "[%v]\n", err)
+		if ts.ctxt.Err() != nil {
+			ts.Fatalf("test timed out while running command")
+		} else if neg == 0 {
+			ts.Fatalf("unexpected exec command failure")
+		}
+	}
+	*/
+
+
+}
+
