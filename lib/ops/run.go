@@ -23,6 +23,12 @@ var (
 
 func RunRunFromArgs(args []string) error {
 
+	defer func() {
+		if r := recover(); r != nil {
+			// fmt.Println("Recovered in f", r)
+		}
+	}()
+
 	var cueFiles, hlsFiles, tbdFiles []string
 	for _, a := range args {
 		switch filepath.Ext(a) {

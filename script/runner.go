@@ -15,7 +15,7 @@ type Runner struct {
 }
 
 func (r Runner) Skip(is ...interface{}) {
-	panic(skipRun)
+	// panic(skipRun)
 }
 
 func (r Runner) Fatal(is ...interface{}) {
