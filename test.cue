@@ -19,7 +19,6 @@ import "strings"
 #GoBashTest: #GoBaseTest & {
 	dir: string
 	script: string | *"""
-	mkdir -p /no-home/.config
 	rm -rf .workdir
 	go test -cover ./
 	"""
@@ -31,7 +30,6 @@ import "strings"
 	back: strings.Repeat("../", strings.Count(dir, "/") + 1)
 	scdir: "\(back)sonar-reports/go/\(dir)"
 	script: string | *"""
-	mkdir -p /no-home/.config
 	rm -rf .workdir
 	mkdir -p \(scdir)
 	go test -cover ./ -coverprofile \(scdir)/cover.out -json > \(scdir)/tests.out
