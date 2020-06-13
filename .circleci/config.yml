@@ -53,10 +53,8 @@ jobs:
       - run: |
           # run all tests
           set +e
-          hof test test.cue
+          hof test test.cue -t cover
           set -e
-
-          echo "stupid ci bs..."
 
       # Build our custom SonarCloud image
       - run: |
@@ -67,4 +65,9 @@ jobs:
           mkdir -p sonar-reports/go
 
           ./ci/sc/run.sh
+
+      # Rerun tests for failures, information, and inpsection purposes
+      - run: |
+          # run all tests
+          hof test test.cue -t test
 
