@@ -31,6 +31,11 @@ jobs:
           tar -xf cue_${CUE_VER}_Linux_x86_64.tar.gz
           sudo mv cue /usr/local/bin/cue
 
+      # prep test related dir
+      - run: |
+          echo "$(id -u):$(id -g)"
+          sudo mkdir -p /no-home
+          sudo chown 1001:1002 -R /no-home
 
       # fetch Go dependencies
       - run: |
