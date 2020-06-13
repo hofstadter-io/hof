@@ -6,10 +6,12 @@ require (
 	cuelang.org/go v0.2.0
 	github.com/aymerick/raymond v2.0.2+incompatible
 	github.com/bmatcuk/doublestar v1.3.0
+	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
 	github.com/clbanning/mxj v1.8.4
 	github.com/codemodus/kace v0.5.1
 	github.com/epiclabs-io/diff3 v0.0.0-20181217103619-05282cece609
 	github.com/fatih/color v1.9.0
+	github.com/flynn-archive/go-shlex v0.0.0-20150515145356-3f9db97f8568
 	github.com/franela/goblin v0.0.0-20200512143142-b260c999b2d7
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-git/go-billy/v5 v5.0.0
@@ -46,5 +48,5 @@ require (
 //
 // we have an artificial version bump on our fork
 replace cuelang.org/go => github.com/hofstadter-io/cue v0.2.2
-// replace cuelang.org/go => ../../cue/cue
 
+// replace cuelang.org/go => ../../cue/cue
