@@ -81,7 +81,7 @@ func NewWithConfig(conf *readline.Config) *Shell {
 
 // NewWithReadline creates a new shell with a custom readline instance.
 func NewWithReadline(rl *readline.Instance) *Shell {
-	shell := &Shell{
+	sh := &Shell{
 		rootCmd: &Cmd{},
 		reader: &shellReader{
 			scanner:     rl,
@@ -94,10 +94,10 @@ func NewWithReadline(rl *readline.Instance) *Shell {
 		writer:   rl.Config.Stdout,
 		autoHelp: true,
 	}
-	shell.Actions = &shellActionsImpl{Shell: shell}
-	shell.progressBar = newProgressBar(shell)
-	addDefaultFuncs(shell)
-	return shell
+	sh.Actions = &shellActionsImpl{Shell: sh}
+	sh.progressBar = newProgressBar(sh)
+	addDefaultFuncs(sh)
+	return sh
 }
 
 // Start starts the shell but does not wait for it to stop.
@@ -166,7 +166,7 @@ func (s *Shell) prepareRun() {
 }
 
 func (s *Shell) run() {
-shell:
+sh:
 	for s.Active() {
 		var line []string
 		var err error
@@ -179,7 +179,7 @@ shell:
 		case <-read:
 			break
 		case <-s.haltChan:
-			continue shell
+			continue sh
 		}
 
 		if err == io.EOF {

@@ -51,6 +51,8 @@ jobs:
       #- run: |
           #./hof mod vendor cue
 
+      # TODO, test regen has no git diff
+
       # Hof has a built in test command to facilitate running tests
       # en masse, regardless of the language, technology, or framework
       # you can also script all of the processes that go around a
