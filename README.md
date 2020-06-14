@@ -1,12 +1,14 @@
-# hof - a polyglot tool for building software
+# hof - the high code framework
 
-The `hof` tool builds on Cuelang and
-leverages single-source of truth designs and data models,
-code generation, flexible resource and runtime systems,
-sharable workspaces, contexts, dev setups,
-and much much more.
+The `hof` tool tries to cover 80% of typical development activities
+and weave it together into a cohesive and fluid experience.
+Several influential design decisions permeate the tool:
 
-`hof` helps you get more done with less
+- A user writes single-source of truth (SSoT) design for expressing conceptual data models or processes at a higher level of abstraction
+- A tool reads this SSoT, the current context, and the users intent to construct as much of the implementation as possible
+- A higher level representation of data, code, cloud-native, and other building blocks will unlock development to more humans
+
+_[ also, the tool should definitely be built with itself ;]_
 
 [![GitHub Release](https://img.shields.io/github/v/release/hofstadter-io/hof)](https://github.com/hofstadter-io/hof/releases)
 [![GitHub milestone](https://img.shields.io/github/milestones/progress/hofstadter-io/hof/2)](https://github.com/hofstadter-io/hof/projects/1)
@@ -24,15 +26,14 @@ and much much more.
 ## features
 
 - __single source of truth__: designs mean you can write your idea down in one place, and make all the things from that.
-  The `hof` tool takes in two directories (designs and generators) and outputs any number of files and directories.
-- __data models__: create, view, diff, calculate / migrate, and manage your data models, like a full service data assistant [should](should)
+- __data models__: create, view, diff, calculate / migrate, and manage your data models
 - __code gen__: generate code, data, and config from your data models and designs
-- __poly run__: run polyglot command and scripts seamlessly across runtimes (go, js, py, bash, custom)
-- __poly mod__: leverage modules which span languages and technologies
+- __scripting__: HLS is a scripting environment between bash and python with lots of builtin helpers
+- __modules__: leverage modules which span languages and technologies
 - __label, sets__: manage labels and labelsets for resources, datamodels, (nested) labelsets, and more
 - __resources__: builtin and custom resources, inspired by k8s, which cover a wide range of developer needs
 - __workspaces__: manage all of the above with contexts on a per-project basis
-- __workflow__: simplified git workflow plus extras for debugging and reporducing errors
+- __workflow__: simplified git workflow plus extras for debugging and reproducing errors
 - __cuelang__: powered by the logic and unification which therein lies https://cuelang.org
 - __extensible__: you can make your own versions of all of the things you find around here without modifying `hof` itself, by design.
 - __your way__: everything is backed by files and git, so you can use your usual tools and team practices
@@ -65,7 +66,29 @@ or use `hof` to install a specific version of itself with `hof update --version 
 
 
 
+### Modules and Examples
+
+Projects:
+
+- This project uses itself to generate various pieces like the cli structure and the release process.
+
+Modules:
+
+- [hofmod-model](https://github.com/hofstadter-io/hofmod-model) - A module for representing common types and their relations.
+- [hofmod-cli](https://github.com/hofstadter-io/hofmod-cli) - Create CLI infrastructure based on the Golang Cobra library.
+- [hofmod-releaser](https://github.com/hofstadter-io/hofmod-releaser) - Release code or binaries to GitHub and Docker with minimal configuration. Based on [GoReleaser](https://goreleaser.com/).
+- [hofmod-config](https://github.com/hofstadter-io/hofmod-config) - Cloud native config and secret files using the Golang Viper library and adding dynamic reload in Kubernetes.
+- [hofmod-rest](https://github.com/hofstadter-io/hofmod-rest) - Generate Golang REST servers that are ready for production. This makes use of many of the other modules here.
+- [hofmod-hugo](https://github.com/hofstadter-io/hofmod-hugo) - Create documentation sites with [Hugo](https://gohugo.io) and [Docsy](https://docsy.dev)
+
+
 ## top-level commands
+
+`hof` has a wide range of top level commands
+that span an equally wide range of typical
+developer activities. The goal here is to
+capture the 80% and weave it together into
+a cohesive experience.
 
 ```text
 hof - a polyglot tool for building software
@@ -212,3 +235,5 @@ Flags:
 Use "hof [command] --help / -h" for more information about a command.
 Use "hof topic [subject]"  for more information about a subject.
 ```
+
+
