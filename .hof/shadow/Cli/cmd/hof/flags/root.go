@@ -1,37 +1,43 @@
 package flags
 
-var (
-	RootLabelsPflag             []string
-	RootConfigPflag             string
-	RootSecretPflag             string
-	RootContextFilePflag        string
-	RootContextPflag            string
-	RootGlobalPflag             bool
-	RootLocalPflag              bool
-	RootInputPflag              []string
-	RootInputFormatPflag        string
-	RootOutputPflag             []string
-	RootOutputFormatPflag       string
-	RootErrorPflag              []string
-	RootErrorFormatPflag        string
-	RootAccountPflag            string
-	RootBillingPflag            string
-	RootProjectPflag            string
-	RootWorkspacePflag          string
-	RootDatamodelDirPflag       string
-	RootResourcesDirPflag       string
-	RootRuntimesDirPflag        string
-	RootPackagePflag            string
-	RootErrorsPflag             bool
-	RootIgnorePflag             bool
-	RootSimplifyPflag           bool
-	RootTracePflag              bool
-	RootStrictPflag             bool
-	RootVerbosePflag            string
-	RootQuietPflag              bool
-	RootImpersonateAccountPflag string
-	RootTraceTokenPflag         string
-	RootLogHTTPPflag            string
-	RootRunUIPflag              bool
-	RootRunTUIPflag             bool
-)
+type RootPflagpole struct {
+	Labels             []string
+	Config             string
+	Secret             string
+	ContextFile        string
+	Context            string
+	Global             bool
+	Local              bool
+	Input              []string
+	InputFormat        string
+	Output             []string
+	OutputFormat       string
+	Error              []string
+	ErrorFormat        string
+	Account            string
+	Billing            string
+	Project            string
+	Workspace          string
+	DatamodelDir       string
+	ResourcesDir       string
+	RuntimesDir        string
+	Package            string
+	Errors             bool
+	Ignore             bool
+	Simplify           bool
+	Trace              bool
+	Strict             bool
+	Verbose            string
+	Quiet              bool
+	ImpersonateAccount string
+	TraceToken         string
+	LogHTTP            string
+	RunWeb             bool
+	RunTUI             bool
+	RunREPL            bool
+	Topic              string
+	Example            string
+	Tutorial           string
+}
+
+var RootPflags RootPflagpole

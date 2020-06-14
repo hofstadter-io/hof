@@ -33,9 +33,12 @@ Labels are used _ for _ (see also 'hof topic labels'):
   \(cmds.#LabelsetCommand.Help)
 
 Learn more about hof and the _ you can do:
-  \(cmds.#DocCommand.Help)
-  \(cmds.#TourCommand.Help)
-  \(cmds.#TutorialCommand.Help)
+  each command has four flags, use 'list' as their arg
+	to see available items on a command
+		--help              print help message
+		--topics            addtional help topics
+		--examples          examples for the command
+		--tutorials         tutorials for the command
 
 Download modules, add instances or content, and manage runtimes:
   \(cmds.#ModCommand.Help)
@@ -106,15 +109,9 @@ Send us feedback or say hello:
 
 Additional commands:
   help                  help about any command
-  topic                 additional information for various subjects and concepts
   update                check for new versions and run self-updates
   version               print detailed version information
   completion            generate completion helpers for your terminal
-
-Additional topics:
-  schema, codegen, modeling, mirgrations
-  resources, labels, context, querying
-  workflow, changesets, collaboration
 
 (✓) command is generally available
 (β) command is beta and ready for testing

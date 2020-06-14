@@ -16,6 +16,8 @@ import (
 	Short:      "Polyglot Code Gereration Framework"
 	Long:       Short
 	CustomHelp: #RootCustomHelp
+	Topics:     #RootTopics
+	Examples:   #RootExamples
 
 	OmitRun: true
 
@@ -46,11 +48,6 @@ import (
 		// labels
 		cmds.#LabelCommand,
 		cmds.#LabelsetCommand,
-
-		// learn
-		cmds.#DocCommand,
-		cmds.#TourCommand,
-		cmds.#TutorialCommand,
 
 		// hof + cue
 		cmds.#ModCommand,
@@ -129,7 +126,6 @@ import (
 		// - fix
 
 		// additional help topics
-		cmds.#TopicCommand,
 		cmds.#FeedbackCommand,
 		// bugreport
 		// crashreport
@@ -157,4 +153,30 @@ import (
 	TelemetryIdDir: "hof"
 
 	EnablePProf: true
+}
+
+#RootTopics: {
+	"test-topic": ##"""
+	hello, this is a test topic.
+	please check out the others!
+
+	"""##
+
+	"main-topics": ##"""
+	There are several main topics:
+
+	hof gen  --topic list
+	hof mod  --topic list
+	hof test --topic list
+	hof run  --topic list
+	hof --topic script
+
+	"""##
+}
+
+#RootExamples: {
+	"test-example": ##"""
+	Thit is a test example, check out the subcommands, repo,  and website for more!
+
+	"""##
 }

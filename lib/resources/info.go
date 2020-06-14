@@ -20,14 +20,14 @@ func RunInfoFromArgs(args []string, cmdflags flags.InfoFlagpole) (err error) {
 	dDir := ""
 
 	// Check our flags
-	if flags.RootResourcesDirPflag != "" {
-		rDir = flags.RootResourcesDirPflag
+	if flags.RootPflags.ResourcesDir != "" {
+		rDir = flags.RootPflags.ResourcesDir
 	} else {
 		// TODO, look in context / config
 		rDir = "resources"
 	}
-	if flags.RootDatamodelDirPflag != "" {
-		dDir = flags.RootDatamodelDirPflag
+	if flags.RootPflags.DatamodelDir != "" {
+		dDir = flags.RootPflags.DatamodelDir
 	} else {
 		// TODO, look in context / config
 		dDir = "datamodel"

@@ -7,6 +7,7 @@ Several influential design decisions permeate the tool:
 - A user writes single-source of truth (SSoT) design for expressing conceptual data models or processes at a higher level of abstraction
 - A tool reads this SSoT, the current context, and the users intent to construct as much of the implementation as possible
 - A higher level representation of data, code, cloud-native, and other building blocks will unlock development to more humans
+- _thing you can do with `hof` should be customizable and extensible by only editing text files and not `hof` source code.
 
 _[ also, the tool should definitely be built with itself ;]_
 
@@ -103,25 +104,27 @@ Initialize and create new hof workspaces:
   init            β     create an empty workspace or initialize an existing directory to one
   clone           β     clone a workspace or repository into a new directory
 
-Model your designs, generate implementation, run anything:
+Model your designs, generate implementation, run or test anything:
   datamodel       α     create, view, diff, calculate / migrate, and manage your data models
   gen             ✓     generate code, data, and config from your data models and designs
-  run             α     run polyglot command and scripts seamlessly across runtimes
-  runtimes        α     work with runtimes (go, js, py, bash, custom)
+  run             α     Hof Line Script (HLS) is a successor to bash and python based scripting
+  test            α     test all sorts of things
 
 Labels are used _ for _ (see also 'hof topic labels'):
   label           α     manage labels for resources and more
   labelset        α     group resources, datamodels, labelsets, and more
 
 Learn more about hof and the _ you can do:
-  doc             Ø     Generate and view documentation
-  tour            Ø     take a tour of the hof tool
-  tutorial        Ø     tutorials to help you learn hof right in hof
+  each command has four flags, use 'list' to see available
+  --help                print help message
+  --topics              addtional help topics
+  --examples            examples for the command
+  --tutorials           tutorials for the command
 
-Download modules, add content, and execute commands:
+Download modules, add instances or content, and manage runtimes:
   mod             β     mod subcmd is a polyglot dependency management tool based on go mods
   add             α     add dependencies and new components to the current module or workspace
-  cmd             α     run commands from the scripting layer and your _tool.cue files
+  runtimes        α     work with runtimes (go, js, py, bash, docker, cloud-vms, k8s, custom)
 
 Manage resources (see also 'hof topic resources'):
   info            α     print information about known resources
@@ -132,7 +135,7 @@ Manage resources (see also 'hof topic resources'):
   delete          α     delete resources
 
 Configure, Unify, Execute (see also https://cuelang.org):
-  (also a whole bunch of other awesome things)
+  cmd             α     run commands from the scripting layer and your _tool.cue files
   def             α     print consolidated definitions
   eval            α     print consolidated definitions
   export          α     export your data model to various formats
@@ -187,15 +190,9 @@ Send us feedback or say hello:
 
 Additional commands:
   help                  help about any command
-  topic                 additional information for various subjects and concepts
   update                check for new versions and run self-updates
   version               print detailed version information
   completion            generate completion helpers for your terminal
-
-Additional topics:
-  schema, codegen, modeling, mirgrations
-  resources, labels, context, querying
-  workflow, changesets, collaboration
 
 (✓) command is generally available
 (β) command is beta and ready for testing
@@ -210,26 +207,36 @@ Flags:
       --context string               The of an entry in the context file
       --context-file string          The path to a hof context file
       --datamodel-dir string         directory for discovering resources
+      --error strings                error streams, depending on the command context
+      --error-format string          error format, defaults to cue
+      --example string               examples for this command, 'list' will print available examples
       --global                       Operate using only the global config/secret context
   -h, --help                         help for hof
       --ignore                       proceed in the presence of errors
       --impersonate-account string   account to impersonate for this hof execution
+  -i, --input strings                input streams, depending on the command context
+  -I, --input-format string          input format, defaults to infered
   -l, --label strings                Labels for use across all commands
       --local                        Operate using only the local config/secret context
       --log-http string              used to help debug issues
+  -o, --output strings               output streams, depending on the command context
+  -O, --output-format string         output format, defaults to cue
   -p, --package string               the package context to use during this hof execution
       --project string               the project context to use during this hof execution
   -q, --quiet                        turn off output and assume defaults at prompts
+      --repl                         run the command from the hof repl
       --resources-dir string         directory for discovering resources
       --runtimes-dir string          directory for discovering runtimes
       --secret string                The path to a hof secret file
   -S, --simplify                     simplify output
       --strict                       report errors for lossy mappings
+      --topic string                 help topics for this command, 'list' will print available topics
       --trace                        trace cue computation
   -T, --trace-token string           used to help debug issues
       --tui                          run the command from the terminal ui
-      --ui                           run the command from the web ui
+      --tutorial string              tutorials for this command, 'list' will print available tutorials
   -v, --verbose string               set the verbosity of output
+      --web                          run the command from the web ui
       --workspace string             the workspace context to use during this hof execution
 
 Use "hof [command] --help / -h" for more information about a command.

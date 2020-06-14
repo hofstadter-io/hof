@@ -45,8 +45,8 @@ func CueRuntimeFromEntrypointsAndFlags(entrypoints []string) (crt *CueRuntime, e
 	}
 
 	// package?
-	if flags.RootPackagePflag != "" {
-		cfg.Package = flags.RootPackagePflag
+	if flags.RootPflags.Package != "" {
+		cfg.Package = flags.RootPflags.Package
 	}
 
 	crt = &CueRuntime{

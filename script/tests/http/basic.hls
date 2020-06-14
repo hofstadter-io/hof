@@ -1,5 +1,8 @@
 # Test a basic http call
 
+http POST https://postman-echo.com
+status 200
+
 http https://postman-echo.com/get?cow=moo
 status 200
 

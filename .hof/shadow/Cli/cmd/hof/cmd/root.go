@@ -23,39 +23,43 @@ var hofLong = `Polyglot Code Gereration Framework`
 
 func init() {
 
-	RootCmd.PersistentFlags().StringSliceVarP(&flags.RootLabelsPflag, "label", "l", nil, "Labels for use across all commands")
-	RootCmd.PersistentFlags().StringVarP(&flags.RootConfigPflag, "config", "", "", "Path to a hof configuration file")
-	RootCmd.PersistentFlags().StringVarP(&flags.RootSecretPflag, "secret", "", "", "The path to a hof secret file")
-	RootCmd.PersistentFlags().StringVarP(&flags.RootContextFilePflag, "context-file", "", "", "The path to a hof context file")
-	RootCmd.PersistentFlags().StringVarP(&flags.RootContextPflag, "context", "", "", "The of an entry in the context file")
-	RootCmd.PersistentFlags().BoolVarP(&flags.RootGlobalPflag, "global", "", false, "Operate using only the global config/secret context")
-	RootCmd.PersistentFlags().BoolVarP(&flags.RootLocalPflag, "local", "", false, "Operate using only the local config/secret context")
-	RootCmd.PersistentFlags().StringSliceVarP(&flags.RootInputPflag, "input", "i", nil, "input streams, depending on the command context")
-	RootCmd.PersistentFlags().StringVarP(&flags.RootInputFormatPflag, "input-format", "I", "", "input format, defaults to infered")
-	RootCmd.PersistentFlags().StringSliceVarP(&flags.RootOutputPflag, "output", "o", nil, "output streams, depending on the command context")
-	RootCmd.PersistentFlags().StringVarP(&flags.RootOutputFormatPflag, "output-format", "O", "", "output format, defaults to cue")
-	RootCmd.PersistentFlags().StringSliceVarP(&flags.RootErrorPflag, "error", "", nil, "error streams, depending on the command context")
-	RootCmd.PersistentFlags().StringVarP(&flags.RootErrorFormatPflag, "error-format", "", "", "error format, defaults to cue")
-	RootCmd.PersistentFlags().StringVarP(&flags.RootAccountPflag, "account", "", "", "the account context to use during this hof execution")
-	RootCmd.PersistentFlags().StringVarP(&flags.RootBillingPflag, "billing", "", "", "the billing context to use during this hof execution")
-	RootCmd.PersistentFlags().StringVarP(&flags.RootProjectPflag, "project", "", "", "the project context to use during this hof execution")
-	RootCmd.PersistentFlags().StringVarP(&flags.RootWorkspacePflag, "workspace", "", "", "the workspace context to use during this hof execution")
-	RootCmd.PersistentFlags().StringVarP(&flags.RootDatamodelDirPflag, "datamodel-dir", "", "", "directory for discovering resources")
-	RootCmd.PersistentFlags().StringVarP(&flags.RootResourcesDirPflag, "resources-dir", "", "", "directory for discovering resources")
-	RootCmd.PersistentFlags().StringVarP(&flags.RootRuntimesDirPflag, "runtimes-dir", "", "", "directory for discovering runtimes")
-	RootCmd.PersistentFlags().StringVarP(&flags.RootPackagePflag, "package", "p", "", "the package context to use during this hof execution")
-	RootCmd.PersistentFlags().BoolVarP(&flags.RootErrorsPflag, "all-errors", "E", false, "print all available errors")
-	RootCmd.PersistentFlags().BoolVarP(&flags.RootIgnorePflag, "ignore", "", false, "proceed in the presence of errors")
-	RootCmd.PersistentFlags().BoolVarP(&flags.RootSimplifyPflag, "simplify", "S", false, "simplify output")
-	RootCmd.PersistentFlags().BoolVarP(&flags.RootTracePflag, "trace", "", false, "trace cue computation")
-	RootCmd.PersistentFlags().BoolVarP(&flags.RootStrictPflag, "strict", "", false, "report errors for lossy mappings")
-	RootCmd.PersistentFlags().StringVarP(&flags.RootVerbosePflag, "verbose", "v", "", "set the verbosity of output")
-	RootCmd.PersistentFlags().BoolVarP(&flags.RootQuietPflag, "quiet", "q", false, "turn off output and assume defaults at prompts")
-	RootCmd.PersistentFlags().StringVarP(&flags.RootImpersonateAccountPflag, "impersonate-account", "", "", "account to impersonate for this hof execution")
-	RootCmd.PersistentFlags().StringVarP(&flags.RootTraceTokenPflag, "trace-token", "T", "", "used to help debug issues")
-	RootCmd.PersistentFlags().StringVarP(&flags.RootLogHTTPPflag, "log-http", "", "", "used to help debug issues")
-	RootCmd.PersistentFlags().BoolVarP(&flags.RootRunUIPflag, "ui", "", false, "run the command from the web ui")
-	RootCmd.PersistentFlags().BoolVarP(&flags.RootRunTUIPflag, "tui", "", false, "run the command from the terminal ui")
+	RootCmd.PersistentFlags().StringSliceVarP(&(flags.RootPflags.Labels), "label", "l", nil, "Labels for use across all commands")
+	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Config), "config", "", "", "Path to a hof configuration file")
+	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Secret), "secret", "", "", "The path to a hof secret file")
+	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.ContextFile), "context-file", "", "", "The path to a hof context file")
+	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Context), "context", "", "", "The of an entry in the context file")
+	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Global), "global", "", false, "Operate using only the global config/secret context")
+	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Local), "local", "", false, "Operate using only the local config/secret context")
+	RootCmd.PersistentFlags().StringSliceVarP(&(flags.RootPflags.Input), "input", "i", nil, "input streams, depending on the command context")
+	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.InputFormat), "input-format", "I", "", "input format, defaults to infered")
+	RootCmd.PersistentFlags().StringSliceVarP(&(flags.RootPflags.Output), "output", "o", nil, "output streams, depending on the command context")
+	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.OutputFormat), "output-format", "O", "", "output format, defaults to cue")
+	RootCmd.PersistentFlags().StringSliceVarP(&(flags.RootPflags.Error), "error", "", nil, "error streams, depending on the command context")
+	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.ErrorFormat), "error-format", "", "", "error format, defaults to cue")
+	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Account), "account", "", "", "the account context to use during this hof execution")
+	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Billing), "billing", "", "", "the billing context to use during this hof execution")
+	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Project), "project", "", "", "the project context to use during this hof execution")
+	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Workspace), "workspace", "", "", "the workspace context to use during this hof execution")
+	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.DatamodelDir), "datamodel-dir", "", "", "directory for discovering resources")
+	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.ResourcesDir), "resources-dir", "", "", "directory for discovering resources")
+	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.RuntimesDir), "runtimes-dir", "", "", "directory for discovering runtimes")
+	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Package), "package", "p", "", "the package context to use during this hof execution")
+	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Errors), "all-errors", "E", false, "print all available errors")
+	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Ignore), "ignore", "", false, "proceed in the presence of errors")
+	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Simplify), "simplify", "S", false, "simplify output")
+	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Trace), "trace", "", false, "trace cue computation")
+	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Strict), "strict", "", false, "report errors for lossy mappings")
+	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Verbose), "verbose", "v", "", "set the verbosity of output")
+	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Quiet), "quiet", "q", false, "turn off output and assume defaults at prompts")
+	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.ImpersonateAccount), "impersonate-account", "", "", "account to impersonate for this hof execution")
+	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.TraceToken), "trace-token", "T", "", "used to help debug issues")
+	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.LogHTTP), "log-http", "", "", "used to help debug issues")
+	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.RunWeb), "web", "", false, "run the command from the web ui")
+	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.RunTUI), "tui", "", false, "run the command from the terminal ui")
+	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.RunREPL), "repl", "", false, "run the command from the hof repl")
+	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Topic), "topic", "", "", "help topics for this command, 'list' will print available topics")
+	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Example), "example", "", "", "examples for this command, 'list' will print available examples")
+	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Tutorial), "tutorial", "", "", "tutorials for this command, 'list' will print available tutorials")
 }
 
 func RootPersistentPreRun(args []string) (err error) {
@@ -156,9 +160,6 @@ func RootInit() {
 	RootCmd.AddCommand(TestCmd)
 	RootCmd.AddCommand(LabelCmd)
 	RootCmd.AddCommand(LabelsetCmd)
-	RootCmd.AddCommand(DocCmd)
-	RootCmd.AddCommand(TourCmd)
-	RootCmd.AddCommand(TutorialCmd)
 	RootCmd.AddCommand(ModCmd)
 	RootCmd.AddCommand(AddCmd)
 	RootCmd.AddCommand(CmdCmd)
@@ -203,12 +204,56 @@ func RootInit() {
 	RootCmd.AddCommand(UiCmd)
 	RootCmd.AddCommand(TuiCmd)
 	RootCmd.AddCommand(ReplCmd)
-	RootCmd.AddCommand(TopicCmd)
 	RootCmd.AddCommand(FeedbackCmd)
 	RootCmd.AddCommand(HackCmd)
 	RootCmd.AddCommand(GebCmd)
 	RootCmd.AddCommand(LogoCmd)
 
+}
+
+func RunExit() {
+	if err := RunErr(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+}
+
+func RunInt() int {
+	if err := RunErr(); err != nil {
+		fmt.Println(err)
+		return 1
+	}
+	return 0
+}
+
+func RunErr() error {
+
+	if fn := os.Getenv("HOF_CPU_PROFILE"); fn != "" {
+		f, err := os.Create(fn)
+		if err != nil {
+			log.Fatal("Could not create file for CPU profile:", err)
+		}
+		defer f.Close()
+
+		err = pprof.StartCPUProfile(f)
+		if err != nil {
+			log.Fatal("Could not start CPU profile process:", err)
+		}
+
+		defer pprof.StopCPUProfile()
+	}
+
+	RootInit()
+	return RootCmd.Execute()
+}
+
+func CallTS(ts *script.Script, args []string) error {
+	RootCmd.SetArgs(args)
+
+	err := RootCmd.Execute()
+	ts.Check(err)
+
+	return err
 }
 
 const RootCustomHelp = `hof - a polyglot tool for building software
@@ -226,7 +271,7 @@ Initialize and create new hof workspaces:
 Model your designs, generate implementation, run or test anything:
   datamodel       α     create, view, diff, calculate / migrate, and manage your data models
   gen             ✓     generate code, data, and config from your data models and designs
-  run             α     Hof Line Script (HLS) is a successor to bash and python based scripting
+  run             β     Hof Line Script (HLS) is a successor to bash and python based scripting
   test            α     test all sorts of things
 
 Labels are used _ for _ (see also 'hof topic labels'):
@@ -234,9 +279,12 @@ Labels are used _ for _ (see also 'hof topic labels'):
   labelset        α     group resources, datamodels, labelsets, and more
 
 Learn more about hof and the _ you can do:
-  doc             Ø     Generate and view documentation
-  tour            Ø     take a tour of the hof tool
-  tutorial        Ø     tutorials to help you learn hof right in hof
+  each command has four flags, use 'list' as their arg
+	to see available items on a command
+		--help              print help message
+		--topics            addtional help topics
+		--examples          examples for the command
+		--tutorials         tutorials for the command
 
 Download modules, add instances or content, and manage runtimes:
   mod             β     mod subcmd is a polyglot dependency management tool based on go mods
@@ -307,15 +355,9 @@ Send us feedback or say hello:
 
 Additional commands:
   help                  help about any command
-  topic                 additional information for various subjects and concepts
   update                check for new versions and run self-updates
   version               print detailed version information
   completion            generate completion helpers for your terminal
-
-Additional topics:
-  schema, codegen, modeling, mirgrations
-  resources, labels, context, querying
-  workflow, changesets, collaboration
 
 (✓) command is generally available
 (β) command is beta and ready for testing
@@ -328,47 +370,21 @@ Use "hof [command] --help / -h" for more information about a command.
 Use "hof topic [subject]"  for more information about a subject.
 `
 
-func RunExit() {
-	if err := RunErr(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+var RootTopics = map[string]string{
+	"main-topics": `There are several main topics:
+
+hof gen  --topic list
+hof mod  --topic list
+hof test --topic list
+hof run  --topic list
+hof --topic script
+`,
+	"test-topic": `hello, this is a test topic.
+please check out the others!
+`,
 }
 
-func RunInt() int {
-	if err := RunErr(); err != nil {
-		fmt.Println(err)
-		return 1
-	}
-	return 0
-}
-
-func RunErr() error {
-
-	if fn := os.Getenv("HOF_CPU_PROFILE"); fn != "" {
-		f, err := os.Create(fn)
-		if err != nil {
-			log.Fatal("Could not create file for CPU profile:", err)
-		}
-		defer f.Close()
-
-		err = pprof.StartCPUProfile(f)
-		if err != nil {
-			log.Fatal("Could not start CPU profile process:", err)
-		}
-
-		defer pprof.StopCPUProfile()
-	}
-
-	RootInit()
-	return RootCmd.Execute()
-}
-
-func CallTS(ts *script.Script, args []string) error {
-	RootCmd.SetArgs(args)
-
-	err := RootCmd.Execute()
-	ts.Check(err)
-
-	return err
+var RootExamples = map[string]string{
+	"test-example": `Thit is a test example, check out the subcommands, repo,  and website for more!
+`,
 }

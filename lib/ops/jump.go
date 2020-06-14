@@ -23,10 +23,10 @@ func RunJumpFromArgs(args []string) error {
 	jfn := JUMP_FILE_NAME
 
 	// Check our flags
-	if flags.RootResourcesDirPflag != "" {
-		rDir := flags.RootResourcesDirPflag
+	if flags.RootPflags.ResourcesDir != "" {
+		rDir := flags.RootPflags.ResourcesDir
 		jfn = filepath.Join(rDir, JUMP_FILE_NAME)
-	} else if flags.RootLocalPflag {
+	} else if flags.RootPflags.Local {
 		rDir := "resources"
 		jfn = filepath.Join(rDir, JUMP_FILE_NAME)
 	} else {

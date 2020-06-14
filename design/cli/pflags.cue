@@ -265,8 +265,8 @@ import (
 		Help:    "used to help debug issues"
 	},
 	{
-		Name:    "RunUI"
-		Long:    "ui"
+		Name:    "RunWeb"
+		Long:    "web"
 		Short:   ""
 		Type:    "bool"
 		Default: "false"
@@ -279,5 +279,37 @@ import (
 		Type:    "bool"
 		Default: "false"
 		Help:    "run the command from the terminal ui"
+	},
+	{
+		Name:    "RunREPL"
+		Long:    "repl"
+		Short:   ""
+		Type:    "bool"
+		Default: "false"
+		Help:    "run the command from the hof repl"
+	},
+	{
+		Name:    "Topic"
+		Long:    "topic"
+		Short:   ""
+		Type:    "string"
+		Default: ""
+		Help:    "help topics for this command, 'list' will print available topics"
+	},
+	{
+		Name:    "Example"
+		Long:    "example"
+		Short:   ""
+		Type:    "string"
+		Default: ""
+		Help:    "examples for this command, 'list' will print available examples"
+	},
+	{
+		Name:    "Tutorial"
+		Long:    "tutorial"
+		Short:   ""
+		Type:    "string"
+		Default: ""
+		Help:    "tutorials for this command, 'list' will print available tutorials"
 	},
 ]

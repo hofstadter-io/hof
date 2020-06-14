@@ -56,8 +56,8 @@ func (R *Runtime) Init() (err error) {
 
 	// First check config/secret flags, non-existance should err as user specified a flag
 	//  if they exist, we load into local because we prefer that later
-	if flags.RootContextPflag != "" {
-		val, err := cuefig.LoadContextConfig("", flags.RootContextPflag)
+	if flags.RootPflags.Context != "" {
+		val, err := cuefig.LoadContextConfig("", flags.RootPflags.Context)
 		if err != nil {
 			// Return early if they specify a file and we don't find it
 			return err
@@ -66,8 +66,8 @@ func (R *Runtime) Init() (err error) {
 		R.ContextValue = val
 		R.ContextType = "custom-context"
 	}
-	if flags.RootConfigPflag != "" {
-		val, err := cuefig.LoadConfigConfig("", flags.RootConfigPflag)
+	if flags.RootPflags.Config != "" {
+		val, err := cuefig.LoadConfigConfig("", flags.RootPflags.Config)
 		if err != nil {
 			// Return early if they specify a file and we don't find it
 			return err
@@ -76,8 +76,8 @@ func (R *Runtime) Init() (err error) {
 		R.ConfigValue = val
 		R.ConfigType = "custom-config"
 	}
-	if flags.RootSecretPflag != "" {
-		val, err := cuefig.LoadSecretConfig("", flags.RootSecretPflag)
+	if flags.RootPflags.Secret != "" {
+		val, err := cuefig.LoadSecretConfig("", flags.RootPflags.Secret)
 		if err != nil {
 			// Return early if they specify a file and we don't find it
 			return err
@@ -207,11 +207,11 @@ func (R *Runtime) PrintSecret() error {
 func (R *Runtime) ContextGet(path string) (cue.Value, error) {
 	var orig cue.Value
 	var err error
-	if flags.RootContextPflag != "" {
-		orig, err = cuefig.LoadContextConfig("", flags.RootContextPflag)
-	} else if flags.RootLocalPflag {
+	if flags.RootPflags.Context != "" {
+		orig, err = cuefig.LoadContextConfig("", flags.RootPflags.Context)
+	} else if flags.RootPflags.Local {
 		orig, err = cuefig.LoadContextConfig("", cuefig.ContextEntrypoint)
-	} else if flags.RootGlobalPflag {
+	} else if flags.RootPflags.Global {
 		orig, err = cuefig.LoadHofctxDefault()
 	} else {
 		orig, err = cuefig.LoadContextDefault()
@@ -233,11 +233,11 @@ func (R *Runtime) ContextGet(path string) (cue.Value, error) {
 func (R *Runtime) ConfigGet(path string) (cue.Value, error) {
 	var orig cue.Value
 	var err error
-	if flags.RootConfigPflag != "" {
-		orig, err = cuefig.LoadConfigConfig("", flags.RootConfigPflag)
-	} else if flags.RootLocalPflag {
+	if flags.RootPflags.Config != "" {
+		orig, err = cuefig.LoadConfigConfig("", flags.RootPflags.Config)
+	} else if flags.RootPflags.Local {
 		orig, err = cuefig.LoadConfigConfig("", cuefig.ConfigEntrypoint)
-	} else if flags.RootGlobalPflag {
+	} else if flags.RootPflags.Global {
 		orig, err = cuefig.LoadHofcfgDefault()
 	} else {
 		orig, err = cuefig.LoadConfigDefault()
@@ -259,11 +259,11 @@ func (R *Runtime) ConfigGet(path string) (cue.Value, error) {
 func (R *Runtime) SecretGet(path string) (cue.Value, error) {
 	var orig cue.Value
 	var err error
-	if flags.RootSecretPflag != "" {
-		orig, err = cuefig.LoadSecretConfig("", flags.RootSecretPflag)
-	} else if flags.RootLocalPflag {
+	if flags.RootPflags.Secret != "" {
+		orig, err = cuefig.LoadSecretConfig("", flags.RootPflags.Secret)
+	} else if flags.RootPflags.Local {
 		orig, err = cuefig.LoadSecretConfig("", cuefig.SecretEntrypoint)
-	} else if flags.RootGlobalPflag {
+	} else if flags.RootPflags.Global {
 		orig, err = cuefig.LoadHofshhDefault()
 	} else {
 		orig, err = cuefig.LoadSecretDefault()
@@ -288,11 +288,11 @@ func (R *Runtime) ContextSet(expr string) (error) {
 	var err error
 
 	// Check which config we want to work with
-	if flags.RootContextPflag != "" {
-		orig, err = cuefig.LoadContextConfig("", flags.RootContextPflag)
-	} else if flags.RootLocalPflag {
+	if flags.RootPflags.Context != "" {
+		orig, err = cuefig.LoadContextConfig("", flags.RootPflags.Context)
+	} else if flags.RootPflags.Local {
 		orig, err = cuefig.LoadContextConfig("", cuefig.ContextEntrypoint)
-	} else if flags.RootGlobalPflag {
+	} else if flags.RootPflags.Global {
 		orig, err = cuefig.LoadHofctxDefault()
 	} else {
 		orig, err = cuefig.LoadContextDefault()
@@ -323,11 +323,11 @@ func (R *Runtime) ContextSet(expr string) (error) {
 	}
 
 	// Now save
-	if flags.RootContextPflag != "" {
-		err = cuefig.SaveContextConfig("", flags.RootContextPflag, val)
-	} else if flags.RootLocalPflag {
+	if flags.RootPflags.Context != "" {
+		err = cuefig.SaveContextConfig("", flags.RootPflags.Context, val)
+	} else if flags.RootPflags.Local {
 		err = cuefig.SaveContextConfig("", cuefig.ContextEntrypoint, val)
-	} else if flags.RootGlobalPflag {
+	} else if flags.RootPflags.Global {
 		err = cuefig.SaveHofctxDefault(val)
 	} else {
 		err = cuefig.SaveContextDefault(val)
@@ -341,11 +341,11 @@ func (R *Runtime) ConfigSet(expr string) (error) {
 	var err error
 
 	// Check which config we want to work with
-	if flags.RootConfigPflag != "" {
-		orig, err = cuefig.LoadConfigConfig("", flags.RootConfigPflag)
-	} else if flags.RootLocalPflag {
+	if flags.RootPflags.Config != "" {
+		orig, err = cuefig.LoadConfigConfig("", flags.RootPflags.Config)
+	} else if flags.RootPflags.Local {
 		orig, err = cuefig.LoadConfigConfig("", cuefig.ConfigEntrypoint)
-	} else if flags.RootGlobalPflag {
+	} else if flags.RootPflags.Global {
 		orig, err = cuefig.LoadHofcfgDefault()
 	} else {
 		orig, err = cuefig.LoadConfigDefault()
@@ -376,11 +376,11 @@ func (R *Runtime) ConfigSet(expr string) (error) {
 	}
 
 	// Now save
-	if flags.RootConfigPflag != "" {
-		err = cuefig.SaveConfigConfig("", flags.RootConfigPflag, val)
-	} else if flags.RootLocalPflag {
+	if flags.RootPflags.Config != "" {
+		err = cuefig.SaveConfigConfig("", flags.RootPflags.Config, val)
+	} else if flags.RootPflags.Local {
 		err = cuefig.SaveConfigConfig("", cuefig.ConfigEntrypoint, val)
-	} else if flags.RootGlobalPflag {
+	} else if flags.RootPflags.Global {
 		err = cuefig.SaveHofcfgDefault(val)
 	} else {
 		err = cuefig.SaveConfigDefault(val)
@@ -394,11 +394,11 @@ func (R *Runtime) SecretSet(expr string) (error) {
 	var err error
 
 	// Check which config we want to work with
-	if flags.RootSecretPflag != "" {
-		orig, err = cuefig.LoadSecretConfig("", flags.RootSecretPflag)
-	} else if flags.RootLocalPflag {
+	if flags.RootPflags.Secret != "" {
+		orig, err = cuefig.LoadSecretConfig("", flags.RootPflags.Secret)
+	} else if flags.RootPflags.Local {
 		orig, err = cuefig.LoadSecretConfig("", cuefig.SecretEntrypoint)
-	} else if flags.RootGlobalPflag {
+	} else if flags.RootPflags.Global {
 		orig, err = cuefig.LoadHofshhDefault()
 	} else {
 		orig, err = cuefig.LoadSecretDefault()
@@ -429,11 +429,11 @@ func (R *Runtime) SecretSet(expr string) (error) {
 	}
 
 	// Now save
-	if flags.RootSecretPflag != "" {
-		err = cuefig.SaveSecretConfig("", flags.RootSecretPflag, val)
-	} else if flags.RootLocalPflag {
+	if flags.RootPflags.Secret != "" {
+		err = cuefig.SaveSecretConfig("", flags.RootPflags.Secret, val)
+	} else if flags.RootPflags.Local {
 		err = cuefig.SaveSecretConfig("", cuefig.SecretEntrypoint, val)
-	} else if flags.RootGlobalPflag {
+	} else if flags.RootPflags.Global {
 		err = cuefig.SaveHofshhDefault(val)
 	} else {
 		err = cuefig.SaveSecretDefault(val)

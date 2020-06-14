@@ -11,9 +11,9 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var infoLong = `  print info about languages and modders known to mvs
-    - no arg prints a list of known languages
-    - an arg prints info about the language modder configuration that would be used`
+var infoLong = `print info about languages and modders known to hof mod
+	- no arg prints a list of known languages
+	- an arg prints info about the language modder configuration that would be used`
 
 func InfoRun(lang string) (err error) {
 
@@ -31,7 +31,7 @@ var InfoCmd = &cobra.Command{
 
 	Use: "info [language]",
 
-	Short: "print info about languages and modders known to mvs",
+	Short: "print info about languages and modders known to hof mod",
 
 	Long: infoLong,
 

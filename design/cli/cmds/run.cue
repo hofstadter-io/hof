@@ -6,7 +6,7 @@ import (
 
 // TODO, JAMStack / HofKit
 #RunCommand: schema.#Command & {
-	TBD:   "α"
+	TBD:   "β"
 	Name:  "run"
 	Usage: "run"
 	Aliases: ["r"]
@@ -81,9 +81,9 @@ import (
 
 }
 
-#RunCommandHelp: """
+#RunCommandHelp: ##"""
 HofLineScript (HLS) run polyglot command and scripts seamlessly across runtimes
 
 can accept cue & flags or just a .hls file
 
-"""
+"""##

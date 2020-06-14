@@ -927,20 +927,21 @@ func (ts *Script) http(args []string) (string, string, int, error) {
 	req, err := ts.reqFromArgs(args)
 	ts.Check(err)
 
+	defer func() {
+        if r := recover(); r != nil {
+            fmt.Println("Recovered in HTTP", r)
+        }
+    }()
+
 	resp, body, errs := req.End()
 	body += "\n"
+
 
 	if len(errs) != 0 && !strings.Contains(errs[0].Error(), HTTP2_GOAWAY_CHECK) {
 		return "", body, resp.StatusCode, fmt.Errorf("Internal Weirdr Error:\b%v\n%s\n", errs, body)
 	}
 	if len(errs) != 0 {
 		return "", body, resp.StatusCode, fmt.Errorf("Internal Error:\n%v\n%s\n", errs, body)
-	}
-	if resp.StatusCode >= 500 {
-		return "", body, resp.StatusCode, fmt.Errorf("Internal Error:\n%v\n%s\n", errs, body)
-	}
-	if resp.StatusCode >= 400 {
-		return "", body, resp.StatusCode, fmt.Errorf("Bad Request:\n%s\n", body)
 	}
 
 	return body, "", resp.StatusCode, nil
@@ -1045,7 +1046,7 @@ func (ts *Script) applyArgToReq(req *gorequest.SuperAgent, arg string) (*goreque
 		req.Url = val
 
 	case "T", "TYPE":
-		req.Url = val
+		req = req.Type(val)
 
 	case "Q", "QUERY":
 		if strings.HasPrefix(val, "@") {
