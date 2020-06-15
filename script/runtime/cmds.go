@@ -10,7 +10,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"strconv"
 	"strings"
 
@@ -18,41 +17,8 @@ import (
 	"github.com/hofstadter-io/hof/lib/gotils/txtar"
 )
 
-// scriptCmds are the script command implementations.
-// Keep list and the implementations below sorted by name.
-//
-// NOTE: If you make changes here, update doc.go.
-//
-var scriptCmds = map[string]func(*Script, int, []string){
-	"call":    (*Script).cmdCall,
-	"cd":      (*Script).cmdCd,
-	"chmod":   (*Script).cmdChmod,
-	"cmp":     (*Script).cmdCmp,
-	"cmpenv":  (*Script).cmdCmpenv,
-	"cp":      (*Script).cmdCp,
-	"env":     (*Script).cmdEnv,
-	"exec":    (*Script).cmdExec,
-	"exists":  (*Script).cmdExists,
-	"grep":    (*Script).cmdGrep,
-	"http":    (*Script).cmdHttp,
-	"mkdir":   (*Script).cmdMkdir,
-	"regexp":  (*Script).cmdRegexp,
-	"rm":      (*Script).cmdRm,
-	"unquote": (*Script).cmdUnquote,
-	"sed":     (*Script).cmdSed,
-	"skip":    (*Script).cmdSkip,
-	"stdin":   (*Script).cmdStdin,
-	"stderr":  (*Script).cmdStderr,
-	"stdout":  (*Script).cmdStdout,
-	"status":  (*Script).cmdStatus,
-	"stop":    (*Script).cmdStop,
-	"symlink": (*Script).cmdSymlink,
-	"wait":    (*Script).cmdWait,
-}
-
-
 // http	makes an http call.
-func (ts *Script) cmdHttp(neg int, args []string) {
+func (ts *Script) CmdHttp(neg int, args []string) {
 	if len(args) < 1 {
 		ts.Fatalf("usage: http function [args...]")
 	}
@@ -80,7 +46,7 @@ func (ts *Script) cmdHttp(neg int, args []string) {
 }
 
 // call runs the given function.
-func (ts *Script) cmdCall(neg int, args []string) {
+func (ts *Script) CmdCall(neg int, args []string) {
 	if len(args) < 1 {
 		ts.Fatalf("usage: call function [args...]")
 	}
@@ -109,7 +75,7 @@ func (ts *Script) cmdCall(neg int, args []string) {
 
 
 // cd changes to a different directory.
-func (ts *Script) cmdCd(neg int, args []string) {
+func (ts *Script) CmdCd(neg int, args []string) {
 	if neg != 0 {
 		ts.Fatalf("unsupported: !? cd")
 	}
@@ -133,7 +99,7 @@ func (ts *Script) cmdCd(neg int, args []string) {
 	ts.Logf("%s\n", ts.cd)
 }
 
-func (ts *Script) cmdChmod(neg int, args []string) {
+func (ts *Script) CmdChmod(neg int, args []string) {
 	if len(args) != 2 {
 		ts.Fatalf("usage: chmod mode file")
 	}
@@ -157,7 +123,7 @@ func (ts *Script) cmdChmod(neg int, args []string) {
 }
 
 // cmp compares two files.
-func (ts *Script) cmdCmp(neg int, args []string) {
+func (ts *Script) CmdCmp(neg int, args []string) {
 	if neg != 0 {
 		// It would be strange to say "this file can have any content except this precise byte sequence".
 		ts.Fatalf("unsupported: !? cmp")
@@ -170,7 +136,7 @@ func (ts *Script) cmdCmp(neg int, args []string) {
 }
 
 // cmpenv compares two files with environment variable substitution.
-func (ts *Script) cmdCmpenv(neg int, args []string) {
+func (ts *Script) CmdCmpenv(neg int, args []string) {
 	if neg != 0 {
 		ts.Fatalf("unsupported: !? cmpenv")
 	}
@@ -208,7 +174,7 @@ func (ts *Script) doCmdCmp(args []string, env bool) {
 }
 
 // cp copies files, maybe eventually directories.
-func (ts *Script) cmdCp(neg int, args []string) {
+func (ts *Script) CmdCp(neg int, args []string) {
 	if neg != 0 {
 		ts.Fatalf("unsupported: !? cp")
 	}
@@ -255,7 +221,7 @@ func (ts *Script) cmdCp(neg int, args []string) {
 }
 
 // env displays or adds to the environment.
-func (ts *Script) cmdEnv(neg int, args []string) {
+func (ts *Script) CmdEnv(neg int, args []string) {
 	if neg != 0 {
 		ts.Fatalf("unsupported: !? env")
 	}
@@ -295,7 +261,7 @@ func (ts *Script) cmdEnv(neg int, args []string) {
 }
 
 // exec runs the given command.
-func (ts *Script) cmdExec(neg int, args []string) {
+func (ts *Script) CmdExec(neg int, args []string) {
 
 	if len(args) < 1 || (len(args) == 1 && args[0] == "&") {
 		ts.Fatalf("usage: exec program [args...] [&]")
@@ -340,7 +306,7 @@ func (ts *Script) cmdExec(neg int, args []string) {
 }
 
 // exists checks that the list of files exists.
-func (ts *Script) cmdExists(neg int, args []string) {
+func (ts *Script) CmdExists(neg int, args []string) {
 	var readonly bool
 	if len(args) > 0 && args[0] == "-readonly" {
 		readonly = true
@@ -370,7 +336,7 @@ func (ts *Script) cmdExists(neg int, args []string) {
 }
 
 // mkdir creates directories.
-func (ts *Script) cmdMkdir(neg int, args []string) {
+func (ts *Script) CmdMkdir(neg int, args []string) {
 	if neg != 0 {
 		ts.Fatalf("unsupported: !? mkdir")
 	}
@@ -383,7 +349,7 @@ func (ts *Script) cmdMkdir(neg int, args []string) {
 }
 
 // unquote unquotes files.
-func (ts *Script) cmdUnquote(neg int, args []string) {
+func (ts *Script) CmdUnquote(neg int, args []string) {
 	if neg != 0 {
 		ts.Fatalf("unsupported: !? unquote")
 	}
@@ -399,7 +365,7 @@ func (ts *Script) cmdUnquote(neg int, args []string) {
 }
 
 // rm removes files or directories.
-func (ts *Script) cmdRm(neg int, args []string) {
+func (ts *Script) CmdRm(neg int, args []string) {
 	if neg != 0 {
 		ts.Fatalf("unsupported: !? rm")
 	}
@@ -414,7 +380,7 @@ func (ts *Script) cmdRm(neg int, args []string) {
 }
 
 // skip marks the test skipped.
-func (ts *Script) cmdSkip(neg int, args []string) {
+func (ts *Script) CmdSkip(neg int, args []string) {
 	if neg != 0{
 		ts.Fatalf("unsupported: !? skip")
 	}
@@ -428,7 +394,7 @@ func (ts *Script) cmdSkip(neg int, args []string) {
 	for _, bg := range ts.background {
 		interruptProcess(bg.cmd.Process)
 	}
-	ts.cmdWait(0, nil)
+	ts.CmdWait(0, nil)
 
 	if len(args) == 1 {
 		ts.t.Skip(args[0])
@@ -436,7 +402,7 @@ func (ts *Script) cmdSkip(neg int, args []string) {
 	ts.t.Skip()
 }
 
-func (ts *Script) cmdStdin(neg int, args []string) {
+func (ts *Script) CmdStdin(neg int, args []string) {
 	if neg != 0 {
 		ts.Fatalf("unsupported: !? stdin")
 	}
@@ -447,17 +413,17 @@ func (ts *Script) cmdStdin(neg int, args []string) {
 }
 
 // stdout checks that the last go command standard output matches a regexp.
-func (ts *Script) cmdStdout(neg int, args []string) {
+func (ts *Script) CmdStdout(neg int, args []string) {
 	scriptMatch(ts, neg, args, ts.stdout, "stdout")
 }
 
 // stderr checks that the last go command standard output matches a regexp.
-func (ts *Script) cmdStderr(neg int, args []string) {
+func (ts *Script) CmdStderr(neg int, args []string) {
 	scriptMatch(ts, neg, args, ts.stderr, "stderr")
 }
 
 // status checks the exit or status code from the last exec or http call
-func (ts *Script) cmdStatus(neg int, args []string) {
+func (ts *Script) CmdStatus(neg int, args []string) {
 	if len(args) != 1 {
 		ts.Fatalf("usage: status <int>")
 	}
@@ -486,24 +452,24 @@ func (ts *Script) cmdStatus(neg int, args []string) {
 
 // regexp checks that file content matches a regexp.
 // it accepts Go regexp syntax.
-func (ts *Script) cmdRegexp(neg int, args []string) {
+func (ts *Script) CmdRegexp(neg int, args []string) {
 	scriptMatch(ts, neg, args, "", "regexp")
 }
 
 // regexp checks that file content matches a regexp.
 // it accepts Go regexp syntax and returns the matches
-func (ts *Script) cmdGrep(neg int, args []string) {
+func (ts *Script) CmdGrep(neg int, args []string) {
 	scriptMatch(ts, neg, args, "", "grep")
 }
 
 // sed finds and replaces in text content
 // it accepts Go regexp syntax and returns the replaced content
-func (ts *Script) cmdSed(neg int, args []string) {
+func (ts *Script) CmdSed(neg int, args []string) {
 	scriptMatch(ts, neg, args, "", "sed")
 }
 
 // stop stops execution of the test (marking it passed).
-func (ts *Script) cmdStop(neg int, args []string) {
+func (ts *Script) CmdStop(neg int, args []string) {
 	if neg != 0 {
 		ts.Fatalf("unsupported: !? stop")
 	}
@@ -519,7 +485,7 @@ func (ts *Script) cmdStop(neg int, args []string) {
 }
 
 // symlink creates a symbolic link.
-func (ts *Script) cmdSymlink(neg int, args []string) {
+func (ts *Script) CmdSymlink(neg int, args []string) {
 	if neg != 0 {
 		ts.Fatalf("unsupported: !? symlink")
 	}
@@ -532,7 +498,7 @@ func (ts *Script) cmdSymlink(neg int, args []string) {
 }
 
 // Tait waits for background commands to exit, setting stderr and stdout to their result.
-func (ts *Script) cmdWait(neg int, args []string) {
+func (ts *Script) CmdWait(neg int, args []string) {
 	if neg != 0 {
 		ts.Fatalf("unsupported: !? wait")
 	}
@@ -575,214 +541,5 @@ func (ts *Script) cmdWait(neg int, args []string) {
 	ts.stdout = strings.Join(stdouts, "")
 	ts.stderr = strings.Join(stderrs, "")
 	ts.background = nil
-}
-
-// scriptMatch implements both stdout and stderr.
-func scriptMatch(ts *Script, neg int, args []string, text, name string) {
-	n := 0
-	if len(args) >= 1 && strings.HasPrefix(args[0], "-count=") {
-		if neg != 0 {
-			ts.Fatalf("cannot use -count= with negated match")
-		}
-		var err error
-		n, err = strconv.Atoi(args[0][len("-count="):])
-		if err != nil {
-			ts.Fatalf("bad -count=: %v", err)
-		}
-		if n < 1 {
-			ts.Fatalf("bad -count=: must be at least 1")
-		}
-		args = args[1:]
-	}
-
-	isRegexp := name == "regexp"
-	isGrep := name == "grep"
-	isSed := name == "sed"
-
-	extraUsage := ""
-	want := 1
-	if isRegexp || isGrep {
-		extraUsage = " file"
-		want = 2
-	}
-	if isSed {
-		extraUsage = " replace file"
-		want = 3
-	}
-	if len(args) != want {
-		ts.Fatalf("usage: %s [-count=N] 'pattern'%s", name, extraUsage)
-	}
-
-	pattern := args[0]
-	switch pattern {
-	case "stdout":
-		pattern = ts.stdout
-	case "stderr":
-		pattern = ts.stderr
-
-	default:
-		if pattern[0] == '@' {
-			fname := pattern[1:] // for error messages
-			data, err := ioutil.ReadFile(ts.MkAbs(fname))
-			ts.Check(err)
-			pattern = string(data)
-		}
-	}
-	re, err := regexp.Compile(`(?m)` + pattern)
-	ts.Check(err)
-
-
-	if isRegexp || isGrep {
-		content := args[1]
-		switch  content {
-		case "stdout", "$WORK/stdout":
-			text = ts.stdout
-		case "stderr", "$WORK/stderr":
-			text = ts.stderr
-
-		default:
-			name = args[1] // for error messages
-			data, err := ioutil.ReadFile(ts.MkAbs(args[1]))
-			ts.Check(err)
-			text = string(data)
-		}
-	}
-	replace := ""
-	if isSed {
-		replace = args[1]
-		switch  replace {
-		case "stdout", "$WORK/stdout":
-			text = ts.stdout
-		case "stderr", "$WORK/stderr":
-			text = ts.stderr
-
-		default:
-			if replace[0] == '@' {
-				fname := replace[1:] // for error messages
-				data, err := ioutil.ReadFile(ts.MkAbs(fname))
-				ts.Check(err)
-				replace = string(data)
-			}
-		}
-		content := args[2]
-		switch  content {
-		case "stdout", "$WORK/stdout":
-			text = ts.stdout
-		case "stderr", "$WORK/stderr":
-			text = ts.stderr
-
-		default:
-			if content[0] == '@' {
-				fname := content[1:] // for error messages
-				data, err := ioutil.ReadFile(ts.MkAbs(fname))
-				ts.Check(err)
-				content = string(data)
-			}
-		}
-	}
-
-	if neg > 0 {
-		if re.MatchString(text) {
-			if isGrep {
-				ts.Logf("[%s]\n%s\n", name, text)
-			}
-			ts.Fatalf("unexpected match for %#q found in %s: %s", pattern, name, re.FindString(text))
-		}
-
-		if isGrep {
-			c := -1
-			if n > 0 {
-				c = n
-			}
-			matches := re.FindAllString(text, c)
-			if c > 0 && len(matches) > c {
-				matches = matches[:c]
-			}
-			ts.stdout = strings.Join(matches, "\n")
-		}
-		if isSed {
-			ts.stdout = re.ReplaceAllString(text, replace)
-		}
-	} else {
-		if isGrep || isSed {
-			ts.Fatalf("%s does not support status checking", name)
-		}
-		if !re.MatchString(text) {
-			if isGrep {
-				ts.Logf("[%s]\n%s\n", name, text)
-			}
-			ts.Fatalf("no match for %#q found in %s", pattern, name)
-		}
-		if n > 0 {
-			count := len(re.FindAllString(text, -1))
-			if count != n {
-				if isGrep {
-					ts.Logf("[%s]\n%s\n", name, text)
-				}
-				ts.Fatalf("have %d matches for %#q, want %d", count, pattern, n)
-			}
-		}
-	}
-}
-
-// cmdExpectExec starts an expect session.
-func (ts *Script) cmdExpectExec(neg int, args []string) {
-	fmt.Println("expect-exec:", neg, args)
-
-}
-
-// cmdExpectRepl is the main expect function which looks for a string match and sends something in reply.
-func (ts *Script) cmdExpectRepl(neg int, args []string) {
-	fmt.Println("expect-repl:", neg, args)
-
-}
-
-// cmdExpectDone finishes and cleans up an expect session.
-func (ts *Script) cmdExpectDone(neg int, args []string) {
-	fmt.Println("expect-done:", neg, args)
-	/*
-	if len(args) < 1 || (len(args) == 1 && args[0] == "&") {
-		ts.Fatalf("usage: exec program [args...] [&]")
-	}
-
-	var err error
-	if len(args) > 0 && args[len(args)-1] == "&" {
-		var cmd *exec.Cmd
-		cmd, err = ts.execBackground(args[0], args[1:len(args)-1]...)
-		if err == nil {
-			wait := make(chan struct{})
-			go func() {
-				werr := ctxWait(ts.ctxt, cmd)
-				close(wait)
-				ts.status = cmd.ProcessState.ExitCode()
-				err = werr
-			}()
-			ts.background = append(ts.background, backgroundCmd{cmd, wait, neg})
-		}
-		ts.stdout, ts.stderr = "", ""
-	} else {
-		ts.stdout, ts.stderr, err = ts.exec(args[0], args[1:]...)
-		if ts.stdout != "" {
-			fmt.Fprintf(&ts.log, "[stdout]\n%s", ts.stdout)
-		}
-		if ts.stderr != "" {
-			fmt.Fprintf(&ts.log, "[stderr]\n%s", ts.stderr)
-		}
-		if err == nil && neg > 0 {
-			ts.Fatalf("unexpected command success")
-		}
-	}
-
-	if err != nil {
-		fmt.Fprintf(&ts.log, "[%v]\n", err)
-		if ts.ctxt.Err() != nil {
-			ts.Fatalf("test timed out while running command")
-		} else if neg == 0 {
-			ts.Fatalf("unexpected exec command failure")
-		}
-	}
-	*/
-
-
 }
 

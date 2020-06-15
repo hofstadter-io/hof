@@ -18,7 +18,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
-	"runtime"
+	goruntime "runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -143,162 +143,6 @@ func RunT(t T, p Params) {
 	}
 }
 
-// A Script holds execution state for a single test script.
-type Script struct {
-	params        Params
-	t             T
-	testTempDir   string
-	workdir       string                      // temporary work dir ($WORK)
-	log           bytes.Buffer                // test execution log (printed at end of test)
-	mark          int                         // offset of next log truncation
-	cd            string                      // current directory during test execution; initially $WORK/gopath/src
-	name          string                      // short name of test ("foo")
-	file          string                      // full file name ("testdata/script/foo.hls")
-	lineno        int                         // line number currently executing
-	line          string                      // line currently executing
-	env           []string                    // environment list (for os/exec)
-	envMap        map[string]string           // environment mapping (matches env; on Windows keys are lowercase)
-	values        map[interface{}]interface{} // values for custom commands
-	stdin         string                      // standard input to next 'go' command; set by 'stdin' command.
-	stdout        string                      // standard output from last 'go' command; for 'stdout' command
-	stderr        string                      // standard error from last 'go' command; for 'stderr' command
-	status        int                         // status code from exec or http
-	stopped       bool                        // test wants to stop early
-	start         time.Time                   // time phase started
-	background    []backgroundCmd             // backgrounded 'exec' and 'go' commands
-	deferred      func()                      // deferred cleanup actions.
-	archive       *txtar.Archive              // the testscript being run.
-	scriptFiles   map[string]string           // files stored in the txtar archive (absolute paths -> path in script)
-	scriptUpdates map[string]string           // updates to testscript files via UpdateScripts.
-
-	httpClients map[string]*gorequest.SuperAgent
-
-	ctxt context.Context // per Script context
-}
-
-// setup sets up the test execution temporary directory and environment.
-// It returns the comment section of the txtar archive.
-func (ts *Script) setupTest() string {
-	ts.workdir = filepath.Join(ts.testTempDir, "script-"+ts.name)
-	ts.Check(os.MkdirAll(filepath.Join(ts.workdir, "tmp"), 0777))
-	env := &Env{
-		Vars: []string{
-			"WORK=" + ts.workdir, // must be first for ts.abbrev
-			"PATH=" + os.Getenv("PATH"),
-			"USER=" + os.Getenv("USER"),
-			homeEnvName() + "=/no-home",
-			tempEnvName() + "=" + filepath.Join(ts.workdir, "tmp"),
-			"devnull=" + os.DevNull,
-			"/=" + string(os.PathSeparator),
-			":=" + string(os.PathListSeparator),
-		},
-		WorkDir: ts.workdir,
-		Values:  make(map[interface{}]interface{}),
-		Cd:      ts.workdir,
-		ts:      ts,
-	}
-	// Must preserve SYSTEMROOT on Windows: https://github.com/golang/go/issues/25513 et al
-	if runtime.GOOS == "windows" {
-		env.Vars = append(env.Vars,
-			"SYSTEMROOT="+os.Getenv("SYSTEMROOT"),
-			"exe=.exe",
-		)
-	} else {
-		env.Vars = append(env.Vars,
-			"exe=",
-		)
-	}
-	ts.cd = env.Cd
-	// Unpack archive.
-	a, err := txtar.ParseFile(ts.file)
-	ts.Check(err)
-	ts.archive = a
-	for _, f := range a.Files {
-		name := ts.MkAbs(ts.expand(f.Name))
-		ts.scriptFiles[name] = f.Name
-		ts.Check(os.MkdirAll(filepath.Dir(name), 0777))
-		ts.Check(ioutil.WriteFile(name, f.Data, 0666))
-	}
-	// Run any user-defined setup.
-	if ts.params.Setup != nil {
-		ts.Check(ts.params.Setup(env))
-	}
-	ts.cd = env.Cd
-	ts.env = env.Vars
-	ts.values = env.Values
-
-	ts.envMap = make(map[string]string)
-	for _, kv := range ts.env {
-		if i := strings.Index(kv, "="); i >= 0 {
-			ts.envMap[envvarname(kv[:i])] = kv[i+1:]
-		}
-	}
-	return string(a.Comment)
-}
-
-// setup sets up the test execution temporary directory and environment.
-// It returns the comment section of the txtar archive.
-func (ts *Script) setupRun() string {
-	// ts.workdir = filepath.Join(ts.testTempDir, "script-"+ts.name)
-	// ts.Check(os.MkdirAll(filepath.Join(ts.workdir, "tmp"), 0777))
-
-	// expose external ENV here
-
-	env := &Env{
-		Vars: os.Environ(),
-		WorkDir: ts.workdir,
-		Values:  make(map[interface{}]interface{}),
-		Cd:      ts.workdir,
-		ts:      ts,
-	}
-
-	// Must preserve SYSTEMROOT on Windows: https://github.com/golang/go/issues/25513 et al
-	if runtime.GOOS == "windows" {
-		env.Vars = append(env.Vars,
-			"SYSTEMROOT="+os.Getenv("SYSTEMROOT"),
-			"exe=.exe",
-		)
-	} else {
-		env.Vars = append(env.Vars,
-			"exe=",
-		)
-	}
-
-	ts.cd = env.Cd
-
-	// Unpack archive.
-	a, err := txtar.ParseFile(ts.file)
-	ts.Check(err)
-	ts.archive = a
-	for _, f := range a.Files {
-		name := ts.MkAbs(ts.expand(f.Name))
-		ts.scriptFiles[name] = f.Name
-		ts.Check(os.MkdirAll(filepath.Dir(name), 0777))
-		ts.Check(ioutil.WriteFile(name, f.Data, 0666))
-	}
-
-	// Run any user-defined setup.
-	if ts.params.Setup != nil {
-		ts.Check(ts.params.Setup(env))
-	}
-
-	// setup more values on ts from env
-	ts.cd = env.Cd
-	ts.env = env.Vars
-	ts.values = env.Values
-
-	// fmt.Println("EnvArr:", ts.env)
-
-	ts.envMap = make(map[string]string)
-	for _, kv := range ts.env {
-		if i := strings.Index(kv, "="); i >= 0 {
-			ts.envMap[envvarname(kv[:i])] = kv[i+1:]
-		}
-	}
-
-	return string(a.Comment)
-}
-
 // run runs the test script.
 func (ts *Script) run() {
 	// Truncate log at end of last phase marker,
@@ -354,7 +198,7 @@ func (ts *Script) run() {
 	if *testWork || ts.t.Verbose() {
 		if ts.params.Mode == "test" {
 			// Display environment.
-			ts.cmdEnv(0, nil)
+			ts.CmdEnv(0, nil)
 			fmt.Fprintf(&ts.log, "\n")
 			ts.mark = ts.log.Len()
 		}
@@ -448,13 +292,35 @@ Script:
 			}
 		}
 
-		// Run command.
-		cmd := scriptCmds[args[0]]
-		if cmd == nil {
-			cmd = ts.params.Cmds[args[0]]
+		/* Run command, check order
+			1. params commands, incase of overrides
+			2. buildin commands
+			3. fallback on exec ...
+		*/
+
+		// the command name
+		C := args[0]
+
+		// try user commands
+		cmd, cmdOK := ts.params.Cmds[C]
+
+		// check user command, try builtin command
+		if !cmdOK || cmd == nil {
+			cmd, cmdOK = scriptCmds[C]
 		}
+
+		// check builtin command, try system command
+		if !cmdOK || cmd == nil {
+			path, err := exec.LookPath(C)
+			if err == nil {
+				cmd = scriptCmds["exec"]
+				nargs := []string{ C, path}
+				args = append(nargs, args[1:]...)
+			}
+		}
+
 		if cmd == nil {
-			ts.Fatalf("unknown command %q", args[0])
+			ts.Fatalf("unknown command or function %q", args[0])
 		}
 		cmd(ts, neg, args[1:])
 
@@ -469,7 +335,7 @@ Script:
 	for _, bg := range ts.background {
 		interruptProcess(bg.cmd.Process)
 	}
-	ts.cmdWait(0, nil)
+	ts.CmdWait(0, nil)
 
 	// Final phase ended.
 	rewind()
@@ -529,7 +395,7 @@ func (ts *Script) condition(cond string) (bool, error) {
 		return testenv.HasLink(), nil
 	case "symlink":
 		return testenv.HasSymlink(), nil
-	case runtime.GOOS, runtime.GOARCH:
+	case goruntime.GOOS, goruntime.GOARCH:
 		return true, nil
 	default:
 		if imports.KnownArch[cond] || imports.KnownOS[cond] {
@@ -884,7 +750,7 @@ func removeAll(dir string) error {
 }
 
 func homeEnvName() string {
-	switch runtime.GOOS {
+	switch goruntime.GOOS {
 	case "windows":
 		return "USERPROFILE"
 	case "plan9":
@@ -895,7 +761,7 @@ func homeEnvName() string {
 }
 
 func tempEnvName() string {
-	switch runtime.GOOS {
+	switch goruntime.GOOS {
 	case "windows":
 		return "TMP"
 	case "plan9":

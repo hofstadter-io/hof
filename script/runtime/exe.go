@@ -73,7 +73,7 @@ func RunMain(m TestingM, commands map[string]func() int) (exitCode int) {
 					"TESTSCRIPT_COMMAND="+name,
 					"TESTSCRIPT_COVERPROFILE="+cprof,
 				)
-				ts.cmdExec(neg, append([]string{path}, args...))
+				ts.CmdExec(neg, append([]string{path}, args...))
 				ts.env = ts.env[0:oldEnvLen]
 				if cprof == "" {
 					return
