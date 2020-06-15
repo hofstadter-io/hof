@@ -60,7 +60,7 @@ type Tester struct {
 }
 
 func getValueTestSuiteTesters(val cue.Value, name string, labels []string) ([]Tester, error) {
-	vals, err := cuetils.GetByAttrKeys(val, "test", []string{}, labels)
+	vals, err := cuetils.GetByAttrKeys(val, "test", labels, []string{})
 	testers := []Tester{}
 	for _, v := range vals {
 		a := v.Val.Attribute("test")
