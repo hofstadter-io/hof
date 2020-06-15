@@ -26,9 +26,25 @@ var ContextCmd = &cobra.Command{
 }
 
 func init() {
+	extra := func(cmd *cobra.Command) bool {
 
-	help := ContextCmd.HelpFunc()
-	usage := ContextCmd.UsageFunc()
+		return false
+	}
+
+	ohelp := ContextCmd.HelpFunc()
+	ousage := ContextCmd.UsageFunc()
+	help := func(cmd *cobra.Command, args []string) {
+		if extra(cmd) {
+			return
+		}
+		ohelp(cmd, args)
+	}
+	usage := func(cmd *cobra.Command) error {
+		if extra(cmd) {
+			return nil
+		}
+		return ousage(cmd)
+	}
 
 	thelp := func(cmd *cobra.Command, args []string) {
 		ga.SendCommandPath(cmd.CommandPath() + " help")

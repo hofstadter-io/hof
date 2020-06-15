@@ -10,6 +10,8 @@ import (
 
 	"github.com/hofstadter-io/hof/cmd/hof/cmd/mod"
 
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
+
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
@@ -67,9 +69,33 @@ var ModCmd = &cobra.Command{
 }
 
 func init() {
+	extra := func(cmd *cobra.Command) bool {
 
-	help := ModCmd.HelpFunc()
-	usage := ModCmd.UsageFunc()
+		if flags.PrintSubject("Topics\n", "", flags.RootPflags.Topic, ModTopics) {
+			return true
+		}
+
+		if flags.PrintSubject("Examples\n", "", flags.RootPflags.Example, ModExamples) {
+			return true
+		}
+
+		return false
+	}
+
+	ohelp := ModCmd.HelpFunc()
+	ousage := ModCmd.UsageFunc()
+	help := func(cmd *cobra.Command, args []string) {
+		if extra(cmd) {
+			return
+		}
+		ohelp(cmd, args)
+	}
+	usage := func(cmd *cobra.Command) error {
+		if extra(cmd) {
+			return nil
+		}
+		return ousage(cmd)
+	}
 
 	thelp := func(cmd *cobra.Command, args []string) {
 		ga.SendCommandPath(cmd.CommandPath() + " help")

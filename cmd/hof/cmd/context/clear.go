@@ -47,9 +47,25 @@ var ClearCmd = &cobra.Command{
 }
 
 func init() {
+	extra := func(cmd *cobra.Command) bool {
 
-	help := ClearCmd.HelpFunc()
-	usage := ClearCmd.UsageFunc()
+		return false
+	}
+
+	ohelp := ClearCmd.HelpFunc()
+	ousage := ClearCmd.UsageFunc()
+	help := func(cmd *cobra.Command, args []string) {
+		if extra(cmd) {
+			return
+		}
+		ohelp(cmd, args)
+	}
+	usage := func(cmd *cobra.Command) error {
+		if extra(cmd) {
+			return nil
+		}
+		return ousage(cmd)
+	}
 
 	thelp := func(cmd *cobra.Command, args []string) {
 		ga.SendCommandPath(cmd.CommandPath() + " help")

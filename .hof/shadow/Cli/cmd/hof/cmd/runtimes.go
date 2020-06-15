@@ -26,9 +26,25 @@ var RuntimesCmd = &cobra.Command{
 }
 
 func init() {
+	extra := func(cmd *cobra.Command) bool {
 
-	help := RuntimesCmd.HelpFunc()
-	usage := RuntimesCmd.UsageFunc()
+		return false
+	}
+
+	ohelp := RuntimesCmd.HelpFunc()
+	ousage := RuntimesCmd.UsageFunc()
+	help := func(cmd *cobra.Command, args []string) {
+		if extra(cmd) {
+			return
+		}
+		ohelp(cmd, args)
+	}
+	usage := func(cmd *cobra.Command) error {
+		if extra(cmd) {
+			return nil
+		}
+		return ousage(cmd)
+	}
 
 	thelp := func(cmd *cobra.Command, args []string) {
 		ga.SendCommandPath(cmd.CommandPath() + " help")

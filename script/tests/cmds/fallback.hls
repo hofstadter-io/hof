@@ -1,5 +1,5 @@
 ### Test command fallback to exec from fs
 
-exec tree tests
+exec ls tests
 
-tree tests
+ls tests

@@ -22,11 +22,11 @@ import (
 	OmitRun: true
 
 	Imports: [
-		{Path: "github.com/hofstadter-io/hof/lib/runtime"},
+		{Path: "github.com/hofstadter-io/hof/lib/config"},
 	]
 
 	PersistentPrerun:     true
-	PersistentPrerunBody: "runtime.Init()"
+	PersistentPrerunBody: "config.Init()"
 
 	PersistentPostrun: true
 

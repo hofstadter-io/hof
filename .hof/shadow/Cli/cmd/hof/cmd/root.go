@@ -12,11 +12,11 @@ import (
 	"github.com/hofstadter-io/hof/script/runtime"
 	"github.com/spf13/cobra"
 
-	"github.com/hofstadter-io/hof/lib/runtime"
-
-	"github.com/hofstadter-io/hof/cmd/hof/ga"
+	"github.com/hofstadter-io/hof/lib/config"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+
+	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var hofLong = `Polyglot Code Gereration Framework`
@@ -64,7 +64,7 @@ func init() {
 
 func RootPersistentPreRun(args []string) (err error) {
 
-	runtime.Init()
+	config.Init()
 
 	return err
 }
@@ -116,14 +116,31 @@ var RootCmd = &cobra.Command{
 }
 
 func RootInit() {
+	extra := func(cmd *cobra.Command) bool {
+
+		if flags.PrintSubject("Topics", "  ", flags.RootPflags.Topic, RootTopics) {
+			return true
+		}
+
+		if flags.PrintSubject("Examples", "  ", flags.RootPflags.Example, RootExamples) {
+			return true
+		}
+
+		return false
+	}
 
 	help := func(cmd *cobra.Command, args []string) {
+		if extra(cmd) {
+			return
+		}
 		fu := RootCmd.Flags().FlagUsages()
 		rh := strings.Replace(RootCustomHelp, "<<flag-usage>>", fu, 1)
 		fmt.Println(rh)
-		fmt.Println(cmd.Name(), "hof", args)
 	}
 	usage := func(cmd *cobra.Command) error {
+		if extra(cmd) {
+			return nil
+		}
 		fu := RootCmd.Flags().FlagUsages()
 		rh := strings.Replace(RootCustomHelp, "<<flag-usage>>", fu, 1)
 		fmt.Println(rh)

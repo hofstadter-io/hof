@@ -47,9 +47,25 @@ var ProposeCmd = &cobra.Command{
 }
 
 func init() {
+	extra := func(cmd *cobra.Command) bool {
 
-	help := ProposeCmd.HelpFunc()
-	usage := ProposeCmd.UsageFunc()
+		return false
+	}
+
+	ohelp := ProposeCmd.HelpFunc()
+	ousage := ProposeCmd.UsageFunc()
+	help := func(cmd *cobra.Command, args []string) {
+		if extra(cmd) {
+			return
+		}
+		ohelp(cmd, args)
+	}
+	usage := func(cmd *cobra.Command) error {
+		if extra(cmd) {
+			return nil
+		}
+		return ousage(cmd)
+	}
 
 	thelp := func(cmd *cobra.Command, args []string) {
 		ga.SendCommandPath(cmd.CommandPath() + " help")
