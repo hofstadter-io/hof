@@ -1,12 +1,14 @@
 package script
 
 import (
-	"github.com/hofstadter-io/script/runtime"
-	"github.com/hofstadter-io/script/util"
+	"io/ioutil"
+	"strings"
+
+	"github.com/hofstadter-io/hof/script/runtime"
 )
 
 func Run(glob string) error {
-	r := util.Runner{
+	r := runtime.Runner{
 		// LogLevel: flags.RootVerbosePflag,
 		LogLevel: "yes please",
 	}
@@ -27,3 +29,24 @@ func Run(glob string) error {
 	return nil
 }
 
+func envSetup(env *runtime.Env) error {
+
+	// .env can contain lines of ENV=VAR
+	content, err := ioutil.ReadFile(".env")
+	if err != nil {
+		// ignore errors, as the file likely doesn't exist
+		return nil
+	}
+
+	for _, line := range strings.Split(string(content), "\n") {
+		if strings.Contains(line, "=") {
+			if line[0:1] == "#" {
+				continue
+			}
+			env.Vars = append(env.Vars, line)
+		}
+	}
+
+
+	return nil
+}

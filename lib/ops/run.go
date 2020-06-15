@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
-	"github.com/hofstadter-io/hof/script"
+	"github.com/hofstadter-io/hof/script/runtime"
 )
 
 /*
@@ -93,12 +93,12 @@ func RunHLS(globs []string) error {
 }
 
 func runHLS(glob string) error {
-	r := script.Runner{
+	r := runtime.Runner{
 		// LogLevel: flags.RootVerbosePflag,
 		LogLevel: "yes please",
 	}
 
-	p := script.Params{
+	p := runtime.Params{
 		Mode: "run",
 		Setup: envSetup,
 		Dir: ".",
@@ -107,14 +107,14 @@ func runHLS(glob string) error {
 		TestWork: true,
 	}
 
-	script.RunT(r, p)
+	runtime.RunT(r, p)
 
 	// TODO check output / status?
 
 	return nil
 }
 
-func envSetup(env *script.Env) error {
+func envSetup(env *runtime.Env) error {
 
 	// .env can contain lines of ENV=VAR
 	content, err := ioutil.ReadFile(".env")
