@@ -112,6 +112,8 @@ func (mdr *Modder) CheckAndFetchRootDeps() error {
 		}
 
 		_, ok := sf.Mods[ver]
+		// TODO, implement this
+		/*
 		if !ok {
 			// TODO fetch missing dep
 			// fmt.Println("fetch missing mod->sum", ver, R, v)
@@ -122,6 +124,7 @@ func (mdr *Modder) CheckAndFetchRootDeps() error {
 
 			// TODO if not verify, fetch
 		}
+		*/
 
 	}
 

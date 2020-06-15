@@ -22,10 +22,10 @@ func init() {
 
 func GenRun(args []string) (err error) {
 
-	return lib.Gen(args, flags.GenFlags)
-
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
+
+	err = lib.Gen(args, flags.GenFlags)
 
 	return err
 }
