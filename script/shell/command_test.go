@@ -3,7 +3,7 @@ package shell_test
 import (
 	"testing"
 
-	"github.com/hofstadter-io/hof/shell"
+	"github.com/hofstadter-io/hof/script/shell"
 	"github.com/stretchr/testify/assert"
 )
 

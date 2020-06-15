@@ -50,11 +50,11 @@ import "strings"
 gen: _ @test(suite,gen)
 gen: {
 	// TODO before / after
-	cmds: #GoBashTest @test(bash,cmd,test)
+	cmds: #GoBashTest @test(bash,test,cmd)
 	cmds: {
 		dir: "cmd/hof/cmd"
 	}
-	cmdsC: #GoBashCover @test(bash,cmd,cover)
+	cmdsC: #GoBashCover @test(bash,cover,cmd)
 	cmdsC: {
 		dir: "cmd/hof/cmd"
 	}
@@ -72,6 +72,15 @@ hls: {
 		dir: "script/runtime"
 	}
 
+	shell: #GoBashTest @test(bash,test,shell)
+	shell: {
+		dir: "script/shell"
+	}
+	shellC: #GoBashCover @test(bash,cover,shell)
+	shellC: {
+		dir: "script/shell"
+	}
+
 	script: #GoBashTest @test(bash,test,script)
 	script: {
 		dir: "script"
@@ -82,37 +91,24 @@ hls: {
 	}
 }
 
-// Test Hof Linear Script (hls)
-hsh: _ @test(suite,shell,hsh,sh)
-hsh: {
-	self: #GoBashTest @test(bash,test)
-	self: {
-		dir: "shell"
-	}
-	selfC: #GoBashCover @test(bash,cover)
-	selfC: {
-		dir: "shell"
-	}
-}
+lib: _ @test(suite,lib)
+lib: {
 
-hof: _ @test(suite,lib,hof)
-hof: {
-
-	mod: #GoBashTest @test(bash,lib/mod,test)
+	mod: #GoBashTest @test(bash,test,mod)
 	mod: {
 		dir: "lib/mod"
 	}
-	modC: #GoBashCover @test(bash,lib/mod,cover)
+	modC: #GoBashCover @test(bash,cover,mod)
 	modC: {
 		dir: "lib/mod"
 	}
 
-	st: #GoBashTest @test(bash,lib/st,test)
+	st: #GoBashTest @test(bash,test,st)
 	st: {
 		skip: true
 		dir: "lib/structural"
 	}
-	stC: #GoBashCover @test(bash,lib/st,cover)
+	stC: #GoBashCover @test(bash,cover,st)
 	stC: {
 		skip: true
 		dir: "lib/structural"
