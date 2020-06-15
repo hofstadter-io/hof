@@ -5,7 +5,7 @@
 // Script-driven tests.
 // See testdata/script/README for an overview.
 
-package script
+package runtime
 
 import (
 	"bytes"
@@ -174,12 +174,6 @@ type Script struct {
 	httpClients map[string]*gorequest.SuperAgent
 
 	ctxt context.Context // per Script context
-}
-
-type backgroundCmd struct {
-	cmd  *exec.Cmd
-	wait <-chan struct{}
-	neg  int // if true, cmd should fail
 }
 
 // setup sets up the test execution temporary directory and environment.

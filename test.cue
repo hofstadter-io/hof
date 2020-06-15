@@ -61,14 +61,23 @@ gen: {
 }
 
 // Test Hof Linear Script (hls)
-hls: _ @test(suite,script,hls)
+hls: _ @test(suite,hls)
 hls: {
-	self: #GoBashTest @test(bash,test)
-	self: {
+	runtime: #GoBashTest @test(bash,test,runtime)
+	runtime: {
+		dir: "script/runtime"
+	}
+	runtimeC: #GoBashCover @test(bash,cover,runtime)
+	runtimeC: {
+		dir: "script/runtime"
+	}
+
+	script: #GoBashTest @test(bash,test,script)
+	script: {
 		dir: "script"
 	}
-	selfC: #GoBashCover @test(bash,cover)
-	selfC: {
+	scriptC: #GoBashCover @test(bash,cover,script)
+	scriptC: {
 		dir: "script"
 	}
 }

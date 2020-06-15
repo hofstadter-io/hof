@@ -1,4 +1,4 @@
-package script
+package runtime
 
 // Params holds parameters for a call to Run.
 type Params struct {

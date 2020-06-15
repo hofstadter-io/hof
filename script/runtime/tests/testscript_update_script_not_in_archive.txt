@@ -1,3 +1,5 @@
+skip
+
 unquote scripts/testscript.txt
 cp scripts/testscript.txt unchanged
 ! testscript-update scripts
