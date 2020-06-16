@@ -1,6 +1,6 @@
 ### Test making directories and moving around
 
-exec ls -lh *
+exec ls -lh .
 
 mkdir dir-b
 
