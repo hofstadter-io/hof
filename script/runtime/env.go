@@ -2,8 +2,10 @@ package runtime
 
 import (
 	"fmt"
+	goruntime "runtime"
 	"strings"
 )
+
 
 // Env holds the environment to use at the start of a test script invocation.
 type Env struct {
@@ -70,4 +72,40 @@ func (e *Env) T() T {
 	return e.ts.t
 }
 
+
+// abbrev abbreviates the actual work directory in the string s to the literal string "$WORK".
+func (ts *Script) abbrev(s string) string {
+	if ts.params.Mode != "test" {
+		return s
+	}
+	s = strings.Replace(s, ts.workdir, "$WORK", -1)
+	if *testWork || ts.params.TestWork {
+		// Expose actual $WORK value in environment dump on first line of work script,
+		// so that the user can find out what directory -testwork left behind.
+		s = "WORK=" + ts.workdir + "\n" + strings.TrimPrefix(s, "WORK=$WORK\n")
+	}
+	return s
+}
+
+func homeEnvName() string {
+	switch goruntime.GOOS {
+	case "windows":
+		return "USERPROFILE"
+	case "plan9":
+		return "home"
+	default:
+		return "HOME"
+	}
+}
+
+func tempEnvName() string {
+	switch goruntime.GOOS {
+	case "windows":
+		return "TMP"
+	case "plan9":
+		return "TMPDIR" // actually plan 9 doesn't have one at all but this is fine
+	default:
+		return "TMPDIR"
+	}
+}
 
