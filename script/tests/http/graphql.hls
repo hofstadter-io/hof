@@ -1,0 +1,15 @@
+# Test http client helpers
+
+http client new gql POST https://postman-echo.com/post
+
+http gql G=@.tmp/query.graphql V='{"foo":"bar"}'
+
+http client del gql
+
+-- .tmp/query.graphql --
+query foo {
+    bar {
+        id
+        name
+    }
+}

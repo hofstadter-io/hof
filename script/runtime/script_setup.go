@@ -7,6 +7,9 @@ import (
 	goruntime "runtime"
 	"strings"
 
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+
 	"github.com/hofstadter-io/hof/lib/gotils/txtar"
 )
 
@@ -121,6 +124,9 @@ func (ts *Script) setupRun() string {
 	ts.env = env.Vars
 	ts.values = env.Values
 
+	// setup Zap logger
+	ts.setupZap()
+
 	// fmt.Println("EnvArr:", ts.env)
 
 	ts.envMap = make(map[string]string)
@@ -133,3 +139,38 @@ func (ts *Script) setupRun() string {
 	return string(a.Comment)
 }
 
+func (ts *Script) setupZap() {
+
+	// First, define our level-handling logic.
+	highPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+		return lvl >= zapcore.ErrorLevel
+	})
+	lowPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+		return lvl < zapcore.ErrorLevel
+	})
+
+	// High-priority output should also go to standard error, and low-priority
+	// output should also go to standard out.
+	consoleDebugging := zapcore.Lock(os.Stdout)
+	consoleErrors := zapcore.Lock(os.Stderr)
+
+	// setup our config and console encoder
+	config :=zap.NewDevelopmentEncoderConfig()
+	config.EncodeLevel = zapcore.CapitalColorLevelEncoder
+	consoleEncoder := zapcore.NewConsoleEncoder(config)
+
+	// Join the outputs, encoders, and level-handling functions into
+	// zapcore.Cores, then tee the four cores together.
+	core := zapcore.NewTee(
+		zapcore.NewCore(consoleEncoder, consoleErrors, highPriority),
+		zapcore.NewCore(consoleEncoder, consoleDebugging, lowPriority),
+	)
+
+	// From a zapcore.Core, it's easy to construct a Logger.
+	logger := zap.New(core)
+	ts.Logger = logger.Sugar()
+
+	defer logger.Sync()
+	logger.Info("constructed a logger")
+
+}

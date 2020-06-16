@@ -156,17 +156,6 @@ func (ts *Script) ReadFile(file string) string {
 	}
 }
 
-// Setenv sets the value of the environment variable named by the key.
-func (ts *Script) Setenv(key, value string) {
-	ts.env = append(ts.env, key+"="+value)
-	ts.envMap[envvarname(key)] = value
-}
-
-// Getenv gets the value of the environment variable named by the key.
-func (ts *Script) Getenv(key string) string {
-	return ts.envMap[envvarname(key)]
-}
-
 func removeAll(dir string) error {
 	// module cache has 0444 directories;
 	// make them writable in order to remove content.

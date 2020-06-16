@@ -1,0 +1,8 @@
+### Test logging capabilities
+
+log debug 'hello world' 123
+log info  'hello world' 123
+log warn  'hello world' 123
+log error 'hello world' 123 $USER
+log fatal 'hello world' 123 abc
+

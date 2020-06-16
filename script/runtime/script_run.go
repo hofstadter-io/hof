@@ -9,43 +9,9 @@ import (
 
 // run runs the test script.
 func (ts *Script) run() {
-	// Truncate log at end of last phase marker,
-	// discarding details of successful phase.
-	rewind := func() {
-		if !ts.t.Verbose() {
-			ts.log.Truncate(ts.mark)
-		}
-	}
-
-	// Insert elapsed time for phase at end of phase marker
-	markTime := func() {
-		if ts.mark > 0 && !ts.start.IsZero() {
-			afterMark := append([]byte{}, ts.log.Bytes()[ts.mark:]...)
-			ts.log.Truncate(ts.mark - 1) // cut \n and afterMark
-			fmt.Fprintf(&ts.log, " (%.3fs)\n", time.Since(ts.start).Seconds())
-			ts.log.Write(afterMark)
-		}
-		ts.start = time.Time{}
-	}
 
 	defer func() {
-		// On a normal exit from the test loop, background processes are cleaned up
-		// before we print PASS. If we return early (e.g., due to a test failure),
-		// don't print anything about the processes that were still running.
-		for _, bg := range ts.background {
-			interruptProcess(bg.cmd.Process)
-		}
-		for _, bg := range ts.background {
-			<-bg.wait
-		}
-		ts.background = nil
-
-		markTime()
-		// Flush testScript log to testing.T log.
-		ts.t.Log("\n" + ts.abbrev(ts.log.String()))
-	}()
-	defer func() {
-		ts.deferred()
+		ts.cleanup()
 	}()
 
 	var script string
@@ -90,8 +56,8 @@ Script:
 			// rewinding is a no-op and adding elapsed time
 			// for doing nothing is meaningless, so don't.
 			if ts.log.Len() > ts.mark {
-				rewind()
-				markTime()
+				ts.rewind()
+				ts.markTime()
 			}
 			// Print phase heading and mark start of phase output.
 			fmt.Fprintf(&ts.log, "%s\n", line)
@@ -202,8 +168,8 @@ Script:
 	ts.CmdWait(0, nil)
 
 	// Final phase ended.
-	rewind()
-	markTime()
+	ts.rewind()
+	ts.markTime()
 	if !ts.stopped {
 		if ts.params.Mode == "test" {
 			fmt.Fprintf(&ts.log, "PASS\n")
@@ -212,4 +178,43 @@ Script:
 			fmt.Fprintf(&ts.log, "DONE\n")
 		}
 	}
+}
+
+
+// Truncate log at end of last phase marker,
+// discarding details of successful phase.
+func (ts *Script) rewind() {
+	if !ts.t.Verbose() {
+		ts.log.Truncate(ts.mark)
+	}
+}
+
+func (ts *Script) markTime() {
+	if ts.mark > 0 && !ts.start.IsZero() {
+		afterMark := append([]byte{}, ts.log.Bytes()[ts.mark:]...)
+		ts.log.Truncate(ts.mark - 1) // cut \n and afterMark
+		fmt.Fprintf(&ts.log, " (%.3fs)\n", time.Since(ts.start).Seconds())
+		ts.log.Write(afterMark)
+	}
+	ts.start = time.Time{}
+}
+
+// Insert elapsed time for phase at end of phase marker
+func (ts *Script) cleanup() {
+
+	// On a normal exit from the test loop, background processes are cleaned up
+	// before we print PASS. If we return early (e.g., due to a test failure),
+	// don't print anything about the processes that were still running.
+	for _, bg := range ts.background {
+		interruptProcess(bg.cmd.Process)
+	}
+	for _, bg := range ts.background {
+		<-bg.wait
+	}
+	ts.background = nil
+
+	ts.markTime()
+	// Flush testScript log to testing.T log.
+	ts.t.Log("\n" + ts.abbrev(ts.log.String()))
+	ts.deferred()
 }

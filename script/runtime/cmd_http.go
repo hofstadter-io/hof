@@ -238,6 +238,24 @@ func (ts *Script) applyArgToReq(req *gorequest.SuperAgent, arg string) (*goreque
 	case "GET", "POST", "HEAD", "PUT", "DELETE", "PATCH", "OPTIONS":
 		req.Method = K
 
+
+	// Graphql Helpers
+	case "G", "GQL", "GRAPHQL":
+		if strings.HasPrefix(val, "@") {
+			val = ts.ReadFile(val[1:])
+		}
+		req = req.Send(fmt.Sprintf(`{ "query": %q }`, val))
+
+	case "V", "VARS", "VARIABLES":
+		if strings.HasPrefix(val, "@") {
+			val = ts.ReadFile(val[1:])
+		}
+		req = req.Send(fmt.Sprintf(`{ "variables": %s }`, val))
+
+	case "O", "OP", "OPNAME", "OPERATION":
+		req = req.Send(fmt.Sprintf(`{ "operationName": %q }`, val))
+
+
 	default:
 
 		// check some special prefixes

@@ -6,7 +6,9 @@ require (
 	cuelang.org/go v0.2.0
 	github.com/aymerick/raymond v2.0.2+incompatible
 	github.com/bmatcuk/doublestar v1.3.0
+	github.com/chzyer/logex v1.1.10 // indirect
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
+	github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1
 	github.com/clbanning/mxj v1.8.4
 	github.com/codemodus/kace v0.5.1
 	github.com/epiclabs-io/diff3 v0.0.0-20181217103619-05282cece609
@@ -26,16 +28,18 @@ require (
 	github.com/mattn/go-zglob v0.0.1
 	github.com/mholt/archiver v3.1.1+incompatible // indirect
 	github.com/naoina/toml v0.1.1
+	github.com/nbutton23/zxcvbn-go v0.0.0-20180912185939-ae427f1e4c1d
 	github.com/parnurzeal/gorequest v0.2.16
 	github.com/rogpeppe/go-internal v1.6.0 // indirect
 	github.com/sergi/go-diff v1.1.0
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/viper v1.6.2 // indirect
 	github.com/stretchr/testify v1.4.0
+	go.uber.org/zap v1.10.0
 	golang.org/x/crypto v0.0.0-20200427165652-729f1e841bcc // indirect
 	golang.org/x/mod v0.2.0
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	golang.org/x/sys v0.0.0-20200428200454-593003d681fa // indirect
+	golang.org/x/sys v0.0.0-20200428200454-593003d681fa
 	golang.org/x/text v0.3.2
 	gopkg.in/errgo.v2 v2.1.0
 	gopkg.in/src-d/go-git.v4 v4.13.1 // indirect
