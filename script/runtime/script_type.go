@@ -34,6 +34,7 @@ type Script struct {
 
 	name          string                      // short name of test ("foo")
 	file          string                      // full file name ("testdata/script/foo.hls")
+	orig          string                      // original content
 	lineno        int                         // line number currently executing
 	line          string                      // line currently executing
 

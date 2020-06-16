@@ -3,6 +3,7 @@
 http client new gql POST https://postman-echo.com/post
 
 http gql G=@.tmp/query.graphql V='{"foo":"bar"}'
+cp @stdout .tmp/query-result.json
 
 http client del gql
 

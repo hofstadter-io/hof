@@ -1,7 +1,15 @@
 package runtime
 
 import (
+	goruntime "runtime"
 	"strconv"
+	"strings"
+	"testing"
+
+	"github.com/hofstadter-io/hof/lib/gotils/imports"
+	"github.com/hofstadter-io/hof/lib/gotils/intern/os/execpath"
+	"github.com/hofstadter-io/hof/lib/gotils/par"
+	"github.com/hofstadter-io/hof/lib/gotils/testenv"
 )
 
 // status checks the exit or status code from the last exec or http call
@@ -30,5 +38,40 @@ func (ts *Script) CmdStatus(neg int, args []string) {
 		ts.Fatalf("unexpected status mismatch:  wated: %d  got %d", code, ts.status)
 	}
 
+}
+
+var execCache par.Cache
+
+// condition reports whether the given condition is satisfied.
+func (ts *Script) condition(cond string) (bool, error) {
+	switch cond {
+	case "short":
+		return testing.Short(), nil
+	case "net":
+		return testenv.HasExternalNetwork(), nil
+	case "link":
+		return testenv.HasLink(), nil
+	case "symlink":
+		return testenv.HasSymlink(), nil
+	case goruntime.GOOS, goruntime.GOARCH:
+		return true, nil
+	default:
+		if imports.KnownArch[cond] || imports.KnownOS[cond] {
+			return false, nil
+		}
+		if strings.HasPrefix(cond, "exec:") {
+			prog := cond[len("exec:"):]
+			ok := execCache.Do(prog, func() interface{} {
+				_, err := execpath.Look(prog, ts.Getenv)
+				return err == nil
+			}).(bool)
+			return ok, nil
+		}
+		if ts.params.Condition != nil {
+			return ts.params.Condition(cond)
+		}
+		ts.Fatalf("unknown condition %q", cond)
+		panic("unreachable")
+	}
 }
 

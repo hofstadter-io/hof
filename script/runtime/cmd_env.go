@@ -2,8 +2,21 @@ package runtime
 
 import (
 	"io/ioutil"
+	"os"
+	"path/filepath"
+	"regexp"
 	"strings"
 )
+
+// expand applies environment variable expansion to the string s.
+func (ts *Script) expand(s string) string {
+	return os.Expand(s, func(key string) string {
+		if key1 := strings.TrimSuffix(key, "@R"); len(key1) != len(key) {
+			return regexp.QuoteMeta(ts.Getenv(key1))
+		}
+		return ts.Getenv(key)
+	})
+}
 
 // Setenv sets the value of the environment variable named by the key.
 func (ts *Script) Setenv(key, value string) {
@@ -120,5 +133,50 @@ func (ts *Script) CmdEnvsub(neg int, args []string) {
 		subd := ts.expand(v)
 		ts.Setenv(k,subd)
 	}
+}
+
+// MkAbs interprets file relative to the test script's current directory
+// and returns the corresponding absolute path.
+func (ts *Script) MkAbs(file string) string {
+	if filepath.IsAbs(file) {
+		return file
+	}
+	return filepath.Join(ts.cd, file)
+}
+
+// ReadFile returns the contents of the file with the
+// given name, intepreted relative to the test script's
+// current directory. It interprets "stdout" and "stderr" to
+// mean the standard output or standard error from
+// the most recent exec or wait command respectively.
+//
+// If the file cannot be read, the script fails.
+func (ts *Script) ReadFile(file string) string {
+	switch file {
+	case "stdout":
+		return ts.stdout
+	case "stderr":
+		return ts.stderr
+	default:
+		file = ts.MkAbs(file)
+		data, err := ioutil.ReadFile(file)
+		ts.Check(err)
+		return string(data)
+	}
+}
+
+func removeAll(dir string) error {
+	// module cache has 0444 directories;
+	// make them writable in order to remove content.
+	filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return nil // ignore errors walking in file system
+		}
+		if info.IsDir() {
+			os.Chmod(path, 0777)
+		}
+		return nil
+	})
+	return os.RemoveAll(dir)
 }
 

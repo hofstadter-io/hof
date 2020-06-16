@@ -49,8 +49,6 @@ func (ts *Script) http(args []string) (string, string, int, error) {
 		return "", "", 0, nil
 	}
 
-	fmt.Println("args", args)
-
 	req, err := ts.reqFromArgs(args)
 	ts.Check(err)
 

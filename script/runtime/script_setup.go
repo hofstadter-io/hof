@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	goruntime "runtime"
+	"strconv"
 	"strings"
 
 	"go.uber.org/zap"
@@ -13,8 +14,8 @@ import (
 	"github.com/hofstadter-io/hof/lib/gotils/txtar"
 )
 
-// setup sets up the test execution temporary directory and environment.
-// It returns the comment section of the txtar archive.
+// setupTest sets up the test execution temporary directory and environment.
+// It returns the script content section of the txtar archive.
 func (ts *Script) setupTest() string {
 	ts.workdir = filepath.Join(ts.testTempDir, "script-"+ts.name)
 	ts.Check(os.MkdirAll(filepath.Join(ts.workdir, "tmp"), 0777))
@@ -23,7 +24,7 @@ func (ts *Script) setupTest() string {
 			"WORK=" + ts.workdir, // must be first for ts.abbrev
 			"PATH=" + os.Getenv("PATH"),
 			"USER=" + os.Getenv("USER"),
-			homeEnvName() + "=/no-home",
+			homeEnvName() + "=" + ts.workdir + "/home",
 			tempEnvName() + "=" + filepath.Join(ts.workdir, "tmp"),
 			"devnull=" + os.DevNull,
 			"/=" + string(os.PathSeparator),
@@ -34,53 +35,16 @@ func (ts *Script) setupTest() string {
 		Cd:      ts.workdir,
 		ts:      ts,
 	}
-	// Must preserve SYSTEMROOT on Windows: https://github.com/golang/go/issues/25513 et al
-	if goruntime.GOOS == "windows" {
-		env.Vars = append(env.Vars,
-			"SYSTEMROOT="+os.Getenv("SYSTEMROOT"),
-			"exe=.exe",
-		)
-	} else {
-		env.Vars = append(env.Vars,
-			"exe=",
-		)
-	}
-	ts.cd = env.Cd
-	// Unpack archive.
-	a, err := txtar.ParseFile(ts.file)
-	ts.Check(err)
-	ts.archive = a
-	for _, f := range a.Files {
-		name := ts.MkAbs(ts.expand(f.Name))
-		ts.scriptFiles[name] = f.Name
-		ts.Check(os.MkdirAll(filepath.Dir(name), 0777))
-		ts.Check(ioutil.WriteFile(name, f.Data, 0666))
-	}
-	// Run any user-defined setup.
-	if ts.params.Setup != nil {
-		ts.Check(ts.params.Setup(env))
-	}
-	ts.cd = env.Cd
-	ts.env = env.Vars
-	ts.values = env.Values
 
-	ts.envMap = make(map[string]string)
-	for _, kv := range ts.env {
-		if i := strings.Index(kv, "="); i >= 0 {
-			ts.envMap[envvarname(kv[:i])] = kv[i+1:]
-		}
-	}
-	return string(a.Comment)
+	return ts.setupFromEnv(env)
 }
 
-// setup sets up the test execution temporary directory and environment.
-// It returns the comment section of the txtar archive.
+// setupRun sets up the script execution for working in the current directory.
+// the current environment will be exposed to the script
+// It returns the script content section of the txtar archive.
 func (ts *Script) setupRun() string {
-	// ts.workdir = filepath.Join(ts.testTempDir, "script-"+ts.name)
-	// ts.Check(os.MkdirAll(filepath.Join(ts.workdir, "tmp"), 0777))
 
 	// expose external ENV here
-
 	env := &Env{
 		Vars: os.Environ(),
 		WorkDir: ts.workdir,
@@ -89,6 +53,10 @@ func (ts *Script) setupRun() string {
 		ts:      ts,
 	}
 
+	return ts.setupFromEnv(env)
+}
+
+func (ts *Script) setupFromEnv(env *Env) string {
 	// Must preserve SYSTEMROOT on Windows: https://github.com/golang/go/issues/25513 et al
 	if goruntime.GOOS == "windows" {
 		env.Vars = append(env.Vars,
@@ -100,9 +68,25 @@ func (ts *Script) setupRun() string {
 			"exe=",
 		)
 	}
-
 	ts.cd = env.Cd
 
+	ts.unpackArchive()
+
+	// Run any user-defined setup.
+	if ts.params.Setup != nil {
+		ts.Check(ts.params.Setup(env))
+	}
+
+	ts.cd = env.Cd
+	ts.env = env.Vars
+	ts.values = env.Values
+
+	ts.setupEnvMap()
+
+	return ts.orig
+}
+
+func (ts *Script) unpackArchiveOrig() {
 	// Unpack archive.
 	a, err := txtar.ParseFile(ts.file)
 	ts.Check(err)
@@ -113,30 +97,71 @@ func (ts *Script) setupRun() string {
 		ts.Check(os.MkdirAll(filepath.Dir(name), 0777))
 		ts.Check(ioutil.WriteFile(name, f.Data, 0666))
 	}
+}
 
-	// Run any user-defined setup.
-	if ts.params.Setup != nil {
-		ts.Check(ts.params.Setup(env))
+// Unpack archive.
+func (ts *Script) unpackArchive() {
+	var err error
+	a, err := txtar.ParseFile(ts.file)
+	ts.Check(err)
+	ts.archive = a
+	for _, f := range a.Files {
+
+		// sub name
+		subd := ts.expand(f.Name)
+		name := subd
+		var fmode os.FileMode
+		fmode = 0644
+		chown := ""
+
+		// check for filemode/chown
+		flds := strings.Split(subd, ";")
+		if len(flds) > 1 {
+			name = flds[0]
+			if len(flds) == 3 {
+				if strings.Contains(flds[2], ":") {
+					chown = flds[2]
+				} else {
+					fm, err := strconv.ParseUint(flds[2], 8, 32)
+					ts.Check(err)
+					fmode = os.FileMode(fm)
+				}
+			}
+			if strings.Contains(flds[1], ":") {
+				chown = flds[1]
+			} else {
+				fm, err := strconv.ParseUint(flds[1], 8, 32)
+				ts.Check(err)
+				fmode = os.FileMode(fm)
+			}
+		}
+
+		// make the file
+		fname := ts.MkAbs(name)
+		ts.scriptFiles[fname] = f.Name
+		os.RemoveAll(fname)
+		ts.Check(os.MkdirAll(filepath.Dir(fname), 0755))
+		ts.Check(ioutil.WriteFile(fname, f.Data, fmode))
+		if chown != "" {
+			flds := strings.Split(chown, ":")
+			uid, err := strconv.Atoi(flds[0])
+			ts.Check(err)
+			gid, err := strconv.Atoi(flds[1])
+			ts.Check(err)
+			ts.Check(os.Chown(fname, uid, gid))
+		}
 	}
 
-	// setup more values on ts from env
-	ts.cd = env.Cd
-	ts.env = env.Vars
-	ts.values = env.Values
+	ts.orig = string(a.Comment)
+}
 
-	// setup Zap logger
-	ts.setupZap()
-
-	// fmt.Println("EnvArr:", ts.env)
-
+func (ts *Script) setupEnvMap() {
 	ts.envMap = make(map[string]string)
 	for _, kv := range ts.env {
 		if i := strings.Index(kv, "="); i >= 0 {
 			ts.envMap[envvarname(kv[:i])] = kv[i+1:]
 		}
 	}
-
-	return string(a.Comment)
 }
 
 func (ts *Script) setupZap() {
@@ -169,8 +194,4 @@ func (ts *Script) setupZap() {
 	// From a zapcore.Core, it's easy to construct a Logger.
 	logger := zap.New(core)
 	ts.Logger = logger.Sugar()
-
-	defer logger.Sync()
-	logger.Info("constructed a logger")
-
 }

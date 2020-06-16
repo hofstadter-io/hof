@@ -1,9 +1,13 @@
 ### Test making directories and moving around
 
-exec ls -lh .
+exec ls -lh .tmp/
+exec ls -lh .tmp/dir-a/
 
-mkdir dir-b
+mkdir .tmp/dir-b
 
 
--- dir-a/foo.txt --
+-- .tmp/dir-a/foo.txt --
 hello world
+-- .tmp/dir-a/test.sh;0755 --
+#!/bin/bash
+echo hello world

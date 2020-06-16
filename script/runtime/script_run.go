@@ -9,6 +9,7 @@ import (
 
 // run runs the test script.
 func (ts *Script) run() {
+	ts.setupZap()
 
 	defer func() {
 		ts.cleanup()
@@ -217,4 +218,8 @@ func (ts *Script) cleanup() {
 	// Flush testScript log to testing.T log.
 	ts.t.Log("\n" + ts.abbrev(ts.log.String()))
 	ts.deferred()
+
+	if ts.Logger != nil {
+		ts.Logger.Sync()
+	}
 }

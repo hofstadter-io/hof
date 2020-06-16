@@ -1,5 +1,4 @@
-### Test command fallback to exec from fs
+### Test command fallback to exec from system
 
-exec ls tests
-
-ls tests
+exec ls
+ls
