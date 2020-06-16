@@ -27,11 +27,14 @@ func (ts *Script) run() {
 
 	// With -v or -testwork, start log with full environment.
 	if *testWork || ts.t.Verbose() {
-		// Display environment.
-		ts.CmdEnv(0, nil)
-		fmt.Fprintf(&ts.log, "\n")
-		ts.mark = ts.log.Len()
+		if ts.params.Mode == "test" {
+			// Display environment.
+			ts.CmdEnv(0, nil)
+			fmt.Fprintf(&ts.log, "\n")
+			ts.mark = ts.log.Len()
+		}
 	}
+	// defer ts.applyScriptUpdates()
 
 	// Run script.
 	// See testdata/script/README for documentation of script form.
