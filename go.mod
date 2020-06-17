@@ -35,7 +35,7 @@ require (
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/viper v1.6.2 // indirect
 	github.com/stretchr/testify v1.4.0
-	go.uber.org/zap v1.10.0
+	go.uber.org/zap v1.15.0
 	golang.org/x/crypto v0.0.0-20200427165652-729f1e841bcc // indirect
 	golang.org/x/mod v0.2.0
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
