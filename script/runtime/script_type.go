@@ -65,3 +65,7 @@ type Script struct {
 
 }
 
+type Phase struct {
+	Lines []string
+	Steps []string
+}
