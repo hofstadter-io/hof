@@ -1,7 +1,6 @@
 package ast
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -19,14 +18,29 @@ type Script struct {
 	Files  map[string]*File
 }
 
+func (S *Script) AddError(e error) {
+	S.Errors = append(S.Errors, e)
+}
+
+func (S *Script) AddPhase(ph *Phase) {
+	S.Phases = append(S.Phases, ph)
+}
+
+func (S *Script) AddFile(f *File) {
+	if S.Files == nil {
+		S.Files = make(map[string]*File)
+	}
+	S.Files[f.Path] = f
+}
+
 func (P *Parser) parseScript(S *Script) (*Script, error) {
-	fmt.Printf("parseScript: %s\n", S.Path)
+	// P.logger.Infof("parseScript: %s", S.Path)
+	P.script = S
 
 	// split into lines
 	S.Lines = strings.Split(S.Content, "\n")
 
 	// parse lines
-	P.script = S
 	err := P.parseLines()
 	if err != nil {
 		return P.script, err
@@ -41,10 +55,17 @@ func (P *Parser) parseLines() (err error) {
 
 	// loop over all lines
 Loop:
-	P.lineno++
+	P.IncLine()
 	for P.lineno < len(P.script.Lines) {
 		line := P.script.Lines[P.lineno]
 		cleaned := cleanLine(line)
+
+		// check for empty line
+		if len(cleaned) == 0 {
+			// clear node when we hit an empty line
+			P.node = nil
+			goto Loop
+		}
 
 		// make or add to a node
 		if P.node == nil {
@@ -57,15 +78,9 @@ Loop:
 			P.node.SetEndLine(P.lineno)
 		}
 
-		// check for empty line
-		if len(cleaned) == 0 {
-			// clear node when we hit an empty line
-			P.node = nil
-			goto Loop
-		}
-
 		// do some checks on the first char
-		switch line[0:1] {
+		f1 :=	line[0:1]
+		switch f1 {
 
 			// phase, first one should be longest seen
 			case "%":
@@ -83,10 +98,11 @@ Loop:
 				}
 				goto Loop
 
-			// doc strinc
+			// doc string
 			case "#":
 				c := strings.TrimLeft(line, "#")
 				P.node.SetBegLine(P.lineno+1)
+				P.node.SetEndLine(P.lineno+1)
 				P.node.AddComment(c)
 				goto Loop
 

@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-git/go-billy/v5/osfs"
 
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/script/_ast"
 )
 
@@ -21,8 +22,13 @@ func Hack(args []string) error {
 
 	fs := osfs.New(cwd)
 
+	llvl := "warn"
+	if flags.RootPflags.Verbose != "" {
+		llvl = flags.RootPflags.Verbose
+	}
+
 	config := &ast.Config{
-		LogLevel: "info",
+		LogLevel: llvl,
 		FS: fs,
 	}
 	parser := ast.NewParser(config)

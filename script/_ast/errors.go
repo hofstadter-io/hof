@@ -1,6 +1,9 @@
 package ast
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type ScriptError struct {
 	Message string
@@ -14,7 +17,9 @@ func NewScriptError(msg string, node Node, err error) *ScriptError {
 
 func (e *ScriptError) Error() string {
 	src := ""
-	lines := e.Node.Script().Lines[e.Node.DocLine(): e.Node.EndLine()]
+	n := e.Node
+	s := n.Script()
+	lines := s.Lines[n.DocLine() : n.EndLine()]
 	if len(lines) == 1 {
 		src = lines[0]
 	} else {
@@ -23,5 +28,5 @@ func (e *ScriptError) Error() string {
 	msg := `%s:%d:%d:%d: %s %v
 	  > %s
 	`
-	return fmt.Sprintf(e.Path, e.Node.BegLine() + 1, e.Node.EndLine() + 1, e.Message, e.Err, src)
+	return fmt.Sprintf(msg, s.Path, n.BegLine() + 1, n.EndLine() + 1, e.Message, e.Err, src)
 }

@@ -32,6 +32,7 @@ import (
 
 	Pflags: #CliPflags
 
+	//Commands: [...schema.#Command]
 	Commands: [
 
 		// start
@@ -136,6 +137,7 @@ import (
 			Hidden: true
 			Name:   "hack"
 			Usage:  "hack ..."
+			Aliases:  ["h", "x"]
 			Short:  "development command"
 			Long:   Short
 		},
