@@ -17,7 +17,7 @@ add_env_var_as_env_prop "${SONAR_USER_HOME:-}" "sonar.userHome"
 add_env_var_as_env_prop "${SONAR_PROJECT_BASE_DIR:-}" "sonar.projectBaseDir"
 
 # if not empty, setup pr scan
-if [ ! -z $SONAR_PULL_REQUEST ]; then
+if [[ "${SONAR_PULL_REQUEST:-}" != "" ]]; then
     add_env_var_as_env_prop "${SONAR_BRANCH:-}" "sonar.pullrequest.branch"
     add_env_var_as_env_prop "${SONAR_PULL_REQUEST:-}" "sonar.pullrequest.key"
 else
