@@ -29,6 +29,11 @@ var HackCmd = &cobra.Command{
 
 	Hidden: true,
 
+	Aliases: []string{
+		"h",
+		"x",
+	},
+
 	Short: "development command",
 
 	Long: hackLong,

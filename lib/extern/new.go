@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/hofstadter-io/data-utils/io"
+	// "github.com/hofstadter-io/data-utils/io"
 
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
@@ -33,6 +33,7 @@ func NewEntry(what, name, template, strData string) (string, error) {
 		var err error
 
 		// is it readable as a file?
+		/* TODO fix
 		_, err = io.ReadFile(strData, &iface)
 		if err == nil {
 			data = iface.(map[string]interface{})
@@ -48,6 +49,7 @@ func NewEntry(what, name, template, strData string) (string, error) {
 			}
 
 		}
+		*/
 
 		data["name"] = name
 

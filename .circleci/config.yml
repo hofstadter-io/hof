@@ -16,35 +16,37 @@ jobs:
       - checkout
 
       # setup and prep fetch
-      - run: |
-          # Version info
-          GO_VER=1.14.4
-          CUE_VER=0.2.0
+      - run:
+          name: Prep system
+          command: |
+            sudo apt-get update -y
+            sudo apt-get install -y tree jq
+            # Version info
+            GO_VER=1.14.4
+            CUE_VER=0.2.0
 
-          # Install Go
-          sudo rm -rf /usr/local/go
-          curl -LO https://dl.google.com/go/go${GO_VER}.linux-amd64.tar.gz
-          sudo tar -C /usr/local -xzf go${GO_VER}.linux-amd64.tar.gz
+            # Install Go
+            sudo rm -rf /usr/local/go
+            curl -LO https://dl.google.com/go/go${GO_VER}.linux-amd64.tar.gz
+            sudo tar -C /usr/local -xzf go${GO_VER}.linux-amd64.tar.gz
 
-          # Install Cue
-          curl -LO https://github.com/cuelang/cue/releases/download/v${CUE_VER}/cue_${CUE_VER}_Linux_x86_64.tar.gz
-          tar -xf cue_${CUE_VER}_Linux_x86_64.tar.gz
-          sudo mv cue /usr/local/bin/cue
-
-      # prep test related dir
-      - run: |
-          echo "$(id -u):$(id -g)"
-          sudo mkdir -p /no-home
-          sudo chown 1001:1002 -R /no-home
+            # Install Cue
+            curl -LO https://github.com/cuelang/cue/releases/download/v${CUE_VER}/cue_${CUE_VER}_Linux_x86_64.tar.gz
+            tar -xf cue_${CUE_VER}_Linux_x86_64.tar.gz
+            sudo mv cue /usr/local/bin/cue
 
       # fetch Go dependencies
-      - run: |
-          go mod vendor
+      - run:
+          name: Fetch deps
+          command: |
+            go mod vendor
 
       # build Hof cli
-      - run: |
-          go build -o hof cmd/hof/main.go
-          sudo cp hof /usr/local/bin/hof
+      - run:
+          name: Build hof
+          command: |
+            go build -o hof cmd/hof/main.go
+            sudo cp hof /usr/local/bin/hof
 
 
       # fetch Cue dependencies
@@ -57,24 +59,39 @@ jobs:
       # en masse, regardless of the language, technology, or framework
       # you can also script all of the processes that go around a
       # complete testing setup with tasks like collectiong and reporting coverage statistics
-      - run: |
-          # run all tests
-          set +e
-          hof test test.cue -t cover
-          set -e
+
+      # prep test related dir
+      - run:
+          name: Test prep
+          command: |
+            echo "$(id -u):$(id -g)"
+            sudo mkdir -p /no-home
+            sudo chown 1001:1002 -R /no-home
+
+      - run:
+          name: Tests for coverage
+          command: |
+            # run all tests
+            set +e
+            hof test test.cue -t cover
+            set -e
 
       # Build our custom SonarCloud image
-      - run: |
-          ./ci/sc/build.sh
+      - run:
+          name: SonarCloud Custom Image
+          command: |
+            ./ci/sc/build.sh
 
       # Upload reports now that they have been generated and collected
-      - run: |
-          mkdir -p sonar-reports/go
-
-          ./ci/sc/run.sh
+      - run:
+          name: SonarCloud Scan
+          command: |
+            ./ci/sc/run.sh
 
       # Rerun tests for failures, information, and inpsection purposes
-      - run: |
-          # run all tests
-          hof test test.cue -t test
+      - run:
+          name: Tests for humans
+          command: |
+            # run all tests
+            hof test test.cue -t test
 

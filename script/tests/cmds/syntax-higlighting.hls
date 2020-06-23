@@ -1,0 +1,45 @@
+%%% Test command fallback to exec from system
+%% layer 2
+% layer 1
+
+# Run some tests with ls to test fallback
+% Run ls via exec
+exec ls
+
+% Run ls via fallback
+ls
+
+'hello'
+
+"hello"
+
+== middle.txt ==
+foo bar
+
+== end ==
+
+`hello`
+
+"""
+hello
+
+{{ A template? }}
+"""
+
+```
+hello
+```
+
+=== test.sh 0755 ===
+#!/bin/bash
+set -uoe pipefail
+
+tree
+=== end ===
+
+can asdflasdfa
+
+--- somefile.sh ---
+
+--- end ---
+
