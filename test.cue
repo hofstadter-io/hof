@@ -83,10 +83,12 @@ hls: {
 
 	script: #GoBashTest @test(bash,test,script)
 	script: {
+		skip: true
 		dir: "script"
 	}
 	scriptC: #GoBashCover @test(bash,cover,script)
 	scriptC: {
+		skip: true
 		dir: "script"
 	}
 }
