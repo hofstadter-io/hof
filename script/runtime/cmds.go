@@ -52,5 +52,6 @@ var scriptCmds = map[string]func(*Script, int, []string){
 
 	// other
 	"unquote": (*Script).CmdUnquote,
+	"hello": (*Script).CmdHello,
 }
 

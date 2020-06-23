@@ -5,5 +5,14 @@ exec cat hello.text
 stdout 'hello world\n'
 ! stderr .
 
+hello
+stdout 'hello world'
+! stderr .
+
+hello apple
+stdout 'hello apple'
+! stderr .
+
+
 -- hello.text --
 hello world
