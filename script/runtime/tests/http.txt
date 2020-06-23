@@ -1,0 +1,23 @@
+### Test a basic http call
+
+http https://postman-echo.com/get?cow=moo
+status 200
+
+http GET https://postman-echo.com/get?cow=moo
+status 200
+
+http GET https://postman-echo.com/get?cow=moo H='my-header: my-value'
+status 200
+
+http GET https://postman-echo.com/get?cow=moo A='my-header: my-value'
+status 200
+
+http https://postman-echo.com/get?cow=moo M=GET A='my-header: my-value'
+status 200
+
+http POST https://postman-echo.com/post D='{ "foo": "bar" }'
+status 200
+
+http POST https://postman-echo.com/post D='{ "foo": "bar" }' R='3 3s 500'
+status 200
+

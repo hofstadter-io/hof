@@ -231,7 +231,7 @@ func (ts *Script) applyArgToReq(req *gorequest.SuperAgent, arg string) (*goreque
 		req = req.Set(k, v)
 
 	case "M", "METHOD":
-		req.Method = K
+		req.Method = val
 	// Specially recognized key only args
 	case "GET", "POST", "HEAD", "PUT", "DELETE", "PATCH", "OPTIONS":
 		req.Method = K
