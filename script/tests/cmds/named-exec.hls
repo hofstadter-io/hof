@@ -1,0 +1,6 @@
+%%% Test named execs
+
+exec:run go run main.go
+
+echo @run.stdout
+

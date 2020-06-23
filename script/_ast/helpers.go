@@ -87,3 +87,4 @@ func cleanMultiLine(content string) string {
 	}
 	return strings.Join(lines, " ")
 }
+

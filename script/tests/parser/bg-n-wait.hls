@@ -1,0 +1,25 @@
+%%% Background and wait parser testing
+
+go run .tmp/bg/main.go &:server
+
+http GET https://localhost:8080/apple
+status 200
+stdout "Hello, apple!"
+! stderr ".*"
+
+-- .tmp/bg/main.go --
+package main
+
+import (
+    "fmt"
+    "net/http"
+)
+
+func main() {
+    http.HandleFunc("/", HelloServer)
+    http.ListenAndServe(":8080", nil)
+}
+
+func HelloServer(w http.ResponseWriter, r *http.Request) {
+    fmt.Fprintf(w, "Hello, %s!", r.URL.Path[1:])
+}

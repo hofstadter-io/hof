@@ -1,11 +1,11 @@
-### Test logging capabilities
+%%% Test logging capabilities
 
 log debug 'hello world' 123 foo
 log info  'hello world' 123 foo
 log warn  'hello world' 123 foo
 log error 'hello world' 123 $USER
 
-# This causes a failure in test mode
+% This causes a failure in test mode
 # log fatal 'hello world' 123 abc
 
 echo "got here"

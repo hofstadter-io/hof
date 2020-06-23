@@ -10,12 +10,44 @@ env DBL1="hello world"
 env DBL2="hello world $USER"
 env DBL3="hello $STR1"
 
+%% backtick strings
+env BTK1=`hello world`
+env BTK2=`hello world $USER`
+env BTK3=`hello $STR1`
+
 %% multiline strings
 
-#env MUL1="""
-#hello world
-#goodbye $USER
-#"""
+env ML1='''
+hello world
+goodbye $USER
+'''
 
-%% Print final environment variables
+env ML2="""
+hello world
+goodbye $USER
+"""
+
+env ML3a=```
+hello world
+goodbye $USER
+```
+
+env ML3b=```
+bash -c '''
+echo hello world
+'''
+```
+
+env ML1b='''
+hello world
+goodbye $USER
+```
+code block: () {
+
+}
+```
+'''
+
+
+%%% Print final environment
 env

@@ -21,6 +21,7 @@ type Cmd struct {
 	Exp  CmdExpect
 	Cmd  string
 	Args []string
+	Cmds []*Cmd
 	Bg     bool
 	BgName string
 }
@@ -29,6 +30,7 @@ func (P *Parser) parseCmd() error {
 	S := P.script
 	N := P.node
 
+	// fixup the lines, removing space and removing multiline suffix
 	lines := S.Lines[N.BegLine():N.EndLine()+1]
 	for i, l := range lines {
 		l = strings.TrimSpace(l)
@@ -36,8 +38,23 @@ func (P *Parser) parseCmd() error {
 		lines[i] = l
 	}
 
+	// Build a single line from the slice
 	line := strings.Join(lines, "")
-	P.logger.Debugf("parseCmd: %q", line)
+
+	// parse the line(s) into a command
+	cmd, err := P.parseCmdLine(line)
+	if err != nil {
+		return err
+	}
+
+	// add the command to things
+	P.AppendNode(cmd)
+	return nil
+}
+
+// parses a line into a command
+func (P *Parser) parseCmdLine(line string) (*Cmd, error) {
+	P.logger.Debugf("parseCmdLine: %q", line)
 
 	cmd := &Cmd{
 		NodeBase: P.node.CloneNodeBase(),
@@ -45,9 +62,13 @@ func (P *Parser) parseCmd() error {
 	}
 
 	for len(line) > 0 {
-		token, rest, err := nextToken(line)
+		token, rest, err := P.nextToken(line)
+		// P.logger.Warnf("Token: %q", token)
 		if err != nil {
-			return NewScriptError("While parsing cmd", N, err)
+			return cmd, NewScriptError("While parsing cmd", cmd, err)
+		}
+		if len(token) == 0 {
+			return cmd, nil
 		}
 		line = rest
 
@@ -63,22 +84,61 @@ func (P *Parser) parseCmd() error {
 				cmd.Bg = true
 				cmd.BgName = flds[1]
 
+			// single (3x?) quoted arg
+			case '\'':
+				// P.logger.Infof("   single: %q", token)
+				cmd.Args = append(cmd.Args, token)
+
+			// double (3x?) quoted arg
+			case '"':
+				// P.logger.Infof("   double: %q", token)
+				cmd.Args = append(cmd.Args, token)
+
+			// backtick (3x?) quoted exec'n arg
+			case '`':
+				// P.logger.Infof("   backtk: %q", token)
+				// find the actual subcommand
+				i := 1
+				subtoken := token[i:len(token)-i]
+				if strings.HasPrefix(token, "```") {
+					i = 3
+					subtoken = token[i:len(token)-(i+1)]
+				}
+
+				// parse the subcommand
+				subcmd, err := P.parseCmdLine(subtoken)
+				if err != nil {
+					return subcmd, err
+				}
+
+				// add to top level command and continue
+				cmd.Args = append(cmd.Args, fmt.Sprintf("$HOF_INLINE_CMD_%d", len(cmd.Cmds)))
+				cmd.Cmds = append(cmd.Cmds, subcmd)
+
 			default:
+				// first time through should set the command
 				if cmd.Cmd == "" {
+					if token == "wait" {
+						subcmd, err := P.parseCmdLine(rest)
+						if err != nil {
+							return subcmd, err
+						}
+						cmd.Cmds = append(cmd.Cmds, subcmd)
+					}
 					cmd.Cmd = token
+					break
 				} else {
+					// all other times are ags
 					cmd.Args = append(cmd.Args, token)
 				}
 		}
 
 	}
 
-	P.AppendNode(cmd)
-
-	return nil
+	return cmd, nil
 }
 
-func nextToken(input string) (token, rest string, err error) {
+func (P *Parser) nextToken(input string) (token, rest string, err error) {
 	var (
 		p int
 		r rune
@@ -95,65 +155,42 @@ func nextToken(input string) (token, rest string, err error) {
 	}
 
 	switch r {
-	case '!', '?':
+	case '!', '?', '=':
 		return string(r), input[p+1:], nil
 
 	case '&':
-		return readBackgroundToken(input[p:])
+		return P.readBackgroundToken(input[p:])
 
 	case '\'':
-		return readSingleQuoteString(input[p:])
+		return P.readSingleQuoteString(input[p:])
 	case '"':
-		return readDoubleQuoteString(input[p:])
+		return P.readDoubleQuoteString(input[p:])
+	case '`':
+		return P.readBacktickString(input[p:])
 
 	// TODO, multiline strings
+	case '#':
+		return readHashtag(input[p:])
 	}
 
 	// read until we hit a space or EOL
 	for i, c := range input[p:] {
+		if c == '=' {
+			p = i - 1
+			break
+		}
 		if unicode.IsSpace(c) {
 			p = i
 			break
 		}
 		token += string(c)
+		p = i
 	}
 
-	return token, input[p:], nil
+	return token, input[p+1:], nil
 }
 
-func readSingleQuoteString(input string) (token, rest string, err error) {
-	if input[0] != '\'' {
-		return "", "", fmt.Errorf("readSingleQuoteString arg missing leading quote")
-	}
-
-	p := 1
-	for p < len(input) {
-		if input[p] == '\'' && input[p-1] != '\\' {
-			return input[0:p+1], input[p+1:], nil
-		}
-		p++
-	}
-
-	return "", "", fmt.Errorf("readSingleQuoteString string missing final quote")
-}
-
-func readDoubleQuoteString(input string) (token, rest string, err error) {
-	if input[0] != '"' {
-		return "", "", fmt.Errorf("readDoubleQuoteString arg missing leading quote")
-	}
-
-	p := 1
-	for p < len(input) {
-		if input[p] == '"' && input[p-1] != '\\' {
-			return input[0:p+1], input[p+1:], nil
-		}
-		p++
-	}
-
-	return "", "", fmt.Errorf("readDoubleQuoteString string missing final quote")
-}
-
-func readBackgroundToken(input string) (token, rest string, err error) {
+func (P *Parser) readBackgroundToken(input string) (token, rest string, err error) {
 	if input[0] != '&' {
 		return "", "", fmt.Errorf("readBackgroundToken arg missing leading &")
 	}
@@ -163,12 +200,28 @@ func readBackgroundToken(input string) (token, rest string, err error) {
 			return string(input[0]), input[2:], nil
 		}
 		if c == ':' {
-			name, rest, err := nextToken(input[2:])
-			return input[0:1]+name, rest, err
+			name, rest, err := P.nextToken(input[2:])
+			return input[0:2]+name, rest, err
 		}
 
 		return "", "", fmt.Errorf("Background command missing space or :name after &")
 	}
 
 		return "", "", fmt.Errorf("readBackgroundToken shouldn't get here")
+}
+
+func readHashtag(input string) (token, rest string, err error) {
+	if input[0] != '#' {
+		return "", "", fmt.Errorf("readBackgroundToken arg missing leading &")
+	}
+
+	p := 1
+	for _, c := range input[1:] {
+		p++
+		if c == '\n' {
+			break
+		}
+	}
+
+	return "", input[p:], nil
 }

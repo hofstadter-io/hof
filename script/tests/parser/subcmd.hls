@@ -1,0 +1,7 @@
+%%% Test subcommand parsing
+
+% list directories without _ in pathname
+ls -lh `ls | grep -v "_"`
+
+env DIRS=`ls | grep "_"`
+
