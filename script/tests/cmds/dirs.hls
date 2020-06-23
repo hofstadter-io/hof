@@ -1,4 +1,4 @@
-%%% Test making directories and moving around
+### Test making directories and moving around
 
 exec ls -lh .tmp/
 exec ls -lh .tmp/dir-a/
@@ -8,6 +8,6 @@ mkdir .tmp/dir-b
 
 -- .tmp/dir-a/foo.txt --
 hello world
--- .tmp/dir-a/test.sh 0755 --
+-- .tmp/dir-a/test.sh --
 #!/bin/bash
 echo hello world

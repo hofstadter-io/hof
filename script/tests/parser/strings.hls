@@ -1,0 +1,21 @@
+%%% Test parsing various strings
+
+%% single-quote strings
+env STR1='hello world'
+env STR2='world $USER'
+
+
+%% double-quote strings
+env DBL1="hello world"
+env DBL2="hello world $USER"
+env DBL3="hello $STR1"
+
+%% multiline strings
+
+#env MUL1="""
+#hello world
+#goodbye $USER
+#"""
+
+%% Print final environment variables
+env

@@ -1,10 +1,8 @@
-%%% Test command fallback to exec from system
+### Test command fallback to exec from system
 
 # Run ls via exec
-% Run ls via exec
 exec ls
 
 # Run ls via fallback
-% Run ls via fallback
 ls
 
