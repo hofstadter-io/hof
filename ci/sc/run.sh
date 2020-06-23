@@ -39,7 +39,7 @@ GIT_BRANCH=${2:-`git rev-parse --abbrev-ref HEAD | tr -d "\n"`}
 
 # Extract the pull request id
 PR_FLAG=""
-if [ ! -z $CIRCLE_PULL_REQUEST ]; then
+if [[ "${CIRCLE_PULL_REQUEST:-}" != "" ]]; then
     PR_ID=${CIRCLE_PULL_REQUEST##*/}
     PR_FLAG="-e SONAR_PULL_REQUEST=$PR_ID"
 fi
