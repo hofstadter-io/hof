@@ -127,6 +127,7 @@ Script:
 			1. params commands, incase of overrides
 			2. buildin commands
 			3. fallback on exec ...
+			?. functions, sometimes they feel like they could be done this way, but we probably want to wait for a real parser and parentheses
 		*/
 
 		// the command name
@@ -171,6 +172,7 @@ Script:
 	// Final phase ended.
 	ts.rewind()
 	ts.markTime()
+
 	if !ts.stopped {
 		if ts.params.Mode == "test" {
 			fmt.Fprintf(&ts.log, "PASS\n")

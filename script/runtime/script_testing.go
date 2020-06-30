@@ -85,7 +85,9 @@ func RunT(t T, p Params) {
 		file := file
 		name := strings.TrimSuffix(filepath.Base(file), ".hls")
 		t.Run(name, func(t T) {
+
 			t.Parallel()
+
 			ts := &Script{
 				t:             t,
 				testTempDir:   testTempDir,
@@ -97,6 +99,7 @@ func RunT(t T, p Params) {
 				scriptFiles:   make(map[string]string),
 				scriptUpdates: make(map[string]string),
 			}
+
 			defer func() {
 				if p.TestWork || *testWork {
 					return
@@ -108,8 +111,17 @@ func RunT(t T, p Params) {
 					os.Remove(testTempDir)
 				}
 			}()
+
 			ts.run()
-		})
+
+			if ts.failed {
+				os.Exit(1)
+			}
+
+			// TODO, check for errors / "exit != 0""
+			// perhaps only when in run mode?
+			// (need to think about this, likely configurable with sensible defaults for test v run v shell)
+		})// see also cmd_exec.go:58
 	}
 }
 
@@ -142,6 +154,14 @@ func (ts *Script) Logf(format string, args ...interface{}) {
 // fatalf aborts the test with the given failure message.
 func (ts *Script) Fatalf(format string, args ...interface{}) {
 	fmt.Fprintf(&ts.log, "FAIL: %s:%d: %s\n", ts.file, ts.lineno, fmt.Sprintf(format, args...))
-	ts.t.FailNow()
+
+	if ts.params.Mode == "run" {
+		ts.stopped = true
+		ts.failed = true
+	}
+
+	if ts.params.Mode == "test" {
+		ts.t.FailNow()
+	}
 }
 

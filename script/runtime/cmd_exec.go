@@ -52,7 +52,7 @@ func (ts *Script) CmdExec(neg int, args []string) {
 			ts.Fatalf("test timed out while running command")
 		} else if neg == 0 {
 			ts.Fatalf("unexpected exec command failure")
-		}
+		} // XXX, else we shouldn't get here?
 	}
 }
 

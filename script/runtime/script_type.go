@@ -47,6 +47,7 @@ type Script struct {
 	stderr        string                      // standard error from last 'go' command; for 'stderr' command
 	status        int                         // status code from exec or http
 
+	failed        bool                        // test wants to stop early with failed state
 	stopped       bool                        // test wants to stop early
 	start         time.Time                   // time phase started
 
