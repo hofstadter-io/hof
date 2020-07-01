@@ -10,9 +10,11 @@ import (
 	"github.com/hofstadter-io/hof/script/ast"
 )
 
-func Hack(args []string) error {
-	if len(args) != 1 {
-		return fmt.Errorf("please supply a single filepath")
+func Shell(args []string) error {
+	if len(args) > 0 {
+		if len(args) != 1 {
+			return fmt.Errorf("please supply a single filepath to preload with")
+		}
 	}
 
 	cwd, err := os.Getwd()
@@ -43,5 +45,3 @@ func Hack(args []string) error {
 
 	return nil
 }
-
-
