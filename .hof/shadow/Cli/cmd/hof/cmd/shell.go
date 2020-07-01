@@ -9,9 +9,9 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var replLong = `Run hof's local REPL`
+var shellLong = `Run hof's shell powered by HLS`
 
-func ReplRun(args []string) (err error) {
+func ShellRun(args []string) (err error) {
 
 	// you can safely comment this print out
 	fmt.Println("not implemented")
@@ -19,13 +19,18 @@ func ReplRun(args []string) (err error) {
 	return err
 }
 
-var ReplCmd = &cobra.Command{
+var ShellCmd = &cobra.Command{
 
-	Use: "repl",
+	Use: "shell",
 
-	Short: "Run hof's local REPL",
+	Aliases: []string{
+		"sh",
+		"repl",
+	},
 
-	Long: replLong,
+	Short: "Run hof's shell powered by HLS",
+
+	Long: shellLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
@@ -38,7 +43,7 @@ var ReplCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		err = ReplRun(args)
+		err = ShellRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -52,8 +57,8 @@ func init() {
 		return false
 	}
 
-	ohelp := ReplCmd.HelpFunc()
-	ousage := ReplCmd.UsageFunc()
+	ohelp := ShellCmd.HelpFunc()
+	ousage := ShellCmd.UsageFunc()
 	help := func(cmd *cobra.Command, args []string) {
 		if extra(cmd) {
 			return
@@ -75,7 +80,7 @@ func init() {
 		ga.SendCommandPath(cmd.CommandPath() + " usage")
 		return usage(cmd)
 	}
-	ReplCmd.SetHelpFunc(thelp)
-	ReplCmd.SetUsageFunc(tusage)
+	ShellCmd.SetHelpFunc(thelp)
+	ShellCmd.SetUsageFunc(tusage)
 
 }

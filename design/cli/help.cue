@@ -99,7 +99,7 @@ Local development commands:
   \(cmds.#JumpCommand.Help)
   \(cmds.#UiCommand.Help)
   \(cmds.#TuiCommand.Help)
-  \(cmds.#ReplCommand.Help)
+  \(cmds.#ShellCommand.Help)
   pprof                 go pprof by setting HOF_CPU_PROFILE="hof-cpu.prof" hof <cmd>
 
 

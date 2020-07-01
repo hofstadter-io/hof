@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/hofstadter-io/hof/lib/yagu"
-	"github.com/hofstadter-io/hof/script/runtime"
+	"github.com/hofstadter-io/hof/script/_runtime"
 
 	"github.com/hofstadter-io/hof/cmd/hof/cmd"
 )

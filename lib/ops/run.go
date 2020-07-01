@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
-	"github.com/hofstadter-io/hof/script/runtime"
+	"github.com/hofstadter-io/hof/script/_runtime"
 )
 
 /*

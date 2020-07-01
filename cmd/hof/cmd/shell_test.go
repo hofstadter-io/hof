@@ -4,15 +4,15 @@ import (
 	"testing"
 
 	"github.com/hofstadter-io/hof/lib/yagu"
-	"github.com/hofstadter-io/hof/script/runtime"
+	"github.com/hofstadter-io/hof/script/_runtime"
 
 	"github.com/hofstadter-io/hof/cmd/hof/cmd"
 )
 
-func TestScriptReplCliTests(t *testing.T) {
+func TestScriptShellCliTests(t *testing.T) {
 	// setup some directories
 
-	dir := "repl"
+	dir := "shell"
 
 	workdir := ".workdir/cli/" + dir
 	yagu.Mkdir(workdir)
@@ -28,7 +28,7 @@ func TestScriptReplCliTests(t *testing.T) {
 		Funcs: map[string]func(ts *runtime.Script, args []string) error{
 			"__hof": cmd.CallTS,
 		},
-		Dir:         "hls/cli/repl",
+		Dir:         "hls/cli/shell",
 		WorkdirRoot: workdir,
 	})
 }

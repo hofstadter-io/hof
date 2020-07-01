@@ -9,10 +9,10 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/cmd"
 )
 
-func TestScriptGenCliTests(t *testing.T) {
+func TestScriptShellCliTests(t *testing.T) {
 	// setup some directories
 
-	dir := "gen"
+	dir := "shell"
 
 	workdir := ".workdir/cli/" + dir
 	yagu.Mkdir(workdir)
@@ -28,7 +28,7 @@ func TestScriptGenCliTests(t *testing.T) {
 		Funcs: map[string]func(ts *runtime.Script, args []string) error{
 			"__hof": cmd.CallTS,
 		},
-		Dir:         "hls/cli/gen",
+		Dir:         "hls/cli/shell",
 		WorkdirRoot: workdir,
 	})
 }

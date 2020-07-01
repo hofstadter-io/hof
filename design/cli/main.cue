@@ -108,7 +108,7 @@ import (
 		cmds.#JumpCommand,
 		cmds.#UiCommand,
 		cmds.#TuiCommand,
-		cmds.#ReplCommand,
+		cmds.#ShellCommand,
 		// lint
 		// fmt
 		// fix

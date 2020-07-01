@@ -38,10 +38,11 @@ import (
 	Long:  Short
 }
 
-#ReplCommand: schema.#Command & {
-	TBD:   "Ø"
-	Name:  "repl"
-	Usage: "repl"
-	Short: "Run hof's local REPL"
+#ShellCommand: schema.#Command & {
+	TBD:   "α"
+	Name:  "shell"
+	Usage: "shell"
+	Aliases: ["sh", "repl"]
+	Short: "Run hof's shell powered by HLS"
 	Long:  Short
 }

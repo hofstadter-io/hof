@@ -3,7 +3,7 @@ package script_test
 import (
 	"testing"
 
-	"github.com/hofstadter-io/hof/script/runtime"
+	"github.com/hofstadter-io/hof/script/_runtime"
 )
 
 func TestScriptBrowser(t *testing.T) {

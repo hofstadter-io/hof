@@ -220,7 +220,7 @@ func RootInit() {
 	RootCmd.AddCommand(JumpCmd)
 	RootCmd.AddCommand(UiCmd)
 	RootCmd.AddCommand(TuiCmd)
-	RootCmd.AddCommand(ReplCmd)
+	RootCmd.AddCommand(ShellCmd)
 	RootCmd.AddCommand(FeedbackCmd)
 	RootCmd.AddCommand(HackCmd)
 	RootCmd.AddCommand(GebCmd)
@@ -362,7 +362,7 @@ Local development commands:
   jump            α     Jumps help you do things with fewer keystrokes.
   ui              Ø     Run hof's local web ui
   tui             Ø     Run hof's terminal ui
-  repl            Ø     Run hof's local REPL
+  shell           α     Run hof's shell powered by HLS
   pprof                 go pprof by setting HOF_CPU_PROFILE="hof-cpu.prof" hof <cmd>
 
 
