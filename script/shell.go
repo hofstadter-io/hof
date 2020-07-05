@@ -7,7 +7,9 @@ import (
 	"github.com/go-git/go-billy/v5/osfs"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+
 	"github.com/hofstadter-io/hof/script/ast"
+	"github.com/hofstadter-io/hof/script/shell"
 )
 
 func Shell(args []string) error {
@@ -15,33 +17,41 @@ func Shell(args []string) error {
 		if len(args) != 1 {
 			return fmt.Errorf("please supply a single filepath to preload with")
 		}
+
+		cwd, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+
+		fs := osfs.New(cwd)
+
+		llvl := "warn"
+		if flags.RootPflags.Verbose != "" {
+			llvl = flags.RootPflags.Verbose
+		}
+
+		config := &ast.Config{
+			LogLevel: llvl,
+			FS: fs,
+		}
+		parser := ast.NewParser(config)
+
+		S, err := parser.ParseScript(args[0])
+		if err != nil {
+			fmt.Println("ERROR:", err)
+			return err
+		}
+
+		fmt.Println("S is ", S.Path)
 	}
 
-	cwd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-
-	fs := osfs.New(cwd)
-
-	llvl := "warn"
-	if flags.RootPflags.Verbose != "" {
-		llvl = flags.RootPflags.Verbose
-	}
-
-	config := &ast.Config{
-		LogLevel: llvl,
-		FS: fs,
-	}
-	parser := ast.NewParser(config)
-
-	S, err := parser.ParseScript(args[0])
+	err := shell.Loop(nil)
 	if err != nil {
 		fmt.Println("ERROR:", err)
 		return err
 	}
 
-	fmt.Println("done hacking ", S.Path)
 
+	fmt.Println("exiting")
 	return nil
 }

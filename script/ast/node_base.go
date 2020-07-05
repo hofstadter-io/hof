@@ -4,6 +4,7 @@ import "strings"
 
 type NodeBase struct {
 	script  *Script
+	result  *Result
 	docLine int
 	begLine int
 	endLine int
@@ -17,6 +18,14 @@ func (n *NodeBase) Script() *Script {
 
 func (n *NodeBase) SetScript(s *Script) {
 	n.script = s
+}
+
+func (n *NodeBase) Result() *Result {
+	return n.result
+}
+
+func (n *NodeBase) SetResult(r *Result) {
+	n.result = r
 }
 
 func (n *NodeBase) Clone() Node {
@@ -33,6 +42,7 @@ func (n *NodeBase) Clone() Node {
 func (n *NodeBase) CloneNodeBase() NodeBase{
 	return NodeBase{
 		script: n.script,
+		result: n.result,
 		docLine: n.docLine,
 		begLine: n.begLine,
 		endLine: n.endLine,

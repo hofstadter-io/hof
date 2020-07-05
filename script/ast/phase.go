@@ -3,7 +3,6 @@ package ast
 import (
 	"fmt"
 	"strings"
-	"time"
 )
 
 type Phase struct {
@@ -17,14 +16,31 @@ type Phase struct {
 	// TODO, will be same as Cue attrs: @label(...)
 	// attrs []Attr
 
-	begTime time.Time
-	endTime time.Time
-
 	parent *Phase
 
 	// subnodes / expressions, etx
 	nodes  []Node
 
+}
+
+func (Ph *Phase) Level() int {
+	return Ph.level
+}
+
+func (Ph *Phase) Title() string {
+	return Ph.title
+}
+
+func (Ph *Phase) Parent() *Phase {
+	return Ph.parent
+}
+
+func (Ph *Phase) Nodes() []Node {
+	return Ph.nodes
+}
+
+func (Ph *Phase) AppendNode(n Node) {
+	Ph.nodes = append(Ph.nodes, n)
 }
 
 func (P *Parser) parsePhase() error {
@@ -101,9 +117,5 @@ func (P *Parser) parsePhase() error {
 	P.node = nil
 
 	return nil
-}
-
-func (Ph *Phase) AppendNode(n Node) {
-	Ph.nodes = append(Ph.nodes, n)
 }
 

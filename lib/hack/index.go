@@ -9,6 +9,6 @@ import (
 
 func Hack(args[] string) (err error) {
 	fmt.Println("Hack:", args)
-	script.Hack(args)
+	err = script.Hack(args)
 	return err
 }

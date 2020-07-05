@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/chzyer/readline"
+	"github.com/hofstadter-io/hof/script/readline"
 )
 
 func usage(w io.Writer) {

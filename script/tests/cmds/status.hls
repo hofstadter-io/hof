@@ -1,0 +1,9 @@
+%%% Test status command
+
+ls
+status 0
+! status 1
+
+? ls nonexistant-as5kjji2o3i4o32
+! status 0
+status 1

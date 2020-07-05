@@ -2,44 +2,19 @@ package script
 
 import (
 	"fmt"
-	"os"
 
-	"github.com/go-git/go-billy/v5/osfs"
-
-	"github.com/hofstadter-io/hof/cmd/hof/flags"
-	"github.com/hofstadter-io/hof/script/ast"
+	"github.com/hofstadter-io/hof/script/runtime"
 )
 
 func Hack(args []string) error {
-	if len(args) != 1 {
-		return fmt.Errorf("please supply a single filepath")
+	if len(args) < 1 {
+		return fmt.Errorf("please supply at least a file/path.hls")
 	}
 
-	cwd, err := os.Getwd()
+	err := runtime.RunScript(args)
 	if err != nil {
-		return err
+		return fmt.Errorf("in script.Hack")
 	}
-
-	fs := osfs.New(cwd)
-
-	llvl := "warn"
-	if flags.RootPflags.Verbose != "" {
-		llvl = flags.RootPflags.Verbose
-	}
-
-	config := &ast.Config{
-		LogLevel: llvl,
-		FS: fs,
-	}
-	parser := ast.NewParser(config)
-
-	S, err := parser.ParseScript(args[0])
-	if err != nil {
-		fmt.Println("ERROR:", err)
-		return err
-	}
-
-	fmt.Println("done hacking ", S.Path)
 
 	return nil
 }

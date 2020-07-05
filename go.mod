@@ -7,7 +7,7 @@ require (
 	github.com/aymerick/raymond v2.0.2+incompatible
 	github.com/bmatcuk/doublestar v1.3.1
 	github.com/chzyer/logex v1.1.10 // indirect
-	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
+	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
 	github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1
 	github.com/clbanning/mxj v1.8.4
 	github.com/cockroachdb/apd/v2 v2.0.2 // indirect

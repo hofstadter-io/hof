@@ -265,28 +265,12 @@ import (
 		Help:    "used to help debug issues"
 	},
 	{
-		Name:    "RunWeb"
-		Long:    "web"
+		Name:    "NoColor"
+		Long:    "no-color"
 		Short:   ""
 		Type:    "bool"
-		Default: "false"
-		Help:    "run the command from the web ui"
-	},
-	{
-		Name:    "RunTUI"
-		Long:    "tui"
-		Short:   ""
-		Type:    "bool"
-		Default: "false"
-		Help:    "run the command from the terminal ui"
-	},
-	{
-		Name:    "RunREPL"
-		Long:    "repl"
-		Short:   ""
-		Type:    "bool"
-		Default: "false"
-		Help:    "run the command from the hof repl"
+		Default: ""
+		Help:    "disable colored output"
 	},
 	{
 		Name:    "Topic"

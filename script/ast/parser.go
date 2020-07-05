@@ -23,6 +23,10 @@ type Parser struct {
 	node   Node
 }
 
+func (P *Parser) GetLogger() *zap.SugaredLogger {
+	return P.logger
+}
+
 func NewParser(config *Config) *Parser {
 	P := &Parser{
 		config:     config,
@@ -41,6 +45,9 @@ func NewParser(config *Config) *Parser {
 	if config.Logger != nil {
 		P.logger = config.Logger
 	}
+
+	// set lineno zero-one
+	P.lineno = -1
 
 	return P
 }
@@ -63,6 +70,7 @@ func (P *Parser) AppendNode(n Node) {
 	if P.phase == nil {
 		P.phase = &Phase {
 			NodeBase: NodeBase{
+				script: P.script,
 				name: "unnamed phase",
 				docLine: 0,
 				begLine: 1,

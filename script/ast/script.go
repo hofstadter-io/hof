@@ -46,6 +46,12 @@ func (P *Parser) parseScript(S *Script) (*Script, error) {
 		return P.script, err
 	}
 
+	// Clsoe out current phases after script ends
+	p := P.phase
+	for ; p != nil; p = p.parent {
+		p.SetEndLine(P.lineno-2)
+	}
+
 	return P.script, nil
 }
 
@@ -70,6 +76,7 @@ Loop:
 		// make or add to a node
 		if P.node == nil {
 			P.node = &NodeBase{
+				script: P.script,
 				docLine: P.lineno,
 				begLine: P.lineno,
 				endLine: P.lineno,

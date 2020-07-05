@@ -77,9 +77,7 @@ type RootPflagpole struct {
 	ImpersonateAccount string
 	TraceToken         string
 	LogHTTP            string
-	RunWeb             bool
-	RunTUI             bool
-	RunREPL            bool
+	NoColor            bool
 	Topic              string
 	Example            string
 	Tutorial           string

@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"strings"
 
-	"github.com/hofstadter-io/hof/script/runtime"
+	"github.com/hofstadter-io/hof/script/_runtime"
 )
 
 func Run(glob string) error {

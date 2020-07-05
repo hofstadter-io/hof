@@ -1,0 +1,15 @@
+%%% Test filesystem commands
+
+% Test ls good
+ls
+ls _nottests
+ls cmds http parser
+
+% Test cd
+cd http
+pwd
+cd ..
+pwd
+
+
+

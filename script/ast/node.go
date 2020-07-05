@@ -5,6 +5,9 @@ type Node interface {
 	CloneNodeBase() NodeBase
 
 	Script()  *Script
+	SetScript(*Script)
+	Result() *Result
+	SetResult(*Result)
 
 	DocLine() int
 	SetDocLine(int)
