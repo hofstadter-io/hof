@@ -1,9 +1,7 @@
-FROM sonarsource/sonar-scanner-cli
+FROM sonarsource/sonar-scanner-cli:4.4
 
 USER root
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends tree \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk update && apk upgrade && apk add --no-cache bash tree
 USER scanner-cli
 
 COPY entrypoint.sh /usr/bin/entrypoint.sh
