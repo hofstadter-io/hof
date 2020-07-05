@@ -1,4 +1,4 @@
-# hof mod vendor - local replace no require
+% hof mod vendor - local replace
 exec hof mod vendor
 
 
@@ -7,6 +7,10 @@ exec hof mod vendor
 module github.com/test/mod
 
 cue v0.2.0
+
+require (
+    github.com/hofstadter-io/hof v0.0.0
+)
 
 replace github.com/hofstadter-io/hof => ./simhof
 

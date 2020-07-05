@@ -1,4 +1,4 @@
-# hof mod vendor - new module
+% hof mod vendor - new module
 exec hof mod init cue github.com/test/mod
 ! stdout .
 

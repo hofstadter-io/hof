@@ -53,6 +53,7 @@ type Runtime struct {
 	workdir string
 
 	// maps
+	// TODO, need to deal with multiples at some point
 	envMap      map[string]string
 	values      map[string]interface{}
 	aliases     map[string]string
@@ -71,3 +72,6 @@ func (RT *Runtime) SetMultiWriters(R *ast.Result) {
 	RT.Stderr = io.MultiWriter(RT.stderr, R.Stderr)
 }
 
+func (RT *Runtime) AddEnvVar(k, v string) {
+	RT.envMap[k] = v
+}

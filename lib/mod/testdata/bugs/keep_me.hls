@@ -1,4 +1,4 @@
-# hof mod vendor - keep me so go test does not complaing
+% hof mod vendor - keep me so go test does not complaing
 exec hof mod vendor
 
 -- cue.mods --

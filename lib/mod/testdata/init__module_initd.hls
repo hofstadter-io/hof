@@ -1,4 +1,4 @@
-# hof mod init - already exists
+% hof mod init - already exists
 ! exec hof mod init cue github.com/test/overmod
 stdout '^cue.mods already exists\n$'
 ! stderr .

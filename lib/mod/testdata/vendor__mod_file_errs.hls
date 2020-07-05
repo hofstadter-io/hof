@@ -1,4 +1,4 @@
-# hof mod vendor - double require
+% hof mod vendor - double require
 ! exec hof mod vendor cue
 stdout 'Dependency "github.com/hofstadter-io/hof" required twice in ""'
 ! stderr .

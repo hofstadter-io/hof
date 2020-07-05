@@ -1,4 +1,4 @@
-# hof mod vendor - with deps
+% hof mod vendor - with deps
 exec hof mod vendor
 
 -- cue.mods --
