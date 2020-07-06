@@ -3,8 +3,6 @@ package runtime
 import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-
-	"github.com/hofstadter-io/hof/script/ast"
 )
 
 type RunMode int
@@ -45,12 +43,12 @@ type Params struct {
 
 	// Cmds holds a map of commands available to the script.
 	// It will only be consulted for commands not part of the standard set.
-	Cmds map[string]func(RT *Runtime, cmd *ast.Cmd, args []string) error
+	Cmds map[string]RuntimeCommand
 
 	// Funcs holds a map of functions available to the script.
 	// These work like exec and use 'call' instead.
 	// Use these to facilitate code coverage (exec does not capture this).
-	Funcs map[string]func(RT *Runtime, cmd *ast.Cmd, args []string) error
+	Funcs map[string]RuntimeCommand
 
 	// TestWork specifies that working directories should be
 	// left intact for later inspection.

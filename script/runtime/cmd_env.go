@@ -29,6 +29,17 @@ func (RT *Runtime) Getenv(key string) string {
 	return RT.envMap[envvarname(key)]
 }
 
+func (RT *Runtime) GetenvList() []string {
+	envs := []string{}
+	for k, v := range RT.envMap {
+		k = envvarname(k)
+		e := fmt.Sprintf("%s=%s\n", k, v)
+		envs = append(envs, e)
+	}
+	return envs
+}
+
+
 func (RT *Runtime) Cmd_env(cmd *ast.Cmd, r *ast.Result) (err error) {
 
 	if cmd.Exp != ast.Pass {

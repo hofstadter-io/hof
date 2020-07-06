@@ -1,20 +1,63 @@
 package runtime
 
-/*
 import (
 	"context"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 
 	"github.com/hofstadter-io/hof/lib/gotils/intern/os/execpath"
+	"github.com/hofstadter-io/hof/script/ast"
 )
 
 // exec runs the given command.
-func (ts *Script) CmdExec(neg int, args []string) {
+func (RT *Runtime) Cmd_exec(cmd *ast.Cmd, r *ast.Result) (err error) {
 
+	Cmd, Args := cmd.Cmd, cmd.Args
+	if Cmd == "exec" {
+		if len(cmd.Args) == 0 {
+			return fmt.Errorf("usage: exec program [args...] [&]")
+		}
+		Cmd, Args = cmd.Args[0], cmd.Args[1:]
+	}
+
+	xcmd, err := RT.buildExecCmd(Cmd, Args...)
+	if err != nil {
+		return err
+	}
+
+	xcmd.Dir = RT.currdir
+	xcmd.Env = append(RT.GetenvList(), "PWD="+xcmd.Dir)
+
+	xcmd.Stdout = r.Stdout
+	xcmd.Stderr = r.Stderr
+
+	err = xcmd.Start()
+	if err != nil {
+		return err
+	}
+
+	err = ctxWait(RT.ctxt, xcmd)
+	RT.status = xcmd.ProcessState.ExitCode()
+
+	return err
+}
+
+func (RT *Runtime) buildExecCmd(command string, args ...string) (*exec.Cmd, error) {
+	if filepath.Base(command) == command {
+		if lp, err := execpath.Look(command, RT.Getenv); err != nil {
+			return nil, err
+		} else {
+			command = lp
+		}
+	}
+	return exec.Command(command, args...), nil
+}
+
+/*
+
+func (RT *Runtime) CmdExec(neg int, args []string) {
 	if len(args) < 1 || (len(args) == 1 && args[0] == "&") {
 		ts.Fatalf("usage: exec program [args...] [&]")
 	}
@@ -57,28 +100,6 @@ func (ts *Script) CmdExec(neg int, args []string) {
 	}
 }
 
-
-// exec runs the given command line (an actual subprocess, not simulated)
-// in ts.cd with environment ts.env and then returns collected standard output and standard error.
-func (ts *Script) exec(command string, args ...string) (stdout, stderr string, err error) {
-	cmd, err := ts.buildExecCmd(command, args...)
-	if err != nil {
-		return "", "", err
-	}
-	cmd.Dir = ts.cd
-	cmd.Env = append(ts.env, "PWD="+ts.cd)
-	cmd.Stdin = strings.NewReader(ts.stdin)
-	var stdoutBuf, stderrBuf strings.Builder
-	cmd.Stdout = &stdoutBuf
-	cmd.Stderr = &stderrBuf
-	if err = cmd.Start(); err == nil {
-		err = ctxWait(ts.ctxt, cmd)
-		ts.status = cmd.ProcessState.ExitCode()
-	}
-	ts.stdin = ""
-	return stdoutBuf.String(), stderrBuf.String(), err
-}
-
 type backgroundCmd struct {
 	cmd  *exec.Cmd
 	wait <-chan struct{}
@@ -102,17 +123,6 @@ func (ts *Script) execBackground(command string, args ...string) (*exec.Cmd, err
 	return cmd, cmd.Start()
 }
 
-func (ts *Script) buildExecCmd(command string, args ...string) (*exec.Cmd, error) {
-	if filepath.Base(command) == command {
-		if lp, err := execpath.Look(command, ts.Getenv); err != nil {
-			return nil, err
-		} else {
-			command = lp
-		}
-	}
-	return exec.Command(command, args...), nil
-}
-
 // BackgroundCmds returns a slice containing all the commands that have
 // been started in the background since the most recent wait command, or
 // the start of the script if wait has not been called.
@@ -122,33 +132,6 @@ func (ts *Script) BackgroundCmds() []*exec.Cmd {
 		cmds[i] = b.cmd
 	}
 	return cmds
-}
-
-// ctxWait is like cmd.Wait, but terminates cmd with os.Interrupt if ctx becomes done.
-//
-// This differs from exec.CommandContext in that it prefers os.Interrupt over os.Kill.
-// (See https://golang.org/issue/21135.)
-func ctxWait(ctx context.Context, cmd *exec.Cmd) error {
-	errc := make(chan error, 1)
-	go func() { errc <- cmd.Wait() }()
-
-	select {
-	case err := <-errc:
-		return err
-	case <-ctx.Done():
-		interruptProcess(cmd.Process)
-		return <-errc
-	}
-}
-
-// interruptProcess sends os.Interrupt to p if supported, or os.Kill otherwise.
-func interruptProcess(p *os.Process) {
-	if err := p.Signal(os.Interrupt); err != nil {
-		// Per https://golang.org/pkg/os/#Signal, “Interrupt is not implemented on
-		// Windows; using it with os.Process.Signal will return an error.”
-		// Fall back to Kill instead.
-		p.Kill()
-	}
 }
 
 // Exec runs the given command and saves its stdout and stderr so
@@ -211,3 +194,31 @@ func (ts *Script) CmdWait(neg int, args []string) {
 	ts.background = nil
 }
 */
+
+// ctxWait is like cmd.Wait, but terminates cmd with os.Interrupt if ctx becomes done.
+//
+// This differs from exec.CommandContext in that it prefers os.Interrupt over os.Kill.
+// (See https://golang.org/issue/21135.)
+func ctxWait(ctx context.Context, cmd *exec.Cmd) error {
+	errc := make(chan error, 1)
+	go func() { errc <- cmd.Wait() }()
+
+	select {
+	case err := <-errc:
+		return err
+	case <-ctx.Done():
+		interruptProcess(cmd.Process)
+		return <-errc
+	}
+}
+
+// interruptProcess sends os.Interrupt to p if supported, or os.Kill otherwise.
+func interruptProcess(p *os.Process) {
+	if err := p.Signal(os.Interrupt); err != nil {
+		// Per https://golang.org/pkg/os/#Signal, “Interrupt is not implemented on
+		// Windows; using it with os.Process.Signal will return an error.”
+		// Fall back to Kill instead.
+		p.Kill()
+	}
+}
+

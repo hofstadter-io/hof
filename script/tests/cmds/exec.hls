@@ -1,0 +1,4 @@
+%%% Test exec command
+
+exec ls -lh
+

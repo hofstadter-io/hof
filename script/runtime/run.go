@@ -1,6 +1,7 @@
 package runtime
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -37,6 +38,7 @@ func RunScript(args []string) error {
 	parser := ast.NewParser(config)
 
 	RT := &Runtime{
+		ctxt: context.Background(),
 		params: params,
 		parser: parser,
 		stdinR: os.Stdin,

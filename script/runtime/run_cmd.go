@@ -2,6 +2,7 @@ package runtime
 
 import (
 	"fmt"
+	"os/exec"
 	"time"
 
 	"github.com/hofstadter-io/hof/script/ast"
@@ -36,13 +37,38 @@ func (RT *Runtime) RunCmd(cmd *ast.Cmd, parent *ast.Result) (r *ast.Result, err 
 		}
 	}()
 
-	// lookup and run command
+	//
+	////// lookup and run command
+	//
 
-	// TODO check custom commands
+	found := false
+
+	// check custom commands
+	C, ok := RT.params.Cmds[cmd.Cmd]
+	if ok {
+		found = true
+	}
 
 	// check defaults
-	C, ok := DefaultCommands[cmd.Cmd]
-	if !ok {
+	if !found {
+		C, ok = DefaultCommands[cmd.Cmd]
+		if ok {
+			found = true
+		}
+	}
+
+	// check system
+	if !found {
+		_, err := exec.LookPath(cmd.Cmd)
+		if err == nil {
+			C, ok = DefaultCommands["exec"]
+			if ok {
+				found = true
+			}
+		}
+	}
+
+	if !found {
 		err = fmt.Errorf("Unknown command: %q", cmd.Cmd)
 		r.AddError(err)
 		return r, err

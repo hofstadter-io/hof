@@ -23,6 +23,9 @@ var DefaultCommands = map[string]RuntimeCommand{
 	// cmd_env.go
 	"env":     (*Runtime).Cmd_env,
 
+	// cmd_exec.go
+	"exec":     (*Runtime).Cmd_exec,
+
 	// cmd_fs.go
 	"cd": (*Runtime).Cmd_cd,
 	"ls": (*Runtime).Cmd_ls,
