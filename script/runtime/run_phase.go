@@ -36,11 +36,18 @@ func (RT *Runtime) RunPhase(ph *ast.Phase, parent *ast.Result) (r *ast.Result, e
 				break
 			}
 		}
+		if RT.stopped {
+			break
+		}
 	}
+
 	r.EndTime = time.Now()
 	if len(r.Errors) == 0 {
 		r.Status = 0
 	} else {
+		for _, e := range r.Errors {
+			RT.logger.Error(e)
+		}
 		err = fmt.Errorf("%d Phase errors occurred", len(r.Errors))
 		r.Status = 1
 	}

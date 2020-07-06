@@ -2,7 +2,9 @@ package runtime
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/go-git/go-billy/v5/osfs"
@@ -80,6 +82,8 @@ func (RT *Runtime) Run() (E error) {
 		}
 	}()
 
+	RT.writeBeforeFiles()
+
 	for _, ph := range RT.script.Phases {
 		r, err := RT.RunPhase(ph, nil)
 		R.AddResult(r)
@@ -107,4 +111,17 @@ func (RT *Runtime) Run() (E error) {
 	}
 
 	return E
+}
+
+func (RT *Runtime) writeBeforeFiles() (err error) {
+	for name, file := range RT.script.Files {
+		if !file.Before {
+			continue
+		}
+		filename := RT.MkAbs(name)
+		RT.Check(os.MkdirAll(filepath.Dir(filename), 0777))
+		RT.Check(ioutil.WriteFile(filename, []byte(file.Content), file.Mode))
+	}
+
+	return nil
 }

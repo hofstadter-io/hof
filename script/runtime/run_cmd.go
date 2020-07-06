@@ -44,6 +44,7 @@ func (RT *Runtime) RunCmd(cmd *ast.Cmd, parent *ast.Result) (r *ast.Result, err 
 	C, ok := DefaultCommands[cmd.Cmd]
 	if !ok {
 		err = fmt.Errorf("Unknown command: %q", cmd.Cmd)
+		r.AddError(err)
 		return r, err
 	}
 

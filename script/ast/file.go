@@ -23,6 +23,7 @@ type File struct {
 	// content markers
 	BegContent int
 	EndContent int
+	Content    string
 }
 
 func (P *Parser) parseFile() error {
@@ -106,6 +107,18 @@ func (P *Parser) parseFile() error {
 	//////   Parse File
 	//
 
+	// finalize the file
+	defer func () {
+		clines := S.Lines[F.BegContent:F.EndContent+1]
+		F.Content = strings.Join(clines, "\n")
+		if !F.TrimEnd {
+			F.Content += "\n"
+		}
+
+		S.AddFile(F)
+		P.AppendNode(F)
+	} ()
+
 	// inc lineno to first line of content
 	P.lineno++
 	// start consuming lines
@@ -125,8 +138,6 @@ func (P *Parser) parseFile() error {
 				}
 
 				// finalize the file and return to main loop
-				S.AddFile(F)
-				P.AppendNode(F)
 				return nil
 			}
 		}
@@ -145,10 +156,6 @@ func (P *Parser) parseFile() error {
 		// inc and loop around
 		P.IncLine()
 	}
-
-	// finalize this file
-	S.AddFile(F)
-	P.AppendNode(F)
 
 	return nil
 }

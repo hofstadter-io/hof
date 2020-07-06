@@ -1,0 +1,20 @@
+%% Test HLS file methods
+
+% Test initial files created
+
+check file before.txt
+
+-- before.txt --
+hello apple
+-- end --
+
+% Test inline files created
+
+! check file inline.txt
+
+== inline.txt ==
+hello apple
+== end ==
+
+check file inline.txt
+

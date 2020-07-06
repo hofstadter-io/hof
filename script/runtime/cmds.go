@@ -18,7 +18,7 @@ var DefaultCommands = map[string]RuntimeCommand{
 	"call":    (*Runtime).Cmd_noop,
 
 	// cmd_check.go
-	"check":    (*Runtime).Cmd_noop,
+	"check":    (*Runtime).Cmd_check,
 
 	// cmd_env.go
 	"env":     (*Runtime).Cmd_env,
