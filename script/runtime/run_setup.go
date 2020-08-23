@@ -4,6 +4,9 @@ import (
 	"os"
 	goruntime "runtime"
 	"strings"
+
+	// "github.com/go-git/go-billy/v5"
+	"github.com/parnurzeal/gorequest"
 )
 
 func (RT *Runtime) setupEnv() {
@@ -24,6 +27,14 @@ func (RT *Runtime) setupEnv() {
 	} else {
 		RT.envMap["exe"] = ""
 	}
+}
+
+func (RT *Runtime) setupInternals() {
+	RT.envMap = make(map[string]string)
+	RT.values = make(map[string]interface{})
+	RT.aliases = make(map[string]string)
+	// RT.fsClients = make(map[string]billy.Filesystem)
+	RT.httpClients = make(map[string]*gorequest.SuperAgent)
 }
 
 /*

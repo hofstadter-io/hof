@@ -38,10 +38,10 @@ var DefaultCommands = map[string]RuntimeCommand{
 	"rm": (*Runtime).Cmd_noop,
 
 	// cmd_http.go
-	"http": (*Runtime).Cmd_noop,
+	"http": (*Runtime).Cmd_http,
 
 	// cmd_log.go
-	"log": (*Runtime).Cmd_noop,
+	"log": (*Runtime).Cmd_log,
 
 	// cmd_status.go
 	// TODO, make available to check?
