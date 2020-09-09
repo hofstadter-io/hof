@@ -14,6 +14,11 @@ func RunSuites(suites []Suite, verbose int) (TS Stats, err error) {
 
 	// loop over tests
 	for s, S := range suites {
+		// Short circuit for empty suites
+		if len(S.Tests) == 0 {
+			continue
+		}
+
 		// set start time
 		S.Stats.Start = time.Now()
 
@@ -25,8 +30,10 @@ func RunSuites(suites []Suite, verbose int) (TS Stats, err error) {
 				S.Errors = append(S.Errors, err)
 			}
 
-			// set the element again because of Go copy
+			// update total time
 			S.Stats.Time += T.Stats.Time
+
+			// set the element because of Go value copy in the loop header
 			S.Tests[t] = T
 		}
 
@@ -48,7 +55,7 @@ func RunTest(T *Tester, verbose int) (err error) {
 	// stats work
 	T.Stats.Start = time.Now()
 
-	// TODO< find and possibly skip
+	// TODO find and possibly skip
 	skip := T.Value.Lookup("skip")
 	if skip.Exists() {
 		doskip, err := skip.Bool()

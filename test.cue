@@ -81,12 +81,10 @@ hls: {
 
 	script: #GoBashTest @test(bash,test,script)
 	script: {
-		skip: true
 		dir: "script"
 	}
 	scriptC: #GoBashCover @test(bash,cover,script)
 	scriptC: {
-		skip: true
 		dir: "script"
 	}
 }
@@ -105,12 +103,10 @@ lib: {
 
 	st: #GoBashTest @test(bash,test,st)
 	st: {
-		skip: true
 		dir: "lib/structural"
 	}
 	stC: #GoBashCover @test(bash,cover,st)
 	stC: {
-		skip: true
 		dir: "lib/structural"
 	}
 

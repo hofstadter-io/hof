@@ -29,8 +29,8 @@ type Suite struct {
 	Errors []error
 }
 
-func getValueTestSuites(val cue.Value, name string, labels []string) ([]Suite, error) {
-	vals, err := cuetils.GetByAttrKeys(val, "test", []string{"suite"}, labels)
+func getValueTestSuites(val cue.Value, labels []string) ([]Suite, error) {
+	vals, err := cuetils.GetByAttrKeys(val, "test", append(labels, "suite"), nil)
 	suites := []Suite{}
 	for _, v := range vals {
 		suites = append(suites, Suite{Name: v.Key, Value: v.Val})
@@ -59,7 +59,7 @@ type Tester struct {
 	Errors []error
 }
 
-func getValueTestSuiteTesters(val cue.Value, name string, labels []string) ([]Tester, error) {
+func getValueTestSuiteTesters(val cue.Value, labels []string) ([]Tester, error) {
 	vals, err := cuetils.GetByAttrKeys(val, "test", labels, []string{})
 	testers := []Tester{}
 	for _, v := range vals {

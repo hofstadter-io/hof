@@ -50,7 +50,8 @@ func GetByAttrKeys(val cue.Value, attr string, all, any []string) ([]KeyVal, err
 		hasattr := false
 		for _, A := range attrs {
 			// does it have an "@<attr>(...)"
-			if A.Name() ==  attr {
+			if A.Name() == attr {
+
 				vals := A.Vals()
 
 				// must match all
