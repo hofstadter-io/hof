@@ -35,11 +35,6 @@ import "strings"
 	...
 }
 
-#GoExecTest: #GoBaseTest & {
-	command: string | *"go test -cover ./"
-	...
-}
-
 //
 ////// Actual test configuration
 //
