@@ -1,3 +1,5 @@
+package testdata
+
 @examples(shared)
 #SharedExamples: {
 

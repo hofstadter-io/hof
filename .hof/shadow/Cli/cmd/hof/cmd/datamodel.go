@@ -16,6 +16,7 @@ var DatamodelCmd = &cobra.Command{
 
 	Aliases: []string{
 		"dmod",
+		"dm",
 	},
 
 	Short: "create, view, diff, calculate / migrate, and manage your data models",

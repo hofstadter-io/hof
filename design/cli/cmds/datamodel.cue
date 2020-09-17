@@ -8,7 +8,7 @@ import (
 	TBD:   "α"
 	Name:  "datamodel"
 	Usage: "datamodel"
-	Aliases: ["dmod"]
+	Aliases: ["dmod", "dm"]
 	Short: "create, view, diff, calculate / migrate, and manage your data models"
 	Long:  Short
 
