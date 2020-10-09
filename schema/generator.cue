@@ -1,28 +1,16 @@
 package schema
 
-
 // Definition for a generator
 #HofGenerator: {
   // Base directory for the output
   Outdir: string | *"./"
 
   // "Global" input, merged with out replacing onto the files
-  In: { ... } | * {...}
+  In: { ... } | *{...}
 
   // The list fo files for hof to generate
-  Out: [...#HofGeneratorFile] | *[...]
-
-  //  Attribute expansions are used to turn the @attributes
-	//  into something you can use in the templates
-	//  (i.e. we need to add it to the data model after Cue processing)
-	//  
-	AttributeExpansions?: {
-		[AttrName=string]: {
-			InjectName: string | *AttrName
-			// keep the value (by default), replace with anything
-			[KeyName=string]?: _
-		}
-	}
+  // Out: [...#HofGeneratorFile] | *[...]
+  Out: [...#HofGeneratorFile] | *[]
 
   // The following will be automatically added to the template context
   // under its name for reference in GenFiles  and partials in templates
@@ -44,10 +32,10 @@ package schema
   StaticGlobs: [...string] | *[]
 
   // Base directory of partial templatess to load
-  PartialsDir: string | * "/partials"
+  PartialsDir: string | *"/partials"
 
   // Base directory of entrypoint templates to load
-  TemplatesDir: string | * "/templates"
+  TemplatesDir: string | *"/templates"
 
   TemplatesDirConfig: [Filename=string]: #TemplateConfigReplacible
 

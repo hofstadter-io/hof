@@ -27,6 +27,10 @@ var StatusCmd = &cobra.Command{
 
 	Use: "status",
 
+	Aliases: []string{
+		"s",
+	},
+
 	Short: "show workspace information and status",
 
 	Long: statusLong,

@@ -203,11 +203,11 @@ func PickValues(orig, pick cue.Value) (val cue.Value, err error) {
 
 func cuepick_Values(indent, tag string, orig, pick cue.Value) (val ast.Node, err error) {
 	oKind := orig.Kind()
-	//oLabel, _ := orig.Label()
+	oLabel, _ := orig.Label()
 	pKind := pick.Kind()
-	//pLabel, _ := pick.Label()
+	pLabel, _ := pick.Label()
 
-	// fmt.Printf("%spick: %q %q %q %q %q  BEG\n", indent, tag, oLabel, oKind, pLabel, pKind)
+	fmt.Printf("%spick: %q %q %q %q %q  BEG\n", indent, tag, oLabel, oKind, pLabel, pKind)
 
 	if oKind != pKind {
 		return cuepick_Kinds(indent + "  ", tag + "/kinds", orig, pick)
@@ -221,18 +221,18 @@ func cuepick_Values(indent, tag string, orig, pick cue.Value) (val ast.Node, err
 		return val, fmt.Errorf("Unknown Cue Type %q in cuepick_Values same type switch", pKind)
 	}
 
-	// fmt.Printf("%spick: %s  END\n", indent, tag)
+	fmt.Printf("%spick: %s  END\n", indent, tag)
 	return val, err
 }
 
 func cuepick_Structs(indent, tag string, orig, pick cue.Value) (val ast.Node, err error) {
 
-	//oKind := orig.Kind()
-	//oLabel, _ := orig.Label()
+	oKind := orig.Kind()
+	oLabel, _ := orig.Label()
 	pKind := pick.Kind()
-	//pLabel, _ := pick.Label()
+	pLabel, _ := pick.Label()
 
-	// fmt.Printf("%sstructs: %q %q %q %q %q  BEG\n", indent, tag, oLabel, oKind, pLabel, pKind)
+	fmt.Printf("%sstructs: %q %q %q %q %q  BEG\n", indent, tag, oLabel, oKind, pLabel, pKind)
 
 	fields := []ast.Decl{}
 	oStruct, _ := orig.Struct()
@@ -240,21 +240,26 @@ func cuepick_Structs(indent, tag string, orig, pick cue.Value) (val ast.Node, er
 	for iter.Next() {
 		ol := iter.Label()
 		ov := iter.Value()
-		// ok := ov.Kind()
+		ok := ov.Kind()
 
 		// try to look it up
 		pv := pick.Lookup(ol)
 		pk := pv.Kind()
 
 		// print everything we decide on
-		// fmt.Printf("%s  field: %s %s %s %s %s\n", indent, ol, ov, ok, pv, pk)
+		fmt.Printf("%s  field: %s %s %s %s %s %d\n", indent, ol, ov, ok, pv, pk, len(fields))
 		u := pv.Unify(ov)
-		// fmt.Printf("%s    unify: %s %s %s %s\n", indent, ol, pv, ov, u)
-		// fmt.Printf("%s    check: %s\n", indent, u.Equals(ov))
+		fmt.Printf("%s    unify: %s %s %s %s\n", indent, ol, pv, ov, u)
+		fmt.Printf("%s    check: %v %v\n", indent, u.Equals(ov), u.Kind() == cue.BottomKind)
+
+		if err := u.Err(); err != nil {
+			fmt.Printf("%s    ERROR: %t %v\n", indent, err, err)
+			continue
+		}
 
 		// If we unified
 		if u.Equals(ov) {
-			// fmt.Printf("%s    equals: %q %s\n", indent, ol, ov)
+			fmt.Printf("%s    equals: %q %s\n", indent, ol, ov)
 			syntax := ov.Syntax()
 			field := &ast.Field {
 				Label: ast.NewString(ol),
@@ -262,6 +267,7 @@ func cuepick_Structs(indent, tag string, orig, pick cue.Value) (val ast.Node, er
 				Token: token.COLON,
 			}
 			fields = append(fields, field)
+			continue
 		}
 
 		if isBuiltin(pv) {
@@ -270,6 +276,7 @@ func cuepick_Structs(indent, tag string, orig, pick cue.Value) (val ast.Node, er
 
 		// is it not found?
 		if pv.Kind() == cue.BottomKind {
+			fmt.Printf("%s    continue on _|_ for %s\n", indent, ol)
 			continue
 		}
 
@@ -303,10 +310,11 @@ func cuepick_Structs(indent, tag string, orig, pick cue.Value) (val ast.Node, er
 
 	val = ast.NewStruct()
 	s := val.(*ast.StructLit)
+	fmt.Println()
 	for _, f := range fields {
 		s.Elts = append(s.Elts, f)
 	}
-	// fmt.Printf("%sstructs: %s  END %v %v\n", indent, tag, val, fields)
+	fmt.Printf("%sstructs: %s  END %v %v\n", indent, tag, val, fields)
 	return val, err
 }
 

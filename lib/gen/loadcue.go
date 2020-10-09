@@ -6,6 +6,7 @@ import (
 
 	"cuelang.org/go/cue"
 
+	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/templates"
 )
 
@@ -14,10 +15,48 @@ func (G *Generator) LoadCue() ([]error) {
 
 	var gen map[string]interface{}
 	start := time.Now()
+	val := G.CueValue
+
+	// fmt.Println("Starting:", start, G.CueValue.IsClosed(), G.CueValue.IsConcrete(), G.CueValue.IncompleteKind(), G.CueValue.Exists())
+
+	//verr := val.Validate(
+		//cue.Attributes(true),
+		//cue.Concrete(true),
+		//cue.Definitions(true),
+		//cue.Docs(true),
+		//cue.Hidden(true),
+		//cue.Optional(true),
+		//cue.ResolveReferences(true),
+	//)
+
+	//fmt.Println("VERR:")
+	//cuetils.PrintCueError(verr)
+
+	//lookup := val.Lookup("Out")
+	//lerr := lookup.Validate(
+		//cue.Attributes(true),
+		//cue.Concrete(true),
+		//cue.Definitions(true),
+		//cue.Docs(true),
+		//cue.Hidden(true),
+		//cue.Optional(true),
+		//cue.ResolveReferences(true),
+	//)
+
+	//fmt.Println("LERR:")
+	//cuetils.PrintCueError(lerr)
+
+	//str, serr := cuetils.PrintCueValue(lookup)
+	//// str, serr := cuetils.PrintCueValue(cue.Dereference(G.CueValue))
+	//fmt.Println("STRING:")
+	//fmt.Println(str)
+	//fmt.Println(serr)
 
 	// Decode the value into a temporary "generator" with timing
-	err := G.CueValue.Decode(&gen)
-		if err != nil {
+	err := val.Decode(&gen)
+	if err != nil {
+		// fmt.Println("GOT ERROR", gen)
+		cuetils.PrintCueError(err)
 		return []error{err}
 	}
 

@@ -28,6 +28,7 @@ func CueSyntax(val cue.Value, opts []cue.Option) (ast.Node) {
 		cue.Hidden(true),
 		cue.Final(),
 		cue.Optional(false),
+		cue.ResolveReferences(true),
 	)
 }
 
@@ -40,6 +41,7 @@ func PrintCueValue(val cue.Value) (string, error) {
 		cue.Hidden(true),
 		cue.Final(),
 		cue.Optional(false),
+		cue.ResolveReferences(true),
 	)
 
 	bytes, err := format.Node(
@@ -125,7 +127,7 @@ func PrintCueError(err error) {
 			errors.Print(w, e2, &errors.Config{
 				Format:  format,
 				Cwd:     cwd,
-				ToSlash: false,
+				ToSlash: true,
 			})
 		}
 	}

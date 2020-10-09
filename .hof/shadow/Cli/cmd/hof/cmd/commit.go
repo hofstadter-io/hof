@@ -23,6 +23,10 @@ var CommitCmd = &cobra.Command{
 
 	Use: "commit",
 
+	Aliases: []string{
+		"c",
+	},
+
 	Short: "record changes to the repository",
 
 	Long: commitLong,

@@ -60,8 +60,9 @@ func (R *Runtime) LoadCue() []error {
 
 
 	for _, bi := range BIS {
-		if bi.Err != nil {
+		if bi.Err != nil || bi.Incomplete {
 			fmt.Println("LoadCue:", bi.Err, bi.Incomplete, bi.DepsErrors)
+			// TODO add DepsErrors if needed
 			es := errors.Errors(bi.Err)
 			for _, e := range es {
 				errs = append(errs, e.(error))
@@ -127,7 +128,7 @@ func (R *Runtime) ExtractGenerators() {
 
 					// are there flags to match?
 					if len(R.Flagpole.Generator) > 0 {
-						vals := A.Vals()
+						vals := A.Map()
 						match := false
 						for _, g := range R.Flagpole.Generator {
 							if _, ok := vals[g]; ok {
@@ -166,15 +167,19 @@ func (R *Runtime) LoadGenerators() []error {
 			continue
 		}
 
+		// fmt.Println("Loading Generator:", G.Name)
+
 		// Load the Generator!
 		errsL := G.LoadCue()
 		if len(errsL) != 0 {
+			fmt.Println("  Load Error:", errsL)
 			errs = append(errs, errsL...)
 			continue
 		}
 
 		errsI := G.Initialize()
 		if len(errsI) != 0 {
+			fmt.Println("  Init Error:", errsI)
 			errs = append(errs, errsI...)
 			continue
 		}

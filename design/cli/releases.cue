@@ -5,7 +5,7 @@ import (
 )
 
 #CliReleases: schema.#GoReleaser & {
-	Disabled: false
+	Disable: false
 	Draft:    false
 	Author:   "Hofstadter, Inc"
 	Homepage: "https://hofstadter.io"

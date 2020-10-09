@@ -23,6 +23,10 @@ var BranchCmd = &cobra.Command{
 
 	Use: "branch",
 
+	Aliases: []string{
+		"b",
+	},
+
 	Short: "list, create, or delete branches",
 
 	Long: branchLong,

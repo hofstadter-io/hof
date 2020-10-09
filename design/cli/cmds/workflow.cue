@@ -12,7 +12,7 @@ import (
 	TBD:   "α"
 	Name:  "status"
 	Usage: "status"
-	Alias: ["s"]
+	Aliases: ["s"]
 	Short: "show workspace information and status"
 	Long:  Short
 }
@@ -45,7 +45,7 @@ import (
 	TBD:   "α"
 	Name:  "include"
 	Usage: "include"
-	Alias: ["i"]
+	Aliases: ["i"]
 	Short: "include changes into the changeset"
 	Long:  Short
 }
@@ -54,7 +54,7 @@ import (
 	TBD:   "α"
 	Name:  "branch"
 	Usage: "branch"
-	Alias: ["b"]
+	Aliases: ["b"]
 	Short: "list, create, or delete branches"
 	Long:  Short
 }
@@ -63,7 +63,7 @@ import (
 	TBD:   "α"
 	Name:  "checkout"
 	Usage: "checkout"
-	Alias: ["co"]
+	Aliases: ["co"]
 	Short: "switch branches or restore working tree files"
 	Long:  Short
 }
@@ -72,7 +72,7 @@ import (
 	TBD:   "α"
 	Name:  "commit"
 	Usage: "commit"
-	Alias: ["c"]
+	Aliases: ["c"]
 	Short: "record changes to the repository"
 	Long:  Short
 }

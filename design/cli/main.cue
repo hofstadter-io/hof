@@ -13,7 +13,7 @@ import (
 	Package: "github.com/hofstadter-io/hof/cmd/hof"
 
 	Usage:      "hof"
-	Short:      "Polyglot Code Gereration Framework"
+	Short:      "The High Code Framework"
 	Long:       Short
 	CustomHelp: #RootCustomHelp
 	Topics:     #RootTopics
