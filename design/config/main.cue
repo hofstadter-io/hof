@@ -1,27 +1,27 @@
 package config
 
 import (
-	hof "github.com/hofstadter-io/hof/schema"
+	// hof "github.com/hofstadter-io/hof/schema"
 
 	"github.com/hofstadter-io/hofmod-cuefig/schema"
 )
 
 // Local context
-#HofContext: schema.#Config & {
+#HofContext: schema._Config & {
 	Name:         "context"
 	Entrypoint:   ".hofctx.cue"
 	ConfigSchema: #ContextSchema
 }
 
 // Local config
-#HofConfig: schema.#Config & {
+#HofConfig: schema._Config & {
 	Name:         "config"
 	Entrypoint:   ".hofcfg.cue"
 	ConfigSchema: #WorkspaceSchema
 }
 
 // Local secret
-#HofSecret: schema.#Config & {
+#HofSecret: schema._Config & {
 	Sensative:    true
 	Name:         "secret"
 	Entrypoint:   ".hofshh.cue"
@@ -29,7 +29,7 @@ import (
 }
 
 // (user/app config dir) context
-#HofUserContext: schema.#Config & {
+#HofUserContext: schema._Config & {
 	Name:         "hofctx"
 	Entrypoint:   ".hofctx.cue"
 	Workpath:     "hof"
@@ -38,7 +38,7 @@ import (
 }
 
 // (user/app config dir) config
-#HofUserConfig: schema.#Config & {
+#HofUserConfig: schema._Config & {
 	Name:         "hofcfg"
 	Entrypoint:   ".hofcfg.cue"
 	Workpath:     "hof"
@@ -47,7 +47,7 @@ import (
 }
 
 // (user/app config dir) secret
-#HofUserSecret: schema.#Config & {
+#HofUserSecret: schema._Config & {
 	Sensative:    true
 	Name:         "hofshh"
 	Entrypoint:   ".hofshh.cue"

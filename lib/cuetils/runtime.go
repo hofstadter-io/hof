@@ -104,8 +104,6 @@ func (CRT *CueRuntime) load() (err error) {
 		}
 	}
 
-	// fmt.Println("CRT.Load", CRT.Workspace, CRT.Entrypoints)
-
 	var errs []error
 
 	// XXX TODO XXX

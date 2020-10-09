@@ -27,6 +27,10 @@ var IncludeCmd = &cobra.Command{
 
 	Use: "include",
 
+	Aliases: []string{
+		"i",
+	},
+
 	Short: "include changes into the changeset",
 
 	Long: includeLong,

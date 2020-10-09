@@ -9,7 +9,7 @@ package testdata
 				orig: #SharedExamples.A
 				pick: {a: "a", N: {x: "x"}}
 			}
-			ex: { N: {x: "x"}, a: "a" }
+			ex: { a: "a", N: {x: "x"} }
 		}
 		t_0002: {
 			args: {

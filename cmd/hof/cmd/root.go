@@ -19,7 +19,7 @@ import (
 
 )
 
-var hofLong = `Polyglot Code Gereration Framework`
+var hofLong = `The High Code Framework`
 
 func init() {
 
@@ -80,7 +80,7 @@ var RootCmd = &cobra.Command{
 
 	Use: "hof",
 
-	Short: "Polyglot Code Gereration Framework",
+	Short: "The High Code Framework",
 
 	Long: hofLong,
 
@@ -273,7 +273,7 @@ func CallTS(ts *runtime.Script, args []string) error {
 	return err
 }
 
-const RootCustomHelp = `hof - a polyglot tool for building software
+const RootCustomHelp = `hof - the high code framework
 
   Learn more at https://docs.hofstadter.io
 

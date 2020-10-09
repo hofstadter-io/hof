@@ -28,16 +28,16 @@ package testdata
 				next: {a: string, b: int}
 			}
 			ex: {
-				removed: {
-					N: {
-						x: "x"
-						y: "y"
-					}
-				}
 				changed: {
 					b: {
 						from: "b"
 						to:   int
+					}
+				}
+				removed: {
+					N: {
+						x: "x"
+						y: "y"
 					}
 				}
 			}

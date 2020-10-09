@@ -10,7 +10,7 @@ import (
 // TBD:   "✓"
 
 #RootCustomHelp: """
-hof - a polyglot tool for building software
+hof - the high code framework
 
   Learn more at https://docs.hofstadter.io
 

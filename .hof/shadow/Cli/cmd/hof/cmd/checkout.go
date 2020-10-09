@@ -23,6 +23,10 @@ var CheckoutCmd = &cobra.Command{
 
 	Use: "checkout",
 
+	Aliases: []string{
+		"co",
+	},
+
 	Short: "switch branches or restore working tree files",
 
 	Long: checkoutLong,
