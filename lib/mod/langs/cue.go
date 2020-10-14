@@ -8,6 +8,7 @@ cue: {
 	SumFile:     string | * "cue.sums"
 	ModsDir:     string | * "cue.mod/pkg"
 	MappingFile: string | * "cue.mod/modules.txt"
+	SymlinkLocalReplaces: bool | *true,
 	InitTemplates: {...} | *{
 		"cue.mod/module.cue": """
 		module: "{{ .Module }}"

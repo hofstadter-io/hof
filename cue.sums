@@ -22,12 +22,16 @@ github.com/hofstadter-io/hofmod-cli v0.5.6 h1:o64aCgzhH62fZvpa2uK+bENIfXrEcMHfXC
 github.com/hofstadter-io/hofmod-cli v0.5.6/cue.mods h1:8TVLRMLOvfcVRZu6NqDr4VFmvuw/9Ca7YpCMo1fTRmU=
 github.com/hofstadter-io/hofmod-cli v0.5.9 h1:8j7ZfA/NmmLP85tIMLzYLslLUZqUNCYrdm7US3pQpxM=
 github.com/hofstadter-io/hofmod-cli v0.5.9/cue.mods h1:8TVLRMLOvfcVRZu6NqDr4VFmvuw/9Ca7YpCMo1fTRmU=
+github.com/hofstadter-io/hofmod-cli v0.6.3 h1:WHEkuWda9/zYwuE/9ag0pLuLMEndBRQ3zpfN2s4zeT8=
+github.com/hofstadter-io/hofmod-cli v0.6.3/cue.mods h1:n3ifKb/OFP/iU/EstbUbDz3VFmo9qJ1OmH7RjP/s+Os=
 github.com/hofstadter-io/hofmod-client v0.0.0 h1:CjwsIJVLSPca2EHIVwiMrLCko4BGtH6QE5muWkpcNtU=
 github.com/hofstadter-io/hofmod-client v0.0.0/cue.mods h1:U7nb/fqOz92SgTVIgDb4DWMhF5Fp+bLmWxRTQc5+c3Y=
 github.com/hofstadter-io/hofmod-config v0.0.0 h1:QIfhuP79XdMR94NVSxZtpqIrPOyvpO9ps6ChT2hUPIs=
 github.com/hofstadter-io/hofmod-config v0.0.0/cue.mods h1:2tQioIJpIiA9XVyN/hMM13DXRv79aWXc1I+Y9qeoJ0g=
 github.com/hofstadter-io/hofmod-cuefig v0.0.1 h1:xUKmN7aFxBYYknCpcNuCJ1QBel6V8xT0LvEG+MchPlY=
 github.com/hofstadter-io/hofmod-cuefig v0.0.1/cue.mods h1:+3nl34nAVsm6hJTnDsZtfIrYGIkLqrr1yuGZvO9agBg=
+github.com/hofstadter-io/hofmod-cuefig v0.0.3 h1:blZJdBCqT+nxrfDeC2GMqPiELFzzxVaMOZVX2AVeSS0=
+github.com/hofstadter-io/hofmod-cuefig v0.0.3/cue.mods h1:PCjQBwVNEnHCoMNzr71QGnpc0BqhOI3KGCctueyk65Q=
 github.com/hofstadter-io/hofmod-datastore v0.0.0 h1:lsIXa2L8JadSBNk5DkN6HO/T2i/DZ5ZnRO22tZ0lDTE=
 github.com/hofstadter-io/hofmod-datastore v0.0.0/cue.mods h1:rh7w4JQKpreX0QyAmrTaMoiMgWJ3AXCNHHiPasG2wg0=
 github.com/hofstadter-io/hofmod-devenv v0.0.0 h1:38MxYooWR+pcucjQzrEwjcmkPYcvIDmo2JNpH2pnCmY=
@@ -38,6 +42,8 @@ github.com/hofstadter-io/hofmod-model v0.0.0 h1:morjwfhtk0VTs+o5piSNZXckuM0BtxKC
 github.com/hofstadter-io/hofmod-model v0.0.0/cue.mods h1:ld3uyhD0Xy2n79MZsgOd0iqmq4Vy4tc3/tmD8SR6Ik4=
 github.com/hofstadter-io/hofmod-server v0.0.0 h1:HB/oYbjSlB+CULC2euevvrNY/y0B+GEDZ4jzUAxjul4=
 github.com/hofstadter-io/hofmod-server v0.0.0/cue.mods h1:FOOughTAQIRcybFBZ95zu69vIqqUy/k7ll4yH8F/A/M=
+github.com/hofstadter-io/hofmod-sql v0.0.0 h1:Q/Hfpqls/MTkf8YDn+uVGKj3LSPkoEKGjDi8QZT8eWY=
+github.com/hofstadter-io/hofmod-sql v0.0.0/cue.mods h1:rbtZi5VaxB0JSUrnSt1e0DIUKa+Aczi/DcmyKExp+rM=
 github.com/hofstadter-io/hofmod-test v0.0.0 h1:/ZxEURLxoohJJ+8fWj0S/mHZyIh9dK1DTIUELlKC0JM=
 github.com/hofstadter-io/hofmod-test v0.0.0/cue.mods h1:N6GYqq8ZehaDWNb1vR5VcR7XKaZM3f4e3l8AAphMQrE=
 github.com/hofstadter-io/mvs v0.0.0 h1:/rMWV7c92qpH/hyl8Ibi/DSUhrGDgDeKBtFkZeD+SMo=

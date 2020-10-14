@@ -78,6 +78,35 @@ func (mdr *Modder) WriteVendor() error {
 
 		// fmt.Printf("Writing %-48s => %s\n", m.ReplaceModule + "@" + m.ReplaceVersion, baseDir)
 
+		// Should we make a symlink for a local replace?
+		if mdr.SymlinkLocalReplaces && strings.HasPrefix(m.ReplaceModule, "../") {
+			// count and create backPaths string
+			backPaths := strings.Repeat("../", strings.Count(baseDir, "/"))
+			// create final symlink string
+			originalBaseDir := path.Join(backPaths, m.ReplaceModule)
+
+			// strip last dir (module core name)
+			targetBaseDir := baseDir[:strings.LastIndex(baseDir, "/")]
+			targetSymlink := baseDir // for readability
+
+			// make the base dir
+			err := yagu.Mkdir(targetBaseDir)
+			if err != nil {
+				mdr.errors = append(mdr.errors, err)
+				return fmt.Errorf("While creating baseDir for local replace\n%w\n", err)
+			}
+
+			// create the actual symlink
+			err = os.Symlink(originalBaseDir, targetSymlink)
+			if err != nil {
+				mdr.errors = append(mdr.errors, err)
+				return fmt.Errorf("While writing symlink for local replace\n%w\n", err)
+			}
+
+			// next dep as we don't need to write things
+			continue
+		}
+
 		// copy definite files always
 		files, err := m.FS.ReadDir("/")
 		if err != nil {
@@ -115,7 +144,7 @@ func (mdr *Modder) WriteVendor() error {
 
 		}
 
-	}
+	} // end loop over deps
 
 	// possibly no deps, so lets write an empty sumfile
 	if mdr.module.SumFile == nil {
