@@ -14,10 +14,6 @@ func RunTestFromArgsFlags(args []string, cmdflags flags.TestFlagpole) (error) {
 	if err != nil {
 		return err
 	}
-	err = crt.Load()
-	if err != nil {
-		return err
-	}
 
 	// Get test suites from top level
 	suites, err := getValueTestSuites(crt.CueRuntime, crt.CueValue, cmdflags.Suite)

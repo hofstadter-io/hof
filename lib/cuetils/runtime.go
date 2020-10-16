@@ -155,7 +155,7 @@ func (CRT *CueRuntime) load() (err error) {
 
 	if len(errs) > 0 {
 		CRT.CueErrors = errs
-		return fmt.Errorf("Errors while loading: %s %v", CRT.Workspace, CRT.Entrypoints)
+		return fmt.Errorf("Errors while loading Cue entrypoints: %s %v\n%v", CRT.Workspace, CRT.Entrypoints, errs)
 	}
 
 	return nil
