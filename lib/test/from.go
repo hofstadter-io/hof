@@ -20,14 +20,14 @@ func RunTestFromArgsFlags(args []string, cmdflags flags.TestFlagpole) (error) {
 	}
 
 	// Get test suites from top level
-	suites, err := getValueTestSuites(crt.CueValue, cmdflags.Suite)
+	suites, err := getValueTestSuites(crt.CueRuntime, crt.CueValue, cmdflags.Suite)
 	if err != nil {
 		return err
 	}
 
 	// find tests in suites
 	for s, suite := range suites {
-		ts, err := getValueTestSuiteTesters(suite.Value, cmdflags.Tester)
+		ts, err := getValueTestSuiteTesters(crt.CueRuntime, suite.Value, cmdflags.Tester)
 		if err != nil {
 			return err
 		}

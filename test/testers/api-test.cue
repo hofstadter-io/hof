@@ -30,6 +30,12 @@ basic: {
 		}
 		resp: {
 			status: 200
+			body: {
+				args: close({
+					cow: "moo"
+				})
+				...
+			}
 		}
 	}
 
@@ -42,6 +48,15 @@ basic: {
 		}
 		resp: {
 			status: 200
+			body: {
+				args: close({
+					foo: "bar"
+				})
+				json: {
+					cow: "moo"
+				}
+				...
+			}
 		}
 	}
 

@@ -2,9 +2,12 @@ package test
 
 import (
 	"fmt"
+	"io/ioutil"
 	"strings"
+	"time"
 
 	"cuelang.org/go/cue"
+	"cuelang.org/go/encoding/json"
 	"github.com/parnurzeal/gorequest"
 
 	"github.com/hofstadter-io/hof/lib/cuetils"
@@ -115,6 +118,64 @@ func buildRequest(T *Tester, verbose int, val cue.Value) (R *gorequest.SuperAgen
 		}
 	}
 
+	timeout := req.Lookup("timeout")
+	if timeout.Exists() {
+		to, err := timeout.String()
+		if err != nil {
+			return R, err
+		}
+		d, err := time.ParseDuration(to)
+		if err != nil {
+			return R, err
+		}
+		R.Timeout(d)
+	}
+
+	retry := req.Lookup("retry")
+	if retry.Exists() {
+		C := 3
+		count := retry.Lookup("count")
+		if count.Exists() {
+			c, err := count.Int64()
+			if err != nil {
+				return R, err
+			}
+			C = int(c)
+		}
+
+		D := time.Second * 6
+		timer := retry.Lookup("timer")
+		if timer.Exists() {
+			t, err := timer.String()
+			if err != nil {
+				return R, err
+			}
+			d, err := time.ParseDuration(t)
+			if err != nil {
+				return R, err
+			}
+			D = d
+		}
+
+		CS := []int{}
+		codes := retry.Lookup("codes")
+		if codes.Exists() {
+			L, err := codes.List()
+			if err != nil {
+				return R, err
+			}
+			for L.Next() {
+				v, err := L.Value().Int64()
+				if err != nil {
+					return R, err
+				}
+				CS = append(CS, int(v))
+			}
+		}
+
+		R.Retry(C, D, CS...)
+	}
+
 	return
 }
 
@@ -158,6 +219,8 @@ func checkResponse(T *Tester, verbose int, actual gorequest.Response, expect cue
 		label := iter.Label()
 		value := iter.Value()
 
+		fmt.Println("checking:", label)
+
 		switch label {
 			case "status":
 				status, err := value.Int64()
@@ -167,6 +230,35 @@ func checkResponse(T *Tester, verbose int, actual gorequest.Response, expect cue
 				if int64(actual.StatusCode) != status {
 					return fmt.Errorf("status code mismatch %v != %v", actual.StatusCode, status)
 				}
+
+			case "body":
+				body, err := ioutil.ReadAll(actual.Body)
+				if err != nil {
+					return err
+				}
+
+				inst, err := json.Decode(T.CRT, "", body)
+				if err != nil {
+					return err
+				}
+
+				V := inst.Value()
+				result := value.Unify(V)
+				if result.Err() != nil {
+					return result.Err()
+				}
+				fmt.Println("result: ", result)
+				err = result.Validate()
+				if err != nil {
+					fmt.Println(value)
+					fmt.Println(inst.Value())
+
+					return err
+				}
+
+
+			default:
+				return fmt.Errorf("Unknown field in expected response:", label)
 		}
 	}
 
