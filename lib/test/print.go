@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -43,12 +44,28 @@ func printTests(suites []Suite, stats bool) {
 			A := t.Value.Attribute("test")
 			as := []string{}
 			for k, v := range A.Map() {
+
+				// if key is a knownTester, put it first
+				known := false
+				for _, kT := range knownTesters {
+					if k == kT {
+						as = append([]string{"["+k+"]"}, as...)
+						known = true
+						break
+					}
+				}
+				if known {
+					continue
+				}
+
+				// otherwise just add
 				if v != "" {
 					as = append(as, fmt.Sprintf("%s=%s", k, v))
 				} else {
 					as = append(as, fmt.Sprintf("%s", k))
 				}
 			}
+			sort.Strings(as[1:])
 			a := strings.Join(as, " ")
 			st := ""
 			if stats {

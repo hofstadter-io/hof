@@ -8,6 +8,15 @@ import (
 	"github.com/hofstadter-io/hof/lib/cuetils"
 )
 
+// Known testers in the hof system
+var knownTesters = []string{
+	"bash",
+	"exec",
+	"tsuite",
+	"api",
+	"hls",
+}
+
 // A suite is a collection of testers
 type Suite struct {
 	// Name of the Suite (Cue field)
