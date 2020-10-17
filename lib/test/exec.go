@@ -1,7 +1,10 @@
 package test
 
 import (
+	"bytes"
 	"fmt"
+	"io"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -42,9 +45,25 @@ func RunBash(T *Tester, verbose int) (err error) {
 		}
 	}
 
+	// Setup io streams
+	cmd.Stdin  = os.Stdin
+
+	var outBuf, errBuf bytes.Buffer
+	cmd.Stdout = io.MultiWriter(os.Stdout, &outBuf)
+	cmd.Stderr = io.MultiWriter(os.Stderr, &errBuf)
+
 	// Run and save output
-	out, err := cmd.CombinedOutput()
-	T.Output = string(out)
+	err = cmd.Start()
+	if err != nil {
+		return err
+	}
+
+	err = cmd.Wait()
+	if err != nil {
+		return err
+	}
+
+	T.Output = outBuf.String() + errBuf.String()
 
 	return err
 }
@@ -81,9 +100,25 @@ func RunExec(T *Tester, verbose int) (err error) {
 		}
 	}
 
+	// Setup io streams
+	cmd.Stdin  = os.Stdin
+
+	var outBuf, errBuf bytes.Buffer
+	cmd.Stdout = io.MultiWriter(os.Stdout, &outBuf)
+	cmd.Stderr = io.MultiWriter(os.Stderr, &errBuf)
+
 	// Run and save output
-	out, err := cmd.CombinedOutput()
-	T.Output = string(out)
+	err = cmd.Start()
+	if err != nil {
+		return err
+	}
+
+	err = cmd.Wait()
+	if err != nil {
+		return err
+	}
+
+	T.Output = outBuf.String() + errBuf.String()
 
 	return err
 }

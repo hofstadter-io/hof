@@ -6,6 +6,7 @@ import (
 )
 
 func RunSuites(suites []Suite, verbose int) (TS Stats, err error) {
+	fmt.Println("RunSuites")
 
 	// set start time
 	TS.Start = time.Now()

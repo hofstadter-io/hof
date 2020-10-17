@@ -11,6 +11,8 @@ import "strings"
 
 	sysenv: bool | *false
 	env?: [string]: string
+	args?: [...string]
+	verbose?: bool | int
 
 	dir: string
 	...

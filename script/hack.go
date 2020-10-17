@@ -22,10 +22,8 @@ func Hack(args []string) error {
 
 	fs := osfs.New(cwd)
 
-	llvl := "warn"
-	if flags.RootPflags.Verbose != "" {
-		llvl = flags.RootPflags.Verbose
-	}
+	llvls := []string{"error","warn","info","debug"}
+	llvl := llvls[flags.RootPflags.Verbose]
 
 	config := &ast.Config{
 		LogLevel: llvl,

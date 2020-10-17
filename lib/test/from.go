@@ -9,8 +9,26 @@ import (
 
 func RunTestFromArgsFlags(args []string, cmdflags flags.TestFlagpole) (error) {
 
+	verbose := flags.RootPflags.Verbose
+	cueFiles, extraArgs := args, []string{}
+
+	// split args at "--"
+	pos := -1
+	for i, arg := range args {
+		if arg == "--" {
+			pos = i
+			break
+		}
+	}
+	if pos >= 0 {
+		cueFiles, extraArgs = args[0:pos], args[pos+1:]
+		if len(extraArgs) > 0 {
+			fmt.Println("using extra args:", extraArgs)
+		}
+	}
+
 	// Loadup our Cue files
-	crt, err := cuetils.CueRuntimeFromEntrypointsAndFlags(args)
+	crt, err := cuetils.CueRuntimeFromEntrypointsAndFlags(cueFiles)
 	if err != nil {
 		return err
 	}
@@ -38,7 +56,7 @@ func RunTestFromArgsFlags(args []string, cmdflags flags.TestFlagpole) (error) {
 	}
 
 	// Run all of our suites
-	_, err = RunSuites(suites, -1)
+	_, err = RunSuites(suites, verbose)
 
 	// Print our final tests and stats
 	fmt.Printf("\n\n\n======= FINAL RESULTS ======\n")
