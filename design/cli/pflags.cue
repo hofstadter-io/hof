@@ -228,7 +228,7 @@ import (
 		Name:    "verbose"
 		Long:    "verbose"
 		Short:   "v"
-		Type:    "string"
+		Type:    "int"
 		Default: ""
 		Help:    "set the verbosity of output"
 	},

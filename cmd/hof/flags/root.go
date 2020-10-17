@@ -72,7 +72,7 @@ type RootPflagpole struct {
 	Simplify           bool
 	Trace              bool
 	Strict             bool
-	Verbose            string
+	Verbose            int
 	Quiet              bool
 	ImpersonateAccount string
 	TraceToken         string

@@ -49,7 +49,7 @@ func init() {
 	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Simplify), "simplify", "S", false, "simplify output")
 	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Trace), "trace", "", false, "trace cue computation")
 	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Strict), "strict", "", false, "report errors for lossy mappings")
-	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Verbose), "verbose", "v", "", "set the verbosity of output")
+	RootCmd.PersistentFlags().IntVarP(&(flags.RootPflags.Verbose), "verbose", "v", 0, "set the verbosity of output")
 	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Quiet), "quiet", "q", false, "turn off output and assume defaults at prompts")
 	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.ImpersonateAccount), "impersonate-account", "", "", "account to impersonate for this hof execution")
 	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.TraceToken), "trace-token", "T", "", "used to help debug issues")
