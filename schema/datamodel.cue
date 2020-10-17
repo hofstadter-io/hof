@@ -1,19 +1,39 @@
 package schema
 
-//import (
-	//"github.com/hofstadter-io/hof/schema/datamodel"
-//)
+#Datamodel: {
+	Name: string
 
-//#Datamodel: [N=string]: #Datamodel & { Name: N, ... }
-//#Datamodel: {
-  //Name: string
+	Modelsets?: #Modelsets
+	Models?: #Models
+	Views?: #Views
+	...
+}
 
-	//Workbase: string | *"" // usually current directory
-	//Entrypoint: string     // paths from workbase
+#Modelsets: [name=string]: #Modelset & { Name: name, ... }
+#Modelset: {
+  Name: string
 
-	//Modelsets: datamodel.#Modelsets
-	//Models: #Models
-	//Views: #Models
+	Models?: #Models
+	Views?: #Models
+}
 
-	//...
-//}
+#Models: [name=string]: #Model & { Name: name, ... }
+#Model: {
+  Name: string
+
+	Views?: #Models
+
+	Fields: [string]: {...}
+
+  ...
+}
+
+#Views: [name=string]: #View & { Name: name, ... }
+#View: {
+  Name: string
+	Models: #Models
+
+	Fields: [string]: _
+  ...
+}
+

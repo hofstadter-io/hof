@@ -36,6 +36,8 @@ github.com/hofstadter-io/hofmod-datastore v0.0.0 h1:lsIXa2L8JadSBNk5DkN6HO/T2i/D
 github.com/hofstadter-io/hofmod-datastore v0.0.0/cue.mods h1:rh7w4JQKpreX0QyAmrTaMoiMgWJ3AXCNHHiPasG2wg0=
 github.com/hofstadter-io/hofmod-devenv v0.0.0 h1:38MxYooWR+pcucjQzrEwjcmkPYcvIDmo2JNpH2pnCmY=
 github.com/hofstadter-io/hofmod-devenv v0.0.0/cue.mods h1:/UaALg30rbzh/WvQ9e5bBqSqGKhdkGeBnKcJWXx3O3w=
+github.com/hofstadter-io/hofmod-gotyp v0.0.0 h1:A13xTevZom6OofTQ5MePSOjurOiC4xwDNXbUtc4oR20=
+github.com/hofstadter-io/hofmod-gotyp v0.0.0/cue.mods h1:x5wRO+09ePOQrcLUyM3PXvGOLq58n7zRup9C1T0UX/A=
 github.com/hofstadter-io/hofmod-k8s v0.0.0 h1:sQOw6rSFRaV1Xyy4f77Y5aMXEMS8yv51SUbK1gM+Kvw=
 github.com/hofstadter-io/hofmod-k8s v0.0.0/cue.mods h1:DFy090tDzZ0ax+j6CrjqDYaIgpda4CfPgl7GMqJdMUw=
 github.com/hofstadter-io/hofmod-model v0.0.0 h1:morjwfhtk0VTs+o5piSNZXckuM0BtxKC9vs+6/UJ61w=
