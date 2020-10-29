@@ -223,8 +223,8 @@ func (R *Runtime) RunGenerators() []error {
 			errs = append(errs, errsG...)
 			continue
 		}
-
 	}
+
 
 	return errs
 }
@@ -338,8 +338,11 @@ func (R *Runtime) WriteOutput() []error {
 		// Cleanup File & Shadow
 		// fmt.Println("Clean Shadow", G.Name)
 		for f, _ := range G.Shadow {
-			// fmt.Println("  -", G.Name, f, strings.TrimPrefix(f, G.Name + "/"))
-			err := os.Remove(f)
+			genFilename := strings.TrimPrefix(f, G.Name + "/")
+			shadowFilename := path.Join(gen.SHADOW_DIR, f)
+			fmt.Println("  -", G.Name, f, genFilename, shadowFilename)
+
+			err := os.Remove(genFilename)
 			if err != nil {
 				if strings.Contains(err.Error(), "no such file or directory") {
 					continue
@@ -347,7 +350,8 @@ func (R *Runtime) WriteOutput() []error {
 				errs = append(errs, err)
 				continue
 			}
-			err = os.Remove(path.Join(gen.SHADOW_DIR, f))
+
+			err = os.Remove(shadowFilename)
 			if err != nil {
 				if strings.Contains(err.Error(), "no such file or directory") {
 					continue
@@ -355,6 +359,7 @@ func (R *Runtime) WriteOutput() []error {
 				errs = append(errs, err)
 				continue
 			}
+
 			G.Stats.NumDeleted += 1
 		}
 
@@ -363,6 +368,7 @@ func (R *Runtime) WriteOutput() []error {
 
 	}
 
+	// TODO, remove this? do we even have global shadow files? The section to load them is commented out
 	// Clean global shadow, incase any generators were removed
 	for f, _ := range R.Shadow {
 		// deal with leading shadow dir name?

@@ -226,7 +226,7 @@ func (F *File) RenderTemplate() error {
 
 	err = F.FormatRendered()
 	if err != nil {
-		fmt.Println("---- Rendering error for", F.TemplateName, F.Filepath)
+		fmt.Printf("---- Rendering error for template: %q output: %q content:\n", F.TemplateName, F.Filepath)
 		fmt.Println(string(F.RenderContent))
 		fmt.Println("----")
 		return err
