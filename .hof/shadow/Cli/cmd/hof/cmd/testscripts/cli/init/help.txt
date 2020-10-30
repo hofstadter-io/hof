@@ -1,7 +1,0 @@
-### Test "init --help" prints help
-call __hof init --help
-
-### Test "init -h" prints help
-call __hof init -h
-
-

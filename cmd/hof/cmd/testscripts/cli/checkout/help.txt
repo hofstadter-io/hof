@@ -1,7 +1,0 @@
-### Test "checkout --help" prints help
-call __hof checkout --help
-
-### Test "checkout -h" prints help
-call __hof checkout -h
-
-

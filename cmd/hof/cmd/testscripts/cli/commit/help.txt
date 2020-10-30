@@ -1,7 +1,0 @@
-### Test "commit --help" prints help
-call __hof commit --help
-
-### Test "commit -h" prints help
-call __hof commit -h
-
-

@@ -1,7 +1,0 @@
-### Test "status --help" prints help
-call __hof status --help
-
-### Test "status -h" prints help
-call __hof status -h
-
-

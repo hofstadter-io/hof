@@ -1,7 +1,0 @@
-### Test "publish --help" prints help
-call __hof publish --help
-
-### Test "publish -h" prints help
-call __hof publish -h
-
-

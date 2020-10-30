@@ -1,7 +1,0 @@
-### Test "tui --help" prints help
-call __hof tui --help
-
-### Test "tui -h" prints help
-call __hof tui -h
-
-

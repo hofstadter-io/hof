@@ -1,7 +1,0 @@
-### Test "fetch --help" prints help
-call __hof fetch --help
-
-### Test "fetch -h" prints help
-call __hof fetch -h
-
-

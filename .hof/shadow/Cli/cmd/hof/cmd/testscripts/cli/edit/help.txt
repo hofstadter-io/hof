@@ -1,7 +1,0 @@
-### Test "edit --help" prints help
-call __hof edit --help
-
-### Test "edit -h" prints help
-call __hof edit -h
-
-

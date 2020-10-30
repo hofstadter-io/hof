@@ -1,9 +1,0 @@
-### Test "datamodel --help" prints help
-call __hof datamodel --help
-
-### Test "datamodel -h" prints help
-call __hof datamodel -h
-
-### Test "datamodel" (without any args) prints help
-call __hof datamodel
-

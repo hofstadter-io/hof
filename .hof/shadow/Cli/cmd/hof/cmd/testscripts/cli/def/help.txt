@@ -1,7 +1,0 @@
-### Test "def --help" prints help
-call __hof def --help
-
-### Test "def -h" prints help
-call __hof def -h
-
-

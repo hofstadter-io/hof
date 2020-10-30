@@ -1,9 +1,0 @@
-### Test "context --help" prints help
-call __hof context --help
-
-### Test "context -h" prints help
-call __hof context -h
-
-### Test "context" (without any args) prints help
-call __hof context
-

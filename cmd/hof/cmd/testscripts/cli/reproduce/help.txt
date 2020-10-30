@@ -1,7 +1,0 @@
-### Test "reproduce --help" prints help
-call __hof reproduce --help
-
-### Test "reproduce -h" prints help
-call __hof reproduce -h
-
-

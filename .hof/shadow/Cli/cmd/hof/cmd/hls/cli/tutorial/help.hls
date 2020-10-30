@@ -1,7 +1,0 @@
-### Test "tutorial --help" prints help
-call __hof tutorial --help
-
-### Test "tutorial -h" prints help
-call __hof tutorial -h
-
-

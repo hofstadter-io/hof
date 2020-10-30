@@ -1,7 +1,0 @@
-### Test "repl --help" prints help
-call __hof repl --help
-
-### Test "repl -h" prints help
-call __hof repl -h
-
-

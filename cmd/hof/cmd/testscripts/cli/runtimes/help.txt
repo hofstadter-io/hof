@@ -1,9 +1,0 @@
-### Test "runtimes --help" prints help
-call __hof runtimes --help
-
-### Test "runtimes -h" prints help
-call __hof runtimes -h
-
-### Test "runtimes" (without any args) prints help
-call __hof runtimes
-

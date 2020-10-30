@@ -1,7 +1,0 @@
-### Test "create --help" prints help
-call __hof create --help
-
-### Test "create -h" prints help
-call __hof create -h
-
-

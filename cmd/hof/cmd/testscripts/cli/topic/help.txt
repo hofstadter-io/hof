@@ -1,9 +1,0 @@
-### Test "topic --help" prints help
-call __hof topic --help
-
-### Test "topic -h" prints help
-call __hof topic -h
-
-### Test "topic" (without any args) prints help
-call __hof topic
-
