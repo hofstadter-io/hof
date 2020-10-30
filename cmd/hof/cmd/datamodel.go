@@ -5,10 +5,19 @@ import (
 
 	"github.com/hofstadter-io/hof/cmd/hof/cmd/datamodel"
 
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
+
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var datamodelLong = `create, view, diff, calculate / migrate, and manage your data models`
+
+func init() {
+
+	DatamodelCmd.PersistentFlags().StringSliceVarP(&(flags.DatamodelPflags.Datamodels), "datamodel", "D", nil, "Datamodels for the datamodel commands")
+	DatamodelCmd.PersistentFlags().StringSliceVarP(&(flags.DatamodelPflags.Modelsets), "modelset", "M", nil, "Modelsets for the datamodel commands")
+	DatamodelCmd.PersistentFlags().StringSliceVarP(&(flags.DatamodelPflags.Models), "model", "m", nil, "Models for the datamodel commands")
+}
 
 var DatamodelCmd = &cobra.Command{
 

@@ -1,6 +1,6 @@
 module github.com/hofstadter-io/hof
 
-go 1.14
+go 1.15
 
 require (
 	cuelang.org/go v0.2.1

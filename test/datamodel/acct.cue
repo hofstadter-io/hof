@@ -10,7 +10,7 @@ import "github.com/hofstadter-io/hof/schema"
 		User: true
 	}
 
-	Fields: {
+	Fields: schema.#CommonFields & {
 		short: schema.#XUID
 		name: schema.#String
 		state: schema.#String & { length: 32 }

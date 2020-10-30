@@ -37,3 +37,10 @@ package schema
   ...
 }
 
+#CommonFields: {
+	ID:        #UUID
+	CID:       #CUID
+	CreatedAt: #Datetime 
+	UpdatedAt: #Datetime 
+	DeletedAt: #Datetime 
+}

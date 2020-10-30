@@ -15,6 +15,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
 	"github.com/hofstadter-io/hof/cmd/hof/verinfo"
 )
 
@@ -55,6 +56,7 @@ var UpdateCmd = &cobra.Command{
 	Long: UpdateLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
+
 		ga.SendCommandPath("update")
 
 	},

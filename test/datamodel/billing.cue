@@ -14,7 +14,7 @@ import "github.com/hofstadter-io/hof/schema"
 		type: "has-many"
 	}
 
-	Fields: {
+	Fields: schema.#CommonFields & {
 		name: schema.#String
 		type: schema.#String
 		state: schema.#String
@@ -51,7 +51,7 @@ import "github.com/hofstadter-io/hof/schema"
 		type: "has-many"
 	}
 
-	Fields: {
+	Fields: schema.#CommonFields & {
 		name: schema.#String
 		type: schema.#String
 		stripeID: schema.#UUID

@@ -98,9 +98,12 @@ lib: {
 		dir: "lib/mod"
 	}
 
+
 	st: #GoBashTest @test(bash,test,st)
-	st: {
+	st: #GoBashTest & {
 		dir: "lib/structural"
+		// temp to isolate
+		script: "go test -v -cover pick_test.go"
 	}
 	stC: #GoBashCover @test(bash,cover,st)
 	stC: {

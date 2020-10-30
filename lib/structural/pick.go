@@ -6,7 +6,7 @@ import (
 
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/ast"
-	"cuelang.org/go/cue/token"
+	// "cuelang.org/go/cue/token"
 
 	"github.com/hofstadter-io/hof/lib/cuetils"
 )
@@ -41,22 +41,17 @@ func RunPickFromArgs(orig, pick string, entrypoints []string) error {
 
 	fmt.Println("pick")
 	fmt.Println("-------------")
+	// TODO< check for path?
 	fmt.Println(pick)
-	/*
 	pVal, err := crt.ConvertToValue(pick)
 	if err != nil {
 		return err
 	}
-	*/
 	fmt.Println("-------------")
 
 	fmt.Println("result")
 	fmt.Println("-------------")
-	rSyn, err := CuePick(oSyn, pick)
-	if err != nil {
-		return err
-	}
-	/*
+
 	rVal, err := PickValues(oVal, pVal)
 	if err != nil {
 		return err
@@ -65,109 +60,12 @@ func RunPickFromArgs(orig, pick string, entrypoints []string) error {
 	if err != nil {
 		return err
 	}
-	*/
+
 	fmt.Println(rSyn)
 	fmt.Println("-------------")
 	return nil
 }
 
-func CuePick(sorig, spick string) (string, error) {
-	out := NewpvStruct()
-
-	vorigi, err := r.Compile("", sorig)
-	if err != nil {
-		return "", err
-	}
-	vorig := vorigi.Value()
-	if vorig.Err() != nil {
-		return "", vorig.Err()
-	}
-	vpicki, err := r.Compile("", spick)
-	if err != nil {
-		return "", err
-	}
-	vpick := vpicki.Value()
-	if vpick.Err() != nil {
-		return "", vpick.Err()
-	}
-
-	err = cuePick(out, vorig, vpick)
-	if err != nil {
-		return "", err
-	}
-
-	return out.ToString()
-}
-
-func cuePick(out *pvStruct, vorig, vpick cue.Value) error {
-	// Loop over the keys in pick
-	vpickStruct, err := vpick.Struct()
-	if err != nil {
-		return err
-	}
-	vpickIter := vpickStruct.Fields()
-	for vpickIter.Next() {
-		key := vpickIter.Label()
-		pickVal := vpickIter.Value()
-		origLookup, err := vorig.LookupField(key)
-		// Ignore anythig not in orig
-		if err != nil {
-			continue
-		}
-		origVal := origLookup.Value
-
-		// If orig is a builtin and unifies with pick, then use it
-		if isBuiltin(origVal) && origVal.Unify(pickVal).Kind() != cue.BottomKind {
-			out.Set(key, *ExprFromValue(origVal))
-			continue
-		}
-		if isList(origVal) {
-			lval := NewpvList()
-			origListIter, err := origVal.List()
-			if err != nil {
-				return err
-			}
-			// If orig is a list but pick isn't, keep all elements
-			// of the list that unify with pick
-			if !isList(pickVal) {
-				for origListIter.Next() {
-					elem := origListIter.Value()
-					if elem.Unify(pickVal).Kind() != cue.BottomKind {
-						lval.Append(*ExprFromValue(elem))
-					}
-				}
-			} else if isList(pickVal) {
-				// Else, consider element-wise
-				pickListIter, err := pickVal.List()
-				if err != nil {
-					return err
-				}
-				for origListIter.Next() && pickListIter.Next() {
-					origElem := origListIter.Value()
-					pickElem := pickListIter.Value()
-					if origElem.Unify(pickElem).Kind() != cue.BottomKind {
-						lval.Append(*ExprFromValue(origElem))
-					}
-				}
-			}
-			out.Set(key, *lval.ToExpr())
-		}
-
-		// If orig is a struct then recurse
-		if isStruct(origVal) {
-			rval := NewpvStruct()
-			err = cuePick(rval, origVal, pickVal)
-			if err != nil {
-				return err
-			}
-			out.Set(key, *rval.ToExpr())
-		}
-	}
-
-	return nil
-}
-
-///////////
 
 func Pick(orig, pick interface{}) (cue.Value, error) {
 
@@ -185,7 +83,7 @@ func Pick(orig, pick interface{}) (cue.Value, error) {
 }
 
 func PickValues(orig, pick cue.Value) (val cue.Value, err error) {
-	node, err := cuepick_Values("", "start", orig.Eval(), pick.Eval())
+	node, err := pickValues("", "start", orig, pick)
 	if err != nil {
 		return val, err
 	}
@@ -201,35 +99,50 @@ func PickValues(orig, pick cue.Value) (val cue.Value, err error) {
 	return val, err
 }
 
-func cuepick_Values(indent, tag string, orig, pick cue.Value) (val ast.Node, err error) {
-	oKind := orig.Kind()
+// top-level function which introspects the values and calls specialized functions for picking
+func pickValues(indent, tag string, orig, pick cue.Value) (val ast.Node, err error) {
 	oLabel, _ := orig.Label()
-	pKind := pick.Kind()
+	oKind := orig.Kind()
 	pLabel, _ := pick.Label()
+	pKind := pick.IncompleteKind()
 
 	fmt.Printf("%spick: %q %q %q %q %q  BEG\n", indent, tag, oLabel, oKind, pLabel, pKind)
 
-	if oKind != pKind {
-		return cuepick_Kinds(indent + "  ", tag + "/kinds", orig, pick)
-	}
+	// They are not the same Kind
+	//if oKind != pKind {
+		//return pickKinds(indent + "  ", tag + "/kinds", orig, pick)
+	//}
 
+	// Switch on the common type
+	// (list of Cue types: https://pkg.go.dev/cuelang.org/go@v0.3.0-alpha4/cue#pkg-constants)
 	switch pKind {
+	case cue.TopKind:
+		return orig.Source(), nil
+
+	// structs or objects, recurse and loop on fields
 	case cue.StructKind:
-		return cuepick_Structs(indent + "  ", tag + "/structs", orig, pick)
+		return pickStructs(indent + "  ", tag + "/structs", orig, pick)
+
+	// lists or arrays, ... what do we do here?
+	case cue.ListKind:
+		return pickLists(indent + "  ", tag + "/lists", orig, pick)
+
+	case cue.BoolKind, cue.NumberKind, cue.BytesKind, cue.StringKind:
+		return pickBasicLit(indent + "  ", tag + "/basic", orig, pick)
 
 	default:
-		return val, fmt.Errorf("Unknown Cue Type %q in cuepick_Values same type switch", pKind)
+		return val, fmt.Errorf("Unknown Cue Type %q in pickValues in type switch: %v %d", pKind, pick, pKind)
 	}
 
-	fmt.Printf("%spick: %s  END\n", indent, tag)
-	return val, err
+	// fmt.Printf("%spick: %s  END\n", indent, tag)
+	// return val, err
 }
 
-func cuepick_Structs(indent, tag string, orig, pick cue.Value) (val ast.Node, err error) {
+func pickStructs(indent, tag string, orig, pick cue.Value) (val ast.Node, err error) {
 
 	oKind := orig.Kind()
 	oLabel, _ := orig.Label()
-	pKind := pick.Kind()
+	pKind := pick.IncompleteKind()
 	pLabel, _ := pick.Label()
 
 	fmt.Printf("%sstructs: %q %q %q %q %q  BEG\n", indent, tag, oLabel, oKind, pLabel, pKind)
@@ -244,22 +157,42 @@ func cuepick_Structs(indent, tag string, orig, pick cue.Value) (val ast.Node, er
 
 		// try to look it up
 		pv := pick.Lookup(ol)
-		pk := pv.Kind()
+		pk := pv.IncompleteKind()
+		// TODO, did we find the kind?
+
+		// TODO, do we want to condition based on pick being concrete or not?
 
 		// print everything we decide on
-		fmt.Printf("%s  field: %s %s %s %s %s %d\n", indent, ol, ov, ok, pv, pk, len(fields))
+		// fmt.Printf("%s  field: %s %s %s %s %s %d\n", indent, ol, ov, ok, pv, pk, len(fields))
 		u := pv.Unify(ov)
-		fmt.Printf("%s    unify: %s %s %s %s\n", indent, ol, pv, ov, u)
-		fmt.Printf("%s    check: %v %v\n", indent, u.Equals(ov), u.Kind() == cue.BottomKind)
+		fmt.Printf("%s  unify: %v %v %v %v %v\n%v %v %v %v\nunified: %v %v\n", indent,
+			ol, ok, ov.IsConcrete(), ov.IsClosed(), ov,
+			pk, pv.IsConcrete(), pv.IsClosed(), pv,
+			u, u.Err(),
+		)
+		// fmt.Printf("%s    check: %v %v\n", indent, u.Equals(ov), u.Kind() == cue.BottomKind)
 
-		if err := u.Err(); err != nil {
+		// If there was an error during unification, continue to next field
+		if u.Err() != nil {
+			// fmt.Printf("%s    ERROR: %t %v\n", indent, err, err)
+			continue
+		}
+
+		// if we unified, recurse
+		rv, err := pickValues(indent + "  ", tag + "/field", ov, pv)
+		if err != nil {
 			fmt.Printf("%s    ERROR: %t %v\n", indent, err, err)
 			continue
 		}
 
+		fields = append(fields, rv.(ast.Decl))
+
+		continue
+
+		/*
 		// If we unified
 		if u.Equals(ov) {
-			fmt.Printf("%s    equals: %q %s\n", indent, ol, ov)
+			// fmt.Printf("%s    equals: %q %s\n", indent, ol, ov)
 			syntax := ov.Syntax()
 			field := &ast.Field {
 				Label: ast.NewString(ol),
@@ -276,7 +209,7 @@ func cuepick_Structs(indent, tag string, orig, pick cue.Value) (val ast.Node, er
 
 		// is it not found?
 		if pv.Kind() == cue.BottomKind {
-			fmt.Printf("%s    continue on _|_ for %s\n", indent, ol)
+			// fmt.Printf("%s    continue on _|_ for %s\n", indent, ol)
 			continue
 		}
 
@@ -306,6 +239,7 @@ func cuepick_Structs(indent, tag string, orig, pick cue.Value) (val ast.Node, er
 			}
 			fields = append(fields, field)
 		}
+	*/
 	}
 
 	val = ast.NewStruct()
@@ -318,7 +252,7 @@ func cuepick_Structs(indent, tag string, orig, pick cue.Value) (val ast.Node, er
 	return val, err
 }
 
-func cuepick_Lists(indent, tag string, orig, pick cue.Value) (val ast.Node, err error) {
+func pickLists(indent, tag string, orig, pick cue.Value) (val ast.Node, err error) {
 	//oKind := orig.Kind()
 	//oLabel, _ := orig.Label()
 	//pKind := pick.Kind()
@@ -332,16 +266,29 @@ func cuepick_Lists(indent, tag string, orig, pick cue.Value) (val ast.Node, err 
 	return val, err
 }
 
-func cuepick_Kinds(indent, tag string, orig, pick cue.Value) (val ast.Node, err error) {
-	//oKind := orig.Kind()
-	//oLabel, _ := orig.Label()
-	pKind := pick.Kind()
-	//pLabel, _ := pick.Label()
+// compares and picks basic lits
+func pickBasicLit(indent, tag string, orig, pick cue.Value) (val ast.Node, err error) {
+	fmt.Println("BasicLit", orig, pick)
+	u := pick.Unify(orig)
 
-	// fmt.Printf("%skinds: %q %q %q %q %q  BEG\n", indent, tag, oLabel, oKind, pLabel, pKind)
+	if err := u.Err(); err != nil {
+		return pick.Source(), err
+	}
+
+	return orig.Source(), err
+}
+
+func pickKinds(indent, tag string, orig, pick cue.Value) (val ast.Node, err error) {
+	oKind := orig.Kind()
+	oLabel, _ := orig.Label()
+	pKind := pick.IncompleteKind()
+	pLabel, _ := pick.Label()
+
+	fmt.Printf("%skinds: %q %q %q %q %q  BEG\n", indent, tag, oLabel, oKind, pLabel, pKind)
 
 	u := pick.Unify(orig)
-	// fmt.Println("Unify", orig, pick, u)
+	fmt.Println("Unify", orig, pick, u)
+
 	if u.Equals(pick) {
 		return orig.Syntax(), err
 	}

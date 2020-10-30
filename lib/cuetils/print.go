@@ -26,8 +26,7 @@ func CueSyntax(val cue.Value, opts []cue.Option) (ast.Node) {
 		cue.Definitions(true),
 		cue.Docs(true),
 		cue.Hidden(true),
-		cue.Final(),
-		cue.Optional(false),
+		cue.Optional(true),
 		cue.ResolveReferences(true),
 	)
 }

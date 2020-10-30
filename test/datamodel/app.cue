@@ -19,7 +19,7 @@ import "github.com/hofstadter-io/hof/schema"
 		type: "has-many"
 	}
 
-	Fields: {
+	Fields: schema.#CommonFields & {
 		short: schema.#XUID
 		name: schema.#String
 		type: schema.#String
@@ -62,7 +62,7 @@ import "github.com/hofstadter-io/hof/schema"
 		type: "has-many"
 	}
 
-	Fields: {
+	Fields: schema.#CommonFields & {
 		short: schema.#XUID
 		name: schema.#String
 		mode: schema.#String

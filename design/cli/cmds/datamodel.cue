@@ -14,6 +14,34 @@ import (
 
 	OmitRun: true
 
+	Pflags: [...schema.#Flag] & [
+		{
+			Name:    "Datamodels"
+			Long:    "datamodel"
+			Short:   "D"
+			Type:    "[]string"
+			Default: "nil"
+			Help:    "Datamodels for the datamodel commands"
+		},
+		{
+			Name:    "modelsets"
+			Long:    "modelset"
+			Short:   "M"
+			Type:    "[]string"
+			Default: "nil"
+			Help:    "Modelsets for the datamodel commands"
+		},
+		{
+			Name:    "models"
+			Long:    "model"
+			Short:   "m"
+			Type:    "[]string"
+			Default: "nil"
+
+			Help:    "Models for the datamodel commands"
+		},
+	]
+
 	Commands: [{
 		TBD:   "α"
 		Name:  "create"

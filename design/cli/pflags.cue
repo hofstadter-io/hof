@@ -8,7 +8,7 @@ import (
 
 #CliPflags: [...schema.#Flag] & [
 		// Labels will be core
-		{
+	{
 		Name:    "labels"
 		Long:    "label"
 		Short:   "l"

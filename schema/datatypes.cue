@@ -70,3 +70,15 @@ package schema
 	...
 }
 
+#Date: {
+	type: "date"
+}
+
+#Time: {
+	type: "time"
+}
+
+#Datetime: {
+	type: "datetime"
+}
+

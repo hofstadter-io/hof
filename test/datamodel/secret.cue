@@ -19,7 +19,7 @@ import "github.com/hofstadter-io/hof/schema"
 		type: "has-many"
 	}
 
-	Fields: {
+	Fields: schema.#CommonFields & {
 		name: schema.#String
 		description: schema.#String & { length: 256 }
 	}
