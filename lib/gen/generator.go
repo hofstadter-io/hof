@@ -2,7 +2,7 @@ package gen
 
 import (
 	"fmt"
-	"path"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -114,9 +114,9 @@ func (G *Generator) GenerateFiles() []error {
 			F.IsSkipped = 1
 			continue
 		}
-		shadowFN := path.Join(G.Name, F.Filepath)
+		shadowFN := filepath.Join(G.Name, F.Filepath)
 		F.ShadowFile = G.Shadow[shadowFN]
-		err := F.Render(path.Join(SHADOW_DIR, shadowFN))
+		err := F.Render(filepath.Join(SHADOW_DIR, shadowFN))
 		if err != nil {
 			F.IsErr = 1
 			F.Errors = append(F.Errors, err)
@@ -182,7 +182,7 @@ func (G *Generator) initPartials() []error {
 	// Then file based partials, but don't overwrite
 	pDir := G.PartialsDir
 	if G.PackageName != "" {
-		pDir = path.Join(CUE_VENDOR_DIR, G.PackageName, G.PartialsDir)
+		pDir = filepath.Join(CUE_VENDOR_DIR, G.PackageName, G.PartialsDir)
 	}
 	pMap, err := templates.CreateTemplateMapFromFolder(pDir, G.TemplateConfig.TemplateSystem, G.TemplateConfig, G.PartialsDirConfig)
 	if err != nil {
@@ -196,6 +196,13 @@ func (G *Generator) initPartials() []error {
 		}
 		_, ok := G.PartialsMap[k]
 		if !ok {
+			G.PartialsMap[k] = T
+		}
+
+		// add second copy without the partials prefix
+		// seems to be an edge case when using a generator from within it's own directory
+		if strings.HasPrefix(k, "partials/") {
+			k = strings.TrimPrefix(k, "partials/")
 			G.PartialsMap[k] = T
 		}
 	}
@@ -219,13 +226,12 @@ func (G *Generator) initTemplates() []error {
 	// Then file based template, but don't overwrite
 	tDir := G.TemplatesDir
 	if G.PackageName != "" {
-		tDir = path.Join(CUE_VENDOR_DIR, G.PackageName, G.TemplatesDir)
+		tDir = filepath.Join(CUE_VENDOR_DIR, G.PackageName, G.TemplatesDir)
 	}
 	tMap, err := templates.CreateTemplateMapFromFolder(tDir, G.TemplateConfig.TemplateSystem, G.TemplateConfig, G.TemplatesDirConfig)
 	if err != nil {
 		return append(errs, err)
 	}
-	// fmt.Println("tFileMap", tDir, tMap)
 
 	for k, T := range tMap {
 		if strings.HasPrefix(k, "/") {
@@ -280,7 +286,7 @@ func (G *Generator) ResolveFile(F *File) error {
 		return err
 	}
 	// both emtpy?
-	if F.Template != "" && F.TemplateName != "" {
+	if F.Template == "" && F.TemplateName == "" {
 		err := fmt.Errorf("Must specify one of Template and TemplateName in Gen: %q File: %q TName: %q\n", G.Name, F.Filepath, F.TemplateName)
 		F.IsErr = 1
 		F.Errors = append(F.Errors, err)
@@ -291,10 +297,18 @@ func (G *Generator) ResolveFile(F *File) error {
 	if F.Template == "" && F.TemplateName != "" {
 		T, ok := G.TemplateMap[F.TemplateName]
 		if !ok {
-			err := fmt.Errorf("Named template %q not found for %s %s\n", F.TemplateName, G.Name, F.Filepath)
-			F.IsErr = 1
-			F.Errors = append(F.Errors, err)
-			return err
+			// Try adding the generators template dir as a prefix when PackageName is empty
+			if G.PackageName == "" {
+				T, ok = G.TemplateMap[filepath.Join(G.TemplatesDir, F.TemplateName)]
+			}
+
+			// check if we have not found the template
+			if !ok {
+				err := fmt.Errorf("Named template %q not found for %s %s\n", F.TemplateName, G.Name, F.Filepath)
+				F.IsErr = 1
+				F.Errors = append(F.Errors, err)
+				return err
+			}
 		}
 
 		F.TemplateInstance = T
