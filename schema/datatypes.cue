@@ -3,7 +3,6 @@ package schema
 #DataTypes: #ID |
 	#UUID |
 	#CUID |
-	#XUID |
 	#Bool |
 	#String |
 	#Enum |
@@ -12,7 +11,7 @@ package schema
 
 #ID: #UUID
 
-#UUID: {
+#UUID: #Field & {
 	type: "uuid"
 	nullable: bool | *false
 	unique:   bool | *true
@@ -20,7 +19,7 @@ package schema
 	...
 }
 
-#CUID: {
+#CUID: #Field & {
 	type: "cuid"
 	nullable: bool | *false
 	unique:   bool | *true
@@ -28,22 +27,14 @@ package schema
 	...
 }
 
-#XUID: {
-	type: "xuid"
-	nullable: bool | *false
-	unique:   bool | *true
-	generate: bool | *true
-	...
-}
-
-#Bool: {
-	type: "boolean"
+#Bool: #Field & {
+	type: "bool"
 	default: bool | *false
 	nullable: bool | *false
 	...
 }
 
-#String: {
+#String: #Field & {
 	type: "string"
 	length: int | *64
 	unique: bool | *false
@@ -52,7 +43,7 @@ package schema
 	...
 }
 
-#Enum: {
+#Enum: #Field & {
 	type: "string"
 	vals: [...string]
 	nullable: bool | *false
@@ -60,7 +51,7 @@ package schema
 	...
 }
 
-#Password: {
+#Password: #Field & {
 	type: "text"
 	bcrypt: true
 }
@@ -70,15 +61,14 @@ package schema
 	...
 }
 
-#Date: {
+#Date: #Field & {
 	type: "date"
 }
 
-#Time: {
+#Time: #Field & {
 	type: "time"
 }
 
-#Datetime: {
+#Datetime: #Field & {
 	type: "datetime"
 }
-
