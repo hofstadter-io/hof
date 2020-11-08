@@ -229,6 +229,21 @@ func (G *Generator) decodeGenerator(gen map[string]interface{}) ([]error) {
 
 
 	// TODO, load subgenerators
+	// Get the Generator Input (if it has one)
+	Subgens, ok := gen["Generators"].(map[string]interface{})
+	if ok && len(Subgens) > 0 {
+		for sname, subgen := range Subgens {
+			sg := NewGenerator(sname, cue.Value{})
+			sgmap := subgen.(map[string]interface{})
+			sgerrs := sg.decodeGenerator(sgmap)
+			if len(sgerrs) > 0 {
+				errs = append(errs, sgerrs...)
+			}
+
+			G.Generators[sname] = sg
+		}
+	}
+
 
 	// Decode generator files
 	// Turn G.Out elements into G.Files
@@ -247,6 +262,12 @@ func (G *Generator) decodeGenerator(gen map[string]interface{}) ([]error) {
 	// TODO, should we erase the CueValue here so we release the memory?
 	//       for now, yes we will
 	G.CueValue = cue.Value{}
+
+	errsI := G.Initialize()
+	if len(errsI) != 0 {
+		fmt.Println("  Init Error:", errsI)
+		errs = append(errs, errsI...)
+	}
 
 	return errs
 }

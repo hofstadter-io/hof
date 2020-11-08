@@ -33,7 +33,7 @@ type Generator struct {
 	//
 
   // Subgenerators for composition
-  Generators []*Generator
+  Generators map[string]*Generator
 
   // Template delimiters
 	TemplateConfig *templates.Config
@@ -96,6 +96,7 @@ func NewGenerator(label string, value cue.Value) *Generator{
 		CueValue: value,
 		PartialsMap: templates.NewMap(),
 		TemplateMap: templates.NewMap(),
+		Generators: make(map[string]*Generator),
 		Files: make(map[string]*File),
 		Shadow: make(map[string]*File),
 		Stats: &GeneratorStats{},
@@ -225,6 +226,7 @@ func (G *Generator) initTemplates() []error {
 
 	// Then file based template, but don't overwrite
 	tDir := G.TemplatesDir
+	// If a package name is set, we are going to look in vendor, set to empty string for local lookup
 	if G.PackageName != "" {
 		tDir = filepath.Join(CUE_VENDOR_DIR, G.PackageName, G.TemplatesDir)
 	}
@@ -287,6 +289,13 @@ func (G *Generator) ResolveFile(F *File) error {
 	}
 	// both emtpy?
 	if F.Template == "" && F.TemplateName == "" {
+		// is the filepath empty? then this is an "empty" file gen
+		// there may be a "bug" somewhere in a generator (cli/OnceFiles (?)) that creates these
+		// probably from specifying the [...#HofGeneratorFile] constraint
+		if F.Filepath == "" {
+			// Skip when the filepath is empty
+			return nil
+		}
 		err := fmt.Errorf("Must specify one of Template and TemplateName in Gen: %q File: %q TName: %q\n", G.Name, F.Filepath, F.TemplateName)
 		F.IsErr = 1
 		F.Errors = append(F.Errors, err)

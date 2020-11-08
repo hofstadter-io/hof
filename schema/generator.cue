@@ -41,6 +41,9 @@ package schema
 
   TemplateConfig: #DefaultTemplateConfig
 
+	// For subgenerators so a generator can leverage and design for other hofmods
+	Generators: [Gen=string]: #HofGenerator
+
   //
   // Open for whatever else you may need as a generator writer
   ...

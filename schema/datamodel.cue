@@ -8,7 +8,6 @@ import "strings"
 	Modelsets?: #Modelsets
 	Models?: #Models
 	Views?: #Views
-	...
 }
 
 #Modelsets: [name=string]: #Modelset & { Name: name, ... }

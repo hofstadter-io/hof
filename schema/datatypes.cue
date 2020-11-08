@@ -58,6 +58,7 @@ package schema
 
 #Email: #String & {
 	validation: "email"
+	unique: true
 	...
 }
 

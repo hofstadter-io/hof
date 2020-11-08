@@ -177,14 +177,9 @@ func (R *Runtime) LoadGenerators() []error {
 			continue
 		}
 
-		errsI := G.Initialize()
-		if len(errsI) != 0 {
-			fmt.Println("  Init Error:", errsI)
-			errs = append(errs, errsI...)
-			continue
-		}
-
 		// TODO, flatten any nested generators?
+		// this would eleminiate all the recursion in other functions
+		// would still need it here (in a new func)
 	}
 
 	return errs
@@ -206,25 +201,41 @@ func (R *Runtime) RunGenerators() []error {
 	// Load shadow, can this be done in parallel with the last step?
 	// Don't do in parallel yet, Cue is slow and hungry for memory @ v0.0.16
 	for _, G := range R.Generators {
-		if G.Disabled {
-			continue
-		}
-
-		shadow, err := gen.LoadShadow(G.Name, R.verbose)
-		if err != nil {
-			errs = append(errs, err)
-			return errs
-		}
-
-		G.Shadow = shadow
-
-		errsG := G.GenerateFiles()
-		if len(errsG) > 0 {
-			errs = append(errs, errsG...)
-			continue
+		gerrs := R.RunGenerator(G)
+		if len(gerrs) > 0 {
+			errs = append(errs, gerrs...)
 		}
 	}
 
+
+	return errs
+}
+
+func (R *Runtime) RunGenerator(G *gen.Generator) (errs []error) {
+	if G.Disabled {
+		return
+	}
+
+	shadow, err := gen.LoadShadow(G.Name, R.verbose)
+	if err != nil {
+		errs = append(errs, err)
+		return errs
+	}
+
+	G.Shadow = shadow
+
+	errsG := G.GenerateFiles()
+	if len(errsG) > 0 {
+		errs = append(errs, errsG...)
+		return errs
+	}
+
+	for _, sg := range G.Generators {
+		sgerrs := R.RunGenerator(sg)
+		if len(sgerrs) > 0 {
+			errs = append(errs, sgerrs...)
+		}
+	}
 
 	return errs
 }
@@ -234,138 +245,8 @@ func (R *Runtime) WriteOutput() []error {
 
 
 	for _, G := range R.Generators {
-		if G.Disabled {
-			continue
-		}
-
-		writestart := time.Now()
-
-		// Order is important here for implicit overriding of content
-
-		// Start with static file globs
-		for _, Glob := range G.StaticGlobs {
-			bdir := ""
-			if G.PackageName != "" {
-				bdir = path.Join("cue.mod/pkg", G.PackageName)
-			}
-			matches, err := zglob.Glob(path.Join(bdir, Glob))
-			if err != nil {
-				err = fmt.Errorf("while globbing %s / %s\n%w\n", bdir, Glob, err)
-				errs = append(errs, err)
-				continue
-			}
-			for _, match := range matches {
-				// trim first level directory
-				clean := Glob[:strings.Index(Glob, "/")]
-				mo := strings.TrimPrefix(match, clean)
-				src := path.Join(bdir, match)
-				dst := path.Join(G.Outdir, mo)
-
-				// TODO, make comparison and decide to write or not
-
-				// normal location
-				err := yagu.CopyFile(src, dst)
-				if err != nil {
-					err = fmt.Errorf("while copying static real file %q\n%w\n", match, err)
-					errs = append(errs, err)
-					continue
-				}
-
-				// shadow location
-				err = yagu.CopyFile(src, path.Join(".hof", G.Name, dst))
-				if err != nil {
-					err = fmt.Errorf("while copying static shadow file %q\n%w\n", match, err)
-					errs = append(errs, err)
-					continue
-				}
-
-				delete(R.Shadow, path.Join(G.Name, dst))
-				delete(G.Shadow, path.Join(G.Name, dst))
-				G.Stats.NumStatic += 1
-				G.Stats.NumWritten += 1
-
-			}
-
-		}
-
-		// Then the static files in cue
-		for p, content := range G.StaticFiles {
-			F := &gen.File {
-				Filepath: path.Join(G.Outdir, p),
-				FinalContent: []byte(content),
-			}
-			err := F.WriteOutput()
-			if err != nil {
-				errs = append(errs, err)
-				continue
-			}
-			err = F.WriteShadow(path.Join(gen.SHADOW_DIR, G.Name))
-			if err != nil {
-				errs = append(errs, err)
-				continue
-			}
-			delete(R.Shadow, path.Join(G.Name, F.Filepath))
-			delete(G.Shadow, path.Join(G.Name, F.Filepath))
-			G.Stats.NumStatic += 1
-			G.Stats.NumWritten += 1
-		}
-
-		// Finally write the generator files
-		for _, F := range G.Files {
-			// Write the actual output
-			if F.DoWrite && len(F.Errors) == 0 {
-				err := F.WriteOutput()
-				if err != nil {
-					errs = append(errs, err)
-					continue
-				}
-			}
-
-			// Write the shadow too, or if it doesn't exist
-			if F.DoWrite || (F.IsSame > 0 && F.ShadowFile == nil) {
-				err := F.WriteShadow(path.Join(gen.SHADOW_DIR, G.Name))
-				if err != nil {
-					errs = append(errs, err)
-					continue
-				}
-			}
-
-			// remove from shadows map so we can cleanup what remains
-			delete(R.Shadow, path.Join(G.Name, F.Filepath))
-			delete(G.Shadow, path.Join(G.Name, F.Filepath))
-		}
-
-		// Cleanup File & Shadow
-		// fmt.Println("Clean Shadow", G.Name)
-		for f, _ := range G.Shadow {
-			genFilename := strings.TrimPrefix(f, G.Name + "/")
-			shadowFilename := path.Join(gen.SHADOW_DIR, f)
-			fmt.Println("  -", G.Name, f, genFilename, shadowFilename)
-
-			err := os.Remove(genFilename)
-			if err != nil {
-				if strings.Contains(err.Error(), "no such file or directory") {
-					continue
-				}
-				errs = append(errs, err)
-				continue
-			}
-
-			err = os.Remove(shadowFilename)
-			if err != nil {
-				if strings.Contains(err.Error(), "no such file or directory") {
-					continue
-				}
-				errs = append(errs, err)
-				continue
-			}
-
-			G.Stats.NumDeleted += 1
-		}
-
-		writeend := time.Now()
-		G.Stats.WritingTime = writeend.Sub(writestart).Round(time.Millisecond)
-
+		gerrs := R.WriteGenerator(G)
+		errs = append(errs, gerrs...)
 	}
 
 	// TODO, remove this? do we even have global shadow files? The section to load them is commented out
@@ -399,6 +280,147 @@ func (R *Runtime) WriteOutput() []error {
 			continue
 		}
 	}
+
+	return errs
+}
+
+func (R *Runtime) WriteGenerator(G *gen.Generator) (errs []error) {
+	if G.Disabled {
+		return errs
+	}
+
+	writestart := time.Now()
+
+	// Order is important here for implicit overriding of content
+
+	// Start with static file globs
+	for _, Glob := range G.StaticGlobs {
+		bdir := ""
+		if G.PackageName != "" {
+			bdir = path.Join("cue.mod/pkg", G.PackageName)
+		}
+		matches, err := zglob.Glob(path.Join(bdir, Glob))
+		if err != nil {
+			err = fmt.Errorf("while globbing %s / %s\n%w\n", bdir, Glob, err)
+			errs = append(errs, err)
+			return errs
+		}
+		for _, match := range matches {
+			// trim first level directory
+			clean := Glob[:strings.Index(Glob, "/")]
+			mo := strings.TrimPrefix(match, clean)
+			src := path.Join(bdir, match)
+			dst := path.Join(G.Outdir, mo)
+
+			// TODO, make comparison and decide to write or not
+
+			// normal location
+			err := yagu.CopyFile(src, dst)
+			if err != nil {
+				err = fmt.Errorf("while copying static real file %q\n%w\n", match, err)
+				errs = append(errs, err)
+				return errs
+			}
+
+			// shadow location
+			err = yagu.CopyFile(src, path.Join(".hof", G.Name, dst))
+			if err != nil {
+				err = fmt.Errorf("while copying static shadow file %q\n%w\n", match, err)
+				errs = append(errs, err)
+				return errs
+			}
+
+			delete(R.Shadow, path.Join(G.Name, dst))
+			delete(G.Shadow, path.Join(G.Name, dst))
+			G.Stats.NumStatic += 1
+			G.Stats.NumWritten += 1
+
+		}
+
+	}
+
+	// Then the static files in cue
+	for p, content := range G.StaticFiles {
+		F := &gen.File {
+			Filepath: path.Join(G.Outdir, p),
+			FinalContent: []byte(content),
+		}
+		err := F.WriteOutput()
+		if err != nil {
+			errs = append(errs, err)
+			return errs
+		}
+		err = F.WriteShadow(path.Join(gen.SHADOW_DIR, G.Name))
+		if err != nil {
+			errs = append(errs, err)
+			return errs
+		}
+		delete(R.Shadow, path.Join(G.Name, F.Filepath))
+		delete(G.Shadow, path.Join(G.Name, F.Filepath))
+		G.Stats.NumStatic += 1
+		G.Stats.NumWritten += 1
+	}
+
+	// Finally write the generator files
+	for _, F := range G.Files {
+		// Write the actual output
+		if F.DoWrite && len(F.Errors) == 0 {
+			err := F.WriteOutput()
+			if err != nil {
+				errs = append(errs, err)
+				return errs
+			}
+		}
+
+		// Write the shadow too, or if it doesn't exist
+		if F.DoWrite || (F.IsSame > 0 && F.ShadowFile == nil) {
+			err := F.WriteShadow(path.Join(gen.SHADOW_DIR, G.Name))
+			if err != nil {
+				errs = append(errs, err)
+				return errs
+			}
+		}
+
+		// remove from shadows map so we can cleanup what remains
+		delete(R.Shadow, path.Join(G.Name, F.Filepath))
+		delete(G.Shadow, path.Join(G.Name, F.Filepath))
+	}
+
+	// Cleanup File & Shadow
+	// fmt.Println("Clean Shadow", G.Name)
+	for f, _ := range G.Shadow {
+		genFilename := strings.TrimPrefix(f, G.Name + "/")
+		shadowFilename := path.Join(gen.SHADOW_DIR, f)
+		fmt.Println("  -", G.Name, f, genFilename, shadowFilename)
+
+		err := os.Remove(genFilename)
+		if err != nil {
+			if strings.Contains(err.Error(), "no such file or directory") {
+				continue
+			}
+			errs = append(errs, err)
+			return errs
+		}
+
+		err = os.Remove(shadowFilename)
+		if err != nil {
+			if strings.Contains(err.Error(), "no such file or directory") {
+				continue
+			}
+			errs = append(errs, err)
+			return errs
+		}
+
+		G.Stats.NumDeleted += 1
+	}
+
+	for _, SG := range G.Generators {
+		sgerrs := R.WriteGenerator(SG)
+		errs = append(errs, sgerrs...)
+	}
+
+	writeend := time.Now()
+	G.Stats.WritingTime = writeend.Sub(writestart).Round(time.Millisecond)
 
 	return errs
 }
