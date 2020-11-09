@@ -8,6 +8,8 @@ import "strings"
 	Modelsets?: #Modelsets
 	Models?: #Models
 	Views?: #Views
+
+	...
 }
 
 #Modelsets: [name=string]: #Modelset & { Name: name, ... }
@@ -18,6 +20,8 @@ import "strings"
 
 	Models?: #Models
 	Views?: #Views
+
+	...
 }
 
 #Models: [name=string]: #Model & { Name: name, ... }
