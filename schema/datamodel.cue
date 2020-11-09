@@ -26,6 +26,9 @@ import "strings"
 	modelName: strings.ToCamel(Name)
 	ModelName: strings.ToTitle(Name)
 
+	ORM: bool | *false
+	SoftDelete: bool | *false
+
 	Views?: #Views
 
 	Fields: #Fields
