@@ -36,7 +36,10 @@ import "strings"
 	Views?: #Views
 
 	Fields: #Fields
-  ...
+
+	Relations: #Relations
+
+	...
 }
 
 #Fields: [name=string]: #Field & { Name: name, ... }
@@ -46,6 +49,20 @@ import "strings"
 	FieldName: string | *strings.ToTitle(Name)
 
 	private: bool | *false
+
+  ...
+}
+
+#Relations: [name=string]: #Relation & { Name: name, ... }
+#Relation: {
+  Name: string
+	relnName: string | *strings.ToCamel(Name)
+	RelnName: string | *strings.ToTitle(Name)
+
+	foreignKey?: string
+	relation: "BelongsTo" | "HasOne" | "HasMany" | "Many2Many"
+	type: string
+	table?: string
 
   ...
 }
