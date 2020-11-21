@@ -56,8 +56,8 @@ func PrintCueValue(val cue.Value) (string, error) {
 	return string(bytes), nil
 }
 
-func ValueToSyntaxString(val cue.Value) (string, error) {
-	src, err := format.Node(val.Syntax())
+func ValueToSyntaxString(val cue.Value, opts ...cue.Option) (string, error) {
+	src, err := format.Node(val.Syntax(opts...))
 	str := string(src)
 	return str, err
 }

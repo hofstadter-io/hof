@@ -15,7 +15,10 @@ package schema
 	type: "uuid"
 	nullable: bool | *false
 	unique:   bool | *true
-	generate: bool | *true
+	default: "gen_random_uuid()"
+	validation: {
+		format: "email"
+	}
 	...
 }
 
@@ -23,13 +26,12 @@ package schema
 	type: "cuid"
 	nullable: bool | *false
 	unique:   bool | *true
-	generate: bool | *true
 	...
 }
 
 #Bool: #Field & {
 	type: "bool"
-	default: bool | *false
+	default: string | *"false"
 	nullable: bool | *false
 	...
 }
@@ -40,6 +42,9 @@ package schema
 	unique: bool | *false
 	nullable: bool | *false
 	default?: string
+	validation: {
+		max: length
+	}
 	...
 }
 
@@ -51,13 +56,14 @@ package schema
 	...
 }
 
-#Password: #Field & {
-	type: "text"
+#Password: #String & {
 	bcrypt: true
 }
 
 #Email: #String & {
-	validation: "email"
+	validation: {
+		format: "email"
+	}
 	unique: true
 	...
 }

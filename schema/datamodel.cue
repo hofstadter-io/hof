@@ -32,6 +32,7 @@ import "strings"
 
 	ORM: bool | *false
 	SoftDelete: bool | *false
+	Permissioned: bool | *true
 
 	Views?: #Views
 
@@ -47,6 +48,10 @@ import "strings"
   Name: string
 	fieldName: string | *strings.ToCamel(Name)
 	FieldName: string | *strings.ToTitle(Name)
+
+	type: string
+
+	validation?: [string]: _
 
 	private: bool | *false
 

@@ -143,11 +143,13 @@ func (CRT *CueRuntime) load() (err error) {
 		// fmt.Println(i, "valued", V)
 
 		// Decode? we want to be lazy
+		/*
 		err = V.Decode(&CRT.Value)
 		if err != nil {
 			errs = append(errs, err)
 			continue
 		}
+		*/
 
 		// fmt.Println(i, "decoded", CRT.Value)
 
