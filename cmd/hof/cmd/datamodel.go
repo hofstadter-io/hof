@@ -73,7 +73,6 @@ func init() {
 
 	DatamodelCmd.AddCommand(cmddatamodel.CreateCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.GetCmd)
-	DatamodelCmd.AddCommand(cmddatamodel.SetCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.EditCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.DeleteCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.StatusCmd)

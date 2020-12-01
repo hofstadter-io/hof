@@ -7,19 +7,20 @@ import (
 #InitCommand: schema.#Command & {
 	TBD:   "β"
 	Name:  "init"
-	Usage: "init <module>"
+	Usage: "init <module> [name]"
 	Short: "create an empty workspace or initialize an existing directory to one"
 	Long:  """
-	create an empty workspace or initialize an existing directory to one
-
-	  module name or path should look like github.com/hofstadter-io/hof
+	Create a new workspace with initial files and registers with the global context.
+	
+	When the name matches the current directory, the workspace is created there,
+	otherwise a new directory with the name will be created.
 	"""
 
 	Args: [{
 		Name:     "module"
 		Type:     "string"
 		Required: true
-		Help:     "module url or path (github.com/hofstadter-io/hof"
+		Help:     "module url or path (github.com/hofstadter-io/hof)"
 	},
 	{
 		Name:     "name"

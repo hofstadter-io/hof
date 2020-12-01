@@ -11,8 +11,8 @@ import (
 )
 
 func RunInitFromArgs(module, name string) error {
-	fmt.Println("lib/workspace.Init", module, name)
 
+	// check and extract name parts from module arg
 	parts, err := CheckSplitModuleName(module)
 	if err != nil {
 		return err
@@ -20,7 +20,7 @@ func RunInitFromArgs(module, name string) error {
 
 	// if no name supplied, default to last part of module format
 	if name == "" {
-		name = parts[2]
+		name = parts[len(parts)-1]
 	}
 
 	// current directory
@@ -96,6 +96,13 @@ func RunInitFromArgs(module, name string) error {
 		return err
 	}
 
+	// print some output for the user
+	if name == cwd {
+		fmt.Printf("Initialized workspace %q in current directory\n", name)
+	} else {
+		fmt.Printf("Initialized workspace in new directory: %q\n", name)
+	}
+
 	return nil
 }
 
@@ -119,7 +126,7 @@ func initWorkspaceDirs() error {
 
 func initWorkspaceFiles(module, name string) error {
 
-	cfg := fmt.Sprintf(initialHofcfg, module, name)
+	cfg := fmt.Sprintf(initialHofcfg, name, name, module, name)
 	err := ioutil.WriteFile(".hofcfg.cue", []byte(cfg), 0644)
 	if err != nil {
 		return err
@@ -131,7 +138,7 @@ func initWorkspaceFiles(module, name string) error {
 		return err
 	}
 	if !initd {
-		shh := fmt.Sprintf(initialHofshh, module, name)
+		shh := fmt.Sprintf(initialHofshh, module)
 		err := ioutil.WriteFile(".hofshh.cue", []byte(shh), 0644)
 		if err != nil {
 			return err
@@ -155,9 +162,9 @@ func initWorkspaceFiles(module, name string) error {
 }
 
 const initialHofctx = `
-current: first
+current: %s
 
-first: {
+%s: {
   Module: "%s"
   Workspace: "%s"
 }

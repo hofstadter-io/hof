@@ -9,7 +9,3 @@ require (
 
 replace github.com/hofstadter-io/hofmod-cli    => ../mods/cli
 replace github.com/hofstadter-io/hofmod-cuefig => ../mods/cuefig
-
-replace github.com/hofstadter-io/hofmod-model  => ../mods/model
-replace github.com/hofstadter-io/hofmod-sql    => ../mods/sql
-replace github.com/hofstadter-io/hofmod-gotyp  => ../mods/gotyp

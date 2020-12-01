@@ -47,7 +47,7 @@ import (
 		Name:  "create"
 		Usage: "create"
 		Aliases: ["c"]
-		Short: "create data models"
+		Short: "create a new datamodel"
 		Long:  Short
 	}, {
 		TBD:   "α"
@@ -55,13 +55,6 @@ import (
 		Usage: "get"
 		Aliases: ["g"]
 		Short: "find and display data models"
-		Long:  Short
-	}, {
-		TBD:   "α"
-		Name:  "set"
-		Usage: "set"
-		Aliases: ["s"]
-		Short: "find and configure data models"
 		Long:  Short
 	}, {
 		TBD:   "α"

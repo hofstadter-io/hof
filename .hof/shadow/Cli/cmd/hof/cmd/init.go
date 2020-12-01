@@ -9,9 +9,10 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var initLong = `create an empty workspace or initialize an existing directory to one
+var initLong = `Create a new workspace with initial files and registers with the global context.
 
-  module name or path should look like github.com/hofstadter-io/hof`
+When the name matches the current directory, the workspace is created there,
+otherwise a new directory with the name will be created.`
 
 func InitRun(module string, name string) (err error) {
 
@@ -23,7 +24,7 @@ func InitRun(module string, name string) (err error) {
 
 var InitCmd = &cobra.Command{
 
-	Use: "init <module>",
+	Use: "init <module> [name]",
 
 	Short: "create an empty workspace or initialize an existing directory to one",
 

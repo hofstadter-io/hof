@@ -9,7 +9,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var createLong = `create data models`
+var createLong = `create a new datamodel`
 
 func CreateRun(args []string) (err error) {
 
@@ -27,7 +27,7 @@ var CreateCmd = &cobra.Command{
 		"c",
 	},
 
-	Short: "create data models",
+	Short: "create a new datamodel",
 
 	Long: createLong,
 

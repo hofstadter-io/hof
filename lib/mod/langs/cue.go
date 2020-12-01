@@ -3,7 +3,7 @@ package langs
 const CuelangModder = `
 cue: {
 	Name:        "cue"
-	Version:     string | *"v0.2.0"
+	Version:     string | *"v0.3.0"
 	ModFile:     string | * "cue.mods"
 	SumFile:     string | * "cue.sums"
 	ModsDir:     string | * "cue.mod/pkg"
