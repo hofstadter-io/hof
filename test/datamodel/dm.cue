@@ -6,13 +6,6 @@ import "github.com/hofstadter-io/hof/schema"
 	Name: "BaseModelset"
 
 	Models: {
-		Account: #Account
-		BillingAccount: #BillingAccount
-		StripeSubscription: #StripeSubscription
-
-		Apikey: #Apikey
-
-		Group: #Group
 		User: #User
 		UserProfile: #UserProfile
 	}

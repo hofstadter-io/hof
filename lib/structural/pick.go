@@ -101,12 +101,12 @@ func PickValues(orig, pick cue.Value) (val cue.Value, err error) {
 
 // top-level function which introspects the values and calls specialized functions for picking
 func pickValues(indent, tag string, orig, pick cue.Value) (val ast.Node, err error) {
-	oLabel, _ := orig.Label()
-	oKind := orig.Kind()
-	pLabel, _ := pick.Label()
+	//oLabel, _ := orig.Label()
+	//oKind := orig.Kind()
+	//pLabel, _ := pick.Label()
 	pKind := pick.IncompleteKind()
 
-	fmt.Printf("%spick: %q %q %q %q %q  BEG\n", indent, tag, oLabel, oKind, pLabel, pKind)
+	// fmt.Printf("%spick: %q %q %q %q %q  BEG\n", indent, tag, oLabel, oKind, pLabel, pKind)
 
 	// They are not the same Kind
 	//if oKind != pKind {
@@ -140,12 +140,12 @@ func pickValues(indent, tag string, orig, pick cue.Value) (val ast.Node, err err
 
 func pickStructs(indent, tag string, orig, pick cue.Value) (val ast.Node, err error) {
 
-	oKind := orig.Kind()
-	oLabel, _ := orig.Label()
-	pKind := pick.IncompleteKind()
-	pLabel, _ := pick.Label()
+	//oKind := orig.Kind()
+	//oLabel, _ := orig.Label()
+	//pKind := pick.IncompleteKind()
+	// pLabel, _ := pick.Label()
 
-	fmt.Printf("%sstructs: %q %q %q %q %q  BEG\n", indent, tag, oLabel, oKind, pLabel, pKind)
+	// fmt.Printf("%sstructs: %q %q %q %q %q  BEG\n", indent, tag, oLabel, oKind, pLabel, pKind)
 
 	fields := []ast.Decl{}
 	oStruct, _ := orig.Struct()
@@ -153,11 +153,11 @@ func pickStructs(indent, tag string, orig, pick cue.Value) (val ast.Node, err er
 	for iter.Next() {
 		ol := iter.Label()
 		ov := iter.Value()
-		ok := ov.Kind()
+		// ok := ov.Kind()
 
 		// try to look it up
 		pv := pick.Lookup(ol)
-		pk := pv.IncompleteKind()
+		// pk := pv.IncompleteKind()
 		// TODO, did we find the kind?
 
 		// TODO, do we want to condition based on pick being concrete or not?
@@ -165,11 +165,11 @@ func pickStructs(indent, tag string, orig, pick cue.Value) (val ast.Node, err er
 		// print everything we decide on
 		// fmt.Printf("%s  field: %s %s %s %s %s %d\n", indent, ol, ov, ok, pv, pk, len(fields))
 		u := pv.Unify(ov)
-		fmt.Printf("%s  unify: %v %v %v %v %v\n%v %v %v %v\nunified: %v %v\n", indent,
-			ol, ok, ov.IsConcrete(), ov.IsClosed(), ov,
-			pk, pv.IsConcrete(), pv.IsClosed(), pv,
-			u, u.Err(),
-		)
+		// fmt.Printf("%s  unify: %v %v %v %v %v\n%v %v %v %v\nunified: %v %v\n", indent,
+			//ol, ok, ov.IsConcrete(), ov.IsClosed(), ov,
+			//pk, pv.IsConcrete(), pv.IsClosed(), pv,
+			//u, u.Err(),
+		//)
 		// fmt.Printf("%s    check: %v %v\n", indent, u.Equals(ov), u.Kind() == cue.BottomKind)
 
 		// If there was an error during unification, continue to next field
@@ -181,7 +181,7 @@ func pickStructs(indent, tag string, orig, pick cue.Value) (val ast.Node, err er
 		// if we unified, recurse
 		rv, err := pickValues(indent + "  ", tag + "/field", ov, pv)
 		if err != nil {
-			fmt.Printf("%s    ERROR: %t %v\n", indent, err, err)
+			// fmt.Printf("%s    ERROR: %t %v\n", indent, err, err)
 			continue
 		}
 
@@ -248,7 +248,7 @@ func pickStructs(indent, tag string, orig, pick cue.Value) (val ast.Node, err er
 	for _, f := range fields {
 		s.Elts = append(s.Elts, f)
 	}
-	fmt.Printf("%sstructs: %s  END %v %v\n", indent, tag, val, fields)
+	// fmt.Printf("%sstructs: %s  END %v %v\n", indent, tag, val, fields)
 	return val, err
 }
 
@@ -268,7 +268,7 @@ func pickLists(indent, tag string, orig, pick cue.Value) (val ast.Node, err erro
 
 // compares and picks basic lits
 func pickBasicLit(indent, tag string, orig, pick cue.Value) (val ast.Node, err error) {
-	fmt.Println("BasicLit", orig, pick)
+	// fmt.Println("BasicLit", orig, pick)
 	u := pick.Unify(orig)
 
 	if err := u.Err(); err != nil {
@@ -279,15 +279,15 @@ func pickBasicLit(indent, tag string, orig, pick cue.Value) (val ast.Node, err e
 }
 
 func pickKinds(indent, tag string, orig, pick cue.Value) (val ast.Node, err error) {
-	oKind := orig.Kind()
-	oLabel, _ := orig.Label()
+	//oKind := orig.Kind()
+	//oLabel, _ := orig.Label()
 	pKind := pick.IncompleteKind()
-	pLabel, _ := pick.Label()
+	// pLabel, _ := pick.Label()
 
-	fmt.Printf("%skinds: %q %q %q %q %q  BEG\n", indent, tag, oLabel, oKind, pLabel, pKind)
+	// fmt.Printf("%skinds: %q %q %q %q %q  BEG\n", indent, tag, oLabel, oKind, pLabel, pKind)
 
 	u := pick.Unify(orig)
-	fmt.Println("Unify", orig, pick, u)
+	// fmt.Println("Unify", orig, pick, u)
 
 	if u.Equals(pick) {
 		return orig.Syntax(), err

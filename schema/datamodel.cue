@@ -9,6 +9,7 @@ import "strings"
 	Models?: #Models
 	Views?: #Views
 
+	History?: #Modelsets
 	...
 }
 

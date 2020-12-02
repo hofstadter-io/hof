@@ -1,0 +1,9 @@
+array:
+- name: elemA
+  value: foo
+- name: elemB
+  value: goo
+- name: elemC
+  value: hoo
+- name: other
+  value: thing

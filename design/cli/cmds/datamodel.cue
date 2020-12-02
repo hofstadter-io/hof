@@ -10,7 +10,7 @@ import (
 	Usage: "datamodel"
 	Aliases: ["dmod", "dm"]
 	Short: "create, view, diff, calculate / migrate, and manage your data models"
-	Long:  Short
+	Long:  #DatamodelRootHelp
 
 	OmitRun: true
 
@@ -114,3 +114,18 @@ import (
 		Long:  Short
 	}]
 }
+
+#DatamodelRootHelp: """
+Data models are sets of models which are used in many hof processes and modules.
+
+At their core, they represent the most abstract representation for objects and
+their relations in your applications. They are extended and annotated to add
+context fot their usage in different code generators: (DB vs Server vs Client).
+
+Beyond representing models in their current form, a history is maintained so that:
+  - database migrations can be created and managed
+  - servers can handle multiple model versions
+  - clients can implement feature flags
+Much of this is actually handled by code generators and must be implemented there.
+Hof handles the core data model definitions, history, and snapshot creation.
+"""

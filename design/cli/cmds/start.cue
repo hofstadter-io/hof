@@ -40,7 +40,7 @@ import (
 		Name:     "module"
 		Type:     "string"
 		Required: true
-		Help:     "module url or path (github.com/hofstadter-io/hof"
+		Help:     "module url or path (github.com/hofstadter-io/hof)"
 	},
 	{
 		Name:     "name"
