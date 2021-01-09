@@ -1,7 +1,0 @@
-### Test "delete --help" prints help
-call __hof delete --help
-
-### Test "delete -h" prints help
-call __hof delete -h
-
-

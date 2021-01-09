@@ -1,9 +1,0 @@
-### Test "auth --help" prints help
-call __hof auth --help
-
-### Test "auth -h" prints help
-call __hof auth -h
-
-### Test "auth" (without any args) prints help
-call __hof auth
-

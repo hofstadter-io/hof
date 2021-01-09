@@ -1,7 +1,0 @@
-### Test "export --help" prints help
-call __hof export --help
-
-### Test "export -h" prints help
-call __hof export -h
-
-

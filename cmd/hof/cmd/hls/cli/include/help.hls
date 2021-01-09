@@ -1,7 +1,0 @@
-### Test "include --help" prints help
-call __hof include --help
-
-### Test "include -h" prints help
-call __hof include -h
-
-

@@ -1,4 +1,4 @@
-package cmd
+package cmddatamodel
 
 import (
 	"fmt"
@@ -8,41 +8,32 @@ import (
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 
-	"github.com/hofstadter-io/hof/lib"
+	"github.com/hofstadter-io/hof/lib/datamodel"
 )
 
-var feedbackLong = `send feedback, bug reports, or any message
-	email:     (optional) your email, if you'd like us to reply
-	message:   your message, please be respectful to the person receiving it`
+var checkpointLong = `calculate a migration changeset for a data model`
 
-func FeedbackRun(args []string) (err error) {
+func CheckpointRun(args []string) (err error) {
 
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = lib.SendFeedback(args)
+	err = datamodel.RunCheckpointFromArgs(args)
 
 	return err
 }
 
-var FeedbackCmd = &cobra.Command{
+var CheckpointCmd = &cobra.Command{
 
-	Use: "feedback [email] <message>",
+	Use: "checkpoint",
 
 	Aliases: []string{
-		"hi",
-		"say",
-		"from",
-		"bug",
-		"yo",
-		"hello",
-		"greetings",
-		"support",
+		"cp",
 	},
 
-	Short: "send feedback, bug reports, or any message",
+	Short: "calculate a migration changeset for a data model",
 
-	Long: feedbackLong,
+	Long: checkpointLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
@@ -55,7 +46,7 @@ var FeedbackCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		err = FeedbackRun(args)
+		err = CheckpointRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -69,8 +60,8 @@ func init() {
 		return false
 	}
 
-	ohelp := FeedbackCmd.HelpFunc()
-	ousage := FeedbackCmd.UsageFunc()
+	ohelp := CheckpointCmd.HelpFunc()
+	ousage := CheckpointCmd.UsageFunc()
 	help := func(cmd *cobra.Command, args []string) {
 		if extra(cmd) {
 			return
@@ -92,7 +83,7 @@ func init() {
 		ga.SendCommandPath(cmd.CommandPath() + " usage")
 		return usage(cmd)
 	}
-	FeedbackCmd.SetHelpFunc(thelp)
-	FeedbackCmd.SetUsageFunc(tusage)
+	CheckpointCmd.SetHelpFunc(thelp)
+	CheckpointCmd.SetUsageFunc(tusage)
 
 }

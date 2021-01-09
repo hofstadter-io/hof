@@ -1,7 +1,0 @@
-### Test "import --help" prints help
-call __hof import --help
-
-### Test "import -h" prints help
-call __hof import -h
-
-

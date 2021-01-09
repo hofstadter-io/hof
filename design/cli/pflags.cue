@@ -66,114 +66,114 @@ import (
 	},
 
 	// i/o formats and streams
-	{
-		Name:    "input"
-		Long:    "input"
-		Short:   "i"
-		Type:    "[]string"
-		Default: "nil"
-		Help:    "input streams, depending on the command context"
-	},
-	{
-		Name:    "inputFormat"
-		Long:    "input-format"
-		Short:   "I"
-		Type:    "string"
-		Default: ""
-		Help:    "input format, defaults to infered"
-	},
+	//{
+		//Name:    "input"
+		//Long:    "input"
+		//Short:   "i"
+		//Type:    "[]string"
+		//Default: "nil"
+		//Help:    "input streams, depending on the command context"
+	//},
+	//{
+		//Name:    "inputFormat"
+		//Long:    "input-format"
+		//Short:   "I"
+		//Type:    "string"
+		//Default: ""
+		//Help:    "input format, defaults to infered"
+	//},
 
-	{
-		Name:    "output"
-		Long:    "output"
-		Short:   "o"
-		Type:    "[]string"
-		Default: "nil"
-		Help:    "output streams, depending on the command context"
-	},
-	{
-		Name:    "outputFormat"
-		Long:    "output-format"
-		Short:   "O"
-		Type:    "string"
-		Default: ""
-		Help:    "output format, defaults to cue"
-	},
+	//{
+		//Name:    "output"
+		//Long:    "output"
+		//Short:   "o"
+		//Type:    "[]string"
+		//Default: "nil"
+		//Help:    "output streams, depending on the command context"
+	//},
+	//{
+		//Name:    "outputFormat"
+		//Long:    "output-format"
+		//Short:   "O"
+		//Type:    "string"
+		//Default: ""
+		//Help:    "output format, defaults to cue"
+	//},
 
-	{
-		Name:    "error"
-		Long:    "error"
-		Short:   ""
-		Type:    "[]string"
-		Default: "nil"
-		Help:    "error streams, depending on the command context"
-	},
-	{
-		Name:    "errorFormat"
-		Long:    "error-format"
-		Short:   ""
-		Type:    "string"
-		Default: ""
-		Help:    "error format, defaults to cue"
-	},
+	//{
+		//Name:    "error"
+		//Long:    "error"
+		//Short:   ""
+		//Type:    "[]string"
+		//Default: "nil"
+		//Help:    "error streams, depending on the command context"
+	//},
+	//{
+		//Name:    "errorFormat"
+		//Long:    "error-format"
+		//Short:   ""
+		//Type:    "string"
+		//Default: ""
+		//Help:    "error format, defaults to cue"
+	//},
 
 	// context should encapsulate the next three
-	{
-		Name:    "account"
-		Long:    "account"
-		Short:   ""
-		Type:    "string"
-		Default: ""
-		Help:    "the account context to use during this hof execution"
-	},
-	{
-		Name:    "billing"
-		Long:    "billing"
-		Short:   ""
-		Type:    "string"
-		Default: ""
-		Help:    "the billing context to use during this hof execution"
-	},
-	{
-		Name:    "project"
-		Long:    "project"
-		Short:   ""
-		Type:    "string"
-		Default: ""
-		Help:    "the project context to use during this hof execution"
-	},
-	{
-		Name:    "workspace"
-		Long:    "workspace"
-		Short:   ""
-		Type:    "string"
-		Default: ""
-		Help:    "the workspace context to use during this hof execution"
-	},
-	{
-		Name:    "datamodelDir"
-		Long:    "datamodel-dir"
-		Short:   ""
-		Type:    "string"
-		Default: ""
-		Help:    "directory for discovering resources"
-	},
-	{
-		Name:    "resourcesDir"
-		Long:    "resources-dir"
-		Short:   ""
-		Type:    "string"
-		Default: ""
-		Help:    "directory for discovering resources"
-	},
-	{
-		Name:    "runtimesDir"
-		Long:    "runtimes-dir"
-		Short:   ""
-		Type:    "string"
-		Default: ""
-		Help:    "directory for discovering runtimes"
-	},
+	//{
+		//Name:    "account"
+		//Long:    "account"
+		//Short:   ""
+		//Type:    "string"
+		//Default: ""
+		//Help:    "the account context to use during this hof execution"
+	//},
+	//{
+		//Name:    "billing"
+		//Long:    "billing"
+		//Short:   ""
+		//Type:    "string"
+		//Default: ""
+		//Help:    "the billing context to use during this hof execution"
+	//},
+	//{
+		//Name:    "project"
+		//Long:    "project"
+		//Short:   ""
+		//Type:    "string"
+		//Default: ""
+		//Help:    "the project context to use during this hof execution"
+	//},
+	//{
+		//Name:    "workspace"
+		//Long:    "workspace"
+		//Short:   ""
+		//Type:    "string"
+		//Default: ""
+		//Help:    "the workspace context to use during this hof execution"
+	//},
+	//{
+		//Name:    "datamodelDir"
+		//Long:    "datamodel-dir"
+		//Short:   ""
+		//Type:    "string"
+		//Default: ""
+		//Help:    "directory for discovering resources"
+	//},
+	//{
+		//Name:    "resourcesDir"
+		//Long:    "resources-dir"
+		//Short:   ""
+		//Type:    "string"
+		//Default: ""
+		//Help:    "directory for discovering resources"
+	//},
+	//{
+		//Name:    "runtimesDir"
+		//Long:    "runtimes-dir"
+		//Short:   ""
+		//Type:    "string"
+		//Default: ""
+		//Help:    "directory for discovering runtimes"
+	//},
 
 	// these are more cue specific with a dash of hof
 	{
@@ -182,48 +182,48 @@ import (
 		Short:   "p"
 		Type:    "string"
 		Default: ""
-		Help:    "the package context to use during this hof execution"
+		Help:    "the Cue package context to use during this hof execution"
 	},
-	{
-		Name:    "errors"
-		Long:    "all-errors"
-		Short:   "E"
-		Type:    "bool"
-		Default: "false"
-		Help:    "print all available errors"
-	},
-	{
-		Name:    "ignore"
-		Long:    "ignore"
-		Short:   ""
-		Type:    "bool"
-		Default: "false"
-		Help:    "proceed in the presence of errors"
-	},
-	{
-		Name:    "simplify"
-		Long:    "simplify"
-		Short:   "S"
-		Type:    "bool"
-		Default: "false"
-		Help:    "simplify output"
-	},
-	{
-		Name:    "trace"
-		Long:    "trace"
-		Short:   ""
-		Type:    "bool"
-		Default: "false"
-		Help:    "trace cue computation"
-	},
-	{
-		Name:    "strict"
-		Long:    "strict"
-		Short:   ""
-		Type:    "bool"
-		Default: "false"
-		Help:    "report errors for lossy mappings"
-	},
+	//{
+		//Name:    "errors"
+		//Long:    "all-errors"
+		//Short:   "E"
+		//Type:    "bool"
+		//Default: "false"
+		//Help:    "print all available errors"
+	//},
+	//{
+		//Name:    "ignore"
+		//Long:    "ignore"
+		//Short:   ""
+		//Type:    "bool"
+		//Default: "false"
+		//Help:    "proceed in the presence of errors"
+	//},
+	//{
+		//Name:    "simplify"
+		//Long:    "simplify"
+		//Short:   "S"
+		//Type:    "bool"
+		//Default: "false"
+		//Help:    "simplify output"
+	//},
+	//{
+		//Name:    "trace"
+		//Long:    "trace"
+		//Short:   ""
+		//Type:    "bool"
+		//Default: "false"
+		//Help:    "trace cue computation"
+	//},
+	//{
+		//Name:    "strict"
+		//Long:    "strict"
+		//Short:   ""
+		//Type:    "bool"
+		//Default: "false"
+		//Help:    "report errors for lossy mappings"
+	//},
 	{
 		Name:    "verbose"
 		Long:    "verbose"
@@ -240,54 +240,54 @@ import (
 		Default: ""
 		Help:    "turn off output and assume defaults at prompts"
 	},
-	{
-		Name:    "ImpersonateAccount"
-		Long:    "impersonate-account"
-		Short:   ""
-		Type:    "string"
-		Default: ""
-		Help:    "account to impersonate for this hof execution"
-	},
-	{
-		Name:    "traceToken"
-		Long:    "trace-token"
-		Short:   "T"
-		Type:    "string"
-		Default: ""
-		Help:    "used to help debug issues"
-	},
-	{
-		Name:    "LogHTTP"
-		Long:    "log-http"
-		Short:   ""
-		Type:    "string"
-		Default: ""
-		Help:    "used to help debug issues"
-	},
-	{
-		Name:    "RunWeb"
-		Long:    "web"
-		Short:   ""
-		Type:    "bool"
-		Default: "false"
-		Help:    "run the command from the web ui"
-	},
-	{
-		Name:    "RunTUI"
-		Long:    "tui"
-		Short:   ""
-		Type:    "bool"
-		Default: "false"
-		Help:    "run the command from the terminal ui"
-	},
-	{
-		Name:    "RunREPL"
-		Long:    "repl"
-		Short:   ""
-		Type:    "bool"
-		Default: "false"
-		Help:    "run the command from the hof repl"
-	},
+	//{
+		//Name:    "ImpersonateAccount"
+		//Long:    "impersonate-account"
+		//Short:   ""
+		//Type:    "string"
+		//Default: ""
+		//Help:    "account to impersonate for this hof execution"
+	//},
+	//{
+		//Name:    "traceToken"
+		//Long:    "trace-token"
+		//Short:   "T"
+		//Type:    "string"
+		//Default: ""
+		//Help:    "used to help debug issues"
+	//},
+	//{
+		//Name:    "LogHTTP"
+		//Long:    "log-http"
+		//Short:   ""
+		//Type:    "string"
+		//Default: ""
+		//Help:    "used to help debug issues"
+	//},
+	//{
+		//Name:    "RunWeb"
+		//Long:    "web"
+		//Short:   ""
+		//Type:    "bool"
+		//Default: "false"
+		//Help:    "run the command from the web ui"
+	//},
+	//{
+		//Name:    "RunTUI"
+		//Long:    "tui"
+		//Short:   ""
+		//Type:    "bool"
+		//Default: "false"
+		//Help:    "run the command from the terminal ui"
+	//},
+	//{
+		//Name:    "RunREPL"
+		//Long:    "repl"
+		//Short:   ""
+		//Type:    "bool"
+		//Default: "false"
+		//Help:    "run the command from the hof repl"
+	//},
 	{
 		Name:    "Topic"
 		Long:    "topic"

@@ -30,33 +30,9 @@ func init() {
 	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Context), "context", "", "", "The of an entry in the context file")
 	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Global), "global", "", false, "Operate using only the global config/secret context")
 	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Local), "local", "", false, "Operate using only the local config/secret context")
-	RootCmd.PersistentFlags().StringSliceVarP(&(flags.RootPflags.Input), "input", "i", nil, "input streams, depending on the command context")
-	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.InputFormat), "input-format", "I", "", "input format, defaults to infered")
-	RootCmd.PersistentFlags().StringSliceVarP(&(flags.RootPflags.Output), "output", "o", nil, "output streams, depending on the command context")
-	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.OutputFormat), "output-format", "O", "", "output format, defaults to cue")
-	RootCmd.PersistentFlags().StringSliceVarP(&(flags.RootPflags.Error), "error", "", nil, "error streams, depending on the command context")
-	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.ErrorFormat), "error-format", "", "", "error format, defaults to cue")
-	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Account), "account", "", "", "the account context to use during this hof execution")
-	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Billing), "billing", "", "", "the billing context to use during this hof execution")
-	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Project), "project", "", "", "the project context to use during this hof execution")
-	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Workspace), "workspace", "", "", "the workspace context to use during this hof execution")
-	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.DatamodelDir), "datamodel-dir", "", "", "directory for discovering resources")
-	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.ResourcesDir), "resources-dir", "", "", "directory for discovering resources")
-	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.RuntimesDir), "runtimes-dir", "", "", "directory for discovering runtimes")
-	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Package), "package", "p", "", "the package context to use during this hof execution")
-	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Errors), "all-errors", "E", false, "print all available errors")
-	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Ignore), "ignore", "", false, "proceed in the presence of errors")
-	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Simplify), "simplify", "S", false, "simplify output")
-	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Trace), "trace", "", false, "trace cue computation")
-	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Strict), "strict", "", false, "report errors for lossy mappings")
+	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Package), "package", "p", "", "the Cue package context to use during this hof execution")
 	RootCmd.PersistentFlags().IntVarP(&(flags.RootPflags.Verbose), "verbose", "v", 0, "set the verbosity of output")
 	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Quiet), "quiet", "q", false, "turn off output and assume defaults at prompts")
-	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.ImpersonateAccount), "impersonate-account", "", "", "account to impersonate for this hof execution")
-	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.TraceToken), "trace-token", "T", "", "used to help debug issues")
-	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.LogHTTP), "log-http", "", "", "used to help debug issues")
-	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.RunWeb), "web", "", false, "run the command from the web ui")
-	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.RunTUI), "tui", "", false, "run the command from the terminal ui")
-	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.RunREPL), "repl", "", false, "run the command from the hof repl")
 	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Topic), "topic", "", "", "help topics for this command, 'list' will print available topics")
 	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Example), "example", "", "", "examples for this command, 'list' will print available examples")
 	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Tutorial), "tutorial", "", "", "tutorials for this command, 'list' will print available tutorials")
@@ -169,57 +145,16 @@ func RootInit() {
 	RootCmd.AddCommand(CompletionCmd)
 
 	RootCmd.AddCommand(InitCmd)
-	RootCmd.AddCommand(CloneCmd)
 	RootCmd.AddCommand(DatamodelCmd)
 	RootCmd.AddCommand(GenCmd)
 	RootCmd.AddCommand(RunCmd)
-	RootCmd.AddCommand(RuntimesCmd)
 	RootCmd.AddCommand(TestCmd)
-	RootCmd.AddCommand(LabelCmd)
-	RootCmd.AddCommand(LabelsetCmd)
 	RootCmd.AddCommand(ModCmd)
-	RootCmd.AddCommand(AddCmd)
-	RootCmd.AddCommand(CmdCmd)
-	RootCmd.AddCommand(InfoCmd)
-	RootCmd.AddCommand(CreateCmd)
-	RootCmd.AddCommand(GetCmd)
-	RootCmd.AddCommand(SetCmd)
-	RootCmd.AddCommand(EditCmd)
-	RootCmd.AddCommand(DeleteCmd)
-	RootCmd.AddCommand(DefCmd)
-	RootCmd.AddCommand(EvalCmd)
-	RootCmd.AddCommand(ExportCmd)
-	RootCmd.AddCommand(FmtCmd)
-	RootCmd.AddCommand(ImportCmd)
-	RootCmd.AddCommand(TrimCmd)
-	RootCmd.AddCommand(VetCmd)
-	RootCmd.AddCommand(StCmd)
-	RootCmd.AddCommand(AuthCmd)
 	RootCmd.AddCommand(ConfigCmd)
 	RootCmd.AddCommand(SecretCmd)
 	RootCmd.AddCommand(ContextCmd)
-	RootCmd.AddCommand(StatusCmd)
-	RootCmd.AddCommand(LogCmd)
-	RootCmd.AddCommand(DiffCmd)
-	RootCmd.AddCommand(BisectCmd)
-	RootCmd.AddCommand(IncludeCmd)
-	RootCmd.AddCommand(BranchCmd)
-	RootCmd.AddCommand(CheckoutCmd)
-	RootCmd.AddCommand(CommitCmd)
-	RootCmd.AddCommand(MergeCmd)
-	RootCmd.AddCommand(RebaseCmd)
-	RootCmd.AddCommand(ResetCmd)
-	RootCmd.AddCommand(TagCmd)
-	RootCmd.AddCommand(FetchCmd)
-	RootCmd.AddCommand(PullCmd)
-	RootCmd.AddCommand(PushCmd)
-	RootCmd.AddCommand(ProposeCmd)
-	RootCmd.AddCommand(PublishCmd)
-	RootCmd.AddCommand(RemotesCmd)
 	RootCmd.AddCommand(ReproduceCmd)
 	RootCmd.AddCommand(JumpCmd)
-	RootCmd.AddCommand(UiCmd)
-	RootCmd.AddCommand(TuiCmd)
 	RootCmd.AddCommand(ReplCmd)
 	RootCmd.AddCommand(FeedbackCmd)
 	RootCmd.AddCommand(HackCmd)
@@ -280,101 +215,30 @@ const RootCustomHelp = `hof - the high code framework
 Usage:
   hof [flags] [command] [args]
 
-
-Initialize and create new hof workspaces:
+Main commands:
   init            β     create an empty workspace or initialize an existing directory to one
-  clone           β     clone a workspace or repository into a new directory
-
-Model your designs, generate implementation, run or test anything:
-  datamodel       α     create, view, diff, calculate / migrate, and manage your data models
   gen             ✓     generate code, data, and config from your data models and designs
-  run             β     Hof Line Script (HLS) is a successor to bash and python based scripting
-  test            α     test all sorts of things
-
-Labels are used _ for _ (see also 'hof topic labels'):
-  label           α     manage labels for resources and more
-  labelset        α     group resources, datamodels, labelsets, and more
-
-Learn more about hof and the _ you can do:
-  each command has four flags, use 'list' as their arg
-	to see available items on a command
-		--help              print help message
-		--topics            addtional help topics
-		--examples          examples for the command
-		--tutorials         tutorials for the command
-
-Download modules, add instances or content, and manage runtimes:
   mod             β     mod subcmd is a polyglot dependency management tool based on go mods
-  add             α     add dependencies and new components to the current module or workspace
-  runtimes        α     work with runtimes (go, js, py, bash, docker, cloud-vms, k8s, custom)
-
-Manage resources (see also 'hof topic resources'):
-  info            α     print information about known resources
-  create          α     create resources
-  get             α     find and display resources
-  set             α     find and configure resources
-  edit            α     edit resources
-  delete          α     delete resources
-
-Configure, Unify, Execute (see also https://cuelang.org):
-  cmd             α     run commands from the scripting layer and your _tool.cue files
-  def             α     print consolidated definitions
-  eval            α     print consolidated definitions
-  export          α     export your data model to various formats
-  fmt             α     formats code and files
-  import          α     convert other formats and systems to hofland
-  trim            α     cleanup code, configuration, and more
-  vet             α     validate data
-  st              α     recursive diff, merge, mask, pick, and query helpers for Cue
-
-Manage logins, config, secrets, and context:
-  auth            Ø     authentication subcommands
+  test            α     test all sorts of things
+  run             β     Hof Line Script (HLS) is a successor to bash and python based scripting
   config          β     manage local configurations
   secret          β     manage local secrets
   context         α     get, set, and use contexts
-
-Examine workpsace history and state:
-  status          α     show workspace information and status
-  log             α     show workspace logs and history
-  diff            α     show the difference between workspace versions
-  bisect          α     use binary search to find the commit that introduced a bug
-
-Grow, mark, and tweak your shared history (see also 'hof topic changesets'):
-  include         α     include changes into the changeset
-  branch          α     list, create, or delete branches
-  checkout        α     switch branches or restore working tree files
-  commit          α     record changes to the repository
-  merge           α     join two or more development histories together
-  rebase          α     reapply commits on top of another base tip
-  reset           α     reset current HEAD to the specified state
-  tag             α     create, list, delete or verify a tag object signed with GPG
-
-Collaborate (see also 'hof topic collaborate'):
-  fetch           α     download objects and refs from another repository
-  pull            α     fetch from and integrate with another repository or a local branch
-  push            α     update remote refs along with associated objects
-  propose         α     propose to incorporate your changeset in a repository
-  publish         α     publish a tagged version to a repository
-  remotes         α     manage remote repositories
-
-Local development commands:
-  reproduce       Ø     Record, share, and replay reproducible environments and processes
-  jump            α     Jumps help you do things with fewer keystrokes.
-  ui              Ø     Run hof's local web ui
-  tui             Ø     Run hof's terminal ui
-  repl            Ø     Run hof's local REPL
-  pprof                 go pprof by setting HOF_CPU_PROFILE="hof-cpu.prof" hof <cmd>
-
-
-Send us feedback or say hello:
-  feedback        Ø     send feedback, bug reports, or any message :]
-                        you can also chat with us on https://gitter.im/hofstadter-io
 
 Additional commands:
   help                  help about any command
   update                check for new versions and run self-updates
   version               print detailed version information
   completion            generate completion helpers for your terminal
+  feedback        Ø     send feedback, bug reports, or any message
+
+Learn more about hof and the _ you can do:
+  each command has four flags, use 'list' as their arg
+  to see available items on a command
+    --help              print help message
+    --topics            addtional help topics
+    --examples          examples for the command
+    --tutorials         tutorials for the command
 
 (✓) command is generally available
 (β) command is beta and ready for testing

@@ -1,7 +1,0 @@
-### Test "get --help" prints help
-call __hof get --help
-
-### Test "get -h" prints help
-call __hof get -h
-
-

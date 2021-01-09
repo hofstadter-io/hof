@@ -1,7 +1,0 @@
-### Test "trim --help" prints help
-call __hof trim --help
-
-### Test "trim -h" prints help
-call __hof trim -h
-
-

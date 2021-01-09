@@ -37,77 +37,77 @@ import (
 
 		// start
 		cmds.#InitCommand,
-		cmds.#CloneCommand,
+		// cmds.#CloneCommand,
 
 		// hof
 		cmds.#DatamodelCommand,
 		cmds.#GenCommand,
 		cmds.#RunCommand,      // imperatively oriented commands from cue
-		cmds.#RuntimesCommand, // (docker, node, go, cue, python)
+		// cmds.#RuntimesCommand, // (docker, node, go, cue, python)
 		cmds.#TestCommand,
 
 		// labels
-		cmds.#LabelCommand,
-		cmds.#LabelsetCommand,
+		// cmds.#LabelCommand,
+		// cmds.#LabelsetCommand,
 
 		// hof + cue
 		cmds.#ModCommand,
-		cmds.#AddCommand,
-		cmds.#CmdCommand, // Cue's cmd, but processed by hof
+		// cmds.#AddCommand,
+		// cmds.#CmdCommand, // Cue's cmd, but processed by hof
 
 		// resources
-		cmds.#InfoCommand,
-		cmds.#CreateCommand,
-		cmds.#GetCommand,
-		cmds.#SetCommand,
-		cmds.#EditCommand,
-		cmds.#DeleteCommand,
+		//cmds.#InfoCommand,
+		//cmds.#CreateCommand,
+		//cmds.#GetCommand,
+		//cmds.#SetCommand,
+		//cmds.#EditCommand,
+		//cmds.#DeleteCommand,
 
 		// cue
-		cmds.#DefCommand,
-		cmds.#EvalCommand,
-		cmds.#ExportCommand,
-		cmds.#FormatCommand,
-		cmds.#ImportCommand,
-		cmds.#TrimCommand,
-		cmds.#VetCommand,
-		cmds.#StCommand,
+		//cmds.#DefCommand,
+		//cmds.#EvalCommand,
+		//cmds.#ExportCommand,
+		//cmds.#FormatCommand,
+		//cmds.#ImportCommand,
+		//cmds.#TrimCommand,
+		//cmds.#VetCommand,
+		//cmds.#StCommand,
 
 		// base
-		cmds.#AuthCommand,
+		// cmds.#AuthCommand,
 		cmds.#ConfigCommand,
 		cmds.#SecretCommand,
 		cmds.#ContextCommand,
 
 		// workspace / workflow / git commands
-		cmds.#StatusCommand,
-		cmds.#LogCommand,
-		cmds.#DiffCommand,
-		cmds.#BisectCommand,
+		//cmds.#StatusCommand,
+		//cmds.#LogCommand,
+		//cmds.#DiffCommand,
+		//cmds.#BisectCommand,
 
 		// changeset related
-		cmds.#IncludeCommand,
-		cmds.#BranchCommand,
-		cmds.#CheckoutCommand,
-		cmds.#CommitCommand,
-		cmds.#MergeCommand,
-		cmds.#RebaseCommand,
-		cmds.#ResetCommand,
-		cmds.#TagCommand,
+		//cmds.#IncludeCommand,
+		//cmds.#BranchCommand,
+		//cmds.#CheckoutCommand,
+		//cmds.#CommitCommand,
+		//cmds.#MergeCommand,
+		//cmds.#RebaseCommand,
+		//cmds.#ResetCommand,
+		//cmds.#TagCommand,
 
 		// collab
-		cmds.#FetchCommand,
-		cmds.#PullCommand,
-		cmds.#PushCommand,
-		cmds.#ProposeCommand,
-		cmds.#PublishCommand,
-		cmds.#RemotesCommand,
+		//cmds.#FetchCommand,
+		//cmds.#PullCommand,
+		//cmds.#PushCommand,
+		//cmds.#ProposeCommand,
+		//cmds.#PublishCommand,
+		//cmds.#RemotesCommand,
 
 		// dev & more st commands
 		cmds.#ReproCommand,
 		cmds.#JumpCommand,
-		cmds.#UiCommand,
-		cmds.#TuiCommand,
+		// cmds.#UiCommand,
+		// cmds.#TuiCommand,
 		cmds.#ReplCommand,
 		// lint
 		// fmt

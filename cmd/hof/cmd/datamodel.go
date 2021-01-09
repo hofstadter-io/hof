@@ -13,8 +13,8 @@ import (
 var datamodelLong = `Data models are sets of models which are used in many hof processes and modules.
 
 At their core, they represent the most abstract representation for objects and
-their relations in your applications. The are extended and annotated to add
-context fot their usage in different circumstances: (DB vs Server vs Client).
+their relations in your applications. They are extended and annotated to add
+context fot their usage in different code generators: (DB vs Server vs Client).
 
 Beyond representing models in their current form, a history is maintained so that:
   - database migrations can be created and managed
@@ -82,15 +82,11 @@ func init() {
 	DatamodelCmd.SetHelpFunc(thelp)
 	DatamodelCmd.SetUsageFunc(tusage)
 
-	DatamodelCmd.AddCommand(cmddatamodel.CreateCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.GetCmd)
-	DatamodelCmd.AddCommand(cmddatamodel.EditCmd)
-	DatamodelCmd.AddCommand(cmddatamodel.DeleteCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.StatusCmd)
-	DatamodelCmd.AddCommand(cmddatamodel.VisualizeCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.DiffCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.HistoryCmd)
-	DatamodelCmd.AddCommand(cmddatamodel.MigrateCmd)
+	DatamodelCmd.AddCommand(cmddatamodel.CheckpointCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.ApplyCmd)
 
 }

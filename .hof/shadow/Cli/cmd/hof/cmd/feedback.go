@@ -9,7 +9,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var feedbackLong = `send feedback, bug reports, or any message :]
+var feedbackLong = `send feedback, bug reports, or any message
 	email:     (optional) your email, if you'd like us to reply
 	message:   your message, please be respectful to the person receiving it`
 
@@ -36,7 +36,7 @@ var FeedbackCmd = &cobra.Command{
 		"support",
 	},
 
-	Short: "send feedback, bug reports, or any message :]",
+	Short: "send feedback, bug reports, or any message",
 
 	Long: feedbackLong,
 
