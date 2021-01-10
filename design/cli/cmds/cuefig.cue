@@ -56,7 +56,7 @@ import (
 	// TBD:   "β"
 	Name:  "config"
 	Usage: "config"
-	Short: "manage hof config"
+	Short: "manage hof configuration"
 	Long:  Short
 
 	OmitRun: true

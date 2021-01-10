@@ -9,7 +9,7 @@ import (
 	Name:  "test"
 	Usage: "test"
 	Aliases: ["t"]
-	Short: "test all sorts of things"
+	Short: "test code, apis, and more with Cue"
 	Long:  #TestCommandHelp
 
 	Flags: [

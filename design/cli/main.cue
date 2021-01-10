@@ -21,12 +21,12 @@ import (
 
 	OmitRun: true
 
-	Imports: [
-		{Path: "github.com/hofstadter-io/hof/lib/config"},
-	]
+	//Imports: [
+		//{Path: "github.com/hofstadter-io/hof/lib/config"},
+	//]
 
 	PersistentPrerun:     true
-	PersistentPrerunBody: "config.Init()"
+	// PersistentPrerunBody: "config.Init()"
 
 	PersistentPostrun: true
 
@@ -75,7 +75,7 @@ import (
 
 		// base
 		// cmds.#AuthCommand,
-		cmds.#ConfigCommand,
+		// cmds.#ConfigCommand,
 		//cmds.#SecretCommand,
 		//cmds.#ContextCommand,
 

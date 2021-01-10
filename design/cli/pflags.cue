@@ -8,22 +8,22 @@ import (
 
 #CliPflags: [...schema.#Flag] & [
 		// Labels will be core
-	{
-		Name:    "labels"
-		Long:    "label"
-		Short:   "l"
-		Type:    "[]string"
-		Default: "nil"
-		Help:    "Labels for use across all commands"
-	},
-	{
-		Name:    "config"
-		Long:    "config"
-		Short:   ""
-		Type:    "string"
-		Default: ""
-		Help:    "Path to a hof configuration file"
-	},
+	//{
+		//Name:    "labels"
+		//Long:    "label"
+		//Short:   "l"
+		//Type:    "[]string"
+		//Default: "nil"
+		//Help:    "Labels for use across all commands"
+	//},
+	//{
+		//Name:    "config"
+		//Long:    "config"
+		//Short:   "c"
+		//Type:    "string"
+		//Default: ""
+		//Help:    "Path to a hof configuration file"
+	//},
 	//{
 		//Name:    "secret"
 		//Long:    "secret"
@@ -182,7 +182,7 @@ import (
 		Short:   "p"
 		Type:    "string"
 		Default: ""
-		Help:    "the Cue package context to use during this hof execution"
+		Help:    "the Cue package context to use during execution"
 	},
 	//{
 		//Name:    "errors"

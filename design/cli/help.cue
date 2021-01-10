@@ -21,7 +21,6 @@ Main commands:
   \(cmds.#GenCommand.Help)
   \(cmds.#ModCommand.Help)
   \(cmds.#TestCommand.Help)
-  \(cmds.#ConfigCommand.Help)
 
 Additional commands:
   help                  help about any command

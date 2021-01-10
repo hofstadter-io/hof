@@ -12,8 +12,6 @@ import (
 	"github.com/hofstadter-io/hof/script/runtime"
 	"github.com/spf13/cobra"
 
-	"github.com/hofstadter-io/hof/lib/config"
-
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 
@@ -23,16 +21,12 @@ var hofLong = `The High Code Framework`
 
 func init() {
 
-	RootCmd.PersistentFlags().StringSliceVarP(&(flags.RootPflags.Labels), "label", "l", nil, "Labels for use across all commands")
-	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Config), "config", "", "", "Path to a hof configuration file")
-	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Package), "package", "p", "", "the Cue package context to use during this hof execution")
+	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Package), "package", "p", "", "the Cue package context to use during execution")
 	RootCmd.PersistentFlags().IntVarP(&(flags.RootPflags.Verbose), "verbose", "v", 0, "set the verbosity of output")
 	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Quiet), "quiet", "q", false, "turn off output and assume defaults at prompts")
 }
 
 func RootPersistentPreRun(args []string) (err error) {
-
-	config.Init()
 
 	return err
 }
@@ -134,7 +128,6 @@ func RootInit() {
 	RootCmd.AddCommand(RunCmd)
 	RootCmd.AddCommand(TestCmd)
 	RootCmd.AddCommand(ModCmd)
-	RootCmd.AddCommand(ConfigCmd)
 	RootCmd.AddCommand(FeedbackCmd)
 	RootCmd.AddCommand(HackCmd)
 	RootCmd.AddCommand(GebCmd)
@@ -198,8 +191,7 @@ Main commands:
   init                  create an empty workspace or initialize an existing directory to one
   gen                   generate code, data, and config from your data models and designs
   mod                   mod subcmd is a polyglot dependency management tool based on go mods
-  test                  test all sorts of things
-  config                manage local configurations
+  test                  test code, apis, and more with Cue
 
 Additional commands:
   help                  help about any command

@@ -1,9 +1,0 @@
-### Test "config --help" prints help
-call __hof config --help
-
-### Test "config -h" prints help
-call __hof config -h
-
-### Test "config" (without any args) prints help
-call __hof config
-
