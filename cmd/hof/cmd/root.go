@@ -25,17 +25,9 @@ func init() {
 
 	RootCmd.PersistentFlags().StringSliceVarP(&(flags.RootPflags.Labels), "label", "l", nil, "Labels for use across all commands")
 	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Config), "config", "", "", "Path to a hof configuration file")
-	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Secret), "secret", "", "", "The path to a hof secret file")
-	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.ContextFile), "context-file", "", "", "The path to a hof context file")
-	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Context), "context", "", "", "The of an entry in the context file")
-	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Global), "global", "", false, "Operate using only the global config/secret context")
-	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Local), "local", "", false, "Operate using only the local config/secret context")
 	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Package), "package", "p", "", "the Cue package context to use during this hof execution")
 	RootCmd.PersistentFlags().IntVarP(&(flags.RootPflags.Verbose), "verbose", "v", 0, "set the verbosity of output")
 	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Quiet), "quiet", "q", false, "turn off output and assume defaults at prompts")
-	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Topic), "topic", "", "", "help topics for this command, 'list' will print available topics")
-	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Example), "example", "", "", "examples for this command, 'list' will print available examples")
-	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Tutorial), "tutorial", "", "", "tutorials for this command, 'list' will print available tutorials")
 }
 
 func RootPersistentPreRun(args []string) (err error) {
@@ -94,14 +86,6 @@ var RootCmd = &cobra.Command{
 func RootInit() {
 	extra := func(cmd *cobra.Command) bool {
 
-		if flags.PrintSubject("Topics", "  ", flags.RootPflags.Topic, RootTopics) {
-			return true
-		}
-
-		if flags.PrintSubject("Examples", "  ", flags.RootPflags.Example, RootExamples) {
-			return true
-		}
-
 		return false
 	}
 
@@ -151,11 +135,6 @@ func RootInit() {
 	RootCmd.AddCommand(TestCmd)
 	RootCmd.AddCommand(ModCmd)
 	RootCmd.AddCommand(ConfigCmd)
-	RootCmd.AddCommand(SecretCmd)
-	RootCmd.AddCommand(ContextCmd)
-	RootCmd.AddCommand(ReproduceCmd)
-	RootCmd.AddCommand(JumpCmd)
-	RootCmd.AddCommand(ReplCmd)
 	RootCmd.AddCommand(FeedbackCmd)
 	RootCmd.AddCommand(HackCmd)
 	RootCmd.AddCommand(GebCmd)
@@ -216,56 +195,21 @@ Usage:
   hof [flags] [command] [args]
 
 Main commands:
-  init            β     create an empty workspace or initialize an existing directory to one
-  gen             ✓     generate code, data, and config from your data models and designs
-  mod             β     mod subcmd is a polyglot dependency management tool based on go mods
-  test            α     test all sorts of things
-  run             β     Hof Line Script (HLS) is a successor to bash and python based scripting
-  config          β     manage local configurations
-  secret          β     manage local secrets
-  context         α     get, set, and use contexts
+  init                  create an empty workspace or initialize an existing directory to one
+  gen                   generate code, data, and config from your data models and designs
+  mod                   mod subcmd is a polyglot dependency management tool based on go mods
+  test                  test all sorts of things
+  config                manage local configurations
 
 Additional commands:
   help                  help about any command
   update                check for new versions and run self-updates
   version               print detailed version information
   completion            generate completion helpers for your terminal
-  feedback        Ø     send feedback, bug reports, or any message
-
-Learn more about hof and the _ you can do:
-  each command has four flags, use 'list' as their arg
-  to see available items on a command
-    --help              print help message
-    --topics            addtional help topics
-    --examples          examples for the command
-    --tutorials         tutorials for the command
-
-(✓) command is generally available
-(β) command is beta and ready for testing
-(α) command is alpha and under developmenr
-(Ø) command is null and yet to be implemented
+  feedback              send feedback, bug reports, or any message
 
 Flags:
 <<flag-usage>>
 Use "hof [command] --help / -h" for more information about a command.
 Use "hof topic [subject]"  for more information about a subject.
 `
-
-var RootTopics = map[string]string{
-	"main-topics": `There are several main topics:
-
-hof gen  --topic list
-hof mod  --topic list
-hof test --topic list
-hof run  --topic list
-hof --topic script
-`,
-	"test-topic": `hello, this is a test topic.
-please check out the others!
-`,
-}
-
-var RootExamples = map[string]string{
-	"test-example": `Thit is a test example, check out the subcommands, repo,  and website for more!
-`,
-}

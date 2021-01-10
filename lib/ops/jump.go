@@ -3,14 +3,14 @@ package ops
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
+	// "os"
 	"path/filepath"
 
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/format"
 	"cuelang.org/go/cue/load"
 
-	"github.com/hofstadter-io/hof/cmd/hof/flags"
+	// "github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
@@ -28,17 +28,17 @@ func RunJumpFromArgs(args []string) error {
 		//jfn = filepath.Join(rDir, JUMP_FILE_NAME)
 	//} else if flags.RootPflags.Local {
 
-	if flags.RootPflags.Local {
-		rDir := "resources"
-		jfn = filepath.Join(rDir, JUMP_FILE_NAME)
-	} else {
-		bDir, err := os.UserConfigDir()
-		if err != nil {
-			return err
-		}
-		rDir := "resources"
-		jfn = filepath.Join(bDir, "hof", rDir, JUMP_FILE_NAME)
-	}
+	//if flags.RootPflags.Local {
+		//rDir := "resources"
+		//jfn = filepath.Join(rDir, JUMP_FILE_NAME)
+	//} else {
+		//bDir, err := os.UserConfigDir()
+		//if err != nil {
+			//return err
+		//}
+		//rDir := "resources"
+		//jfn = filepath.Join(bDir, "hof", rDir, JUMP_FILE_NAME)
+	//}
 	exists, _ := yagu.CheckPathExists(jfn)
 	if !exists {
 		content := `

@@ -16,8 +16,8 @@ import (
 	Short:      "The High Code Framework"
 	Long:       Short
 	CustomHelp: #RootCustomHelp
-	Topics:     #RootTopics
-	Examples:   #RootExamples
+	//Topics:     #RootTopics
+	//Examples:   #RootExamples
 
 	OmitRun: true
 
@@ -76,8 +76,8 @@ import (
 		// base
 		// cmds.#AuthCommand,
 		cmds.#ConfigCommand,
-		cmds.#SecretCommand,
-		cmds.#ContextCommand,
+		//cmds.#SecretCommand,
+		//cmds.#ContextCommand,
 
 		// workspace / workflow / git commands
 		//cmds.#StatusCommand,
@@ -104,11 +104,11 @@ import (
 		//cmds.#RemotesCommand,
 
 		// dev & more st commands
-		cmds.#ReproCommand,
-		cmds.#JumpCommand,
+		//cmds.#ReproCommand,
+		//cmds.#JumpCommand,
 		// cmds.#UiCommand,
 		// cmds.#TuiCommand,
-		cmds.#ReplCommand,
+		//cmds.#ReplCommand,
 		// lint
 		// fmt
 		// fix

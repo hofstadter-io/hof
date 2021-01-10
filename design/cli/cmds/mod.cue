@@ -9,7 +9,7 @@ import (
 ]
 
 #ModCommand: schema.#Command & {
-	TBD:   "β"
+	// TBD:   "β"
 	Name:  "mod"
 	Usage: "mod"
 	Aliases: ["m"]
@@ -31,8 +31,8 @@ import (
     ...
   """
 
-	Topics: #ModTopics
-	Examples: #ModExamples
+	//Topics: #ModTopics
+	//Examples: #ModExamples
 
 	OmitRun: true
 
@@ -44,7 +44,7 @@ import (
   """
 
 	Commands: [{
-		TBD:   "✓"
+		// TBD:   "✓"
 		Name:  "info"
 		Usage: "info [language]"
 		Short: "print info about languages and modders known to hof mod"
@@ -71,71 +71,71 @@ import (
 		fmt.Println(msg)
 		"""
 
+	//}, {
+		//TBD:   "Ø"
+		//Name:  "convert"
+		//Usage: "convert <lang> <file>"
+		//Short: "convert another package system to MVS."
+		//Long:  Short
+
+		//Args: [{
+			//Name:     "lang"
+			//Type:     "string"
+			//Required: true
+			//Help:     "name of the language to print info about"
+		//}, {
+			//Name:     "filename"
+			//Type:     "string"
+			//Required: true
+			//Help:     "existing package filename, depending on language"
+		//}]
+
+		//Imports: #ModCmdImports
+
+		//Body: """
+		//err = mod.Convert(lang, filename)
+		//if err != nil {
+			//fmt.Println(err)
+			//os.Exit(1)
+		//}
+		//"""
+
+	//}, {
+		//TBD:   "Ø"
+		//Name:  "graph"
+		//Usage: "graph"
+		//Short: "print module requirement graph"
+		//Long:  Short
+
+		//Imports: #ModCmdImports
+
+		//Body: """
+		//err = mod.ProcessLangs("graph", args)
+		//if err != nil {
+			//fmt.Println(err)
+			//os.Exit(1)
+		//}
+		//"""
+
+	//}, {
+		//TBD:   "Ø"
+		//Name:  "status"
+		//Usage: "status"
+		//Short: "print module dependencies status"
+		//Long:  Short
+
+		//Imports: #ModCmdImports
+
+		//Body: """
+		//err = mod.ProcessLangs("status", args)
+		//if err != nil {
+			//fmt.Println(err)
+			//os.Exit(1)
+		//}
+		//"""
+
 	}, {
-		TBD:   "Ø"
-		Name:  "convert"
-		Usage: "convert <lang> <file>"
-		Short: "convert another package system to MVS."
-		Long:  Short
-
-		Args: [{
-			Name:     "lang"
-			Type:     "string"
-			Required: true
-			Help:     "name of the language to print info about"
-		}, {
-			Name:     "filename"
-			Type:     "string"
-			Required: true
-			Help:     "existing package filename, depending on language"
-		}]
-
-		Imports: #ModCmdImports
-
-		Body: """
-		err = mod.Convert(lang, filename)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		"""
-
-	}, {
-		TBD:   "Ø"
-		Name:  "graph"
-		Usage: "graph"
-		Short: "print module requirement graph"
-		Long:  Short
-
-		Imports: #ModCmdImports
-
-		Body: """
-		err = mod.ProcessLangs("graph", args)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		"""
-
-	}, {
-		TBD:   "Ø"
-		Name:  "status"
-		Usage: "status"
-		Short: "print module dependencies status"
-		Long:  Short
-
-		Imports: #ModCmdImports
-
-		Body: """
-		err = mod.ProcessLangs("status", args)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		"""
-
-	}, {
-		TBD:   "✓"
+		// TBD:   "✓"
 		Name:  "init"
 		Usage: "init <lang> <module>"
 		Short: "initialize a new module in the current directory"
@@ -163,25 +163,25 @@ import (
 		}
 		"""
 
+	//}, {
+		//TBD:   "Ø"
+		//Name:  "tidy"
+		//Usage: "tidy [langs...]"
+		//Short: "add missinad and remove unused modules"
+		//Long:  Short
+
+		//Imports: #ModCmdImports
+
+		//Body: """
+		//err = mod.ProcessLangs("tidy", args)
+		//if err != nil {
+			//fmt.Println(err)
+			//os.Exit(1)
+		//}
+		//"""
+
 	}, {
-		TBD:   "Ø"
-		Name:  "tidy"
-		Usage: "tidy [langs...]"
-		Short: "add missinad and remove unused modules"
-		Long:  Short
-
-		Imports: #ModCmdImports
-
-		Body: """
-		err = mod.ProcessLangs("tidy", args)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		"""
-
-	}, {
-		TBD:   "β"
+		// TBD:   "β"
 		Name:  "vendor"
 		Usage: "vendor [langs...]"
 		Short: "make a vendored copy of dependencies"
@@ -197,22 +197,22 @@ import (
 		}
 		"""
 
-	}, {
-		TBD:   "Ø"
-		Name:  "verify"
-		Usage: "verify [langs...]"
-		Short: "verify dependencies have expected content"
-		Long:  Short
+	//}, {
+		//TBD:   "Ø"
+		//Name:  "verify"
+		//Usage: "verify [langs...]"
+		//Short: "verify dependencies have expected content"
+		//Long:  Short
 
-		Imports: #ModCmdImports
+		//Imports: #ModCmdImports
 
-		Body: """
-		err = mod.ProcessLangs("verify", args)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		"""
+		//Body: """
+		//err = mod.ProcessLangs("verify", args)
+		//if err != nil {
+			//fmt.Println(err)
+			//os.Exit(1)
+		//}
+		//"""
 
 	}]
 

@@ -1,7 +1,0 @@
-### Test "jump --help" prints help
-call __hof jump --help
-
-### Test "jump -h" prints help
-call __hof jump -h
-
-

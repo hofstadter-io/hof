@@ -52,20 +52,21 @@ func NewRuntime() *Runtime {
 // We can safely ignore errors here. If the file exists, cue errors will be printed, otherwise up to the user
 func (R *Runtime) Init() (err error) {
 	// These are used to track if we found a file or not
-	contextFound, configFound, secretFound := false, false, false
+	// contextFound, configFound, secretFound := false, false, false
+	configFound := false
 
 	// First check config/secret flags, non-existance should err as user specified a flag
 	//  if they exist, we load into local because we prefer that later
-	if flags.RootPflags.Context != "" {
-		val, err := cuefig.LoadContextConfig("", flags.RootPflags.Context)
-		if err != nil {
-			// Return early if they specify a file and we don't find it
-			return err
-		}
-		contextFound = true
-		R.ContextValue = val
-		R.ContextType = "custom-context"
-	}
+	//if flags.RootPflags.Context != "" {
+		//val, err := cuefig.LoadContextConfig("", flags.RootPflags.Context)
+		//if err != nil {
+			//// Return early if they specify a file and we don't find it
+			//return err
+		//}
+		//contextFound = true
+		//R.ContextValue = val
+		//R.ContextType = "custom-context"
+	//}
 	if flags.RootPflags.Config != "" {
 		val, err := cuefig.LoadConfigConfig("", flags.RootPflags.Config)
 		if err != nil {
@@ -76,27 +77,27 @@ func (R *Runtime) Init() (err error) {
 		R.ConfigValue = val
 		R.ConfigType = "custom-config"
 	}
-	if flags.RootPflags.Secret != "" {
-		val, err := cuefig.LoadSecretConfig("", flags.RootPflags.Secret)
-		if err != nil {
-			// Return early if they specify a file and we don't find it
-			return err
-		}
-		secretFound = true
-		R.SecretValue = val
-		R.SecretType = "custom-secret"
-	}
+	//if flags.RootPflags.Secret != "" {
+		//val, err := cuefig.LoadSecretConfig("", flags.RootPflags.Secret)
+		//if err != nil {
+			//// Return early if they specify a file and we don't find it
+			//return err
+		//}
+		//secretFound = true
+		//R.SecretValue = val
+		//R.SecretType = "custom-secret"
+	//}
 
 	// Second, look for local config/secret
-	if !contextFound {
-		val, err := cuefig.LoadContextDefault()
-		// NOTE, we are doing the opposite of normal err checks here
-		if err == nil {
-			configFound = true
-			R.ContextValue = val
-			R.ContextType = "local-context"
-		}
-	}
+	//if !contextFound {
+		//val, err := cuefig.LoadContextDefault()
+		//// NOTE, we are doing the opposite of normal err checks here
+		//if err == nil {
+			//configFound = true
+			//R.ContextValue = val
+			//R.ContextType = "local-context"
+		//}
+	//}
 	if !configFound {
 		val, err := cuefig.LoadConfigDefault()
 		// NOTE, we are doing the opposite of normal err checks here
@@ -106,26 +107,26 @@ func (R *Runtime) Init() (err error) {
 			R.ConfigType = "local-config"
 		}
 	}
-	if !secretFound {
-		val, err := cuefig.LoadSecretDefault()
-		// NOTE, we are doing the opposite of normal err checks here
-		if err == nil {
-			secretFound = true
-			R.SecretValue = val
-			R.SecretType = "local-secret"
-		}
-	}
+	//if !secretFound {
+		//val, err := cuefig.LoadSecretDefault()
+		//// NOTE, we are doing the opposite of normal err checks here
+		//if err == nil {
+			//secretFound = true
+			//R.SecretValue = val
+			//R.SecretType = "local-secret"
+		//}
+	//}
 
 	// Finally, check for global config/secret
-	if !contextFound {
-		val, err := cuefig.LoadHofctxDefault()
-		// NOTE, we are doing the opposite of normal err checks here
-		if err == nil {
-			contextFound = true
-			R.ContextValue = val
-			R.ContextType = "global-context"
-		}
-	}
+	//if !contextFound {
+		//val, err := cuefig.LoadHofctxDefault()
+		//// NOTE, we are doing the opposite of normal err checks here
+		//if err == nil {
+			//contextFound = true
+			//R.ContextValue = val
+			//R.ContextType = "global-context"
+		//}
+	//}
 	if !configFound {
 		val, err := cuefig.LoadHofcfgDefault()
 		// NOTE, we are doing the opposite of normal err checks here
@@ -135,15 +136,15 @@ func (R *Runtime) Init() (err error) {
 			R.ConfigType = "global-config"
 		}
 	}
-	if !secretFound {
-		val, err := cuefig.LoadHofshhDefault()
-		// NOTE, we are doing the opposite of normal err checks here
-		if err == nil {
-			secretFound = true
-			R.SecretValue = val
-			R.SecretType = "global-secret"
-		}
-	}
+	//if !secretFound {
+		//val, err := cuefig.LoadHofshhDefault()
+		//// NOTE, we are doing the opposite of normal err checks here
+		//if err == nil {
+			//secretFound = true
+			//R.SecretValue = val
+			//R.SecretType = "global-secret"
+		//}
+	//}
 
 	return err
 }
@@ -206,27 +207,27 @@ func (R *Runtime) PrintSecret() error {
 
 func (R *Runtime) ContextGet(path string) (cue.Value, error) {
 	var orig cue.Value
-	var err error
-	if flags.RootPflags.Context != "" {
-		orig, err = cuefig.LoadContextConfig("", flags.RootPflags.Context)
-	} else if flags.RootPflags.Local {
-		orig, err = cuefig.LoadContextConfig("", cuefig.ContextEntrypoint)
-	} else if flags.RootPflags.Global {
-		orig, err = cuefig.LoadHofctxDefault()
-	} else {
-		orig, err = cuefig.LoadContextDefault()
-	}
+	// var err error
+	//if flags.RootPflags.Context != "" {
+		//orig, err = cuefig.LoadContextConfig("", flags.RootPflags.Context)
+	//} else if flags.RootPflags.Local {
+		//orig, err = cuefig.LoadContextConfig("", cuefig.ContextEntrypoint)
+	//} else if flags.RootPflags.Global {
+		//orig, err = cuefig.LoadHofctxDefault()
+	//} else {
+		//orig, err = cuefig.LoadContextDefault()
+	//}
 
-	// now check for error
-	if err != nil {
-		return orig, err
-	}
+	//// now check for error
+	//if err != nil {
+		//return orig, err
+	//}
 
-	if path == "" {
-		return orig, nil
-	}
-	paths := strings.Split(path, ".")
-	val := orig.Lookup(paths...)
+	//if path == "" {
+		//return orig, nil
+	//}
+	//paths := strings.Split(path, ".")
+	val := orig.LookupPath(cue.ParsePath(path))
 	return val, nil
 }
 
@@ -235,10 +236,10 @@ func (R *Runtime) ConfigGet(path string) (cue.Value, error) {
 	var err error
 	if flags.RootPflags.Config != "" {
 		orig, err = cuefig.LoadConfigConfig("", flags.RootPflags.Config)
-	} else if flags.RootPflags.Local {
-		orig, err = cuefig.LoadConfigConfig("", cuefig.ConfigEntrypoint)
-	} else if flags.RootPflags.Global {
-		orig, err = cuefig.LoadHofcfgDefault()
+	//} else if flags.RootPflags.Local {
+		//orig, err = cuefig.LoadConfigConfig("", cuefig.ConfigEntrypoint)
+	//} else if flags.RootPflags.Global {
+		//orig, err = cuefig.LoadHofcfgDefault()
 	} else {
 		orig, err = cuefig.LoadConfigDefault()
 	}
@@ -258,80 +259,80 @@ func (R *Runtime) ConfigGet(path string) (cue.Value, error) {
 
 func (R *Runtime) SecretGet(path string) (cue.Value, error) {
 	var orig cue.Value
-	var err error
-	if flags.RootPflags.Secret != "" {
-		orig, err = cuefig.LoadSecretConfig("", flags.RootPflags.Secret)
-	} else if flags.RootPflags.Local {
-		orig, err = cuefig.LoadSecretConfig("", cuefig.SecretEntrypoint)
-	} else if flags.RootPflags.Global {
-		orig, err = cuefig.LoadHofshhDefault()
-	} else {
-		orig, err = cuefig.LoadSecretDefault()
-	}
+	// var err error
+	//if flags.RootPflags.Secret != "" {
+		//orig, err = cuefig.LoadSecretConfig("", flags.RootPflags.Secret)
+	//} else if flags.RootPflags.Local {
+		//orig, err = cuefig.LoadSecretConfig("", cuefig.SecretEntrypoint)
+	//} else if flags.RootPflags.Global {
+		//orig, err = cuefig.LoadHofshhDefault()
+	//} else {
+		//orig, err = cuefig.LoadSecretDefault()
+	//}
 
-	// now check for error
-	if err != nil {
-		return orig, err
-	}
+	//// now check for error
+	//if err != nil {
+		//return orig, err
+	//}
 
-	if path == "" {
-		return orig, nil
-	}
-	paths := strings.Split(path, ".")
-	val := orig.Lookup(paths...)
+	//if path == "" {
+		//return orig, nil
+	//}
+	//paths := strings.Split(path, ".")
+	val := orig.LookupPath(cue.ParsePath(path))
 	return val, nil
 }
 
 func (R *Runtime) ContextSet(expr string) (error) {
-	var orig cue.Value
-	var val cue.Value
+	// var orig cue.Value
+	// var val cue.Value
 	var err error
 
 	// Check which config we want to work with
-	if flags.RootPflags.Context != "" {
-		orig, err = cuefig.LoadContextConfig("", flags.RootPflags.Context)
-	} else if flags.RootPflags.Local {
-		orig, err = cuefig.LoadContextConfig("", cuefig.ContextEntrypoint)
-	} else if flags.RootPflags.Global {
-		orig, err = cuefig.LoadHofctxDefault()
-	} else {
-		orig, err = cuefig.LoadContextDefault()
-	}
+	//if flags.RootPflags.Context != "" {
+		//orig, err = cuefig.LoadContextConfig("", flags.RootPflags.Context)
+	//} else if flags.RootPflags.Local {
+		//orig, err = cuefig.LoadContextConfig("", cuefig.ContextEntrypoint)
+	//} else if flags.RootPflags.Global {
+		//orig, err = cuefig.LoadHofctxDefault()
+	//} else {
+		//orig, err = cuefig.LoadContextDefault()
+	//}
 
-	// now check for error from that config selection process
-	if err != nil {
-		if _, ok := err.(*os.PathError); !ok && (strings.Contains(err.Error(), "file does not exist") || strings.Contains(err.Error(), "no such file")) {
-			// error is worse than non-existant
-			return err
-		}
-		// file does not exist, so we should just set
-		var r cue.Runtime
-		inst, err := r.Compile("", expr)
-		if err != nil {
-			return err
-		}
-		val = inst.Value()
-		if val.Err() != nil {
-			return val.Err()
-		}
+	//// now check for error from that config selection process
+	//if err != nil {
+		//if _, ok := err.(*os.PathError); !ok && (strings.Contains(err.Error(), "file does not exist") || strings.Contains(err.Error(), "no such file")) {
+			//// error is worse than non-existant
+			//return err
+		//}
+		//// file does not exist, so we should just set
+		//var r cue.Runtime
+		//inst, err := r.Compile("", expr)
+		//if err != nil {
+			//return err
+		//}
+		//val = inst.Value()
+		//if val.Err() != nil {
+			//return val.Err()
+		//}
 
-	} else {
-		val, err = structural.Merge(orig, expr)
-		if err != nil {
-			return err
-		}
-	}
+	//} else {
+		//val, err = structural.Merge(orig, expr)
+		//if err != nil {
+			//return err
+		//}
+	//}
 
-	// Now save
-	if flags.RootPflags.Context != "" {
-		err = cuefig.SaveContextConfig("", flags.RootPflags.Context, val)
-	} else if flags.RootPflags.Local {
-		err = cuefig.SaveContextConfig("", cuefig.ContextEntrypoint, val)
-	} else if flags.RootPflags.Global {
-		err = cuefig.SaveHofctxDefault(val)
-	} else {
-		err = cuefig.SaveContextDefault(val)
-	}
+	//// Now save
+	//if flags.RootPflags.Context != "" {
+		//err = cuefig.SaveContextConfig("", flags.RootPflags.Context, val)
+	//} else if flags.RootPflags.Local {
+		//err = cuefig.SaveContextConfig("", cuefig.ContextEntrypoint, val)
+	//} else if flags.RootPflags.Global {
+		//err = cuefig.SaveHofctxDefault(val)
+	//} else {
+		//err = cuefig.SaveContextDefault(val)
+	//}
 	return err
 }
 
@@ -343,10 +344,10 @@ func (R *Runtime) ConfigSet(expr string) (error) {
 	// Check which config we want to work with
 	if flags.RootPflags.Config != "" {
 		orig, err = cuefig.LoadConfigConfig("", flags.RootPflags.Config)
-	} else if flags.RootPflags.Local {
-		orig, err = cuefig.LoadConfigConfig("", cuefig.ConfigEntrypoint)
-	} else if flags.RootPflags.Global {
-		orig, err = cuefig.LoadHofcfgDefault()
+	//} else if flags.RootPflags.Local {
+		//orig, err = cuefig.LoadConfigConfig("", cuefig.ConfigEntrypoint)
+	//} else if flags.RootPflags.Global {
+		//orig, err = cuefig.LoadHofcfgDefault()
 	} else {
 		orig, err = cuefig.LoadConfigDefault()
 	}
@@ -378,10 +379,10 @@ func (R *Runtime) ConfigSet(expr string) (error) {
 	// Now save
 	if flags.RootPflags.Config != "" {
 		err = cuefig.SaveConfigConfig("", flags.RootPflags.Config, val)
-	} else if flags.RootPflags.Local {
-		err = cuefig.SaveConfigConfig("", cuefig.ConfigEntrypoint, val)
-	} else if flags.RootPflags.Global {
-		err = cuefig.SaveHofcfgDefault(val)
+	//} else if flags.RootPflags.Local {
+		//err = cuefig.SaveConfigConfig("", cuefig.ConfigEntrypoint, val)
+	//} else if flags.RootPflags.Global {
+		//err = cuefig.SaveHofcfgDefault(val)
 	} else {
 		err = cuefig.SaveConfigDefault(val)
 	}
@@ -389,54 +390,54 @@ func (R *Runtime) ConfigSet(expr string) (error) {
 }
 
 func (R *Runtime) SecretSet(expr string) (error) {
-	var orig cue.Value
-	var val cue.Value
+	//var orig cue.Value
+	//var val cue.Value
 	var err error
 
 	// Check which config we want to work with
-	if flags.RootPflags.Secret != "" {
-		orig, err = cuefig.LoadSecretConfig("", flags.RootPflags.Secret)
-	} else if flags.RootPflags.Local {
-		orig, err = cuefig.LoadSecretConfig("", cuefig.SecretEntrypoint)
-	} else if flags.RootPflags.Global {
-		orig, err = cuefig.LoadHofshhDefault()
-	} else {
-		orig, err = cuefig.LoadSecretDefault()
-	}
+	//if flags.RootPflags.Secret != "" {
+		//orig, err = cuefig.LoadSecretConfig("", flags.RootPflags.Secret)
+	//} else if flags.RootPflags.Local {
+		//orig, err = cuefig.LoadSecretConfig("", cuefig.SecretEntrypoint)
+	//} else if flags.RootPflags.Global {
+		//orig, err = cuefig.LoadHofshhDefault()
+	//} else {
+		//orig, err = cuefig.LoadSecretDefault()
+	//}
 
-	// now check for error from that config selection process
-	if err != nil {
-		if _, ok := err.(*os.PathError); !ok && (strings.Contains(err.Error(), "file does not exist") || strings.Contains(err.Error(), "no such file")) {
-			// error is worse than non-existant
-			return err
-		}
-		// file does not exist, so we should just set
-		var r cue.Runtime
-		inst, err := r.Compile("", expr)
-		if err != nil {
-			return err
-		}
-		val = inst.Value()
-		if val.Err() != nil {
-			return val.Err()
-		}
+	//// now check for error from that config selection process
+	//if err != nil {
+		//if _, ok := err.(*os.PathError); !ok && (strings.Contains(err.Error(), "file does not exist") || strings.Contains(err.Error(), "no such file")) {
+			//// error is worse than non-existant
+			//return err
+		//}
+		//// file does not exist, so we should just set
+		//var r cue.Runtime
+		//inst, err := r.Compile("", expr)
+		//if err != nil {
+			//return err
+		//}
+		//val = inst.Value()
+		//if val.Err() != nil {
+			//return val.Err()
+		//}
 
-	} else {
-		val, err = structural.Merge(orig, expr)
-		if err != nil {
-			return err
-		}
-	}
+	//} else {
+		//val, err = structural.Merge(orig, expr)
+		//if err != nil {
+			//return err
+		//}
+	//}
 
-	// Now save
-	if flags.RootPflags.Secret != "" {
-		err = cuefig.SaveSecretConfig("", flags.RootPflags.Secret, val)
-	} else if flags.RootPflags.Local {
-		err = cuefig.SaveSecretConfig("", cuefig.SecretEntrypoint, val)
-	} else if flags.RootPflags.Global {
-		err = cuefig.SaveHofshhDefault(val)
-	} else {
-		err = cuefig.SaveSecretDefault(val)
-	}
+	//// Now save
+	//if flags.RootPflags.Secret != "" {
+		//err = cuefig.SaveSecretConfig("", flags.RootPflags.Secret, val)
+	//} else if flags.RootPflags.Local {
+		//err = cuefig.SaveSecretConfig("", cuefig.SecretEntrypoint, val)
+	//} else if flags.RootPflags.Global {
+		//err = cuefig.SaveHofshhDefault(val)
+	//} else {
+		//err = cuefig.SaveSecretDefault(val)
+	//}
 	return err
 }

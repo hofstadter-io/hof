@@ -5,7 +5,7 @@ import (
 )
 
 #InitCommand: schema.#Command & {
-	TBD:   "β"
+	// TBD:   "β"
 	Name:  "init"
 	Usage: "init <module> [name]"
 	Short: "create an empty workspace or initialize an existing directory to one"

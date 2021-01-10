@@ -5,7 +5,7 @@ import (
 )
 
 #TestCommand: schema.#Command & {
-	TBD:   "α"
+	// TBD:   "α"
 	Name:  "test"
 	Usage: "test"
 	Aliases: ["t"]

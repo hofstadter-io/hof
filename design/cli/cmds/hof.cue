@@ -5,7 +5,7 @@ import (
 )
 
 #GenCommand: schema.#Command & {
-	TBD:   "✓"
+	// TBD:   "✓"
 	Name:  "gen"
 	Usage: "gen [files...]"
 	Aliases: ["G"]
@@ -36,7 +36,7 @@ import (
 }
 
 #FeedbackCommand: schema.#Command & {
-	TBD:   "Ø"
+	// TBD:   "Ø"
 	Name:  "feedback"
 	Usage: "feedback [email] <message>"
 	Aliases: ["hi", "say", "from", "bug", "yo", "hello", "greetings", "support"]

@@ -70,4 +70,7 @@ require (
 // we have an artificial version bump on our fork
 // replace cuelang.org/go => github.com/hofstadter-io/cue v0.3.0-alpha3
 
-replace cuelang.org/go => ../../cue/cue
+// we are currently maintaining a patch on the tip of gerrit or from inprogress CLs as we test work
+// if you intend to build hof locally, please reach out to use for the latest details.
+// we intend to set this version to v0.3.0 when it is officially released
+replace cuelang.org/go => ../../cue/gerrit

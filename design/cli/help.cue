@@ -21,10 +21,7 @@ Main commands:
   \(cmds.#GenCommand.Help)
   \(cmds.#ModCommand.Help)
   \(cmds.#TestCommand.Help)
-  \(cmds.#RunCommand.Help)
   \(cmds.#ConfigCommand.Help)
-  \(cmds.#SecretCommand.Help)
-  \(cmds.#ContextCommand.Help)
 
 Additional commands:
   help                  help about any command
@@ -32,19 +29,6 @@ Additional commands:
   version               print detailed version information
   completion            generate completion helpers for your terminal
   \(cmds.#FeedbackCommand.Help)
-
-Learn more about hof and the _ you can do:
-  each command has four flags, use 'list' as their arg
-  to see available items on a command
-    --help              print help message
-    --topics            addtional help topics
-    --examples          examples for the command
-    --tutorials         tutorials for the command
-
-(✓) command is generally available
-(β) command is beta and ready for testing
-(α) command is alpha and under developmenr
-(Ø) command is null and yet to be implemented
 
 Flags:
 <<flag-usage>>

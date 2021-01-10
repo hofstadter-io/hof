@@ -53,22 +53,22 @@ import (
 }
 
 #ConfigCommand: schema.#Command & {
-	TBD:   "β"
+	// TBD:   "β"
 	Name:  "config"
 	Usage: "config"
-	Short: "manage local configurations"
+	Short: "manage hof config"
 	Long:  Short
 
 	OmitRun: true
 
 	Commands: [{
-		TBD:   "β"
+		// TBD:   "β"
 		Name:  "get"
 		Usage: "get <key.path>"
 		Short: "print a config or value(s) at path(s)"
 		Long:  Short
 	}, {
-		TBD:   "β"
+		// TBD:   "β"
 		Name:  "set"
 		Usage: "set [expr]"
 		Short: "set config values with an expr"
@@ -80,7 +80,7 @@ import (
 			Help:     "Cue expr for value you'd like to merge into your config"
 		}]
 	}, {
-		TBD:   "Ø"
+		// TBD:   "Ø"
 		Name:  "use"
 		Usage: "use [name]"
 		Short: "bring a config into the current"

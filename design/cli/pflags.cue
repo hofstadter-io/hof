@@ -24,46 +24,46 @@ import (
 		Default: ""
 		Help:    "Path to a hof configuration file"
 	},
-	{
-		Name:    "secret"
-		Long:    "secret"
-		Short:   ""
-		Type:    "string"
-		Default: ""
-		Help:    "The path to a hof secret file"
-	},
-	{
-		Name:    "contextFile"
-		Long:    "context-file"
-		Short:   ""
-		Type:    "string"
-		Default: ""
-		Help:    "The path to a hof context file"
-	},
-	{
-		Name:    "context"
-		Long:    "context"
-		Short:   ""
-		Type:    "string"
-		Default: ""
-		Help:    "The of an entry in the context file"
-	},
-	{
-		Name:    "global"
-		Long:    "global"
-		Short:   ""
-		Type:    "bool"
-		Default: "false"
-		Help:    "Operate using only the global config/secret context"
-	},
-	{
-		Name:    "local"
-		Long:    "local"
-		Short:   ""
-		Type:    "bool"
-		Default: "false"
-		Help:    "Operate using only the local config/secret context"
-	},
+	//{
+		//Name:    "secret"
+		//Long:    "secret"
+		//Short:   ""
+		//Type:    "string"
+		//Default: ""
+		//Help:    "The path to a hof secret file"
+	//},
+	//{
+		//Name:    "contextFile"
+		//Long:    "context-file"
+		//Short:   ""
+		//Type:    "string"
+		//Default: ""
+		//Help:    "The path to a hof context file"
+	//},
+	//{
+		//Name:    "context"
+		//Long:    "context"
+		//Short:   ""
+		//Type:    "string"
+		//Default: ""
+		//Help:    "The of an entry in the context file"
+	//},
+	//{
+		//Name:    "global"
+		//Long:    "global"
+		//Short:   ""
+		//Type:    "bool"
+		//Default: "false"
+		//Help:    "Operate using only the global config/secret context"
+	//},
+	//{
+		//Name:    "local"
+		//Long:    "local"
+		//Short:   ""
+		//Type:    "bool"
+		//Default: "false"
+		//Help:    "Operate using only the local config/secret context"
+	//},
 
 	// i/o formats and streams
 	//{
@@ -288,28 +288,28 @@ import (
 		//Default: "false"
 		//Help:    "run the command from the hof repl"
 	//},
-	{
-		Name:    "Topic"
-		Long:    "topic"
-		Short:   ""
-		Type:    "string"
-		Default: ""
-		Help:    "help topics for this command, 'list' will print available topics"
-	},
-	{
-		Name:    "Example"
-		Long:    "example"
-		Short:   ""
-		Type:    "string"
-		Default: ""
-		Help:    "examples for this command, 'list' will print available examples"
-	},
-	{
-		Name:    "Tutorial"
-		Long:    "tutorial"
-		Short:   ""
-		Type:    "string"
-		Default: ""
-		Help:    "tutorials for this command, 'list' will print available tutorials"
-	},
+	//{
+		//Name:    "Topic"
+		//Long:    "topic"
+		//Short:   ""
+		//Type:    "string"
+		//Default: ""
+		//Help:    "help topics for this command, 'list' will print available topics"
+	//},
+	//{
+		//Name:    "Example"
+		//Long:    "example"
+		//Short:   ""
+		//Type:    "string"
+		//Default: ""
+		//Help:    "examples for this command, 'list' will print available examples"
+	//},
+	//{
+		//Name:    "Tutorial"
+		//Long:    "tutorial"
+		//Short:   ""
+		//Type:    "string"
+		//Default: ""
+		//Help:    "tutorials for this command, 'list' will print available tutorials"
+	//},
 ]
