@@ -3,12 +3,12 @@
 The `hof` tool tries to remove redundent development activities
 by using high level designs, code generation, and diff3
 while letting you write custom code directly in the output.
-The 
+( low-code for developers )
 
 - Users write Single Source of Truth (SSoT) design for data models and the application generators
 - `hof` reads the SSoT, processes it through the code generators, and outputs directories and files
 - Users can write custom code in the output, change their designs, and regenerate code in any order
-- `hof` should be customizable and extensible by only editing text files and not `hof` source code.
+- `hof` can be customized and extended by only editing text files and not `hof` source code.
 - Use your own tools, technologies, and practices, `hof` does not make any choices for you
 - `hof` is powered by Cue (https://cuelang.org & https://cuetorials.com)
 
@@ -38,12 +38,9 @@ or use `hof` to install a specific version of itself with `hof update --version 
 
 ## Documentation
 
-Please see https://docs.hofstadter.io to learn more.
+Please see __https://docs.hofstadter.io__ to learn more.
 
-Join us on Slack!
-
-- https://hofstadter-io.slack.com
-- invite link: https://join.slack.com/t/hofstadter-io/shared_invite/zt-e5f90lmq-u695eJur0zE~AG~njNlT1A
+Join us on Slack! https://hofstadter-io.slack.com [(invite link)](https://join.slack.com/t/hofstadter-io/shared_invite/zt-e5f90lmq-u695eJur0zE~AG~njNlT1A)
 
 
 ## Example
