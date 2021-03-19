@@ -7,7 +7,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
-	"github.com/hofstadter-io/hof/cmd/hof/ga"
 
 	"github.com/hofstadter-io/hof/lib"
 )
@@ -43,8 +42,6 @@ var GenCmd = &cobra.Command{
 	Long: genLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
-
-		ga.SendCommandPath(cmd.CommandPath())
 
 	},
 
@@ -82,15 +79,7 @@ func init() {
 		return ousage(cmd)
 	}
 
-	thelp := func(cmd *cobra.Command, args []string) {
-		ga.SendCommandPath(cmd.CommandPath() + " help")
-		help(cmd, args)
-	}
-	tusage := func(cmd *cobra.Command) error {
-		ga.SendCommandPath(cmd.CommandPath() + " usage")
-		return usage(cmd)
-	}
-	GenCmd.SetHelpFunc(thelp)
-	GenCmd.SetUsageFunc(tusage)
+	GenCmd.SetHelpFunc(help)
+	GenCmd.SetUsageFunc(usage)
 
 }

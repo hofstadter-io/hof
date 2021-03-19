@@ -7,8 +7,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/lib/mod"
-
-	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var vendorLong = `make a vendored copy of dependencies`
@@ -33,8 +31,6 @@ var VendorCmd = &cobra.Command{
 	Long: vendorLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
-
-		ga.SendCommandPath(cmd.CommandPath())
 
 	},
 
@@ -72,15 +68,7 @@ func init() {
 		return ousage(cmd)
 	}
 
-	thelp := func(cmd *cobra.Command, args []string) {
-		ga.SendCommandPath(cmd.CommandPath() + " help")
-		help(cmd, args)
-	}
-	tusage := func(cmd *cobra.Command) error {
-		ga.SendCommandPath(cmd.CommandPath() + " usage")
-		return usage(cmd)
-	}
-	VendorCmd.SetHelpFunc(thelp)
-	VendorCmd.SetUsageFunc(tusage)
+	VendorCmd.SetHelpFunc(help)
+	VendorCmd.SetUsageFunc(usage)
 
 }

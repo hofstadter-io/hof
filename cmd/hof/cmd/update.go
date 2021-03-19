@@ -14,8 +14,6 @@ import (
 	"github.com/parnurzeal/gorequest"
 	"github.com/spf13/cobra"
 
-	"github.com/hofstadter-io/hof/cmd/hof/ga"
-
 	"github.com/hofstadter-io/hof/cmd/hof/verinfo"
 )
 
@@ -57,8 +55,6 @@ var UpdateCmd = &cobra.Command{
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
-		ga.SendCommandPath("update")
-
 	},
 
 	Run: func(cmd *cobra.Command, args []string) {
@@ -94,20 +90,8 @@ func init() {
 	help := UpdateCmd.HelpFunc()
 	usage := UpdateCmd.UsageFunc()
 
-	thelp := func(cmd *cobra.Command, args []string) {
-		if UpdateCmd.Name() == cmd.Name() {
-			ga.SendCommandPath("update help")
-		}
-		help(cmd, args)
-	}
-	tusage := func(cmd *cobra.Command) error {
-		if UpdateCmd.Name() == cmd.Name() {
-			ga.SendCommandPath("update usage")
-		}
-		return usage(cmd)
-	}
-	UpdateCmd.SetHelpFunc(thelp)
-	UpdateCmd.SetUsageFunc(tusage)
+	UpdateCmd.SetHelpFunc(help)
+	UpdateCmd.SetUsageFunc(usage)
 
 }
 

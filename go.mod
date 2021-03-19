@@ -24,11 +24,11 @@ require (
 	github.com/golang/protobuf v1.4.2 // indirect
 	github.com/google/go-cmp v0.4.0 // indirect
 	github.com/google/go-github/v30 v30.1.0
-	github.com/google/uuid v1.1.1
+	github.com/google/uuid v1.1.1 // indirect
 	github.com/hofstadter-io/data-utils v0.0.0-20200128210141-0a3e569b27ed
 	github.com/hofstadter-io/dotpath v0.0.0-20191027071558-52e2819b7d2d
 	github.com/hofstadter-io/hof-lang v0.0.0-20180925221847-4d1c962b0729
-	github.com/hofstadter-io/yagu v0.0.3
+	github.com/hofstadter-io/yagu v0.0.3 // indirect
 	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
 	github.com/kr/pretty v0.2.0
 	github.com/mattn/go-colorable v0.1.6 // indirect
@@ -75,4 +75,3 @@ require (
 // we intend to set this version to v0.3.0 when it is officially released
 // replace cuelang.org/go => ../../cue/gerrit
 replace cuelang.org/go => ../../cue/cue
-

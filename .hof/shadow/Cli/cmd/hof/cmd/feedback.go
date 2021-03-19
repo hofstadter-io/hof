@@ -5,8 +5,6 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-
-	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var feedbackLong = `send feedback, bug reports, or any message
@@ -41,8 +39,6 @@ var FeedbackCmd = &cobra.Command{
 	Long: feedbackLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
-
-		ga.SendCommandPath(cmd.CommandPath())
 
 	},
 
@@ -80,15 +76,7 @@ func init() {
 		return ousage(cmd)
 	}
 
-	thelp := func(cmd *cobra.Command, args []string) {
-		ga.SendCommandPath(cmd.CommandPath() + " help")
-		help(cmd, args)
-	}
-	tusage := func(cmd *cobra.Command) error {
-		ga.SendCommandPath(cmd.CommandPath() + " usage")
-		return usage(cmd)
-	}
-	FeedbackCmd.SetHelpFunc(thelp)
-	FeedbackCmd.SetUsageFunc(tusage)
+	FeedbackCmd.SetHelpFunc(help)
+	FeedbackCmd.SetUsageFunc(usage)
 
 }

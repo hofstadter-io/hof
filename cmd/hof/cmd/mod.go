@@ -9,8 +9,6 @@ import (
 	"github.com/hofstadter-io/hof/lib/mod"
 
 	"github.com/hofstadter-io/hof/cmd/hof/cmd/mod"
-
-	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var modLong = `The mod subcmd is a polyglot dependency management tool based on go mods.
@@ -61,8 +59,6 @@ var ModCmd = &cobra.Command{
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
-		ga.SendCommandPath(cmd.CommandPath())
-
 	},
 }
 
@@ -87,16 +83,8 @@ func init() {
 		return ousage(cmd)
 	}
 
-	thelp := func(cmd *cobra.Command, args []string) {
-		ga.SendCommandPath(cmd.CommandPath() + " help")
-		help(cmd, args)
-	}
-	tusage := func(cmd *cobra.Command) error {
-		ga.SendCommandPath(cmd.CommandPath() + " usage")
-		return usage(cmd)
-	}
-	ModCmd.SetHelpFunc(thelp)
-	ModCmd.SetUsageFunc(tusage)
+	ModCmd.SetHelpFunc(help)
+	ModCmd.SetUsageFunc(usage)
 
 	ModCmd.AddCommand(cmdmod.InfoCmd)
 	ModCmd.AddCommand(cmdmod.InitCmd)

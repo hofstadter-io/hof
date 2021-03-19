@@ -21,8 +21,6 @@ func TestScriptRunCliTests(t *testing.T) {
 		Setup: func(env *runtime.Env) error {
 			// add any environment variables for your tests here
 
-			env.Vars = append(env.Vars, "HOF_TELEMETRY_DISABLED=1")
-
 			return nil
 		},
 		Funcs: map[string]func(ts *runtime.Script, args []string) error{

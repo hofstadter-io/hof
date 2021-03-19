@@ -5,8 +5,6 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-
-	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var (
@@ -115,19 +113,7 @@ func init() {
 	help := CompletionCmd.HelpFunc()
 	usage := CompletionCmd.UsageFunc()
 
-	thelp := func(cmd *cobra.Command, args []string) {
-		if CompletionCmd.Name() == cmd.Name() {
-			ga.SendCommandPath("completion help")
-		}
-		help(cmd, args)
-	}
-	tusage := func(cmd *cobra.Command) error {
-		if CompletionCmd.Name() == cmd.Name() {
-			ga.SendCommandPath("completion usage")
-		}
-		return usage(cmd)
-	}
-	CompletionCmd.SetHelpFunc(thelp)
-	CompletionCmd.SetUsageFunc(tusage)
+	CompletionCmd.SetHelpFunc(help)
+	CompletionCmd.SetUsageFunc(usage)
 
 }

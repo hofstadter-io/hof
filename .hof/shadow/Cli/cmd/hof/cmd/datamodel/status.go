@@ -5,8 +5,6 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-
-	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var statusLong = `print the data model status`
@@ -32,8 +30,6 @@ var StatusCmd = &cobra.Command{
 	Long: statusLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
-
-		ga.SendCommandPath(cmd.CommandPath())
 
 	},
 
@@ -71,15 +67,7 @@ func init() {
 		return ousage(cmd)
 	}
 
-	thelp := func(cmd *cobra.Command, args []string) {
-		ga.SendCommandPath(cmd.CommandPath() + " help")
-		help(cmd, args)
-	}
-	tusage := func(cmd *cobra.Command) error {
-		ga.SendCommandPath(cmd.CommandPath() + " usage")
-		return usage(cmd)
-	}
-	StatusCmd.SetHelpFunc(thelp)
-	StatusCmd.SetUsageFunc(tusage)
+	StatusCmd.SetHelpFunc(help)
+	StatusCmd.SetUsageFunc(usage)
 
 }

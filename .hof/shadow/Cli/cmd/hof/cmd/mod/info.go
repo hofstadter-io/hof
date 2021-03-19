@@ -7,8 +7,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/lib/mod"
-
-	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var infoLong = `print info about languages and modders known to hof mod
@@ -36,8 +34,6 @@ var InfoCmd = &cobra.Command{
 	Long: infoLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
-
-		ga.SendCommandPath(cmd.CommandPath())
 
 	},
 
@@ -83,15 +79,7 @@ func init() {
 		return ousage(cmd)
 	}
 
-	thelp := func(cmd *cobra.Command, args []string) {
-		ga.SendCommandPath(cmd.CommandPath() + " help")
-		help(cmd, args)
-	}
-	tusage := func(cmd *cobra.Command) error {
-		ga.SendCommandPath(cmd.CommandPath() + " usage")
-		return usage(cmd)
-	}
-	InfoCmd.SetHelpFunc(thelp)
-	InfoCmd.SetUsageFunc(tusage)
+	InfoCmd.SetHelpFunc(help)
+	InfoCmd.SetUsageFunc(usage)
 
 }

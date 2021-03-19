@@ -5,8 +5,6 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-
-	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var applyLong = `apply a migraion sequence against a data store`
@@ -32,8 +30,6 @@ var ApplyCmd = &cobra.Command{
 	Long: applyLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
-
-		ga.SendCommandPath(cmd.CommandPath())
 
 	},
 
@@ -71,15 +67,7 @@ func init() {
 		return ousage(cmd)
 	}
 
-	thelp := func(cmd *cobra.Command, args []string) {
-		ga.SendCommandPath(cmd.CommandPath() + " help")
-		help(cmd, args)
-	}
-	tusage := func(cmd *cobra.Command) error {
-		ga.SendCommandPath(cmd.CommandPath() + " usage")
-		return usage(cmd)
-	}
-	ApplyCmd.SetHelpFunc(thelp)
-	ApplyCmd.SetUsageFunc(tusage)
+	ApplyCmd.SetHelpFunc(help)
+	ApplyCmd.SetUsageFunc(usage)
 
 }

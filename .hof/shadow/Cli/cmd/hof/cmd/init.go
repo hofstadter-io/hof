@@ -5,8 +5,6 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-
-	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var initLong = `Create a new workspace with initial files and registers with the global context.
@@ -31,8 +29,6 @@ var InitCmd = &cobra.Command{
 	Long: initLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
-
-		ga.SendCommandPath(cmd.CommandPath())
 
 	},
 
@@ -92,15 +88,7 @@ func init() {
 		return ousage(cmd)
 	}
 
-	thelp := func(cmd *cobra.Command, args []string) {
-		ga.SendCommandPath(cmd.CommandPath() + " help")
-		help(cmd, args)
-	}
-	tusage := func(cmd *cobra.Command) error {
-		ga.SendCommandPath(cmd.CommandPath() + " usage")
-		return usage(cmd)
-	}
-	InitCmd.SetHelpFunc(thelp)
-	InitCmd.SetUsageFunc(tusage)
+	InitCmd.SetHelpFunc(help)
+	InitCmd.SetUsageFunc(usage)
 
 }

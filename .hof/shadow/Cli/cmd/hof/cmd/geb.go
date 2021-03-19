@@ -5,8 +5,6 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-
-	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 func GebRun(args []string) (err error) {
@@ -24,8 +22,6 @@ var GebCmd = &cobra.Command{
 	Hidden: true,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
-
-		ga.SendCommandPath(cmd.CommandPath())
 
 	},
 
@@ -63,15 +59,7 @@ func init() {
 		return ousage(cmd)
 	}
 
-	thelp := func(cmd *cobra.Command, args []string) {
-		ga.SendCommandPath(cmd.CommandPath() + " help")
-		help(cmd, args)
-	}
-	tusage := func(cmd *cobra.Command) error {
-		ga.SendCommandPath(cmd.CommandPath() + " usage")
-		return usage(cmd)
-	}
-	GebCmd.SetHelpFunc(thelp)
-	GebCmd.SetUsageFunc(tusage)
+	GebCmd.SetHelpFunc(help)
+	GebCmd.SetUsageFunc(usage)
 
 }

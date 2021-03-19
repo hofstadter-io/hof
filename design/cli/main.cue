@@ -151,9 +151,6 @@ import (
 	Releases: #CliReleases
 	Updates:  true
 
-	Telemetry:      "UA-103579574-5"
-	TelemetryIdDir: "hof"
-
 	EnablePProf: true
 }
 

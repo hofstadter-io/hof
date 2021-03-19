@@ -13,8 +13,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
-
-	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var hofLong = `The High Code Framework`
@@ -60,8 +58,6 @@ var RootCmd = &cobra.Command{
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
-		ga.SendCommandPath("root")
-
 	},
 
 	PersistentPostRun: func(cmd *cobra.Command, args []string) {
@@ -101,20 +97,8 @@ func RootInit() {
 		return fmt.Errorf("unknown hof command")
 	}
 
-	thelp := func(cmd *cobra.Command, args []string) {
-		if RootCmd.Name() == cmd.Name() {
-			ga.SendCommandPath("root help")
-		}
-		help(cmd, args)
-	}
-	tusage := func(cmd *cobra.Command) error {
-		if RootCmd.Name() == cmd.Name() {
-			ga.SendCommandPath("root usage")
-		}
-		return usage(cmd)
-	}
-	RootCmd.SetHelpFunc(thelp)
-	RootCmd.SetUsageFunc(tusage)
+	RootCmd.SetHelpFunc(help)
+	RootCmd.SetUsageFunc(usage)
 
 	RootCmd.AddCommand(UpdateCmd)
 
