@@ -211,3 +211,5 @@ func (nopTestDeps) WriteHeapProfile(io.Writer) error {
 	// Not needed for Go 1.10.
 	return nil
 }
+
+func (nopTestDeps) SetPanicOnExit0(bool) {}

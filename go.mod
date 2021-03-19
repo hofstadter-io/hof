@@ -1,9 +1,9 @@
 module github.com/hofstadter-io/hof
 
-go 1.15
+go 1.16
 
 require (
-	cuelang.org/go v0.2.1
+	cuelang.org/go v0.3.0-beta.6
 	github.com/aymerick/raymond v2.0.2+incompatible
 	github.com/bmatcuk/doublestar v1.3.1
 	github.com/chzyer/logex v1.1.10 // indirect
@@ -50,7 +50,7 @@ require (
 	github.com/stretchr/testify v1.6.1
 	go.uber.org/zap v1.15.0
 	golang.org/x/crypto v0.0.0-20200604202706-70a84ac30bf9 // indirect
-	golang.org/x/mod v0.3.0
+	golang.org/x/mod v0.3.1-0.20200828183125-ce943fd02449
 	golang.org/x/net v0.0.0-20200602114024-627f9648deb9 // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	golang.org/x/sys v0.0.0-20200615200032-f1bc736245b1 // indirect
@@ -73,4 +73,6 @@ require (
 // we are currently maintaining a patch on the tip of gerrit or from inprogress CLs as we test work
 // if you intend to build hof locally, please reach out to use for the latest details.
 // we intend to set this version to v0.3.0 when it is officially released
-replace cuelang.org/go => ../../cue/gerrit
+// replace cuelang.org/go => ../../cue/gerrit
+replace cuelang.org/go => ../../cue/cue
+
