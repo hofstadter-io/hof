@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+
+	"github.com/hofstadter-io/hof/lib/cuetils"
 )
 
 func printTests(suites []Suite, stats bool) {
@@ -19,7 +21,7 @@ func printTests(suites []Suite, stats bool) {
 
 		A := S.Value.Attribute("test")
 		as := []string{}
-		for k, v := range A.Map() {
+		for k, v := range cuetils.AttrToMap(A) {
 			if v != "" {
 				as = append(as, fmt.Sprintf("%s=%s", k, v))
 			} else {
@@ -43,7 +45,7 @@ func printTests(suites []Suite, stats bool) {
 		for _, t := range S.Tests {
 			A := t.Value.Attribute("test")
 			as := []string{}
-			for k, v := range A.Map() {
+			for k, v := range cuetils.AttrToMap(A) {
 
 				// if key is a knownTester, put it first
 				known := false

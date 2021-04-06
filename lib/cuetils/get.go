@@ -42,7 +42,7 @@ func GetByAttrKeys(val cue.Value, attr string, all, any []string) ([]KeyVal, err
 
 		label := iter.Label()
 		value := iter.Value()
-		attrs := value.Attributes()
+		attrs := value.Attributes(cue.ValueAttr)
 
 		// fmt.Println("  -", label, attrs)
 
@@ -52,7 +52,7 @@ func GetByAttrKeys(val cue.Value, attr string, all, any []string) ([]KeyVal, err
 			// does it have an "@<attr>(...)"
 			if A.Name() == attr {
 
-				vals := A.Map()
+				vals := AttrToMap(A)
 
 				// must match all
 				if len(all) > 0 {

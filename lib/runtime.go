@@ -15,6 +15,7 @@ import (
 	"github.com/mattn/go-zglob"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/gen"
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
@@ -118,7 +119,7 @@ func (R *Runtime) ExtractGenerators() {
 
 			label := iter.Label()
 			value := iter.Value()
-			attrs := value.Attributes()
+			attrs := value.Attributes(cue.ValueAttr)
 
 			// find top-level with gen attr
 			hasgen := false
@@ -128,7 +129,7 @@ func (R *Runtime) ExtractGenerators() {
 
 					// are there flags to match?
 					if len(R.Flagpole.Generator) > 0 {
-						vals := A.Map()
+						vals := cuetils.AttrToMap(A)
 						match := false
 						for _, g := range R.Flagpole.Generator {
 							if _, ok := vals[g]; ok {

@@ -88,7 +88,7 @@ func (CRT *CueRuntime) PrintValue() error {
 		label := iter.Label()
 		value := iter.Value()
 		fmt.Println("  -", label, value)
-		for attrKey, attrVal := range value.Attributes() {
+		for attrKey, attrVal := range value.Attributes(cue.ValueAttr) {
 			fmt.Println("  --", attrKey)
 			for i := 0; i < 5; i++ {
 				str, err := attrVal.String(i)
