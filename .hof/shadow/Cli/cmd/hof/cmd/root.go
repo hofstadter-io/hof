@@ -106,12 +106,11 @@ func RootInit() {
 
 	RootCmd.AddCommand(CompletionCmd)
 
-	RootCmd.AddCommand(InitCmd)
-	RootCmd.AddCommand(DatamodelCmd)
 	RootCmd.AddCommand(GenCmd)
-	RootCmd.AddCommand(RunCmd)
 	RootCmd.AddCommand(TestCmd)
 	RootCmd.AddCommand(ModCmd)
+	RootCmd.AddCommand(DatamodelCmd)
+	RootCmd.AddCommand(RunCmd)
 	RootCmd.AddCommand(FeedbackCmd)
 	RootCmd.AddCommand(HackCmd)
 	RootCmd.AddCommand(GebCmd)
@@ -172,7 +171,6 @@ Usage:
   hof [flags] [command] [args]
 
 Main commands:
-  init                  create an empty workspace or initialize an existing directory to one
   gen                   generate code, data, and config from your data models and designs
   mod                   mod subcmd is a polyglot dependency management tool based on go mods
   test                  test code, apis, and more with Cue
