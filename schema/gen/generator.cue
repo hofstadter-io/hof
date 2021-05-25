@@ -1,4 +1,4 @@
-package schema
+package gen
 
 // Definition for a generator
 #HofGenerator: {

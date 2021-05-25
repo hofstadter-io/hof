@@ -1,4 +1,4 @@
-package schema
+package test
 
 #HttpTester: {
 	req: #HttpRequest

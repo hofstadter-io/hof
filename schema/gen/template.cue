@@ -1,4 +1,4 @@
-package schema
+package gen
 
 #TemplateConfigReplacible: {
   // System params
