@@ -3,7 +3,7 @@ module github.com/hofstadter-io/hof
 go 1.16
 
 require (
-	cuelang.org/go v0.4.0-rc.1
+	cuelang.org/go v0.4.0
 	github.com/aymerick/raymond v2.0.2+incompatible
 	github.com/bmatcuk/doublestar v1.3.1
 	github.com/chzyer/logex v1.1.10 // indirect
