@@ -5,16 +5,22 @@ import (
 	"os"
 	"strings"
 
-	googithub "github.com/google/go-github/v30/github"
 	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-billy/v5/memfs"
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/go-git/go-git/v5/plumbing/transport"
+	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
+	"github.com/go-git/go-git/v5/storage/memory"
+	googithub "github.com/google/go-github/v30/github"
+	"github.com/kevinburke/ssh_config"
 
 	"github.com/hofstadter-io/hof/lib/yagu"
 	"github.com/hofstadter-io/hof/lib/yagu/repos/github"
 )
 
 func Fetch(lang, mod, ver string) (err error) {
-	flds := strings.Split(mod, "/")
+	flds := strings.SplitN(mod, "/", 3)
 	remote := flds[0]
 	owner := flds[1]
 	repo := flds[2]
@@ -27,8 +33,10 @@ func Fetch(lang, mod, ver string) (err error) {
 		if _, ok := err.(*os.PathError); !ok && err.Error() != "file does not exist" && err.Error() != "no such file or directory" {
 			return err
 		}
-		// not found
-		fetch(lang, mod, ver)
+		// not found, try fetching deps
+		if err := fetch(lang, mod, ver); err != nil {
+			return err
+		}
 	}
 
 	// else we have it already
@@ -38,7 +46,7 @@ func Fetch(lang, mod, ver string) (err error) {
 }
 
 func fetch(lang, mod, ver string) error {
-	flds := strings.Split(mod, "/")
+	flds := strings.SplitN(mod, "/", 3)
 	remote := flds[0]
 	owner := flds[1]
 	repo := flds[2]
@@ -47,10 +55,67 @@ func fetch(lang, mod, ver string) error {
 	switch remote {
 	case "github.com":
 		return fetchGitHub(lang, owner, repo, tag)
-
 	default:
-		return fmt.Errorf("Unknown remote: %q in %s", remote, mod)
+		return fetchGit(lang, remote, owner, repo, tag)
 	}
+}
+
+func fetchGit(lang, remote, owner, repo, tag string) error {
+	FS := memfs.New()
+	gco := &git.CloneOptions{
+		URL:           "https://" + remote + "/" + owner + "/" + repo,
+		SingleBranch:  true,
+		ReferenceName: plumbing.NewTagReferenceName(tag),
+		Depth:         1,
+	}
+
+	if _, err := git.Clone(memory.NewStorage(), FS, gco); err != nil {
+		if err != transport.ErrAuthenticationRequired {
+			return err
+		}
+
+		// Needs auth
+		fmt.Println("Private repo, trying to authenticate with ssh")
+		newRemote, auth, err := getSSHAuth(remote)
+		if err != nil {
+			return err
+		}
+		gco.URL = fmt.Sprintf("%s:%s/%s", newRemote, owner, repo)
+		gco.Auth = auth
+
+		if _, err := git.Clone(memory.NewStorage(), FS, gco); err != nil {
+			return err
+		}
+	}
+
+	if err := Write(lang, remote, owner, repo, tag, FS); err != nil {
+		return fmt.Errorf("While writing to cache\n%w\n", err)
+	}
+
+	return nil
+}
+
+func getSSHAuth(remote string) (string, *ssh.PublicKeys, error) {
+	pk, err := ssh_config.GetStrict(remote, "IdentityFile")
+	if err != nil {
+		return "", nil, err
+	}
+	if strings.HasPrefix(pk, "~") {
+		if hdir, err := os.UserHomeDir(); err == nil {
+			pk = strings.Replace(pk, "~", hdir, 1)
+		}
+	}
+	usr := ssh_config.Get(remote, "User")
+	if usr == "" {
+		usr = "git"
+	}
+
+	pks, err := ssh.NewPublicKeysFromFile(usr, pk, "")
+	if err != nil {
+		return "", nil, err
+	}
+
+	return fmt.Sprintf("%s@%s", usr, remote), pks, nil
 }
 
 func fetchGitHub(lang, owner, repo, tag string) (err error) {
@@ -66,17 +131,17 @@ func fetchGitHub(lang, owner, repo, tag string) (err error) {
 	}
 
 	/*
-	fmt.Println("filelist:")
-	files, err := yagu.BillyGetFilelist(FS)
-	if err != nil {
-		return fmt.Errorf("While getting filelist\n%w\n", err)
-	}
+		fmt.Println("filelist:")
+		files, err := yagu.BillyGetFilelist(FS)
+		if err != nil {
+			return fmt.Errorf("While getting filelist\n%w\n", err)
+		}
 
-	for _, f := range files {
-		fmt.Println(" -", f.Name())
-	}
+		for _, f := range files {
+			fmt.Println(" -", f.Name())
+		}
 
-	fmt.Println("Writing...", )
+		fmt.Println("Writing...", )
 	*/
 	err = Write(lang, "github.com", owner, repo, tag, FS)
 	if err != nil {

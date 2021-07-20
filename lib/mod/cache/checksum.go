@@ -9,7 +9,7 @@ import (
 
 func Checksum(lang, mod, ver string) (string, error) {
 
-	flds := strings.Split(mod, "/")
+	flds := strings.SplitN(mod, "/", 3)
 	remote := flds[0]
 	owner := flds[1]
 	repo := flds[2]
@@ -27,4 +27,3 @@ func Checksum(lang, mod, ver string) (string, error) {
 
 	return h, err
 }
-

@@ -124,13 +124,13 @@ func (mdr *Modder) LoadRemoteModule(R Replace) error {
 	if mdr.module.SumFile != nil {
 		mdr.CompareSumEntryToVendor(R)
 		/*
-		err := mdr.CompareSumEntryToVendor(R)
-		if err == nil {
-			// return nil
-			// TODO, add dependencies to processing
-		} else {
-			fmt.Println("Error:", err)
-		}
+			err := mdr.CompareSumEntryToVendor(R)
+			if err == nil {
+				// return nil
+				// TODO, add dependencies to processing
+			} else {
+				fmt.Println("Error:", err)
+			}
 		*/
 	}
 

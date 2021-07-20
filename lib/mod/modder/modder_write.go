@@ -58,9 +58,8 @@ func (mdr *Modder) WriteVendor() error {
 			return fmt.Errorf("While calculating billy mod hash\n%w\n", err)
 		}
 
-
 		dver := sumfile.Version{
-			Path: strings.Join([]string{m.Module}, "/"),
+			Path:    strings.Join([]string{m.Module}, "/"),
 			Version: m.Version,
 		}
 		if mdr.module.SumFile == nil {
@@ -69,7 +68,7 @@ func (mdr *Modder) WriteVendor() error {
 		mdr.module.SumFile.Add(dver, dirhash)
 
 		mver := sumfile.Version{
-			Path: strings.Join([]string{m.Module}, "/"),
+			Path:    strings.Join([]string{m.Module}, "/"),
 			Version: strings.Join([]string{m.Version, mdr.ModFile}, "/"),
 		}
 		mdr.module.SumFile.Add(mver, modhash)

@@ -9,7 +9,7 @@ import (
 )
 
 func Load(lang, mod, ver string) (FS billy.Filesystem, err error) {
-	flds := strings.Split(mod, "/")
+	flds := strings.SplitN(mod, "/", 3)
 	remote := flds[0]
 	owner := flds[1]
 	repo := flds[2]
