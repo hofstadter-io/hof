@@ -123,15 +123,6 @@ func (mdr *Modder) LoadRemoteModule(R Replace) error {
 	// If sumfile, check integrity and possibly shortcut
 	if mdr.module.SumFile != nil {
 		mdr.CompareSumEntryToVendor(R)
-		/*
-			err := mdr.CompareSumEntryToVendor(R)
-			if err == nil {
-				// return nil
-				// TODO, add dependencies to processing
-			} else {
-				fmt.Println("Error:", err)
-			}
-		*/
 	}
 
 	// TODO, check if valid and just add m.deps to processing

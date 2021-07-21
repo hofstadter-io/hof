@@ -78,7 +78,6 @@ func fetchGit(lang, remote, owner, repo, tag string) error {
 		}
 
 		// Needs auth
-		fmt.Println("Private repo, trying to authenticate with ssh")
 		newRemote, auth, err := getSSHAuth(remote)
 		if err != nil {
 			return err
@@ -133,19 +132,6 @@ func fetchGitHub(lang, owner, repo, tag string) (err error) {
 		return fmt.Errorf("While fetching from github\n%w\n", err)
 	}
 
-	/*
-		fmt.Println("filelist:")
-		files, err := yagu.BillyGetFilelist(FS)
-		if err != nil {
-			return fmt.Errorf("While getting filelist\n%w\n", err)
-		}
-
-		for _, f := range files {
-			fmt.Println(" -", f.Name())
-		}
-
-		fmt.Println("Writing...", )
-	*/
 	err = Write(lang, "github.com", owner, repo, tag, FS)
 	if err != nil {
 		return fmt.Errorf("While writing to cache\n%w\n", err)
