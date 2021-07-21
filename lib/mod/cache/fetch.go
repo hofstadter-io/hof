@@ -62,11 +62,14 @@ func fetch(lang, mod, ver string) error {
 
 func fetchGit(lang, remote, owner, repo, tag string) error {
 	FS := memfs.New()
+
 	gco := &git.CloneOptions{
-		URL:           "https://" + remote + "/" + owner + "/" + repo,
-		SingleBranch:  true,
-		ReferenceName: plumbing.NewTagReferenceName(tag),
-		Depth:         1,
+		URL:   fmt.Sprintf("https://%s/%s/%s", remote, owner, repo),
+		Depth: 1,
+	}
+	if tag != "v0.0.0" {
+		gco.ReferenceName = plumbing.NewTagReferenceName(tag)
+		gco.SingleBranch = true
 	}
 
 	if _, err := git.Clone(memory.NewStorage(), FS, gco); err != nil {
