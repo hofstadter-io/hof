@@ -17,13 +17,11 @@ import (
 
 	"github.com/hofstadter-io/hof/lib/yagu"
 	"github.com/hofstadter-io/hof/lib/yagu/repos/github"
+	"github.com/hofstadter-io/hof/lib/yagu/repos/gitlab"
 )
 
 func Fetch(lang, mod, ver string) (err error) {
-	flds := strings.SplitN(mod, "/", 3)
-	remote := flds[0]
-	owner := flds[1]
-	repo := flds[2]
+	remote, owner, repo := splitMod(mod)
 	tag := ver
 
 	dir := Outdir(lang, remote, owner, repo, tag)
@@ -46,15 +44,14 @@ func Fetch(lang, mod, ver string) (err error) {
 }
 
 func fetch(lang, mod, ver string) error {
-	flds := strings.SplitN(mod, "/", 3)
-	remote := flds[0]
-	owner := flds[1]
-	repo := flds[2]
+	remote, owner, repo := splitMod(mod)
 	tag := ver
 
 	switch remote {
 	case "github.com":
 		return fetchGitHub(lang, owner, repo, tag)
+	case "gitlab.com":
+		return fetchGitLab(lang, owner, repo, tag)
 	default:
 		return fetchGit(lang, remote, owner, repo, tag)
 	}
@@ -118,6 +115,29 @@ func getSSHAuth(remote string) (string, *ssh.PublicKeys, error) {
 	}
 
 	return fmt.Sprintf("%s@%s", usr, remote), pks, nil
+}
+
+func fetchGitLab(lang, owner, repo, tag string) (err error) {
+	FS := memfs.New()
+	client, err := gitlab.NewClient()
+	if err != nil {
+		return err
+	}
+
+	zReader, err := gitlab.FetchZip(client, owner, repo, tag)
+	if err != nil {
+		return fmt.Errorf("While fetching from GitLab\n%w\n", err)
+	}
+
+	if err := yagu.BillyLoadFromZip(zReader, FS, true); err != nil {
+		return fmt.Errorf("While reading zipfile\n%w\n", err)
+	}
+
+	if err := Write(lang, "gitlab.com", owner, repo, tag, FS); err != nil {
+		return fmt.Errorf("While writing to cache\n%w\n", err)
+	}
+
+	return nil
 }
 
 func fetchGitHub(lang, owner, repo, tag string) (err error) {

@@ -2,17 +2,13 @@ package cache
 
 import (
 	"os"
-	"strings"
 
 	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-billy/v5/osfs"
 )
 
 func Load(lang, mod, ver string) (FS billy.Filesystem, err error) {
-	flds := strings.SplitN(mod, "/", 3)
-	remote := flds[0]
-	owner := flds[1]
-	repo := flds[2]
+	remote, owner, repo := splitMod(mod)
 	tag := ver
 
 	dir := Outdir(lang, remote, owner, repo, tag)

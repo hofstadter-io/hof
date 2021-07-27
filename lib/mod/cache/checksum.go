@@ -2,17 +2,12 @@ package cache
 
 import (
 	"os"
-	"strings"
 
 	"golang.org/x/mod/sumdb/dirhash"
 )
 
 func Checksum(lang, mod, ver string) (string, error) {
-
-	flds := strings.SplitN(mod, "/", 3)
-	remote := flds[0]
-	owner := flds[1]
-	repo := flds[2]
+	remote, owner, repo := splitMod(mod)
 	tag := ver
 
 	dir := Outdir(lang, remote, owner, repo, tag)
