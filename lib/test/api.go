@@ -35,8 +35,8 @@ func RunAPI(T *Tester, verbose int) (err error) {
 
 func runCase(T *Tester, verbose int, val cue.Value) (err error) {
 
-	req := val.Lookup("req")
-	expected := val.Lookup("resp")
+	req := val.LookupPath(cue.ParsePath("req"))
+	expected := val.LookupPath(cue.ParsePath("resp"))
 
 	R, err := buildRequest(T, verbose, req)
 	if err != nil {
@@ -58,14 +58,14 @@ func buildRequest(T *Tester, verbose int, val cue.Value) (R *gorequest.SuperAgen
 	req := val.Eval()
 	R = gorequest.New()
 
-	method := req.Lookup("method")
+	method := req.LookupPath(cue.ParsePath("method"))
 	R.Method, err = method.String()
 	if err != nil {
 		return
 	}
 
-	host := req.Lookup("host")
-	path := req.Lookup("path")
+	host := req.LookupPath(cue.ParsePath("host"))
+	path := req.LookupPath(cue.ParsePath("path"))
 	hostStr, err := host.String()
 	if err != nil {
 		return
@@ -76,7 +76,7 @@ func buildRequest(T *Tester, verbose int, val cue.Value) (R *gorequest.SuperAgen
 	}
 	R.Url = hostStr + pathStr
 
-	headers := req.Lookup("headers")
+	headers := req.LookupPath(cue.ParsePath("headers"))
 	if headers.Exists() {
 		H, err := headers.Struct()
 		if err != nil {
@@ -93,7 +93,7 @@ func buildRequest(T *Tester, verbose int, val cue.Value) (R *gorequest.SuperAgen
 		}
 	}
 
-	query := req.Lookup("query")
+	query := req.LookupPath(cue.ParsePath("query"))
 	if query.Exists() {
 		Q, err := query.Struct()
 		if err != nil {
@@ -110,7 +110,7 @@ func buildRequest(T *Tester, verbose int, val cue.Value) (R *gorequest.SuperAgen
 		}
 	}
 
-	data := req.Lookup("data")
+	data := req.LookupPath(cue.ParsePath("data"))
 	if data.Exists() {
 		err := data.Decode(&R.Data)
 		if err != nil {
@@ -118,7 +118,7 @@ func buildRequest(T *Tester, verbose int, val cue.Value) (R *gorequest.SuperAgen
 		}
 	}
 
-	timeout := req.Lookup("timeout")
+	timeout := req.LookupPath(cue.ParsePath("timeout"))
 	if timeout.Exists() {
 		to, err := timeout.String()
 		if err != nil {
@@ -131,10 +131,10 @@ func buildRequest(T *Tester, verbose int, val cue.Value) (R *gorequest.SuperAgen
 		R.Timeout(d)
 	}
 
-	retry := req.Lookup("retry")
+	retry := req.LookupPath(cue.ParsePath("retry"))
 	if retry.Exists() {
 		C := 3
-		count := retry.Lookup("count")
+		count := retry.LookupPath(cue.ParsePath("count"))
 		if count.Exists() {
 			c, err := count.Int64()
 			if err != nil {
@@ -144,7 +144,7 @@ func buildRequest(T *Tester, verbose int, val cue.Value) (R *gorequest.SuperAgen
 		}
 
 		D := time.Second * 6
-		timer := retry.Lookup("timer")
+		timer := retry.LookupPath(cue.ParsePath("timer"))
 		if timer.Exists() {
 			t, err := timer.String()
 			if err != nil {
@@ -158,7 +158,7 @@ func buildRequest(T *Tester, verbose int, val cue.Value) (R *gorequest.SuperAgen
 		}
 
 		CS := []int{}
-		codes := retry.Lookup("codes")
+		codes := retry.LookupPath(cue.ParsePath("codes"))
 		if codes.Exists() {
 			L, err := codes.List()
 			if err != nil {

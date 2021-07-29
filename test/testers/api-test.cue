@@ -1,10 +1,10 @@
 package api
 
 import (
-	"github.com/hofstadter-io/hof/schema"
+	"github.com/hofstadter-io/hof/schema/test"
 )
 
-baseReq: schema.#HttpRequest & {
+baseReq: test.#HttpRequest & {
 	host: "https://postman-echo.com"
 }
 
@@ -41,6 +41,9 @@ basic: {
 
 	post: _ @test(api,basic,post)
 	post: {
+		#args: {
+			foo: "bar"
+		}
 		req: basePost & {
 			data: {
 				cow: "moo"
@@ -49,9 +52,7 @@ basic: {
 		resp: {
 			status: 200
 			body: {
-				args: close({
-					foo: "bar"
-				})
+				args: #args
 				json: {
 					cow: "moo"
 				}

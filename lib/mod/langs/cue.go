@@ -1,23 +1,19 @@
 package langs
 
 const CuelangModder = `
-cue: {
+langs: cue: {
 	Name:        "cue"
-	Version:     string | *"v0.3.0"
-	ModFile:     string | * "cue.mods"
-	SumFile:     string | * "cue.sums"
-	ModsDir:     string | * "cue.mod/pkg"
-	MappingFile: string | * "cue.mod/modules.txt"
-	SymlinkLocalReplaces?: bool,
-	InitTemplates: {...} | *{
+	Version:     "v0.4.0"
+	ModFile:     "cue.mods"
+	SumFile:     "cue.sums"
+	ModsDir:     "cue.mod/pkg"
+	MappingFile: "cue.mod/modules.txt"
+	InitTemplates: {
 		"cue.mod/module.cue": """
 		module: "{{ .Module }}"
-
 		"""
-		...
 	}
-	VendorIncludeGlobs: [...string] | *[]
-	VendorExcludeGlobs: [...string] | *[
+	VendorExcludeGlobs: [
 		"/.git/**",
 		"**/cue.mod/pkg/**",
 	]

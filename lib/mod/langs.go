@@ -11,6 +11,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"cuelang.org/go/cue"
+	"cuelang.org/go/cue/cuecontext"
 
 	"github.com/hofstadter-io/hof/lib/mod/langs"
 	"github.com/hofstadter-io/hof/lib/mod/modder"
@@ -32,7 +33,7 @@ Known Languages:
 
 For more info on a language:
 
-  mvs info <lang>
+  hof mod info <lang>
 `
 
 func DiscoverLangs() (langs []string) {
@@ -56,6 +57,7 @@ func DiscoverLangs() (langs []string) {
 }
 
 func KnownLangs() string {
+	// extract and sort for consistency
 	langs := []string{}
 
 	for lang, _ := range LangModderMap {
@@ -79,7 +81,7 @@ Please check the following files for definitions
 
 To see a list of known languages from the current directory:
 
-  mvs info
+  hof mod info
 `
 
 func LangInfo(lang string) (string, error) {
@@ -104,48 +106,51 @@ func LangInfo(lang string) (string, error) {
 	return string(bytes), nil
 }
 
+// InitLangs loads the language modders in the following order
+//   1. Defaults compiled into hof
+//   2. Globals found in <user-config>/hof/.mvsconfig.cue
+//   3. Local (CWD)/.mvsconfig
+//
+// New languages discovered are appended, existing are replaced completely
 func InitLangs() {
 	var err error
 
-	rt := cue.Runtime{}
-	cueSpec, err := rt.Compile("spec.cue", langs.ModderSpec)
+	// combine the specs with the default lang modder defs
+	defaultStr := langs.ModderSpec + langs.DefaultLangs
+
+	// Read and parse in the default langs specs
+	ctx := cuecontext.New()
+	dLangs := ctx.CompileString(defaultStr, cue.Filename("langs.cue"))
+	err = dLangs.Err()
 	if err != nil {
 		panic(err)
 	}
-	err = cueSpec.Value().Validate()
+
+	// Validate the langs
+	err = dLangs.Value().Validate()
 	if err != nil {
 		panic(err)
 	}
-	for lang, cueString := range langs.DefaultModdersCue {
-		var mdrMap map[string]*modder.Modder
 
-		cueLang, err := rt.Compile(lang, cueString)
-		if err != nil {
-			panic(err)
-		}
-		cueLangMerged := cue.Merge(cueSpec, cueLang)
-		err = cueLangMerged.Value().Validate()
-		if err != nil {
-			panic(err)
-		}
-		err = cueLang.Value().Decode(&mdrMap)
-		if err != nil {
-			panic(err)
-		}
-		_, ok := mdrMap[lang]
-		if !ok || len(mdrMap) != 1 {
-			panic(fmt.Errorf("invalid builtin language default %s", lang))
-		}
-		mdrMap[lang].CueInstance = cueLangMerged
-		langs.DefaultModders[lang] = mdrMap[lang]
+	// decode defaults into a temp map
+	var mdrMap map[string]*modder.Modder
+	err = dLangs.Value().LookupPath(cue.ParsePath("langs")).Decode(&mdrMap)
+	if err != nil {
+		panic(err)
 	}
 
+	// load from temp into lang.{Default,Loaded}Modders
+	for lang, mdr := range mdrMap {
+		langs.DefaultModders[lang] = mdr
+		langs.LoadedModders[lang] = mdr
+		LangModderMap[lang] = mdr
+	}
+
+	// Global Language Modder Config
 	homedir, err := os.UserConfigDir()
 	if err != nil {
 		fmt.Println(err)
 	}
-
-	// Global Language Modder Config
 	err = initFromFile(path.Join(homedir, GLOBAL_MVS_CONFIG))
 	if err != nil {
 		fmt.Println(err)
@@ -169,42 +174,24 @@ func initFromFile(filepath string) error {
 		return nil
 	}
 
+	mdrStr := langs.ModderSpec + string(bytes)
+
 	var mdrMap map[string]*modder.Modder
 
 	// Compile the config into cue
-	rt := cue.Runtime{}
-	i, err := rt.Compile(filepath, string(bytes))
+	ctx := cuecontext.New()
+	i := ctx.CompileString(mdrStr, cue.Filename(filepath))
+	err = i.Err()
 	if err != nil {
 		return err
 	}
-	err = i.Value().Decode(&mdrMap)
-	if err != nil {
-		return err
-	}
-
-	iMerged := i
-	// For each language in the local config file
-	for lang, _ := range mdrMap {
-		// TODO, do we want to merge every language in the config with the spec?
-
-		// If we find this is a language override,
-		// merge with the spec and builtin defaults (which were previously merged)
-		// TODO, maybe check for some value in the config which controls merging with defaults?
-		_, ok := langs.DefaultModders[lang]
-		if ok {
-			langSpec := langs.DefaultModders[lang].CueInstance
-			iMerged = cue.Merge(i, langSpec)
-		} else {
-			fmt.Printf("trying to customize unknown language %s\n", lang)
-		}
-	}
-
-	err = iMerged.Value().Decode(&mdrMap)
+	err = i.Value().LookupPath(cue.ParsePath("langs")).Decode(&mdrMap)
 	if err != nil {
 		return err
 	}
 
 	for lang, mdr := range mdrMap {
+		langs.LoadedModders[lang] = mdr
 		LangModderMap[lang] = mdr
 	}
 
