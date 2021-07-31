@@ -23,7 +23,7 @@ type Suite struct {
 	Name string
 
 	// Runtime the Cue values were built from
-	CRT *cue.Runtime
+	CTX *cue.Context
 
 	// Cue Value for the Suite
 	Value cue.Value
@@ -41,11 +41,11 @@ type Suite struct {
 	Errors []error
 }
 
-func getValueTestSuites(crt *cue.Runtime, val cue.Value, labels []string) ([]Suite, error) {
+func getValueTestSuites(ctx *cue.Context, val cue.Value, labels []string) ([]Suite, error) {
 	vals, err := cuetils.GetByAttrKeys(val, "test", append(labels, "suite"), nil)
 	suites := []Suite{}
 	for _, v := range vals {
-		suites = append(suites, Suite{Name: v.Key, CRT: crt, Value: v.Val})
+		suites = append(suites, Suite{Name: v.Key, CTX: ctx, Value: v.Val})
 	}
 	return suites, err
 }
@@ -59,13 +59,15 @@ type Tester struct {
 	Type string
 
 	// Runtime the Cue values were built from
-	CRT *cue.Runtime
+	CTX *cue.Context
 
 	// Cue Value for the Tester
 	Value cue.Value
 
 	// Execution output
 	Output string
+	//Stdout string
+	//Stderr string
 
 	// pass/fail/skip stats
 	Stats Stats
@@ -74,7 +76,7 @@ type Tester struct {
 	Errors []error
 }
 
-func getValueTestSuiteTesters(crt *cue.Runtime, val cue.Value, labels []string) ([]Tester, error) {
+func getValueTestSuiteTesters(ctx *cue.Context, val cue.Value, labels []string) ([]Tester, error) {
 	vals, err := cuetils.GetByAttrKeys(val, "test", labels, []string{})
 	testers := []Tester{}
 	for _, v := range vals {
@@ -83,7 +85,7 @@ func getValueTestSuiteTesters(crt *cue.Runtime, val cue.Value, labels []string) 
 		if err != nil {
 			return testers, err
 		}
-		testers = append(testers, Tester{Name: v.Key, Type: typ, CRT: crt, Value: v.Val})
+		testers = append(testers, Tester{Name: v.Key, Type: typ, CTX: ctx, Value: v.Val})
 	}
 	return testers, err
 }

@@ -2,12 +2,13 @@ package test
 
 import (
 	"fmt"
+	// "encoding/json"
 	"io/ioutil"
 	"strings"
 	"time"
 
 	"cuelang.org/go/cue"
-	"cuelang.org/go/encoding/json"
+	// "cuelang.org/go/encoding/json"
 	"github.com/parnurzeal/gorequest"
 
 	"github.com/hofstadter-io/hof/lib/cuetils"
@@ -237,12 +238,16 @@ func checkResponse(T *Tester, verbose int, actual gorequest.Response, expect cue
 					return err
 				}
 
-				inst, err := json.Decode(T.CRT, "", body)
-				if err != nil {
-					return err
+				V := T.CTX.CompileBytes(body, cue.Filename("body.json"))
+				if V.Err() != nil {
+					return V.Err()
 				}
 
-				V := inst.Value()
+				//inst, err := json.Decode(T.CRT, "", body)
+
+				//V := inst.Value()
+
+				// TODO: bi-directional subsume to check for equality?
 				result := value.Unify(V)
 				if result.Err() != nil {
 					return result.Err()
@@ -251,7 +256,6 @@ func checkResponse(T *Tester, verbose int, actual gorequest.Response, expect cue
 				err = result.Validate()
 				if err != nil {
 					fmt.Println(value)
-					fmt.Println(inst.Value())
 
 					return err
 				}

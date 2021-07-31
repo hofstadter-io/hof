@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"cuelang.org/go/cue"
+	"cuelang.org/go/cue/cuecontext"
 	"cuelang.org/go/cue/build"
 	"cuelang.org/go/cue/errors"
 	"cuelang.org/go/cue/load"
@@ -30,7 +31,7 @@ type Runtime struct {
 	verbose bool
 
 	// Cue ralated
-	CueRT           *cue.Runtime
+	CueCTX          *cue.Context
 	BuildInstances  []*build.Instance
 	CueInstances    []*cue.Instance
 	TopLevelValues  []cue.Value
@@ -46,7 +47,7 @@ func NewRuntime(entrypoints [] string, cmdflags flags.GenFlagpole) (*Runtime) {
 		Entrypoints: entrypoints,
 		Flagpole: cmdflags,
 
-		CueRT: &cue.Runtime{},
+		CueCTX: cuecontext.New(),
 
 		Generators: make(map[string]*gen.Generator),
 	}
@@ -72,19 +73,15 @@ func (R *Runtime) LoadCue() []error {
 		}
 
 		// Build the Instance
-		I, err := R.CueRT.Build(bi)
-		if err != nil {
-		  es := errors.Errors(err)
+		V := R.CueCTX.BuildInstance(bi)
+		if V.Err() != nil {
+		  es := errors.Errors(V.Err())
 			// fmt.Println("BUILD ERR", es, I)
 			for _, e := range es {
 				errs = append(errs, e.(error))
 			}
 			continue
 		}
-		R.CueInstances = append(R.CueInstances, I)
-
-		// Get top level value from cuelang
-		V := I.Value()
 		R.TopLevelValues = append(R.TopLevelValues, V)
 
 		// Get top level struct from cuelang

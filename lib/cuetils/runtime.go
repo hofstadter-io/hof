@@ -9,6 +9,7 @@ import (
 
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/build"
+	"cuelang.org/go/cue/cuecontext"
 	"cuelang.org/go/cue/errors"
 	"cuelang.org/go/cue/load"
 )
@@ -50,7 +51,7 @@ type CueRuntime struct {
 	Workspace   string
 	FS billy.Filesystem
 
-	CueRuntime *cue.Runtime
+	CueContext *cue.Context
 	CueConfig *load.Config
 	BuildInstances []*build.Instance
 	CueErrors []error
@@ -67,9 +68,9 @@ func (CRT *CueRuntime) ConvertToValue(in interface{}) (cue.Value, error) {
 	if !ook {
 		switch T := in.(type) {
 		case string:
-			i, err := CRT.CueRuntime.Compile("", in)
-			if err != nil {
-				return O, err
+			i := CRT.CueContext.CompileString(T)
+			if i.Err() != nil {
+				return O, i.Err()
 			}
 			v := i.Value()
 			if v.Err() != nil {
@@ -108,7 +109,7 @@ func (CRT *CueRuntime) load() (err error) {
 
 	// XXX TODO XXX
 	//  add the second arg from our runtime when implemented
-	CRT.CueRuntime = &cue.Runtime{}
+	CRT.CueContext = cuecontext.New()
 	CRT.BuildInstances = load.Instances(CRT.Entrypoints, nil)
 	for _, bi := range CRT.BuildInstances {
 		// fmt.Printf("%d: start\n", i)
@@ -123,9 +124,9 @@ func (CRT *CueRuntime) load() (err error) {
 		}
 
 		// Build the Instance
-		I, err := CRT.CueRuntime.Build(bi)
-		if err != nil {
-			es := errors.Errors(err)
+		V := CRT.CueContext.BuildInstance(bi)
+		if V.Err() != nil {
+			es := errors.Errors(V.Err())
 			// fmt.Println("BUILD ERR", es, I)
 			for _, e := range es {
 				errs = append(errs, e.(error))
@@ -133,14 +134,7 @@ func (CRT *CueRuntime) load() (err error) {
 			continue
 		}
 
-		// fmt.Println(i, "built", I)
-
-		CRT.CueInstance = I
-
-		// Get top level value from cuelang
-		V := I.Value()
 		CRT.CueValue = V
-		// fmt.Println(i, "valued", V)
 
 		// Decode? we want to be lazy
 		/*

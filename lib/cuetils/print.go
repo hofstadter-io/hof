@@ -63,15 +63,10 @@ func ValueToSyntaxString(val cue.Value, opts ...cue.Option) (string, error) {
 }
 
 func (CRT *CueRuntime) ParseCueExpr(expr string) (cue.Value, error) {
-	inst, err := CRT.CueRuntime.Compile("", expr)
-	if err != nil {
-		return cue.Value{}, err
-	}
-	val := inst.Value()
+	val := CRT.CueContext.CompileString(expr)
 	if val.Err() != nil {
 		return val, val.Err()
 	}
-
 	return val, nil
 }
 
