@@ -8,6 +8,7 @@ ghacue.#Workflow & {
 			"go-version": ["1.15.x", "1.16.x"]
 			os: ["ubuntu-latest", "macos-latest", "windows-latest"]
 		}
+		strategy: "fail-fast": false
 		"runs-on": "${{ matrix.os }}"
 		steps: [{
 			name: "Install Go"
