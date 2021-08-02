@@ -27,6 +27,7 @@ require (
 	github.com/hofstadter-io/data-utils v0.0.0-20200128210141-0a3e569b27ed
 	github.com/hofstadter-io/dotpath v0.0.0-20191027071558-52e2819b7d2d
 	github.com/hofstadter-io/hof-lang v0.0.0-20180925221847-4d1c962b0729
+	github.com/kevinburke/ssh_config v1.1.0
 	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
 	github.com/kr/pretty v0.2.0
 	github.com/mattn/go-colorable v0.1.6 // indirect
@@ -45,12 +46,10 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.7.0
 	github.com/stretchr/testify v1.6.1
+	github.com/xanzy/go-gitlab v0.50.1
 	go.uber.org/zap v1.15.0
-	golang.org/x/crypto v0.0.0-20200604202706-70a84ac30bf9 // indirect
 	golang.org/x/mod v0.3.1-0.20200828183125-ce943fd02449
-	golang.org/x/net v0.0.0-20200602114024-627f9648deb9 // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	golang.org/x/sys v0.0.0-20200615200032-f1bc736245b1 // indirect
 	golang.org/x/text v0.3.3
 	google.golang.org/appengine v1.6.6 // indirect
 	google.golang.org/protobuf v1.24.0 // indirect

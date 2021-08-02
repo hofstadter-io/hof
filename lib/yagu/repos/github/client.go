@@ -9,10 +9,12 @@ import (
 	"github.com/google/go-github/v30/github"
 )
 
+const TokenEnv = "GITHUB_TOKEN"
+
 func NewClient() (client *github.Client, err error) {
 	ctx := context.Background()
 
-	if token := os.Getenv("GITHUB_TOKEN"); token != "" {
+	if token := os.Getenv(TokenEnv); token != "" {
 		ts := oauth2.StaticTokenSource(
 			&oauth2.Token{AccessToken: token},
 		)

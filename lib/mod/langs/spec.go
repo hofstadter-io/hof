@@ -10,6 +10,7 @@ langs: #Spec
 	SumFile:  string,
 	ModsDir:  string,
 	MappingFile: string,
+	PrivateEnvVar?: string,
 
 	NoLoad?: bool,
 	CommandInit?: [...[...string]],

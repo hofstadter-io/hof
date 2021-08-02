@@ -3,21 +3,19 @@ package cache
 import (
 	"fmt"
 	"os"
-	"strings"
 
-	googithub "github.com/google/go-github/v30/github"
 	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-billy/v5/memfs"
+	googithub "github.com/google/go-github/v30/github"
 
 	"github.com/hofstadter-io/hof/lib/yagu"
+	"github.com/hofstadter-io/hof/lib/yagu/repos/git"
 	"github.com/hofstadter-io/hof/lib/yagu/repos/github"
+	"github.com/hofstadter-io/hof/lib/yagu/repos/gitlab"
 )
 
-func Fetch(lang, mod, ver string) (err error) {
-	flds := strings.Split(mod, "/")
-	remote := flds[0]
-	owner := flds[1]
-	repo := flds[2]
+func Fetch(lang, mod, ver, pev string) (err error) {
+	remote, owner, repo := parseModURL(mod)
 	tag := ver
 
 	dir := Outdir(lang, remote, owner, repo, tag)
@@ -27,8 +25,11 @@ func Fetch(lang, mod, ver string) (err error) {
 		if _, ok := err.(*os.PathError); !ok && err.Error() != "file does not exist" && err.Error() != "no such file or directory" {
 			return err
 		}
-		// not found
-		fetch(lang, mod, ver)
+		// not found, try fetching deps
+		private := MatchPrefixPatterns(os.Getenv(pev), mod)
+		if err := fetch(lang, mod, ver, private); err != nil {
+			return err
+		}
 	}
 
 	// else we have it already
@@ -37,20 +38,55 @@ func Fetch(lang, mod, ver string) (err error) {
 	return nil
 }
 
-func fetch(lang, mod, ver string) error {
-	flds := strings.Split(mod, "/")
-	remote := flds[0]
-	owner := flds[1]
-	repo := flds[2]
+func fetch(lang, mod, ver string, private bool) error {
+	remote, owner, repo := parseModURL(mod)
 	tag := ver
 
-	switch remote {
-	case "github.com":
+	if private {
+		return fetchGit(lang, remote, owner, repo, tag, true)
+	} else if remote == "github.com" {
 		return fetchGitHub(lang, owner, repo, tag)
-
-	default:
-		return fmt.Errorf("Unknown remote: %q in %s", remote, mod)
+	} else if remote == "gitlab.com" {
+		return fetchGitLab(lang, owner, repo, tag)
 	}
+	return fetchGit(lang, remote, owner, repo, tag, private)
+}
+
+func fetchGit(lang, remote, owner, repo, tag string, private bool) error {
+	FS := memfs.New()
+
+	if err := git.FetchGit(FS, remote, owner, repo, tag, private); err != nil {
+		return fmt.Errorf("While fetching from git\n%w\n", err)
+	}
+
+	if err := Write(lang, remote, owner, repo, tag, FS); err != nil {
+		return fmt.Errorf("While writing to cache\n%w\n", err)
+	}
+
+	return nil
+}
+
+func fetchGitLab(lang, owner, repo, tag string) (err error) {
+	FS := memfs.New()
+	client, err := gitlab.NewClient()
+	if err != nil {
+		return err
+	}
+
+	zReader, err := gitlab.FetchZip(client, owner, repo, tag)
+	if err != nil {
+		return fmt.Errorf("While fetching from GitLab\n%w\n", err)
+	}
+
+	if err := yagu.BillyLoadFromZip(zReader, FS, true); err != nil {
+		return fmt.Errorf("While reading zipfile\n%w\n", err)
+	}
+
+	if err := Write(lang, "gitlab.com", owner, repo, tag, FS); err != nil {
+		return fmt.Errorf("While writing to cache\n%w\n", err)
+	}
+
+	return nil
 }
 
 func fetchGitHub(lang, owner, repo, tag string) (err error) {
@@ -65,19 +101,6 @@ func fetchGitHub(lang, owner, repo, tag string) (err error) {
 		return fmt.Errorf("While fetching from github\n%w\n", err)
 	}
 
-	/*
-	fmt.Println("filelist:")
-	files, err := yagu.BillyGetFilelist(FS)
-	if err != nil {
-		return fmt.Errorf("While getting filelist\n%w\n", err)
-	}
-
-	for _, f := range files {
-		fmt.Println(" -", f.Name())
-	}
-
-	fmt.Println("Writing...", )
-	*/
 	err = Write(lang, "github.com", owner, repo, tag, FS)
 	if err != nil {
 		return fmt.Errorf("While writing to cache\n%w\n", err)

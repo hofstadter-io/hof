@@ -8,6 +8,7 @@ langs: go: {
 	SumFile:       "go.sum",
 	ModsDir:       "vendor",
 	MappingFile:   "vendor/modules.txt",
+	PrivateEnvVar: "GOPRIVATE"
 	CommandInit:   [["go", "mod", "init"]],
 	CommandGraph:  [["go", "mod", "graph"]],
 	CommandTidy:   [["go", "mod", "tidy"]],
