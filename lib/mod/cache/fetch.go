@@ -21,7 +21,7 @@ import (
 )
 
 func Fetch(lang, mod, ver string) (err error) {
-	remote, owner, repo := splitMod(mod)
+	remote, owner, repo := parseModURL(mod)
 	tag := ver
 
 	dir := Outdir(lang, remote, owner, repo, tag)
@@ -44,7 +44,7 @@ func Fetch(lang, mod, ver string) (err error) {
 }
 
 func fetch(lang, mod, ver string) error {
-	remote, owner, repo := splitMod(mod)
+	remote, owner, repo := parseModURL(mod)
 	tag := ver
 
 	switch remote {

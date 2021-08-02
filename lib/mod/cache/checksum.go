@@ -7,7 +7,7 @@ import (
 )
 
 func Checksum(lang, mod, ver string) (string, error) {
-	remote, owner, repo := splitMod(mod)
+	remote, owner, repo := parseModURL(mod)
 	tag := ver
 
 	dir := Outdir(lang, remote, owner, repo, tag)

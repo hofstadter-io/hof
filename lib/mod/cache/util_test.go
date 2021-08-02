@@ -19,7 +19,7 @@ func TestSplitMod(t *testing.T) {
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			rm, o, rp := splitMod(tc.mod)
+			rm, o, rp := parseModURL(tc.mod)
 			if fmt.Sprintf("%s/%s/%s", rm, o, rp) != tc.expected {
 				t.Fatalf("expected: %v, got: %s/%s/%s", tc.expected, rm, o, rp)
 			}
