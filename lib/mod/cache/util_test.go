@@ -1,7 +1,7 @@
 package cache
 
 import (
-	"fmt"
+	"path"
 	"testing"
 )
 
@@ -15,13 +15,15 @@ func TestSplitMod(t *testing.T) {
 		"complex":            {mod: "gitlab.com/owner/repo.git/submodule", expected: "gitlab.com/owner/repo"},
 		"subgroup":           {mod: "gitlab.com/owner/subgroup/repo.git", expected: "gitlab.com/owner/subgroup/repo"},
 		"subgroup+submodule": {mod: "gitlab.com/owner/subgroup/repo.git/submodule", expected: "gitlab.com/owner/subgroup/repo"},
+		"small":              {mod: "cuelang.org/go", expected: "cuelang.org/go"},
 	}
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			rm, o, rp := parseModURL(tc.mod)
-			if fmt.Sprintf("%s/%s/%s", rm, o, rp) != tc.expected {
-				t.Fatalf("expected: %v, got: %s/%s/%s", tc.expected, rm, o, rp)
+			got := path.Join(rm, o, rp)
+			if got != tc.expected {
+				t.Fatalf("expected: %v, got: %s", tc.expected, got)
 			}
 		})
 	}

@@ -1,7 +1,7 @@
 package langs
 
 const CuelangModder = `
-cue: {
+langs: cue: {
 	Name:          "cue"
 	Version:       "v0.4.0"
 	ModFile:       "cue.mods"

@@ -3,6 +3,7 @@ package git
 import (
 	"fmt"
 	"os"
+	"path"
 	"strings"
 
 	"github.com/go-git/go-billy/v5"
@@ -93,8 +94,9 @@ func CloneRepoRef(srcUrl string, ref *plumbing.Reference) (*GitRepo, error) {
 // FetchGit clone the repository inside FS.
 // If private flag is set, it will look for netrc credentials, fallbacking to SSH
 func FetchGit(FS billy.Filesystem, remote, owner, repo, tag string, private bool) error {
+	srcRepo := path.Join(owner, repo)
 	gco := &gogit.CloneOptions{
-		URL:   fmt.Sprintf("https://%s/%s/%s", remote, owner, repo),
+		URL:   fmt.Sprintf("https://%s/%s", remote, srcRepo),
 		Depth: 1,
 	}
 
@@ -111,9 +113,9 @@ func FetchGit(FS billy.Filesystem, remote, owner, repo, tag string, private bool
 			}
 		} else if ssh, err := SSHCredentials(remote); err == nil {
 			gco.Auth = ssh.Keys
-			gco.URL = fmt.Sprintf("%s@%s:%s/%s", ssh.User, remote, owner, repo)
+			gco.URL = fmt.Sprintf("%s@%s:%s", ssh.User, remote, srcRepo)
 		} else {
-			gco.URL = fmt.Sprintf("%s@%s:%s/%s", "git", remote, owner, repo)
+			gco.URL = fmt.Sprintf("%s@%s:%s", "git", remote, srcRepo)
 		}
 	}
 

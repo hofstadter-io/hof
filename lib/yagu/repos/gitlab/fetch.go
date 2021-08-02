@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"fmt"
+	"path"
 
 	"github.com/xanzy/go-gitlab"
 )
@@ -24,7 +25,7 @@ func fetchShaZip(client *gitlab.Client, pid interface{}, sha string) (*zip.Reade
 }
 
 func FetchZip(client *gitlab.Client, owner, repo, tag string) (*zip.Reader, error) {
-	pid := fmt.Sprintf("%s/%s", owner, repo)
+	pid := path.Join(owner, repo)
 
 	var sha string
 

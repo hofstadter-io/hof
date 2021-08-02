@@ -13,6 +13,10 @@ func parseModURL(mod string) (remote, owner, repo string) {
 		flds = strings.Split(mod, "/")
 	}
 
+	if len(flds) < 3 {
+		return flds[0], "", flds[1]
+	}
+
 	return flds[0], flds[1], flds[2]
 }
 
