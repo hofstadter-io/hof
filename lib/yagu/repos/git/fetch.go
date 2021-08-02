@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-billy/v5/memfs"
 	"github.com/go-git/go-billy/v5/osfs"
 	gogit "github.com/go-git/go-git/v5"
@@ -87,4 +88,36 @@ func CloneRepoRef(srcUrl string, ref *plumbing.Reference) (*GitRepo, error) {
 		FS:    fs,
 		Repo:  r,
 	}, nil
+}
+
+// FetchGit clone the repository inside FS.
+// If private flag is set, it will look for netrc credentials, fallbacking to SSH
+func FetchGit(FS billy.Filesystem, remote, owner, repo, tag string, private bool) error {
+	gco := &gogit.CloneOptions{
+		URL:   fmt.Sprintf("https://%s/%s/%s", remote, owner, repo),
+		Depth: 1,
+	}
+
+	if tag != "v0.0.0" {
+		gco.ReferenceName = plumbing.NewTagReferenceName(tag)
+		gco.SingleBranch = true
+	}
+
+	if private {
+		if netrc, err := NetrcCredentials(remote); err != nil {
+			gco.Auth = &http.BasicAuth{
+				Username: netrc.Login,
+				Password: netrc.Password,
+			}
+		} else if ssh, err := SSHCredentials(remote); err != nil {
+			gco.Auth = ssh.Keys
+			gco.URL = fmt.Sprintf("%s@%s:%s/%s", ssh.User, remote, owner, repo)
+		} else {
+			return err
+		}
+	}
+
+	_, err := gogit.Clone(memory.NewStorage(), FS, gco)
+
+	return err
 }

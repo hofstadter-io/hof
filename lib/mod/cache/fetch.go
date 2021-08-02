@@ -3,19 +3,13 @@ package cache
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-billy/v5/memfs"
-	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
-	"github.com/go-git/go-git/v5/plumbing/transport"
-	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
-	"github.com/go-git/go-git/v5/storage/memory"
 	googithub "github.com/google/go-github/v30/github"
-	"github.com/kevinburke/ssh_config"
 
 	"github.com/hofstadter-io/hof/lib/yagu"
+	"github.com/hofstadter-io/hof/lib/yagu/repos/git"
 	"github.com/hofstadter-io/hof/lib/yagu/repos/github"
 	"github.com/hofstadter-io/hof/lib/yagu/repos/gitlab"
 )
@@ -60,31 +54,9 @@ func fetch(lang, mod, ver string) error {
 func fetchGit(lang, remote, owner, repo, tag string) error {
 	FS := memfs.New()
 
-	gco := &git.CloneOptions{
-		URL:   fmt.Sprintf("https://%s/%s/%s", remote, owner, repo),
-		Depth: 1,
-	}
-	if tag != "v0.0.0" {
-		gco.ReferenceName = plumbing.NewTagReferenceName(tag)
-		gco.SingleBranch = true
-	}
-
-	if _, err := git.Clone(memory.NewStorage(), FS, gco); err != nil {
-		if err != transport.ErrAuthenticationRequired {
-			return err
-		}
-
-		// Needs auth
-		newRemote, auth, err := getSSHAuth(remote)
-		if err != nil {
-			return err
-		}
-		gco.URL = fmt.Sprintf("%s:%s/%s", newRemote, owner, repo)
-		gco.Auth = auth
-
-		if _, err := git.Clone(memory.NewStorage(), FS, gco); err != nil {
-			return err
-		}
+	// TODO retreive private config
+	if err := git.FetchGit(FS, remote, owner, repo, tag, false); err != nil {
+		return fmt.Errorf("While fetching from git\n%w\n", err)
 	}
 
 	if err := Write(lang, remote, owner, repo, tag, FS); err != nil {
@@ -92,29 +64,6 @@ func fetchGit(lang, remote, owner, repo, tag string) error {
 	}
 
 	return nil
-}
-
-func getSSHAuth(remote string) (string, *ssh.PublicKeys, error) {
-	pk, err := ssh_config.GetStrict(remote, "IdentityFile")
-	if err != nil {
-		return "", nil, err
-	}
-	if strings.HasPrefix(pk, "~") {
-		if hdir, err := os.UserHomeDir(); err == nil {
-			pk = strings.Replace(pk, "~", hdir, 1)
-		}
-	}
-	usr := ssh_config.Get(remote, "User")
-	if usr == "" {
-		usr = "git"
-	}
-
-	pks, err := ssh.NewPublicKeysFromFile(usr, pk, "")
-	if err != nil {
-		return "", nil, err
-	}
-
-	return fmt.Sprintf("%s@%s", usr, remote), pks, nil
 }
 
 func fetchGitLab(lang, owner, repo, tag string) (err error) {
