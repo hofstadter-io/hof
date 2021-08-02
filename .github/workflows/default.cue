@@ -22,10 +22,10 @@ ghacue.#Workflow & {
 			run: "go mod download"
 		},{
 			name: "Build CLI"
-			run: "go build -o hof ./cmd/hof"
+			run: "go install ./cmd/hof"
 		},{
 			name: "Run tests"
-			run: "./hof test test.cue"
+			run: "hof test test.cue"
 		}]
 	}
 }
