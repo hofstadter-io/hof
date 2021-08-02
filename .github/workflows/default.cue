@@ -17,11 +17,14 @@ ghacue.#Workflow & {
 			name: "Checkout code"
 			uses: "actions/checkout@v2"
 		},{
-			name: "Build hof"
-			run: """
-			go mod download
-			GOOS=${{ matrix.os }} go build ./cmd/hof
-			"""
+			name: "Download mods"
+			run: "go mod download"
+		},{
+			name: "Build CLI"
+			run: "go build ./cmd/hof -o hof"
+		},{
+			name: "Run tests"
+			run: "./hof test test.cue"
 		}]
 	}
 }
