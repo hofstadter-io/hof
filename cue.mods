@@ -7,5 +7,6 @@ require (
   github.com/hofstadter-io/hofmod-cuefig v0.0.3
 )
 
+replace github.com/hofstadter-io/ghacue => ../ghacue
 replace github.com/hofstadter-io/hofmod-cli    => ../mods/cli
 replace github.com/hofstadter-io/hofmod-cuefig => ../mods/cuefig

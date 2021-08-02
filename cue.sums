@@ -2,6 +2,8 @@ github.com/hofstadter-io/cuelib v0.0.5 h1:qvdAC7syR2NzZ45QlSfD3hNHDOiqi7eBasE8ZY
 github.com/hofstadter-io/cuelib v0.0.5/cue.mods h1:cva4f8ge4Qb6GOEqa9AhdF1pIBnGwGuPda+CITwLDCs=
 github.com/hofstadter-io/cuetest v0.0.2 h1:UAzHAbZYF1dPck2qQAJ4FwhVC1op7F7s+4UC0FQV7eg=
 github.com/hofstadter-io/cuetest v0.0.2/cue.mods h1:KE5GytNGpbuRzzNWR5Lq7KAy04uu3fQ3hCClpF7+olE=
+github.com/hofstadter-io/ghacue v0.0.0 h1:I6pZS3dsvuxH4f7l9EULpvkO+cmIBKp2f0R9EK045X8=
+github.com/hofstadter-io/ghacue v0.0.0/cue.mods h1:6BbcRic6px1+lCLiW6O5dYt+GcCpnmzdpbcILHrqhOQ=
 github.com/hofstadter-io/hofmod-cli v0.0.0 h1:QlL53XCCwLCzIpN6Y8n9+veyTmQH7BywSGpRaX78sAo=
 github.com/hofstadter-io/hofmod-cli v0.0.0/cue.mods h1:CZbXtU+Ia+oNdgLkkVeT/Mr4AG735lmVF/ngrbbCf28=
 github.com/hofstadter-io/hofmod-cli v0.3.5 h1:AKf1BeHDiVvRZLPoNC0gaRq+8H3vwnQrW/1IryOOydM=
