@@ -14,7 +14,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/yagu/repos/gitlab"
 )
 
-func Fetch(lang, mod, ver string) (err error) {
+func Fetch(lang, mod, ver, pev string) (err error) {
 	remote, owner, repo := parseModURL(mod)
 	tag := ver
 
@@ -26,7 +26,8 @@ func Fetch(lang, mod, ver string) (err error) {
 			return err
 		}
 		// not found, try fetching deps
-		if err := fetch(lang, mod, ver); err != nil {
+		private := MatchPrefixPatterns(os.Getenv(pev), mod)
+		if err := fetch(lang, mod, ver, private); err != nil {
 			return err
 		}
 	}
@@ -37,25 +38,24 @@ func Fetch(lang, mod, ver string) (err error) {
 	return nil
 }
 
-func fetch(lang, mod, ver string) error {
+func fetch(lang, mod, ver string, private bool) error {
 	remote, owner, repo := parseModURL(mod)
 	tag := ver
 
-	switch remote {
-	case "github.com":
+	if private {
+		return fetchGit(lang, remote, owner, repo, tag, true)
+	} else if remote == "github.com" {
 		return fetchGitHub(lang, owner, repo, tag)
-	case "gitlab.com":
+	} else if remote == "gitlab.com" {
 		return fetchGitLab(lang, owner, repo, tag)
-	default:
-		return fetchGit(lang, remote, owner, repo, tag)
 	}
+	return fetchGit(lang, remote, owner, repo, tag, private)
 }
 
-func fetchGit(lang, remote, owner, repo, tag string) error {
+func fetchGit(lang, remote, owner, repo, tag string, private bool) error {
 	FS := memfs.New()
 
-	// TODO retreive private config
-	if err := git.FetchGit(FS, remote, owner, repo, tag, false); err != nil {
+	if err := git.FetchGit(FS, remote, owner, repo, tag, private); err != nil {
 		return fmt.Errorf("While fetching from git\n%w\n", err)
 	}
 

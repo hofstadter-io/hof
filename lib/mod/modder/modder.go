@@ -20,10 +20,11 @@ type Modder struct {
 	Version string `yaml:"Version",omitempty`
 
 	// Module information
-	ModFile     string `yaml:"ModFile",omitempty`
-	SumFile     string `yaml:"SumFile",omitempty`
-	ModsDir     string `yaml:"ModsDir",omitempty`
-	MappingFile string `yaml:"MappingFile",omitempty`
+	ModFile       string `yaml:"ModFile",omitempty`
+	SumFile       string `yaml:"SumFile",omitempty`
+	ModsDir       string `yaml:"ModsDir",omitempty`
+	MappingFile   string `yaml:"MappingFile",omitempty`
+	PrivateEnvVar string `yaml:"PrivateEnvVar",omitempty`
 
 	// Commands override default, configuragble processing
 	// for things like golang

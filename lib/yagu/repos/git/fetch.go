@@ -104,16 +104,16 @@ func FetchGit(FS billy.Filesystem, remote, owner, repo, tag string, private bool
 	}
 
 	if private {
-		if netrc, err := NetrcCredentials(remote); err != nil {
+		if netrc, err := NetrcCredentials(remote); err == nil {
 			gco.Auth = &http.BasicAuth{
 				Username: netrc.Login,
 				Password: netrc.Password,
 			}
-		} else if ssh, err := SSHCredentials(remote); err != nil {
+		} else if ssh, err := SSHCredentials(remote); err == nil {
 			gco.Auth = ssh.Keys
 			gco.URL = fmt.Sprintf("%s@%s:%s/%s", ssh.User, remote, owner, repo)
 		} else {
-			return err
+			gco.URL = fmt.Sprintf("%s@%s:%s/%s", "git", remote, owner, repo)
 		}
 	}
 

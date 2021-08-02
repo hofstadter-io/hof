@@ -33,7 +33,9 @@ func NetrcMachines() map[string]NetrcMachine {
 }
 
 func NetrcCredentials(machine string) (NetrcMachine, error) {
-	if cred, ok := netrc[machine]; ok {
+	machines := NetrcMachines()
+
+	if cred, ok := machines[machine]; ok {
 		return cred, nil
 	}
 

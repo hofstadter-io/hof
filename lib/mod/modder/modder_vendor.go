@@ -140,7 +140,7 @@ func (mdr *Modder) LoadRemoteModule(R Replace) error {
 		m.Version = R.NewVersion
 	}
 
-	err := cache.Fetch(mdr.Name, R.NewPath, R.NewVersion)
+	err := cache.Fetch(mdr.Name, R.NewPath, R.NewVersion, mdr.PrivateEnvVar)
 	if err != nil {
 		return err
 	}
