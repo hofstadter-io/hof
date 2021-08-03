@@ -114,9 +114,7 @@ func fetchGitHubBranch(FS billy.Filesystem, lang, owner, repo, branch string) er
 		return err
 	}
 
-	// TODO find and set default branch
 	if branch == "" {
-		branch = "master"
 		r, err := github.GetRepo(client, owner, repo)
 		if err != nil {
 			return err
@@ -128,7 +126,7 @@ func fetchGitHubBranch(FS billy.Filesystem, lang, owner, repo, branch string) er
 
 	// fmt.Println("Fetch github BRANCH", lang, owner, repo, branch)
 
-	zReader, err := github.FetchBranchZip(client, branch)
+	zReader, err := github.FetchBranchZip(client, owner, repo, branch)
 	if err != nil {
 		return fmt.Errorf("While fetching branch zipfile for %s/%s@%s\n%w\n", owner, repo, branch, err)
 	}

@@ -77,9 +77,9 @@ func FetchTagZip(client *github.Client, tag *github.RepositoryTag) (*zip.Reader,
 	return zfile, err
 }
 
-func FetchBranchZip(client *github.Client, branch string) (*zip.Reader, error) {
+func FetchBranchZip(client *github.Client, owner, repo, branch string) (*zip.Reader, error) {
 
-	url := fmt.Sprintf("https://github.com/hofstadter-io/hof/archive/%s.zip", branch)
+	url := fmt.Sprintf("https://github.com/%s/%s/archive/refs/heads/%s.zip", owner, repo, branch)
 
 	req := gorequest.New().Get(url)
 	resp, data, errs := req.EndBytes()
