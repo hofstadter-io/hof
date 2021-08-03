@@ -5,7 +5,7 @@ ghacue.#Workflow & {
 	on: ["push", "pull_request"]
 	jobs: test: {
 		strategy: matrix: {
-			"go-version": ["1.15.x", "1.16.x"]
+			"go-version": ["1.16.x"]
 			os: ["ubuntu-latest", "macos-latest", "windows-latest"]
 		}
 		strategy: "fail-fast": false
