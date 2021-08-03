@@ -121,6 +121,7 @@ func fetchGitHubBranch(FS billy.Filesystem, lang, owner, repo, branch string) er
 		if err != nil {
 			return err
 		}
+		branch = *r.DefaultBranch
 
 		fmt.Printf("%#+v\n", *r)
 	}
@@ -129,7 +130,7 @@ func fetchGitHubBranch(FS billy.Filesystem, lang, owner, repo, branch string) er
 
 	zReader, err := github.FetchBranchZip(client, branch)
 	if err != nil {
-		return fmt.Errorf("While fetching branch zipfile\n%w\n", err)
+		return fmt.Errorf("While fetching branch zipfile for %s/%s@%s\n%w\n", owner, repo, branch, err)
 	}
 
 	err = yagu.BillyLoadFromZip(zReader, FS, true)

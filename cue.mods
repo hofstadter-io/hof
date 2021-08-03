@@ -3,6 +3,7 @@ module github.com/hofstadter-io/hof
 cue master
 
 require (
+  github.com/hofstadter-io/ghacue v0.0.0
   github.com/hofstadter-io/hofmod-cli v0.6.3
   github.com/hofstadter-io/hofmod-cuefig v0.0.3
 )

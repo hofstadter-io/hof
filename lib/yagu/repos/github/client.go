@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"golang.org/x/oauth2"
@@ -22,6 +23,7 @@ func NewClient() (client *github.Client, err error) {
 		client = github.NewClient(tc)
 
 	} else {
+		fmt.Println("Got Here GitHub")
 		client = github.NewClient(nil)
 	}
 

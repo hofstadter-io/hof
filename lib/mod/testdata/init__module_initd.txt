@@ -6,6 +6,6 @@ stdout '^cue.mods already exists\n$'
 -- cue.mods --
 module github.com/test/existsmod
 
-cue v0.2.0
+cue v0.4.0
 -- dummy-end --
 

@@ -12,6 +12,7 @@ langs: cue: {
 	InitTemplates: {
 		"cue.mod/module.cue": """
 		module: "{{ .Module }}"
+
 		"""
 	}
 	VendorExcludeGlobs: [
