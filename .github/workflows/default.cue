@@ -25,7 +25,10 @@ ghacue.#Workflow & {
 			run: "go install ./cmd/hof"
 		},{
 			name: "Run tests"
-			run: "hof test test.cue"
+			run: """
+			hof test test.cue -s gen -t test
+			hof test test.cue -s lib -t test -t mod
+			"""
 		}]
 	}
 }
