@@ -2,7 +2,6 @@ package github
 
 import (
 	"context"
-	"fmt"
 	"os"
 
 	"golang.org/x/oauth2"
@@ -16,7 +15,6 @@ func NewClient() (client *github.Client, err error) {
 	ctx := context.Background()
 
 	if token := os.Getenv(TokenEnv); token != "" {
-		fmt.Println("GITHUB OAUTH")
 		ts := oauth2.StaticTokenSource(
 			&oauth2.Token{AccessToken: token},
 		)
