@@ -95,7 +95,7 @@ func CloneRepoRef(srcUrl string, ref *plumbing.Reference) (*GitRepo, error) {
 
 // FetchGit clone the repository inside FS.
 // If private flag is set, it will look for netrc credentials, fallbacking to SSH
-func FetchGit(FS billy.Filesystem, remote, owner, repo, tag string, private bool) error {
+func Fetch(FS billy.Filesystem, remote, owner, repo, tag string, private bool) error {
 	srcRepo := path.Join(owner, repo)
 	gco := &gogit.CloneOptions{
 		URL:   fmt.Sprintf("https://%s/%s", remote, srcRepo),

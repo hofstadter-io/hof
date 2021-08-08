@@ -6,7 +6,10 @@ import (
 	"fmt"
 	"path"
 
+	"github.com/go-git/go-billy/v5"
 	"github.com/xanzy/go-gitlab"
+
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 func fetchShaZip(client *gitlab.Client, pid interface{}, sha string) (*zip.Reader, error) {
@@ -24,7 +27,12 @@ func fetchShaZip(client *gitlab.Client, pid interface{}, sha string) (*zip.Reade
 	return zip.NewReader(r, int64(len(data)))
 }
 
-func FetchZip(client *gitlab.Client, owner, repo, tag string) (*zip.Reader, error) {
+func Fetch(FS billy.Filesystem, owner, repo, tag string) (error) {
+	client, err := NewClient()
+	if err != nil {
+		return err
+	}
+
 	pid := path.Join(owner, repo)
 
 	var sha string
@@ -32,7 +40,7 @@ func FetchZip(client *gitlab.Client, owner, repo, tag string) (*zip.Reader, erro
 	if tag == "v0.0.0" {
 		bs, _, err := client.Branches.ListBranches(pid, nil)
 		if err != nil {
-			return nil, err
+			return  err
 		}
 
 		var branch *gitlab.Branch
@@ -46,18 +54,27 @@ func FetchZip(client *gitlab.Client, owner, repo, tag string) (*zip.Reader, erro
 		}
 
 		if branch == nil {
-			return nil, fmt.Errorf("Could not find default branch for repository %s", pid)
+			return fmt.Errorf("Could not find default branch for repository %s", pid)
 		}
 
 		sha = branch.Commit.ID
 	} else {
 		t, _, err := client.Tags.GetTag(pid, tag)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		sha = t.Commit.ID
 	}
 
-	return fetchShaZip(client, pid, sha)
+	zReader, err := fetchShaZip(client, pid, sha)
+	if err != nil {
+		return fmt.Errorf("While fetching from GitLab\n%w\n", err)
+	}
+
+	if err := yagu.BillyLoadFromZip(zReader, FS, true); err != nil {
+		return fmt.Errorf("While reading zipfile\n%w\n", err)
+	}
+
+	return nil
 }

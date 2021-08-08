@@ -3,49 +3,69 @@ package github
 import (
 	"archive/zip"
 	"bytes"
-	"context"
 	"fmt"
 	"strings"
 
+	"github.com/go-git/go-billy/v5"
 	"github.com/google/go-github/v30/github"
 	"github.com/parnurzeal/gorequest"
+
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
-func GetTagsSplit(client *github.Client, module string) ([]*github.RepositoryTag, error) {
-	flds := strings.SplitN(module, "/", 1)
-	domain, rest := flds[0], flds[1]
-
-	if domain != "github.com" {
-		return nil, fmt.Errorf("Github Tags Fetch called with non 'github.com' domain %q", module)
-	}
-
-	flds = strings.Split(rest, "/")
-	owner, repo := flds[0], flds[1]
-	tags, _, err := client.Repositories.ListTags(context.Background(), owner, repo, nil)
+func Fetch(FS billy.Filesystem, owner, repo, tag string) (error) {
+	client, err := NewClient()
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return tags, nil
-}
 
-func GetRepo(client *github.Client, owner, repo string) (*github.Repository, error) {
-	r, _, err := client.Repositories.Get(context.Background(), owner, repo)
-	return r, err
-}
+	var zReader *zip.Reader
 
-func GetBranch(client *github.Client, owner, repo, branch string) (*github.Branch, error) {
-	b, _, err := client.Repositories.GetBranch(context.Background(), owner, repo, branch)
-	return b, err
-}
+	if tag == "v0.0.0" {
+		r, err := GetRepo(client, owner, repo)
+		if err != nil {
+			return err
+		}
 
-func GetBranches(client *github.Client, owner, repo, branch string) ([]*github.Branch, error) {
-	bs, _, err := client.Repositories.ListBranches(context.Background(), owner, repo, nil)
-	return bs, err
-}
+		zReader, err = FetchBranchZip(client, owner, repo, *r.DefaultBranch)
+		if err != nil {
+			return fmt.Errorf("While fetching branch zipfile for %s/%s@%s\n%w\n", owner, repo, *r.DefaultBranch, err)
+		}
+	} else {
+		tags, err := GetTags(client, owner, repo)
+		if err != nil {
+			return err
+		}
 
-func GetTags(client *github.Client, owner, repo string) ([]*github.RepositoryTag, error) {
-	tags, _, err := client.Repositories.ListTags(context.Background(), owner, repo, nil)
-	return tags, err
+		// The tag we are looking for
+		var T *github.RepositoryTag
+		for _, t := range tags {
+			if tag != "" && tag == *t.Name {
+				T = t
+				// fmt.Printf("FOUND  %v\n", *t.Name)
+			}
+		}
+
+		if T == nil {
+			return fmt.Errorf("Did not find tag %q for 'https://github.com/%s/%s' @%s", tag, owner, repo, tag)
+		}
+
+		zReader, err = FetchTagZip(client, T)
+		if err != nil {
+			fmt.Printf("Error: %v\n", err)
+			return fmt.Errorf("While fetching tag zipfile\n%w\n", err)
+		}
+	}
+
+	if err != nil {
+		return fmt.Errorf("While fetching from github\n%w\n", err)
+	}
+
+	if err := yagu.BillyLoadFromZip(zReader, FS, true); err != nil {
+		return fmt.Errorf("While reading zipfile\n%w\n", err)
+	}
+
+	return nil
 }
 
 func FetchTagZip(client *github.Client, tag *github.RepositoryTag) (*zip.Reader, error) {
