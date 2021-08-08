@@ -41,9 +41,6 @@ basic: {
 
 	post: _ @test(api,basic,post)
 	post: {
-		#args: {
-			foo: "bar"
-		}
 		req: basePost & {
 			data: {
 				cow: "moo"
@@ -52,10 +49,29 @@ basic: {
 		resp: {
 			status: 200
 			body: {
-				args: #args
-				json: {
+				json: close({
 					cow: "moo"
-				}
+				})
+				...
+			}
+		}
+	}
+
+	fail: _ @test(api,basic,fail)
+	fail: {
+		fail: true
+		req: basePost & {
+			data: {
+				cow: "moo"
+				foo: "bar"
+			}
+		}
+		resp: {
+			status: 200
+			body: {
+				json: close({
+					cow: "moo"
+				})
 				...
 			}
 		}

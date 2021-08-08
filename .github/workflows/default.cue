@@ -32,6 +32,11 @@ ghacue.#Workflow & {
 			env: {
 				GITHUB_TOKEN: "${secrets.GITHUB_TOKEN}"
 			}
+		},{
+			name: "Run extra tests"
+			run: """
+			hof test test/testers/api/postman.cue
+			"""
 		}]
 	}
 }

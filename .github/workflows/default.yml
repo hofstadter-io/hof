@@ -31,4 +31,6 @@ jobs:
         hof test test.cue -s lib -t test -t mod
       env:
         GITHUB_TOKEN: ${secrets.GITHUB_TOKEN}
+    - name: Run extra tests
+      run: hof test test/testers/api/postman.cue
     services: {}
