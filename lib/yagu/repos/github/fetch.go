@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/go-git/go-billy/v5"
@@ -31,6 +32,7 @@ func Fetch(FS billy.Filesystem, owner, repo, tag string) (error) {
 		if err != nil {
 			return fmt.Errorf("While fetching branch zipfile for %s/%s@%s\n%w\n", owner, repo, *r.DefaultBranch, err)
 		}
+
 	} else {
 		tags, err := GetTags(client, owner, repo)
 		if err != nil {
@@ -75,6 +77,11 @@ func FetchTagZip(client *github.Client, tag *github.RepositoryTag) (*zip.Reader,
 	fmt.Println("url:", url)
 
 	req := gorequest.New().Get(url)
+
+	if token := os.Getenv("GITHUB_TOKEN"); token != "" {
+		req.SetBasicAuth("github-token", token)
+	}
+
 	resp, data, errs := req.EndBytes()
 
 	check := "http2: server sent GOAWAY and closed the connection"
@@ -104,6 +111,11 @@ func FetchBranchZip(client *github.Client, owner, repo, branch string) (*zip.Rea
 	url := fmt.Sprintf("https://github.com/%s/%s/archive/refs/heads/%s.zip", owner, repo, branch)
 
 	req := gorequest.New().Get(url)
+
+	if token := os.Getenv("GITHUB_TOKEN"); token != "" {
+		req.SetBasicAuth("github-token", token)
+	}
+
 	resp, data, errs := req.EndBytes()
 
 	check := "http2: server sent GOAWAY and closed the connection"
