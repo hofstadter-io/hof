@@ -52,6 +52,8 @@ func FetchTagZip(client *github.Client, tag *github.RepositoryTag) (*zip.Reader,
 
 	url := *tag.ZipballURL
 
+	fmt.Println("url:", url)
+
 	req := gorequest.New().Get(url)
 	resp, data, errs := req.EndBytes()
 
@@ -67,7 +69,7 @@ func FetchTagZip(client *github.Client, tag *github.RepositoryTag) (*zip.Reader,
 		return nil, fmt.Errorf("Internal Error: " + string(resp.StatusCode))
 	}
 	if resp.StatusCode >= 400 {
-		return nil, fmt.Errorf("Bad Request: " + string(resp.StatusCode))
+		return nil, fmt.Errorf("Bad Request: %v\n%v\n", resp.StatusCode, errs)
 	}
 
 	r := bytes.NewReader(data)

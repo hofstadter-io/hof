@@ -164,6 +164,7 @@ func fetchGitHubTag(FS billy.Filesystem, lang, owner, repo, tag string) error {
 
 	zReader, err := github.FetchTagZip(client, T)
 	if err != nil {
+		fmt.Printf("Error: %v\n", err)
 		return fmt.Errorf("While fetching tag zipfile\n%w\n", err)
 	}
 

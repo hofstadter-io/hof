@@ -14,6 +14,8 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
 	"github.com/go-git/go-git/v5/storage/memory"
+
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 func NewRemote(srcUrl string) (*GitRepo, error) {
@@ -106,12 +108,12 @@ func FetchGit(FS billy.Filesystem, remote, owner, repo, tag string, private bool
 	}
 
 	if private {
-		if netrc, err := NetrcCredentials(remote); err == nil {
+		if netrc, err := yagu.NetrcCredentials(remote); err == nil {
 			gco.Auth = &http.BasicAuth{
 				Username: netrc.Login,
 				Password: netrc.Password,
 			}
-		} else if ssh, err := SSHCredentials(remote); err == nil {
+		} else if ssh, err := yagu.SSHCredentials(remote); err == nil {
 			gco.Auth = ssh.Keys
 			gco.URL = fmt.Sprintf("%s@%s:%s", ssh.User, remote, srcRepo)
 		} else {
