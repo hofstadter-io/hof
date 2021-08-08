@@ -29,6 +29,9 @@ ghacue.#Workflow & {
 			hof test test.cue -s gen -t test
 			hof test test.cue -s lib -t test -t mod
 			"""
+			env: {
+				GITHUB_TOKEN: "${secrets.GITHUB_TOKEN}"
+			}
 		}]
 	}
 }
