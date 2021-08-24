@@ -21,3 +21,12 @@ cloccode: cmd lang lib gen cmd
 
 clocdev: hof.cue design schema lang lib docs test cue.mods go.mod 
 	cloc --read-lang-def=$$HOME/hof/jumpfiles/assets/cloc_defs.txt --exclude-dir=cue.mod,vendor $^
+
+WORKFLOWS = default \
+	test/mod
+
+.PHONY: workflow
+workflows = $(addprefix workflow_, $(WORKFLOWS))
+workflow: $(workflows)
+$(workflows): workflow_%:
+	@cue export --out yaml .github/workflows/$(subst workflow_,,$@).cue > .github/workflows/$(subst workflow_,,$@).yml

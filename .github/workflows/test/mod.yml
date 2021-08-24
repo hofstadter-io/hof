@@ -1,6 +1,8 @@
-name: hof-test
+name: mod-test
 on:
-- pull_request
+  pull_request:
+    paths:
+    - lib/mod/**
 jobs:
   test:
     strategy:
@@ -25,7 +27,7 @@ jobs:
       run: go mod download
     - name: Build CLI
       run: go install ./cmd/hof
-    - name: Run gen tests
-      run: hof test test.cue -s gen -t test
-    - name: Run tester tests
-      run: hof test test/testers/api/postman.cue
+    - name: Run mod tests
+      run: '# hof test test.cue -s lib -t test -t mod'
+      env:
+        GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
