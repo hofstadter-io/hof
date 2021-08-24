@@ -28,6 +28,6 @@ jobs:
     - name: Build CLI
       run: go install ./cmd/hof
     - name: Run mod tests
-      run: '# hof test test.cue -s lib -t test -t mod'
+      run: hof test test.cue -s lib -t test -t mod
       env:
         GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}

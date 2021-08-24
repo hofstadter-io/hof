@@ -9,7 +9,7 @@ common.#Workflow & {
 		steps: [ for step in common.#BuildSteps {step} ] + [{
 			name: "Run mod tests"
 			run: """
-			# hof test test.cue -s lib -t test -t mod
+			hof test test.cue -s lib -t test -t mod
 			"""
 			env: {
 				GITHUB_TOKEN: "${{secrets.HOFMOD_TOKEN}}"
