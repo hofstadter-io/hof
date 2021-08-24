@@ -23,7 +23,7 @@ clocdev: hof.cue design schema lang lib docs test cue.mods go.mod
 	cloc --read-lang-def=$$HOME/hof/jumpfiles/assets/cloc_defs.txt --exclude-dir=cue.mod,vendor $^
 
 WORKFLOWS = default \
-	test/mod
+	test_mod
 
 .PHONY: workflow
 workflows = $(addprefix workflow_, $(WORKFLOWS))

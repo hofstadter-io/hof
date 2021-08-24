@@ -1,7 +1,7 @@
 import "github.com/hofstadter-io/hof/.github/workflows/common"
 
 common.#Workflow & {
-	name: "mod-test"
+	name: "test_mod"
 	on: pull_request: {
 		paths: ["lib/mod/**"]
 	}

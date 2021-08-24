@@ -1,4 +1,4 @@
-name: hof-test
+name: default
 on:
 - pull_request
 jobs:

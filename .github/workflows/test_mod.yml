@@ -1,4 +1,4 @@
-name: mod-test
+name: test_mod
 on:
   pull_request:
     paths:

@@ -1,7 +1,7 @@
 import "github.com/hofstadter-io/hof/.github/workflows/common"
 
 common.#Workflow & {
-	name: "hof-test"
+	name: "default"
 	on: ["pull_request"]
 	jobs: test: {
 		steps: [ for step in common.#BuildSteps {step} ] + [{
