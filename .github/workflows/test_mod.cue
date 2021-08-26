@@ -13,6 +13,7 @@ common.#Workflow & {
 			"""
 			env: {
 				GITHUB_TOKEN: "${{secrets.HOFMOD_TOKEN}}"
+				GITLAB_TOKEN: "${{secrets.GITLAB_TOKEN}}"
 			}
 		}]
 	}
