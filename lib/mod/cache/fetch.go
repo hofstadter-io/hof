@@ -43,12 +43,12 @@ func fetch(lang, mod, ver string, private bool) error {
 
 	switch remote {
 	case "github.com":
-		if err := github.Fetch(FS, owner, repo, tag); err != nil {
+		if err := github.Fetch(FS, owner, repo, tag, private); err != nil {
 			return fmt.Errorf("While fetching from github\n%w\n", err)
 		}
 
 	case "gitlab.com":
-		if err := gitlab.Fetch(FS, owner, repo, tag); err != nil {
+		if err := gitlab.Fetch(FS, owner, repo, tag, private); err != nil {
 			return fmt.Errorf("While fetching from gitlab\n%w\n", err)
 		}
 

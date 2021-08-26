@@ -23,7 +23,7 @@ require (
 	github.com/go-git/go-billy/v5 v5.0.0
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/golang/protobuf v1.4.2 // indirect
-	github.com/google/go-github/v30 v30.1.0
+	github.com/google/go-github/v38 v38.1.0
 	github.com/hofstadter-io/data-utils v0.0.0-20200128210141-0a3e569b27ed
 	github.com/hofstadter-io/dotpath v0.0.0-20191027071558-52e2819b7d2d
 	github.com/hofstadter-io/hof-lang v0.0.0-20180925221847-4d1c962b0729
@@ -46,7 +46,7 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.7.0
 	github.com/stretchr/testify v1.6.1
-	github.com/xanzy/go-gitlab v0.50.1
+	github.com/xanzy/go-gitlab v0.50.3
 	go.uber.org/zap v1.15.0
 	golang.org/x/mod v0.3.1-0.20200828183125-ce943fd02449
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d

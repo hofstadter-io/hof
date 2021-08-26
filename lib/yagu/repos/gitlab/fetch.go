@@ -12,23 +12,8 @@ import (
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
-func fetchShaZip(client *gitlab.Client, pid interface{}, sha string) (*zip.Reader, error) {
-	format := "zip"
-	data, _, err := client.Repositories.Archive(pid, &gitlab.ArchiveOptions{
-		Format: &format,
-		SHA:    &sha,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	r := bytes.NewReader(data)
-
-	return zip.NewReader(r, int64(len(data)))
-}
-
-func Fetch(FS billy.Filesystem, owner, repo, tag string) (error) {
-	client, err := NewClient()
+func Fetch(FS billy.Filesystem, owner, repo, tag string, private bool) (error) {
+	client, err := NewClient(private)
 	if err != nil {
 		return err
 	}
@@ -78,3 +63,19 @@ func Fetch(FS billy.Filesystem, owner, repo, tag string) (error) {
 
 	return nil
 }
+
+func fetchShaZip(client *gitlab.Client, pid, sha string) (*zip.Reader, error) {
+	format := "zip"
+	data, _, err := client.Repositories.Archive(pid, &gitlab.ArchiveOptions{
+		Format: &format,
+		SHA:    &sha,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	r := bytes.NewReader(data)
+
+	return zip.NewReader(r, int64(len(data)))
+}
+

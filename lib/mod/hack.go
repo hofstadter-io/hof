@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"strings"
 
-	googithub "github.com/google/go-github/v30/github"
+	googithub "github.com/google/go-github/v38/github"
 	"github.com/go-git/go-billy/v5/memfs"
 
 	"github.com/hofstadter-io/hof/lib/mod/cache"
@@ -43,7 +43,7 @@ func Hack(lang string, args []string) error {
 
 	// Fetch and write to cache if tag found
 	if T != nil {
-		zReader, err := github.FetchTagZip(client, T)
+		zReader, err := github.FetchTagZip(T)
 		if err != nil {
 			return fmt.Errorf("While fetching zipfile\n%w\n", err)
 		}

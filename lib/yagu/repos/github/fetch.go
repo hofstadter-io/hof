@@ -8,13 +8,18 @@ import (
 	"strings"
 
 	"github.com/go-git/go-billy/v5"
-	"github.com/google/go-github/v30/github"
+	"github.com/google/go-github/v38/github"
 	"github.com/parnurzeal/gorequest"
 
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
-func Fetch(FS billy.Filesystem, owner, repo, tag string) (error) {
+func Fetch(FS billy.Filesystem, owner, repo, tag string, private bool) (error) {
+	// TODO, ensure private requests force auth
+	// by default, we look for a token
+	// how can we fall back to ssh if needed?
+	// note, GitHub has deprecated basic auth
+
 	client, err := NewClient()
 	if err != nil {
 		return err
@@ -28,7 +33,7 @@ func Fetch(FS billy.Filesystem, owner, repo, tag string) (error) {
 			return err
 		}
 
-		zReader, err = FetchBranchZip(client, owner, repo, *r.DefaultBranch)
+		zReader, err = FetchBranchZip(owner, repo, *r.DefaultBranch)
 		if err != nil {
 			return fmt.Errorf("While fetching branch zipfile for %s/%s@%s\n%w\n", owner, repo, *r.DefaultBranch, err)
 		}
@@ -52,7 +57,7 @@ func Fetch(FS billy.Filesystem, owner, repo, tag string) (error) {
 			return fmt.Errorf("Did not find tag %q for 'https://github.com/%s/%s' @%s", tag, owner, repo, tag)
 		}
 
-		zReader, err = FetchTagZip(client, T)
+		zReader, err = FetchTagZip(T)
 		if err != nil {
 			fmt.Printf("Error: %v\n", err)
 			return fmt.Errorf("While fetching tag zipfile\n%w\n", err)
@@ -70,7 +75,7 @@ func Fetch(FS billy.Filesystem, owner, repo, tag string) (error) {
 	return nil
 }
 
-func FetchTagZip(client *github.Client, tag *github.RepositoryTag) (*zip.Reader, error) {
+func FetchTagZip(tag *github.RepositoryTag) (*zip.Reader, error) {
 
 	url := *tag.ZipballURL
 
@@ -78,7 +83,8 @@ func FetchTagZip(client *github.Client, tag *github.RepositoryTag) (*zip.Reader,
 
 	req := gorequest.New().Get(url)
 
-	if token := os.Getenv("GITHUB_TOKEN"); token != "" {
+	// TODO, process auth logic here better, maybe find a way to DRY
+	if token := os.Getenv(TokenEnv); token != "" {
 		req.SetBasicAuth("github-token", token)
 	}
 
@@ -106,13 +112,14 @@ func FetchTagZip(client *github.Client, tag *github.RepositoryTag) (*zip.Reader,
 	return zfile, err
 }
 
-func FetchBranchZip(client *github.Client, owner, repo, branch string) (*zip.Reader, error) {
+func FetchBranchZip(owner, repo, branch string) (*zip.Reader, error) {
 
 	url := fmt.Sprintf("https://github.com/%s/%s/archive/refs/heads/%s.zip", owner, repo, branch)
 
 	req := gorequest.New().Get(url)
 
-	if token := os.Getenv("GITHUB_TOKEN"); token != "" {
+	// TODO, process auth logic here better, maybe find a way to DRY
+	if token := os.Getenv(TokenEnv); token != "" {
 		req.SetBasicAuth("github-token", token)
 	}
 

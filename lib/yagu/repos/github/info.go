@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/google/go-github/v30/github"
+	"github.com/google/go-github/v38/github"
 )
 
 func GetTagsSplit(client *github.Client, module string) ([]*github.RepositoryTag, error) {
@@ -31,7 +31,7 @@ func GetRepo(client *github.Client, owner, repo string) (*github.Repository, err
 }
 
 func GetBranch(client *github.Client, owner, repo, branch string) (*github.Branch, error) {
-	b, _, err := client.Repositories.GetBranch(context.Background(), owner, repo, branch)
+	b, _, err := client.Repositories.GetBranch(context.Background(), owner, repo, branch, true)
 	return b, err
 }
 
