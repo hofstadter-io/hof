@@ -1,6 +1,6 @@
 name: test_mod
 on:
-  pull_request:
+  push:
     paths:
     - lib/mod/**
 jobs:
