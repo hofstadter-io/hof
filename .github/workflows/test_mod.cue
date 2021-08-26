@@ -1,3 +1,5 @@
+package workflows
+
 import "github.com/hofstadter-io/hof/.github/workflows/common"
 
 common.#Workflow & {

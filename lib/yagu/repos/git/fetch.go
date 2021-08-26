@@ -18,6 +18,11 @@ import (
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
+// TODO, this file has inconsistency of auth creds adding
+// between the functions, this should be cleaned up
+// taking note that we want to create more consistency
+// across the various repo types
+
 func NewRemote(srcUrl string) (*GitRepo, error) {
 
 	rc := &config.RemoteConfig{

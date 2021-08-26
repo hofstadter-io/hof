@@ -1,8 +1,10 @@
+package workflows
+
 import "github.com/hofstadter-io/hof/.github/workflows/common"
 
 common.#Workflow & {
 	name: "default"
-	on: ["pull_request"]
+	on: ["push"]
 	jobs: test: {
 		steps: [ for step in common.#BuildSteps {step} ] + [{
 			name: "Run gen tests"
