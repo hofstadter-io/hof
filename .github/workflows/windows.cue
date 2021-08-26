@@ -3,9 +3,9 @@ package workflows
 import "github.com/hofstadter-io/ghacue"
 import "github.com/hofstadter-io/hof/.github/workflows/common"
 
-#Workflow: ghacue.#Workflow & {
+ghacue.#Workflow & {
 	name: "windows"
-	on: _ | *["push"]
+	on: ["push"]
 	jobs: test: {
 		strategy: matrix: {
 			"go-version": ["1.16.x", "1.17.x"]
