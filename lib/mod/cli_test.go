@@ -1,6 +1,7 @@
 package mod_test
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
@@ -9,8 +10,14 @@ import (
 )
 
 func envSetup(env *runtime.Env) error {
-	if token := os.Getenv("GITHUB_TOKEN"); token != "" {
-		env.Vars = append(env.Vars, "GITHUB_TOKEN="+token)
+	vars := []string{
+		"GITHUB_TOKEN",
+		"GITLAB_TOKEN",
+	}
+	for _, v := range vars {
+		if val := os.Getenv(v); val != "" {
+			env.Vars = append(env.Vars, fmt.Sprintf("%s=%s", v, val))
+		}
 	}
 	env.Vars = append(env.Vars, "HOF_TELEMETRY_DISABLED=1")
 	return nil
