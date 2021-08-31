@@ -14,9 +14,18 @@ type SSHMachine struct {
 }
 
 func SSHCredentials(machine string) (SSHMachine, error) {
+	// try to ssh config file
 	pk, err := ssh_config.GetStrict(machine, "IdentityFile")
 	if err != nil {
-		return SSHMachine{}, err
+		// try to load id_rsa.pub
+		hdir, err := os.UserHomeDir();
+		err != nil {
+			// no home dir?
+			return SSHMachine{}, err
+		}
+
+		// set pk file name to git's expected default, often the one uploaded per GitHub's docs
+		pk = filepath.Join(hdir, ".ssh", "id_rsa.pub")
 	}
 	if strings.HasPrefix(pk, "~") {
 		if hdir, err := os.UserHomeDir(); err == nil {

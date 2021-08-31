@@ -42,3 +42,34 @@ func TestModBugs(t *testing.T) {
 		WorkdirRoot: ".workdir/bugs",
 	})
 }
+
+func TestModAuthdApikeysTests(t *testing.T) {
+	yagu.Mkdir(".workdir/authd/apikeys")
+	runtime.Run(t, runtime.Params{
+		Setup: envSetup,
+		Dir: "testdata/authd/apikeys",
+		Glob: "*.txt",
+		WorkdirRoot: ".workdir/authd/apikeys",
+	})
+}
+
+func TestModAuthdSshconfigTests(t *testing.T) {
+	yagu.Mkdir(".workdir/authd/sshconfig")
+	runtime.Run(t, runtime.Params{
+		Setup: envSetup,
+		Dir: "testdata/authd/sshconfig",
+		Glob: "*.txt",
+		WorkdirRoot: ".workdir/authd/sshconfig",
+	})
+}
+
+func TestModAuthdSshkeyTests(t *testing.T) {
+	yagu.Mkdir(".workdir/authd/sshkey")
+	runtime.Run(t, runtime.Params{
+		Setup: envSetup,
+		Dir: "testdata/authd/sshkey",
+		Glob: "*.txt",
+		WorkdirRoot: ".workdir/authd/sshkey",
+	})
+}
+

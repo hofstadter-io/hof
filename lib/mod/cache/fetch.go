@@ -23,6 +23,8 @@ func Fetch(lang, mod, ver, pev string) (err error) {
 			return err
 		}
 		// not found, try fetching deps
+
+		// determine private from ENV VAR in modder config (passed in as pev)
 		private := MatchPrefixPatterns(os.Getenv(pev), mod)
 		if err := fetch(lang, mod, ver, private); err != nil {
 			return err

@@ -20,7 +20,6 @@ func NewClient() (client *github.Client, err error) {
 		)
 		tc := oauth2.NewClient(ctx, ts)
 		client = github.NewClient(tc)
-
 	} else {
 		client = github.NewClient(nil)
 	}
