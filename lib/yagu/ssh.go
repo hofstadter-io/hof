@@ -2,6 +2,7 @@ package yagu
 
 import (
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
@@ -18,8 +19,8 @@ func SSHCredentials(machine string) (SSHMachine, error) {
 	pk, err := ssh_config.GetStrict(machine, "IdentityFile")
 	if err != nil {
 		// try to load id_rsa.pub
-		hdir, err := os.UserHomeDir();
-		err != nil {
+		hdir, err := os.UserHomeDir()
+		if err != nil {
 			// no home dir?
 			return SSHMachine{}, err
 		}
