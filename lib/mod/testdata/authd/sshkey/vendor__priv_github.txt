@@ -1,5 +1,5 @@
 # hof mod vendor - with deps
-env GITHUB_TOKEN="thistokendoesnotexist"
+env GITHUB_TOKEN=""
 exec hof mod vendor
 
 -- cue.mods --

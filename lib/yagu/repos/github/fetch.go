@@ -12,13 +12,17 @@ import (
 	"github.com/parnurzeal/gorequest"
 
 	"github.com/hofstadter-io/hof/lib/yagu"
+	"github.com/hofstadter-io/hof/lib/yagu/repos/git"
 )
 
 func Fetch(FS billy.Filesystem, owner, repo, tag string, private bool) (error) {
-	// TODO, ensure private requests force auth
-	// by default, we look for a token
-	// how can we fall back to ssh if needed?
-	// note, GitHub has deprecated basic auth
+
+	// If private, and no token auth, try git protocol
+	// need to catch auth errors and suggest how to setup
+	if private && os.Getenv(TokenEnv) == "" {
+		fmt.Println("github git fallback")
+		return git.Fetch(FS, "github.com", owner, repo, tag, private)
+	}
 
 	client, err := NewClient()
 	if err != nil {
@@ -78,8 +82,6 @@ func Fetch(FS billy.Filesystem, owner, repo, tag string, private bool) (error) {
 func FetchTagZip(tag *github.RepositoryTag) (*zip.Reader, error) {
 
 	url := *tag.ZipballURL
-
-	fmt.Println("url:", url)
 
 	req := gorequest.New().Get(url)
 

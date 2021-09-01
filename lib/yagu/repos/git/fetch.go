@@ -113,15 +113,19 @@ func Fetch(FS billy.Filesystem, remote, owner, repo, tag string, private bool) e
 	}
 
 	if private {
+		fmt.Println("git.Fetch")
 		if netrc, err := yagu.NetrcCredentials(remote); err == nil {
+			fmt.Println("NetRC")
 			gco.Auth = &http.BasicAuth{
 				Username: netrc.Login,
 				Password: netrc.Password,
 			}
 		} else if ssh, err := yagu.SSHCredentials(remote); err == nil {
+			fmt.Println("SSHCreds")
 			gco.Auth = ssh.Keys
 			gco.URL = fmt.Sprintf("%s@%s:%s", ssh.User, remote, srcRepo)
 		} else {
+			fmt.Println("NoAuth")
 			gco.URL = fmt.Sprintf("%s@%s:%s", "git", remote, srcRepo)
 		}
 	}
