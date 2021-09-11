@@ -124,6 +124,7 @@ func Fetch(FS billy.Filesystem, remote, owner, repo, tag string, private bool) e
 			fmt.Println("SSHCreds")
 			gco.Auth = ssh.Keys
 			gco.URL = fmt.Sprintf("%s@%s:%s", ssh.User, remote, srcRepo)
+			fmt.Println("URL:", gco.URL)
 		} else {
 			fmt.Println("NoAuth")
 			gco.URL = fmt.Sprintf("%s@%s:%s", "git", remote, srcRepo)

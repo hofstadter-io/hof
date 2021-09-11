@@ -17,36 +17,74 @@ type SSHMachine struct {
 
 func SSHCredentials(machine string) (SSHMachine, error) {
 	fmt.Println("ssh.CredsLookup")
-	// try to ssh config file
-	pk := ""
-	pka, err := ssh_config.GetAllStrict(machine, "IdentityFile")
-	fmt.Println(pka, err)
-	if err != nil {
-		// try to load id_rsa.pub
-		hdir, err := os.UserHomeDir()
+	pub := ""
+	usr := "git"
+
+	// first look for a usr override, can be used for key var or default location
+	if u := os.Getenv("HOF_SSHUSR"); u != "" {
+		usr = u
+	}
+
+	// look for env var key location
+	if key := os.Getenv("HOF_SSHKEY"); key != "" {
+		fmt.Println("ssh.SSHEnvVar")
+		pks, err := ssh.NewPublicKeysFromFile(usr, key, "")
 		if err != nil {
-			// no home dir?
 			return SSHMachine{}, err
 		}
-
-		// set pk file name to git's expected default, often the one uploaded per GitHub's docs
-		pk = filepath.Join(hdir, ".ssh", "id_rsa.pub")
+		return SSHMachine{usr, pks}, nil
 	}
 
-
-	if strings.HasPrefix(pk, "~") {
-		if hdir, err := os.UserHomeDir(); err == nil {
-			pk = strings.Replace(pk, "~", hdir, 1)
-		}
+	// try to get homedir
+	hdir, err := os.UserHomeDir()
+	if err != nil {
+		// no home dir?
+		return SSHMachine{}, err
 	}
+
+	// try sshconfig
+	_, uerr := os.Lstat(filepath.Join(hdir, ".ssh", "config"))
+	_, serr := os.Lstat(filepath.Join("etc", "ssh", "ssh_config"))
+	if uerr == nil || serr == nil {
+		fmt.Println("ssh.SSHConfig")
+		return getSSHConfigVals(machine)
+	}
+
+	// fallback on default pubkey
+	fmt.Println("ssh.DefaultPubkey")
+	pub = filepath.Join(hdir, ".ssh", "id_rsa")
+	pks, err := ssh.NewPublicKeysFromFile(usr, pub, "")
+	fmt.Println("err:", err)
+	if err != nil {
+		return SSHMachine{}, err
+	}
+
+	return SSHMachine{usr, pks}, nil
+}
+
+func getSSHConfigVals(machine string) (SSHMachine, error) {
+	// try to lookup the machine in config
+	pub, err := ssh_config.GetStrict(machine, "IdentityFile")
+	if err != nil {
+		fmt.Println(pub, err)
+		return SSHMachine{}, err
+	}
+
+	// replace if key location has ~
+	if strings.HasPrefix(pub, "~") {
+		// we already validated homedir from calling function
+		hdir, _ := os.UserHomeDir()
+		pub = strings.Replace(pub, "~", hdir, 1)
+	}
+
+	// override user if defined in config
 	usr := ssh_config.Get(machine, "User")
 	if usr == "" {
 		usr = "git"
 	}
 
-	fmt.Println("  ", usr, pk)
-
-	pks, err := ssh.NewPublicKeysFromFile(usr, pk, "")
+	// get key from filename
+	pks, err := ssh.NewPublicKeysFromFile(usr, pub, "")
 	if err != nil {
 		return SSHMachine{}, err
 	}

@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-git/go-billy/v5/memfs"
 
+	"github.com/hofstadter-io/hof/lib/yagu/repos/bbc"
 	"github.com/hofstadter-io/hof/lib/yagu/repos/git"
 	"github.com/hofstadter-io/hof/lib/yagu/repos/github"
 	"github.com/hofstadter-io/hof/lib/yagu/repos/gitlab"
@@ -41,6 +42,7 @@ func fetch(lang, mod, ver string, private bool) error {
 	remote, owner, repo := parseModURL(mod)
 	tag := ver
 
+	fmt.Println("mod/cache.fetch:", lang, remote, owner, repo, ver, private)
 	// TODO, how to deal with self-hosted / enterprise repos?
 
 	switch remote {
@@ -52,6 +54,11 @@ func fetch(lang, mod, ver string, private bool) error {
 	case "gitlab.com":
 		if err := gitlab.Fetch(FS, owner, repo, tag, private); err != nil {
 			return fmt.Errorf("While fetching from gitlab\n%w\n", err)
+		}
+
+	case "bitbucket.org":
+		if err := bbc.Fetch(FS, owner, repo, tag, private); err != nil {
+			return fmt.Errorf("While fetching from bitbucket\n%w\n", err)
 		}
 
 	default:

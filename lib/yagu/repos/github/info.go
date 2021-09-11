@@ -13,7 +13,7 @@ func GetTagsSplit(client *github.Client, module string) ([]*github.RepositoryTag
 	domain, rest := flds[0], flds[1]
 
 	if domain != "github.com" {
-		return nil, fmt.Errorf("Github Tags Fetch called with non 'github.com' domain %q", module)
+		return nil, fmt.Errorf("Github Tags Fetch called with non 'github.com' domain %q. Custom domains are a TODO", module)
 	}
 
 	flds = strings.Split(rest, "/")

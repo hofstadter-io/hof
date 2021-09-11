@@ -30,6 +30,7 @@ require (
 	github.com/kevinburke/ssh_config v1.1.0
 	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
 	github.com/kr/pretty v0.2.0
+	github.com/ktrysmt/go-bitbucket v0.9.24
 	github.com/mattn/go-colorable v0.1.6 // indirect
 	github.com/mattn/go-zglob v0.0.2
 	github.com/mitchellh/mapstructure v1.3.2 // indirect

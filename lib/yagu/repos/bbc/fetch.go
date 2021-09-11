@@ -1,4 +1,4 @@
-package github
+package bbc
 
 import (
 	"archive/zip"
@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/go-git/go-billy/v5"
-	"github.com/google/go-github/v38/github"
+	"github.com/ktrysmt/go-bitbucket"
 	"github.com/parnurzeal/gorequest"
 
 	"github.com/hofstadter-io/hof/lib/yagu"
@@ -16,13 +16,13 @@ import (
 )
 
 func Fetch(FS billy.Filesystem, owner, repo, tag string, private bool) (error) {
-	fmt.Println("github.Fetch", owner, repo, tag, private)
+	fmt.Println("bbc.Fetch", owner, repo, tag, private)
 
 	// If private, and no token auth, try git protocol
 	// need to catch auth errors and suggest how to setup
 	if private && os.Getenv(TokenEnv) == "" {
-		fmt.Println("github git fallback")
-		return git.Fetch(FS, "github.com", owner, repo, tag, private)
+		fmt.Println("bitbucket git fallback")
+		return git.Fetch(FS, "bitbucket.org", owner, repo, tag, private)
 	}
 
 	client, err := NewClient()
@@ -38,9 +38,9 @@ func Fetch(FS billy.Filesystem, owner, repo, tag string, private bool) (error) {
 			return err
 		}
 
-		zReader, err = FetchBranchZip(owner, repo, *r.DefaultBranch)
+		zReader, err = FetchBranchZip(owner, repo, r.Mainbranch.Name)
 		if err != nil {
-			return fmt.Errorf("While fetching branch zipfile for %s/%s@%s\n%w\n", owner, repo, *r.DefaultBranch, err)
+			return fmt.Errorf("While fetching branch zipfile for %s/%s@%s\n%w\n", owner, repo, r.Mainbranch.Name, err)
 		}
 
 	} else {
@@ -50,19 +50,19 @@ func Fetch(FS billy.Filesystem, owner, repo, tag string, private bool) (error) {
 		}
 
 		// The tag we are looking for
-		var T *github.RepositoryTag
+		var T *bitbucket.RepositoryTag
 		for _, t := range tags {
-			if tag != "" && tag == *t.Name {
-				T = t
+			if tag != "" && tag == t.Name {
+				T = &t
 				// fmt.Printf("FOUND  %v\n", *t.Name)
 			}
 		}
 
 		if T == nil {
-			return fmt.Errorf("Did not find tag %q for 'https://github.com/%s/%s' @%s", tag, owner, repo, tag)
+			return fmt.Errorf("Did not find tag %q for 'https://bitbucket.org/%s/%s' @%s", tag, owner, repo, tag)
 		}
 
-		zReader, err = FetchTagZip(T)
+		zReader, err = FetchTagZip(owner, repo, T.Name)
 		if err != nil {
 			fmt.Printf("Error: %v\n", err)
 			return fmt.Errorf("While fetching tag zipfile\n%w\n", err)
@@ -70,7 +70,7 @@ func Fetch(FS billy.Filesystem, owner, repo, tag string, private bool) (error) {
 	}
 
 	if err != nil {
-		return fmt.Errorf("While fetching from github\n%w\n", err)
+		return fmt.Errorf("While fetching from bitbucket\n%w\n", err)
 	}
 
 	if err := yagu.BillyLoadFromZip(zReader, FS, true); err != nil {
@@ -80,15 +80,20 @@ func Fetch(FS billy.Filesystem, owner, repo, tag string, private bool) (error) {
 	return nil
 }
 
-func FetchTagZip(tag *github.RepositoryTag) (*zip.Reader, error) {
+func FetchTagZip(owner, repo, ver string) (*zip.Reader, error) {
+	fmt.Println("bbc.FetchTagZip")
 
-	url := *tag.ZipballURL
+	// url := *tag.ZipballURL
+	url := fmt.Sprintf("https://bitbucket.org/%s/%s/get/%s.zip", owner, repo, ver)
 
 	req := gorequest.New().Get(url)
 
 	// TODO, process auth logic here better, maybe find a way to DRY
 	if token := os.Getenv(TokenEnv); token != "" {
-		req.SetBasicAuth("github-token", token)
+		req.Header.Set("Authorization", "Bearer" + token)
+	} else if password := os.Getenv(PasswordEnv); password != "" {
+		username := os.Getenv(UsernameEnv)
+		req.SetBasicAuth(username, password)
 	}
 
 	resp, data, errs := req.EndBytes()
@@ -117,13 +122,16 @@ func FetchTagZip(tag *github.RepositoryTag) (*zip.Reader, error) {
 
 func FetchBranchZip(owner, repo, branch string) (*zip.Reader, error) {
 
-	url := fmt.Sprintf("https://github.com/%s/%s/archive/refs/heads/%s.zip", owner, repo, branch)
+	url := fmt.Sprintf("https://bitbucket.org/%s/%s/get/%s.zip", owner, repo, branch)
 
 	req := gorequest.New().Get(url)
 
 	// TODO, process auth logic here better, maybe find a way to DRY
 	if token := os.Getenv(TokenEnv); token != "" {
-		req.SetBasicAuth("github-token", token)
+		req.Header.Set("Authorization", "Bearer" + token)
+	} else if password := os.Getenv(PasswordEnv); password != "" {
+		username := os.Getenv(UsernameEnv)
+		req.SetBasicAuth(username, password)
 	}
 
 	resp, data, errs := req.EndBytes()

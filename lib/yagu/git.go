@@ -1,6 +1,7 @@
 package yagu
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -70,6 +71,7 @@ func SetupGitOptions(srcUrl, srcVer string) (*git.CloneOptions, error) {
 }
 
 func SetupGitAuth(srcUrl, srcVer string, co *git.CloneOptions) error {
+	fmt.Println("SetupGitAuth")
 
 	// GitHub variations
 	if strings.Contains(srcUrl, "github.com") {
@@ -80,13 +82,6 @@ func SetupGitAuth(srcUrl, srcVer string, co *git.CloneOptions) error {
 			}
 			return nil
 		}
-		if os.Getenv("GITHUB_APIKEY") != "" {
-			co.Auth = &http.BasicAuth{
-				Username: "github-apikey", // yes, this can be anything except an empty string
-				Password: os.Getenv("GITHUB_APIKEY"),
-			}
-			return nil
-		}
 	}
 
 	// GitLab variations
@@ -94,12 +89,6 @@ func SetupGitAuth(srcUrl, srcVer string, co *git.CloneOptions) error {
 		if os.Getenv("GITLAB_TOKEN") != "" {
 			co.Auth = &http.TokenAuth{
 				Token: os.Getenv("GITLAB_TOKEN"),
-			}
-			return nil
-		}
-		if os.Getenv("GITLAB_APIKEY") != "" {
-			co.Auth = &http.TokenAuth{
-				Token: os.Getenv("GITLAB_APIKEY"),
 			}
 			return nil
 		}
@@ -117,12 +106,6 @@ func SetupGitAuth(srcUrl, srcVer string, co *git.CloneOptions) error {
 		if os.Getenv("BITBUCKET_TOKEN") != "" {
 			co.Auth = &http.TokenAuth{
 				Token: os.Getenv("BITBUCKET_TOKEN"),
-			}
-			return nil
-		}
-		if os.Getenv("BITBUCKET_APIKEY") != "" {
-			co.Auth = &http.TokenAuth{
-				Token: os.Getenv("BITBUCKET_APIKEY"),
 			}
 			return nil
 		}
