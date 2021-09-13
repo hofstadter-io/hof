@@ -1,7 +1,11 @@
 # hof mod vendor - with deps
 
-## setup auth
+## blankout token vars for this test
 env GITHUB_TOKEN=""
+env GITLAB_TOKEN=""
+env BITBUCKET_TOKEN=""
+
+## setup default sshkey auth
 mkdir $HOME/.ssh
 exec bash -c 'echo $HOFGIT_SSHKEY > $HOME/.ssh/id_rsa'
 
