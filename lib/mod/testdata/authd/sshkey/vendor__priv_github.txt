@@ -1,7 +1,14 @@
 # hof mod vendor - with deps
+
+## setup auth
 env GITHUB_TOKEN=""
+exec ls -lh
+
+## run cmd
 exec hof mod vendor
 
+-- sshkey --
+$HOFGIT_SSHKEY
 -- cue.mods --
 module github.com/test/priv-github
 
