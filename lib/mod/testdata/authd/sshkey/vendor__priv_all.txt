@@ -1,9 +1,12 @@
 # hof mod vendor - with deps
 
+env CUEPRIVATE="github.com,gitlab.com,bitbucket.org"
+
 ## blankout token vars for this test
 env GITHUB_TOKEN=""
 env GITLAB_TOKEN=""
-env BITBUCKET_TOKEN=""
+env BITBUCKET_USERNAME=""
+env BITBUCKET_PASSWORD=""
 
 ## setup default sshkey auth
 mkdir $HOME/.ssh

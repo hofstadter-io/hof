@@ -1,7 +1,6 @@
 package yagu
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -71,7 +70,6 @@ func SetupGitOptions(srcUrl, srcVer string) (*git.CloneOptions, error) {
 }
 
 func SetupGitAuth(srcUrl, srcVer string, co *git.CloneOptions) error {
-	fmt.Println("SetupGitAuth")
 
 	// GitHub variations
 	if strings.Contains(srcUrl, "github.com") {

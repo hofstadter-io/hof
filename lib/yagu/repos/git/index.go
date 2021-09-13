@@ -11,7 +11,6 @@ import (
 // given a git url, and a req (required) version
 // returns the minReference, allRefferences, and error
 func IndexGitRemote(url, req string) (*plumbing.Reference, []*plumbing.Reference, error) {
-	fmt.Println("indexing:", url, req)
 
 	if !semver.IsValid(req) {
 		return nil, nil, fmt.Errorf("Invalid SemVer v2 %q", req)

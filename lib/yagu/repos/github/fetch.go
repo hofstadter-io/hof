@@ -16,12 +16,10 @@ import (
 )
 
 func Fetch(FS billy.Filesystem, owner, repo, tag string, private bool) (error) {
-	fmt.Println("github.Fetch", owner, repo, tag, private)
 
 	// If private, and no token auth, try git protocol
 	// need to catch auth errors and suggest how to setup
 	if private && os.Getenv(TokenEnv) == "" {
-		fmt.Println("github git fallback")
 		return git.Fetch(FS, "github.com", owner, repo, tag, private)
 	}
 
@@ -54,7 +52,6 @@ func Fetch(FS billy.Filesystem, owner, repo, tag string, private bool) (error) {
 		for _, t := range tags {
 			if tag != "" && tag == *t.Name {
 				T = t
-				// fmt.Printf("FOUND  %v\n", *t.Name)
 			}
 		}
 
@@ -64,7 +61,6 @@ func Fetch(FS billy.Filesystem, owner, repo, tag string, private bool) (error) {
 
 		zReader, err = FetchTagZip(T)
 		if err != nil {
-			fmt.Printf("Error: %v\n", err)
 			return fmt.Errorf("While fetching tag zipfile\n%w\n", err)
 		}
 	}

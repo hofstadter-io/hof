@@ -42,7 +42,6 @@ func fetch(lang, mod, ver string, private bool) error {
 	remote, owner, repo := parseModURL(mod)
 	tag := ver
 
-	fmt.Println("mod/cache.fetch:", lang, remote, owner, repo, ver, private)
 	// TODO, how to deal with self-hosted / enterprise repos?
 
 	switch remote {

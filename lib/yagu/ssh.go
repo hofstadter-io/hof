@@ -1,7 +1,6 @@
 package yagu
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -16,7 +15,6 @@ type SSHMachine struct {
 }
 
 func SSHCredentials(machine string) (SSHMachine, error) {
-	fmt.Println("ssh.CredsLookup")
 	pub := ""
 	usr := "git"
 
@@ -27,7 +25,6 @@ func SSHCredentials(machine string) (SSHMachine, error) {
 
 	// look for env var key location
 	if key := os.Getenv("HOF_SSHKEY"); key != "" {
-		fmt.Println("ssh.SSHEnvVar")
 		pks, err := ssh.NewPublicKeysFromFile(usr, key, "")
 		if err != nil {
 			return SSHMachine{}, err
@@ -46,15 +43,12 @@ func SSHCredentials(machine string) (SSHMachine, error) {
 	_, uerr := os.Lstat(filepath.Join(hdir, ".ssh", "config"))
 	_, serr := os.Lstat(filepath.Join("etc", "ssh", "ssh_config"))
 	if uerr == nil || serr == nil {
-		fmt.Println("ssh.SSHConfig")
 		return getSSHConfigVals(machine)
 	}
 
 	// fallback on default pubkey
-	fmt.Println("ssh.DefaultPubkey")
 	pub = filepath.Join(hdir, ".ssh", "id_rsa")
 	pks, err := ssh.NewPublicKeysFromFile(usr, pub, "")
-	fmt.Println("err:", err)
 	if err != nil {
 		return SSHMachine{}, err
 	}
@@ -66,7 +60,6 @@ func getSSHConfigVals(machine string) (SSHMachine, error) {
 	// try to lookup the machine in config
 	pub, err := ssh_config.GetStrict(machine, "IdentityFile")
 	if err != nil {
-		fmt.Println(pub, err)
 		return SSHMachine{}, err
 	}
 

@@ -16,12 +16,10 @@ import (
 )
 
 func Fetch(FS billy.Filesystem, owner, repo, tag string, private bool) (error) {
-	fmt.Println("bbc.Fetch", owner, repo, tag, private)
 
 	// If private, and no token auth, try git protocol
 	// need to catch auth errors and suggest how to setup
 	if private && os.Getenv(TokenEnv) == "" {
-		fmt.Println("bitbucket git fallback")
 		return git.Fetch(FS, "bitbucket.org", owner, repo, tag, private)
 	}
 
@@ -64,7 +62,6 @@ func Fetch(FS billy.Filesystem, owner, repo, tag string, private bool) (error) {
 
 		zReader, err = FetchTagZip(owner, repo, T.Name)
 		if err != nil {
-			fmt.Printf("Error: %v\n", err)
 			return fmt.Errorf("While fetching tag zipfile\n%w\n", err)
 		}
 	}
@@ -81,7 +78,6 @@ func Fetch(FS billy.Filesystem, owner, repo, tag string, private bool) (error) {
 }
 
 func FetchTagZip(owner, repo, ver string) (*zip.Reader, error) {
-	fmt.Println("bbc.FetchTagZip")
 
 	// url := *tag.ZipballURL
 	url := fmt.Sprintf("https://bitbucket.org/%s/%s/get/%s.zip", owner, repo, ver)

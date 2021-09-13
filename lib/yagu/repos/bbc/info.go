@@ -35,7 +35,6 @@ func GetRepo(client *bitbucket.Client, owner, repo string) (*bitbucket.Repositor
 		RepoSlug: repo,
 	}
 	r, err := client.Repositories.Repository.Get(ro)
-	fmt.Printf("bbc.GetRepo\n%# v\n%v\n", *r, err)
 	return r, err
 }
 
@@ -58,6 +57,10 @@ func GetBranches(client *bitbucket.Client, owner, repo, branch string) ([]bitbuc
 }
 
 func GetTags(client *bitbucket.Client, owner, repo string) ([]bitbucket.RepositoryTag, error) {
+	_, err := GetRepo(client, owner, repo)
+	if err != nil {
+		return nil, err
+	}
 	ro := &bitbucket.RepositoryTagOptions{
 		Owner: owner,
 		RepoSlug: repo,
