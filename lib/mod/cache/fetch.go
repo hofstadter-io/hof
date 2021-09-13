@@ -37,6 +37,7 @@ func Fetch(lang, mod, ver, pev string) (err error) {
 }
 
 func fetch(lang, mod, ver string, private bool) error {
+	fmt.Println("fetch: ", lang, mod, ver, private)
 	FS := memfs.New()
 
 	remote, owner, repo := parseModURL(mod)

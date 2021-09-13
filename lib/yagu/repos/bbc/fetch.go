@@ -20,6 +20,7 @@ func Fetch(FS billy.Filesystem, owner, repo, tag string, private bool) (error) {
 	// If private, and no token auth, try git protocol
 	// need to catch auth errors and suggest how to setup
 	if private && os.Getenv(TokenEnv) == "" {
+		fmt.Println("bitbucket git fallback")
 		return git.Fetch(FS, "bitbucket.org", owner, repo, tag, private)
 	}
 

@@ -4,15 +4,22 @@ import (
 	"archive/zip"
 	"bytes"
 	"fmt"
+	"os"
 	"path"
 
 	"github.com/go-git/go-billy/v5"
 	"github.com/xanzy/go-gitlab"
 
 	"github.com/hofstadter-io/hof/lib/yagu"
+	"github.com/hofstadter-io/hof/lib/yagu/repos/git"
 )
 
 func Fetch(FS billy.Filesystem, owner, repo, tag string, private bool) (error) {
+	if private && os.Getenv(TokenEnv) == "" {
+		fmt.Println("gitlab git fallback")
+		return git.Fetch(FS, "gitlab.com", owner, repo, tag, private)
+	}
+
 	client, err := NewClient(private)
 	if err != nil {
 		return err
