@@ -2,20 +2,21 @@
 
 ## setup auth
 env GITHUB_TOKEN=""
-exec ls -lh
+mkdir $HOME/.ssh
+exec bash -c 'echo $HOFGIT_SSHKEY > $HOME/.ssh/id_rsa'
 
 ## run cmd
 exec hof mod vendor
 
--- sshkey --
-$HOFGIT_SSHKEY
 -- cue.mods --
 module github.com/test/priv-github
 
 cue v0.4.0
 
 require (
+    bitbucket.org/hofstadter/hofmod-test-priv-bitbucket v0.0.1
     github.com/hofstadter-io/hofmod-test-priv-github v0.0.1
+    gitlab.com/_hofstadter/hofmod-test-priv-gitlab v0.0.1
 )
 -- cue.mod/module.cue --
 module: "github.com/test/priv-github"

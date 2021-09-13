@@ -1,0 +1,6 @@
+env FOO=BAR
+
+mkdir $HOME/.ssh
+exec bash -c 'echo $FOO > $HOME/.ssh/foo'
+exists $HOME/.ssh/foo
+cat $HOME/.ssh/foo
