@@ -17,7 +17,7 @@ import (
 const HTTP2_GOAWAY_CHECK = "http2: server sent GOAWAY and closed the connection"
 
 func RunAPI(T *Tester, verbose int) (err error) {
-	fmt.Println("api:", T.Name)
+	// fmt.Println("api:", T.Name)
 
 	// make sure we resolve references and unifications
 	val := T.Value.Eval()
@@ -49,7 +49,15 @@ func runCase(T *Tester, verbose int, val cue.Value) (err error) {
 		return err
 	}
 
-	err = checkResponse(T, verbose, actual, expected)
+
+	fail := val.LookupPath(cue.ParsePath("fail"))
+	failVal, err := fail.Bool()
+	if err != nil {
+		// likely not found
+		failVal = false
+	}
+
+	err = checkResponse(T, verbose, actual, expected, failVal)
 
 	return err
 }
@@ -66,11 +74,12 @@ func buildRequest(T *Tester, verbose int, val cue.Value) (R *gorequest.SuperAgen
 	}
 
 	host := req.LookupPath(cue.ParsePath("host"))
-	path := req.LookupPath(cue.ParsePath("path"))
 	hostStr, err := host.String()
 	if err != nil {
 		return
 	}
+
+	path := req.LookupPath(cue.ParsePath("path"))
 	pathStr, err := path.String()
 	if err != nil {
 		return
@@ -203,12 +212,12 @@ func makeRequest(T *Tester, verbose int, R *gorequest.SuperAgent) (gorequest.Res
 	if verbose > 0 {
 		fmt.Println(body)
 	}
-	fmt.Println(body)
+	// fmt.Println(body)
 
 	return resp, nil
 }
 
-func checkResponse(T *Tester, verbose int, actual gorequest.Response, expect cue.Value) (err error) {
+func checkResponse(T *Tester, verbose int, actual gorequest.Response, expect cue.Value, expectFail bool) (err error) {
 	expect = expect.Eval()
 
 	S, err := expect.Struct()
@@ -220,7 +229,7 @@ func checkResponse(T *Tester, verbose int, actual gorequest.Response, expect cue
 		label := iter.Label()
 		value := iter.Value()
 
-		fmt.Println("checking:", label)
+		// fmt.Println("checking:", label)
 
 		switch label {
 			case "status":
@@ -250,14 +259,17 @@ func checkResponse(T *Tester, verbose int, actual gorequest.Response, expect cue
 				// TODO: bi-directional subsume to check for equality?
 				result := value.Unify(V)
 				if result.Err() != nil {
-					return result.Err()
+					if !expectFail {
+						return result.Err()
+					}
 				}
-				fmt.Println("result: ", result)
+				// fmt.Println("result: ", result)
 				err = result.Validate()
 				if err != nil {
-					fmt.Println(value)
-
-					return err
+					if !expectFail {
+						fmt.Println(value)
+						return err
+					}
 				}
 
 

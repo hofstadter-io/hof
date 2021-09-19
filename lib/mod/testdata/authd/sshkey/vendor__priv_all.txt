@@ -1,0 +1,31 @@
+# hof mod vendor - with deps
+
+env CUEPRIVATE=github.com,gitlab.com,bitbucket.org
+
+## blankout token vars for this test
+env GITHUB_TOKEN=""
+env GITLAB_TOKEN=""
+env BITBUCKET_USERNAME=""
+env BITBUCKET_PASSWORD=""
+
+## setup default sshkey auth
+mkdir $HOME/.ssh
+exec bash -c 'echo $HOFMOD_SSHKEY > $HOME/.ssh/id_rsa'
+
+## run cmd
+exec hof mod vendor
+
+-- cue.mods --
+module github.com/test/priv-all
+
+cue v0.4.0
+
+require (
+    bitbucket.org/hofstadter/hofmod-test-priv-bitbucket v0.0.1
+    github.com/hofstadter-io/hofmod-test-priv-github v0.0.1
+    gitlab.com/_hofstadter/hofmod-test-priv-gitlab v0.0.1
+)
+-- cue.mod/module.cue --
+module: "github.com/test/priv-all"
+
+-- dummy_end --

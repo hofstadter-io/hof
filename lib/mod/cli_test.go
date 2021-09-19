@@ -1,6 +1,7 @@
 package mod_test
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
@@ -9,8 +10,14 @@ import (
 )
 
 func envSetup(env *runtime.Env) error {
-	if token := os.Getenv("GITHUB_TOKEN"); token != "" {
-		env.Vars = append(env.Vars, "GITHUB_TOKEN="+token)
+	vars := []string{
+		"GITHUB_TOKEN",
+		"GITLAB_TOKEN",
+	}
+	for _, v := range vars {
+		if val := os.Getenv(v); val != "" {
+			env.Vars = append(env.Vars, fmt.Sprintf("%s=%s", v, val))
+		}
 	}
 	env.Vars = append(env.Vars, "HOF_TELEMETRY_DISABLED=1")
 	return nil
@@ -35,3 +42,34 @@ func TestModBugs(t *testing.T) {
 		WorkdirRoot: ".workdir/bugs",
 	})
 }
+
+func TestModAuthdApikeysTests(t *testing.T) {
+	yagu.Mkdir(".workdir/authd/apikeys")
+	runtime.Run(t, runtime.Params{
+		Setup: envSetup,
+		Dir: "testdata/authd/apikeys",
+		Glob: "*.txt",
+		WorkdirRoot: ".workdir/authd/apikeys",
+	})
+}
+
+func TestModAuthdSshconfigTests(t *testing.T) {
+	yagu.Mkdir(".workdir/authd/sshconfig")
+	runtime.Run(t, runtime.Params{
+		Setup: envSetup,
+		Dir: "testdata/authd/sshconfig",
+		Glob: "*.txt",
+		WorkdirRoot: ".workdir/authd/sshconfig",
+	})
+}
+
+//func TestModAuthdSshkeyTests(t *testing.T) {
+	//yagu.Mkdir(".workdir/authd/sshkey")
+	//runtime.Run(t, runtime.Params{
+		//Setup: envSetup,
+		//Dir: "testdata/authd/sshkey",
+		//Glob: "*.txt",
+		//WorkdirRoot: ".workdir/authd/sshkey",
+	//})
+//}
+

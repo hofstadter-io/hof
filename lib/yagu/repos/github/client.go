@@ -6,7 +6,7 @@ import (
 
 	"golang.org/x/oauth2"
 
-	"github.com/google/go-github/v30/github"
+	"github.com/google/go-github/v38/github"
 )
 
 const TokenEnv = "GITHUB_TOKEN"
@@ -20,7 +20,6 @@ func NewClient() (client *github.Client, err error) {
 		)
 		tc := oauth2.NewClient(ctx, ts)
 		client = github.NewClient(tc)
-
 	} else {
 		client = github.NewClient(nil)
 	}
