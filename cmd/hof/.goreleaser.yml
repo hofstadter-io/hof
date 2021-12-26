@@ -1,9 +1,5 @@
 project_name: "hof"
 
-before:
-  hooks:
-    - go mod vendor
-
 builds:
 - binary: "hof"
   main: main.go
