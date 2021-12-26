@@ -5,44 +5,43 @@ package gen
   // Base directory for the output
   Outdir: string | *"./"
 
-  // "Global" input, merged with out replacing onto the files
-  In: { ... } | *{...}
+  // Generater wide input value to templates.
+	// Unified with any template or file level In values
+  In: { ... }
 
   // The list fo files for hof to generate
-  // Out: [...#HofGeneratorFile] | *[...]
-  Out: [...#HofGeneratorFile] | *[]
+  Out: [...#HofGeneratorFile]
 
-  // The following will be automatically added to the template context
-  // under its name for reference in GenFiles  and partials in templates
-  NamedTemplates: { [Name=string]: string }
-  NamedPartials:  { [Name=string]: string }
-  // Static files are available for pure cue generators that want to have static files
-  // These should be named by their filepath, but be the content of the file
-  StaticFiles: { [Name=string]:  string }
+  // Template (top-level) TemplateConfig (globs+config)
+	Templates: [...#Templates] | *[#Templates & { Globs: ["./templates/**"] }]
 
-  //
-  // For file based generators
-  //   files here will be automatically added to the template context
-  //   under its filepath for reference in GenFiles and partials in templates
+  // Partial (nested) TemplateConfig (globs+config)
+	Partials: [...#Templates] | *[#Templates & { Globs: ["./partials/**"] }]
 
-  // Used for indexing into the vendor directory...
-  PackageName: string
+	// Statics are copied directly into the output, bypassing the rendering
+	Statics: [...#Statics] | *[#Statics & { Globs: ["./static/**"], TrimPrefix: "./static/" }]
 
-  // Filepath globs for static files to load
-  StaticGlobs: [...string] | *[]
-
-  // Base directory of partial templatess to load
-  PartialsDir: string | *"./partials/"
-
-  // Base directory of entrypoint templates to load
-  TemplatesDir: string | *"./templates/"
-
-  TemplatesDirConfig: [Filename=string]: #TemplateConfigReplacible
-
-  TemplateConfig: #DefaultTemplateConfig
+	// The following mirror their non-embedded versions
+	// however they have the content as a string in CUE
+	// For templates and partials, Name is the path to reference
+  EmbeddedTemplates: [Name=string]: #Template
+  EmbeddedPartials:  [Name=string]: #Template
+	// For statics, Name is the path to write the content
+  EmbeddedStatics:   [Name=string]: string
 
 	// For subgenerators so a generator can leverage and design for other hofmods
 	Generators: [Gen=string]: #HofGenerator
+
+	// This should be set to default to the module name
+	//   (i.e. 'string | *"github.com/<org>/<repo>"')
+	// Users should not have to set this.
+	// 
+  // Used for indexing into the cue.mod/pkg directory...
+	// until embed is supported, at which point this shouldn't be needed at all
+	// only needed when you have example usage in the same module the generator is in
+	// set to the empty string ("") as a generator writer who is making an example in the same module
+  PackageName: string
+	// TODO, hof, can we introspect the generator / example packages and figure this out?
 
   //
   // Open for whatever else you may need as a generator writer
