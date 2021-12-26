@@ -32,10 +32,10 @@ package gen
   StaticGlobs: [...string] | *[]
 
   // Base directory of partial templatess to load
-  PartialsDir: string | *"/partials"
+  PartialsDir: string | *"./partials/"
 
   // Base directory of entrypoint templates to load
-  TemplatesDir: string | *"/templates"
+  TemplatesDir: string | *"./templates/"
 
   TemplatesDirConfig: [Filename=string]: #TemplateConfigReplacible
 
