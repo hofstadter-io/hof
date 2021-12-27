@@ -43,19 +43,23 @@ func (G *Generator) LoadCue() (errs []error) {
 		errs = append(errs, err)
 	}
 
-	if err := G.loadOut(); err != nil {
-		errs = append(errs, err)
+	if serr := G.loadOut(); serr != nil {
+		errs = append(errs, serr...)
 	}
 
 	if err := G.loadPackageName(); err != nil {
 		errs = append(errs, err)
 	}
 
-	// Load Subgens
-
 	// finalize load timing stats
 	cueDecodeTime := time.Now()
 	G.Stats.CueLoadingTime = cueDecodeTime.Sub(start)
+
+	if errs != nil {
+		return errs
+	}
+
+	// Load Subgens
 
 	// Initialize Generator
 	errsI := G.Initialize()
@@ -173,26 +177,27 @@ func (G *Generator) loadVal() error {
 	return nil
 }
 
-func (G *Generator) loadOut() error {
+func (G *Generator) loadOut() []error {
 	val := G.CueValue.LookupPath(cue.ParsePath("Out"))
 	if val.Err() != nil {
-		return val.Err()
+		return []error{val.Err()}
 	}
 
 	Out := make([]*File, 0)
 	err := val.Decode(&Out)
 	if err != nil {
-		return err
+		return []error{err}
 	}
 
 	// need this extra work to load In into a cue.Value
 	L, err := val.List()
 	if err != nil {
-		return err
+		return []error{err}
 	}
 
 	G.Out = make([]*File, 0)
 	i := 0
+	allErrs := []error{}
 	for L.Next() {
 		v := L.Value()
 		in := v.LookupPath(cue.ParsePath("In"))
@@ -204,12 +209,14 @@ func (G *Generator) loadOut() error {
 
 			// check template fields (See TODO in schema/gen/file.cue)
 			if elem.TemplateContent == "" && elem.TemplatePath == "" {
-				err := fmt.Errorf("In %q, only one of TemplateContent or TemplatePath must be set, both are empty")
+				err := fmt.Errorf("In %s.%d (%s), only one of TemplateContent or TemplatePath must be set, both are empty", G.Name, i, elem.Filepath)
 				elem.Errors = append(elem.Errors, err)
+				allErrs = append(allErrs, err)
 			}
 			if elem.TemplateContent != "" && elem.TemplatePath != "" {
-				err := fmt.Errorf("In %q, only one of TemplateContent or TemplatePath must be set, both are set")
+				err := fmt.Errorf("In %s.%d (%s), only one of TemplateContent or TemplatePath must be set, both are set", G.Name, i, elem.Filepath)
 				elem.Errors = append(elem.Errors, err)
+				allErrs = append(allErrs, err)
 			}
 
 			// manage In value
@@ -230,6 +237,10 @@ func (G *Generator) loadOut() error {
 			G.Out = append(G.Out, elem)
 		}
 		i++
+	}
+
+	if len(allErrs) > 0 {
+		return allErrs
 	}
 
 	return nil
