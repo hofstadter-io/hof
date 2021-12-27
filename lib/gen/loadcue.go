@@ -201,6 +201,18 @@ func (G *Generator) loadOut() error {
 		// Invalid include conditional elements in CUE Gen which are not "included"
 		elem := Out[i]
 		if elem != nil {
+
+			// check template fields (See TODO in schema/gen/file.cue)
+			if elem.TemplateContent == "" && elem.TemplatePath == "" {
+				err := fmt.Errorf("In %q, only one of TemplateContent or TemplatePath must be set, both are empty")
+				elem.Errors = append(elem.Errors, err)
+			}
+			if elem.TemplateContent != "" && elem.TemplatePath != "" {
+				err := fmt.Errorf("In %q, only one of TemplateContent or TemplatePath must be set, both are set")
+				elem.Errors = append(elem.Errors, err)
+			}
+
+			// manage In value
 			// If In exists
 			if in.Err() == nil {
 				// merge with G.In
@@ -232,7 +244,7 @@ func (G *Generator) loadPackageName() error {
 	return val.Decode(&G.PackageName)
 }
 
-func (G *Generator) decodeStuffOld() (errs []error) {
+func (G *Generator) loadSubgens() (errs []error) {
 
 	// TODO, load subgenerators
 	// Get the Generator Input (if it has one)
