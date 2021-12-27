@@ -3,6 +3,7 @@ package templates
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 
 	"github.com/mattn/go-zglob"
@@ -37,7 +38,16 @@ func (M TemplateMap) ImportFromFolder(glob, prefix string, delims *Delims) error
 	}
 
 	for _, match := range matches {
-		err := M.importTemplate(match, prefix, delims)
+		info, err := os.Stat(match)
+		if err != nil {
+			return err
+		}
+
+		if info.IsDir() {
+			continue
+		}
+
+		err = M.importTemplate(match, prefix, delims)
 		if err != nil {
 			return err
 		}

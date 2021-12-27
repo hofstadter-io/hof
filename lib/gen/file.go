@@ -8,7 +8,6 @@ import (
 	"os"
 	"strings"
 
-	"cuelang.org/go/cue"
 	"github.com/epiclabs-io/diff3"
 	"github.com/sergi/go-diff/diffmatchpatch"
 
@@ -17,8 +16,8 @@ import (
 
 type File struct {
 	// Input Data, local to this file
-	// In    map[string]interface{}
-	In cue.Value
+	In map[string]interface{}
+	// In cue.Value
 
 	// The full path under the output location
 	// empty implies don't generate, even though it may endup in the list
@@ -222,13 +221,7 @@ func (F *File) UnifyContent() (write bool, err error) {
 func (F *File) RenderTemplate() error {
 	var err error
 
-	In := make(map[string]interface{})
-	err = F.In.Decode(&In)
-	if err != nil {
-		return err
-	}
-
-	F.RenderContent, err = F.TemplateInstance.Render(In)
+	F.RenderContent, err = F.TemplateInstance.Render(F.In)
 	if err != nil {
 		return err
 	}

@@ -104,8 +104,8 @@ func (G *Generator) loadIn() error {
 		return val.Err()
 	}
 
-	G.In = val
-	return nil
+	G.In = make(map[string]interface{})
+	return val.Decode(&G.In)
 }
 
 func (G *Generator) loadTemplates() error {
@@ -179,8 +179,8 @@ func (G *Generator) loadOut() error {
 		return val.Err()
 	}
 
-	G.Out = make([]*File, 0)
-	err := val.Decode(&G.Out)
+	Out := make([]*File, 0)
+	err := val.Decode(&Out)
 	if err != nil {
 		return err
 	}
@@ -190,18 +190,32 @@ func (G *Generator) loadOut() error {
 	if err != nil {
 		return err
 	}
+
+	G.Out = make([]*File, 0)
 	i := 0
 	for L.Next() {
 		v := L.Value()
 		in := v.LookupPath(cue.ParsePath("In"))
 
-		// If In exists
-		if in.Err() == nil {
-			// unify with G.In
-			G.Out[i].In = in.Unify(G.In)
-		} else {
-			// else, just use G.In
-			G.Out[i].In = G.In
+		// Only keep valid elements
+		// Invalid include conditional elements in CUE Gen which are not "included"
+		elem := Out[i]
+		if elem != nil {
+			// If In exists
+			if in.Err() == nil {
+				// merge with G.In
+				for k, v := range G.In {
+					// only copy in top-level elements which do not exist already
+					if _, ok := elem.In[k]; !ok {
+						elem.In[k] = v
+					}
+				}
+			} else {
+				// else, just use G.In
+				elem.In = G.In
+			}
+
+			G.Out = append(G.Out, elem)
 		}
 		i++
 	}

@@ -46,8 +46,7 @@ type Generator struct {
 	Outdir string
 
 	// "Global" input, merged with out replacing onto the files
-	// In    map[string]interface{}
-	In cue.Value
+	In map[string]interface{}
 
 	// The list fo files for hof to generate, in cue values
 	Out []*File
@@ -183,9 +182,9 @@ func (G *Generator) initPartials() []error {
 	}
 
 	for _, tg := range G.Partials {
-		prefix := filepath.Clean(tg.TrimPrefix)
 		for _, glob := range tg.Globs {
 			// setup vars
+			prefix := filepath.Clean(tg.TrimPrefix)
 			if G.PackageName != "" {
 				glob = filepath.Join(CUE_VENDOR_DIR, G.PackageName, glob)
 				prefix = filepath.Join(CUE_VENDOR_DIR, G.PackageName, prefix)
@@ -231,9 +230,9 @@ func (G *Generator) initTemplates() []error {
 	}
 
 	for _, tg := range G.Templates {
-		prefix := filepath.Clean(tg.TrimPrefix)
 		for _, glob := range tg.Globs {
 			// setup vars
+			prefix := filepath.Clean(tg.TrimPrefix)
 			if G.PackageName != "" {
 				glob = filepath.Join(CUE_VENDOR_DIR, G.PackageName, glob)
 				prefix = filepath.Join(CUE_VENDOR_DIR, G.PackageName, prefix)
