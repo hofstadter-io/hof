@@ -13,11 +13,21 @@ import (
   }
 }
 
+#C: {
+	foo: string
+	i: int
+	s: {
+		b: bool | *false
+		n: number & >0.0
+	}
+}
+
 TestGen: #TestGen & {
 	@gen(test)
   In: {
     Val: #A 
   }
+	CUE: #C
 }
 
 
@@ -31,53 +41,23 @@ TestGen: #TestGen & {
     ...
   }
 
+	CUE: {...}
+
   Out: [...gen.#HofGeneratorFile] & [
     // Defaults
     {
       TemplateContent: "Val.a = '{{ .Val.a }}'\n"
       Filepath: "\(Outdir)/default.txt"
-      TemplateConfig: {
-        Engine: "golang"
-      }
     },
     // Alternate delims
     {
       TemplateContent: "Val.a = '{% .Val.a %}'\n"
       Filepath: "\(Outdir)/altdelim.txt"
-      TemplateConfig: {
-				AltDelims: {
-					LHS2: "{%"
-					RHS2: "%}"
-					LHS3: "{%%"
-					RHS3: "%%}"
-				}
+      TemplateDelims: {
+				LHS: "{%"
+				RHS: "%}"
       }
     },
-    // Swap delims, using defaults delims for swap/temp
-    {
-      TemplateContent: "Val.a = '{% .Val.a %}' and also this should stay {{ .Hello }}\n"
-      Filepath: "\(Outdir)/swapdelim.txt"
-      TemplateConfig: {
-        TmpDelims: true
-				AltDelims: {
-					LHS2: "{%"
-					RHS2: "%}"
-					LHS3: "{%%"
-					RHS3: "%%}"
-				}
-      }
-    },
-    // TODO Swap delims, using custom delims for swap/temp
-
-    // Mustache system
-    {
-      TemplateContent: "Val.a = '{{ Val.a }}'\n"
-      Filepath: "\(Outdir)/mustache.txt"
-      TemplateConfig: {
-        Engine: "raymond"
-      }
-    },
-
 
     // Named things
     {
@@ -108,17 +88,14 @@ TestGen: #TestGen & {
 
 	Templates: [{
 		Globs: ["templates/template-*"]
+		TrimPrefix: "templates/"
 	}, {
-		Globs: ["templates/altdelim-*"]
-		Config: {
-      TmpDelims: true
-			AltDelims: {
-				LHS2: "{%"
-				RHS2: "%}"
-				LHS3: "{%%"
-				RHS3: "%%}"
-			}
-    }
+		Globs: ["./templates/altdelim-*"]
+		TrimPrefix: "./templates/"
+		Delims: {
+			LHS: "{%"
+			RHS: "%}"
+		}
   }]
 
   EmbeddedTemplates: {

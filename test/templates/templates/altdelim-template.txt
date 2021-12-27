@@ -1,0 +1,6 @@
+Hi, I'm a template file on disk '{{ .Val.a }}'
+ ... and I'm a partial {{ template "partial-file.txt" . }}
+
+---
+{% camelT "hell-world" %}
+---

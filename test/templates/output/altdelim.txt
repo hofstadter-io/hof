@@ -1,1 +1,1 @@
-Val.a = 'a'
+Val.a = '<no value>'

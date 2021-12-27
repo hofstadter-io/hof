@@ -21,7 +21,7 @@ package gen
 
   // Include Common attributes
   //  '.' will bre replaced by generator defaults
-  TemplateConfig?: #TemplateConfig
+  TemplateDelims?: #TemplateDelims
 
   // Note, intentionally closed to prevent user error when creating GenFiles
 }

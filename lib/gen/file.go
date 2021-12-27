@@ -16,19 +16,20 @@ import (
 
 type File struct {
 	// Input Data, local to this file
-	In           map[string]interface{}
+	In map[string]interface{}
 
-  // The full path under the output location
-  // empty implies don't generate, even though it may endup in the list
-	Filepath     string
+	// The full path under the output location
+	// empty implies don't generate, even though it may endup in the list
+	Filepath string
 
 	// Template parameters
-	TemplateSystem string  // which system ['text/template'(default), 'mustache']
-	Template       string  // The content, takes precedence over next option
-	TemplateName   string  // Named template
+	TemplateContent string // The content, takes precedence over next option
+	TemplatePath    string // Named template
+	CueFile         bool
+	Concrete        bool
 
-  // Template delimiters
-	TemplateConfig *templates.Config
+	// Template delimiters
+	TemplateDelims *templates.Delims
 
 	//
 	// Hof internal usage
@@ -47,8 +48,8 @@ type File struct {
 	TemplateInstance *templates.Template
 
 	// Content
-	RenderContent   []byte
-	FinalContent    []byte
+	RenderContent []byte
+	FinalContent  []byte
 
 	// Shadow related
 	ShadowFile *File
@@ -124,8 +125,8 @@ func (F *File) ReadUser() error {
 		return err
 	}
 
-	F.UserFile = &File {
-		Filepath: F.Filepath,
+	F.UserFile = &File{
+		Filepath:     F.Filepath,
 		FinalContent: content,
 	}
 
@@ -226,7 +227,7 @@ func (F *File) RenderTemplate() error {
 
 	err = F.FormatRendered()
 	if err != nil {
-		fmt.Printf("---- Rendering error for template: %q output: %q content:\n", F.TemplateName, F.Filepath)
+		fmt.Printf("---- Rendering error for template: %q output: %q content:\n", F.TemplatePath, F.Filepath)
 		fmt.Println(string(F.RenderContent))
 		fmt.Println("----")
 		return err
@@ -234,7 +235,6 @@ func (F *File) RenderTemplate() error {
 
 	return nil
 }
-
 
 func (F *File) FormatRendered() error {
 

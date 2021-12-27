@@ -1,1 +1,0 @@
-Val.a = 'a' and also this should stay {{ .Hello }}
