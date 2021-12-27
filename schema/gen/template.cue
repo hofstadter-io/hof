@@ -10,20 +10,20 @@ package gen
 // #Template is used for embedded or named templates
 #Template: {
 	Content: string
-	Config: #TemplateConfig
+	Config?: #TemplateConfig
 }
 
 // #Templates is used for templates loaded from a filesystem
 #Templates: {
 	Globs: [...string]
-	Config: #TemplateConfig
+	Config?: #TemplateConfig
 }
 
 // #TemplateConfig determines the engine and delimiters to use when rendering
 // For more details see https://docs.hofstadter.io/code-generation/templates/
 #TemplateConfig: {
 	// The template system to use
-	TemplateSystem: *"golang" | "raymond"
+	Engine: *"golang" | "raymond"
 
 	// AltDelims are used when you have
 	// different delims you'd like to use

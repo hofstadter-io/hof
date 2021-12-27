@@ -42,8 +42,4 @@ package gen
 	// set to the empty string ("") as a generator writer who is making an example in the same module
   PackageName: string
 	// TODO, hof, can we introspect the generator / example packages and figure this out?
-
-  //
-  // Open for whatever else you may need as a generator writer
-  ...
 } 
