@@ -46,7 +46,8 @@ type Generator struct {
 	Outdir string
 
 	// "Global" input, merged with out replacing onto the files
-	In map[string]interface{}
+	// In    map[string]interface{}
+	In cue.Value
 
 	// The list fo files for hof to generate, in cue values
 	Out []*File

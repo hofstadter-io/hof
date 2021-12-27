@@ -1,5 +1,5 @@
-Hi, I'm a template file on disk '<no value>'
- ... and I'm a partial Hi, I'm a partial file on disk '<no value>'
+Hi, I'm a template file on disk 'a'
+ ... and I'm a partial Hi, I'm a partial file on disk 'b'
 
 
 ---

@@ -1,1 +1,1 @@
-embedded template is '<no value>'
+embedded template is 'a'

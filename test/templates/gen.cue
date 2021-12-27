@@ -57,6 +57,9 @@ TestGen: #TestGen & {
 				LHS: "{%"
 				RHS: "%}"
       }
+			In: {
+				extra: "foobar"
+			}
     },
 
     // Named things

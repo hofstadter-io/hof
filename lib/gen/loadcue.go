@@ -104,8 +104,8 @@ func (G *Generator) loadIn() error {
 		return val.Err()
 	}
 
-	G.In = make(map[string]interface{})
-	return val.Decode(&G.In)
+	G.In = val
+	return nil
 }
 
 func (G *Generator) loadTemplates() error {
@@ -180,7 +180,33 @@ func (G *Generator) loadOut() error {
 	}
 
 	G.Out = make([]*File, 0)
-	return val.Decode(&G.Out)
+	err := val.Decode(&G.Out)
+	if err != nil {
+		return err
+	}
+
+	// need this extra work to load In into a cue.Value
+	L, err := val.List()
+	if err != nil {
+		return err
+	}
+	i := 0
+	for L.Next() {
+		v := L.Value()
+		in := v.LookupPath(cue.ParsePath("In"))
+
+		// If In exists
+		if in.Err() == nil {
+			// unify with G.In
+			G.Out[i].In = in.Unify(G.In)
+		} else {
+			// else, just use G.In
+			G.Out[i].In = G.In
+		}
+		i++
+	}
+
+	return nil
 }
 
 func (G *Generator) loadPackageName() error {
