@@ -168,7 +168,6 @@ func (R *Runtime) LoadGenerators() []error {
 		// Load the Generator!
 		errsL := G.LoadCue()
 		if len(errsL) != 0 {
-			fmt.Println("Load Error:")
 			errs = append(errs, errsL...)
 			continue
 		}

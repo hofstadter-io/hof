@@ -27,7 +27,8 @@ func Gen(args []string, cmdflags flags.GenFlagpole) error {
 	errsL := R.LoadGenerators()
 	if len(errsL) > 0 {
 		for _, e := range errsL {
-			cuetils.PrintCueError(e)
+			fmt.Println(e)
+			// cuetils.PrintCueError(e)
 		}
 		return fmt.Errorf("\nErrors while loading generators\n")
 	}

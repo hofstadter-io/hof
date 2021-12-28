@@ -302,7 +302,7 @@ func (G *Generator) ResolveFile(F *File) error {
 		T, ok := G.TemplateMap[F.TemplatePath]
 		if !ok {
 			// TODO, do we need to do check for a namespaced prefix?
-			err := fmt.Errorf("Named template %q not found for %s %s\n", F.TemplatePath, G.Name, F.Filepath)
+			err := fmt.Errorf("Named template %q not found for %s %s", F.TemplatePath, G.Name, F.Filepath)
 			F.IsErr = 1
 			F.Errors = append(F.Errors, err)
 			return err

@@ -55,16 +55,20 @@ func (G *Generator) LoadCue() (errs []error) {
 	cueDecodeTime := time.Now()
 	G.Stats.CueLoadingTime = cueDecodeTime.Sub(start)
 
+	// Load Subgens
+	if serr := G.loadSubgens(); serr != nil {
+		errs = append(errs, serr...)
+	}
+
+	// return early if errors
+	// (we didn't do this before, and waited until after init, were there better errors this way?)
 	if errs != nil {
 		return errs
 	}
 
-	// Load Subgens
-
 	// Initialize Generator
 	errsI := G.Initialize()
 	if len(errsI) != 0 {
-		fmt.Println("  Init Error:", errsI)
 		errs = append(errs, errsI...)
 	}
 
@@ -205,7 +209,7 @@ func (G *Generator) loadOut() []error {
 		// Only keep valid elements
 		// Invalid include conditional elements in CUE Gen which are not "included"
 		elem := Out[i]
-		if elem != nil {
+		if elem != nil && elem.Filepath != "" {
 
 			// check template fields (See TODO in schema/gen/file.cue)
 			if elem.TemplateContent == "" && elem.TemplatePath == "" {
@@ -257,22 +261,28 @@ func (G *Generator) loadPackageName() error {
 
 func (G *Generator) loadSubgens() (errs []error) {
 
-	// TODO, load subgenerators
-	// Get the Generator Input (if it has one)
-	/*
-		Subgens, ok := gen["Generators"].(map[string]interface{})
-		if ok && len(Subgens) > 0 {
-			for sname, subgen := range Subgens {
-				sg := NewGenerator(sname, cue.Value{})
-				sgmap := subgen.(map[string]interface{})
-				sgerrs := sg.decodeGenerator(sgmap)
-				if len(sgerrs) > 0 {
-					errs = append(errs, sgerrs...)
-				}
+	val := G.CueValue.LookupPath(cue.ParsePath("Generators"))
+	if val.Err() != nil {
+		return []error{val.Err()}
+	}
 
-				G.Generators[sname] = sg
-			}
+	iter, err := val.Fields()
+	if err != nil {
+		return []error{err}
+	}
+
+	for iter.Next() {
+		name := iter.Selector().String()
+		v := iter.Value()
+		sg := NewGenerator(name, v)
+
+		sgerrs := sg.LoadCue()
+		if len(sgerrs) > 0 {
+			errs = append(errs, sgerrs...)
 		}
-	*/
+
+		G.Generators[name] = sg
+	}
+
 	return errs
 }
