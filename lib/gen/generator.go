@@ -46,7 +46,8 @@ type Generator struct {
 	Outdir string
 
 	// "Global" input, merged with out replacing onto the files
-	In map[string]interface{}
+	In  map[string]interface{}
+	Val cue.Value
 
 	// The list fo files for hof to generate, in cue values
 	Out []*File
@@ -128,12 +129,12 @@ func (G *Generator) GenerateFiles() []error {
 		}
 		shadowFN := filepath.Join(G.Name, F.Filepath)
 		F.ShadowFile = G.Shadow[shadowFN]
+
 		err := F.Render(filepath.Join(SHADOW_DIR, shadowFN))
 		if err != nil {
 			F.IsErr = 1
 			F.Errors = append(F.Errors, err)
 			errs = append(errs, err)
-			continue
 		}
 	}
 

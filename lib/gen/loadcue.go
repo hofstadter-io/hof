@@ -19,6 +19,10 @@ func (G *Generator) LoadCue() (errs []error) {
 		errs = append(errs, err)
 	}
 
+	if err := G.loadVal(); err != nil {
+		errs = append(errs, err)
+	}
+
 	if err := G.loadTemplates(); err != nil {
 		errs = append(errs, err)
 	}
@@ -177,6 +181,12 @@ func (G *Generator) loadEmbeddedStatics() error {
 }
 
 func (G *Generator) loadVal() error {
+	val := G.CueValue.LookupPath(cue.ParsePath("Val"))
+	if val.Err() != nil {
+		return val.Err()
+	}
+
+	G.Val = val
 
 	return nil
 }
@@ -204,47 +214,79 @@ func (G *Generator) loadOut() []error {
 	allErrs := []error{}
 	for L.Next() {
 		v := L.Value()
-		in := v.LookupPath(cue.ParsePath("In"))
-
-		// Only keep valid elements
-		// Invalid include conditional elements in CUE Gen which are not "included"
 		elem := Out[i]
-		if elem != nil && elem.Filepath != "" {
 
-			// check template fields (See TODO in schema/gen/file.cue)
-			if elem.TemplateContent == "" && elem.TemplatePath == "" {
-				err := fmt.Errorf("In %s.%d (%s), only one of TemplateContent or TemplatePath must be set, both are empty", G.Name, i, elem.Filepath)
-				elem.Errors = append(elem.Errors, err)
-				allErrs = append(allErrs, err)
-			}
-			if elem.TemplateContent != "" && elem.TemplatePath != "" {
-				err := fmt.Errorf("In %s.%d (%s), only one of TemplateContent or TemplatePath must be set, both are set", G.Name, i, elem.Filepath)
-				elem.Errors = append(elem.Errors, err)
-				allErrs = append(allErrs, err)
-			}
+		err := G.loadFile(elem, v)
+		if err != nil {
+			allErrs = append(allErrs, err)
+		}
 
+		i++
+	}
+
+	if len(allErrs) > 0 {
+		return allErrs
+	}
+
+	return nil
+}
+
+func (G *Generator) loadFile(file *File, val cue.Value) error {
+
+	// Only keep valid elements
+	// Invalid include conditional elements in CUE Gen which are not "included"
+	if file != nil && file.Filepath != "" {
+
+		tcE := file.TemplateContent == ""
+		tpE := file.TemplatePath == ""
+		dfE := file.DatafileFormat == ""
+
+		// check template fields (See TODO in schema/gen/file.cue)
+		// error if none are set
+		if tcE && tpE && dfE {
+			err := fmt.Errorf("In %s (%s), at least one of [TemplateContent, TemplatePath, DatafileFormat] must be set, all are empty", G.Name, file.Filepath)
+			file.Errors = append(file.Errors, err)
+			return err
+		}
+		// more than one is set
+		if !(tcE || tpE) || !(tcE || dfE) || !(tpE || dfE) {
+			err := fmt.Errorf("In %s (%s), only one of [TemplateContent, TemplatePath, DatafileFormat] may be set, multiple are", G.Name, file.Filepath)
+			file.Errors = append(file.Errors, err)
+			return err
+		}
+		// only one is set
+
+		// If datafile format
+		if !dfE {
+			val := val.LookupPath(cue.ParsePath("Val"))
+			if val.Err() == nil && val.Exists() {
+				file.Value = val
+			} else {
+				file.Value = G.Val
+			}
+		} else {
+			// TODO< check if a tc looks like a tp, or vice-a-versa
+			// perhaps look for a path or template indicators
+
+			in := val.LookupPath(cue.ParsePath("In"))
 			// manage In value
 			// If In exists
 			if in.Err() == nil {
 				// merge with G.In
 				for k, v := range G.In {
 					// only copy in top-level elements which do not exist already
-					if _, ok := elem.In[k]; !ok {
-						elem.In[k] = v
+					if _, ok := file.In[k]; !ok {
+						file.In[k] = v
 					}
 				}
 			} else {
 				// else, just use G.In
-				elem.In = G.In
+				file.In = G.In
 			}
 
-			G.Out = append(G.Out, elem)
 		}
-		i++
-	}
 
-	if len(allErrs) > 0 {
-		return allErrs
+		G.Out = append(G.Out, file)
 	}
 
 	return nil

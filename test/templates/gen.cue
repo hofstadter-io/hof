@@ -11,6 +11,17 @@ import (
     x: "x"
     y: "y"
   }
+	List: [
+		{ a: val: 1 },
+		{ b: val: 2 },
+		{ c: val: 3 },
+	]
+
+	Map: {
+		a: { val: 1 }
+		b: { val: 2 }
+		c: { val: 3 }
+	}
 }
 
 #C: {
@@ -27,7 +38,7 @@ TestGen: #TestGen & {
   In: {
     Val: #A 
   }
-	CUE: #C
+	Val: #C
 }
 
 
@@ -41,7 +52,7 @@ TestGen: #TestGen & {
     ...
   }
 
-	CUE: {...}
+	Val: {...}
 
   Out: [...gen.#HofGeneratorFile] & [
     // Defaults
@@ -84,10 +95,41 @@ TestGen: #TestGen & {
       Filepath: "\(Outdir)/user-file.txt"
     },
 
-		// TODO
-		// Per-template In, also in repeated
-		// Repeated Files
+		for F in _listFiles { F },
+		for F in mapFiles { F },
+
+		{
+			DatafileFormat: "cue" 
+			Filepath: "\(Outdir)/datafile-cue.cue"
+		},
+		{
+			DatafileFormat: "json" 
+			Filepath: "\(Outdir)/datafile-json.json"
+			Val: #A
+		},
+
   ]
+
+	
+	_listFiles: [ for idx, elem in In.Val.List {
+			{
+				TemplatePath: "template-elems.txt"
+				Filepath: "\(Outdir)/list-elem-\(idx).txt"
+				In: {
+					Elem: elem
+				}
+			}
+		}],
+
+	mapFiles: [ for key, elem in In.Val.Map {
+			{
+				TemplatePath: "template-elems.txt"
+				Filepath: "\(Outdir)/map-elem-\(key).txt"
+				In: {
+					Elem: elem
+				}
+			}
+		}],
 
 	Templates: [{
 		Globs: ["templates/template-*"]

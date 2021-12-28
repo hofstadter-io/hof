@@ -2,13 +2,18 @@ package gen
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
-	"go/format"
 	"io/ioutil"
 	"os"
 	"strings"
 
+	"cuelang.org/go/cue"
+	"cuelang.org/go/cue/format"
+	"cuelang.org/go/encoding/yaml"
+	"github.com/clbanning/mxj"
 	"github.com/epiclabs-io/diff3"
+	"github.com/naoina/toml"
 	"github.com/sergi/go-diff/diffmatchpatch"
 
 	"github.com/hofstadter-io/hof/lib/templates"
@@ -17,17 +22,15 @@ import (
 type File struct {
 	// Input Data, local to this file
 	In map[string]interface{}
-	// In cue.Value
 
 	// The full path under the output location
 	// empty implies don't generate, even though it may endup in the list
 	Filepath string
 
-	// Template parameters
+	// Template parameters (only one should be set at a time i.e. != "")
 	TemplateContent string // The content, takes precedence over next option
 	TemplatePath    string // Named template
-	CueFile         bool
-	Concrete        bool
+	DatafileFormat  string // Data format file
 
 	// Template delimiters
 	TemplateDelims *templates.Delims
@@ -35,6 +38,10 @@ type File struct {
 	//
 	// Hof internal usage
 	//
+
+	// CUE value for datafiles
+	// (we use a different name here so that it does not automatically try to decode, which would require concreteness)
+	Value cue.Value
 
 	// Generator that owns this file
 	// TODO, does this break with the multi-generator hack?
@@ -66,11 +73,21 @@ type File struct {
 func (F *File) Render(shadow_basedir string) error {
 	var err error
 
-	err = F.RenderTemplate()
-	if err != nil {
-		F.FileStats.IsErr = 1
-		F.Errors = append(F.Errors, err)
-		return err
+	if F.DatafileFormat != "" {
+		err = F.RenderData()
+		if err != nil {
+			err = fmt.Errorf("In: %q %w", F.Filepath, err)
+			F.FileStats.IsErr = 1
+			F.Errors = append(F.Errors, err)
+			return err
+		}
+	} else {
+		err = F.RenderTemplate()
+		if err != nil {
+			F.FileStats.IsErr = 1
+			F.Errors = append(F.Errors, err)
+			return err
+		}
 	}
 	// fmt.Println("   rendered:", F.Filepath, len(F.RenderContent))
 
@@ -218,11 +235,21 @@ func (F *File) UnifyContent() (write bool, err error) {
 	return true, nil
 }
 
-func (F *File) RenderTemplate() error {
-	var err error
+func (F *File) RenderData() (err error) {
+	F.RenderContent, err = formatData(F.Value, F.DatafileFormat)
+	if err != nil {
+		F.Errors = append(F.Errors, err)
+		return err
+	}
+
+	return nil
+}
+
+func (F *File) RenderTemplate() (err error) {
 
 	F.RenderContent, err = F.TemplateInstance.Render(F.In)
 	if err != nil {
+		F.Errors = append(F.Errors, err)
 		return err
 	}
 
@@ -250,4 +277,95 @@ func (F *File) FormatRendered() error {
 	}
 
 	return nil
+}
+
+func formatData(val cue.Value, format string) ([]byte, error) {
+	switch format {
+	case "cue":
+		return formatCue(val)
+
+	case "json":
+		return formatJson(val)
+
+	case "yml", "yaml":
+		return formatYaml(val)
+
+	case "xml":
+		return formatXml(val)
+
+	case "toml":
+		return formatToml(val)
+
+	default:
+		return nil, fmt.Errorf("unknown output encoding %q", format)
+	}
+}
+
+func formatCue(val cue.Value) ([]byte, error) {
+
+	syn := val.Syntax(
+		cue.Final(),
+		cue.Definitions(true),
+		cue.Hidden(true),
+		cue.Optional(true),
+		cue.Attributes(true),
+		cue.Docs(true),
+	)
+
+	bs, err := format.Node(syn)
+	if err != nil {
+		return nil, err
+	}
+
+	return bs, nil
+}
+
+func formatJson(val cue.Value) ([]byte, error) {
+	var w bytes.Buffer
+	d := json.NewEncoder(&w)
+	d.SetIndent("", "  ")
+
+	err := d.Encode(val)
+	if _, ok := err.(*json.MarshalerError); ok {
+		return nil, err
+	}
+
+	return w.Bytes(), nil
+}
+
+func formatYaml(val cue.Value) ([]byte, error) {
+	bs, err := yaml.Encode(val)
+	if err != nil {
+		return nil, err
+	}
+	return bs, nil
+}
+
+func formatToml(val cue.Value) ([]byte, error) {
+	v := make(map[string]interface{})
+	err := val.Decode(&v)
+	if err != nil {
+		return nil, err
+	}
+
+	bs, err := toml.Marshal(v)
+	if err != nil {
+		return nil, err
+	}
+	return bs, nil
+}
+
+func formatXml(val cue.Value) ([]byte, error) {
+	v := make(map[string]interface{})
+	err := val.Decode(&v)
+	if err != nil {
+		return nil, err
+	}
+
+	mv := mxj.Map(v)
+	bs, err := mv.XmlIndent("", "  ")
+	if err != nil {
+		return nil, err
+	}
+	return bs, nil
 }
