@@ -4,10 +4,6 @@ cue 0.4.0
 
 require (
   github.com/hofstadter-io/ghacue v0.1.0
-  github.com/hofstadter-io/hofmod-cli v0.7.4
-  github.com/hofstadter-io/hofmod-cuefig v0.0.4
+  github.com/hofstadter-io/hofmod-cli v0.7.5
+  github.com/hofstadter-io/hofmod-cuefig v0.1.0
 )
-
-replace github.com/hofstadter-io/ghacue => ../ghacue
-replace github.com/hofstadter-io/hofmod-cli    => ../mods/cli
-replace github.com/hofstadter-io/hofmod-cuefig => ../mods/cuefig
