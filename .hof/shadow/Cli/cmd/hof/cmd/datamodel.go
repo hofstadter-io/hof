@@ -70,11 +70,10 @@ func init() {
 	DatamodelCmd.SetHelpFunc(help)
 	DatamodelCmd.SetUsageFunc(usage)
 
-	DatamodelCmd.AddCommand(cmddatamodel.GetCmd)
+	DatamodelCmd.AddCommand(cmddatamodel.ListCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.StatusCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.DiffCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.HistoryCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.CheckpointCmd)
-	DatamodelCmd.AddCommand(cmddatamodel.ApplyCmd)
 
 }

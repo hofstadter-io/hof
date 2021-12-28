@@ -11,7 +11,7 @@ import (
 	// "github.com/hofstadter-io/hof/lib/cuetils"
 )
 
-func RunGetFromArgs(args []string, cmdpflags flags.DatamodelPflagpole) error {
+func RunListFromArgs(args []string, cmdpflags flags.DatamodelPflagpole) error {
 	// fmt.Println("lib/datamodel.Get", args, cmdpflags)
 
 	// Loadup our Cue files
@@ -29,7 +29,7 @@ func RunGetFromArgs(args []string, cmdpflags flags.DatamodelPflagpole) error {
 
 	//syn, err := cuetils.PrintCueValue(val)
 	//if err != nil {
-		//return err
+	//return err
 	//}
 
 	//fmt.Println(syn)
@@ -58,7 +58,6 @@ func printTable(val cue.Value) error {
 		}
 	}
 
-
 	table.Render()
 
 	return nil
@@ -69,7 +68,7 @@ func printModel(model cue.Value, table *tablewriter.Table) error {
 
 	// Model name
 	name, _ := model.LookupPath(cue.ParsePath("Name")).String()
-	table.Append([]string{ name, "", "", "" })
+	table.Append([]string{name, "", "", ""})
 
 	// Model fields
 	fields := model.LookupPath(cue.ParsePath("Fields"))
@@ -82,9 +81,8 @@ func printModel(model cue.Value, table *tablewriter.Table) error {
 		fn, _ := f.LookupPath(cue.ParsePath("Name")).String()
 		ft, _ := f.LookupPath(cue.ParsePath("type")).String()
 
-		table.Append([]string{ "", fn, ft, "" })
+		table.Append([]string{"", fn, ft, ""})
 	}
 
 	return nil
 }
-

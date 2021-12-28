@@ -5,7 +5,6 @@ import (
 )
 
 #DatamodelCommand: schema.#Command & {
-	TBD:   "α"
 	Name:  "datamodel"
 	Usage: "datamodel"
 	Aliases: ["dmod", "dm"]
@@ -43,46 +42,34 @@ import (
 	]
 
 	Commands: [{
-		TBD:   "α"
-		Name:  "get"
-		Usage: "get"
-		Aliases: ["g"]
+		Name:  "list"
+		Usage: "list"
+		Aliases: ["l"]
 		Short: "find and display data models"
 		Long:  Short
 	}, {
-		TBD:   "α"
 		Name:  "status"
 		Usage: "status"
-		Aliases: ["st"]
+		Aliases: ["s"]
 		Short: "print the data model status"
 		Long:  Short
 	}, {
-		TBD:   "α"
 		Name:  "diff"
 		Usage: "diff"
 		Aliases: ["d"]
 		Short: "show the current diff for a data model"
 		Long:  Short
 	}, {
-		TBD:   "α"
 		Name:  "history"
 		Usage: "history"
-		Aliases: ["hist", "h", "log", "l"]
+		Aliases: ["hist", "h"]
 		Short: "show the history for a data model"
 		Long:  Short
 	}, {
-		TBD:   "α"
 		Name:  "checkpoint"
 		Usage: "checkpoint"
 		Aliases: ["cp"]
 		Short: "calculate a migration changeset for a data model"
-		Long:  Short
-	}, {
-		TBD:   "α"
-		Name:  "apply"
-		Usage: "apply"
-		Aliases: ["a"]
-		Short: "apply a migraion sequence against a data store"
 		Long:  Short
 	}]
 }
