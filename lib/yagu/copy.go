@@ -8,7 +8,7 @@ import (
 	"path"
 )
 
-// https://blog.depado.eu/post/copy-files-and-directories-in-go [03-04-2-19]
+// https://blog.depado.eu/post/copy-files-and-directories-in-go [03-04-2019]
 
 // File copies a single file from src to dst
 func CopyFile(src, dst string) error {
@@ -24,7 +24,8 @@ func CopyFile(src, dst string) error {
 	}
 	defer srcfd.Close()
 
-	err = Mkdir(dst)
+	dir, _ := path.Split(dst)
+	err = Mkdir(dir)
 	if err != nil {
 		return err
 	}

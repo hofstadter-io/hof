@@ -8,7 +8,7 @@ import (
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 
-	"github.com/hofstadter-io/hof/lib"
+	"github.com/hofstadter-io/hof/lib/gen"
 )
 
 var genLong = `  generate all the things, from code to data to config...`
@@ -24,7 +24,7 @@ func GenRun(args []string) (err error) {
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = lib.Gen(args, flags.GenFlags)
+	err = gen.Gen(args, flags.GenFlags)
 
 	return err
 }

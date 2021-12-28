@@ -8,7 +8,6 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/aymerick/raymond"
 	"github.com/clbanning/mxj"
 	"github.com/codemodus/kace"
 	"github.com/ghodss/yaml"
@@ -17,105 +16,92 @@ import (
 	"github.com/naoina/toml"
 )
 
-func AddGolangHelpers(t *template.Template) (*template.Template) {
+func AddGolangHelpers(t *template.Template) *template.Template {
 	return t.Funcs(funcMap)
 }
 
-func AddRaymondHelpers(t *raymond.Template) (*raymond.Template) {
-	for k, f := range funcMap {
-		if k == "dref" {
-			t.RegisterHelper(k, Helper_dref_raymond)
-			continue
-		}
-		t.RegisterHelper(k, f)
-	}
-
-	return t
-}
-
-var funcMap = template.FuncMap {
+var funcMap = template.FuncMap{
 	"concat2": Helper_concat2,
 	"concat3": Helper_concat3,
 	"concat4": Helper_concat4,
 	"concat5": Helper_concat5,
-	"join2": Helper_join2,
-	"join3": Helper_join3,
-	"join4": Helper_join4,
-	"join5": Helper_join5,
+	"join2":   Helper_join2,
+	"join3":   Helper_join3,
+	"join4":   Helper_join4,
+	"join5":   Helper_join5,
 
-	"yaml": Helper_yaml,
-	"toml": Helper_toml,
-	"json": Helper_json,
-	"xml": Helper_xml,
-	"indent": Helper_indent,
-	"pprint": Helper_pretty,
-	"pretty": Helper_pretty,
-	"lwidth": Helper_lwidth,
-	"rwidth": Helper_rwidth,
-	"string": Helper_string,
+	"yaml":    Helper_yaml,
+	"toml":    Helper_toml,
+	"json":    Helper_json,
+	"xml":     Helper_xml,
+	"indent":  Helper_indent,
+	"pprint":  Helper_pretty,
+	"pretty":  Helper_pretty,
+	"lwidth":  Helper_lwidth,
+	"rwidth":  Helper_rwidth,
+	"string":  Helper_string,
 	"printf1": Helper_printf1,
-	"printf": Helper_printf,
-	"lower": Helper_lower,
-	"upper": Helper_upper,
-	"title": Helper_title,
+	"printf":  Helper_printf,
+	"lower":   Helper_lower,
+	"upper":   Helper_upper,
+	"title":   Helper_title,
 
-	"camel": Helper_camel,
+	"camel":  Helper_camel,
 	"camelT": Helper_camelT,
-	"snake": Helper_snake,
+	"snake":  Helper_snake,
 	"snakeU": Helper_snakeU,
-	"kebab": Helper_kebab,
+	"kebab":  Helper_kebab,
 	"kebabU": Helper_kebabU,
 
-	"contains": Helper_contains,
-	"split": Helper_split,
-	"replace": Helper_replace,
-	"hasprefix": Helper_hasprefix,
-	"hassuffix": Helper_hassuffix,
-	"trimprefix": Helper_trimprefix,
-	"trimsuffix": Helper_trimsuffix,
-	"trimto": Helper_trimto_first,
-	"trimfrom": Helper_trimfrom_first,
-	"trimto_first": Helper_trimto_first,
+	"contains":       Helper_contains,
+	"split":          Helper_split,
+	"replace":        Helper_replace,
+	"hasprefix":      Helper_hasprefix,
+	"hassuffix":      Helper_hassuffix,
+	"trimprefix":     Helper_trimprefix,
+	"trimsuffix":     Helper_trimsuffix,
+	"trimto":         Helper_trimto_first,
+	"trimfrom":       Helper_trimfrom_first,
+	"trimto_first":   Helper_trimto_first,
 	"trimfrom_first": Helper_trimfrom_first,
-	"trimto_last": Helper_trimto_last,
-	"trimfrom_last": Helper_trimfrom_last,
-	"substr": Helper_substr,
-	"getprefix": Helper_getprefix,
-	"getsuffix": Helper_getsuffix,
-	"getbetween": Helper_getbetween,
+	"trimto_last":    Helper_trimto_last,
+	"trimfrom_last":  Helper_trimfrom_last,
+	"substr":         Helper_substr,
+	"getprefix":      Helper_getprefix,
+	"getsuffix":      Helper_getsuffix,
+	"getbetween":     Helper_getbetween,
 
-	"gokind": Helper_gokind,
+	"gokind":  Helper_gokind,
 	"builtin": Helper_builtin,
 	"ternary": Helper_ternary,
 
-	"length": Helper_length,
+	"length":   Helper_length,
 	"identity": Helper_identity,
-	"thelist": Helper_thelist,
-	"sublist": Helper_sublist,
+	"thelist":  Helper_thelist,
+	"sublist":  Helper_sublist,
 	"rsublist": Helper_rsublist,
-	"reverse": Helper_reverse,
+	"reverse":  Helper_reverse,
 	"listelem": Helper_listelem,
 
-	"eq": Helper_eq,
-	"ne": Helper_ne,
-	"or": Helper_or,
+	"eq":  Helper_eq,
+	"ne":  Helper_ne,
+	"or":  Helper_or,
 	"and": Helper_and,
 
-	"int_eq": Helper_int_eq,
-	"int_ne": Helper_int_ne,
+	"int_eq":  Helper_int_eq,
+	"int_ne":  Helper_int_ne,
 	"int_gte": Helper_int_gte,
-	"int_gt": Helper_int_gt,
+	"int_gt":  Helper_int_gt,
 	"int_lte": Helper_int_lte,
-	"int_lt": Helper_int_lt,
+	"int_lt":  Helper_int_lt,
 
 	"add": Helper_add,
 	"inc": Helper_inc,
 
 	"file": Helper_file,
 
-	"dref": Helper_dref_golang,
+	"dref": Helper_dref,
 }
-
 
 func Helper_concat2(s1, s2 string) string {
 	return s1 + s2
@@ -519,45 +505,45 @@ func Helper_and(lhs, rhs interface{}) interface{} {
 }
 
 func Helper_int_eq(lhs, rhs int) interface{} {
-  if lhs == rhs {
-    return true
-  }
-  return nil
+	if lhs == rhs {
+		return true
+	}
+	return nil
 }
 
 func Helper_int_ne(lhs, rhs int) interface{} {
 	if lhs != rhs {
-    return true
-  }
-  return nil
+		return true
+	}
+	return nil
 }
 
 func Helper_int_gt(lhs, rhs int) interface{} {
 	if lhs > rhs {
-    return true
-  }
-  return nil
+		return true
+	}
+	return nil
 }
 
 func Helper_int_gte(lhs, rhs int) interface{} {
 	if lhs >= rhs {
-    return true
-  }
-  return nil
+		return true
+	}
+	return nil
 }
 
 func Helper_int_lt(lhs, rhs int) interface{} {
 	if lhs < rhs {
-    return true
-  }
-  return nil
+		return true
+	}
+	return nil
 }
 
 func Helper_int_lte(lhs, rhs int) interface{} {
 	if lhs <= rhs {
-    return true
-  }
-  return nil
+		return true
+	}
+	return nil
 }
 
 func Helper_add(lhs, rhs int) int {
@@ -580,7 +566,7 @@ func Helper_file(filename string) string {
 	return fmt.Sprintf("ERROR: %v", err)
 }
 
-func Helper_dref_golang(path string, data interface{}) interface{} {
+func Helper_dref(path string, data interface{}) interface{} {
 	if data == nil {
 		return fmt.Sprint("Nil data supplied for " + path)
 	}
@@ -596,21 +582,3 @@ func Helper_dref_golang(path string, data interface{}) interface{} {
 
 	return obj
 }
-
-func Helper_dref_raymond(path string, data interface{}, options *raymond.Options) interface{} {
-	if data == nil {
-		return options.FnWith("Nil data supplied for " + path)
-	}
-
-	obj, err := dotpath.Get(path, data, true)
-	if err != nil {
-		return options.FnWith("Error during path search: " + err.Error())
-	}
-
-	if obj == nil {
-		return options.FnWith("Path not found: " + path + fmt.Sprintf("\n%+v", data))
-	}
-
-	return options.FnWith(obj)
-}
-

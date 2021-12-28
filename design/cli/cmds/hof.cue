@@ -31,6 +31,14 @@ import (
 			Long:    "generator"
 			Short:   "g"
 		},
+		//{
+			//Name:    "f"
+			//Type:    "[]string"
+			//Default: "nil"
+			//Help:    "File globs to render, default is all discovered"
+			//Long:    "files"
+			//Short:   "f"
+		//},
 	]
 
 }

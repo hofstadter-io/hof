@@ -1,4 +1,4 @@
-package lib
+package gen
 
 import (
 	"fmt"
@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/cuecontext"
 	"cuelang.org/go/cue/build"
+	"cuelang.org/go/cue/cuecontext"
 	"cuelang.org/go/cue/errors"
 	"cuelang.org/go/cue/load"
 	"github.com/fatih/color"
@@ -17,17 +17,16 @@ import (
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/cuetils"
-	"github.com/hofstadter-io/hof/lib/gen"
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 type Runtime struct {
 	// Setup options
 	Entrypoints []string
-	Flagpole flags.GenFlagpole
+	Flagpole    flags.GenFlagpole
 
 	// TODO configuration
-	mode string
+	mode    string
 	verbose bool
 
 	// Cue ralated
@@ -38,18 +37,18 @@ type Runtime struct {
 	TopLevelStructs []*cue.Struct
 
 	// Hof related
-	Generators map[string]*gen.Generator
-	Shadow map[string]*gen.File
+	Generators map[string]*Generator
+	Shadow     map[string]*File
 }
 
-func NewRuntime(entrypoints [] string, cmdflags flags.GenFlagpole) (*Runtime) {
-	return &Runtime {
+func NewRuntime(entrypoints []string, cmdflags flags.GenFlagpole) *Runtime {
+	return &Runtime{
 		Entrypoints: entrypoints,
-		Flagpole: cmdflags,
+		Flagpole:    cmdflags,
 
 		CueCTX: cuecontext.New(),
 
-		Generators: make(map[string]*gen.Generator),
+		Generators: make(map[string]*Generator),
 	}
 }
 
@@ -59,7 +58,6 @@ func (R *Runtime) LoadCue() []error {
 
 	BIS := load.Instances(R.Entrypoints, nil)
 	R.BuildInstances = BIS
-
 
 	for _, bi := range BIS {
 		if bi.Err != nil || bi.Incomplete {
@@ -75,7 +73,7 @@ func (R *Runtime) LoadCue() []error {
 		// Build the Instance
 		V := R.CueCTX.BuildInstance(bi)
 		if V.Err() != nil {
-		  es := errors.Errors(V.Err())
+			es := errors.Errors(V.Err())
 			// fmt.Println("BUILD ERR", es, I)
 			for _, e := range es {
 				errs = append(errs, e.(error))
@@ -88,7 +86,7 @@ func (R *Runtime) LoadCue() []error {
 		S, err := V.Struct()
 		if err != nil {
 			// fmt.Println("STRUCT ERR", err)
-		  es := errors.Errors(err)
+			es := errors.Errors(err)
 			for _, e := range es {
 				errs = append(errs, e.(error))
 			}
@@ -150,7 +148,7 @@ func (R *Runtime) ExtractGenerators() {
 				continue
 			}
 
-			G := gen.NewGenerator(label, value)
+			G := NewGenerator(label, value)
 			R.Generators[label] = G
 		}
 	}
@@ -170,7 +168,6 @@ func (R *Runtime) LoadGenerators() []error {
 		// Load the Generator!
 		errsL := G.LoadCue()
 		if len(errsL) != 0 {
-			fmt.Println("  Load Error:", errsL)
 			errs = append(errs, errsL...)
 			continue
 		}
@@ -186,18 +183,10 @@ func (R *Runtime) LoadGenerators() []error {
 
 func (R *Runtime) RunGenerators() []error {
 	var errs []error
-	// var err error
-
-	/*
-	R.Shadow, err = gen.LoadShadow("", R.verbose)
-	if err != nil {
-		errs = append(errs, err)
-		return errs
-	}
-	*/
 
 	// Load shadow, can this be done in parallel with the last step?
 	// Don't do in parallel yet, Cue is slow and hungry for memory @ v0.0.16
+	// CUE v0.4.0- is not concurrency safe, maybe v0.4.1 will introduce?
 	for _, G := range R.Generators {
 		gerrs := R.RunGenerator(G)
 		if len(gerrs) > 0 {
@@ -205,16 +194,15 @@ func (R *Runtime) RunGenerators() []error {
 		}
 	}
 
-
 	return errs
 }
 
-func (R *Runtime) RunGenerator(G *gen.Generator) (errs []error) {
+func (R *Runtime) RunGenerator(G *Generator) (errs []error) {
 	if G.Disabled {
 		return
 	}
 
-	shadow, err := gen.LoadShadow(G.Name, R.verbose)
+	shadow, err := LoadShadow(G.Name, R.verbose)
 	if err != nil {
 		errs = append(errs, err)
 		return errs
@@ -241,7 +229,6 @@ func (R *Runtime) RunGenerator(G *gen.Generator) (errs []error) {
 func (R *Runtime) WriteOutput() []error {
 	var errs []error
 
-
 	for _, G := range R.Generators {
 		gerrs := R.WriteGenerator(G)
 		errs = append(errs, gerrs...)
@@ -251,7 +238,7 @@ func (R *Runtime) WriteOutput() []error {
 	// Clean global shadow, incase any generators were removed
 	for f, _ := range R.Shadow {
 		// deal with leading shadow dir name?
-		idx := strings.Index(f,"/")
+		idx := strings.Index(f, "/")
 		if idx < 0 {
 			idx = 0
 		} else {
@@ -268,7 +255,7 @@ func (R *Runtime) WriteOutput() []error {
 			continue
 		}
 
-		err = os.Remove(path.Join(gen.SHADOW_DIR, f))
+		err = os.Remove(path.Join(SHADOW_DIR, f))
 		if err != nil {
 			if strings.Contains(err.Error(), "no such file or directory") {
 				continue
@@ -282,7 +269,7 @@ func (R *Runtime) WriteOutput() []error {
 	return errs
 }
 
-func (R *Runtime) WriteGenerator(G *gen.Generator) (errs []error) {
+func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 	if G.Disabled {
 		return errs
 	}
@@ -292,55 +279,55 @@ func (R *Runtime) WriteGenerator(G *gen.Generator) (errs []error) {
 	// Order is important here for implicit overriding of content
 
 	// Start with static file globs
-	for _, Glob := range G.StaticGlobs {
-		bdir := ""
-		if G.PackageName != "" {
-			bdir = path.Join("cue.mod/pkg", G.PackageName)
-		}
-		matches, err := zglob.Glob(path.Join(bdir, Glob))
-		if err != nil {
-			err = fmt.Errorf("while globbing %s / %s\n%w\n", bdir, Glob, err)
-			errs = append(errs, err)
-			return errs
-		}
-		for _, match := range matches {
-			// trim first level directory
-			clean := Glob[:strings.Index(Glob, "/")]
-			mo := strings.TrimPrefix(match, clean)
-			src := path.Join(bdir, match)
-			dst := path.Join(G.Outdir, mo)
-
-			// TODO, make comparison and decide to write or not
-
-			// normal location
-			err := yagu.CopyFile(src, dst)
+	for _, Static := range G.Statics {
+		for _, Glob := range Static.Globs {
+			bdir := ""
+			if G.PackageName != "" {
+				bdir = path.Join("cue.mod/pkg", G.PackageName)
+			}
+			matches, err := zglob.Glob(path.Join(bdir, Glob))
 			if err != nil {
-				err = fmt.Errorf("while copying static real file %q\n%w\n", match, err)
+				err = fmt.Errorf("while globbing %s / %s\n%w\n", bdir, Glob, err)
 				errs = append(errs, err)
 				return errs
 			}
+			for _, match := range matches {
+				mo := strings.TrimPrefix(match, Static.TrimPrefix)
+				src := path.Join(bdir, match)
+				dst := path.Join(G.Outdir, Static.OutPrefix, mo)
 
-			// shadow location
-			err = yagu.CopyFile(src, path.Join(".hof", G.Name, dst))
-			if err != nil {
-				err = fmt.Errorf("while copying static shadow file %q\n%w\n", match, err)
-				errs = append(errs, err)
-				return errs
+				// TODO?, make comparison and decide to write or not
+
+				// normal location
+				err := yagu.CopyFile(src, dst)
+				if err != nil {
+					err = fmt.Errorf("while copying static file %q\n%w\n", match, err)
+					errs = append(errs, err)
+					return errs
+				}
+
+				// shadow location
+				err = yagu.CopyFile(src, path.Join(SHADOW_DIR, G.Name, dst))
+				if err != nil {
+					err = fmt.Errorf("while copying static shadow file %q\n%w\n", match, err)
+					errs = append(errs, err)
+					return errs
+				}
+
+				delete(R.Shadow, path.Join(G.Name, dst))
+				delete(G.Shadow, path.Join(G.Name, dst))
+				G.Stats.NumStatic += 1
+				G.Stats.NumWritten += 1
+
 			}
 
-			delete(R.Shadow, path.Join(G.Name, dst))
-			delete(G.Shadow, path.Join(G.Name, dst))
-			G.Stats.NumStatic += 1
-			G.Stats.NumWritten += 1
-
 		}
-
 	}
 
 	// Then the static files in cue
-	for p, content := range G.StaticFiles {
-		F := &gen.File {
-			Filepath: path.Join(G.Outdir, p),
+	for p, content := range G.EmbeddedStatics {
+		F := &File{
+			Filepath:     path.Join(G.Outdir, p),
 			FinalContent: []byte(content),
 		}
 		err := F.WriteOutput()
@@ -348,7 +335,7 @@ func (R *Runtime) WriteGenerator(G *gen.Generator) (errs []error) {
 			errs = append(errs, err)
 			return errs
 		}
-		err = F.WriteShadow(path.Join(gen.SHADOW_DIR, G.Name))
+		err = F.WriteShadow(path.Join(SHADOW_DIR, G.Name))
 		if err != nil {
 			errs = append(errs, err)
 			return errs
@@ -372,7 +359,7 @@ func (R *Runtime) WriteGenerator(G *gen.Generator) (errs []error) {
 
 		// Write the shadow too, or if it doesn't exist
 		if F.DoWrite || (F.IsSame > 0 && F.ShadowFile == nil) {
-			err := F.WriteShadow(path.Join(gen.SHADOW_DIR, G.Name))
+			err := F.WriteShadow(path.Join(SHADOW_DIR, G.Name))
 			if err != nil {
 				errs = append(errs, err)
 				return errs
@@ -387,8 +374,8 @@ func (R *Runtime) WriteGenerator(G *gen.Generator) (errs []error) {
 	// Cleanup File & Shadow
 	// fmt.Println("Clean Shadow", G.Name)
 	for f, _ := range G.Shadow {
-		genFilename := strings.TrimPrefix(f, G.Name + "/")
-		shadowFilename := path.Join(gen.SHADOW_DIR, f)
+		genFilename := strings.TrimPrefix(f, G.Name+"/")
+		shadowFilename := path.Join(SHADOW_DIR, f)
 		fmt.Println("  -", G.Name, f, genFilename, shadowFilename)
 
 		err := os.Remove(genFilename)

@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/mattn/go-zglob"
 )
@@ -16,84 +15,64 @@ func NewTemplateMap() TemplateMap {
 	return make(map[string]*Template)
 }
 
-func CreateTemplateMapFromFolder(folder, system string, config *Config, configGlobs map[string]*Config) (tplMap TemplateMap, err error) {
+func CreateTemplateMapFromFolder(glob, prefix string, delims *Delims) (tplMap TemplateMap, err error) {
 	tplMap = NewTemplateMap()
-	err = tplMap.ImportFromFolder(folder, system, config, configGlobs)
+	err = tplMap.ImportFromFolder(glob, prefix, delims)
 	if err != nil {
-		return nil, fmt.Errorf("while importing %s\n%w\n", folder, err)
+		return nil, fmt.Errorf("while importing %s\n%w\n", glob, err)
 	}
 	return tplMap, nil
 }
 
-func (M TemplateMap) ImportTemplateFile(filename, system string, config *Config) error {
-	return M.import_template("", filename, system, config)
+func (M TemplateMap) ImportTemplateFile(filename string, delims *Delims) error {
+	return M.importTemplate(filename, "", delims)
 }
 
-func (M TemplateMap) ImportFromFolder(folder, system string, config *Config, configGlobs map[string]*Config) error {
-	import_template_walk_func := func(base_path string) filepath.WalkFunc {
-		return func(path string, info os.FileInfo, err error) error {
-			// fmt.Println("templates.ImportFromFolder", path)
-			local_m := M
-			if err != nil {
-				if _, ok := err.(*os.PathError); !ok && err.Error() != "file does not exist" {
-					return err
-				}
-				return nil
-			}
-			if info.IsDir() {
-				return nil
-			}
-
-			cfg := config
-			c, err := LookupConfig(path, configGlobs)
-			if err != nil {
-				return err
-			}
-			if c != nil {
-				cfg = c
-			}
-			return local_m.import_template(base_path, path, system, cfg)
-		}
-	}
-
-	// Walk the directory
-	err := filepath.Walk(folder, import_template_walk_func(folder))
+func (M TemplateMap) ImportFromFolder(glob, prefix string, delims *Delims) error {
+	matches, err := zglob.Glob(glob)
 	if err != nil {
 		return err
 	}
+	if len(matches) == 0 {
+		return fmt.Errorf("No templates found for '%s'", glob)
+	}
+
+	for _, match := range matches {
+		info, err := os.Stat(match)
+		if err != nil {
+			return err
+		}
+
+		if info.IsDir() {
+			continue
+		}
+
+		err = M.importTemplate(match, prefix, delims)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
-func (M TemplateMap) import_template(basePath, filePath, system string, config *Config) error {
+func (M TemplateMap) importTemplate(filePath, prefix string, delims *Delims) error {
 	source, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return err
 	}
 	content := string(source)
 
-	// create template
-	// TODO, how to explicitly set template system
-	T, err := CreateFromString(filePath, content, system, config)
+	T, err := CreateFromString(filePath, content, delims)
 	if err != nil {
 		return fmt.Errorf("While parsing template file: %s\n%w", filePath, err)
 	}
 
-	relFilePath := strings.TrimPrefix(filePath, basePath)
-	M[relFilePath] = T
-	return nil
-}
-
-func LookupConfig(fn string, cfgs map[string]*Config) (*Config, error) {
-	// fmt.Println("Lookup", fn)
-	for glob, cfg := range cfgs {
-		match, err := zglob.Match(glob, fn)
-		if err != nil {
-			return nil, err
-		}
-
-		if match {
-			return cfg, nil
-		}
+	if prefix != "" {
+		filePath, _ = filepath.Rel(prefix, filePath)
+	} else {
+		filePath = filepath.Clean(filePath)
 	}
-	return nil, nil
+	M[filePath] = T
+	return nil
 }

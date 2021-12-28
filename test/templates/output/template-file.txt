@@ -1,6 +1,7 @@
-Hi, I'm a template file on disk '{{ .Val.a }}'
- ... and I'm a partial {{ template "partial-file.txt" . }}
+Hi, I'm a template file on disk 'a'
+ ... and I'm a partial Hi, I'm a partial file on disk 'b'
+
 
 ---
-{{ camelT "hell-world" }}
+HellWorld
 ---

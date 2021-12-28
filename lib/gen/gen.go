@@ -1,4 +1,4 @@
-package lib
+package gen
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/cuetils"
 )
 
-func Gen(args []string, cmdflags flags.GenFlagpole) (error) {
+func Gen(args []string, cmdflags flags.GenFlagpole) error {
 
 	verystart := time.Now()
 
@@ -27,21 +27,19 @@ func Gen(args []string, cmdflags flags.GenFlagpole) (error) {
 	errsL := R.LoadGenerators()
 	if len(errsL) > 0 {
 		for _, e := range errsL {
-			cuetils.PrintCueError(e)
+			fmt.Println(e)
+			// cuetils.PrintCueError(e)
 		}
 		return fmt.Errorf("\nErrors while loading generators\n")
 	}
 
 	// issue #20 - Don't print and exit on error here, wait until after we have written, so we can still write good files
 	errsG := R.RunGenerators()
-	// fmt.Println("errsG", errsG)
 	errsW := R.WriteOutput()
-	// fmt.Println("errsW", errsW)
 
 	// final timing
 	veryend := time.Now()
 	elapsed := veryend.Sub(verystart).Round(time.Millisecond)
-
 
 	if cmdflags.Stats {
 		R.PrintStats()
@@ -65,5 +63,3 @@ func Gen(args []string, cmdflags flags.GenFlagpole) (error) {
 
 	return nil
 }
-
-

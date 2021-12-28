@@ -1,10 +1,10 @@
 package templates
 
 import (
-  "github.com/hofstadter-io/hof/schema"
+  "github.com/hofstadter-io/hof/schema/gen"
 )
 
-A :: {
+#A: {
   a: "a"
   b: "b"
   N: {
@@ -13,15 +13,25 @@ A :: {
   }
 }
 
-HofGenTest: TestGen & {
+#C: {
+	foo: string
+	i: int
+	s: {
+		b: bool | *false
+		n: number & >0.0
+	}
+}
+
+TestGen: #TestGen & {
+	@gen(test)
   In: {
-    Val: A 
+    Val: #A 
   }
-  ...
+	CUE: #C
 }
 
 
-TestGen :: schema.#HofGenerator & {
+#TestGen: gen.#HofGenerator & {
   Outdir: "output"
 
   PackageName: ""
@@ -31,102 +41,83 @@ TestGen :: schema.#HofGenerator & {
     ...
   }
 
-  Out: [
+	CUE: {...}
+
+  Out: [...gen.#HofGeneratorFile] & [
     // Defaults
-    schema.#HofGeneratorFile & {
-      Template: "Val.a = '{{ .Val.a }}'\n"
+    {
+      TemplateContent: "Val.a = '{{ .Val.a }}'\n"
       Filepath: "\(Outdir)/default.txt"
-      TemplateConfig: {
-        TemplateSystem: "golang"
-      }
     },
     // Alternate delims
-    schema.#HofGeneratorFile & {
-      Template: "Val.a = '{% .Val.a %}'\n"
+    {
+      TemplateContent: "Val.a = '{% .Val.a %}'\n"
       Filepath: "\(Outdir)/altdelim.txt"
-      TemplateConfig: {
-        AltDelims: true
-        LHS2_D: "{%"
-        RHS2_D: "%}"
-        LHS3_D: "{%%"
-        RHS3_D: "%%}"
+      TemplateDelims: {
+				LHS: "{%"
+				RHS: "%}"
       }
+			In: {
+				extra: "foobar"
+			}
     },
-    // Swap delims, using defaults delims for swap/temp
-    schema.#HofGeneratorFile & {
-      Template: "Val.a = '{% .Val.a %}' and also this should stay {{ .Hello }}\n"
-      Filepath: "\(Outdir)/swapdelim.txt"
-      TemplateConfig: {
-        AltDelims: true
-        SwapDelims: true
-        LHS2_D: "{%"
-        RHS2_D: "%}"
-        LHS3_D: "{%%"
-        RHS3_D: "%%}"
-      }
-    },
-    // TODO Swap delims, using custom delims for swap/temp
-
-    // Mustache system
-    schema.#HofGeneratorFile & {
-      Template: "Val.a = '{{ Val.a }}'\n"
-      Filepath: "\(Outdir)/mustache.txt"
-      TemplateConfig: {
-        TemplateSystem: "raymond"
-      }
-    },
-
 
     // Named things
-    schema.#HofGeneratorFile & {
-      TemplateName: "named"
+    {
+      TemplatePath: "named"
       Filepath: "\(Outdir)/named-things.txt"
     },
 
     // File based
-    schema.#HofGeneratorFile & {
-      TemplateName: "template-file.txt"
+    {
+      TemplatePath: "template-file.txt"
       Filepath: "\(Outdir)/template-file.txt"
     },
-    schema.#HofGeneratorFile & {
-      TemplateName: "template-altfile.txt"
+    {
+      TemplatePath: "template-altfile.txt"
       Filepath: "\(Outdir)/template-altfile.txt"
     },
 
     // User file
-    schema.#HofGeneratorFile & {
-      Template: "User file: '{{ file \"userfile.txt\" }}'\n"
+    {
+      TemplateContent: "User file: '{{ file \"userfile.txt\" }}'\n"
       Filepath: "\(Outdir)/user-file.txt"
     },
+
+		// TODO
+		// Per-template In, also in repeated
+		// Repeated Files
   ]
 
-  StaticGlobs: ["static/**"]
-  PartialsDir:  "partials/"
-  TemplatesDir: "templates/"
-  TemplatesDirConfig: {
-    "templates/template-altfile.txt": {
-      AltDelims: true
-      SwapDelims: true
-      LHS2_D: "{%"
-      RHS2_D: "%}"
-      LHS3_D: "{%%"
-      RHS3_D: "%%}"
-    }
+	Templates: [{
+		Globs: ["templates/template-*"]
+		TrimPrefix: "templates/"
+	}, {
+		Globs: ["./templates/altdelim-*"]
+		TrimPrefix: "./templates/"
+		Delims: {
+			LHS: "{%"
+			RHS: "%}"
+		}
+  }]
+
+  EmbeddedTemplates: {
+		named: {
+			Content: """
+			embedded template is '{{ .Val.a }}'
+			"""
+		}
   }
 
-  NamedTemplates: {
-    named: """
-    named is '{{ .Val.a }}'
-    """
+  EmbeddedPartials: {
+		named: {
+			Content: """
+			embedded partial is '{{ .Val.a }}'
+			"""
+		}
   }
 
-  NamedPartials: {
-    named: """
-    partial is '{{ .Val.a }}'
-    """
-  }
-
-  StaticFiles: {
+  EmbeddedStatics: {
     "static-cue.txt": """
     Hello, I am a static file in cue
     """
