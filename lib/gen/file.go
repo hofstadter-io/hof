@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	gofmt "go/format"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -268,7 +269,7 @@ func (F *File) FormatRendered() error {
 
 	// If Golang only
 	if strings.HasSuffix(F.Filepath, ".go") {
-		fmtd, err := format.Source(F.RenderContent)
+		fmtd, err := gofmt.Source(F.RenderContent)
 		if err != nil {
 			return err
 		}
