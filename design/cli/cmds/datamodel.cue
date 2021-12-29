@@ -7,7 +7,7 @@ import (
 #DatamodelCommand: schema.#Command & {
 	Name:  "datamodel"
 	Usage: "datamodel"
-	Aliases: ["dmod", "dm"]
+	Aliases: ["dm"]
 	Short: "create, view, diff, calculate / migrate, and manage your data models"
 	Long:  #DatamodelRootHelp
 

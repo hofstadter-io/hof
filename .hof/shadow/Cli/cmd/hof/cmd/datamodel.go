@@ -32,7 +32,6 @@ var DatamodelCmd = &cobra.Command{
 	Use: "datamodel",
 
 	Aliases: []string{
-		"dmod",
 		"dm",
 	},
 
