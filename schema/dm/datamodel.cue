@@ -10,7 +10,7 @@ import "strings"
 	Models: [...#Model]
 
 	// Custom views not tied to a specific model
-	Views: [...#View]
+	Views?: [...#View]
 
 	// History of the data models
 	// Should be populated by hof from .hof/dm
@@ -32,7 +32,7 @@ import "strings"
 
 	Fields: #Fields
 
-	Relations: #Relations
+	Relations?: #Relations
 
 	...
 }
