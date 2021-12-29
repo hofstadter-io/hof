@@ -23,8 +23,7 @@ Hof handles the core data model definitions, history, and snapshot creation.`
 
 func init() {
 
-	DatamodelCmd.PersistentFlags().StringSliceVarP(&(flags.DatamodelPflags.Datamodels), "datamodel", "D", nil, "Datamodels for the datamodel commands")
-	DatamodelCmd.PersistentFlags().StringSliceVarP(&(flags.DatamodelPflags.Modelsets), "modelset", "M", nil, "Modelsets for the datamodel commands")
+	DatamodelCmd.PersistentFlags().StringSliceVarP(&(flags.DatamodelPflags.Datamodels), "datamodel", "d", nil, "Datamodels for the datamodel commands")
 	DatamodelCmd.PersistentFlags().StringSliceVarP(&(flags.DatamodelPflags.Models), "model", "m", nil, "Models for the datamodel commands")
 }
 
@@ -71,7 +70,7 @@ func init() {
 	DatamodelCmd.SetUsageFunc(usage)
 
 	DatamodelCmd.AddCommand(cmddatamodel.ListCmd)
-	DatamodelCmd.AddCommand(cmddatamodel.StatusCmd)
+	DatamodelCmd.AddCommand(cmddatamodel.InfoCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.DiffCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.HistoryCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.CheckpointCmd)

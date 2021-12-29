@@ -1,88 +1,64 @@
 package datamodel
 
 import (
-	// "fmt"
+	"fmt"
 	"os"
 
-	"cuelang.org/go/cue"
 	"github.com/olekukonko/tablewriter"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
-	// "github.com/hofstadter-io/hof/lib/cuetils"
 )
 
-func RunListFromArgs(args []string, cmdpflags flags.DatamodelPflagpole) error {
-	// fmt.Println("lib/datamodel.Get", args, cmdpflags)
+func RunListFromArgs(args []string, flgs flags.DatamodelPflagpole) error {
+	// fmt.Println("lib/datamodel.Get", args, flgs)
 
 	// Loadup our Cue files
-	val, err := LoadDatamodel(args)
+	dms, err := LoadDatamodels(args, flgs)
 	if err != nil {
 		return err
 	}
 
-	// TODO: find values from flags / attributes, condition printing
+	return printDatamodelList(dms, "table")
+}
 
-	err = printTable(val)
-	if err != nil {
-		return err
+func printDatamodelList(dms []*Datamodel, format string) error {
+	switch format {
+	case "table":
+		printDatamodelListTable(dms)
+
+	default:
+		return fmt.Errorf("Unknown format %q", format)
 	}
-
-	//syn, err := cuetils.PrintCueValue(val)
-	//if err != nil {
-	//return err
-	//}
-
-	//fmt.Println(syn)
 
 	return nil
 }
 
-func printTable(val cue.Value) error {
-
-	models := val.LookupPath(cue.ParsePath("Models.MigrateOrder"))
-
+func printDatamodelListTable(dms []*Datamodel) {
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Model", "Field", "Type", "Status"})
-	// table.SetRowLine(true)
+	table.SetHeader([]string{"Name", "Models", "Versions", "Status"})
+	defaultTableFormat(table)
 
-	iter, err := models.List()
-	if err != nil {
-		return err
+	// fill with data
+	for _, dm := range dms {
+		nm := fmt.Sprint(len(dm.Models))
+		nv := fmt.Sprint(len(dm.History.Past))
+		table.Append([]string{dm.Name, nm, nv, dm.status})
 	}
 
-	for iter.Next() {
-		model := iter.Value()
-		err = printModel(model, table)
-		if err != nil {
-			return err
-		}
-	}
-
+	// render
 	table.Render()
-
-	return nil
 }
 
-func printModel(model cue.Value, table *tablewriter.Table) error {
-	// Note, we can probably avoid checking errors because Cue has already validated the data
-
-	// Model name
-	name, _ := model.LookupPath(cue.ParsePath("Name")).String()
-	table.Append([]string{name, "", "", ""})
-
-	// Model fields
-	fields := model.LookupPath(cue.ParsePath("Fields"))
-	st, _ := fields.Struct()
-	iter := st.Fields()
-
-	for iter.Next() {
-		f := iter.Value()
-
-		fn, _ := f.LookupPath(cue.ParsePath("Name")).String()
-		ft, _ := f.LookupPath(cue.ParsePath("type")).String()
-
-		table.Append([]string{"", fn, ft, ""})
-	}
-
-	return nil
+func defaultTableFormat(table *tablewriter.Table) {
+	table.SetAutoWrapText(false)
+	table.SetAutoFormatHeaders(true)
+	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
+	table.SetAlignment(tablewriter.ALIGN_LEFT)
+	table.SetCenterSeparator("")
+	table.SetColumnSeparator("")
+	table.SetRowSeparator("")
+	table.SetHeaderLine(false)
+	table.SetBorder(false)
+	table.SetTablePadding("  ") // pad with tabs
+	table.SetNoWhiteSpace(true)
 }

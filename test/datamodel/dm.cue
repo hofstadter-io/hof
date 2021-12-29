@@ -1,12 +1,11 @@
 package datamodel
 
-import "github.com/hofstadter-io/hof/schema"
+import "github.com/hofstadter-io/hof/schema/dm"
 
-#BaseModelset: schema.#Modelset & {
-	Name: "BaseModelset"
+#MyModels: dm.#Datamodel & {
+	Name: "MyModels"
 
-	Models: {
-		User: #User
-		UserProfile: #UserProfile
-	}
+	Models: [
+		for M in #UserModels { M },
+	]
 }

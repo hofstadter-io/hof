@@ -12,70 +12,70 @@ package dm
 #ID: #UUID
 
 #UUID: #Field & {
-	type: "uuid"
-	nullable: bool | *false
-	unique:   bool | *true
-	default: "gen_random_uuid()"
-	validation: {
-		format: "email"
+	Type: "uuid"
+	Nullable: bool | *false
+	Unique:   bool | *true
+	Default: "gen_random_uuid()"
+	Validation: {
+		Format: "email"
 	}
 	...
 }
 
 #CUID: #Field & {
-	type: "cuid"
-	nullable: bool | *false
-	unique:   bool | *true
+	Type: "cuid"
+	Nullable: bool | *false
+	Unique:   bool | *true
 	...
 }
 
 #Bool: #Field & {
-	type: "bool"
-	default: string | *"false"
-	nullable: bool | *false
+	Type: "bool"
+	Default: string | *"false"
+	Nullable: bool | *false
 	...
 }
 
 #String: #Field & {
-	type: "string"
-	length: int | *64
-	unique: bool | *false
-	nullable: bool | *false
-	default?: string
-	validation: {
-		max: length
+	Type: "string"
+	Length: int | *64
+	Unique: bool | *false
+	Nullable: bool | *false
+	Default?: string
+	Validation: {
+		Max: Length
 	}
 	...
 }
 
 #Enum: #Field & {
-	type: "string"
-	vals: [...string]
-	nullable: bool | *false
-	default?: string
+	Type: "string"
+	Vals: [...string]
+	Nullable: bool | *false
+	Default?: string
 	...
 }
 
 #Password: #String & {
-	bcrypt: true
+	Bcrypt: true
 }
 
 #Email: #String & {
-	validation: {
-		format: "email"
+	Validation: {
+		Format: "email"
 	}
-	unique: true
+	Unique: true
 	...
 }
 
 #Date: #Field & {
-	type: "date"
+	Type: "date"
 }
 
 #Time: #Field & {
-	type: "time"
+	Type: "time"
 }
 
 #Datetime: #Field & {
-	type: "datetime"
+	Type: "datetime"
 }

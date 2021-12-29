@@ -6,6 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/datamodel"
 )
 
@@ -16,7 +17,7 @@ func CheckpointRun(args []string) (err error) {
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = datamodel.RunCheckpointFromArgs(args)
+	err = datamodel.RunCheckpointFromArgs(args, flags.DatamodelPflags)
 
 	return err
 }

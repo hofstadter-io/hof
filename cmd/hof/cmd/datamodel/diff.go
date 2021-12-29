@@ -6,6 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/datamodel"
 )
 
@@ -16,7 +17,7 @@ func DiffRun(args []string) (err error) {
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = datamodel.RunDiffFromArgs(args)
+	err = datamodel.RunDiffFromArgs(args, flags.DatamodelPflags)
 
 	return err
 }
