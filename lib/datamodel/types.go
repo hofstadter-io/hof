@@ -3,7 +3,7 @@ package datamodel
 import "cuelang.org/go/cue"
 
 type common struct {
-	status string
+	status string // should probably be an const [ok,dirty,no history]
 	label  string
 	value  cue.Value
 }
@@ -11,6 +11,9 @@ type common struct {
 type History struct {
 	Curr *Datamodel
 	Past []*Datamodel
+
+	Other *Datamodel // set to a comparison version if available
+	Diff  cue.Value  // Diff from other -> curr
 }
 
 type Datamodel struct {

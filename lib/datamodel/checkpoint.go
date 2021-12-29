@@ -15,7 +15,7 @@ import (
 func RunCheckpointFromArgs(args []string, flgs flags.DatamodelPflagpole) error {
 	// fmt.Println("lib/datamodel.Checkpoint", args)
 
-	dms, err := LoadDatamodels(args, flgs)
+	dms, err := PrepDatamodels(args, flgs)
 	if err != nil {
 		return err
 	}
@@ -31,6 +31,7 @@ func RunCheckpointFromArgs(args []string, flgs flags.DatamodelPflagpole) error {
 			if err != nil {
 				return err
 			}
+			fmt.Println(" +", dm.Name)
 		}
 	}
 	if !had {
@@ -41,15 +42,12 @@ func RunCheckpointFromArgs(args []string, flgs flags.DatamodelPflagpole) error {
 }
 
 func checkpointDatamodel(dm *Datamodel, tag string) error {
-	fmt.Println("checkpointing:", dm.Name)
-
 	dir, err := FindHistoryBaseDir()
 	if err != nil {
 		return err
 	}
 
 	hdir := filepath.Join(dir, dm.Name)
-	fmt.Println("hdir:", hdir)
 
 	err = yagu.Mkdir(hdir)
 	if err != nil {

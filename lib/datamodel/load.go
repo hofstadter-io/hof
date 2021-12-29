@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"cuelang.org/go/cue"
+	"github.com/hofstadter-io/cuetils/structural"
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/mattn/go-zglob"
@@ -16,6 +17,46 @@ import (
 
 // YYYYMMDDHHMMSS in Golang
 const tagFmt = "20060102150405"
+
+func PrepDatamodels(entrypoints []string, flgs flags.DatamodelPflagpole) (dms []*Datamodel, err error) {
+
+	// Loadup our Cue files
+	dms, err = LoadDatamodels(entrypoints, flgs)
+	if err != nil {
+		return dms, err
+	}
+
+	dms, err = filterDatamodelsByVersion(dms, flgs)
+	if err != nil {
+		return dms, err
+	}
+
+	for _, dm := range dms {
+		if len(dm.History.Past) == 0 {
+			dm.status = "no history"
+		} else {
+			past := dm.History.Past[0]
+			if flgs.Since != "" {
+				past = dm.History.Past[len(dm.History.Past)-1]
+			}
+			dm.History.Other = past
+
+			diff, err := structural.DiffValue(past.value, dm.value, nil)
+			if err != nil {
+				return dms, err
+			}
+			dm.History.Diff = diff
+
+			if !diff.Exists() {
+				dm.status = "ok"
+			} else {
+				dm.status = "dirty"
+			}
+		}
+	}
+
+	return dms, nil
+}
 
 func LoadDatamodels(entrypoints []string, flgs flags.DatamodelPflagpole) (dms []*Datamodel, err error) {
 	// load the current and all of history

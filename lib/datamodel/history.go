@@ -9,7 +9,7 @@ import (
 func RunHistoryFromArgs(args []string, flgs flags.DatamodelPflagpole) error {
 	// fmt.Println("lib/datamodel.History", args)
 
-	dms, err := LoadDatamodels(args, flgs)
+	dms, err := PrepDatamodels(args, flgs)
 	if err != nil {
 		return err
 	}

@@ -11,12 +11,7 @@ import (
 func RunInfoFromArgs(args []string, flgs flags.DatamodelPflagpole) error {
 	// fmt.Println("lib/datamodel.Info", args, flgs)
 
-	dms, err := LoadDatamodels(args, flgs)
-	if err != nil {
-		return err
-	}
-
-	dms, err = filterDatamodelsByVersion(dms, flgs)
+	dms, err := PrepDatamodels(args, flgs)
 	if err != nil {
 		return err
 	}
@@ -47,11 +42,21 @@ func infoDatamodelsTable(dms []*Datamodel, flgs flags.DatamodelPflagpole) error 
 				dmn := dm.Name
 				for _, m := range dm.Models {
 					nf := fmt.Sprint(len(m.Fields))
-					rows = append(rows, []string{dmn, m.Name, nf, "model", m.status})
 					if len(flgs.Models) > 0 {
-						for _, f := range m.Fields {
-							rows = append(rows, []string{"", "", f.Name, f.Type, ""})
+						match := false
+						for _, regx := range flgs.Models {
+							if match, _ = regexp.MatchString(regx, m.Name); match {
+								break
+							}
 						}
+						if match {
+							rows = append(rows, []string{dmn, m.Name, nf, "model", m.status})
+							for _, f := range m.Fields {
+								rows = append(rows, []string{"", "", f.Name, f.Type, ""})
+							}
+						}
+					} else {
+						rows = append(rows, []string{dmn, m.Name, nf, "model", m.status})
 					}
 					// only print once
 					if dmn != "" {
@@ -76,10 +81,10 @@ func infoDatamodelsCue(dms []*Datamodel, flgs flags.DatamodelPflagpole) error {
 		// print whole models
 		if len(flgs.Models) > 0 {
 			for _, m := range dm.Models {
-				match := false
 				for _, regx := range flgs.Models {
-					if match, _ = regexp.MatchString(regx, m.Name); match {
+					if match, _ := regexp.MatchString(regx, m.Name); match {
 						fmt.Printf("%s: %s: %v\n", dm.Name, m.Name, m.value)
+						break
 					}
 				}
 			}

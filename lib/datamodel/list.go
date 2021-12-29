@@ -12,12 +12,7 @@ func RunListFromArgs(args []string, flgs flags.DatamodelPflagpole) error {
 	// fmt.Println("lib/datamodel.Get", args, flgs)
 
 	// Loadup our Cue files
-	dms, err := LoadDatamodels(args, flgs)
-	if err != nil {
-		return err
-	}
-
-	dms, err = filterDatamodelsByVersion(dms, flgs)
+	dms, err := PrepDatamodels(args, flgs)
 	if err != nil {
 		return err
 	}
