@@ -2,6 +2,10 @@ module github.com/hofstadter-io/hof
 
 go 1.17
 
+// replace github.com/hofstadter-io/cuetils => ../../cue/cuetils
+
+replace cuelang.org/go => github.com/hofstadter-io/cue v0.4.0-hofpatch-1
+
 require (
 	cuelang.org/go v0.4.0
 	github.com/aymerick/raymond v2.0.2+incompatible
@@ -17,6 +21,7 @@ require (
 	github.com/go-git/go-billy/v5 v5.0.0
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/google/go-github/v38 v38.1.0
+	github.com/hofstadter-io/cuetils v0.3.3
 	github.com/hofstadter-io/data-utils v0.0.0-20200128210141-0a3e569b27ed
 	github.com/hofstadter-io/dotpath v0.0.0-20191027071558-52e2819b7d2d
 	github.com/hofstadter-io/hof-lang v0.0.0-20180925221847-4d1c962b0729

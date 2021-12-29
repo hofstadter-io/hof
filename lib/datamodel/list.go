@@ -2,7 +2,6 @@ package datamodel
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/olekukonko/tablewriter"
 
@@ -18,47 +17,34 @@ func RunListFromArgs(args []string, flgs flags.DatamodelPflagpole) error {
 		return err
 	}
 
-	return printDatamodelList(dms, "table")
+	dms, err = filterDatamodelsByVersion(dms, flgs)
+	if err != nil {
+		return err
+	}
+
+	return listDatamodels(dms, flgs)
 }
 
-func printDatamodelList(dms []*Datamodel, format string) error {
-	switch format {
+func listDatamodels(dms []*Datamodel, flgs flags.DatamodelPflagpole) error {
+	switch flgs.Output {
 	case "table":
-		printDatamodelListTable(dms)
+		return printAsTable(
+			[]string{"Name", "Models", "Versions", "Status"},
+			func(table *tablewriter.Table) ([][]string, error) {
+				var rows = make([][]string, 0, len(dms))
+				// fill with data
+				for _, dm := range dms {
+					nm := fmt.Sprint(len(dm.Models))
+					nv := fmt.Sprint(len(dm.History.Past))
+					rows = append(rows, []string{dm.Name, nm, nv, dm.status})
+				}
+				return rows, nil
+			},
+		)
 
 	default:
-		return fmt.Errorf("Unknown format %q", format)
+		return fmt.Errorf("Unknown output format %q", flgs.Output)
 	}
 
 	return nil
-}
-
-func printDatamodelListTable(dms []*Datamodel) {
-	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Name", "Models", "Versions", "Status"})
-	defaultTableFormat(table)
-
-	// fill with data
-	for _, dm := range dms {
-		nm := fmt.Sprint(len(dm.Models))
-		nv := fmt.Sprint(len(dm.History.Past))
-		table.Append([]string{dm.Name, nm, nv, dm.status})
-	}
-
-	// render
-	table.Render()
-}
-
-func defaultTableFormat(table *tablewriter.Table) {
-	table.SetAutoWrapText(false)
-	table.SetAutoFormatHeaders(true)
-	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-	table.SetAlignment(tablewriter.ALIGN_LEFT)
-	table.SetCenterSeparator("")
-	table.SetColumnSeparator("")
-	table.SetRowSeparator("")
-	table.SetHeaderLine(false)
-	table.SetBorder(false)
-	table.SetTablePadding("  ") // pad with tabs
-	table.SetNoWhiteSpace(true)
 }

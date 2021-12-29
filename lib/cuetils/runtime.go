@@ -36,31 +36,29 @@ func (CSO CueSyntaxOptions) MakeOpts() []cue.Option {
 
 var (
 	DefaultSyntaxOpts = CueSyntaxOptions{
-		Attributes: true,
-		Concrete: false,
+		Attributes:  true,
+		Concrete:    false,
 		Definitions: true,
-		Docs: true,
-		Hidden: true,
-		Optional: true,
+		Docs:        true,
+		Hidden:      true,
+		Optional:    true,
 	}
 )
 
 type CueRuntime struct {
-
 	Entrypoints []string
 	Workspace   string
-	FS billy.Filesystem
+	FS          billy.Filesystem
 
-	CueContext *cue.Context
-	CueConfig *load.Config
+	CueContext     *cue.Context
+	CueConfig      *load.Config
 	BuildInstances []*build.Instance
-	CueErrors []error
-	FieldOpts []cue.Option
+	CueErrors      []error
+	FieldOpts      []cue.Option
 
 	CueInstance *cue.Instance
-	CueValue cue.Value
-	Value    interface{}
-
+	CueValue    cue.Value
+	Value       interface{}
 }
 
 func (CRT *CueRuntime) ConvertToValue(in interface{}) (cue.Value, error) {
@@ -109,7 +107,9 @@ func (CRT *CueRuntime) load() (err error) {
 
 	// XXX TODO XXX
 	//  add the second arg from our runtime when implemented
-	CRT.CueContext = cuecontext.New()
+	if CRT.CueContext == nil {
+		CRT.CueContext = cuecontext.New()
+	}
 	CRT.BuildInstances = load.Instances(CRT.Entrypoints, nil)
 	for _, bi := range CRT.BuildInstances {
 		// fmt.Printf("%d: start\n", i)
@@ -138,11 +138,11 @@ func (CRT *CueRuntime) load() (err error) {
 
 		// Decode? we want to be lazy
 		/*
-		err = V.Decode(&CRT.Value)
-		if err != nil {
-			errs = append(errs, err)
-			continue
-		}
+			err = V.Decode(&CRT.Value)
+			if err != nil {
+				errs = append(errs, err)
+				continue
+			}
 		*/
 
 		// fmt.Println(i, "decoded", CRT.Value)
@@ -156,4 +156,3 @@ func (CRT *CueRuntime) load() (err error) {
 
 	return nil
 }
-

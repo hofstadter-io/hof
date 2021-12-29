@@ -25,6 +25,10 @@ func init() {
 
 	DatamodelCmd.PersistentFlags().StringSliceVarP(&(flags.DatamodelPflags.Datamodels), "datamodel", "d", nil, "Datamodels for the datamodel commands")
 	DatamodelCmd.PersistentFlags().StringSliceVarP(&(flags.DatamodelPflags.Models), "model", "m", nil, "Models for the datamodel commands")
+	DatamodelCmd.PersistentFlags().StringVarP(&(flags.DatamodelPflags.Output), "output", "o", "table", "Output format [table,cue]")
+	DatamodelCmd.PersistentFlags().StringVarP(&(flags.DatamodelPflags.Format), "format", "f", "_", "Pick format from Cuetils")
+	DatamodelCmd.PersistentFlags().StringVarP(&(flags.DatamodelPflags.Since), "since", "s", "", "Timestamp to filter since")
+	DatamodelCmd.PersistentFlags().StringVarP(&(flags.DatamodelPflags.Until), "until", "u", "", "Timestamp to filter until")
 }
 
 var DatamodelCmd = &cobra.Command{

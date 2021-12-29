@@ -7,10 +7,10 @@ import "strings"
 	Name: string
 
 	// Models in the data model, ordered
-	Models: [...#Model]
+	Models: #Models
 
 	// Custom views not tied to a specific model
-	Views?: [...#View]
+	Views?: #Views
 
 	// History of the data models
 	// Should be populated by hof from .hof/dm

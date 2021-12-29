@@ -21,12 +21,40 @@ import (
 		Default: "nil"
 		Help:    "Datamodels for the datamodel commands"
 	}, {
-		Name:    "models"
+		Name:    "Models"
 		Long:    "model"
 		Short:   "m"
 		Type:    "[]string"
 		Default: "nil"
 		Help:    "Models for the datamodel commands"
+	}, {
+		Name:    "Output"
+		Long:    "output"
+		Short:   "o"
+		Type:    "string"
+		Default: "\"table\""
+		Help:    "Output format [table,cue]"
+	}, {
+		Name:    "Format"
+		Long:    "format"
+		Short:   "f"
+		Type:    "string"
+		Default: "\"_\""
+		Help:    "Pick format from Cuetils"
+	}, {
+		Name:    "Since"
+		Long:    "since"
+		Short:   "s"
+		Type:    "string"
+		Default: ""
+		Help:    "Timestamp to filter since"
+	}, {
+		Name:    "Until"
+		Long:    "until"
+		Short:   "u"
+		Type:    "string"
+		Default: ""
+		Help:    "Timestamp to filter until"
 	}]
 
 	Commands: [{

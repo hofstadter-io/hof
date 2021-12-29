@@ -3,25 +3,49 @@ package datamodel
 import (
 	"fmt"
 
+	"github.com/hofstadter-io/cuetils/structural"
+
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 )
 
 func RunDiffFromArgs(args []string, flgs flags.DatamodelPflagpole) error {
-	// fmt.Println("lib/datamodel.Diff", args)
 
 	dms, err := LoadDatamodels(args, flgs)
 	if err != nil {
 		return err
 	}
 
+	dms, err = filterDatamodelsByVersion(dms, flgs)
+	if err != nil {
+		return err
+	}
+
 	for _, dm := range dms {
-		fmt.Println("---", dm.Name, "---")
 		if len(dm.History.Past) == 0 {
-			fmt.Println("no history to diff against")
+			fmt.Printf("%s: no history\n", dm.Name)
 		} else {
-			fmt.Println("compare curr to", dm.History.Past[0])
+			past := dm.History.Past[0]
+			if flgs.Since != "" {
+				past = dm.History.Past[len(dm.History.Past)-1]
+			}
+
+			fmt.Printf("// %s -> %s\n%s: ", dm.History.Past[0].version, dm.version, dm.Name)
+			diff, err := structural.DiffValue(past.value, dm.value, nil)
+			if err != nil {
+				return err
+			}
+			if !diff.Exists() {
+				fmt.Println("_|_")
+			} else {
+				fmt.Println(diff)
+			}
 		}
 	}
+
+	return nil
+}
+
+func CalcDatamodelDiff(from, to *Datamodel) error {
 
 	return nil
 }

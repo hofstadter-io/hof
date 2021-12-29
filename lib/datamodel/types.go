@@ -15,7 +15,8 @@ type History struct {
 
 type Datamodel struct {
 	Name    string
-	Models  []*Model
+	Models  map[string]*Model
+	Ordered []*Model
 	History *History
 
 	version string    // timestamp

@@ -19,7 +19,10 @@ func RunHistoryFromArgs(args []string, flgs flags.DatamodelPflagpole) error {
 		for _, ver := range dm.History.Past {
 			fmt.Println(ver.version)
 		}
-		fmt.Println()
+
+		if len(dms) > 1 {
+			fmt.Println()
+		}
 	}
 	return nil
 }

@@ -10,8 +10,6 @@ cloud.google.com/go/datastore v1.0.0/go.mod h1:LXYbyblFSglQ5pkeyhO+Qmw7ukd3C+pD7
 cloud.google.com/go/firestore v1.1.0/go.mod h1:ulACoGHTpvq5r8rxGJ4ddJZBZqakUQqClKRT5SZwBmk=
 cloud.google.com/go/pubsub v1.0.1/go.mod h1:R0Gpsv3s54REJCy4fxDixWD93lHJMoZTyQ2kNxGRt3I=
 cloud.google.com/go/storage v1.0.0/go.mod h1:IhtSnM/ZTZV8YYJWCY8RULGVqBDmpoyjwiyrjsg+URw=
-cuelang.org/go v0.4.0 h1:GLJblw6m2WGGCA3k1v6Wbk9gTOt2qto48ahO2MmSd6I=
-cuelang.org/go v0.4.0/go.mod h1:tz/edkPi+T37AZcb5GlPY+WJkL6KiDlDVupKwL3vvjs=
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20201218220906-28db891af037/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
@@ -185,10 +183,15 @@ github.com/hashicorp/logutils v1.0.0/go.mod h1:QIAnNjmIWmVIIkWDTG1z5v++HQmx9WQRO
 github.com/hashicorp/mdns v1.0.0/go.mod h1:tL+uN++7HEJ6SQLQ2/p+z2pH24WQKWjBPkE0mNTz8vQ=
 github.com/hashicorp/memberlist v0.1.3/go.mod h1:ajVTdAv/9Im8oMAAj5G31PhhMCZJV2pPBoIllUwCN7I=
 github.com/hashicorp/serf v0.8.2/go.mod h1:6hOLApaqBFA1NXqRQAsxw9QxuDEvNxSQRwA/JwenrHc=
+github.com/hofstadter-io/cue v0.4.0-hofpatch-1 h1:rlCG1LkcyK4LnFT7CGtSRYNZony/kklZa2IfWYJplUE=
+github.com/hofstadter-io/cue v0.4.0-hofpatch-1/go.mod h1:tz/edkPi+T37AZcb5GlPY+WJkL6KiDlDVupKwL3vvjs=
+github.com/hofstadter-io/cuetils v0.3.3 h1:ES3XTaybGAEtQxEnU4wPZB1dVMtnBw8tTRzDGWyf6v8=
+github.com/hofstadter-io/cuetils v0.3.3/go.mod h1:loBxKObD56zPySAXcs2lVoavKnKXO1ioyViEu3EyumA=
 github.com/hofstadter-io/data-utils v0.0.0-20200128210141-0a3e569b27ed h1:nABRLqqwgvPElkQ97rWa6VKYaUGuimOhj+m4+QML3Zg=
 github.com/hofstadter-io/data-utils v0.0.0-20200128210141-0a3e569b27ed/go.mod h1:WEV97No6/53nUz5mPEBhMJeW4JJcw2xwZZjfPxppXLg=
 github.com/hofstadter-io/dotpath v0.0.0-20191027071558-52e2819b7d2d h1:cnUMj92riFtchfxeKB5YBm2F6/0oUsuOOffUlZQh62g=
 github.com/hofstadter-io/dotpath v0.0.0-20191027071558-52e2819b7d2d/go.mod h1:hOVbz4565GFOTrLbUiUf8IUP3Oi+vFaQJf1Zh86g7/Q=
+github.com/hofstadter-io/hof v0.5.17/go.mod h1:hhHcyZNw7jVIDC0z1sbzIhoGl1KW2gCOmmUHpeSpUjQ=
 github.com/hofstadter-io/hof-lang v0.0.0-20180925221847-4d1c962b0729 h1:rJWWoxLZNE2BZmhlrlUJYE6vXlE5s8OlLAteRhfZHQw=
 github.com/hofstadter-io/hof-lang v0.0.0-20180925221847-4d1c962b0729/go.mod h1:4dVdBwjI9Mw89zYA2aE5kKZR4VL1rcBbCR0AScQ5wkU=
 github.com/imdario/mergo v0.3.9 h1:UauaLniWCFHWd+Jp9oCEkTBj8VO/9DKg3PV3VCNMDIg=

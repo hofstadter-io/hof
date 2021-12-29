@@ -12,9 +12,6 @@ import (
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
-// YYYYMMDDHHMMSS in Golang
-const tagFmt = "20060102150405"
-
 func RunCheckpointFromArgs(args []string, flgs flags.DatamodelPflagpole) error {
 	// fmt.Println("lib/datamodel.Checkpoint", args)
 

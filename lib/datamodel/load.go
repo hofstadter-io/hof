@@ -6,15 +6,63 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"time"
 
-	"cuelang.org/go/cue/load"
+	"cuelang.org/go/cue"
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/mattn/go-zglob"
 )
 
-func LoadDatamodels(entrypoints []string, flgs flags.DatamodelPflagpole) ([]*Datamodel, error) {
+// YYYYMMDDHHMMSS in Golang
+const tagFmt = "20060102150405"
+
+func LoadDatamodels(entrypoints []string, flgs flags.DatamodelPflagpole) (dms []*Datamodel, err error) {
+	// load the current and all of history
+	dms, err = loadDatamodelsAt(entrypoints, flgs)
+	if err != nil {
+		return nil, err
+	}
+
+	return dms, nil
+}
+
+func filterDatamodelsByVersion(dms []*Datamodel, flgs flags.DatamodelPflagpole) ([]*Datamodel, error) {
+
+	// filter history
+	for i, dm := range dms {
+		keep := []*Datamodel{}
+		for _, p := range dm.History.Past {
+			// filter newer
+			if flgs.Until != "" && p.version >= flgs.Until {
+				// set current if it matches until
+				if p.version == flgs.Until {
+					p.History = &History{
+						Curr: p,
+					}
+					dms[i] = p
+				}
+				continue
+			}
+			// filter older
+			if flgs.Since != "" && p.version < flgs.Since {
+				continue
+			}
+			keep = append(keep, p)
+		}
+
+		// set filtered history
+		dms[i].History.Past = keep
+
+	}
+
+	return dms, nil
+}
+
+func loadDatamodelsAt(entrypoints []string, flgs flags.DatamodelPflagpole) ([]*Datamodel, error) {
 	dms := []*Datamodel{}
+
+	tag := time.Now().UTC().Format(tagFmt)
 
 	crt, err := cuetils.CueRuntimeFromEntrypointsAndFlags(entrypoints)
 	if err != nil {
@@ -27,13 +75,58 @@ func LoadDatamodels(entrypoints []string, flgs flags.DatamodelPflagpole) ([]*Dat
 	}
 
 	for _, kv := range kvs {
+		// decode and setup datamodel
 		var dm Datamodel
 		err = kv.Val.Decode(&dm)
 		if err != nil {
 			return dms, err
 		}
 		dm.label = kv.Key
-		dm.value = kv.Val
+		dm.version = "dirty-" + tag // set to current timestamp
+
+		// make sure current value is processed same as checkpointed
+		str, err := cuetils.ValueToSyntaxString(
+			kv.Val,
+			cue.Attributes(true),
+			cue.Concrete(false),
+			cue.Definitions(true),
+			cue.Docs(true),
+			cue.Hidden(true),
+			cue.Final(),
+			cue.Optional(false),
+			cue.ResolveReferences(false),
+		)
+
+		if err != nil {
+			return dms, err
+		}
+
+		dm.value = crt.CueContext.CompileString(str)
+
+		// go deeper to extract model values
+		ms := dm.value.LookupPath(cue.ParsePath("Models"))
+		if ms.Err() != nil {
+			return dms, ms.Err()
+		}
+		iter, err := ms.Fields()
+		if err != nil {
+			return dms, err
+		}
+
+		i := 0
+		for iter.Next() {
+			label := iter.Selector().String()
+			m, ok := dm.Models[label]
+			if !ok {
+				panic("cannot find label in models")
+			}
+			dm.Ordered = append(dm.Ordered, m)
+			m.label = iter.Selector().String()
+			m.value = iter.Value()
+			i++
+		}
+
+		// add dm to result
 		dms = append(dms, &dm)
 	}
 
@@ -54,7 +147,7 @@ func LoadDatamodels(entrypoints []string, flgs flags.DatamodelPflagpole) ([]*Dat
 	}
 
 	for _, dm := range dms {
-		err = LoadDatamodelHistory(dm)
+		err = loadDatamodelHistory(dm, crt)
 		if err != nil {
 			return dms, nil
 		}
@@ -67,7 +160,7 @@ func LoadDatamodels(entrypoints []string, flgs flags.DatamodelPflagpole) ([]*Dat
 	return dms, nil
 }
 
-func LoadDatamodelHistory(dm *Datamodel) error {
+func loadDatamodelHistory(dm *Datamodel, crt *cuetils.CueRuntime) error {
 
 	// find module root
 	base, err := cuetils.FindModuleAbsPath()
@@ -83,20 +176,7 @@ func LoadDatamodelHistory(dm *Datamodel) error {
 	}
 
 	// load datamodel history as CUE
-	crt := &cuetils.CueRuntime{
-		Entrypoints: entrypoints,
-		CueConfig: &load.Config{
-			ModuleRoot: base,
-			Module:     "",
-			Package:    "",
-			Dir:        "",
-			BuildTags:  []string{},
-			Tests:      false,
-			Tools:      false,
-			DataFiles:  false,
-			Overlay:    map[string]load.Source{},
-		},
-	}
+	crt.Entrypoints = entrypoints
 	err = crt.Load()
 	if err != nil {
 		return err
@@ -129,7 +209,32 @@ func LoadDatamodelHistory(dm *Datamodel) error {
 
 		// set extra values
 		d.version = tag
+		d.label = label
 		d.value = value
+		d.status = "ok"
+
+		// go deeper to extract model values
+		ms := d.value.LookupPath(cue.ParsePath("Models"))
+		if ms.Err() != nil {
+			return ms.Err()
+		}
+		iter, err := ms.Fields()
+		if err != nil {
+			return err
+		}
+
+		i := 0
+		for iter.Next() {
+			label := iter.Selector().String()
+			m, ok := d.Models[label]
+			if !ok {
+				panic("cannot find label in models")
+			}
+			d.Ordered = append(dm.Ordered, m)
+			m.label = iter.Selector().String()
+			m.value = iter.Value()
+			i++
+		}
 
 		// add to history
 		vers = append(vers, &d)
