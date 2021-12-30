@@ -1,30 +1,42 @@
 package datamodel
 
-import "github.com/hofstadter-io/hof/schema/dm"
+import (
+	"github.com/hofstadter-io/hof/schema/dm"
+	"github.com/hofstadter-io/hof/schema/dm/fields"
+	"github.com/hofstadter-io/hof/schema/dm/sql"
+)
 
-#UserModels: dm.#Models & {
-	"User": #User
-	"UserProfile": #UserProfile
-}
+#MyModels: dm.#Datamodel & {
+	Name: "MyModels"
 
-#User: dm.#Model & {
-	Fields: {
-		dm.#CommonFields
-		email: dm.#Email	
-		persona: dm.#Enum & {
-			vals: ["guest", "user", "admin", "owner"]
-			default: "guest"
-		}	
-		password: dm.#Password
-		active: dm.#Bool
+	Models: {
+		#AllModels
 	}
 }
 
-#UserProfile: dm.#Model & {
+#AllModels: dm.#Models & {
+	"User": User
+	"UserProfile": UserProfile
+}
+
+User: dm.#Model & {
 	Fields: {
-		dm.#CommonFields
-		firstName: dm.#String
-		middleName: dm.#String
-		lastName: dm.#String
+		sql.#CommonFields
+		email: fields.Email	
+		persona: fields.Enum & {
+			Vals: ["guest", "user", "admin", "owner"]
+			Default: "guest"
+		}	
+		password: fields.Password
+		active: fields.Bool
+	}
+}
+
+UserProfile: dm.#Model & {
+	Fields: {
+		sql.#CommonFields
+		firstName: fields.String
+		middleName: fields.String
+		lastName: fields.String
 	}
 }

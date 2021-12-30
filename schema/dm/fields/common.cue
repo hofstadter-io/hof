@@ -1,42 +1,43 @@
-package dm
+package fields
 
-#DataTypes: #ID |
-	#UUID |
-	#CUID |
-	#Bool |
-	#String |
-	#Enum |
-	#Password |
-	#Email
+import (
+	"github.com/hofstadter-io/hof/schema/dm"
+)
 
-#ID: #UUID
+#DataTypes: ID |
+	UUID |
+	CUID |
+	Bool |
+	String |
+	Enum |
+	Password |
+	Email
 
-#UUID: #Field & {
+ID: UUID
+
+UUID: dm.#Field & {
 	Type: "uuid"
 	Nullable: bool | *false
 	Unique:   bool | *true
 	Default: "gen_random_uuid()"
 	Validation: {
-		Format: "email"
+		Format: "uuid"
 	}
-	...
 }
 
-#CUID: #Field & {
+CUID: dm.#Field & {
 	Type: "cuid"
 	Nullable: bool | *false
 	Unique:   bool | *true
-	...
 }
 
-#Bool: #Field & {
+Bool: dm.#Field & {
 	Type: "bool"
 	Default: string | *"false"
 	Nullable: bool | *false
-	...
 }
 
-#String: #Field & {
+String: dm.#Field & {
 	Type: "string"
 	Length: int | *64
 	Unique: bool | *false
@@ -45,37 +46,35 @@ package dm
 	Validation: {
 		Max: Length
 	}
-	...
 }
 
-#Enum: #Field & {
+Enum: dm.#Field & {
 	Type: "string"
 	Vals: [...string]
 	Nullable: bool | *false
 	Default?: string
-	...
 }
 
-#Password: #String & {
+Password: String & {
 	Bcrypt: true
 }
 
-#Email: #String & {
+Email: String & {
 	Validation: {
 		Format: "email"
 	}
 	Unique: true
-	...
 }
 
-#Date: #Field & {
+Date: dm.#Field & {
 	Type: "date"
 }
 
-#Time: #Field & {
+Time: dm.#Field & {
 	Type: "time"
 }
 
-#Datetime: #Field & {
+Datetime: dm.#Field & {
 	Type: "datetime"
 }
+
