@@ -27,7 +27,7 @@ var InfoCmd = &cobra.Command{
 	Use: "info",
 
 	Aliases: []string{
-		"s",
+		"i",
 	},
 
 	Short: "print details for data models",

@@ -7,9 +7,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var infoLong = `print details for data models`
+var logLong = `show the current diff for a data model`
 
-func InfoRun(args []string) (err error) {
+func LogRun(args []string) (err error) {
 
 	// you can safely comment this print out
 	fmt.Println("not implemented")
@@ -17,17 +17,17 @@ func InfoRun(args []string) (err error) {
 	return err
 }
 
-var InfoCmd = &cobra.Command{
+var LogCmd = &cobra.Command{
 
-	Use: "info",
+	Use: "log",
 
 	Aliases: []string{
-		"i",
+		"l",
 	},
 
-	Short: "print details for data models",
+	Short: "show the current diff for a data model",
 
-	Long: infoLong,
+	Long: logLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
@@ -38,7 +38,7 @@ var InfoCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		err = InfoRun(args)
+		err = LogRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -52,8 +52,8 @@ func init() {
 		return false
 	}
 
-	ohelp := InfoCmd.HelpFunc()
-	ousage := InfoCmd.UsageFunc()
+	ohelp := LogCmd.HelpFunc()
+	ousage := LogCmd.UsageFunc()
 	help := func(cmd *cobra.Command, args []string) {
 		if extra(cmd) {
 			return
@@ -67,7 +67,7 @@ func init() {
 		return ousage(cmd)
 	}
 
-	InfoCmd.SetHelpFunc(help)
-	InfoCmd.SetUsageFunc(usage)
+	LogCmd.SetHelpFunc(help)
+	LogCmd.SetUsageFunc(usage)
 
 }

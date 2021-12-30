@@ -27,7 +27,7 @@ var ListCmd = &cobra.Command{
 	Use: "list",
 
 	Aliases: []string{
-		"l",
+		"ls",
 	},
 
 	Short: "find and display data models",

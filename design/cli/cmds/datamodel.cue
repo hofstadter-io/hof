@@ -60,19 +60,25 @@ import (
 	Commands: [{
 		Name:  "list"
 		Usage: "list"
-		Aliases: ["l"]
+		Aliases: ["ls"]
 		Short: "find and display data models"
 		Long:  Short
 	}, {
 		Name:  "info"
 		Usage: "info"
-		Aliases: ["s"]
+		Aliases: ["i"]
 		Short: "print details for data models"
 		Long:  Short
 	}, {
 		Name:  "diff"
 		Usage: "diff"
 		Aliases: ["d"]
+		Short: "show the current diff for a data model"
+		Long:  Short
+	}, {
+		Name:  "log"
+		Usage: "log"
+		Aliases: ["l"]
 		Short: "show the current diff for a data model"
 		Long:  Short
 	}, {
@@ -84,7 +90,7 @@ import (
 	}, {
 		Name:  "checkpoint"
 		Usage: "checkpoint"
-		Aliases: ["cp"]
+		Aliases: ["cp", "x"]
 		Short: "calculate a migration changeset for a data model"
 		Long:  Short
 	}]

@@ -23,6 +23,7 @@ var CheckpointCmd = &cobra.Command{
 
 	Aliases: []string{
 		"cp",
+		"x",
 	},
 
 	Short: "calculate a migration changeset for a data model",
