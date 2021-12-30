@@ -25,7 +25,7 @@ func RunCheckpointFromArgs(args []string, flgs flags.DatamodelPflagpole) error {
 
 	had := false
 	for _, dm := range dms {
-		if dm.Status == "dirty" {
+		if dm.Status == "dirty" || dm.Status == "no history" {
 			had = true
 			err = checkpointDatamodel(dm, tag)
 			if err != nil {
