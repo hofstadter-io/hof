@@ -15,8 +15,7 @@ import (
 	"golang.org/x/text/message"
 )
 
-
-func CueSyntax(val cue.Value, opts []cue.Option) (ast.Node) {
+func CueSyntax(val cue.Value, opts []cue.Option) ast.Node {
 	if len(opts) > 0 {
 		return val.Syntax(opts...)
 	}
@@ -107,7 +106,7 @@ func getLang() language.Tag {
 	return language.Make(loc)
 }
 
-func PrintCueError(err error) {
+func CueErrorToString(err error) string {
 
 	p := message.NewPrinter(getLang())
 	format := func(w io.Writer, format string, args ...interface{}) {
@@ -126,10 +125,14 @@ func PrintCueError(err error) {
 		}
 	}
 
-	s := w.String()
-	fmt.Println(s)
-
+	return w.String()
 }
+
+func PrintCueError(err error) {
+	s := CueErrorToString(err)
+	fmt.Println(s)
+}
+
 func (CR *CueRuntime) PrintCueErrors() {
 	for _, err := range CR.CueErrors {
 		PrintCueError(err)

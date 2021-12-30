@@ -115,11 +115,8 @@ func (CRT *CueRuntime) load() (err error) {
 		// fmt.Printf("%d: start\n", i)
 
 		if bi.Err != nil {
-			fmt.Println("BI ERR", bi.Err, bi.Incomplete, bi.DepsErrors)
-			es := errors.Errors(bi.Err)
-			for _, e := range es {
-				errs = append(errs, e.(error))
-			}
+			s := CueErrorToString(bi.Err)
+			errs = append(errs, fmt.Errorf(s))
 			continue
 		}
 
@@ -151,7 +148,11 @@ func (CRT *CueRuntime) load() (err error) {
 
 	if len(errs) > 0 {
 		CRT.CueErrors = errs
-		return fmt.Errorf("Errors while loading Cue entrypoints: %s %v\n%v", CRT.Workspace, CRT.Entrypoints, errs)
+		s := fmt.Sprintf("Errors while loading Cue entrypoints: %s %v\n", CRT.Workspace, CRT.Entrypoints)
+		for _, e := range errs {
+			s += fmt.Sprintf("%v\n", e.Error())
+		}
+		return fmt.Errorf(s)
 	}
 
 	return nil
