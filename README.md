@@ -18,10 +18,12 @@ You will have to download `hof` the first time.
 After that `hof` will prompt you to update and
 install new releases as they become available.
 
-```text
+```shell
+export HOF_VER=0.6.0
+
 # Install (Linux, Mac, Windows)
-curl -LO https://github.com/hofstadter-io/hof/releases/download/v0.5.15/hof_0.5.15_$(uname)_$(uname -m)
-mv hof_0.5.15_$(uname)_$(uname -m) /usr/local/bin/hof
+curl -LO https://github.com/hofstadter-io/hof/releases/download/v${HOF_VER}/hof_${HOF_VER}_$(uname)_$(uname -m)
+mv hof_${HOF_VER}_$(uname)_$(uname -m) /usr/local/bin/hof
 
 # Shell Completions (bash, zsh, fish, power-shell)
 echo ". <(hof completion bash)" >> $HOME/.profile
