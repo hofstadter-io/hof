@@ -33,24 +33,24 @@ func PrepDatamodels(entrypoints []string, flgs flags.DatamodelPflagpole) (dms []
 
 	for _, dm := range dms {
 		if len(dm.History.Past) == 0 {
-			dm.status = "no history"
+			dm.Status = "no history"
 		} else {
 			past := dm.History.Past[0]
 			if flgs.Since != "" {
 				past = dm.History.Past[len(dm.History.Past)-1]
 			}
-			dm.History.Other = past
+			dm.History.Prev = past
 
-			diff, err := structural.DiffValue(past.value, dm.value, nil)
+			diff, err := structural.DiffValue(past.Value, dm.Value, nil)
 			if err != nil {
 				return dms, err
 			}
-			dm.History.Diff = diff
+			dm.Diff = diff
 
 			if !diff.Exists() {
-				dm.status = "ok"
+				dm.Status = "ok"
 			} else {
-				dm.status = "dirty"
+				dm.Status = "dirty"
 			}
 		}
 	}
@@ -75,9 +75,9 @@ func filterDatamodelsByVersion(dms []*Datamodel, flgs flags.DatamodelPflagpole) 
 		keep := []*Datamodel{}
 		for _, p := range dm.History.Past {
 			// filter newer
-			if flgs.Until != "" && p.version >= flgs.Until {
+			if flgs.Until != "" && p.Version >= flgs.Until {
 				// set current if it matches until
-				if p.version == flgs.Until {
+				if p.Version == flgs.Until {
 					p.History = &History{
 						Curr: p,
 					}
@@ -86,7 +86,7 @@ func filterDatamodelsByVersion(dms []*Datamodel, flgs flags.DatamodelPflagpole) 
 				continue
 			}
 			// filter older
-			if flgs.Since != "" && p.version < flgs.Since {
+			if flgs.Since != "" && p.Version < flgs.Since {
 				continue
 			}
 			keep = append(keep, p)
@@ -122,8 +122,8 @@ func loadDatamodelsAt(entrypoints []string, flgs flags.DatamodelPflagpole) ([]*D
 		if err != nil {
 			return dms, err
 		}
-		dm.label = kv.Key
-		dm.version = "dirty-" + tag // set to current timestamp
+		dm.Label = kv.Key
+		dm.Version = "dirty-" + tag // set to current timestamp
 
 		// make sure current value is processed same as checkpointed
 		str, err := cuetils.ValueToSyntaxString(
@@ -142,10 +142,10 @@ func loadDatamodelsAt(entrypoints []string, flgs flags.DatamodelPflagpole) ([]*D
 			return dms, err
 		}
 
-		dm.value = crt.CueContext.CompileString(str)
+		dm.Value = crt.CueContext.CompileString(str)
 
 		// go deeper to extract model values
-		ms := dm.value.LookupPath(cue.ParsePath("Models"))
+		ms := dm.Value.LookupPath(cue.ParsePath("Models"))
 		if ms.Err() != nil {
 			return dms, ms.Err()
 		}
@@ -162,8 +162,8 @@ func loadDatamodelsAt(entrypoints []string, flgs flags.DatamodelPflagpole) ([]*D
 				panic("cannot find label in models")
 			}
 			dm.Ordered = append(dm.Ordered, m)
-			m.label = iter.Selector().String()
-			m.value = iter.Value()
+			m.Label = iter.Selector().String()
+			m.Value = iter.Value()
 			i++
 		}
 
@@ -194,7 +194,7 @@ func loadDatamodelsAt(entrypoints []string, flgs flags.DatamodelPflagpole) ([]*D
 		}
 
 		if len(dm.History.Past) == 0 {
-			dm.status = "dirty"
+			dm.Status = "dirty"
 		}
 	}
 
@@ -249,13 +249,13 @@ func loadDatamodelHistory(dm *Datamodel, crt *cuetils.CueRuntime) error {
 		}
 
 		// set extra values
-		d.version = tag
-		d.label = label
-		d.value = value
-		d.status = "ok"
+		d.Version = tag
+		d.Label = label
+		d.Value = value
+		d.Status = "ok"
 
 		// go deeper to extract model values
-		ms := d.value.LookupPath(cue.ParsePath("Models"))
+		ms := d.Value.LookupPath(cue.ParsePath("Models"))
 		if ms.Err() != nil {
 			return ms.Err()
 		}
@@ -272,8 +272,8 @@ func loadDatamodelHistory(dm *Datamodel, crt *cuetils.CueRuntime) error {
 				panic("cannot find label in models")
 			}
 			d.Ordered = append(dm.Ordered, m)
-			m.label = iter.Selector().String()
-			m.value = iter.Value()
+			m.Label = iter.Selector().String()
+			m.Value = iter.Value()
 			i++
 		}
 
@@ -283,7 +283,7 @@ func loadDatamodelHistory(dm *Datamodel, crt *cuetils.CueRuntime) error {
 
 	// sort history reverse chron
 	sort.Slice(vers, func(i, j int) bool {
-		return vers[i].version > vers[j].version
+		return vers[i].Version > vers[j].Version
 	})
 
 	// set history

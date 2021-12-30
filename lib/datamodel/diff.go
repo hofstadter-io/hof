@@ -29,8 +29,8 @@ func RunDiffFromArgs(args []string, flgs flags.DatamodelPflagpole) error {
 				past = dm.History.Past[len(dm.History.Past)-1]
 			}
 
-			fmt.Printf("// %s -> %s\n%s: ", dm.History.Past[0].version, dm.version, dm.Name)
-			diff, err := structural.DiffValue(past.value, dm.value, nil)
+			fmt.Printf("// %s -> %s\n%s: ", dm.History.Past[0].Version, dm.Version, dm.Name)
+			diff, err := structural.DiffValue(past.Value, dm.Value, nil)
 			if err != nil {
 				return err
 			}
@@ -45,7 +45,7 @@ func RunDiffFromArgs(args []string, flgs flags.DatamodelPflagpole) error {
 	return nil
 }
 
-func CalcDatamodelDiff(from, to *Datamodel) error {
+func CalcDatamodelStepwiseDiff(dm *Datamodel) error {
 
 	return nil
 }

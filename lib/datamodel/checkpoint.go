@@ -25,7 +25,7 @@ func RunCheckpointFromArgs(args []string, flgs flags.DatamodelPflagpole) error {
 
 	had := false
 	for _, dm := range dms {
-		if dm.status == "dirty" {
+		if dm.Status == "dirty" {
 			had = true
 			err = checkpointDatamodel(dm, tag)
 			if err != nil {
@@ -55,7 +55,7 @@ func checkpointDatamodel(dm *Datamodel, tag string) error {
 	}
 
 	str, err := cuetils.ValueToSyntaxString(
-		dm.value,
+		dm.Value,
 		cue.Attributes(true),
 		cue.Concrete(false),
 		cue.Definitions(true),

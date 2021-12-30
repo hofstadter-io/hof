@@ -31,7 +31,7 @@ func listDatamodels(dms []*Datamodel, flgs flags.DatamodelPflagpole) error {
 				for _, dm := range dms {
 					nm := fmt.Sprint(len(dm.Models))
 					nv := fmt.Sprint(len(dm.History.Past))
-					rows = append(rows, []string{dm.Name, nm, nv, dm.status})
+					rows = append(rows, []string{dm.Name, nm, nv, dm.Status})
 				}
 				return rows, nil
 			},

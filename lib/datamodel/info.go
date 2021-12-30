@@ -50,13 +50,13 @@ func infoDatamodelsTable(dms []*Datamodel, flgs flags.DatamodelPflagpole) error 
 							}
 						}
 						if match {
-							rows = append(rows, []string{dmn, m.Name, nf, "model", m.status})
+							rows = append(rows, []string{dmn, m.Name, nf, "model", m.Status})
 							for _, f := range m.Fields {
 								rows = append(rows, []string{"", "", f.Name, f.Type, ""})
 							}
 						}
 					} else {
-						rows = append(rows, []string{dmn, m.Name, nf, "model", m.status})
+						rows = append(rows, []string{dmn, m.Name, nf, "model", m.Status})
 					}
 					// only print once
 					if dmn != "" {
@@ -74,7 +74,7 @@ func infoDatamodelsCue(dms []*Datamodel, flgs flags.DatamodelPflagpole) error {
 	for _, dm := range dms {
 		// print whole datamodels
 		if len(flgs.Models) == 0 {
-			fmt.Printf("%s: %v\n", dm.Name, dm.value)
+			fmt.Printf("%s: %v\n", dm.Name, dm.Value)
 			continue
 		}
 
@@ -83,7 +83,7 @@ func infoDatamodelsCue(dms []*Datamodel, flgs flags.DatamodelPflagpole) error {
 			for _, m := range dm.Models {
 				for _, regx := range flgs.Models {
 					if match, _ := regexp.MatchString(regx, m.Name); match {
-						fmt.Printf("%s: %s: %v\n", dm.Name, m.Name, m.value)
+						fmt.Printf("%s: %s: %v\n", dm.Name, m.Name, m.Value)
 						break
 					}
 				}

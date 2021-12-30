@@ -2,18 +2,20 @@ package datamodel
 
 import "cuelang.org/go/cue"
 
-type common struct {
-	status string // should probably be an const [ok,dirty,no history]
-	label  string
-	value  cue.Value
+type Common struct {
+	Status  string // should probably be an const [ok,dirty,no history]
+	Label   string // label from CUE
+	Version string // timestamp
+
+	Value cue.Value // this objects value
+	Other cue.Value // the other value for diff
+	Diff  cue.Value // diff from other (checkpoint)
 }
 
 type History struct {
-	Curr *Datamodel
-	Past []*Datamodel
-
-	Other *Datamodel // set to a comparison version if available
-	Diff  cue.Value  // Diff from other -> curr
+	Curr *Datamodel   // Top-level Datamodel, there should only be one history
+	Prev *Datamodel   // The previous datamodel, when needed for comparison
+	Past []*Datamodel // the full history of the datamodel
 }
 
 type Datamodel struct {
@@ -22,21 +24,19 @@ type Datamodel struct {
 	Ordered []*Model
 	History *History
 
-	version string    // timestamp
-	diff    cue.Value // diff from last checkpoint
-	common
+	Common
 }
 
 type Model struct {
 	Name   string
 	Fields map[string]*Field
 
-	common
+	Common
 }
 
 type Field struct {
 	Name string
 	Type string
 
-	common
+	Common
 }
