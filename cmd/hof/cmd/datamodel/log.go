@@ -5,6 +5,9 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
+	"github.com/hofstadter-io/hof/lib/datamodel"
 )
 
 var logLong = `show the current diff for a data model`
@@ -12,7 +15,9 @@ var logLong = `show the current diff for a data model`
 func LogRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = datamodel.RunLogFromArgs(args, flags.DatamodelPflags)
 
 	return err
 }

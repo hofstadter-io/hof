@@ -46,6 +46,28 @@ func RunDiffFromArgs(args []string, flgs flags.DatamodelPflagpole) error {
 }
 
 func CalcDatamodelStepwiseDiff(dm *Datamodel) error {
+	if dm.History == nil || len(dm.History.Past) == 0 {
+		return nil
+	}
+	past := dm.History.Past
+
+	// loop back through time (checkpoints)
+	curr := dm
+	for i := 0; i < len(past); i++ {
+		// get prev to compare against
+		prev := past[i]
+
+		// calculate what needs to be done to prev to get to curr
+		diff, err := structural.DiffValue(prev.Value, curr.Value, nil)
+		if err != nil {
+			return err
+		}
+
+		// set changes need to arrive at curr
+		curr.Diff = diff
+		// update before relooping
+		curr = prev
+	}
 
 	return nil
 }
