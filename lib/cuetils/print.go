@@ -128,6 +128,11 @@ func CueErrorToString(err error) string {
 	return w.String()
 }
 
+func ExpandCueError(err error) error {
+	s := CueErrorToString(err)
+	return fmt.Errorf(s)
+}
+
 func PrintCueError(err error) {
 	s := CueErrorToString(err)
 	fmt.Println(s)

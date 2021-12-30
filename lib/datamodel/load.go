@@ -112,7 +112,7 @@ func loadDatamodelsAt(entrypoints []string, flgs flags.DatamodelPflagpole) ([]*D
 
 	kvs, err := cuetils.GetByAttrKeys(crt.CueValue, "datamodel", nil, nil)
 	if err != nil {
-		return dms, err
+		return dms, cuetils.ExpandCueError(err)
 	}
 
 	for _, kv := range kvs {
@@ -120,7 +120,7 @@ func loadDatamodelsAt(entrypoints []string, flgs flags.DatamodelPflagpole) ([]*D
 		var dm Datamodel
 		err = kv.Val.Decode(&dm)
 		if err != nil {
-			return dms, err
+			return dms, cuetils.ExpandCueError(err)
 		}
 		dm.Label = kv.Key
 		dm.Version = "dirty-" + tag // set to current timestamp
@@ -139,7 +139,7 @@ func loadDatamodelsAt(entrypoints []string, flgs flags.DatamodelPflagpole) ([]*D
 		)
 
 		if err != nil {
-			return dms, err
+			return dms, cuetils.ExpandCueError(err)
 		}
 
 		dm.Value = crt.CueContext.CompileString(str)
@@ -147,11 +147,11 @@ func loadDatamodelsAt(entrypoints []string, flgs flags.DatamodelPflagpole) ([]*D
 		// go deeper to extract model values
 		ms := dm.Value.LookupPath(cue.ParsePath("Models"))
 		if ms.Err() != nil {
-			return dms, ms.Err()
+			return dms, cuetils.ExpandCueError(ms.Err())
 		}
 		iter, err := ms.Fields()
 		if err != nil {
-			return dms, err
+			return dms, cuetils.ExpandCueError(err)
 		}
 
 		i := 0
@@ -232,7 +232,7 @@ func loadDatamodelHistory(dm *Datamodel, crt *cuetils.CueRuntime) error {
 	vers := []*Datamodel{}
 	iter, err := crt.CueValue.Fields()
 	if err != nil {
-		return err
+		return cuetils.ExpandCueError(err)
 	}
 
 	for iter.Next() {
@@ -245,7 +245,7 @@ func loadDatamodelHistory(dm *Datamodel, crt *cuetils.CueRuntime) error {
 		var d Datamodel
 		err := value.Decode(&d)
 		if err != nil {
-			return err
+			return cuetils.ExpandCueError(err)
 		}
 
 		// set extra values
@@ -257,11 +257,11 @@ func loadDatamodelHistory(dm *Datamodel, crt *cuetils.CueRuntime) error {
 		// go deeper to extract model values
 		ms := d.Value.LookupPath(cue.ParsePath("Models"))
 		if ms.Err() != nil {
-			return ms.Err()
+			return cuetils.ExpandCueError(ms.Err())
 		}
 		iter, err := ms.Fields()
 		if err != nil {
-			return err
+			return cuetils.ExpandCueError(err)
 		}
 
 		i := 0

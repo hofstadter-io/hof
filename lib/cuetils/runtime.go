@@ -115,8 +115,10 @@ func (CRT *CueRuntime) load() (err error) {
 		// fmt.Printf("%d: start\n", i)
 
 		if bi.Err != nil {
-			s := CueErrorToString(bi.Err)
-			errs = append(errs, fmt.Errorf(s))
+			es := errors.Errors(bi.Err)
+			for _, e := range es {
+				errs = append(errs, e.(error))
+			}
 			continue
 		}
 
@@ -124,7 +126,6 @@ func (CRT *CueRuntime) load() (err error) {
 		V := CRT.CueContext.BuildInstance(bi)
 		if V.Err() != nil {
 			es := errors.Errors(V.Err())
-			// fmt.Println("BUILD ERR", es, I)
 			for _, e := range es {
 				errs = append(errs, e.(error))
 			}
@@ -133,24 +134,16 @@ func (CRT *CueRuntime) load() (err error) {
 
 		CRT.CueValue = V
 
-		// Decode? we want to be lazy
-		/*
-			err = V.Decode(&CRT.Value)
-			if err != nil {
-				errs = append(errs, err)
-				continue
-			}
-		*/
-
-		// fmt.Println(i, "decoded", CRT.Value)
-
 	}
 
 	if len(errs) > 0 {
 		CRT.CueErrors = errs
 		s := fmt.Sprintf("Errors while loading Cue entrypoints: %s %v\n", CRT.Workspace, CRT.Entrypoints)
-		for _, e := range errs {
-			s += fmt.Sprintf("%v\n", e.Error())
+		for _, E := range errs {
+			es := errors.Errors(E)
+			for _, e := range es {
+				s += CueErrorToString(e)
+			}
 		}
 		return fmt.Errorf(s)
 	}
