@@ -16,31 +16,31 @@ import (
 ID: UUID
 
 UUID: dm.#Field & {
-	Type: "uuid"
+	Type:     "uuid"
 	Nullable: bool | *false
 	Unique:   bool | *true
-	Default: "gen_random_uuid()"
+	Default:  "gen_random_uuid()"
 	Validation: {
 		Format: "uuid"
 	}
 }
 
 CUID: dm.#Field & {
-	Type: "cuid"
+	Type:     "cuid"
 	Nullable: bool | *false
 	Unique:   bool | *true
 }
 
 Bool: dm.#Field & {
-	Type: "bool"
-	Default: string | *"false"
+	Type:     "bool"
+	Default:  string | *"false"
 	Nullable: bool | *false
 }
 
 String: dm.#Field & {
-	Type: "string"
-	Length: int | *64
-	Unique: bool | *false
+	Type:     "string"
+	Length:   int | *64
+	Unique:   bool | *false
 	Nullable: bool | *false
 	Default?: string
 	Validation: {
@@ -77,4 +77,3 @@ Time: dm.#Field & {
 Datetime: dm.#Field & {
 	Type: "datetime"
 }
-
