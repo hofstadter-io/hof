@@ -202,6 +202,10 @@ func loadDatamodelsAt(entrypoints []string, flgs flags.DatamodelPflagpole) ([]*D
 }
 
 func loadDatamodelHistory(dm *Datamodel, crt *cuetils.CueRuntime) error {
+	// init history
+	dm.History = &History{
+		Curr: dm,
+	}
 
 	// find module root
 	base, err := cuetils.FindModuleAbsPath()
@@ -221,11 +225,6 @@ func loadDatamodelHistory(dm *Datamodel, crt *cuetils.CueRuntime) error {
 	err = crt.Load()
 	if err != nil {
 		return err
-	}
-
-	// start history
-	dm.History = &History{
-		Curr: dm,
 	}
 
 	// iterate over fields (checkpoints)
