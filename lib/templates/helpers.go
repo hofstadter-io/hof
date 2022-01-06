@@ -85,6 +85,9 @@ var funcMap = template.FuncMap{
 	"reverse":  Helper_reverse,
 	"listelem": Helper_listelem,
 
+	// maybe make these work like the Go version, but more consistently
+	// probably need to reflect
+	// "eq":  Helper_eq,
 	"ne":  Helper_ne,
 	"or":  Helper_or,
 	"and": Helper_and,
