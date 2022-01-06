@@ -85,7 +85,6 @@ var funcMap = template.FuncMap{
 	"reverse":  Helper_reverse,
 	"listelem": Helper_listelem,
 
-	"eq":  Helper_eq,
 	"ne":  Helper_ne,
 	"or":  Helper_or,
 	"and": Helper_and,

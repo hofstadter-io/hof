@@ -6,6 +6,8 @@ go 1.17
 
 replace cuelang.org/go => github.com/hofstadter-io/cue v0.4.0-hofpatch-1
 
+replace github.com/hofstadter-io/dotpath => ../dotpath
+
 require (
 	cuelang.org/go v0.4.0
 	github.com/aymerick/raymond v2.0.2+incompatible
