@@ -21,10 +21,12 @@ func AddGolangHelpers(t *template.Template) *template.Template {
 }
 
 var funcMap = template.FuncMap{
+	"concat":  Helper_concat,
 	"concat2": Helper_concat2,
 	"concat3": Helper_concat3,
 	"concat4": Helper_concat4,
 	"concat5": Helper_concat5,
+	"join":    Helper_join,
 	"join2":   Helper_join2,
 	"join3":   Helper_join3,
 	"join4":   Helper_join4,
@@ -103,9 +105,18 @@ var funcMap = template.FuncMap{
 	"dref": Helper_dref,
 }
 
+func Helper_concat(ss ...string) string {
+	S := ""
+	for _, s := range ss {
+		S += s
+	}
+	return S
+}
+
 func Helper_concat2(s1, s2 string) string {
 	return s1 + s2
 }
+
 func Helper_concat3(s1, s2, s3 string) string {
 	return s1 + s2 + s3
 }
@@ -114,6 +125,10 @@ func Helper_concat4(s1, s2, s3, s4 string) string {
 }
 func Helper_concat5(s1, s2, s3, s4, s5 string) string {
 	return s1 + s2 + s3 + s4 + s5
+}
+
+func Helper_join(sep string, ss ...string) string {
+	return strings.Join(ss, sep)
 }
 
 func Helper_join2(sep, s1, s2 string) string {
