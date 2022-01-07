@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var listLong = `find and display data models`
+var listLong = `print available data models`
 
 func ListRun(args []string) (err error) {
 
@@ -25,7 +25,7 @@ var ListCmd = &cobra.Command{
 		"ls",
 	},
 
-	Short: "find and display data models",
+	Short: "print available data models",
 
 	Long: listLong,
 

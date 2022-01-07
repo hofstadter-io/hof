@@ -10,7 +10,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/datamodel"
 )
 
-var checkpointLong = `calculate a migration changeset for a data model`
+var checkpointLong = `create a snapshot of the data model`
 
 func CheckpointRun(args []string) (err error) {
 
@@ -31,7 +31,7 @@ var CheckpointCmd = &cobra.Command{
 		"x",
 	},
 
-	Short: "calculate a migration changeset for a data model",
+	Short: "create a snapshot of the data model",
 
 	Long: checkpointLong,
 

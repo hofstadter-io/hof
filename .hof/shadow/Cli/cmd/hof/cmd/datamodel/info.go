@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var infoLong = `print details for data models`
+var infoLong = `print details for a data model`
 
 func InfoRun(args []string) (err error) {
 
@@ -25,7 +25,7 @@ var InfoCmd = &cobra.Command{
 		"i",
 	},
 
-	Short: "print details for data models",
+	Short: "print details for a data model",
 
 	Long: infoLong,
 

@@ -10,7 +10,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/datamodel"
 )
 
-var logLong = `show the current diff for a data model`
+var logLong = `show the history of diffs for a data model`
 
 func LogRun(args []string) (err error) {
 
@@ -30,7 +30,7 @@ var LogCmd = &cobra.Command{
 		"l",
 	},
 
-	Short: "show the current diff for a data model",
+	Short: "show the history of diffs for a data model",
 
 	Long: logLong,
 

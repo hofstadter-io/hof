@@ -10,7 +10,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/datamodel"
 )
 
-var historyLong = `show the history for a data model`
+var historyLong = `list the snapshots for a data model`
 
 func HistoryRun(args []string) (err error) {
 
@@ -31,7 +31,7 @@ var HistoryCmd = &cobra.Command{
 		"h",
 	},
 
-	Short: "show the history for a data model",
+	Short: "list the snapshots for a data model",
 
 	Long: historyLong,
 

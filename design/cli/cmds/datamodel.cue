@@ -58,40 +58,40 @@ import (
 	}]
 
 	Commands: [{
-		Name:  "list"
-		Usage: "list"
-		Aliases: ["ls"]
-		Short: "find and display data models"
-		Long:  Short
-	}, {
-		Name:  "info"
-		Usage: "info"
-		Aliases: ["i"]
-		Short: "print details for data models"
+		Name:  "checkpoint"
+		Usage: "checkpoint"
+		Aliases: ["cp", "x"]
+		Short: "create a snapshot of the data model"
 		Long:  Short
 	}, {
 		Name:  "diff"
 		Usage: "diff"
 		Aliases: ["d"]
-		Short: "show the current diff for a data model"
-		Long:  Short
-	}, {
-		Name:  "log"
-		Usage: "log"
-		Aliases: ["l"]
-		Short: "show the current diff for a data model"
+		Short: "show the diff between data model version"
 		Long:  Short
 	}, {
 		Name:  "history"
 		Usage: "history"
 		Aliases: ["hist", "h"]
-		Short: "show the history for a data model"
+		Short: "list the snapshots for a data model"
 		Long:  Short
 	}, {
-		Name:  "checkpoint"
-		Usage: "checkpoint"
-		Aliases: ["cp", "x"]
-		Short: "calculate a migration changeset for a data model"
+		Name:  "info"
+		Usage: "info"
+		Aliases: ["i"]
+		Short: "print details for a data model"
+		Long:  Short
+	}, {
+		Name:  "list"
+		Usage: "list"
+		Aliases: ["ls"]
+		Short: "print available data models"
+		Long:  Short
+	}, {
+		Name:  "log"
+		Usage: "log"
+		Aliases: ["l"]
+		Short: "show the history of diffs for a data model"
 		Long:  Short
 	}]
 }
