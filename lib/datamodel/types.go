@@ -3,9 +3,11 @@ package datamodel
 import "cuelang.org/go/cue"
 
 type Common struct {
-	Status  string // should probably be an const [ok,dirty,no history]
-	Label   string // label from CUE
-	Version string // timestamp
+	Status    string // should probably be an const [ok,dirty,no history]
+	Label     string // label from CUE
+	Timestamp string // timestamp
+	Version   string // @dm_ver()
+	// TODO(tags), maybe labels too?
 
 	Value   cue.Value // this objects value
 	Other   cue.Value // the other value for diff

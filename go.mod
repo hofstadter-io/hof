@@ -10,6 +10,7 @@ replace github.com/hofstadter-io/dotpath => ../dotpath
 
 require (
 	cuelang.org/go v0.4.0
+	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/aymerick/raymond v2.0.2+incompatible
 	github.com/bmatcuk/doublestar v1.3.1
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e

@@ -26,7 +26,7 @@ func PrepDatamodels(entrypoints []string, flgs flags.DatamodelPflagpole) (dms []
 		return dms, err
 	}
 
-	dms, err = filterDatamodelsByVersion(dms, flgs)
+	dms, err = filterDatamodelsByTimestamp(dms, flgs)
 	if err != nil {
 		return dms, err
 	}
@@ -68,16 +68,16 @@ func LoadDatamodels(entrypoints []string, flgs flags.DatamodelPflagpole) (dms []
 	return dms, nil
 }
 
-func filterDatamodelsByVersion(dms []*Datamodel, flgs flags.DatamodelPflagpole) ([]*Datamodel, error) {
+func filterDatamodelsByTimestamp(dms []*Datamodel, flgs flags.DatamodelPflagpole) ([]*Datamodel, error) {
 
 	// filter history
 	for i, dm := range dms {
 		keep := []*Datamodel{}
 		for _, p := range dm.History.Past {
 			// filter newer
-			if flgs.Until != "" && p.Version >= flgs.Until {
+			if flgs.Until != "" && p.Timestamp >= flgs.Until {
 				// set current if it matches until
-				if p.Version == flgs.Until {
+				if p.Timestamp == flgs.Until {
 					p.History = &History{
 						Curr: p,
 					}
@@ -86,7 +86,7 @@ func filterDatamodelsByVersion(dms []*Datamodel, flgs flags.DatamodelPflagpole) 
 				continue
 			}
 			// filter older
-			if flgs.Since != "" && p.Version < flgs.Since {
+			if flgs.Since != "" && p.Timestamp < flgs.Since {
 				continue
 			}
 			keep = append(keep, p)
@@ -123,7 +123,7 @@ func loadDatamodelsAt(entrypoints []string, flgs flags.DatamodelPflagpole) ([]*D
 			return dms, cuetils.ExpandCueError(err)
 		}
 		dm.Label = kv.Key
-		dm.Version = "dirty-" + tag // set to current timestamp
+		dm.Timestamp = "dirty-" + tag // set to current timestamp
 
 		// make sure current value is processed same as checkpointed
 		str, err := cuetils.ValueToSyntaxString(
@@ -190,7 +190,7 @@ func loadDatamodelsAt(entrypoints []string, flgs flags.DatamodelPflagpole) ([]*D
 	for _, dm := range dms {
 		err = loadDatamodelHistory(dm, crt)
 		if err != nil {
-			return dms, nil
+			return dms, err
 		}
 
 		if len(dm.History.Past) == 0 {
@@ -232,7 +232,7 @@ func loadDatamodelHistory(dm *Datamodel, crt *cuetils.CueRuntime) error {
 
 	// iterate over fields (checkpoints)
 	vers := []*Datamodel{}
-	iter, err := crt.CueValue.Fields()
+	iter, err := crt.CueValue.Fields(cue.Attributes(true))
 	if err != nil {
 		return cuetils.ExpandCueError(err)
 	}
@@ -251,10 +251,26 @@ func loadDatamodelHistory(dm *Datamodel, crt *cuetils.CueRuntime) error {
 		}
 
 		// set extra values
-		d.Version = tag
+		d.Timestamp = tag
 		d.Label = label
 		d.Value = value
 		d.Status = "ok"
+
+		// extract version
+		attrs := d.Value.Attributes(cue.ValueAttr)
+		found := false
+		for _, attr := range attrs {
+			if attr.Name() == "dm_ver" {
+				found = true
+				d.Version, err = attr.String(0)
+				if err != nil {
+					return cuetils.ExpandCueError(err)
+				}
+			}
+		}
+		if !found {
+			return fmt.Errorf("missing '@dm_ver' in %s @ %s", dm.Name, d.Timestamp)
+		}
 
 		//
 		// TODO(subsume), decend into Models and Fields for diff / subsume for more granular information
@@ -265,7 +281,7 @@ func loadDatamodelHistory(dm *Datamodel, crt *cuetils.CueRuntime) error {
 		if ms.Err() != nil {
 			return cuetils.ExpandCueError(ms.Err())
 		}
-		iter, err := ms.Fields()
+		iter, err := ms.Fields(cue.Attributes(true))
 		if err != nil {
 			return cuetils.ExpandCueError(err)
 		}
@@ -289,7 +305,7 @@ func loadDatamodelHistory(dm *Datamodel, crt *cuetils.CueRuntime) error {
 
 	// sort history reverse chron
 	sort.Slice(vers, func(i, j int) bool {
-		return vers[i].Version > vers[j].Version
+		return vers[i].Timestamp > vers[j].Timestamp
 	})
 
 	// set history

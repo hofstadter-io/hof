@@ -22,7 +22,7 @@ func histDatamodels(dms []*Datamodel, flgs flags.DatamodelPflagpole) error {
 	switch flgs.Output {
 	case "table":
 		return printAsTable(
-			[]string{"Name", "Version", "Subsume"},
+			[]string{"Name", "Version", "Timestamp", "Subsume"},
 			func(table *tablewriter.Table) ([][]string, error) {
 				var rows = make([][]string, 0, len(dms))
 				// fill with data
@@ -32,7 +32,7 @@ func histDatamodels(dms []*Datamodel, flgs flags.DatamodelPflagpole) error {
 						if ver.Subsume != nil {
 							sub = dm.Subsume.Error()
 						}
-						rows = append(rows, []string{dm.Name, ver.Version, sub})
+						rows = append(rows, []string{dm.Name, ver.Version, ver.Timestamp, sub})
 					}
 				}
 				return rows, nil

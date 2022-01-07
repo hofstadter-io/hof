@@ -5,9 +5,16 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
 )
 
 var checkpointLong = `create a snapshot of the data model`
+
+func init() {
+
+	CheckpointCmd.Flags().StringVarP(&(flags.Datamodel__CheckpointFlags.Bump), "bump", "b", "patch", "type of version bump in [major,minor,patch,<semver>]")
+}
 
 func CheckpointRun(args []string) (err error) {
 

@@ -63,6 +63,14 @@ import (
 		Aliases: ["cp", "x"]
 		Short: "create a snapshot of the data model"
 		Long:  Short
+		Flags: [...schema.#Flag] & [{
+			Name:    "bump"
+			Long:    "bump"
+			Short:   "b"
+			Type:    "string"
+			Default: "\"patch\""
+			Help:    "type of version bump in [major,minor,patch,<semver>]"
+		}]
 	}, {
 		Name:  "diff"
 		Usage: "diff"

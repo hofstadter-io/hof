@@ -15,7 +15,7 @@ func RunDiffFromArgs(args []string, flgs flags.DatamodelPflagpole) error {
 		return err
 	}
 
-	dms, err = filterDatamodelsByVersion(dms, flgs)
+	dms, err = filterDatamodelsByTimestamp(dms, flgs)
 	if err != nil {
 		return err
 	}
@@ -29,7 +29,7 @@ func RunDiffFromArgs(args []string, flgs flags.DatamodelPflagpole) error {
 				past = dm.History.Past[len(dm.History.Past)-1]
 			}
 
-			fmt.Printf("// %s -> %s\n%s: ", dm.History.Past[0].Version, dm.Version, dm.Name)
+			fmt.Printf("// %s -> %s\n%s: ", dm.History.Past[0].Timestamp, dm.Timestamp, dm.Name)
 			diff, err := structural.DiffValue(past.Value, dm.Value, nil)
 			if err != nil {
 				return err

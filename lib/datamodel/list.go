@@ -24,7 +24,7 @@ func listDatamodels(dms []*Datamodel, flgs flags.DatamodelPflagpole) error {
 	switch flgs.Output {
 	case "table":
 		return printAsTable(
-			[]string{"Name", "Models", "Versions", "Status", "Subsume"},
+			[]string{"Name", "Models", "Checkpoints", "Status", "Subsume"},
 			func(table *tablewriter.Table) ([][]string, error) {
 				var rows = make([][]string, 0, len(dms))
 				// fill with data

@@ -48,7 +48,7 @@ func RunLogFromArgs(args []string, flgs flags.DatamodelPflagpole) error {
 		past := dm.History.Past
 		for i := 0; i < len(past)-1; i++ {
 			curr := past[i]
-			fmt.Println("//", curr.Version)
+			fmt.Println("//", curr.Timestamp)
 			if curr.Subsume != nil {
 				fmt.Println("// subsume:", curr.Subsume.Error())
 			} else {
@@ -59,7 +59,7 @@ func RunLogFromArgs(args []string, flgs flags.DatamodelPflagpole) error {
 
 		// print original (last) value
 		last := past[len(past)-1]
-		fmt.Println("//", last.Version, "(original)")
+		fmt.Println("//", last.Timestamp, "(original)")
 		fmt.Println("// subsume: n/a")
 		fmt.Printf("%s: \"HEAD~%d\": %v\n", dm.Name, len(past), last.Value)
 	}

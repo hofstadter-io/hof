@@ -7,17 +7,23 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+
 	"github.com/hofstadter-io/hof/lib/datamodel"
 )
 
 var checkpointLong = `create a snapshot of the data model`
+
+func init() {
+
+	CheckpointCmd.Flags().StringVarP(&(flags.Datamodel__CheckpointFlags.Bump), "bump", "b", "patch", "type of version bump in [major,minor,patch,<semver>]")
+}
 
 func CheckpointRun(args []string) (err error) {
 
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = datamodel.RunCheckpointFromArgs(args, flags.DatamodelPflags)
+	err = datamodel.RunCheckpointFromArgs(args, flags.Datamodel__CheckpointFlags.Bump, flags.DatamodelPflags)
 
 	return err
 }
