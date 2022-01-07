@@ -29,6 +29,14 @@ func RunLogFromArgs(args []string, flgs flags.DatamodelPflagpole) error {
 			continue
 		}
 
+		fmt.Println("// current")
+		// print current subsume
+		if dm.Subsume != nil {
+			fmt.Println("// subsume:", dm.Subsume.Error())
+		} else {
+			fmt.Println("// subsume: yes")
+		}
+
 		// print current diff
 		if dm.Diff.Exists() {
 			fmt.Printf("%s: HEAD: %v\n\n", dm.Name, dm.Diff)
@@ -41,12 +49,18 @@ func RunLogFromArgs(args []string, flgs flags.DatamodelPflagpole) error {
 		for i := 0; i < len(past)-1; i++ {
 			curr := past[i]
 			fmt.Println("//", curr.Version)
+			if curr.Subsume != nil {
+				fmt.Println("// subsume:", curr.Subsume.Error())
+			} else {
+				fmt.Println("// subsume: yes")
+			}
 			fmt.Printf("%s: \"HEAD~%d\": %v\n\n", dm.Name, i+1, curr.Diff)
 		}
 
 		// print original (last) value
 		last := past[len(past)-1]
 		fmt.Println("//", last.Version, "(original)")
+		fmt.Println("// subsume: n/a")
 		fmt.Printf("%s: \"HEAD~%d\": %v\n", dm.Name, len(past), last.Value)
 	}
 

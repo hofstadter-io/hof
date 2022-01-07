@@ -24,14 +24,25 @@ func listDatamodels(dms []*Datamodel, flgs flags.DatamodelPflagpole) error {
 	switch flgs.Output {
 	case "table":
 		return printAsTable(
-			[]string{"Name", "Models", "Versions", "Status"},
+			[]string{"Name", "Models", "Versions", "Status", "Subsume"},
 			func(table *tablewriter.Table) ([][]string, error) {
 				var rows = make([][]string, 0, len(dms))
 				// fill with data
 				for _, dm := range dms {
+					lh := len(dm.History.Past)
 					nm := fmt.Sprint(len(dm.Models))
-					nv := fmt.Sprint(len(dm.History.Past))
-					rows = append(rows, []string{dm.Name, nm, nv, dm.Status})
+					nv := fmt.Sprint(lh)
+
+					sub := "n/a"
+					if lh > 0 {
+						if dm.Subsume != nil {
+							sub = dm.Subsume.Error()
+						} else {
+							sub = "yes"
+						}
+					}
+
+					rows = append(rows, []string{dm.Name, nm, nv, dm.Status, sub})
 				}
 				return rows, nil
 			},

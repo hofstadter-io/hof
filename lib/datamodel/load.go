@@ -195,7 +195,10 @@ func loadDatamodelsAt(entrypoints []string, flgs flags.DatamodelPflagpole) ([]*D
 
 		if len(dm.History.Past) == 0 {
 			dm.Status = "dirty"
+		} else {
+			dm.Subsume = dm.History.Past[0].Value.Subsume(dm.Value)
 		}
+		// TODO(subsume), decend into Models and Fields for diff / subsume for more granular information
 	}
 
 	return dms, nil
@@ -252,6 +255,10 @@ func loadDatamodelHistory(dm *Datamodel, crt *cuetils.CueRuntime) error {
 		d.Label = label
 		d.Value = value
 		d.Status = "ok"
+
+		//
+		// TODO(subsume), decend into Models and Fields for diff / subsume for more granular information
+		//
 
 		// go deeper to extract model values
 		ms := d.Value.LookupPath(cue.ParsePath("Models"))

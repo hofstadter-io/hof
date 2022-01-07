@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+	"github.com/olekukonko/tablewriter"
 )
 
 func RunHistoryFromArgs(args []string, flgs flags.DatamodelPflagpole) error {
@@ -14,15 +15,33 @@ func RunHistoryFromArgs(args []string, flgs flags.DatamodelPflagpole) error {
 		return err
 	}
 
-	for _, dm := range dms {
-		fmt.Println("---", dm.Name, "---")
-		for _, ver := range dm.History.Past {
-			fmt.Println(ver.Version)
-		}
+	return histDatamodels(dms, flgs)
+}
 
-		if len(dms) > 1 {
-			fmt.Println()
-		}
+func histDatamodels(dms []*Datamodel, flgs flags.DatamodelPflagpole) error {
+	switch flgs.Output {
+	case "table":
+		return printAsTable(
+			[]string{"Name", "Version", "Subsume"},
+			func(table *tablewriter.Table) ([][]string, error) {
+				var rows = make([][]string, 0, len(dms))
+				// fill with data
+				for _, dm := range dms {
+					for _, ver := range dm.History.Past {
+						sub := "yes"
+						if ver.Subsume != nil {
+							sub = dm.Subsume.Error()
+						}
+						rows = append(rows, []string{dm.Name, ver.Version, sub})
+					}
+				}
+				return rows, nil
+			},
+		)
+
+	default:
+		return fmt.Errorf("Unknown output format %q", flgs.Output)
 	}
+
 	return nil
 }

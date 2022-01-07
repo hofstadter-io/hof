@@ -35,7 +35,7 @@ func RunDiffFromArgs(args []string, flgs flags.DatamodelPflagpole) error {
 				return err
 			}
 			if !diff.Exists() {
-				fmt.Println("_|_")
+				fmt.Println("{}")
 			} else {
 				fmt.Println(diff)
 			}
@@ -63,11 +63,14 @@ func CalcDatamodelStepwiseDiff(dm *Datamodel) error {
 			return err
 		}
 
+		curr.Subsume = prev.Value.Subsume(curr.Value)
+
 		// set changes need to arrive at curr
 		curr.Diff = diff
 		// update before relooping
 		curr = prev
 	}
+	// TODO(subsume), decend into Models and Fields for diff / subsume for more granular information
 
 	return nil
 }

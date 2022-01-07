@@ -7,9 +7,10 @@ type Common struct {
 	Label   string // label from CUE
 	Version string // timestamp
 
-	Value cue.Value // this objects value
-	Other cue.Value // the other value for diff
-	Diff  cue.Value // diff from other (checkpoint)
+	Value   cue.Value // this objects value
+	Other   cue.Value // the other value for diff
+	Diff    cue.Value // diff from other (checkpoint)
+	Subsume error
 }
 
 type History struct {
