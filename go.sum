@@ -190,7 +190,6 @@ github.com/hofstadter-io/cue v0.4.1-hofpatch-1 h1:tuz1uTlptIcJfpnQtx2iFq4RfMolc6
 github.com/hofstadter-io/cue v0.4.1-hofpatch-1/go.mod h1:P09/R4UfAEzLkV9DXxwlxQnIZbkaT4uIhiEgs6Vsz2Q=
 github.com/hofstadter-io/cuetils v0.3.3 h1:ES3XTaybGAEtQxEnU4wPZB1dVMtnBw8tTRzDGWyf6v8=
 github.com/hofstadter-io/cuetils v0.3.3/go.mod h1:loBxKObD56zPySAXcs2lVoavKnKXO1ioyViEu3EyumA=
-github.com/hofstadter-io/data-utils v0.0.0-20200128210141-0a3e569b27ed h1:nABRLqqwgvPElkQ97rWa6VKYaUGuimOhj+m4+QML3Zg=
 github.com/hofstadter-io/data-utils v0.0.0-20200128210141-0a3e569b27ed/go.mod h1:WEV97No6/53nUz5mPEBhMJeW4JJcw2xwZZjfPxppXLg=
 github.com/hofstadter-io/dotpath v0.0.0-20191027071558-52e2819b7d2d/go.mod h1:hOVbz4565GFOTrLbUiUf8IUP3Oi+vFaQJf1Zh86g7/Q=
 github.com/hofstadter-io/hof v0.5.17/go.mod h1:hhHcyZNw7jVIDC0z1sbzIhoGl1KW2gCOmmUHpeSpUjQ=
