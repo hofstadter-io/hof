@@ -4,7 +4,7 @@ go 1.17
 
 // replace github.com/hofstadter-io/cuetils => ../../cue/cuetils
 
-replace cuelang.org/go => github.com/hofstadter-io/cue v0.4.0-hofpatch-1
+replace cuelang.org/go => github.com/hofstadter-io/cue v0.4.1-hofpatch-1
 
 replace github.com/hofstadter-io/dotpath => ../dotpath
 
@@ -49,7 +49,7 @@ require (
 	gopkg.in/errgo.v2 v2.1.0
 	gopkg.in/inconshreveable/log15.v2 v2.0.0-20200109203555-b30bc20e4fd1
 	gopkg.in/yaml.v2 v2.3.0
-	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
+	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 )
 
 require (
