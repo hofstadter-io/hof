@@ -2,9 +2,10 @@ package dotpath
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"reflect"
 	"strings"
+
+	"github.com/pkg/errors"
 
 	"github.com/spf13/viper"
 	log "gopkg.in/inconshreveable/log15.v2" // logging framework
@@ -153,6 +154,15 @@ func get_by_path(IDX int, paths []string, data interface{}) (interface{}, error)
 	switch T := data.(type) {
 
 	case map[string]interface{}:
+		// shortcut for [:], convert to list
+		if pos_colon > 0 {
+			elems := []interface{}{}
+			for _, elem := range T {
+				elems = append(elems, elem)
+			}
+			return get_by_path(IDX+1, paths, elems)
+		}
+
 		elems, err := get_from_smap_by_path(IDX, paths, T)
 		if err != nil {
 			return nil, errors.Wrap(err, "while extracting path from smap in get_by_path")
@@ -163,6 +173,15 @@ func get_by_path(IDX int, paths []string, data interface{}) (interface{}, error)
 		return elems, nil
 
 	case map[interface{}]interface{}:
+		// shortcut for [:], convert to list
+		if pos_colon > 0 {
+			elems := []interface{}{}
+			for _, elem := range T {
+				elems = append(elems, elem)
+			}
+			return get_by_path(IDX+1, paths, elems)
+		}
+
 		elems, err := get_from_imap_by_path(IDX, paths, T)
 		if err != nil {
 			return nil, errors.Wrap(err, "while extracting path from imap in get_by_path")

@@ -11,7 +11,7 @@ import (
 	"github.com/clbanning/mxj"
 	"github.com/codemodus/kace"
 	"github.com/ghodss/yaml"
-	"github.com/hofstadter-io/dotpath"
+	"github.com/hofstadter-io/hof/lib/dotpath"
 	"github.com/kr/pretty"
 	"github.com/naoina/toml"
 )

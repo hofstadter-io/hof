@@ -192,6 +192,7 @@ github.com/hofstadter-io/cuetils v0.3.3 h1:ES3XTaybGAEtQxEnU4wPZB1dVMtnBw8tTRzDG
 github.com/hofstadter-io/cuetils v0.3.3/go.mod h1:loBxKObD56zPySAXcs2lVoavKnKXO1ioyViEu3EyumA=
 github.com/hofstadter-io/data-utils v0.0.0-20200128210141-0a3e569b27ed h1:nABRLqqwgvPElkQ97rWa6VKYaUGuimOhj+m4+QML3Zg=
 github.com/hofstadter-io/data-utils v0.0.0-20200128210141-0a3e569b27ed/go.mod h1:WEV97No6/53nUz5mPEBhMJeW4JJcw2xwZZjfPxppXLg=
+github.com/hofstadter-io/dotpath v0.0.0-20191027071558-52e2819b7d2d/go.mod h1:hOVbz4565GFOTrLbUiUf8IUP3Oi+vFaQJf1Zh86g7/Q=
 github.com/hofstadter-io/hof v0.5.17/go.mod h1:hhHcyZNw7jVIDC0z1sbzIhoGl1KW2gCOmmUHpeSpUjQ=
 github.com/hofstadter-io/hof-lang v0.0.0-20180925221847-4d1c962b0729 h1:rJWWoxLZNE2BZmhlrlUJYE6vXlE5s8OlLAteRhfZHQw=
 github.com/hofstadter-io/hof-lang v0.0.0-20180925221847-4d1c962b0729/go.mod h1:4dVdBwjI9Mw89zYA2aE5kKZR4VL1rcBbCR0AScQ5wkU=

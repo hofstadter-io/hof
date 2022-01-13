@@ -2,11 +2,7 @@ module github.com/hofstadter-io/hof
 
 go 1.17
 
-// replace github.com/hofstadter-io/cuetils => ../../cue/cuetils
-
 replace cuelang.org/go => github.com/hofstadter-io/cue v0.4.1-hofpatch-1
-
-replace github.com/hofstadter-io/dotpath => ../dotpath
 
 require (
 	cuelang.org/go v0.4.0
@@ -26,7 +22,6 @@ require (
 	github.com/google/go-github/v38 v38.1.0
 	github.com/hofstadter-io/cuetils v0.3.3
 	github.com/hofstadter-io/data-utils v0.0.0-20200128210141-0a3e569b27ed
-	github.com/hofstadter-io/dotpath v0.0.0-20191027071558-52e2819b7d2d
 	github.com/hofstadter-io/hof-lang v0.0.0-20180925221847-4d1c962b0729
 	github.com/kevinburke/ssh_config v1.1.0
 	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
