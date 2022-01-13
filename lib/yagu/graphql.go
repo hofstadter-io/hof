@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/hofstadter-io/dotpath"
+	"github.com/hofstadter-io/hof/lib/dotpath"
 	"github.com/parnurzeal/gorequest"
 )
 

@@ -2,8 +2,11 @@ module github.com/hofstadter-io/hof
 
 go 1.17
 
+replace cuelang.org/go => github.com/hofstadter-io/cue v0.4.1-hofpatch-1
+
 require (
 	cuelang.org/go v0.4.0
+	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/aymerick/raymond v2.0.2+incompatible
 	github.com/bmatcuk/doublestar v1.3.1
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
@@ -17,9 +20,7 @@ require (
 	github.com/go-git/go-billy/v5 v5.0.0
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/google/go-github/v38 v38.1.0
-	github.com/hofstadter-io/data-utils v0.0.0-20200128210141-0a3e569b27ed
-	github.com/hofstadter-io/dotpath v0.0.0-20191027071558-52e2819b7d2d
-	github.com/hofstadter-io/hof-lang v0.0.0-20180925221847-4d1c962b0729
+	github.com/hofstadter-io/cuetils v0.3.3
 	github.com/kevinburke/ssh_config v1.1.0
 	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
 	github.com/kr/pretty v0.2.0
@@ -41,7 +42,7 @@ require (
 	gopkg.in/errgo.v2 v2.1.0
 	gopkg.in/inconshreveable/log15.v2 v2.0.0-20200109203555-b30bc20e4fd1
 	gopkg.in/yaml.v2 v2.3.0
-	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
+	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 )
 
 require (

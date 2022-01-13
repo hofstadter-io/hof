@@ -36,31 +36,29 @@ func (CSO CueSyntaxOptions) MakeOpts() []cue.Option {
 
 var (
 	DefaultSyntaxOpts = CueSyntaxOptions{
-		Attributes: true,
-		Concrete: false,
+		Attributes:  true,
+		Concrete:    false,
 		Definitions: true,
-		Docs: true,
-		Hidden: true,
-		Optional: true,
+		Docs:        true,
+		Hidden:      true,
+		Optional:    true,
 	}
 )
 
 type CueRuntime struct {
-
 	Entrypoints []string
 	Workspace   string
-	FS billy.Filesystem
+	FS          billy.Filesystem
 
-	CueContext *cue.Context
-	CueConfig *load.Config
+	CueContext     *cue.Context
+	CueConfig      *load.Config
 	BuildInstances []*build.Instance
-	CueErrors []error
-	FieldOpts []cue.Option
+	CueErrors      []error
+	FieldOpts      []cue.Option
 
 	CueInstance *cue.Instance
-	CueValue cue.Value
-	Value    interface{}
-
+	CueValue    cue.Value
+	Value       interface{}
 }
 
 func (CRT *CueRuntime) ConvertToValue(in interface{}) (cue.Value, error) {
@@ -109,13 +107,14 @@ func (CRT *CueRuntime) load() (err error) {
 
 	// XXX TODO XXX
 	//  add the second arg from our runtime when implemented
-	CRT.CueContext = cuecontext.New()
+	if CRT.CueContext == nil {
+		CRT.CueContext = cuecontext.New()
+	}
 	CRT.BuildInstances = load.Instances(CRT.Entrypoints, nil)
 	for _, bi := range CRT.BuildInstances {
 		// fmt.Printf("%d: start\n", i)
 
 		if bi.Err != nil {
-			fmt.Println("BI ERR", bi.Err, bi.Incomplete, bi.DepsErrors)
 			es := errors.Errors(bi.Err)
 			for _, e := range es {
 				errs = append(errs, e.(error))
@@ -127,7 +126,6 @@ func (CRT *CueRuntime) load() (err error) {
 		V := CRT.CueContext.BuildInstance(bi)
 		if V.Err() != nil {
 			es := errors.Errors(V.Err())
-			// fmt.Println("BUILD ERR", es, I)
 			for _, e := range es {
 				errs = append(errs, e.(error))
 			}
@@ -136,24 +134,19 @@ func (CRT *CueRuntime) load() (err error) {
 
 		CRT.CueValue = V
 
-		// Decode? we want to be lazy
-		/*
-		err = V.Decode(&CRT.Value)
-		if err != nil {
-			errs = append(errs, err)
-			continue
-		}
-		*/
-
-		// fmt.Println(i, "decoded", CRT.Value)
-
 	}
 
 	if len(errs) > 0 {
 		CRT.CueErrors = errs
-		return fmt.Errorf("Errors while loading Cue entrypoints: %s %v\n%v", CRT.Workspace, CRT.Entrypoints, errs)
+		s := fmt.Sprintf("Errors while loading Cue entrypoints: %s %v\n", CRT.Workspace, CRT.Entrypoints)
+		for _, E := range errs {
+			es := errors.Errors(E)
+			for _, e := range es {
+				s += CueErrorToString(e)
+			}
+		}
+		return fmt.Errorf(s)
 	}
 
 	return nil
 }
-

@@ -6,32 +6,33 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/datamodel"
 )
 
-var applyLong = `apply a migraion sequence against a data store`
+var infoLong = `print details for a data model`
 
-func ApplyRun(args []string) (err error) {
+func InfoRun(args []string) (err error) {
 
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = datamodel.RunApplyFromArgs(args)
+	err = datamodel.RunInfoFromArgs(args, flags.DatamodelPflags)
 
 	return err
 }
 
-var ApplyCmd = &cobra.Command{
+var InfoCmd = &cobra.Command{
 
-	Use: "apply",
+	Use: "info",
 
 	Aliases: []string{
-		"a",
+		"i",
 	},
 
-	Short: "apply a migraion sequence against a data store",
+	Short: "print details for a data model",
 
-	Long: applyLong,
+	Long: infoLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
@@ -42,7 +43,7 @@ var ApplyCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		err = ApplyRun(args)
+		err = InfoRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -56,8 +57,8 @@ func init() {
 		return false
 	}
 
-	ohelp := ApplyCmd.HelpFunc()
-	ousage := ApplyCmd.UsageFunc()
+	ohelp := InfoCmd.HelpFunc()
+	ousage := InfoCmd.UsageFunc()
 	help := func(cmd *cobra.Command, args []string) {
 		if extra(cmd) {
 			return
@@ -71,7 +72,7 @@ func init() {
 		return ousage(cmd)
 	}
 
-	ApplyCmd.SetHelpFunc(help)
-	ApplyCmd.SetUsageFunc(usage)
+	InfoCmd.SetHelpFunc(help)
+	InfoCmd.SetUsageFunc(usage)
 
 }

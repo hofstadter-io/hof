@@ -8,7 +8,6 @@ import (
 	"cuelang.org/go/cue/errors"
 )
 
-
 type KeyVal struct {
 	Key string
 	Val cue.Value
@@ -20,6 +19,7 @@ type KeyVal struct {
 //
 //   GetByAttrAndKeys(val, "myattr", []string{}, []string{})
 //
+// TODO, change this to return map[string]cue.Value
 func GetByAttrKeys(val cue.Value, attr string, all, any []string) ([]KeyVal, error) {
 	// Todo, rewrite this to use structural
 
@@ -37,7 +37,10 @@ func GetByAttrKeys(val cue.Value, attr string, all, any []string) ([]KeyVal, err
 	}
 
 	// Loop through all top level fields
-	iter := S.Fields()
+	iter := S.Fields(
+		cue.Attributes(true),
+		cue.Definitions(true),
+	)
 	for iter.Next() {
 
 		label := iter.Label()
@@ -63,7 +66,7 @@ func GetByAttrKeys(val cue.Value, attr string, all, any []string) ([]KeyVal, err
 						R := regexp.MustCompile(l)
 						// loop over the field attt key names
 						found := false
-						for v, _  := range vals {
+						for v, _ := range vals {
 							m := R.MatchString(v)
 							if m {
 								found = true
@@ -91,7 +94,7 @@ func GetByAttrKeys(val cue.Value, attr string, all, any []string) ([]KeyVal, err
 					for _, l := range any {
 						R := regexp.MustCompile(l)
 						// loop over the field attt key names
-						for v, _  := range vals {
+						for v, _ := range vals {
 							m := R.MatchString(v)
 							if m {
 								match = true

@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var diffLong = `show the current diff for a data model`
+var diffLong = `show the diff between data model version`
 
 func DiffRun(args []string) (err error) {
 
@@ -25,7 +25,7 @@ var DiffCmd = &cobra.Command{
 		"d",
 	},
 
-	Short: "show the current diff for a data model",
+	Short: "show the diff between data model version",
 
 	Long: diffLong,
 

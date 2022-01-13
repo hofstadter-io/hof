@@ -5,35 +5,29 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-
-	"github.com/hofstadter-io/hof/cmd/hof/flags"
-
-	"github.com/hofstadter-io/hof/lib/datamodel"
 )
 
-var getLong = `find and display data models`
+var logLong = `show the history of diffs for a data model`
 
-func GetRun(args []string) (err error) {
+func LogRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	// fmt.Println("not implemented")
-
-	err = datamodel.RunGetFromArgs(args, flags.DatamodelPflags)
+	fmt.Println("not implemented")
 
 	return err
 }
 
-var GetCmd = &cobra.Command{
+var LogCmd = &cobra.Command{
 
-	Use: "get",
+	Use: "log",
 
 	Aliases: []string{
-		"g",
+		"l",
 	},
 
-	Short: "find and display data models",
+	Short: "show the history of diffs for a data model",
 
-	Long: getLong,
+	Long: logLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
@@ -44,7 +38,7 @@ var GetCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		err = GetRun(args)
+		err = LogRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -58,8 +52,8 @@ func init() {
 		return false
 	}
 
-	ohelp := GetCmd.HelpFunc()
-	ousage := GetCmd.UsageFunc()
+	ohelp := LogCmd.HelpFunc()
+	ousage := LogCmd.UsageFunc()
 	help := func(cmd *cobra.Command, args []string) {
 		if extra(cmd) {
 			return
@@ -73,7 +67,7 @@ func init() {
 		return ousage(cmd)
 	}
 
-	GetCmd.SetHelpFunc(help)
-	GetCmd.SetUsageFunc(usage)
+	LogCmd.SetHelpFunc(help)
+	LogCmd.SetUsageFunc(usage)
 
 }

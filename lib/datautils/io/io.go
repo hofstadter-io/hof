@@ -11,8 +11,6 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/clbanning/mxj"
-	"github.com/hofstadter-io/hof-lang/ast"
-	"github.com/hofstadter-io/hof-lang/parser"
 	"github.com/naoina/toml"
 	"gopkg.in/yaml.v2"
 )
@@ -69,18 +67,6 @@ func ReadAll(reader io.Reader, obj *interface{}) (contentType string, err error)
 	err = toml.Unmarshal(data, obj)
 	if err == nil {
 		return "toml", nil
-	}
-
-	result, err := parser.ParseReader("", bytes.NewReader(data))
-	if err == nil {
-		hofFile := result.(ast.HofFile)
-		hofData, err := hofFile.ToData()
-		if err != nil {
-			return "", err
-		}
-
-		*obj = hofData
-		return "hof", nil
 	}
 
 	return "", errors.New("unknown content type")
@@ -154,20 +140,6 @@ func ReadFile(filename string, obj *interface{}) (contentType string, err error)
 				return "yaml", nil
 			}
 		}
-
-	case "hof":
-		result, err := parser.ParseReader("", bytes.NewReader(data))
-		if err != nil {
-			return "", err
-		}
-		hofFile := result.(ast.HofFile)
-		hofData, err := hofFile.ToData()
-		if err != nil {
-			return "", err
-		}
-
-		*obj = hofData
-		return "hof", nil
 
 	default:
 		return InferDataContentType(data)

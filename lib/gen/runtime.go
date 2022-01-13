@@ -39,20 +39,25 @@ type Runtime struct {
 	// Hof related
 	Generators map[string]*Generator
 	Shadow     map[string]*File
+	Stats      *RuntimeStats
 }
 
 func NewRuntime(entrypoints []string, cmdflags flags.GenFlagpole) *Runtime {
 	return &Runtime{
 		Entrypoints: entrypoints,
 		Flagpole:    cmdflags,
-
-		CueCTX: cuecontext.New(),
-
-		Generators: make(map[string]*Generator),
+		CueCTX:      cuecontext.New(),
+		Generators:  make(map[string]*Generator),
+		Stats:       new(RuntimeStats),
 	}
 }
 
 func (R *Runtime) LoadCue() []error {
+	start := time.Now()
+	defer func() {
+		end := time.Now()
+		R.Stats.CueLoadingTime = end.Sub(start)
+	}()
 
 	var errs []error
 
@@ -155,6 +160,12 @@ func (R *Runtime) ExtractGenerators() {
 }
 
 func (R *Runtime) LoadGenerators() []error {
+	start := time.Now()
+	defer func() {
+		end := time.Now()
+		R.Stats.GenLoadingTime = end.Sub(start)
+	}()
+
 	var errs []error
 
 	// Don't do in parallel yet, Cue is slow and hungry for memory @ v0.0.16
@@ -182,6 +193,12 @@ func (R *Runtime) LoadGenerators() []error {
 }
 
 func (R *Runtime) RunGenerators() []error {
+	start := time.Now()
+	defer func() {
+		end := time.Now()
+		R.Stats.GenRunningTime = end.Sub(start)
+	}()
+
 	var errs []error
 
 	// Load shadow, can this be done in parallel with the last step?
@@ -411,13 +428,25 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 }
 
 func (R *Runtime) PrintStats() {
+	// find gens which ran
+	gens := []string{}
+	for _, G := range R.Generators {
+		if !G.Disabled {
+			gens = append(gens, G.Name)
+		}
+	}
+
+	fmt.Printf("\nHof: %s\n==========================\n", "Runtime")
+	fmt.Println("\nGens:", gens)
+	fmt.Println(R.Stats)
+
 	for _, G := range R.Generators {
 		if G.Disabled {
 			continue
 		}
 
 		G.Stats.CalcTotals(G)
-		fmt.Printf("\n%s\n==========================\n", G.Name)
+		fmt.Printf("\nGen: %s\n==========================\n", G.Name)
 		fmt.Println(G.Stats)
 	}
 }

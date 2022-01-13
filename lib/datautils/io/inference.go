@@ -1,7 +1,6 @@
 package io
 
 import (
-	"bytes"
 	"encoding/json"
 	"encoding/xml"
 	"io/ioutil"
@@ -9,7 +8,6 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/hofstadter-io/hof-lang/parser"
 	"github.com/naoina/toml"
 	"gopkg.in/yaml.v2"
 )
@@ -44,11 +42,6 @@ func InferDataContentType(data []byte) (contentType string, err error) {
 		return "toml", nil
 	}
 
-	_, err = parser.ParseReader("", bytes.NewReader(data))
-	if err == nil {
-		return "hof", nil
-	}
-
 	return "", errors.New("[IDCT] unknown content type")
 
 	return
@@ -75,9 +68,6 @@ func InferFileContentType(filename string) (contentType string, err error) {
 
 	case "xml":
 		return "xml", nil
-
-	case "hof":
-		return "hof", nil
 
 	default:
 		data, err := ioutil.ReadFile(filename)

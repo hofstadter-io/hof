@@ -23,9 +23,12 @@ Hof handles the core data model definitions, history, and snapshot creation.`
 
 func init() {
 
-	DatamodelCmd.PersistentFlags().StringSliceVarP(&(flags.DatamodelPflags.Datamodels), "datamodel", "D", nil, "Datamodels for the datamodel commands")
-	DatamodelCmd.PersistentFlags().StringSliceVarP(&(flags.DatamodelPflags.Modelsets), "modelset", "M", nil, "Modelsets for the datamodel commands")
+	DatamodelCmd.PersistentFlags().StringSliceVarP(&(flags.DatamodelPflags.Datamodels), "datamodel", "d", nil, "Datamodels for the datamodel commands")
 	DatamodelCmd.PersistentFlags().StringSliceVarP(&(flags.DatamodelPflags.Models), "model", "m", nil, "Models for the datamodel commands")
+	DatamodelCmd.PersistentFlags().StringVarP(&(flags.DatamodelPflags.Output), "output", "o", "table", "Output format [table,cue]")
+	DatamodelCmd.PersistentFlags().StringVarP(&(flags.DatamodelPflags.Format), "format", "f", "_", "Pick format from Cuetils")
+	DatamodelCmd.PersistentFlags().StringVarP(&(flags.DatamodelPflags.Since), "since", "s", "", "Timestamp to filter since")
+	DatamodelCmd.PersistentFlags().StringVarP(&(flags.DatamodelPflags.Until), "until", "u", "", "Timestamp to filter until")
 }
 
 var DatamodelCmd = &cobra.Command{
@@ -33,7 +36,6 @@ var DatamodelCmd = &cobra.Command{
 	Use: "datamodel",
 
 	Aliases: []string{
-		"dmod",
 		"dm",
 	},
 
@@ -70,11 +72,11 @@ func init() {
 	DatamodelCmd.SetHelpFunc(help)
 	DatamodelCmd.SetUsageFunc(usage)
 
-	DatamodelCmd.AddCommand(cmddatamodel.GetCmd)
-	DatamodelCmd.AddCommand(cmddatamodel.StatusCmd)
+	DatamodelCmd.AddCommand(cmddatamodel.CheckpointCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.DiffCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.HistoryCmd)
-	DatamodelCmd.AddCommand(cmddatamodel.CheckpointCmd)
-	DatamodelCmd.AddCommand(cmddatamodel.ApplyCmd)
+	DatamodelCmd.AddCommand(cmddatamodel.InfoCmd)
+	DatamodelCmd.AddCommand(cmddatamodel.ListCmd)
+	DatamodelCmd.AddCommand(cmddatamodel.LogCmd)
 
 }

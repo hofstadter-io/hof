@@ -4,8 +4,8 @@ import (
 	"github.com/spf13/viper"
 	log "gopkg.in/inconshreveable/log15.v2"
 
-	"github.com/hofstadter-io/data-utils/io"
-	"github.com/hofstadter-io/data-utils/manip"
+	"github.com/hofstadter-io/hof/lib/datautils/io"
+	"github.com/hofstadter-io/hof/lib/datautils/manip"
 )
 
 var logger = log.New()

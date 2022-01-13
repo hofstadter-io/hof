@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var historyLong = `show the history for a data model`
+var historyLong = `list the snapshots for a data model`
 
 func HistoryRun(args []string) (err error) {
 
@@ -24,11 +24,9 @@ var HistoryCmd = &cobra.Command{
 	Aliases: []string{
 		"hist",
 		"h",
-		"log",
-		"l",
 	},
 
-	Short: "show the history for a data model",
+	Short: "list the snapshots for a data model",
 
 	Long: historyLong,
 

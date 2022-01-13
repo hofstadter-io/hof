@@ -69,6 +69,7 @@ Usage:
 
 Main commands:
   \(cmds.#GenCommand.Help)
+  \(cmds.#DatamodelCommand.Help)
   \(cmds.#ModCommand.Help)
   \(cmds.#TestCommand.Help)
 

@@ -5,84 +5,101 @@ import (
 )
 
 #DatamodelCommand: schema.#Command & {
-	TBD:   "α"
 	Name:  "datamodel"
 	Usage: "datamodel"
-	Aliases: ["dmod", "dm"]
+	Aliases: ["dm"]
 	Short: "create, view, diff, calculate / migrate, and manage your data models"
 	Long:  #DatamodelRootHelp
 
 	OmitRun: true
 
-	Pflags: [...schema.#Flag] & [
-		{
-			Name:    "Datamodels"
-			Long:    "datamodel"
-			Short:   "D"
-			Type:    "[]string"
-			Default: "nil"
-			Help:    "Datamodels for the datamodel commands"
-		},
-		{
-			Name:    "modelsets"
-			Long:    "modelset"
-			Short:   "M"
-			Type:    "[]string"
-			Default: "nil"
-			Help:    "Modelsets for the datamodel commands"
-		},
-		{
-			Name:    "models"
-			Long:    "model"
-			Short:   "m"
-			Type:    "[]string"
-			Default: "nil"
-
-			Help:    "Models for the datamodel commands"
-		},
-	]
+	Pflags: [...schema.#Flag] & [ {
+		Name:    "Datamodels"
+		Long:    "datamodel"
+		Short:   "d"
+		Type:    "[]string"
+		Default: "nil"
+		Help:    "Datamodels for the datamodel commands"
+	}, {
+		Name:    "Models"
+		Long:    "model"
+		Short:   "m"
+		Type:    "[]string"
+		Default: "nil"
+		Help:    "Models for the datamodel commands"
+	}, {
+		Name:    "Output"
+		Long:    "output"
+		Short:   "o"
+		Type:    "string"
+		Default: "\"table\""
+		Help:    "Output format [table,cue]"
+	}, {
+		Name:    "Format"
+		Long:    "format"
+		Short:   "f"
+		Type:    "string"
+		Default: "\"_\""
+		Help:    "Pick format from Cuetils"
+	}, {
+		Name:    "Since"
+		Long:    "since"
+		Short:   "s"
+		Type:    "string"
+		Default: ""
+		Help:    "Timestamp to filter since"
+	}, {
+		Name:    "Until"
+		Long:    "until"
+		Short:   "u"
+		Type:    "string"
+		Default: ""
+		Help:    "Timestamp to filter until"
+	}]
 
 	Commands: [{
-		TBD:   "α"
-		Name:  "get"
-		Usage: "get"
-		Aliases: ["g"]
-		Short: "find and display data models"
+		Name:  "checkpoint"
+		Usage: "checkpoint"
+		Aliases: ["cp", "x"]
+		Short: "create a snapshot of the data model"
 		Long:  Short
+		Flags: [...schema.#Flag] & [{
+			Name:    "bump"
+			Long:    "bump"
+			Short:   "b"
+			Type:    "string"
+			Default: "\"patch\""
+			Help:    "type of version bump in [major,minor,patch,<semver>]"
+		}]
 	}, {
-		TBD:   "α"
-		Name:  "status"
-		Usage: "status"
-		Aliases: ["st"]
-		Short: "print the data model status"
-		Long:  Short
-	}, {
-		TBD:   "α"
 		Name:  "diff"
 		Usage: "diff"
 		Aliases: ["d"]
-		Short: "show the current diff for a data model"
+		Short: "show the diff between data model version"
 		Long:  Short
 	}, {
-		TBD:   "α"
 		Name:  "history"
 		Usage: "history"
-		Aliases: ["hist", "h", "log", "l"]
-		Short: "show the history for a data model"
+		Aliases: ["hist", "h"]
+		Short: "list the snapshots for a data model"
 		Long:  Short
 	}, {
-		TBD:   "α"
-		Name:  "checkpoint"
-		Usage: "checkpoint"
-		Aliases: ["cp"]
-		Short: "calculate a migration changeset for a data model"
+		Name:  "info"
+		Usage: "info"
+		Aliases: ["i"]
+		Short: "print details for a data model"
 		Long:  Short
 	}, {
-		TBD:   "α"
-		Name:  "apply"
-		Usage: "apply"
-		Aliases: ["a"]
-		Short: "apply a migraion sequence against a data store"
+		Name:  "list"
+		Usage: "list"
+		Aliases: ["ls"]
+		Short: "print available data models"
+		Long:  Short
+	}, {
+		Name:  "log"
+		Usage: "log"
+		Aliases: ["l"]
+		Short: "show the history of diffs for a data model"
 		Long:  Short
 	}]
 }

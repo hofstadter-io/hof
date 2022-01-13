@@ -55,25 +55,19 @@ func (G *Generator) LoadCue() (errs []error) {
 		errs = append(errs, err)
 	}
 
-	// finalize load timing stats
-	cueDecodeTime := time.Now()
-	G.Stats.CueLoadingTime = cueDecodeTime.Sub(start)
-
-	// Load Subgens
-	if serr := G.loadSubgens(); serr != nil {
-		errs = append(errs, serr...)
-	}
-
-	// return early if errors
-	// (we didn't do this before, and waited until after init, were there better errors this way?)
-	if errs != nil {
-		return errs
-	}
-
 	// Initialize Generator
 	errsI := G.Initialize()
 	if len(errsI) != 0 {
 		errs = append(errs, errsI...)
+	}
+
+	// finalize load timing stats
+	end := time.Now()
+	G.Stats.LoadingTime = end.Sub(start)
+
+	// Load Subgens
+	if serr := G.loadSubgens(); serr != nil {
+		errs = append(errs, serr...)
 	}
 
 	G.debugLoad()

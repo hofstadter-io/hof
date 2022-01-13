@@ -6,17 +6,18 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/datamodel"
 )
 
-var diffLong = `show the current diff for a data model`
+var diffLong = `show the diff between data model version`
 
 func DiffRun(args []string) (err error) {
 
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = datamodel.RunDiffFromArgs(args)
+	err = datamodel.RunDiffFromArgs(args, flags.DatamodelPflags)
 
 	return err
 }
@@ -29,7 +30,7 @@ var DiffCmd = &cobra.Command{
 		"d",
 	},
 
-	Short: "show the current diff for a data model",
+	Short: "show the diff between data model version",
 
 	Long: diffLong,
 

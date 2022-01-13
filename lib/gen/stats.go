@@ -7,15 +7,21 @@ import (
 	"time"
 )
 
+type RuntimeStats struct {
+	CueLoadingTime time.Duration
+	GenLoadingTime time.Duration
+	GenRunningTime time.Duration
+}
+
 type GeneratorStats struct {
-	NumNew       int
-	NumSame      int
-	NumSkipped   int
-	NumDeleted   int
-	NumWritten   int
-	NumStatic    int
-	NumErr       int
-	TotalFiles   int
+	NumNew     int
+	NumSame    int
+	NumSkipped int
+	NumDeleted int
+	NumWritten int
+	NumStatic  int
+	NumErr     int
+	TotalFiles int
 
 	NumModified       int
 	NumModifiedRender int
@@ -23,19 +29,19 @@ type GeneratorStats struct {
 	NumModifiedDiff3  int
 	NumConflicted     int
 
-	CueLoadingTime time.Duration
-	RenderingTime  time.Duration
-	WritingTime    time.Duration
-	TotalTime      time.Duration
+	LoadingTime   time.Duration
+	RenderingTime time.Duration
+	WritingTime   time.Duration
+	TotalTime     time.Duration
 }
 
 type FileStats struct {
 	// using 0 (false) and 1 (true) for easier summation code below
-	IsNew      int
-	IsSame     int
-	IsSkipped  int
-	IsWritten  int
-	IsErr      int
+	IsNew     int
+	IsSame    int
+	IsSkipped int
+	IsWritten int
+	IsErr     int
 
 	IsModified       int
 	IsModifiedRender int
@@ -43,16 +49,17 @@ type FileStats struct {
 	IsModifiedDiff3  int
 	IsConflicted     int
 
-	RenderingTime  time.Duration
-	CompareTime    time.Duration
-	TotalTime      time.Duration
+	RenderingTime time.Duration
+	CompareTime   time.Duration
+	TotalTime     time.Duration
 }
 
 func (S *GeneratorStats) CalcTotals(G *Generator) error {
 	// Start with own fields
 	var sum time.Time
-	sum = sum.Add(S.CueLoadingTime)
+	sum = sum.Add(S.LoadingTime)
 	sum = sum.Add(S.RenderingTime)
+	sum = sum.Add(S.WritingTime)
 
 	S.TotalTime = sum.Sub(time.Time{})
 	S.TotalFiles = len(G.Files) + S.NumStatic
@@ -75,17 +82,17 @@ func (S *GeneratorStats) CalcTotals(G *Generator) error {
 	return nil
 }
 
-func (S *GeneratorStats) String() string {
+func (S *RuntimeStats) String() string {
 	var b bytes.Buffer
 	var err error
 
 	// Parse Template
-	t := template.Must(template.New("stats").Parse(statsTemplate))
+	t := template.Must(template.New("stats").Parse(runtimeStatsTemplate))
 
 	// Round timings
 	S.CueLoadingTime = S.CueLoadingTime.Round(time.Microsecond)
-	S.RenderingTime  = S.RenderingTime.Round(time.Microsecond)
-	S.TotalTime      = S.TotalTime.Round(time.Microsecond)
+	S.GenLoadingTime = S.GenLoadingTime.Round(time.Microsecond)
+	S.GenRunningTime = S.GenRunningTime.Round(time.Microsecond)
 
 	// Render template
 	err = t.Execute(&b, S)
@@ -96,7 +103,35 @@ func (S *GeneratorStats) String() string {
 	return b.String()
 }
 
-const statsTemplate = `
+const runtimeStatsTemplate = `
+CueLoadingTime      {{ .CueLoadingTime }}
+GenLoadingTime      {{ .GenLoadingTime }}
+GenRunningTime      {{ .GenRunningTime }}
+`
+
+func (S *GeneratorStats) String() string {
+	var b bytes.Buffer
+	var err error
+
+	// Parse Template
+	t := template.Must(template.New("stats").Parse(genStatsTemplate))
+
+	// Round timings
+	S.LoadingTime = S.LoadingTime.Round(time.Microsecond)
+	S.RenderingTime = S.RenderingTime.Round(time.Microsecond)
+	S.WritingTime = S.WritingTime.Round(time.Microsecond)
+	S.TotalTime = S.TotalTime.Round(time.Microsecond)
+
+	// Render template
+	err = t.Execute(&b, S)
+	if err != nil {
+		return fmt.Sprint(err)
+	}
+
+	return b.String()
+}
+
+const genStatsTemplate = `
 NumNew              {{ .NumNew }}
 NumSame             {{ .NumSame }}
 NumSkipped          {{ .NumSkipped }}
@@ -112,7 +147,7 @@ NumModifiedOutput   {{ .NumModifiedOutput }}
 NumModifiedDiff3    {{ .NumModifiedDiff3 }}
 NumConflicted       {{ .NumConflicted }}
 
-CueLoadingTime      {{ .CueLoadingTime }}
+LoadingTime         {{ .LoadingTime }}
 RenderingTime       {{ .RenderingTime }}
 WritingTime         {{ .WritingTime }}
 TotalTime           {{ .TotalTime }}

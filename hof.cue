@@ -10,42 +10,42 @@ import (
 
 Cli: _ @gen(cli,hof)
 Cli: g_cli.#HofGenerator & {
-  Outdir: "./"
-  Cli: d_cli.#CLI
+	Outdir: "./"
+	Cli:    d_cli.#CLI
 }
 
 Context: _ @gen(cuefig,context,ctx)
 Context: g_cuefig.#HofGenerator & {
-  Outdir: "gen/"
-  Config: d_cfg.#HofContext
+	Outdir: "gen/"
+	Config: d_cfg.#HofContext
 }
 
 Config: _ @gen(cuefig,config,cfg)
 Config: g_cuefig.#HofGenerator & {
-  Outdir: "gen/"
-  Config: d_cfg.#HofConfig
+	Outdir: "gen/"
+	Config: d_cfg.#HofConfig
 }
 
 Secret: _ @gen(cuefig,secret,shh,ssh)
 Secret: g_cuefig.#HofGenerator & {
-  Outdir: "gen/"
-  Config: d_cfg.#HofSecret
+	Outdir: "gen/"
+	Config: d_cfg.#HofSecret
 }
 
 UserContext: _ @gen(cuefig,ucontext,uctx)
 UserContext: g_cuefig.#HofGenerator & {
-  Outdir: "gen/"
-  Config: d_cfg.#HofUserContext
+	Outdir: "gen/"
+	Config: d_cfg.#HofUserContext
 }
 
 UserConfig: _ @gen(cuefig,uconfig,ucfg)
 UserConfig: g_cuefig.#HofGenerator & {
-  Outdir: "gen/"
-  Config: d_cfg.#HofUserConfig
+	Outdir: "gen/"
+	Config: d_cfg.#HofUserConfig
 }
 
 UserSecret: _ @gen(cuefig,usecret,ushh,ussh)
 UserSecret: g_cuefig.#HofGenerator & {
-  Outdir: "gen/"
-  Config: d_cfg.#HofUserSecret
+	Outdir: "gen/"
+	Config: d_cfg.#HofUserSecret
 }
