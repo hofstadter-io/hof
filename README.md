@@ -48,3 +48,29 @@ of creating and using a simple generator
 
 Join us on Slack! [https://hofstadter-io.slack.com](https://join.slack.com/t/hofstadter-io/shared_invite/zt-e5f90lmq-u695eJur0zE~AG~njNlT1A)
 
+## Diagram
+
+```txt
+              ┌ Generator ─────────────────────────────┐
+┌ CUE ───┐    │┌────────┐  ┌───────────┐ ┌───────────┐ │
+│  your  │◄───┼┤ schema │  │ partials  │ │  statics  │ │
+│ design │◄─┐ │└───┬────┘  └─────┬─────┘ └─────┬─────┘ │
+└───┬────┘  │ │    ▼             ▼             ▼       │
+    │       │ │┌────────┐  ┌───────────┐ ┌───────────┐ │
+    │       └─┼┤  genr  │  │ templates │ │  config   │ │
+    │         │└───┬────┘  └─────┬─────┘ └─────┬─────┘ │
+    │         └────│─────────────│─────────────│───────┘
+    │              ▼             │             │
+    │     ┌───────────┐          │             │
+    │     │           │          │             │
+    └────►│    HOF    │◄─────────┘◄────────────┘
+          │           │
+          └─────┬─────┘
+                │
+    ┌───────────┼───────────┐
+    ▼           ▼           ▼
+  ┌───────────────────────────┐
+  │     Files and Folders,    │
+  │     All the Things        │
+  └───────────────────────────┘
+```
