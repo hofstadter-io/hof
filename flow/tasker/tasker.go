@@ -81,6 +81,8 @@ func maybeTask(ctx *context.Context, val cue.Value, attr cue.Attribute) (flow.Ru
       CUELock: ctx.CUELock,
       Mailbox: ctx.Mailbox,
       ValStore: ctx.ValStore,
+      DebugTasks: ctx.DebugTasks,
+      Verbosity: ctx.Verbosity,
     }
 
     // run the hof task 

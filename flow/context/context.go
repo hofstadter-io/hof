@@ -33,6 +33,7 @@ type Context struct {
 
   // debug / internal
   DebugTasks bool
+  Verbosity  int
 }
 
 // consider adding here... a

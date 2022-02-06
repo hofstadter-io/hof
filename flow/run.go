@@ -147,6 +147,7 @@ func buildRootContext(val cue.Value, opts *flags.RootPflagpole, popts *flags.Flo
     ValStore: new(sync.Map),
     Mailbox: new(sync.Map),
     DebugTasks: popts.DebugTasks,
+    Verbosity: opts.Verbose,
   }
   return c, nil
 }
