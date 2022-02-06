@@ -8,10 +8,10 @@ import (
 )
 
 func TestFlow(t *testing.T) {
-	yagu.Mkdir(".workdir/tests")
+	yagu.Mkdir(".workdir/flow")
 	runtime.Run(t, runtime.Params{
 		Dir:         "testdata",
 		Glob:        "nested*.txt",
-		WorkdirRoot: ".workdir/tests",
+		WorkdirRoot: ".workdir/flow",
 	})
 }
