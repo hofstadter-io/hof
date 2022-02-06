@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
-	"strings"
 
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/ast"
@@ -23,93 +22,6 @@ type Input struct {
 	Expression  string // cue expression to select within document
 	Content     []byte
 	Value       cue.Value
-}
-
-func ReadArg(arg string, ctx *cue.Context, cfg *load.Config) (*Input, error) {
-	op, err := ParseInput(arg)
-	if err != nil {
-		return nil, err
-	}
-	op, err = LoadInput(op, ctx, cfg)
-	if err != nil {
-		return nil, err
-	}
-
-	return op, nil
-}
-
-func ReadGlobs(globs []string, ctx *cue.Context, cfg *load.Config) ([]*Input, error) {
-	ins := []*Input{}
-	for _, glob := range globs {
-		in, err := ReadArg(glob, ctx, cfg)
-		if err != nil {
-			return nil, err
-		}
-
-		ins = append(ins, in)
-	}
-
-	return ins, nil
-}
-
-// Parses arg into an Input.
-// arg can be a value, filename, glob, or - for stdin
-// can be <arg>@<expr> to subselect from the root value
-// can be <entyrpoint>,<endtrypoint>[@<expr>] to support CUE like args
-func ParseInput(arg string) (*Input, error) {
-	i := &Input{Original: arg, Filename: arg}
-
-	// does the arg look like a file or a CUE value?
-	// this is an overly simple check, but should be sufficient for all formats (CUE, JSON, Yaml)
-	if strings.ContainsAny(arg, "{}:") || arg == "_" {
-		i.Filename = "expression"
-	}
-
-	// look for expression
-	if strings.Contains(i.Filename, "@") {
-		parts := strings.Split(arg, "@")
-		if len(parts) != 2 {
-			return i, fmt.Errorf("more than on '@' found for input %q", i.Original)
-		}
-		i.Filename, i.Expression = parts[0], parts[1]
-	}
-	// look for entrypoints
-	if strings.Contains(i.Filename, ",") {
-		i.Entrypoints = strings.Split(i.Filename, ",")
-		i.Filename = ""
-	}
-
-	return i, nil
-}
-
-// Loads a parsed Input and sets the Content and Value
-func LoadInput(i *Input, ctx *cue.Context, cfg *load.Config) (*Input, error) {
-	if i.Filename == "expression" {
-		// probably need to load into overlay
-		i.Content = []byte(i.Original)
-		i.Value = ctx.CompileString(i.Original)
-		return i, i.Value.Err()
-	}
-
-	// handle entrypoints
-	if i.Entrypoints == nil {
-		i.Entrypoints = []string{i.Filename}
-	}
-	v, err := LoadCueInputs(i.Entrypoints, ctx, cfg)
-	if err != nil {
-		return i, err
-	}
-	i.Value = v
-
-	if i.Value.Err() != nil {
-		return i, i.Value.Err()
-	}
-
-	if i.Expression != "" {
-		i.Value = i.Value.LookupPath(cue.ParsePath(i.Expression))
-	}
-
-	return i, nil
 }
 
 // Loads the entrypoints using the context provided
