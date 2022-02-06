@@ -27,12 +27,12 @@ import (
 	Commands: [
 
 		// main commands
+		cmds.#DatamodelCommand,
+		cmds.#FlowCommand,
 		cmds.#GenCommand,
-		cmds.#TestCommand,
 		cmds.#ModCommand,
 
 		// beta commands
-		cmds.#DatamodelCommand,
 		cmds.#RunCommand,
 
 		// additional commands

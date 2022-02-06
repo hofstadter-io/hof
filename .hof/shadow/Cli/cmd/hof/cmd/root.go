@@ -106,10 +106,10 @@ func RootInit() {
 
 	RootCmd.AddCommand(CompletionCmd)
 
-	RootCmd.AddCommand(GenCmd)
-	RootCmd.AddCommand(TestCmd)
-	RootCmd.AddCommand(ModCmd)
 	RootCmd.AddCommand(DatamodelCmd)
+	RootCmd.AddCommand(FlowCmd)
+	RootCmd.AddCommand(GenCmd)
+	RootCmd.AddCommand(ModCmd)
 	RootCmd.AddCommand(RunCmd)
 	RootCmd.AddCommand(FeedbackCmd)
 	RootCmd.AddCommand(HackCmd)

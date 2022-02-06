@@ -1,0 +1,21 @@
+! exec hof flow in.cue -t p2
+exec hof flow in.cue -t p1
+
+-- in.cue --
+p1: {
+  @flow(p1)
+  t: { #O: "p1" } @task(os/stdout)
+}
+
+nested: {
+  p2: {
+    @flow(p2,pN)
+    t: { #O: "p2" } @task(os/stdout)
+  }
+
+  p3: {
+    @flow(p3,pN)
+    t: { #O: "p3" } @task(os/stdout)
+  }
+}
+
