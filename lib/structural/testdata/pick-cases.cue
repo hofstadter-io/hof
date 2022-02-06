@@ -49,11 +49,11 @@ pick_cases: [
 			}
 		}
 	},
-	{
-		value: { string }
-		pick: { "foo" }
-		expect: {
-			"foo"
-		}
-	},
+	// {
+	// 	value: { string }
+	// 	pick: { "foo" }
+	// 	expect: {
+	// 		"foo"
+	// 	}
+	// },
 ]

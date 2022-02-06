@@ -131,7 +131,10 @@ func pickLeaf(pick, from cue.Value, opts *Options) (cue.Value, bool) {
 		}
 	} else {
 		r := pick.Unify(from)
-		return r, r.Exists()
+    if !r.Exists() || r.Err() != nil {
+			return cue.Value{}, false
+    }
+		return r, true
 	}
 
 	return pick, false
