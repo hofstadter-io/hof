@@ -40,7 +40,7 @@ func pickStruct(pick, from cue.Value, opts *Options) (cue.Value, bool) {
 
 	if k := from.IncompleteKind(); k != cue.StructKind {
 		if opts.NodeTypeErrors {
-			e := errors.Newf(pick.Pos(), "mask type '%v' does not match target value type '%v'", pick.IncompleteKind(), from.IncompleteKind())
+			e := errors.Newf(pick.Pos(), "pick type '%v' does not match target value type '%v'", pick.IncompleteKind(), from.IncompleteKind())
 			ev := ctx.MakeError(e)
 			return ev, true
 		}

@@ -2,17 +2,24 @@ package hof
 
 import "strings"
 
-watch: {
-  @flow(watch)
+RepoRoot: { 
+  @task(os.Exec)
+  cmd: ["bash", "-c", "git rev-parse --show-toplevel"]
+  stdout: string
+  out: strings.TrimSpace(stdout)
+}
 
-  reporoot: { 
-    @task(os.Exec)
-    cmd: ["bash", "-c", "git rev-parse --show-toplevel"]
-    stdout: string
-    out: strings.TrimSpace(stdout)
-  }
+watchAll: {
+  @flow(watch/all)
+  build: watchBuild
+  test:  watchTest
+}
 
-  root: reporoot.out
+watchBuild: {
+  @flow(watch/build)
+
+  RR: RepoRoot
+  root: RR.out
   dirs: ["cmd","flow","lib","gen"]
 
   watch: {
@@ -22,8 +29,7 @@ watch: {
       event?: _
       compile: {
         @task(os.Exec)
-        cmd: ["go", "install", "\(root)/cmd/cuetils"]
-        stdout: string
+        cmd: ["go", "install", "\(root)/cmd/hof"]
       }
     }
   }

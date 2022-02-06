@@ -1,113 +1,67 @@
 package hof
 
-import "strings"
-
-//
-////// Defined (partially) test configuration
-//
-
-#GoBaseTest: {
-	skip: bool | *false
-
-	sysenv: bool | *false
-	env?: [string]: string
-	args?: [...string]
-	verbose?: bool | int
-
-	dir: string
-	...
+GoTest: {
+  @task(os.Exec)
+  cmd: ["bash", "-c", scripts.DEV]
 }
 
-#GoBashTest: #GoBaseTest & {
-	dir: string
-	script: string | *"""
-	rm -rf .workdir
-	go test -cover ./
-	"""
-	...
+scripts: {
+  DEV: string | *"""
+  rm -rf .workdir
+  go test -cover ./
+  """
+
+  CI: string | *"""
+  rm -rf .workdir
+  go test -cover ./ -coverprofile cover.out -json > tests.json
+  """
 }
 
-#GoBashCover: #GoBaseTest & {
-	dir: string
-	back: strings.Repeat("../", strings.Count(dir, "/") + 1)
-	script: string | *"""
-	rm -rf .workdir
-	go test -cover ./ -coverprofile cover.out -json > tests.json
-	"""
-	...
+watchTest: {
+  @flow(watch/test)
+
+  watch: {
+    @task(fs.Watch)
+    first: true
+    globs: [
+      "lib/structural/**/*.*",
+    ]
+    handler: {
+      event?: _
+      compile: {
+        @task(os.Exec)
+        cmd: ["hof", "flow", "-f", "test/hack"]
+      }
+    }
+  }
 }
 
-//
-////// Actual test configuration
-//
+tests: {
+  // want to discover nested too
+  // @flow(test)
 
-// Test generated code
-gen: _ @test(suite,gen)
-gen: {
-	// TODO before / after
-	cmds: #GoBashTest @test(bash,test,cmd)
-	cmds: {
-		dir: "cmd/hof/cmd"
-	}
-	cmdsC: #GoBashCover @test(bash,cover,cmd)
-	cmdsC: {
-		dir: "cmd/hof/cmd"
-	}
+  hack: {
+    @flow(test/hack)
+    run: {
+      @task(os.Exec)
+      cmd: ["bash", "-c", scripts.DEV]
+      script: "go test -v -cover pick_test.go"
+      dir: "lib/structural"
+    }
+  }
+
+  st: {
+    @flow(test/st)
+    run: GoTest & {
+      dir: "lib/structural"
+    }
+  }
+
+  mods: {
+    @flow(test/mods)
+    run: GoTest & {
+      dir: "lib/mods"
+    }
+  }
 }
 
-// Test Hof Linear Script (hls)
-hls: _ @test(suite,hls)
-hls: {
-	runtime: #GoBashTest @test(bash,test,runtime)
-	runtime: {
-		dir: "script/runtime"
-	}
-	runtimeC: #GoBashCover @test(bash,cover,runtime)
-	runtimeC: {
-		dir: "script/runtime"
-	}
-
-	shell: #GoBashTest @test(bash,test,shell)
-	shell: {
-		dir: "script/shell"
-	}
-	shellC: #GoBashCover @test(bash,cover,shell)
-	shellC: {
-		dir: "script/shell"
-	}
-
-	script: #GoBashTest @test(bash,test,script)
-	script: {
-		dir: "script"
-	}
-	scriptC: #GoBashCover @test(bash,cover,script)
-	scriptC: {
-		dir: "script"
-	}
-}
-
-lib: _ @test(suite,lib)
-lib: {
-
-	mod: #GoBashTest @test(bash,test,mod)
-	mod: {
-		dir: "lib/mod"
-	}
-	modC: #GoBashCover @test(bash,cover,mod)
-	modC: {
-		dir: "lib/mod"
-	}
-
-
-	st: #GoBashTest @test(bash,test,st)
-	st: #GoBashTest & {
-		dir: "lib/structural"
-		// temp to isolate
-		script: "go test -v -cover pick_test.go"
-	}
-	stC: #GoBashCover @test(bash,cover,st)
-	stC: {
-		dir: "lib/structural"
-	}
-
-}
