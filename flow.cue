@@ -30,6 +30,17 @@ watchBuild: {
       compile: {
         @task(os.Exec)
         cmd: ["go", "install", "\(root)/cmd/hof"]
+        exitcode: _
+      }
+      now: {
+        dep: compile.exitcode
+        n: string @task(gen.Now)
+        s: "\(n) (\(dep))"
+      }
+      alert: {
+        @task(os.Stdout)
+        dep: now.s
+        text: "hof rebuilt \(now.s)\n"
       }
     }
   }
