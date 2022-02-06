@@ -2,6 +2,8 @@ package fs
 
 import (
 	"fmt"
+  "sync"
+  "time"
 
 	"cuelang.org/go/cue"
   "github.com/fsnotify/fsnotify"
@@ -92,6 +94,8 @@ func (T *Watch) Run(ctx *context.Context) (interface{}, error) {
 
   fmt.Printf("watching %d files\n", len(files))
 
+  debounce := New(time.Millisecond*250)
+
   watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 	  return nil, err	
@@ -114,28 +118,32 @@ func (T *Watch) Run(ctx *context.Context) (interface{}, error) {
 
 				if event.Op&fsnotify.Write == fsnotify.Write {
 					fmt.Println("modified file:", event.Name)
-          // todo
-          // TODO, compile and run pipeline
-          v := val.Context().CompileString("{...}")
-          v = v.Unify(handler) 
 
-          // fmt.Println(v)
+          debounce(func() {
+            // todo
+            // TODO, compile and run pipeline
+            v := val.Context().CompileString("{...}")
+            v = v.Unify(handler) 
 
-          p, err := flow.NewFlow(ctx, v)
-          if err != nil {
-            fmt.Println("Error(flow/new):", err)
-            return
-          }
+            // fmt.Println(v)
 
-          err = p.Start()
-          if err != nil {
-            fmt.Println("Error(flow/run):", err)
-            return
-          }
+            p, err := flow.NewFlow(ctx, v)
+            if err != nil {
+              fmt.Println("Error(flow/new):", err)
+              return
+            }
 
-          fmt.Println("done running handler")
-          // fmt.Println("final:", p.Final)
+            err = p.Start()
+            if err != nil {
+              fmt.Println("Error(flow/run):", err)
+              return
+            }
+
+            fmt.Println("done running handler")
+            // fmt.Println("final:", p.Final)
+          })
 				}
+
 			case err, ok := <-watcher.Errors:
 				if !ok {
 					return
@@ -155,4 +163,28 @@ func (T *Watch) Run(ctx *context.Context) (interface{}, error) {
 	<-done
 
   return nil, nil
+}
+
+func New(after time.Duration) func(f func()) {
+	d := &debouncer{after: after}
+
+	return func(f func()) {
+		d.add(f)
+	}
+}
+
+type debouncer struct {
+	mu    sync.Mutex
+	after time.Duration
+	timer *time.Timer
+}
+
+func (d *debouncer) add(f func()) {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
+	if d.timer != nil {
+		d.timer.Stop()
+	}
+	d.timer = time.AfterFunc(d.after, f)
 }
