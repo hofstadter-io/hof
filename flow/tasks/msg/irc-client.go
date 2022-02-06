@@ -11,7 +11,7 @@ import (
 
   "github.com/hofstadter-io/hof/flow/context"
   "github.com/hofstadter-io/hof/flow/flow"
-	"github.com/hofstadter-io/cuetils/utils"
+	"github.com/hofstadter-io/hof/lib/cuetils"
 )
 
 func init() {
@@ -165,7 +165,7 @@ func buildIrcHandler(ct_ctx *context.Context, val cue.Value) (irc.HandlerFunc, e
       return
     }
 
-    ms, err := utils.PrintCue(mv)
+    ms, err := cuetils.PrintCue(mv)
     if err != nil {
       fmt.Println("Error(print):", err)
       return

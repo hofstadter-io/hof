@@ -6,7 +6,7 @@ import (
 
   "cuelang.org/go/cue"
 
-	"github.com/hofstadter-io/cuetils/structural"
+	"github.com/hofstadter-io/hof/lib/structural"
 )
 
 func getTagsAndSecrets(val cue.Value) (tags []cue.Value, secrets []cue.Value, errs []error) {

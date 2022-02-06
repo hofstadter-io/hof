@@ -4,7 +4,7 @@ import (
 	"cuelang.org/go/cue"
 
 	"github.com/hofstadter-io/hof/flow/context"
-	"github.com/hofstadter-io/cuetils/structural"
+	"github.com/hofstadter-io/hof/lib/structural"
 )
 
 func init() {

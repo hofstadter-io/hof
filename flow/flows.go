@@ -8,8 +8,8 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/flow/context"
 	"github.com/hofstadter-io/hof/flow/flow"
-	"github.com/hofstadter-io/cuetils/structural"
-	"github.com/hofstadter-io/cuetils/utils"
+	"github.com/hofstadter-io/hof/lib/structural"
+	"github.com/hofstadter-io/hof/lib/cuetils"
 )
 
 func hasFlowAttr(val cue.Value, args []string) (attr cue.Attribute, found, keep bool) {
@@ -86,7 +86,7 @@ func listFlows(val cue.Value,  opts *flags.RootPflagpole, popts *flags.FlowFlagp
             fmt.Print(s)
           }
           if opts.Verbose > 0 {
-            s, _ := utils.FormatCue(v)
+            s, _ := cuetils.FormatCue(v)
             fmt.Printf("%s: %s\n", v.Path(), s)
           } else {
             fmt.Println(attr)

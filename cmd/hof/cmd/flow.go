@@ -21,13 +21,8 @@ func init() {
 	FlowCmd.Flags().BoolVarP(&(flags.FlowFlags.DebugTasks), "debug-tasks", "", false, "print debugging info about tasks")
 }
 
-func FlowRun(globs []string) (err error) {
-
-  if len(globs) == 0 {
-    globs = append(globs, "./")
-  }
-	_, err = flow.Run(globs, &flags.RootPflags, &flags.FlowFlags)
-	return err
+func FlowRun(entrypoints []string) (err error) {
+	return flow.Run(entrypoints, &flags.RootPflags, &flags.FlowFlags)
 }
 
 var FlowCmd = &cobra.Command{

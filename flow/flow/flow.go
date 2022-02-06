@@ -8,7 +8,7 @@ import (
 
   "github.com/hofstadter-io/hof/flow/context"
   "github.com/hofstadter-io/hof/flow/tasker"
-	"github.com/hofstadter-io/cuetils/structural"
+	"github.com/hofstadter-io/hof/lib/structural"
 )
 
 type Flow struct {

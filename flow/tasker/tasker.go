@@ -7,7 +7,7 @@ import (
 	"cuelang.org/go/tools/flow"
 
   "github.com/hofstadter-io/hof/flow/context"
-  "github.com/hofstadter-io/cuetils/utils"
+  "github.com/hofstadter-io/hof/lib/cuetils"
 )
 
 func NewTasker(ctx *context.Context) flow.TaskFunc {
@@ -94,7 +94,7 @@ func maybeTask(ctx *context.Context, val cue.Value, attr cue.Attribute) (flow.Ru
     switch val := value.(type) {
     case cue.Value:
       attr := val.Attribute("print")
-      err = utils.PrintAttr(attr, val)
+      err = cuetils.PrintAttr(attr, val)
     }
 
     if value != nil {

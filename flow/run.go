@@ -16,8 +16,7 @@ import (
 	"github.com/hofstadter-io/hof/flow/context"
 	"github.com/hofstadter-io/hof/flow/flow"
 	_ "github.com/hofstadter-io/hof/flow/tasks" // ensure tasks register
-	"github.com/hofstadter-io/cuetils/structural"
-	// "github.com/hofstadter-io/cuetils/utils"
+	"github.com/hofstadter-io/hof/lib/structural"
 )
 
 /*
@@ -26,89 +25,80 @@ Input is to rigid
 -
 */
 
-func Run(globs []string, opts *flags.RootPflagpole, popts *flags.FlowFlagpole) ([]structural.GlobResult, error) {
-	return run(globs, opts, popts)
+func Run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagpole) error {
+	return run(entrypoints, opts, popts)
 }
 
 // refactor out single/multi
-func run(globs []string, opts *flags.RootPflagpole, popts *flags.FlowFlagpole) ([]structural.GlobResult, error) {
+func run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagpole) error {
 	ctx := cuecontext.New()
 
-	ins, err := structural.ReadGlobs(globs, ctx, nil)
+	val, err := structural.LoadCueInputs(entrypoints, ctx, nil)
 	if err != nil {
     s := structural.FormatCueError(err)
-		return nil, fmt.Errorf("Error: %s", s)
-	}
-	if len(ins) == 0 {
-		return nil, fmt.Errorf("no inputs found", '\n')
+		return fmt.Errorf("Error: %s", s)
 	}
     
   // sharedCtx := buildSharedContext
 
 	// (refactor/flow/many) find  flows
   flows := []*flow.Flow{}
-	for _, in := range ins {
-
-    // (refactor/flow/solo)
-    val := in.Value
 
 
-    // (temp), give each own context (created in here), or maybe by flag? Need at least the shared mutex
-    taskCtx, err := buildRootContext(val, opts, popts)
-    // taskCtx, err := buildRootContext(sharedContex, val, opts, popts)
-    if err != nil {
-      return nil, err
+
+  // (temp), give each own context (created in here), or maybe by flag? Need at least the shared mutex
+  taskCtx, err := buildRootContext(val, opts, popts)
+  // taskCtx, err := buildRootContext(sharedContex, val, opts, popts)
+  if err != nil {
+    return err
+  }
+
+  // this might be buggy?
+  val, err = injectTags(val, popts.Tags)
+  if err != nil {
+    return err
+  }
+
+  // lets just print
+  if popts.List {
+    tags, secrets, errs := getTagsAndSecrets(val)
+    if len(errs) > 0 {
+      return fmt.Errorf("in getTags: %v", errs)
     }
-
-    // this might be buggy?
-    val, err = injectTags(val, popts.Tags)
-    if err != nil {
-      return nil, err
-    }
-
-    // lets just print
-    if popts.List {
-      tags, secrets, errs := getTagsAndSecrets(val)
-      if len(errs) > 0 {
-        return nil, fmt.Errorf("in getTags: %v", errs)
+    if len(tags) > 0 {
+      fmt.Println("tags:\n==============")
+      for _, v := range tags {
+        printHelpValue(v, "tag")
       }
-      if len(tags) > 0 {
-        fmt.Println("tags:\n==============")
-        for _, v := range tags {
-          printHelpValue(v, "tag")
-        }
-        fmt.Println()
+      fmt.Println()
+    }
+    if len(secrets) > 0 {
+      fmt.Println("secrets:\n==============")
+      for _, v := range secrets {
+        printHelpValue(v, "secret")
       }
-      if len(secrets) > 0 {
-        fmt.Println("secrets:\n==============")
-        for _, v := range secrets {
-          printHelpValue(v, "secret")
-        }
-        fmt.Println()
-      }
-
-      fmt.Println("flows:\n==============")
-      err = listFlows(val, opts, popts)
-      if err != nil {
-        return nil, err
-      } 
-
-      continue
+      fmt.Println()
     }
 
-    ps, err := findFlows(taskCtx, val, opts, popts)
+    fmt.Println("flows:\n==============")
+    err = listFlows(val, opts, popts)
     if err != nil {
-      return nil, err
-    }
-    flows = append(flows, ps...)
-	}
+      return err
+    } 
+
+  }
+
+  flows, err = findFlows(taskCtx, val, opts, popts)
+  if err != nil {
+    return err
+  }
 
   if popts.List {
-    return nil, nil
+    return nil
   }
 
   if len(flows) == 0 {
-    return nil, fmt.Errorf("no flows found")
+    return fmt.Errorf("no flows found")
   }
 
   // start all of the flows
@@ -116,13 +106,13 @@ func run(globs []string, opts *flags.RootPflagpole, popts *flags.FlowFlagpole) (
   for _, flow := range flows {
     err := flow.Start()
     if err != nil {
-      return nil, err
+      return err
     }
   }
 
   //time.Sleep(time.Second)
   //fmt.Println("done")
-	return nil, nil
+	return nil
 }
 
 func printHelpValue(v cue.Value, attr string) {
