@@ -61,6 +61,9 @@ func maybeTask(ctx *context.Context, val cue.Value, attr cue.Attribute) (flow.Ru
   }
 
   // some way to validate task against it's schema
+  // (1) schemas self register
+  // (2) here, we lookup schemas by taskId 
+  // (3) use custom Require (or other validator)
 
   // create hof task from val
   // these live under /flow/tasks

@@ -19,7 +19,6 @@ func init() {
 
 type Watch struct {}
 
-
 func NewWatch(val cue.Value) (context.Runner, error) {
   return &Watch{}, nil
 }
@@ -34,7 +33,6 @@ func (T *Watch) Run(ctx *context.Context) (interface{}, error) {
 
   var globs []string
   var handler cue.Value
-
   
   ferr := func () error {
     ctx.CUELock.Lock()
@@ -111,15 +109,19 @@ func (T *Watch) Run(ctx *context.Context) (interface{}, error) {
 					return
 				}
 
-				fmt.Println("event:", event)
+        if ctx.DebugTasks {
+          fmt.Println("event:", event)
+        }
 
         // todo, fill event into handler
         // v = v.FillPath(cue.ParsePath("event"), event)
 
 				if event.Op&fsnotify.Write == fsnotify.Write {
-					fmt.Println("modified file:", event.Name)
 
           debounce(func() {
+            if ctx.DebugTasks {
+              fmt.Println("start:", event)
+            }
             // todo
             // TODO, compile and run pipeline
             v := val.Context().CompileString("{...}")
@@ -138,9 +140,9 @@ func (T *Watch) Run(ctx *context.Context) (interface{}, error) {
               fmt.Println("Error(flow/run):", err)
               return
             }
-
-            fmt.Println("done running handler")
-            // fmt.Println("final:", p.Final)
+            if ctx.DebugTasks {
+              fmt.Println("end:", event)
+            }
           })
 				}
 

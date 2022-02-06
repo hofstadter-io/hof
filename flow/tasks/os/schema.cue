@@ -51,7 +51,6 @@ WriteFile: {
   filename: string
   f: filename
 
-  // filled by hof
   contents: string | bytes
   mode: int | *0o666
 }
