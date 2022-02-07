@@ -79,9 +79,6 @@ func RunTest(T *Tester, verbose int) (err error) {
 	case "api":
 		err = RunAPI(T, verbose)
 
-	case "tsuite":
-		err = RunTSuite(T, verbose)
-
 	case "hls":
 		err = RunHLS(T, verbose)
 

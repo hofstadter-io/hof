@@ -41,12 +41,25 @@ tests: {
   // @flow(test)
 
   hack: {
+    test: string | *"TestMainFlow" @tag(test)
     @flow(test/hack)
+    prt: { text: "testing: \(test)\n" } @task(os.Stdout)
     run: {
       @task(os.Exec)
-      cmd: ["bash", "-c", scripts.DEV]
-      script: "go test -v -cover pick_test.go"
-      dir: "lib/structural"
+      cmd: ["bash", "-c", script]
+      dir: "flow"
+      script: """
+      rm -rf .workdir
+      go test -run \(test) . 
+      """
+    }
+  }
+
+  flow: {
+    @flow(test/flow)
+    run: GoTest & {
+      // dir: "lib/flow" // panics, segfault
+      dir: "flow"
     }
   }
 

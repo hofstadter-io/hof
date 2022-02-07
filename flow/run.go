@@ -38,7 +38,12 @@ func run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagp
     s := structural.FormatCueError(err)
 		return fmt.Errorf("Error: %s", s)
 	}
-    
+
+  if val.Err() != nil {
+    s := structural.FormatCueError(val.Err())
+    return fmt.Errorf("val.Err(): %s", s)  
+  }
+
   // sharedCtx := buildSharedContext
 
 	// (refactor/flow/many) find  flows
@@ -90,7 +95,8 @@ func run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagp
 
   flows, err = findFlows(taskCtx, val, opts, popts)
   if err != nil {
-    return err
+    s := structural.FormatCueError(err)
+		return fmt.Errorf("Error: %s", s)
   }
 
   if popts.List {

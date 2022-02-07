@@ -1,10 +1,11 @@
 exec hof flow flow.cue
-# cmp stdout golden.stdout
+cmp stdout golden.stdout
 
 -- flow.cue --
 tasks: {
-  @flow(readfile)
-	r: { f: "in.json", contents: string } @task(os.ReadFile)
+  @flow()
+	r: { filename: "in.json", contents: string } @task(os.ReadFile)
+  o: { text: r.contents } @task(os.Stdout)
 }
 
 -- in.json --

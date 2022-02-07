@@ -125,16 +125,17 @@ func pickLeaf(pick, from cue.Value, opts *Options) (cue.Value, bool) {
 	if pick.IsConcrete() {
 		if from.IsConcrete() {
 			r := pick.Unify(from)
-			return r, r.Exists()
+			return from, r.Exists()
 		} else {
 			return cue.Value{}, false
 		}
 	} else {
 		r := pick.Unify(from)
     if !r.Exists() || r.Err() != nil {
+      // inspect opts to see what to return
 			return cue.Value{}, false
     }
-		return r, true
+		return from, true
 	}
 
 	return pick, false

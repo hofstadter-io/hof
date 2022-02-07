@@ -22,6 +22,9 @@ func init() {
 }
 
 func FlowRun(entrypoints []string) (err error) {
+  if len(entrypoints) == 0 {
+    entrypoints = []string{"./"}
+  }
 	return flow.Run(entrypoints, &flags.RootPflags, &flags.FlowFlags)
 }
 

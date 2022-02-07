@@ -1,12 +1,14 @@
-exec hof flow in.cue
+exec hof flow flow.cue
 cmp test.stdout golden.stdout
 
--- in.cue --
+-- flow.cue --
+package t
+
+@flow()
 tasks: {
-  @flow(test)
   words: """
   hello world
-  hallo chat!
+  hallo chat!\n
   """
 
   t0: {  

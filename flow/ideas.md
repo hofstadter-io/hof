@@ -7,11 +7,11 @@
 - [x] migrate to hof/flow cmd
 - [ ] hof/lib/st.Required
 - [ ] task schemas (github.com/hof-io/hof/flow/tasks/...)
-- [ ] internal validation
-- [ ] task types for decoding (partially?)
+- [ ] *** internal validation
+- [ ] *** task types for decoding (partially?)
 - [ ] update to flow based
   - [ ] structural txtar tests
-- [ ] improve github actions situation
+- [ ] improve test situation in github actions
 
 
 - [ ] new 'flows' repo in hof github as a
@@ -92,7 +92,7 @@ txtar in
   - [ ] s3
 
 - [ ] fs
-  - [ ] watch
+  - [x] watch
   - [ ] load into mem
 
 - [ ] obj
@@ -100,7 +100,7 @@ txtar in
   - [ ] mongo
 
 - [ ] mouse/keyboard automation
-  - [ ] Browswer - https://github.com/playwright-community/playwright-go
+  - [ ] Browser - https://github.com/playwright-community/playwright-go
   - [ ] OS level - https://github.com/go-vgo/robotgo
 
 - [ ] hof gen as a task
