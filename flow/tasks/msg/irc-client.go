@@ -269,8 +269,10 @@ func buildIrcHandler(ct_ctx *context.Context, val cue.Value) (irc.HandlerFunc, e
 
       // fill in go-irc.Message and then turn that into a string
 
-      fmt.Println("sending(flow/msg):", s)
-      c.Writef("PRIVMSG %s :%s", channel, s)
+      if len(s) > 0 {
+        fmt.Println("sending(flow/msg):", s)
+        c.Writef("PRIVMSG %s :%s", channel, s)
+      }
 
       return
       
