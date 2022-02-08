@@ -70,6 +70,7 @@ func matchFlow(attr cue.Attribute, args []string) (keep bool) {
 
 func listFlows(val cue.Value,  opts *flags.RootPflagpole, popts *flags.FlowFlagpole) (error) {
   args := popts.Flow
+  foundAny := false
 
   printer := func(v cue.Value) bool {
     attrs := v.Attributes(cue.ValueAttr)
@@ -77,6 +78,7 @@ func listFlows(val cue.Value,  opts *flags.RootPflagpole, popts *flags.FlowFlagp
     for _, attr := range attrs {
       if attr.Name() == "flow" {
         if len(args) == 0 || matchFlow(attr, args) {
+          foundAny = true
           if popts.Docs {
             s := ""
             docs := v.Doc()
@@ -100,6 +102,10 @@ func listFlows(val cue.Value,  opts *flags.RootPflagpole, popts *flags.FlowFlagp
   }
 
   structural.Walk(val, printer, nil, walkOptions...)
+
+  if !foundAny {
+    fmt.Println("no flows found")
+  }
 
   return nil
 }
