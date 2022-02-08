@@ -13,6 +13,10 @@
   - [ ] structural txtar tests
 - [ ] improve test situation in github actions
 
+```
+@flow(init)
+```
+
 
 - [ ] new 'flows' repo in hof github as a
   - [ ] docker containers
