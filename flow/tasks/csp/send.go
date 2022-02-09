@@ -24,7 +24,7 @@ func (T *Send) Run(ctx *context.Context) (interface{}, error) {
 	v := ctx.Value
   var (
     err error
-    name string
+    mailbox string
     key string
     val cue.Value
   )
@@ -35,33 +35,34 @@ func (T *Send) Run(ctx *context.Context) (interface{}, error) {
       ctx.CUELock.Unlock()
     }()
 
-    val := v.LookupPath(cue.ParsePath("val")) 
+    val = v.LookupPath(cue.ParsePath("val")) 
     if !val.Exists() {
       return fmt.Errorf("in csp.Send task %s: missing field 'val'", v.Path())
     }
     if val.Err() != nil {
       return val.Err()
     }
+    fmt.Println("csp.Send().val:", val)
 
-    kv := v.LookupPath(cue.ParsePath("name")) 
+    kv := v.LookupPath(cue.ParsePath("key")) 
     if kv.Exists() {
       if kv.Err() != nil {
         return kv.Err()
       }
-      name, err = kv.String()
+      key, err = kv.String()
       if err != nil {
         return err 
       }
     }
 
-    nv := v.LookupPath(cue.ParsePath("name")) 
+    nv := v.LookupPath(cue.ParsePath("mailbox")) 
     if !nv.Exists() {
-      return fmt.Errorf("in csp.Send task %s: missing field 'name'", v.Path())
+      return fmt.Errorf("in csp.Send task %s: missing field 'mailbox'", v.Path())
     }
     if nv.Err() != nil {
       return nv.Err()
     }
-    name, err = nv.String()
+    mailbox, err = nv.String()
     if err != nil {
       return err 
     }
@@ -73,10 +74,10 @@ func (T *Send) Run(ctx *context.Context) (interface{}, error) {
   }
 
   // load mailbox
-  fmt.Println("mailbox?:", name)
-  ci, loaded := ctx.Mailbox.Load(name)
+  fmt.Println("mailbox?:", mailbox)
+  ci, loaded := ctx.Mailbox.Load(mailbox)
   if !loaded {
-    return nil, fmt.Errorf("channel %q not found", name)
+    return nil, fmt.Errorf("channel %q not found", mailbox)
   }
 
   msg := Msg {

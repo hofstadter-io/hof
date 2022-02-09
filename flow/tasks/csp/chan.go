@@ -24,7 +24,7 @@ func (T *Chan) Run(ctx *context.Context) (interface{}, error) {
   fmt.Println("csp.Chan", v)
 
   var err error
-  var name string
+  var mailbox string
   var buf int
 
   ferr := func () error {
@@ -33,14 +33,14 @@ func (T *Chan) Run(ctx *context.Context) (interface{}, error) {
       ctx.CUELock.Unlock()
     }()
 
-    nv := v.LookupPath(cue.ParsePath("name")) 
+    nv := v.LookupPath(cue.ParsePath("mailbox")) 
     if !nv.Exists() {
-      return fmt.Errorf("in csp.Chan task %s: missing field 'name'", v.Path())
+      return fmt.Errorf("in csp.Chan task %s: missing field 'mailbox'", v.Path())
     }
     if nv.Err() != nil {
       return nv.Err()
     }
-    name, err = nv.String()
+    mailbox, err = nv.String()
     if err != nil {
       return err 
     }
@@ -65,11 +65,11 @@ func (T *Chan) Run(ctx *context.Context) (interface{}, error) {
 
   // make mailbox in it doesn't exist
   // todo, lookup prior art in CSP
-  _, loaded := ctx.Mailbox.Load(name)
+  _, loaded := ctx.Mailbox.Load(mailbox)
   if !loaded {
-    fmt.Println("new mailbox!  ", name)
+    fmt.Println("new mailbox!  ", mailbox)
     c := make(chan Msg,buf)
-    ctx.Mailbox.Store(name, c)
+    ctx.Mailbox.Store(mailbox, c)
   }
   fmt.Println("mailbox saved")
 
