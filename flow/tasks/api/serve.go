@@ -1,12 +1,14 @@
 package api
 
 import (
+  go_context "context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
   "sync"
+  "time"
 
 	"cuelang.org/go/cue"
 	"github.com/labstack/echo/v4"
@@ -15,6 +17,7 @@ import (
 
   "github.com/hofstadter-io/hof/flow/context"
   "github.com/hofstadter-io/hof/flow/flow"
+  "github.com/hofstadter-io/hof/flow/tasks/csp"
 )
 
 func init() {
@@ -40,6 +43,7 @@ func (T *Serve) Run(ctx *context.Context) (interface{}, error) {
 
   var e *echo.Echo
   port := "2323"
+  quit := ""
 
   err = func () error {
     ctx.CUELock.Lock()
@@ -69,6 +73,17 @@ func (T *Serve) Run(ctx *context.Context) (interface{}, error) {
       return err
     }
 
+    q := val.LookupPath(cue.ParsePath("quitMailbox"))
+    if q.Exists() {
+      if q.Err() != nil {
+        return q.Err()
+      }
+      quit, err = q.String()
+      if err != nil {
+        return err
+      }
+    }
+
     // create server
     e = echo.New()
     e.HideBanner = true
@@ -81,6 +96,21 @@ func (T *Serve) Run(ctx *context.Context) (interface{}, error) {
     e.GET("/alive", func(c echo.Context) error {
       return c.NoContent(http.StatusNoContent)
     })
+
+    // liveliness and metrics
+    if quit != "" {
+      e.GET("/quit", func(c echo.Context) error {
+        fmt.Println("quit handler!")
+        fmt.Println("quitMailbox?:", quit)
+        ci, loaded := ctx.Mailbox.Load(quit)
+        if !loaded {
+          return fmt.Errorf("channel %q not found", quit)
+        }
+        quitChan := ci.(chan csp.Msg)
+        quitChan <- csp.Msg{Key: "quit"}
+        return c.NoContent(http.StatusNoContent)
+      })
+    }
 
     prom := prometheus.NewPrometheus("echo", nil)
     prom.Use(e)
@@ -102,12 +132,12 @@ func (T *Serve) Run(ctx *context.Context) (interface{}, error) {
 
       err := T.routeFromValue(label, route, e, ctx)
       if err != nil {
+        fmt.Println("Error building route:", err)
         return err
       }
     }
 
     // put behind value field
-    /*
     // print routes
     data, err := json.MarshalIndent(e.Routes(), "", "  ")
     if err != nil {
@@ -115,7 +145,6 @@ func (T *Serve) Run(ctx *context.Context) (interface{}, error) {
     }
 
     fmt.Println(string(data))
-    */
     return nil
   }()
 
@@ -124,8 +153,40 @@ func (T *Serve) Run(ctx *context.Context) (interface{}, error) {
     return nil, err
   }
 
-  // run the server
-	e.Logger.Fatal(e.Start(":" + port))
+  if quit == "" {
+    // run the server
+    e.Logger.Fatal(e.Start(":" + port))
+  } else {
+    // load mailbox
+    fmt.Println("quitMailbox?:", quit)
+    ci, loaded := ctx.Mailbox.Load(quit)
+    if !loaded {
+      return nil, fmt.Errorf("channel %q not found", quit)
+    }
+    quitChan := ci.(chan csp.Msg)
+
+    // Start server
+    go func() {
+      if err := e.Start(":" + port); err != nil && err != http.ErrServerClosed {
+        e.Logger.Fatal("shutting down the server")
+      }
+    }()
+
+    // signal.Notify(quit, os.Interrupt)
+    fmt.Println("waiting for quit...", loaded)
+    <-quitChan
+    fmt.Println("quit'n time!")
+
+    ctx, cancel := go_context.WithTimeout(go_context.Background(), 10*time.Second)
+    defer cancel()
+    if err := e.Shutdown(ctx); err != nil {
+      e.Logger.Fatal(err)
+    }
+
+  }
+
+
+  fmt.Println("server exiting")
 
 	return nil, err
 }
@@ -152,16 +213,18 @@ func (T *Serve) routeFromValue(path string, route cue.Value, e *echo.Echo, ctx *
 
   // setup handler, this will be invoked on all requests
   handler := func (c echo.Context) error {
-    // fmt.Println("handling:", path)
+    fmt.Println("start handling:", path)
     // pull apart c.request
     req, err := T.buildReqValue(c)
     if err != nil {
+      fmt.Println("error: ", err)
       return err
     }
     // fmt.Println("reqVal", req)
 
     tmp := local.FillPath(cue.ParsePath("req"), req)
     if tmp.Err() != nil {
+      fmt.Println("error: ", tmp.Err())
       return tmp.Err()
     }
 
@@ -189,6 +252,7 @@ func (T *Serve) routeFromValue(path string, route cue.Value, e *echo.Echo, ctx *
       return err
     }
 
+    fmt.Println("done handling:", path)
     return nil
   }
 
