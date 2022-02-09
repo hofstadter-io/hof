@@ -171,10 +171,10 @@ Usage:
   hof [flags] [command] [args]
 
 Main commands:
-  gen                   generate code, data, and config from your data models and designs
   datamodel             create, view, diff, calculate / migrate, and manage your data models
+  flow                  run file(s) through the hof/flow DAG engine
+  gen                   generate code, data, and config from your data models and designs
   mod                   mod subcmd is a polyglot dependency management tool based on go mods
-  test                  test code, apis, and more with Cue
 
 Additional commands:
   help                  help about any command

@@ -68,10 +68,10 @@ Usage:
   hof [flags] [command] [args]
 
 Main commands:
-  \(cmds.#GenCommand.Help)
   \(cmds.#DatamodelCommand.Help)
+  \(cmds.#FlowCommand.Help)
+  \(cmds.#GenCommand.Help)
   \(cmds.#ModCommand.Help)
-  \(cmds.#TestCommand.Help)
 
 Additional commands:
   help                  help about any command
