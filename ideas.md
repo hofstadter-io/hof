@@ -1,5 +1,25 @@
 # Today
 
+- [-] Go concurrency is not parallelism, but can be in hof/flow
+  - [ ] wait group (do we need this?)
+  - [x] channels (mailbox, create send recv)
+  - [ ] (don't need) select, random like Go, or also preferred order?
+  - [ ] "go routine" (really tasks are already if they do not exit)
+  - [ ] QQQ: How to produce messages in a loop? (or process values)
+        ( not just csp, API, kafka, irc, websocket )
+- [ ] snyc.Pool for controlling max parallelism
+- [ ] usage of
+  - [x] full mailbox example / test
+  - [x] exit oauth server once token is saved
+  - [ ] playwright for more oauth automation
+
+- [ ] API call response enrichment
+
+- [ ] write youtube video data
+- [ ] set playlists declaratively
+- [ ] refactor twitch flows
+
+
 ### Flows & Tasks
 
 `hof` work
@@ -140,6 +160,7 @@ Bugs?
   - [ ] `*.cue` -> refs across files not found
   - [ ] `./` -> works
 - [ ] imported flows that have typos don't throw error, rather they don't show up silently
+- [ ] in @task(ext.CueFormat) [ unsupported type <nil>...? ]
 
 Helpers:
 

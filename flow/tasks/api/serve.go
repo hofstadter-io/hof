@@ -159,11 +159,11 @@ func (T *Serve) Run(ctx *context.Context) (interface{}, error) {
   } else {
     // load mailbox
     fmt.Println("quitMailbox?:", quit)
-    ci, loaded := ctx.Mailbox.Load(quit)
+    qi, loaded := ctx.Mailbox.Load(quit)
     if !loaded {
       return nil, fmt.Errorf("channel %q not found", quit)
     }
-    quitChan := ci.(chan csp.Msg)
+    quitChan := qi.(chan csp.Msg)
 
     // Start server
     go func() {
