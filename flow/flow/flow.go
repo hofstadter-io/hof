@@ -7,7 +7,7 @@ import (
 	"cuelang.org/go/cue"
 	cueflow "cuelang.org/go/tools/flow"
 
-  "github.com/hofstadter-io/hof/flow/context"
+  hofcontext "github.com/hofstadter-io/hof/flow/context"
   "github.com/hofstadter-io/hof/flow/tasker"
 	"github.com/hofstadter-io/hof/lib/structural"
 )
@@ -17,14 +17,14 @@ type Flow struct {
   Orig cue.Value
   Final cue.Value
 
-  Context *context.Context
+  HofContext *hofcontext.Context
   Ctrl *cueflow.Controller
 }
 
-func NewFlow(ctx *context.Context, val cue.Value) (*Flow, error) {
+func NewFlow(ctx *hofcontext.Context, val cue.Value) (*Flow, error) {
   p := &Flow{
     Orig: val,
-    Context: ctx,
+    HofContext: ctx,
   }
   return p, nil
 }
@@ -58,9 +58,9 @@ func (P *Flow) run() error {
   u := v.Unify(root) 
 
 	// create the workflow which will build the task graph
-	P.Ctrl = cueflow.New(cfg, u, tasker.NewTasker(P.Context))
+	P.Ctrl = cueflow.New(cfg, u, tasker.NewTasker(P.HofContext))
 
-  final, err := P.Ctrl.Run(P.Context.Context)
+  final, err := P.Ctrl.Run(P.HofContext.GoContext)
 
   // fmt.Println("flow(end):", P.path, P.rpath)
   P.Final = final

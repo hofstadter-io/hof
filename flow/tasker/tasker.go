@@ -4,16 +4,16 @@ import (
 	"fmt"
 
 	"cuelang.org/go/cue"
-	"cuelang.org/go/tools/flow"
+	cueflow "cuelang.org/go/tools/flow"
 
-  "github.com/hofstadter-io/hof/flow/context"
+  hofcontext "github.com/hofstadter-io/hof/flow/context"
   "github.com/hofstadter-io/hof/lib/cuetils"
 )
 
-func NewTasker(ctx *context.Context) flow.TaskFunc {
+func NewTasker(ctx *hofcontext.Context) cueflow.TaskFunc {
   // This function implements the Runner interface.
   // It parses Cue values, you will see all of them recursively
-  return func(val cue.Value) (flow.Runner, error) {
+  return func(val cue.Value) (cueflow.Runner, error) {
     if len(val.Path().Selectors()) == 0 {
       return nil, nil
     }
@@ -44,7 +44,7 @@ func NewTasker(ctx *context.Context) flow.TaskFunc {
   }
 }
 
-func maybeTask(ctx *context.Context, val cue.Value, attr cue.Attribute) (flow.Runner, error) {
+func maybeTask(ctx *hofcontext.Context, val cue.Value, attr cue.Attribute) (cueflow.Runner, error) {
   if ctx.DebugTasks {
     fmt.Println("task?:", attr)
   }
@@ -73,10 +73,13 @@ func maybeTask(ctx *context.Context, val cue.Value, attr cue.Attribute) (flow.Ru
     return nil, err
   }
 
+  // do per-task setup / common base / initial value / bookkeeping
+
   // wrap our RunnerFunc with cue/flow RunnerFunc
-  return flow.RunnerFunc(func(t *flow.Task) error {
-    c := &context.Context{
-      Context: t.Context(),
+  return cueflow.RunnerFunc(func(t *cueflow.Task) error {
+    c := &hofcontext.Context{
+      GoContext: t.Context(),
+      // is this the root value?
       Value:   t.Value(),
       Stdin:   ctx.Stdin,
       Stdout:  ctx.Stdout,
@@ -86,6 +89,7 @@ func maybeTask(ctx *context.Context, val cue.Value, attr cue.Attribute) (flow.Ru
       ValStore: ctx.ValStore,
       DebugTasks: ctx.DebugTasks,
       Verbosity: ctx.Verbosity,
+
     }
 
     // run the hof task 

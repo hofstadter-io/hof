@@ -1,7 +1,7 @@
 package flow
 
 import (
-	go_ctx "context"
+	gocontext "context"
 	"fmt"
 	"os"
   "strings"
@@ -13,8 +13,8 @@ import (
 	"cuelang.org/go/cue/cuecontext"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
-	"github.com/hofstadter-io/hof/flow/context"
-	"github.com/hofstadter-io/hof/flow/flow"
+	hofcontext "github.com/hofstadter-io/hof/flow/context"
+	hofflow "github.com/hofstadter-io/hof/flow/flow"
 	"github.com/hofstadter-io/hof/flow/tasks" // ensure tasks register
 	"github.com/hofstadter-io/hof/lib/structural"
 )
@@ -47,7 +47,7 @@ func run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagp
   // sharedCtx := buildSharedContext
 
 	// (refactor/flow/many) find  flows
-  flows := []*flow.Flow{}
+  flows := []*hofflow.Flow{}
 
 
 
@@ -142,14 +142,14 @@ var walkOptions = []cue.Option{
   cue.Docs(true),
 }
 
-func buildRootContext(val cue.Value, opts *flags.RootPflagpole, popts *flags.FlowFlagpole) (*context.Context, error) {
+func buildRootContext(val cue.Value, opts *flags.RootPflagpole, popts *flags.FlowFlagpole) (*hofcontext.Context, error) {
   // lookup the secret label in val
   // and build a filter write for stdout / stderr
-  c := &context.Context{
+  c := &hofcontext.Context{
+    GoContext: gocontext.Background(),
     Stdin: os.Stdin,
     Stdout: os.Stdout,
     Stderr: os.Stderr,
-    Context: go_ctx.Background(),
     CUELock: new(sync.Mutex),
     ValStore: new(sync.Map),
     Mailbox: new(sync.Map),

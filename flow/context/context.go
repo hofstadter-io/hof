@@ -3,7 +3,7 @@
 package context
 
 import (
-	"context"
+	gocontext "context"
 	"io"
 	"sync"
 
@@ -12,15 +12,24 @@ import (
 
 // A Context provides context for running a task.
 type Context struct {
-	Context context.Context
+	GoContext gocontext.Context
+
 	Stdin   io.Reader
 	Stdout  io.Writer
 	Stderr  io.Writer
 	Value   cue.Value
 	Error   error
 
+  // debug / internal
+  DebugTasks bool
+  Verbosity  int
+
   // Per context, copyable down the stack?
   TaskRegistry *sync.Map
+
+  // Middleware
+
+  // how can the below become middleware, extensions, plugin?
 
   // Global (for this context, tbd shared) lock around CUE evaluator 
   CUELock  *sync.Mutex
@@ -34,9 +43,8 @@ type Context struct {
   // channels for
   // - stats & progress
 
-  // debug / internal
-  DebugTasks bool
-  Verbosity  int
+}
+
 // Register registers a task for cue commands.
 func (C *Context) Register(key string, f RunnerFunc) {
 	C.TaskRegistry.Store(key, f)
