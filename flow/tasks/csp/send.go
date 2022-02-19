@@ -5,20 +5,16 @@ import (
 
 	"cuelang.org/go/cue"
 
-  "github.com/hofstadter-io/hof/flow/context"
+  hofcontext "github.com/hofstadter-io/hof/flow/context"
 )
-
-func init() {
-  context.Register("csp.Send", NewSend)
-}
 
 type Send struct {}
 
-func NewSend(val cue.Value) (context.Runner, error) {
+func NewSend(val cue.Value) (hofcontext.Runner, error) {
   return &Send{}, nil
 }
 
-func (T *Send) Run(ctx *context.Context) (interface{}, error) {
+func (T *Send) Run(ctx *hofcontext.Context) (interface{}, error) {
   fmt.Println("csp.Send", ctx.Value)
 
 	v := ctx.Value

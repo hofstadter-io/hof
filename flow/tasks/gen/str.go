@@ -5,23 +5,19 @@ import (
 
 	"cuelang.org/go/cue"
 
-  "github.com/hofstadter-io/hof/flow/context"
+  hofcontext "github.com/hofstadter-io/hof/flow/context"
 )
 
 // default runes if none provided
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
-func init() {
-  context.Register("gen.Str", NewStr)
-}
-
 type Str struct {}
 
-func NewStr(val cue.Value) (context.Runner, error) {
+func NewStr(val cue.Value) (hofcontext.Runner, error) {
   return &Str{}, nil
 }
 
-func (T *Str) Run(ctx *context.Context) (interface{}, error) {
+func (T *Str) Run(ctx *hofcontext.Context) (interface{}, error) {
 
   val := ctx.Value
 

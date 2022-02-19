@@ -19,7 +19,10 @@ type Context struct {
 	Value   cue.Value
 	Error   error
 
-  // Global lock around CUE evaluator 
+  // Per context, copyable down the stack?
+  TaskRegistry *sync.Map
+
+  // Global (for this context, tbd shared) lock around CUE evaluator 
   CUELock  *sync.Mutex
 
   // map of cue.Values
@@ -34,6 +37,18 @@ type Context struct {
   // debug / internal
   DebugTasks bool
   Verbosity  int
+// Register registers a task for cue commands.
+func (C *Context) Register(key string, f RunnerFunc) {
+	C.TaskRegistry.Store(key, f)
+}
+
+// Lookup returns the RunnerFunc for a key.
+func (C *Context) Lookup(key string) RunnerFunc {
+	v, ok := C.TaskRegistry.Load(key)
+	if !ok {
+		return nil
+	}
+	return v.(RunnerFunc)
 }
 
 // consider adding here... a
@@ -48,19 +63,3 @@ type Runner interface {
 	// be unified with the original result.
 	Run(ctx *Context) (results interface{}, err error)
 }
-
-// Register registers a task for cue commands.
-func Register(key string, f RunnerFunc) {
-	runners.Store(key, f)
-}
-
-// Lookup returns the RunnerFunc for a key.
-func Lookup(key string) RunnerFunc {
-	v, ok := runners.Load(key)
-	if !ok {
-		return nil
-	}
-	return v.(RunnerFunc)
-}
-
-var runners sync.Map

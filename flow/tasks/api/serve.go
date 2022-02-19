@@ -1,7 +1,7 @@
 package api
 
 import (
-  go_context "context"
+  gocontext "context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -15,24 +15,20 @@ import (
 	"github.com/labstack/echo/v4/middleware"
   "github.com/labstack/echo-contrib/prometheus"
 
-  "github.com/hofstadter-io/hof/flow/context"
+  hofcontext "github.com/hofstadter-io/hof/flow/context"
   "github.com/hofstadter-io/hof/flow/flow"
   "github.com/hofstadter-io/hof/flow/tasks/csp"
 )
-
-func init() {
-  context.Register("api.Serve", NewServe)
-}
 
 type Serve struct {
   sync.Mutex
 }
 
-func NewServe(val cue.Value) (context.Runner, error) {
+func NewServe(val cue.Value) (hofcontext.Runner, error) {
   return &Serve{}, nil
 }
 
-func (T *Serve) Run(ctx *context.Context) (interface{}, error) {
+func (T *Serve) Run(ctx *hofcontext.Context) (interface{}, error) {
   var err error
 
   // todo, check failure modes, fill, not return error?
@@ -177,7 +173,7 @@ func (T *Serve) Run(ctx *context.Context) (interface{}, error) {
     <-quitChan
     fmt.Println("quit'n time!")
 
-    ctx, cancel := go_context.WithTimeout(go_context.Background(), 10*time.Second)
+    ctx, cancel := gocontext.WithTimeout(gocontext.Background(), 10*time.Second)
     defer cancel()
     if err := e.Shutdown(ctx); err != nil {
       e.Logger.Fatal(err)
@@ -191,7 +187,7 @@ func (T *Serve) Run(ctx *context.Context) (interface{}, error) {
 	return nil, err
 }
 
-func (T *Serve) routeFromValue(path string, route cue.Value, e *echo.Echo, ctx *context.Context) (error) {
+func (T *Serve) routeFromValue(path string, route cue.Value, e *echo.Echo, ctx *hofcontext.Context) (error) {
   path = strings.Replace(path, "\"", "", -1)
   // fmt.Println(path + ":", route)
 

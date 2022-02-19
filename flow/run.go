@@ -15,7 +15,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/flow/context"
 	"github.com/hofstadter-io/hof/flow/flow"
-	_ "github.com/hofstadter-io/hof/flow/tasks" // ensure tasks register
+	"github.com/hofstadter-io/hof/flow/tasks" // ensure tasks register
 	"github.com/hofstadter-io/hof/lib/structural"
 )
 
@@ -155,6 +155,9 @@ func buildRootContext(val cue.Value, opts *flags.RootPflagpole, popts *flags.Flo
     Mailbox: new(sync.Map),
     DebugTasks: popts.DebugTasks,
     Verbosity: opts.Verbose,
+    TaskRegistry: new(sync.Map),
   }
+
+  tasks.RegisterDefaults(c)
   return c, nil
 }

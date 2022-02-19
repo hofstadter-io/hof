@@ -5,20 +5,16 @@ import (
 
 	"cuelang.org/go/cue"
 
-	"github.com/hofstadter-io/hof/flow/context"
+	hofcontext "github.com/hofstadter-io/hof/flow/context"
 )
-
-func init() {
-  context.Register("os.Mkdir", NewMkdir)
-}
 
 type Mkdir struct {}
 
-func NewMkdir(val cue.Value) (context.Runner, error) {
+func NewMkdir(val cue.Value) (hofcontext.Runner, error) {
   return &Mkdir{}, nil
 }
 
-func (T *Mkdir) Run(ctx *context.Context) (interface{}, error) {
+func (T *Mkdir) Run(ctx *hofcontext.Context) (interface{}, error) {
 
 	v := ctx.Value
 

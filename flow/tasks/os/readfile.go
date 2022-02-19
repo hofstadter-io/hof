@@ -6,20 +6,16 @@ import (
 
 	"cuelang.org/go/cue"
 
-  "github.com/hofstadter-io/hof/flow/context"
+  hofcontext "github.com/hofstadter-io/hof/flow/context"
 )
-
-func init() {
-  context.Register("os.ReadFile", NewReadFile)
-}
 
 type ReadFile struct {}
 
-func NewReadFile(val cue.Value) (context.Runner, error) {
+func NewReadFile(val cue.Value) (hofcontext.Runner, error) {
   return &ReadFile{}, nil
 }
 
-func (T *ReadFile) Run(ctx *context.Context) (interface{}, error) {
+func (T *ReadFile) Run(ctx *hofcontext.Context) (interface{}, error) {
 
 	v := ctx.Value
   var fn string

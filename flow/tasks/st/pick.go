@@ -3,22 +3,18 @@ package st
 import (
 	"cuelang.org/go/cue"
 
-	"github.com/hofstadter-io/hof/flow/context"
+	hofcontext "github.com/hofstadter-io/hof/flow/context"
 	"github.com/hofstadter-io/hof/lib/structural"
 )
 
-func init() {
-  context.Register("st.Pick", NewPick)
-}
-
 type Pick struct {}
 
-func NewPick(val cue.Value) (context.Runner, error) {
+func NewPick(val cue.Value) (hofcontext.Runner, error) {
   return &Pick{}, nil
 }
 
 // Tasks must implement a Run func, this is where we execute our task
-func (T *Pick) Run(ctx *context.Context) (interface{}, error) {
+func (T *Pick) Run(ctx *hofcontext.Context) (interface{}, error) {
   ctx.CUELock.Lock()
   defer ctx.CUELock.Unlock()
 

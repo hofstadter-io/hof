@@ -5,22 +5,18 @@ import (
 
 	"cuelang.org/go/cue"
 
-	"github.com/hofstadter-io/hof/flow/context"
+	hofcontext "github.com/hofstadter-io/hof/flow/context"
 	"github.com/hofstadter-io/hof/flow/flow"
 	"github.com/hofstadter-io/hof/lib/cuetils"
 )
 
-func init() {
-  context.Register("csp.Recv", NewRecv)
-}
-
 type Recv struct {}
 
-func NewRecv(val cue.Value) (context.Runner, error) {
+func NewRecv(val cue.Value) (hofcontext.Runner, error) {
   return &Recv{}, nil
 }
 
-func (T *Recv) Run(ctx *context.Context) (interface{}, error) {
+func (T *Recv) Run(ctx *hofcontext.Context) (interface{}, error) {
   fmt.Println("csp.Recv", ctx.Value)
 
 	v := ctx.Value

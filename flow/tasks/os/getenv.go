@@ -5,20 +5,16 @@ import (
 
 	"cuelang.org/go/cue"
 
-  "github.com/hofstadter-io/hof/flow/context"
+  hofcontext "github.com/hofstadter-io/hof/flow/context"
 )
-
-func init() {
-  context.Register("os.Getenv", NewGetenv)
-}
 
 type Getenv struct {}
 
-func NewGetenv(val cue.Value) (context.Runner, error) {
+func NewGetenv(val cue.Value) (hofcontext.Runner, error) {
   return &Getenv{}, nil
 }
 
-func (T *Getenv) Run(ctx *context.Context) (interface{}, error) {
+func (T *Getenv) Run(ctx *hofcontext.Context) (interface{}, error) {
   ctx.CUELock.Lock()
   defer ctx.CUELock.Unlock()
 

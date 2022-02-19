@@ -9,24 +9,20 @@ import (
 	"cuelang.org/go/cue"
 	"github.com/parnurzeal/gorequest"
 
-	"github.com/hofstadter-io/hof/flow/context"
+	hofcontext "github.com/hofstadter-io/hof/flow/context"
 )
 
 /*  TODO
     - catch / retry on failed connection
 */
 
-func init() {
-  context.Register("api.Call", NewCall)
-}
-
 type Call struct {}
 
-func NewCall(val cue.Value) (context.Runner, error) {
+func NewCall(val cue.Value) (hofcontext.Runner, error) {
   return &Call{}, nil
 }
 
-func (T *Call) Run(ctx *context.Context) (interface{}, error) {
+func (T *Call) Run(ctx *hofcontext.Context) (interface{}, error) {
   val := ctx.Value
 
   var R *gorequest.SuperAgent

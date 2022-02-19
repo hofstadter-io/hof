@@ -6,20 +6,16 @@ import (
 
 	"cuelang.org/go/cue"
 
-  "github.com/hofstadter-io/hof/flow/context"
+  hofcontext "github.com/hofstadter-io/hof/flow/context"
 )
-
-func init() {
-  context.Register("os.WriteFile", NewWriteFile)
-}
 
 type WriteFile struct {}
 
-func NewWriteFile(val cue.Value) (context.Runner, error) {
+func NewWriteFile(val cue.Value) (hofcontext.Runner, error) {
   return &WriteFile{}, nil
 }
 
-func (T *WriteFile) Run(ctx *context.Context) (interface{}, error) {
+func (T *WriteFile) Run(ctx *hofcontext.Context) (interface{}, error) {
 
 	v := ctx.Value
   var fn string // filename

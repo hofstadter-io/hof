@@ -9,21 +9,17 @@ import (
   "github.com/fsnotify/fsnotify"
   "github.com/mattn/go-zglob"
 
-  "github.com/hofstadter-io/hof/flow/context"
+  hofcontext "github.com/hofstadter-io/hof/flow/context"
   "github.com/hofstadter-io/hof/flow/flow"
 )
 
-func init() {
-  context.Register("fs.Watch", NewWatch)
-}
-
 type Watch struct {}
 
-func NewWatch(val cue.Value) (context.Runner, error) {
+func NewWatch(val cue.Value) (hofcontext.Runner, error) {
   return &Watch{}, nil
 }
 
-func (T *Watch) Run(ctx *context.Context) (interface{}, error) {
+func (T *Watch) Run(ctx *hofcontext.Context) (interface{}, error) {
 
   // todo, check failure modes, fill, not return error?
   // (in all tasks)

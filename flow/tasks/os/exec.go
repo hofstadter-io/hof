@@ -10,20 +10,16 @@ import (
 
 	"cuelang.org/go/cue"
 
-  "github.com/hofstadter-io/hof/flow/context"
+  hofcontext "github.com/hofstadter-io/hof/flow/context"
 )
-
-func init() {
-  context.Register("os.Exec", NewExec)
-}
 
 type Exec struct {}
 
-func NewExec(val cue.Value) (context.Runner, error) {
+func NewExec(val cue.Value) (hofcontext.Runner, error) {
   return &Exec{}, nil
 }
 
-func (T *Exec) Run(ctx *context.Context) (interface{}, error) {
+func (T *Exec) Run(ctx *hofcontext.Context) (interface{}, error) {
 
 	v := ctx.Value
   var cmd *exec.Cmd

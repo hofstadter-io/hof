@@ -5,20 +5,18 @@ import (
 
 	"cuelang.org/go/cue"
 
-  "github.com/hofstadter-io/hof/flow/context"
+  hofcontext "github.com/hofstadter-io/hof/flow/context"
 )
 
-func init() {
-  context.Register("db.Call", NewCall)
+type Call struct {
+  // BaseTask
 }
 
-type Call struct {}
-
-func NewCall(val cue.Value) (context.Runner, error) {
+func NewCall(val cue.Value) (hofcontext.Runner, error) {
   return &Call{}, nil
 }
 
-func (T *Call) Run(ctx *context.Context) (interface{}, error) {
+func (T *Call) Run(ctx *hofcontext.Context) (interface{}, error) {
   // todo, check failure modes, fill, not return error?
   // (in all tasks)
   // does a failed stmt fail the proper way, especially when transaction?
@@ -35,7 +33,7 @@ func (T *Call) Run(ctx *context.Context) (interface{}, error) {
 	return v.FillPath(cue.ParsePath("results"), out), nil
 }
 
-func handleQuery(ctx *context.Context, val cue.Value) (interface{}, error) {
+func handleQuery(ctx *hofcontext.Context, val cue.Value) (interface{}, error) {
 
   var (
     query    cue.Value

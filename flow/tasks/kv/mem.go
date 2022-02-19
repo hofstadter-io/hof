@@ -1,24 +1,20 @@
-package mk
+package kv
 
 import (
   "fmt"
 
 	"cuelang.org/go/cue"
 
-  "github.com/hofstadter-io/hof/flow/context"
+  hofcontext "github.com/hofstadter-io/hof/flow/context"
 )
-
-func init() {
-  context.Register("kv.Mem", NewMem)
-}
 
 type Mem struct {}
 
-func NewMem(val cue.Value) (context.Runner, error) {
+func NewMem(val cue.Value) (hofcontext.Runner, error) {
   return &Mem{}, nil
 }
 
-func (T *Mem) Run(ctx *context.Context) (interface{}, error) {
+func (T *Mem) Run(ctx *hofcontext.Context) (interface{}, error) {
 
   val := ctx.Value
 
@@ -44,7 +40,7 @@ func (T *Mem) Run(ctx *context.Context) (interface{}, error) {
         return err
       }
     } else {
-      err := fmt.Errorf("unknown key:", key)
+      err := fmt.Errorf("unknown key: %s", key)
       return err
     }
 

@@ -9,22 +9,18 @@ import (
 	"cuelang.org/go/cue"
 	"gopkg.in/irc.v3"
 
-  "github.com/hofstadter-io/hof/flow/context"
+  hofcontext "github.com/hofstadter-io/hof/flow/context"
   "github.com/hofstadter-io/hof/flow/flow"
 	"github.com/hofstadter-io/hof/lib/cuetils"
 )
 
-func init() {
-  context.Register("msg.IrcClient", NewIrcClient)
-}
-
 type IrcClient struct{}
 
-func NewIrcClient(val cue.Value) (context.Runner, error) {
+func NewIrcClient(val cue.Value) (hofcontext.Runner, error) {
   return &IrcClient{}, nil
 }
 
-func (T *IrcClient) Run(ctx *context.Context) (interface{}, error) {
+func (T *IrcClient) Run(ctx *hofcontext.Context) (interface{}, error) {
 
   // todo, check failure modes, fill, not return error?
   // (in all tasks)
@@ -121,7 +117,7 @@ func buildIrcConfig(val cue.Value) (irc.ClientConfig, error) {
   return config, nil
 }
 
-func buildIrcHandler(ct_ctx *context.Context, val cue.Value) (irc.HandlerFunc, error) {
+func buildIrcHandler(ct_ctx *hofcontext.Context, val cue.Value) (irc.HandlerFunc, error) {
   fmt.Println("Building IRC handler:")
   ctx := val.Context()
 

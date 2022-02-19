@@ -55,7 +55,7 @@ func maybeTask(ctx *context.Context, val cue.Value, attr cue.Attribute) (flow.Ru
   }
 
   // lookup context.RunnerFunc 
-  runnerFunc := context.Lookup(taskId)
+  runnerFunc := ctx.Lookup(taskId)
   if runnerFunc == nil {
     return nil, fmt.Errorf("unknown task: %q at %q", attr, val.Path())
   }

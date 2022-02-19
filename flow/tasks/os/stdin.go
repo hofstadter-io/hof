@@ -6,20 +6,16 @@ import (
 
 	"cuelang.org/go/cue"
 
-  "github.com/hofstadter-io/hof/flow/context"
+  hofcontext "github.com/hofstadter-io/hof/flow/context"
 )
-
-func init() {
-  context.Register("os.Stdin", NewStdin)
-}
 
 type Stdin struct {}
 
-func NewStdin(val cue.Value) (context.Runner, error) {
+func NewStdin(val cue.Value) (hofcontext.Runner, error) {
   return &Stdin{}, nil
 }
 
-func (T *Stdin) Run(ctx *context.Context) (interface{}, error) {
+func (T *Stdin) Run(ctx *hofcontext.Context) (interface{}, error) {
 
 	v := ctx.Value
   var m string

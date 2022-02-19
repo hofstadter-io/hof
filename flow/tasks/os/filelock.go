@@ -7,21 +7,16 @@ import (
 	"cuelang.org/go/cue"
   "github.com/gofrs/flock"
 
-  "github.com/hofstadter-io/hof/flow/context"
+  hofcontext "github.com/hofstadter-io/hof/flow/context"
 )
-
-func init() {
-  context.Register("os.FileLock", NewFileLock)
-  context.Register("os.FileUnlock", NewFileUnlock)
-}
 
 type FileLock struct {}
 
-func NewFileLock(val cue.Value) (context.Runner, error) {
+func NewFileLock(val cue.Value) (hofcontext.Runner, error) {
   return &FileLock{}, nil
 }
 
-func (T *FileLock) Run(ctx *context.Context) (interface{}, error) {
+func (T *FileLock) Run(ctx *hofcontext.Context) (interface{}, error) {
 
 	val := ctx.Value
 
@@ -52,9 +47,9 @@ func (T *FileLock) Run(ctx *context.Context) (interface{}, error) {
     }
   } else {
     if rw {
-      _, err = lock.TryLockContext(ctx.Context, retry)
+      _, err = lock.TryLockContext(ctx.GoContext, retry)
     } else {
-      _, err = lock.TryRLockContext(ctx.Context, retry)
+      _, err = lock.TryRLockContext(ctx.GoContext, retry)
     }
   }
 
@@ -64,11 +59,11 @@ func (T *FileLock) Run(ctx *context.Context) (interface{}, error) {
 
 type FileUnlock struct {}
 
-func NewFileUnlock(val cue.Value) (context.Runner, error) {
+func NewFileUnlock(val cue.Value) (hofcontext.Runner, error) {
   return &FileUnlock{}, nil
 }
 
-func (T *FileUnlock) Run(ctx *context.Context) (interface{}, error) {
+func (T *FileUnlock) Run(ctx *hofcontext.Context) (interface{}, error) {
 
 	val := ctx.Value
 
@@ -90,7 +85,7 @@ func (T *FileUnlock) Run(ctx *context.Context) (interface{}, error) {
 	return nil, err
 }
 
-func extractConfig(ctx *context.Context, val cue.Value) (fn string, rw bool, retry time.Duration, err error) {
+func extractConfig(ctx *hofcontext.Context, val cue.Value) (fn string, rw bool, retry time.Duration, err error) {
   ctx.CUELock.Lock()
   defer ctx.CUELock.Unlock()
 

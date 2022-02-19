@@ -5,20 +5,16 @@ import (
 
 	"cuelang.org/go/cue"
 
-  "github.com/hofstadter-io/hof/flow/context"
+  hofcontext "github.com/hofstadter-io/hof/flow/context"
 )
-
-func init() {
-  context.Register("os.Sleep", NewSleep)
-}
 
 type Sleep struct {}
 
-func NewSleep(val cue.Value) (context.Runner, error) {
+func NewSleep(val cue.Value) (hofcontext.Runner, error) {
   return &Sleep{}, nil
 }
 
-func (T *Sleep) Run(ctx *context.Context) (interface{}, error) {
+func (T *Sleep) Run(ctx *hofcontext.Context) (interface{}, error) {
 
 	v := ctx.Value
 

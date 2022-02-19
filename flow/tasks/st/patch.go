@@ -3,22 +3,18 @@ package st
 import (
 	"cuelang.org/go/cue"
 
-	"github.com/hofstadter-io/hof/flow/context"
+	hofcontext "github.com/hofstadter-io/hof/flow/context"
 	"github.com/hofstadter-io/hof/lib/structural"
 )
 
-func init() {
-  context.Register("st.Patch", NewPatch)
-}
-
 type Patch struct {}
 
-func NewPatch(val cue.Value) (context.Runner, error) {
+func NewPatch(val cue.Value) (hofcontext.Runner, error) {
   return &Patch{}, nil
 }
 
 // Tasks must implement a Run func, this is where we execute our task
-func (T *Patch) Run(ctx *context.Context) (interface{}, error) {
+func (T *Patch) Run(ctx *hofcontext.Context) (interface{}, error) {
   ctx.CUELock.Lock()
   defer ctx.CUELock.Unlock()
 

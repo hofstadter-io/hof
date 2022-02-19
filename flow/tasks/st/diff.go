@@ -3,22 +3,18 @@ package st
 import (
 	"cuelang.org/go/cue"
 
-	"github.com/hofstadter-io/hof/flow/context"
+	hofcontext "github.com/hofstadter-io/hof/flow/context"
 	"github.com/hofstadter-io/hof/lib/structural"
 )
 
-func init() {
-  context.Register("st.Diff", NewDiff)
-}
-
 type Diff struct {}
 
-func NewDiff(val cue.Value) (context.Runner, error) {
+func NewDiff(val cue.Value) (hofcontext.Runner, error) {
   return &Diff{}, nil
 }
 
 // Tasks must implement a Run func, this is where we execute our task
-func (T *Diff) Run(ctx *context.Context) (interface{}, error) {
+func (T *Diff) Run(ctx *hofcontext.Context) (interface{}, error) {
   ctx.CUELock.Lock()
   defer ctx.CUELock.Unlock()
 

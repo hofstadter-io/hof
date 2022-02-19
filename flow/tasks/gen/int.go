@@ -5,20 +5,16 @@ import (
 
 	"cuelang.org/go/cue"
 
-  "github.com/hofstadter-io/hof/flow/context"
+  hofcontext "github.com/hofstadter-io/hof/flow/context"
 )
-
-func init() {
-  context.Register("gen.Int", NewInt)
-}
 
 type Int struct {}
 
-func NewInt(val cue.Value) (context.Runner, error) {
+func NewInt(val cue.Value) (hofcontext.Runner, error) {
   return &Int{}, nil
 }
 
-func (T *Int) Run(ctx *context.Context) (interface{}, error) {
+func (T *Int) Run(ctx *hofcontext.Context) (interface{}, error) {
 
   val := ctx.Value
 

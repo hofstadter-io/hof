@@ -6,20 +6,16 @@ import (
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/format"
 
-  "github.com/hofstadter-io/hof/flow/context"
+  hofcontext "github.com/hofstadter-io/hof/flow/context"
 )
-
-func init() {
-  context.Register("ext.CueFormat", NewCueFormat)
-}
 
 type CueFormat struct {}
 
-func NewCueFormat(val cue.Value) (context.Runner, error) {
+func NewCueFormat(val cue.Value) (hofcontext.Runner, error) {
   return &CueFormat{}, nil
 }
 
-func (T *CueFormat) Run(ctx *context.Context) (interface{}, error) {
+func (T *CueFormat) Run(ctx *hofcontext.Context) (interface{}, error) {
 
 	v := ctx.Value
   var val cue.Value

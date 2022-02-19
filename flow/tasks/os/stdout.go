@@ -6,20 +6,16 @@ import (
 
 	"cuelang.org/go/cue"
 
-  "github.com/hofstadter-io/hof/flow/context"
+  hofcontext "github.com/hofstadter-io/hof/flow/context"
 )
-
-func init() {
-  context.Register("os.Stdout", NewStdout)
-}
 
 type Stdout struct {}
 
-func NewStdout(val cue.Value) (context.Runner, error) {
+func NewStdout(val cue.Value) (hofcontext.Runner, error) {
   return &Stdout{}, nil
 }
 
-func (T *Stdout) Run(ctx *context.Context) (interface{}, error) {
+func (T *Stdout) Run(ctx *hofcontext.Context) (interface{}, error) {
   bufStdout := bufio.NewWriter(ctx.Stdout)
   defer bufStdout.Flush()
 
