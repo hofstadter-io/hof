@@ -11,6 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	hofcontext "github.com/hofstadter-io/hof/flow/context"
 	hofflow "github.com/hofstadter-io/hof/flow/flow"
+	"github.com/hofstadter-io/hof/flow/middleware"
 	"github.com/hofstadter-io/hof/flow/tasks" // ensure tasks register
 	"github.com/hofstadter-io/hof/lib/structural"
 )
@@ -150,5 +151,6 @@ func buildRootContext(val cue.Value, opts *flags.RootPflagpole, popts *flags.Flo
   c.Verbosity = opts.Verbose
 
   tasks.RegisterDefaults(c)
+  middleware.ApplyDefaults(c)
   return c, nil
 }

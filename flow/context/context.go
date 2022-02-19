@@ -25,8 +25,8 @@ type Context struct {
   DebugTasks bool
   Verbosity  int
 
-  // Per context, copyable down the stack?
   TaskRegistry *sync.Map
+  Middlewares  []Middleware
 
   // BOOKKEEPING
   Tasks *sync.Map
@@ -56,6 +56,7 @@ func New() *Context {
     ValStore: new(sync.Map),
     Mailbox: new(sync.Map),
     TaskRegistry: new(sync.Map),
+    Middlewares: make([]Middleware,0),
     Tasks: new(sync.Map),
   }
 }
@@ -77,8 +78,13 @@ func Copy(ctx *Context) *Context {
     ValStore: ctx.ValStore,
 
     TaskRegistry: ctx.TaskRegistry,
+    Middlewares: ctx.Middlewares,
     Tasks: ctx.Tasks,
   }
+}
+
+func (C *Context) Apply(m Middleware) {
+  C.Middlewares = append(C.Middlewares, m)
 }
 
 // Register registers a task for cue commands.
@@ -95,9 +101,11 @@ func (C *Context) Lookup(key string) RunnerFunc {
 	return v.(RunnerFunc)
 }
 
-// consider adding here... a
-// global registry of named channels
-
+// Middleware to apply to RunnerFuncs
+// should wrap and call Run of the passed RunnerFunc?
+type Middleware interface {
+  Apply(*Context, RunnerFunc) RunnerFunc
+}
 // A RunnerFunc creates a Runner.
 type RunnerFunc func(v cue.Value) (Runner, error)
 
@@ -105,5 +113,5 @@ type RunnerFunc func(v cue.Value) (Runner, error)
 type Runner interface {
 	// Runner runs given the current value and returns a new value which is to
 	// be unified with the original result.
-	Run(ctx *Context) (results interface{}, err error)
+	Run(ctx *Context) (results any, err error)
 }
