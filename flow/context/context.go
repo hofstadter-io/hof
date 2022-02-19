@@ -12,6 +12,7 @@ import (
 
 // A Context provides context for running a task.
 type Context struct {
+	RootValue cue.Value
 	GoContext gocontext.Context
 
 	Stdin   io.Reader
@@ -26,6 +27,9 @@ type Context struct {
 
   // Per context, copyable down the stack?
   TaskRegistry *sync.Map
+
+  // BOOKKEEPING
+  Tasks *sync.Map
 
   // Middleware
 
@@ -43,6 +47,38 @@ type Context struct {
   // channels for
   // - stats & progress
 
+}
+
+func New() *Context {
+  return &Context{
+    GoContext: gocontext.Background(),
+    CUELock: new(sync.Mutex),
+    ValStore: new(sync.Map),
+    Mailbox: new(sync.Map),
+    TaskRegistry: new(sync.Map),
+    Tasks: new(sync.Map),
+  }
+}
+
+func Copy(ctx *Context) *Context {
+  return &Context{
+    RootValue: ctx.RootValue,
+    GoContext: ctx.GoContext,
+
+    Stdin:   ctx.Stdin,
+    Stdout:  ctx.Stdout,
+    Stderr:  ctx.Stderr,
+
+    DebugTasks: ctx.DebugTasks,
+    Verbosity: ctx.Verbosity,
+
+    CUELock: ctx.CUELock,
+    Mailbox: ctx.Mailbox,
+    ValStore: ctx.ValStore,
+
+    TaskRegistry: ctx.TaskRegistry,
+    Tasks: ctx.Tasks,
+  }
 }
 
 // Register registers a task for cue commands.

@@ -77,20 +77,9 @@ func maybeTask(ctx *hofcontext.Context, val cue.Value, attr cue.Attribute) (cuef
 
   // wrap our RunnerFunc with cue/flow RunnerFunc
   return cueflow.RunnerFunc(func(t *cueflow.Task) error {
-    c := &hofcontext.Context{
-      GoContext: t.Context(),
-      // is this the root value?
-      Value:   t.Value(),
-      Stdin:   ctx.Stdin,
-      Stdout:  ctx.Stdout,
-      Stderr:  ctx.Stderr,
-      CUELock: ctx.CUELock,
-      Mailbox: ctx.Mailbox,
-      ValStore: ctx.ValStore,
-      DebugTasks: ctx.DebugTasks,
-      Verbosity: ctx.Verbosity,
+    c := hofcontext.Copy(ctx)
 
-    }
+    c.Value = t.Value()
 
     // run the hof task 
     value, err := task.Run(c)

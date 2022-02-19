@@ -1,13 +1,9 @@
 package flow
 
 import (
-	gocontext "context"
 	"fmt"
 	"os"
   "strings"
-	"sync"
-
-	// "time"
 
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/cuecontext"
@@ -145,18 +141,13 @@ var walkOptions = []cue.Option{
 func buildRootContext(val cue.Value, opts *flags.RootPflagpole, popts *flags.FlowFlagpole) (*hofcontext.Context, error) {
   // lookup the secret label in val
   // and build a filter write for stdout / stderr
-  c := &hofcontext.Context{
-    GoContext: gocontext.Background(),
-    Stdin: os.Stdin,
-    Stdout: os.Stdout,
-    Stderr: os.Stderr,
-    CUELock: new(sync.Mutex),
-    ValStore: new(sync.Map),
-    Mailbox: new(sync.Map),
-    DebugTasks: popts.DebugTasks,
-    Verbosity: opts.Verbose,
-    TaskRegistry: new(sync.Map),
-  }
+  c := hofcontext.New()
+  c.RootValue = val
+  c.Stdin = os.Stdin
+  c.Stdout = os.Stdout
+  c.Stderr = os.Stderr
+  c.DebugTasks = popts.DebugTasks
+  c.Verbosity = opts.Verbose
 
   tasks.RegisterDefaults(c)
   return c, nil
