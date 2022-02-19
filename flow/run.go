@@ -33,15 +33,15 @@ func Run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagp
 func run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagpole) error {
 	ctx := cuecontext.New()
 
-	val, err := structural.LoadCueInputs(entrypoints, ctx, nil)
+	root, err := structural.LoadCueInputs(entrypoints, ctx, nil)
 	if err != nil {
     s := structural.FormatCueError(err)
 		return fmt.Errorf("Error: %s", s)
 	}
 
-  if val.Err() != nil {
-    s := structural.FormatCueError(val.Err())
-    return fmt.Errorf("val.Err(): %s", s)  
+  if root.Err() != nil {
+    s := structural.FormatCueError(root.Err())
+    return fmt.Errorf("root.Err(): %s", s)  
   }
 
   // sharedCtx := buildSharedContext
@@ -52,21 +52,21 @@ func run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagp
 
 
   // (temp), give each own context (created in here), or maybe by flag? Need at least the shared mutex
-  taskCtx, err := buildRootContext(val, opts, popts)
-  // taskCtx, err := buildRootContext(sharedContex, val, opts, popts)
+  taskCtx, err := buildRootContext(root, opts, popts)
+  // taskCtx, err := buildRootContext(sharedContex, root, opts, popts)
   if err != nil {
     return err
   }
 
   // this might be buggy?
-  val, err = injectTags(val, popts.Tags)
+  root, err = injectTags(root, popts.Tags)
   if err != nil {
     return err
   }
 
   // lets just print
   if popts.List {
-    tags, secrets, errs := getTagsAndSecrets(val)
+    tags, secrets, errs := getTagsAndSecrets(root)
     if len(errs) > 0 {
       return fmt.Errorf("in getTags: %v", errs)
     }
@@ -86,14 +86,14 @@ func run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagp
     }
 
     fmt.Println("flows:\n==============")
-    err = listFlows(val, opts, popts)
+    err = listFlows(root, opts, popts)
     if err != nil {
       return err
     } 
 
   }
 
-  flows, err = findFlows(taskCtx, val, opts, popts)
+  flows, err = findFlows(taskCtx, root, opts, popts)
   if err != nil {
     s := structural.FormatCueError(err)
 		return fmt.Errorf("Error: %s", s)
@@ -110,6 +110,7 @@ func run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagp
   // start all of the flows
   // TODO, use wait group, accume errors, flag for failure modes
   for _, flow := range flows {
+    flow.Root = root
     err := flow.Start()
     if err != nil {
       return err
