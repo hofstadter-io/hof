@@ -10,8 +10,10 @@ import (
 	"io"
 	"log"
 	"os"
+  "reflect"
 	"sync/atomic"
 	"testing"
+  "time"
 )
 
 var profileId int32 = 0
@@ -141,7 +143,7 @@ func runCoverSubcommand(cprof string, mainf func() int) (exitCode int) {
 
 		// Run MainStart (recursively, but it we should be ok) with no tests
 		// so that it writes the coverage profile.
-		m := testing.MainStart(nopTestDeps{}, nil, nil, nil)
+		m := testing.MainStart(nopTestDeps{}, nil, nil, nil, nil)
 		if code := m.Run(); code != 0 && exitCode == 0 {
 			exitCode = code
 		}
@@ -213,3 +215,10 @@ func (nopTestDeps) WriteHeapProfile(io.Writer) error {
 }
 
 func (nopTestDeps) SetPanicOnExit0(bool) {}
+
+func (nopTestDeps) CheckCorpus([]any, []reflect.Type) error { return nil }
+func (nopTestDeps) ReadCorpus(string, []reflect.Type) ([]struct{Parent string; Path string; Data []byte; Values []any; Generation int; IsSeed bool}, error) { return nil, nil }
+func (nopTestDeps) ResetCoverage() {}
+func (nopTestDeps) SnapshotCoverage() {}
+func (nopTestDeps) RunFuzzWorker(func(struct{Parent string; Path string; Data []byte; Values []any; Generation int; IsSeed bool}) error) error { return nil }
+func (nopTestDeps) CoordinateFuzzing(time.Duration, int64, time.Duration, int64, int, []struct{Parent string; Path string; Data []byte; Values []any; Generation int; IsSeed bool}, []reflect.Type, string, string) error { return nil }
