@@ -1,6 +1,6 @@
 module github.com/hofstadter-io/hof
 
-go 1.18
+go 1.17
 
 replace cuelang.org/go => github.com/hofstadter-io/cue v0.4.2-rc.1.h1
 

@@ -5,21 +5,26 @@ import (
 
   "cuelang.org/go/cue"
 
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	hofcontext "github.com/hofstadter-io/hof/flow/context"
 )
 
 type Dummy struct {
   val cue.Value
-  next hofcontext.RunnerFunc
+  next hofcontext.Runner
 }
 
-func (M *Dummy) Run(ctx *hofcontext.Context) (results any, err error) {
-  fmt.Println("dummy")
-  r, err := M.next(M.val)
-  if err != nil {
-    return nil, err
-  }
-  return r.Run(ctx)
+func NewDummy(opts *flags.RootPflagpole, popts *flags.FlowFlagpole) (*Dummy) {
+  return &Dummy{}
+}
+
+func (M *Dummy) Run(ctx *hofcontext.Context) (results interface{}, err error) {
+  fmt.Println("dummy: pre @", M.val.Path())
+  // should this happen during discovery? (in Apply)
+  result, err := M.next.Run(ctx)
+  fmt.Println("dummy: post @", M.val.Path())
+
+  return result, err
 }
 
 func (M *Dummy) Apply(ctx *hofcontext.Context, runner hofcontext.RunnerFunc) hofcontext.RunnerFunc {
@@ -33,13 +38,20 @@ func (M *Dummy) Apply(ctx *hofcontext.Context, runner hofcontext.RunnerFunc) hof
       }
     }
 
-    if !hasAttr {
-      return runner(val)
+    next, err := runner(val)
+    if err != nil {
+      return nil, err
     }
+
+    if !hasAttr {
+      return next, nil
+    }
+
+    fmt.Println("dummy: found @", val.Path())
 
     return &Dummy{
       val: val,
-      next: runner,
+      next: next,
     }, nil
   }
 }

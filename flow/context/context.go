@@ -25,8 +25,8 @@ type Context struct {
   DebugTasks bool
   Verbosity  int
 
-  TaskRegistry *sync.Map
   Middlewares  []Middleware
+  TaskRegistry *sync.Map
 
   // BOOKKEEPING
   Tasks *sync.Map
@@ -55,8 +55,8 @@ func New() *Context {
     CUELock: new(sync.Mutex),
     ValStore: new(sync.Map),
     Mailbox: new(sync.Map),
-    TaskRegistry: new(sync.Map),
     Middlewares: make([]Middleware,0),
+    TaskRegistry: new(sync.Map),
     Tasks: new(sync.Map),
   }
 }
@@ -77,13 +77,13 @@ func Copy(ctx *Context) *Context {
     Mailbox: ctx.Mailbox,
     ValStore: ctx.ValStore,
 
-    TaskRegistry: ctx.TaskRegistry,
     Middlewares: ctx.Middlewares,
+    TaskRegistry: ctx.TaskRegistry,
     Tasks: ctx.Tasks,
   }
 }
 
-func (C *Context) Apply(m Middleware) {
+func (C *Context) Use(m Middleware) {
   C.Middlewares = append(C.Middlewares, m)
 }
 
@@ -113,5 +113,5 @@ type RunnerFunc func(v cue.Value) (Runner, error)
 type Runner interface {
 	// Runner runs given the current value and returns a new value which is to
 	// be unified with the original result.
-	Run(ctx *Context) (results any, err error)
+	Run(ctx *Context) (results interface{}, err error)
 }

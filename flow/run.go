@@ -150,7 +150,7 @@ func buildRootContext(val cue.Value, opts *flags.RootPflagpole, popts *flags.Flo
   c.DebugTasks = popts.DebugTasks
   c.Verbosity = opts.Verbose
 
+  middleware.UseDefaults(c, opts, popts)
   tasks.RegisterDefaults(c)
-  middleware.ApplyDefaults(c)
   return c, nil
 }
