@@ -8,6 +8,8 @@ import (
 	"sync"
 
 	"cuelang.org/go/cue"
+
+  "github.com/hofstadter-io/hof/flow/task"
 )
 
 // A Context provides context for running a task.
@@ -30,6 +32,9 @@ type Context struct {
 
   // BOOKKEEPING
   Tasks *sync.Map
+
+  // experimental
+  BaseTask *task.BaseTask
 
   // Middleware
 

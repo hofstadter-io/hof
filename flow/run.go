@@ -12,6 +12,7 @@ import (
 	hofcontext "github.com/hofstadter-io/hof/flow/context"
 	hofflow "github.com/hofstadter-io/hof/flow/flow"
 	"github.com/hofstadter-io/hof/flow/middleware"
+	"github.com/hofstadter-io/hof/flow/task"
 	"github.com/hofstadter-io/hof/flow/tasks" // ensure tasks register
 	"github.com/hofstadter-io/hof/lib/structural"
 )
@@ -47,13 +48,16 @@ func run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagp
   flows := []*hofflow.Flow{}
 
 
-
   // (temp), give each own context (created in here), or maybe by flag? Need at least the shared mutex
+  // (todo) possibly get back new root because middleware injected flags/tags?
   taskCtx, err := buildRootContext(root, opts, popts)
   // taskCtx, err := buildRootContext(sharedContex, root, opts, popts)
   if err != nil {
     return err
   }
+
+  // can middleware add flags to be filled before this? (yes ^^^)
+  // how can we run middleware init type things (like creating a waitgroup or execpool, set logging level)
 
   // this might be buggy?
   root, err = injectTags(root, popts.Tags)
@@ -112,10 +116,17 @@ func run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagp
     if err != nil {
       return err
     }
+
+    err = printFinalContext(flow.HofContext)
+    if err != nil {
+      return err
+    }
   }
 
-  //time.Sleep(time.Second)
-  //fmt.Println("done")
+  // we are all done running flows now
+
+  // print task dependencies / 
+
 	return nil
 }
 
@@ -150,7 +161,46 @@ func buildRootContext(val cue.Value, opts *flags.RootPflagpole, popts *flags.Flo
   c.DebugTasks = popts.DebugTasks
   c.Verbosity = opts.Verbose
 
+  // how to inject tags into original value
+  // fill / return value
   middleware.UseDefaults(c, opts, popts)
   tasks.RegisterDefaults(c)
   return c, nil
+}
+
+// print task dependencies / info
+func printFinalContext(ctx *hofcontext.Context) error {
+  // to start, print ids / timings
+  // rebuild task dependencies with hof tasks from cue tasks
+
+  fmt.Println("\n\n======= final =========")
+
+  tm := map[string]*task.BaseTask{}
+
+  ctx.Tasks.Range(func (key, value interface{}) bool {
+    k := key.(string) 
+    t := value.(*task.BaseTask)
+    tm[k] = t
+    return true
+  })
+
+  ti := make([]*task.BaseTask,len(tm))
+  for _, t := range tm {
+    ti[t.CueTask.Index()] = t
+  }
+
+  for _, t := range ti {
+    b := t.TimeEvents["run.beg"]
+    e := t.TimeEvents["run.end"]
+    l := e.Sub(b)
+
+    fmt.Println(t.ID, t.CueTask.Index(), t.UUID, l)
+
+    for _, D := range t.CueTask.Dependencies() {
+      fmt.Println(" -", D.Index())
+    }
+  }
+
+
+  return nil
 }

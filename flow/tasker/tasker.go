@@ -7,7 +7,7 @@ import (
 	cueflow "cuelang.org/go/tools/flow"
 
   hofcontext "github.com/hofstadter-io/hof/flow/context"
-  "github.com/hofstadter-io/hof/lib/cuetils"
+  "github.com/hofstadter-io/hof/flow/task"
 )
 
 func NewTasker(ctx *hofcontext.Context) cueflow.TaskFunc {
@@ -75,39 +75,52 @@ func maybeTask(ctx *hofcontext.Context, val cue.Value, attr cue.Attribute) (cuef
   // create hof task from val
   // these live under /flow/tasks
   // and are of type context.RunnerFunc
-  task, err := runnerFunc(val)
+  T, err := runnerFunc(val)
   if err != nil {
     return nil, err
   }
 
   // do per-task setup / common base / initial value / bookkeeping
+  bt := task.NewBaseTask(val)
+  ctx.Tasks.Store(bt.ID, bt)
 
   // wrap our RunnerFunc with cue/flow RunnerFunc
   return cueflow.RunnerFunc(func(t *cueflow.Task) error {
+    // why do we need a copy?
+    // maybe for local Value / CurrTask
     c := hofcontext.Copy(ctx)
 
     c.Value = t.Value()
+    c.BaseTask = bt
+
+    bt.CueTask = t
+    bt.Start = c.Value
+    bt.Final = c.Value
 
     // run the hof task 
-    value, err := task.Run(c)
+    bt.AddTimeEvent("run.beg")
+    value, err := T.Run(c)
+    bt.AddTimeEvent("run.end")
+
     if err != nil {
       err = fmt.Errorf("in %q, %v", val.Path(), err)
       c.Error = err
+      bt.Error = err
       return err
-    }
-    
-    switch val := value.(type) {
-    case cue.Value:
-      attr := val.Attribute("print")
-      err = cuetils.PrintAttr(attr, val)
     }
 
     if value != nil {
+      bt.AddTimeEvent("fill.beg")
       err = t.Fill(value)
+      bt.AddTimeEvent("fill.end")
       if err != nil {
         c.Error = err
+        bt.Error = err
         return err
       }
+
+      bt.Final = t.Value() 
+
     }
     return nil
   }), nil
