@@ -34,7 +34,7 @@ func run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagp
 	root, err := structural.LoadCueInputs(entrypoints, ctx, nil)
 	if err != nil {
     s := structural.FormatCueError(err)
-		return fmt.Errorf("Error: %s", s)
+    return fmt.Errorf("root: Error: %s", s)
 	}
 
   if root.Err() != nil {

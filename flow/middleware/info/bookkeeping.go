@@ -1,7 +1,7 @@
 package info
 
 import (
-  // "fmt"
+  "fmt"
 
   "cuelang.org/go/cue"
 
@@ -9,24 +9,35 @@ import (
 	hofcontext "github.com/hofstadter-io/hof/flow/context"
 )
 
+type BookkeepingConfig struct {
+  Workdir string
+}
+
 type Bookkeeping struct {
+  cfg BookkeepingConfig
   val cue.Value
   next hofcontext.Runner
 }
 
-func NewBookkeeping(opts *flags.RootPflagpole, popts *flags.FlowFlagpole) (*Bookkeeping) {
-  return &Bookkeeping{}
+func NewBookkeeping(cfg BookkeepingConfig, opts *flags.RootPflagpole, popts *flags.FlowFlagpole) (*Bookkeeping) {
+  return &Bookkeeping{
+    cfg: cfg,
+  }
 }
 
 func (M *Bookkeeping) Run(ctx *hofcontext.Context) (results interface{}, err error) {
+  bt := ctx.BaseTask
+  fmt.Println("bt:", bt.ID, bt.UUID)
   result, err := M.next.Run(ctx)
+
+  // write out file in background
   return result, err
 }
 
 func (M *Bookkeeping) Apply(ctx *hofcontext.Context, runner hofcontext.RunnerFunc) hofcontext.RunnerFunc {
   return func(val cue.Value) (hofcontext.Runner, error) {
     // id := fmt.Sprint(val.Path())
-    // fmt.Println("book: found@", val.Path())
+    // fmt.Println("book: found @", val.Path())
     next, err := runner(val)
     if err != nil {
       return nil, err
@@ -38,4 +49,7 @@ func (M *Bookkeeping) Apply(ctx *hofcontext.Context, runner hofcontext.RunnerFun
   }
 }
 
+func (M *Bookkeeping) write(filename string, val cue.Value) error {
 
+  return nil
+}

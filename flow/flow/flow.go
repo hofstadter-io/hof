@@ -23,6 +23,7 @@ type Flow struct {
 
 func NewFlow(ctx *hofcontext.Context, val cue.Value) (*Flow, error) {
   p := &Flow{
+    Root: val,
     Orig: val,
     HofContext: ctx,
   }
@@ -35,21 +36,23 @@ func (P *Flow) Start() error {
 }
 
 func (P *Flow) run() error {
+  // root := P.HofContext.RootValue
   root := P.Root
-  // root := P.Orig
 	// Setup the flow Config
 	cfg := &cueflow.Config{
-    Root: P.Orig.Path(),
 		InferTasks:     true,
-		//IgnoreConcrete: true,
+		IgnoreConcrete: true,
     UpdateFunc: func(c *cueflow.Controller, t *cueflow.Task) error {
-
-      //if t != nil {
-        //fmt.Printf("task(%d): %s %s => %v\n", t.Index(), t.Path(), t.State(), t.Value())
-      //}
-
       return nil
     },
+  }
+
+  // This is for flows down from the root val
+  // This is needed because nested flows (like IRC / API handler)
+  // ... break if this check is not performed
+  // ... and we blindly set the RootPath the value Path
+  if P.Orig != P.Root {
+    cfg.Root = P.Orig.Path()
   }
 
   // copy orig for good measure
@@ -60,10 +63,10 @@ func (P *Flow) run() error {
 	// create the workflow which will build the task graph
 	P.Ctrl = cueflow.New(cfg, u, tasker.NewTasker(P.HofContext))
 
-  final, err := P.Ctrl.Run(P.HofContext.GoContext)
+  _, err := P.Ctrl.Run(P.HofContext.GoContext)
 
   // fmt.Println("flow(end):", P.path, P.rpath)
-  P.Final = final
+  P.Final = P.Ctrl.Value() 
   if err != nil {
     s := structural.FormatCueError(err)
 		return fmt.Errorf("Error: %s", s)
@@ -71,4 +74,3 @@ func (P *Flow) run() error {
 
   return nil
 }
-
