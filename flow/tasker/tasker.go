@@ -60,8 +60,11 @@ func maybeTask(ctx *hofcontext.Context, val cue.Value, attr cue.Attribute) (cuef
     return nil, fmt.Errorf("unknown task: %q at %q", attr, val.Path())
   }
 
+  // Note, we apply this in the reverse order so that the Use order is like a stack
+  // (i.e. the first is the most outer, which is typical for how these work for servers
   // apply plugin / middleware
-  for _, ware := range ctx.Middlewares {
+  for i := len(ctx.Middlewares)-1; i>=0; i-- {
+    ware := ctx.Middlewares[i]
     runnerFunc = ware.Apply(ctx, runnerFunc)
   }
 
@@ -99,6 +102,7 @@ func maybeTask(ctx *hofcontext.Context, val cue.Value, attr cue.Attribute) (cuef
 
     // run the hof task 
     bt.AddTimeEvent("run.beg")
+    // (update)
     value, err := T.Run(c)
     bt.AddTimeEvent("run.end")
 

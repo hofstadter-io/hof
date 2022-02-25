@@ -42,6 +42,7 @@ type BaseTask struct {
   // stats & timing
   // should this be a list with names / times
   // timing
+  // replace with open telemetry
   TimeEvents map[string]time.Time
 }
 

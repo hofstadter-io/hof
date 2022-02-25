@@ -1,8 +1,6 @@
 package info
 
 import (
-  "fmt"
-
   "cuelang.org/go/cue"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
@@ -26,8 +24,8 @@ func NewBookkeeping(cfg BookkeepingConfig, opts *flags.RootPflagpole, popts *fla
 }
 
 func (M *Bookkeeping) Run(ctx *hofcontext.Context) (results interface{}, err error) {
-  bt := ctx.BaseTask
-  fmt.Println("bt:", bt.ID, bt.UUID)
+  // bt := ctx.BaseTask
+  // fmt.Println("bt:", bt.ID, bt.UUID)
   result, err := M.next.Run(ctx)
 
   // write out file in background

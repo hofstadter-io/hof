@@ -20,6 +20,7 @@ type Context struct {
 	Stdin   io.Reader
 	Stdout  io.Writer
 	Stderr  io.Writer
+
 	Value   cue.Value
 	Error   error
 
@@ -37,6 +38,7 @@ type Context struct {
   BaseTask *task.BaseTask
 
   // Middleware
+  Pools *sync.Map 
 
   // how can the below become middleware, extensions, plugin?
 
@@ -63,6 +65,7 @@ func New() *Context {
     Middlewares: make([]Middleware,0),
     TaskRegistry: new(sync.Map),
     Tasks: new(sync.Map),
+    Pools: new(sync.Map),
   }
 }
 
@@ -85,6 +88,7 @@ func Copy(ctx *Context) *Context {
     Middlewares: ctx.Middlewares,
     TaskRegistry: ctx.TaskRegistry,
     Tasks: ctx.Tasks,
+    Pools: ctx.Pools,
   }
 }
 

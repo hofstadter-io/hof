@@ -143,7 +143,8 @@ func runCoverSubcommand(cprof string, mainf func() int) (exitCode int) {
 
 		// Run MainStart (recursively, but it we should be ok) with no tests
 		// so that it writes the coverage profile.
-		m := testing.MainStart(nopTestDeps{}, nil, nil, nil, nil)
+		// go1.18 -- m := testing.MainStart(nopTestDeps{}, nil, nil, nil, nil)
+		m := testing.MainStart(nopTestDeps{}, nil, nil, nil)
 		if code := m.Run(); code != 0 && exitCode == 0 {
 			exitCode = code
 		}

@@ -16,6 +16,9 @@ import (
 )
 
 func RegisterDefaults(context *hofcontext.Context) {
+  context.Register("noop", NewNoop)
+  context.Register("nest", NewNest)
+
   context.Register("api.Call", api.NewCall)
   context.Register("api.Serve", api.NewServe)
 

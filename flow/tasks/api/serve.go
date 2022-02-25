@@ -213,25 +213,30 @@ func (T *Serve) routeFromValue(path string, route cue.Value, e *echo.Echo, ctx *
     // pull apart c.request
     req, err := T.buildReqValue(c)
     if err != nil {
-      fmt.Println("error: ", err)
+      fmt.Println("req build error: ", err)
       return err
     }
     // fmt.Println("reqVal", req)
 
     tmp := local.FillPath(cue.ParsePath("req"), req)
     if tmp.Err() != nil {
-      fmt.Println("error: ", tmp.Err())
+      fmt.Println("req fill error: ", tmp.Err())
       return tmp.Err()
     }
+    // fmt.Println("tmp", tmp)
 
     if isPipe {
       p, err := flow.NewFlow(ctx, tmp)
       if err != nil {
+        fmt.Println("handler pipe/new error:", err)
         return err
       }
+      // p.Root = ctx.RootValue
+      // p.Root = tmp
 
       err = p.Start()
       if err != nil {
+        fmt.Println("handler pipe/run error:", err)
         return err
       }
 
@@ -240,11 +245,13 @@ func (T *Serve) routeFromValue(path string, route cue.Value, e *echo.Echo, ctx *
 
     resp := tmp.LookupPath(cue.ParsePath("resp"))
     if resp.Err() != nil {
+      fmt.Println("handler resp error:", resp.Err())
       return resp.Err()
     }
 
     err = T.fillRespFromValue(resp, c)
     if err != nil {
+      fmt.Println("handler fill error:", err)
       return err
     }
 

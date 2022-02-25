@@ -1,26 +1,19 @@
+CUE_FILES  = $(shell find . -type f -name '*.cue' | grep -v 'cue.mod/pkg/' | sort)
+GO_FILES  = $(shell find . -type f -name '*.go' | grep -v 'cue.mod/pkg/' | sort)
+
 # First command incase users forget to supply one
 # cat self as help for simplicity
 help:
 	cat Makefile
 .PHONY: help
 
-clocall: hof.cue design schema lang lib gen ci cmd docs test cue.mods go.mod 
-	cloc --read-lang-def=$$HOME/hof/jumpfiles/assets/cloc_defs.txt --exclude-dir=cue.mod,vendor $^
+fmt: cuefmt gofmt
 
-clocgen: gen ci cmd 
-	cloc --read-lang-def=$$HOME/hof/jumpfiles/assets/cloc_defs.txt --exclude-dir=cue.mod,vendor $^
+cuefmt: $(CUE_FILES)
+	@for f in $(CUE_FILES); do echo $$f; done
 
-clocdesign: hof.cue design 
-	cloc --read-lang-def=$$HOME/hof/jumpfiles/assets/cloc_defs.txt --exclude-dir=cue.mod,vendor $^
-
-clochof: hof.cue design lang lib 
-	cloc --read-lang-def=$$HOME/hof/jumpfiles/assets/cloc_defs.txt --exclude-dir=cue.mod,vendor $^
-
-cloccode: cmd lang lib gen cmd
-	cloc --read-lang-def=$$HOME/hof/jumpfiles/assets/cloc_defs.txt --exclude-dir=cue.mod,vendor $^
-
-clocdev: hof.cue design schema lang lib docs test cue.mods go.mod 
-	cloc --read-lang-def=$$HOME/hof/jumpfiles/assets/cloc_defs.txt --exclude-dir=cue.mod,vendor $^
+gofmt: $(GO_FILES)
+	@for f in $(GO_FILES); do echo $$f; done
 
 WORKFLOWS = default \
 	test_mod

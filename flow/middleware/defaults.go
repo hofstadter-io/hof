@@ -5,6 +5,7 @@ import (
   hofcontext "github.com/hofstadter-io/hof/flow/context"
 	"github.com/hofstadter-io/hof/flow/middleware/dummy"
 	"github.com/hofstadter-io/hof/flow/middleware/info"
+	"github.com/hofstadter-io/hof/flow/middleware/sync"
 )
 
 func UseDefaults(ctx *hofcontext.Context, opts *flags.RootPflagpole, popts *flags.FlowFlagpole) {
@@ -14,4 +15,5 @@ func UseDefaults(ctx *hofcontext.Context, opts *flags.RootPflagpole, popts *flag
   ctx.Use(info.NewBookkeeping(info.BookkeepingConfig{
     Workdir: ".hof/flow",
   }, opts, popts))
+  ctx.Use(sync.NewPool(opts, popts))
 }
