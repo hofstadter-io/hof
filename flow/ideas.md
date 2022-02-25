@@ -7,16 +7,22 @@
 
 ## Tonight
 
-- [x] fix from last time
-- [x] CUE update
-- [x] youtube videos
-- [x] noop task
-- [ ] exec pool, limit concurrent API calls 
-  - [ ] bug with exec pool entries
-  - [ ] middleware for `pool_use`
-- [ ] history saving (as middleware)
-- [ ] logging middleware (move to separate concept?)
+Everynight should include!!!!!!
+- [ ] docs
+
+CLI UX:
+
 - [ ] run flow without `-f` flag
+  - assume first arg is flow if not a file
+  - if no flow set and only one flow found, run even if named
+- [ ] flag for final stats printing
+- [ ] ensure `@print()` is working (pre/post?)
+
+Do all these together, per task or similar
+  - [ ] docs
+  - [ ] tests
+  - [ ] task schemas
+  - [ ] cleanup existing tasks
 
 ## Questions
 
@@ -26,6 +32,26 @@ should middleware use $?
 - can we support one, other, or both with config / flags
 
 middleware which is scoped both global and task local, eventually grouped tasks (when nested tasks is supported)
+
+### v0.6.2
+
+`hof/flow` command
+
+- [ ] run flow without `-f` flag, support tab completion
+- [ ] first pass at docs
+- [ ] tests / examples
+- [ ] task schemas for import
+- [ ] more tasks
+  - [x] sync.Pool for controlling max parallelism
+
+- [ ] fix / finish tasks & anything else
+  - [ ] API call response enrichment (where else?)
+  - [x] remove global vars
+
+- [ ] centralizations (middleware/basetask)
+  - [x] progress / stats
+  - [ ] finalized printing of stats
+
 
 ### Frame out hof/flow API
 
@@ -44,6 +70,7 @@ middleware which is scoped both global and task local, eventually grouped tasks 
   - [ ] bookkeeping / history
   - [ ] finalize stage (i.e. write final history)
 - [ ] run flow without `-f` flag
+- [ ] history saving (as middleware)
 
 want reusable and extendable
 
@@ -116,39 +143,12 @@ Prior art:
 
 
 
-### v0.6.2
-
-`hof/flow` command
+### v0.7.0
 
 after CUE v0.4.3
 
 - [ ] can we eliminate our patched cue? (MakeError & task.Final)
-- [ ] run flow without `-f` flag, support tab completion
-- [ ] first pass at docs
-- [ ] tests / examples
-  - [ ] deploy to k8s
-- [ ] task schemas for import
-- [ ] required fields as a field & check in tasks
-      should/can we check a subtask like handler upfront?
-      what if the task conditionally depends on 
-- [ ] more tasks
-  - [ ] sync.Pool for controlling max parallelism
-  - [ ] Per task loop support, 
-        - task needs to support this, hard to generalize for a first pass, really code dependent?
-        - but maybe not, don't spend much time trying to figure this out for a first pass
-
-- [ ] fix / finish tasks & anything else
-  - [ ] shared base task struct in implementation
-  - [ ] API call response enrichment (where else?)
-  - [x] remove global vars
-
-- [ ] centralizations (middleware/basetask)
-  - [ ] history (persistent), get results from past runs, diff view
-       - official flow to import and snyc to your favorite cloud
-  - [ ] logging
-  - [ ] progress / stats
-
-### v0.7.0
+- [ ] logging middleware (move to separate concept?)
 
 - [ ] deploy flow(s) that can be embedded as a top-level command
 - [ ] consider rewrite of discovery / running engine
@@ -159,7 +159,16 @@ after CUE v0.4.3
 - [ ] ( not just csp, API, kafka, irc, websocket )
 - [ ] easier to customize / extend / sandbox tasks & middleware
 
+- [ ] history (persistent), get results from past runs, diff view
+     - official flow to import and snyc to your favorite cloud
 
+- [ ] required fields (from schema) as a field & check in tasks
+      should/can we check a subtask like handler upfront?
+      what if the task conditionally depends on 
+
+- [ ] Per task loop support, 
+      - task needs to support this, hard to generalize for a first pass, really code dependent?
+      - but maybe not, don't spend much time trying to figure this out for a first pass
 ---
 
 ### Flows & Tasks
