@@ -45,9 +45,9 @@ func NewTasker(ctx *hofcontext.Context) cueflow.TaskFunc {
 }
 
 func maybeTask(ctx *hofcontext.Context, val cue.Value, attr cue.Attribute) (cueflow.Runner, error) {
-  if ctx.DebugTasks {
-    fmt.Println("task?:", attr)
-  }
+  //if ctx.DebugTasks {
+    //fmt.Println("task?:", attr)
+  //}
 
   taskId, err := attr.String(0)
   if err != nil {
