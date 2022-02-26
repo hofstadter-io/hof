@@ -32,10 +32,12 @@ func run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagp
 	ctx := cuecontext.New()
 
   // unsugar the @flow-names into popts
-  var entries, flowArgs []string
+  var entries, flowArgs, tagArgs []string
   for _, e := range entrypoints {
     if strings.HasPrefix(e, "@") {
       flowArgs = append(flowArgs,strings.TrimPrefix(e,"@"))
+    } else if strings.HasPrefix(e, "+") {
+      tagArgs = append(tagArgs,strings.TrimPrefix(e,"+"))
     } else {
       entries = append(entries,e)
     }
@@ -44,6 +46,7 @@ func run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagp
   // update entrypoints and Flow flags
   entrypoints = entries
   popts.Flow = append(popts.Flow, flowArgs...)
+  popts.Tags = append(popts.Tags, tagArgs...)
 
   // load in CUE files
 	root, err := structural.LoadCueInputs(entrypoints, ctx, nil)

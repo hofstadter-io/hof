@@ -7,18 +7,24 @@
 
 ## Tonight
 
-Everynight should include!!!!!!
+Everynight should include...
+
 - [ ] docs
 
-CLI UX:
+---
 
-- [ ] run flow without `-f` flag
-  - assume first arg is flow if not a file
-  - if no flow set and only one flow found, run even if named
-- [ ] flag for final stats printing
+Other:
+
+- [ ] use decoder structs
+  - [ ] use in simple task & middleware first
+    ts: getenv, watch, readfile
+    ms: print
+  - [ ] when revamping api.Call
 - [ ] ensure `@print()` is working (pre/post?)
+- [ ] youtube videos
 
 Do all these together, per task or similar
+  - [ ] decode type?
   - [ ] docs
   - [ ] tests
   - [ ] task schemas
@@ -26,32 +32,60 @@ Do all these together, per task or similar
 
 ## Questions
 
-should middleware use $?
-- $log.warn: "my message"
-  $log.warn.{ [string]: string }
+should middleware and/or tasks use $<key>
+- $log: warn: "my message"
+  $log: warn: [string]: _
+  $log: global: ...?
+  $log: local: ...?
+- $task: ???
 - can we support one, other, or both with config / flags
+- should they imply different things? what would that be?
+  - task vs middleware config
+  - global / local config / vals
+
+Using `$` as a signifier means we can use real values and the evaluator to check correctness.
+`@` is OK for things that don't need more than minimal configuration, typically a name like `@flow` and `@task`
 
 middleware which is scoped both global and task local, eventually grouped tasks (when nested tasks is supported)
+
+We should probably try to get both UX versions in the next release (0.6.2) so we can test and get feedback
 
 ### v0.6.2
 
 `hof/flow` command
 
-- [ ] run flow without `-f` flag, support tab completion
+- [x] CLI sugar:
+  - [x] run solo named flows
+  - [x] easier flows with: @flow/name
+  - [x] easier tags with: +tag=value
 - [ ] first pass at docs
 - [ ] tests / examples
 - [ ] task schemas for import
 - [ ] more tasks
-  - [x] sync.Pool for controlling max parallelism
+  - [x] @pool for controlling max parallelism (middleware technically)
 
 - [ ] fix / finish tasks & anything else
   - [ ] API call response enrichment (where else?)
   - [x] remove global vars
 
-- [ ] centralizations (middleware/basetask)
+- [x] centralizations (middleware/basetask)
   - [x] progress / stats
-  - [ ] finalized printing of stats
+  - [x] finalized printing of stats
 
+### v0.6.3
+
+CLI sugar:
+  - @flow/name
+  - +tag=value
+  - args for pipelines
+   - use -- for everything after
+   - populate `$/@args: ` struct
+
+- better nested context (path, stats)
+- $syntax (see other notes for details)
+- logging
+  - [ ] log level (unify with global needs and share)
+- structs to decode tasks / middleware with (simpler hopefully)
 
 ### Frame out hof/flow API
 
@@ -147,6 +181,8 @@ Prior art:
 
 after CUE v0.4.3
 
+- [ ] support dynamic tab completion of hof/{flow,gen,dm}
+- [ ] support other data formats for tags (int,bool,[]string) 
 - [ ] can we eliminate our patched cue? (MakeError & task.Final)
 - [ ] logging middleware (move to separate concept?)
 
