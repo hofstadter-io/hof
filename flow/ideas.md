@@ -20,11 +20,11 @@ Other:
     ts: getenv, watch, readfile
     ms: print
   - [ ] when revamping api.Call
-- [ ] ensure `@print()` is working (pre/post?)
+- [x] ensure `@print()` is working (pre/post?)
 - [ ] youtube videos
 
 Do all these together, per task or similar
-  - [ ] decode type?
+  - [ ] decode type? (consider for some)
   - [ ] docs
   - [ ] tests
   - [ ] task schemas
