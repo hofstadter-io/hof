@@ -17,7 +17,7 @@ type Progress struct {
 
 func NewProgress(opts *flags.RootPflagpole, popts *flags.FlowFlagpole) (*Progress) {
   return &Progress{
-    use: popts.DebugTasks,
+    use: popts.Progress,
   }
 }
 

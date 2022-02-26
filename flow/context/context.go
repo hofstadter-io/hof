@@ -25,7 +25,6 @@ type Context struct {
 	Error   error
 
   // debug / internal
-  DebugTasks bool
   Verbosity  int
 
   Middlewares  []Middleware
@@ -78,7 +77,6 @@ func Copy(ctx *Context) *Context {
     Stdout:  ctx.Stdout,
     Stderr:  ctx.Stderr,
 
-    DebugTasks: ctx.DebugTasks,
     Verbosity: ctx.Verbosity,
 
     CUELock: ctx.CUELock,

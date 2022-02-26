@@ -20,7 +20,7 @@ func NewPrint(opts *flags.RootPflagpole, popts *flags.FlowFlagpole) (*Print) {
 
 func (M *Print) Run(ctx *hofcontext.Context) (results interface{}, err error) {
   result, err := M.next.Run(ctx)
-  fmt.Printf("PRINT: %q: %v\n", M.val.Path(), M.val)
+  fmt.Printf("print: %q: %v\n", M.val.Path(), M.val)
   return result, err
 }
 

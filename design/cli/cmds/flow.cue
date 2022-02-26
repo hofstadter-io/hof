@@ -71,12 +71,12 @@ import (
     Default: "nil"
 		Help:    "data tags to inject before run"
 	},{
-		Name:    "DebugTasks"
-		Long:    "debug-tasks"
+		Name:    "progress"
+		Long:    "progress"
 		Short:   ""
 		Type:    "bool"
     Default: "false"
-		Help:    "print debugging info about tasks"
+		Help:    "print task progress as it happens"
 	}, {
     Name:    "stats"
     Type:    "bool"

@@ -1,12 +1,12 @@
 package flags
 
 type FlowFlagpole struct {
-	List       bool
-	Docs       bool
-	Flow       []string
-	Tags       []string
-	DebugTasks bool
-	Stats      bool
+	List     bool
+	Docs     bool
+	Flow     []string
+	Tags     []string
+	Progress bool
+	Stats    bool
 }
 
 var FlowFlags FlowFlagpole

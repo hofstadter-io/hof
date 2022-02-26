@@ -105,19 +105,12 @@ func (T *Watch) Run(ctx *hofcontext.Context) (interface{}, error) {
 					return
 				}
 
-        if ctx.DebugTasks {
-          fmt.Println("event:", event)
-        }
-
         // todo, fill event into handler
         // v = v.FillPath(cue.ParsePath("event"), event)
 
 				if event.Op&fsnotify.Write == fsnotify.Write {
 
           debounce(func() {
-            if ctx.DebugTasks {
-              fmt.Println("start:", event)
-            }
             // todo
             // TODO, compile and run pipeline
             v := val.Context().CompileString("{...}")
@@ -135,9 +128,6 @@ func (T *Watch) Run(ctx *hofcontext.Context) (interface{}, error) {
             if err != nil {
               fmt.Println("Error(flow/run):", err)
               return
-            }
-            if ctx.DebugTasks {
-              fmt.Println("end:", event)
             }
           })
 				}
