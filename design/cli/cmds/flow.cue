@@ -53,5 +53,12 @@ import (
 		Type:    "bool"
     Default: "false"
 		Help:    "print debugging info about tasks"
-	}]
+	}, {
+    Name:    "stats"
+    Type:    "bool"
+    Default: "false"
+    Help:    "Print final task statistics"
+    Long:    "stats"
+    Short:   "s"
+  }]
 }

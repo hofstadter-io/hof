@@ -6,6 +6,7 @@ type FlowFlagpole struct {
 	Flow       []string
 	Tags       []string
 	DebugTasks bool
+	Stats      bool
 }
 
 var FlowFlags FlowFlagpole

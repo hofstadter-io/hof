@@ -117,9 +117,11 @@ func run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagp
       return err
     }
 
-    err = printFinalContext(flow.HofContext)
-    if err != nil {
-      return err
+    if popts.Stats {
+      err = printFinalContext(flow.HofContext)
+      if err != nil {
+        return err
+      }
     }
   }
 
@@ -194,10 +196,16 @@ func printFinalContext(ctx *hofcontext.Context) error {
     e := t.TimeEvents["run.end"]
     l := e.Sub(b)
 
-    fmt.Println(t.ID, t.CueTask.Index(), t.UUID, l)
-
+    // is := []int{}
+    ps := []cue.Path{}
     for _, D := range t.CueTask.Dependencies() {
-      fmt.Println(" -", D.Index())
+      // is = append(is, D.Index())
+      ps = append(ps, D.Path())
+    }
+    if len(ps) > 0 {
+      fmt.Println(t.ID, l, ps)
+    } else {
+      fmt.Println(t.ID, l)
     }
   }
 
