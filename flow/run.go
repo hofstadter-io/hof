@@ -31,22 +31,32 @@ func Run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagp
 func run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagpole) error {
 	ctx := cuecontext.New()
 
+  // unsugar the @flow-names into popts
+  var entries, flowArgs []string
+  for _, e := range entrypoints {
+    if strings.HasPrefix(e, "@") {
+      flowArgs = append(flowArgs,strings.TrimPrefix(e,"@"))
+    } else {
+      entries = append(entries,e)
+    }
+  }
+
+  // update entrypoints and Flow flags
+  entrypoints = entries
+  popts.Flow = append(popts.Flow, flowArgs...)
+
+  // load in CUE files
 	root, err := structural.LoadCueInputs(entrypoints, ctx, nil)
 	if err != nil {
     s := structural.FormatCueError(err)
     return fmt.Errorf("root: Error: %s", s)
 	}
-
   if root.Err() != nil {
     s := structural.FormatCueError(root.Err())
     return fmt.Errorf("root.Err(): %s", s)  
   }
 
   // sharedCtx := buildSharedContext
-
-	// (refactor/flow/many) find  flows
-  flows := []*hofflow.Flow{}
-
 
   // (temp), give each own context (created in here), or maybe by flag? Need at least the shared mutex
   // (todo) possibly get back new root because middleware injected flags/tags?
@@ -87,12 +97,23 @@ func run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagp
     }
 
     fmt.Println("flows:\n==============")
-    err = listFlows(root, opts, popts)
+    err = printFlows(root, opts, popts)
     if err != nil {
       return err
     } 
 
   }
+
+  // get flow list and do some checks / updates
+  names := flowList(root, opts, popts)
+  // check for singular named flow in entire value
+  // and run this if no flows set
+  if len(popts.Flow) == 0 && len(names) == 1 && names[0] != "<unnamed>" {
+    popts.Flow = []string{names[0]}
+  }
+
+	// (refactor/flow/many) find  flows
+  flows := []*hofflow.Flow{}
 
   flows, err = findFlows(taskCtx, root, opts, popts)
   if err != nil {
@@ -105,7 +126,10 @@ func run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagp
   }
 
   if len(flows) == 0 {
-    return fmt.Errorf("no flows found")
+    fmt.Println("available:\n==============")
+    err = printFlows(root, opts, popts)
+    fmt.Println()
+    return fmt.Errorf("no flows matched")
   }
 
   // start all of the flows

@@ -68,7 +68,33 @@ func matchFlow(attr cue.Attribute, args []string) (keep bool) {
   return false
 }
 
-func listFlows(val cue.Value,  opts *flags.RootPflagpole, popts *flags.FlowFlagpole) (error) {
+func flowList(val cue.Value,  opts *flags.RootPflagpole, popts *flags.FlowFlagpole) ([]string) {
+  var names []string
+
+  accum := func(v cue.Value) bool {
+    attrs := v.Attributes(cue.ValueAttr)
+
+    for _, attr := range attrs {
+      if attr.Name() == "flow" {
+        if attr.NumArgs() == 0 {
+          names = append(names, "<unnamed>")
+        } else {
+          name, _ := attr.String(0)
+          names = append(names, name)
+        }
+        return false
+      }
+    }
+
+    return true
+  }
+
+  structural.Walk(val, accum, nil, walkOptions...)
+
+  return names
+}
+
+func printFlows(val cue.Value,  opts *flags.RootPflagpole, popts *flags.FlowFlagpole) (error) {
   args := popts.Flow
   foundAny := false
 
