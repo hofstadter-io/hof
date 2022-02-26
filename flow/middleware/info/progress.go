@@ -2,6 +2,7 @@ package info
 
 import (
   "fmt"
+  "strings"
 
   "cuelang.org/go/cue"
 
@@ -22,9 +23,9 @@ func NewProgress(opts *flags.RootPflagpole, popts *flags.FlowFlagpole) (*Progres
 }
 
 func (M *Progress) Run(ctx *hofcontext.Context) (results interface{}, err error) {
-  fmt.Println("task: pre @", M.val.Path())
+  fmt.Println("task: pre @", strings.Join(ctx.FlowStack,"."), M.val.Path())
   result, err := M.next.Run(ctx)
-  fmt.Println("task: post @", M.val.Path())
+  fmt.Println("task: post @", strings.Join(ctx.FlowStack,"."), M.val.Path())
   return result, err
 }
 
@@ -33,7 +34,7 @@ func (M *Progress) Apply(ctx *hofcontext.Context, runner hofcontext.RunnerFunc) 
     return runner
   }
   return func(val cue.Value) (hofcontext.Runner, error) {
-    fmt.Println("task: found @", val.Path(), val.Attributes(cue.ValueAttr))
+    fmt.Println("task: found @", strings.Join(ctx.FlowStack,"."), val.Path(), val.Attributes(cue.ValueAttr))
     next, err := runner(val)
     if err != nil {
       return nil, err

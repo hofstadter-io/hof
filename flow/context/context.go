@@ -17,6 +17,8 @@ type Context struct {
 	RootValue cue.Value
 	GoContext gocontext.Context
 
+  FlowStack []string
+
 	Stdin   io.Reader
 	Stdout  io.Writer
 	Stderr  io.Writer
@@ -58,6 +60,7 @@ type Context struct {
 func New() *Context {
   return &Context{
     GoContext: gocontext.Background(),
+    FlowStack: []string{},
     CUELock: new(sync.Mutex),
     ValStore: new(sync.Map),
     Mailbox: new(sync.Map),
@@ -72,6 +75,7 @@ func Copy(ctx *Context) *Context {
   return &Context{
     RootValue: ctx.RootValue,
     GoContext: ctx.GoContext,
+    FlowStack:   ctx.FlowStack,
 
     Stdin:   ctx.Stdin,
     Stdout:  ctx.Stdout,

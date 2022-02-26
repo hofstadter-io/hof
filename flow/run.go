@@ -215,6 +215,11 @@ func printFinalContext(ctx *hofcontext.Context) error {
   }
 
   for _, t := range ti {
+    if t == nil {
+      // panic("nil t")
+      fmt.Println("nil t")
+      continue
+    }
     b := t.TimeEvents["run.beg"]
     e := t.TimeEvents["run.end"]
     l := e.Sub(b)

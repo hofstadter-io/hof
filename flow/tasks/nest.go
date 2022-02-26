@@ -1,6 +1,8 @@
 package tasks
 
 import (
+  "fmt"
+
 	"cuelang.org/go/cue"
 
   hofcontext "github.com/hofstadter-io/hof/flow/context"
@@ -17,6 +19,9 @@ func (T *Nest) Run(ctx *hofcontext.Context) (interface{}, error) {
 	val := ctx.Value
   // fmt.Println("nest.Run:", val.Path())
 
+  orig := ctx.FlowStack
+  ctx.FlowStack = append(orig, fmt.Sprint(val.Path()))
+
   p, err := flow.NewFlow(ctx, val)
   if err != nil {
     return nil, err
@@ -26,6 +31,8 @@ func (T *Nest) Run(ctx *hofcontext.Context) (interface{}, error) {
   if err != nil {
     return nil, err
   }
+
+  ctx.FlowStack = orig
 
   return p.Final, nil
 }

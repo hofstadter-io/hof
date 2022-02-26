@@ -240,6 +240,8 @@ func buildIrcHandler(ct_ctx *hofcontext.Context, val cue.Value) (irc.HandlerFunc
       v := ctx.CompileString("{...}")
       v = v.Unify(flowV) 
 
+      orig := ct_ctx.FlowStack
+      ct_ctx.FlowStack = append(ct_ctx.FlowStack, fmt.Sprint(val.Path()))
       p, err := flow.NewFlow(ct_ctx, v)
       if err != nil {
         fmt.Println("Error(flow/new):", err)
@@ -251,6 +253,8 @@ func buildIrcHandler(ct_ctx *hofcontext.Context, val cue.Value) (irc.HandlerFunc
         fmt.Println("Error(flow/run):", err)
         return
       }
+
+      ct_ctx.FlowStack = orig
 
       rV := p.Final.LookupPath(cue.ParsePath("resp"))
       if !rV.Exists() {
