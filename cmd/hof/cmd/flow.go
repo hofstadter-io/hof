@@ -10,7 +10,29 @@ import (
 	"github.com/hofstadter-io/hof/flow"
 )
 
-var flowLong = `run file(s) through the hof/flow DAG engine`
+var flowLong = `run file(s) through the hof/flow DAG engine
+
+Use hof/flow to transform data, call APIs, work with DBs,
+read and write files, call any program, handle events,
+and much more.
+
+Docs: https://docs.hofstadter.io/data-flow
+
+Example:
+
+  @flow()
+
+  call: {
+    @task(api.Call)
+    req: { ... }
+    resp: string
+  }
+
+  print: {
+    @task(os.Stdout)
+    test: call.resp
+  }
+`
 
 func init() {
 
