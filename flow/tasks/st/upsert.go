@@ -20,7 +20,7 @@ func (T *Upsert) Run(ctx *hofcontext.Context) (interface{}, error) {
 	v := ctx.Value
 
 	x := v.LookupPath(cue.ParsePath("val"))
-	u := v.LookupPath(cue.ParsePath("up"))
+	u := v.LookupPath(cue.ParsePath("upsert"))
 
 	r, err := structural.UpsertValue(u, x, nil)
 	if err != nil {

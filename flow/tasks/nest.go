@@ -17,7 +17,6 @@ func NewNest(val cue.Value) (hofcontext.Runner, error) {
 
 func (T *Nest) Run(ctx *hofcontext.Context) (interface{}, error) {
 	val := ctx.Value
-  // fmt.Println("nest.Run:", val.Path())
 
   orig := ctx.FlowStack
   ctx.FlowStack = append(orig, fmt.Sprint(val.Path()))

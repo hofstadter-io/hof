@@ -28,5 +28,5 @@ func (T *Diff) Run(ctx *hofcontext.Context) (interface{}, error) {
 		return v, err
 	}
 
-	return v.FillPath(cue.ParsePath("out"), r), nil
+	return v.FillPath(cue.ParsePath("diff"), r), nil
 }

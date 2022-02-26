@@ -35,9 +35,9 @@ Do all these together, per task or similar
 should middleware and/or tasks use $<key>
 - $log: warn: "my message"
   $log: warn: [string]: _
-  $log: global: ...?
-  $log: local: ...?
-- $task: ???
+  $log: global: ...? (level, format)
+  $log: local: ...?  (level, ...?)
+- $task: ??? (probably not)
 - can we support one, other, or both with config / flags
 - should they imply different things? what would that be?
   - task vs middleware config

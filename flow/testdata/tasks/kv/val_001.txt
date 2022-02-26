@@ -1,0 +1,34 @@
+exec hof flow in.cue
+cmp stdout golden.stdout
+
+-- in.cue --
+@flow()
+
+set: {
+  @task(kv.Mem)
+  key: "foo"
+  val: {
+    bar: "baz"
+    num: int
+  }
+}
+
+get: {
+
+  wait: {
+    @task(os.Sleep)
+    duration: "1s"
+  }
+
+  load: {
+    @task(kv.Mem)
+    $dep: wait.done
+    key: "foo"
+    @print(val)
+  }
+}
+-- golden.stdout --
+get.load.val: {
+	bar: "baz"
+	num: int
+}

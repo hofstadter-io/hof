@@ -17,28 +17,28 @@ func TestMainFlow(t *testing.T) {
 }
 
 func TestAPIFlow(t *testing.T) {
-	yagu.Mkdir(".workdir/api")
+	yagu.Mkdir(".workdir/tasks/api")
 	runtime.Run(t, runtime.Params{
-		Dir:         "testdata/api",
+		Dir:         "testdata/tasks/api",
 		Glob:        "*.txt",
-		WorkdirRoot: ".workdir/api",
+		WorkdirRoot: ".workdir/tasks/api",
 	})
 }
 
 func TestOSFlow(t *testing.T) {
-	yagu.Mkdir(".workdir/os")
+	yagu.Mkdir(".workdir/tasks/os")
 	runtime.Run(t, runtime.Params{
-		Dir:         "testdata/os",
+		Dir:         "testdata/tasks/os",
 		Glob:        "*.txt",
-		WorkdirRoot: ".workdir/os",
+		WorkdirRoot: ".workdir/tasks/os",
 	})
 }
 
 func TestStFlow(t *testing.T) {
-	yagu.Mkdir(".workdir/st")
+	yagu.Mkdir(".workdir/tasks/st")
 	runtime.Run(t, runtime.Params{
-		Dir:         "testdata/st",
+		Dir:         "testdata/tasks/st",
 		Glob:        "*.txt",
-		WorkdirRoot: ".workdir/st",
+		WorkdirRoot: ".workdir/tasks/st",
 	})
 }

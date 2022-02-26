@@ -17,27 +17,28 @@ Pick: {
 Insert: {
   @task(st.Insert)
   val: _
-  ins: _
+  insert: _
   out: _
 }
 
 Replace: {
-  @task(st.Pick)
+  @task(st.Replace)
   val: _
-  repl: _
+  replace: _
   out: _
 }
 
 Upsert: {
   @task(st.Upsert)
   val: _
-  up: _
+  upsert: _
   out: _
 }
 
 Diff: {
   @task(st.Diff)
   orig: _
+  patch: diff
   next: _
   diff: _
 }
@@ -47,4 +48,5 @@ Patch: {
   orig: _
   patch: _
   next: _
+  diff: patch
 }

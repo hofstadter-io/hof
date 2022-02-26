@@ -21,7 +21,7 @@ func (T *Replace) Run(ctx *hofcontext.Context) (interface{}, error) {
 	v := ctx.Value
 
 	x := v.LookupPath(cue.ParsePath("val"))
-	repl := v.LookupPath(cue.ParsePath("repl"))
+	repl := v.LookupPath(cue.ParsePath("replace"))
 
 	r, err := structural.ReplaceValue(repl, x, nil)
 	if err != nil {
