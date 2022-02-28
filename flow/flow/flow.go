@@ -40,7 +40,7 @@ func (P *Flow) run() error {
   root := P.Root
 	// Setup the flow Config
 	cfg := &cueflow.Config{
-		// InferTasks:     true,
+		InferTasks:     true,
 		IgnoreConcrete: true,
     UpdateFunc: func(c *cueflow.Controller, t *cueflow.Task) error {
       return nil
