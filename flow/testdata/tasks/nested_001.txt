@@ -1,0 +1,20 @@
+env FOO=BAR
+exec hof flow in.cue
+cmp stdout golden.stdout
+
+-- in.cue --
+@flow()
+
+nested: {
+  @task(nest)
+
+  get: {
+    @task(os.Getenv)
+    FOO: _
+  }
+
+  out: { text: get.FOO + "\n" } @task(os.Stdout)
+}
+
+-- golden.stdout --
+BAR
