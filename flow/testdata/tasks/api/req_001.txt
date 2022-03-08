@@ -2,16 +2,9 @@ exec hof flow flow.cue
 cmp stdout golden.stdout
 
 -- flow.cue --
-import "encoding/json"
+package hof
 
-req: {
-	host: "https://postman-echo.com"
-	method: "GET"
-	path: "/get"
-	query: {
-		cow: "moo"
-	}
-}
+import "encoding/json"
 
 pick: {
 	args: cow: string
@@ -24,13 +17,24 @@ tasks: [string]: {
 
 tasks: {
   @flow()
-  In: { 
-    "req": req
-    "p": pick
+	call: { 
+    @task(api.Call)
+    req: {
+      host: "https://postman-echo.com"
+      method: "GET"
+      path: "/get"
+      query: {
+        cow: "moo"
+      }
+    }
+    resp: _
   }
-	r: { req: In.req, resp: _ } @task(api.Call)
-  f: { val: r.resp, mask: { headers: "x-amzn-trace-id": string } } @task(st.Mask)
-	o: { text: json.Indent(json.Marshal(f.out), "", "  ") +"\n" } @task(os.Stdout)
+  mask: {
+    @task(st.Mask)
+    val: call.resp
+    mask: { headers: "x-amzn-trace-id": string }
+  }
+	out: { text: json.Indent(json.Marshal(mask.out), "", "  ") +"\n" } @task(os.Stdout)
 }
 
 -- golden.stdout --
