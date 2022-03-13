@@ -3,13 +3,14 @@ package workflows
 import "github.com/hofstadter-io/hof/.github/workflows/common"
 
 common.#Workflow & {
-	name: "default"
-	on: ["push"]
+	name: "test_flow"
+	on: pull_request: { paths: ["flow/**"] }
 	jobs: test: {
+		environment: "hof flow testing"
 		steps: [ for step in common.#BuildSteps {step} ] + [{
-			name: "Run structural tests"
+			name: "Run mod tests"
 			run: """
-			hof flow -f test/st
+			hof flow -f test/flow
 			"""
 		}]
 	}

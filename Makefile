@@ -1,5 +1,6 @@
 CUE_FILES  = $(shell find . -type f -name '*.cue' | grep -v 'cue.mod/pkg/' | sort)
 GO_FILES  = $(shell find . -type f -name '*.go' | grep -v 'cue.mod/pkg/' | sort)
+GHA_FILES  = $(shell ls .github/workflows/*.cue | sort)
 
 # First command incase users forget to supply one
 # cat self as help for simplicity
@@ -15,11 +16,8 @@ cuefmt: $(CUE_FILES)
 gofmt: $(GO_FILES)
 	@for f in $(GO_FILES); do echo $$f; done
 
-WORKFLOWS = default \
-	test_mod
-
 .PHONY: workflow
-workflows = $(addprefix workflow_, $(WORKFLOWS))
+workflows = $(addprefix workflow_, $(GHA_FILES))
 workflow: $(workflows)
 $(workflows): workflow_%:
-	@cue export --out yaml .github/workflows/$(subst workflow_,,$@).cue > .github/workflows/$(subst workflow_,,$@).yml
+	@cue export --out yaml $(subst workflow_,,$@) > $(subst workflow_,,$(subst .cue,,$@)).yml

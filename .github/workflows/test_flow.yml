@@ -1,6 +1,8 @@
-name: default
+name: test_flow
 "on":
-  - push
+  pull_request:
+    paths:
+      - flow/**
 jobs:
   test:
     strategy:
@@ -12,6 +14,7 @@ jobs:
           - macos-latest
       fail-fast: false
     runs-on: ${{ matrix.os }}
+    environment: hof flow testing
     steps:
       - name: Install Go
         uses: actions/setup-go@v2
@@ -23,6 +26,6 @@ jobs:
         run: go mod download
       - name: Build CLI
         run: go install ./cmd/hof
-      - name: Run structural tests
-        run: hof flow -f test/st
+      - name: Run mod tests
+        run: hof flow -f test/flow
     services: {}

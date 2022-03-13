@@ -1,41 +1,41 @@
 name: test_mod
-on:
+"on":
   pull_request:
     paths:
-    - lib/mod/**
-    - lib/yagu/repos/**
-    - lib/yagu/git.go
-    - lib/yagu/netrc.go
-    - lib/yagu/ssh.go
+      - lib/mod/**
+      - lib/yagu/repos/**
+      - lib/yagu/git.go
+      - lib/yagu/netrc.go
+      - lib/yagu/ssh.go
 jobs:
   test:
     strategy:
       matrix:
         go-version:
-        - 1.16.x
-        - 1.17.x
+          - 1.17.x
         os:
-        - ubuntu-latest
-        - macos-latest
+          - ubuntu-latest
+          - macos-latest
       fail-fast: false
     runs-on: ${{ matrix.os }}
     environment: hof mod testing
     steps:
-    - name: Install Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: ${{ matrix.go-version }}
-    - name: Checkout code
-      uses: actions/checkout@v2
-    - name: Download mods
-      run: go mod download
-    - name: Build CLI
-      run: go install ./cmd/hof
-    - name: Run mod tests
-      run: hof test test.cue -s lib -t test -t mod
-      env:
-        HOFMOD_SSHKEY: ${{secrets.HOFMOD_SSHKEY}}
-        GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
-        GITLAB_TOKEN: ${{secrets.GITLAB_TOKEN}}
-        BITBUCKET_USERNAME: hofstadter
-        BITBUCKET_PASSWORD: ${{secrets.BITBUCKET_TOKEN}}
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Download mods
+        run: go mod download
+      - name: Build CLI
+        run: go install ./cmd/hof
+      - name: Run mod tests
+        run: hof flow -f test/mods
+        env:
+          HOFMOD_SSHKEY: ${{secrets.HOFMOD_SSHKEY}}
+          GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
+          GITLAB_TOKEN: ${{secrets.GITLAB_TOKEN}}
+          BITBUCKET_USERNAME: hofstadter
+          BITBUCKET_PASSWORD: ${{secrets.BITBUCKET_TOKEN}}
+    services: {}

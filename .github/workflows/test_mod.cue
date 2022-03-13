@@ -10,7 +10,7 @@ common.#Workflow & {
 		steps: [ for step in common.#BuildSteps {step} ] + [{
 			name: "Run mod tests"
 			run: """
-			hof test test.cue -s lib -t test -t mod
+			hof flow -f test/mods
 			"""
 			env: {
 				HOFMOD_SSHKEY: "${{secrets.HOFMOD_SSHKEY}}"

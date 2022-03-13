@@ -1,5 +1,11 @@
 package hof
 
+BashTest: {
+  @task(os.Exec)
+  script: string
+  cmd: ["bash", "-c", script]
+}
+
 GoTest: {
   @task(os.Exec)
   cmd: ["bash", "-c", scripts.DEV]
@@ -63,6 +69,19 @@ tests: {
     }
   }
 
+  gen: {
+    @flow(test/gen)
+    run: BashTest & {
+      dir: "test/templates"
+      script: """
+      # generate templates
+      hof gen
+      # should have no diff
+      git diff
+      """
+    }
+  }
+
   st: {
     @flow(test/st)
     run: GoTest & {
@@ -77,4 +96,3 @@ tests: {
     }
   }
 }
-

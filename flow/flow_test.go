@@ -7,15 +7,6 @@ import (
 	"github.com/hofstadter-io/hof/script/runtime"
 )
 
-func TestMainFlow(t *testing.T) {
-	yagu.Mkdir(".workdir/main")
-	runtime.Run(t, runtime.Params{
-		Dir:         "testdata",
-		Glob:        "*.txt",
-		WorkdirRoot: ".workdir/main",
-	})
-}
-
 func TestAPIFlow(t *testing.T) {
 	yagu.Mkdir(".workdir/tasks/api")
 	runtime.Run(t, runtime.Params{
