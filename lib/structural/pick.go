@@ -2,7 +2,7 @@ package structural
 
 import (
 	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/errors"
+	// "cuelang.org/go/cue/errors"
 )
 
 // PickValue uses 'pick' to pick a subvalue from 'from'
@@ -38,13 +38,13 @@ func pickValue(pick, from cue.Value, opts *Options) (cue.Value, bool) {
 func pickStruct(pick, from cue.Value, opts *Options) (cue.Value, bool) {
 	ctx := pick.Context()
 
-	if k := from.IncompleteKind(); k != cue.StructKind {
-		if opts.NodeTypeErrors {
-			e := errors.Newf(pick.Pos(), "pick type '%v' does not match target value type '%v'", pick.IncompleteKind(), from.IncompleteKind())
-			ev := ctx.MakeError(e)
-			return ev, true
-		}
-	}
+	//if k := from.IncompleteKind(); k != cue.StructKind {
+		//if opts.NodeTypeErrors {
+			//e := errors.Newf(pick.Pos(), "pick type '%v' does not match target value type '%v'", pick.IncompleteKind(), from.IncompleteKind())
+			//ev := ctx.MakeError(e)
+			//return ev, true
+		//}
+	//}
 
 	result := newStruct(ctx)
 	iter, _ := pick.Fields(defaultWalkOptions...)
@@ -89,14 +89,14 @@ func pickList(pick, from cue.Value, opts *Options) (cue.Value, bool) {
 		return newStruct(ctx), false
 	}
 
-	lpt, err := getListProcType(pick)
-	if err != nil {
-		ce := errors.Newf(pick.Pos(), "%v", err)
-		ev := ctx.MakeError(ce)
-		return ev, true
-	}
+	//lpt, err := getListProcType(pick)
+	//if err != nil {
+		//ce := errors.Newf(pick.Pos(), "%v", err)
+		//ev := ctx.MakeError(ce)
+		//return ev, true
+	//}
 
-	_ = lpt
+	//_ = lpt
 
 	// how to consider different list sizes
 	// if len(pick) == 1, apply to all elements

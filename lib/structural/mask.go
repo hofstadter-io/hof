@@ -2,7 +2,7 @@ package structural
 
 import (
 	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/errors"
+	// "cuelang.org/go/cue/errors"
 )
 
 func MaskValue(mask, val cue.Value, opts *Options) (cue.Value, error) {
@@ -35,14 +35,17 @@ func maskValue(mask, from cue.Value, opts *Options) (cue.Value, bool) {
 
 func maskStruct(mask, from cue.Value, opts *Options) (cue.Value, bool) {
 	ctx := mask.Context()
-	eflags := opts.AllTypeErrors || opts.NodeTypeErrors
+	// eflags := opts.AllTypeErrors || opts.NodeTypeErrors
 
-	if eflags && mask.IncompleteKind() != from.IncompleteKind() {
-		// emsg, hasErrMsg := getErrorAttrMsg(mask)
-		e := errors.Newf(mask.Pos(), "mask type '%v' does not match target value type '%v'", mask.IncompleteKind(), from.IncompleteKind())
-		ev := ctx.MakeError(e)
-		return ev, true
-	}
+	if mask.IncompleteKind() != from.IncompleteKind() {
+    return from, true
+  }
+	//if eflags && mask.IncompleteKind() != from.IncompleteKind() {
+		//// emsg, hasErrMsg := getErrorAttrMsg(mask)
+		//e := errors.Newf(mask.Pos(), "mask type '%v' does not match target value type '%v'", mask.IncompleteKind(), from.IncompleteKind())
+		//ev := ctx.MakeError(e)
+		//return ev, true
+	//}
 
 	result := newStruct(ctx)
 	iter, _ := from.Fields(defaultWalkOptions...)
@@ -89,14 +92,14 @@ func maskList(mask, from cue.Value, opts *Options) (cue.Value, bool) {
 		return from, true
 	}
 
-	lpt, err := getListProcType(mask)
-	if err != nil {
-		ce := errors.Newf(mask.Pos(), "%v", err)
-		ev := ctx.MakeError(ce)
-		return ev, true
-	}
+	//lpt, err := getListProcType(mask)
+	//if err != nil {
+		//ce := errors.Newf(mask.Pos(), "%v", err)
+		//ev := ctx.MakeError(ce)
+		//return ev, true
+	//}
 
-	_ = lpt
+	// _ = lpt
 
 	mi, _ := mask.List()
 	fi, _ := from.List()

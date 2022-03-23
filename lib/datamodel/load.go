@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"cuelang.org/go/cue"
-	"github.com/hofstadter-io/cuetils/structural"
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/cuetils"
+	"github.com/hofstadter-io/hof/lib/structural"
 	"github.com/mattn/go-zglob"
 )
 

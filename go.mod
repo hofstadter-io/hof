@@ -2,10 +2,8 @@ module github.com/hofstadter-io/hof
 
 go 1.17
 
-replace cuelang.org/go => github.com/hofstadter-io/cue v0.4.2-rc.1.h1
-
 require (
-	cuelang.org/go v0.4.1
+	cuelang.org/go v0.4.3-beta.1
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/aymerick/raymond v2.0.2+incompatible
 	github.com/bmatcuk/doublestar v1.3.1
@@ -24,7 +22,6 @@ require (
 	github.com/gofrs/flock v0.8.1
 	github.com/google/go-github/v38 v38.1.0
 	github.com/google/uuid v1.2.0
-	github.com/hofstadter-io/cuetils v0.4.0
 	github.com/kevinburke/ssh_config v1.1.0
 	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
 	github.com/kr/pretty v0.2.0

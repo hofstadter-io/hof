@@ -63,7 +63,7 @@ func (P *Flow) run() error {
 	// create the workflow which will build the task graph
 	P.Ctrl = cueflow.New(cfg, u, tasker.NewTasker(P.HofContext))
 
-  _, err := P.Ctrl.Run(P.HofContext.GoContext)
+  err := P.Ctrl.Run(P.HofContext.GoContext)
 
   // fmt.Println("flow(end):", P.path, P.rpath)
   P.Final = P.Ctrl.Value() 

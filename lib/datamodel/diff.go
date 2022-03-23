@@ -3,7 +3,7 @@ package datamodel
 import (
 	"fmt"
 
-	"github.com/hofstadter-io/cuetils/structural"
+	"github.com/hofstadter-io/hof/lib/structural"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 )
