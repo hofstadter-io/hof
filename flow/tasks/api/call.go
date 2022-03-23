@@ -16,6 +16,10 @@ import (
     - catch / retry on failed connection
 */
 
+type call struct {
+
+}
+
 type Call struct {}
 
 func NewCall(val cue.Value) (hofcontext.Runner, error) {
@@ -24,10 +28,15 @@ func NewCall(val cue.Value) (hofcontext.Runner, error) {
 
 func (T *Call) Run(ctx *hofcontext.Context) (interface{}, error) {
   val := ctx.Value
+  init_schemas(val.Context())
+  // unify with schema
+  val = val.Unify(task_call)
+  if val.Err() != nil {
+    return nil, val.Err()
+  }
 
   var R *gorequest.SuperAgent
   var err error
-  var res interface{}
 
   func () error {
     ctx.CUELock.Lock()
@@ -48,15 +57,16 @@ func (T *Call) Run(ctx *hofcontext.Context) (interface{}, error) {
 	}
 
 
-	actual, err := makeRequest(R)
+	resp, err := makeRequest(R)
 	if err != nil {
 		return nil, err
 	}
 
-	body, err := io.ReadAll(actual.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
+  var bodyVal interface{}
 
   func () {
     ctx.CUELock.Lock()
@@ -66,28 +76,37 @@ func (T *Call) Run(ctx *hofcontext.Context) (interface{}, error) {
 
     // TODO, build resp cue.Value from http.Response
 
-    var isString bool
-    r := val.LookupPath(cue.ParsePath("resp"))
-    if r.Exists() && r.IncompleteKind() == cue.StringKind {
-      isString = true
+    var isString, isBytes bool
+    r := val.LookupPath(cue.ParsePath("resp.body"))
+    if r.Exists() {
+      if r.IncompleteKind() == cue.StringKind {
+        isString = true
+      }
+      if r.IncompleteKind() == cue.BytesKind {
+        isBytes = true
+      }
     }
 
     // TODO, make response object more interesting
     // such as status, headers, body vs json
-    var resp interface{}
     if isString {
-      resp = string(body)
+      bodyVal = string(body)
+    } else if isBytes {
+      bodyVal = body
     } else {
-      resp = val.Context().CompileBytes(body, cue.Filename("resp"))
+      bodyVal = val.Context().CompileBytes(body, cue.Filename("body"))
     }
-
-
-    // Use fill to "return" a result to the workflow engine
-    res = val.FillPath(cue.ParsePath("resp"), resp)
   }()
 
-  // fmt.Println("end: API call")
-	return res, nil
+  return map[string]interface{}{
+		"resp": map[string]interface{}{
+			"status":     resp.Status,
+			"statusCode": resp.StatusCode,
+			"body":       bodyVal,
+			"header":     resp.Header,
+			"trailer":    resp.Trailer,
+		},
+	}, nil
 }
 
 /********* old *********/
@@ -98,14 +117,15 @@ func buildRequest(val cue.Value) (R *gorequest.SuperAgent, err error) {
 	req := val.Eval()
 	R = gorequest.New()
 
-  R.Method = "GET"
+  // this should be the default after unifying, and this should always exist
+  // R.Method = "GET"
 	method := req.LookupPath(cue.ParsePath("method"))
+  // so we may not need this is not needed, but it is defensive
   if method.Exists() {
     R.Method, err = method.String()
     if err != nil {
       return R, err
     }
-    R.Method = strings.ToUpper(R.Method)
   }
 
 	host := req.LookupPath(cue.ParsePath("host"))
@@ -239,6 +259,7 @@ func buildRequest(val cue.Value) (R *gorequest.SuperAgent, err error) {
 	}
 
   // Todo, add 'print curl' option
+  // check if set, then fill on return
   //curl, err := R.AsCurlCommand()
   //if err != nil {
     //return nil, err

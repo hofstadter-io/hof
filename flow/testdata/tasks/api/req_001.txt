@@ -21,17 +21,20 @@ tasks: {
     @task(api.Call)
     req: {
       host: "https://postman-echo.com"
-      method: "GET"
+      // method: "GET"
       path: "/get"
       query: {
         cow: "moo"
       }
     }
-    resp: _
+    resp: {
+      body: _
+      statusCode: 200
+    }
   }
   mask: {
     @task(st.Mask)
-    val: call.resp
+    val: call.resp.body
     mask: { headers: "x-amzn-trace-id": string }
   }
 	out: { text: json.Indent(json.Marshal(mask.out), "", "  ") +"\n" } @task(os.Stdout)
