@@ -27,5 +27,5 @@ jobs:
       - name: Build CLI
         run: go install ./cmd/hof
       - name: Run mod tests
-        run: hof flow -f test/flow
+        run: hof flow -f test/flow ./test.cue
     services: {}

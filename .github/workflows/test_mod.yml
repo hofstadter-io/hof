@@ -31,7 +31,7 @@ jobs:
       - name: Build CLI
         run: go install ./cmd/hof
       - name: Run mod tests
-        run: hof flow -f test/mods
+        run: hof flow -f test/mods ./test.cue
         env:
           HOFMOD_SSHKEY: ${{secrets.HOFMOD_SSHKEY}}
           GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}

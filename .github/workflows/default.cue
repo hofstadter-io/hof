@@ -9,7 +9,7 @@ common.#Workflow & {
 		steps: [ for step in common.#BuildSteps {step} ] + [{
 			name: "Run structural tests"
 			run: """
-			hof flow -f test/st
+			hof flow -f test/st ./test.cue
 			"""
 		}]
 	}
