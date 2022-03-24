@@ -16,6 +16,10 @@ Use hof/flow to transform data, call APIs, work with DBs,
 read and write files, call any program, handle events,
 and much more.
 
+'hof flow' is very similar to 'cue cmd' and built on the same flow engine.
+Tasks and dependencies are inferred.
+Hof flow has a slightly different interface and more task types.
+
 Docs: https://docs.hofstadter.io/data-flow
 
 Example:
@@ -25,13 +29,32 @@ Example:
   call: {
     @task(api.Call)
     req: { ... }
-    resp: string
+    resp: {
+      statusCode: 200
+      body: string
+    }
   }
 
   print: {
     @task(os.Stdout)
     test: call.resp
   }
+
+Arguments:
+  cue entrypoints are the same as the cue cli
+  @path/name  is shorthand for -f / --flow should match the @flow(path/name)
+  +key=value  is shorthand for -t / --tags and are the same as CUE injection tags
+
+  arguments can be in any order and mixed
+
+@flow() indicates a flow entrypoint
+  you can have many in a file or nested values
+  you can run one or many with the -f flag
+
+@task() represents a unit of work in the flow dag
+  intertask dependencies are autodetected and run appropriately
+  hof/flow provides many built in task types
+  you can reuse, combine, and share as CUE modules, packages, and values
 `
 
 func init() {
@@ -53,7 +76,7 @@ func FlowRun(entrypoints []string) (err error) {
 
 var FlowCmd = &cobra.Command{
 
-	Use: "flow [cue files...]",
+	Use: "flow [cue files...] [@flow/name...] [+key=value]",
 
 	Aliases: []string{
 		"f",
