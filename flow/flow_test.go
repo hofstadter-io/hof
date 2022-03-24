@@ -16,6 +16,15 @@ func TestAPIFlow(t *testing.T) {
 	})
 }
 
+func TestKVFlow(t *testing.T) {
+	yagu.Mkdir(".workdir/tasks/kv")
+	runtime.Run(t, runtime.Params{
+		Dir:         "testdata/tasks/kv",
+		Glob:        "*.txt",
+		WorkdirRoot: ".workdir/tasks/kv",
+	})
+}
+
 func TestOSFlow(t *testing.T) {
 	yagu.Mkdir(".workdir/tasks/os")
 	runtime.Run(t, runtime.Params{
