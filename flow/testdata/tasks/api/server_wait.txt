@@ -1,0 +1,94 @@
+exec hof flow ./in.cue
+-- in.cue --
+import "encoding/json"
+
+@flow()
+
+config: {
+  port: "2323"
+}
+
+init: {
+  m: { "mailbox": "quit", buf: 2, done: _ } @task(csp.Chan)
+}
+
+run: {
+  @task(api.Serve)
+  dep: init.m.done
+
+  quitMailbox: "quit"
+  port: config.port
+  routes: {
+    "/hello": {
+      method: "GET"
+      resp: {
+        status: 200
+        body: "hallo chat!"
+      }
+    }
+    "/echo": {
+      method: ["get", "post"]
+      req: _
+      // resp: req.query
+      resp: json: req.query.cow
+    }
+    "/pipe": {
+      @flow()
+      req: _
+      r: { filename: req.query.filename[0], contents: string } @task(os.ReadFile)
+      j: json.Unmarshal(r.contents)
+      resp: {
+        status: 200
+        json: j
+      }
+    }
+  }
+}
+
+msg: {
+  @task(os.Stdout)
+  text: "server has shutdown\n"
+  dep: run.done
+}
+
+call: {
+  wait: {
+    @task(os.Sleep)
+    duration: "1s"
+    done: _
+  }
+  do: {
+    @dummy()
+    @task(api.Call)
+    dep: wait.done
+    resp: body: string
+    req: {
+      host: "http://localhost:\(config.port)"
+      method: "GET"
+      path: "/hello"
+      query: {
+        cow: "moo"
+      }
+    }
+  }
+  say: {
+    @task(os.Stdout)
+    text: do.resp.body
+  }
+}
+
+stop: {
+  wait: {
+    @task(os.Sleep)
+    duration: "2s"
+    done: _
+  }
+
+  send: {
+    @task(csp.Send)
+    dep: wait.done
+    "mailbox": "quit" 
+    val: "quit"
+  }
+
+}

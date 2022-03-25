@@ -93,7 +93,7 @@ func (T *Serve) Run(ctx *hofcontext.Context) (interface{}, error) {
       return c.NoContent(http.StatusNoContent)
     })
 
-    // liveliness and metrics
+    // should we even have this route? 
     if quit != "" {
       e.GET("/quit", func(c echo.Context) error {
         fmt.Println("quit handler!")
@@ -217,6 +217,24 @@ func (T *Serve) routeFromValue(path string, route cue.Value, e *echo.Echo, ctx *
       return err
     }
     // fmt.Println("reqVal", req)
+    b := local.LookupPath(cue.ParsePath("req.body"))
+
+    if b.Exists() {
+      switch b.IncompleteKind() {
+        case cue.BytesKind:
+          // nothing, already bytes
+        case cue.StringKind:
+          req["body"] = string(req["body"].([]byte))
+          
+        case cue.StructKind:
+          var body interface{}
+          err = json.Unmarshal(req["body"].([]byte), &body)
+          if err != nil {
+            return err
+          }
+          req["body"] = body
+      }
+    }
 
     tmp := local.FillPath(cue.ParsePath("req"), req)
     if tmp.Err() != nil {
@@ -298,7 +316,7 @@ func (T *Serve) routeFromValue(path string, route cue.Value, e *echo.Echo, ctx *
   return nil
 }
 
-func (T *Serve) buildReqValue(c echo.Context) (interface{},error) {
+func (T *Serve) buildReqValue(c echo.Context) (map[string]interface{},error) {
   req := map[string]interface{}{}
   R := c.Request()
 
@@ -313,12 +331,7 @@ func (T *Serve) buildReqValue(c echo.Context) (interface{},error) {
   }
 
   if len(b) > 0 {
-    var body interface{}
-    err = json.Unmarshal(b, &body)
-    if err != nil {
-      return nil, err
-    }
-    req["body"] = body
+    req["body"] = b
   }
 
   // form
