@@ -1,7 +1,7 @@
 package yagu
 
 import (
-	"github.com/bmatcuk/doublestar"
+	"github.com/bmatcuk/doublestar/v4"
 )
 
 func CheckShouldInclude(filename string, includes, excludes []string) (bool, error) {
@@ -27,7 +27,7 @@ func CheckShouldInclude(filename string, includes, excludes []string) (bool, err
 		for _, pattern := range excludes {
 			exclude, err = doublestar.PathMatch(pattern, filename)
 			if err != nil {
-				return false, err
+		return false, err
 			}
 			if exclude {
 				break

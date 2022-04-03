@@ -6,7 +6,7 @@ require (
 	cuelang.org/go v0.4.3-beta.1
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/aymerick/raymond v2.0.2+incompatible
-	github.com/bmatcuk/doublestar v1.3.1
+	github.com/bmatcuk/doublestar/v4 v4.0.2
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
 	github.com/clbanning/mxj v1.8.4
 	github.com/codemodus/kace v0.5.1
@@ -30,7 +30,7 @@ require (
 	github.com/labstack/echo/v4 v4.6.3
 	github.com/lucsky/cuid v1.2.1
 	github.com/mattn/go-sqlite3 v1.14.11
-	github.com/mattn/go-zglob v0.0.2
+	github.com/mattn/go-zglob v0.0.3
 	github.com/naoina/toml v0.1.1
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/parnurzeal/gorequest v0.2.16
