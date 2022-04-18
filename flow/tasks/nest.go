@@ -9,6 +9,7 @@ import (
 	"github.com/hofstadter-io/hof/flow/flow"
 )
 
+// this is buggy, need upstream support
 type Nest struct {}
 
 func NewNest(val cue.Value) (hofcontext.Runner, error) {

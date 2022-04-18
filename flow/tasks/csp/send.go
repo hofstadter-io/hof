@@ -15,7 +15,7 @@ func NewSend(val cue.Value) (hofcontext.Runner, error) {
 }
 
 func (T *Send) Run(ctx *hofcontext.Context) (interface{}, error) {
-  fmt.Println("csp.Send", ctx.Value)
+  // fmt.Println("csp.Send", ctx.Value)
 
 	v := ctx.Value
   var (
@@ -38,7 +38,7 @@ func (T *Send) Run(ctx *hofcontext.Context) (interface{}, error) {
     if val.Err() != nil {
       return val.Err()
     }
-    fmt.Println("csp.Send().val:", val)
+    // fmt.Println("csp.Send().val:", val)
 
     kv := v.LookupPath(cue.ParsePath("key")) 
     if kv.Exists() {
@@ -70,7 +70,7 @@ func (T *Send) Run(ctx *hofcontext.Context) (interface{}, error) {
   }
 
   // load mailbox
-  fmt.Println("mailbox?:", mailbox)
+  // fmt.Println("mailbox?:", mailbox)
   ci, loaded := ctx.Mailbox.Load(mailbox)
   if !loaded {
     return nil, fmt.Errorf("channel %q not found", mailbox)
@@ -80,7 +80,7 @@ func (T *Send) Run(ctx *hofcontext.Context) (interface{}, error) {
     Key: key,
     Val: val,
   }
-  fmt.Println("sending:", msg)
+  // fmt.Println("sending:", msg)
   // send a Msg
   c := ci.(chan Msg)
   c <- msg 

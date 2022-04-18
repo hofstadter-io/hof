@@ -7,6 +7,18 @@
 
 ## Tonight
 
+- for each flow task:
+  - schemas (define, unify)
+  - tests
+
+- test for task in:
+  - [x] api
+  - [ ] csp
+  - [ ] gen
+  - [ ] kv
+  - [ ] os
+  - [ ] st
+
 Everynight should include...
 
 - [ ] docs
@@ -35,11 +47,10 @@ Do all these together, per task or similar
 should middleware and/or tasks use $<key>
 - $log: warn: "my message"
   $log: warn: [string]: _
-  $log: global: ...? (level, format)
+  $log: global: ...? (level, format, file)
   $log: local: ...?  (level, ...?)
-- $task: ??? (probably not)
-- can we support one, other, or both with config / flags
-- should they imply different things? what would that be?
+- $task: (now supporting both @task and $task)
+- should they ($ vs @) imply different things? what would that be?
   - task vs middleware config
   - global / local config / vals
 
@@ -54,6 +65,7 @@ We should probably try to get both UX versions in the next release (0.6.2) so we
 
 `hof/flow` command
 
+- [ ] CUE v0.4.3 (soon :fingerscrossed:)
 - [x] CLI sugar:
   - [x] run solo named flows
   - [x] easier flows with: @flow/name
@@ -65,7 +77,7 @@ We should probably try to get both UX versions in the next release (0.6.2) so we
   - [x] @pool for controlling max parallelism (middleware technically)
 
 - [ ] fix / finish tasks & anything else
-  - [ ] API call response enrichment (where else?)
+  - [x] API call response enrichment (where else?)
   - [x] remove global vars
 
 - [x] centralizations (middleware/basetask)
@@ -75,8 +87,6 @@ We should probably try to get both UX versions in the next release (0.6.2) so we
 ### v0.6.3
 
 CLI sugar:
-  - @flow/name
-  - +tag=value
   - args for pipelines
    - use -- for everything after
    - populate `$/@args: ` struct

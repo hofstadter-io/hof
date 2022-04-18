@@ -7,7 +7,6 @@ import (
 	"github.com/hofstadter-io/hof/flow/tasks/csp"
 	"github.com/hofstadter-io/hof/flow/tasks/db"
 	"github.com/hofstadter-io/hof/flow/tasks/ext"
-	"github.com/hofstadter-io/hof/flow/tasks/fs"
 	"github.com/hofstadter-io/hof/flow/tasks/gen"
 	"github.com/hofstadter-io/hof/flow/tasks/kv"
 	"github.com/hofstadter-io/hof/flow/tasks/msg"
@@ -30,16 +29,14 @@ func RegisterDefaults(context *hofcontext.Context) {
 
   context.Register("ext.CueFormat", ext.NewCueFormat)
 
-  context.Register("fs.Watch", fs.NewWatch)
-
   context.Register("gen.CUID", gen.NewCUID)
-  context.Register("gen.Slug", gen.NewSlug)
   context.Register("gen.Float", gen.NewFloat)
-  context.Register("gen.Norm", gen.NewNorm)
   context.Register("gen.Int", gen.NewInt)
-  context.Register("gen.Seed", gen.NewSeed)
-  context.Register("gen.Str", gen.NewStr)
+  context.Register("gen.Norm", gen.NewNorm)
   context.Register("gen.Now", gen.NewNow)
+  context.Register("gen.Seed", gen.NewSeed)
+  context.Register("gen.Slug", gen.NewSlug)
+  context.Register("gen.Str", gen.NewStr)
   context.Register("gen.UUID", gen.NewUUID)
 
   context.Register("kv.Mem", kv.NewMem)
@@ -50,11 +47,13 @@ func RegisterDefaults(context *hofcontext.Context) {
   context.Register("os.FileLock", os.NewFileLock)
   context.Register("os.FileUnlock", os.NewFileUnlock)
   context.Register("os.Getenv", os.NewGetenv)
+  context.Register("os.Glob", os.NewGlob)
   context.Register("os.Mkdir", os.NewMkdir)
   context.Register("os.ReadFile", os.NewReadFile)
   context.Register("os.Sleep", os.NewSleep)
   context.Register("os.Stdin", os.NewStdin)
   context.Register("os.Stdout", os.NewStdout)
+  context.Register("os.Watch", os.NewWatch)
   context.Register("os.WriteFile", os.NewWriteFile)
 
   context.Register("st.Diff", st.NewDiff)

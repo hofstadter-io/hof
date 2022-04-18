@@ -9,7 +9,7 @@ builds:
     - -X github.com/hofstadter-io/hof/cmd/hof/verinfo.Version={{.Version}}
     - -X github.com/hofstadter-io/hof/cmd/hof/verinfo.Commit={{.FullCommit}}
     - -X github.com/hofstadter-io/hof/cmd/hof/verinfo.BuildDate={{.Date}}
-    - -X github.com/hofstadter-io/hof/cmd/hof/verinfo.GoVersion=go1.14
+    - -X github.com/hofstadter-io/hof/cmd/hof/verinfo.GoVersion=go1.18
     - -X github.com/hofstadter-io/hof/cmd/hof/verinfo.BuildOS={{.Os}}
     - -X github.com/hofstadter-io/hof/cmd/hof/verinfo.BuildArch={{.Arch}}
     - -X github.com/hofstadter-io/hof/cmd/hof/verinfo.BuildArm={{.Arm}}

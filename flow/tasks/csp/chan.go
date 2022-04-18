@@ -17,7 +17,7 @@ func NewChan(val cue.Value) (hofcontext.Runner, error) {
 func (T *Chan) Run(ctx *hofcontext.Context) (interface{}, error) {
 	v := ctx.Value
 
-  fmt.Println("csp.Chan", v)
+  // fmt.Println("csp.Chan", v)
 
   var err error
   var mailbox string
@@ -63,11 +63,11 @@ func (T *Chan) Run(ctx *hofcontext.Context) (interface{}, error) {
   // todo, lookup prior art in CSP
   _, loaded := ctx.Mailbox.Load(mailbox)
   if !loaded {
-    fmt.Println("new mailbox!  ", mailbox)
+    // fmt.Println("new mailbox!  ", mailbox)
     c := make(chan Msg,buf)
     ctx.Mailbox.Store(mailbox, c)
   }
-  fmt.Println("mailbox saved")
+  // fmt.Println("mailbox saved")
 
 	return nil, nil 
 }

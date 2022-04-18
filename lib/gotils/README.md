@@ -6,8 +6,8 @@ Many rely on `internal` packages and so we cannot import them directly.
 
 This repository contains code extracted from the Go compiler
 and modified to fit more general purposes.
-You can actually find many more examples around the
-[hof tool](https://github.com/hofstadter-io/hof) (where this repo will likely end up as well).
+You can find example usage around the code base.
+
 
 ### Using
 

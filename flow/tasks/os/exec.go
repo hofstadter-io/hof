@@ -87,34 +87,28 @@ func (T *Exec) Run(ctx *hofcontext.Context) (interface{}, error) {
 
   // TODO, how to run in the background and wait for signal?
 
-  // process results
-  ferr = func () error {
-    ctx.CUELock.Lock()
-    defer func() {
-      ctx.CUELock.Unlock()
-    }()
-    if err != nil {
-      v = v.FillPath(cue.ParsePath("error"), err.Error())
-    }
+  // build return value
+  ret := make(map[string]interface{})
 
-    //
-    // possibly fill stdout/stderr
-    //
-    v, err = fillIO(v, stdout, stderr)
-    if err != nil {
-      return err
-    }
+  if err != nil {
+    ret["error"] = err.Error()
+  }
 
-    // fill exit code / successful
-    v = v.FillPath(cue.ParsePath("exitcode"), cmd.ProcessState.ExitCode())
-    v = v.FillPath(cue.ParsePath("success"), cmd.ProcessState.Success())
+  //
+  // possibly fill stdout/stderr
+  //
+  ret, err = fillIO(v, ret, stdout, stderr)
+  if err != nil {
+    return nil, err
+  }
 
-    // (TODO): check for user's abort mode preference
+  // fill exit code / successful
+  ret["exitcode"] = cmd.ProcessState.ExitCode()
+  ret["success"] = cmd.ProcessState.Success()
 
-    return nil
-  }()
+  // (TODO): check for user's abort mode preference
 
-	return v, ferr
+	return ret, nil
 }
 
 func extractCmd(ex cue.Value) ([]string, error) {
@@ -267,7 +261,8 @@ func extractIO(ex cue.Value) (Stdin io.Reader, Stdout, Stderr io.Writer, err err
   return Stdin, Stdout, Stderr, nil
 }
 
-func fillIO(ex cue.Value, Stdout, Stderr io.Writer) (cue.Value, error) {
+func fillIO(ex cue.Value, ret map[string]interface{}, Stdout, Stderr io.Writer) (map[string]interface{}, error) {
+  // (warn) possible cue evaluator race condition here
   ov := ex.LookupPath(cue.ParsePath("stdout")) 
   if ov.Exists() {
     switch ov.IncompleteKind() {
@@ -275,10 +270,10 @@ func fillIO(ex cue.Value, Stdout, Stderr io.Writer) (cue.Value, error) {
     // will return the proper format when filling the value back
     case cue.StringKind:
       buf := Stdout.(*bytes.Buffer)
-      ex = ex.FillPath(cue.ParsePath("stdout"), buf.String())
+      ret["stdout"] = buf.String()
     case cue.BytesKind:
       buf := Stdout.(*bytes.Buffer)
-      ex = ex.FillPath(cue.ParsePath("stdout"), buf.Bytes())
+      ret["stdout"] = buf.Bytes()
     case cue.NullKind:
       // do nothing, Stdout was not captured
     }
@@ -291,15 +286,15 @@ func fillIO(ex cue.Value, Stdout, Stderr io.Writer) (cue.Value, error) {
     // will return the proper format when filling the value back
     case cue.StringKind:
       buf := Stderr.(*bytes.Buffer)
-      ex = ex.FillPath(cue.ParsePath("stderr"), buf.String())
+      ret["stderr"] = buf.String()
     case cue.BytesKind:
       buf := Stderr.(*bytes.Buffer)
-      ex = ex.FillPath(cue.ParsePath("stderr"), buf.Bytes())
+      ret["stderr"] = buf.Bytes()
     case cue.NullKind:
       // do nothing, Stderr was not captured
     }
   }
 
-  return ex, nil
+  return ret, nil
 }
 

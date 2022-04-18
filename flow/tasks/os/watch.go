@@ -1,4 +1,4 @@
-package fs
+package os
 
 import (
 	"fmt"
@@ -7,7 +7,6 @@ import (
 
 	"cuelang.org/go/cue"
   "github.com/fsnotify/fsnotify"
-  "github.com/mattn/go-zglob"
 
   hofcontext "github.com/hofstadter-io/hof/flow/context"
   "github.com/hofstadter-io/hof/flow/flow"
@@ -77,17 +76,14 @@ func (T *Watch) Run(ctx *hofcontext.Context) (interface{}, error) {
     return nil, ferr
   }
 
-  files := []string{}
-  for _, glob := range globs {
-    matches, err := zglob.Glob(glob)
-    if err != nil {
-      return nil, err
-    }
-    files = append(files, matches...)
+  files, err := filesFromGlobs(globs)
+  if err != nil {
+    return nil, ferr
   }
 
   fmt.Printf("watching %d files\n", len(files))
 
+  // todo (good-first-issue), configurable
   debounce := New(time.Millisecond*250)
 
   watcher, err := fsnotify.NewWatcher()
@@ -106,6 +102,7 @@ func (T *Watch) Run(ctx *hofcontext.Context) (interface{}, error) {
 				}
 
         // todo, fill event into handler
+        // probably want to customize content
         // v = v.FillPath(cue.ParsePath("event"), event)
 
 				if event.Op&fsnotify.Write == fsnotify.Write {

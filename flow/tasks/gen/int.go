@@ -27,7 +27,7 @@ func (T *Int) Run(ctx *hofcontext.Context) (interface{}, error) {
     }()
 
     // lookup key
-    nv := val.LookupPath(cue.ParsePath("n")) 
+    nv := val.LookupPath(cue.ParsePath("max")) 
     if nv.Exists() {
       if nv.Err() != nil {
         return nv.Err() 
@@ -52,5 +52,5 @@ func (T *Int) Run(ctx *hofcontext.Context) (interface{}, error) {
     i = rand.Intn(n)
   }
 
-	return i, nil
+  return map[string]interface{}{ "val": i }, nil
 }

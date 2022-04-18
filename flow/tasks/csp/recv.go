@@ -17,7 +17,7 @@ func NewRecv(val cue.Value) (hofcontext.Runner, error) {
 }
 
 func (T *Recv) Run(ctx *hofcontext.Context) (interface{}, error) {
-  fmt.Println("csp.Recv", ctx.Value)
+  // fmt.Println("csp.Recv", ctx.Value)
 
 	v := ctx.Value
   var (
@@ -62,7 +62,7 @@ func (T *Recv) Run(ctx *hofcontext.Context) (interface{}, error) {
   }
 
   // load mailbox
-  fmt.Println("mailbox?:", mailbox)
+  // fmt.Println("mailbox?:", mailbox)
   ci, loaded := ctx.Mailbox.Load(mailbox)
   if !loaded {
     return nil, fmt.Errorf("channel %q not found", mailbox)
@@ -72,7 +72,7 @@ func (T *Recv) Run(ctx *hofcontext.Context) (interface{}, error) {
 
   var quitChan chan Msg
   if quit != "" {
-    fmt.Println("quitMailbox?:", quit)
+    // fmt.Println("quitMailbox?:", quit)
     qi, loaded := ctx.Mailbox.Load(quit)
     if !loaded {
       return nil, fmt.Errorf("channel %q not found", quit)
@@ -82,11 +82,11 @@ func (T *Recv) Run(ctx *hofcontext.Context) (interface{}, error) {
 
   handler := v.LookupPath(cue.ParsePath("handler"))
   if !handler.Exists() {
-    fmt.Println("got here")
+    // fmt.Println("got here")
     return nil, handler.Err()
   }
 
-  fmt.Println("handler:", handler)
+  // fmt.Println("handler:", handler)
 
   for {
     select {
@@ -133,6 +133,4 @@ func (T *Recv) Run(ctx *hofcontext.Context) (interface{}, error) {
       }
     }
   }
-
-  return nil, nil
 }
