@@ -9,12 +9,6 @@ RepoRoot: {
   out: strings.TrimSpace(stdout)
 }
 
-watchAll: {
-  @flow(watch/all)
-  build: watchBuild
-  test:  watchTest
-}
-
 watchBuild: {
   @flow(watch/build)
 
@@ -23,7 +17,7 @@ watchBuild: {
   dirs: ["cmd","flow","lib","gen"]
 
   watch: {
-    @task(fs.Watch)
+    @task(os.Watch)
     globs: [ for d in dirs { "\(root)/\(d)/**/*.go" } ]
     handler: {
       event?: _
