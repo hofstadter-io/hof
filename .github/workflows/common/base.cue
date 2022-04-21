@@ -23,9 +23,6 @@ import "github.com/hofstadter-io/ghacue"
 	name: "Checkout code"
 	uses: "actions/checkout@v2"
 },{
-	name: "Download mods"
-	run: "go mod download"
-},{
 	name: "Build CLI"
 	run: "go install ./cmd/hof"
 }]
