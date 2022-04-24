@@ -1,6 +1,6 @@
 module github.com/hofstadter-io/hof
 
-cue 0.4.2
+cue 0.4.3
 
 require (
   github.com/hofstadter-io/ghacue v0.1.0

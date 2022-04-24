@@ -3,7 +3,7 @@ module github.com/hofstadter-io/hof
 go 1.17
 
 require (
-	cuelang.org/go v0.4.3-beta.1
+	cuelang.org/go v0.4.3
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/aymerick/raymond v2.0.2+incompatible
 	github.com/bmatcuk/doublestar/v4 v4.0.2
@@ -36,7 +36,7 @@ require (
 	github.com/parnurzeal/gorequest v0.2.16
 	github.com/pkg/errors v0.9.1
 	github.com/sergi/go-diff v1.1.0
-	github.com/spf13/cobra v1.0.0
+	github.com/spf13/cobra v1.4.0
 	github.com/spf13/viper v1.7.0
 	github.com/stretchr/testify v1.7.0
 	github.com/xanzy/go-gitlab v0.50.3
