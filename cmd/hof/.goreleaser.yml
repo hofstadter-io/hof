@@ -24,12 +24,6 @@ builds:
   goarch:
     - amd64
     - arm64
-    - arm
-
-  ignore:
-  - goos: linux
-    goarch: arm
-
 
 snapshot:
   name_template: "{{ .Tag }}-SNAPSHOT-{{.ShortCommit}}"
@@ -66,10 +60,8 @@ release:
     name: hof
 
 dockers:
-- binaries:
-    - hof
-  skip_push: false
-  dockerfile: ../../ci/hof/docker/Dockerfile.jessie
+- skip_push: false
+  dockerfile: ../../ci/hof/docker/Dockerfile.debian
   image_templates:
   - "hofstadter/{{.ProjectName}}:{{.Tag}}"
   - "hofstadter/{{.ProjectName}}:v{{ .Major }}.{{ .Minor }}"
@@ -81,10 +73,15 @@ dockers:
   - "hofstadter/{{.ProjectName}}:v{{ .Major }}-debian"
   - "hofstadter/{{.ProjectName}}:latest-debian"
 
+- skip_push: false
+  dockerfile: ../../ci/hof/docker/Dockerfile.alpine
+  image_templates:
+  - "hofstadter/{{.ProjectName}}:{{.Tag}}-alpine"
+  - "hofstadter/{{.ProjectName}}:v{{ .Major }}.{{ .Minor }}-alpine"
+  - "hofstadter/{{.ProjectName}}:v{{ .Major }}-alpine"
+  - "hofstadter/{{.ProjectName}}:latest-alpine"
 
-- binaries:
-    - hof
-  skip_push: false
+- skip_push: false
   dockerfile: ../../ci/hof/docker/Dockerfile.scratch
   image_templates:
   - "hofstadter/{{.ProjectName}}:{{.Tag}}-scratch"

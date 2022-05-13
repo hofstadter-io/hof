@@ -38,7 +38,7 @@ var BashCompletionCmd = &cobra.Command{
 	Short: "Generate Bash completions",
 	Long:  BashCompletionLong,
 	Run: func(cmd *cobra.Command, args []string) {
-		RootCmd.GenBashCompletion(os.Stdout)
+		RootCmd.GenBashCompletionV2(os.Stdout, false)
 	},
 }
 
