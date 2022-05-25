@@ -13,7 +13,7 @@ type KeyVal struct {
 	Val cue.Value
 }
 
-// GetByAttrAndKeys extracts fields from a avlue by attribute and key names
+// GetByAttrAndKeys extracts fields from a value by attribute and key names
 // if all or any is empty, the condition check is skipped and all values will pass
 // so to get all values with an attribute, with no concern for the contents, use:
 //
