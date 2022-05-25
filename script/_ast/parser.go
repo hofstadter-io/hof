@@ -15,7 +15,6 @@ type Parser struct {
 	scriptList []*Script
 	scriptMap  map[string]*Script
 
-
 	// parser state
 	lineno int
 	script *Script
@@ -61,9 +60,9 @@ func (P *Parser) IncLine() {
 func (P *Parser) AppendNode(n Node) {
 	// this only happens when the user hasn't started with a phase
 	if P.phase == nil {
-		P.phase = &Phase {
+		P.phase = &Phase{
 			NodeBase: NodeBase{
-				name: "unnamed phase",
+				name:    "unnamed phase",
 				docLine: 0,
 				begLine: 1,
 				endLine: P.lineno,
@@ -80,7 +79,7 @@ func (P *Parser) AppendNode(n Node) {
 }
 
 func (P *Parser) ParseScript(filepath string) (*Script, error) {
-	S, err :=  P.setupScript(filepath, nil)
+	S, err := P.setupScript(filepath, nil)
 	if err != nil {
 		return S, err
 	}
@@ -105,10 +104,9 @@ func (P *Parser) setupScript(filepath string, input interface{}) (S *Script, err
 	}
 
 	S = &Script{
-		Path: filepath,
+		Path:    filepath,
 		Content: content,
 	}
 
 	return S, nil
 }
-

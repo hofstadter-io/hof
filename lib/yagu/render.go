@@ -17,9 +17,9 @@ import (
 
 func init() {
 	/*
-	raymond.RegisterHelper("pw", func(content, width string) string {
-		return fmt.Sprintf("%-"+width+"s", content)
-	})
+		raymond.RegisterHelper("pw", func(content, width string) string {
+			return fmt.Sprintf("%-"+width+"s", content)
+		})
 	*/
 }
 

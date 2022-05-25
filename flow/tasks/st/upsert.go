@@ -7,16 +7,16 @@ import (
 	"github.com/hofstadter-io/hof/lib/structural"
 )
 
-type Upsert struct {}
+type Upsert struct{}
 
 func NewUpsert(val cue.Value) (hofcontext.Runner, error) {
-  return &Upsert{}, nil
+	return &Upsert{}, nil
 }
 
 // Tasks must implement a Run func, this is where we execute our task
 func (T *Upsert) Run(ctx *hofcontext.Context) (interface{}, error) {
-  ctx.CUELock.Lock()
-  defer ctx.CUELock.Unlock()
+	ctx.CUELock.Lock()
+	defer ctx.CUELock.Unlock()
 	v := ctx.Value
 
 	x := v.LookupPath(cue.ParsePath("val"))

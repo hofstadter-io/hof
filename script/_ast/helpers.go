@@ -74,8 +74,8 @@ func stripTrailingWhitespace(s string) string {
 }
 
 func cleanLine(line string) string {
-		line = strings.TrimSpace(line)
-		return line
+	line = strings.TrimSpace(line)
+	return line
 }
 
 func cleanMultiLine(content string) string {

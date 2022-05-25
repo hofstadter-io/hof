@@ -56,7 +56,6 @@ func (ts *Script) CmdExec(neg int, args []string) {
 	}
 }
 
-
 // exec runs the given command line (an actual subprocess, not simulated)
 // in ts.cd with environment ts.env and then returns collected standard output and standard error.
 func (ts *Script) exec(command string, args ...string) (stdout, stderr string, err error) {
@@ -209,4 +208,3 @@ func (ts *Script) CmdWait(neg int, args []string) {
 	ts.stderr = strings.Join(stderrs, "")
 	ts.background = nil
 }
-

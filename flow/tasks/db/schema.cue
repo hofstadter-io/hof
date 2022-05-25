@@ -8,29 +8,28 @@ package db
 
 // Call a database
 Call: {
-  @task(db.Call)
-  $task: "db.Call"
+	@task(db.Call)
+	$task: "db.Call"
 
-  // db connection
-  conn: {
-    sqlite: string // db name
-  }
+	// db connection
+	conn: {
+		sqlite: string // db name
+	}
 
-  // args to Call
-  args:  [..._]
+	// args to Call
+	args: [...]
 
-  // Use only one of [query,exec,stmts] 
-  query: string
-  exec:  string
+	// Use only one of [query,exec,stmts] 
+	query: string
+	exec:  string
 
-  stmts: [...{
-    // Use only one of [query,exec,stmts] 
-    query: string
-    exec:  string
-    // args to statement, merged with top-level
-    args:  string 
-  }]
+	stmts: [...{
+		// Use only one of [query,exec,stmts] 
+		query: string
+		exec:  string
+		// args to statement, merged with top-level
+		args: string
+	}]
 
-  results: _
+	results: _
 }
-

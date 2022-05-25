@@ -5,8 +5,8 @@ import (
 	"io/ioutil"
 	"strings"
 
-	googithub "github.com/google/go-github/v38/github"
 	"github.com/go-git/go-billy/v5/memfs"
+	googithub "github.com/google/go-github/v38/github"
 
 	"github.com/hofstadter-io/hof/lib/mod/cache"
 	"github.com/hofstadter-io/hof/lib/mod/parse/sumfile"
@@ -78,13 +78,13 @@ func Hack(lang string, args []string) error {
 		}
 
 		dver := sumfile.Version{
-			Path: strings.Join([]string{"github.com", owner, repo}, "/"),
+			Path:    strings.Join([]string{"github.com", owner, repo}, "/"),
 			Version: tag,
 		}
 		S.Add(dver, dirhash)
 
 		mver := sumfile.Version{
-			Path: strings.Join([]string{"github.com", owner, repo}, "/"),
+			Path:    strings.Join([]string{"github.com", owner, repo}, "/"),
 			Version: strings.Join([]string{tag, "cue.mods"}, "/"),
 		}
 		S.Add(mver, modhash)

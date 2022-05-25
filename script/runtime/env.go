@@ -6,7 +6,6 @@ import (
 	"strings"
 )
 
-
 // Env holds the environment to use at the start of a test script invocation.
 type Env struct {
 	// WorkDir holds the path to the root directory of the
@@ -72,7 +71,6 @@ func (e *Env) T() T {
 	return e.ts.t
 }
 
-
 // abbrev abbreviates the actual work directory in the string s to the literal string "$WORK".
 func (ts *Script) abbrev(s string) string {
 	if ts.params.Mode != "test" {
@@ -108,4 +106,3 @@ func tempEnvName() string {
 		return "TMPDIR"
 	}
 }
-

@@ -82,8 +82,8 @@ import (
 }
 
 #RunCommandHelp: ##"""
-HofLineScript (HLS) run polyglot command and scripts seamlessly across runtimes
-
-can accept cue & flags or just a .hls file
-
-"""##
+	HofLineScript (HLS) run polyglot command and scripts seamlessly across runtimes
+	
+	can accept cue & flags or just a .hls file
+	
+	"""##

@@ -21,22 +21,22 @@ func (n *NodeBase) SetScript(s *Script) {
 
 func (n *NodeBase) Clone() Node {
 	return &NodeBase{
-		script: n.script,
+		script:  n.script,
 		docLine: n.docLine,
 		begLine: n.begLine,
 		endLine: n.endLine,
-		name: n.name,
+		name:    n.name,
 		comment: n.comment,
 	}
 }
 
-func (n *NodeBase) CloneNodeBase() NodeBase{
+func (n *NodeBase) CloneNodeBase() NodeBase {
 	return NodeBase{
-		script: n.script,
+		script:  n.script,
 		docLine: n.docLine,
 		begLine: n.begLine,
 		endLine: n.endLine,
-		name: n.name,
+		name:    n.name,
 		comment: n.comment,
 	}
 }

@@ -15,7 +15,7 @@ func Outdir(lang, remote, owner, repo, tag string) string {
 		lang,
 		remote,
 		owner,
-		repo + "@" + tag,
+		repo+"@"+tag,
 	)
 	return outdir
 }

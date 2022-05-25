@@ -8,22 +8,21 @@ import (
 
 func TestScriptBrowser(t *testing.T) {
 	runtime.Run(t, runtime.Params{
-		Dir: "tests/browser",
+		Dir:  "tests/browser",
 		Glob: "*.hls",
 	})
 }
 
 func TestScriptCmds(t *testing.T) {
 	runtime.Run(t, runtime.Params{
-		Dir: "tests/cmds",
+		Dir:  "tests/cmds",
 		Glob: "*.hls",
 	})
 }
 
 func TestScriptHTTP(t *testing.T) {
 	runtime.Run(t, runtime.Params{
-		Dir: "tests/http",
+		Dir:  "tests/http",
 		Glob: "*.hls",
 	})
 }
-

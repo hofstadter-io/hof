@@ -61,10 +61,9 @@ func scriptMatch(ts *Script, neg int, args []string, text, name string) {
 	re, err := regexp.Compile(`(?m)` + pattern)
 	ts.Check(err)
 
-
 	if isRegexp || isGrep {
 		content := args[1]
-		switch  content {
+		switch content {
 		case "stdout", "$WORK/stdout":
 			text = ts.stdout
 		case "stderr", "$WORK/stderr":
@@ -80,7 +79,7 @@ func scriptMatch(ts *Script, neg int, args []string, text, name string) {
 	replace := ""
 	if isSed {
 		replace = args[1]
-		switch  replace {
+		switch replace {
 		case "stdout", "$WORK/stdout":
 			text = ts.stdout
 		case "stderr", "$WORK/stderr":
@@ -95,7 +94,7 @@ func scriptMatch(ts *Script, neg int, args []string, text, name string) {
 			}
 		}
 		content := args[2]
-		switch  content {
+		switch content {
 		case "stdout", "$WORK/stdout":
 			text = ts.stdout
 		case "stderr", "$WORK/stderr":
@@ -154,4 +153,3 @@ func scriptMatch(ts *Script, neg int, args []string, text, name string) {
 		}
 	}
 }
-

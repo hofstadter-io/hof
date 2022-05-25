@@ -42,14 +42,13 @@ package test
 Suites: #Suites & {
 
 	st: {
-		cli:  #Defaults.gocli  & { skip: true, dir: "lib/structural" }
-		unit: #Defaults.gounit & { dir: "lib/structural" }
+		cli:  #Defaults.gocli & {skip: true, dir: "lib/structural"}
+		unit: #Defaults.gounit & {dir: "lib/structural"}
 	}
 
-
 	mod: {
-		cli:  #Defaults.gocli  & { dir: "lib/mod" }
-		unit: #Defaults.gounit & { skip: true, dir: "lib/mod" }
+		cli:  #Defaults.gocli & {dir:   "lib/mod"}
+		unit: #Defaults.gounit & {skip: true, dir: "lib/mod"}
 	}
 
 }

@@ -64,7 +64,7 @@ func (sum *Sum) Add(ver Version, hash string) {
 	}
 	val, ok := sum.Mods[ver]
 	if !ok {
-		val = make([]string,0)
+		val = make([]string, 0)
 	}
 	val = append(val, hash)
 	sum.Mods[ver] = val

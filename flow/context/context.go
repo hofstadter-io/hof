@@ -9,7 +9,7 @@ import (
 
 	"cuelang.org/go/cue"
 
-  "github.com/hofstadter-io/hof/flow/task"
+	"github.com/hofstadter-io/hof/flow/task"
 )
 
 // A Context provides context for running a task.
@@ -17,85 +17,85 @@ type Context struct {
 	RootValue cue.Value
 	GoContext gocontext.Context
 
-  FlowStack []string
+	FlowStack []string
 
-	Stdin   io.Reader
-	Stdout  io.Writer
-	Stderr  io.Writer
+	Stdin  io.Reader
+	Stdout io.Writer
+	Stderr io.Writer
 
-	Value   cue.Value
-	Error   error
+	Value cue.Value
+	Error error
 
-  // debug / internal
-  Verbosity  int
+	// debug / internal
+	Verbosity int
 
-  Middlewares  []Middleware
-  TaskRegistry *sync.Map
+	Middlewares  []Middleware
+	TaskRegistry *sync.Map
 
-  // BOOKKEEPING
-  Tasks *sync.Map
+	// BOOKKEEPING
+	Tasks *sync.Map
 
-  // experimental
-  BaseTask *task.BaseTask
+	// experimental
+	BaseTask *task.BaseTask
 
-  // Middleware
-  Pools *sync.Map 
+	// Middleware
+	Pools *sync.Map
 
-  // how can the below become middleware, extensions, plugin?
+	// how can the below become middleware, extensions, plugin?
 
-  // Global (for this context, tbd shared) lock around CUE evaluator 
-  CUELock  *sync.Mutex
+	// Global (for this context, tbd shared) lock around CUE evaluator
+	CUELock *sync.Mutex
 
-  // map of cue.Values
-  ValStore *sync.Map
+	// map of cue.Values
+	ValStore *sync.Map
 
-  // map of chan?
-  Mailbox  *sync.Map
+	// map of chan?
+	Mailbox *sync.Map
 
-  // channels for
-  // - stats & progress
+	// channels for
+	// - stats & progress
 
 }
 
 func New() *Context {
-  return &Context{
-    GoContext: gocontext.Background(),
-    FlowStack: []string{},
-    CUELock: new(sync.Mutex),
-    ValStore: new(sync.Map),
-    Mailbox: new(sync.Map),
-    Middlewares: make([]Middleware,0),
-    TaskRegistry: new(sync.Map),
-    Tasks: new(sync.Map),
-    Pools: new(sync.Map),
-  }
+	return &Context{
+		GoContext:    gocontext.Background(),
+		FlowStack:    []string{},
+		CUELock:      new(sync.Mutex),
+		ValStore:     new(sync.Map),
+		Mailbox:      new(sync.Map),
+		Middlewares:  make([]Middleware, 0),
+		TaskRegistry: new(sync.Map),
+		Tasks:        new(sync.Map),
+		Pools:        new(sync.Map),
+	}
 }
 
 func Copy(ctx *Context) *Context {
-  return &Context{
-    RootValue: ctx.RootValue,
-    GoContext: ctx.GoContext,
-    FlowStack:   ctx.FlowStack,
+	return &Context{
+		RootValue: ctx.RootValue,
+		GoContext: ctx.GoContext,
+		FlowStack: ctx.FlowStack,
 
-    Stdin:   ctx.Stdin,
-    Stdout:  ctx.Stdout,
-    Stderr:  ctx.Stderr,
+		Stdin:  ctx.Stdin,
+		Stdout: ctx.Stdout,
+		Stderr: ctx.Stderr,
 
-    Verbosity: ctx.Verbosity,
+		Verbosity: ctx.Verbosity,
 
-    CUELock: ctx.CUELock,
-    Mailbox: ctx.Mailbox,
-    ValStore: ctx.ValStore,
+		CUELock:  ctx.CUELock,
+		Mailbox:  ctx.Mailbox,
+		ValStore: ctx.ValStore,
 
-    Middlewares: ctx.Middlewares,
-    TaskRegistry: ctx.TaskRegistry,
-    Tasks: ctx.Tasks,
-    Pools: ctx.Pools,
-  }
+		Middlewares:  ctx.Middlewares,
+		TaskRegistry: ctx.TaskRegistry,
+		Tasks:        ctx.Tasks,
+		Pools:        ctx.Pools,
+	}
 }
 
 func (C *Context) Use(m Middleware) {
-  C.Middlewares = append(C.Middlewares, m)
+	C.Middlewares = append(C.Middlewares, m)
 }
 
 // Register registers a task for cue commands.
@@ -115,8 +115,9 @@ func (C *Context) Lookup(key string) RunnerFunc {
 // Middleware to apply to RunnerFuncs
 // should wrap and call Run of the passed RunnerFunc?
 type Middleware interface {
-  Apply(*Context, RunnerFunc) RunnerFunc
+	Apply(*Context, RunnerFunc) RunnerFunc
 }
+
 // A RunnerFunc creates a Runner.
 type RunnerFunc func(v cue.Value) (Runner, error)
 

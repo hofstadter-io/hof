@@ -7,9 +7,8 @@ import (
 type Modelset struct {
 	Name string
 
-	Entry  string
-	CueValue  cue.Value
+	Entry    string
+	CueValue cue.Value
 
 	Models map[string]Model
 }
-

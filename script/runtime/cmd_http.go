@@ -53,11 +53,11 @@ func (ts *Script) http(args []string) (string, string, int, error) {
 	ts.Check(err)
 
 	defer func() {
-        if r := recover(); r != nil {
+		if r := recover(); r != nil {
 			bs := debug.Stack()
 			ts.Fatalf("Recovered in HTTP: %v\n%s\n", r, string(bs))
-        }
-    }()
+		}
+	}()
 
 	resp, body, errs := req.End()
 
@@ -236,7 +236,6 @@ func (ts *Script) applyArgToReq(req *gorequest.SuperAgent, arg string) (*goreque
 	case "GET", "POST", "HEAD", "PUT", "DELETE", "PATCH", "OPTIONS":
 		req.Method = K
 
-
 	// Graphql Helpers
 	case "G", "GQL", "GRAPHQL":
 		if strings.HasPrefix(val, "@") {
@@ -252,7 +251,6 @@ func (ts *Script) applyArgToReq(req *gorequest.SuperAgent, arg string) (*goreque
 
 	case "O", "OP", "OPNAME", "OPERATION":
 		req = req.Send(fmt.Sprintf(`{ "operationName": %q }`, val))
-
 
 	default:
 

@@ -1,11 +1,9 @@
 package sync
 
-
-
 CreatePool: {
-  
+
 }
 
 UsePool: {
-  
+
 }

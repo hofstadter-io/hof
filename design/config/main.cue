@@ -85,7 +85,7 @@ import (
 	// Unless... we want to subdivide workspaces, monorepo style (probably do want ot do this)
 	// We can also associate developer setups with this
 	// ... rethinking having multiple workspaces per repo, doesn't fit with the latest UX (in particular workspace/workflow integration)
-	Workspaces?: [WorkspaceName=string]:     #WorkspaceSchema & {name:   WorkspaceName}
+	Workspaces?: [WorkspaceName=string]: #WorkspaceSchema & {name: WorkspaceName}
 
 	...
 }
@@ -95,6 +95,6 @@ import (
 	Name: string | *""
 	Dir:  string | *""
 
-	ModelsDir: string | *"models"
+	ModelsDir:    string | *"models"
 	ResourcesDir: string | *"resources"
 }

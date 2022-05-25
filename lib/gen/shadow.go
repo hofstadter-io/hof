@@ -44,7 +44,7 @@ func LoadShadow(subdir string, verbose bool) (map[string]*File, error) {
 		}
 
 		fpath = strings.TrimPrefix(fpath, SHADOW_DIR)
-		shadow[fpath] = &File {
+		shadow[fpath] = &File{
 			Filepath: fpath,
 		}
 
@@ -76,4 +76,3 @@ func (F *File) ReadShadow() error {
 
 	return nil
 }
-

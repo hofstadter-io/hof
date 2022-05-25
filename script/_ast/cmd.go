@@ -18,9 +18,9 @@ const (
 type Cmd struct {
 	NodeBase
 
-	Exp  CmdExpect
-	Cmd  string
-	Args []string
+	Exp    CmdExpect
+	Cmd    string
+	Args   []string
 	Bg     bool
 	BgName string
 }
@@ -29,7 +29,7 @@ func (P *Parser) parseCmd() error {
 	S := P.script
 	N := P.node
 
-	lines := S.Lines[N.BegLine():N.EndLine()+1]
+	lines := S.Lines[N.BegLine() : N.EndLine()+1]
 	for i, l := range lines {
 		l = strings.TrimSpace(l)
 		l = strings.TrimSuffix(l, "\\")
@@ -41,7 +41,7 @@ func (P *Parser) parseCmd() error {
 
 	cmd := &Cmd{
 		NodeBase: P.node.CloneNodeBase(),
-		Exp: Pass,
+		Exp:      Pass,
 	}
 
 	for len(line) > 0 {
@@ -53,22 +53,22 @@ func (P *Parser) parseCmd() error {
 
 		switch token[0] {
 
-			case '!':
-				cmd.Exp = Fail
-			case '?':
-				cmd.Exp = Skip
+		case '!':
+			cmd.Exp = Fail
+		case '?':
+			cmd.Exp = Skip
 
-			case '&':
-				flds := strings.SplitN(token, ":", 2)
-				cmd.Bg = true
-				cmd.BgName = flds[1]
+		case '&':
+			flds := strings.SplitN(token, ":", 2)
+			cmd.Bg = true
+			cmd.BgName = flds[1]
 
-			default:
-				if cmd.Cmd == "" {
-					cmd.Cmd = token
-				} else {
-					cmd.Args = append(cmd.Args, token)
-				}
+		default:
+			if cmd.Cmd == "" {
+				cmd.Cmd = token
+			} else {
+				cmd.Args = append(cmd.Args, token)
+			}
 		}
 
 	}
@@ -106,7 +106,7 @@ func nextToken(input string) (token, rest string, err error) {
 	case '"':
 		return readDoubleQuoteString(input[p:])
 
-	// TODO, multiline strings
+		// TODO, multiline strings
 	}
 
 	// read until we hit a space or EOL
@@ -129,7 +129,7 @@ func readSingleQuoteString(input string) (token, rest string, err error) {
 	p := 1
 	for p < len(input) {
 		if input[p] == '\'' && input[p-1] != '\\' {
-			return input[0:p+1], input[p+1:], nil
+			return input[0 : p+1], input[p+1:], nil
 		}
 		p++
 	}
@@ -145,7 +145,7 @@ func readDoubleQuoteString(input string) (token, rest string, err error) {
 	p := 1
 	for p < len(input) {
 		if input[p] == '"' && input[p-1] != '\\' {
-			return input[0:p+1], input[p+1:], nil
+			return input[0 : p+1], input[p+1:], nil
 		}
 		p++
 	}
@@ -164,11 +164,11 @@ func readBackgroundToken(input string) (token, rest string, err error) {
 		}
 		if c == ':' {
 			name, rest, err := nextToken(input[2:])
-			return input[0:1]+name, rest, err
+			return input[0:1] + name, rest, err
 		}
 
 		return "", "", fmt.Errorf("Background command missing space or :name after &")
 	}
 
-		return "", "", fmt.Errorf("readBackgroundToken shouldn't get here")
+	return "", "", fmt.Errorf("readBackgroundToken shouldn't get here")
 }

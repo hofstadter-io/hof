@@ -180,4 +180,3 @@ func (ts *Script) CmdSymlink(neg int, args []string) {
 	// it will be interpreted relative to the directory file is in.
 	ts.Check(os.Symlink(args[2], ts.MkAbs(args[0])))
 }
-

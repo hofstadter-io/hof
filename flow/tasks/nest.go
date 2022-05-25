@@ -1,38 +1,38 @@
 package tasks
 
 import (
-  "fmt"
+	"fmt"
 
 	"cuelang.org/go/cue"
 
-  hofcontext "github.com/hofstadter-io/hof/flow/context"
+	hofcontext "github.com/hofstadter-io/hof/flow/context"
 	"github.com/hofstadter-io/hof/flow/flow"
 )
 
 // this is buggy, need upstream support
-type Nest struct {}
+type Nest struct{}
 
 func NewNest(val cue.Value) (hofcontext.Runner, error) {
-  return &Nest{}, nil
+	return &Nest{}, nil
 }
 
 func (T *Nest) Run(ctx *hofcontext.Context) (interface{}, error) {
 	val := ctx.Value
 
-  orig := ctx.FlowStack
-  ctx.FlowStack = append(orig, fmt.Sprint(val.Path()))
+	orig := ctx.FlowStack
+	ctx.FlowStack = append(orig, fmt.Sprint(val.Path()))
 
-  p, err := flow.NewFlow(ctx, val)
-  if err != nil {
-    return nil, err
-  }
+	p, err := flow.NewFlow(ctx, val)
+	if err != nil {
+		return nil, err
+	}
 
-  err = p.Start()
-  if err != nil {
-    return nil, err
-  }
+	err = p.Start()
+	if err != nil {
+		return nil, err
+	}
 
-  ctx.FlowStack = orig
+	ctx.FlowStack = orig
 
-  return p.Final, nil
+	return p.Final, nil
 }

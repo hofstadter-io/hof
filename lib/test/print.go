@@ -33,12 +33,12 @@ func printTests(suites []Suite, stats bool) {
 		st := ""
 		if stats {
 			s := S.Stats
-			st = fmt.Sprintf("  %d/%d/%d ~ %v", s.Pass,s.Fail,s.Skip,s.Time)
+			st = fmt.Sprintf("  %d/%d/%d ~ %v", s.Pass, s.Fail, s.Skip, s.Time)
 		}
 
 		lt := fmt.Sprintf("[%d]", len(S.Tests))
 
-		fmt.Printf( "[suite]     %-16s %6s %-32v%s\n", S.Name, lt, a, st)
+		fmt.Printf("[suite]     %-16s %6s %-32v%s\n", S.Name, lt, a, st)
 
 		totalTests += len(S.Tests)
 
@@ -51,7 +51,7 @@ func printTests(suites []Suite, stats bool) {
 				known := false
 				for _, kT := range knownTesters {
 					if k == kT {
-						as = append([]string{"["+k+"]"}, as...)
+						as = append([]string{"[" + k + "]"}, as...)
 						known = true
 						break
 					}
@@ -73,9 +73,9 @@ func printTests(suites []Suite, stats bool) {
 			if stats {
 				totalStats.add(t.Stats)
 				s := t.Stats
-				st = fmt.Sprintf("  %d/%d/%d ~ %v", s.Pass,s.Fail,s.Skip,s.Time)
+				st = fmt.Sprintf("  %d/%d/%d ~ %v", s.Pass, s.Fail, s.Skip, s.Time)
 			}
-			fmt.Printf( "[tester]      %-16s      %-32v%s\n", t.Name, a, st)
+			fmt.Printf("[tester]      %-16s      %-32v%s\n", t.Name, a, st)
 		}
 
 		fmt.Println()
@@ -87,8 +87,7 @@ func printTests(suites []Suite, stats bool) {
 	fmt.Println("Total Tests:  ", totalTests)
 	if stats {
 		s := totalStats
-		st := fmt.Sprintf("%d/%d/%d ~ %v", s.Pass,s.Fail,s.Skip,s.Time)
+		st := fmt.Sprintf("%d/%d/%d ~ %v", s.Pass, s.Fail, s.Skip, s.Time)
 		fmt.Println("Total Stats:  ", st)
 	}
 }
-

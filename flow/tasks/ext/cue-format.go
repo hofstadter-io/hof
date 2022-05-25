@@ -1,44 +1,44 @@
 package ext
 
 import (
-  "fmt"
+	"fmt"
 
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/format"
 
-  hofcontext "github.com/hofstadter-io/hof/flow/context"
+	hofcontext "github.com/hofstadter-io/hof/flow/context"
 )
 
-type CueFormat struct {}
+type CueFormat struct{}
 
 func NewCueFormat(val cue.Value) (hofcontext.Runner, error) {
-  return &CueFormat{}, nil
+	return &CueFormat{}, nil
 }
 
 func (T *CueFormat) Run(ctx *hofcontext.Context) (interface{}, error) {
 
 	v := ctx.Value
-  var val cue.Value
+	var val cue.Value
 
-  ferr := func () error {
-    ctx.CUELock.Lock()
-    defer func() {
-      ctx.CUELock.Unlock()
-    }()
+	ferr := func() error {
+		ctx.CUELock.Lock()
+		defer func() {
+			ctx.CUELock.Unlock()
+		}()
 
-    val := v.LookupPath(cue.ParsePath("val")) 
-    if !val.Exists() {
-      return fmt.Errorf("in task %s: missing field 'value'", v.Path())
-    }
-    if val.Err() != nil {
-      return val.Err()
-    }
+		val := v.LookupPath(cue.ParsePath("val"))
+		if !val.Exists() {
+			return fmt.Errorf("in task %s: missing field 'value'", v.Path())
+		}
+		if val.Err() != nil {
+			return val.Err()
+		}
 
-    return nil
-  }()
-  if ferr != nil {
-    return nil, ferr
-  }
+		return nil
+	}()
+	if ferr != nil {
+		return nil, ferr
+	}
 
 	syn := val.Syntax(
 		cue.Final(),
@@ -52,13 +52,12 @@ func (T *CueFormat) Run(ctx *hofcontext.Context) (interface{}, error) {
 
 	bs, err := format.Node(syn)
 	if err != nil {
-    return nil, err
+		return nil, err
 	}
 
-  ctx.CUELock.Lock()
-  defer ctx.CUELock.Unlock()
-  res := v.FillPath(cue.ParsePath("out"), string(bs))
+	ctx.CUELock.Lock()
+	defer ctx.CUELock.Unlock()
+	res := v.FillPath(cue.ParsePath("out"), string(bs))
 
-	return res, nil 
+	return res, nil
 }
-

@@ -60,4 +60,3 @@ func (ts *Script) parse(line string) []string {
 	}
 	return args
 }
-

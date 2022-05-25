@@ -44,4 +44,3 @@ func GetTags(client *github.Client, owner, repo string) ([]*github.RepositoryTag
 	tags, _, err := client.Repositories.ListTags(context.Background(), owner, repo, nil)
 	return tags, err
 }
-

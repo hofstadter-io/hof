@@ -29,7 +29,6 @@ func (ts *Script) Getenv(key string) string {
 	return ts.envMap[envvarname(key)]
 }
 
-
 // env displays or adds to the environment.
 func (ts *Script) CmdEnv(neg int, args []string) {
 	if neg != 0 {
@@ -77,7 +76,7 @@ func (ts *Script) CmdEnv(neg int, args []string) {
 		}
 
 		// set the env var
-		ts.Setenv(k,v)
+		ts.Setenv(k, v)
 	}
 }
 
@@ -131,7 +130,7 @@ func (ts *Script) CmdEnvsub(neg int, args []string) {
 
 		// set the env var
 		subd := ts.expand(v)
-		ts.Setenv(k,subd)
+		ts.Setenv(k, subd)
 	}
 }
 
@@ -179,4 +178,3 @@ func removeAll(dir string) error {
 	})
 	return os.RemoveAll(dir)
 }
-

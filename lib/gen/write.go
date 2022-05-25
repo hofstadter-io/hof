@@ -47,4 +47,3 @@ func (F *File) WriteShadow(basedir string) error {
 
 	return nil
 }
-

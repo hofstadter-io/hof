@@ -35,7 +35,6 @@ func (ts *Script) CmdCall(neg int, args []string) {
 	}
 }
 
-
 // call runs the given function and then returns collected standard output and standard error.
 func (ts *Script) call(function string, args ...string) (string, string, error) {
 
@@ -91,4 +90,3 @@ func (ts *Script) call(function string, args ...string) (string, string, error) 
 
 	return funcout, funcerr, err
 }
-

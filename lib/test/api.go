@@ -49,7 +49,6 @@ func runCase(T *Tester, verbose int, val cue.Value) (err error) {
 		return err
 	}
 
-
 	fail := val.LookupPath(cue.ParsePath("fail"))
 	failVal, err := fail.Bool()
 	if err != nil {
@@ -61,7 +60,6 @@ func runCase(T *Tester, verbose int, val cue.Value) (err error) {
 
 	return err
 }
-
 
 func buildRequest(T *Tester, verbose int, val cue.Value) (R *gorequest.SuperAgent, err error) {
 	req := val.Eval()
@@ -232,52 +230,50 @@ func checkResponse(T *Tester, verbose int, actual gorequest.Response, expect cue
 		// fmt.Println("checking:", label)
 
 		switch label {
-			case "status":
-				status, err := value.Int64()
-				if err != nil {
+		case "status":
+			status, err := value.Int64()
+			if err != nil {
+				return err
+			}
+			if int64(actual.StatusCode) != status {
+				return fmt.Errorf("status code mismatch %v != %v", actual.StatusCode, status)
+			}
+
+		case "body":
+			body, err := ioutil.ReadAll(actual.Body)
+			if err != nil {
+				return err
+			}
+
+			V := T.CTX.CompileBytes(body, cue.Filename("body.json"))
+			if V.Err() != nil {
+				return V.Err()
+			}
+
+			//inst, err := json.Decode(T.CRT, "", body)
+
+			//V := inst.Value()
+
+			// TODO: bi-directional subsume to check for equality?
+			result := value.Unify(V)
+			if result.Err() != nil {
+				if !expectFail {
+					return result.Err()
+				}
+			}
+			// fmt.Println("result: ", result)
+			err = result.Validate()
+			if err != nil {
+				if !expectFail {
+					fmt.Println(value)
 					return err
 				}
-				if int64(actual.StatusCode) != status {
-					return fmt.Errorf("status code mismatch %v != %v", actual.StatusCode, status)
-				}
+			}
 
-			case "body":
-				body, err := ioutil.ReadAll(actual.Body)
-				if err != nil {
-					return err
-				}
-
-				V := T.CTX.CompileBytes(body, cue.Filename("body.json"))
-				if V.Err() != nil {
-					return V.Err()
-				}
-
-				//inst, err := json.Decode(T.CRT, "", body)
-
-				//V := inst.Value()
-
-				// TODO: bi-directional subsume to check for equality?
-				result := value.Unify(V)
-				if result.Err() != nil {
-					if !expectFail {
-						return result.Err()
-					}
-				}
-				// fmt.Println("result: ", result)
-				err = result.Validate()
-				if err != nil {
-					if !expectFail {
-						fmt.Println(value)
-						return err
-					}
-				}
-
-
-			default:
-				return fmt.Errorf("Unknown field in expected response:", label)
+		default:
+			return fmt.Errorf("Unknown field in expected response:", label)
 		}
 	}
-
 
 	return nil
 }

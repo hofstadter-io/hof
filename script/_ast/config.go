@@ -12,7 +12,7 @@ import (
 
 type Config struct {
 	// Logger
-	Logger *zap.SugaredLogger
+	Logger   *zap.SugaredLogger
 	LogLevel string
 	logLevel zapcore.Level
 
@@ -35,7 +35,7 @@ func (P *Parser) initLogger() {
 		case "fatal":
 			level = zapcore.FatalLevel
 		default:
-			panic("invalid log level: "+ P.config.LogLevel )
+			panic("invalid log level: " + P.config.LogLevel)
 		}
 	}
 

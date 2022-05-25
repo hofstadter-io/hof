@@ -1,10 +1,10 @@
 package ast
 
 type Node interface {
-	Clone()         Node
+	Clone() Node
 	CloneNodeBase() NodeBase
 
-	Script()  *Script
+	Script() *Script
 
 	DocLine() int
 	SetDocLine(int)
@@ -13,8 +13,8 @@ type Node interface {
 	EndLine() int
 	SetEndLine(int)
 
-	String()  string
-	Name()    string
+	String() string
+	Name() string
 	Comment() string
 	AddComment(string)
 }

@@ -143,17 +143,17 @@ func BillyLoadFromZip(zReader *zip.Reader, FS billy.Filesystem, trimFirstDir boo
 
 		fn := f.Name[strings.Index(f.Name, "/")+1:]
 
-    src, err := f.Open()
-    if err != nil {
+		src, err := f.Open()
+		if err != nil {
 			return err
-    }
-    defer src.Close()
+		}
+		defer src.Close()
 
 		dst, err := FS.Create(fn)
 		if err != nil {
 			return err
 		}
-    defer dst.Close()
+		defer dst.Close()
 
 		_, err = io.Copy(dst, src)
 		if err != nil {
@@ -186,17 +186,17 @@ func BillyGlobLoadFromZip(zReader *zip.Reader, FS billy.Filesystem, includes, ex
 
 		fn := f.Name[strings.Index(f.Name, "/")+1:]
 
-    src, err := f.Open()
-    if err != nil {
+		src, err := f.Open()
+		if err != nil {
 			return err
-    }
-    defer src.Close()
+		}
+		defer src.Close()
 
 		dst, err := FS.Create(fn)
 		if err != nil {
 			return err
 		}
-    defer dst.Close()
+		defer dst.Close()
 
 		_, err = io.Copy(dst, src)
 		if err != nil {
@@ -250,14 +250,14 @@ func BillyCalcDirHash(dir string, FS billy.Filesystem) (string, error) {
 	var files []string
 	for _, f := range all {
 		// fmt.Println("FILE:", f)
-		if strings.HasPrefix(f, "/.git/") || strings.HasPrefix(f, ".git/"){
+		if strings.HasPrefix(f, "/.git/") || strings.HasPrefix(f, ".git/") {
 			continue
 		}
 
 		files = append(files, f)
 	}
 
-	open := func (fn string) (io.ReadCloser, error) {
+	open := func(fn string) (io.ReadCloser, error) {
 		return FS.Open(fn)
 	}
 
@@ -280,7 +280,7 @@ func BillyGlobCalcDirHash(dir string, FS billy.Filesystem, includes, excludes []
 		files = append(files, f)
 	}
 
-	open := func (fn string) (io.ReadCloser, error) {
+	open := func(fn string) (io.ReadCloser, error) {
 		return FS.Open(fn)
 	}
 
@@ -292,7 +292,7 @@ func BillyCalcFileHash(filename string, FS billy.Filesystem) (string, error) {
 		filename = "/" + filename
 	}
 
-	open := func (fn string) (io.ReadCloser, error) {
+	open := func(fn string) (io.ReadCloser, error) {
 		return FS.Open(fn)
 	}
 

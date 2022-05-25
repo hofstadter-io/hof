@@ -46,4 +46,3 @@ func (r Runner) Run(n string, f func(T)) {
 func (r Runner) Verbose() bool {
 	return r.LogLevel != ""
 }
-

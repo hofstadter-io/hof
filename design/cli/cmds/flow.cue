@@ -5,7 +5,7 @@ import (
 )
 
 #FlowCommand: schema.#Command & {
-	Name:  "flow"
+	Name: "flow"
 	Aliases: ["f"]
 	Usage: "flow [cue files...] [@flow/name...] [+key=value]"
 	Short: "run file(s) through the hof/flow DAG engine"
@@ -59,10 +59,10 @@ import (
   """
 
 	Args: [{
-		Name:     "globs"
-		Type:     "[]string"
-		Help:     "file globs to the operation"
-		Rest:			true
+		Name: "globs"
+		Type: "[]string"
+		Help: "file globs to the operation"
+		Rest: true
 	}]
 
 	Flags: [{
@@ -70,42 +70,42 @@ import (
 		Long:    "list"
 		Short:   "l"
 		Type:    "bool"
-    Default: "false"
+		Default: "false"
 		Help:    "list available pipelines"
-	},{
+	}, {
 		Name:    "docs"
 		Long:    "docs"
 		Short:   "d"
 		Type:    "bool"
-    Default: "false"
+		Default: "false"
 		Help:    "print pipeline docs"
-	},{
+	}, {
 		Name:    "flow"
 		Long:    "flow"
 		Short:   "f"
 		Type:    "[]string"
-    Default: "nil"
+		Default: "nil"
 		Help:    "flow labels to match and run"
-	},{
+	}, {
 		Name:    "tags"
 		Long:    "tags"
 		Short:   "t"
 		Type:    "[]string"
-    Default: "nil"
+		Default: "nil"
 		Help:    "data tags to inject before run"
-	},{
+	}, {
 		Name:    "progress"
 		Long:    "progress"
 		Short:   ""
 		Type:    "bool"
-    Default: "false"
+		Default: "false"
 		Help:    "print task progress as it happens"
 	}, {
-    Name:    "stats"
-    Type:    "bool"
-    Default: "false"
-    Help:    "Print final task statistics"
-    Long:    "stats"
-    Short:   "s"
-  }]
+		Name:    "stats"
+		Type:    "bool"
+		Default: "false"
+		Help:    "Print final task statistics"
+		Long:    "stats"
+		Short:   "s"
+	}]
 }

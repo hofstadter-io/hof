@@ -11,8 +11,8 @@ import (
 	Aliases: ["G"]
 	Short: "generate code, data, and config from your data models and designs"
 	Long: """
-    generate all the things, from code to data to config...
-  """
+		  generate all the things, from code to data to config...
+		"""
 
 	Flags: [...schema.#Flag] & [
 		{
@@ -32,12 +32,12 @@ import (
 			Short:   "g"
 		},
 		//{
-			//Name:    "f"
-			//Type:    "[]string"
-			//Default: "nil"
-			//Help:    "File globs to render, default is all discovered"
-			//Long:    "files"
-			//Short:   "f"
+		//Name:    "f"
+		//Type:    "[]string"
+		//Default: "nil"
+		//Help:    "File globs to render, default is all discovered"
+		//Long:    "files"
+		//Short:   "f"
 		//},
 	]
 
@@ -50,26 +50,26 @@ import (
 	Aliases: ["hi", "say", "from", "bug", "yo", "hello", "greetings", "support"]
 	Short: "send feedback, bug reports, or any message"
 	Long: """
-	send feedback, bug reports, or any message
-		email:     (optional) your email, if you'd like us to reply
-		message:   your message, please be respectful to the person receiving it
-	"""
+		send feedback, bug reports, or any message
+			email:     (optional) your email, if you'd like us to reply
+			message:   your message, please be respectful to the person receiving it
+		"""
 }
 
 #GebCommand: schema.#Command & {
-	Name:   "geb"
-	Usage:  "_geb"
-	Short:  ""
-	Long:   ""
-	Hidden: true
+	Name:      "geb"
+	Usage:     "_geb"
+	Short:     ""
+	Long:      ""
+	Hidden:    true
 	OmitTests: true
 }
 
 #LogoCommand: schema.#Command & {
-	Name:   "logo"
-	Usage:  "_"
-	Short:  ""
-	Long:   ""
-	Hidden: true
+	Name:      "logo"
+	Usage:     "_"
+	Short:     ""
+	Long:      ""
+	Hidden:    true
 	OmitTests: true
 }

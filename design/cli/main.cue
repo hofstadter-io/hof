@@ -17,8 +17,8 @@ import (
 	Long:       Short
 	CustomHelp: #RootCustomHelp
 
-	OmitRun: true
-	PersistentPrerun:     true
+	OmitRun:           true
+	PersistentPrerun:  true
 	PersistentPostrun: true
 
 	Pflags: #CliPflags
@@ -42,9 +42,9 @@ import (
 			Hidden: true
 			Name:   "hack"
 			Usage:  "hack ..."
-			Aliases:  ["h", "x"]
-			Short:  "development command"
-			Long:   Short
+			Aliases: ["h", "x"]
+			Short: "development command"
+			Long:  Short
 		},
 		cmds.#GebCommand,
 		cmds.#LogoCommand,

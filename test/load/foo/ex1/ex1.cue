@@ -1,7 +1,7 @@
 package foo
 
 e1: #ex1 & {
-	a: "hello" 
+	a: "hello"
 	b: 1
 }
 

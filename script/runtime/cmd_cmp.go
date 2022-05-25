@@ -2,7 +2,7 @@ package runtime
 
 import (
 	"io/ioutil"
-  "strings"
+	"strings"
 
 	"github.com/hofstadter-io/hof/lib/gotils/intern/textutil"
 )
@@ -44,7 +44,7 @@ func (ts *Script) doCmdCmp(args []string, env bool) {
 	}
 	if text1 == text2 {
 		return
-  }
+	}
 
 	if ts.params.UpdateScripts && !env && (args[0] == "stdout" || args[0] == "stderr") {
 		if scriptFile, ok := ts.scriptFiles[absName2]; ok {
@@ -55,13 +55,12 @@ func (ts *Script) doCmdCmp(args []string, env bool) {
 		// update the script.
 	}
 
-  text3 := strings.TrimSpace(text1)
-  text4 := strings.TrimSpace(text2)
-  s := ""
-  if text3 == text4 {
-    s = "(in leading | trailing whitespace)\n"
-  }
+	text3 := strings.TrimSpace(text1)
+	text4 := strings.TrimSpace(text2)
+	s := ""
+	if text3 == text4 {
+		s = "(in leading | trailing whitespace)\n"
+	}
 	ts.Logf("[diff -%s +%s]\n%s%s\n", name1, name2, s, textutil.Diff(text1, text2))
 	ts.Fatalf("%s and %s differ", name1, name2)
 }
-

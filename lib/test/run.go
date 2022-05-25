@@ -66,7 +66,6 @@ func RunTest(T *Tester, verbose int) (err error) {
 		}
 	}
 
-
 	// switch type
 	switch T.Type {
 

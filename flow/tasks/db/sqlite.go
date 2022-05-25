@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
-  "cuelang.org/go/cue"
+	"cuelang.org/go/cue"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -20,12 +20,12 @@ func handleSQLiteExec(dbname, query string, args []interface{}) (string, error) 
 		return "", err
 	}
 
-  res, err := stmt.Exec(args...)
+	res, err := stmt.Exec(args...)
 	if err != nil {
 		return "", err
 	}
 
-  affect, err := res.RowsAffected()
+	affect, err := res.RowsAffected()
 	if err != nil {
 		return "", err
 	}
@@ -43,83 +43,83 @@ func handleSQLiteQuery(dbname, query string, args []interface{}) (*sql.Rows, err
 }
 
 func handleSQLiteStmts(dbname string, stmts cue.Value, args []interface{}) (cue.Value, error) {
-   db, err := sql.Open("sqlite3", dbname)
-  if err != nil {
-    return stmts, err
-  }
-
-  iter, err := stmts.List()
+	db, err := sql.Open("sqlite3", dbname)
 	if err != nil {
 		return stmts, err
 	}
-  
-  results := []cue.Value{}
-  for iter.Next() {
-    val := iter.Value()
-    sel := iter.Selector()
-    callType := ""
 
-    query := val.LookupPath(cue.ParsePath("query"))
-    if query.Exists() && query.Err() == nil {
-      rows, err := db.Query(query.String())
-      if err != nil {
-        return stmts, fmt.Errorf("error during scan %v", err)
-      }
-      jstr, err := scanRowToJson(rows)
-      if err != nil {
-        return stmts, fmt.Errorf("error during scan %v", err)
-      }
-      r :=  val.Context().CompileBytes(jstr)
-      val = val.FillPath(cue.ParsePath("results"), r)
-      results = append(results, val)
-      continue
-    }
+	iter, err := stmts.List()
+	if err != nil {
+		return stmts, err
+	}
 
-    query = val.LookupPath(cue.ParsePath("exec"))
-    if query.Exists() && query.Err() == nil {
-      qs, err := query.String()
-      stmt, err := db.Prepare(qs)
-      if err != nil {
-        return stmts, err
-      }
+	results := []cue.Value{}
+	for iter.Next() {
+		val := iter.Value()
+		sel := iter.Selector()
+		callType := ""
 
-      // handle local args
-      var la []string
-      av := val.LookupPath(cue.ParsePath("args"))
-      if av.Exists() {
-        err = av.Decode(&la)
-        if err != nil {
-          return stmts, fmt.Errorf("while decoding 'args' at %v", err)
-        }
-      }
+		query := val.LookupPath(cue.ParsePath("query"))
+		if query.Exists() && query.Err() == nil {
+			rows, err := db.Query(query.String())
+			if err != nil {
+				return stmts, fmt.Errorf("error during scan %v", err)
+			}
+			jstr, err := scanRowToJson(rows)
+			if err != nil {
+				return stmts, fmt.Errorf("error during scan %v", err)
+			}
+			r := val.Context().CompileBytes(jstr)
+			val = val.FillPath(cue.ParsePath("results"), r)
+			results = append(results, val)
+			continue
+		}
 
-      ia := []interface{}{}
-      for _, a := range la {
-        ia = append(ia, a)
-      }
+		query = val.LookupPath(cue.ParsePath("exec"))
+		if query.Exists() && query.Err() == nil {
+			qs, err := query.String()
+			stmt, err := db.Prepare(qs)
+			if err != nil {
+				return stmts, err
+			}
 
-      res, err := stmt.Exec(ia...)
-      if err != nil {
-        return stmts, err
-      }
+			// handle local args
+			var la []string
+			av := val.LookupPath(cue.ParsePath("args"))
+			if av.Exists() {
+				err = av.Decode(&la)
+				if err != nil {
+					return stmts, fmt.Errorf("while decoding 'args' at %v", err)
+				}
+			}
 
-      affect, err := res.RowsAffected()
-      if err != nil {
-        return stmts, err
-      }
+			ia := []interface{}{}
+			for _, a := range la {
+				ia = append(ia, a)
+			}
 
-      val = val.FillPath(cue.ParsePath("results"), fmt.Sprint(affect))
-      results = append(results, val)
-      continue
-    }
+			res, err := stmt.Exec(ia...)
+			if err != nil {
+				return stmts, err
+			}
 
-    fmt.Println(sel, callType)
+			affect, err := res.RowsAffected()
+			if err != nil {
+				return stmts, err
+			}
 
-    // do db calls
-    // fill val
+			val = val.FillPath(cue.ParsePath("results"), fmt.Sprint(affect))
+			results = append(results, val)
+			continue
+		}
 
-    results = append(results, val)
-  }
+		fmt.Println(sel, callType)
+
+		// do db calls
+		// fill val
+
+		results = append(results, val)
+	}
 
 	return stmts.Context().NewList(results...), nil
 }

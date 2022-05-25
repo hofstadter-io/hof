@@ -58,8 +58,8 @@ func signalCatcher() int {
 
 func TestMain(m *testing.M) {
 	os.Exit(RunMain(m, map[string]func() int{
-		"printargs":     printArgs,
-		"echo":          echo,
+		"printargs": printArgs,
+		"echo":      echo,
 		// "status":        exitWithStatus,
 		"signalcatcher": signalCatcher,
 	}))
@@ -79,7 +79,7 @@ func TestCRLFInput(t *testing.T) {
 		t.Fatalf("failed to write to %v: %v", tf, err)
 	}
 	t.Run("_", func(t *testing.T) {
-		Run(t, Params{Dir: td, Glob: "*.txt" })
+		Run(t, Params{Dir: td, Glob: "*.txt"})
 	})
 }
 
@@ -87,7 +87,7 @@ func TestScripts(t *testing.T) {
 	// TODO set temp directory.
 	testDeferCount := 0
 	Run(t, Params{
-		Dir: "tests",
+		Dir:  "tests",
 		Glob: "*.txt",
 		Cmds: map[string]func(ts *Script, neg int, args []string){
 			"setSpecialVal":    setSpecialVal,
@@ -147,7 +147,7 @@ func TestScripts(t *testing.T) {
 					}()
 					RunT(t, Params{
 						Dir:           ts.MkAbs(args[0]),
-						Glob: "*.txt",
+						Glob:          "*.txt",
 						UpdateScripts: true,
 					})
 				}()
@@ -223,7 +223,7 @@ func TestWorkdirRoot(t *testing.T) {
 	defer os.RemoveAll(td)
 	params := Params{
 		Dir:         filepath.Join("tests", "nothing"),
-		Glob: "*.txt",
+		Glob:        "*.txt",
 		WorkdirRoot: td,
 	}
 	// Run as a sub-test so that this call blocks until the sub-tests created by
@@ -254,7 +254,7 @@ func TestBadDir(t *testing.T) {
 			}
 		}()
 		RunT(ft, Params{
-			Dir: "thiswillnevermatch",
+			Dir:  "thiswillnevermatch",
 			Glob: "*.txt",
 		})
 	}()

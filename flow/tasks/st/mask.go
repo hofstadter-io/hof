@@ -7,16 +7,16 @@ import (
 	"github.com/hofstadter-io/hof/lib/structural"
 )
 
-type Mask struct {}
+type Mask struct{}
 
 func NewMask(val cue.Value) (hofcontext.Runner, error) {
-  return &Mask{}, nil
+	return &Mask{}, nil
 }
 
 // Tasks must implement a Run func, this is where we execute our task
 func (T *Mask) Run(ctx *hofcontext.Context) (interface{}, error) {
-  ctx.CUELock.Lock()
-  defer ctx.CUELock.Unlock()
+	ctx.CUELock.Lock()
+	defer ctx.CUELock.Unlock()
 
 	v := ctx.Value
 

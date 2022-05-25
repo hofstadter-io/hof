@@ -15,7 +15,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/yagu/repos/git"
 )
 
-func Fetch(FS billy.Filesystem, owner, repo, tag string, private bool) (error) {
+func Fetch(FS billy.Filesystem, owner, repo, tag string, private bool) error {
 
 	// If private, and no token auth, try git protocol
 	// need to catch auth errors and suggest how to setup

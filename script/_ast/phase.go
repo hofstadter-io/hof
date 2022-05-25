@@ -10,9 +10,9 @@ type Phase struct {
 	NodeBase
 
 	// how many '%' signs
-	level  int
+	level int
 	// the string after
-	title  string
+	title string
 
 	// TODO, will be same as Cue attrs: @label(...)
 	// attrs []Attr
@@ -23,8 +23,7 @@ type Phase struct {
 	parent *Phase
 
 	// subnodes / expressions, etx
-	nodes  []Node
-
+	nodes []Node
 }
 
 func (P *Parser) parsePhase() error {
@@ -44,8 +43,8 @@ func (P *Parser) parsePhase() error {
 
 	ph := &Phase{
 		NodeBase: P.node.CloneNodeBase(),
-		level: len(lvl),
-		title: title,
+		level:    len(lvl),
+		title:    title,
 	}
 
 	// no phase yet
@@ -74,12 +73,12 @@ func (P *Parser) parsePhase() error {
 		// walk up parent chain, closing phases
 		p := Ph
 		for ; p != nil && p.level < ph.level; p = p.parent {
-			p.SetEndLine(ph.DocLine()-1)
+			p.SetEndLine(ph.DocLine() - 1)
 		}
 
 		// if p is not nil, we found our sibiling
 		if p != nil {
-			p.SetEndLine(ph.DocLine()-1)
+			p.SetEndLine(ph.DocLine() - 1)
 			// set same parent
 			ph.parent = p.parent
 		}
@@ -106,4 +105,3 @@ func (P *Parser) parsePhase() error {
 func (Ph *Phase) AppendNode(n Node) {
 	Ph.nodes = append(Ph.nodes, n)
 }
-

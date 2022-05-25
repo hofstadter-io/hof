@@ -15,34 +15,34 @@ type GaConfig struct {
 	IP  string
 	UA  string
 
-	CN  string
-	CS  string
-	CM  string
+	CN string
+	CS string
+	CM string
 }
 
 // TODO... make this accurate, add a second function, make both funcs specialized
 // XXX see if we can find the API spec and reverse it into gocode
 type GaPageview struct {
-	Type string
-	Source string
+	Type     string
+	Source   string
 	Category string
-	Action string
-	Label string
-	Value int
+	Action   string
+	Label    string
+	Value    int
 }
 
 type GaEvent struct {
-	Type string
-	Source string
+	Type     string
+	Source   string
 	Category string
-	Action string
-	Label string
-	Value int
+	Action   string
+	Label    string
+	Value    int
 }
 
 func SendGaEvent(cfg GaConfig, evt GaEvent) (string, error) {
 
-	gaURL :="https://www.google-analytics.com/collect"
+	gaURL := "https://www.google-analytics.com/collect"
 
 	vals := url.Values{}
 
@@ -79,7 +79,6 @@ func SendGaEvent(cfg GaConfig, evt GaEvent) (string, error) {
 
 	req := gorequest.New().Post(gaURL).Send(payload)
 
-
 	resp, body, errs := req.End()
 
 	if len(errs) != 0 && !strings.Contains(errs[0].Error(), HTTP2_GOAWAY_CHECK) {
@@ -98,7 +97,7 @@ func SendGaEvent(cfg GaConfig, evt GaEvent) (string, error) {
 
 func SendGaEvents(cfg GaConfig, evts []GaEvent) (string, error) {
 
-	gaURL :="https://www.google-analytics.com/batch"
+	gaURL := "https://www.google-analytics.com/batch"
 
 	payload := ""
 	for _, evt := range evts {
@@ -134,7 +133,6 @@ func SendGaEvents(cfg GaConfig, evts []GaEvent) (string, error) {
 
 	req := gorequest.New().Post(gaURL).Send(payload)
 
-
 	resp, body, errs := req.End()
 
 	if len(errs) != 0 && !strings.Contains(errs[0].Error(), HTTP2_GOAWAY_CHECK) {
@@ -150,4 +148,3 @@ func SendGaEvents(cfg GaConfig, evts []GaEvent) (string, error) {
 
 	return body, nil
 }
-

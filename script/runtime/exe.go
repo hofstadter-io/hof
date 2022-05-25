@@ -10,9 +10,9 @@ import (
 	"io"
 	"log"
 	"os"
-  "reflect"
+	"reflect"
 	"sync/atomic"
-  "time"
+	"time"
 )
 
 var profileId int32 = 0
@@ -164,8 +164,35 @@ func (nopTestDeps) WriteHeapProfile(io.Writer) error {
 func (nopTestDeps) SetPanicOnExit0(bool) {}
 
 func (nopTestDeps) CheckCorpus([]interface{}, []reflect.Type) error { return nil }
-func (nopTestDeps) ReadCorpus(string, []reflect.Type) ([]struct{Parent string; Path string; Data []byte; Values []interface{}; Generation int; IsSeed bool}, error) { return nil, nil }
-func (nopTestDeps) ResetCoverage() {}
+func (nopTestDeps) ReadCorpus(string, []reflect.Type) ([]struct {
+	Parent     string
+	Path       string
+	Data       []byte
+	Values     []interface{}
+	Generation int
+	IsSeed     bool
+}, error) {
+	return nil, nil
+}
+func (nopTestDeps) ResetCoverage()    {}
 func (nopTestDeps) SnapshotCoverage() {}
-func (nopTestDeps) RunFuzzWorker(func(struct{Parent string; Path string; Data []byte; Values []interface{}; Generation int; IsSeed bool}) error) error { return nil }
-func (nopTestDeps) CoordinateFuzzing(time.Duration, int64, time.Duration, int64, int, []struct{Parent string; Path string; Data []byte; Values []interface{}; Generation int; IsSeed bool}, []reflect.Type, string, string) error { return nil }
+func (nopTestDeps) RunFuzzWorker(func(struct {
+	Parent     string
+	Path       string
+	Data       []byte
+	Values     []interface{}
+	Generation int
+	IsSeed     bool
+}) error) error {
+	return nil
+}
+func (nopTestDeps) CoordinateFuzzing(time.Duration, int64, time.Duration, int64, int, []struct {
+	Parent     string
+	Path       string
+	Data       []byte
+	Values     []interface{}
+	Generation int
+	IsSeed     bool
+}, []reflect.Type, string, string) error {
+	return nil
+}

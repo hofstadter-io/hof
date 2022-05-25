@@ -15,20 +15,20 @@ import (
 }
 
 #AllModels: dm.#Models & {
-	"User": User
+	"User":        User
 	"UserProfile": UserProfile
 }
 
 User: dm.#Model & {
 	Fields: {
 		sql.#CommonFields
-		email: fields.Email	
+		email:   fields.Email
 		persona: fields.Enum & {
 			Vals: ["guest", "user", "admin", "owner"]
 			Default: "guest"
-		}	
+		}
 		password: fields.Password
-		active: fields.Bool
+		active:   fields.Bool
 		username: fields.String
 	}
 }
@@ -36,8 +36,8 @@ User: dm.#Model & {
 UserProfile: dm.#Model & {
 	Fields: {
 		sql.#CommonFields
-		firstName: fields.String
+		firstName:  fields.String
 		middleName: fields.String
-		lastName: fields.String
+		lastName:   fields.String
 	}
 }

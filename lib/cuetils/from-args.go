@@ -13,14 +13,14 @@ func CueRuntimeFromEntrypoints(entrypoints []string) (crt *CueRuntime, err error
 		Entrypoints: entrypoints,
 		CueConfig: &load.Config{
 			ModuleRoot: "",
-			Module: "",
-			Package: "",
-			Dir: "",
-			BuildTags: []string{},
-			Tests: false,
-			Tools: false,
-			DataFiles: false,
-			Overlay: map[string]load.Source{},
+			Module:     "",
+			Package:    "",
+			Dir:        "",
+			BuildTags:  []string{},
+			Tests:      false,
+			Tools:      false,
+			DataFiles:  false,
+			Overlay:    map[string]load.Source{},
 		},
 	}
 
@@ -34,14 +34,14 @@ func CueRuntimeFromEntrypoints(entrypoints []string) (crt *CueRuntime, err error
 func CueRuntimeFromEntrypointsAndFlags(entrypoints []string) (crt *CueRuntime, err error) {
 	cfg := &load.Config{
 		ModuleRoot: "",
-		Module: "",
-		Package: "",
-		Dir: "",
-		BuildTags: []string{},
-		Tests: false,
-		Tools: false,
-		DataFiles: false,
-		Overlay: map[string]load.Source{},
+		Module:     "",
+		Package:    "",
+		Dir:        "",
+		BuildTags:  []string{},
+		Tests:      false,
+		Tools:      false,
+		DataFiles:  false,
+		Overlay:    map[string]load.Source{},
 	}
 
 	// package?
@@ -51,11 +51,10 @@ func CueRuntimeFromEntrypointsAndFlags(entrypoints []string) (crt *CueRuntime, e
 
 	crt = &CueRuntime{
 		Entrypoints: entrypoints,
-		CueConfig: cfg,
+		CueConfig:   cfg,
 	}
 
 	err = crt.Load()
 
 	return crt, err
 }
-

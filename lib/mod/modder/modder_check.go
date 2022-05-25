@@ -160,7 +160,6 @@ func (mdr *Modder) CompareLocalReplaceToVendor(R Replace) error {
 	}
 	// fmt.Println("VDRHASH", vdrDirhash, vdrModhash)
 
-
 	// Do the check
 	mismatch := false
 	if localDirhash != vdrDirhash {

@@ -8,8 +8,8 @@ import (
 )
 
 #Flags: {
-	suite:  string | *"all" @tag(suite,short=st|mod)
-	tests:  string | *"all" @tag(test,short=api|bench|cli|unit)
+	suite:  string | *"all"             @tag(suite,short=st|mod)
+	tests:  string | *"all"             @tag(test,short=api|bench|cli|unit)
 	subcmd: *"test" | "cover" | "sonar" @tag(subcmd,short=test|cover|sonar)
 }
 
@@ -21,7 +21,7 @@ import (
 		}
 
 		if #Flags.tests != "all" {
-			for sname, suite in Suites { 
+			for sname, suite in Suites {
 				"\(sname)": "\(#Flags.tests)": suite[#Flags.tests]
 			}
 		}
@@ -51,8 +51,8 @@ command: info: {
 }
 
 command: peek: {
-	d1: [ for s, suite in #Actual { suite } ]
-	d2: [ for suite in d1 { [for t, test in suite { test }] } ]
+	d1: [ for s, suite in #Actual {suite}]
+	d2: [ for suite in d1 {[ for t, test in suite {test}]}]
 	data: list.FlattenN(d2, 1)
 
 	for i, d in data {
@@ -66,8 +66,8 @@ command: peek: {
 }
 
 command: "run-tests": {
-	d1: [ for s, suite in #Actual { suite } ]
-	d2: [ for suite in d1 { [for t, test in suite { test }] } ]
+	d1: [ for s, suite in #Actual {suite}]
+	d2: [ for suite in d1 {[ for t, test in suite {test}]}]
 	f: list.FlattenN(d2, 1)
 
 	data: f
@@ -106,7 +106,7 @@ command: "run-tests": {
 				}
 			}
 
-				// run tests with sonar output enabled
+			// run tests with sonar output enabled
 			if #Flags.subcmd == "sonar" {
 				if d.sonar != _|_ {
 					"run-\(d.name)": exec.Run & {
@@ -134,4 +134,3 @@ command: "run-tests": {
 		}
 	}
 }
-

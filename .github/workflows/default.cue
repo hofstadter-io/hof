@@ -6,11 +6,11 @@ common.#Workflow & {
 	name: "default"
 	on: ["push"]
 	jobs: test: {
-		steps: [ for step in common.#BuildSteps {step} ] + [{
+		steps: [ for step in common.#BuildSteps {step}] + [{
 			name: "Run structural tests"
 			run: """
-			hof flow -f test/st ./test.cue
-			"""
+				hof flow -f test/st ./test.cue
+				"""
 		}]
 	}
 }

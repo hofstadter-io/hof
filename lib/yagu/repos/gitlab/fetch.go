@@ -14,7 +14,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/yagu/repos/git"
 )
 
-func Fetch(FS billy.Filesystem, owner, repo, tag string, private bool) (error) {
+func Fetch(FS billy.Filesystem, owner, repo, tag string, private bool) error {
 	if private && os.Getenv(TokenEnv) == "" {
 		fmt.Println("gitlab git fallback")
 		return git.Fetch(FS, "gitlab.com", owner, repo, tag, private)
@@ -32,7 +32,7 @@ func Fetch(FS billy.Filesystem, owner, repo, tag string, private bool) (error) {
 	if tag == "v0.0.0" {
 		bs, _, err := client.Branches.ListBranches(pid, nil)
 		if err != nil {
-			return  err
+			return err
 		}
 
 		var branch *gitlab.Branch
@@ -85,4 +85,3 @@ func fetchShaZip(client *gitlab.Client, pid, sha string) (*zip.Reader, error) {
 
 	return zip.NewReader(r, int64(len(data)))
 }
-

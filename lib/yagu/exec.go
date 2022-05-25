@@ -49,7 +49,7 @@ func BashTmpScriptWithArgs(script string, args []string) (string, error) {
 	}
 
 	// prepare args to bash invocation as a "/path/to/scripts.sh"
-	doargs := append([]string{ f.Name()}, args...)
+	doargs := append([]string{f.Name()}, args...)
 	dorun := strings.Join(doargs, " ")
 
 	// run script and return output / status

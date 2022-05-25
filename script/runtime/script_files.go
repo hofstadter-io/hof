@@ -21,5 +21,3 @@ func (ts *Script) CmdUnquote(neg int, args []string) {
 		ts.Check(err)
 	}
 }
-
-

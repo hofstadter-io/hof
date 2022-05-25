@@ -18,10 +18,10 @@ pick_cases: [
 				b: =~"^b"
 				d: =~"^d"
 			}
-    }
+		}
 		expect: {
 			b: "b"
-			e:  {
+			e: {
 				a: "a"
 				b: "b1"
 			}
@@ -42,18 +42,18 @@ pick_cases: [
 			c: {
 				a: _
 			}
-    }
+		}
 		expect: {
-			c:  {
+			c: {
 				a: "a"
 			}
 		}
 	},
 	// {
-	// 	value: { string }
-	// 	pick: { "foo" }
-	// 	expect: {
-	// 		"foo"
-	// 	}
+	//  value: { string }
+	//  pick: { "foo" }
+	//  expect: {
+	//   "foo"
+	//  }
 	// },
 ]

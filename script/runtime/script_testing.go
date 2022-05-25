@@ -144,4 +144,3 @@ func (ts *Script) Fatalf(format string, args ...interface{}) {
 	fmt.Fprintf(&ts.log, "FAIL: %s:%d: %s\n", ts.file, ts.lineno, fmt.Sprintf(format, args...))
 	ts.t.FailNow()
 }
-

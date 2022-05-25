@@ -33,7 +33,7 @@ func CloneRepoIntoTmp(srcUrl, srcVer string) (string, error) {
 	return dir, nil
 }
 
-func CloneRepoIntoDir(srcUrl, srcVer, dest string) (error) {
+func CloneRepoIntoDir(srcUrl, srcVer, dest string) error {
 
 	co, err := SetupGitOptions(srcUrl, srcVer)
 	if err != nil {

@@ -5,8 +5,8 @@ import (
 )
 
 type Secret struct {
-	StoreName string
+	StoreName  string
 	CredValues map[string]string
 
-	CueValue  cue.Value
+	CueValue cue.Value
 }

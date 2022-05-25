@@ -74,4 +74,3 @@ func (ts *Script) condition(cond string) (bool, error) {
 		panic("unreachable")
 	}
 }
-

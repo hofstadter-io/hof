@@ -8,7 +8,6 @@ package foo
 }
 
 #Ex2: {
-	name: string
+	name:  string
 	count: int
 }
-

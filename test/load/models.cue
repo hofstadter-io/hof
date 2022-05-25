@@ -1,3 +1,3 @@
 package models
 
-m: { ... }
+m: {...}

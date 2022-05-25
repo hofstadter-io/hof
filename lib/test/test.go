@@ -29,7 +29,7 @@ type Suite struct {
 	Value cue.Value
 
 	// Extracted testers, including any selectors
-	Tests  []Tester
+	Tests []Tester
 
 	// pass/fail/skip stats
 	Stats Stats

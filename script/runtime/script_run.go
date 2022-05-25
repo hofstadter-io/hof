@@ -124,9 +124,9 @@ Script:
 		}
 
 		/* Run command, check order
-			1. params commands, incase of overrides
-			2. buildin commands
-			3. fallback on exec ...
+		1. params commands, incase of overrides
+		2. buildin commands
+		3. fallback on exec ...
 		*/
 
 		// the command name
@@ -145,7 +145,7 @@ Script:
 			path, err := exec.LookPath(C)
 			if err == nil {
 				cmd = scriptCmds["exec"]
-				nargs := []string{ C, path}
+				nargs := []string{C, path}
 				args = append(nargs, args[1:]...)
 			}
 		}
@@ -180,7 +180,6 @@ Script:
 		}
 	}
 }
-
 
 // Truncate log at end of last phase marker,
 // discarding details of successful phase.

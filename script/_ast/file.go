@@ -11,14 +11,14 @@ type File struct {
 	NodeBase
 
 	// write out before the script starts
-	Before  bool
+	Before bool
 	// trim the end
 	TrimEnd bool
 
 	// normal file stuff
-	Path    string
-	Mode    os.FileMode
-	Chown   string
+	Path  string
+	Mode  os.FileMode
+	Chown string
 
 	// content markers
 	BegContent int
@@ -55,10 +55,10 @@ func (P *Parser) parseFile() error {
 	// create the file
 	F := &File{
 		NodeBase: P.node.CloneNodeBase(),
-		Before: before,
-		Path: fpath,
-		Mode: 0644,
-		Chown: "",
+		Before:   before,
+		Path:     fpath,
+		Mode:     0644,
+		Chown:    "",
 		// set to header line so we can compare later
 		BegContent: P.lineno,
 		EndContent: P.lineno,
@@ -81,12 +81,12 @@ func (P *Parser) parseFile() error {
 
 			fm, cerr := strconv.ParseUint(arg, 8, 32)
 			if cerr != nil {
-				return NewScriptError("Invalid file header filemode: " + arg, F, err)
+				return NewScriptError("Invalid file header filemode: "+arg, F, err)
 			}
 			F.Mode = os.FileMode(fm)
 			continue
 		}
-		if b, err := regexp.MatchString("[-xwr]+", arg  ); b || err != nil {
+		if b, err := regexp.MatchString("[-xwr]+", arg); b || err != nil {
 			// this should never happen at runtime
 			if err != nil {
 				panic(err)
@@ -113,7 +113,7 @@ func (P *Parser) parseFile() error {
 		l := S.Lines[P.lineno]
 
 		// does the line start with the file header prefix? (it should match to indicate transition)
-		if strings.HasPrefix(l, prefix){
+		if strings.HasPrefix(l, prefix) {
 			flds := strings.Fields(l)
 
 			// is the first field the same? and there are at least 2 fields? let's make a transition

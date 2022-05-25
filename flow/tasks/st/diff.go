@@ -7,16 +7,16 @@ import (
 	"github.com/hofstadter-io/hof/lib/structural"
 )
 
-type Diff struct {}
+type Diff struct{}
 
 func NewDiff(val cue.Value) (hofcontext.Runner, error) {
-  return &Diff{}, nil
+	return &Diff{}, nil
 }
 
 // Tasks must implement a Run func, this is where we execute our task
 func (T *Diff) Run(ctx *hofcontext.Context) (interface{}, error) {
-  ctx.CUELock.Lock()
-  defer ctx.CUELock.Unlock()
+	ctx.CUELock.Lock()
+	defer ctx.CUELock.Unlock()
 
 	v := ctx.Value
 

@@ -16,4 +16,3 @@ var DefaultModdersCue = map[string]string{
 var DefaultLangs = CuelangModder +
 	GolangModder +
 	PythonModder
-

@@ -17,4 +17,3 @@ func (ts *Script) CmdGrep(neg int, args []string) {
 func (ts *Script) CmdSed(neg int, args []string) {
 	scriptMatch(ts, neg, args, "", "sed")
 }
-

@@ -8,4 +8,3 @@ import (
 // and does not remove it when done, so that a programmer can
 // poke at the test file tree afterward.
 var testWork = flag.Bool("testwork", false, "")
-

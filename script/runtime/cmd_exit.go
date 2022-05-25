@@ -2,7 +2,7 @@ package runtime
 
 // skip marks the test skipped.
 func (ts *Script) CmdSkip(neg int, args []string) {
-	if neg != 0{
+	if neg != 0 {
 		ts.Fatalf("unsupported: !? skip")
 	}
 
@@ -38,4 +38,3 @@ func (ts *Script) CmdStop(neg int, args []string) {
 	}
 	ts.stopped = true
 }
-

@@ -10,7 +10,7 @@ var defaultWalkOptions = []cue.Option{
 	cue.Definitions(true),
 	cue.Hidden(true),
 	cue.Optional(true),
-  cue.Docs(true),
+	cue.Docs(true),
 }
 
 // Walk is an alternative to cue.Value.Walk which handles more field types
@@ -28,7 +28,7 @@ func Walk(v cue.Value, before func(cue.Value) bool, after func(cue.Value), optio
 		if options == nil {
 			options = defaultWalkOptions
 		}
-		s, _ := v.Fields( options...)
+		s, _ := v.Fields(options...)
 
 		for s.Next() {
 			Walk(s.Value(), before, after, options...)
@@ -40,7 +40,7 @@ func Walk(v cue.Value, before func(cue.Value) bool, after func(cue.Value), optio
 			Walk(l.Value(), before, after, options...)
 		}
 
-	// no default (basic lit types)
+		// no default (basic lit types)
 
 	}
 

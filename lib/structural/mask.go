@@ -38,13 +38,13 @@ func maskStruct(mask, from cue.Value, opts *Options) (cue.Value, bool) {
 	// eflags := opts.AllTypeErrors || opts.NodeTypeErrors
 
 	if mask.IncompleteKind() != from.IncompleteKind() {
-    return from, true
-  }
+		return from, true
+	}
 	//if eflags && mask.IncompleteKind() != from.IncompleteKind() {
-		//// emsg, hasErrMsg := getErrorAttrMsg(mask)
-		//e := errors.Newf(mask.Pos(), "mask type '%v' does not match target value type '%v'", mask.IncompleteKind(), from.IncompleteKind())
-		//ev := ctx.MakeError(e)
-		//return ev, true
+	//// emsg, hasErrMsg := getErrorAttrMsg(mask)
+	//e := errors.Newf(mask.Pos(), "mask type '%v' does not match target value type '%v'", mask.IncompleteKind(), from.IncompleteKind())
+	//ev := ctx.MakeError(e)
+	//return ev, true
 	//}
 
 	result := newStruct(ctx)
@@ -94,9 +94,9 @@ func maskList(mask, from cue.Value, opts *Options) (cue.Value, bool) {
 
 	//lpt, err := getListProcType(mask)
 	//if err != nil {
-		//ce := errors.Newf(mask.Pos(), "%v", err)
-		//ev := ctx.MakeError(ce)
-		//return ev, true
+	//ce := errors.Newf(mask.Pos(), "%v", err)
+	//ev := ctx.MakeError(ce)
+	//return ev, true
 	//}
 
 	// _ = lpt

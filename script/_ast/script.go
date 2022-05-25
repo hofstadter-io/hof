@@ -8,8 +8,8 @@ type Script struct {
 	Path    string
 	Content string
 
-	Help    string
-	Args    []string
+	Help string
+	Args []string
 
 	Lines  []string
 	Errors []error
@@ -79,41 +79,41 @@ Loop:
 		}
 
 		// do some checks on the first char
-		f1 :=	line[0:1]
+		f1 := line[0:1]
 		switch f1 {
 
-			// phase, first one should be longest seen
-			case "%":
-				err = P.parsePhase()
-				if err != nil {
-					P.script.Errors = append(P.script.Errors, err)
-				}
-				goto Loop
+		// phase, first one should be longest seen
+		case "%":
+			err = P.parsePhase()
+			if err != nil {
+				P.script.Errors = append(P.script.Errors, err)
+			}
+			goto Loop
 
-			// files: before, during
-			case  "-", "=":
-				err = P.parseFile()
-				if err != nil {
-					P.script.Errors = append(P.script.Errors, err)
-				}
-				goto Loop
+		// files: before, during
+		case "-", "=":
+			err = P.parseFile()
+			if err != nil {
+				P.script.Errors = append(P.script.Errors, err)
+			}
+			goto Loop
 
-			// doc string
-			case "#":
-				c := strings.TrimLeft(line, "#")
-				P.node.SetBegLine(P.lineno+1)
-				P.node.SetEndLine(P.lineno+1)
-				P.node.AddComment(c)
-				goto Loop
+		// doc string
+		case "#":
+			c := strings.TrimLeft(line, "#")
+			P.node.SetBegLine(P.lineno + 1)
+			P.node.SetEndLine(P.lineno + 1)
+			P.node.AddComment(c)
+			goto Loop
 
 		}
 
 		// check for comment on cleaned lined
 		switch cleaned[0:1] {
-			// disregarded comment
-			case "#":
-				P.node = nil
-				goto Loop
+		// disregarded comment
+		case "#":
+			P.node = nil
+			goto Loop
 		}
 
 		// check for multiline

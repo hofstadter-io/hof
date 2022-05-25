@@ -46,7 +46,7 @@ func (ts *Script) setupRun() string {
 
 	// expose external ENV here
 	env := &Env{
-		Vars: os.Environ(),
+		Vars:    os.Environ(),
 		WorkDir: ts.workdir,
 		Values:  make(map[interface{}]interface{}),
 		Cd:      ts.workdir,
@@ -180,7 +180,7 @@ func (ts *Script) setupZap() {
 	consoleErrors := zapcore.Lock(os.Stderr)
 
 	// setup our config and console encoder
-	config :=zap.NewDevelopmentEncoderConfig()
+	config := zap.NewDevelopmentEncoderConfig()
 	config.EncodeLevel = zapcore.CapitalColorLevelEncoder
 	consoleEncoder := zapcore.NewConsoleEncoder(config)
 

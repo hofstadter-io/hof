@@ -53,7 +53,6 @@ func rdiff(original interface{}, current interface{}) (diff interface{}, err err
 
 		return nil, nil
 
-
 	case []interface{}:
 		C, ok := current.([]interface{})
 		if !ok {

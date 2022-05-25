@@ -7,16 +7,16 @@ import (
 	"github.com/hofstadter-io/hof/lib/structural"
 )
 
-type Replace struct {}
+type Replace struct{}
 
 func NewReplace(val cue.Value) (hofcontext.Runner, error) {
-  return &Replace{}, nil
+	return &Replace{}, nil
 }
 
 // Tasks must implement a Run func, this is where we execute our task
 func (T *Replace) Run(ctx *hofcontext.Context) (interface{}, error) {
-  ctx.CUELock.Lock()
-  defer ctx.CUELock.Unlock()
+	ctx.CUELock.Lock()
+	defer ctx.CUELock.Unlock()
 
 	v := ctx.Value
 

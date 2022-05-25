@@ -23,7 +23,7 @@ package dm
 	Name: string
 
 	Fields: #Fields
-	OrderedFields: [ for F in Fields {F} ]
+	OrderedFields: [ for F in Fields {F}]
 
 	Relations?: #Relations
 	Views?:     #Views
@@ -49,7 +49,7 @@ package dm
 
 	Models: #Models
 	Fields: #Fields
-	OrderedFields: [ for F in Fields {F} ]
+	OrderedFields: [ for F in Fields {F}]
 
 	...
 }

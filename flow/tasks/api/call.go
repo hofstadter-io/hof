@@ -17,45 +17,43 @@ import (
 */
 
 type call struct {
-
 }
 
-type Call struct {}
+type Call struct{}
 
 func NewCall(val cue.Value) (hofcontext.Runner, error) {
-  return &Call{}, nil
+	return &Call{}, nil
 }
 
 func (T *Call) Run(ctx *hofcontext.Context) (interface{}, error) {
-  val := ctx.Value
-  init_schemas(val.Context())
-  // unify with schema
-  val = val.Unify(task_call)
-  if val.Err() != nil {
-    return nil, val.Err()
-  }
+	val := ctx.Value
+	init_schemas(val.Context())
+	// unify with schema
+	val = val.Unify(task_call)
+	if val.Err() != nil {
+		return nil, val.Err()
+	}
 
-  var R *gorequest.SuperAgent
-  var err error
+	var R *gorequest.SuperAgent
+	var err error
 
-  func () error {
-    ctx.CUELock.Lock()
-    defer func() {
-      ctx.CUELock.Unlock()
-    }()
+	func() error {
+		ctx.CUELock.Lock()
+		defer func() {
+			ctx.CUELock.Unlock()
+		}()
 
-    req := val.LookupPath(cue.ParsePath("req"))
+		req := val.LookupPath(cue.ParsePath("req"))
 
-    R, err = buildRequest(req)
-    if err != nil {
-      return err
-    }
-    return nil
-  }()
+		R, err = buildRequest(req)
+		if err != nil {
+			return err
+		}
+		return nil
+	}()
 	if err != nil {
 		return nil, err
 	}
-
 
 	resp, err := makeRequest(R)
 	if err != nil {
@@ -66,39 +64,39 @@ func (T *Call) Run(ctx *hofcontext.Context) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-  var bodyVal interface{}
+	var bodyVal interface{}
 
-  func () {
-    ctx.CUELock.Lock()
-    defer func() {
-      ctx.CUELock.Unlock()
-    }()
+	func() {
+		ctx.CUELock.Lock()
+		defer func() {
+			ctx.CUELock.Unlock()
+		}()
 
-    // TODO, build resp cue.Value from http.Response
+		// TODO, build resp cue.Value from http.Response
 
-    var isString, isBytes bool
-    r := val.LookupPath(cue.ParsePath("resp.body"))
-    if r.Exists() {
-      if r.IncompleteKind() == cue.StringKind {
-        isString = true
-      }
-      if r.IncompleteKind() == cue.BytesKind {
-        isBytes = true
-      }
-    }
+		var isString, isBytes bool
+		r := val.LookupPath(cue.ParsePath("resp.body"))
+		if r.Exists() {
+			if r.IncompleteKind() == cue.StringKind {
+				isString = true
+			}
+			if r.IncompleteKind() == cue.BytesKind {
+				isBytes = true
+			}
+		}
 
-    // TODO, make response object more interesting
-    // such as status, headers, body vs json
-    if isString {
-      bodyVal = string(body)
-    } else if isBytes {
-      bodyVal = body
-    } else {
-      bodyVal = val.Context().CompileBytes(body, cue.Filename("body"))
-    }
-  }()
+		// TODO, make response object more interesting
+		// such as status, headers, body vs json
+		if isString {
+			bodyVal = string(body)
+		} else if isBytes {
+			bodyVal = body
+		} else {
+			bodyVal = val.Context().CompileBytes(body, cue.Filename("body"))
+		}
+	}()
 
-  return map[string]interface{}{
+	return map[string]interface{}{
 		"resp": map[string]interface{}{
 			"status":     resp.Status,
 			"statusCode": resp.StatusCode,
@@ -117,16 +115,16 @@ func buildRequest(val cue.Value) (R *gorequest.SuperAgent, err error) {
 	req := val.Eval()
 	R = gorequest.New()
 
-  // this should be the default after unifying, and this should always exist
-  // R.Method = "GET"
+	// this should be the default after unifying, and this should always exist
+	// R.Method = "GET"
 	method := req.LookupPath(cue.ParsePath("method"))
-  // so we may not need this is not needed, but it is defensive
-  if method.Exists() {
-    R.Method, err = method.String()
-    if err != nil {
-      return R, err
-    }
-  }
+	// so we may not need this is not needed, but it is defensive
+	if method.Exists() {
+		R.Method, err = method.String()
+		if err != nil {
+			return R, err
+		}
+	}
 
 	host := req.LookupPath(cue.ParsePath("host"))
 	hostStr, err := host.String()
@@ -258,13 +256,13 @@ func buildRequest(val cue.Value) (R *gorequest.SuperAgent, err error) {
 		R.Retry(C, D, CS...)
 	}
 
-  // Todo, add 'print curl' option
-  // check if set, then fill on return
-  //curl, err := R.AsCurlCommand()
-  //if err != nil {
-    //return nil, err
-  //}
-  //fmt.Println(curl)
+	// Todo, add 'print curl' option
+	// check if set, then fill on return
+	//curl, err := R.AsCurlCommand()
+	//if err != nil {
+	//return nil, err
+	//}
+	//fmt.Println(curl)
 
 	return
 }

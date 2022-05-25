@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hofstadter-io/hof/script/shell"
 	"github.com/fatih/color"
+	"github.com/hofstadter-io/hof/script/shell"
 )
 
 func main() {

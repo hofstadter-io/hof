@@ -99,12 +99,12 @@ func runHLS(glob string) error {
 	}
 
 	p := runtime.Params{
-		Mode: "run",
-		Setup: envSetup,
-		Dir: ".",
-		Glob: glob,
+		Mode:        "run",
+		Setup:       envSetup,
+		Dir:         ".",
+		Glob:        glob,
 		WorkdirRoot: ".",
-		TestWork: true,
+		TestWork:    true,
 	}
 
 	runtime.RunT(r, p)
@@ -131,7 +131,6 @@ func envSetup(env *runtime.Env) error {
 			env.Vars = append(env.Vars, line)
 		}
 	}
-
 
 	return nil
 }

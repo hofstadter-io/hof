@@ -22,12 +22,12 @@ func Hack(args []string) error {
 
 	fs := osfs.New(cwd)
 
-	llvls := []string{"error","warn","info","debug"}
+	llvls := []string{"error", "warn", "info", "debug"}
 	llvl := llvls[flags.RootPflags.Verbose]
 
 	config := &ast.Config{
 		LogLevel: llvl,
-		FS: fs,
+		FS:       fs,
 	}
 	parser := ast.NewParser(config)
 
@@ -41,5 +41,3 @@ func Hack(args []string) error {
 
 	return nil
 }
-
-

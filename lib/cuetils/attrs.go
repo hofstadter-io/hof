@@ -1,9 +1,9 @@
 package cuetils
 
 import (
-  "bufio"
-  "fmt"
-  "os"
+	"bufio"
+	"fmt"
+	"os"
 
 	"cuelang.org/go/cue"
 )
@@ -19,8 +19,8 @@ func AttrToMap(A cue.Attribute) (m map[string]string) {
 }
 
 func PrintAttr(attr cue.Attribute, val cue.Value) error {
-  bufStdout := bufio.NewWriter(os.Stdout)
-  defer bufStdout.Flush()
+	bufStdout := bufio.NewWriter(os.Stdout)
+	defer bufStdout.Flush()
 
 	// maybe print
 	if attr.Err() == nil {
@@ -29,9 +29,9 @@ func PrintAttr(attr cue.Attribute, val cue.Value) error {
 			v := val.LookupPath(cue.ParsePath(a))
 			s, err := FormatCue(v)
 			if err != nil {
-        fmt.Fprintln(bufStdout, "Fmt error: %s", err)
+				fmt.Fprintln(bufStdout, "Fmt error: %s", err)
 			}
-      fmt.Fprintf(bufStdout, "%s: %v\n", a, s)
+			fmt.Fprintf(bufStdout, "%s: %v\n", a, s)
 		}
 	}
 

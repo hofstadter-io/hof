@@ -98,7 +98,6 @@ func get_from_imap_by_path(IDX int, paths []string, data map[interface{}]interfa
 		return nil, errors.New("input data is nil")
 	}
 
-
 	P := paths[IDX]
 	path_str := strings.Join(paths[:IDX+1], ".")
 

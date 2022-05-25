@@ -2,7 +2,7 @@ package db
 
 import (
 	"database/sql"
-  "encoding/json"
+	"encoding/json"
 )
 
 func scanRowToJson(rows *sql.Rows) (jstr []byte, err error) {

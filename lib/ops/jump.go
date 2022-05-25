@@ -24,20 +24,20 @@ func RunJumpFromArgs(args []string) error {
 
 	// Check our flags
 	//if flags.RootPflags.ResourcesDir != "" {
-		//rDir := flags.RootPflags.ResourcesDir
-		//jfn = filepath.Join(rDir, JUMP_FILE_NAME)
+	//rDir := flags.RootPflags.ResourcesDir
+	//jfn = filepath.Join(rDir, JUMP_FILE_NAME)
 	//} else if flags.RootPflags.Local {
 
 	//if flags.RootPflags.Local {
-		//rDir := "resources"
-		//jfn = filepath.Join(rDir, JUMP_FILE_NAME)
+	//rDir := "resources"
+	//jfn = filepath.Join(rDir, JUMP_FILE_NAME)
 	//} else {
-		//bDir, err := os.UserConfigDir()
-		//if err != nil {
-			//return err
-		//}
-		//rDir := "resources"
-		//jfn = filepath.Join(bDir, "hof", rDir, JUMP_FILE_NAME)
+	//bDir, err := os.UserConfigDir()
+	//if err != nil {
+	//return err
+	//}
+	//rDir := "resources"
+	//jfn = filepath.Join(bDir, "hof", rDir, JUMP_FILE_NAME)
 	//}
 	exists, _ := yagu.CheckPathExists(jfn)
 	if !exists {
@@ -52,15 +52,15 @@ func RunJumpFromArgs(args []string) error {
 
 	var err error
 
-	entrypoints := []string {jfn}
+	entrypoints := []string{jfn}
 
 	rCRT := &cuetils.CueRuntime{
 		Entrypoints: entrypoints,
 		CueConfig: &load.Config{
 			ModuleRoot: "",
-			Module: "",
-			Package: "",
-			Dir: "",
+			Module:     "",
+			Package:    "",
+			Dir:        "",
 		},
 	}
 

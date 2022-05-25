@@ -7,16 +7,16 @@ import (
 	"github.com/hofstadter-io/hof/lib/structural"
 )
 
-type Patch struct {}
+type Patch struct{}
 
 func NewPatch(val cue.Value) (hofcontext.Runner, error) {
-  return &Patch{}, nil
+	return &Patch{}, nil
 }
 
 // Tasks must implement a Run func, this is where we execute our task
 func (T *Patch) Run(ctx *hofcontext.Context) (interface{}, error) {
-  ctx.CUELock.Lock()
-  defer ctx.CUELock.Unlock()
+	ctx.CUELock.Lock()
+	defer ctx.CUELock.Unlock()
 
 	v := ctx.Value
 

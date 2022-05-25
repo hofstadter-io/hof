@@ -40,13 +40,13 @@ func RunBash(T *Tester, verbose int) (err error) {
 
 	// add env vars if needed
 	if len(BT.Env) > 0 {
-		for k,v := range BT.Env {
+		for k, v := range BT.Env {
 			cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", k, v))
 		}
 	}
 
 	// Setup io streams
-	cmd.Stdin  = os.Stdin
+	cmd.Stdin = os.Stdin
 
 	var outBuf, errBuf bytes.Buffer
 	cmd.Stdout = io.MultiWriter(os.Stdout, &outBuf)
@@ -95,13 +95,13 @@ func RunExec(T *Tester, verbose int) (err error) {
 
 	// add env vars if needed
 	if len(ET.Env) > 0 {
-		for k,v := range ET.Env {
+		for k, v := range ET.Env {
 			cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", k, v))
 		}
 	}
 
 	// Setup io streams
-	cmd.Stdin  = os.Stdin
+	cmd.Stdin = os.Stdin
 
 	var outBuf, errBuf bytes.Buffer
 	cmd.Stdout = io.MultiWriter(os.Stdout, &outBuf)

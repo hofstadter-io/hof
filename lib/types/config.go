@@ -8,5 +8,5 @@ type Config struct {
 	Modelsets map[string]Modelset
 	Stores    map[string]Store
 
-	CueValue  cue.Value
+	CueValue cue.Value
 }

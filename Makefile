@@ -8,16 +8,24 @@ help:
 	cat Makefile
 .PHONY: help
 
-fmt: cuefmt gofmt
-
-cuefmt: $(CUE_FILES)
-	@for f in $(CUE_FILES); do echo $$f; done
-
-gofmt: $(GO_FILES)
-	@for f in $(GO_FILES); do echo $$f; done
-
+# GitHub Actions workflows
 .PHONY: workflow
 workflows = $(addprefix workflow_, $(GHA_FILES))
 workflow: $(workflows)
 $(workflows): workflow_%:
 	@cue export --out yaml $(subst workflow_,,$@) > $(subst workflow_,,$(subst .cue,,$@)).yml
+
+fmt: cuefmt gofmt
+
+.PHONY: cuefmt cuefiles
+cuefiles:
+	find . -type f -name '*.cue' '!' -path '*/cue.mod/*' '!' -path '*/templates/*' '!' -path '*/partials/*' '!' -path '*/.hof/*' -print
+cuefmt:
+	find . -type f -name '*.cue' '!' -path '*/cue.mod/*' '!' -path '*/templates/*' '!' -path '*/partials/*' '!' -path '*/.hof/*' -exec cue fmt {} \;
+
+.PHONY: gofmt gofiles
+gofiles:
+	find . -type f -name '*.go' '!' -path '*/cue.mod/*' '!' -path '*/templates/*' '!' -path '*/partials/*' '!' -path '*/.hof/*' -print
+gofmt:
+	find . -type f -name '*.go' '!' -path '*/cue.mod/*' '!' -path '*/templates/*' '!' -path '*/partials/*' '!' -path '*/.hof/*' -exec gofmt -w {} \;
+

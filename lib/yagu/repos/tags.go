@@ -9,12 +9,12 @@ func IndexModule(module, version string) error {
 	fmt.Println("  ", domain, owner, repo, version)
 
 	/*
-	switch domain {
-		case "github.com":
+		switch domain {
+			case "github.com":
 
-		default:
-		// Assume git
-	}
+			default:
+			// Assume git
+		}
 	*/
 
 	return nil

@@ -19,4 +19,3 @@ func (ts *Script) CmdStdout(neg int, args []string) {
 func (ts *Script) CmdStderr(neg int, args []string) {
 	scriptMatch(ts, neg, args, ts.stderr, "stderr")
 }
-

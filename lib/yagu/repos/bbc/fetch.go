@@ -15,7 +15,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/yagu/repos/git"
 )
 
-func Fetch(FS billy.Filesystem, owner, repo, tag string, private bool) (error) {
+func Fetch(FS billy.Filesystem, owner, repo, tag string, private bool) error {
 
 	// If private, and no token auth, try git protocol
 	// need to catch auth errors and suggest how to setup
@@ -87,7 +87,7 @@ func FetchTagZip(owner, repo, ver string) (*zip.Reader, error) {
 
 	// TODO, process auth logic here better, maybe find a way to DRY
 	if token := os.Getenv(TokenEnv); token != "" {
-		req.Header.Set("Authorization", "Bearer" + token)
+		req.Header.Set("Authorization", "Bearer"+token)
 	} else if password := os.Getenv(PasswordEnv); password != "" {
 		username := os.Getenv(UsernameEnv)
 		req.SetBasicAuth(username, password)
@@ -125,7 +125,7 @@ func FetchBranchZip(owner, repo, branch string) (*zip.Reader, error) {
 
 	// TODO, process auth logic here better, maybe find a way to DRY
 	if token := os.Getenv(TokenEnv); token != "" {
-		req.Header.Set("Authorization", "Bearer" + token)
+		req.Header.Set("Authorization", "Bearer"+token)
 	} else if password := os.Getenv(PasswordEnv); password != "" {
 		username := os.Getenv(UsernameEnv)
 		req.SetBasicAuth(username, password)

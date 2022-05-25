@@ -39,11 +39,11 @@ func pickStruct(pick, from cue.Value, opts *Options) (cue.Value, bool) {
 	ctx := pick.Context()
 
 	//if k := from.IncompleteKind(); k != cue.StructKind {
-		//if opts.NodeTypeErrors {
-			//e := errors.Newf(pick.Pos(), "pick type '%v' does not match target value type '%v'", pick.IncompleteKind(), from.IncompleteKind())
-			//ev := ctx.MakeError(e)
-			//return ev, true
-		//}
+	//if opts.NodeTypeErrors {
+	//e := errors.Newf(pick.Pos(), "pick type '%v' does not match target value type '%v'", pick.IncompleteKind(), from.IncompleteKind())
+	//ev := ctx.MakeError(e)
+	//return ev, true
+	//}
 	//}
 
 	result := newStruct(ctx)
@@ -91,9 +91,9 @@ func pickList(pick, from cue.Value, opts *Options) (cue.Value, bool) {
 
 	//lpt, err := getListProcType(pick)
 	//if err != nil {
-		//ce := errors.Newf(pick.Pos(), "%v", err)
-		//ev := ctx.MakeError(ce)
-		//return ev, true
+	//ce := errors.Newf(pick.Pos(), "%v", err)
+	//ev := ctx.MakeError(ce)
+	//return ev, true
 	//}
 
 	//_ = lpt
@@ -131,10 +131,10 @@ func pickLeaf(pick, from cue.Value, opts *Options) (cue.Value, bool) {
 		}
 	} else {
 		r := pick.Unify(from)
-    if !r.Exists() || r.Err() != nil {
-      // inspect opts to see what to return
+		if !r.Exists() || r.Err() != nil {
+			// inspect opts to see what to return
 			return cue.Value{}, false
-    }
+		}
 		return from, true
 	}
 

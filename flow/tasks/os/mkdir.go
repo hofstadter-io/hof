@@ -8,43 +8,42 @@ import (
 	hofcontext "github.com/hofstadter-io/hof/flow/context"
 )
 
-type Mkdir struct {}
+type Mkdir struct{}
 
 func NewMkdir(val cue.Value) (hofcontext.Runner, error) {
-  return &Mkdir{}, nil
+	return &Mkdir{}, nil
 }
 
 func (T *Mkdir) Run(ctx *hofcontext.Context) (interface{}, error) {
 
 	v := ctx.Value
 
-  var dir string
-  var err error
-  
-  ferr := func () error {
-    ctx.CUELock.Lock()
-    defer func() {
-      ctx.CUELock.Unlock()
-    }()
+	var dir string
+	var err error
 
-    d := v.LookupPath(cue.ParsePath("dir")) 
-    if d.Err() != nil {
-      return d.Err()
-    } else if d.Exists() {
-      dir, err = d.String()
-      if err != nil {
-        return err
-      }
-    }
-    return nil
-  }()
-  if ferr != nil {
-    return nil, ferr
-  }
+	ferr := func() error {
+		ctx.CUELock.Lock()
+		defer func() {
+			ctx.CUELock.Unlock()
+		}()
 
-  // TODO, make mode configurable
-  err = os.MkdirAll(dir, 0755)
+		d := v.LookupPath(cue.ParsePath("dir"))
+		if d.Err() != nil {
+			return d.Err()
+		} else if d.Exists() {
+			dir, err = d.String()
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	}()
+	if ferr != nil {
+		return nil, ferr
+	}
+
+	// TODO, make mode configurable
+	err = os.MkdirAll(dir, 0755)
 
 	return nil, err
 }
-

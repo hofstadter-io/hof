@@ -9,5 +9,5 @@ type Store struct {
 	Type    string
 	Version string
 
-	CueValue  cue.Value
+	CueValue cue.Value
 }

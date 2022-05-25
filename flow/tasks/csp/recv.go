@@ -10,127 +10,127 @@ import (
 	"github.com/hofstadter-io/hof/lib/cuetils"
 )
 
-type Recv struct {}
+type Recv struct{}
 
 func NewRecv(val cue.Value) (hofcontext.Runner, error) {
-  return &Recv{}, nil
+	return &Recv{}, nil
 }
 
 func (T *Recv) Run(ctx *hofcontext.Context) (interface{}, error) {
-  // fmt.Println("csp.Recv", ctx.Value)
+	// fmt.Println("csp.Recv", ctx.Value)
 
 	v := ctx.Value
-  var (
-    err error
-    mailbox string
-    quit string 
-  )
+	var (
+		err     error
+		mailbox string
+		quit    string
+	)
 
-  ferr := func () error {
-    ctx.CUELock.Lock()
-    defer func() {
-      ctx.CUELock.Unlock()
-    }()
+	ferr := func() error {
+		ctx.CUELock.Lock()
+		defer func() {
+			ctx.CUELock.Unlock()
+		}()
 
-    q := v.LookupPath(cue.ParsePath("quitMailbox"))
-    if q.Exists() {
-      if q.Err() != nil {
-        return q.Err()
-      }
-      quit, err = q.String()
-      if err != nil {
-        return err
-      }
-    }
+		q := v.LookupPath(cue.ParsePath("quitMailbox"))
+		if q.Exists() {
+			if q.Err() != nil {
+				return q.Err()
+			}
+			quit, err = q.String()
+			if err != nil {
+				return err
+			}
+		}
 
-    nv := v.LookupPath(cue.ParsePath("mailbox")) 
-    if !nv.Exists() {
-      return fmt.Errorf("in csp.Recv task %s: missing field 'mailbox'", v.Path())
-    }
-    if nv.Err() != nil {
-      return nv.Err()
-    }
-    mailbox, err = nv.String()
-    if err != nil {
-      return err 
-    }
+		nv := v.LookupPath(cue.ParsePath("mailbox"))
+		if !nv.Exists() {
+			return fmt.Errorf("in csp.Recv task %s: missing field 'mailbox'", v.Path())
+		}
+		if nv.Err() != nil {
+			return nv.Err()
+		}
+		mailbox, err = nv.String()
+		if err != nil {
+			return err
+		}
 
-    return nil
-  }()
-  if ferr != nil {
-    return nil, ferr
-  }
+		return nil
+	}()
+	if ferr != nil {
+		return nil, ferr
+	}
 
-  // load mailbox
-  // fmt.Println("mailbox?:", mailbox)
-  ci, loaded := ctx.Mailbox.Load(mailbox)
-  if !loaded {
-    return nil, fmt.Errorf("channel %q not found", mailbox)
-  }
+	// load mailbox
+	// fmt.Println("mailbox?:", mailbox)
+	ci, loaded := ctx.Mailbox.Load(mailbox)
+	if !loaded {
+		return nil, fmt.Errorf("channel %q not found", mailbox)
+	}
 
-  c := ci.(chan Msg)
+	c := ci.(chan Msg)
 
-  var quitChan chan Msg
-  if quit != "" {
-    // fmt.Println("quitMailbox?:", quit)
-    qi, loaded := ctx.Mailbox.Load(quit)
-    if !loaded {
-      return nil, fmt.Errorf("channel %q not found", quit)
-    }
-    quitChan = qi.(chan Msg)
-  }
+	var quitChan chan Msg
+	if quit != "" {
+		// fmt.Println("quitMailbox?:", quit)
+		qi, loaded := ctx.Mailbox.Load(quit)
+		if !loaded {
+			return nil, fmt.Errorf("channel %q not found", quit)
+		}
+		quitChan = qi.(chan Msg)
+	}
 
-  handler := v.LookupPath(cue.ParsePath("handler"))
-  if !handler.Exists() {
-    // fmt.Println("got here")
-    return nil, handler.Err()
-  }
+	handler := v.LookupPath(cue.ParsePath("handler"))
+	if !handler.Exists() {
+		// fmt.Println("got here")
+		return nil, handler.Err()
+	}
 
-  // fmt.Println("handler:", handler)
+	// fmt.Println("handler:", handler)
 
-  for {
-    select {
-    case <-quitChan:
-      break 
-  
-    case msg := <-c:
-      fmt.Println("msg:", msg)
-      var H cue.Value
+	for {
+		select {
+		case <-quitChan:
+			break
 
-      ferr := func () error {
-        ctx.CUELock.Lock()
-        defer func() {
-          ctx.CUELock.Unlock()
-        }()
+		case msg := <-c:
+			fmt.Println("msg:", msg)
+			var H cue.Value
 
-        H = ctx.Value.Context().CompileString("{...}")
-        H = H.Unify(handler) 
-        H = H.FillPath(cue.ParsePath("msg"), msg)
+			ferr := func() error {
+				ctx.CUELock.Lock()
+				defer func() {
+					ctx.CUELock.Unlock()
+				}()
 
-        return nil
-      }()
-      if ferr != nil {
-        return nil, ferr
-      }
+				H = ctx.Value.Context().CompileString("{...}")
+				H = H.Unify(handler)
+				H = H.FillPath(cue.ParsePath("msg"), msg)
 
-      s, err := cuetils.PrintCue(H)
-      if err != nil {
-        fmt.Println("Error(csp/recv/print):", err)
-        return nil, nil
-      }
-      fmt.Println("H:", s)
+				return nil
+			}()
+			if ferr != nil {
+				return nil, ferr
+			}
 
-      p, err := flow.NewFlow(ctx, H)
-      if err != nil {
-        fmt.Println("Error(csp/recv/new):", err)
-        return nil, nil
-      }
+			s, err := cuetils.PrintCue(H)
+			if err != nil {
+				fmt.Println("Error(csp/recv/print):", err)
+				return nil, nil
+			}
+			fmt.Println("H:", s)
 
-      err = p.Start()
-      if err != nil {
-        fmt.Println("Error(csp/recv/run):", err)
-        return nil, nil
-      }
-    }
-  }
+			p, err := flow.NewFlow(ctx, H)
+			if err != nil {
+				fmt.Println("Error(csp/recv/new):", err)
+				return nil, nil
+			}
+
+			err = p.Start()
+			if err != nil {
+				fmt.Println("Error(csp/recv/run):", err)
+				return nil, nil
+			}
+		}
+	}
 }

@@ -7,8 +7,8 @@ import (
 )
 
 type Options struct {
-  AllTypeErrors  bool
-  NodeTypeErrors bool
+	AllTypeErrors  bool
+	NodeTypeErrors bool
 }
 
 func newAny(ctx *cue.Context) cue.Value {
@@ -56,4 +56,3 @@ func GetLabel(val cue.Value) cue.Selector {
 	s := ss[len(ss)-1]
 	return s
 }
-

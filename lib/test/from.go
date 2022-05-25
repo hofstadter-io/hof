@@ -7,7 +7,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/cuetils"
 )
 
-func RunTestFromArgsFlags(args []string, cmdflags flags.TestFlagpole) (error) {
+func RunTestFromArgsFlags(args []string, cmdflags flags.TestFlagpole) error {
 
 	verbose := flags.RootPflags.Verbose
 	cueFiles, extraArgs := args, []string{}
@@ -74,7 +74,5 @@ func RunTestFromArgsFlags(args []string, cmdflags flags.TestFlagpole) (error) {
 		}
 	}
 
-
 	return nil
 }
-

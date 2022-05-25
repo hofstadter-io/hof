@@ -1,3 +1,4 @@
+package diff
 
 type DiffOp struct {
 	Op        string

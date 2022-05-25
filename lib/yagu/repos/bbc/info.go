@@ -19,7 +19,7 @@ func GetTagsSplit(client *bitbucket.Client, module string) ([]bitbucket.Reposito
 	owner, repo := flds[0], flds[1]
 
 	ro := &bitbucket.RepositoryTagOptions{
-		Owner: owner,
+		Owner:    owner,
 		RepoSlug: repo,
 	}
 	tags, err := client.Repositories.Repository.ListTags(ro)
@@ -31,7 +31,7 @@ func GetTagsSplit(client *bitbucket.Client, module string) ([]bitbucket.Reposito
 
 func GetRepo(client *bitbucket.Client, owner, repo string) (*bitbucket.Repository, error) {
 	ro := &bitbucket.RepositoryOptions{
-		Owner: owner,
+		Owner:    owner,
 		RepoSlug: repo,
 	}
 	r, err := client.Repositories.Repository.Get(ro)
@@ -40,7 +40,7 @@ func GetRepo(client *bitbucket.Client, owner, repo string) (*bitbucket.Repositor
 
 func GetBranch(client *bitbucket.Client, owner, repo, branch string) (*bitbucket.RepositoryBranch, error) {
 	ro := &bitbucket.RepositoryBranchOptions{
-		Owner: owner,
+		Owner:    owner,
 		RepoSlug: repo,
 	}
 	b, err := client.Repositories.Repository.GetBranch(ro)
@@ -49,7 +49,7 @@ func GetBranch(client *bitbucket.Client, owner, repo, branch string) (*bitbucket
 
 func GetBranches(client *bitbucket.Client, owner, repo, branch string) ([]bitbucket.RepositoryBranch, error) {
 	ro := &bitbucket.RepositoryBranchOptions{
-		Owner: owner,
+		Owner:    owner,
 		RepoSlug: repo,
 	}
 	bs, err := client.Repositories.Repository.ListBranches(ro)
@@ -62,10 +62,9 @@ func GetTags(client *bitbucket.Client, owner, repo string) ([]bitbucket.Reposito
 		return nil, err
 	}
 	ro := &bitbucket.RepositoryTagOptions{
-		Owner: owner,
+		Owner:    owner,
 		RepoSlug: repo,
 	}
 	tags, err := client.Repositories.Repository.ListTags(ro)
 	return tags.Tags, err
 }
-
