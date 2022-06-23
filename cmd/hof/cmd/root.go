@@ -107,8 +107,9 @@ func RootInit() {
 	RootCmd.AddCommand(CompletionCmd)
 
 	RootCmd.AddCommand(DatamodelCmd)
-	RootCmd.AddCommand(FlowCmd)
+	RootCmd.AddCommand(RenderCmd)
 	RootCmd.AddCommand(GenCmd)
+	RootCmd.AddCommand(FlowCmd)
 	RootCmd.AddCommand(ModCmd)
 	RootCmd.AddCommand(RunCmd)
 	RootCmd.AddCommand(FeedbackCmd)
@@ -171,10 +172,11 @@ Usage:
   hof [flags] [command] [args]
 
 Main commands:
-  datamodel             create, view, diff, calculate / migrate, and manage your data models
-  flow                  run file(s) through the hof/flow DAG engine
-  gen                   generate code, data, and config from your data models and designs
-  mod                   mod subcmd is a polyglot dependency management tool based on go mods
+  datamodel             manage, diff, and migrate your data models
+  render                generate arbitrary files from data and CUE entrypoints
+  gen                   render directories of code using modular generators
+  flow                  run CUE pipelines with the hof/flow DAG engine
+  mod                   polyglot dependency management based on go mods and MVS
 
 Additional commands:
   help                  help about any command

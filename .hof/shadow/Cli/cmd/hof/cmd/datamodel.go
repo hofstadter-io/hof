@@ -39,7 +39,7 @@ var DatamodelCmd = &cobra.Command{
 		"dm",
 	},
 
-	Short: "create, view, diff, calculate / migrate, and manage your data models",
+	Short: "manage, diff, and migrate your data models",
 
 	Long: datamodelLong,
 

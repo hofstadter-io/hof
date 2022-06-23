@@ -10,7 +10,7 @@ import (
 	"github.com/hofstadter-io/hof/flow"
 )
 
-var flowLong = `run file(s) through the hof/flow DAG engine
+var flowLong = `run CUE pipelines with the hof/flow DAG engine
 
 Use hof/flow to transform data, call APIs, work with DBs,
 read and write files, call any program, handle events,
@@ -82,7 +82,7 @@ var FlowCmd = &cobra.Command{
 		"f",
 	},
 
-	Short: "run file(s) through the hof/flow DAG engine",
+	Short: "run CUE pipelines with the hof/flow DAG engine",
 
 	Long: flowLong,
 

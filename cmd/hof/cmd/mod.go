@@ -132,7 +132,7 @@ var ModCmd = &cobra.Command{
 		"m",
 	},
 
-	Short: "mod subcmd is a polyglot dependency management tool based on go mods",
+	Short: "polyglot dependency management based on go mods and MVS",
 
 	Long: modLong,
 

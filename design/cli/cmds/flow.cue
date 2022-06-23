@@ -8,7 +8,7 @@ import (
 	Name: "flow"
 	Aliases: ["f"]
 	Usage: "flow [cue files...] [@flow/name...] [+key=value]"
-	Short: "run file(s) through the hof/flow DAG engine"
+	Short: "run CUE pipelines with the hof/flow DAG engine"
 	Long:  """
   \(Short)
 

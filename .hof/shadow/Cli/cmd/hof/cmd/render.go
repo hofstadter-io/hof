@@ -9,19 +9,16 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 )
 
-var genLong = `render directories of code using modular generators
+var renderLong = `generate arbitrary files from data and CUE entrypoints
 
-Doc: https://docs.hofstadter.io/first-example/
-
-hof gen -g frontend -g backend design.cue`
+hof render -t template.go data.cue > file.go`
 
 func init() {
 
-	GenCmd.Flags().BoolVarP(&(flags.GenFlags.Stats), "stats", "s", false, "Print generator statistics")
-	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.Generator), "generator", "g", nil, "Generators to run, default is all discovered")
+	RenderCmd.Flags().StringSliceVarP(&(flags.RenderFlags.Template), "template", "t", nil, "Template mappings to render with data from entrypoint as: filepath|cuepath|outpath")
 }
 
-func GenRun(args []string) (err error) {
+func RenderRun(args []string) (err error) {
 
 	// you can safely comment this print out
 	fmt.Println("not implemented")
@@ -29,17 +26,17 @@ func GenRun(args []string) (err error) {
 	return err
 }
 
-var GenCmd = &cobra.Command{
+var RenderCmd = &cobra.Command{
 
-	Use: "gen [files...]",
+	Use: "render [flags] [entrypoints...]",
 
 	Aliases: []string{
-		"G",
+		"R",
 	},
 
-	Short: "render directories of code using modular generators",
+	Short: "generate arbitrary files from data and CUE entrypoints",
 
-	Long: genLong,
+	Long: renderLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
@@ -50,7 +47,7 @@ var GenCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		err = GenRun(args)
+		err = RenderRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -64,8 +61,8 @@ func init() {
 		return false
 	}
 
-	ohelp := GenCmd.HelpFunc()
-	ousage := GenCmd.UsageFunc()
+	ohelp := RenderCmd.HelpFunc()
+	ousage := RenderCmd.UsageFunc()
 	help := func(cmd *cobra.Command, args []string) {
 		if extra(cmd) {
 			return
@@ -79,7 +76,7 @@ func init() {
 		return ousage(cmd)
 	}
 
-	GenCmd.SetHelpFunc(help)
-	GenCmd.SetUsageFunc(usage)
+	RenderCmd.SetHelpFunc(help)
+	RenderCmd.SetUsageFunc(usage)
 
 }

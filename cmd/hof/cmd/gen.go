@@ -11,7 +11,11 @@ import (
 	"github.com/hofstadter-io/hof/lib/gen"
 )
 
-var genLong = `  generate all the things, from code to data to config...`
+var genLong = `render directories of code using modular generators
+
+Doc: https://docs.hofstadter.io/first-example/
+
+hof gen -g frontend -g backend design.cue`
 
 func init() {
 
@@ -37,7 +41,7 @@ var GenCmd = &cobra.Command{
 		"G",
 	},
 
-	Short: "generate code, data, and config from your data models and designs",
+	Short: "render directories of code using modular generators",
 
 	Long: genLong,
 

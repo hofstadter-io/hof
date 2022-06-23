@@ -13,7 +13,7 @@ import (
 	Name:  "mod"
 	Usage: "mod"
 	Aliases: ["m"]
-	Short: "mod subcmd is a polyglot dependency management tool based on go mods"
+	Short: "polyglot dependency management based on go mods and MVS"
 	Long:  #ModLongHelp
 
 	//Topics: #ModTopics

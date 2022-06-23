@@ -8,7 +8,7 @@ import (
 	Name:  "datamodel"
 	Usage: "datamodel"
 	Aliases: ["dm"]
-	Short: "create, view, diff, calculate / migrate, and manage your data models"
+	Short: "manage, diff, and migrate your data models"
 	Long:  #DatamodelRootHelp
 
 	OmitRun: true
