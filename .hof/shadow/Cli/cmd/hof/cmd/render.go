@@ -9,8 +9,12 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 )
 
-var renderLong = `hof render joins CUE with an extended Go base text/template system
-  https://docs.hofstadter.io/code-generation/template-writing/
+var renderLong = `hof render joins CUE with Go's text/template system
+
+# Learn about writing templates, with extra functions and helpers
+https://docs.hofstadter.io/code-generation/template-writing/
+
+hof gen is a modular and composable version of this command
 
 # Render a template
 hof render data.cue -T template.txt

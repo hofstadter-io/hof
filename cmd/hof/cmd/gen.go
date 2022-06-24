@@ -15,7 +15,7 @@ var genLong = `render directories of code using modular generators
 
 Doc: https://docs.hofstadter.io/first-example/
 
-hof gen -g frontend -g backend design.cue`
+hof gen app.cue -g frontend -g backend -g migrations`
 
 func init() {
 

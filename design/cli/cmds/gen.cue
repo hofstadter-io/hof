@@ -10,13 +10,7 @@ import (
 	Usage: "gen [files...]"
 	Aliases: ["G"]
 	Short: "render directories of code using modular generators"
-	Long: """
-  \(Short)
-
-  Doc: https://docs.hofstadter.io/first-example/
-
-  hof gen -g frontend -g backend design.cue
-  """
+	Long: GenLongHelp
 
 	Flags: [...schema.#Flag] & [
 		{
@@ -66,10 +60,21 @@ import (
 	]
 }
 
+GenLongHelp: """
+render directories of code using modular generators
+
+Doc: https://docs.hofstadter.io/first-example/
+
+hof gen app.cue -g frontend -g backend -g migrations
+"""
 
 RenderLongHelp: """
-hof render joins CUE with an extended Go base text/template system
-  https://docs.hofstadter.io/code-generation/template-writing/
+hof render joins CUE with Go's text/template system
+
+# Learn about writing templates, with extra functions and helpers
+https://docs.hofstadter.io/code-generation/template-writing/
+
+hof gen is a modular and composable version of this command
 
 # Render a template
 hof render data.cue -T template.txt
