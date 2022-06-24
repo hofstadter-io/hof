@@ -9,12 +9,9 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 )
 
-var renderLong = `hof render joins CUE with Go's text/template system
-
-# Learn about writing templates, with extra functions and helpers
-https://docs.hofstadter.io/code-generation/template-writing/
-
-hof gen is a modular and composable version of this command
+var renderLong = `hof render joins CUE with Go's text/template system and diff3
+  create on-liners to generate any file from any data
+  edit and regenerate those files while keeping changes
 
 # Render a template
 hof render data.cue -T template.txt
@@ -44,12 +41,22 @@ hof render data.cue ...
   #   The template will be processed per item
   #   This also requires using a templated outpath
   -T 'template.txt;items;out/{{ .filepath }}.txt'
-`
+
+# Learn about writing templates, with extra functions and helpers
+  https://docs.hofstadter.io/code-generation/template-writing/
+
+# Check the tests for complete examples
+  https://github.com/hofstadter-io/hof/tree/_dev/test/render
+
+# Want to use and compose code gen modules and dependencies?
+  hof gen is a scaled out version of this command
+  hof gen app.cue -g frontend -g backend -g migrations`
 
 func init() {
 
 	RenderCmd.Flags().StringSliceVarP(&(flags.RenderFlags.Template), "template", "T", nil, "Template mappings to render with data from entrypoint as: <filepath>;<?cuepath>;<?outpath>")
 	RenderCmd.Flags().StringSliceVarP(&(flags.RenderFlags.Partial), "partial", "P", nil, "file globs to partial templates to register with the templates")
+	RenderCmd.Flags().BoolVarP(&(flags.RenderFlags.Diff3), "diff3", "D", false, "enable diff3 support, requires the .hof shadow directory")
 }
 
 func RenderRun(args []string) (err error) {

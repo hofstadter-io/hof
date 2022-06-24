@@ -57,24 +57,29 @@ import (
 			Long:    "partial"
 			Short:   "P"
 		},
+		{
+			Name:    "diff3"
+			Type:    "bool"
+			Default: "false"
+			Help:    "enable diff3 support, requires the .hof shadow directory"
+			Long:    "diff3"
+			Short:   "D"
+		},
 	]
 }
 
 GenLongHelp: """
 render directories of code using modular generators
 
-Doc: https://docs.hofstadter.io/first-example/
+  https://docs.hofstadter.io/first-example/
 
 hof gen app.cue -g frontend -g backend -g migrations
 """
 
 RenderLongHelp: """
-hof render joins CUE with Go's text/template system
-
-# Learn about writing templates, with extra functions and helpers
-https://docs.hofstadter.io/code-generation/template-writing/
-
-hof gen is a modular and composable version of this command
+hof render joins CUE with Go's text/template system and diff3
+  create on-liners to generate any file from any data
+  edit and regenerate those files while keeping changes
 
 # Render a template
 hof render data.cue -T template.txt
@@ -105,4 +110,13 @@ hof render data.cue ...
   #   This also requires using a templated outpath
   -T 'template.txt;items;out/{{ .filepath }}.txt'
 
+# Learn about writing templates, with extra functions and helpers
+  https://docs.hofstadter.io/code-generation/template-writing/
+
+# Check the tests for complete examples
+  https://github.com/hofstadter-io/hof/tree/_dev/test/render
+
+# Want to use and compose code gen modules and dependencies?
+  hof gen is a scaled out version of this command
+  hof gen app.cue -g frontend -g backend -g migrations
 """

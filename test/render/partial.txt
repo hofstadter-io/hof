@@ -1,0 +1,23 @@
+exec hof render data.cue -T 'template.txt;.vals;{{ .name }}.txt' -P partial.txt
+cmp a.txt expected-a.txt
+cmp b.txt expected-b.txt
+
+-- data.cue --
+vals: [{
+	name: "a"
+	data: 1
+},{
+	name: "b"
+	data: 2
+}]
+
+-- template.txt --
+{{ .name }} is {{ template "partial.txt" . }}
+
+-- partial.txt
+{{ .data }}
+-- expected-a.txt --
+a is 1
+-- expected-b.txt --
+b is 2
+

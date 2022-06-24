@@ -1,15 +1,39 @@
-exec hof render data.cue -T 'template.txt;.val'
-cmp stdout expected.txt
+exec hof render data.cue -T template.txt
+cmp stdout expected-top.txt
 
-exec hof render data.cue -T 'template.txt;.val;output.txt'
-cmp output.txt expected.txt
+exec hof render data.cue -T 'template.txt;'
+cmp stdout expected-top.txt
+
+exec hof render data.cue -T 'template.txt;;'
+cmp stdout expected-top.txt
+
+exec hof render data.cue -T 'template.txt;.'
+cmp stdout expected-top.txt
+
+exec hof render data.cue -T 'template.txt;.val'
+cmp stdout expected-val.txt
+
+exec hof render data.cue -T 'template.txt;.val'
+cmp stdout expected-val.txt
+
+exec hof render data.cue -T 'template.txt;.val;out.txt'
+cmp out.txt expected-val.txt
+
+exec hof render data.cue -T 'template.txt;.;{{ .name }}.txt'
+cmp all.txt expected-val.txt
+
+exec hof render data.cue -T 'template.txt;.;{{ .name | ToUpper }}.txt'
+cmp ALL.txt expected-val.txt
 
 -- data.cue --
+name: "all"
+val: name: "val"
 
 -- template.txt --
+name is '{{ .name }}'
 
--- output.txt --
+-- expected-top.txt --
+name is 'all'
 
--- expected.txt --
-
-
+-- expected-val.txt --
+name is 'val'

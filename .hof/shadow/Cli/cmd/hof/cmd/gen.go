@@ -11,7 +11,7 @@ import (
 
 var genLong = `render directories of code using modular generators
 
-Doc: https://docs.hofstadter.io/first-example/
+  https://docs.hofstadter.io/first-example/
 
 hof gen app.cue -g frontend -g backend -g migrations`
 

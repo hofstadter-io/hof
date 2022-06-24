@@ -1,12 +1,16 @@
 exec hof render data.cue -T 'template.txt;.'
 cmp stdout expected-top.txt
 
-exec hof render data.cue -T 'template.txt;.val'
+exec hof render data.cue -T 'template.txt;val'
 cmp stdout expected-val.txt
+
+exec hof render data.cue -T 'template.txt;val."sub-field"'
+cmp stdout expected-sub.txt
 
 -- data.cue --
 name: "all"
 val: name: "val"
+val: "sub-field": name: "sub"
 
 -- template.txt --
 name is '{{ .name }}'
@@ -16,3 +20,6 @@ name is 'all'
 
 -- expected-val.txt --
 name is 'val'
+
+-- expected-sub.txt --
+name is 'sub'

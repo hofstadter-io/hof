@@ -1,0 +1,23 @@
+exec hof render data.yaml schema.cue -T template.txt
+cmp stdout expected.txt
+
+-- schema.cue --
+vals: [...{ name: string, data: int }]
+-- data.yaml --
+vals:
+  - name: "a"
+    data: 1
+},{
+  - name: "b"
+    data: 2
+}]
+
+-- template.txt --
+{{ range .vals }}
+{{ .name }} is {{ .data }}
+{{ end }}
+
+-- expected.txt --
+a is 1
+b is 2
+
