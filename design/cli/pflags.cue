@@ -5,7 +5,7 @@ import (
 )
 
 #CliPflags: [...schema.#Flag] & [
-		{
+	{
 		Name:    "package"
 		Long:    "package"
 		Short:   "p"

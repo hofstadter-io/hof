@@ -9,13 +9,43 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 )
 
-var renderLong = `generate arbitrary files from data and CUE entrypoints
+var renderLong = `hof render joins CUE with an extended Go base text/template system
+  https://docs.hofstadter.io/code-generation/template-writing/
 
-hof render -t template.go data.cue > file.go`
+# Render a template
+hof render data.cue -T template.txt
+hof render data.yaml schema.cue -T template.txt > output.txt
+
+# Add partials to the template context
+hof render data.cue -T template.txt -P partial.txt
+
+# The template flag
+hof render data.cue ...
+
+  # Multiple templates
+  -T templateA.txt -T templateB.txt
+
+  # Cuepath to select sub-input values
+  -T 'templateA.txt;foo'
+  -T 'templateB.txt;sub.val'
+
+  # Writing to file
+  -T 'templateA.txt;;a.txt'
+  -T 'templateB.txt;sub.val;b.txt'
+
+  # Templated output path 
+  -T 'templateA.txt;;{{ .name | ToLower }}.txt'
+
+  # Repeated templates when input is a list
+  #   The template will be processed per item
+  #   This also requires using a templated outpath
+  -T 'template.txt;items;out/{{ .filepath }}.txt'
+`
 
 func init() {
 
-	RenderCmd.Flags().StringSliceVarP(&(flags.RenderFlags.Template), "template", "t", nil, "Template mappings to render with data from entrypoint as: filepath|cuepath|outpath")
+	RenderCmd.Flags().StringSliceVarP(&(flags.RenderFlags.Template), "template", "T", nil, "Template mappings to render with data from entrypoint as: <filepath>;<?cuepath>;<?outpath>")
+	RenderCmd.Flags().StringSliceVarP(&(flags.RenderFlags.Partial), "partial", "P", nil, "file globs to partial templates to register with the templates")
 }
 
 func RenderRun(args []string) (err error) {

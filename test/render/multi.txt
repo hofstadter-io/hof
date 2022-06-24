@@ -1,0 +1,22 @@
+exec hof render data.cue -T template.txt -T template2.txt
+cmp stdout expected.txt
+
+-- data.cue --
+cow: "moo"
+fox: "ringa ding ding"
+
+-- template.txt --
+cows go {{ .coe }}
+
+-- template2.txt --
+what did the fox say?
+
+{{ .fox }}!
+
+-- expected.txt --
+cows go moo
+
+what did the fox say?
+
+ringa ding ding!
+

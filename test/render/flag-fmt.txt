@@ -1,0 +1,15 @@
+exec hof render data.cue -T 'template.txt;.val'
+cmp stdout expected.txt
+
+exec hof render data.cue -T 'template.txt;.val;output.txt'
+cmp output.txt expected.txt
+
+-- data.cue --
+
+-- template.txt --
+
+-- output.txt --
+
+-- expected.txt --
+
+

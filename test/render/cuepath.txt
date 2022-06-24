@@ -1,0 +1,18 @@
+exec hof render data.cue -T 'template.txt;.'
+cmp stdout expected-top.txt
+
+exec hof render data.cue -T 'template.txt;.val'
+cmp stdout expected-val.txt
+
+-- data.cue --
+name: "all"
+val: name: "val"
+
+-- template.txt --
+name is '{{ .name }}'
+
+-- expected-all.txt --
+name is 'all'
+
+-- expected-val.txt --
+name is 'val'
