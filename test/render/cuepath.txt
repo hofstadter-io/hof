@@ -1,10 +1,10 @@
-exec hof render data.cue -T 'template.txt;.'
+exec hof render data.cue -T 'template.txt:.'
 cmp stdout expected-top.txt
 
-exec hof render data.cue -T 'template.txt;val'
+exec hof render data.cue -T 'template.txt:val'
 cmp stdout expected-val.txt
 
-exec hof render data.cue -T 'template.txt;val."sub-field"'
+exec hof render data.cue -T 'template.txt:val."sub-field"'
 cmp stdout expected-sub.txt
 
 -- data.cue --

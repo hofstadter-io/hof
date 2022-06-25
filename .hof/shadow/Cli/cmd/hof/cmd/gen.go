@@ -9,11 +9,11 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 )
 
-var genLong = `render directories of code using modular generators
+var genLong = `render directories of code with reusable, modular generators
 
-  https://docs.hofstadter.io/first-example/
+  hof gen app.cue -g frontend -g backend -g migrations
 
-hof gen app.cue -g frontend -g backend -g migrations`
+  https://docs.hofstadter.io/first-example/`
 
 func init() {
 

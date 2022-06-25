@@ -20,27 +20,31 @@ hof render data.yaml schema.cue -T template.txt > output.txt
 # Add partials to the template context
 hof render data.cue -T template.txt -P partial.txt
 
-# The template flag
+# The template flag as code gen mappings
 hof render data.cue ...
 
-  # Multiple templates
+  # Generate multiple templates at once
   -T templateA.txt -T templateB.txt
 
-  # Cuepath to select sub-input values
-  -T 'templateA.txt;foo'
-  -T 'templateB.txt;sub.val'
+  # Select a sub-input value by CUEpath
+  -T 'templateA.txt:foo'
+  -T 'templateB.txt:sub.val'
 
-  # Writing to file
-  -T 'templateA.txt;;a.txt'
-  -T 'templateB.txt;sub.val;b.txt'
+  # Choose a schema with @
+  -T 'templateA.txt:foo@#foo'
+  -T 'templateB.txt:sub.val@schemas.val'
+
+  # Writing to file with ; (semicolon)
+  -T 'templateA.txt;a.txt'
+  -T 'templateB.txt:sub.val@schema;b.txt'
 
   # Templated output path 
-  -T 'templateA.txt;;{{ .name | ToLower }}.txt'
+  -T 'templateA.txt:;{{ .name | lower }}.txt'
 
-  # Repeated templates when input is a list
+  # Repeated templates are used when the input is a list
   #   The template will be processed per item
   #   This also requires using a templated outpath
-  -T 'template.txt;items;out/{{ .filepath }}.txt'
+  -T 'template.txt:items;out/{{ .filepath }}.txt'
 
 # Learn about writing templates, with extra functions and helpers
   https://docs.hofstadter.io/code-generation/template-writing/
@@ -48,9 +52,9 @@ hof render data.cue ...
 # Check the tests for complete examples
   https://github.com/hofstadter-io/hof/tree/_dev/test/render
 
-# Want to use and compose code gen modules and dependencies?
-  hof gen is a scaled out version of this command
-  hof gen app.cue -g frontend -g backend -g migrations`
+# Compose code gen mappings into reusable modules with
+  hof gen app.cue -g frontend -g backend -g migrations
+  https://docs.hofstadter.io/first-example/`
 
 func init() {
 

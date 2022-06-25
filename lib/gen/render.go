@@ -16,6 +16,7 @@ type RenderConfig struct {
 
 // parsed version of the --template flag
 // semicolon separated: <filepath>;<?cuepath>;<?outpath>
+// each extra section is 
 type RenderTemplateConfig struct {
 	// Filepath to the template
 	Filepath string
