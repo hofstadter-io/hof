@@ -74,10 +74,13 @@ tests: {
 		run: BashTest & {
 			dir: "test/templates"
 			script: """
+				set -e
+				# fetch CUE deps
+				hof mod vendor cue
 				# generate templates
 				hof gen
 				# should have no diff
-				git diff
+				git diff --exit-code
 				"""
 		}
 	}
