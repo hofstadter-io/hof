@@ -82,6 +82,13 @@ tests: {
 		}
 	}
 
+	render: {
+		@flow(test/render)
+		run: GoTest & {
+			dir: "test/render"
+		}
+	}
+
 	st: {
 		@flow(test/st)
 		run: GoTest & {

@@ -23,5 +23,7 @@ jobs:
       - name: Build CLI
         run: go install ./cmd/hof
       - name: Run structural tests
-        run: hof flow -f test/st ./test.cue
+        run: |-
+          hof flow @test/render ./test.cue
+          hof flow @test/st ./test.cue
     services: {}
