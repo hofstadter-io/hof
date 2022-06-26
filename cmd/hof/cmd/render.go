@@ -70,7 +70,7 @@ func RenderRun(args []string) (err error) {
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = gen.Render(args, flags.RenderFlags)
+	err = gen.Render(args, flags.RootPflags, flags.RenderFlags)
 
 	return err
 }

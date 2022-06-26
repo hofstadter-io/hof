@@ -227,12 +227,14 @@ func (R *Runtime) RunGenerator(G *Generator) (errs []error) {
 
 	G.Shadow = shadow
 
+	// run this generator
 	errsG := G.GenerateFiles()
 	if len(errsG) > 0 {
 		errs = append(errs, errsG...)
 		return errs
 	}
 
+	// run any subgenerators
 	for _, sg := range G.Generators {
 		sgerrs := R.RunGenerator(sg)
 		if len(sgerrs) > 0 {

@@ -6,7 +6,7 @@ cow: "moo"
 fox: "ringa ding ding"
 
 -- template.txt --
-cows go {{ .coe }}
+cows go {{ .cow }}
 
 -- template2.txt --
 what did the fox say?

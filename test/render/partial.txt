@@ -14,10 +14,11 @@ vals: [{
 -- template.txt --
 {{ .name }} is {{ template "partial.txt" . }}
 
--- partial.txt
-{{ .data }}
+-- partial.txt --
+{{- .data -}}
 -- expected-a.txt --
 a is 1
+
 -- expected-b.txt --
 b is 2
 

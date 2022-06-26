@@ -3,7 +3,7 @@ cmp stdout expected.txt
 
 -- data.cue --
 a: "a"
-b: 2"
+b: 2
 
 val: foo: "bar"
 
@@ -12,7 +12,6 @@ A is {{ .a }}
 B is {{ .b }}
 
 foo is {{ .val.foo }}
-
 -- expected.txt --
 A is a
 B is 2

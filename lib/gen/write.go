@@ -1,14 +1,21 @@
 package gen
 
 import (
+	"fmt"
 	"io/ioutil"
 	"path"
+	"strings"
 
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 func (F *File) WriteOutput() error {
 	var err error
+
+	if F.Filepath == "-" || strings.HasPrefix(F.Filepath, "hof-stdout-") {
+		fmt.Print(string(F.FinalContent))
+		return nil
+	}
 
 	// fmt.Println("WriteFile:", F.Filepath)
 	// fmt.Printf("%#+v\n\n", F)

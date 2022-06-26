@@ -44,13 +44,6 @@ type File struct {
 	// (we use a different name here so that it does not automatically try to decode, which would require concreteness)
 	Value cue.Value
 
-	// Generator that owns this file
-	// TODO, does this break with the multi-generator hack?
-	//       or is this the behavior defined by the way generators are included together
-	//       because the user will be able to do it both ways, the hack doesn't to away,
-	// there's just a more recommended way to do it
-	Gen *Generator
-
 	// Template Instance Pointer
 	//   If local, this will be created when the template content is laoded
 	//   If a named template, acutal template lives in the generator and is created at folder import time
@@ -71,7 +64,7 @@ type File struct {
 	FileStats
 }
 
-func (F *File) Render(shadow_basedir string) error {
+func (F *File) Render(diff3 bool) error {
 	var err error
 
 	if F.DatafileFormat != "" {

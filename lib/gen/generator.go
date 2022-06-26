@@ -77,6 +77,9 @@ type Generator struct {
 	// Used for indexing into the vendor directory...
 	PackageName string
 
+	// Use Diff3 & Shadow
+	UseDiff3 bool
+
 	//
 	// Hof internal usage
 	//
@@ -113,6 +116,7 @@ func NewGenerator(label string, value cue.Value) *Generator {
 		Files:       make(map[string]*File),
 		Shadow:      make(map[string]*File),
 		Stats:       &GeneratorStats{},
+		UseDiff3:    true,
 	}
 }
 
@@ -122,7 +126,6 @@ func (G *Generator) GenerateFiles() []error {
 	start := time.Now()
 
 	for _, F := range G.Files {
-
 		if F.Filepath == "" {
 			F.IsSkipped = 1
 			continue
@@ -130,7 +133,7 @@ func (G *Generator) GenerateFiles() []error {
 		shadowFN := filepath.Join(G.Name, F.Filepath)
 		F.ShadowFile = G.Shadow[shadowFN]
 
-		err := F.Render(filepath.Join(SHADOW_DIR, shadowFN))
+		err := F.Render(G.UseDiff3)
 		if err != nil {
 			F.IsErr = 1
 			F.Errors = append(F.Errors, err)
@@ -327,8 +330,6 @@ func (G *Generator) registerPartials(T *templates.Template) error {
 		// maybe? because of how text/template contexts work
 		templates.AddGolangHelpers(t)
 		t.Parse(P.Source)
-
-		// T.T = t
 	}
 
 	return nil
