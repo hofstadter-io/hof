@@ -93,6 +93,7 @@ type Generator struct {
 	PartialsMap templates.TemplateMap
 
 	// Files and the shadow dir for doing neat things
+	OrderedFiles    []*File
 	Files  map[string]*File
 	Shadow map[string]*File
 
@@ -125,7 +126,7 @@ func (G *Generator) GenerateFiles() []error {
 
 	start := time.Now()
 
-	for _, F := range G.Files {
+	for _, F := range G.OrderedFiles {
 		if F.Filepath == "" {
 			F.IsSkipped = 1
 			continue
@@ -272,10 +273,11 @@ func (G *Generator) initFileGens() []error {
 	var errs []error
 
 	for _, F := range G.Out {
+		G.OrderedFiles = append(G.OrderedFiles, F)
 		G.Files[F.Filepath] = F
 	}
 
-	for _, F := range G.Files {
+	for _, F := range G.OrderedFiles {
 		err := G.ResolveFile(F)
 		if err != nil {
 			errs = append(errs, err)

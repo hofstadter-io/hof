@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"cuelang.org/go/cue"
+	"github.com/fatih/color"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/cuetils"
@@ -162,6 +163,15 @@ func (RC *RenderConfig) setupGenerator() (err error) {
 		return fmt.Errorf("while writing output")
 	}
 
+	if G.UseDiff3 {
+		for _, F := range G.Files {
+			if F.IsConflicted > 0 {
+				msg := fmt.Sprint("MERGE CONFLICT in:", F.Filepath)
+				color.Red(msg)
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -233,7 +243,7 @@ func (RC *RenderConfig) writeOutput() (errs []error) {
 	writestart := time.Now()
 
 	// Finally write the generator files
-	for _, F := range G.Files {
+	for _, F := range G.OrderedFiles {
 		// Write the actual output
 		if F.DoWrite && len(F.Errors) == 0 {
 			err := F.WriteOutput()
