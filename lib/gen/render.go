@@ -108,6 +108,9 @@ func parseTemplateFlag(tf string) (cfg RenderTemplateConfig, err error) {
 	if len(parts) > 1 {
 		tf = parts[0]
 		cfg.Cuepath = parts[1]
+		if cfg.Cuepath == "." {
+			cfg.Cuepath = ""
+		}
 	}
 
 	// should only have template path left

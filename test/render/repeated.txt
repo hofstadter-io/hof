@@ -12,9 +12,7 @@ vals: [{
 }]
 
 -- template.txt --
-
 {{ .name }} is {{ .data }}
-
 -- expected-a.txt --
 a is 1
 -- expected-b.txt --

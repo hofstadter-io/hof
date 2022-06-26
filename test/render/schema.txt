@@ -1,4 +1,4 @@
-exec hof render data.yaml schema.cue -T 'templateA.txt:vals@schemas.vals'
+exec hof render data.yaml schema.cue -T 'template.txt:vals@schemas.vals'
 cmp stdout expected.txt
 
 -- schema.cue --
@@ -15,12 +15,12 @@ vals:
     data: 2
 }]
 
--- templateA.txt --
+-- template.txt --
 {{ range .vals }}
 {{ .name }} is {{ .data }}
 {{ end }}
 
--- expectedA.txt --
+-- expected.txt --
 a is 1
 b is 2
 
