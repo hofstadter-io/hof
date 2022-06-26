@@ -1,9 +1,9 @@
 module github.com/hof/test
 
-cue 0.4.0
+cue 0.4.3
 
 require (
-  github.com/hofstadter-io/hof v0.5.17
+  github.com/hofstadter-io/hof v0.6.2
 )
 
 replace github.com/hofstadter-io/hof => ../../
