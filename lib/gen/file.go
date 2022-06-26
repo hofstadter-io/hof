@@ -22,7 +22,7 @@ import (
 
 type File struct {
 	// Input Data, local to this file
-	In map[string]interface{}
+	In interface{}
 
 	// The full path under the output location
 	// empty implies don't generate, even though it may endup in the list

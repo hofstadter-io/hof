@@ -28,7 +28,7 @@ type RenderConfig struct {
 }
 
 // parsed version of the --template flag
-// semicolon separated: <filepath>:<?cuepath>@<schema>;<?outpath>
+// semicolon separated: <filepath>:<?cuepath>@<schema>;[]<?outpath>
 // each extra section is 
 type RenderTemplateConfig struct {
 	// Template filepath
@@ -42,6 +42,9 @@ type RenderTemplateConfig struct {
 
 	// Filepath to write results, possibly templated
 	Outpath  string
+
+	// Is this a repeated template
+	Repeated bool
 }
 
 func Render(args []string, rootflags flags.RootPflagpole, cmdflags flags.RenderFlagpole) error {
@@ -65,6 +68,7 @@ func Render(args []string, rootflags flags.RootPflagpole, cmdflags flags.RenderF
 	if err != nil {
 		return err
 	}
+
 	RC.RootValue = crt.CueValue
 
 	RC.G = NewGenerator("HofRenderCmd", RC.RootValue)
@@ -95,6 +99,11 @@ func parseTemplateFlag(tf string) (cfg RenderTemplateConfig, err error) {
 		tf = parts[0]
 		cfg.Outpath = parts[1]
 	}
+	// repeated template?
+	if strings.HasPrefix(cfg.Outpath, "[]") {
+		cfg.Outpath = strings.TrimPrefix(cfg.Outpath, "[]")
+		cfg.Repeated = true
+	}
 
 	// look for @
 	parts = strings.Split(tf, "@")
@@ -108,6 +117,7 @@ func parseTemplateFlag(tf string) (cfg RenderTemplateConfig, err error) {
 	if len(parts) > 1 {
 		tf = parts[0]
 		cfg.Cuepath = parts[1]
+		// '.' is an alias for "" or the root value
 		if cfg.Cuepath == "." {
 			cfg.Cuepath = ""
 		}
@@ -226,14 +236,23 @@ func (RC *RenderConfig) setupTemplateConfigs() (err error) {
 		}
 
 		// check if val is a list
-		if iter, ierr := Val.List(); ierr == nil {
-			for iter.Next() {
-				val := iter.Value()
-				addFile(val)
+		if cfg.Repeated {
+			if iter, ierr := Val.List(); ierr == nil {
+				for iter.Next() {
+					val := iter.Value()
+					err := addFile(val)
+					if err != nil {
+						return err
+					}
+				}
+			} else {
+				return fmt.Errorf("repeated template value is not a list")
 			}
-
 		} else {
-			addFile(Val)
+			err := addFile(Val)
+			if err != nil {
+				return err
+			}
 		}
 
 	}

@@ -10,18 +10,14 @@ schemas: {
 vals:
   - name: "a"
     data: 1
-},{
   - name: "b"
     data: 2
-}]
 
 -- template.txt --
-{{ range .vals }}
+{{ range . -}}
 {{ .name }} is {{ .data }}
 {{ end }}
-
 -- expected.txt --
 a is 1
 b is 2
-
 

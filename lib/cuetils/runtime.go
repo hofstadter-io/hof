@@ -8,10 +8,13 @@ import (
 	"github.com/go-git/go-billy/v5"
 
 	"cuelang.org/go/cue"
+	"cuelang.org/go/cue/ast"
 	"cuelang.org/go/cue/build"
 	"cuelang.org/go/cue/cuecontext"
 	"cuelang.org/go/cue/errors"
 	"cuelang.org/go/cue/load"
+	"cuelang.org/go/encoding/json"
+	"cuelang.org/go/encoding/yaml"
 )
 
 type CueSyntaxOptions struct {
@@ -120,6 +123,46 @@ func (CRT *CueRuntime) load() (err error) {
 				errs = append(errs, e.(error))
 			}
 			continue
+		}
+
+		// handle data files
+		for _, f := range bi.OrphanedFiles {
+			d, err := os.ReadFile(f.Filename)
+			if err != nil {
+				fmt.Println("while reading file")
+				errs = append(errs, err)
+				continue
+			}
+
+			switch f.Encoding {
+
+			case "json":
+				A, err := json.Extract(f.Filename, d)
+				if err != nil {
+					errs = append(errs, err)
+					continue
+				}
+
+				F := &ast.File{
+					Filename: f.Filename,
+					Decls:    []ast.Decl{A},
+				}
+				bi.AddSyntax(F)
+
+			case "yaml":
+				F, err := yaml.Extract(f.Filename, d)
+				if err != nil {
+					fmt.Println("while yaml extract")
+					errs = append(errs, err)
+					continue
+				}
+				bi.AddSyntax(F)
+
+			default:
+				err := fmt.Errorf("unknown encoding for", f.Filename, f.Encoding)
+				errs = append(errs, err)
+				continue
+			}
 		}
 
 		// Build the Instance
