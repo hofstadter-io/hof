@@ -41,10 +41,12 @@ hof render data.cue ...
   # Templated output path 
   -T 'templateA.txt:;{{ .name | lower }}.txt'
 
-  # Repeated templates are used when the input is a list
-  #   The template will be processed per item
+  # Repeated templates are used when
+  # 1. the output has a '[]' prefix
+  # 2. the input is a list or array
+  #   The template will be processed per entry
   #   This also requires using a templated outpath
-  -T 'template.txt:items;out/{{ .filepath }}.txt'
+  -T 'template.txt:items;[]out/{{ .filepath }}.txt'
 
 # Learn about writing templates, with extra functions and helpers
   https://docs.hofstadter.io/code-generation/template-writing/
