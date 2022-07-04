@@ -64,7 +64,7 @@ type File struct {
 	FileStats
 }
 
-func (F *File) Render(diff3 bool) error {
+func (F *File) Render(UseDiff3 bool) error {
 	var err error
 
 	if F.DatafileFormat != "" {
@@ -87,7 +87,7 @@ func (F *File) Render(diff3 bool) error {
 
 	// Check to see if they are the same, if so, then "skip"
 	// fmt.Println(F.Filepath, len(F.RenderContent), F.ShadowFile)
-	if F.ShadowFile != nil {
+	if UseDiff3 && F.ShadowFile != nil {
 		F.ReadShadow()
 		if bytes.Compare(F.RenderContent, F.ShadowFile.FinalContent) == 0 {
 			// Let's check if there is a user file or not
@@ -109,10 +109,12 @@ func (F *File) Render(diff3 bool) error {
 	}
 
 	// Possibly read user
-	F.ReadUser()
+	if UseDiff3 {
+		F.ReadUser()
+	}
 
 	// figure out if / how to merge and produce final content
-	F.DoWrite, err = F.UnifyContent()
+	F.DoWrite, err = F.UnifyContent(UseDiff3)
 	if err != nil {
 		F.IsErr = 1
 		return err
@@ -145,12 +147,12 @@ func (F *File) ReadUser() error {
 	return nil
 }
 
-func (F *File) UnifyContent() (write bool, err error) {
+func (F *File) UnifyContent(UseDiff3 bool) (write bool, err error) {
 	// set this first, possible change later in this function
 	F.FinalContent = F.RenderContent
 
 	// If there is a user file...
-	if F.UserFile != nil {
+	if UseDiff3 && F.UserFile != nil {
 		if F.ShadowFile != nil {
 			// Need to compare all 3
 			// But first a shortcut

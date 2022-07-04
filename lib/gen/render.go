@@ -245,8 +245,16 @@ func (RC *RenderConfig) setupTemplateConfigs() (err error) {
 						return err
 					}
 				}
+			} else if iter, ierr := Val.Fields(); ierr == nil {
+				for iter.Next() {
+					val := iter.Value()
+					err := addFile(val)
+					if err != nil {
+						return err
+					}
+				}
 			} else {
-				return fmt.Errorf("repeated template value is not a list")
+				return fmt.Errorf("repeated template value is not iterable")
 			}
 		} else {
 			err := addFile(Val)

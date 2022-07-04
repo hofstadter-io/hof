@@ -6,6 +6,7 @@ package dm
 
 	// Models in the data model, ordered
 	Models: #Models
+	// (turn Ordered* into a default calculation, so user can always write their own)
 	OrderedModels: [ for M in Models {M}]
 
 	// Custom views not tied to a specific model
@@ -23,6 +24,7 @@ package dm
 	Name: string
 
 	Fields: #Fields
+	// (turn Ordered* into a default calculation, so user can always write their own)
 	OrderedFields: [ for F in Fields {F}]
 
 	Relations?: #Relations
@@ -48,6 +50,7 @@ package dm
 	Name: string
 
 	Models: #Models
+	// (turn Ordered* into a default calculation, so user can always write their own)
 	Fields: #Fields
 	OrderedFields: [ for F in Fields {F}]
 
@@ -62,7 +65,7 @@ package dm
 
 	// Relation to another thing
 
-	// This is the relation type, open for debate on what this should be
+	// This is the relation type, open for debate on what this could or should be
 	Reln: "BelongsTo" | "HasOne" | "HasMany" | "ManyToMany" | string
 
 	// This is the other type or side of the relation
