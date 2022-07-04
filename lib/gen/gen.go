@@ -8,7 +8,11 @@ import (
 	"github.com/hofstadter-io/hof/lib/cuetils"
 )
 
-func Gen(args []string, cmdflags flags.GenFlagpole) error {
+func Gen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpole) error {
+
+	if len(cmdflags.Generator) == 0 && len(cmdflags.Template) > 0 {
+		return Render(args, rootflags, cmdflags)
+	}
 
 	verystart := time.Now()
 

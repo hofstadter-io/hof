@@ -80,7 +80,7 @@ func GenRun(args []string) (err error) {
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = gen.Gen(args, flags.GenFlags)
+	err = gen.Gen(args, flags.RootPflags, flags.GenFlags)
 
 	return err
 }
