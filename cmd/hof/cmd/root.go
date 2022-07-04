@@ -107,7 +107,6 @@ func RootInit() {
 	RootCmd.AddCommand(CompletionCmd)
 
 	RootCmd.AddCommand(DatamodelCmd)
-	RootCmd.AddCommand(RenderCmd)
 	RootCmd.AddCommand(GenCmd)
 	RootCmd.AddCommand(FlowCmd)
 	RootCmd.AddCommand(ModCmd)
@@ -173,8 +172,7 @@ Usage:
 
 Main commands:
   datamodel             manage, diff, and migrate your data models
-  render                generate arbitrary files from data and CUE entrypoints
-  gen                   render directories of code using modular generators
+  gen                   create arbitrary files from data with templates and generators
   flow                  run CUE pipelines with the hof/flow DAG engine
   mod                   polyglot dependency management based on go mods and MVS
 

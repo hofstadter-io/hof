@@ -28,7 +28,6 @@ import (
 
 		// main commands
 		cmds.#DatamodelCommand,
-		cmds.#RenderCommand,
 		cmds.#GenCommand,
 		cmds.#FlowCommand,
 		cmds.#ModCommand,
@@ -70,7 +69,6 @@ Usage:
 
 Main commands:
   \(cmds.#DatamodelCommand.Help)
-  \(cmds.#RenderCommand.Help)
   \(cmds.#GenCommand.Help)
   \(cmds.#FlowCommand.Help)
   \(cmds.#ModCommand.Help)

@@ -47,7 +47,7 @@ type RenderTemplateConfig struct {
 	Repeated bool
 }
 
-func Render(args []string, rootflags flags.RootPflagpole, cmdflags flags.RenderFlagpole) error {
+func Render(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpole) error {
 
 	var RC RenderConfig
 

@@ -9,16 +9,68 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 )
 
-var genLong = `render directories of code with reusable, modular generators
+var genLong = `hof gen joins CUE with Go's text/template system and diff3
+  create on-liners to generate any file from any data
+  build reusable and modular generators
+  edit and regenerate those files while keeping changes
 
-  hof gen app.cue -g frontend -g backend -g migrations
+If no generator is specified, hof gen runs in adhoc mode.
 
-  https://docs.hofstadter.io/first-example/`
+# Render a template
+hof gen data.cue -T template.txt
+hof gen data.yaml schema.cue -T template.txt > output.txt
+
+# Add partials to the template context
+hof gen data.cue -T template.txt -P partial.txt
+
+# The template flag as code gen mappings
+hof gen data.cue ...
+
+  # Generate multiple templates at once
+  -T templateA.txt -T templateB.txt
+
+  # Select a sub-input value by CUEpath
+  -T 'templateA.txt:foo'
+  -T 'templateB.txt:sub.val'
+
+  # Choose a schema with @
+  -T 'templateA.txt:foo@#foo'
+  -T 'templateB.txt:sub.val@schemas.val'
+
+  # Writing to file with ; (semicolon)
+  -T 'templateA.txt;a.txt'
+  -T 'templateB.txt:sub.val@schema;b.txt'
+
+  # Templated output path 
+  -T 'templateA.txt:;{{ .name | lower }}.txt'
+
+  # Repeated templates are used when
+  # 1. the output has a '[]' prefix
+  # 2. the input is a list or array
+  #   The template will be processed per entry
+  #   This also requires using a templated outpath
+  -T 'template.txt:items;[]out/{{ .filepath }}.txt'
+
+# Learn about writing templates, with extra functions and helpers
+  https://docs.hofstadter.io/code-generation/template-writing/
+
+# Check the tests for complete examples
+  https://github.com/hofstadter-io/hof/tree/_dev/test/render
+
+# Compose code gen mappings into reusable modules with
+  hof gen app.cue -G frontend -G backend -G migrations
+  https://docs.hofstadter.io/first-example/
+
+# You can extend or override a generator by using
+# both the -G and -T/-P flags`
 
 func init() {
 
 	GenCmd.Flags().BoolVarP(&(flags.GenFlags.Stats), "stats", "s", false, "Print generator statistics")
-	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.Generator), "generator", "g", nil, "Generators to run, default is all discovered")
+	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.Generator), "generator", "G", nil, "Generators to run, default is all discovered")
+	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.Template), "template", "T", nil, "Template mappings to render as '<filepath>;<?cuepath>;<?outpath>'")
+	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.Partial), "partial", "P", nil, "file globs to partial templates to register with the templates")
+	GenCmd.Flags().BoolVarP(&(flags.GenFlags.Diff3), "diff3", "D", false, "enable diff3 support for adhoc render, generators are configured in code")
 }
 
 func GenRun(args []string) (err error) {
@@ -37,7 +89,7 @@ var GenCmd = &cobra.Command{
 		"G",
 	},
 
-	Short: "render directories of code using modular generators",
+	Short: "create arbitrary files from data with templates and generators",
 
 	Long: genLong,
 

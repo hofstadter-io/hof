@@ -9,7 +9,7 @@ import (
 	Name:  "gen"
 	Usage: "gen [files...]"
 	Aliases: ["G"]
-	Short: "render directories of code using modular generators"
+	Short: "create arbitrary files from data with templates and generators"
 	Long: GenLongHelp
 
 	Flags: [...schema.#Flag] & [
@@ -27,25 +27,13 @@ import (
 			Default: "nil"
 			Help:    "Generators to run, default is all discovered"
 			Long:    "generator"
-			Short:   "g"
+			Short:   "G"
 		},
-	]
-}
-
-#RenderCommand: schema.#Command & {
-	// TBD:   "✓"
-	Name:  "render"
-	Usage: "render [flags] [entrypoints...]"
-	Aliases: ["R"]
-	Short: "generate arbitrary files from data and CUE entrypoints"
-	Long: RenderLongHelp
-
-	Flags: [...schema.#Flag] & [
 		{
 			Name:    "template"
 			Type:    "[]string"
 			Default: "nil"
-			Help:    "Template mappings to render with data from entrypoint as: <filepath>;<?cuepath>;<?outpath>"
+			Help:    "Template mappings to render as '<filepath>;<?cuepath>;<?outpath>'"
 			Long:    "template"
 			Short:   "T"
 		},
@@ -61,7 +49,7 @@ import (
 			Name:    "diff3"
 			Type:    "bool"
 			Default: "false"
-			Help:    "enable diff3 support, requires the .hof shadow directory"
+			Help:    "enable diff3 support for adhoc render, generators are configured in code"
 			Long:    "diff3"
 			Short:   "D"
 		},
@@ -69,27 +57,22 @@ import (
 }
 
 GenLongHelp: """
-render directories of code with reusable, modular generators
-
-  hof gen app.cue -g frontend -g backend -g migrations
-
-  https://docs.hofstadter.io/first-example/
-"""
-
-RenderLongHelp: """
-hof render joins CUE with Go's text/template system and diff3
+hof gen joins CUE with Go's text/template system and diff3
   create on-liners to generate any file from any data
+  build reusable and modular generators
   edit and regenerate those files while keeping changes
 
+If no generator is specified, hof gen runs in adhoc mode.
+
 # Render a template
-hof render data.cue -T template.txt
-hof render data.yaml schema.cue -T template.txt > output.txt
+hof gen data.cue -T template.txt
+hof gen data.yaml schema.cue -T template.txt > output.txt
 
 # Add partials to the template context
-hof render data.cue -T template.txt -P partial.txt
+hof gen data.cue -T template.txt -P partial.txt
 
 # The template flag as code gen mappings
-hof render data.cue ...
+hof gen data.cue ...
 
   # Generate multiple templates at once
   -T templateA.txt -T templateB.txt
@@ -123,6 +106,9 @@ hof render data.cue ...
   https://github.com/hofstadter-io/hof/tree/_dev/test/render
 
 # Compose code gen mappings into reusable modules with
-  hof gen app.cue -g frontend -g backend -g migrations
+  hof gen app.cue -G frontend -G backend -G migrations
   https://docs.hofstadter.io/first-example/
+
+# You can extend or override a generator by using
+# both the -G and -T/-P flags
 """

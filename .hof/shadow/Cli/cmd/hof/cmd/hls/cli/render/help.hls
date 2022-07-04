@@ -1,7 +1,0 @@
-### Test "render --help" prints help
-call __hof render --help
-
-### Test "render -h" prints help
-call __hof render -h
-
-
