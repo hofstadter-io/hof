@@ -1,4 +1,4 @@
-exec hof render data.yaml schema.cue -T template.txt
+exec hof gen data.yaml schema.cue -T template.txt
 cmp stdout expected.txt
 
 -- schema.cue --

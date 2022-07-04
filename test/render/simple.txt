@@ -1,4 +1,4 @@
-exec hof render data.cue -T template.txt
+exec hof gen data.cue -T template.txt
 cmp stdout expected.txt
 
 -- data.cue --
