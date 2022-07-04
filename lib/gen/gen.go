@@ -10,13 +10,32 @@ import (
 
 func Gen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpole) error {
 
-	if len(cmdflags.Generator) == 0 && len(cmdflags.Template) > 0 {
-		return Render(args, rootflags, cmdflags)
-	}
-
 	verystart := time.Now()
 
 	var errs []error
+
+	if len(cmdflags.Template) > 0 {
+		err := Render(args, rootflags, cmdflags)
+		if err != nil {
+			errs = append(errs, err)
+		}
+		if len(cmdflags.Generator) == 0 {
+			var err error
+			if len(errs) > 0 {
+				for _, e := range errs {
+					cuetils.PrintCueError(e)
+				}
+				err = fmt.Errorf("\nErrors during adhoc gen\n")
+			}
+			if cmdflags.Stats {
+				veryend := time.Now()
+				elapsed := veryend.Sub(verystart).Round(time.Millisecond)
+				fmt.Printf("\nTotal Elapsed Time: %s\n\n", elapsed)
+			}
+			return err
+		}
+	}
+
 
 	R := NewRuntime(args, cmdflags)
 

@@ -110,6 +110,9 @@ func (R *Runtime) LoadCue() []error {
 }
 
 func (R *Runtime) ExtractGenerators() {
+	allGen := len(R.Flagpole.Generator) == 1 && R.Flagpole.Generator[0] == "*"
+	hasT := len(R.Flagpole.Template) > 0
+
 	// loop ever all top level structs
 	for _, S := range R.TopLevelStructs {
 
@@ -127,22 +130,33 @@ func (R *Runtime) ExtractGenerators() {
 				// does it have "@gen()"
 				if A.Name() == "gen" {
 
-					// are there flags to match?
-					if len(R.Flagpole.Generator) > 0 {
-						vals := cuetils.AttrToMap(A)
-						match := false
-						for _, g := range R.Flagpole.Generator {
-							if _, ok := vals[g]; ok {
-								match = true
-								break
+					// if -G '*', then we skip the following checks
+					if !allGen {
+						// some -G was set, but was not '*'
+						if len(R.Flagpole.Generator) > 0 {
+							vals := cuetils.AttrToMap(A)
+							match := false
+							for _, g := range R.Flagpole.Generator {
+								if _, ok := vals[g]; ok {
+									match = true
+									break
+								}
+							}
+
+							if !match {
+								continue
+							}
+						} else {
+							// not -G was set, if a -T was set...
+							// we are in adhoc mode and skip all gens
+							// (hmmm) will we even get here?
+							//   an earlier shortcircuit may prevent this
+							//   this is defensive anyhow
+							if hasT {
+								continue
 							}
 						}
-
-						if !match {
-							continue
-						}
 					}
-
 					// passed, we should generate
 					hasgen = true
 					break

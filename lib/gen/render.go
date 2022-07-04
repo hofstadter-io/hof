@@ -71,7 +71,7 @@ func Render(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 
 	RC.RootValue = crt.CueValue
 
-	RC.G = NewGenerator("HofRenderCmd", RC.RootValue)
+	RC.G = NewGenerator("AdhocGen", RC.RootValue)
 	RC.G.UseDiff3 = cmdflags.Diff3
 
 	// everything loaded, now process
@@ -85,6 +85,13 @@ func Render(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 	if len(errs) > 0 {
 		fmt.Println(errs)
 		return errs[0]
+	}
+
+
+	if cmdflags.Stats {
+		RC.G.Stats.CalcTotals(RC.G)
+		fmt.Printf("\nGen: %s\n==========================\n", RC.G.Name)
+		fmt.Println(RC.G.Stats)
 	}
 
 	return nil

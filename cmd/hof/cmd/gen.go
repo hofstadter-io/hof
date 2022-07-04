@@ -63,7 +63,7 @@ hof gen data.cue ...
   hof gen app.cue -G frontend -G backend -G migrations
   https://docs.hofstadter.io/first-example/
 
-# You can extend or override a generator by using
+# You can mix adhof with generators by using
 # both the -G and -T/-P flags`
 
 func init() {
