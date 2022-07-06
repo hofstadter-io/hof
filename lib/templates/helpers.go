@@ -2,6 +2,7 @@ package templates
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"reflect"
@@ -72,6 +73,8 @@ var funcMap = template.FuncMap{
 	"getprefix":      Helper_getprefix,
 	"getsuffix":      Helper_getsuffix,
 	"getbetween":     Helper_getbetween,
+
+	"dict": Helper_dict,
 
 	"gokind":  Helper_gokind,
 	"builtin": Helper_builtin,
@@ -372,6 +375,21 @@ func Helper_getbetween(str, lhs, rhs string) string {
 		rpos = len(str)
 	}
 	return str[lpos:rpos]
+}
+
+func Helper_dict(values ...interface{}) (map[string]interface{}, error) {
+	if len(values)%2 != 0 {
+		return nil, errors.New("invalid dict call")
+	}
+	dict := make(map[string]interface{}, len(values)/2)
+	for i := 0; i < len(values); i+=2 {
+		key, ok := values[i].(string)
+		if !ok {
+			return nil, errors.New("dict keys must be strings")
+		}
+		dict[key] = values[i+1]
+	}
+	return dict, nil
 }
 
 func Helper_gokind(input interface{}) string {
