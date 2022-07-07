@@ -1,15 +1,13 @@
 package gen
 
-// deprecated
-#HofGenerator: #Generator
-
 // Definition for a generator
 #Generator: {
 	// Base directory for the output
 	Outdir: string | *"./"
 
 	// Generater wide input value to templates.
-	// Unified with any template or file level In values
+	// Merged with any template or file level In values
+	//   File.In will extend or replace any top-level fields here
 	In: {...}
 
 	// TODO, Generator wide cue.Value for writing incomplete values
@@ -56,3 +54,7 @@ package gen
 	// Note, open so you can have any extra fields
 	...
 }
+
+// deprecated
+#HofGenerator: #Generator
+

@@ -24,8 +24,6 @@ func Gen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpol
 		return nil
 	}
 
-	fmt.Println("generated")
-
 	// otherwise in watch mode
 	files, err := yagu.FilesFromGlobs(cmdflags.Watch)
 	if err != nil {
@@ -52,11 +50,17 @@ func Gen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpol
 				if event.Op&fsnotify.Write == fsnotify.Write {
 
 					debounce(func() {
+						fmt.Printf("watch: starting regen... ")
+						start := time.Now()
 						derr := GenOnce(args, rootflags, cmdflags)
+						end := time.Now()
+
+						elapsed := end.Sub(start).Round(time.Millisecond)
+						fmt.Printf("done  %v\n", elapsed)
+
 						if derr != nil {
 							fmt.Println("error:", err)
 						}
-						fmt.Println("generated")
 					})
 				}
 
