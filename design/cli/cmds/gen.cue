@@ -57,10 +57,17 @@ import (
 			Name:    "watch"
 			Type:    "[]string"
 			Default: "nil"
-			// todo, infer these
 			Help:    "filepath globs to watch for changes and regen"
 			Long:    "watch"
 			Short:   "W"
+		},
+		{
+			Name:    "WatchXcue"
+			Type:    "[]string"
+			Default: "nil"
+			Help:    "like watch, but skips CUE reload, useful when working on templates, can be used with watch"
+			Long:    "watch-xcue"
+			Short:   "X"
 		},
 	]
 }

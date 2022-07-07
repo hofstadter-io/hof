@@ -7,6 +7,7 @@ type GenFlagpole struct {
 	Partial   []string
 	Diff3     bool
 	Watch     []string
+	WatchXcue []string
 }
 
 var GenFlags GenFlagpole
