@@ -1,12 +1,10 @@
 package os
 
 import (
-	"sort"
-
 	"cuelang.org/go/cue"
-	"github.com/mattn/go-zglob"
 
 	hofcontext "github.com/hofstadter-io/hof/flow/context"
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 type Glob struct{}
@@ -24,7 +22,7 @@ func (T *Glob) Run(ctx *hofcontext.Context) (interface{}, error) {
 		return nil, err
 	}
 
-	filepaths, err := filesFromGlobs(patterns)
+	filepaths, err := yagu.FilesFromGlobs(patterns)
 	if err != nil {
 		return nil, err
 	}
@@ -60,30 +58,4 @@ func extractGlobConfig(ctx *hofcontext.Context, val cue.Value) (patterns []strin
 	}
 
 	return patterns, nil
-}
-
-func filesFromGlobs(patterns []string) ([]string, error) {
-	// get glob matches
-	files := []string{}
-	for _, pattern := range patterns {
-		matches, err := zglob.Glob(pattern)
-		if err != nil {
-			return nil, err
-		}
-		files = append(files, matches...)
-	}
-
-	// make unique
-	keys := make(map[string]bool)
-	unique := make([]string, 0, len(files))
-	for _, file := range files {
-		if _, value := keys[file]; !value {
-			keys[file] = true
-			unique = append(unique, file)
-		}
-	}
-
-	// also sort
-	sort.Strings(unique)
-	return unique, nil
 }

@@ -1,0 +1,30 @@
+package foo
+
+// function Bob yells loudly
+func Bob( user string ) error {
+	fmt.Println("hey BOB!!")
+
+	return nil
+}
+
+// function Cow yells loudly
+func Cow( mooer string ) error {
+	fmt.Println("hey COW!!")
+
+	return nil
+}
+
+// function Darth yells loudly
+func Darth( evil string ) error {
+	fmt.Println("hey DARTH!!")
+
+	return nil
+}
+
+// function Mary yells loudly
+func Mary( admin string ) error {
+	fmt.Println("hey MARY!!")
+
+	return nil
+}
+

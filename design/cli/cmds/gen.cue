@@ -53,6 +53,15 @@ import (
 			Long:    "diff3"
 			Short:   "D"
 		},
+		{
+			Name:    "watch"
+			Type:    "[]string"
+			Default: "nil"
+			// todo, infer these
+			Help:    "filepath globs to watch for changes and regen"
+			Long:    "watch"
+			Short:   "W"
+		},
 	]
 }
 

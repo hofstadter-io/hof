@@ -10,6 +10,7 @@ import (
 
 	hofcontext "github.com/hofstadter-io/hof/flow/context"
 	"github.com/hofstadter-io/hof/flow/flow"
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 type Watch struct{}
@@ -75,7 +76,7 @@ func (T *Watch) Run(ctx *hofcontext.Context) (interface{}, error) {
 		return nil, ferr
 	}
 
-	files, err := filesFromGlobs(globs)
+	files, err := yagu.FilesFromGlobs(globs)
 	if err != nil {
 		return nil, ferr
 	}
@@ -83,7 +84,7 @@ func (T *Watch) Run(ctx *hofcontext.Context) (interface{}, error) {
 	fmt.Printf("watching %d files\n", len(files))
 
 	// todo (good-first-issue), configurable
-	debounce := New(time.Millisecond * 250)
+	debounce := New(time.Millisecond * 50)
 
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {

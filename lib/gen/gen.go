@@ -2,19 +2,96 @@ package gen
 
 import (
 	"fmt"
+	"sync"
 	"time"
+
+	"github.com/fsnotify/fsnotify"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/cuetils"
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 func Gen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpole) error {
+	// always generate at startup
+	err := GenOnce(args, rootflags, cmdflags)
+	if err != nil {
+		return err
+	}
 
+	// if no watches, then only wanted to gen once
+	if len(cmdflags.Watch) == 0 {
+		return nil
+	}
+
+	fmt.Println("generated")
+
+	// otherwise in watch mode
+	files, err := yagu.FilesFromGlobs(cmdflags.Watch)
+	if err != nil {
+		return err
+	}
+
+	debounce := NewDebouncer(time.Millisecond * 50)
+
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		return err
+	}
+	defer watcher.Close()
+
+	done := make(chan bool)
+	go func() {
+		for {
+			select {
+			case event, ok := <-watcher.Events:
+				if !ok {
+					return
+				}
+
+				if event.Op&fsnotify.Write == fsnotify.Write {
+
+					debounce(func() {
+						derr := GenOnce(args, rootflags, cmdflags)
+						if derr != nil {
+							fmt.Println("error:", err)
+						}
+						fmt.Println("generated")
+					})
+				}
+
+			case err, ok := <-watcher.Errors:
+				if !ok {
+					return
+				}
+				fmt.Println("error:", err)
+			}
+		}
+	}()
+
+
+	for _, file := range files {
+		err = watcher.Add(file)
+		if err != nil {
+			return err
+		}
+	}
+	fmt.Printf("watching %d files\n", len(files))
+
+	<-done
+
+	return nil
+}
+
+func GenOnce(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpole) error {
 	verystart := time.Now()
 
 	var errs []error
 
 	if len(cmdflags.Template) > 0 {
+		// Todo, just construct generator here? 
+		// and add to CRT below?
+		// there might be more going on in there than we want to deal with right now to merge
 		err := Render(args, rootflags, cmdflags)
 		if err != nil {
 			errs = append(errs, err)
@@ -47,6 +124,7 @@ func Gen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpol
 		return fmt.Errorf("\nErrors while loading cue files\n")
 	}
 
+	// unless len(-T) > 0 && len(-G) == 0
 	errsL := R.LoadGenerators()
 	if len(errsL) > 0 {
 		for _, e := range errsL {
@@ -85,4 +163,28 @@ func Gen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpol
 	R.PrintMergeConflicts()
 
 	return nil
+}
+
+func NewDebouncer(after time.Duration) func(f func()) {
+	d := &debouncer{after: after}
+
+	return func(f func()) {
+		d.add(f)
+	}
+}
+
+type debouncer struct {
+	mu    sync.Mutex
+	after time.Duration
+	timer *time.Timer
+}
+
+func (d *debouncer) add(f func()) {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
+	if d.timer != nil {
+		d.timer.Stop()
+	}
+	d.timer = time.AfterFunc(d.after, f)
 }

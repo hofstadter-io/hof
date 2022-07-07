@@ -1,7 +1,11 @@
 package yagu
 
 import (
+	"sort"
+
+	// TODO, be consistent
 	"github.com/bmatcuk/doublestar/v4"
+	"github.com/mattn/go-zglob"
 )
 
 func CheckShouldInclude(filename string, includes, excludes []string) (bool, error) {
@@ -36,4 +40,30 @@ func CheckShouldInclude(filename string, includes, excludes []string) (bool, err
 	}
 
 	return include && !exclude, nil
+}
+
+func FilesFromGlobs(patterns []string) ([]string, error) {
+	// get glob matches
+	files := []string{}
+	for _, pattern := range patterns {
+		matches, err := zglob.Glob(pattern)
+		if err != nil {
+			return nil, err
+		}
+		files = append(files, matches...)
+	}
+
+	// make unique
+	keys := make(map[string]bool)
+	unique := make([]string, 0, len(files))
+	for _, file := range files {
+		if _, value := keys[file]; !value {
+			keys[file] = true
+			unique = append(unique, file)
+		}
+	}
+
+	// also sort
+	sort.Strings(unique)
+	return unique, nil
 }
