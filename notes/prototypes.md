@@ -8,8 +8,8 @@
 
 ---
 
-- [ ] better watch regen message
-- [ ] disjunct ordered models
+- [x] better watch regen message
+- [x] disjunct ordered models
 - [ ] --watch-templates & clear function
 - [ ] load datamodel history into generators
 

@@ -7,7 +7,7 @@ package dm
 	// Models in the data model, ordered
 	Models: #Models
 	// (turn Ordered* into a default calculation, so user can always write their own)
-	OrderedModels: [ for M in Models {M}]
+	OrderedModels: [...#Model] | *[ for M in Models {M}]
 
 	// Custom views not tied to a specific model
 	Views?: #Views
@@ -25,7 +25,7 @@ package dm
 
 	Fields: #Fields
 	// (turn Ordered* into a default calculation, so user can always write their own)
-	OrderedFields: [ for F in Fields {F}]
+	OrderedFields: [...#Field] | *[ for F in Fields {F}]
 
 	Relations?: #Relations
 	Views?:     #Views
@@ -52,7 +52,7 @@ package dm
 	Models: #Models
 	// (turn Ordered* into a default calculation, so user can always write their own)
 	Fields: #Fields
-	OrderedFields: [ for F in Fields {F}]
+	OrderedFields: [...#Field] | *[ for F in Fields {F}]
 
 	...
 }
