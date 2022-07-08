@@ -49,6 +49,10 @@ type Generator struct {
 	In  map[string]interface{}
 	Val cue.Value
 
+	// File globs to watch and trigger regen on change
+	WatchGlobs []string
+	WatchXcue  []string
+
 	// The list fo files for hof to generate, in cue values
 	Out []*File
 

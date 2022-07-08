@@ -8,10 +8,6 @@ import (
 	"time"
 
 	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/build"
-	"cuelang.org/go/cue/cuecontext"
-	"cuelang.org/go/cue/errors"
-	"cuelang.org/go/cue/load"
 	"github.com/fatih/color"
 	"github.com/mattn/go-zglob"
 
@@ -30,11 +26,7 @@ type Runtime struct {
 	verbose bool
 
 	// Cue ralated
-	CueCTX          *cue.Context
-	BuildInstances  []*build.Instance
-	CueInstances    []*cue.Instance
-	TopLevelValues  []cue.Value
-	TopLevelStructs []*cue.Struct
+	CueRuntime      *cuetils.CueRuntime
 
 	// Hof related
 	Generators map[string]*Generator
@@ -46,7 +38,6 @@ func NewRuntime(entrypoints []string, cmdflags flags.GenFlagpole) *Runtime {
 	return &Runtime{
 		Entrypoints: entrypoints,
 		Flagpole:    cmdflags,
-		CueCTX:      cuecontext.New(),
 		Generators:  make(map[string]*Generator),
 		Stats:       new(RuntimeStats),
 	}
@@ -56,123 +47,87 @@ func (R *Runtime) ClearGenerators() {
 	R.Generators = make(map[string]*Generator)
 }
 
-func (R *Runtime) LoadCue() []error {
+func (R *Runtime) LoadCue() (err error) {
 	start := time.Now()
 	defer func() {
 		end := time.Now()
 		R.Stats.CueLoadingTime = end.Sub(start)
 	}()
 
-	var errs []error
-
-	BIS := load.Instances(R.Entrypoints, nil)
-	R.BuildInstances = BIS
-
-	for _, bi := range BIS {
-		if bi.Err != nil || bi.Incomplete {
-			fmt.Println("LoadCue:", bi.Err, bi.Incomplete, bi.DepsErrors)
-			// TODO add DepsErrors if needed
-			es := errors.Errors(bi.Err)
-			for _, e := range es {
-				errs = append(errs, e.(error))
-			}
-			continue
-		}
-
-		// Build the Instance
-		V := R.CueCTX.BuildInstance(bi)
-		if V.Err() != nil {
-			es := errors.Errors(V.Err())
-			// fmt.Println("BUILD ERR", es, I)
-			for _, e := range es {
-				errs = append(errs, e.(error))
-			}
-			continue
-		}
-		R.TopLevelValues = append(R.TopLevelValues, V)
-
-		// Get top level struct from cuelang
-		S, err := V.Struct()
-		if err != nil {
-			// fmt.Println("STRUCT ERR", err)
-			es := errors.Errors(err)
-			for _, e := range es {
-				errs = append(errs, e.(error))
-			}
-			continue
-		}
-		R.TopLevelStructs = append(R.TopLevelStructs, S)
+	R.CueRuntime, err = cuetils.CueRuntimeFromEntrypointsAndFlags(R.Entrypoints)
+	if err != nil {
+		return err
 	}
 
-	if len(errs) > 0 {
-		return errs
-	}
-
-	return errs
+	return nil
 }
 
-func (R *Runtime) ExtractGenerators() {
+func (R *Runtime) ExtractGenerators() error {
 	allGen := len(R.Flagpole.Generator) == 1 && R.Flagpole.Generator[0] == "*"
 	hasT := len(R.Flagpole.Template) > 0
 
 	// loop ever all top level structs
-	for _, S := range R.TopLevelStructs {
+	S, err := R.CueRuntime.CueValue.Struct()
+	if err != nil {
+		return err
+	}
 
-		// Loop through all top level fields
-		iter := S.Fields()
-		for iter.Next() {
+	// Loop through all top level fields
+	iter := S.Fields()
+	for iter.Next() {
 
-			label := iter.Label()
-			value := iter.Value()
-			attrs := value.Attributes(cue.ValueAttr)
+		label := iter.Label()
+		value := iter.Value()
+		attrs := value.Attributes(cue.ValueAttr)
 
-			// find top-level with gen attr
-			hasgen := false
-			for _, A := range attrs {
-				// does it have "@gen()"
-				if A.Name() == "gen" {
+		// find top-level with gen attr
+		hasgen := false
+		for _, A := range attrs {
+			// does it have "@gen()"
+			if A.Name() == "gen" {
 
-					// if -G '*', then we skip the following checks
-					if !allGen {
-						// some -G was set, but was not '*'
-						if len(R.Flagpole.Generator) > 0 {
-							vals := cuetils.AttrToMap(A)
-							match := false
-							for _, g := range R.Flagpole.Generator {
-								if _, ok := vals[g]; ok {
-									match = true
-									break
-								}
-							}
-
-							if !match {
-								continue
-							}
-						} else {
-							// not -G was set, if a -T was set...
-							// we are in adhoc mode and skip all gens
-							// (hmmm) will we even get here?
-							//   an earlier shortcircuit may prevent this
-							//   this is defensive anyhow
-							if hasT {
-								continue
+				// if -G '*', then we skip the following checks
+				if !allGen {
+					// some -G was set, but was not '*'
+					if len(R.Flagpole.Generator) > 0 {
+						vals := cuetils.AttrToMap(A)
+						match := false
+						for _, g := range R.Flagpole.Generator {
+							if _, ok := vals[g]; ok {
+								match = true
+								break
 							}
 						}
+
+						if !match {
+							continue
+						}
+					} else {
+						// not -G was set, if a -T was set...
+						// we are in adhoc mode and skip all gens
+						// (hmmm) will we even get here?
+						//   an earlier shortcircuit may prevent this
+						//   this is defensive anyhow
+						if hasT {
+							continue
+						}
 					}
-					// passed, we should generate
-					hasgen = true
-					break
 				}
+				// passed, we should generate
+				hasgen = true
+				break
 			}
-
-			if !hasgen {
-				continue
-			}
-
-			G := NewGenerator(label, value)
-			R.Generators[label] = G
 		}
+
+		if !hasgen {
+			continue
+		}
+
+		G := NewGenerator(label, value)
+		R.Generators[label] = G
 	}
+
+	return nil
 }
 
 func (R *Runtime) LoadGenerators() []error {
@@ -204,8 +159,28 @@ func (R *Runtime) LoadGenerators() []error {
 		// would still need it here (in a new func)
 	}
 
-	return errs
+	/* from previous file */
+	// NOTE3: maybe this goes here, and we make R "AdhocGen" aware
+	// if LT > 0 {  R.CreateAdhocGenerator(rootflags, cmdflags) }
 
+	// TODO, NOTE2: we should override gen2subgen withing this call
+	// we might need NOTE3 to pass adhoc partials into gens and subgens
+	/* from previous file */
+
+	err := R.CreateAdhocGenerator()
+	if err != nil {
+		errs = append(errs, err)
+	}
+	// TODO, consider merging adhoc templates / partials
+	// into generators, so we might override or fill in
+	// this could enable more powerful reuse by allowing
+	// a generator to use anoather "generic" generator module,
+	// which itself, would capture a pattern or algorithm?
+	// this "generic" module would be usable across targets
+	// NOTE, this might just be the location where adhoc
+	// can fill things in, see NOTE2 above for gen2subgen
+
+	return errs
 }
 
 func (R *Runtime) RunGenerators() []error {
@@ -235,13 +210,14 @@ func (R *Runtime) RunGenerator(G *Generator) (errs []error) {
 		return
 	}
 
-	shadow, err := LoadShadow(G.Name, R.verbose)
-	if err != nil {
-		errs = append(errs, err)
-		return errs
+	if G.UseDiff3 {
+		shadow, err := LoadShadow(G.Name, R.verbose)
+		if err != nil {
+			errs = append(errs, err)
+			return errs
+		}
+		G.Shadow = shadow
 	}
-
-	G.Shadow = shadow
 
 	// run this generator
 	errsG := G.GenerateFiles()
@@ -252,6 +228,8 @@ func (R *Runtime) RunGenerator(G *Generator) (errs []error) {
 
 	// run any subgenerators
 	for _, sg := range G.Generators {
+		// make sure
+		sg.UseDiff3 = G.UseDiff3
 		sgerrs := R.RunGenerator(sg)
 		if len(sgerrs) > 0 {
 			errs = append(errs, sgerrs...)
@@ -267,38 +245,6 @@ func (R *Runtime) WriteOutput() []error {
 	for _, G := range R.Generators {
 		gerrs := R.WriteGenerator(G)
 		errs = append(errs, gerrs...)
-	}
-
-	// TODO, remove this? do we even have global shadow files? The section to load them is commented out
-	// Clean global shadow, incase any generators were removed
-	for f, _ := range R.Shadow {
-		// deal with leading shadow dir name?
-		idx := strings.Index(f, "/")
-		if idx < 0 {
-			idx = 0
-		} else {
-			idx += 1
-		}
-		// fmt.Println("  +", f, idx)
-		// fmt.Println("  -", f, f[idx:])
-		err := os.Remove(f[idx:])
-		if err != nil {
-			if strings.Contains(err.Error(), "no such file or directory") {
-				continue
-			}
-			errs = append(errs, err)
-			continue
-		}
-
-		err = os.Remove(path.Join(SHADOW_DIR, f))
-		if err != nil {
-			if strings.Contains(err.Error(), "no such file or directory") {
-				continue
-			}
-
-			errs = append(errs, err)
-			continue
-		}
 	}
 
 	return errs
@@ -341,12 +287,14 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 					return errs
 				}
 
-				// shadow location
-				err = yagu.CopyFile(src, path.Join(SHADOW_DIR, G.Name, dst))
-				if err != nil {
-					err = fmt.Errorf("while copying static shadow file %q\n%w\n", match, err)
-					errs = append(errs, err)
-					return errs
+				if G.UseDiff3 {
+					// shadow location
+					err = yagu.CopyFile(src, path.Join(SHADOW_DIR, G.Name, dst))
+					if err != nil {
+						err = fmt.Errorf("while copying static shadow file %q\n%w\n", match, err)
+						errs = append(errs, err)
+						return errs
+					}
 				}
 
 				delete(R.Shadow, path.Join(G.Name, dst))
@@ -370,10 +318,12 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 			errs = append(errs, err)
 			return errs
 		}
-		err = F.WriteShadow(path.Join(SHADOW_DIR, G.Name))
-		if err != nil {
-			errs = append(errs, err)
-			return errs
+		if G.UseDiff3 {
+			err = F.WriteShadow(path.Join(SHADOW_DIR, G.Name))
+			if err != nil {
+				errs = append(errs, err)
+				return errs
+			}
 		}
 		delete(R.Shadow, path.Join(G.Name, F.Filepath))
 		delete(G.Shadow, path.Join(G.Name, F.Filepath))
@@ -393,11 +343,13 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 		}
 
 		// Write the shadow too, or if it doesn't exist
-		if F.DoWrite || (F.IsSame > 0 && F.ShadowFile == nil) {
-			err := F.WriteShadow(path.Join(SHADOW_DIR, G.Name))
-			if err != nil {
-				errs = append(errs, err)
-				return errs
+		if G.UseDiff3 {
+			if F.DoWrite || (F.IsSame > 0 && F.ShadowFile == nil) {
+				err := F.WriteShadow(path.Join(SHADOW_DIR, G.Name))
+				if err != nil {
+					errs = append(errs, err)
+					return errs
+				}
 			}
 		}
 
@@ -408,33 +360,36 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 
 	// Cleanup File & Shadow
 	// fmt.Println("Clean Shadow", G.Name)
-	for f, _ := range G.Shadow {
-		genFilename := strings.TrimPrefix(f, G.Name+"/")
-		shadowFilename := path.Join(SHADOW_DIR, f)
-		fmt.Println("  -", G.Name, f, genFilename, shadowFilename)
+	if G.UseDiff3 {
+		for f, _ := range G.Shadow {
+			genFilename := strings.TrimPrefix(f, G.Name+"/")
+			shadowFilename := path.Join(SHADOW_DIR, f)
+			fmt.Println("  -", G.Name, f, genFilename, shadowFilename)
 
-		err := os.Remove(genFilename)
-		if err != nil {
-			if strings.Contains(err.Error(), "no such file or directory") {
-				continue
+			err := os.Remove(genFilename)
+			if err != nil {
+				if strings.Contains(err.Error(), "no such file or directory") {
+					continue
+				}
+				errs = append(errs, err)
+				return errs
 			}
-			errs = append(errs, err)
-			return errs
-		}
 
-		err = os.Remove(shadowFilename)
-		if err != nil {
-			if strings.Contains(err.Error(), "no such file or directory") {
-				continue
+			err = os.Remove(shadowFilename)
+			if err != nil {
+				if strings.Contains(err.Error(), "no such file or directory") {
+					continue
+				}
+				errs = append(errs, err)
+				return errs
 			}
-			errs = append(errs, err)
-			return errs
-		}
 
-		G.Stats.NumDeleted += 1
+			G.Stats.NumDeleted += 1
+		}
 	}
 
 	for _, SG := range G.Generators {
+		SG.UseDiff3 = G.UseDiff3
 		sgerrs := R.WriteGenerator(SG)
 		errs = append(errs, sgerrs...)
 	}

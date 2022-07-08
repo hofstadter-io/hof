@@ -17,8 +17,6 @@ func (F *File) WriteOutput() error {
 		return nil
 	}
 
-	// fmt.Println("WriteFile:", F.Filepath)
-	// fmt.Printf("%#+v\n\n", F)
 	dir := path.Dir(F.Filepath)
 	err = yagu.Mkdir(dir)
 	if err != nil {

@@ -1,30 +1,10 @@
-package foo
+alice
+bob
+cow
+darth
+mary
 
-// function Bob yells loudly
-func Bob( user string ) error {
-	fmt.Println("hey BOB!!")
 
-	return nil
-}
+// edit below
 
-// function Cow yells loudly
-func Cow( mooer string ) error {
-	fmt.Println("hey COW!!")
-
-	return nil
-}
-
-// function Darth yells loudly
-func Darth( evil string ) error {
-	fmt.Println("hey DARTH!!")
-
-	return nil
-}
-
-// function Mary yells loudly
-func Mary( admin string ) error {
-	fmt.Println("hey MARY!!")
-
-	return nil
-}
-
+foobar

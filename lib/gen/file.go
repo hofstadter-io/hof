@@ -2,21 +2,14 @@ package gen
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
-	gofmt "go/format"
 	"io/ioutil"
 	"os"
-	"strings"
 
 	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/format"
-	"cuelang.org/go/encoding/yaml"
-	"github.com/clbanning/mxj"
-	"github.com/epiclabs-io/diff3"
-	"github.com/naoina/toml"
 	"github.com/sergi/go-diff/diffmatchpatch"
 
+	"github.com/hofstadter-io/hof/lib/diff3"
 	"github.com/hofstadter-io/hof/lib/templates"
 )
 
@@ -66,6 +59,7 @@ type File struct {
 
 func (F *File) Render(UseDiff3 bool) error {
 	var err error
+	F.RenderContent = bytes.TrimSpace(F.RenderContent)
 
 	if F.DatafileFormat != "" {
 		err = F.RenderData()
@@ -138,6 +132,7 @@ func (F *File) ReadUser() error {
 	if err != nil {
 		return err
 	}
+	content = bytes.TrimSpace(content)
 
 	F.UserFile = &File{
 		Filepath:     F.Filepath,
@@ -149,27 +144,39 @@ func (F *File) ReadUser() error {
 
 func (F *File) UnifyContent(UseDiff3 bool) (write bool, err error) {
 	// set this first, possible change later in this function
-	F.FinalContent = F.RenderContent
+	F.FinalContent = bytes.TrimSpace(F.RenderContent)
+	FC := F.FinalContent
 
 	// If there is a user file...
 	if UseDiff3 && F.UserFile != nil {
+		UF := bytes.TrimSpace(F.UserFile.FinalContent)
 		if F.ShadowFile != nil {
-			// Need to compare all 3
+			SF := bytes.TrimSpace(F.ShadowFile.FinalContent)
+
 			// But first a shortcut
-			if bytes.Compare(F.UserFile.FinalContent, F.ShadowFile.FinalContent) == 0 {
-				// fmt.Println("User == Shadow", len(F.UserFile.FinalContent), len(F.ShadowFile.FinalContent))
-				// Just write it out, no user modifications
+			// Just write it out, no user modifications
+			if bytes.Compare(UF, SF) == 0 {
 				F.IsModified = 1
 				F.IsModifiedRender = 1
 				return true, nil
 			}
 
-			O := bytes.NewReader(F.ShadowFile.FinalContent)
-			A := bytes.NewReader(F.UserFile.FinalContent)
-			B := bytes.NewReader(F.FinalContent)
+			//merged := diff3.Merge(string(SF), string(UF), string (FC))
+			//has1 := strings.Contains(merged,diff3.Sep1)
+			//has2 := strings.Contains(merged,diff3.Sep2)
+			//has3 := strings.Contains(merged,diff3.Sep3)
+			//if has1 && has2 && has3 {
+				//F.IsConflicted = 1
+			//}
+			//merged = strings.TrimSpace(merged)
+
+			// Now need to compare all 3
 			labelA := "Your File"
-			labelB := "New File"
-			detailed := true
+			A := bytes.NewReader(UF)
+			O := bytes.NewReader(SF)
+			B := bytes.NewReader(FC)
+			labelB := "Code Gen"
+			detailed := false
 
 			result, err := diff3.Merge(A, O, B, detailed, labelA, labelB)
 			if err != nil {
@@ -189,11 +196,12 @@ func (F *File) UnifyContent(UseDiff3 bool) (write bool, err error) {
 
 			F.IsModified = 1
 			F.IsModifiedDiff3 = 1
-			F.FinalContent = merged
+			F.FinalContent = []byte(merged)
 
 			return true, nil
 
 		} else {
+			fmt.Println("GOT HERE, tell devs")
 
 			// Compare new content to User content
 			if bytes.Compare(F.RenderContent, F.UserFile.FinalContent) == 0 {
@@ -218,12 +226,12 @@ func (F *File) UnifyContent(UseDiff3 bool) (write bool, err error) {
 				merged := dmp.DiffText2(diffs)
 				F.IsModified = 1
 				F.IsModifiedOutput = 1
-				F.FinalContent = []byte(merged)
+				F.FinalContent = bytes.TrimSpace([]byte(merged))
 
 				return true, nil
 			}
 		}
-	}
+	} // end UseDiff3
 
 	// Otherwise, this is a new file
 	F.IsNew = 1
@@ -258,110 +266,4 @@ func (F *File) RenderTemplate() (err error) {
 	}
 
 	return nil
-}
-
-func (F *File) FormatRendered() error {
-
-	// If Golang only
-	if strings.HasSuffix(F.Filepath, ".go") {
-		fmtd, err := gofmt.Source(F.RenderContent)
-		if err != nil {
-			return err
-		}
-
-		F.RenderContent = fmtd
-	}
-
-	return nil
-}
-
-func formatData(val cue.Value, format string) ([]byte, error) {
-	switch format {
-	case "cue":
-		return formatCue(val)
-
-	case "json":
-		return formatJson(val)
-
-	case "yml", "yaml":
-		return formatYaml(val)
-
-	case "xml":
-		return formatXml(val)
-
-	case "toml":
-		return formatToml(val)
-
-	default:
-		return nil, fmt.Errorf("unknown output encoding %q", format)
-	}
-}
-
-func formatCue(val cue.Value) ([]byte, error) {
-
-	syn := val.Syntax(
-		cue.Final(),
-		cue.Definitions(true),
-		cue.Hidden(true),
-		cue.Optional(true),
-		cue.Attributes(true),
-		cue.Docs(true),
-	)
-
-	bs, err := format.Node(syn)
-	if err != nil {
-		return nil, err
-	}
-
-	return bs, nil
-}
-
-func formatJson(val cue.Value) ([]byte, error) {
-	var w bytes.Buffer
-	d := json.NewEncoder(&w)
-	d.SetIndent("", "  ")
-
-	err := d.Encode(val)
-	if _, ok := err.(*json.MarshalerError); ok {
-		return nil, err
-	}
-
-	return w.Bytes(), nil
-}
-
-func formatYaml(val cue.Value) ([]byte, error) {
-	bs, err := yaml.Encode(val)
-	if err != nil {
-		return nil, err
-	}
-	return bs, nil
-}
-
-func formatToml(val cue.Value) ([]byte, error) {
-	v := make(map[string]interface{})
-	err := val.Decode(&v)
-	if err != nil {
-		return nil, err
-	}
-
-	bs, err := toml.Marshal(v)
-	if err != nil {
-		return nil, err
-	}
-	return bs, nil
-}
-
-func formatXml(val cue.Value) ([]byte, error) {
-	v := make(map[string]interface{})
-	err := val.Decode(&v)
-	if err != nil {
-		return nil, err
-	}
-
-	mv := mxj.Map(v)
-	bs, err := mv.XmlIndent("", "  ")
-	if err != nil {
-		return nil, err
-	}
-	return bs, nil
 }

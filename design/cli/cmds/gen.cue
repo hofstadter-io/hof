@@ -55,10 +55,18 @@ import (
 		},
 		{
 			Name:    "watch"
+			Type:    "bool"
+			Default: "false"
+			Help:    "run in watch mode, regenerating when files change"
+			Long:    "watch"
+			Short:   "w"
+		},
+		{
+			Name:    "WatchGlobs"
 			Type:    "[]string"
 			Default: "nil"
 			Help:    "filepath globs to watch for changes and regen"
-			Long:    "watch"
+			Long:    "watch-globs"
 			Short:   "W"
 		},
 		{

@@ -117,7 +117,7 @@ func (CRT *CueRuntime) load() (err error) {
 	for _, bi := range CRT.BuildInstances {
 		// fmt.Printf("%d: start\n", i)
 
-		if bi.Err != nil {
+		if bi.Err != nil || bi.Incomplete {
 			es := errors.Errors(bi.Err)
 			for _, e := range es {
 				errs = append(errs, e.(error))

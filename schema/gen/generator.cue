@@ -13,6 +13,10 @@ package gen
 	// TODO, Generator wide cue.Value for writing incomplete values
 	Val: {...}
 
+	// File globs to watch and trigger regen when changed
+	WatchGlobs: [...string]
+	WatchXcue:  [...string]
+
 	// The list fo files for hof to generate
 	Out: [...#HofGeneratorFile]
 

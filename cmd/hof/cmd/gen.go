@@ -73,7 +73,8 @@ func init() {
 	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.Template), "template", "T", nil, "Template mappings to render as '<filepath>;<?cuepath>;<?outpath>'")
 	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.Partial), "partial", "P", nil, "file globs to partial templates to register with the templates")
 	GenCmd.Flags().BoolVarP(&(flags.GenFlags.Diff3), "diff3", "D", false, "enable diff3 support for adhoc render, generators are configured in code")
-	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.Watch), "watch", "W", nil, "filepath globs to watch for changes and regen")
+	GenCmd.Flags().BoolVarP(&(flags.GenFlags.Watch), "watch", "w", false, "run in watch mode, regenerating when files change")
+	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.WatchGlobs), "watch-globs", "W", nil, "filepath globs to watch for changes and regen")
 	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.WatchXcue), "watch-xcue", "X", nil, "like watch, but skips CUE reload, useful when working on templates, can be used with watch")
 }
 
