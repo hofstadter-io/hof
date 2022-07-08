@@ -13,6 +13,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/templates"
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 type RenderConfig struct {
@@ -47,7 +48,7 @@ type RenderTemplateConfig struct {
 	Repeated bool
 }
 
-func Render(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpole) error {
+func Render(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpole) (chan bool, error) {
 
 	var RC RenderConfig
 
@@ -58,7 +59,7 @@ func Render(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 	for _, tf := range cmdflags.Template {
 		cfg, err := parseTemplateFlag(tf)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		RC.TemplateConfigs = append(RC.TemplateConfigs, cfg)
 	}
@@ -66,35 +67,58 @@ func Render(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 	// load CUE
 	crt, err := cuetils.CueRuntimeFromEntrypointsAndFlags(args)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	RC.RootValue = crt.CueValue
 
-	RC.G = NewGenerator("AdhocGen", RC.RootValue)
-	RC.G.UseDiff3 = cmdflags.Diff3
+	doGen := func() (chan bool, error) {
+		RC.G = NewGenerator("AdhocGen", RC.RootValue)
+		RC.G.UseDiff3 = cmdflags.Diff3
 
-	// everything loaded, now process
-	err = RC.setupGenerator()
+		// everything loaded, now process
+		err = RC.setupGenerator()
+		if err != nil {
+			return nil, err
+		}
+
+		// run this generator
+		errs := RC.G.GenerateFiles()
+		if len(errs) > 0 {
+			fmt.Println(errs)
+			return nil, errs[0]
+		}
+
+
+		if cmdflags.Stats {
+			RC.G.Stats.CalcTotals(RC.G)
+			fmt.Printf("\nGen: %s\n==========================\n", RC.G.Name)
+			fmt.Println(RC.G.Stats)
+		}
+
+		return make(chan bool, 2), nil
+	}
+
+	quit, err := doGen()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	// run this generator
-	errs := RC.G.GenerateFiles()
-	if len(errs) > 0 {
-		fmt.Println(errs)
-		return errs[0]
+	// return if watch-xcue not set
+	if len(cmdflags.WatchXcue) == 0 {
+		return nil, nil
+	}
+
+	// we need to watch and do our faster regen for template author DX
+	files, err := yagu.FilesFromGlobs(cmdflags.WatchXcue)
+	if err != nil {
+		return nil, err
 	}
 
 
-	if cmdflags.Stats {
-		RC.G.Stats.CalcTotals(RC.G)
-		fmt.Printf("\nGen: %s\n==========================\n", RC.G.Name)
-		fmt.Println(RC.G.Stats)
-	}
+	go DoWatch(doGen, files, "adhoc-xcue", quit)
 
-	return nil
+	return quit, nil
 }
 
 // deconstructs the flag into struct

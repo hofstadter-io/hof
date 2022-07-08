@@ -5,118 +5,82 @@ import (
 	"sync"
 	"time"
 
-	"github.com/fsnotify/fsnotify"
-
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 func Gen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpole) error {
-	// always generate at startup
-	err := GenOnce(args, rootflags, cmdflags)
-	if err != nil {
-		return err
-	}
+	LT := len(cmdflags.Template)
+	LG := len(cmdflags.Generator)
+	LW := len(cmdflags.Watch)
 
-	// if no watches, then only wanted to gen once
-	if len(cmdflags.Watch) == 0 {
-		return nil
-	}
-
-	// otherwise in watch mode
+	// this might be empty, we calc anyway for ease and sharing
 	files, err := yagu.FilesFromGlobs(cmdflags.Watch)
 	if err != nil {
 		return err
 	}
 
-	debounce := NewDebouncer(time.Millisecond * 50)
+	var errT, errG error
 
-	watcher, err := fsnotify.NewWatcher()
-	if err != nil {
-		return err
-	}
-	defer watcher.Close()
+	var wg sync.WaitGroup
 
-	done := make(chan bool)
-	go func() {
-		for {
-			select {
-			case event, ok := <-watcher.Events:
-				if !ok {
-					return
-				}
+	// Run adhoc
+	if LT > 0 {
 
-				if event.Op&fsnotify.Write == fsnotify.Write {
-
-					debounce(func() {
-						fmt.Printf("watch: starting regen... ")
-						start := time.Now()
-						derr := GenOnce(args, rootflags, cmdflags)
-						end := time.Now()
-
-						elapsed := end.Sub(start).Round(time.Millisecond)
-						fmt.Printf("done  %v\n", elapsed)
-
-						if derr != nil {
-							fmt.Println("error:", err)
-						}
-					})
-				}
-
-			case err, ok := <-watcher.Errors:
-				if !ok {
-					return
-				}
-				fmt.Println("error:", err)
-			}
+		doRender := func() (chan bool, error) {
+			return Render(args, rootflags, cmdflags)
 		}
-	}()
 
-
-	for _, file := range files {
-		err = watcher.Add(file)
-		if err != nil {
+		// no watch, gen once or only watch non-cue
+		if LW == 0 {
+			_, err := doRender()
 			return err
 		}
-	}
-	fmt.Printf("watching %d files\n", len(files))
 
-	<-done
+		// otherwise, we are watching for full reload
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			errT = DoWatch(doRender, files, "adhoc-full", nil)
+		}()
+	}
+
+	if LT == 0 || LG > 0 {
+		// generator modules handled from here on out
+		doGen := func() (chan bool, error) {
+			return GenOnce(args, rootflags, cmdflags)
+		}
+
+		// no watch, gen once or only watch non-cue
+		if LW == 0 {
+			_, err := doGen()
+			return err
+		}
+
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			errG = DoWatch(doGen, files, "hgmod-full", make(chan bool, 2))
+		}()
+	}
+
+	wg.Wait()
+
+	if errT != nil {
+		return errT
+	}
+	if errG != nil {
+		return errG
+	}
 
 	return nil
 }
 
-func GenOnce(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpole) error {
+func GenOnce(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpole) (chan bool, error) {
 	verystart := time.Now()
 
 	var errs []error
-
-	if len(cmdflags.Template) > 0 {
-		// Todo, just construct generator here? 
-		// and add to CRT below?
-		// there might be more going on in there than we want to deal with right now to merge
-		err := Render(args, rootflags, cmdflags)
-		if err != nil {
-			errs = append(errs, err)
-		}
-		if len(cmdflags.Generator) == 0 {
-			var err error
-			if len(errs) > 0 {
-				for _, e := range errs {
-					cuetils.PrintCueError(e)
-				}
-				err = fmt.Errorf("\nErrors during adhoc gen\n")
-			}
-			if cmdflags.Stats {
-				veryend := time.Now()
-				elapsed := veryend.Sub(verystart).Round(time.Millisecond)
-				fmt.Printf("\nTotal Elapsed Time: %s\n\n", elapsed)
-			}
-			return err
-		}
-	}
-
 
 	R := NewRuntime(args, cmdflags)
 
@@ -125,70 +89,73 @@ func GenOnce(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFla
 		for _, e := range errs {
 			cuetils.PrintCueError(e)
 		}
-		return fmt.Errorf("\nErrors while loading cue files\n")
+		return nil, fmt.Errorf("\nErrors while loading cue files\n")
 	}
 
-	// unless len(-T) > 0 && len(-G) == 0
-	errsL := R.LoadGenerators()
-	if len(errsL) > 0 {
-		for _, e := range errsL {
-			fmt.Println(e)
-			// cuetils.PrintCueError(e)
+	doGen := func() (chan bool, error) {
+		R.ClearGenerators()
+		R.ExtractGenerators()
+
+		errsL := R.LoadGenerators()
+		if len(errsL) > 0 {
+			for _, e := range errsL {
+				fmt.Println(e)
+				// cuetils.PrintCueError(e)
+			}
+			return nil, fmt.Errorf("\nErrors while loading generators\n")
 		}
-		return fmt.Errorf("\nErrors while loading generators\n")
-	}
 
-	// issue #20 - Don't print and exit on error here, wait until after we have written, so we can still write good files
-	errsG := R.RunGenerators()
-	errsW := R.WriteOutput()
+		// issue #20 - Don't print and exit on error here, wait until after we have written, so we can still write good files
+		errsG := R.RunGenerators()
+		errsW := R.WriteOutput()
 
-	// final timing
-	veryend := time.Now()
-	elapsed := veryend.Sub(verystart).Round(time.Millisecond)
+		// final timing
+		veryend := time.Now()
+		elapsed := veryend.Sub(verystart).Round(time.Millisecond)
 
-	if cmdflags.Stats {
-		R.PrintStats()
-		fmt.Printf("\nTotal Elapsed Time: %s\n\n", elapsed)
-	}
-
-	if len(errsG) > 0 {
-		for _, e := range errsG {
-			fmt.Println(e)
+		if cmdflags.Stats {
+			R.PrintStats()
+			fmt.Printf("\nTotal Elapsed Time: %s\n\n", elapsed)
 		}
-		return fmt.Errorf("\nErrors while generating output\n")
-	}
-	if len(errsW) > 0 {
-		for _, e := range errsW {
-			fmt.Println(e)
+
+		if len(errsG) > 0 {
+			for _, e := range errsG {
+				fmt.Println(e)
+			}
+			return nil, fmt.Errorf("\nErrors while generating output\n")
 		}
-		return fmt.Errorf("\nErrors while writing output\n")
+		if len(errsW) > 0 {
+			for _, e := range errsW {
+				fmt.Println(e)
+			}
+			return nil, fmt.Errorf("\nErrors while writing output\n")
+		}
+
+		R.PrintMergeConflicts()
+
+		return nil, nil
 	}
 
-	R.PrintMergeConflicts()
-
-	return nil
-}
-
-func NewDebouncer(after time.Duration) func(f func()) {
-	d := &debouncer{after: after}
-
-	return func(f func()) {
-		d.add(f)
+	_, err :=  doGen()
+	if err != nil {
+		return nil, err
 	}
-}
 
-type debouncer struct {
-	mu    sync.Mutex
-	after time.Duration
-	timer *time.Timer
-}
-
-func (d *debouncer) add(f func()) {
-	d.mu.Lock()
-	defer d.mu.Unlock()
-
-	if d.timer != nil {
-		d.timer.Stop()
+	// return if watch-xcue not set
+	if len(cmdflags.WatchXcue) == 0 {
+		return nil, nil
 	}
-	d.timer = time.AfterFunc(d.after, f)
+
+	// we need to watch and do our faster regen for template author DX
+	files, err := yagu.FilesFromGlobs(cmdflags.WatchXcue)
+	if err != nil {
+		return nil, err
+	}
+
+	quit := make(chan bool, 2)
+
+	go DoWatch(doGen, files, "hgmod-xcue", quit)
+
+	return quit, err
 }
+

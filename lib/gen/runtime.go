@@ -52,6 +52,10 @@ func NewRuntime(entrypoints []string, cmdflags flags.GenFlagpole) *Runtime {
 	}
 }
 
+func (R *Runtime) ClearGenerators() {
+	R.Generators = make(map[string]*Generator)
+}
+
 func (R *Runtime) LoadCue() []error {
 	start := time.Now()
 	defer func() {
@@ -103,8 +107,6 @@ func (R *Runtime) LoadCue() []error {
 	if len(errs) > 0 {
 		return errs
 	}
-
-	R.ExtractGenerators()
 
 	return errs
 }

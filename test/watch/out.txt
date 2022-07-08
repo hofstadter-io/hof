@@ -1,7 +1,5 @@
 package foo
 
-// yoooo!
-
 // function Bob yells loudly
 func Bob( user string ) error {
 	fmt.Println("hey BOB!!")
@@ -29,3 +27,4 @@ func Mary( admin string ) error {
 
 	return nil
 }
+
