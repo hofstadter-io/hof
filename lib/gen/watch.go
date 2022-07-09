@@ -30,7 +30,8 @@ func DoWatch(F func(fast bool) (chan bool, error), dofast, onfirst bool, files [
 			// first call
 			fmt.Printf("first (%s)\n", label)
 			start := time.Now()
-			tellDone, err = F(dofast)
+			// first time should always be fast
+			tellDone, err = F(true)
 			end := time.Now()
 			elapsed := end.Sub(start).Round(time.Millisecond)
 			fmt.Printf(" done (%s) %v\n", label, elapsed)

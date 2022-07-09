@@ -1,10 +1,32 @@
-alice
-bob
-cow
-darth
-mary
+// hallo!!!
+NAME: ALICE
+name: alice
+role: user
 
 
-// edit below
 
-foobar
+// hallo!!!
+NAME: BOB
+name: bob
+role: user
+
+
+
+// hallo!!!
+NAME: COW
+name: cow
+role: mooer
+
+
+
+// hallo!!!
+NAME: DARTH
+name: darth
+role: evil
+
+
+
+// hallo!!!
+NAME: MARY
+name: mary
+role: admin

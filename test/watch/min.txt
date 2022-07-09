@@ -1,5 +1,5 @@
-{{ range .users -}}
-{{ .name }}
-{{ end }}
+{{ range .users }}
+// hallo!!!
+{{ yaml . }}
 
-// edit below
+{{ end }}

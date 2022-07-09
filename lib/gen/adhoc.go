@@ -30,6 +30,9 @@ type AdhocTemplateConfig struct {
 }
 
 func (R *Runtime) CreateAdhocGenerator() error {
+	if R.Verbosity > 1 {
+		fmt.Println("Creating Adhoc Generator")
+	}
 	// parse template flags
 	tcfgs := []AdhocTemplateConfig{}
 	globs := make([]string,0)

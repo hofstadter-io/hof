@@ -143,93 +143,16 @@ func (F *File) ReadUser() error {
 }
 
 func (F *File) UnifyContent(UseDiff3 bool) (write bool, err error) {
+	// fmt.Println("unify:", F.Filepath)
 	// set this first, possible change later in this function
 	F.FinalContent = bytes.TrimSpace(F.RenderContent)
-	FC := F.FinalContent
 
 	// If there is a user file...
 	if UseDiff3 && F.UserFile != nil {
-		UF := bytes.TrimSpace(F.UserFile.FinalContent)
 		if F.ShadowFile != nil {
-			SF := bytes.TrimSpace(F.ShadowFile.FinalContent)
-
-			// But first a shortcut
-			// Just write it out, no user modifications
-			if bytes.Compare(UF, SF) == 0 {
-				F.IsModified = 1
-				F.IsModifiedRender = 1
-				return true, nil
-			}
-
-			//merged := diff3.Merge(string(SF), string(UF), string (FC))
-			//has1 := strings.Contains(merged,diff3.Sep1)
-			//has2 := strings.Contains(merged,diff3.Sep2)
-			//has3 := strings.Contains(merged,diff3.Sep3)
-			//if has1 && has2 && has3 {
-				//F.IsConflicted = 1
-			//}
-			//merged = strings.TrimSpace(merged)
-
-			// Now need to compare all 3
-			labelA := "Your File"
-			A := bytes.NewReader(UF)
-			O := bytes.NewReader(SF)
-			B := bytes.NewReader(FC)
-			labelB := "Code Gen"
-			detailed := false
-
-			result, err := diff3.Merge(A, O, B, detailed, labelA, labelB)
-			if err != nil {
-				F.IsErr = 1
-				return false, err
-			}
-
-			merged, err := ioutil.ReadAll(result.Result)
-			if err != nil {
-				F.IsErr = 1
-				return false, err
-			}
-
-			if result.Conflicts {
-				F.IsConflicted = 1
-			}
-
-			F.IsModified = 1
-			F.IsModifiedDiff3 = 1
-			F.FinalContent = []byte(merged)
-
-			return true, nil
-
+			F.diff3()
 		} else {
-			fmt.Println("GOT HERE, tell devs")
-
-			// Compare new content to User content
-			if bytes.Compare(F.RenderContent, F.UserFile.FinalContent) == 0 {
-				// Don't write it out, no user modifications, or the same modifications?
-				F.IsSame = 1
-				return false, nil
-
-			} else {
-				// 2-way diff, the user made modifications
-				dmp := diffmatchpatch.New()
-				// Do this backwards, how do we get from user file to the new one
-				diffs := dmp.DiffMain(string(F.FinalContent), string(F.UserFile.FinalContent), false)
-
-				// Now skip anything the user "deleted" from the file, i.e. new content
-				for _, d := range diffs {
-					if d.Type == -1 {
-						// "skip" by setting equal, otherwise we mess things up by not including it
-						d.Type = 0
-					}
-				}
-
-				merged := dmp.DiffText2(diffs)
-				F.IsModified = 1
-				F.IsModifiedOutput = 1
-				F.FinalContent = bytes.TrimSpace([]byte(merged))
-
-				return true, nil
-			}
+			F.diff2()
 		}
 	} // end UseDiff3
 
@@ -237,6 +160,94 @@ func (F *File) UnifyContent(UseDiff3 bool) (write bool, err error) {
 	F.IsNew = 1
 
 	return true, nil
+}
+
+func (F *File) diff3() (write bool, err error) {
+	// fmt.Println("diff3:", F.Filepath)
+
+	FC := F.FinalContent
+	UF := bytes.TrimSpace(F.UserFile.FinalContent)
+	SF := bytes.TrimSpace(F.ShadowFile.FinalContent)
+
+	// But first a shortcut
+	// Just write it out, no user modifications
+	if bytes.Compare(UF, SF) == 0 {
+		F.IsModified = 1
+		F.IsModifiedRender = 1
+		return true, nil
+	}
+
+	//merged := diff3.Merge(string(SF), string(UF), string (FC))
+	//has1 := strings.Contains(merged,diff3.Sep1)
+	//has2 := strings.Contains(merged,diff3.Sep2)
+	//has3 := strings.Contains(merged,diff3.Sep3)
+	//if has1 && has2 && has3 {
+		//F.IsConflicted = 1
+	//}
+	//merged = strings.TrimSpace(merged)
+
+	// Now need to compare all 3
+	labelA := "Your File"
+	A := bytes.NewReader(UF)
+	O := bytes.NewReader(SF)
+	B := bytes.NewReader(FC)
+	labelB := "Code Gen"
+	detailed := false
+
+	result, err := diff3.Merge(A, O, B, detailed, labelA, labelB)
+	if err != nil {
+		F.IsErr = 1
+		return false, err
+	}
+
+	merged, err := ioutil.ReadAll(result.Result)
+	if err != nil {
+		F.IsErr = 1
+		return false, err
+	}
+
+	if result.Conflicts {
+		F.IsConflicted = 1
+	}
+
+	F.IsModified = 1
+	F.IsModifiedDiff3 = 1
+	F.FinalContent = []byte(merged)
+
+	return true, nil
+}
+
+func (F *File) diff2() (write bool, err error) {
+	// fmt.Println("diff2:", F.Filepath)
+	fmt.Println("GOT HERE, tell devs")
+
+	// Compare new content to User content
+	if bytes.Compare(F.RenderContent, F.UserFile.FinalContent) == 0 {
+		// Don't write it out, no user modifications, or the same modifications?
+		F.IsSame = 1
+		return false, nil
+
+	} else {
+		// 2-way diff, the user made modifications
+		dmp := diffmatchpatch.New()
+		// Do this backwards, how do we get from user file to the new one
+		diffs := dmp.DiffMain(string(F.FinalContent), string(F.UserFile.FinalContent), false)
+
+		// Now skip anything the user "deleted" from the file, i.e. new content
+		for _, d := range diffs {
+			if d.Type == -1 {
+				// "skip" by setting equal, otherwise we mess things up by not including it
+				d.Type = 0
+			}
+		}
+
+		merged := dmp.DiffText2(diffs)
+		F.IsModified = 1
+		F.IsModifiedOutput = 1
+		F.FinalContent = bytes.TrimSpace([]byte(merged))
+
+		return true, nil
+	}
 }
 
 func (F *File) RenderData() (err error) {

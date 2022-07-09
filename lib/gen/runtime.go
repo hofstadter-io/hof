@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"sync"
 	"time"
 
 	"cuelang.org/go/cue"
@@ -17,6 +18,8 @@ import (
 )
 
 type Runtime struct {
+	sync.Mutex
+
 	// Setup options
 	Entrypoints []string
 	Flagpole    flags.GenFlagpole
@@ -42,6 +45,40 @@ func NewRuntime(entrypoints []string, cmdflags flags.GenFlagpole) *Runtime {
 		Generators:  make(map[string]*Generator),
 		Stats:       new(RuntimeStats),
 	}
+}
+
+func (R *Runtime) Reload(fast bool) error {
+	R.Lock()
+	defer R.Unlock()
+
+	if !fast {
+		err := R.LoadCue()
+		if err != nil {
+			return err
+		}
+	}
+
+	R.ClearGenerators()
+
+	err := R.ExtractGenerators()
+	if err != nil {
+		return err
+	}
+
+	errsL := R.LoadGenerators()
+	if len(errsL) > 0 {
+		for _, e := range errsL {
+			fmt.Println(e)
+		}
+		return fmt.Errorf("\nErrors while loading generators\n")
+	}
+
+	err = R.CreateAdhocGenerator()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (R *Runtime) ClearGenerators() {
@@ -245,6 +282,9 @@ func (R *Runtime) RunGenerator(G *Generator) (errs []error) {
 
 func (R *Runtime) WriteOutput() []error {
 	var errs []error
+	if R.Verbosity > 0 {
+		fmt.Println("Writing output")
+	}
 
 	for _, G := range R.Generators {
 		gerrs := R.WriteGenerator(G)

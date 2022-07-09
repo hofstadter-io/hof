@@ -80,6 +80,11 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 			return fmt.Errorf("\nErrors while loading generators\n")
 		}
 	}
+	err = R.CreateAdhocGenerator()
+	if err != nil {
+		return err
+	}
+
 
 	/* Build up watch list
 		We need to buildup the watch list from flags
@@ -117,18 +122,16 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 		return R.genOnce(fast, watch, xfiles)
 	}
 
-	// this is the first codegen event
-	_, err = doGen(true)
-	if err != nil {
-		return err
-	}
-
 	// no watch, we can now exit 0
 	if !watch {
+		_, err := doGen(true)
+		if err != nil {
+			return err
+		}
 		return nil
 	}
 
-	fmt.Println("first code gen complete, watching for changes")
+	fmt.Println("watching for changes...")
 
 	// we are in watch mode, this loop does a complete reload
 	var wg sync.WaitGroup
@@ -137,7 +140,7 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		err = DoWatch(doGen, false, false, wfiles, "full", make(chan bool, 2))
+		err = DoWatch(doGen, false, true, wfiles, "full", make(chan bool, 2))
 	}()
 
 	// main process waits here for ctrl-c
@@ -158,25 +161,9 @@ func (R *Runtime) genOnce(fast, watch bool, files []string) (chan bool, error) {
 			fmt.Println("genOnce.doGen: fast:", fast)
 		}
 		
-		if !fast {
-			R.ClearGenerators()
-			err := R.LoadCue()
-			if err != nil {
-				return nil, err
-			}
-
-			err = R.ExtractGenerators()
-			if err != nil {
-				return nil, err
-			}
-
-			errsL := R.LoadGenerators()
-			if len(errsL) > 0 {
-				for _, e := range errsL {
-					fmt.Println(e)
-				}
-				return nil, fmt.Errorf("\nErrors while loading generators\n")
-			}
+		err := R.Reload(fast)
+		if err != nil {
+			return nil, err
 		}
 
 		// issue #20 - Don't print and exit on error here, wait until after we have written, so we can still write good files
@@ -216,7 +203,7 @@ func (R *Runtime) genOnce(fast, watch bool, files []string) (chan bool, error) {
 		return nil, err
 	}
 
-	// return if watching
+	// return if not watching
 	if !watch {
 		return nil, nil
 	}
