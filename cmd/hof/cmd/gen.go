@@ -68,6 +68,7 @@ hof gen data.cue ...
 
 func init() {
 
+	GenCmd.Flags().StringVarP(&(flags.GenFlags.List), "list", "l", "*", "list available generators")
 	GenCmd.Flags().BoolVarP(&(flags.GenFlags.Stats), "stats", "s", false, "print generator statistics")
 	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.Generator), "generator", "G", nil, "generator tags to run, default is all")
 	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.Template), "template", "T", nil, "template mappings to render as '<filepath>;<?cuepath>;<?outpath>'")

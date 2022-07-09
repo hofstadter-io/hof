@@ -1,6 +1,7 @@
 package flags
 
 type GenFlagpole struct {
+	List         string
 	Stats        bool
 	Generator    []string
 	Template     []string

@@ -1,18 +1,19 @@
-Priorities:
-
-- [ ] datamodel history example
-  - [ ] transformation code
-	- [ ] server / client versioning support
-- [ ] deploy API updates to consumers
-
----
-
 v0.6.3
 
 - [x] better watch regen message
 - [x] disjunct ordered models
 - [x] --watch-templates & clear function
 - [ ] --as-module flag (also --create-module) or --module-* flags?
+- [ ] list / info flags (for available gens, or maybe just part of help?)
+
+---
+
+Priorities:
+
+- [ ] datamodel history example
+  - [ ] transformation code
+	- [ ] server / client versioning support
+- [ ] deploy API updates to consumers
 
 ---
 
