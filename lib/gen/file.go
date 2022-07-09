@@ -218,8 +218,9 @@ func (F *File) diff3() (write bool, err error) {
 }
 
 func (F *File) diff2() (write bool, err error) {
+	// probably the first time we gen with diff enable
 	// fmt.Println("diff2:", F.Filepath)
-	fmt.Println("GOT HERE, tell devs")
+	// fmt.Println("GOT HERE, tell devs")
 
 	// Compare new content to User content
 	if bytes.Compare(F.RenderContent, F.UserFile.FinalContent) == 0 {
