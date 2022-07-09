@@ -12,7 +12,7 @@ package dm
 	// Models in the data model, ordered
 	Models: #Models
 	// (turn Ordered* into a default calculation, so user can always write their own)
-	// OrderedModels: [...#Model] | *[ for M in Models {M}]
+	OrderedModels: [...#Model] | *[ for M in Models {M}]
 
 	// Custom views not tied to a specific model
 	Views?: #Views
@@ -36,8 +36,8 @@ package dm
 
 	// TODO, can we calc this in hof and maintain output order stability?
 	// (turn Ordered* into a default calculation, so user can always write their own)
-	// OrderedFields: [...#Field] | *[ for F in Fields {F}]
-	// OrderedRelations: [...#Relation] | *[ for F in Relations {F}]
+	OrderedFields: [...#Field] | *[ for F in Fields {F}]
+	OrderedRelations: [...#Relation] | *[ for R in Relations {R}]
 
 	...
 }
@@ -65,9 +65,9 @@ package dm
 
 	// Todo, make these calculated
 	// (turn Ordered* into a default calculation, so user can always write their own)
-	// OrderedModels:    [...#Model] | *[ for M in Models {M}]
-	// OrderedFields:    [...#Field] | *[ for F in Fields {F}]
-	// OrderedRelations: [...#Relation] | *[ for F in Relations {F}]
+	OrderedModels:    [...#Model] | *[ for M in Models {M}]
+	OrderedFields:    [...#Field] | *[ for F in Fields {F}]
+	OrderedRelations: [...#Relation] | *[ for R in Relations {R}]
 
 	...
 }
