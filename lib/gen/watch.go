@@ -8,7 +8,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 )
 
-func DoWatch(F func() (chan bool, error), onfirst bool, files []string, label string, quit chan bool) (error) {
+func DoWatch(F func(fast bool) (chan bool, error), dofast, onfirst bool, files []string, label string, quit chan bool) (error) {
 	// now loop
 	debounce := NewDebouncer(time.Millisecond * 50)
 
@@ -30,7 +30,7 @@ func DoWatch(F func() (chan bool, error), onfirst bool, files []string, label st
 			// first call
 			fmt.Printf("first (%s)\n", label)
 			start := time.Now()
-			tellDone, err = F()
+			tellDone, err = F(dofast)
 			end := time.Now()
 			elapsed := end.Sub(start).Round(time.Millisecond)
 			fmt.Printf(" done (%s) %v\n", label, elapsed)
@@ -57,7 +57,7 @@ func DoWatch(F func() (chan bool, error), onfirst bool, files []string, label st
 						// kill previous sub-spawn (xcue)
 						fmt.Printf("regen (%s)\n", label)
 						start := time.Now()
-						tellDone, err = F()
+						tellDone, err = F(dofast)
 						end := time.Now()
 
 						elapsed := end.Sub(start).Round(time.Millisecond)

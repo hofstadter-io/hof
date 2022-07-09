@@ -10,6 +10,8 @@
 
 - [x] better watch regen message
 - [x] disjunct ordered models
-- [ ] --watch-templates & clear function
+- [x] --watch-templates & clear function
+- [ ] use only one glob library
 - [ ] load datamodel history into generators
+- [ ] diff3 tests, can we get an easy fix in? (timebox this)
 

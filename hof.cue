@@ -12,8 +12,8 @@ Cli: _ @gen(cli,hof)
 Cli: g_cli.#HofGenerator & {
 	Outdir: "./"
 	Cli:    d_cli.#CLI
-	WatchGlobs: ["./design/**/*.*"]
-	WatchXcue:  ["./cue.mod/**/*.*"]
+	WatchGlobs: ["./design/**/*"]
+	WatchXcue:  ["./cue.mod/**/*"]
 }
 
 Context: _ @gen(cuefig,context,ctx)

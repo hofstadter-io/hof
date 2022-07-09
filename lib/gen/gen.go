@@ -30,12 +30,12 @@ func Gen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpol
 }
 
 func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpole) error {
-	R := NewRuntime(args, cmdflags)
-	err := R.LoadCue()
-	if err != nil {
-		return err
-	}
 
+	// This is our runtime for codegeneration
+	R := NewRuntime(args, cmdflags)
+	R.Verbosity = rootflags.Verbose
+
+	// b/c shorter names
 	LT := len(cmdflags.Template)
 	LG := len(cmdflags.Generator)
 	globs := cmdflags.WatchGlobs
@@ -47,6 +47,17 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 	watch := cmdflags.Watch
 	if len(globs) > 0 || len(xcue) > 0 {
 		watch = true
+	}
+
+	// generally there are more messages when in watch mode
+	if watch {
+		fmt.Println("Loading CUE from", R.Entrypoints)
+	}
+
+	// this is the first time we create a runtime and load cue
+	err := R.LoadCue()
+	if err != nil {
+		return err
 	}
 
 	/* We will run a generator if either
@@ -92,26 +103,44 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 		return err
 	}
 
-	doGen := func() (chan bool, error) {
-		return R.genOnce(watch, xfiles)
+	// if we are in watch mode, let the user know what is being watched
+	if watch {
+		fmt.Printf("found %d glob files from %v\n", len(wfiles), globs)
+		fmt.Printf("found %d xcue files from %v\n", len(xfiles), xcue)
 	}
 
-	// no watch, gen once or only watch non-cue
-	if !watch {
-		_, err := doGen()
+	// code gen func
+	doGen := func(fast bool) (chan bool, error) {
+		if R.Verbosity > 0 {
+			fmt.Println("runGen.doGen: fast:", fast)
+		}
+		return R.genOnce(fast, watch, xfiles)
+	}
+
+	// this is the first codegen event
+	_, err = doGen(true)
+	if err != nil {
 		return err
 	}
 
-	fmt.Printf("found %d glob files from %v\n", len(wfiles), globs)
-	fmt.Printf("found %d xcue files from %v\n", len(xfiles), xcue)
+	// no watch, we can now exit 0
+	if !watch {
+		return nil
+	}
 
+	fmt.Println("first code gen complete, watching for changes")
+
+	// we are in watch mode, this loop does a complete reload
 	var wg sync.WaitGroup
+
+	// this is our main executor around full regen
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		err = DoWatch(doGen, true, wfiles, "full", make(chan bool, 2))
+		err = DoWatch(doGen, false, false, wfiles, "full", make(chan bool, 2))
 	}()
 
+	// main process waits here for ctrl-c
 	wg.Wait()
 
 	if err != nil {
@@ -121,28 +150,33 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 	return nil
 }
 
-func (R *Runtime) genOnce(watch bool, files []string) (chan bool, error) {
+func (R *Runtime) genOnce(fast, watch bool, files []string) (chan bool, error) {
 	verystart := time.Now()
 
-	doGen := func() (chan bool, error) {
-		fmt.Println("doGen")
-		R.ClearGenerators()
-		err := R.LoadCue()
-		if err != nil {
-			return nil, err
+	doGen := func(fast bool) (chan bool, error) {
+		if R.Verbosity > 0 {
+			fmt.Println("genOnce.doGen: fast:", fast)
 		}
-
-		err = R.ExtractGenerators()
-		if err != nil {
-			return nil, err
-		}
-
-		errsL := R.LoadGenerators()
-		if len(errsL) > 0 {
-			for _, e := range errsL {
-				fmt.Println(e)
+		
+		if !fast {
+			R.ClearGenerators()
+			err := R.LoadCue()
+			if err != nil {
+				return nil, err
 			}
-			return nil, fmt.Errorf("\nErrors while loading generators\n")
+
+			err = R.ExtractGenerators()
+			if err != nil {
+				return nil, err
+			}
+
+			errsL := R.LoadGenerators()
+			if len(errsL) > 0 {
+				for _, e := range errsL {
+					fmt.Println(e)
+				}
+				return nil, fmt.Errorf("\nErrors while loading generators\n")
+			}
 		}
 
 		// issue #20 - Don't print and exit on error here, wait until after we have written, so we can still write good files
@@ -176,7 +210,8 @@ func (R *Runtime) genOnce(watch bool, files []string) (chan bool, error) {
 		return nil, nil
 	} // end doGen
 
-	_, err :=  doGen()
+	// run code gen
+	_, err :=  doGen(fast)
 	if err != nil {
 		return nil, err
 	}
@@ -188,7 +223,7 @@ func (R *Runtime) genOnce(watch bool, files []string) (chan bool, error) {
 
 	quit := make(chan bool, 2)
 
-	go DoWatch(doGen, false, files, "xcue", quit)
+	go DoWatch(doGen, true, false, files, "xcue", quit)
 
 	return quit, err
 }

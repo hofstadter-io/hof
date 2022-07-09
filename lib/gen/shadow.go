@@ -11,8 +11,8 @@ import (
 
 const SHADOW_DIR = ".hof/shadow/"
 
-func LoadShadow(subdir string, verbose bool) (map[string]*File, error) {
-	if verbose {
+func LoadShadow(subdir string, verbosity int) (map[string]*File, error) {
+	if verbosity > 1 {
 		fmt.Printf("Loading shadow @ %q\n", SHADOW_DIR)
 	}
 
@@ -27,7 +27,7 @@ func LoadShadow(subdir string, verbose bool) (map[string]*File, error) {
 			return nil, err
 		}
 		// file not found, leave politely
-		if verbose {
+		if verbosity > 1 {
 			fmt.Println("  shadow not found")
 		}
 		return shadow, nil
@@ -39,7 +39,7 @@ func LoadShadow(subdir string, verbose bool) (map[string]*File, error) {
 			return nil
 		}
 
-		if verbose {
+		if verbosity > 1 {
 			fmt.Println("  adding:", info.Name())
 		}
 

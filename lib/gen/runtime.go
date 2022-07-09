@@ -22,8 +22,8 @@ type Runtime struct {
 	Flagpole    flags.GenFlagpole
 
 	// TODO configuration
-	mode    string
-	verbose bool
+	mode      string
+	Verbosity int
 
 	// Cue ralated
 	CueRuntime      *cuetils.CueRuntime
@@ -38,6 +38,7 @@ func NewRuntime(entrypoints []string, cmdflags flags.GenFlagpole) *Runtime {
 	return &Runtime{
 		Entrypoints: entrypoints,
 		Flagpole:    cmdflags,
+		
 		Generators:  make(map[string]*Generator),
 		Stats:       new(RuntimeStats),
 	}
@@ -48,6 +49,9 @@ func (R *Runtime) ClearGenerators() {
 }
 
 func (R *Runtime) LoadCue() (err error) {
+	if R.Verbosity > 0 {
+		fmt.Println("Loading CUE from:", R.Entrypoints)
+	}
 	start := time.Now()
 	defer func() {
 		end := time.Now()
@@ -211,7 +215,7 @@ func (R *Runtime) RunGenerator(G *Generator) (errs []error) {
 	}
 
 	if G.UseDiff3 {
-		shadow, err := LoadShadow(G.Name, R.verbose)
+		shadow, err := LoadShadow(G.Name, R.Verbosity)
 		if err != nil {
 			errs = append(errs, err)
 			return errs
