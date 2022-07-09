@@ -110,7 +110,7 @@ func loadDatamodelsAt(entrypoints []string, flgs flags.DatamodelPflagpole) ([]*D
 		return dms, err
 	}
 
-	kvs, err := cuetils.GetByAttrKeys(crt.CueValue, "datamodel", nil, nil)
+	kvs, err := cuetils.GetByAttrKeys(crt.CueValue, "hof", []string{"datamodel"}, nil)
 	if err != nil {
 		return dms, cuetils.ExpandCueError(err)
 	}
@@ -145,6 +145,7 @@ func loadDatamodelsAt(entrypoints []string, flgs flags.DatamodelPflagpole) ([]*D
 		dm.Value = crt.CueContext.CompileString(str)
 
 		// go deeper to extract model values
+		// TODO, support lookup based on attribute
 		ms := dm.Value.LookupPath(cue.ParsePath("Models"))
 		if ms.Err() != nil {
 			return dms, cuetils.ExpandCueError(ms.Err())
@@ -161,7 +162,7 @@ func loadDatamodelsAt(entrypoints []string, flgs flags.DatamodelPflagpole) ([]*D
 			if !ok {
 				panic("cannot find label in models")
 			}
-			dm.Ordered = append(dm.Ordered, m)
+			dm.OrderedModels = append(dm.OrderedModels, m)
 			m.Label = iter.Selector().String()
 			m.Value = iter.Value()
 			i++
@@ -293,7 +294,7 @@ func loadDatamodelHistory(dm *Datamodel, crt *cuetils.CueRuntime) error {
 			if !ok {
 				panic("cannot find label in models")
 			}
-			d.Ordered = append(dm.Ordered, m)
+			d.OrderedModels = append(dm.OrderedModels, m)
 			m.Label = iter.Selector().String()
 			m.Value = iter.Value()
 			i++

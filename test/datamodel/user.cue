@@ -29,6 +29,8 @@ User: dm.#Model & {
 		}
 		password: fields.Password
 		active:   fields.Bool
+
+		// this is the new field
 		username: fields.String
 	}
 }

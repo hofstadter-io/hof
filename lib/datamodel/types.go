@@ -3,6 +3,11 @@ package datamodel
 import "cuelang.org/go/cue"
 
 type Common struct {
+	// User set
+	Name   string
+	Labels map[string]string
+
+	// internally set
 	Status    string // should probably be an const [ok,dirty,no history]
 	Label     string // label from CUE
 	Timestamp string // timestamp
@@ -22,23 +27,26 @@ type History struct {
 }
 
 type Datamodel struct {
-	Name    string
 	Models  map[string]*Model
-	Ordered []*Model
+
+	// filled fields
+	OrderedModels []*Model
 	History *History
 
 	Common
 }
 
 type Model struct {
-	Name   string
 	Fields map[string]*Field
+
+	// Filled fields
+	OrderedFields []*Field
+  Path []string
 
 	Common
 }
 
 type Field struct {
-	Name string
 	Type string
 
 	Common

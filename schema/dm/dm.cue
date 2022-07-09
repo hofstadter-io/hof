@@ -1,13 +1,18 @@
 package dm
 
-#Datamodel: {
-	@datamodel()
+#Common: {
 	Name: string
+	Labels: [string]: string
+}
+
+#Datamodel: {
+	@hof(datamodel)
+	#Common
 
 	// Models in the data model, ordered
 	Models: #Models
 	// (turn Ordered* into a default calculation, so user can always write their own)
-	OrderedModels: [...#Model] | *[ for M in Models {M}]
+	// OrderedModels: [...#Model] | *[ for M in Models {M}]
 
 	// Custom views not tied to a specific model
 	Views?: #Views
@@ -20,23 +25,27 @@ package dm
 
 #Models: [name=string]: #Model & {Name: name, ...}
 #Model: {
-	@dm_model()
-	Name: string
+	@hof(model)
+	#Common
 
 	Fields: #Fields
-	// (turn Ordered* into a default calculation, so user can always write their own)
-	OrderedFields: [...#Field] | *[ for F in Fields {F}]
 
+	// this might all best be filtered to prevent cycles
 	Relations?: #Relations
 	Views?:     #Views
+
+	// TODO, can we calc this in hof and maintain output order stability?
+	// (turn Ordered* into a default calculation, so user can always write their own)
+	// OrderedFields: [...#Field] | *[ for F in Fields {F}]
+	// OrderedRelations: [...#Relation] | *[ for F in Relations {F}]
 
 	...
 }
 
 #Fields: [name=string]: #Field & {Name: name, ...}
 #Field: {
-	@dm_field()
-	Name: string
+	@hof(field)
+	#Common
 
 	// this should be a string you can use within your templates
 	Type: string
@@ -46,24 +55,29 @@ package dm
 
 #Views: [name=string]: #View & {Name: name, ...}
 #View: {
-	@dm_view()
-	Name: string
+	@hof(view)
+	#Common
 
+	// this might all best be filtered to prevent cycles
 	Models: #Models
-	// (turn Ordered* into a default calculation, so user can always write their own)
 	Fields: #Fields
-	OrderedFields: [...#Field] | *[ for F in Fields {F}]
+	Relations?: #Relations
+
+	// Todo, make these calculated
+	// (turn Ordered* into a default calculation, so user can always write their own)
+	// OrderedModels:    [...#Model] | *[ for M in Models {M}]
+	// OrderedFields:    [...#Field] | *[ for F in Fields {F}]
+	// OrderedRelations: [...#Relation] | *[ for F in Relations {F}]
 
 	...
 }
 
 #Relations: [name=string]: #Relation & {Name: name, ...}
 #Relation: {
-	@dm_relation()
+	@hof(reln)
+	#Common
 
-	Name: string
-
-	// Relation to another thing
+	// The relation to another thing
 
 	// This is the relation type, open for debate on what this could or should be
 	Reln: "BelongsTo" | "HasOne" | "HasMany" | "ManyToMany" | string
@@ -80,3 +94,9 @@ package dm
 
 	...
 }
+
+// TODO, helper to extract basic fields into a new value
+// so we can have better / more info to the other side
+// while still preventing cycle errors
+#MakeReln: { ... }
+
