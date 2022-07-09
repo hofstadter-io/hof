@@ -5,6 +5,7 @@ v0.6.3
 - [x] --watch-templates & clear function
 - [ ] --as-module flag (also --create-module) or --module-* flags?
 - [ ] list / info flags (for available gens, or maybe just part of help?)
+- [ ] record demo
 
 ---
 
@@ -17,14 +18,21 @@ Priorities:
 
 ---
 
-next version
+next version, datamodel upgrades
 
 - [ ] load datamodel history into generators
 - [ ] diff3 tests, can we get an easy fix in? (timebox this)
+- [ ] add thema mode & support, can we bidirectionally convert between formats?
+- [ ] support using raw cue values with constraints as valid input and markup for the code engine
+- [ ] support translation methods between models / versions to be defined by user, parse refs in cue to something consumable by code gen
+- [ ] we're more focused on datamodel++ (the extra config/metadata needed for codegen of applications), than using history at runtime (?) (tradeoffs)
+- [ ] implement views / relns into info system
+- [ ] mock (faux) data (https://www.getsynth.com/docs/getting_started/core-concepts)
+- [ ] maybe we just need to add lacuna to our schemas? do they represent the cases where we cannot automate or the user wants to be explicit?
+- [ ] support with @rename() / @move() for fields (& models?), use `><` in the diff algo, helper #Defs for users in their CUE
 
----
+can we use the concepts from hof dm and thema
+to support code gen mods interoperability?
 
-later
-
-- mock data (https://www.getsynth.com/docs/getting_started/core-concepts)
-
+first, generators need an explicit schema / datamodel version, indep of their release version
+this is like k8s resources having apiVersion or docker-compose / OpenAPI spec version when writing
