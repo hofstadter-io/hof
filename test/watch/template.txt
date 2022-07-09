@@ -1,9 +1,0 @@
-package foo
-{{ range .users }}
-// function {{ camelT .name }} yells loudly
-func {{ camelT .name }}( {{ .role }} string ) error {
-	fmt.Println("hey {{ .NAME }}!!")
-
-	return nil
-}
-{{ end }}

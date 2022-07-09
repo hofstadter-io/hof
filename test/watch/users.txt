@@ -1,0 +1,46 @@
+package foo
+
+// function Aaah pretend time
+func Aaah( Cat int ) error {
+	fmt.Println("hey AAAH!!")
+
+	return nil
+}
+
+// function Alice pretend time
+func Alice( User int ) error {
+	fmt.Println("hey ALICE!!")
+
+	// if in wonderland?
+	// if white rabbit?
+
+	return nil
+}
+
+// function Bob pretend time
+func Bob( User int ) error {
+	fmt.Println("hey BOB!!")
+
+	return nil
+}
+
+// function Cow pretend time
+func Cow( Mooer int ) error {
+	fmt.Println("hey COW!!")
+
+	return nil
+}
+
+// function Darth pretend time
+func Darth( Evil int ) error {
+	fmt.Println("hey DARTH!!")
+
+	return nil
+}
+
+// function Mary pretend time
+func Mary( Admin int ) error {
+	fmt.Println("hey MARY!!")
+
+	return nil
+}

@@ -68,14 +68,15 @@ hof gen data.cue ...
 
 func init() {
 
-	GenCmd.Flags().BoolVarP(&(flags.GenFlags.Stats), "stats", "s", false, "Print generator statistics")
-	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.Generator), "generator", "G", nil, "Generators to run, default is all discovered")
-	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.Template), "template", "T", nil, "Template mappings to render as '<filepath>;<?cuepath>;<?outpath>'")
+	GenCmd.Flags().BoolVarP(&(flags.GenFlags.Stats), "stats", "s", false, "print generator statistics")
+	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.Generator), "generator", "G", nil, "generator tags to run, default is all")
+	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.Template), "template", "T", nil, "template mappings to render as '<filepath>;<?cuepath>;<?outpath>'")
 	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.Partial), "partial", "P", nil, "file globs to partial templates to register with the templates")
 	GenCmd.Flags().BoolVarP(&(flags.GenFlags.Diff3), "diff3", "D", false, "enable diff3 support for adhoc render, generators are configured in code")
 	GenCmd.Flags().BoolVarP(&(flags.GenFlags.Watch), "watch", "w", false, "run in watch mode, regenerating when files change")
 	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.WatchGlobs), "watch-globs", "W", nil, "filepath globs to watch for changes and regen")
 	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.WatchXcue), "watch-xcue", "X", nil, "like watch, but skips CUE reload, useful when working on templates, can be used with watch")
+	GenCmd.Flags().StringVarP(&(flags.GenFlags.CreateModule), "create-module", "", "", "output path to write a generator module for the given flags")
 }
 
 func GenRun(args []string) (err error) {

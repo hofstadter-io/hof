@@ -17,7 +17,7 @@ import (
 			Name:    "stats"
 			Type:    "bool"
 			Default: "false"
-			Help:    "Print generator statistics"
+			Help:    "print generator statistics"
 			Long:    "stats"
 			Short:   "s"
 		},
@@ -25,7 +25,7 @@ import (
 			Name:    "generator"
 			Type:    "[]string"
 			Default: "nil"
-			Help:    "Generators to run, default is all discovered"
+			Help:    "generator tags to run, default is all"
 			Long:    "generator"
 			Short:   "G"
 		},
@@ -33,7 +33,7 @@ import (
 			Name:    "template"
 			Type:    "[]string"
 			Default: "nil"
-			Help:    "Template mappings to render as '<filepath>;<?cuepath>;<?outpath>'"
+			Help:    "template mappings to render as '<filepath>;<?cuepath>;<?outpath>'"
 			Long:    "template"
 			Short:   "T"
 		},
@@ -76,6 +76,13 @@ import (
 			Help:    "like watch, but skips CUE reload, useful when working on templates, can be used with watch"
 			Long:    "watch-xcue"
 			Short:   "X"
+		},
+		{
+			Name:    "CreateModule"
+			Type:    "string"
+			Default: ""
+			Help:    "output path to write a generator module for the given flags"
+			Long:    "create-module"
 		},
 	]
 }

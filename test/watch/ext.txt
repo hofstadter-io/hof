@@ -1,0 +1,9 @@
+package foo
+{{ range .users }}
+// function {{ camelT .name }} pretend time
+func {{ camelT .name }}( {{ title .role }} int ) error {
+	fmt.Println("hey {{ .NAME }}!!")
+
+	return nil
+}
+{{ end }}
