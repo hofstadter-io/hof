@@ -12,6 +12,7 @@ next version (0.6.4) datamodel upgrades
 - [ ] mock (faux) data (https://www.getsynth.com/docs/getting_started/core-concepts)
 - [ ] maybe we just need to add lacuna to our schemas? do they represent the cases where we cannot automate or the user wants to be explicit?
 - [ ] support with @rename() / @move() for fields (& models?), use `><` in the diff algo, helper #Defs for users in their CUE
+- [ ] commit should take a message, we might want to support a message or description field in several places, t.b.d.
 
 can we use the concepts from hof dm and thema
 to support code gen mods interoperability?

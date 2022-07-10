@@ -16,6 +16,12 @@ import (
 func (R *Runtime) AsModule() error {
 	FP := R.Flagpole
 	name := FP.AsModule
+	module := "hof.io"
+	if strings.Contains(name,"/") {
+		i := strings.LastIndex(name,"/")
+		module, name = name[:i], name[i+1:]
+
+	}
 
 	if R.Verbosity > 0 {
 		fmt.Println("modularizing", name)
@@ -90,6 +96,7 @@ func (R *Runtime) AsModule() error {
 
 	// construct template input data
 	data := map[string]interface{}{
+		"Module": module,
 		"Name": name,
 		"Inputs": ins,
 		"Configs": tcfgs,
@@ -257,7 +264,7 @@ import (
 
 	// required for hof CUE modules to work
 	// your users do not set or see this field
-	PackageName: string | *"hof.io/{{ .Name }}"
+	PackageName: string | *"{{ .Module }}/{{ .Name }}"
 
 	{{ if .Templates -}}
 	// Templates: [{Globs: ["./templates/**/*"], TrimPrefix: "./templates/"}]
@@ -312,17 +319,18 @@ import (
 `
 
 const cuemodFileTemplate = `
-module: "hof.io/{{ .Name }}"
+module: "{{ .Module }}/{{ .Name }}"
 `
 
 const cuemodsTemplate = `
-module hof.io/{{ .Name }}
+module {{ .Module }}/{{ .Name }}
 
 cue v0.4.3
 
 require (
-	github.com/hofstadter-io/hof v0.6.3
+	github.com/hofstadter-io/hof v0.6.3-rc.3
 )
 `
 
-const finalMsg = `Now run hof gen -G {{ .Name }}`
+const finalMsg = `Now run
+  $ hof gen -G {{ .Name }}`
