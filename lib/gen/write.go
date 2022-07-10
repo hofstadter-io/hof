@@ -9,21 +9,15 @@ import (
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
-func (F *File) WriteOutput() error {
-	var err error
-
+func (F *File) WriteOutput(basedir string) error {
+	// print to stdout
 	if F.Filepath == "-" || strings.HasPrefix(F.Filepath, "hof-stdout-") {
 		fmt.Print(string(F.FinalContent))
 		return nil
 	}
 
-	dir := path.Dir(F.Filepath)
-	err = yagu.Mkdir(dir)
-	if err != nil {
-		return err
-	}
-
-	err = ioutil.WriteFile(F.Filepath, F.FinalContent, 0644)
+	// write to file
+	err := F.write(basedir, F.FinalContent)
 	if err != nil {
 		return err
 	}
@@ -34,18 +28,20 @@ func (F *File) WriteOutput() error {
 }
 
 func (F *File) WriteShadow(basedir string) error {
-	var err error
+	return F.write(basedir, F.RenderContent)
+}
 
-	// need to join and then find dir
+func (F *File) write(basedir string, content []byte) error {
+
 	fn := path.Join(basedir, F.Filepath)
 	dir := path.Dir(fn)
 
-	err = yagu.Mkdir(dir)
+	err := yagu.Mkdir(dir)
 	if err != nil {
 		return err
 	}
 
-	err = ioutil.WriteFile(fn, F.RenderContent, 0644)
+	err = ioutil.WriteFile(fn, content, 0644)
 	if err != nil {
 		return err
 	}

@@ -390,7 +390,7 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 
 				if G.UseDiff3 {
 					// shadow location
-					err = yagu.CopyFile(src, path.Join(SHADOW_DIR, R.Flagpole.Outdir, G.Name, dst))
+					err = yagu.CopyFile(src, filepath.Join(SHADOW_DIR, R.Flagpole.Outdir, G.Name, dst))
 					if err != nil {
 						err = fmt.Errorf("while copying static shadow file %q\n%w\n", match, err)
 						errs = append(errs, err)
@@ -411,16 +411,16 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 	// Then the static files in cue
 	for p, content := range G.EmbeddedStatics {
 		F := &File{
-			Filepath:     filepath.Join(G.Outdir, p),
+			Filepath:     filepath.Join(R.Flagpole.Outdir, G.Outdir, p),
 			FinalContent: []byte(content),
 		}
-		err := F.WriteOutput()
+		err := F.WriteOutput("")
 		if err != nil {
 			errs = append(errs, err)
 			return errs
 		}
 		if G.UseDiff3 {
-			err = F.WriteShadow(filepath.Join(SHADOW_DIR, G.Name))
+			err = F.WriteShadow(filepath.Join(SHADOW_DIR, R.Flagpole.Outdir, G.Name))
 			if err != nil {
 				errs = append(errs, err)
 				return errs
@@ -436,7 +436,7 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 	for _, F := range G.Files {
 		// Write the actual output
 		if F.DoWrite && len(F.Errors) == 0 {
-			err := F.WriteOutput()
+			err := F.WriteOutput(R.Flagpole.Outdir)
 			if err != nil {
 				errs = append(errs, err)
 				return errs
@@ -446,7 +446,7 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 		// Write the shadow too, or if it doesn't exist
 		if G.UseDiff3 {
 			if F.DoWrite || (F.IsSame > 0 && F.ShadowFile == nil) {
-				err := F.WriteShadow(filepath.Join(SHADOW_DIR, G.Outpath))
+				err := F.WriteShadow(filepath.Join(SHADOW_DIR, R.Flagpole.Outdir, G.Name))
 				if err != nil {
 					errs = append(errs, err)
 					return errs
@@ -455,16 +455,16 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 		}
 
 		// remove from shadows map so we can cleanup what remains
-		delete(R.Shadow, filepath.Join(G.Outpath, F.Filepath))
-		delete(G.Shadow, filepath.Join(G.Outpath, F.Filepath))
+		delete(R.Shadow, filepath.Join(G.Name, F.Filepath))
+		delete(G.Shadow, filepath.Join(G.Name, F.Filepath))
 	}
 
 	// Cleanup File & Shadow
 	// fmt.Println("Clean Shadow", G.Name)
 	if G.UseDiff3 {
 		for f, _ := range G.Shadow {
-			genFilename := strings.TrimPrefix(f, G.Name+"/")
-			shadowFilename := filepath.Join(SHADOW_DIR, f)
+			genFilename := strings.TrimPrefix(f, filepath.Join(R.Flagpole.Outdir, G.Outdir))
+			shadowFilename := filepath.Join(SHADOW_DIR, R.Flagpole.Outdir, f)
 			fmt.Println("  -", G.Name, f, genFilename, shadowFilename)
 
 			err := os.Remove(genFilename)
