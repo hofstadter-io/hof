@@ -61,6 +61,7 @@ var funcMap = template.FuncMap{
 	"replace":        Helper_replace,
 	"hasprefix":      Helper_hasprefix,
 	"hassuffix":      Helper_hassuffix,
+	"trimspace":      Helper_trimspace,
 	"trimprefix":     Helper_trimprefix,
 	"trimsuffix":     Helper_trimsuffix,
 	"trimto":         Helper_trimto_first,
@@ -289,6 +290,9 @@ func Helper_hassuffix(str, suf string) string {
 		return "true"
 	}
 	return ""
+}
+func Helper_trimspace(str string) string {
+	return strings.TrimSpace(str)
 }
 func Helper_trimprefix(str, pre string) string {
 	return strings.TrimPrefix(str, pre)

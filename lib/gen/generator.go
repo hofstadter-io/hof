@@ -3,6 +3,7 @@ package gen
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"cuelang.org/go/cue"
@@ -277,6 +278,19 @@ func (G *Generator) initFileGens() []error {
 	var errs []error
 
 	for _, F := range G.Out {
+		// support text/template in output file path
+		if strings.Contains(F.Filepath, "{{") {
+			ft, err := templates.CreateFromString("filepath", F.Filepath, nil)
+			if err != nil {
+				errs = append(errs, err)
+			}
+			bs, err := ft.Render(F.In)
+			if err != nil {
+				errs = append(errs, err)
+			}
+			F.Filepath = string(bs)
+		}
+
 		G.OrderedFiles = append(G.OrderedFiles, F)
 		G.Files[F.Filepath] = F
 	}

@@ -3,12 +3,14 @@ package gen
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 
 	"cuelang.org/go/cue"
 
 	"github.com/hofstadter-io/hof/lib/templates"
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 func (R *Runtime) AsModule() error {
@@ -99,29 +101,12 @@ func (R *Runtime) AsModule() error {
 		"WatchXcue": FP.WatchXcue,
 	}
 
-	// render template
-	ft, err := templates.CreateFromString("as-module", asModuleTemplate, nil)
-	if err != nil {
-		return err
-	}
-	bs, err := ft.Render(data)
-	if err != nil {
-		return err
-	}
-
-	// stdout or write file
-	if name == "-" {
-		fmt.Println(string(bs))
-	} else {
-		// write to file
-		err := os.WriteFile(name + ".cue", bs, 0644)
-		if err != nil {
-			return err
+	// local helper to render and write embedded templates
+	render := func(outpath, content string) error {
+		if R.Verbosity > 0 {
+			fmt.Println("rendering:", outpath)
 		}
-
-		// also write mod file
-		// render template
-		ft, err := templates.CreateFromString("cue-mods", cuemodsTemplate, nil)
+		ft, err := templates.CreateFromString(outpath, content, nil)
 		if err != nil {
 			return err
 		}
@@ -129,21 +114,53 @@ func (R *Runtime) AsModule() error {
 		if err != nil {
 			return err
 		}
-		err = os.WriteFile("cue.mods", bs, 0644)
+		if outpath == "-" {
+			fmt.Println(string(bs))
+			return nil
+		} else {
+			if strings.Contains(outpath, "/") {
+				dir, _ := filepath.Split(outpath)
+				err := os.MkdirAll(dir, 0755)
+				if err != nil {
+					return err
+				}
+			}
+			return os.WriteFile(outpath, bs, 0644)
+		}
+	}
 
-		// todo, init module and fetch deps
-
-		// parting message
-		ft, err = templates.CreateFromString("final-msg", finalMsg, nil)
+	if R.Verbosity > 0 {
+		fmt.Println("writing:", name)
+	}
+	if name == "-" {
+		err = render(name, asModuleTemplate)
 		if err != nil {
 			return err
 		}
-		bs, err = ft.Render(data)
+	} else {
+		err = render(name + ".cue", asModuleTemplate)
 		if err != nil {
 			return err
 		}
-		fmt.Println(string(bs))
+		err = render("cue.mods", cuemodsTemplate)
+		if err != nil {
+			return err
+		}
+		// err = render("cue.mod/module.cue", cuemodFileTemplate)
+		if err != nil {
+			return err
+		}
+		// todo, fetch deps
+		msg, err := yagu.Bash("hof mod vendor cue")
+		fmt.Println(msg)
+		if err != nil {
+			return err
+		}
 
+		err = render("-", finalMsg)
+		if err != nil {
+			return err
+		}
 	}
 
 	if R.Verbosity > 0 {
@@ -152,13 +169,6 @@ func (R *Runtime) AsModule() error {
 
 	return nil
 }
-
-const finalMsg = `
-Now run
-	hof mod init cue hof.io/{{ .Name }}
-  hof mod vendor cue
-  hof gen -G {{ .Name }}
-`
 
 const asModuleTemplate = `
 package {{ .Name }}
@@ -301,6 +311,10 @@ import (
 }
 `
 
+const cuemodFileTemplate = `
+module: "hof.io/{{ .Name }}"
+`
+
 const cuemodsTemplate = `
 module hof.io/{{ .Name }}
 
@@ -310,3 +324,5 @@ require (
 	github.com/hofstadter-io/hof v0.6.3
 )
 `
+
+const finalMsg = `Now run hof gen -G {{ .Name }}`
