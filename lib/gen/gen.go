@@ -51,7 +51,7 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 	}
 
 	// generally there are more messages when in watch mode
-	if watch {
+	if watch && cmdflags.AsModule == "" {
 		fmt.Println("Loading CUE from", R.Entrypoints)
 	}
 
@@ -102,6 +102,10 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 		if err != nil {
 			return err
 		}
+	}
+
+	if cmdflags.AsModule != "" {
+		return R.AsModule()
 	}
 
 	/* Build up watch list

@@ -59,6 +59,10 @@ hof gen data.cue ...
 # Check the tests for complete examples
   https://github.com/hofstadter-io/hof/tree/_dev/test/render
 
+# Turn any hof gen flags into a reusable generator module
+  hof gen [entrypoints] flags... --as-module [name]
+  hof gen [entrypoints] -G [name]
+
 # Compose code gen mappings into reusable modules with
   hof gen app.cue -G frontend -G backend -G migrations
   https://docs.hofstadter.io/first-example/
@@ -77,7 +81,7 @@ func init() {
 	GenCmd.Flags().BoolVarP(&(flags.GenFlags.Watch), "watch", "w", false, "run in watch mode, regenerating when files change")
 	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.WatchGlobs), "watch-globs", "W", nil, "filepath globs to watch for changes and regen")
 	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.WatchXcue), "watch-xcue", "X", nil, "like watch, but skips CUE reload, useful when working on templates, can be used with watch")
-	GenCmd.Flags().StringVarP(&(flags.GenFlags.CreateModule), "create-module", "", "", "output path to write a generator module for the given flags")
+	GenCmd.Flags().StringVarP(&(flags.GenFlags.AsModule), "as-module", "", "", "<name> in the printed output, for the given flags as a generator module")
 }
 
 func GenRun(args []string) (err error) {

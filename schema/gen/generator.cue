@@ -17,8 +17,11 @@ package gen
 	WatchGlobs: [...string]
 	WatchXcue:  [...string]
 
-	// The list fo files for hof to generate
-	Out: [...#HofGeneratorFile]
+	// Enable Diff3
+	Diff3: bool | *true
+
+	// The final list of files for hof to generate
+	Out: [...#File]
 
 	// Template (top-level) TemplateConfig (globs+config)
 	Templates: [...#Templates] | *[#Templates & {Globs: ["./templates/**/*"], TrimPrefix: "./templates/"}]
@@ -42,7 +45,7 @@ package gen
 	// TODO, consider adding 'Override*' for templates, partials, statics
 
 	// For subgenerators so a generator can leverage and design for other hofmods
-	Generators: [Gen=string]: #HofGenerator
+	Generators: [Name=string]: #Generator
 
 	// This should be set to default to the module name
 	//   (i.e. 'string | *"github.com/<org>/<repo>"')

@@ -132,6 +132,7 @@ func Helper_concat5(s1, s2, s3, s4, s5 string) string {
 	return s1 + s2 + s3 + s4 + s5
 }
 
+// TODO, XXX: should this wrap stings.Join
 func Helper_join(sep string, ss ...string) string {
 	return strings.Join(ss, sep)
 }

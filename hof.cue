@@ -8,46 +8,46 @@ import (
 	d_cfg "github.com/hofstadter-io/hof/design/config"
 )
 
-Cli: _ @gen(cli,hof)
 Cli: g_cli.#HofGenerator & {
+	@gen(cli,hof)
 	Outdir: "./"
 	Cli:    d_cli.#CLI
 	WatchGlobs: ["./design/**/*"]
-	WatchXcue:  ["./cue.mod/**/*"]
+	WatchXcue: ["./cue.mod/**/*"]
 }
 
-Context: _ @gen(cuefig,context,ctx)
 Context: g_cuefig.#HofGenerator & {
+	@gen(cuefig,context,ctx)
 	Outdir: "gen/"
 	Config: d_cfg.#HofContext
 }
 
-Config: _ @gen(cuefig,config,cfg)
 Config: g_cuefig.#HofGenerator & {
+	@gen(cuefig,config,cfg)
 	Outdir: "gen/"
 	Config: d_cfg.#HofConfig
 }
 
-Secret: _ @gen(cuefig,secret,shh,ssh)
 Secret: g_cuefig.#HofGenerator & {
+	@gen(cuefig,secret,shh,ssh)
 	Outdir: "gen/"
 	Config: d_cfg.#HofSecret
 }
 
-UserContext: _ @gen(cuefig,ucontext,uctx)
 UserContext: g_cuefig.#HofGenerator & {
+	@gen(cuefig,ucontext,uctx)
 	Outdir: "gen/"
 	Config: d_cfg.#HofUserContext
 }
 
-UserConfig: _ @gen(cuefig,uconfig,ucfg)
 UserConfig: g_cuefig.#HofGenerator & {
+	@gen(cuefig,uconfig,ucfg)
 	Outdir: "gen/"
 	Config: d_cfg.#HofUserConfig
 }
 
-UserSecret: _ @gen(cuefig,usecret,ushh,ussh)
 UserSecret: g_cuefig.#HofGenerator & {
+	@gen(cuefig,usecret,ushh,ussh)
 	Outdir: "gen/"
 	Config: d_cfg.#HofUserSecret
 }

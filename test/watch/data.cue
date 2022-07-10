@@ -1,11 +1,15 @@
+package demo
+
 import "strings"
 
-users: [n=string]: { name: n, NAME: strings.ToUpper(n) }
+users: [n=string]: {name: n, NAME: strings.ToUpper(n)}
 users: {
-	aaah: role: "cat"
 	alice: role: "user"
-	bob: role: "user"
-	cow: role: "mooer"
+	cow: role:   "mooer"
 	darth: role: "evil"
-	mary: role: "admin"
+	mary: role:  "admin"
+}
+
+data: {
+	foo: "bar"
 }

@@ -1,5 +1,4 @@
 {{ range .users }}
-// hallo!!!
 {{ yaml . }}
 
 {{ end }}

@@ -86,11 +86,11 @@ import (
 			Short:   "X"
 		},
 		{
-			Name:    "CreateModule"
+			Name:    "AsModule"
 			Type:    "string"
 			Default: ""
-			Help:    "output path to write a generator module for the given flags"
-			Long:    "create-module"
+			Help:    "<name> in the printed output, for the given flags as a generator module"
+			Long:    "as-module"
 		},
 	]
 }
@@ -143,6 +143,10 @@ hof gen data.cue ...
 
 # Check the tests for complete examples
   https://github.com/hofstadter-io/hof/tree/_dev/test/render
+
+# Turn any hof gen flags into a reusable generator module
+  hof gen [entrypoints] flags... --as-module [name]
+  hof gen [entrypoints] -G [name]
 
 # Compose code gen mappings into reusable modules with
   hof gen app.cue -G frontend -G backend -G migrations
