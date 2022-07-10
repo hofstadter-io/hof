@@ -41,6 +41,9 @@ func (R *Runtime) CreateAdhocGenerator() error {
 		if err != nil {
 			return err
 		}
+		if R.Verbosity > 2 {
+			fmt.Printf("%s -> %#v\n", tf, cfg)
+		}
 		tcfgs = append(tcfgs, cfg)
 		globs = append(globs, cfg.Filepath)
 	}
@@ -95,20 +98,21 @@ func (R *Runtime) CreateAdhocGenerator() error {
 			return nil
 		}
 
-		// check if val is a list
 		if cfg.Repeated {
-			if iter, ierr := Val.List(); ierr == nil {
+			// check if val is a list
+			if iter, ierr := val.List(); ierr == nil {
 				for iter.Next() {
-					val := iter.Value()
-					err := addFile(val)
+					v := iter.Value()
+					err := addFile(v)
 					if err != nil {
 						return err
 					}
 				}
-			} else if iter, ierr := Val.Fields(); ierr == nil {
+			// check if val is a struct
+			} else if iter, ierr := val.Fields(); ierr == nil {
 				for iter.Next() {
-					val := iter.Value()
-					err := addFile(val)
+					v := iter.Value()
+					err := addFile(v)
 					if err != nil {
 						return err
 					}
@@ -117,7 +121,7 @@ func (R *Runtime) CreateAdhocGenerator() error {
 				return fmt.Errorf("repeated template value is not iterable")
 			}
 		} else {
-			err := addFile(Val)
+			err := addFile(val)
 			if err != nil {
 				return err
 			}
@@ -129,6 +133,10 @@ func (R *Runtime) CreateAdhocGenerator() error {
 	if len(errs) > 0 {
 		fmt.Println(errs)
 		return fmt.Errorf("while initializing adhoc generator")
+	}
+
+	if R.Verbosity > 2 {
+		fmt.Printf("G: %#v\n", G)
 	}
 
 	R.Generators["AdhocGen"] = G

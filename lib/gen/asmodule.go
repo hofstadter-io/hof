@@ -2,6 +2,7 @@ package gen
 
 import (
 	"fmt"
+	"os"
 	"sort"
 	"strings"
 
@@ -13,7 +14,6 @@ import (
 func (R *Runtime) AsModule() error {
 	FP := R.Flagpole
 	name := FP.AsModule
-	var content string
 
 	if R.Verbosity > 0 {
 		fmt.Println("modularizing", name)
@@ -78,7 +78,7 @@ func (R *Runtime) AsModule() error {
 
 	// get generator names that were loaded by -G
 	gens := []string{}
-	for label, _ := range R.Generators {
+	for label := range R.Generators {
 		if label == "AdhocGen" {
 			continue
 		}
@@ -109,18 +109,17 @@ func (R *Runtime) AsModule() error {
 		return err
 	}
 
-	// format content (or bs if bytes are better)
-	content = string(bs)
-
 	// stdout or write file
 	if name == "-" {
-		fmt.Println(content)
+		fmt.Println(string(bs))
 	} else {
-		// TODO write to file
-		fmt.Println(content)
+		// write to file
+		err := os.WriteFile(name + ".cue", bs, 0644)
+		if err != nil {
+			return err
+		}
 
 		// also write mod file
-
 		// render template
 		ft, err := templates.CreateFromString("cue-mods", cuemodsTemplate, nil)
 		if err != nil {
@@ -130,15 +129,21 @@ func (R *Runtime) AsModule() error {
 		if err != nil {
 			return err
 		}
+		err = os.WriteFile("cue.mods", bs, 0644)
 
-		// format content (or bs if bytes are better)
-		content = string(bs)
+		// todo, init module and fetch deps
 
-		// TODO write to 'cue.mods'
-		// fmt.Println(content)
+		// parting message
+		ft, err = templates.CreateFromString("final-msg", finalMsg, nil)
+		if err != nil {
+			return err
+		}
+		bs, err = ft.Render(data)
+		if err != nil {
+			return err
+		}
+		fmt.Println(string(bs))
 
-
-		// fmt.Println(finalMsg + name + "\n")
 	}
 
 	if R.Verbosity > 0 {
@@ -150,8 +155,10 @@ func (R *Runtime) AsModule() error {
 
 const finalMsg = `
 Now run
+	hof mod init cue hof.io/{{ .Name }}
   hof mod vendor cue
-  hof gen -G `
+  hof gen -G {{ .Name }}
+`
 
 const asModuleTemplate = `
 package {{ .Name }}
@@ -277,9 +284,13 @@ import (
 	// These are the -T mappings
 	{{ range $i, $cfg := .Configs -}}
 	t_{{ $i }}: {{ if not .Repeated }}{
+		{{ if .Cuepath }}In: In.{{.Cuepath}}{{ end }}
+		{{ if .Schema  }}In: {{.Schema}}{{end}}
 		TemplatePath: "{{ .Filepath }}"
 		Filepath:     "{{ .Outpath }}"
-	}{{ else }}[{
+	}{{ else }}[ for _,el in In.{{.Cuepath}} {
+		{{ if .Cuepath }}In: el{{ end }}
+		{{ if .Schema  }}In: {{.Schema}}{{end}}
 		TemplatePath: "{{ .Filepath }}"
 		Filepath:     "{{ .Outpath }}"
 	}]{{ end }}
