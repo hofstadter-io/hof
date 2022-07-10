@@ -2,15 +2,22 @@ package gen
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"sync"
 	"strings"
 	"time"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+	"github.com/hofstadter-io/hof/lib/templates"
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 func Gen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpole) error {
+	if cmdflags.InitModule != "" {
+		return InitModule(args, rootflags, cmdflags)
+	}
+
 	// return GenLast(args, rootflags, cmdflags)
 	verystart := time.Now()
 
@@ -34,7 +41,7 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 
 	// This is our runtime for codegeneration
 	R := NewRuntime(args, cmdflags)
-	R.Verbosity = rootflags.Verbose
+	R.Verbosity = rootflags.Verbosity
 
 	// b/c shorter names
 	LT := len(cmdflags.Template)
@@ -236,4 +243,155 @@ func (R *Runtime) genOnce(fast, watch bool, files []string) (chan bool, error) {
 
 	return quit, err
 }
+
+func InitModule(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpole) error {
+	name := cmdflags.InitModule
+	fmt.Println("Initializing:", name)
+	module := "hof.io"
+	if strings.Contains(name,"/") {
+		i := strings.LastIndex(name,"/")
+		module, name = name[:i], name[i+1:]
+	}
+
+	// construct template input data
+	data := map[string]interface{}{
+		"Module": module,
+		"Name": name,
+	}
+
+	// local helper to render and write embedded templates
+	render := func(outpath, content string) error {
+		if rootflags.Verbosity > 0 {
+			fmt.Println("rendering:", outpath)
+		}
+		ft, err := templates.CreateFromString(outpath, content, nil)
+		if err != nil {
+			return err
+		}
+		bs, err := ft.Render(data)
+		if err != nil {
+			return err
+		}
+		if outpath == "-" {
+			fmt.Println(string(bs))
+			return nil
+		} else {
+			if strings.Contains(outpath, "/") {
+				dir, _ := filepath.Split(outpath)
+				err := os.MkdirAll(dir, 0755)
+				if err != nil {
+					return err
+				}
+			}
+			return os.WriteFile(outpath, bs, 0644)
+		}
+	}
+
+	err := render(name + ".cue", newModuleTemplate)
+	if err != nil {
+		return err
+	}
+	err = render("cue.mods", cuemodsTemplate)
+	if err != nil {
+		return err
+	}
+	err = render("cue.mod/module.cue", cuemodFileTemplate)
+	if err != nil {
+		return err
+	}
+	// todo, fetch deps
+	msg, err := yagu.Bash("hof mod vendor cue")
+	fmt.Println(msg)
+	if err != nil {
+		return err
+	}
+	// make some dirs
+	dirs := []string{"templates", "partials", "statics", "examples", "gen", "schema"}
+	for _, dir := range dirs {
+		err = os.MkdirAll(dir, 0755)
+		if err != nil {
+			return err
+		}
+	}
+
+	err = render("-", finalMsg)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+const newModuleTemplate =`
+package {{ .Name }}
+
+import (
+	"github.com/hofstadter-io/hof/schema/gen"
+)
+
+// This is example usage of your generator
+{{ camelT .Name }}Example: #{{ camelT .Name }}Generator & {
+	@gen({{ .Name }})
+
+	// inputs to the generator
+	Data: { ... }
+	Outdir: "./"
+	
+	// File globs to watch and trigger regen when changed
+	// Normally, a user would set this to their designs / datamodel
+	WatchGlobs: [...string]
+	// This is helpful when authoring generator modules
+	WatchXcue:  [...string]
+
+	// required by examples inside the same module
+	// your users do not set or see this field
+	PackageName: ""
+}
+
+
+// This is your reusable generator module
+#{{ camelT .Name }}Generator: gen.#Generator & {
+
+	//
+	// user input fields
+	//
+
+	// this is the interface for this generator module
+	// typically you enforce schema(s) here
+	// Data: _
+	// Input: #Input
+
+	//
+	// Internal Fields
+	//
+
+	// This is the global input data the templates will see
+	// You can reshape and transform the user inputs
+	// While we put it under internal, you can expose In
+	// or you can omit In and skip having a global context
+	In: {
+		// fill as needed
+		...
+	}
+
+	// required for hof CUE modules to work
+	// your users do not set or see this field
+	PackageName: string | *"{{ .Module }}/{{ .Name }}"
+
+	// these are the default globs to load from disk
+	Templates: [gen.#Templates & {Globs: ["./templates/**/*"], TrimPrefix: "./templates/"}]
+	Partials:  [gen.#Templates & {Globs: ["./partials/**/*"], TrimPrefix: "./partials/"}]
+	Statics:   [gen.#Statics & {Globs: ["./static/**/*"], TrimPrefix: "./static/"}]
+
+	// The final list of files for hof to generate
+	Out: [...gen.#File] & [
+		// fill this with file values
+	]
+
+	// you can create any intermediate values you need internally
+
+	// open, so your users can build on this
+	...
+}
+`
 

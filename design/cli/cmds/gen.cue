@@ -92,6 +92,13 @@ import (
 			Help:    "<name> in the printed output, for the given flags as a generator module"
 			Long:    "as-module"
 		},
+		{
+			Name:    "InitModule"
+			Type:    "string"
+			Default: ""
+			Help:    "<name> to bootstrap a new genarator module"
+			Long:    "init"
+		},
 	]
 }
 

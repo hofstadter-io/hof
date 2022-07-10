@@ -194,7 +194,7 @@ import (
 	{{ else }}
 	// you almost certainly need to
 	// manually add input data here
-	// "data": data,
+	// Data: data
 	{{- end }}
 
 	// other settings
@@ -208,7 +208,7 @@ import (
 	{{ end }}
 	{{ if .WatchXcue }}
 	// This is really only useful for module authors
-	WatchXcue:  [...string] | *[ {{ range .WatchXcue  }}"{{.}}", {{ end }} ]
+	WatchXcue:  [ {{ range .WatchXcue  }}"{{.}}", {{ end }} ]
 	{{ end }}
 
 	// required by examples inside the same module
@@ -218,7 +218,6 @@ import (
 
 
 // This is your reusable generator module
-//
 #{{ camelT .Name }}Generator: gen.#Generator & {
 
 	//
@@ -232,8 +231,8 @@ import (
 	{{ else }}
 	// you almost certainly need to
 	// manually add input fields & schemas here
-	// "data": _
-	// "input": #Input
+	// Data: _
+	// Input: #Input
 	{{- end }}
 
 	//
@@ -267,17 +266,17 @@ import (
 	PackageName: string | *"{{ .Module }}/{{ .Name }}"
 
 	{{ if .Templates -}}
-	// Templates: [{Globs: ["./templates/**/*"], TrimPrefix: "./templates/"}]
+	// Templates: [gen.#Templates & {Globs: ["./templates/**/*"], TrimPrefix: "./templates/"}]
 	Templates: [ { Globs: [ {{ range .Templates }}"{{.}}", {{ end }} ] } ]
 	{{ else }}
-	// Templates: [{Globs: ["./templates/**/*"], TrimPrefix: "./templates/"}]
+	// Templates: [gen.#Templates & {Globs: ["./templates/**/*"], TrimPrefix: "./templates/"}]
 	Templates: []
 	{{ end }}
 	{{ if .Partials -}}
-	// Partials: [#Templates & {Globs: ["./partials/**/*"], TrimPrefix: "./partials/"}]
+	// Partials: [gen.#Templates & {Globs: ["./partials/**/*"], TrimPrefix: "./partials/"}]
 	Partials:  [ { Globs: [ {{ range .Partials  }}"{{.}}", {{ end }} ] } ]
 	{{ else }}
-	// Partials: [#Templates & {Globs: ["./partials/**/*"], TrimPrefix: "./partials/"}]
+	// Partials: [gen.#Templates & {Globs: ["./partials/**/*"], TrimPrefix: "./partials/"}]
 	Partials: []
 	{{ end }}
 

@@ -34,7 +34,8 @@ func (M TemplateMap) ImportFromFolder(glob, prefix string, delims *Delims) error
 		return err
 	}
 	if len(matches) == 0 {
-		return fmt.Errorf("No templates found for '%s'", glob)
+		// return fmt.Errorf("No templates found for '%s'", glob)
+		return nil
 	}
 
 	for _, match := range matches {

@@ -14,8 +14,8 @@ import (
 		Help:    "the Cue package context to use during execution"
 	},
 	{
-		Name:    "verbose"
-		Long:    "verbose"
+		Name:    "verbosity"
+		Long:    "verbosity"
 		Short:   "v"
 		Type:    "int"
 		Default: ""

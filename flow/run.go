@@ -187,7 +187,7 @@ func buildRootContext(val cue.Value, opts *flags.RootPflagpole, popts *flags.Flo
 	c.Stdin = os.Stdin
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr
-	c.Verbosity = opts.Verbose
+	c.Verbosity = opts.Verbosity
 
 	// how to inject tags into original value
 	// fill / return value

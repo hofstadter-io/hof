@@ -11,6 +11,7 @@ type GenFlagpole struct {
 	WatchGlobs []string
 	WatchXcue  []string
 	AsModule   string
+	InitModule string
 }
 
 var GenFlags GenFlagpole

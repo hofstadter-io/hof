@@ -46,9 +46,9 @@ func PrintSubject(title, prefix, subject string, subjects map[string]string) boo
 }
 
 type RootPflagpole struct {
-	Package string
-	Verbose int
-	Quiet   bool
+	Package   string
+	Verbosity int
+	Quiet     bool
 }
 
 var RootPflags RootPflagpole

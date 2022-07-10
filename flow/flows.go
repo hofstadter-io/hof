@@ -113,7 +113,7 @@ func printFlows(val cue.Value, opts *flags.RootPflagpole, popts *flags.FlowFlagp
 						}
 						fmt.Print(s)
 					}
-					if opts.Verbose > 0 {
+					if opts.Verbosity > 0 {
 						s, _ := cuetils.FormatCue(v)
 						fmt.Printf("%s: %s\n", v.Path(), s)
 					} else {

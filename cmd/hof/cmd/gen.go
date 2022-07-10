@@ -81,6 +81,7 @@ func init() {
 	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.WatchGlobs), "watch-globs", "W", nil, "filepath globs to watch for changes and regen")
 	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.WatchXcue), "watch-xcue", "X", nil, "like watch, but skips CUE reload, useful when working on templates, can be used with watch")
 	GenCmd.Flags().StringVarP(&(flags.GenFlags.AsModule), "as-module", "", "", "<name> in the printed output, for the given flags as a generator module")
+	GenCmd.Flags().StringVarP(&(flags.GenFlags.InitModule), "init", "", "", "<name> to bootstrap a new genarator module")
 }
 
 func GenRun(args []string) (err error) {
