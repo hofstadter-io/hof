@@ -331,5 +331,8 @@ require (
 )
 `
 
-const finalMsg = `Now run
-  $ hof gen -G {{ .Name }}`
+const finalMsg = `Try running...
+  $ hof gen -G {{ .Name }}
+  $ cue eval
+`
+
