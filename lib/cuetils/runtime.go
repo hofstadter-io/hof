@@ -125,6 +125,9 @@ func (CRT *CueRuntime) load() (err error) {
 			continue
 		}
 
+		// TODO, compare with len(entrypoints)
+		//       and be more intelligent
+
 		// handle data files
 		for _, f := range bi.OrphanedFiles {
 			d, err := os.ReadFile(f.Filename)
@@ -149,7 +152,7 @@ func (CRT *CueRuntime) load() (err error) {
 				}
 				bi.AddSyntax(F)
 
-			case "yaml":
+			case "yml", "yaml":
 				F, err := yaml.Extract(f.Filename, d)
 				if err != nil {
 					fmt.Println("while yaml extract")
@@ -158,9 +161,16 @@ func (CRT *CueRuntime) load() (err error) {
 				}
 				bi.AddSyntax(F)
 
+			// TODO, handle other formats (toml,json)
+			//       which hof already works with
+
 			default:
-				err := fmt.Errorf("unknown encoding for", f.Filename, f.Encoding)
-				errs = append(errs, err)
+				// should only do this if it was also an arg
+				// otherwise we should ignore other files implicity discovered
+
+				// todo, re-enable this with better checks
+				// err := fmt.Errorf("unknown encoding for", f.Filename, f.Encoding)
+				// errs = append(errs, err)
 				continue
 			}
 		}
