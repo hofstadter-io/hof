@@ -33,7 +33,6 @@ type Runtime struct {
 
 	// Hof related
 	Generators map[string]*Generator
-	Shadow     map[string]*File
 	Stats      *RuntimeStats
 }
 
@@ -376,12 +375,12 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 			for _, match := range matches {
 				mo := strings.TrimPrefix(match, Static.TrimPrefix)
 				src := filepath.Join(bdir, match)
-				dst := filepath.Join(R.Flagpole.Outdir, G.Outdir, Static.OutPrefix, mo)
+				dst := filepath.Join(G.Outdir, Static.OutPrefix, mo)
 
 				// TODO?, make comparison and decide to write or not
 
 				// normal location
-				err := yagu.CopyFile(src, dst)
+				err := yagu.CopyFile(src, filepath.Join(R.Flagpole.Outdir, dst))
 				if err != nil {
 					err = fmt.Errorf("while copying static file %q\n%w\n", match, err)
 					errs = append(errs, err)
@@ -398,7 +397,6 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 					}
 				}
 
-				delete(R.Shadow, filepath.Join(G.Name, dst))
 				delete(G.Shadow, filepath.Join(G.Name, dst))
 				G.Stats.NumStatic += 1
 				G.Stats.NumWritten += 1
@@ -411,10 +409,10 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 	// Then the static files in cue
 	for p, content := range G.EmbeddedStatics {
 		F := &File{
-			Filepath:     filepath.Join(R.Flagpole.Outdir, G.Outdir, p),
+			Filepath:     filepath.Join(G.Outdir, p),
 			FinalContent: []byte(content),
 		}
-		err := F.WriteOutput("")
+		err := F.WriteOutput(R.Flagpole.Outdir)
 		if err != nil {
 			errs = append(errs, err)
 			return errs
@@ -426,7 +424,6 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 				return errs
 			}
 		}
-		delete(R.Shadow, filepath.Join(G.Name, F.Filepath))
 		delete(G.Shadow, filepath.Join(G.Name, F.Filepath))
 		G.Stats.NumStatic += 1
 		G.Stats.NumWritten += 1
@@ -455,32 +452,38 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 		}
 
 		// remove from shadows map so we can cleanup what remains
-		delete(R.Shadow, filepath.Join(G.Name, F.Filepath))
 		delete(G.Shadow, filepath.Join(G.Name, F.Filepath))
 	}
 
 	// Cleanup File & Shadow
 	// fmt.Println("Clean Shadow", G.Name)
 	if G.UseDiff3 {
-		for f, _ := range G.Shadow {
-			genFilename := strings.TrimPrefix(f, filepath.Join(R.Flagpole.Outdir, G.Outdir))
-			shadowFilename := filepath.Join(SHADOW_DIR, R.Flagpole.Outdir, f)
-			fmt.Println("  -", G.Name, f, genFilename, shadowFilename)
+		for f := range G.Shadow {
+			genFilename := strings.TrimPrefix(f, filepath.Join(R.Flagpole.Outdir, G.Name))
+			genFilename = filepath.Join(R.Flagpole.Outdir, genFilename)
+			shadowFilename := filepath.Join(SHADOW_DIR, f)
+			if R.Verbosity > 0 {
+				fmt.Println("  -", G.Name, genFilename, f, shadowFilename)
+			} else {
+				fmt.Println("  -", genFilename)
+			}
 
 			err := os.Remove(genFilename)
 			if err != nil {
-				if strings.Contains(err.Error(), "no such file or directory") {
-					continue
-				}
+				// TODO, do we want to continue here?
+				//if strings.Contains(err.Error(), "no such file or directory") {
+					//continue
+				//}
 				errs = append(errs, err)
 				return errs
 			}
 
 			err = os.Remove(shadowFilename)
 			if err != nil {
-				if strings.Contains(err.Error(), "no such file or directory") {
-					continue
-				}
+				// TODO, do we want to continue here?
+				//if strings.Contains(err.Error(), "no such file or directory") {
+					//continue
+				//}
 				errs = append(errs, err)
 				return errs
 			}
