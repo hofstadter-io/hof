@@ -12,13 +12,12 @@ import (
 const SHADOW_DIR = ".hof/shadow/"
 
 func LoadShadow(subdir string, verbosity int) (map[string]*File, error) {
-	if verbosity > 1 {
-		fmt.Printf("Loading shadow @ %q\n", SHADOW_DIR)
-	}
-
 	shadowDir := filepath.Join(SHADOW_DIR, subdir)
-
 	shadow := map[string]*File{}
+
+	if verbosity > 1 {
+		fmt.Printf("Loading shadow @ %q\n", shadowDir)
+	}
 
 	_, err := os.Lstat(shadowDir)
 	if err != nil {
@@ -38,12 +37,12 @@ func LoadShadow(subdir string, verbosity int) (map[string]*File, error) {
 		if info.IsDir() {
 			return nil
 		}
+		fpath = strings.TrimPrefix(fpath, shadowDir + "/")
 
 		if verbosity > 1 {
-			fmt.Println("  adding:", info.Name())
+			fmt.Println("  adding:", fpath)
 		}
 
-		fpath = strings.TrimPrefix(fpath, SHADOW_DIR)
 		shadow[fpath] = &File{
 			Filepath: fpath,
 		}
@@ -52,7 +51,7 @@ func LoadShadow(subdir string, verbosity int) (map[string]*File, error) {
 	})
 
 	if err != nil {
-		err = fmt.Errorf("error walking the shadow dir %q: %w\n", SHADOW_DIR, err)
+		err = fmt.Errorf("error walking the shadow dir %q: %w\n", shadowDir, err)
 		return nil, err
 	}
 

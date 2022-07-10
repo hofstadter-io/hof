@@ -384,7 +384,6 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 				if err != nil {
 					err = fmt.Errorf("while copying static file %q\n%w\n", match, err)
 					errs = append(errs, err)
-					return errs
 				}
 
 				if G.UseDiff3 {
@@ -393,11 +392,10 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 					if err != nil {
 						err = fmt.Errorf("while copying static shadow file %q\n%w\n", match, err)
 						errs = append(errs, err)
-						return errs
 					}
 				}
 
-				delete(G.Shadow, filepath.Join(G.Name, dst))
+				delete(G.Shadow, dst)
 				G.Stats.NumStatic += 1
 				G.Stats.NumWritten += 1
 
@@ -415,16 +413,14 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 		err := F.WriteOutput(R.Flagpole.Outdir)
 		if err != nil {
 			errs = append(errs, err)
-			return errs
 		}
 		if G.UseDiff3 {
 			err = F.WriteShadow(filepath.Join(SHADOW_DIR, R.Flagpole.Outdir, G.Name))
 			if err != nil {
 				errs = append(errs, err)
-				return errs
 			}
 		}
-		delete(G.Shadow, filepath.Join(G.Name, F.Filepath))
+		delete(G.Shadow, F.Filepath)
 		G.Stats.NumStatic += 1
 		G.Stats.NumWritten += 1
 	}
@@ -436,7 +432,6 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 			err := F.WriteOutput(R.Flagpole.Outdir)
 			if err != nil {
 				errs = append(errs, err)
-				return errs
 			}
 		}
 
@@ -446,46 +441,34 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 				err := F.WriteShadow(filepath.Join(SHADOW_DIR, R.Flagpole.Outdir, G.Name))
 				if err != nil {
 					errs = append(errs, err)
-					return errs
 				}
 			}
 		}
 
 		// remove from shadows map so we can cleanup what remains
-		delete(G.Shadow, filepath.Join(G.Name, F.Filepath))
+		delete(G.Shadow, F.Filepath)
 	}
 
 	// Cleanup File & Shadow
 	// fmt.Println("Clean Shadow", G.Name)
 	if G.UseDiff3 {
 		for f := range G.Shadow {
-			genFilename := strings.TrimPrefix(f, filepath.Join(R.Flagpole.Outdir, G.Name))
-			genFilename = filepath.Join(R.Flagpole.Outdir, genFilename)
-			shadowFilename := filepath.Join(SHADOW_DIR, f)
+			genFilename := filepath.Join(R.Flagpole.Outdir, f)
+			shadowFilename := filepath.Join(SHADOW_DIR, R.Flagpole.Outdir, G.Name, f)
 			if R.Verbosity > 0 {
-				fmt.Println("  -", G.Name, genFilename, f, shadowFilename)
+				fmt.Println("  -", G.Name, f, genFilename, shadowFilename)
 			} else {
 				fmt.Println("  -", genFilename)
 			}
 
 			err := os.Remove(genFilename)
 			if err != nil {
-				// TODO, do we want to continue here?
-				//if strings.Contains(err.Error(), "no such file or directory") {
-					//continue
-				//}
 				errs = append(errs, err)
-				return errs
 			}
 
 			err = os.Remove(shadowFilename)
 			if err != nil {
-				// TODO, do we want to continue here?
-				//if strings.Contains(err.Error(), "no such file or directory") {
-					//continue
-				//}
 				errs = append(errs, err)
-				return errs
 			}
 
 			G.Stats.NumDeleted += 1

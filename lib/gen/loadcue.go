@@ -125,22 +125,24 @@ func (G *Generator) loadIn() error {
 }
 
 func (G *Generator) loadWatchGlobs() error {
+	G.WatchGlobs = make([]string, 0)
 	val := G.CueValue.LookupPath(cue.ParsePath("WatchGlobs"))
 	if val.Err() != nil {
+		return nil
 		return val.Err()
 	}
 
-	G.WatchGlobs = make([]string, 0)
 	return val.Decode(&G.WatchGlobs)
 }
 
 func (G *Generator) loadWatchXcue() error {
+	G.WatchXcue = make([]string, 0)
 	val := G.CueValue.LookupPath(cue.ParsePath("WatchXcue"))
 	if val.Err() != nil {
+		return nil
 		return val.Err()
 	}
 
-	G.WatchXcue = make([]string, 0)
 	return val.Decode(&G.WatchXcue)
 }
 
