@@ -105,6 +105,61 @@ func (R *Runtime) LoadCue() (err error) {
 	return nil
 }
 
+func (R *Runtime) ListGenerators() (gens []string, err error) {
+	// conditions which mean we should list all
+	anyGen := len(R.Flagpole.Generator) == 1 && R.Flagpole.Generator[0] == "*"
+	notGen := len(R.Flagpole.Generator) == 0
+	allGen := anyGen || notGen
+
+	// loop ever all top level structs
+	S, err := R.CueRuntime.CueValue.Struct()
+	if err != nil {
+		return gens, err
+	}
+
+	// Loop through all top level fields
+	iter := S.Fields()
+	for iter.Next() {
+
+		// label := iter.Label()
+		value := iter.Value()
+		attrs := value.Attributes(cue.ValueAttr)
+
+		// find top-level with gen attr
+		for _, A := range attrs {
+			// does it have "@gen()"
+			if A.Name() == "gen" {
+
+				// if -G '*', then we skip the following checks
+				if allGen {
+					gens = append(gens, A.Contents())
+				} else {
+					// some -G was set, but was not '*'
+					if len(R.Flagpole.Generator) > 0 {
+						vals := cuetils.AttrToMap(A)
+						for _, g := range R.Flagpole.Generator {
+							// matched attribute contents
+							// todo, use regex or double**
+							// or has prefix?
+							if _, ok := vals[g]; ok {
+								gens = append(gens, A.Contents())
+								break
+							}
+						}
+
+					} else {
+						fmt.Println("can we even get here?")
+						// gens = append(gens, A.Contents())
+					}
+				}
+			}
+		}
+
+	}
+
+	return gens, nil
+}
+
 func (R *Runtime) ExtractGenerators() error {
 	allGen := len(R.Flagpole.Generator) == 1 && R.Flagpole.Generator[0] == "*"
 	hasT := len(R.Flagpole.Template) > 0

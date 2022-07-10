@@ -15,8 +15,8 @@ import (
 	Flags: [...schema.#Flag] & [
 		{
 			Name:    "list"
-			Type:    "string"
-			Default: "\"*\""
+			Type:    "bool"
+			Default: "false"
 			Help:    "list available generators"
 			Long:    "list"
 			Short:   "l"

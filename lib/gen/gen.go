@@ -3,6 +3,7 @@ package gen
 import (
 	"fmt"
 	"sync"
+	"strings"
 	"time"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
@@ -79,6 +80,21 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 			}
 			return fmt.Errorf("\nErrors while loading generators\n")
 		}
+
+		if cmdflags.List {
+			gens, err := R.ListGenerators()
+			if err != nil {
+				return err
+			}
+			if len(gens) == 0 {
+				return fmt.Errorf("no generators found")
+			}
+			fmt.Printf("Available Generators\n  ")
+			fmt.Println(strings.Join(gens, "\n  "))
+			
+			// print gens
+			return nil
+		}
 	}
 
 	if LT > 0 {
@@ -87,7 +103,6 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 			return err
 		}
 	}
-
 
 	/* Build up watch list
 		We need to buildup the watch list from flags
