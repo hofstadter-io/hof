@@ -80,9 +80,12 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 			return fmt.Errorf("\nErrors while loading generators\n")
 		}
 	}
-	err = R.CreateAdhocGenerator()
-	if err != nil {
-		return err
+
+	if LT > 0 {
+		err = R.CreateAdhocGenerator()
+		if err != nil {
+			return err
+		}
 	}
 
 

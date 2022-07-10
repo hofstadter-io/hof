@@ -73,9 +73,11 @@ func (R *Runtime) Reload(fast bool) error {
 		return fmt.Errorf("\nErrors while loading generators\n")
 	}
 
-	err = R.CreateAdhocGenerator()
-	if err != nil {
-		return err
+	if len(R.Flagpole.Template) > 0 {
+		err = R.CreateAdhocGenerator()
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
