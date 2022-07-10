@@ -146,7 +146,7 @@ func (R *Runtime) AsModule() error {
 		if err != nil {
 			return err
 		}
-		// err = render("cue.mod/module.cue", cuemodFileTemplate)
+		err = render("cue.mod/module.cue", cuemodFileTemplate)
 		if err != nil {
 			return err
 		}
