@@ -96,22 +96,21 @@ import (
 }
 
 GenLongHelp: """
-hof gen joins CUE with Go's text/template system and diff3
+hof unifies CUE with Go's text/template system and diff3
   create on-liners to generate any file from any data
   build reusable and modular generators
   edit and regenerate those files while keeping changes
 
-If no generator is specified, hof gen runs in adhoc mode.
-
 # Render a template
-hof gen data.cue -T template.txt
-hof gen data.yaml schema.cue -T template.txt > output.txt
+  hof gen data.cue -T template.txt
+  hof gen data.yaml schema.cue -T template.txt > output.txt
 
 # Add partials to the template context
-hof gen data.cue -T template.txt -P partial.txt
+  hof gen data.cue -T template.txt -P partial.txt
 
 # The template flag as code gen mappings
-hof gen data.cue ...
+
+  hof gen data.cue -T ...
 
   # Generate multiple templates at once
   -T templateA.txt -T templateB.txt
@@ -152,6 +151,6 @@ hof gen data.cue ...
   hof gen app.cue -G frontend -G backend -G migrations
   https://docs.hofstadter.io/first-example/
 
-# You can mix adhof with generators by using
+# You can mix adhoc with generators by using
 # both the -G and -T/-P flags
 """
