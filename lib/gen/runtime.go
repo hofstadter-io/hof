@@ -3,7 +3,7 @@ package gen
 import (
 	"fmt"
 	"os"
-	"path"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -309,7 +309,7 @@ func (R *Runtime) RunGenerator(G *Generator) (errs []error) {
 	}
 
 	if G.UseDiff3 {
-		shadow, err := LoadShadow(G.Name, R.Verbosity)
+		shadow, err := LoadShadow(filepath.Join(R.Flagpole.Outdir, G.Name), R.Verbosity)
 		if err != nil {
 			errs = append(errs, err)
 			return errs
@@ -365,9 +365,9 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 		for _, Glob := range Static.Globs {
 			bdir := ""
 			if G.PackageName != "" {
-				bdir = path.Join("cue.mod/pkg", G.PackageName)
+				bdir = filepath.Join("cue.mod/pkg", G.PackageName)
 			}
-			matches, err := zglob.Glob(path.Join(bdir, Glob))
+			matches, err := zglob.Glob(filepath.Join(bdir, Glob))
 			if err != nil {
 				err = fmt.Errorf("while globbing %s / %s\n%w\n", bdir, Glob, err)
 				errs = append(errs, err)
@@ -375,8 +375,8 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 			}
 			for _, match := range matches {
 				mo := strings.TrimPrefix(match, Static.TrimPrefix)
-				src := path.Join(bdir, match)
-				dst := path.Join(G.Outdir, Static.OutPrefix, mo)
+				src := filepath.Join(bdir, match)
+				dst := filepath.Join(R.Flagpole.Outdir, G.Outdir, Static.OutPrefix, mo)
 
 				// TODO?, make comparison and decide to write or not
 
@@ -390,7 +390,7 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 
 				if G.UseDiff3 {
 					// shadow location
-					err = yagu.CopyFile(src, path.Join(SHADOW_DIR, G.Name, dst))
+					err = yagu.CopyFile(src, path.Join(SHADOW_DIR, R.Flagpole.Outdir, G.Name, dst))
 					if err != nil {
 						err = fmt.Errorf("while copying static shadow file %q\n%w\n", match, err)
 						errs = append(errs, err)
@@ -398,8 +398,8 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 					}
 				}
 
-				delete(R.Shadow, path.Join(G.Name, dst))
-				delete(G.Shadow, path.Join(G.Name, dst))
+				delete(R.Shadow, filepath.Join(G.Name, dst))
+				delete(G.Shadow, filepath.Join(G.Name, dst))
 				G.Stats.NumStatic += 1
 				G.Stats.NumWritten += 1
 
@@ -411,7 +411,7 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 	// Then the static files in cue
 	for p, content := range G.EmbeddedStatics {
 		F := &File{
-			Filepath:     path.Join(G.Outdir, p),
+			Filepath:     filepath.Join(G.Outdir, p),
 			FinalContent: []byte(content),
 		}
 		err := F.WriteOutput()
@@ -420,14 +420,14 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 			return errs
 		}
 		if G.UseDiff3 {
-			err = F.WriteShadow(path.Join(SHADOW_DIR, G.Name))
+			err = F.WriteShadow(filepath.Join(SHADOW_DIR, G.Name))
 			if err != nil {
 				errs = append(errs, err)
 				return errs
 			}
 		}
-		delete(R.Shadow, path.Join(G.Name, F.Filepath))
-		delete(G.Shadow, path.Join(G.Name, F.Filepath))
+		delete(R.Shadow, filepath.Join(G.Name, F.Filepath))
+		delete(G.Shadow, filepath.Join(G.Name, F.Filepath))
 		G.Stats.NumStatic += 1
 		G.Stats.NumWritten += 1
 	}
@@ -446,7 +446,7 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 		// Write the shadow too, or if it doesn't exist
 		if G.UseDiff3 {
 			if F.DoWrite || (F.IsSame > 0 && F.ShadowFile == nil) {
-				err := F.WriteShadow(path.Join(SHADOW_DIR, G.Name))
+				err := F.WriteShadow(filepath.Join(SHADOW_DIR, G.Outpath))
 				if err != nil {
 					errs = append(errs, err)
 					return errs
@@ -455,8 +455,8 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 		}
 
 		// remove from shadows map so we can cleanup what remains
-		delete(R.Shadow, path.Join(G.Name, F.Filepath))
-		delete(G.Shadow, path.Join(G.Name, F.Filepath))
+		delete(R.Shadow, filepath.Join(G.Outpath, F.Filepath))
+		delete(G.Shadow, filepath.Join(G.Outpath, F.Filepath))
 	}
 
 	// Cleanup File & Shadow
@@ -464,7 +464,7 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 	if G.UseDiff3 {
 		for f, _ := range G.Shadow {
 			genFilename := strings.TrimPrefix(f, G.Name+"/")
-			shadowFilename := path.Join(SHADOW_DIR, f)
+			shadowFilename := filepath.Join(SHADOW_DIR, f)
 			fmt.Println("  -", G.Name, f, genFilename, shadowFilename)
 
 			err := os.Remove(genFilename)

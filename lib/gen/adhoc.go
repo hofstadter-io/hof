@@ -50,7 +50,7 @@ func (R *Runtime) CreateAdhocGenerator() error {
 
 	G := NewGenerator("AdhocGen", R.CueRuntime.CueValue)
 	G.UseDiff3 = R.Flagpole.Diff3
-	G.Outdir = "./"
+	G.Outdir = ""
 
 	G.Templates = []*TemplateGlobs{ &TemplateGlobs{Globs: globs} }
 	G.Partials  = []*TemplateGlobs{ &TemplateGlobs{Globs: R.Flagpole.Partial} }

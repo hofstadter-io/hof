@@ -12,6 +12,7 @@ type GenFlagpole struct {
 	WatchXcue  []string
 	AsModule   string
 	InitModule string
+	Outdir     string
 }
 
 var GenFlags GenFlagpole

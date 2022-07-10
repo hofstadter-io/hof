@@ -99,6 +99,14 @@ import (
 			Help:    "<name> to bootstrap a new genarator module"
 			Long:    "init"
 		},
+		{
+			Name:    "Outdir"
+			Type:    "string"
+			Default: ""
+			Help:    "base directory to write output to, defaults to current, prefixes generator value"
+			Long:    "outdir"
+			Short:   "O"
+		},
 	]
 }
 

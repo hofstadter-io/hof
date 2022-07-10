@@ -97,6 +97,7 @@ func (R *Runtime) AsModule() error {
 
 	// construct template input data
 	data := map[string]interface{}{
+		"Outdir": FP.Outdir,
 		"Module": module,
 		"Package": pkg,
 		"Name": name,
@@ -199,7 +200,9 @@ import (
 
 	// other settings
 	Diff3: {{ .Diff3 }}	
-	Outdir: "./"
+	{{ if .Outdir }}
+	Outdir: {{ .Outdir }}
+	{{ end }}
 	
 	{{ if .WatchGlobs }}
 	// File globs to watch and trigger regen when changed
