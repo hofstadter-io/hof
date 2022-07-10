@@ -246,16 +246,23 @@ func (R *Runtime) genOnce(fast, watch bool, files []string) (chan bool, error) {
 
 func InitModule(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpole) error {
 	name := cmdflags.InitModule
-	fmt.Println("Initializing:", name)
 	module := "hof.io"
 	if strings.Contains(name,"/") {
 		i := strings.LastIndex(name,"/")
 		module, name = name[:i], name[i+1:]
 	}
+	// possibly extract explicit package
+	pkg := name
+	if strings.Contains(name,":") {
+		i := strings.LastIndex(name,":")
+		name, pkg = name[:i], name[i+1:]
+	}
+	fmt.Printf("Initializing: %s/%s in pkg %s", module, name, pkg)
 
 	// construct template input data
 	data := map[string]interface{}{
 		"Module": module,
+		"Package": pkg,
 		"Name": name,
 	}
 
@@ -323,7 +330,7 @@ func InitModule(args []string, rootflags flags.RootPflagpole, cmdflags flags.Gen
 }
 
 const newModuleTemplate =`
-package {{ .Name }}
+package {{ .Package }}
 
 import (
 	"github.com/hofstadter-io/hof/schema/gen"

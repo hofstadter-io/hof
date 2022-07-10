@@ -3,6 +3,7 @@ package gen
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -10,7 +11,6 @@ import (
 	"cuelang.org/go/cue"
 
 	"github.com/hofstadter-io/hof/lib/templates"
-	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 func (R *Runtime) AsModule() error {
@@ -20,13 +20,14 @@ func (R *Runtime) AsModule() error {
 	if strings.Contains(name,"/") {
 		i := strings.LastIndex(name,"/")
 		module, name = name[:i], name[i+1:]
-
 	}
-
-	if R.Verbosity > 0 {
-		fmt.Println("modularizing", name)
-		fmt.Println(strings.Repeat("-", 23))
+	// possibly extract explicit package
+	pkg := name
+	if strings.Contains(name,":") {
+		i := strings.LastIndex(name,":")
+		name, pkg = name[:i], name[i+1:]
 	}
+	fmt.Printf("Initializing: %s/%s in pkg %s", module, name, pkg)
 
 	// parse template flags
 	tcfgs  := []AdhocTemplateConfig{}
@@ -97,6 +98,7 @@ func (R *Runtime) AsModule() error {
 	// construct template input data
 	data := map[string]interface{}{
 		"Module": module,
+		"Package": pkg,
 		"Name": name,
 		"Inputs": ins,
 		"Configs": tcfgs,
@@ -157,9 +159,11 @@ func (R *Runtime) AsModule() error {
 		if err != nil {
 			return err
 		}
-		// todo, fetch deps
-		msg, err := yagu.Bash("hof mod vendor cue")
-		fmt.Println(msg)
+
+		// fetch deps
+		cmd := exec.Command("hof", "mod", "vendor", "cue")
+		out, err := cmd.CombinedOutput()
+		fmt.Println(string(out))
 		if err != nil {
 			return err
 		}
@@ -170,15 +174,11 @@ func (R *Runtime) AsModule() error {
 		}
 	}
 
-	if R.Verbosity > 0 {
-		fmt.Println(strings.Repeat("-", 23))
-	}
-
 	return nil
 }
 
 const asModuleTemplate = `
-package {{ .Name }}
+package {{ .Package }}
 
 import (
 	"github.com/hofstadter-io/hof/schema/gen"
@@ -327,7 +327,7 @@ module {{ .Module }}/{{ .Name }}
 cue v0.4.3
 
 require (
-	github.com/hofstadter-io/hof v0.6.3-rc.3
+	github.com/hofstadter-io/hof v0.6.3
 )
 `
 
