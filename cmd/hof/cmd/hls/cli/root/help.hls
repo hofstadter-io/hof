@@ -10,4 +10,3 @@ call __hof help
 
 ### Test "hof" (without any args) prints help
 call __hof
-

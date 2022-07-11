@@ -6,4 +6,3 @@ call __hof mod -h
 
 ### Test "mod" (without any args) prints help
 call __hof mod
-

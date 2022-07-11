@@ -3,5 +3,3 @@ call __hof run --help
 
 ### Test "run -h" prints help
 call __hof run -h
-
-

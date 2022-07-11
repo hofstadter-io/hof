@@ -3,5 +3,3 @@ call __hof flow --help
 
 ### Test "flow -h" prints help
 call __hof flow -h
-
-

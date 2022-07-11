@@ -427,8 +427,10 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 
 	// Finally write the generator files
 	for _, F := range G.Files {
+		F.Filepath = filepath.Clean(F.Filepath)
 		// Write the actual output
 		if F.DoWrite && len(F.Errors) == 0 {
+			// todo, lift this out?
 			err := F.WriteOutput(R.Flagpole.Outdir)
 			if err != nil {
 				errs = append(errs, err)
@@ -458,7 +460,7 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 			if R.Verbosity > 0 {
 				fmt.Println("  -", G.Name, f, genFilename, shadowFilename)
 			} else {
-				fmt.Println("  -", genFilename)
+				fmt.Println("  -", f)
 			}
 
 			err := os.Remove(genFilename)

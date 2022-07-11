@@ -6,4 +6,3 @@ call __hof datamodel -h
 
 ### Test "datamodel" (without any args) prints help
 call __hof datamodel
-
