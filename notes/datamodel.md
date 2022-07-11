@@ -26,3 +26,7 @@ examples:
 - even if the server is not Go, can it send CUE to a Go CLI such that these can be pushed dynamically
 - what about a single CLI talking to many copies of the API, like kubectl -> clusters
 
+
+---
+
+- https://github.com/Qovery/Replibyte

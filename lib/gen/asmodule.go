@@ -199,9 +199,9 @@ import (
 	{{- end }}
 
 	// other settings
-	Diff3: {{ .Diff3 }}	
+	Diff3: {{ .Diff3 }}
 	{{ if .Outdir }}
-	Outdir: {{ .Outdir }}
+	Outdir: "{{ .Outdir }}"
 	{{ end }}
 	
 	{{ if .WatchGlobs }}

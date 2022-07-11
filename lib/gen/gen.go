@@ -119,13 +119,31 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 		We need to buildup the watch list from flags
 		and any generator we might run, which might have watch settings
 	*/
+	// todo, infer most entrypoints
+	for _, arg := range args {
+		info, err := os.Stat(arg)
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			globs = append(globs, info.Name() + "/*")
+		} else {
+			globs = append(globs, info.Name())
+		}
+	}
+
 	for _, G := range R.Generators {
 		if G.Disabled {
 			continue
 		}
 		globs = append(globs, G.WatchGlobs...)
 		xcue = append(xcue, G.WatchXcue...)
+		// add templates to full regen globs
+		xcue = append(xcue, G.Templates[0].Globs...)
 	}
+	// add partial templates to xcue globs
+	// can do outside loop since all gens have the same value
+	xcue = append(xcue, R.Flagpole.Partial...)
 
 	// this might be empty, we calc anyway for ease and sharing
 	wfiles, err := yagu.FilesFromGlobs(globs)
@@ -342,7 +360,7 @@ import (
 
 	// inputs to the generator
 	Data: { ... }
-	Outdir: "./"
+	Outdir: "./out/"
 	
 	// File globs to watch and trigger regen when changed
 	// Normally, a user would set this to their designs / datamodel

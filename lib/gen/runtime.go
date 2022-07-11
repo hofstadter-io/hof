@@ -427,7 +427,7 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 
 	// Finally write the generator files
 	for _, F := range G.Files {
-		F.Filepath = filepath.Clean(F.Filepath)
+		F.Filepath = filepath.Clean(filepath.Join(G.Outdir, F.Filepath))
 		// Write the actual output
 		if F.DoWrite && len(F.Errors) == 0 {
 			// todo, lift this out?
