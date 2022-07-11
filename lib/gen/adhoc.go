@@ -81,8 +81,13 @@ func (R *Runtime) CreateAdhocGenerator() error {
 			// Set output filepath, always render as a template
 			op := cfg.Outpath
 			if op == "" {
-				op = fmt.Sprintf("hof-stdout-%d", stdout)
-				stdout += 1
+				// when -O is set, -T will replicate the template name to the outpath name
+				if R.Flagpole.Outdir != "" {
+					op = cfg.Filepath
+				} else {
+					op = fmt.Sprintf("hof-stdout-%d", stdout)
+					stdout += 1
+				}
 			}
 			ft, err := templates.CreateFromString("outpath", op, nil)
 			if err != nil {
@@ -147,7 +152,7 @@ func (R *Runtime) CreateAdhocGenerator() error {
 // semicolon separated: <filepath>:<?cuepath>@<schema>;<?outpath>
 func parseTemplateFlag(tf string) (cfg AdhocTemplateConfig, err error) {
 	// look for ;
-	parts := strings.Split(tf, ";")
+	parts := strings.Split(tf, "=")
 	if len(parts) > 1 {
 		tf = parts[0]
 		cfg.Outpath = parts[1]

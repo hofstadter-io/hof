@@ -9,7 +9,7 @@ import (
 	Name:  "gen"
 	Usage: "gen [files...]"
 	Aliases: ["G"]
-	Short: "create arbitrary files from data with templates and generators"
+	Short: "create with modular code gen...  CUE & data + templates = _"
 	Long: GenLongHelp
 
 	Flags: [...schema.#Flag] & [
@@ -33,7 +33,7 @@ import (
 			Name:    "generator"
 			Type:    "[]string"
 			Default: "nil"
-			Help:    "generator tags to run, default is all"
+			Help:    "generator tags to run, default is all, or none if -T is used"
 			Long:    "generator"
 			Short:   "G"
 		},
@@ -41,7 +41,7 @@ import (
 			Name:    "template"
 			Type:    "[]string"
 			Default: "nil"
-			Help:    "template mappings to render as '<filepath>;<?cuepath>;<?outpath>'"
+			Help:    "template mapping to render, see help for format"
 			Long:    "template"
 			Short:   "T"
 		},
@@ -57,7 +57,7 @@ import (
 			Name:    "diff3"
 			Type:    "bool"
 			Default: "false"
-			Help:    "enable diff3 support for adhoc render, generators are configured in code"
+			Help:    "enable diff3 support for custom code"
 			Long:    "diff3"
 			Short:   "D"
 		},
@@ -65,7 +65,7 @@ import (
 			Name:    "watch"
 			Type:    "bool"
 			Default: "false"
-			Help:    "run in watch mode, regenerating when files change"
+			Help:    "run in watch mode, regenerating when files change, implied by -W/X"
 			Long:    "watch"
 			Short:   "w"
 		},
@@ -81,7 +81,7 @@ import (
 			Name:    "WatchXcue"
 			Type:    "[]string"
 			Default: "nil"
-			Help:    "like watch, but skips CUE reload, useful when working on templates, can be used with watch"
+			Help:    "like watch, but skips CUE reload, good for template authoring"
 			Long:    "watch-xcue"
 			Short:   "X"
 		},
@@ -89,7 +89,7 @@ import (
 			Name:    "AsModule"
 			Type:    "string"
 			Default: ""
-			Help:    "<name> in the printed output, for the given flags as a generator module"
+			Help:    "<name> for the generator module made from the given flags"
 			Long:    "as-module"
 		},
 		{
@@ -103,7 +103,7 @@ import (
 			Name:    "Outdir"
 			Type:    "string"
 			Default: ""
-			Help:    "base directory to write output to, defaults to current, prefixes generator value"
+			Help:    "base directory to write all output u"
 			Long:    "outdir"
 			Short:   "O"
 		},
@@ -112,45 +112,57 @@ import (
 
 GenLongHelp: """
 hof unifies CUE with Go's text/template system and diff3
-  create on-liners to generate any file from any data
+  create on-liners to generate any file from any 
   build reusable and modular generators
   edit and regenerate those files while keeping changes
 
 # Render a template
-  hof gen data.cue -T template.txt
-  hof gen data.yaml schema.cue -T template.txt > output.txt
+  hof gen input.cue -T template.txt
+  hof gen input.yaml schema.cue -T template.txt > output.txt
 
 # Add partials to the template context
-  hof gen data.cue -T template.txt -P partial.txt
+  hof gen input.cue -T template.txt -P partial.txt
 
 # The template flag as code gen mappings
-
-  hof gen data.cue -T ...
+  hof gen input.cue -T ... -T ...
 
   # Generate multiple templates at once
   -T templateA.txt -T templateB.txt
 
   # Select a sub-input value by CUEpath
-  -T 'templateA.txt:foo'
-  -T 'templateB.txt:sub.val'
+  -T templateA.txt:foo
+  -T templateB.txt:sub.val
 
   # Choose a schema with @
-  -T 'templateA.txt:foo@#foo'
-  -T 'templateB.txt:sub.val@schemas.val'
+  -T templateA.txt:foo@Foo
+  -T templateB.txt:sub.val@schemas.val
 
-  # Writing to file with ; (semicolon)
-  -T 'templateA.txt;a.txt'
-  -T 'templateB.txt:sub.val@schema;b.txt'
+  # Writing to file with = (semicolon)
+  -T templateA.txt=a.txt
+  -T templateB.txt:sub.val@schema=b.txt
 
-  # Templated output path 
-  -T 'templateA.txt:;{{ .name | lower }}.txt'
+  # Templated output path, braces need quotes
+  -T templateA.txt:='{{ .name | lower }}.txt'
 
   # Repeated templates are used when
   # 1. the output has a '[]' prefix
   # 2. the input is a list or array
   #   The template will be processed per entry
   #   This also requires using a templated outpath
-  -T 'template.txt:items;[]out/{{ .filepath }}.txt'
+  -T template.txt:items='[]out/{{ .filepath }}.txt'
+
+  # Output everything to a directory (out name is the same)
+  -O out -T types.go -T handlers.go
+
+  # Watch files and directories, doing full or Xcue-less reloads
+  -W *.cue -X *.go -O out -T types.go -T handlers.go
+
+# Turn any hof gen flags into a reusable generator module
+  hof gen [entrypoints] flags... --as-module [name]
+  hof gen [entrypoints] -G [name]
+
+# Bootstrap a new generator module
+  hof gen --init github.com/hofstadter-io/demos
 
 # Learn about writing templates, with extra functions and helpers
   https://docs.hofstadter.io/code-generation/template-writing/
@@ -158,14 +170,7 @@ hof unifies CUE with Go's text/template system and diff3
 # Check the tests for complete examples
   https://github.com/hofstadter-io/hof/tree/_dev/test/render
 
-# Turn any hof gen flags into a reusable generator module
-  hof gen [entrypoints] flags... --as-module [name]
-  hof gen [entrypoints] -G [name]
-
 # Compose code gen mappings into reusable modules with
-  hof gen app.cue -G frontend -G backend -G migrations
+  hof gen app.cue -G frontend -G backend -G migrations -T ...
   https://docs.hofstadter.io/first-example/
-
-# You can mix adhoc with generators by using
-# both the -G and -T/-P flags
 """
