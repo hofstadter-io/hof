@@ -83,7 +83,6 @@ func (F *File) Render(outdir string, UseDiff3 bool) error {
 	// Check to see if they are the same, if so, then "skip"
 	// fmt.Println(F.Filepath, len(F.RenderContent), F.ShadowFile)
 	if UseDiff3 && F.ShadowFile != nil {
-		F.ReadShadow()
 		if bytes.Compare(F.RenderContent, F.ShadowFile.FinalContent) == 0 {
 			// Let's check if there is a user file or not
 			_, err := os.Lstat(F.Filepath)
@@ -122,15 +121,6 @@ func (F *File) Render(outdir string, UseDiff3 bool) error {
 func (F *File) ReadUser(outdir string) error {
 	fp := filepath.Join(outdir, F.Filepath)
 
-	_, err := os.Lstat(fp)
-	if err != nil {
-		// make sure we check err for something actually bad
-		if _, ok := err.(*os.PathError); !ok && err.Error() != "file does not exist" {
-			return err
-		}
-		return nil
-	}
-
 	content, err := ioutil.ReadFile(fp)
 	if err != nil {
 		return err
@@ -152,11 +142,11 @@ func (F *File) UnifyContent(UseDiff3 bool) (write bool, err error) {
 
 	// If there is a user file...
 	if UseDiff3 && F.UserFile != nil {
+		// must have all 3
 		if F.ShadowFile != nil {
-			F.diff3()
-		} else {
-			F.diff2()
+			return F.diff3()
 		}
+		return F.diff2()
 	} // end UseDiff3
 
 	// Otherwise, this is a new file
@@ -169,11 +159,11 @@ func (F *File) diff3() (write bool, err error) {
 	// fmt.Println("diff3:", F.Filepath)
 
 	FC := F.FinalContent
-	UF := bytes.TrimSpace(F.UserFile.FinalContent)
-	SF := bytes.TrimSpace(F.ShadowFile.FinalContent)
+	UF := F.UserFile.FinalContent
+	SF := F.ShadowFile.FinalContent
 
-	// But first a shortcut
-	// Just write it out, no user modifications
+	// if shadow and user content same
+	// Just write it out, no user modifications ever
 	if bytes.Compare(UF, SF) == 0 {
 		F.IsModified = 1
 		F.IsModifiedRender = 1

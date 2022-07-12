@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 )
@@ -37,13 +36,23 @@ func LoadShadow(subdir string, verbosity int) (map[string]*File, error) {
 		if info.IsDir() {
 			return nil
 		}
+
+		// read contents
+		bytes, err := ioutil.ReadFile(fpath)
+		if err != nil {
+			return err
+		}
+
+		// simplify path
 		fpath = strings.TrimPrefix(fpath, shadowDir + "/")
 
+		// debug
 		if verbosity > 1 {
 			fmt.Println("  adding:", fpath)
 		}
 
 		shadow[fpath] = &File{
+			FinalContent: bytes,
 			Filepath: fpath,
 		}
 
@@ -56,22 +65,4 @@ func LoadShadow(subdir string, verbosity int) (map[string]*File, error) {
 	}
 
 	return shadow, nil
-}
-
-func (F *File) ReadShadow() error {
-	if F.ShadowFile == nil {
-		return nil
-	}
-
-	// Should have already been confirmed to exist at this point
-	shadowFN := path.Join(SHADOW_DIR, F.ShadowFile.Filepath)
-	// fmt.Println("ReadShadow", shadowFN)
-	bytes, err := ioutil.ReadFile(shadowFN)
-	if err != nil {
-		return err
-	}
-
-	F.ShadowFile.FinalContent = bytes
-
-	return nil
 }
