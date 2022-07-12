@@ -8,8 +8,8 @@ update the design or generators, and then regenerate your application.
 `hof` uses CUE extensively to power the DX and implementation.
 
 - data model management so you can checkpoint, diff, and migrate
-- code generation to skaffold code across the stack
-- diff3 for custom code and skaffold regeneration
+- code generation to scaffold code across the stack
+- diff3 for custom code and scaffold regeneration
 - modular and composable code generators with dependency management
 
 There are also several utilities subcommands for
