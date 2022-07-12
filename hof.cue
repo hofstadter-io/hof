@@ -11,5 +11,4 @@ Cli: gen.#HofGenerator & {
 	Outdir: "./"
 	Cli:    design.#CLI
 	WatchGlobs: ["./design/**/*"]
-	WatchXcue: ["./cue.mod/**/*"]
 }

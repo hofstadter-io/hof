@@ -136,30 +136,59 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 	}
 
 	for _, G := range R.Generators {
+		// we skip when disabled or package is set
 		if G.Disabled {
 			continue
 		}
+
 		globs = append(globs, G.WatchGlobs...)
 		xcue = append(xcue, G.WatchXcue...)
-		// add templates to full regen globs
-		// note, we are not recursing here
-		// maybe add a CUE field to disable watch
-		// if someone wants to recursively watch
-		// some generators but not all?
-		for _,T := range G.Templates {
-			xcue = append(xcue, T.Globs...)
+
+		// when package is set or not...
+		if G.PackageName == "" {
+			// when not set, we are probably in the module
+			// thus we are in all-in-one mode or module authoring
+
+			// add templates to full regen globs
+			// note, we are not recursing here
+			// maybe add a CUE field to disable watch
+			// if someone wants to recursively watch
+			// some generators but not all?
+			for _,T := range G.Templates {
+				xcue = append(xcue, T.Globs...)
+			}
+			for _,P := range G.Partials {
+				xcue = append(xcue, P.Globs...)
+			}
+			for _,S := range G.Statics {
+				xcue = append(xcue, S.Globs...)
+			}
+			// where's your cover sheet? You got the memo right?
+
+		} else {
+			// globs = append(globs, G.WatchGlobs...)
+			// xcue = append(xcue, G.WatchXcue...)
+
+			// note, the following probably does not belong in a loop
+			// globs = append(globs, "./cue.mod/**/*", "*.cue", "design/**/*")
+
+			// otherwise, this is mostly likely an import
+			// let's watch the cue.mod vendor directory
+			// will we follow symlinks here?
+			// will this break down once `cue mod` is a thing...
+			//  and modules live outside of the project, in home dir
+			//  really an edge case here...
+			// for now this is better
 		}
-		for _,P := range G.Partials {
-			xcue = append(xcue, P.Globs...)
-		}
-		for _,S := range G.Statics {
-			xcue = append(xcue, S.Globs...)
-		}
-		// where's your cover sheet? You got the memo right?
 	}
 	// add partial templates to xcue globs
 	// can do outside loop since all gens have the same value
 	xcue = append(xcue, R.Flagpole.Partial...)
+
+	// probably w/o args and/or just using a generator, lets add some sensible defaults
+	// if len(globs) == 0 {
+		// globs = append(globs, "./cue.mod/**/*", "*.cue", "design/**/*")
+	// }
 
 	// this might be empty, we calc anyway for ease and sharing
 	wfiles, err := yagu.FilesFromGlobs(globs)
