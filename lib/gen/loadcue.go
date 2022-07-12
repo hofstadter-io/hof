@@ -23,11 +23,11 @@ func (G *Generator) LoadCue() (errs []error) {
 		errs = append(errs, err)
 	}
 
-	if err := G.loadWatchGlobs(); err != nil {
+	if err := G.loadWatchFull(); err != nil {
 		errs = append(errs, err)
 	}
 
-	if err := G.loadWatchXcue(); err != nil {
+	if err := G.loadWatchFast(); err != nil {
 		errs = append(errs, err)
 	}
 
@@ -88,8 +88,8 @@ func (G *Generator) debugLoad() {
 		return
 	}
 	fmt.Println(G.Name, G.Outdir)
-	fmt.Println("WatchGlobs   ", len(G.WatchGlobs))
-	fmt.Println("WatchXcue", len(G.WatchXcue))
+	fmt.Println("WatchFull ", len(G.WatchFull))
+	fmt.Println("WatchFast ", len(G.WatchFast))
 	fmt.Println("Out:    ", len(G.Out))
 	fmt.Println("Tmpl:   ", len(G.Templates))
 	fmt.Println("Prtl:   ", len(G.Partials))
@@ -124,26 +124,26 @@ func (G *Generator) loadIn() error {
 	return val.Decode(&G.In)
 }
 
-func (G *Generator) loadWatchGlobs() error {
-	G.WatchGlobs = make([]string, 0)
-	val := G.CueValue.LookupPath(cue.ParsePath("WatchGlobs"))
+func (G *Generator) loadWatchFull() error {
+	G.WatchFull = make([]string, 0)
+	val := G.CueValue.LookupPath(cue.ParsePath("WatchFull"))
 	if val.Err() != nil {
 		return nil
 		return val.Err()
 	}
 
-	return val.Decode(&G.WatchGlobs)
+	return val.Decode(&G.WatchFull)
 }
 
-func (G *Generator) loadWatchXcue() error {
-	G.WatchXcue = make([]string, 0)
-	val := G.CueValue.LookupPath(cue.ParsePath("WatchXcue"))
+func (G *Generator) loadWatchFast() error {
+	G.WatchFast = make([]string, 0)
+	val := G.CueValue.LookupPath(cue.ParsePath("WatchFast"))
 	if val.Err() != nil {
 		return nil
 		return val.Err()
 	}
 
-	return val.Decode(&G.WatchXcue)
+	return val.Decode(&G.WatchFast)
 }
 
 func (G *Generator) loadTemplates() error {

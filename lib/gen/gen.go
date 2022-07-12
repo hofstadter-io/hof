@@ -141,8 +141,8 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 			continue
 		}
 
-		globs = append(globs, G.WatchGlobs...)
-		xcue = append(xcue, G.WatchXcue...)
+		globs = append(globs, G.WatchFull...)
+		xcue = append(xcue, G.WatchFast...)
 
 		// when package is set or not...
 		if G.PackageName == "" {
@@ -166,9 +166,6 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 			// where's your cover sheet? You got the memo right?
 
 		} else {
-			// globs = append(globs, G.WatchGlobs...)
-			// xcue = append(xcue, G.WatchXcue...)
-
 			// note, the following probably does not belong in a loop
 			// globs = append(globs, "./cue.mod/**/*", "*.cue", "design/**/*")
 

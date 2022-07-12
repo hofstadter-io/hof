@@ -51,8 +51,8 @@ type Generator struct {
 	Val cue.Value
 
 	// File globs to watch and trigger regen on change
-	WatchGlobs []string
-	WatchXcue  []string
+	WatchFull []string
+	WatchFast  []string
 
 	// The list fo files for hof to generate, in cue values
 	Out []*File
