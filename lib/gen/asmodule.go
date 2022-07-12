@@ -107,8 +107,8 @@ func (R *Runtime) AsModule() error {
 		"Partials": FP.Partial,
 		"Generators": gens,
 		"Diff3": FP.Diff3,
-		"WatchGlobs": FP.WatchGlobs,
-		"WatchXcue": FP.WatchXcue,
+		"WatchFull": FP.WatchFull,
+		"WatchFast": FP.WatchFast,
 	}
 
 	// local helper to render and write embedded templates
@@ -204,14 +204,14 @@ import (
 	Outdir: "{{ .Outdir }}"
 	{{ end }}
 	
-	{{ if .WatchGlobs }}
+	{{ if .WatchFull }}
 	// File globs to watch and trigger regen when changed
 	// Normally, a user would set this to their designs / datamodel
-	WatchGlobs: [ {{ range .WatchGlobs }}"{{.}}", {{ end }} ]
+	WatchFull: [ {{ range .WatchFull }}"{{.}}", {{ end }} ]
 	{{ end }}
-	{{ if .WatchXcue }}
+	{{ if .WatchFast }}
 	// This is really only useful for module authors
-	WatchXcue:  [ {{ range .WatchXcue  }}"{{.}}", {{ end }} ]
+	WatchFast:  [ {{ range .WatchFast  }}"{{.}}", {{ end }} ]
 	{{ end }}
 
 	// required by examples inside the same module

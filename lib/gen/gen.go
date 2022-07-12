@@ -46,8 +46,8 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 	// b/c shorter names
 	LT := len(cmdflags.Template)
 	LG := len(cmdflags.Generator)
-	globs := cmdflags.WatchGlobs
-	xcue := cmdflags.WatchXcue
+	globs := cmdflags.WatchFull
+	xcue := cmdflags.WatchFast
 
 	// determine watch mode
 	//  excplicit: -w
@@ -409,9 +409,9 @@ import (
 	
 	// File globs to watch and trigger regen when changed
 	// Normally, a user would set this to their designs / datamodel
-	WatchGlobs: [...string]
+	WatchFull: [...string]
 	// This is helpful when authoring generator modules
-	WatchXcue:  [...string]
+	WatchFast:  [...string]
 
 	// required by examples inside the same module
 	// your users do not set or see this field

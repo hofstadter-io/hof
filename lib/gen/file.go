@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"cuelang.org/go/cue"
 	"github.com/sergi/go-diff/diffmatchpatch"
@@ -57,7 +58,7 @@ type File struct {
 	FileStats
 }
 
-func (F *File) Render(UseDiff3 bool) error {
+func (F *File) Render(outdir string, UseDiff3 bool) error {
 	var err error
 	F.RenderContent = bytes.TrimSpace(F.RenderContent)
 
@@ -104,7 +105,7 @@ func (F *File) Render(UseDiff3 bool) error {
 
 	// Possibly read user
 	if UseDiff3 {
-		F.ReadUser()
+		F.ReadUser(outdir)
 	}
 
 	// figure out if / how to merge and produce final content
@@ -117,9 +118,11 @@ func (F *File) Render(UseDiff3 bool) error {
 	return nil
 }
 
-func (F *File) ReadUser() error {
+// read the file contents relative to the output dir
+func (F *File) ReadUser(outdir string) error {
+	fp := filepath.Join(outdir, F.Filepath)
 
-	_, err := os.Lstat(F.Filepath)
+	_, err := os.Lstat(fp)
 	if err != nil {
 		// make sure we check err for something actually bad
 		if _, ok := err.(*os.PathError); !ok && err.Error() != "file does not exist" {
@@ -128,14 +131,14 @@ func (F *File) ReadUser() error {
 		return nil
 	}
 
-	content, err := ioutil.ReadFile(F.Filepath)
+	content, err := ioutil.ReadFile(fp)
 	if err != nil {
 		return err
 	}
 	content = bytes.TrimSpace(content)
 
 	F.UserFile = &File{
-		Filepath:     F.Filepath,
+		Filepath:     fp,
 		FinalContent: content,
 	}
 

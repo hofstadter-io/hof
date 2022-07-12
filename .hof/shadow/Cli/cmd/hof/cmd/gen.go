@@ -81,9 +81,9 @@ func init() {
 	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.Partial), "partial", "P", nil, "file globs to partial templates to register with the templates")
 	GenCmd.Flags().BoolVarP(&(flags.GenFlags.Diff3), "diff3", "D", false, "enable diff3 support for custom code")
 	GenCmd.Flags().BoolVarP(&(flags.GenFlags.Watch), "watch", "w", false, "run in watch mode, regenerating when files change, implied by -W/X")
-	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.WatchGlobs), "watch-globs", "W", nil, "filepath globs to watch for changes and regen")
-	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.WatchXcue), "watch-xcue", "X", nil, "like watch, but skips CUE reload, good for template authoring")
-	GenCmd.Flags().StringVarP(&(flags.GenFlags.AsModule), "as-module", "", "", "<name> for the generator module made from the given flags")
+	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.WatchFull), "watch-globs", "W", nil, "filepath globs to watch for changes and trigger full regen")
+	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.WatchFast), "watch-fast", "X", nil, "filepath globs to watch for changes and trigger fast regen")
+	GenCmd.Flags().StringVarP(&(flags.GenFlags.AsModule), "as-module", "", "", "<github.com/username/<name>> like value for the generator module made from the given flags")
 	GenCmd.Flags().StringVarP(&(flags.GenFlags.InitModule), "init", "", "", "<name> to bootstrap a new genarator module")
 	GenCmd.Flags().StringVarP(&(flags.GenFlags.Outdir), "outdir", "O", "", "base directory to write all output u")
 }

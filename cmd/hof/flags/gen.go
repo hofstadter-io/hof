@@ -8,8 +8,8 @@ type GenFlagpole struct {
 	Partial    []string
 	Diff3      bool
 	Watch      bool
-	WatchGlobs []string
-	WatchXcue  []string
+	WatchFull  []string
+	WatchFast  []string
 	AsModule   string
 	InitModule string
 	Outdir     string

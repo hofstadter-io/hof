@@ -14,8 +14,8 @@ package gen
 	Val: {...}
 
 	// File globs to watch and trigger regen when changed
-	WatchGlobs: [...string]
-	WatchXcue:  [...string]
+	WatchFull: [...string]  // reloads & regens everything
+	WatchFast:  [...string] // skips CUE reload, regens everything
 
 	// Enable Diff3
 	Diff3: bool | *true

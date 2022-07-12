@@ -317,7 +317,7 @@ func (R *Runtime) RunGenerator(G *Generator) (errs []error) {
 	}
 
 	// run this generator
-	errsG := G.GenerateFiles()
+	errsG := G.GenerateFiles(R.Flagpole.Outdir)
 	if len(errsG) > 0 {
 		errs = append(errs, errsG...)
 		return errs
@@ -521,7 +521,7 @@ func (R *Runtime) PrintMergeConflicts() {
 
 		for _, F := range G.Files {
 			if F.IsConflicted > 0 {
-				msg := fmt.Sprint("MERGE CONFLICT in:", F.Filepath)
+				msg := fmt.Sprint("MERGE CONFLICT in: ", F.Filepath)
 				color.Red(msg)
 			}
 		}

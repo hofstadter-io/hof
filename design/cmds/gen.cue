@@ -70,26 +70,26 @@ import (
 			Short:   "w"
 		},
 		{
-			Name:    "WatchGlobs"
+			Name:    "WatchFull"
 			Type:    "[]string"
 			Default: "nil"
-			Help:    "filepath globs to watch for changes and regen"
+			Help:    "filepath globs to watch for changes and trigger full regen"
 			Long:    "watch-globs"
 			Short:   "W"
 		},
 		{
-			Name:    "WatchXcue"
+			Name:    "WatchFast"
 			Type:    "[]string"
 			Default: "nil"
-			Help:    "like watch, but skips CUE reload, good for template authoring"
-			Long:    "watch-xcue"
+			Help:    "filepath globs to watch for changes and trigger fast regen"
+			Long:    "watch-fast"
 			Short:   "X"
 		},
 		{
 			Name:    "AsModule"
 			Type:    "string"
 			Default: ""
-			Help:    "<name> for the generator module made from the given flags"
+			Help:    "<github.com/username/<name>> like value for the generator module made from the given flags"
 			Long:    "as-module"
 		},
 		{

@@ -126,7 +126,7 @@ func NewGenerator(label string, value cue.Value) *Generator {
 	}
 }
 
-func (G *Generator) GenerateFiles() []error {
+func (G *Generator) GenerateFiles(outdir string) []error {
 	errs := []error{}
 
 	start := time.Now()
@@ -136,10 +136,9 @@ func (G *Generator) GenerateFiles() []error {
 			F.IsSkipped = 1
 			continue
 		}
-		shadowFN := filepath.Join(G.Name, F.Filepath)
-		F.ShadowFile = G.Shadow[shadowFN]
+		F.ShadowFile = G.Shadow[F.Filepath]
 
-		err := F.Render(G.UseDiff3)
+		err := F.Render(outdir, G.UseDiff3)
 		if err != nil {
 			F.IsErr = 1
 			F.Errors = append(F.Errors, err)
@@ -291,6 +290,7 @@ func (G *Generator) initFileGens() []error {
 			F.Filepath = string(bs)
 		}
 
+		F.Filepath = filepath.Clean(F.Filepath)
 		G.OrderedFiles = append(G.OrderedFiles, F)
 		G.Files[F.Filepath] = F
 	}

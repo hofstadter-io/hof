@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-
 	"github.com/hofstadter-io/hof/lib/hack"
 )
 
@@ -13,10 +12,10 @@ var hackLong = `development command`
 
 func HackRun(args []string) (err error) {
 
-	err = hack.Hack(args)
-
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
+
+	err = hack.Hack(args)
 
 	return err
 }
