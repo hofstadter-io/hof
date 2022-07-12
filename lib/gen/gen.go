@@ -57,6 +57,9 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 		watch = true
 	}
 
+	// TODO, when determined to watch
+	// add generator templates / partials
+
 	// generally there are more messages when in watch mode
 	if watch && cmdflags.AsModule == "" {
 		fmt.Println("Loading CUE from", R.Entrypoints)
@@ -139,7 +142,20 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 		globs = append(globs, G.WatchGlobs...)
 		xcue = append(xcue, G.WatchXcue...)
 		// add templates to full regen globs
-		xcue = append(xcue, G.Templates[0].Globs...)
+		// note, we are not recursing here
+		// maybe add a CUE field to disable watch
+		// if someone wants to recursively watch
+		// some generators but not all?
+		for _,T := range G.Templates {
+			xcue = append(xcue, T.Globs...)
+		}
+		for _,P := range G.Partials {
+			xcue = append(xcue, P.Globs...)
+		}
+		for _,S := range G.Statics {
+			xcue = append(xcue, S.Globs...)
+		}
+		// where's your cover sheet? You got the memo right?
 	}
 	// add partial templates to xcue globs
 	// can do outside loop since all gens have the same value
