@@ -1,4 +1,4 @@
-package cli
+package design
 
 import (
 	"github.com/hofstadter-io/hofmod-cli/schema"

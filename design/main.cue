@@ -1,9 +1,9 @@
-package cli
+package design
 
 import (
 	"github.com/hofstadter-io/hofmod-cli/schema"
 
-	"github.com/hofstadter-io/hof/design/cli/cmds"
+	"github.com/hofstadter-io/hof/design/cmds"
 )
 
 #Outdir: "./cmd/hof"
