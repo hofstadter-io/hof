@@ -373,7 +373,7 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 				return errs
 			}
 			for _, match := range matches {
-				mo := strings.TrimPrefix(match, Static.TrimPrefix)
+				mo := strings.TrimPrefix(match, filepath.Clean(Static.TrimPrefix))
 				src := filepath.Join(bdir, match)
 				dst := filepath.Join(G.Outdir, Static.OutPrefix, mo)
 
