@@ -50,6 +50,7 @@ var funcMap = template.FuncMap{
 	"title":   Helper_title,
 
 	"camel":  Helper_camel,
+	"pascal": Helper_pascal,
 	"camelT": Helper_camelT,
 	"snake":  Helper_snake,
 	"snakeU": Helper_snakeU,
@@ -243,6 +244,10 @@ func Helper_title(value string) string {
 
 func Helper_camel(value string) string {
 	return kace.Camel(value)
+}
+
+func Helper_pascal(value string) string {
+	return kace.Pascal(value)
 }
 
 func Helper_camelT(value string) string {
