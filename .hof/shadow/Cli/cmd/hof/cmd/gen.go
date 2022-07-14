@@ -104,7 +104,7 @@ var GenCmd = &cobra.Command{
 		"G",
 	},
 
-	Short: "create with modular code gen...  CUE & data + templates = _",
+	Short: "modular and composable code gen:  CUE & data + templates = _",
 
 	Long: genLong,
 

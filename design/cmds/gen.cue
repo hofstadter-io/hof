@@ -9,7 +9,7 @@ import (
 	Name:  "gen"
 	Usage: "gen [files...]"
 	Aliases: ["G"]
-	Short: "create with modular code gen...  CUE & data + templates = _"
+	Short: "modular and composable code gen:  CUE & data + templates = _"
 	Long: GenLongHelp
 
 	Flags: [...schema.#Flag] & [

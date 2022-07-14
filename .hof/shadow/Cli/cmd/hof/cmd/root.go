@@ -172,7 +172,7 @@ Usage:
 
 Main commands:
   datamodel             manage, diff, and migrate your data models
-  gen                   create with modular code gen...  CUE & data + templates = _
+  gen                   modular and composable code gen:  CUE & data + templates = _
   flow                  run CUE pipelines with the hof/flow DAG engine
   mod                   polyglot dependency management based on go mods and MVS
 
