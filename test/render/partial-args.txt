@@ -17,4 +17,3 @@ foo is {{ .ROOT.foo }}
 -- golden.stdout --
 a...
 foo is bar
-

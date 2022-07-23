@@ -1,8 +1,6 @@
-exec hof gen data.yaml schema.cue -T template.txt
+exec hof gen data.yaml -T template.txt
 cmp stdout expected.txt
 
--- schema.cue --
-vals: [...{ name: string, data: int }]
 -- data.yaml --
 vals:
   - name: "a"
@@ -17,4 +15,3 @@ vals:
 -- expected.txt --
 a is 1
 b is 2
-

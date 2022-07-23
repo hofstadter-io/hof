@@ -31,8 +31,7 @@
 ### next
 
 bugs:
-- endline (add newline on write)
-- loading only yaml broken
+- loading only yaml broken (need repro case)
 
 
 v0.6.4
@@ -42,7 +41,6 @@ v0.6.4
   - [ ] github.com/ghodss/yaml
 	- [ ] github.com/aymerick/raymond
 	- [ ] github.com/bmatcuk/doublestar/v4 ?
-- [ ] template helpers / bugfixes / cleaning
 - [ ] add cue template helper & datafile
 - [ ] override templates & partials, propagate through subgens (layer back up)
 - [ ] Gen (top-level) commands (exec), gens can provide some nice defaults

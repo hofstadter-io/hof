@@ -1,4 +1,4 @@
-exec hof gen data.cue -T 'template.txt:vals;[]{{ .name }}.txt' -P partial.txt
+exec hof gen data.cue -T template.txt:vals='[]{{ .name }}.txt' -P partial.txt
 cmp a.txt expected-a.txt
 cmp b.txt expected-b.txt
 
@@ -18,7 +18,5 @@ vals: [{
 {{- .data -}}
 -- expected-a.txt --
 a is 1
-
 -- expected-b.txt --
 b is 2
-

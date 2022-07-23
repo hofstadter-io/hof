@@ -15,8 +15,6 @@ what did the fox say?
 
 -- expected.txt --
 cows go moo
-
 what did the fox say?
 
 ringa ding ding!
-

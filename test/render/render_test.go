@@ -1,4 +1,4 @@
-package flow_test
+package render_test
 
 import (
 	"testing"
