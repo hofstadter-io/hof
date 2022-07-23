@@ -31,19 +31,9 @@
 ### next
 
 bugs:
+
 - loading only yaml broken (need repro case)
 
-
-v0.6.4
-
-- [ ] update some deps
-- [ ] remove deps
-  - [ ] github.com/ghodss/yaml
-	- [ ] github.com/aymerick/raymond
-	- [ ] github.com/bmatcuk/doublestar/v4 ?
-- [ ] add cue template helper & datafile
-- [ ] override templates & partials, propagate through subgens (layer back up)
-- [ ] Gen (top-level) commands (exec), gens can provide some nice defaults
 
 v0.6.5
 
@@ -51,11 +41,19 @@ v0.6.5
 - [ ] integrate datamodel history to hof gen
 - [ ] hof create ... (also from github repos) easier startup for gen user only mode
   - [ ] generators should have create templates as well
+	- [ ] use -t (tag) to inject values? (or something else to not conflict with cue?)
 - [ ] hof st (import bulk commands from cuetils)
 - [ ] hof mod get & tidy, move to cue.mod/hof.cue
 - [ ] hof doc
+- [ ] remove deps
+	- [ ] github.com/aymerick/raymond (not really used)
+	- [ ] github.com/bmatcuk/doublestar/v4 ?
 
 v0.6.x
 
 - [ ] real datamodel upgrades & efforts
 - [ ] hof faux
+- [ ] add cue template helper & datafile
+- [ ] override templates & partials, propagate through subgens (layer back up)
+- [ ] Gen (top-level) commands (exec), gens can provide some nice defaults
+
