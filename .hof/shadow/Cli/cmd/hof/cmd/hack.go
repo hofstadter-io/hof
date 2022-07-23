@@ -32,10 +32,6 @@ var HackCmd = &cobra.Command{
 
 	Long: hackLong,
 
-	PreRun: func(cmd *cobra.Command, args []string) {
-
-	},
-
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
 

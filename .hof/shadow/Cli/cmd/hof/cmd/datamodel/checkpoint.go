@@ -37,10 +37,6 @@ var CheckpointCmd = &cobra.Command{
 
 	Long: checkpointLong,
 
-	PreRun: func(cmd *cobra.Command, args []string) {
-
-	},
-
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
 

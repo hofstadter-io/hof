@@ -33,10 +33,6 @@ var InfoCmd = &cobra.Command{
 
 	Long: infoLong,
 
-	PreRun: func(cmd *cobra.Command, args []string) {
-
-	},
-
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
 

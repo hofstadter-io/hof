@@ -29,10 +29,6 @@ var LogCmd = &cobra.Command{
 
 	Long: logLong,
 
-	PreRun: func(cmd *cobra.Command, args []string) {
-
-	},
-
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
 

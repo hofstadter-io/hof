@@ -21,10 +21,6 @@ var GebCmd = &cobra.Command{
 
 	Hidden: true,
 
-	PreRun: func(cmd *cobra.Command, args []string) {
-
-	},
-
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
 

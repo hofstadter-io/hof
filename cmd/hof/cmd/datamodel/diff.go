@@ -34,10 +34,6 @@ var DiffCmd = &cobra.Command{
 
 	Long: diffLong,
 
-	PreRun: func(cmd *cobra.Command, args []string) {
-
-	},
-
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
 

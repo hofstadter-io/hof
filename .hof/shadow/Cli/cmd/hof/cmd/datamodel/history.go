@@ -30,10 +30,6 @@ var HistoryCmd = &cobra.Command{
 
 	Long: historyLong,
 
-	PreRun: func(cmd *cobra.Command, args []string) {
-
-	},
-
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
 

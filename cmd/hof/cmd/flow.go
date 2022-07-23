@@ -86,10 +86,6 @@ var FlowCmd = &cobra.Command{
 
 	Long: flowLong,
 
-	PreRun: func(cmd *cobra.Command, args []string) {
-
-	},
-
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
 

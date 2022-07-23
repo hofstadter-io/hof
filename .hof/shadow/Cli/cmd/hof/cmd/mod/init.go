@@ -30,10 +30,6 @@ var InitCmd = &cobra.Command{
 
 	Long: initLong,
 
-	PreRun: func(cmd *cobra.Command, args []string) {
-
-	},
-
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
 

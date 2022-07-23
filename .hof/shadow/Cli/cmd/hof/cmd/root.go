@@ -56,10 +56,6 @@ var RootCmd = &cobra.Command{
 		}
 	},
 
-	PreRun: func(cmd *cobra.Command, args []string) {
-
-	},
-
 	PersistentPostRun: func(cmd *cobra.Command, args []string) {
 		var err error
 

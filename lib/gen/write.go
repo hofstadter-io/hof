@@ -10,6 +10,9 @@ import (
 )
 
 func (F *File) WriteOutput(basedir string) error {
+	// add newline to user output
+	F.FinalContent = append(F.FinalContent, '\n')
+
 	// print to stdout
 	if F.Filepath == "-" || strings.HasPrefix(F.Filepath, "hof-stdout-") {
 		fmt.Print(string(F.FinalContent))

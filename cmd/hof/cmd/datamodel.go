@@ -42,10 +42,6 @@ var DatamodelCmd = &cobra.Command{
 	Short: "manage, diff, and migrate your data models",
 
 	Long: datamodelLong,
-
-	PreRun: func(cmd *cobra.Command, args []string) {
-
-	},
 }
 
 func init() {

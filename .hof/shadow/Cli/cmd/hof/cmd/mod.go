@@ -147,10 +147,6 @@ var ModCmd = &cobra.Command{
 			os.Exit(1)
 		}
 	},
-
-	PreRun: func(cmd *cobra.Command, args []string) {
-
-	},
 }
 
 func init() {
