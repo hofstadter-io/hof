@@ -11,10 +11,10 @@ import (
 
 	"github.com/clbanning/mxj"
 	"github.com/codemodus/kace"
-	"github.com/ghodss/yaml"
 	"github.com/hofstadter-io/hof/lib/dotpath"
 	"github.com/kr/pretty"
 	"github.com/naoina/toml"
+	"gopkg.in/yaml.v3"
 )
 
 func AddGolangHelpers(t *template.Template) *template.Template {
