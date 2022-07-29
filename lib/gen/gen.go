@@ -9,11 +9,14 @@ import (
 	"time"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/templates"
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 func Gen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpole) error {
+
+	// shortcut when user wants to bootstrap a new generator module
 	if cmdflags.InitModule != "" {
 		return InitModule(args, rootflags, cmdflags)
 	}
@@ -37,11 +40,32 @@ func Gen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpol
 	return nil
 }
 
-func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpole) error {
+func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpole) (err error) {
 
 	// This is our runtime for codegeneration
 	R := NewRuntime(args, cmdflags)
 	R.Verbosity = rootflags.Verbosity
+
+	// calc cue dirs
+	R.CueModuleRoot, err = cuetils.FindModuleAbsPath()
+	if err != nil {
+		return err
+	}
+	// TODO: we could make this configurable
+	R.WorkingDir, _ = os.Getwd()
+	R.cwdToRoot, err = filepath.Rel(R.WorkingDir, R.CueModuleRoot)
+	if err != nil {
+		return err
+	}
+	R.rootToCwd, err = filepath.Rel(R.CueModuleRoot, R.WorkingDir)
+	if err != nil {
+		return err
+	}
+
+	// log cue dirs
+	if R.Verbosity > 0 {
+		fmt.Println("CueDirs:", R.CueModuleRoot, R.WorkingDir, R.cwdToRoot)
+	}
 
 	// b/c shorter names
 	LT := len(cmdflags.Template)
@@ -66,7 +90,7 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 	}
 
 	// this is the first time we create a runtime and load cue
-	err := R.LoadCue()
+	err = R.LoadCue()
 	if err != nil {
 		return err
 	}
@@ -263,25 +287,46 @@ func (R *Runtime) genOnce(fast, watch bool, files []string) (chan bool, error) {
 		veryend := time.Now()
 		elapsed := veryend.Sub(verystart).Round(time.Millisecond)
 
+		// TODO (correctness)
+		// ordering for the remainder of this function is unclear
+		hasErr := false
+
+		if len(errsG) > 0 {
+			hasErr = true
+			for _, e := range errsG {
+				fmt.Println(e)
+			}
+		}
+		if len(errsW) > 0 {
+			hasErr = true
+			for _, e := range errsW {
+				fmt.Println(e)
+			}
+		}
+
+		// TODO (shadow) not sure if we want to clean up gens without error?
+		// right now, if any error, then no clean
+		if !hasErr {
+			errsS := R.CleanupRemainingShadow()
+			if len(errsS) > 0 {
+				hasErr = true
+				for _, e := range errsS {
+					fmt.Println(e)
+				}
+			}
+		}
+
+		R.PrintMergeConflicts()
+
 		if R.Flagpole.Stats {
 			R.PrintStats()
 			fmt.Printf("\nTotal Elapsed Time: %s\n\n", elapsed)
 		}
 
-		if len(errsG) > 0 {
-			for _, e := range errsG {
-				fmt.Println(e)
-			}
-			return nil, fmt.Errorf("\nErrors while generating output\n")
-		}
-		if len(errsW) > 0 {
-			for _, e := range errsW {
-				fmt.Println(e)
-			}
-			return nil, fmt.Errorf("\nErrors while writing output\n")
+		if hasErr {
+			return nil, fmt.Errorf("ERROR: while running geneators")
 		}
 
-		R.PrintMergeConflicts()
 
 		return nil, nil
 	} // end doGen
@@ -389,7 +434,7 @@ func InitModule(args []string, rootflags flags.RootPflagpole, cmdflags flags.Gen
 	return nil
 }
 
-const newModuleTemplate =`
+const newModuleTemplate = `
 package {{ .Package }}
 
 import (

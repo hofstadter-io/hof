@@ -7,7 +7,7 @@ import (
 	"cuelang.org/go/cue"
 )
 
-func (G *Generator) LoadCue() (errs []error) {
+func (G *Generator) DecodeFromCUE() (errs []error) {
 	// fmt.Println("Gen Load:", G.Name)
 	start := time.Now()
 
@@ -348,11 +348,14 @@ func (G *Generator) loadSubgens() (errs []error) {
 		v := iter.Value()
 		sg := NewGenerator(name, v)
 
-		sgerrs := sg.LoadCue()
+		sgerrs := sg.DecodeFromCUE()
 		if len(sgerrs) > 0 {
 			errs = append(errs, sgerrs...)
 		}
 
+		sg.parent = G
+		sg.runtime = G.runtime
+		sg.verbosity = G.verbosity
 		G.Generators[name] = sg
 	}
 

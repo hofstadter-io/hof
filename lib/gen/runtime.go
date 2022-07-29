@@ -2,19 +2,15 @@ package gen
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
-	"strings"
 	"sync"
 	"time"
 
 	"cuelang.org/go/cue"
 	"github.com/fatih/color"
-	"github.com/mattn/go-zglob"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/cuetils"
-	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 type Runtime struct {
@@ -29,7 +25,11 @@ type Runtime struct {
 	Verbosity int
 
 	// Cue ralated
-	CueRuntime      *cuetils.CueRuntime
+	CueRuntime    *cuetils.CueRuntime
+	CueModuleRoot string
+	WorkingDir    string
+	rootToCwd     string  // module root -> working dir (foo/bar)
+	cwdToRoot     string  // module root <- working dir (../..)
 
 	// Hof related
 	Generators map[string]*Generator
@@ -40,12 +40,26 @@ func NewRuntime(entrypoints []string, cmdflags flags.GenFlagpole) *Runtime {
 	return &Runtime{
 		Entrypoints: entrypoints,
 		Flagpole:    cmdflags,
-		
 		Generators:  make(map[string]*Generator),
 		Stats:       new(RuntimeStats),
 	}
 }
 
+// OutputDir returns the absolute path to output dir for this runtime.
+// Generators will make subdir contributions at read/write time
+func (R *Runtime) OutputDir() string {
+	return filepath.Join(R.CueModuleRoot, R.rootToCwd, R.Flagpole.Outdir)
+}
+
+// ShadowDir returns the absolute path to shadow dir for this runtime.
+// Generators will make subdir contributions at read/write time
+func (R *Runtime) ShadowDir() string {
+	return filepath.Join(R.CueModuleRoot, SHADOW_DIR, R.rootToCwd, R.Flagpole.Outdir)
+}
+
+// Clears and reloads a runtime, rereading inputs and reprocessing everything
+// fast determines if the CUE code is reloaded and evaluated or not (fast is not).
+// These modes correspond to the -W (full) and -X (fast) watch flags
 func (R *Runtime) Reload(fast bool) error {
 	R.Lock()
 	defer R.Unlock()
@@ -221,6 +235,14 @@ func (R *Runtime) ExtractGenerators() error {
 		}
 
 		G := NewGenerator(label, value)
+
+		// TODO, only transfer what is needed
+		G.runtime = R
+		G.CueModuleRoot = R.CueModuleRoot
+		G.WorkingDir = R.WorkingDir
+		G.cwdToRoot = R.cwdToRoot
+		G.rootToCwd = R.rootToCwd
+
 		R.Generators[label] = G
 	}
 
@@ -241,14 +263,38 @@ func (R *Runtime) LoadGenerators() []error {
 		if G.Disabled {
 			continue
 		}
+		G.verbosity = R.Verbosity
 
-		// fmt.Println("Loading Generator:", G.Name)
+		if R.Verbosity > 1 {
+			fmt.Println("Loading Generator:", G.Name)
+		}
 
-		// Load the Generator!
-		errsL := G.LoadCue()
+		// Load the Generator! (from in memory CUE)
+		// this is more of a decode from CUE
+		errsL := G.DecodeFromCUE()
 		if len(errsL) != 0 {
 			errs = append(errs, errsL...)
 			continue
+		}
+
+		// this should only happen when
+		// 1. module author creating example in own module
+		// 2. user misconfiguration, so we should inform
+		// 3. you are a user doing this in a subdir completely?
+		const warnModuleAuthorFmtStr = `
+		You are running the '%s' generator
+			with PackageName: ""
+
+		Note, that when running hof from inside a generator module,
+		it currently must be run from the root.
+
+		See GitHub issue: https://github.com/hofstadter-io/hof/issues/103
+		`
+
+		if G.PackageName == "" {
+			if R.Verbosity > 0 {
+				fmt.Printf(warnModuleAuthorFmtStr, G.Name)
+			}
 		}
 
 		// TODO, flatten any nested generators?
@@ -276,215 +322,6 @@ func (R *Runtime) LoadGenerators() []error {
 	// this "generic" module would be usable across targets
 	// NOTE, this might just be the location where adhoc
 	// can fill things in, see NOTE2 above for gen2subgen
-
-	return errs
-}
-
-func (R *Runtime) RunGenerators() []error {
-	start := time.Now()
-	defer func() {
-		end := time.Now()
-		R.Stats.GenRunningTime = end.Sub(start)
-	}()
-
-	var errs []error
-
-	// Load shadow, can this be done in parallel with the last step?
-	// Don't do in parallel yet, Cue is slow and hungry for memory @ v0.0.16
-	// CUE v0.4.0- is not concurrency safe, maybe v0.4.1 will introduce?
-	for _, G := range R.Generators {
-		gerrs := R.RunGenerator(G)
-		if len(gerrs) > 0 {
-			errs = append(errs, gerrs...)
-		}
-	}
-
-	return errs
-}
-
-func (R *Runtime) RunGenerator(G *Generator) (errs []error) {
-	if G.Disabled {
-		return
-	}
-
-	if G.UseDiff3 {
-		shadow, err := LoadShadow(filepath.Join(R.Flagpole.Outdir, G.Name), R.Verbosity)
-		if err != nil {
-			errs = append(errs, err)
-			return errs
-		}
-		G.Shadow = shadow
-	}
-
-	// run this generator
-	errsG := G.GenerateFiles(R.Flagpole.Outdir)
-	if len(errsG) > 0 {
-		errs = append(errs, errsG...)
-		return errs
-	}
-
-	// run any subgenerators
-	for _, sg := range G.Generators {
-		// make sure
-		sg.UseDiff3 = G.UseDiff3
-		sgerrs := R.RunGenerator(sg)
-		if len(sgerrs) > 0 {
-			errs = append(errs, sgerrs...)
-		}
-	}
-
-	return errs
-}
-
-func (R *Runtime) WriteOutput() []error {
-	var errs []error
-	if R.Verbosity > 0 {
-		fmt.Println("Writing output")
-	}
-
-	for _, G := range R.Generators {
-		gerrs := R.WriteGenerator(G)
-		errs = append(errs, gerrs...)
-	}
-
-	return errs
-}
-
-func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
-	if G.Disabled {
-		return errs
-	}
-
-	writestart := time.Now()
-
-	// Order is important here for implicit overriding of content
-
-	// Start with static file globs
-	for _, Static := range G.Statics {
-		for _, Glob := range Static.Globs {
-			bdir := ""
-			if G.PackageName != "" {
-				bdir = filepath.Join("cue.mod/pkg", G.PackageName)
-			}
-			matches, err := zglob.Glob(filepath.Join(bdir, Glob))
-			if err != nil {
-				err = fmt.Errorf("while globbing %s / %s\n%w\n", bdir, Glob, err)
-				errs = append(errs, err)
-				return errs
-			}
-			for _, match := range matches {
-				mo := strings.TrimPrefix(match, filepath.Clean(Static.TrimPrefix))
-				src := filepath.Join(bdir, match)
-				dst := filepath.Join(G.Outdir, Static.OutPrefix, mo)
-
-				// TODO?, make comparison and decide to write or not
-
-				// normal location
-				err := yagu.CopyFile(src, filepath.Join(R.Flagpole.Outdir, dst))
-				if err != nil {
-					err = fmt.Errorf("while copying static file %q\n%w\n", match, err)
-					errs = append(errs, err)
-				}
-
-				if G.UseDiff3 {
-					// shadow location
-					err = yagu.CopyFile(src, filepath.Join(SHADOW_DIR, R.Flagpole.Outdir, G.Name, dst))
-					if err != nil {
-						err = fmt.Errorf("while copying static shadow file %q\n%w\n", match, err)
-						errs = append(errs, err)
-					}
-				}
-
-				delete(G.Shadow, dst)
-				G.Stats.NumStatic += 1
-				G.Stats.NumWritten += 1
-
-			}
-
-		}
-	}
-
-	// Then the static files in cue
-	for p, content := range G.EmbeddedStatics {
-		F := &File{
-			Filepath:     filepath.Join(G.Outdir, p),
-			FinalContent: []byte(content),
-		}
-		err := F.WriteOutput(R.Flagpole.Outdir)
-		if err != nil {
-			errs = append(errs, err)
-		}
-		if G.UseDiff3 {
-			err = F.WriteShadow(filepath.Join(SHADOW_DIR, R.Flagpole.Outdir, G.Name))
-			if err != nil {
-				errs = append(errs, err)
-			}
-		}
-		delete(G.Shadow, F.Filepath)
-		G.Stats.NumStatic += 1
-		G.Stats.NumWritten += 1
-	}
-
-	// Finally write the generator files
-	for _, F := range G.Files {
-		F.Filepath = filepath.Clean(filepath.Join(G.Outdir, F.Filepath))
-		// Write the actual output
-		if F.DoWrite && len(F.Errors) == 0 {
-			// todo, lift this out?
-			err := F.WriteOutput(R.Flagpole.Outdir)
-			if err != nil {
-				errs = append(errs, err)
-			}
-		}
-
-		// Write the shadow too, or if it doesn't exist
-		if G.UseDiff3 {
-			if F.DoWrite || (F.IsSame > 0 && F.ShadowFile == nil) {
-				err := F.WriteShadow(filepath.Join(SHADOW_DIR, R.Flagpole.Outdir, G.Name))
-				if err != nil {
-					errs = append(errs, err)
-				}
-			}
-		}
-
-		// remove from shadows map so we can cleanup what remains
-		delete(G.Shadow, F.Filepath)
-	}
-
-	// Cleanup File & Shadow
-	// fmt.Println("Clean Shadow", G.Name)
-	if G.UseDiff3 {
-		for f := range G.Shadow {
-			genFilename := filepath.Join(R.Flagpole.Outdir, f)
-			shadowFilename := filepath.Join(SHADOW_DIR, R.Flagpole.Outdir, G.Name, f)
-			if R.Verbosity > 0 {
-				fmt.Println("  -", G.Name, f, genFilename, shadowFilename)
-			} else {
-				fmt.Println("  -", f)
-			}
-
-			err := os.Remove(genFilename)
-			if err != nil {
-				errs = append(errs, err)
-			}
-
-			err = os.Remove(shadowFilename)
-			if err != nil {
-				errs = append(errs, err)
-			}
-
-			G.Stats.NumDeleted += 1
-		}
-	}
-
-	for _, SG := range G.Generators {
-		SG.UseDiff3 = G.UseDiff3
-		sgerrs := R.WriteGenerator(SG)
-		errs = append(errs, sgerrs...)
-	}
-
-	writeend := time.Now()
-	G.Stats.WritingTime = writeend.Sub(writestart).Round(time.Millisecond)
 
 	return errs
 }

@@ -26,6 +26,7 @@ type File struct {
 	TemplateContent string // The content, takes precedence over next option
 	TemplatePath    string // Named template
 	DatafileFormat  string // Data format file
+	StaticFile      bool
 
 	// Template delimiters
 	TemplateDelims *templates.Delims
@@ -56,6 +57,7 @@ type File struct {
 	// Bookkeeping
 	Errors []error
 	FileStats
+	parent *Generator
 }
 
 func (F *File) Render(outdir string, UseDiff3 bool) error {
@@ -70,6 +72,8 @@ func (F *File) Render(outdir string, UseDiff3 bool) error {
 			F.Errors = append(F.Errors, err)
 			return err
 		}
+	} else if F.StaticFile {
+
 	} else {
 		err = F.RenderTemplate()
 		if err != nil {
