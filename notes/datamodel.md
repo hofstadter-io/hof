@@ -1,6 +1,6 @@
 # datamodel
 
-next version (0.6.4) datamodel upgrades
+next* version datamodel upgrades
 
 - [ ] load datamodel history into generators
 - [ ] diff3 tests, can we get an easy fix in? (timebox this)
@@ -30,3 +30,5 @@ examples:
 ---
 
 - https://github.com/Qovery/Replibyte
+- https://docs.open-metadata.org/metadata-standard/schemas/overview
+

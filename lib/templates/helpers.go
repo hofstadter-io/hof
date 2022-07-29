@@ -27,12 +27,7 @@ var funcMap = template.FuncMap{
 	"toml": Helper_toml,
 	"xml":  Helper_xml,
 
-	"concat": Helper_concat,
-	"join":   Helper_join,
-
 	"indent": Helper_indent,
-	"lwidth": Helper_lwidth,
-	"rwidth": Helper_rwidth,
 	"pprint": Helper_pretty,
 	"pretty": Helper_pretty,
 
@@ -50,6 +45,8 @@ var funcMap = template.FuncMap{
 	"KEBAB":  Helper_kebabU,
 	"kebabU": Helper_kebabU,
 
+	"concat":         Helper_concat,
+	"join":           Helper_join,
 	"contains":       Helper_contains,
 	"split":          Helper_split,
 	"replace":        Helper_replace,
@@ -143,16 +140,6 @@ func Helper_indent(value, indent string) string {
 	}
 	ret = strings.TrimSuffix(ret, "\n")
 	return ret
-}
-
-func Helper_lwidth(width string, value string) string {
-	fmt_str := "%-" + width + "s"
-	return fmt.Sprintf(fmt_str, value)
-}
-
-func Helper_rwidth(width string, value string) string {
-	fmt_str := "%-" + width + "s"
-	return fmt.Sprintf(fmt_str, value)
 }
 
 func Helper_pretty(value interface{}) string {
@@ -394,6 +381,12 @@ func Helper_builtin(str string) interface{} {
 func Helper_lookup(path string, data interface{}) interface{} {
 	if data == nil {
 		return fmt.Sprint("Nil data supplied for " + path)
+	}
+
+	// if OpenAPI format, convert to dotpath
+	if strings.HasPrefix(path, "#/") {
+		path = path[2:]
+		path = strings.Replace(path, "/", ".", -2)
 	}
 
 	obj, err := dotpath.Get(path, data, true)

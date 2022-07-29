@@ -3,7 +3,7 @@ package langs
 const PythonModder = `
 langs: python: {
 	Name:          "python",
-	Version:       "3.8",
+	Version:       "3.10",
 	ModFile:       "python.mod",
 	SumFile:       "requirements.txt",
 	ModsDir:       "vendor",

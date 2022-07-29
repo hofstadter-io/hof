@@ -330,7 +330,7 @@ module {{ .Module }}/{{ .Name }}
 cue v0.4.3
 
 require (
-	github.com/hofstadter-io/hof v0.6.3
+	github.com/hofstadter-io/hof v0.6.4
 )
 `
 

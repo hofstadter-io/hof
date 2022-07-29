@@ -3,7 +3,7 @@ package langs
 const GolangModder = `
 langs: go: {
 	Name:          "go",
-	Version:       "1.16",
+	Version:       "1.17",
 	ModFile:       "go.mod",
 	SumFile:       "go.sum",
 	ModsDir:       "vendor",
