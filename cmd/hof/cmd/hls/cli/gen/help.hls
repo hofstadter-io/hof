@@ -1,5 +1,0 @@
-### Test "gen --help" prints help
-call __hof gen --help
-
-### Test "gen -h" prints help
-call __hof gen -h

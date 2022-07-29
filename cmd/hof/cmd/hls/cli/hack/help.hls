@@ -1,5 +1,0 @@
-### Test "hack --help" prints help
-call __hof hack --help
-
-### Test "hack -h" prints help
-call __hof hack -h

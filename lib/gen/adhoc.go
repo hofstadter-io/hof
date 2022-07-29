@@ -30,6 +30,13 @@ type AdhocTemplateConfig struct {
 }
 
 func (R *Runtime) CreateAdhocGenerator() error {
+	if len(R.Flagpole.Template) == 0 {
+		if R.Verbosity > 1 {
+			fmt.Println("Skipping Adhoc Generator")
+		}
+		return nil
+	}
+
 	if R.Verbosity > 1 {
 		fmt.Println("Creating Adhoc Generator")
 	}

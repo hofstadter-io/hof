@@ -1,8 +1,0 @@
-### Test "mod --help" prints help
-call __hof mod --help
-
-### Test "mod -h" prints help
-call __hof mod -h
-
-### Test "mod" (without any args) prints help
-call __hof mod
