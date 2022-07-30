@@ -1,0 +1,15 @@
+{
+  "name": "formatter",
+  "version": "0.0.1",
+  "description": "a collection of formatters as a server",
+  "main": "prettier.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "express": "^4.18.1",
+    "prettier": "^2.7.1"
+  }
+}
