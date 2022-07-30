@@ -5,6 +5,8 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+
+	hfmt "github.com/hofstadter-io/hof/lib/fmt"
 )
 
 var infoLong = `get formatter info`
@@ -12,7 +14,9 @@ var infoLong = `get formatter info`
 func InfoRun(formatter string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = hfmt.Info(formatter)
 
 	return err
 }

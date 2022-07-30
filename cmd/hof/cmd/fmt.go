@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/cmd/fmt"
+	hfmt "github.com/hofstadter-io/hof/lib/fmt"
 )
 
 var fmtLong = `With hof fmt, you can
@@ -17,7 +18,9 @@ var fmtLong = `With hof fmt, you can
 func FmtRun(files []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = hfmt.Run(files)
 
 	return err
 }

@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	hfmt "github.com/hofstadter-io/hof/lib/fmt"
 )
 
 var listLong = `list known formatters`
@@ -12,7 +13,9 @@ var listLong = `list known formatters`
 func ListRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = hfmt.List()
 
 	return err
 }
