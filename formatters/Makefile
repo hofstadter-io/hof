@@ -13,9 +13,9 @@ images: $(IMAGES)
 $(IMAGES):
 	docker build -t hofstadter/fmt-$(@:%.image=%):$(TAG) tools/$(@:%.image=%)
 
-# make *.run
-$(addsuffix .run,$(TOOLS)):
-	docker run -d -P --name hof-fmt-$(@:%.run=%) hofstadter/fmt-$(@:%.run=%):$(TAG)
+# make *.start
+$(addsuffix .start,$(TOOLS)):
+	docker run -d -P --name hof-fmt-$(@:%.start=%) hofstadter/fmt-$(@:%.start=%):$(TAG)
 
 # make *.stop
 stop: $(addsuffix .stop,$(TOOLS))

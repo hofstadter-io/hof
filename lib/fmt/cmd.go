@@ -2,6 +2,9 @@ package fmt
 
 import (
 	"fmt"
+	"os"
+
+	"github.com/olekukonko/tablewriter"
 )
 
 func Run(args []string) error {
@@ -10,43 +13,73 @@ func Run(args []string) error {
 	return nil
 }
 
-func List() error {
-	fmt.Println("Listing formatters")
+func Info(which string) error {
+	err := updateFormatterStatus()
+	if err != nil {
+		return err
+	}
+
+	return printAsTable(
+		[]string{"Name", "Port", "Image", "Status"},
+		func(table *tablewriter.Table) ([][]string, error) {
+			var rows = make([][]string, 0, len(fmtrNames))
+			// fill with data
+			for _,f := range fmtrNames {
+				fmtr := formatters[f]
+
+				if which == "" && fmtr.Running == false {
+					continue
+				}
+				
+				if fmtr.Container != nil {
+					rows = append(rows, []string{
+						fmtr.Name,
+						fmtr.Port,
+						fmtr.Container.Image,
+						fmtr.Container.Status,
+					})
+				} else {
+					rows = append(rows, []string{ fmtr.Name, "", "", "", })
+				}
+			}
+			return rows, nil
+		},
+	)
 
 	return nil
 }
 
-func Info(fmtr string) error {
-	fmt.Println("Info:", fmtr)
-
-	return nil
+func defaultTableFormat(table *tablewriter.Table) {
+	table.SetAutoWrapText(false)
+	table.SetAutoFormatHeaders(true)
+	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
+	table.SetAlignment(tablewriter.ALIGN_LEFT)
+	table.SetCenterSeparator("")
+	table.SetColumnSeparator("")
+	table.SetRowSeparator("")
+	table.SetHeaderLine(false)
+	table.SetBorder(false)
+	table.SetTablePadding("  ") // pad with tabs
+	table.SetNoWhiteSpace(true)
 }
 
-func Start(fmtr string) error {
-	fmt.Println("Starting", fmtr)
+type dataPrinter func(table *tablewriter.Table) ([][]string, error)
 
-	return nil
-}
+func printAsTable(headers []string, printer dataPrinter) error {
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader(headers)
 
-func Stop(fmtr string) error {
-	fmt.Println("Stopping", fmtr)
+	defaultTableFormat(table)
 
-	return nil
-}
+	rows, err := printer(table)
+	if err != nil {
+		return err
+	}
 
-func listContainers(fmtr string) error {
+	table.AppendBulk(rows)
 
-	return nil
-}
-
-func startContainer(fmtr string) error {
-
-
-	return nil
-}
-
-func stopContainer(fmtr string) error {
-
+	// render
+	table.Render()
 
 	return nil
 }

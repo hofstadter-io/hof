@@ -26,16 +26,15 @@ import (
 	}]
 
 	Commands: [{
-		Name:  "list"
-		Usage: "list"
-		Short: "list known formatters"
-		Long:  Short
-	}, {
 		Name:  "info"
 		Usage: "info"
 		Short: "get formatter info"
 		Long:  Short
-		Args: _carg
+		Args: [{
+			Name:     "formatter"
+			Type:     "string"
+			Help:     "formatter name or 'all'"
+		}]
 	}, {
 		Name:  "start"
 		Usage: "start"

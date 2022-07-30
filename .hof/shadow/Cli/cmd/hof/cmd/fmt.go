@@ -81,7 +81,6 @@ func init() {
 	FmtCmd.SetHelpFunc(help)
 	FmtCmd.SetUsageFunc(usage)
 
-	FmtCmd.AddCommand(cmdfmt.ListCmd)
 	FmtCmd.AddCommand(cmdfmt.InfoCmd)
 	FmtCmd.AddCommand(cmdfmt.StartCmd)
 	FmtCmd.AddCommand(cmdfmt.StopCmd)
