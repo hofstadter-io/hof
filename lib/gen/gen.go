@@ -70,14 +70,14 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 	// b/c shorter names
 	LT := len(cmdflags.Template)
 	LG := len(cmdflags.Generator)
-	globs := cmdflags.WatchFull
-	xcue := cmdflags.WatchFast
+	fullWG := cmdflags.WatchFull
+	fastWG := cmdflags.WatchFast
 
 	// determine watch mode
 	//  excplicit: -w
 	//  implicit:  -W/-X
 	watch := cmdflags.Watch
-	if len(globs) > 0 || len(xcue) > 0 {
+	if len(fullWG) > 0 || len(fastWG) > 0 {
 		watch = true
 	}
 
@@ -153,9 +153,9 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 			return err
 		}
 		if info.IsDir() {
-			globs = append(globs, info.Name() + "/*")
+			fullWG = append(fullWG, info.Name() + "/*")
 		} else {
-			globs = append(globs, info.Name())
+			fullWG = append(fullWG, info.Name())
 		}
 	}
 
@@ -165,8 +165,12 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 			continue
 		}
 
-		globs = append(globs, G.WatchFull...)
-		xcue = append(xcue, G.WatchFast...)
+		for _, wfg := range G.WatchFull {
+			fullWG = append(fullWG, filepath.Join(R.CueModuleRoot,wfg))
+		}
+		for _, wfg := range G.WatchFast {
+			fastWG = append(fastWG, filepath.Join(R.CueModuleRoot,wfg))
+		}
 
 		// when package is set or not...
 		if G.PackageName == "" {
@@ -178,14 +182,20 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 			// maybe add a CUE field to disable watch
 			// if someone wants to recursively watch
 			// some generators but not all?
-			for _,T := range G.Templates {
-				xcue = append(xcue, T.Globs...)
+			for _,T := range G.Templates {	
+				for _, glob := range T.Globs {
+					fastWG = append(fastWG, filepath.Join(R.CueModuleRoot,glob))
+				}
 			}
 			for _,P := range G.Partials {
-				xcue = append(xcue, P.Globs...)
+				for _, glob := range P.Globs {
+					fastWG = append(fastWG, filepath.Join(R.CueModuleRoot,glob))
+				}
 			}
 			for _,S := range G.Statics {
-				xcue = append(xcue, S.Globs...)
+				for _, glob := range S.Globs {
+					fastWG = append(fastWG, filepath.Join(R.CueModuleRoot,glob))
+				}
 			}
 			// where's your cover sheet? You got the memo right?
 
@@ -204,27 +214,27 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 	}
 	// add partial templates to xcue globs
 	// can do outside loop since all gens have the same value
-	xcue = append(xcue, R.Flagpole.Partial...)
+	fastWG = append(fastWG, R.Flagpole.Partial...)
 
 	// probably w/o args and/or just using a generator, lets add some sensible defaults
-	// if len(globs) == 0 {
-		// globs = append(globs, "./cue.mod/**/*", "*.cue", "design/**/*")
+	// if len(fullWG) == 0 {
+		// fullWG = append(fullWG, "./cue.mod/**/*", "*.cue", "design/**/*")
 	// }
 
 	// this might be empty, we calc anyway for ease and sharing
-	wfiles, err := yagu.FilesFromGlobs(globs)
+	wfiles, err := yagu.FilesFromGlobs(fullWG)
 	if err != nil {
 		return err
 	}
-	xfiles, err := yagu.FilesFromGlobs(xcue)
+	xfiles, err := yagu.FilesFromGlobs(fastWG)
 	if err != nil {
 		return err
 	}
 
 	// if we are in watch mode, let the user know what is being watched
 	if watch {
-		fmt.Printf("found %d glob files from %v\n", len(wfiles), globs)
-		fmt.Printf("found %d xcue files from %v\n", len(xfiles), xcue)
+		fmt.Printf("found %d glob files from %v\n", len(wfiles), fullWG)
+		fmt.Printf("found %d fastWG files from %v\n", len(xfiles), fastWG)
 	}
 
 	// code gen func
@@ -344,7 +354,7 @@ func (R *Runtime) genOnce(fast, watch bool, files []string) (chan bool, error) {
 
 	quit := make(chan bool, 2)
 
-	go DoWatch(doGen, true, false, files, "xcue", quit)
+	go DoWatch(doGen, true, false, files, "fastWG", quit)
 
 	return quit, err
 }

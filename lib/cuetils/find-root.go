@@ -1,7 +1,6 @@
 package cuetils
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 )
@@ -27,7 +26,8 @@ func FindModuleAbsPath() (string, error) {
 	}
 
 	if !found {
-		return "", fmt.Errorf("unable to find CUE module root")
+		return "", nil
+		// return "", fmt.Errorf("unable to find CUE module root")
 	}
 
 	return dir, nil

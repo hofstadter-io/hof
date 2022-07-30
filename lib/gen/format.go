@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	gofmt "go/format"
+	"os"
 	"strings"
 
 	"cuelang.org/go/cue"
@@ -13,6 +14,21 @@ import (
 	"github.com/clbanning/mxj"
 	"github.com/naoina/toml"
 )
+
+var FORMAT_DISABLED = false
+
+func init() {
+	val := os.Getenv("HOF_FORMAT_DISABLED")
+	if val == "true" || val == "1" {
+		FORMAT_DISABLED=true
+	}
+
+	searchFormatters()
+}
+
+func searchFormatters() {
+
+}
 
 func (F *File) FormatRendered() error {
 
@@ -24,6 +40,12 @@ func (F *File) FormatRendered() error {
 		}
 
 		F.RenderContent = fmtd
+	}
+
+	// hook into prettier / black ...
+	// via container / system
+	if !FORMAT_DISABLED {
+		// make api call to container
 	}
 
 	return nil
