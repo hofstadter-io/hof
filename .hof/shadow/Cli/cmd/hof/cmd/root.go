@@ -105,6 +105,7 @@ func RootInit() {
 	RootCmd.AddCommand(DatamodelCmd)
 	RootCmd.AddCommand(GenCmd)
 	RootCmd.AddCommand(FlowCmd)
+	RootCmd.AddCommand(FmtCmd)
 	RootCmd.AddCommand(ModCmd)
 	RootCmd.AddCommand(RunCmd)
 	RootCmd.AddCommand(FeedbackCmd)

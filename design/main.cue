@@ -30,6 +30,7 @@ import (
 		cmds.#DatamodelCommand,
 		cmds.#GenCommand,
 		cmds.#FlowCommand,
+		cmds.#FmtCommand,
 		cmds.#ModCommand,
 
 		// beta commands
