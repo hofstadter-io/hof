@@ -36,6 +36,12 @@ import (
 			Help:     "formatter name or 'all'"
 		}]
 	}, {
+		Name:  "pull"
+		Usage: "pull"
+		Short: "docker pull a formatter"
+		Long:  Short
+		Args: _carg
+	}, {
 		Name:  "start"
 		Usage: "start"
 		Short: "start a formatter"

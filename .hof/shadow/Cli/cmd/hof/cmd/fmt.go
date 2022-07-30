@@ -82,6 +82,7 @@ func init() {
 	FmtCmd.SetUsageFunc(usage)
 
 	FmtCmd.AddCommand(cmdfmt.InfoCmd)
+	FmtCmd.AddCommand(cmdfmt.PullCmd)
 	FmtCmd.AddCommand(cmdfmt.StartCmd)
 	FmtCmd.AddCommand(cmdfmt.StopCmd)
 

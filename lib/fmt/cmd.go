@@ -3,6 +3,7 @@ package fmt
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/olekukonko/tablewriter"
 )
@@ -13,33 +14,74 @@ func Run(args []string) error {
 	return nil
 }
 
-func Info(which string) error {
-	err := updateFormatterStatus()
+func Start(fmtr string) error {
+	err := initDockerCli()
+	if err != nil {
+		return err
+	}
+	return startContainer(fmtr)
+}
+
+func Stop(fmtr string) error {
+	err := initDockerCli()
+	if err != nil {
+		return err
+	}
+	return stopContainer(fmtr)
+}
+
+func Pull(fmtr string) error {
+	err := initDockerCli()
+	if err != nil {
+		return err
+	}
+	return pullContainer(fmtr)
+}
+
+func Info(which string) (err error) {
+	err = initDockerCli()
+	if err != nil {
+		return err
+	}
+
+	err = updateFormatterStatus()
 	if err != nil {
 		return err
 	}
 
 	return printAsTable(
-		[]string{"Name", "Port", "Image", "Status"},
+		[]string{"Name", "Status", "Port", "Image", "Available"},
 		func(table *tablewriter.Table) ([][]string, error) {
 			var rows = make([][]string, 0, len(fmtrNames))
 			// fill with data
 			for _,f := range fmtrNames {
 				fmtr := formatters[f]
 
-				if which == "" && fmtr.Running == false {
-					continue
+				if which != "" {
+					if !strings.HasPrefix(fmtr.Name, which) {
+						continue
+					}
 				}
+
 				
 				if fmtr.Container != nil {
 					rows = append(rows, []string{
 						fmtr.Name,
+						fmtr.Container.Status,
 						fmtr.Port,
 						fmtr.Container.Image,
-						fmtr.Container.Status,
+						fmt.Sprint(fmtr.Available),
 					})
 				} else {
-					rows = append(rows, []string{ fmtr.Name, "", "", "", })
+					img := ""
+					if len(fmtr.Images) > 0 {
+					  img = fmtr.Images[0].RepoTags[0]
+					}
+					rows = append(rows, []string{
+						fmtr.Name,
+						"", "", img,
+						fmt.Sprint(fmtr.Available),
+					})
 				}
 			}
 			return rows, nil
