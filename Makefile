@@ -30,4 +30,6 @@ gofmt:
 	find . -type f -name '*.go' '!' -path '*/cue.mod/*' '!' -path '*/templates/*' '!' -path '*/partials/*' '!' -path '*/.hof/*' -exec gofmt -w {} \;
 
 release:
+	make -C formatters images
 	cd cmd/hof && goreleaser --rm-dist -p 1
+	make -C formatters push

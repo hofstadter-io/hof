@@ -22,3 +22,8 @@ stop: $(addsuffix .stop,$(TOOLS))
 $(addsuffix .stop,$(TOOLS)):
 	docker rm -f hof-fmt-$(@:%.stop=%)
 
+# make *.push
+push: $(addsuffix .push,$(TOOLS))
+$(addsuffix .push,$(TOOLS)):
+	docker push hofstadter/fmt-$(@:%.push=%):$(TAG)
+
