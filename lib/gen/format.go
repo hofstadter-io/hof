@@ -4,9 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	gofmt "go/format"
 	"os"
-	"strings"
 
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/format"
@@ -31,17 +29,6 @@ func init() {
 
 func (F *File) FormatRendered() error {
 
-	// If Golang only
-	if strings.HasSuffix(F.Filepath, ".go") {
-		fmtd, err := gofmt.Source(F.RenderContent)
-		if err != nil {
-			return err
-		}
-
-		F.RenderContent = fmtd
-	}
-
-	// hook into prettier / black ...
 	// via container / system
 	if !FORMAT_DISABLED {
 		// inspect file settings to see if there is fmtr config...
