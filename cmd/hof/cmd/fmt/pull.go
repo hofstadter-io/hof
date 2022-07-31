@@ -5,6 +5,8 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+
+	hfmt "github.com/hofstadter-io/hof/lib/fmt"
 )
 
 var pullLong = `docker pull a formatter`
@@ -12,7 +14,9 @@ var pullLong = `docker pull a formatter`
 func PullRun(formatter string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = hfmt.Pull(formatter)
 
 	return err
 }

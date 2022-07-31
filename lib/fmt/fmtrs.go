@@ -7,6 +7,7 @@ import (
 	gofmt "go/format"
 	"io"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -29,6 +30,11 @@ func init() {
 	v := verinfo.Version
 	if v != "Local" {
 		defaultVersion = v
+	}
+
+	ov := os.Getenv("HOF_FMT_VERSION")
+	if ov != "" {
+		defaultVersion = ov
 	}
 }
 

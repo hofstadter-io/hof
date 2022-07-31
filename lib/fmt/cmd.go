@@ -49,7 +49,17 @@ func Start(fmtr string) error {
 	if err != nil {
 		return err
 	}
-	return startContainer(fmtr)
+	if fmtr == "all" {
+		for _, name := range fmtrNames {
+			err := startContainer(name)
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+	} else {
+		return startContainer(fmtr)
+	}
+	return nil
 }
 
 func Stop(fmtr string) error {
@@ -57,7 +67,17 @@ func Stop(fmtr string) error {
 	if err != nil {
 		return err
 	}
-	return stopContainer(fmtr)
+	if fmtr == "all" {
+		for _, name := range fmtrNames {
+			err := stopContainer(name)
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+	} else {
+		return stopContainer(fmtr)
+	}
+	return nil
 }
 
 func Pull(fmtr string) error {
@@ -65,7 +85,18 @@ func Pull(fmtr string) error {
 	if err != nil {
 		return err
 	}
-	return pullContainer(fmtr)
+
+	if fmtr == "all" {
+		for _, name := range fmtrNames {
+			err := pullContainer(name)
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+	} else {
+		return pullContainer(fmtr)
+	}
+	return nil
 }
 
 func Info(which string) (err error) {

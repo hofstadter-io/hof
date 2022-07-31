@@ -1,10 +1,14 @@
 # foo says stuff
 def foo():
-    print("hallo chat!")
+  print("hallo chat!")
 
-    a = 42
+  a = 42
 
-    print("life => ", a)
 
+
+  print(
+    "life => ",
+    a
+  )
 
 foo()

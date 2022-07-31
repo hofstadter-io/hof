@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -101,6 +102,11 @@ func updateFormatterStatus() error {
 }
 
 func startContainer(fmtr string) error {
+	err := maybePullContainer(fmtr)
+	if err != nil {
+		return err
+	}
+
 	ret, err := dockerCli.ContainerCreate(
 		context.Background(),
 
@@ -134,6 +140,9 @@ func startContainer(fmtr string) error {
 		types.ContainerStartOptions{},
 	)
 
+	// TODO, add alive command and wait for ready
+	time.Sleep(500*time.Millisecond)
+
 	return err
 }
 
@@ -147,7 +156,35 @@ func stopContainer(fmtr string) error {
 
 func pullContainer(fmtr string) error {
 	ref := fmt.Sprintf("hofstadter/fmt-%s:%s", fmtr, defaultVersion)
-	_, err := dockerCli.ImagePull(context.Background(), ref, types.ImagePullOptions{})
+	fmt.Println("pulling:", ref)
 
-	return err
+	r, err := dockerCli.ImagePull(context.Background(), ref, types.ImagePullOptions{})
+	if err != nil {
+		return err
+	}
+
+	_, err = dockerCli.ImageLoad(context.Background(), r, false)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func maybePullContainer(fmtr string) error {
+	F := formatters[fmtr]
+
+	found := false
+	for _, a := range F.Available {
+		if a == fmtr {
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		return pullContainer(fmtr)
+	}
+
+	return nil
 }
