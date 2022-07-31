@@ -155,6 +155,9 @@ func stopContainer(fmtr string) error {
 }
 
 func pullContainer(fmtr string) error {
+	if defaultVersion == "dirty" {
+		return nil
+	}
 	ref := fmt.Sprintf("hofstadter/fmt-%s:%s", fmtr, defaultVersion)
 	fmt.Println("pulling:", ref)
 

@@ -1,5 +1,11 @@
+DIFF := $(shell git diff)
 TAG := $(shell git tag --points-at HEAD | tr -d "\n")
+
+# overrides
 TAG := $(if $(TAG),$(TAG),dirty)
+TAG := $(if $(DIFF),dirty,$(TAG))
+
+# informational
 tag:
 	@echo $(TAG)
 

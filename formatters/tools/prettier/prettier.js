@@ -17,13 +17,20 @@ app.get('/', (req, res) => {
 });
 
 app.post('/', (req, res) => {
-	console.log(req.body);
+	// TODO, add debug level (env) and print
+	// console.log(req.body);
+	//
 	var source = req.body.source;
 	var config = req.body.config;
 
-	var fmt = prettier.format(source, config);
-  res.write(fmt);
-  res.end();
+	try {
+		var fmt = prettier.format(source, config);
+		res.write(fmt);
+		res.end();
+	} catch(error) {
+		console.log(error)
+		res.status(400).send(error.toString());
+	}
 });
 
 var port = 3000;

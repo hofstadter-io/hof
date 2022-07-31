@@ -1,0 +1,2 @@
+df foo:
+  print("hello")

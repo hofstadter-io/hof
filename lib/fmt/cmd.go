@@ -136,7 +136,9 @@ func Info(which string) (err error) {
 				} else {
 					img := ""
 					if len(fmtr.Images) > 0 {
-					  img = fmtr.Images[0].RepoTags[0]
+						if len(fmtr.Images[0].RepoTags) > 0 {
+							img = fmtr.Images[0].RepoTags[0]
+						}
 					}
 					rows = append(rows, []string{
 						fmtr.Name,
