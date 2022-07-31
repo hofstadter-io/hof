@@ -148,7 +148,7 @@ func (R *Runtime) CreateAdhocGenerator() error {
 	}
 
 	if R.Verbosity > 2 {
-		fmt.Printf("G: %#v\n", G)
+		fmt.Printf("AdhocGen: %#v\n", G)
 	}
 
 	R.Generators["AdhocGen"] = G

@@ -164,12 +164,16 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 		if G.Disabled {
 			continue
 		}
+		basedir := R.CueModuleRoot
+		if G.Name == "AdhocGen" {
+			basedir = ""
+		}
 
 		for _, wfg := range G.WatchFull {
-			fullWG = append(fullWG, filepath.Join(R.CueModuleRoot,wfg))
+			fullWG = append(fullWG, filepath.Join(basedir,wfg))
 		}
 		for _, wfg := range G.WatchFast {
-			fastWG = append(fastWG, filepath.Join(R.CueModuleRoot,wfg))
+			fastWG = append(fastWG, filepath.Join(basedir,wfg))
 		}
 
 		// when package is set or not...
@@ -184,17 +188,17 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 			// some generators but not all?
 			for _,T := range G.Templates {	
 				for _, glob := range T.Globs {
-					fastWG = append(fastWG, filepath.Join(R.CueModuleRoot,glob))
+					fastWG = append(fastWG, filepath.Join(basedir,glob))
 				}
 			}
 			for _,P := range G.Partials {
 				for _, glob := range P.Globs {
-					fastWG = append(fastWG, filepath.Join(R.CueModuleRoot,glob))
+					fastWG = append(fastWG, filepath.Join(basedir,glob))
 				}
 			}
 			for _,S := range G.Statics {
 				for _, glob := range S.Globs {
-					fastWG = append(fastWG, filepath.Join(R.CueModuleRoot,glob))
+					fastWG = append(fastWG, filepath.Join(basedir,glob))
 				}
 			}
 			// where's your cover sheet? You got the memo right?
@@ -215,11 +219,6 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 	// add partial templates to xcue globs
 	// can do outside loop since all gens have the same value
 	fastWG = append(fastWG, R.Flagpole.Partial...)
-
-	// probably w/o args and/or just using a generator, lets add some sensible defaults
-	// if len(fullWG) == 0 {
-		// fullWG = append(fullWG, "./cue.mod/**/*", "*.cue", "design/**/*")
-	// }
 
 	// this might be empty, we calc anyway for ease and sharing
 	wfiles, err := yagu.FilesFromGlobs(fullWG)

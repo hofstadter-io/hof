@@ -13,6 +13,8 @@ import (
 	"cuelang.org/go/encoding/yaml"
 	"github.com/clbanning/mxj"
 	"github.com/naoina/toml"
+
+	hfmt "github.com/hofstadter-io/hof/lib/fmt"
 )
 
 var FORMAT_DISABLED = false
@@ -23,11 +25,8 @@ func init() {
 		FORMAT_DISABLED=true
 	}
 
-	searchFormatters()
-}
-
-func searchFormatters() {
-
+	// gracefully init images / containers
+	hfmt.GracefulInit()
 }
 
 func (F *File) FormatRendered() error {
@@ -45,7 +44,14 @@ func (F *File) FormatRendered() error {
 	// hook into prettier / black ...
 	// via container / system
 	if !FORMAT_DISABLED {
-		// make api call to container
+		// inspect file settings to see if there is fmtr config...
+		// try using hof/fmt containers, this is auto inference
+		fmtd, err := hfmt.FormatSource(F.Filepath, F.RenderContent, "", nil)
+		if err != nil {
+			return err
+		}
+
+		F.RenderContent = fmtd
 	}
 
 	return nil
