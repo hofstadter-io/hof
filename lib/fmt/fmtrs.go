@@ -68,13 +68,59 @@ var fmtrNames = []string{
 }
 
 var extToFmtr = map[string]string {
-	".js": "prettier/js",
+	".js":      "prettier/babel",
+	".jsx":     "prettier/babel",
+	".ts":      "prettier/typescript",
+	".tsx":     "prettier/typescript",
+	".graphql": "prettier/graphql",
+	".json":    "prettier/json",
+	".yaml":    "prettier/yaml",
+	".yml":     "prettier/yaml",
+	".html":    "prettier/html",
+	".css":     "prettier/css",
+	".less":    "prettier/less",
+	".scss":    "prettier/scss",
+	".md":      "prettier/markdown",
+	".vue":     "prettier/vue",
 }
 
 var fmtrDefaultConfigs = map[string]interface{}{
-	"prettier/js": map[string]interface{}{
+	"prettier/babel": map[string]interface{}{
 		"semi": false,
 		"parser": "babel",
+	},
+	"prettier/typescript": map[string]interface{}{
+		"parser": "typescript",
+	},
+	"prettier/graphql": map[string]interface{}{
+		"parser": "graphql",
+	},
+	"prettier/html": map[string]interface{}{
+		"parser": "html",
+	},
+	"prettier/json": map[string]interface{}{
+		"parser": "json",
+	},
+	"prettier/css": map[string]interface{}{
+		"parser": "css",
+	},
+	"prettier/less": map[string]interface{}{
+		"parser": "less",
+	},
+	"prettier/scss": map[string]interface{}{
+		"parser": "scss",
+	},
+	"prettier/markdown": map[string]interface{}{
+		"parser": "markdown",
+	},
+	"prettier/vue": map[string]interface{}{
+		"parser": "vue",
+	},
+	"prettier/handlebars": map[string]interface{}{
+		"parser": "glimmer",
+	},
+	"prettier/go-template": map[string]interface{}{
+		"parser": "go-template",
 	},
 }
 
