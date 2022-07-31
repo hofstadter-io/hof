@@ -11,8 +11,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/cuecontext"
 	"cuelang.org/go/cue/format"
 	"github.com/clbanning/mxj"
 	"github.com/docker/docker/api/types"
@@ -238,22 +236,7 @@ func FormatSource(filename string, content []byte, fmtrName string, config inter
 }
 
 func formatCue(input []byte) ([]byte, error) {
-	ctx := cuecontext.New()
-	val := ctx.CompileBytes(input)
-	if val.Err() != nil {
-		return nil, val.Err()
-	}
-
-	syn := val.Syntax(
-		cue.Final(),
-		cue.Definitions(true),
-		cue.Hidden(true),
-		cue.Optional(true),
-		cue.Attributes(true),
-		cue.Docs(true),
-	)
-
-	bs, err := format.Node(syn)
+	bs, err := format.Source(input)
 	if err != nil {
 		return nil, err
 	}
