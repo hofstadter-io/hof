@@ -29,7 +29,7 @@ var defaultVersion = "dirty"
 func init() {
 	v := verinfo.Version
 	if v != "Local" {
-		defaultVersion = v
+		defaultVersion = "v" + v
 	}
 
 	ov := os.Getenv("HOF_FMT_VERSION")
