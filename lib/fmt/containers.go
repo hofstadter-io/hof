@@ -49,6 +49,7 @@ func updateFormatterStatus() error {
 	for _, fmtr := range formatters {
 		fmtr.Running = false
 		fmtr.Container = nil
+		fmtr.Available = make([]string, 0)
 	}
 
 	for _, image := range images {

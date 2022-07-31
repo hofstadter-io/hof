@@ -81,7 +81,7 @@ def index():
     if request.method == "POST":
         data = request.get_json()
         source = data.get("source")
-        options = data.get("options", {})
+        options = data.get("config", {})
         line_length = int(options.get("line_length", 88))
         skip_string_normalization = bool(
             options.get("skip_string_normalization", False)
@@ -121,58 +121,38 @@ def index():
     if py36:
         target_versions.add(TargetVersion.PY36)
 
-    state = {
-        "ll": line_length,
-        "ssn": skip_string_normalization,
-        "smtc": skip_magic_trailing_comma,
-        "pyi": pyi,
-        "fast": fast,
-        "prv": preview,
-        "tv": list(target_versions),
-    }
-
-    options = [f"`--line-length={line_length}`"]
-
-    if skip_string_normalization:
-        options.append("`--skip-string-normalization`")
-
-    if skip_magic_trailing_comma:
-        options.append("`--skip-magic-trailing-comma`")
-
-    if py36:
-        options.append("`--py36`")
-
-    if pyi:
-        options.append("`--pyi`")
-
-    if fast:
-        options.append("`--fast`")
-    else:
-        options.append("`--safe`")
-
-    if preview:
-        options.append("`--preview`")
+    if request.method == "POST":
+        formatted = format_code(
+            source,
+            fast=fast,
+            configuration={
+                "target_versions": {TARGET_VERSIONS[t] for t in target_versions},
+                "line_length": line_length,
+                "is_pyi": pyi,
+                "string_normalization": not skip_string_normalization,
+                "magic_trailing_comma": not skip_magic_trailing_comma,
+                "preview": preview,
+            },
+        )
+        return formatted
 
     if BLACK_VERSION == "stable":
         version = f"v{black_version}"
     else:
         version = f"https://github.com/psf/black/commit/{black_version}"
 
-    return jsonify(
-        {
-            "options": {
-                "line_length": line_length,
-                "skip_string_normalization": skip_string_normalization,
-                "skip_magic_trailing_comma": skip_magic_trailing_comma,
-                "target_versions": list(target_versions),
-                "pyi": pyi,
-                "fast": fast,
-                "preview": preview,
-            },
-            "state": state,
-            "version": black_version,
-        }
-    )
+    return jsonify({
+        "options": {
+            "line_length": line_length,
+            "skip_string_normalization": skip_string_normalization,
+            "skip_magic_trailing_comma": skip_magic_trailing_comma,
+            "target_versions": list(target_versions),
+            "pyi": pyi,
+            "fast": fast,
+            "preview": preview,
+        },
+        "version": black_version,
+    })
 
 
 @app.route("/version", methods=["GET"])

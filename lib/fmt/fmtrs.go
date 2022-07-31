@@ -4,12 +4,19 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	gofmt "go/format"
 	"io"
 	"net/http"
 	"path/filepath"
 	"strings"
 
+	"cuelang.org/go/cue"
+	"cuelang.org/go/cue/cuecontext"
+	"cuelang.org/go/cue/format"
+	"github.com/clbanning/mxj"
 	"github.com/docker/docker/api/types"
+	"github.com/naoina/toml"
+	"gopkg.in/yaml.v3"
 
 	"github.com/hofstadter-io/hof/cmd/hof/verinfo"
 )
@@ -68,13 +75,12 @@ var fmtrNames = []string{
 }
 
 var extToFmtr = map[string]string {
+	// prettier
 	".js":      "prettier/babel",
 	".jsx":     "prettier/babel",
 	".ts":      "prettier/typescript",
 	".tsx":     "prettier/typescript",
 	".graphql": "prettier/graphql",
-	".json":    "prettier/json",
-	".yaml":    "prettier/yaml",
 	".yml":     "prettier/yaml",
 	".html":    "prettier/html",
 	".css":     "prettier/css",
@@ -82,6 +88,9 @@ var extToFmtr = map[string]string {
 	".scss":    "prettier/scss",
 	".md":      "prettier/markdown",
 	".vue":     "prettier/vue",
+
+	// black
+	".py": "black/py",
 }
 
 var fmtrDefaultConfigs = map[string]interface{}{
@@ -97,9 +106,6 @@ var fmtrDefaultConfigs = map[string]interface{}{
 	},
 	"prettier/html": map[string]interface{}{
 		"parser": "html",
-	},
-	"prettier/json": map[string]interface{}{
-		"parser": "json",
 	},
 	"prettier/css": map[string]interface{}{
 		"parser": "css",
@@ -122,6 +128,10 @@ var fmtrDefaultConfigs = map[string]interface{}{
 	"prettier/go-template": map[string]interface{}{
 		"parser": "go-template",
 	},
+
+	"black/py": map[string]interface{}{
+		"parser": "go-template",
+	},
 }
 
 func FormatSource(filename string, content []byte, fmtrName string, config interface{}) ([]byte, error) {
@@ -129,6 +139,28 @@ func FormatSource(filename string, content []byte, fmtrName string, config inter
 	// TODO, better extract multipart extensions (as supported by prettier)
 	_, fn := filepath.Split(filename)
 	ext := filepath.Ext(fn)
+
+	// short-circuit builtin mime-types
+	switch ext {
+		case ".go":
+			return gofmt.Source(content)
+
+		case ".cue":
+			return formatCue(content)
+
+		case ".json":
+			return formatJson(content)
+
+		case ".yml", ".yaml":
+			return formatYaml(content)
+
+		case ".xml":
+			return formatXml(content)
+
+		case ".toml":
+			return formatToml(content)
+
+	}
 
 	// if the users hadn't 
 	if config == nil {
@@ -163,43 +195,119 @@ func FormatSource(filename string, content []byte, fmtrName string, config inter
 		}
 	}
 
-	switch fmtrName {
-		case "prettier":
-			data := make(map[string]interface{})
-			data["source"] = string(content)
-			data["config"] = config
+	data := make(map[string]interface{})
+	data["source"] = string(content)
+	data["config"] = config
 
-			bs, err := json.Marshal(data)
-			if err != nil {
-				return content, err
-			}
-
-			url := "http://localhost:" + fmtr.Port
-
-			req, err := http.NewRequest("POST", url, bytes.NewBuffer(bs))
-			req.Header.Set("Content-Type", "application/json; charset=UTF-8")
-
-			client := &http.Client{}
-			resp, err := client.Do(req)
-			if err != nil {
-				return content, err
-			}
-			defer resp.Body.Close()
-
-			body, err := io.ReadAll(resp.Body)
-			if err != nil {
-				fmt.Println("response Body:", string(body))
-				return content, err
-			}
-
-			content = body
-
-			
-		default: 
-			panic(fmt.Sprint("unknown formatter", fmtrName))
+	bs, err := json.Marshal(data)
+	if err != nil {
+		return content, err
 	}
+
+	url := "http://localhost:" + fmtr.Port
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(bs))
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return content, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("response Body:", string(body))
+		return content, err
+	}
+	if resp.StatusCode >= 400 {
+		fmt.Println("error:", filename, fmtrName, resp.StatusCode)
+		fmt.Println(string(body))
+		return content, fmt.Errorf("error while formatting %s", filename)
+	}
+
+	content = body
 
 	return content, nil
 }
 
+func formatCue(input []byte) ([]byte, error) {
+	ctx := cuecontext.New()
+	val := ctx.CompileBytes(input)
+	if val.Err() != nil {
+		return nil, val.Err()
+	}
 
+	syn := val.Syntax(
+		cue.Final(),
+		cue.Definitions(true),
+		cue.Hidden(true),
+		cue.Optional(true),
+		cue.Attributes(true),
+		cue.Docs(true),
+	)
+
+	bs, err := format.Node(syn)
+	if err != nil {
+		return nil, err
+	}
+
+	return bs, nil
+}
+
+func formatJson(input []byte) ([]byte, error) {
+	v := make(map[string]interface{})
+	err := json.Unmarshal(input, &v)
+	if err != nil {
+		return nil, err
+	}	
+
+	bs, err := json.MarshalIndent(v, "", "  ")
+	if err != nil {
+		return nil, err
+	}
+	return bs, nil
+}
+
+func formatYaml(input []byte) ([]byte, error) {
+	v := make(map[string]interface{})
+	err := yaml.Unmarshal(input, &v)
+	if err != nil {
+		return nil, err
+	}	
+
+	bs, err := yaml.Marshal(v)
+	if err != nil {
+		return nil, err
+	}
+	return bs, nil
+}
+
+func formatToml(input []byte) ([]byte, error) {
+	v := make(map[string]interface{})
+	err := toml.Unmarshal(input, &v)
+	if err != nil {
+		return nil, err
+	}
+
+	bs, err := toml.Marshal(v)
+	if err != nil {
+		return nil, err
+	}
+	return bs, nil
+}
+
+func formatXml(input []byte) ([]byte, error) {
+	xmlReader := bytes.NewReader(input)
+	mv, err := mxj.NewMapXmlReader(xmlReader)
+	if err != nil {
+		return nil, err
+	}
+
+	bs, err := mv.XmlIndent("", "  ")
+	if err != nil {
+		return nil, err
+	}
+	return bs, nil
+}

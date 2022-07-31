@@ -6,11 +6,41 @@ import (
 	"strings"
 
 	"github.com/olekukonko/tablewriter"
+
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 func Run(args []string) error {
-	fmt.Println("Run:", args)
+	files, err := yagu.FilesFromGlobs(args)
+	if err != nil {
+		return err
+	}
 
+	// if verbosity great enough?
+	fmt.Printf("formatting %d file(s)\n", len(files))
+
+	for _, file := range files {
+		info, err := os.Stat(file)
+		if err != nil {
+			return err
+		}
+
+		content, err := os.ReadFile(file)
+		if err != nil {
+			return err
+		}
+		
+		// todo, add flags for fmtr & config
+		fmtd, err := FormatSource(file, content, "", nil)
+		if err != nil {
+			return err
+		}
+
+		err = os.WriteFile(file, fmtd, info.Mode())
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
