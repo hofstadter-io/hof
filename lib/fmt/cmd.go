@@ -33,7 +33,9 @@ func Run(args []string) error {
 		// todo, add flags for fmtr & config
 		fmtd, err := FormatSource(file, content, "", nil)
 		if err != nil {
-			return err
+			fmt.Println(err)
+			continue
+			// return err
 		}
 
 		err = os.WriteFile(file, fmtd, info.Mode())

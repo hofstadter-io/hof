@@ -211,9 +211,6 @@ func FormatSource(filename string, content []byte, fmtrName string, config inter
 	}
 
 	url := "http://localhost:" + fmtr.Port
-	if fmtrName == "prettier" {
-		url = "http://localhost:3000"
-	}
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(bs))
 	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
@@ -230,10 +227,8 @@ func FormatSource(filename string, content []byte, fmtrName string, config inter
 		fmt.Println("response Body:", string(body))
 		return content, err
 	}
-	fmt.Println("status code:", resp.StatusCode)
 	if resp.StatusCode >= 400 {
-		fmt.Printf("%s error in %s\n", fmtrName, filename)
-		fmt.Println(string(body))
+		fmt.Println("\n" + string(body) + "\n")
 		return content, fmt.Errorf("error while formatting %s", filename)
 	}
 

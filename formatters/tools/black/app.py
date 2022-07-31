@@ -8,7 +8,6 @@ import tempfile
 
 from black.mode import TargetVersion
 from flask import Flask, render_template, request, jsonify
-from flask_api import status
 from flask_cors import cross_origin
 
 TEMP_DIR = tempfile.gettempdir()
@@ -72,9 +71,9 @@ def format_code(source, fast, configuration):
         formatted = source
     except Exception as exc:
         formatted = normalize_exception(exc)
-        return (formatted, status.HTTP_400_BAD_REQUEST)
+        return (formatted, 400)
 
-    return (formatted, status.HTTP_200_OK)
+    return formatted
 
 
 @app.route("/", methods=["POST", "GET"])
