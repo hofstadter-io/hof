@@ -241,8 +241,10 @@ func (G *Generator) initStaticFiles() []error {
 				mo = strings.TrimPrefix(mo, "/")
 				fp := filepath.Join(Static.OutPrefix, mo)
 
-				fmt.Println("static FN:", match, filepath.Join(bdir, Static.TrimPrefix), mo)
-				fmt.Println("    ", fp, filepath.Clean(fp))
+				if G.verbosity > 2 {
+					fmt.Println("static FN:", match, filepath.Join(bdir, Static.TrimPrefix), mo)
+					fmt.Println("    ", fp, filepath.Clean(fp))
+				}
 
 				// create a file
 				F := &File{
