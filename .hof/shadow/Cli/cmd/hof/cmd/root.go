@@ -171,6 +171,7 @@ Main commands:
   datamodel             manage, diff, and migrate your data models
   gen                   modular and composable code gen: CUE & data + templates = _
   flow                  run CUE pipelines with the hof/flow DAG engine
+  fmt                   format any code and manage the formatters
   mod                   polyglot dependency management based on go mods and MVS
 
 Additional commands:

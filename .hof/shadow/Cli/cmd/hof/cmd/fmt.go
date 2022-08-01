@@ -26,7 +26,7 @@ var FmtCmd = &cobra.Command{
 
 	Use: "fmt [filepaths or globs]",
 
-	Short: "format any code, manage formatters",
+	Short: "format any code and manage the formatters",
 
 	Long: fmtLong,
 

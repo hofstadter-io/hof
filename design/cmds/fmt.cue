@@ -7,7 +7,7 @@ import (
 #FmtCommand: schema.#Command & {
 	Name:  "fmt"
 	Usage: "fmt [filepaths or globs]"
-	Short: "format any code, manage formatters"
+	Short: "format any code and manage the formatters"
 	Long:  #FmtRootHelp
 
 	Args: [{

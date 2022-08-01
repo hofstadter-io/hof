@@ -72,6 +72,7 @@ Main commands:
   \(cmds.#DatamodelCommand.Help)
   \(cmds.#GenCommand.Help)
   \(cmds.#FlowCommand.Help)
+  \(cmds.#FmtCommand.Help)
   \(cmds.#ModCommand.Help)
 
 Additional commands:

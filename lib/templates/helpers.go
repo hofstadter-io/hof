@@ -70,6 +70,9 @@ var funcMap = template.FuncMap{
 	"dict":     Helper_dict,
 	"file":     Helper_file,
 
+	"add":     Helper_add,
+	"inc":     Helper_inc,
+
 	"gokind":  Helper_gokind,
 	"builtin": Helper_builtin,
 
@@ -339,6 +342,13 @@ func Helper_file(filename string) string {
 	return fmt.Sprintf("ERROR: %v", err)
 }
 
+func Helper_add(lhs, rhs int) int {
+	return lhs + rhs
+}
+
+func Helper_inc(val int) int {
+	return val + 1
+}
 func Helper_gokind(input interface{}) string {
 	v := reflect.ValueOf(input)
 	k := v.Kind()
