@@ -229,16 +229,20 @@ func (G *Generator) initStaticFiles() []error {
 			// for each static file, calc some dirs and write output & shadow
 			for _, match := range matches {
 				// read the file
-				src := filepath.Join(bdir, match)
-				content, err := os.ReadFile(src)
+				content, err := os.ReadFile(match)
 				if err != nil {
 					errs = append(errs, err)
 					continue
 				}
 
 				// remove and add prefixes, per the configuration
-				mo := strings.TrimPrefix(match, filepath.Clean(Static.TrimPrefix))
+				mo := strings.TrimPrefix(match, filepath.Join(bdir, Static.TrimPrefix))
+				// because Join removes?
+				mo = strings.TrimPrefix(mo, "/")
 				fp := filepath.Join(Static.OutPrefix, mo)
+
+				fmt.Println("static FN:", match, filepath.Join(bdir, Static.TrimPrefix), mo)
+				fmt.Println("    ", fp, filepath.Clean(fp))
 
 				// create a file
 				F := &File{

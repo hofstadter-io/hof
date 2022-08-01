@@ -136,6 +136,9 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 
 	// Finally write the generator files
 	for _, F := range G.Files {
+		if G.verbosity > 1 {
+			fmt.Println("Writing:", F.Filepath)
+		}
 
 		F.Filepath = filepath.Clean(F.Filepath)
 		// Write the actual output
