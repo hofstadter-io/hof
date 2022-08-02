@@ -58,12 +58,12 @@ TestGen: #TestGen & {
     // Defaults
     {
       TemplateContent: "Val.a = '{{ .Val.a }}'\n"
-      Filepath: "\(Outdir)/default.txt"
+      Filepath: "default.txt"
     },
     // Alternate delims
     {
       TemplateContent: "Val.a = '{% .Val.a %}'\n"
-      Filepath: "\(Outdir)/altdelim.txt"
+      Filepath: "altdelim.txt"
       TemplateDelims: {
 				LHS: "{%"
 				RHS: "%}"
@@ -76,23 +76,23 @@ TestGen: #TestGen & {
     // Named things
     {
       TemplatePath: "named"
-      Filepath: "\(Outdir)/named-things.txt"
+      Filepath: "named-things.txt"
     },
 
     // File based
     {
       TemplatePath: "template-file.txt"
-      Filepath: "\(Outdir)/template-file.txt"
+      Filepath: "template-file.txt"
     },
     {
       TemplatePath: "template-altfile.txt"
-      Filepath: "\(Outdir)/template-altfile.txt"
+      Filepath: "template-altfile.txt"
     },
 
     // User file
     {
       TemplateContent: "User file: '{{ file \"userfile.txt\" }}'\n"
-      Filepath: "\(Outdir)/user-file.txt"
+      Filepath: "user-file.txt"
     },
 
 		for F in _listFiles { F },
@@ -100,11 +100,11 @@ TestGen: #TestGen & {
 
 		{
 			DatafileFormat: "cue" 
-			Filepath: "\(Outdir)/datafile-cue.cue"
+			Filepath: "datafile-cue.cue"
 		},
 		{
 			DatafileFormat: "json" 
-			Filepath: "\(Outdir)/datafile-json.json"
+			Filepath: "datafile-json.json"
 			Val: #A
 		},
 
@@ -114,7 +114,7 @@ TestGen: #TestGen & {
 	_listFiles: [ for idx, elem in In.Val.List {
 			{
 				TemplatePath: "template-elems.txt"
-				Filepath: "\(Outdir)/list-elem-\(idx).txt"
+				Filepath: "list-elem-\(idx).txt"
 				In: {
 					Elem: elem
 				}
@@ -124,7 +124,7 @@ TestGen: #TestGen & {
 	mapFiles: [ for key, elem in In.Val.Map {
 			{
 				TemplatePath: "template-elems.txt"
-				Filepath: "\(Outdir)/map-elem-\(key).txt"
+				Filepath: "map-elem-\(key).txt"
 				In: {
 					Elem: elem
 				}
