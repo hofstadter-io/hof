@@ -123,6 +123,14 @@ func (mdr *Modder) LoadModFile() error {
 		return fmt.Errorf("no %q file found, directory not initialized for %s", mdr.ModFile, mdr.Name)
 	}
 
+	// empty file checks (based on parsed out values)
+	if m.ModFile.Module == nil {
+		return fmt.Errorf("your %q file appears to be empty", mdr.ModFile)
+	}
+	if m.ModFile.Module.Mod.Path == "" {
+		return fmt.Errorf("your %q file appears to be missing the module clause", mdr.ModFile)
+	}
+
 	m.Module = m.ModFile.Module.Mod.Path
 
 	return nil
