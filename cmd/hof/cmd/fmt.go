@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"os"
 
+	"path/filepath"
+	"strings"
+
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/cmd/fmt"
@@ -34,10 +37,25 @@ var FmtCmd = &cobra.Command{
 	Long: fmtLong,
 
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		if len(args) == 0 {
-			return []string{"info", "pull", "start", "stop"}, cobra.ShellCompDirectiveDefault
+		subcmds := []string{
+			"info",
+			"pull",
+			"start",
+			"stop",
 		}
-		return nil, cobra.ShellCompDirectiveDefault
+		if len(args) == 0 {
+			matches, _ := filepath.Glob("*")
+			return append(subcmds, matches...), cobra.ShellCompDirectiveDefault
+		} else {
+			matches, _ := filepath.Glob(args[0] + "*")
+			sc := []string{}
+			for _, c := range subcmds {
+				if strings.HasPrefix(c, args[0]) {
+					sc = append(sc, c)
+				}
+			}
+			return append(sc, matches...), cobra.ShellCompDirectiveDefault
+		}
 	},
 
 	Run: func(cmd *cobra.Command, args []string) {
