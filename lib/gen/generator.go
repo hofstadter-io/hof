@@ -254,7 +254,7 @@ func (G *Generator) initStaticFiles() []error {
 				// create a file
 				F := &File{
 					Filepath:     filepath.Clean(fp),
-					FinalContent: []byte(content),
+					RenderContent: []byte(content),
 					StaticFile:   true,
 				}
 
@@ -278,7 +278,7 @@ func (G *Generator) initStaticFiles() []error {
 	for p, content := range G.EmbeddedStatics {
 		F := &File{
 			Filepath:     filepath.Clean(p),
-			FinalContent: []byte(content),
+			RenderContent: []byte(content),
 			StaticFile:   true,
 		}
 
