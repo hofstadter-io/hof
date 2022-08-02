@@ -3,23 +3,76 @@ package fmt
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/olekukonko/tablewriter"
 
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
-func Run(args []string) error {
+var dataFileExtns = map[string]struct{}{
+	".cue": struct{}{},
+	".yml": struct{}{},
+	".yaml": struct{}{},
+	".json": struct{}{},
+	".toml": struct{}{},
+	".xml": struct{}{},
+}
+
+func Run(args []string, rflags flags.RootPflagpole, cflags flags.FmtFlagpole) error {
+	for i, arg := range args {
+		info, err := os.Stat(arg)
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			// fully traverse directories
+			glob := "**/*"
+			// slash fix
+			if arg[len(arg)-1] != '/' {
+				glob = "/" + glob
+			}
+			args[i] = arg + glob
+		}
+	}
 	files, err := yagu.FilesFromGlobs(args)
 	if err != nil {
 		return err
 	}
 
+	// filter files (data & dirs)
+	tmp := []string{}
+	for _, file := range files {
+		info, err := os.Stat(file)
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			continue
+		}	
+
+		if !cflags.Data {
+			ext := filepath.Ext(file)
+			if _, ok := dataFileExtns[ext]; ok {
+				continue
+			}
+		}
+		tmp = append(tmp,file)
+	}
+
+	files = tmp
+
+
 	// if verbosity great enough?
 	fmt.Printf("formatting %d file(s)\n", len(files))
 
 	for _, file := range files {
+		if rflags.Verbosity > 0 {
+			fmt.Println(file)
+		}
+
 		info, err := os.Stat(file)
 		if err != nil {
 			return err
@@ -31,7 +84,7 @@ func Run(args []string) error {
 		}
 		
 		// todo, add flags for fmtr & config
-		fmtd, err := FormatSource(file, content, "", nil, false)
+		fmtd, err := FormatSource(file, content, "", nil, cflags.Data)
 		if err != nil {
 			fmt.Println(err)
 			continue

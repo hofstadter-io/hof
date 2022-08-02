@@ -10,6 +10,17 @@ import (
 	Short: "format any code and manage the formatters"
 	Long:  #FmtRootHelp
 
+	Flags: [...schema.#Flag] & [
+		{
+			Name:    "data"
+			Type:    "bool"
+			Default: "false"
+			Help:    "include cue,yaml,json,toml,xml files"
+			Long:    "data"
+			Short:   "d"
+		},
+	]
+
 	Args: [{
 		Name: "files"
 		Type: "[]string"

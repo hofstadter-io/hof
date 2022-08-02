@@ -9,12 +9,19 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/cmd/fmt"
+
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
 )
 
 var fmtLong = `With hof fmt, you can
   1. format any language from a single tool
   2. run formatters as api servers for IDEs and hof
   3. manage the underlying formatter containers`
+
+func init() {
+
+	FmtCmd.Flags().BoolVarP(&(flags.FmtFlags.Data), "data", "d", false, "include cue,yaml,json,toml,xml files")
+}
 
 func FmtRun(files []string) (err error) {
 
