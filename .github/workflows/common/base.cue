@@ -7,7 +7,7 @@ import "github.com/hofstadter-io/ghacue"
 	on:   _ | *["pull_request"]
 	jobs: test: {
 		strategy: matrix: {
-			"go-version": ["1.17.x", "1.18.x"]
+			"go-version": ["1.18.x", "1.19.x"]
 			os: ["ubuntu-latest", "macos-latest"]
 		}
 		strategy: "fail-fast": false
