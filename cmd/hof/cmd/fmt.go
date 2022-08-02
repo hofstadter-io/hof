@@ -33,6 +33,13 @@ var FmtCmd = &cobra.Command{
 
 	Long: fmtLong,
 
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		if len(args) == 0 {
+			return []string{"info", "pull", "start", "stop"}, cobra.ShellCompDirectiveDefault
+		}
+		return nil, cobra.ShellCompDirectiveDefault
+	},
+
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
 
