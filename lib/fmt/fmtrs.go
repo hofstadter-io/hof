@@ -138,7 +138,7 @@ var fmtrDefaultConfigs = map[string]interface{}{
 	},
 }
 
-func FormatSource(filename string, content []byte, fmtrName string, config interface{}) ([]byte, error) {
+func FormatSource(filename string, content []byte, fmtrName string, config interface{}, formatData bool) ([]byte, error) {
 	// extract filename & extension
 	// TODO, better extract multipart extensions (as supported by prettier)
 	_, fn := filepath.Split(filename)
@@ -150,19 +150,39 @@ func FormatSource(filename string, content []byte, fmtrName string, config inter
 			return gofmt.Source(content)
 
 		case ".cue":
-			return formatCue(content)
+			if formatData {
+				return formatCue(content)
+			} else {
+				return content, nil
+			}
 
 		case ".json":
-			return formatJson(content)
+			if formatData {
+				return formatJson(content)
+			} else {
+				return content, nil
+			}
 
 		case ".yml", ".yaml":
-			return formatYaml(content)
+			if formatData {
+				return formatYaml(content)
+			} else {
+				return content, nil
+			}
 
 		case ".xml":
-			return formatXml(content)
+			if formatData {
+				return formatXml(content)
+			} else {
+				return content, nil
+			}
 
 		case ".toml":
-			return formatToml(content)
+			if formatData {
+				return formatToml(content)
+			} else {
+				return content, nil
+			}
 
 	}
 

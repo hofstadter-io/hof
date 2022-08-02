@@ -33,7 +33,7 @@ func (F *File) FormatRendered() error {
 	if !FORMAT_DISABLED {
 		// inspect file settings to see if there is fmtr config...
 		// try using hof/fmt containers, this is auto inference
-		fmtd, err := hfmt.FormatSource(F.Filepath, F.RenderContent, "", nil)
+		fmtd, err := hfmt.FormatSource(F.Filepath, F.RenderContent, "", nil, false)
 		if err != nil {
 			return err
 		}

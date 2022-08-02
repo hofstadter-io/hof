@@ -31,7 +31,7 @@ func Run(args []string) error {
 		}
 		
 		// todo, add flags for fmtr & config
-		fmtd, err := FormatSource(file, content, "", nil)
+		fmtd, err := FormatSource(file, content, "", nil, false)
 		if err != nil {
 			fmt.Println(err)
 			continue
