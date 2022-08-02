@@ -28,6 +28,10 @@ type File struct {
 	DatafileFormat  string // Data format file
 	StaticFile      bool
 
+	// Formatting
+	FormattingDisabled bool
+	FormattingConfig   *FmtConfig
+
 	// Template delimiters
 	TemplateDelims *templates.Delims
 

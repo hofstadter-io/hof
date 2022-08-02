@@ -8,6 +8,11 @@ import (
 )
 
 func (G *Generator) DecodeFromCUE() (errs []error) {
+	// TODO, what if a user's generator doesn't use the schema?
+	// happens when to unspecified fields?
+	// should we just unify with the schema here too?
+	// what about versions?
+
 	// fmt.Println("Gen Load:", G.Name)
 	start := time.Now()
 
@@ -28,6 +33,14 @@ func (G *Generator) DecodeFromCUE() (errs []error) {
 	}
 
 	if err := G.loadWatchFast(); err != nil {
+		errs = append(errs, err)
+	}
+
+	if err := G.loadFormattingBools(); err != nil {
+		errs = append(errs, err)
+	}
+
+	if err := G.loadFormattingConfigs(); err != nil {
 		errs = append(errs, err)
 	}
 
@@ -144,6 +157,40 @@ func (G *Generator) loadWatchFast() error {
 	}
 
 	return val.Decode(&G.WatchFast)
+}
+
+func (G *Generator) loadFormattingBools() (err error) {
+	val := G.CueValue.LookupPath(cue.ParsePath("Formatting.Disabled"))
+	if val.Err() != nil {
+		return nil
+		// return val.Err()
+	}
+	G.FormattingDisabled, err = val.Bool()
+	if err != nil {
+		return err
+	}
+
+	val = G.CueValue.LookupPath(cue.ParsePath("Formatting.FormatData"))
+	if val.Err() != nil {
+		return nil
+		// return val.Err()
+	}
+	G.FormatData, err = val.Bool()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (G *Generator) loadFormattingConfigs() error {
+	val := G.CueValue.LookupPath(cue.ParsePath("Formatting.Formatters"))
+	if val.Err() != nil {
+		return nil
+		return val.Err()
+	}
+
+	G.FormattingConfigs = make(map[string]FmtConfig)
+	return val.Decode(&G.FormattingConfigs)
 }
 
 func (G *Generator) loadTemplates() error {
@@ -315,6 +362,43 @@ func (G *Generator) loadFile(file *File, val cue.Value) error {
 			}
 
 		}
+
+		// Formatting
+		var err error
+		fval := val.LookupPath(cue.ParsePath("Formatting"))
+		if fval.Err() == nil && fval.Exists() {
+			fdval := fval.LookupPath(cue.ParsePath("Disabled"))
+			if fdval.Err() == nil && fdval.Exists() {
+				file.FormattingDisabled, err = fdval.Bool()	
+				if err != nil {
+					return err
+				}
+			} else {
+				// use default from Generator, depending on file type (tmpl|data)
+				if file.Value.Exists() {
+					file.FormattingDisabled = !G.FormatData
+				} else {
+					file.FormattingDisabled = G.FormattingDisabled
+				}
+			}
+
+			ffval := fval.LookupPath(cue.ParsePath("Foramtter"))
+			if ffval.Err() == nil && ffval.Exists() {
+				cfg := new(FmtConfig)
+				file.FormattingConfig = cfg
+				cfg.Formatter, err = ffval.String()
+				if err != nil {
+					return err
+				}
+
+				fcval := fval.LookupPath(cue.ParsePath("Config"))
+				err = fcval.Decode(&cfg.Config)
+				if err != nil {
+					return err
+				}
+			}
+		}
+
 
 		G.Out = append(G.Out, file)
 	}

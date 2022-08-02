@@ -28,6 +28,15 @@ package gen
 	//  '.' will bre replaced by generator defaults
 	TemplateDelims?: #TemplateDelims
 
+	// Formatting Control
+	Formatting?: {
+		Disabled?: bool
+		// Name of the formatter, like 'prettier' or 'black'
+		Formatter: string
+		// formatter specific configuration
+		Config: _
+	}
+
 	// Note, intentionally closed to prevent user error when creating GenFiles
 }
 

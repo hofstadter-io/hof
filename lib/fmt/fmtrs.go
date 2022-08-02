@@ -36,16 +36,18 @@ func init() {
 	}
 }
 
-func GracefulInit() {
+func GracefulInit() error {
 	err := initDockerCli()
 	if err != nil {
-		return
+		return err
 	}
 
 	err = updateFormatterStatus()
 	if err != nil {
-		return
+		return err
 	}
+
+	return nil
 }
 
 type Formatter struct {
@@ -141,6 +143,7 @@ var fmtrDefaultConfigs = map[string]interface{}{
 func FormatSource(filename string, content []byte, fmtrName string, config interface{}, formatData bool) ([]byte, error) {
 	// extract filename & extension
 	// TODO, better extract multipart extensions (as supported by prettier)
+	// want to prefer the longest
 	_, fn := filepath.Split(filename)
 	ext := filepath.Ext(fn)
 

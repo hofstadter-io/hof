@@ -22,25 +22,49 @@ func init() {
 	if val == "true" || val == "1" {
 		FORMAT_DISABLED=true
 	}
-
+	
 	// gracefully init images / containers
-	hfmt.GracefulInit()
+	err := hfmt.GracefulInit()
+	if err != nil {
+		FORMAT_DISABLED=true
+	}
 }
 
-func (F *File) FormatRendered() error {
+type FmtConfig struct {
+	Formatter string
+	Config    interface{}
+}
 
-	// via container / system
-	if !FORMAT_DISABLED {
+func (F *File) FormatRendered() (err error) {
+	// should we format? (has it been disabled anywhere)
+	if !(FORMAT_DISABLED || F.FormattingDisabled) {
 		// inspect file settings to see if there is fmtr config...
 		// try using hof/fmt containers, this is auto inference
-		fmtd, err := hfmt.FormatSource(F.Filepath, F.RenderContent, "", nil, false)
-		if err != nil {
-			return err
+
+		// current content
+		fmtd := F.RenderContent
+
+		// check for custom config
+		if F.FormattingConfig != nil && F.FormattingConfig.Config != nil {
+			fmtd, err = hfmt.FormatSource(
+				F.Filepath, fmtd,
+				F.FormattingConfig.Formatter,
+				F.FormattingConfig.Config,
+				!F.FormattingDisabled,
+			)
+			if err != nil {
+				return err
+			}
+		} else {
+			fmtd, err = hfmt.FormatSource(F.Filepath, fmtd, "", nil, !F.FormattingDisabled)
+			if err != nil {
+				return err
+			}
 		}
 
+		// update content
 		F.RenderContent = fmtd
 	}
-
 	return nil
 }
 

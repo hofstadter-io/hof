@@ -61,6 +61,11 @@ type Generator struct {
 	WatchFull []string
 	WatchFast  []string
 
+	// Formatting
+	FormattingDisabled bool
+	FormatData         bool
+	FormattingConfigs  map[string]FmtConfig
+
 	// The list fo files for hof to generate, in cue values
 	Out []*File
 

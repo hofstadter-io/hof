@@ -20,6 +20,29 @@ package gen
 	// Enable Diff3
 	Diff3: bool | *true
 
+	// Formatting Control
+	Formatting: {
+		// default for all files, unless overriden in a file
+		Disabled: bool | *false
+
+		// Should data files also be formatted?
+		// (cue,yaml,json,toml,xml)
+		FormatData: bool | *true
+
+		// Map of names to formatter config values.
+		//   Supports multiple configurations for a formatter,
+		//   particularly useful for prettier.
+		// Hof has defaults it will use if none are specified
+
+		// map from file extensions to formatters
+		Formatters: [Extenstion=string]: {
+			// Name of the formatter, like 'prettier' or 'black'
+			Formatter: string
+			// formatter specific configuration
+			Config: _
+		}
+	}
+
 	// The final list of files for hof to generate
 	Out: [...#File]
 

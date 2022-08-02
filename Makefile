@@ -33,3 +33,6 @@ release:
 	make -C formatters images
 	cd cmd/hof && goreleaser --rm-dist -p 1
 	make -C formatters push
+
+snapshot:
+	cd cmd/hof && goreleaser --rm-dist -p 1 --snapshot

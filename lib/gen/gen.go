@@ -53,13 +53,15 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 	}
 	// TODO: we could make this configurable
 	R.WorkingDir, _ = os.Getwd()
-	R.cwdToRoot, err = filepath.Rel(R.WorkingDir, R.CueModuleRoot)
-	if err != nil {
-		return err
-	}
-	R.rootToCwd, err = filepath.Rel(R.CueModuleRoot, R.WorkingDir)
-	if err != nil {
-		return err
+	if R.CueModuleRoot != "" {
+		R.cwdToRoot, err = filepath.Rel(R.WorkingDir, R.CueModuleRoot)
+		if err != nil {
+			return err
+		}
+		R.rootToCwd, err = filepath.Rel(R.CueModuleRoot, R.WorkingDir)
+		if err != nil {
+			return err
+		}
 	}
 
 	// log cue dirs
