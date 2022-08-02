@@ -2,7 +2,7 @@ package verinfo
 
 import (
 	"runtime"
-	"time"
+	"runtime/debug"
 )
 
 var (
@@ -16,11 +16,29 @@ var (
 )
 
 func init() {
+	info, _ := debug.ReadBuildInfo()
+	GoVersion = info.GoVersion
 
-	if BuildDate == "Unknown" {
-		BuildDate = time.Now().String()
-		GoVersion = "run 'go version', you should have been the one who built this"
+	if Version == "Local" {
 		BuildOS = runtime.GOOS
 		BuildArch = runtime.GOARCH
+
+		dirty := false
+		for _, s := range info.Settings {
+			if s.Key == "vcs.revision" {
+				Commit = s.Value
+			}
+			if s.Key == "vcs.time" {
+				BuildDate = s.Value
+			}
+			if s.Key == "vcs.modified" {
+				if s.Value == "true" {
+					dirty = true
+				}
+			}
+		}
+		if dirty {
+			Commit += "+dirty"
+		}
 	}
 }
