@@ -76,8 +76,9 @@ Usage:
 
 Main commands:
   datamodel             manage, diff, and migrate your data models
-  gen                   create arbitrary files from data with templates and generators
+  gen                   modular and composable code gen: CUE & data + templates = _
   flow                  run CUE pipelines with the hof/flow DAG engine
+  fmt                   format any code and manage the formatters
   mod                   polyglot dependency management based on go mods and MVS
 
 Additional commands:
@@ -91,9 +92,8 @@ Flags:
   -h, --help             help for hof
   -p, --package string   the Cue package context to use during execution
   -q, --quiet            turn off output and assume defaults at prompts
-  -v, --verbose int      set the verbosity of output
+  -v, --verbosity int    set the verbosity of output
 
 Use "hof [command] --help / -h" for more information about a command.
-Use "hof topic [subject]"  for more information about a subject.
 ```
 

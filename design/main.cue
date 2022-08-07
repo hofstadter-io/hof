@@ -85,6 +85,5 @@ Additional commands:
 Flags:
 <<flag-usage>>
 Use "hof [command] --help / -h" for more information about a command.
-Use "hof topic [subject]"  for more information about a subject.
 
 """
