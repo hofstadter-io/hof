@@ -65,6 +65,7 @@ type File struct {
 }
 
 func (F *File) Render(outdir string, UseDiff3 bool) error {
+	// fmt.Println("F.Render:", F.Filepath, UseDiff3)
 	var err error
 	F.RenderContent = bytes.TrimSpace(F.RenderContent)
 
@@ -86,25 +87,27 @@ func (F *File) Render(outdir string, UseDiff3 bool) error {
 			return err
 		}
 	}
-	// fmt.Println("   rendered:", F.Filepath, len(F.RenderContent))
+	// fmt.Println("   rendered:", F.Filepath, len(F.RenderContent), F.ShadowFile != nil)
 
 	// Check to see if they are the same, if so, then "skip"
-	// fmt.Println(F.Filepath, len(F.RenderContent), F.ShadowFile)
 	if UseDiff3 && F.ShadowFile != nil {
 		if bytes.Compare(F.RenderContent, F.ShadowFile.FinalContent) == 0 {
 			// Let's check if there is a user file or not
-			_, err := os.Lstat(F.Filepath)
+			_, err := os.Lstat(filepath.Join(outdir, F.Filepath))
 			if err != nil {
 				// make sure we check err for something actually bad
 				if _, ok := err.(*os.PathError); !ok && err.Error() != "file does not exist" {
 					return err
 				}
+				// fmt.Println("  new file")
 				// file does not exist
 				F.IsNew = 1
 				F.DoWrite = true
 				F.FinalContent = F.RenderContent
 				return nil
 			}
+			// fmt.Println("  same file")
+			F.DoWrite = false
 			F.IsSame = 1
 			return nil
 		}
@@ -112,6 +115,7 @@ func (F *File) Render(outdir string, UseDiff3 bool) error {
 
 	// Possibly read user
 	if UseDiff3 {
+		// fmt.Println("  read user")
 		F.ReadUser(outdir)
 	}
 
