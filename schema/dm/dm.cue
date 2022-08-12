@@ -31,7 +31,7 @@ package dm
 	Fields: #Fields
 
 	// this might all best be filtered to prevent cycles
-	Relations?: #Relations
+	Relations: #Relations
 	Views?:     #Views
 
 	// TODO, can we calc this in hof and maintain output order stability?
@@ -61,7 +61,7 @@ package dm
 	// this might all best be filtered to prevent cycles
 	Models: #Models
 	Fields: #Fields
-	Relations?: #Relations
+	Relations: #Relations
 
 	// Todo, make these calculated
 	// (turn Ordered* into a default calculation, so user can always write their own)
