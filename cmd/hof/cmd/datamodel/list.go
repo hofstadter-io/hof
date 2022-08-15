@@ -7,6 +7,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
 	"github.com/hofstadter-io/hof/lib/datamodel"
 )
 
@@ -33,6 +35,12 @@ var ListCmd = &cobra.Command{
 	Short: "print available data models",
 
 	Long: listLong,
+
+	PreRun: func(cmd *cobra.Command, args []string) {
+
+		ga.SendCommandPath(cmd.CommandPath())
+
+	},
 
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
@@ -68,7 +76,15 @@ func init() {
 		return ousage(cmd)
 	}
 
-	ListCmd.SetHelpFunc(help)
-	ListCmd.SetUsageFunc(usage)
+	thelp := func(cmd *cobra.Command, args []string) {
+		ga.SendCommandPath(cmd.CommandPath() + " help")
+		help(cmd, args)
+	}
+	tusage := func(cmd *cobra.Command) error {
+		ga.SendCommandPath(cmd.CommandPath() + " usage")
+		return usage(cmd)
+	}
+	ListCmd.SetHelpFunc(thelp)
+	ListCmd.SetUsageFunc(tusage)
 
 }

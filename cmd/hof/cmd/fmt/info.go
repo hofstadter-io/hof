@@ -6,6 +6,8 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
 	hfmt "github.com/hofstadter-io/hof/lib/fmt"
 )
 
@@ -28,6 +30,12 @@ var InfoCmd = &cobra.Command{
 	Short: "get formatter info",
 
 	Long: infoLong,
+
+	PreRun: func(cmd *cobra.Command, args []string) {
+
+		ga.SendCommandPath(cmd.CommandPath())
+
+	},
 
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
@@ -71,7 +79,15 @@ func init() {
 		return ousage(cmd)
 	}
 
-	InfoCmd.SetHelpFunc(help)
-	InfoCmd.SetUsageFunc(usage)
+	thelp := func(cmd *cobra.Command, args []string) {
+		ga.SendCommandPath(cmd.CommandPath() + " help")
+		help(cmd, args)
+	}
+	tusage := func(cmd *cobra.Command) error {
+		ga.SendCommandPath(cmd.CommandPath() + " usage")
+		return usage(cmd)
+	}
+	InfoCmd.SetHelpFunc(thelp)
+	InfoCmd.SetUsageFunc(tusage)
 
 }

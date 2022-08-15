@@ -6,6 +6,8 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/cmd/datamodel"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+
+	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var datamodelLong = `Data models are sets of models which are used in many hof processes and modules.
@@ -42,6 +44,12 @@ var DatamodelCmd = &cobra.Command{
 	Short: "manage, diff, and migrate your data models",
 
 	Long: datamodelLong,
+
+	PreRun: func(cmd *cobra.Command, args []string) {
+
+		ga.SendCommandPath(cmd.CommandPath())
+
+	},
 }
 
 func init() {
@@ -65,8 +73,16 @@ func init() {
 		return ousage(cmd)
 	}
 
-	DatamodelCmd.SetHelpFunc(help)
-	DatamodelCmd.SetUsageFunc(usage)
+	thelp := func(cmd *cobra.Command, args []string) {
+		ga.SendCommandPath(cmd.CommandPath() + " help")
+		help(cmd, args)
+	}
+	tusage := func(cmd *cobra.Command) error {
+		ga.SendCommandPath(cmd.CommandPath() + " usage")
+		return usage(cmd)
+	}
+	DatamodelCmd.SetHelpFunc(thelp)
+	DatamodelCmd.SetUsageFunc(tusage)
 
 	DatamodelCmd.AddCommand(cmddatamodel.CheckpointCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.DiffCmd)

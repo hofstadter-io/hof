@@ -5,6 +5,8 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+
+	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var hackLong = `development command`
@@ -31,6 +33,12 @@ var HackCmd = &cobra.Command{
 	Short: "development command",
 
 	Long: hackLong,
+
+	PreRun: func(cmd *cobra.Command, args []string) {
+
+		ga.SendCommandPath(cmd.CommandPath())
+
+	},
 
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
@@ -66,7 +74,15 @@ func init() {
 		return ousage(cmd)
 	}
 
-	HackCmd.SetHelpFunc(help)
-	HackCmd.SetUsageFunc(usage)
+	thelp := func(cmd *cobra.Command, args []string) {
+		ga.SendCommandPath(cmd.CommandPath() + " help")
+		help(cmd, args)
+	}
+	tusage := func(cmd *cobra.Command) error {
+		ga.SendCommandPath(cmd.CommandPath() + " usage")
+		return usage(cmd)
+	}
+	HackCmd.SetHelpFunc(thelp)
+	HackCmd.SetUsageFunc(tusage)
 
 }

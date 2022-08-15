@@ -13,6 +13,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+
+	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var hofLong = `The High Code Framework`
@@ -56,6 +58,13 @@ var RootCmd = &cobra.Command{
 		}
 	},
 
+	PreRun: func(cmd *cobra.Command, args []string) {
+		fmt.Println("root prerun")
+
+		ga.SendCommandPath("root")
+
+	},
+
 	PersistentPostRun: func(cmd *cobra.Command, args []string) {
 		var err error
 
@@ -93,8 +102,20 @@ func RootInit() {
 		return fmt.Errorf("unknown hof command")
 	}
 
-	RootCmd.SetHelpFunc(help)
-	RootCmd.SetUsageFunc(usage)
+	thelp := func(cmd *cobra.Command, args []string) {
+		if RootCmd.Name() == cmd.Name() {
+			ga.SendCommandPath("root help")
+		}
+		help(cmd, args)
+	}
+	tusage := func(cmd *cobra.Command) error {
+		if RootCmd.Name() == cmd.Name() {
+			ga.SendCommandPath("root usage")
+		}
+		return usage(cmd)
+	}
+	RootCmd.SetHelpFunc(thelp)
+	RootCmd.SetUsageFunc(tusage)
 
 	RootCmd.AddCommand(UpdateCmd)
 
@@ -184,5 +205,4 @@ Additional commands:
 Flags:
 <<flag-usage>>
 Use "hof [command] --help / -h" for more information about a command.
-Use "hof topic [subject]"  for more information about a subject.
 `

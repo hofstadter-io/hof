@@ -56,8 +56,8 @@ import (
 	//
 	Releases: #CliReleases
 	Updates:  true
-
 	EnablePProf: true
+	Telemetry: "UA-103579574-5"
 }
 
 #RootCustomHelp: """

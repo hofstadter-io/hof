@@ -5,6 +5,8 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+
+	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var diffLong = `show the diff between data model version`
@@ -28,6 +30,12 @@ var DiffCmd = &cobra.Command{
 	Short: "show the diff between data model version",
 
 	Long: diffLong,
+
+	PreRun: func(cmd *cobra.Command, args []string) {
+
+		ga.SendCommandPath(cmd.CommandPath())
+
+	},
 
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
@@ -63,7 +71,15 @@ func init() {
 		return ousage(cmd)
 	}
 
-	DiffCmd.SetHelpFunc(help)
-	DiffCmd.SetUsageFunc(usage)
+	thelp := func(cmd *cobra.Command, args []string) {
+		ga.SendCommandPath(cmd.CommandPath() + " help")
+		help(cmd, args)
+	}
+	tusage := func(cmd *cobra.Command) error {
+		ga.SendCommandPath(cmd.CommandPath() + " usage")
+		return usage(cmd)
+	}
+	DiffCmd.SetHelpFunc(thelp)
+	DiffCmd.SetUsageFunc(tusage)
 
 }

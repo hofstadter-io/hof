@@ -7,6 +7,8 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
 	"github.com/hofstadter-io/hof/cmd/hof/verinfo"
 )
 
@@ -60,7 +62,19 @@ func init() {
 	help := VersionCmd.HelpFunc()
 	usage := VersionCmd.UsageFunc()
 
-	VersionCmd.SetHelpFunc(help)
-	VersionCmd.SetUsageFunc(usage)
+	thelp := func(cmd *cobra.Command, args []string) {
+		if VersionCmd.Name() == cmd.Name() {
+			ga.SendCommandPath("version help")
+		}
+		help(cmd, args)
+	}
+	tusage := func(cmd *cobra.Command) error {
+		if VersionCmd.Name() == cmd.Name() {
+			ga.SendCommandPath("version usage")
+		}
+		return usage(cmd)
+	}
+	VersionCmd.SetHelpFunc(thelp)
+	VersionCmd.SetUsageFunc(tusage)
 
 }

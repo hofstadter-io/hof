@@ -5,6 +5,8 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+
+	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var stopLong = `stop a formatter`
@@ -24,6 +26,12 @@ var StopCmd = &cobra.Command{
 	Short: "stop a formatter",
 
 	Long: stopLong,
+
+	PreRun: func(cmd *cobra.Command, args []string) {
+
+		ga.SendCommandPath(cmd.CommandPath())
+
+	},
 
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
@@ -73,7 +81,15 @@ func init() {
 		return ousage(cmd)
 	}
 
-	StopCmd.SetHelpFunc(help)
-	StopCmd.SetUsageFunc(usage)
+	thelp := func(cmd *cobra.Command, args []string) {
+		ga.SendCommandPath(cmd.CommandPath() + " help")
+		help(cmd, args)
+	}
+	tusage := func(cmd *cobra.Command) error {
+		ga.SendCommandPath(cmd.CommandPath() + " usage")
+		return usage(cmd)
+	}
+	StopCmd.SetHelpFunc(thelp)
+	StopCmd.SetUsageFunc(tusage)
 
 }

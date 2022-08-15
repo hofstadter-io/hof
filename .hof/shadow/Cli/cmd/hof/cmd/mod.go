@@ -9,6 +9,8 @@ import (
 	"github.com/hofstadter-io/hof/lib/mod"
 
 	"github.com/hofstadter-io/hof/cmd/hof/cmd/mod"
+
+	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var modLong = `hof mod is a flexible tool and library based on Go mods.
@@ -147,6 +149,12 @@ var ModCmd = &cobra.Command{
 			os.Exit(1)
 		}
 	},
+
+	PreRun: func(cmd *cobra.Command, args []string) {
+
+		ga.SendCommandPath(cmd.CommandPath())
+
+	},
 }
 
 func init() {
@@ -170,8 +178,16 @@ func init() {
 		return ousage(cmd)
 	}
 
-	ModCmd.SetHelpFunc(help)
-	ModCmd.SetUsageFunc(usage)
+	thelp := func(cmd *cobra.Command, args []string) {
+		ga.SendCommandPath(cmd.CommandPath() + " help")
+		help(cmd, args)
+	}
+	tusage := func(cmd *cobra.Command) error {
+		ga.SendCommandPath(cmd.CommandPath() + " usage")
+		return usage(cmd)
+	}
+	ModCmd.SetHelpFunc(thelp)
+	ModCmd.SetUsageFunc(tusage)
 
 	ModCmd.AddCommand(cmdmod.InfoCmd)
 	ModCmd.AddCommand(cmdmod.InitCmd)

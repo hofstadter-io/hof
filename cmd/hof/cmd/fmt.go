@@ -10,6 +10,7 @@ import (
 
 	"github.com/hofstadter-io/hof/cmd/hof/cmd/fmt"
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+	"github.com/hofstadter-io/hof/cmd/hof/ga"
 
 	hfmt "github.com/hofstadter-io/hof/lib/fmt"
 )
@@ -46,6 +47,12 @@ var FmtCmd = &cobra.Command{
 		glob := toComplete + "*"
 		matches, _ := filepath.Glob(glob)
 		return matches, cobra.ShellCompDirectiveDefault
+	},
+
+	PreRun: func(cmd *cobra.Command, args []string) {
+
+		ga.SendCommandPath(cmd.CommandPath())
+
 	},
 
 	Run: func(cmd *cobra.Command, args []string) {
@@ -96,8 +103,16 @@ func init() {
 		return ousage(cmd)
 	}
 
-	FmtCmd.SetHelpFunc(help)
-	FmtCmd.SetUsageFunc(usage)
+	thelp := func(cmd *cobra.Command, args []string) {
+		ga.SendCommandPath(cmd.CommandPath() + " help")
+		help(cmd, args)
+	}
+	tusage := func(cmd *cobra.Command) error {
+		ga.SendCommandPath(cmd.CommandPath() + " usage")
+		return usage(cmd)
+	}
+	FmtCmd.SetHelpFunc(thelp)
+	FmtCmd.SetUsageFunc(tusage)
 
 	FmtCmd.AddCommand(cmdfmt.InfoCmd)
 	FmtCmd.AddCommand(cmdfmt.PullCmd)

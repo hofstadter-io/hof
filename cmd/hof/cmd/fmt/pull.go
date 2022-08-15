@@ -6,6 +6,8 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
 	hfmt "github.com/hofstadter-io/hof/lib/fmt"
 )
 
@@ -28,6 +30,12 @@ var PullCmd = &cobra.Command{
 	Short: "docker pull a formatter",
 
 	Long: pullLong,
+
+	PreRun: func(cmd *cobra.Command, args []string) {
+
+		ga.SendCommandPath(cmd.CommandPath())
+
+	},
 
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
@@ -77,7 +85,15 @@ func init() {
 		return ousage(cmd)
 	}
 
-	PullCmd.SetHelpFunc(help)
-	PullCmd.SetUsageFunc(usage)
+	thelp := func(cmd *cobra.Command, args []string) {
+		ga.SendCommandPath(cmd.CommandPath() + " help")
+		help(cmd, args)
+	}
+	tusage := func(cmd *cobra.Command) error {
+		ga.SendCommandPath(cmd.CommandPath() + " usage")
+		return usage(cmd)
+	}
+	PullCmd.SetHelpFunc(thelp)
+	PullCmd.SetUsageFunc(tusage)
 
 }

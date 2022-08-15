@@ -7,6 +7,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/lib/mod"
+
+	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var initLong = `initialize a new module in the current directory`
@@ -29,6 +31,12 @@ var InitCmd = &cobra.Command{
 	Short: "initialize a new module in the current directory",
 
 	Long: initLong,
+
+	PreRun: func(cmd *cobra.Command, args []string) {
+
+		ga.SendCommandPath(cmd.CommandPath())
+
+	},
 
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
@@ -92,7 +100,15 @@ func init() {
 		return ousage(cmd)
 	}
 
-	InitCmd.SetHelpFunc(help)
-	InitCmd.SetUsageFunc(usage)
+	thelp := func(cmd *cobra.Command, args []string) {
+		ga.SendCommandPath(cmd.CommandPath() + " help")
+		help(cmd, args)
+	}
+	tusage := func(cmd *cobra.Command) error {
+		ga.SendCommandPath(cmd.CommandPath() + " usage")
+		return usage(cmd)
+	}
+	InitCmd.SetHelpFunc(thelp)
+	InitCmd.SetUsageFunc(tusage)
 
 }

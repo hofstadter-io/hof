@@ -81,6 +81,8 @@ func SendGaEvent(cfg GaConfig, evt GaEvent) (string, error) {
 
 	resp, body, errs := req.End()
 
+	// fmt.Println(resp, body, errs)
+
 	if len(errs) != 0 && !strings.Contains(errs[0].Error(), HTTP2_GOAWAY_CHECK) {
 		return body, errs[0]
 	}

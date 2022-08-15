@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+	"github.com/hofstadter-io/hof/cmd/hof/ga"
 
 	"github.com/hofstadter-io/hof/lib/datamodel"
 )
@@ -40,6 +41,12 @@ var CheckpointCmd = &cobra.Command{
 	Short: "create a snapshot of the data model",
 
 	Long: checkpointLong,
+
+	PreRun: func(cmd *cobra.Command, args []string) {
+
+		ga.SendCommandPath(cmd.CommandPath())
+
+	},
 
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
@@ -75,7 +82,15 @@ func init() {
 		return ousage(cmd)
 	}
 
-	CheckpointCmd.SetHelpFunc(help)
-	CheckpointCmd.SetUsageFunc(usage)
+	thelp := func(cmd *cobra.Command, args []string) {
+		ga.SendCommandPath(cmd.CommandPath() + " help")
+		help(cmd, args)
+	}
+	tusage := func(cmd *cobra.Command) error {
+		ga.SendCommandPath(cmd.CommandPath() + " usage")
+		return usage(cmd)
+	}
+	CheckpointCmd.SetHelpFunc(thelp)
+	CheckpointCmd.SetUsageFunc(tusage)
 
 }

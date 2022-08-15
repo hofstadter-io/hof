@@ -5,6 +5,8 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+
+	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var historyLong = `list the snapshots for a data model`
@@ -29,6 +31,12 @@ var HistoryCmd = &cobra.Command{
 	Short: "list the snapshots for a data model",
 
 	Long: historyLong,
+
+	PreRun: func(cmd *cobra.Command, args []string) {
+
+		ga.SendCommandPath(cmd.CommandPath())
+
+	},
 
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
@@ -64,7 +72,15 @@ func init() {
 		return ousage(cmd)
 	}
 
-	HistoryCmd.SetHelpFunc(help)
-	HistoryCmd.SetUsageFunc(usage)
+	thelp := func(cmd *cobra.Command, args []string) {
+		ga.SendCommandPath(cmd.CommandPath() + " help")
+		help(cmd, args)
+	}
+	tusage := func(cmd *cobra.Command) error {
+		ga.SendCommandPath(cmd.CommandPath() + " usage")
+		return usage(cmd)
+	}
+	HistoryCmd.SetHelpFunc(thelp)
+	HistoryCmd.SetUsageFunc(tusage)
 
 }

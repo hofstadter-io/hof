@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+	"github.com/hofstadter-io/hof/cmd/hof/ga"
 
 	"github.com/hofstadter-io/hof/lib/gen"
 )
@@ -112,6 +113,25 @@ var GenCmd = &cobra.Command{
 
 	Long: genLong,
 
+	PreRun: func(cmd *cobra.Command, args []string) {
+
+		extra := " "
+		// check mode
+		if len(flags.GenFlags.Template) == 0 {
+			extra = extra + "module"
+		} else {
+			extra = extra + "adhoc"
+		}
+
+		// check watch
+		if flags.GenFlags.Watch || len(flags.GenFlags.WatchFull) > 0 || len(flags.GenFlags.WatchFull) > 0 {
+			extra = extra + " watch"
+		}
+
+		ga.SendCommandPath(cmd.CommandPath() + extra)
+
+	},
+
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
 
@@ -146,7 +166,15 @@ func init() {
 		return ousage(cmd)
 	}
 
-	GenCmd.SetHelpFunc(help)
-	GenCmd.SetUsageFunc(usage)
+	thelp := func(cmd *cobra.Command, args []string) {
+		ga.SendCommandPath(cmd.CommandPath() + " help")
+		help(cmd, args)
+	}
+	tusage := func(cmd *cobra.Command) error {
+		ga.SendCommandPath(cmd.CommandPath() + " usage")
+		return usage(cmd)
+	}
+	GenCmd.SetHelpFunc(thelp)
+	GenCmd.SetUsageFunc(tusage)
 
 }
