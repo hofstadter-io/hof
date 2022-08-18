@@ -9,6 +9,8 @@ import (
 	CUID |
 	Bool |
 	String |
+	Int |
+	Float |
 	Enum |
 	Password |
 	Email
@@ -19,7 +21,7 @@ UUID: dm.#Field & {
 	Type:     "uuid"
 	Nullable: bool | *false
 	Unique:   bool | *true
-	Default:  "gen_random_uuid()"
+	Default:  string | *"gen_random_uuid()"
 	Validation: {
 		Format: "uuid"
 	}
@@ -46,6 +48,18 @@ String: dm.#Field & {
 	Validation: {
 		Max: Length
 	}
+}
+
+Int: dm.#Field & {
+	Type: "int"
+	Nullable: bool | *false
+	Default?: int
+}
+
+Float: dm.#Field & {
+	Type: "float"
+	Nullable: bool | *false
+	Default?: float
 }
 
 Enum: dm.#Field & {
