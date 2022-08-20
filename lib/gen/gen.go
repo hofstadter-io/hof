@@ -117,6 +117,10 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 			return fmt.Errorf("\nErrors while loading generators\n")
 		}
 
+		if len(R.Generators) == 0 {
+			return fmt.Errorf("no generators found")
+		}
+
 		if cmdflags.List {
 			gens, err := R.ListGenerators()
 			if err != nil {
