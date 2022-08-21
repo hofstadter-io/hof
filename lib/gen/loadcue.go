@@ -16,6 +16,10 @@ func (G *Generator) DecodeFromCUE() (errs []error) {
 	// fmt.Println("Gen Load:", G.Name)
 	start := time.Now()
 
+	if err := G.loadDebug(); err != nil {
+		errs = append(errs, err)
+	}
+
 	if err := G.loadOutdir(); err != nil {
 		errs = append(errs, err)
 	}
@@ -91,15 +95,23 @@ func (G *Generator) DecodeFromCUE() (errs []error) {
 		errs = append(errs, serr...)
 	}
 
-	G.debugLoad()
+	if G.Debug {
+		G.PrintInfo()
+	}
 
 	return errs
 }
 
-func (G *Generator) debugLoad() {
-	if !G.Debug {
-		return
+func (G *Generator) loadDebug() error {
+	val := G.CueValue.LookupPath(cue.ParsePath("Debug"))
+	if val.Err() != nil {
+		return val.Err()
 	}
+
+	return val.Decode(&G.Debug)
+}
+
+func (G *Generator) PrintInfo() {
 	fmt.Println(G.Name, G.Outdir)
 	fmt.Println("WatchFull ", len(G.WatchFull))
 	fmt.Println("WatchFast ", len(G.WatchFast))
@@ -431,17 +443,30 @@ func (G *Generator) loadSubgens() (errs []error) {
 		name := iter.Selector().String()
 		v := iter.Value()
 		sg := NewGenerator(name, v)
+		sg.parent = G
+		copyGenMeta(G, sg)
+
+		if G.Debug {
+			fmt.Println("loading subgen:", name)
+		}
 
 		sgerrs := sg.DecodeFromCUE()
 		if len(sgerrs) > 0 {
 			errs = append(errs, sgerrs...)
 		}
 
-		sg.parent = G
-		sg.runtime = G.runtime
-		sg.verbosity = G.verbosity
 		G.Generators[name] = sg
 	}
 
 	return errs
+}
+
+func copyGenMeta(from, to *Generator) {
+	to.runtime       = from.runtime
+	to.verbosity     = from.verbosity
+	to.CueModuleRoot = from.CueModuleRoot
+	to.WorkingDir    = from.WorkingDir
+	to.rootToCwd     = from.rootToCwd
+	to.cwdToRoot     = from.cwdToRoot
+
 }

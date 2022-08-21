@@ -41,11 +41,10 @@ func (R *Runtime) RunGenerator(G *Generator) (errs []error) {
 	shadowDir := filepath.Join(R.ShadowDir(), G.ShadowPath())
 
 	// late load shadow, only if we are going to generate
-	shadow, err := LoadShadow(shadowDir, R.Verbosity)
+	err := G.LoadShadow(shadowDir)
 	if err != nil {
 		return []error{err}
 	}
-	G.Shadow = shadow
 
 	// run this generator
 	errsG := G.GenerateFiles(outputDir)

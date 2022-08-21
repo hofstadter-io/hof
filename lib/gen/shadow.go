@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/mattn/go-zglob"
 )
 
 const SHADOW_DIR = ".hof/shadow/"
@@ -76,10 +78,10 @@ func (G *Generator) CleanupRemainingShadow(outputDir, shadowDir string, verbosit
 	return errs
 }
 
-func LoadShadow(basedir string, verbosity int) (map[string]*File, error) {
+func (G *Generator) LoadShadow(basedir string) (error) {
 	shadow := map[string]*File{}
 
-	if verbosity > 1 {
+	if G.verbosity > 1 {
 		fmt.Printf("Loading shadow @ %q\n", basedir)
 	}
 
@@ -88,13 +90,13 @@ func LoadShadow(basedir string, verbosity int) (map[string]*File, error) {
 	if err != nil {
 		// make sure we check err for something actually bad
 		if _, ok := err.(*os.PathError); !ok && err.Error() != "file does not exist" {
-			return nil, err
+			return err
 		}
 		// file not found, leave politely
-		if verbosity > 1 {
+		if G.verbosity > 1 {
 			fmt.Println("  shadow not found")
 		}
-		return nil, nil
+		return nil
 	}
 
 	err = filepath.Walk(basedir, func(fpath string, info os.FileInfo, err error) error {
@@ -102,6 +104,24 @@ func LoadShadow(basedir string, verbosity int) (map[string]*File, error) {
 		// we should try to clean them up though (todo)
 		if info.IsDir() {
 			return nil
+		}
+
+		// check if first filepath component matches a sub-generator name
+		// we need to skip these because the shadow is nested
+		// TODO, we could get a conflict if the parent gen writes to a dir with same name as the subgen
+		if len(G.Generators) > 0 {
+			for _, sg := range G.Generators {
+				if G.verbosity > 2 {
+					fmt.Println("checking:", filepath.Join(basedir, sg.Name, "**", "*"), fpath)
+				}
+				match, err := zglob.Match(filepath.Join(basedir, sg.Name, "**", "*"), fpath)
+				if err != nil {
+					return err
+				}
+				if match {
+					return nil
+				}
+			}
 		}
 
 		// read contents
@@ -116,7 +136,7 @@ func LoadShadow(basedir string, verbosity int) (map[string]*File, error) {
 		fpath = strings.TrimPrefix(fpath, "/")
 
 		// debug
-		if verbosity > 1 {
+		if G.verbosity > 1 {
 			fmt.Println("  adding:", fpath)
 		}
 
@@ -130,10 +150,12 @@ func LoadShadow(basedir string, verbosity int) (map[string]*File, error) {
 
 	if err != nil {
 		err = fmt.Errorf("error walking the shadow dir %q: %w\n", basedir, err)
-		return nil, err
+		return err
 	}
 
-	return shadow, nil
+	G.Shadow = shadow
+
+	return nil
 }
 
 // TODO, how to cleanup if the user deletes a generator

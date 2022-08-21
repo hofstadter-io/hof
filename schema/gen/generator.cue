@@ -81,6 +81,9 @@ package gen
 	PackageName: string | *""
 	// TODO, hof, can we introspect the generator / example packages and figure this out?
 
+	// print debug info during load & gen
+	Debug: bool | *false
+
 	// Note, open so you can have any extra fields
 	...
 }
