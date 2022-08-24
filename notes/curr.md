@@ -10,11 +10,13 @@
   - [ ] adhoc to module, show new mode & flags
   - [ ] generating types across languages (also as example for docs)
 - [ ] Mods
+	- [ ] `hofmod-types` build out a first version
   - [ ] `hofmod-openapi` need to digitize notes
   - [ ] `hofmod-cli` update & enhance
-	- [ ] `hofmod-type` build out a first version
   - [ ] `hofmod-app` from `hofmod-{server,openapi,...}`
 	  - show how to order subgens
+
+Document:
 
 ```
 {{ range $items }}
@@ -51,11 +53,11 @@ bugs:
 
 - loading only yaml broken (need repro case)
 
-v0.6.5
+v0.6.x
 
 - [ ] hofmod-cli revamp
 - [ ] hofmod-openapi & formatters
-- [ ] hof create
+- [ ] hof create with https://github.com/AlecAivazis/survey
 - [ ] hof mod iteration
   - [ ] get
 	- [ ] move cue.mods -> cue.mod/hof-{mod,sum}.cue

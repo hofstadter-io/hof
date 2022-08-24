@@ -95,6 +95,12 @@ var extToFmtr = map[string]string {
 	".md":      "prettier/markdown",
 	".vue":     "prettier/vue",
 
+	// prettier plugins, need testing
+	".java":    "prettier/java",
+	".rb":      "prettier/ruby",
+	".rs":      "prettier/rust",
+	".php":     "prettier/php",
+
 	// black
 	".py": "black/py",
 }
@@ -133,6 +139,19 @@ var fmtrDefaultConfigs = map[string]interface{}{
 	},
 	"prettier/go-template": map[string]interface{}{
 		"parser": "go-template",
+	},
+
+	"prettier/java": map[string]interface{}{
+		"parser": "java",
+	},
+	"prettier/ruby": map[string]interface{}{
+		"parser": "ruby",
+	},
+	"prettier/rust": map[string]interface{}{
+		"parser": "rust",
+	},
+	"prettier/php": map[string]interface{}{
+		"parser": "php",
 	},
 
 	"black/py": map[string]interface{}{
