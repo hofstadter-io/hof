@@ -1,7 +1,11 @@
 package dm
 
+import (
+  "github.com/hofstadter-io/hof/schema/common"
+)
+
 #Common: {
-	Name: string
+	Name: common.NameLabel
 	Labels: [string]: string
 }
 
