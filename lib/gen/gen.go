@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
-	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/templates"
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
@@ -43,25 +42,9 @@ func Gen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpol
 func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpole) (err error) {
 
 	// This is our runtime for codegeneration
-	R := NewRuntime(args, cmdflags)
-	R.Verbosity = rootflags.Verbosity
-
-	// calc cue dirs
-	R.CueModuleRoot, err = cuetils.FindModuleAbsPath()
+	R, err := NewRuntime(args, rootflags, cmdflags)
 	if err != nil {
 		return err
-	}
-	// TODO: we could make this configurable
-	R.WorkingDir, _ = os.Getwd()
-	if R.CueModuleRoot != "" {
-		R.cwdToRoot, err = filepath.Rel(R.WorkingDir, R.CueModuleRoot)
-		if err != nil {
-			return err
-		}
-		R.rootToCwd, err = filepath.Rel(R.CueModuleRoot, R.WorkingDir)
-		if err != nil {
-			return err
-		}
 	}
 
 	// log cue dirs

@@ -2,6 +2,7 @@ package gen
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"sync"
 	"time"
@@ -36,13 +37,37 @@ type Runtime struct {
 	Stats      *RuntimeStats
 }
 
-func NewRuntime(entrypoints []string, cmdflags flags.GenFlagpole) *Runtime {
-	return &Runtime{
+func NewRuntime(entrypoints []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpole) (*Runtime, error) {
+	R := &Runtime{
 		Entrypoints: entrypoints,
 		Flagpole:    cmdflags,
 		Generators:  make(map[string]*Generator),
 		Stats:       new(RuntimeStats),
 	}
+
+	R.Verbosity = rootflags.Verbosity
+
+	var err error
+
+	// calc cue dirs
+	R.CueModuleRoot, err = cuetils.FindModuleAbsPath()
+	if err != nil {
+		return R, err
+	}
+	// TODO: we could make this configurable
+	R.WorkingDir, _ = os.Getwd()
+	if R.CueModuleRoot != "" {
+		R.cwdToRoot, err = filepath.Rel(R.WorkingDir, R.CueModuleRoot)
+		if err != nil {
+			return R, err
+		}
+		R.rootToCwd, err = filepath.Rel(R.CueModuleRoot, R.WorkingDir)
+		if err != nil {
+			return R, err
+		}
+	}
+
+	return R, nil
 }
 
 // OutputDir returns the absolute path to output dir for this runtime.

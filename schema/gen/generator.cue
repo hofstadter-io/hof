@@ -109,12 +109,12 @@ import (
 	Type: "input" | "multiline" | "password" | "confirm" | "select" | "multiselect"
 	Prompt: string
 	// for (multi)select
-	Options: [...string]
-	Default: _
+	Options?: [...string]
+	Default?: _
 	Required: bool | *false
-	Validation: _
+	Validation?: _
 
-	Questions: [...#CreateQuestion]
+	Questions?: [...#CreateQuestion]
 }
 
 // deprecated

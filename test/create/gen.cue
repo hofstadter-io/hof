@@ -32,13 +32,13 @@ test: gen.#HofGenerator & {
 	CreatePrompt: [{
 		Name:       "name"
 		Type:       "input"
-		Prompt:     "Please enter your name"
+		Prompt:     "Please enter a name for..."
 		Required:   true
 		Validation: common.NameLabel
 	},{
 		Name:       "about"
 		Type:       "multiline"
-		Prompt:     "Please enter your name"
+		Prompt:     "Tell us about it..."
 		Required:   true
 		Validation: common.NameLabel
 	},{
