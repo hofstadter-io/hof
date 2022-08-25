@@ -123,6 +123,7 @@ func RootInit() {
 
 	RootCmd.AddCommand(CompletionCmd)
 
+	RootCmd.AddCommand(CreateCmd)
 	RootCmd.AddCommand(DatamodelCmd)
 	RootCmd.AddCommand(GenCmd)
 	RootCmd.AddCommand(FlowCmd)
@@ -189,6 +190,7 @@ Usage:
   hof [flags] [command] [args]
 
 Main commands:
+  create                easily bootstrap full project, components, and more
   datamodel             manage, diff, and migrate your data models
   gen                   modular and composable code gen: CUE & data + templates = _
   flow                  run CUE pipelines with the hof/flow DAG engine

@@ -27,6 +27,7 @@ import (
 	Commands: [
 
 		// main commands
+		cmds.#CreateCommand,
 		cmds.#DatamodelCommand,
 		cmds.#GenCommand,
 		cmds.#FlowCommand,
@@ -69,6 +70,7 @@ Usage:
   hof [flags] [command] [args]
 
 Main commands:
+  \(cmds.#CreateCommand.Help)
   \(cmds.#DatamodelCommand.Help)
   \(cmds.#GenCommand.Help)
   \(cmds.#FlowCommand.Help)
