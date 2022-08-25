@@ -74,7 +74,7 @@ import (
 	// TODO, consider adding 'Override*' for templates, partials, statics
 
 	// For subgenerators so a generator can leverage and design for other hofmods
-	Generators: [name=string]: #Generator
+	Generators: [name=string]: #Generator & { Name: name }
 
 	// This should be set to default to the module name
 	//   (i.e. 'string | *"github.com/<org>/<repo>"')

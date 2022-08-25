@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"cuelang.org/go/cue"
+	"github.com/codemodus/kace"
 )
 
 func (G *Generator) DecodeFromCUE() (errs []error) {
@@ -17,6 +18,10 @@ func (G *Generator) DecodeFromCUE() (errs []error) {
 	start := time.Now()
 
 	if err := G.loadDebug(); err != nil {
+		errs = append(errs, err)
+	}
+
+	if err := G.loadName(); err != nil {
 		errs = append(errs, err)
 	}
 
@@ -100,6 +105,20 @@ func (G *Generator) DecodeFromCUE() (errs []error) {
 	}
 
 	return errs
+}
+
+func (G *Generator) loadName() error {
+	val := G.CueValue.LookupPath(cue.ParsePath("Name"))
+	if val.Err() != nil {
+		return val.Err()
+	}
+
+	if !val.IsConcrete() && G.Name != "" {
+		name := kace.Kebab(G.Name)
+		val = val.FillPath(cue.ParsePath(""), name)
+	}
+
+	return val.Decode(&G.Name)
 }
 
 func (G *Generator) loadDebug() error {
