@@ -5,23 +5,94 @@ import (
 	"github.com/hofstadter-io/hof/schema/gen"
 )
 
-#TestGen: gen.#HofGenerator & {
+test: gen.#HofGenerator & {
 	@gen(test)
 
 	Outdir: "./"
 
 	PackageName: ""
 
-	Create: [{
-		Question:   "prompt"
+	CreateInput: {
+		name: string
+		about: string
+		frontend?: {
+			framework: string
+		}
+		backend?: {
+			language: string
+		}
+		database?: {
+			vendor: string
+		}
+		sdks?: {
+			languages: [...string]
+		}
+	}
+
+	CreatePrompt: [{
 		Name:       "name"
-		Type:       "string"
-		Default:    "./"
+		Type:       "input"
+		Prompt:     "Please enter your name"
+		Required:   true
 		Validation: common.NameLabel
+	},{
+		Name:       "about"
+		Type:       "multiline"
+		Prompt:     "Please enter your name"
+		Required:   true
+		Validation: common.NameLabel
+	},{
+		Name:       "frontend"
+		Type:       "confirm"
+		Prompt:     "create frontend"
+		Questions: [{
+			Name:   "framework"
+			Type:   "select"
+			Prompt: "select framework"
+			Options: ["React", "Vue", "Svelt"]
+		}]
+	},{
+		Name:       "backend"
+		Type:       "confirm"
+		Prompt:     "create backend"
+		Questions: [{
+			Name:   "language"
+			Type:   "select"
+			Prompt: "select framework"
+			Options: ["Go", "JS", "TS", "Python"]
+		}]
+	},{
+		Name:       "database"
+		Type:       "confirm"
+		Prompt:     "create database"
+		Questions: [{
+			Name:   "vendor"
+			Type:   "select"
+			Prompt: "select framework"
+			Options: ["Postgres", "Mysql", "Sqlite", "Mongo"]
+		}]
+	},{
+		Name:       "sdks"
+		Type:       "confirm"
+		Prompt:     "create SDKs"
+		Questions: [{
+			Name:   "languages"
+			Type:   "multiselect"
+			Prompt: "select languages"
+			Options: [
+				"Go",
+				"JavaScript",
+				"Java",
+				"Python",
+				"Ruby",
+				"Rust",
+				"TypeScript",
+			]
+		}]
 	}]
 
 	In: {
-		foo: "bar"
+		CreateInput
 		...
 	}
 
@@ -35,8 +106,8 @@ import (
 	EmbeddedTemplates: {
 		debug: {
 			Content: """
-				{{ yaml . }}
-				"""
+			{{ yaml . }}
+			"""
 		}
 	}
 }

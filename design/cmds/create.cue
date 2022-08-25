@@ -37,8 +37,8 @@ import (
 	{
 		Name:    "Outdir"
 		Type:    "string"
-		Default: ""
-		Help:    "base directory to write all output u"
+		Default: "\"\""
+		Help:    "base directory to write all output to"
 		Long:    "outdir"
 		Short:   "O"
 	}]
