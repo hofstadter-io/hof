@@ -5,30 +5,19 @@ import (
 	"github.com/hofstadter-io/hof/schema/gen"
 )
 
-test: gen.#HofGenerator & {
+test: gen.#Generator & {
 	@gen(test)
 
-	Outdir: "./"
+	Outdir: "./out"
 
 	PackageName: ""
 
-	CreateInput: {
-		name: string
-		about: string
-		frontend?: {
-			framework: string
-		}
-		backend?: {
-			language: string
-		}
-		database?: {
-			vendor: string
-		}
-		sdks?: {
-			languages: [...string]
-		}
+	CreateMessage: {
+		Before: "testing creator before message"
+		After:  "congrats, \(CreateInput.name) is ready, check \(Outdir)"
 	}
 
+	CreateInput: _
 	CreatePrompt: [{
 		Name:       "name"
 		Type:       "input"
@@ -96,12 +85,18 @@ test: gen.#HofGenerator & {
 		...
 	}
 
-	Out: [...gen.#HofGeneratorFile] & [
-		{
-			TemplatePath: "debug"
-			Filepath:     "debug.yaml"
-		},
-	]
+	Out: [...gen.#File] & [ {
+		TemplatePath: "debug"
+		Filepath:     "debug.yaml"
+	}, {
+		TemplatePath: "readme.md"
+		Filepath:     "readme.md"
+	}, {
+		TemplatePath: "gen.cue"
+		Filepath:     "gen.cue"
+	}]
+
+	gen.#SubdirTemplates & { #subdir: "test/create/local" }
 
 	EmbeddedTemplates: {
 		debug: {

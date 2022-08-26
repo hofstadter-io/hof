@@ -1,5 +1,29 @@
 # curr
 
+
+# today
+
+- [x] get templates rendering from creator gen
+- [x] render CUE files (generators)
+
+Path issues to resolve
+
+- [ ] potential template lookup issues for all other things here
+- [ ] nested gen (don't want to force top-level creators)
+- [ ] local dev for creator mods and ../ like paths
+
+Two mods to test with:
+
+- [ ] hof create github.com/hofstadter-io/hofmod-cli   (root gen)
+- [ ] hof create github.com/hofstadter-io/hofmod-types (nested gen)
+
+We support creators in subdirs.
+We probably need to walk up remote path to find git repo like Go.
+Use this to prototype revamp of `hof mod`
+
+
+
+
 ### Docs, Demos, & Mods
 
 - [ ] docs
@@ -52,6 +76,8 @@ Formatting:
 bugs:
 
 - loading only yaml broken (need repro case)
+- [ ] `hof fmt file.cue` is not working
+- [ ] `hof fmt start all[` segfaults
 
 v0.6.x
 

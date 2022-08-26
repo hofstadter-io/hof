@@ -6,7 +6,7 @@ import (
 	"github.com/hofstadter-io/hof/design"
 )
 
-Cli: gen.#HofGenerator & {
+Cli: gen.#Generator & {
 	@gen(cli,hof)
 	Outdir: "./"
 	Cli:    design.#CLI

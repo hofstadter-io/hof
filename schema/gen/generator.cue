@@ -2,6 +2,7 @@ package gen
 
 import (
   "github.com/hofstadter-io/hof/schema/common"
+  "github.com/hofstadter-io/hof/schema/create"
 )
 
 // Definition for a generator
@@ -77,14 +78,8 @@ import (
 	// For subgenerators so a generator can leverage and design for other hofmods
 	Generators: [name=string]: #Generator & { Name: name }
 
-	// schema and filled value for the create inputs
-	// all inputs will be unified with this (files, flags, prompt)
-	// it's contents should likely align with the prompt nesting
-	CreateInput: {...}
-
-	// Init time inputs and prompts
-	// if an entry will is already set by flags, it will be skipped
-	CreatePrompt: [...#CreateQuestion]
+	// Embed the creator to get creator fields
+	create.#Creator
 
 	// This should be set to default to the module name
 	//   (i.e. 'string | *"github.com/<org>/<repo>"')
@@ -102,19 +97,6 @@ import (
 
 	// Note, open so you can have any extra fields
 	...
-}
-
-#CreateQuestion: {
-	Name: string
-	Type: "input" | "multiline" | "password" | "confirm" | "select" | "multiselect"
-	Prompt: string
-	// for (multi)select
-	Options?: [...string]
-	Default?: _
-	Required: bool | *false
-	Validation?: _
-
-	Questions?: [...#CreateQuestion]
 }
 
 // deprecated

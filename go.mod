@@ -2,7 +2,7 @@ module github.com/hofstadter-io/hof
 
 go 1.18
 
-replace cuelang.org/go => ../../cue/cue
+// replace cuelang.org/go => ../../cue/cue
 
 require (
 	cuelang.org/go v0.4.3

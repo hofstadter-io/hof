@@ -35,6 +35,9 @@
 /hof-cpu.prof
 /hof
 
+# Hof shadow related
+/.hof/shadow/test/
+
 # Sonar Cloud
 /.sonar/
 /.scannerwork/

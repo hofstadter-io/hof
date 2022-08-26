@@ -37,6 +37,7 @@ func Create(args []string, rootflags flags.RootPflagpole, cmdflags flags.CreateF
 		fmt.Println("CueDirs:", R.CueModuleRoot, R.WorkingDir)
 	}
 
+	// minimally load and extract generators
 	err = R.LoadCue()
 	if err != nil {
 		return err
@@ -47,6 +48,7 @@ func Create(args []string, rootflags flags.RootPflagpole, cmdflags flags.CreateF
 		return err
 	}
 
+	// handle create input / prompt
 	for _, G := range R.Generators {
 		err = handleGeneratorCreate(G)
 		if err != nil {
@@ -54,13 +56,25 @@ func Create(args []string, rootflags flags.RootPflagpole, cmdflags flags.CreateF
 		}
 	}
 
-	errs := R.RunGenerators()
+	// full load generators
+	errs := R.LoadGenerators()
+	if len(errs) > 0 {
+		for _, e := range errs {
+			fmt.Println(e)
+		}
+		return fmt.Errorf("While loading generators")
+	}
+
+	// run generators
+	errs = R.RunGenerators()
 	if len(errs) > 0 {
 		for _, e := range errs {
 			fmt.Println(e)
 		}
 		return fmt.Errorf("While generating")
 	}
+
+	// write output
 	errs = R.WriteOutput()
 	if len(errs) > 0 {
 		for _, e := range errs {
@@ -69,15 +83,45 @@ func Create(args []string, rootflags flags.RootPflagpole, cmdflags flags.CreateF
 		return fmt.Errorf("While writing")
 	}
 
-	if R.Verbosity > 0 {
-		fmt.Println("done creating")
+	for _, G := range R.Generators {
+		after := G.CueValue.LookupPath(cue.ParsePath("CreateMessage.After"))
+		if after.Err() != nil {
+			fmt.Println("error:", after.Err())
+			return after.Err()
+		}
+
+		if !after.IsConcrete() || !after.Exists() {
+			if R.Verbosity > 0 {
+				fmt.Println("done creating")
+			}
+		} else {
+			s, err := after.String()
+			if err != nil {
+				return err
+			}
+			fmt.Println(s)
+		}
 	}
 
 	return nil
 }
 
 func handleGeneratorCreate(G *gen.Generator) error {
-	fmt.Println("Creating", G.Name)
+	before := G.CueValue.LookupPath(cue.ParsePath("CreateMessage.Before"))
+	if before.Err() != nil {
+		fmt.Println("error:", before.Err())
+		return before.Err()
+	}
+
+	if !before.IsConcrete() || !before.Exists() {
+		fmt.Printf("Creating from %q\n", G.Name)
+	} else {
+		s, err := before.String()
+		if err != nil {
+			return err
+		}
+		fmt.Println(s)
+	}
 
 	val := G.CueValue.LookupPath(cue.ParsePath("CreateInput"))
 	if val.Err() != nil {
@@ -103,7 +147,9 @@ func handleGeneratorCreate(G *gen.Generator) error {
 	// fmt.Println(prompt)
 
 	ans := map[string]any{}
+	// TODO deal with --input flags
 
+	// process create prompts
 	// Loop through all top level fields
 	iter, err := prompt.List()
 	if err != nil {
@@ -124,45 +170,56 @@ func handleGeneratorCreate(G *gen.Generator) error {
 			return err
 		}
 
-		ans[Q["Name"].(string)] = A
+		// do we want to return a bool from handleQuestion
+		// to be more explicit about this check?
+		if A != nil {
+			ans[Q["Name"].(string)] = A
+		}
 	}
 
-
-	fmt.Println("Final:", ans)
-
-	// TODO deal with --input flags
-
-	// process create prompts
-
-
 	// fill CreateInput from --inputs and prompt
+	G.CueValue = G.CueValue.FillPath(cue.ParsePath("CreateInput"), ans)
 
-	return fmt.Errorf("intentional error")
+	// fmt.Println("Final:", G.CueValue)
+	// return fmt.Errorf("intentional error")
+	return nil
 }
 
 func handleQuestion(Q map[string]any) (A any, err error) {
-	fmt.Println(" -", Q["Name"], Q["Type"])
+	// fmt.Println(" -", Q["Name"], Q["Type"])
 
 	err = fmt.Errorf("not asked yet")
 	for err != nil {
 		err = nil
 		switch Q["Type"] {
 		case "input":
+			dval := ""
+			if d, ok := Q["Default"]; ok {
+				dval = d.(string)
+			}
 			prompt := &survey.Input {
 				// todo, rename prompt to message in test and schema
 				Message: Q["Prompt"].(string),
+				Default: dval,
 			}
 			var a string
 			err = survey.AskOne(prompt, &a)
 			A = a
+
 		case "multiline":
+			dval := ""
+			if d, ok := Q["Default"]; ok {
+				dval = d.(string)
+			}
 			prompt := &survey.Multiline {
 				// todo, rename prompt to message in test and schema
 				Message: Q["Prompt"].(string),
+				Default: dval,
 			}
 			var a string
 			err = survey.AskOne(prompt, &a)
 			A = a
+
 		case "password":
 			prompt := &survey.Password {
 				// todo, rename prompt to message in test and schema
@@ -171,14 +228,25 @@ func handleQuestion(Q map[string]any) (A any, err error) {
 			var a string
 			err = survey.AskOne(prompt, &a)
 			A = a
+
 		case "confirm":
+			dval := false
+			if d, ok := Q["Default"]; ok {
+				dval = d.(bool)
+			}
 			prompt := &survey.Confirm {
 				// todo, rename prompt to message in test and schema
 				Message: Q["Prompt"].(string),
+				Default: dval,
 			}
 			var a bool
 			err = survey.AskOne(prompt, &a)
-			A = a
+
+			if !a {
+				return nil, nil
+			} else {
+				A = a
+			}
 			// possibly recurse if has own Questions
 			QS, ok := Q["Questions"]
 			if a && ok {
@@ -194,6 +262,7 @@ func handleQuestion(Q map[string]any) (A any, err error) {
 				}
 				A = A2
 			}
+
 		case "select":
 			opts := []string{}
 			for _, o := range Q["Options"].([]any) {
@@ -204,10 +273,12 @@ func handleQuestion(Q map[string]any) (A any, err error) {
 				Message: Q["Prompt"].(string),
 				// todo, probably need to error handle options
 				Options: opts,
+				Default: Q["Default"],
 			}
 			var a string
 			err = survey.AskOne(prompt, &a)
 			A = a
+
 		case "multiselect":
 			opts := []string{}
 			for _, o := range Q["Options"].([]any) {
@@ -218,6 +289,7 @@ func handleQuestion(Q map[string]any) (A any, err error) {
 				Message: Q["Prompt"].(string),
 				// todo, probably need to error handle options
 				Options: opts,
+				Default: Q["Default"],
 			}
 			var a []string
 			err = survey.AskOne(prompt, &a)
