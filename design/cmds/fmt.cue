@@ -32,7 +32,6 @@ import (
 	_carg: [{
 		Name:     "formatter"
 		Type:     "string"
-		Required: true
 		Help:     "formatter name"
 	}]
 
@@ -41,11 +40,7 @@ import (
 		Usage: "info"
 		Short: "get formatter info"
 		Long:  Short
-		Args: [{
-			Name:     "formatter"
-			Type:     "string"
-			Help:     "formatter name or 'all'"
-		}]
+		Args: _carg
 	}, {
 		Name:  "pull"
 		Usage: "pull"

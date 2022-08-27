@@ -38,12 +38,6 @@ var StartCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		if 0 >= len(args) {
-			fmt.Println("missing required argument: 'formatter'")
-			cmd.Usage()
-			os.Exit(1)
-		}
-
 		var formatter string
 
 		if 0 < len(args) {

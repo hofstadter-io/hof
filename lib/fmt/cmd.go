@@ -104,6 +104,11 @@ func Start(fmtr string) error {
 	if err != nil {
 		return err
 	}
+
+	if fmtr == "" {
+		fmtr = "all"
+	}
+
 	if fmtr == "all" {
 		for _, name := range fmtrNames {
 			err := startContainer(name)
@@ -122,6 +127,11 @@ func Stop(fmtr string) error {
 	if err != nil {
 		return err
 	}
+
+	if fmtr == "" {
+		fmtr = "all"
+	}
+
 	if fmtr == "all" {
 		for _, name := range fmtrNames {
 			err := stopContainer(name)
@@ -139,6 +149,10 @@ func Pull(fmtr string) error {
 	err := initDockerCli()
 	if err != nil {
 		return err
+	}
+
+	if fmtr == "" {
+		fmtr = "all"
 	}
 
 	if fmtr == "all" {

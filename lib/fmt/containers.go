@@ -102,15 +102,23 @@ func updateFormatterStatus() error {
 }
 
 func startContainer(fmtr string) error {
+	// just try to pull, if already present this will not be noticed
 	err := maybePullContainer(fmtr)
 	if err != nil {
 		return err
 	}
 
+	// maybe stop here, by ignoring error
+	// we do this to cleanup and stopped / done images
+	// (typical of docker when a user restarts their computer)
+	stopContainer(fmtr)
+
+	// now we can safely (re)create our container
 	ret, err := dockerCli.ContainerCreate(
 		context.Background(),
 
 		// config
+		// todo, maybe walk back versions? (dirty -> latest release)
 		&container.Config{
 			Image: fmt.Sprintf("hofstadter/fmt-%s:%s", fmtr, defaultVersion),
 		},
@@ -123,6 +131,7 @@ func startContainer(fmtr string) error {
 		// netConfig
 		nil,
 
+		// todo, need to consider mac arm here?
 		// platform
 		nil,
 
@@ -156,7 +165,7 @@ func stopContainer(fmtr string) error {
 
 func pullContainer(fmtr string) error {
 	if defaultVersion == "dirty" {
-		return nil
+		return fmt.Errorf("%s: You have local changes to hof, run 'make formatters' instead", fmtr)
 	}
 	ref := fmt.Sprintf("hofstadter/fmt-%s:%s", fmtr, defaultVersion)
 	fmt.Println("pulling:", ref)
@@ -175,6 +184,9 @@ func pullContainer(fmtr string) error {
 }
 
 func maybePullContainer(fmtr string) error {
+	if defaultVersion == "dirty" {
+		return nil
+	}
 	F := formatters[fmtr]
 
 	found := false

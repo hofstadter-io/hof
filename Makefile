@@ -15,6 +15,11 @@ workflow: $(workflows)
 $(workflows): workflow_%:
 	@cue export --out yaml $(subst workflow_,,$@) > $(subst workflow_,,$(subst .cue,,$@)).yml
 
+# formatter images
+.PHONY: formatters
+formatters:
+	make -C formatters images
+
 fmt: cuefmt gofmt
 
 .PHONY: cuefmt cuefiles
