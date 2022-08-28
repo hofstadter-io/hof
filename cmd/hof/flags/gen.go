@@ -7,6 +7,7 @@ type GenFlagpole struct {
 	Template   []string
 	Partial    []string
 	Diff3      bool
+	NoFormat   bool
 	Watch      bool
 	WatchFull  []string
 	WatchFast  []string

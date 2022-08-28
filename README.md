@@ -34,6 +34,9 @@ You can find the latest version from the
 or use `hof` to install a specific version of itself with `hof update --version vX.Y.Z`.
 
 ```shell
+# Homebrew
+brew install hofstadter-io/tap/hof
+
 # Latest Release
 go install github.com/hofstadter-io/hof/cmd/hof@latest
 

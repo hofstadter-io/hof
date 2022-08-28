@@ -62,6 +62,13 @@ import (
 			Short:   "D"
 		},
 		{
+			Name:    "NoFormat"
+			Type:    "bool"
+			Default: "false"
+			Help:    "disable formatting during code gen (adhoc only)"
+			Long:    "no-format"
+		},
+		{
 			Name:    "watch"
 			Type:    "bool"
 			Default: "false"

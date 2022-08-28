@@ -100,6 +100,7 @@ type Generator struct {
 
 	// Use Diff3 & Shadow
 	UseDiff3 bool
+	NoFormat bool
 
 	//
 	// Hof internal usage
@@ -129,17 +130,30 @@ type Generator struct {
 	CueValue cue.Value
 }
 
-func NewGenerator(label string, value cue.Value) *Generator {
+func NewGenerator(label string, value cue.Value, R *Runtime) *Generator {
+		// TODO, only transfer what is needed
+
 	return &Generator{
-		Name:        label,
-		CueValue:    value,
-		PartialsMap: templates.NewTemplateMap(),
-		TemplateMap: templates.NewTemplateMap(),
-		Generators:  make(map[string]*Generator),
-		Files:       make(map[string]*File),
-		Shadow:      make(map[string]*File),
-		Stats:       &GeneratorStats{},
-		UseDiff3:    true,
+		// runtime copyin
+		runtime:       R,
+		CueModuleRoot: R.CueModuleRoot,
+		WorkingDir:    R.WorkingDir,
+		cwdToRoot:     R.cwdToRoot,
+		rootToCwd:     R.rootToCwd,
+		UseDiff3:      R.Flagpole.Diff3,
+		NoFormat:      R.Flagpole.NoFormat,
+
+		// generator specific vals
+		Name:          label,
+		CueValue:      value,
+
+		// initialize containers
+		PartialsMap:   templates.NewTemplateMap(),
+		TemplateMap:   templates.NewTemplateMap(),
+		Generators:    make(map[string]*Generator),
+		Files:         make(map[string]*File),
+		Shadow:        make(map[string]*File),
+		Stats:         &GeneratorStats{},
 	}
 }
 

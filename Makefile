@@ -15,6 +15,10 @@ workflow: $(workflows)
 $(workflows): workflow_%:
 	@cue export --out yaml $(subst workflow_,,$@) > $(subst workflow_,,$(subst .cue,,$@)).yml
 
+.PHONY: hof
+hof:
+	CGO_ENABLED=0 go install ./cmd/hof
+
 # formatter images
 .PHONY: formatters
 formatters:

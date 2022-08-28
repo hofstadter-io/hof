@@ -64,7 +64,7 @@ type File struct {
 	parent *Generator
 }
 
-func (F *File) Render(outdir string, UseDiff3 bool) error {
+func (F *File) Render(outdir string, UseDiff3, NoFmt bool) error {
 	// fmt.Println("F.Render:", F.Filepath, UseDiff3)
 	var err error
 	F.RenderContent = bytes.TrimSpace(F.RenderContent)
@@ -80,7 +80,7 @@ func (F *File) Render(outdir string, UseDiff3 bool) error {
 	} else if F.StaticFile {
 
 	} else {
-		err = F.RenderTemplate()
+		err = F.RenderTemplate(NoFmt)
 		if err != nil {
 			F.FileStats.IsErr = 1
 			F.Errors = append(F.Errors, err)
@@ -266,12 +266,16 @@ func (F *File) RenderData() (err error) {
 	return nil
 }
 
-func (F *File) RenderTemplate() (err error) {
+func (F *File) RenderTemplate(nofmt bool) (err error) {
 
 	F.RenderContent, err = F.TemplateInstance.Render(F.In)
 	if err != nil {
 		F.Errors = append(F.Errors, err)
 		return err
+	}
+
+	if nofmt {
+		return
 	}
 
 	err = F.FormatRendered()

@@ -24,6 +24,7 @@ type Runtime struct {
 	// TODO configuration
 	mode      string
 	Verbosity int
+	NoFormat  bool
 
 	// Cue ralated
 	CueRuntime    *cuetils.CueRuntime
@@ -43,9 +44,9 @@ func NewRuntime(entrypoints []string, rootflags flags.RootPflagpole, cmdflags fl
 		Flagpole:    cmdflags,
 		Generators:  make(map[string]*Generator),
 		Stats:       new(RuntimeStats),
+		Verbosity:  rootflags.Verbosity,
+		NoFormat:   cmdflags.NoFormat,
 	}
-
-	R.Verbosity = rootflags.Verbosity
 
 	var err error
 
@@ -259,15 +260,7 @@ func (R *Runtime) ExtractGenerators() error {
 			continue
 		}
 
-		G := NewGenerator(label, value)
-
-		// TODO, only transfer what is needed
-		G.runtime = R
-		G.CueModuleRoot = R.CueModuleRoot
-		G.WorkingDir = R.WorkingDir
-		G.cwdToRoot = R.cwdToRoot
-		G.rootToCwd = R.rootToCwd
-
+		G := NewGenerator(label, value, R)
 		R.Generators[label] = G
 	}
 

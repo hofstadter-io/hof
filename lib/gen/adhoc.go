@@ -55,8 +55,7 @@ func (R *Runtime) CreateAdhocGenerator() error {
 		globs = append(globs, cfg.Filepath)
 	}
 
-	G := NewGenerator("AdhocGen", R.CueRuntime.CueValue)
-	G.UseDiff3 = R.Flagpole.Diff3
+	G := NewGenerator("AdhocGen", R.CueRuntime.CueValue, R)
 	G.Outdir = ""
 
 	G.Templates = []*TemplateGlobs{ &TemplateGlobs{Globs: globs} }

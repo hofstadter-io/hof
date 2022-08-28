@@ -81,7 +81,7 @@ func (G *Generator) GenerateFiles(outdir string) []error {
 		F.ShadowFile = G.Shadow[F.Filepath]
 
 		// this handles the diff logic
-		err := F.Render(outdir, G.UseDiff3)
+		err := F.Render(outdir, G.UseDiff3, G.runtime.NoFormat)
 		if err != nil {
 			F.IsErr = 1
 			F.Errors = append(F.Errors, err)

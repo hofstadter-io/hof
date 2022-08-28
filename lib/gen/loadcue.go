@@ -461,7 +461,7 @@ func (G *Generator) loadSubgens() (errs []error) {
 	for iter.Next() {
 		name := iter.Selector().String()
 		v := iter.Value()
-		sg := NewGenerator(name, v)
+		sg := NewGenerator(name, v, G.runtime)
 		sg.parent = G
 		copyGenMeta(G, sg)
 

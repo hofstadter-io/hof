@@ -10,16 +10,19 @@ tag:
 	@echo $(TAG)
 
 TOOLS := $(shell ls tools/)
+.PHONY: tools
 tools:
 	@echo $(TOOLS)
 
 # make image.*
 IMAGES=$(addsuffix .image,$(TOOLS))
+.PHONY: images
 images: $(IMAGES)
 $(IMAGES):
 	docker build -t hofstadter/fmt-$(@:%.image=%):$(TAG) tools/$(@:%.image=%)
 
 # make *.start
+.PHONY: $(addsuffix .start,$(TOOLS))
 $(addsuffix .start,$(TOOLS)):
 	docker run -d -P --name hof-fmt-$(@:%.start=%) hofstadter/fmt-$(@:%.start=%):$(TAG)
 
