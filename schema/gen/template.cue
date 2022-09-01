@@ -18,6 +18,9 @@ package gen
 		TrimPrefix: "\(#subdir)/partials/"
 	}]
 	Statics: [{
+		Globs: ["\(#subdir)/statics/**/*"]
+		TrimPrefix: "\(#subdir)/statics/"
+	},{
 		Globs: ["\(#subdir)/static/**/*"]
 		TrimPrefix: "\(#subdir)/static/"
 	}]
