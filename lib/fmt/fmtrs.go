@@ -230,7 +230,7 @@ func FormatSource(filename string, content []byte, fmtrName string, config inter
 	fmtr := formatters[fmtrName]
 
 	// start the formatter if not running
-	if fmtr.Port == "" {
+	if !fmtr.Running {
 		err := startContainer(fmtrName)
 		if err != nil {
 			return content, err

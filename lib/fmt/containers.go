@@ -34,18 +34,6 @@ func updateFormatterStatus() error {
 		return err
 	}
 
-	cFilter := filters.NewArgs(filters.Arg("name", "hof-fmt-"))
-	containers, err := dockerCli.ContainerList(
-		context.Background(),
-		types.ContainerListOptions{
-			All: true,
-			Filters: cFilter,
-		},
-	)
-	if err != nil {
-		return err
-	}
-
 	// reset formatters
 	for _, fmtr := range formatters {
 		fmtr.Running = false
@@ -68,6 +56,18 @@ func updateFormatterStatus() error {
 		}
 	}
 
+	cFilter := filters.NewArgs(filters.Arg("name", "hof-fmt-"))
+	containers, err := dockerCli.ContainerList(
+		context.Background(),
+		types.ContainerListOptions{
+			All: true,
+			Filters: cFilter,
+		},
+	)
+	if err != nil {
+		return err
+	}
+
 	for _, container := range containers {
 		// extract name
 		name := container.Names[0]
@@ -76,8 +76,12 @@ func updateFormatterStatus() error {
 		// get fmtr
 		fmtr := formatters[name]
 
-		// always set running, otherwise it would not be in the lines
-		fmtr.Running = true
+		// determine the container status
+		if container.State == "running" {
+			fmtr.Running = true
+		} else {
+			fmtr.Running = false
+		}
 
 		p := 100000
 		for _, port := range container.Ports {
@@ -150,7 +154,7 @@ func startContainer(fmtr string) error {
 	)
 
 	// TODO, add alive command and wait for ready
-	time.Sleep(500*time.Millisecond)
+	time.Sleep(2000*time.Millisecond)
 
 	return err
 }
