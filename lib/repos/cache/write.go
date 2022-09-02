@@ -8,11 +8,9 @@ import (
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
-func Outdir(lang, remote, owner, repo, tag string) string {
+func Outdir(remote, owner, repo, tag string) string {
 	outdir := filepath.Join(
-		LocalCacheBaseDir,
-		"mod",
-		lang,
+		cacheBaseDir,
 		remote,
 		owner,
 		repo+"@"+tag,
@@ -20,8 +18,8 @@ func Outdir(lang, remote, owner, repo, tag string) string {
 	return outdir
 }
 
-func Write(lang, remote, owner, repo, tag string, FS billy.Filesystem) error {
-	outdir := Outdir(lang, remote, owner, repo, tag)
+func Write(remote, owner, repo, tag string, FS billy.Filesystem) error {
+	outdir := Outdir(remote, owner, repo, tag)
 	err := yagu.Mkdir(outdir)
 	if err != nil {
 		return err

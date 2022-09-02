@@ -7,7 +7,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/mod/parse/mappingfile"
 	"github.com/hofstadter-io/hof/lib/mod/parse/modfile"
 	"github.com/hofstadter-io/hof/lib/mod/parse/sumfile"
-	"github.com/hofstadter-io/hof/lib/yagu/repos/git"
+	"github.com/hofstadter-io/hof/lib/repos/git"
 )
 
 type Module struct {

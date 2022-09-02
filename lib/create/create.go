@@ -2,12 +2,14 @@ package create
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"cuelang.org/go/cue"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/gen"
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 func Create(args []string, rootflags flags.RootPflagpole, cmdflags flags.CreateFlagpole) error {
@@ -15,13 +17,33 @@ func Create(args []string, rootflags flags.RootPflagpole, cmdflags flags.CreateF
 	// fmt.Println("Create:", args, cmdflags)
 
 	// TODO, is this local or remote?
-	if len(args) == 1 && !strings.HasPrefix(args[0], ".") {
+	// or is this cue entrypoints or does it look like a remote
+	if len(args) == 1 && looksLikeRepo(args[0]) {
+		parts := strings.Split(args[0], "@")
+		url, ver := parts[0], ""
+		if len(parts) == 2 {
+			ver = parts[1]
+		}
+		fmt.Printf("looking for %s @ %s\n", url, ver)
+		root, tmpdir, err := yagu.FindRemoteRepoRootAndClone(url, ver)
+		fmt.Println(root, tmpdir, err)
+		if err == nil {
+			infos, err := os.ReadDir(tmpdir)
+			for _, info := range infos {
+				fmt.Println(info.Name())
+			}
+			err = os.RemoveAll(tmpdir)
+			if err != nil {
+				return err
+			}
+		}
 		fmt.Println("Remote repositories are not supported yet")
 		return nil
 	}
 
 	// Do local generators need to be moved to vendor so that
 	// template lookups still work???
+	// should we be making a temp dir, run from there, and then set output dir to abolute path?
 
 	genflags := flags.GenFlags
 	genflags.Generator = cmdflags.Generator
@@ -183,3 +205,36 @@ func handleGeneratorCreate(G *gen.Generator) error {
 	return nil
 }
 
+func looksLikeRepo(str string) bool {
+	// todo, check if file exists here when returning false
+	// (and assuming a single arg cue entrypoint
+	// basically we are trying to eliminae this case and
+	// if we can't we assume a repo
+
+	// note, we will have to revisit if we start supporting
+	// named create args like npm create-*
+
+	// does it have '/' separated parts?
+	parts := strings.Split(str, "/")
+
+	// if only 1, no slashes, probably a file or directory
+	if len(parts) == 1 {
+		return false
+	}
+
+	// first part should be a domain
+
+	// is it only '.' or '..', it's relative or a dir
+	if parts[0] == "." || parts[0] == ".." || !strings.Contains(parts[0], ".") {
+		return false
+	}
+
+	// if last part contains a '.' or '*', probably an entrypoint
+	last := parts[len(parts)-1]
+	if strings.Contains(last, ".") || strings.Contains(last, "*") {
+		return false
+	}
+
+	// we've checked all we can, assume a repo
+	return true
+}

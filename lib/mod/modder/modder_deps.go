@@ -6,7 +6,7 @@ import (
 
 	"golang.org/x/mod/semver"
 
-	"github.com/hofstadter-io/hof/lib/yagu/repos/git"
+	"github.com/hofstadter-io/hof/lib/repos/git"
 )
 
 func (mdr *Modder) PrintRootDeps() error {

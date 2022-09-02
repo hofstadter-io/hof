@@ -4,13 +4,15 @@ import (
 	"os"
 
 	"golang.org/x/mod/sumdb/dirhash"
+
+	"github.com/hofstadter-io/hof/lib/repos/utils"
 )
 
-func Checksum(lang, mod, ver string) (string, error) {
-	remote, owner, repo := parseModURL(mod)
+func Checksum(mod, ver string) (string, error) {
+	remote, owner, repo := utils.ParseModURL(mod)
 	tag := ver
 
-	dir := Outdir(lang, remote, owner, repo, tag)
+	dir := Outdir(remote, owner, repo, tag)
 	// fmt.Println("Cache Checksum:", dir)
 
 	_, err := os.Lstat(dir)

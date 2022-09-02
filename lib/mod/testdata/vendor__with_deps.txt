@@ -4,7 +4,7 @@ exec hof mod vendor
 -- cue.mods --
 module github.com/test/withsolo
 
-cue v0.4.0
+cue v0.4.3
 
 require (
     github.com/hofstadter-io/hof v0.5.16
@@ -22,7 +22,7 @@ exec hof mod vendor
 -- cue.mods --
 module github.com/test/withmulti
 
-cue v0.4.0
+cue v0.4.3
 
 require (
     github.com/hofstadter-io/hof v0.5.16
@@ -40,7 +40,7 @@ exec hof mod vendor
 -- cue.mods --
 module github.com/test/mod-v000-a
 
-cue v0.4.0
+cue v0.4.3
 
 require (
     github.com/hofstadter-io/hof-cuefig v0.0.0
@@ -56,7 +56,7 @@ exec hof mod vendor
 -- cue.mods --
 module github.com/test/mod-v000-b
 
-cue v0.4.0
+cue v0.4.3
 
 require (
     github.com/hofstadter-io/hofmod-cuefig v0.0.0

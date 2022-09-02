@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-git/go-billy/v5/osfs"
 
-	"github.com/hofstadter-io/hof/lib/mod/cache"
+	"github.com/hofstadter-io/hof/lib/repos/cache"
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
@@ -140,12 +140,12 @@ func (mdr *Modder) LoadRemoteModule(R Replace) error {
 		m.Version = R.NewVersion
 	}
 
-	err := cache.Fetch(mdr.Name, R.NewPath, R.NewVersion, mdr.PrivateEnvVar)
+	err := cache.Fetch(R.NewPath, R.NewVersion)
 	if err != nil {
 		return err
 	}
 
-	m.FS, err = cache.Load(mdr.Name, R.NewPath, R.NewVersion)
+	m.FS, err = cache.Load(R.NewPath, R.NewVersion)
 	if err != nil {
 		return err
 	}

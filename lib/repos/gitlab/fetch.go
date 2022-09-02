@@ -10,8 +10,8 @@ import (
 	"github.com/go-git/go-billy/v5"
 	"github.com/xanzy/go-gitlab"
 
+	"github.com/hofstadter-io/hof/lib/repos/git"
 	"github.com/hofstadter-io/hof/lib/yagu"
-	"github.com/hofstadter-io/hof/lib/yagu/repos/git"
 )
 
 func Fetch(FS billy.Filesystem, owner, repo, tag string, private bool) error {

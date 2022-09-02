@@ -4,10 +4,10 @@ exec hof mod vendor
 -- cue.mods --
 module github.com/test/withsolo
 
-cue v0.2.0
+cue v0.4.3
 
 require (
-    github.com/hofstadter-io/hof v0.5.4
+    github.com/hofstadter-io/hof v0.6.6
 )
 -- cue.mod/module.cue --
 module: "github.com/test/withsolo"

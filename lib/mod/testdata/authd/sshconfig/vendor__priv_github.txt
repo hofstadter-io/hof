@@ -5,7 +5,7 @@ exec hof mod vendor
 -- cue.mods --
 module github.com/test/priv-github
 
-cue v0.4.0
+cue v0.4.3
 
 require (
     github.com/hofstadter-io/hofmod-test-priv-github v0.0.1

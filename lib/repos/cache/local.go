@@ -5,20 +5,29 @@ import (
 	"path/filepath"
 )
 
-var LocalCacheBaseDir = ".hof/mods"
+// TODO move this config to hofmod-cli
+// maybe to lib/repos or lib/config for now
+
+const CustomCacheBaseDirVar = "HOF_CACHE"
+var cacheBaseDir  string
 
 func init() {
-	d, err := os.UserConfigDir()
-	if err != nil {
-		return
-	}
+	e := os.Getenv(CustomCacheBaseDirVar)
+	if e != "" {
+		cacheBaseDir = e
+	} else {
+		d, err := os.UserCacheDir()
+		if err != nil {
+			return
+		}
 
-	// save to hof dir for cache across projects
-	LocalCacheBaseDir = filepath.Join(d, "hof/mods")
+		// save to hof dir for cache across projects
+		cacheBaseDir = filepath.Join(d, "hof/mods")
+	}
 }
 
 func SetBaseDir(basedir string) {
-	LocalCacheBaseDir = basedir
+	cacheBaseDir = basedir
 }
 
 /*

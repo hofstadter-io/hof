@@ -3,7 +3,7 @@ name: test_mod
   pull_request:
     paths:
       - lib/mod/**
-      - lib/yagu/repos/**
+      - lib/repos/**
       - lib/yagu/git.go
       - lib/yagu/netrc.go
       - lib/yagu/ssh.go

@@ -5,16 +5,15 @@ import (
 
 	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-billy/v5/osfs"
+
+	"github.com/hofstadter-io/hof/lib/repos/utils"
 )
 
-func Load(lang, mod, ver string) (FS billy.Filesystem, err error) {
-	remote, owner, repo := parseModURL(mod)
-	tag := ver
+func Load(url, ver string) (FS billy.Filesystem, err error) {
+	remote, owner, repo := utils.ParseModURL(url)
+	dir := Outdir(remote, owner, repo, ver)
 
-	dir := Outdir(lang, remote, owner, repo, tag)
-
-	// fmt.Println("Cache Load:", dir)
-
+	// check for directory
 	_, err = os.Lstat(dir)
 	if err != nil {
 		if _, ok := err.(*os.PathError); !ok && err.Error() != "file does not exist" && err.Error() != "no such file or directory" {
@@ -22,6 +21,7 @@ func Load(lang, mod, ver string) (FS billy.Filesystem, err error) {
 		}
 	}
 
+	// load into FS
 	FS = osfs.New(dir)
 
 	return FS, nil

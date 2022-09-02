@@ -1,4 +1,4 @@
-package bbc
+package github
 
 import (
 	"archive/zip"
@@ -8,11 +8,11 @@ import (
 	"strings"
 
 	"github.com/go-git/go-billy/v5"
-	"github.com/ktrysmt/go-bitbucket"
+	"github.com/google/go-github/v38/github"
 	"github.com/parnurzeal/gorequest"
 
+	"github.com/hofstadter-io/hof/lib/repos/git"
 	"github.com/hofstadter-io/hof/lib/yagu"
-	"github.com/hofstadter-io/hof/lib/yagu/repos/git"
 )
 
 func Fetch(FS billy.Filesystem, owner, repo, tag string, private bool) error {
@@ -20,8 +20,8 @@ func Fetch(FS billy.Filesystem, owner, repo, tag string, private bool) error {
 	// If private, and no token auth, try git protocol
 	// need to catch auth errors and suggest how to setup
 	if private && os.Getenv(TokenEnv) == "" {
-		fmt.Println("bitbucket git fallback")
-		return git.Fetch(FS, "bitbucket.org", owner, repo, tag, private)
+		fmt.Println("github git fallback")
+		return git.Fetch(FS, "github.com", owner, repo, tag, private)
 	}
 
 	client, err := NewClient()
@@ -37,9 +37,9 @@ func Fetch(FS billy.Filesystem, owner, repo, tag string, private bool) error {
 			return err
 		}
 
-		zReader, err = FetchBranchZip(owner, repo, r.Mainbranch.Name)
+		zReader, err = FetchBranchZip(owner, repo, *r.DefaultBranch)
 		if err != nil {
-			return fmt.Errorf("While fetching branch zipfile for %s/%s@%s\n%w\n", owner, repo, r.Mainbranch.Name, err)
+			return fmt.Errorf("While fetching branch zipfile for %s/%s@%s\n%w\n", owner, repo, *r.DefaultBranch, err)
 		}
 
 	} else {
@@ -49,26 +49,25 @@ func Fetch(FS billy.Filesystem, owner, repo, tag string, private bool) error {
 		}
 
 		// The tag we are looking for
-		var T *bitbucket.RepositoryTag
+		var T *github.RepositoryTag
 		for _, t := range tags {
-			if tag != "" && tag == t.Name {
-				T = &t
-				// fmt.Printf("FOUND  %v\n", *t.Name)
+			if tag != "" && tag == *t.Name {
+				T = t
 			}
 		}
 
 		if T == nil {
-			return fmt.Errorf("Did not find tag %q for 'https://bitbucket.org/%s/%s' @%s", tag, owner, repo, tag)
+			return fmt.Errorf("Did not find tag %q for 'https://github.com/%s/%s' @%s", tag, owner, repo, tag)
 		}
 
-		zReader, err = FetchTagZip(owner, repo, T.Name)
+		zReader, err = FetchTagZip(T)
 		if err != nil {
 			return fmt.Errorf("While fetching tag zipfile\n%w\n", err)
 		}
 	}
 
 	if err != nil {
-		return fmt.Errorf("While fetching from bitbucket\n%w\n", err)
+		return fmt.Errorf("While fetching from github\n%w\n", err)
 	}
 
 	if err := yagu.BillyLoadFromZip(zReader, FS, true); err != nil {
@@ -78,19 +77,15 @@ func Fetch(FS billy.Filesystem, owner, repo, tag string, private bool) error {
 	return nil
 }
 
-func FetchTagZip(owner, repo, ver string) (*zip.Reader, error) {
+func FetchTagZip(tag *github.RepositoryTag) (*zip.Reader, error) {
 
-	// url := *tag.ZipballURL
-	url := fmt.Sprintf("https://bitbucket.org/%s/%s/get/%s.zip", owner, repo, ver)
+	url := *tag.ZipballURL
 
 	req := gorequest.New().Get(url)
 
 	// TODO, process auth logic here better, maybe find a way to DRY
 	if token := os.Getenv(TokenEnv); token != "" {
-		req.Header.Set("Authorization", "Bearer"+token)
-	} else if password := os.Getenv(PasswordEnv); password != "" {
-		username := os.Getenv(UsernameEnv)
-		req.SetBasicAuth(username, password)
+		req.SetBasicAuth("github-token", token)
 	}
 
 	resp, data, errs := req.EndBytes()
@@ -119,16 +114,13 @@ func FetchTagZip(owner, repo, ver string) (*zip.Reader, error) {
 
 func FetchBranchZip(owner, repo, branch string) (*zip.Reader, error) {
 
-	url := fmt.Sprintf("https://bitbucket.org/%s/%s/get/%s.zip", owner, repo, branch)
+	url := fmt.Sprintf("https://github.com/%s/%s/archive/refs/heads/%s.zip", owner, repo, branch)
 
 	req := gorequest.New().Get(url)
 
 	// TODO, process auth logic here better, maybe find a way to DRY
 	if token := os.Getenv(TokenEnv); token != "" {
-		req.Header.Set("Authorization", "Bearer"+token)
-	} else if password := os.Getenv(PasswordEnv); password != "" {
-		username := os.Getenv(UsernameEnv)
-		req.SetBasicAuth(username, password)
+		req.SetBasicAuth("github-token", token)
 	}
 
 	resp, data, errs := req.EndBytes()

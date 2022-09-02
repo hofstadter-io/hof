@@ -6,7 +6,7 @@ exec hof mod vendor
 -- cue.mods --
 module github.com/test/mod
 
-cue v0.4.0
+cue v0.4.3
 
 replace github.com/hofstadter-io/hof => ./simhof
 
@@ -19,7 +19,7 @@ module: "github.com/test/mod"
 -- simhof/cue.mods --
 module github.com/hofstadter-io/hof
 
-cue v0.4.0
+cue v0.4.3
 
 -- simhof/cue.mod/module.cue --
 module: "github.com/hofstadter-io/hof"

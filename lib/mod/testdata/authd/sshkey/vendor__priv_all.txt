@@ -1,6 +1,6 @@
 # hof mod vendor - with deps
 
-env CUEPRIVATE=github.com,gitlab.com,bitbucket.org
+env HOF_PRIVATE=github.com,gitlab.com,bitbucket.org
 
 ## blankout token vars for this test
 env GITHUB_TOKEN=""
@@ -18,7 +18,7 @@ exec hof mod vendor
 -- cue.mods --
 module github.com/test/priv-all
 
-cue v0.4.0
+cue v0.4.3
 
 require (
     bitbucket.org/hofstadter/hofmod-test-priv-bitbucket v0.0.1

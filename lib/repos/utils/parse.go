@@ -1,11 +1,11 @@
-package cache
+package utils
 
 import (
 	"path"
 	"strings"
 )
 
-func parseModURL(mod string) (remote, owner, repo string) {
+func ParseModURL(mod string) (remote, owner, repo string) {
 	var flds []string
 	if i := strings.Index(mod, ".git"); i > -1 {
 		flds = strings.SplitN(mod[:i], "/", 3)

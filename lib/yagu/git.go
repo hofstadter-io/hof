@@ -1,6 +1,7 @@
 package yagu
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -9,6 +10,26 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
 )
+
+// FindRemoteRepoRootAndClone walks a path back until
+// it finds a valid git repo, cloning it into a tmp dir
+func FindRemoteRepoRootAndClone(repo, ver string) (root, dir string, err error) {
+	parts := strings.Split(repo, "/")
+	for i := len(parts); i > 1; i-- {
+		r := strings.Join(parts[:i], "/")
+		fmt.Println("trying...", r)
+		dir, err = CloneRepoIntoTmp("https://" + r, ver)
+		if err == nil {
+			return r, dir, nil
+		}
+		err = os.RemoveAll(dir)
+		if err != nil {
+			return r, dir, err
+		}
+	}
+
+	return "", "", fmt.Errorf("failed to find remote git repo from %s@%s", repo, ver)
+}
 
 func CloneRepoIntoTmp(srcUrl, srcVer string) (string, error) {
 

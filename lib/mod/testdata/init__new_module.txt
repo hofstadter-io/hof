@@ -11,7 +11,7 @@ cmp cue.mod/module.cue match/cue.mod/module.cue
 -- match/cue.mods --
 module github.com/test/mod
 
-cue v0.4.0
+cue v0.4.3
 -- match/cue.mod/module.cue --
 module: "github.com/test/mod"
 -- dummy_end --
