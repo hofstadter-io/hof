@@ -2,6 +2,7 @@ name: test_mod
 "on":
   pull_request:
     paths:
+      - .github/workflows/test_mod.*
       - lib/mod/**
       - lib/repos/**
       - lib/yagu/git.go
@@ -9,6 +10,7 @@ name: test_mod
       - lib/yagu/ssh.go
   push:
     paths:
+      - .github/workflows/test_mod.*
       - lib/mod/**
       - lib/repos/**
       - lib/yagu/git.go

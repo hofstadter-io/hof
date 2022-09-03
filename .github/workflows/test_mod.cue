@@ -4,7 +4,14 @@ import "github.com/hofstadter-io/hof/.github/workflows/common"
 
 common.#Workflow & {
 	name: "test_mod"
-	_paths: ["lib/mod/**", "lib/repos/**", "lib/yagu/git.go", "lib/yagu/netrc.go", "lib/yagu/ssh.go"]
+	_paths: [
+		".github/workflows/test_mod.*",
+		"lib/mod/**",
+		"lib/repos/**",
+		"lib/yagu/git.go",
+		"lib/yagu/netrc.go",
+		"lib/yagu/ssh.go",
+	]
 	on: {
 		pull_request: {paths: _paths}
 		push: {paths: _paths}
