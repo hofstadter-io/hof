@@ -102,7 +102,7 @@ tests: {
 	mods: {
 		@flow(test/mods)
 		run: GoTest & {
-			dir: "lib/mods"
+			dir: "lib/mod"
 		}
 	}
 }
