@@ -1,6 +1,7 @@
 name: default
 "on":
   - push
+  - workflow_dispatch
 jobs:
   test:
     strategy:

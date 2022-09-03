@@ -13,6 +13,7 @@ common.#Workflow & {
 		"lib/yagu/ssh.go",
 	]
 	on: {
+		workflow_dispatch: {}
 		pull_request: {paths: _paths}
 		push: {paths: _paths}
 	}

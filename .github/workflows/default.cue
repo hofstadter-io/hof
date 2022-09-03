@@ -4,7 +4,7 @@ import "github.com/hofstadter-io/hof/.github/workflows/common"
 
 common.#Workflow & {
 	name: "default"
-	on: ["push"]
+	on: ["push", "workflow_dispatch"]
 	jobs: test: {
 		steps: [ for step in common.#BuildSteps {step}] + [{
 			name: "Run self-gen test"
