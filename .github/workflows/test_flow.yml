@@ -2,6 +2,11 @@ name: test_flow
 "on":
   pull_request:
     paths:
+      - .github/workflows/test_flow.*
+      - flow/**
+  push:
+    paths:
+      - .github/workflows/test_flow.*
       - flow/**
 jobs:
   test:
