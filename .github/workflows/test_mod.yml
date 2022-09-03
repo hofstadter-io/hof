@@ -7,6 +7,13 @@ name: test_mod
       - lib/yagu/git.go
       - lib/yagu/netrc.go
       - lib/yagu/ssh.go
+  push:
+    paths:
+      - lib/mod/**
+      - lib/repos/**
+      - lib/yagu/git.go
+      - lib/yagu/netrc.go
+      - lib/yagu/ssh.go
 jobs:
   test:
     strategy:
