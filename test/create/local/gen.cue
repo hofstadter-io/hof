@@ -26,7 +26,7 @@ test: gen.#Generator & {
 		Validation: common.NameLabel
 	},{
 		Name:       "about"
-		Type:       "multiline"
+		Type:       "input"
 		Prompt:     "Tell us about it..."
 		Required:   true
 		Validation: common.NameLabel

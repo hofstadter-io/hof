@@ -13,7 +13,6 @@ func Checksum(mod, ver string) (string, error) {
 	tag := ver
 
 	dir := Outdir(remote, owner, repo, tag)
-	// fmt.Println("Cache Checksum:", dir)
 
 	_, err := os.Lstat(dir)
 	if err != nil {

@@ -117,7 +117,7 @@ func (mdr *Modder) VendorDep(R Replace) error {
 	return nil
 }
 
-func (mdr *Modder) LoadRemoteModule(R Replace) error {
+func (mdr *Modder) LoadRemoteModule(R Replace) (err error) {
 	// fmt.Printf("LoadRemoteReplace %#+v\n", R)
 
 	// If sumfile, check integrity and possibly shortcut
@@ -138,11 +138,6 @@ func (mdr *Modder) LoadRemoteModule(R Replace) error {
 	if m.Module == "" {
 		m.Module = R.NewPath
 		m.Version = R.NewVersion
-	}
-
-	err := cache.Fetch(R.NewPath, R.NewVersion)
-	if err != nil {
-		return err
 	}
 
 	m.FS, err = cache.Load(R.NewPath, R.NewVersion)

@@ -68,8 +68,9 @@ type Modder struct {
 	FS billy.Filesystem `yaml:"-"`
 
 	// root module
-	module *Module `yaml:"-"`
-	errors []error `yaml:"-"`
+	workdir string	`yaml:"-"`
+	module  *Module `yaml:"-"`
+	errors  []error `yaml:"-"`
 
 	// dependency modules (requires/replace)
 	// dependencies shoule respect any .mvsconfig it finds along side the module files
