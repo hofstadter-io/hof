@@ -15,17 +15,21 @@ common.#Workflow & {
 				# should have no diff
 				git diff --exit-code
 				"""
-		},{
+			env: {
+				HOFMOD_SSHKEY:      "${{secrets.HOFMOD_SSHKEY}}"
+				GITHUB_TOKEN:       "${{secrets.HOFMOD_TOKEN}}"
+			}
+		}, {
 			name: "Run template test"
 			run: """
 				hof flow @test/gen ./test.cue
 				"""
-		},{
+		}, {
 			name: "Run render tests"
 			run: """
 				hof flow @test/render ./test.cue
 				"""
-		},{
+		}, {
 			name: "Run lib/structural tests"
 			run: """
 				hof flow @test/st ./test.cue
