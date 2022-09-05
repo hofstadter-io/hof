@@ -24,7 +24,15 @@ jobs:
         uses: actions/checkout@v2
       - name: Build CLI
         run: go install ./cmd/hof
-      - name: Run self-gen test
+      - name: Run self gen test
+        run: |-
+          # fetch CUE deps
+          hof mod vendor cue
+          # generate templates
+          hof gen
+          # should have no diff
+          git diff --exit-code
+      - name: Run template test
         run: hof flow @test/gen ./test.cue
       - name: Run render tests
         run: hof flow @test/render ./test.cue
