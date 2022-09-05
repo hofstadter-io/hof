@@ -56,6 +56,8 @@ func (R *Runtime) CreateAdhocGenerator() error {
 	}
 
 	G := NewGenerator("AdhocGen", R.CueRuntime.CueValue, R)
+	// reset some vals for adhoc
+	G.cwdToRoot = ""
 	G.Outdir = ""
 
 	G.Templates = []*TemplateGlobs{ &TemplateGlobs{Globs: globs} }
