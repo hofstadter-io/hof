@@ -78,7 +78,7 @@ func (mdr *Modder) WriteVendor() error {
 		// fmt.Printf("Writing %-48s => %s\n", m.ReplaceModule + "@" + m.ReplaceVersion, baseDir)
 
 		// Should we make a symlink for a local replace?
-		if mdr.SymlinkLocalReplaces && strings.HasPrefix(m.ReplaceModule, "../") {
+		if mdr.SymlinkLocalReplaces && (strings.HasPrefix(m.ReplaceModule, "../") || strings.HasPrefix(m.ReplaceModule, "/")) {
 			// count and create backPaths string
 			backPaths := strings.Repeat("../", strings.Count(baseDir, "/"))
 			// create final symlink string
