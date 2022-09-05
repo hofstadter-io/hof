@@ -1,4 +1,4 @@
-package ops
+package script
 
 import (
 	"fmt"
@@ -125,6 +125,7 @@ func envSetup(env *runtime.Env) error {
 
 	for _, line := range strings.Split(string(content), "\n") {
 		if strings.Contains(line, "=") {
+			// todo, trim space here
 			if line[0:1] == "#" {
 				continue
 			}

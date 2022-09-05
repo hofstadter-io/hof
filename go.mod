@@ -10,12 +10,10 @@ require (
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/aymerick/raymond v2.0.2+incompatible
 	github.com/bmatcuk/doublestar/v4 v4.2.0
-	github.com/chzyer/readline v1.5.1
 	github.com/clbanning/mxj v1.8.4
 	github.com/codemodus/kace v0.5.1
 	github.com/docker/docker v20.10.17+incompatible
 	github.com/fatih/color v1.13.0
-	github.com/flynn-archive/go-shlex v0.0.0-20150515145356-3f9db97f8568
 	github.com/franela/goblin v0.0.0-20200512143142-b260c999b2d7
 	github.com/fsnotify/fsnotify v1.5.4
 	github.com/gammazero/workerpool v1.1.2
@@ -26,7 +24,6 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/hofstadter-io/cinful v1.0.0
 	github.com/kevinburke/ssh_config v1.2.0
-	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
 	github.com/kr/pretty v0.3.0
 	github.com/ktrysmt/go-bitbucket v0.9.48
 	github.com/labstack/echo-contrib v0.12.0

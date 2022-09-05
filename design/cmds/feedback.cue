@@ -16,21 +16,3 @@ import (
 			message:   your message, please be respectful to the person receiving it
 		"""
 }
-
-#GebCommand: schema.#Command & {
-	Name:      "geb"
-	Usage:     "_geb"
-	Short:     ""
-	Long:      ""
-	Hidden:    true
-	OmitTests: true
-}
-
-#LogoCommand: schema.#Command & {
-	Name:      "logo"
-	Usage:     "_"
-	Short:     ""
-	Long:      ""
-	Hidden:    true
-	OmitTests: true
-}

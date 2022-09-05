@@ -85,6 +85,19 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 		So let's load them early, there is some helpful info in them
 	*/
 	if LT == 0 || LG > 0 {
+		// We need to set Diff3 default to true
+		// when the user supplies generators and does not set flag
+		hasDiff3Flag := false
+		for _, arg := range os.Args {
+			if arg == "--diff3" || arg == "-D" {
+				hasDiff3Flag = true
+				break
+			}
+		}
+		if !hasDiff3Flag {
+			R.Flagpole.Diff3 = true
+		}
+
 		// load generators just so we can search for watch lists
 		err := R.ExtractGenerators()
 		if err != nil {

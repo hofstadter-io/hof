@@ -131,7 +131,7 @@ type Generator struct {
 }
 
 func NewGenerator(label string, value cue.Value, R *Runtime) *Generator {
-		// TODO, only transfer what is needed
+	// TODO, only transfer what is needed
 
 	return &Generator{
 		// runtime copyin

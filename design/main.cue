@@ -39,17 +39,6 @@ import (
 
 		// additional commands
 		cmds.#FeedbackCommand,
-		// hacks down this way
-		{
-			Hidden: true
-			Name:   "hack"
-			Usage:  "hack ..."
-			Aliases: ["h", "x"]
-			Short: "development command"
-			Long:  Short
-		},
-		cmds.#GebCommand,
-		cmds.#LogoCommand,
 	]
 
 	//
