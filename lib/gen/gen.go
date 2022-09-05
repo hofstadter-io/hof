@@ -14,21 +14,6 @@ import (
 )
 
 func Gen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpole) error {
-	// fix default Diff3 flag value when running hof gen
-	if len(cmdflags.Template) == 0 {
-		// We need to set Diff3 default to true
-		// when the user supplies generators and does not set flag
-		hasDiff3Flag := false
-		for _, arg := range os.Args {
-			if arg == "--diff3" || arg == "-D" {
-				hasDiff3Flag = true
-				break
-			}
-		}
-		if !hasDiff3Flag {
-			cmdflags.Diff3 = true
-		}
-	}
 
 	// shortcut when user wants to bootstrap a new generator module
 	if cmdflags.InitModule != "" {
@@ -55,12 +40,30 @@ func Gen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpol
 }
 
 func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpole) (err error) {
+	// fix default Diff3 flag value when running hof gen
+	// needs to be interwoven here, probably?
+	// it's usage pattern is specific to our use cases right now, and want diff3 true for generators, but overriddable if set to false
+	hasDiff3Flag := false
+	if len(cmdflags.Template) == 0 {
+		// We need to set Diff3 default to true
+		// when the user supplies generators and does not set flag
+		for _, arg := range os.Args {
+			if arg == "--diff3" || arg == "-D" {
+				hasDiff3Flag = true
+				break
+			}
+		}
+		if !hasDiff3Flag {
+			cmdflags.Diff3 = true
+		}
+	}
 
 	// This is our runtime for codegeneration
 	R, err := NewRuntime(args, rootflags, cmdflags)
 	if err != nil {
 		return err
 	}
+	R.Diff3FlagSet = hasDiff3Flag
 
 	// log cue dirs
 	if R.Verbosity > 0 {

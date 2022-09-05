@@ -14,11 +14,16 @@ import (
 
 func FindGitRepoAbsPath(dir string) (string, error) {
 	var err error
-	if dir != "" {
+	if dir == "" {
 		dir, err = os.Getwd()
 		if err != nil {
 			return "", err
 		}
+	}
+
+	dir, err = filepath.Abs(dir)
+	if err != nil {
+		return "", err
 	}
 
 	found := false

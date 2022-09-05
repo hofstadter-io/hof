@@ -53,15 +53,16 @@ func Create(module string, rootflags flags.RootPflagpole, cmdflags flags.CreateF
 	if len(parts) == 2 {
 		ver = parts[1]
 	}
-	fmt.Printf("looking for %s @ %s\n", url, ver)
+	// fmt.Printf("looking for %s @ %s\n", url, ver)
 
+	fmt.Println("setting up...")
 	tmpdir, subdir, err = setupTmpdir(url, ver)
 	if err != nil {
 		return fmt.Errorf("while setting up tmpdir: %w", err)
 	}
 
 	workdir := filepath.Join(tmpdir, subdir)
-	fmt.Printf("dirs: %q %q %q\n", tmpdir, subdir, workdir)
+	// fmt.Printf("dirs: %q %q %q\n", tmpdir, subdir, workdir)
 
 	//
 	// chdir to tmpdir....
@@ -75,8 +76,8 @@ func Create(module string, rootflags flags.RootPflagpole, cmdflags flags.CreateF
 
 	// defer jumping back
 	defer func() {
-		fmt.Println("cleaning up", tmpdir)
-		// os.RemoveAll(tmpdir)
+		// fmt.Println("cleaning up", tmpdir)
+		os.RemoveAll(tmpdir)
 	}()
 
 	genflags := flags.GenFlags
@@ -88,11 +89,11 @@ func Create(module string, rootflags flags.RootPflagpole, cmdflags flags.CreateF
 	if err != nil {
 		return err
 	}
-	fmt.Println("  rel: ", rel)
+	// fmt.Println("  rel: ", rel)
 
 	// we want a relative path input, the runtime/generator will combine & clean this up
 	outdir := filepath.Join(rel, cwd, cmdflags.Outdir)
-	fmt.Println("  outdir: ", outdir)
+	// fmt.Println("  outdir: ", outdir)
 	genflags.Outdir = outdir
 
 	// create our runtime now
@@ -106,9 +107,9 @@ func Create(module string, rootflags flags.RootPflagpole, cmdflags flags.CreateF
 		fmt.Println("CueDirs:", R.CueModuleRoot, R.WorkingDir)
 	}
 
-	fmt.Println("pre-run-creator")
+	// fmt.Println("pre-run-creator")
 	err = runCreator(R, cmdflags.Input)
-	fmt.Println("post-run-creator")
+	// fmt.Println("post-run-creator")
 	return err
 }
 
@@ -122,7 +123,7 @@ func setupTmpdir(url, ver string) (tmpdir, subdir string, err error) {
 
 	// remote, or local
 	if looksLikeRepo(url) {
-		fmt.Println("remote creator")
+		fmt.Println("loading remote creator")
 		// todo, this should handle walking up and cloning
 		// ? we need to determine subdir during cache walkback and return?
 		FS, err = cache.Load(url, ver)
@@ -131,7 +132,8 @@ func setupTmpdir(url, ver string) (tmpdir, subdir string, err error) {
 		}
 
 	} else {
-		fmt.Println("local creator")
+		fmt.Println("loading local creator")
+		// fmt.Println("local creator")
 		// todo, walk up to mod / git root
 		// ? how to deal with subdirs
 		// check for directory
@@ -145,20 +147,20 @@ func setupTmpdir(url, ver string) (tmpdir, subdir string, err error) {
 		}
 
 		// find cue module root from input url
-		fmt.Println("url:", url)
+		// fmt.Println("url:", url)
 		modroot, err := cuetils.FindModuleAbsPath(url)
 		if err != nil {
 			return tmpdir, "", err
 		}
 
-		fmt.Println("modroot:", modroot)
+		// fmt.Println("modroot:", modroot)
 
 		// abs path of input for next calc
 		abs, err := filepath.Abs(url)
 		if err != nil {
 			return tmpdir, "", err
 		}
-		fmt.Println("abs:", abs)
+		// fmt.Println("abs:", abs)
 
 		// find subdir, after both are absolute
 		subdir, err = filepath.Rel(modroot, abs)
@@ -166,13 +168,13 @@ func setupTmpdir(url, ver string) (tmpdir, subdir string, err error) {
 			return tmpdir, subdir, err
 		}
 
-		fmt.Println("subdir:", subdir)
+		// fmt.Println("subdir:", subdir)
 
 		// load into FS
 		FS = osfs.New(modroot)
 	}
 
-	fmt.Println("writing", tmpdir)
+	// fmt.Println("writing", tmpdir)
 
 	err = yagu.BillyWriteDirToOS(tmpdir, "/", FS)
 	if err != nil {
@@ -180,6 +182,7 @@ func setupTmpdir(url, ver string) (tmpdir, subdir string, err error) {
 	}
 
 	// run 'hof mod vendor cue' in tmpdir
+	fmt.Println("fetching creator dependencies")
 	out, err := yagu.Bash("hof mod vendor cue", tmpdir)
 	fmt.Println(out)
 	if err != nil {
@@ -187,10 +190,12 @@ func setupTmpdir(url, ver string) (tmpdir, subdir string, err error) {
 	}
 
 	// DEV DEBUG informational only
+	/*
 	infos, err := os.ReadDir(tmpdir)
 	for _, info := range infos {
 		fmt.Println(info.Name())
 	}
+	*/
 	
 	return tmpdir, subdir, err
 }

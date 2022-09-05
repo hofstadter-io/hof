@@ -1,7 +1,6 @@
 package cuetils
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 )
@@ -19,8 +18,6 @@ func FindModuleAbsPath(dir string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	fmt.Println("finding root for:", dir)
 
 	found := false
 

@@ -18,8 +18,9 @@ type Runtime struct {
 	sync.Mutex
 
 	// Setup options
-	Entrypoints []string
-	Flagpole    flags.GenFlagpole
+	Entrypoints  []string
+	Flagpole     flags.GenFlagpole
+	Diff3FlagSet bool
 
 	// TODO configuration
 	mode      string
