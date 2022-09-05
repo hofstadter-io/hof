@@ -7,8 +7,11 @@ import (
 	"strings"
 
 	"cuelang.org/go/cue"
+	"github.com/go-git/go-billy/v5"
+	"github.com/go-git/go-billy/v5/osfs"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/gen"
 	"github.com/hofstadter-io/hof/lib/repos/cache"
 	"github.com/hofstadter-io/hof/lib/yagu"
@@ -37,73 +40,63 @@ common create prompts
   - noting that we may deviate because people may use create to add to their existing projects
 */
 
-func Create(args []string, rootflags flags.RootPflagpole, cmdflags flags.CreateFlagpole) (err error) {
+func Create(module string, rootflags flags.RootPflagpole, cmdflags flags.CreateFlagpole) (err error) {
+	var tmpdir, subdir string
 
-	// tempdir if it gets filled
-	tmpdir := ""
 	cwd, err := os.Getwd()
 	if err != nil {
 		return err
 	}
 
+	parts := strings.Split(module, "@")
+	url, ver := parts[0], ""
+	if len(parts) == 2 {
+		ver = parts[1]
+	}
+	fmt.Printf("looking for %s @ %s\n", url, ver)
 
-	// fmt.Println("Create:", args, cmdflags)
-	// mdr := mod.LangModderMap["cue"]
-	// mdr.SetWorkdir()
-
-	// TODO, is this local or remote?
-	// or is this cue entrypoints or does it look like a remote
-	if len(args) == 1 {
-		if looksLikeRepo(args[0]) {
-			parts := strings.Split(args[0], "@")
-			url, ver := parts[0], ""
-			if len(parts) == 2 {
-				ver = parts[1]
-			}
-			fmt.Printf("looking for %s @ %s\n", url, ver)
-
-			tmpdir, err = setupTmpdir(url, ver)
-			if err != nil {
-				return err
-			}
-
-			fmt.Println(tmpdir)
-			args = []string{}
-
-			//
-			// chdir to tmpdir....
-			//
-
-			err = os.Chdir(tmpdir)
-			if err != nil {
-				return err
-			}
-			defer os.Chdir(cwd)
-
-			// defer jumping back
-			defer func() {
-				fmt.Println("cleaning up", tmpdir)
-				// os.RemoveAll(tmpdir)
-			}()
-		} else {
-
-			// if current module, just continue
-
-			// if different module
-
-		}
+	tmpdir, subdir, err = setupTmpdir(url, ver)
+	if err != nil {
+		return fmt.Errorf("while setting up tmpdir: %w", err)
 	}
 
-	if tmpdir != "" {
-		outdir := filepath.Join("../../", cwd, cmdflags.Outdir)
-		fmt.Println("tmp: ", outdir)
+	workdir := filepath.Join(tmpdir, subdir)
+	fmt.Printf("dirs: %q %q %q\n", tmpdir, subdir, workdir)
+
+	//
+	// chdir to tmpdir....
+	//
+
+	err = os.Chdir(workdir)
+	if err != nil {
+		return err
 	}
+	defer os.Chdir(cwd)
+
+	// defer jumping back
+	defer func() {
+		fmt.Println("cleaning up", tmpdir)
+		// os.RemoveAll(tmpdir)
+	}()
 
 	genflags := flags.GenFlags
 	genflags.Generator = cmdflags.Generator
-	genflags.Diff3 = false
+	genflags.Outdir = cmdflags.Outdir
 
-	R, err := gen.NewRuntime(args, rootflags, genflags)
+	// from were we run to root
+	rel, err := filepath.Rel(workdir, "/")
+	if err != nil {
+		return err
+	}
+	fmt.Println("  rel: ", rel)
+
+	// we want a relative path input, the runtime/generator will combine & clean this up
+	outdir := filepath.Join(rel, cwd, cmdflags.Outdir)
+	fmt.Println("  outdir: ", outdir)
+	genflags.Outdir = outdir
+
+	// create our runtime now
+	R, err := gen.NewRuntime(nil, rootflags, genflags)
 	if err != nil {
 		return err
 	}
@@ -114,45 +107,95 @@ func Create(args []string, rootflags flags.RootPflagpole, cmdflags flags.CreateF
 	}
 
 	fmt.Println("pre-run-creator")
-	err = runCreator(R)
+	err = runCreator(R, cmdflags.Input)
 	fmt.Println("post-run-creator")
 	return err
 }
 
-func setupTmpdir(url, ver string) (dir string, err error) {
-	tmpdir, err := os.MkdirTemp("", "hof-")
+func setupTmpdir(url, ver string) (tmpdir, subdir string, err error) {
+	var FS billy.Filesystem
+
+	tmpdir, err = os.MkdirTemp("", "hof-")
 	if err != nil {
-		return tmpdir, err
+		return tmpdir, "", err
 	}
 
-	FS, err := cache.Load(url, ver)
-	if err != nil {
-		return tmpdir, err
+	// remote, or local
+	if looksLikeRepo(url) {
+		fmt.Println("remote creator")
+		// todo, this should handle walking up and cloning
+		// ? we need to determine subdir during cache walkback and return?
+		FS, err = cache.Load(url, ver)
+		if err != nil {
+			return tmpdir, "", err
+		}
+
+	} else {
+		fmt.Println("local creator")
+		// todo, walk up to mod / git root
+		// ? how to deal with subdirs
+		// check for directory
+		info, err := os.Lstat(url)
+		if err != nil {
+			return tmpdir, "", err
+		}
+
+		if !info.IsDir() {
+			return tmpdir, "", fmt.Errorf("%s is not a directory", url)
+		}
+
+		// find cue module root from input url
+		fmt.Println("url:", url)
+		modroot, err := cuetils.FindModuleAbsPath(url)
+		if err != nil {
+			return tmpdir, "", err
+		}
+
+		fmt.Println("modroot:", modroot)
+
+		// abs path of input for next calc
+		abs, err := filepath.Abs(url)
+		if err != nil {
+			return tmpdir, "", err
+		}
+		fmt.Println("abs:", abs)
+
+		// find subdir, after both are absolute
+		subdir, err = filepath.Rel(modroot, abs)
+		if err != nil {
+			return tmpdir, subdir, err
+		}
+
+		fmt.Println("subdir:", subdir)
+
+		// load into FS
+		FS = osfs.New(modroot)
 	}
 
+	fmt.Println("writing", tmpdir)
 
 	err = yagu.BillyWriteDirToOS(tmpdir, "/", FS)
 	if err != nil {
-		return tmpdir, err
+		return tmpdir, subdir, err
 	}
 
 	// run 'hof mod vendor cue' in tmpdir
 	out, err := yagu.Bash("hof mod vendor cue", tmpdir)
 	fmt.Println(out)
 	if err != nil {
-		return tmpdir, err
+		return tmpdir, subdir, fmt.Errorf("while fetching creator deps %w", err)
 	}
 
+	// DEV DEBUG informational only
 	infos, err := os.ReadDir(tmpdir)
 	for _, info := range infos {
 		fmt.Println(info.Name())
 	}
-	// fmt.Println("Remote repositories are not supported yet")
 	
-	return tmpdir, err
+	return tmpdir, subdir, err
 }
 
-func runCreator(R *gen.Runtime) (err error) {
+func runCreator(R *gen.Runtime, inputs []string) (err error) {
 
 	// minimally load and extract generators
 	err = R.LoadCue()

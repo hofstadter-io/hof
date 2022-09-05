@@ -43,7 +43,7 @@ func init() {
 	CreateCmd.Flags().StringVarP(&(flags.CreateFlags.Outdir), "outdir", "O", "", "base directory to write all output to")
 }
 
-func CreateRun(module []string) (err error) {
+func CreateRun(module string) (err error) {
 
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
@@ -72,17 +72,11 @@ var CreateCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		if 0 >= len(args) {
-			fmt.Println("missing required argument: 'module'")
-			cmd.Usage()
-			os.Exit(1)
-		}
-
-		var module []string
+		var module string
 
 		if 0 < len(args) {
 
-			module = args[0:]
+			module = args[0]
 
 		}
 

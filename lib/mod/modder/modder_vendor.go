@@ -98,7 +98,7 @@ func (mdr *Modder) VendorDep(R Replace) error {
 	// fmt.Printf("VendorDep %#+v\n", R)
 
 	// Fetch and Load module
-	if strings.HasPrefix(R.NewPath, "./") || strings.HasPrefix(R.NewPath, "../") {
+	if strings.HasPrefix(R.NewPath, "/") || strings.HasPrefix(R.NewPath, "./") || strings.HasPrefix(R.NewPath, "../") {
 		err := mdr.LoadLocalReplace(R)
 		if err != nil {
 			mdr.errors = append(mdr.errors, err)

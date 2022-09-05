@@ -46,7 +46,7 @@ func Read(url, ver string) (FS billy.Filesystem, err error) {
 	remote, owner, repo := utils.ParseModURL(url)
 	dir := Outdir(remote, owner, repo, ver)
 
-	// check for directory
+	// check for existence
 	_, err = os.Lstat(dir)
 	if err != nil {
 		return nil, err

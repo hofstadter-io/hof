@@ -51,7 +51,7 @@ func NewRuntime(entrypoints []string, rootflags flags.RootPflagpole, cmdflags fl
 	var err error
 
 	// calc cue dirs
-	R.CueModuleRoot, err = cuetils.FindModuleAbsPath()
+	R.CueModuleRoot, err = cuetils.FindModuleAbsPath("")
 	if err != nil {
 		return R, err
 	}

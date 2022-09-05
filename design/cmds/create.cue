@@ -12,10 +12,9 @@ import (
 
 	Args: [{
 		Name: "module"
-		Type: "[]string"
-		Required: true
-		Rest: true
-		Help: "git repository or cue entrypoints"
+		Type: "string"
+		Required: false
+		Help: "git repository or directory with a creator, accepts subdirs on both"
 	}]
 
 	Flags: [...schema.#Flag] & [ {

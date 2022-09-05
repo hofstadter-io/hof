@@ -14,6 +14,21 @@ import (
 )
 
 func Gen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpole) error {
+	// fix default Diff3 flag value when running hof gen
+	if len(cmdflags.Template) == 0 {
+		// We need to set Diff3 default to true
+		// when the user supplies generators and does not set flag
+		hasDiff3Flag := false
+		for _, arg := range os.Args {
+			if arg == "--diff3" || arg == "-D" {
+				hasDiff3Flag = true
+				break
+			}
+		}
+		if !hasDiff3Flag {
+			cmdflags.Diff3 = true
+		}
+	}
 
 	// shortcut when user wants to bootstrap a new generator module
 	if cmdflags.InitModule != "" {
@@ -85,18 +100,6 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 		So let's load them early, there is some helpful info in them
 	*/
 	if LT == 0 || LG > 0 {
-		// We need to set Diff3 default to true
-		// when the user supplies generators and does not set flag
-		hasDiff3Flag := false
-		for _, arg := range os.Args {
-			if arg == "--diff3" || arg == "-D" {
-				hasDiff3Flag = true
-				break
-			}
-		}
-		if !hasDiff3Flag {
-			R.Flagpole.Diff3 = true
-		}
 
 		// load generators just so we can search for watch lists
 		err := R.ExtractGenerators()

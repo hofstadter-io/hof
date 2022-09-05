@@ -212,7 +212,7 @@ func loadDatamodelHistory(dm *Datamodel, crt *cuetils.CueRuntime) error {
 	}
 
 	// find module root
-	base, err := cuetils.FindModuleAbsPath()
+	base, err := cuetils.FindModuleAbsPath("")
 	if err != nil {
 		return err
 	}
@@ -316,7 +316,7 @@ func loadDatamodelHistory(dm *Datamodel, crt *cuetils.CueRuntime) error {
 
 func FindHistoryBaseDir() (string, error) {
 	// try to find history
-	dir, err := cuetils.FindModuleAbsPath()
+	dir, err := cuetils.FindModuleAbsPath("")
 	if err != nil {
 		return "", err
 	}

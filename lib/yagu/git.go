@@ -4,12 +4,43 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
 )
+
+func FindGitRepoAbsPath(dir string) (string, error) {
+	var err error
+	if dir != "" {
+		dir, err = os.Getwd()
+		if err != nil {
+			return "", err
+		}
+	}
+
+	found := false
+
+	for !found && dir != "/" {
+		try := filepath.Join(dir, ".git")
+		info, err := os.Stat(try)
+		if err == nil && info.IsDir() {
+			found = true
+			break
+		}
+
+		next := filepath.Clean(filepath.Join(dir, ".."))
+		dir = next
+	}
+
+	if !found {
+		return "", nil
+	}
+
+	return dir, nil
+}
 
 // FindRemoteRepoRootAndClone walks a path back until
 // it finds a valid git repo, cloning it into a tmp dir
