@@ -85,6 +85,12 @@ func (G *Generator) DecodeFromCUE() (errs []error) {
 		errs = append(errs, err)
 	}
 
+	if !G.Diff3FlagSet {
+		if err := G.loadDiff3(); err != nil {
+			errs = append(errs, err)
+		}
+	}
+
 	// Initialize Generator
 	errsI := G.Initialize()
 	if len(errsI) != 0 {
@@ -143,10 +149,20 @@ func (G *Generator) PrintInfo() {
 	fmt.Println("EStcs:  ", len(G.EmbeddedStatics))
 	fmt.Println()
 	fmt.Println(G.PackageName, G.Disabled)
+	fmt.Println("Diff3:  ", G.UseDiff3)
 	fmt.Println("TMap:   ", len(G.TemplateMap))
 	fmt.Println("PMap:   ", len(G.PartialsMap))
 	fmt.Println("Files:  ", len(G.Files))
 	fmt.Println("Shdw:   ", len(G.Shadow))
+}
+
+func (G *Generator) loadDiff3() error {
+	val := G.CueValue.LookupPath(cue.ParsePath("Diff3"))
+	if val.Err() != nil {
+		return val.Err()
+	}
+
+	return val.Decode(&G.UseDiff3)
 }
 
 func (G *Generator) loadOutdir() error {
@@ -469,6 +485,7 @@ func (G *Generator) loadSubgens() (errs []error) {
 			fmt.Println("loading subgen:", name)
 		}
 
+		// todo, how might we pass the flag setting from runtime here?
 		sgerrs := sg.DecodeFromCUE()
 		if len(sgerrs) > 0 {
 			errs = append(errs, sgerrs...)
@@ -487,5 +504,8 @@ func copyGenMeta(from, to *Generator) {
 	to.WorkingDir    = from.WorkingDir
 	to.rootToCwd     = from.rootToCwd
 	to.cwdToRoot     = from.cwdToRoot
+	to.Diff3FlagSet  = from.Diff3FlagSet
+	to.UseDiff3      = from.UseDiff3
 
+	// todo, how might we pass the flag setting from runtime here?
 }

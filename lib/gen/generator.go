@@ -99,6 +99,7 @@ type Generator struct {
 	PackageName string
 
 	// Use Diff3 & Shadow
+	Diff3FlagSet bool // set by flag
 	UseDiff3 bool
 	NoFormat bool
 

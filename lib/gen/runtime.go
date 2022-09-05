@@ -282,7 +282,10 @@ func (R *Runtime) LoadGenerators() []error {
 		if G.Disabled {
 			continue
 		}
+		// some values to copy from runtime to generator
 		G.verbosity = R.Verbosity
+		G.Diff3FlagSet = R.Diff3FlagSet
+		G.UseDiff3     = R.Flagpole.Diff3
 
 		if R.Verbosity > 1 {
 			fmt.Println("Loading Generator:", G.Name)

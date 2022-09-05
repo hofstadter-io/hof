@@ -44,26 +44,29 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 	// needs to be interwoven here, probably?
 	// it's usage pattern is specific to our use cases right now, and want diff3 true for generators, but overriddable if set to false
 	hasDiff3Flag := false
-	if len(cmdflags.Template) == 0 {
-		// We need to set Diff3 default to true
-		// when the user supplies generators and does not set flag
-		for _, arg := range os.Args {
-			if arg == "--diff3" || arg == "-D" {
-				hasDiff3Flag = true
-				break
-			}
+	for _, arg := range os.Args {
+		if arg == "--diff3" || arg == "-D" {
+			hasDiff3Flag = true
+			break
 		}
+	}
+
+	// We need to set Diff3 default to true
+	// when the user supplies generators and does not set flag
+	if len(cmdflags.Template) == 0 {
 		if !hasDiff3Flag {
 			cmdflags.Diff3 = true
 		}
 	}
 
-	// This is our runtime for codegeneration
+	// This is our runtime for code generation
 	R, err := NewRuntime(args, rootflags, cmdflags)
 	if err != nil {
 		return err
 	}
-	R.Diff3FlagSet = hasDiff3Flag
+	if len(cmdflags.Template) == 0 {
+		R.Diff3FlagSet = hasDiff3Flag
+	}
 
 	// log cue dirs
 	if R.Verbosity > 0 {
