@@ -13,7 +13,8 @@ common.#Workflow & {
 				# generate templates
 				hof gen
 				# should have no diff
-				git diff --exit-code
+				git diff
+				# git diff --exit-code
 				"""
 			env: {
 				HOFMOD_SSHKEY:      "${{secrets.HOFMOD_SSHKEY}}"
