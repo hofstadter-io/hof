@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/mattn/go-zglob"
 )
@@ -69,7 +70,9 @@ func (M TemplateMap) importTemplate(filePath, prefix string, delims *Delims) err
 		return fmt.Errorf("While parsing template file: %s\n%w", filePath, err)
 	}
 
-	if prefix != "" {
+	if strings.HasPrefix(filePath, "/") {
+		// do nothing
+	} else if prefix != "" {
 		filePath, _ = filepath.Rel(prefix, filePath)
 	} else {
 		filePath = filepath.Clean(filePath)

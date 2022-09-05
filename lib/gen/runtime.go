@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -75,6 +76,9 @@ func NewRuntime(entrypoints []string, rootflags flags.RootPflagpole, cmdflags fl
 // OutputDir returns the absolute path to output dir for this runtime.
 // Generators will make subdir contributions at read/write time
 func (R *Runtime) OutputDir() string {
+	if strings.HasPrefix(R.Flagpole.Outdir, "/") {
+		return R.Flagpole.Outdir
+	}
 	return filepath.Join(R.CueModuleRoot, R.rootToCwd, R.Flagpole.Outdir)
 }
 

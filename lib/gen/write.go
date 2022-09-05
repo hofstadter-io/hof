@@ -213,13 +213,23 @@ func (F *File) write(basedir string, content []byte) error {
 	fn := filepath.Join(basedir, F.Filepath)
 	dir := filepath.Dir(fn)
 
+	// fix for absolute paths
+	if strings.HasPrefix(F.Filepath, "/") {
+		_, fn = filepath.Split(F.Filepath)
+		fn = filepath.Join(basedir, fn)
+		dir = filepath.Dir(fn)
+	}
+
 	err := yagu.Mkdir(dir)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 
+	// fmt.Println("write", dir, fn, string(content))
 	err = ioutil.WriteFile(fn, content, 0644)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 

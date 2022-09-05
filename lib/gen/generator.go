@@ -346,15 +346,18 @@ func (G *Generator) initPartials() []error {
 			prefix := filepath.Clean(tg.TrimPrefix)
 			glob = filepath.Clean(glob)
 
-			if G.PackageName != "" {
-				glob = filepath.Join(CUE_VENDOR_DIR, G.PackageName, glob)
-				prefix = filepath.Join(CUE_VENDOR_DIR, G.PackageName, prefix)
-			}
+			if !strings.HasPrefix(glob, "/") {
 
-			// this is how we deal with running generators in the same module
-			// they are defined in, while keeping the path spec for them simple
-			glob = filepath.Join(G.cwdToRoot, glob)
-			prefix = filepath.Join(G.cwdToRoot, prefix)
+				if G.PackageName != "" {
+					glob = filepath.Join(CUE_VENDOR_DIR, G.PackageName, glob)
+					prefix = filepath.Join(CUE_VENDOR_DIR, G.PackageName, prefix)
+				}
+
+				// this is how we deal with running generators in the same module
+				// they are defined in, while keeping the path spec for them simple
+				glob = filepath.Join(G.cwdToRoot, glob)
+				prefix = filepath.Join(G.cwdToRoot, prefix)
+			}
 
 			pMap, err := templates.CreateTemplateMapFromFolder(glob, prefix, tg.Delims)
 			if G.verbosity > 1 {
@@ -418,16 +421,19 @@ func (G *Generator) initTemplates() []error {
 			glob = filepath.Clean(glob)
 			prefix := filepath.Clean(tg.TrimPrefix)
 
-			if G.PackageName != "" {
-				glob = filepath.Join(CUE_VENDOR_DIR, G.PackageName, glob)
-				prefix = filepath.Join(CUE_VENDOR_DIR, G.PackageName, prefix)
-			}
+			// if not an absolute path
+			if !strings.HasPrefix(glob, "/") {
+				if G.PackageName != "" {
+					glob = filepath.Join(CUE_VENDOR_DIR, G.PackageName, glob)
+					prefix = filepath.Join(CUE_VENDOR_DIR, G.PackageName, prefix)
+				}
 
-			// this is how we deal with running generators in the same module
-			// they are defined in, while keeping the path spec for them simple
-			// note, these will be no-ops when there is no cue.mod
-			glob = filepath.Join(G.cwdToRoot, glob)
-			prefix = filepath.Join(G.cwdToRoot, prefix)
+				// this is how we deal with running generators in the same module
+				// they are defined in, while keeping the path spec for them simple
+				// note, these will be no-ops when there is no cue.mod
+				glob = filepath.Join(G.cwdToRoot, glob)
+				prefix = filepath.Join(G.cwdToRoot, prefix)
+			}
 
 			pMap, err := templates.CreateTemplateMapFromFolder(glob, prefix, tg.Delims)
 			if G.verbosity > 1 {

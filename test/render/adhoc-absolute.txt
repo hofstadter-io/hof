@@ -1,0 +1,19 @@
+exec bash -c 'hof gen $(pwd)/data.cue -T $(pwd)/template.txt -O $(pwd)/out'
+cmp expected.txt out/template.txt
+
+-- data.cue --
+a: "a"
+b: 2
+
+val: foo: "bar"
+
+-- template.txt --
+A is {{ .a }}
+B is {{ .b }}
+
+foo is {{ .val.foo }}
+-- expected.txt --
+A is a
+B is 2
+
+foo is bar
