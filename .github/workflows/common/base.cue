@@ -4,7 +4,7 @@ import "github.com/hofstadter-io/ghacue"
 
 #Workflow: ghacue.#Workflow & {
 	name: string
-	on:   _ | *["pull_request"]
+	on: _ | *["push", "pull_request", "workflow_dispatch"]
 	jobs: test: {
 		strategy: matrix: {
 			"go-version": ["1.18.x", "1.19.x"]

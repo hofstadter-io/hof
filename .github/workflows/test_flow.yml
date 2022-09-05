@@ -1,14 +1,8 @@
 name: test_flow
 "on":
-  workflow_dispatch: {}
-  pull_request:
-    paths:
-      - .github/workflows/test_flow.*
-      - flow/**
-  push:
-    paths:
-      - .github/workflows/test_flow.*
-      - flow/**
+  - push
+  - pull_request
+  - workflow_dispatch
 jobs:
   test:
     strategy:
