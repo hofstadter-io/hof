@@ -13,6 +13,9 @@ func envSetup(env *runtime.Env) error {
 	vars := []string{
 		"GITHUB_TOKEN",
 		"GITLAB_TOKEN",
+		"BITBUCKET_USERNAME",
+		"BITBUCKET_PASSWORD",
+		"HOFMOD_SSHKEY",
 	}
 	for _, v := range vars {
 		if val := os.Getenv(v); val != "" {

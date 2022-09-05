@@ -8,7 +8,7 @@ app.use(
     extended: true,
   }),
 );
-app.use(express.json());
+app.use(express.json({limit: "50mb", extended: true, parameterLimit:50000}));
 
 app.get('/', (req, res) => {
 	var info = prettier.getSupportInfo();

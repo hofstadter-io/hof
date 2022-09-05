@@ -1,0 +1,87 @@
+name: fmt
+"on":
+  push:
+    paths:
+      - formatters/**
+      - .github/workflows/fmt.*
+  pull_request:
+    paths:
+      - formatters/**
+      - .github/workflows/fmt.*
+  workflow_dispatch:
+    paths:
+      - formatters/**
+      - .github/workflows/fmt.*
+jobs:
+  prettier-debian:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up QEMU
+        uses: docker/setup-buildx-action@v2
+      - name: Set up Docker BuildX
+        uses: docker/setup-buildx-action@v2
+      - name: Build Image
+        uses: docker/build-push-action@v3
+        with:
+          context: formatters/tools/prettier
+          file: formatters/tools/prettier/Dockerfile.debian
+          platforms: linux/amd64,linux/arm64
+          tags: '"hofstadter-io/fmt-prettier:dirty-debian"'
+    strategy: {}
+    services: {}
+  prettier-alpine:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up QEMU
+        uses: docker/setup-buildx-action@v2
+      - name: Set up Docker BuildX
+        uses: docker/setup-buildx-action@v2
+      - name: Build Image
+        uses: docker/build-push-action@v3
+        with:
+          context: formatters/tools/prettier
+          file: formatters/tools/prettier/Dockerfile.alpine
+          platforms: linux/amd64,linux/arm64
+          tags: '"hofstadter-io/fmt-prettier:dirty-alpine"'
+    strategy: {}
+    services: {}
+  black-debian:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up QEMU
+        uses: docker/setup-buildx-action@v2
+      - name: Set up Docker BuildX
+        uses: docker/setup-buildx-action@v2
+      - name: Build Image
+        uses: docker/build-push-action@v3
+        with:
+          context: formatters/tools/black
+          file: formatters/tools/black/Dockerfile.debian
+          platforms: linux/amd64,linux/arm64
+          tags: '"hofstadter-io/fmt-black:dirty-debian"'
+    strategy: {}
+    services: {}
+  black-alpine:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up QEMU
+        uses: docker/setup-buildx-action@v2
+      - name: Set up Docker BuildX
+        uses: docker/setup-buildx-action@v2
+      - name: Build Image
+        uses: docker/build-push-action@v3
+        with:
+          context: formatters/tools/black
+          file: formatters/tools/black/Dockerfile.alpine
+          platforms: linux/amd64,linux/arm64
+          tags: '"hofstadter-io/fmt-black:dirty-alpine"'
+    strategy: {}
+    services: {}

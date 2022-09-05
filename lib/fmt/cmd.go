@@ -22,11 +22,14 @@ var dataFileExtns = map[string]struct{}{
 }
 
 func Run(args []string, rflags flags.RootPflagpole, cflags flags.FmtFlagpole) error {
+	// cleanup args
 	for i, arg := range args {
 		info, err := os.Stat(arg)
 		if err != nil {
 			return err
 		}
+
+		// if the arg is a dir, assume recursive and adjust the glob to do so
 		if info.IsDir() {
 			// fully traverse directories
 			glob := "**/*"
@@ -37,6 +40,8 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.FmtFlagpole) er
 			args[i] = arg + glob
 		}
 	}
+
+	// get list of all files
 	files, err := yagu.FilesFromGlobs(args)
 	if err != nil {
 		return err

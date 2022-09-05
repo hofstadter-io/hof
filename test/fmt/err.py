@@ -1,2 +1,0 @@
-df foo:
-  print("hello")

@@ -20,7 +20,7 @@ require (
 	github.com/go-git/go-billy/v5 v5.3.1
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/gofrs/flock v0.8.1
-	github.com/google/go-github/v38 v38.1.0
+	github.com/google/go-github/v47 v47.0.0
 	github.com/google/uuid v1.3.0
 	github.com/hofstadter-io/cinful v1.0.0
 	github.com/kevinburke/ssh_config v1.2.0

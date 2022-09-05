@@ -1,0 +1,11 @@
+exec hof fmt in.js
+cmp in.js golden.js
+
+-- in.js --
+function  foo ()    {
+	console.log("hello world")
+  }
+-- golden.js --
+function foo() {
+  console.log("hello world")
+}

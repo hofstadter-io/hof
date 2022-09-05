@@ -99,10 +99,16 @@ tests: {
 		}
 	}
 
-	mods: {
-		@flow(test/mods)
+	mod: {
+		@flow(test/mod)
 		run: GoTest & {
 			dir: "lib/mod"
+		}
+	}
+	fmt: {
+		@flow(test/fmt)
+		run: GoTest & {
+			dir: "formatters/test"
 		}
 	}
 }
