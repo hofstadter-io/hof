@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/go-git/go-billy/v5"
-	"github.com/google/go-github/v38/github"
+	"github.com/google/go-github/v47/github"
 	"github.com/parnurzeal/gorequest"
 
 	"github.com/hofstadter-io/hof/lib/repos/git"

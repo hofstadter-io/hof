@@ -172,6 +172,7 @@ func FormatSource(filename string, content []byte, fmtrName string, config inter
 			return gofmt.Source(content)
 
 		case ".cue":
+			return formatCue(content)
 			if formatData {
 				return formatCue(content)
 			} else {

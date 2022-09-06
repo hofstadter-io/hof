@@ -6,7 +6,7 @@ import (
 
 	"golang.org/x/oauth2"
 
-	"github.com/google/go-github/v38/github"
+	"github.com/google/go-github/v47/github"
 )
 
 const TokenEnv = "GITHUB_TOKEN"

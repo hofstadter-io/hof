@@ -1,9 +1,8 @@
 # Black - Python formatter
 
-Black is an [open-source](https://github.com/psf/black) Python code formatter by [@ambv](https://github.com/ambv). This is an example implementation.
+Black is an [open-source](https://github.com/psf/black) Python code formatter by [@ambv](https://github.com/ambv).
 
+This is Black wrapped in Flask so we can save on startup time.
 
-Server based on: https://github.com/jpadilla/black-playground
-
-[Check it out](https://black.vercel.app).
+There seem to be issues with pipenv arm64 images that can be used on M1/2 and other arm systems
 

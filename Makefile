@@ -24,6 +24,17 @@ hof:
 formatters:
 	make -C formatters images
 
+# buildx / buildkit related
+buildx.setup:
+	docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+buildx.check:
+	docker buildx ls
+buildx.start:
+	docker buildx create --name builder --driver docker-container --use
+	docker buildx inspect --bootstrap
+buildx.stop:
+	docker buildx rm builder
+
 fmt: cuefmt gofmt
 
 .PHONY: cuefmt cuefiles

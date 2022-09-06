@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/google/go-github/v38/github"
+	"github.com/google/go-github/v47/github"
 )
 
 func GetTagsSplit(client *github.Client, module string) ([]*github.RepositoryTag, error) {

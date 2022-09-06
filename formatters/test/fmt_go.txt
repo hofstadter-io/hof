@@ -1,0 +1,15 @@
+exec hof fmt in.go
+cmp in.go golden.go
+
+-- in.go --
+package main
+
+func   foo() {
+ var i int
+	}
+-- golden.go --
+package main
+
+func foo() {
+	var i int
+}

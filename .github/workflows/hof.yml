@@ -1,20 +1,13 @@
-name: default
+name: hof
 "on":
   - push
   - pull_request
   - workflow_dispatch
+env:
+  HOF_TELEMETRY_DISABLED: "1"
 jobs:
   test:
-    strategy:
-      matrix:
-        go-version:
-          - 1.18.x
-          - 1.19.x
-        os:
-          - ubuntu-latest
-          - macos-latest
-      fail-fast: false
-    runs-on: ${{ matrix.os }}
+    environment: hof mod testing
     steps:
       - name: Install Go
         uses: actions/setup-go@v3
@@ -51,6 +44,31 @@ jobs:
         run: hof flow @test/gen ./test.cue
       - name: Run render tests
         run: hof flow @test/render ./test.cue
+        env:
+          HOFMOD_SSHKEY: ${{secrets.HOFMOD_SSHKEY}}
+          GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
       - name: Run lib/structural tests
         run: hof flow @test/st ./test.cue
+      - name: Run flow tests
+        run: hof flow -f test/flow ./test.cue
+      - name: Run mod tests
+        run: hof flow -f test/mod ./test.cue
+        env:
+          HOFMOD_SSHKEY: ${{secrets.HOFMOD_SSHKEY}}
+          GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
+          GITLAB_TOKEN: ${{secrets.GITLAB_TOKEN}}
+          BITBUCKET_USERNAME: hofstadter
+          BITBUCKET_PASSWORD: ${{secrets.BITBUCKET_TOKEN}}
+      - name: Run fmt tests
+        run: "\thof flow -f test/fmt ./test.cue"
+    strategy:
+      matrix:
+        go-version:
+          - 1.18.x
+          - 1.19.x
+        os:
+          - ubuntu-latest
+          - macos-latest
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
     services: {}

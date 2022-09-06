@@ -1,6 +1,12 @@
-FROM python:3.9-alpine
+FROM python:3.10-alpine
 
 WORKDIR /app
+
+ENV PATH="/usr/local/bin:/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+RUN which uname
+
+RUN ln -s /bin/uname /usr/local/bin/uname
 
 COPY Pipfile Pipfile.lock /app/
 

@@ -43,3 +43,21 @@ hook into `./lib/fmt/*.go`, see existing languages for examples
 
 open a PR, get questions answered on slack
 
+
+### Mutliarch container support
+
+We need to use `docker buildx` or `dagger`, and hardware / vm setup 
+which also supports qemu being setup right.
+Maybe we just build them in github actions going foward since they
+have to be pushed and then pulled anyway...
+
+Searches related to building in GHA
+
+- https://www.google.com/search?q=docker+multi+arch+builds+github+actions
+- https://blog.thesparktree.com/docker-multi-arch-github-actions
+
+Search results when building locally, never got it working
+
+- https://stackoverflow.com/questions/60080264/docker-cannot-build-multi-platform-images-with-docker-buildx
+- https://github.com/docker/buildx/issues/495
+

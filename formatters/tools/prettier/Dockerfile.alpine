@@ -1,6 +1,8 @@
-FROM node:18-alpine3.15
+FROM node:18-alpine3.16
 
 WORKDIR /app
+
+ENV PATH="/usr/local/bin:/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 # install extra tools
 RUN apk update && apk add \
