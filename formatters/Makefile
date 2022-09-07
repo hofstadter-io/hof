@@ -23,8 +23,8 @@ $(IMAGES):
 
 
 # PLATFORMS=linux/amd64
-PLATFORMS=linux/arm64
-# PLATFORMS=linux/amd64,linux/arm64
+# PLATFORMS=linux/arm64
+PLATFORMS=linux/amd64,linux/arm64
 # PLATFORMS=linux/amd64,linux/arm64,linux/arm/v7
 
 PUSH=--push
