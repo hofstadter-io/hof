@@ -438,7 +438,7 @@ func InitModule(args []string, rootflags flags.RootPflagpole, cmdflags flags.Gen
 		return err
 	}
 	// make some dirs
-	dirs := []string{"templates", "partials", "static", "examples", "gen", "schema"}
+	dirs := []string{"templates", "partials", "statics", "examples", "creators", "generators", "schema"}
 	for _, dir := range dirs {
 		err = os.MkdirAll(dir, 0755)
 		if err != nil {
@@ -510,10 +510,8 @@ import (
 	// your users do not set or see this field
 	PackageName: string | *"{{ .Module }}/{{ .Name }}"
 
-	// these are the default globs to load from disk
-	Templates: [gen.#Templates & {Globs: ["./templates/**/*"], TrimPrefix: "./templates/"}]
-	Partials:  [gen.#Templates & {Globs: ["./partials/**/*"], TrimPrefix: "./partials/"}]
-	Statics:   [gen.#Statics & {Globs: ["./static/**/*"], TrimPrefix: "./static/"}]
+	// setup the default template locations
+	gen.#SubdirTemplates
 
 	// The final list of files for hof to generate
 	Out: [...gen.#File] & [
@@ -526,4 +524,3 @@ import (
 	...
 }
 `
-

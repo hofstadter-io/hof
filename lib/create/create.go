@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"cuelang.org/go/cue"
@@ -12,6 +13,7 @@ import (
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/cuetils"
+	"github.com/hofstadter-io/hof/lib/datautils/io"
 	"github.com/hofstadter-io/hof/lib/gen"
 	"github.com/hofstadter-io/hof/lib/repos/cache"
 	"github.com/hofstadter-io/hof/lib/yagu"
@@ -80,6 +82,7 @@ func Create(module string, rootflags flags.RootPflagpole, cmdflags flags.CreateF
 		os.RemoveAll(tmpdir)
 	}()
 
+	fmt.Println("init'n generator")
 	genflags := flags.GenFlags
 	genflags.Generator = cmdflags.Generator
 	genflags.Outdir = cmdflags.Outdir
@@ -96,12 +99,14 @@ func Create(module string, rootflags flags.RootPflagpole, cmdflags flags.CreateF
 	// fmt.Println("  outdir: ", outdir)
 	genflags.Outdir = outdir
 
-	// create our runtime now
+	// create our runtime now, maybe we want a new func for this
+	//   since we want to ignore any current CUE module context
+	//   everything is put into a temp dir and rendered to CWD
 	R, err := gen.NewRuntime(nil, rootflags, genflags)
 	if err != nil {
 		return err
 	}
-
+	R.OriginalWkdir = cwd
 
 	if R.Verbosity > 0 {
 		fmt.Println("CueDirs:", R.CueModuleRoot, R.WorkingDir)
@@ -116,7 +121,11 @@ func Create(module string, rootflags flags.RootPflagpole, cmdflags flags.CreateF
 func setupTmpdir(url, ver string) (tmpdir, subdir string, err error) {
 	var FS billy.Filesystem
 
-	tmpdir, err = os.MkdirTemp("", "hof-")
+	tmpdir, err = os.MkdirTemp("", "hof-create-")
+	if err != nil {
+		return tmpdir, "", err
+	}
+	err = os.MkdirAll(tmpdir, 0755)
 	if err != nil {
 		return tmpdir, "", err
 	}
@@ -171,7 +180,10 @@ func setupTmpdir(url, ver string) (tmpdir, subdir string, err error) {
 		// fmt.Println("subdir:", subdir)
 
 		// load into FS
+		// fmt.Println("starting to read:", modroot)
 		FS = osfs.New(modroot)
+		// fmt.Println("done reading")
+
 	}
 
 	// fmt.Println("writing", tmpdir)
@@ -184,8 +196,9 @@ func setupTmpdir(url, ver string) (tmpdir, subdir string, err error) {
 	// run 'hof mod vendor cue' in tmpdir
 	fmt.Println("fetching creator dependencies")
 	out, err := yagu.Bash("hof mod vendor cue", tmpdir)
-	fmt.Println(out)
+	// fmt.Println("done fetching dependencies\n", out)
 	if err != nil {
+		fmt.Println(out)
 		return tmpdir, subdir, fmt.Errorf("while fetching creator deps %w", err)
 	}
 
@@ -208,18 +221,33 @@ func runCreator(R *gen.Runtime, inputs []string) (err error) {
 		return err
 	}
 
+	// extract generators
 	err = R.ExtractGenerators()
 	if err != nil {
 		return err
 	}
-
+	if len(R.Generators) == 0 {
+		return fmt.Errorf("no generators found, please make sure there is a creator at the root of the repository")
+	}
 	if len(R.Generators) > 1 {
 		fmt.Println("Warning, you are running more than one generator. Use --list and -G if this was not your intention.")
 	}
 
+	var inputMap map[string]any
+	if len(inputs) > 0 {
+		// load inputs
+		inputMap, err = loadCreateInputs(R, inputs)
+		if err != nil {
+			return err
+		}
+		if R.Verbosity > 0 {
+			fmt.Println("Create flag-input:", inputMap)
+		}
+	}
+
 	// handle create input / prompt
 	for _, G := range R.Generators {
-		err = handleGeneratorCreate(G)
+		err = handleGeneratorCreate(G, inputMap)
 		if err != nil {
 			return err
 		}
@@ -253,8 +281,9 @@ func runCreator(R *gen.Runtime, inputs []string) (err error) {
 		return fmt.Errorf("While writing")
 	}
 
+	// we wait until the very end of all generators to print after messages
 	for _, G := range R.Generators {
-		after := G.CueValue.LookupPath(cue.ParsePath("CreateMessage.After"))
+		after := G.CueValue.LookupPath(cue.ParsePath("Create.Message.After"))
 		if after.Err() != nil {
 			fmt.Println("error:", after.Err())
 			return after.Err()
@@ -276,13 +305,63 @@ func runCreator(R *gen.Runtime, inputs []string) (err error) {
 	return nil
 }
 
-func handleGeneratorCreate(G *gen.Generator) error {
-	before := G.CueValue.LookupPath(cue.ParsePath("CreateMessage.Before"))
+func loadCreateInputs(R *gen.Runtime, inputFlags []string) (input map[string]any, err error) {
+	if len(inputFlags) == 0 {
+		return nil, nil
+	}
+
+	input = make(map[string]any)
+
+	for _, inFlag := range inputFlags {
+		// starts with @, load file
+		// only one time supported right now
+		if strings.HasPrefix(inFlag, "@") {
+			// this still might not be good enough
+			// we may need to remember the original working directory on the runtime
+			fn := filepath.Join(R.OriginalWkdir, inFlag[1:])
+			// fmt.Println("file flat:", inFlag, fn)
+			var data interface{}
+			data = make(map[string]any)
+			_, err := io.ReadFile(fn, &data)
+			if err != nil {
+				return input, err
+			}
+			// fmt.Println("(todo) input: ", fn, data)
+
+			for k,v := range data.(map[string]any) {
+				input[k] = v
+			}
+
+			continue
+		}
+
+		// otherwise split by =, path=value
+		parts := strings.Split(inFlag, "=")
+		if len(parts) != 2 {
+			return input, fmt.Errorf("input flag must have 'path=value' format")
+		}
+		// todo, how to deal with types besides strings (list, int, bool)
+		path, value := parts[0], parts[1]
+		input[path] = value
+		// we'd really prefer to support this, but getting errors from CUE about different runtimes
+		// input = input.FillPath(cue.ParsePath(path), value)
+	}
+
+	// fmt.Printf("pre-input: %#v\n", input)
+
+	return input, nil
+}
+
+
+func handleGeneratorCreate(G *gen.Generator, inputMap map[string]any) (err error) {
+	genVal := G.CueValue
+
+		// pritn the befor message if set, otherwise default
+	before := genVal.LookupPath(cue.ParsePath("Create.Message.Before"))
 	if before.Err() != nil {
 		fmt.Println("error:", before.Err())
 		return before.Err()
 	}
-
 	if !before.IsConcrete() || !before.Exists() {
 		fmt.Printf("Creating from %q\n", G.Name)
 	} else {
@@ -293,65 +372,75 @@ func handleGeneratorCreate(G *gen.Generator) error {
 		fmt.Println(s)
 	}
 
-	val := G.CueValue.LookupPath(cue.ParsePath("CreateInput"))
-	if val.Err() != nil {
-		fmt.Println("error:", val.Err())
-		return val.Err()
+	if inputMap != nil {
+		// if the user provides a schema for input
+		inputVal := genVal.LookupPath(cue.ParsePath("Create.Input"))
+		if inputVal.Exists() && inputVal.Err() != nil {
+			return inputVal.Err()
+		}
+
+		// remake map with types based on schema
+		newMap := make(map[string]any)
+		for k, v := range inputMap {
+			// get the current input val
+			ival := inputVal.LookupPath(cue.ParsePath(k))
+			if ival.Exists() {
+				switch t := v.(type) {
+					
+					// only handling string inputs
+					case string:
+						// switch 2
+						switch ival.IncompleteKind() {
+						// another default copy over
+						case cue.StringKind:
+							newMap[k] = v
+
+						// interseting part where we convert values
+						case cue.BoolKind:
+							fmt.Println("boolkind")
+							n, err := strconv.ParseBool(t)
+							if err != nil {
+								return err
+							}
+							newMap[k] = n
+							
+						case cue.IntKind:
+							n, err := strconv.ParseInt(t, 0, 64)
+							if err != nil {
+								return err
+							}
+							newMap[k] = n
+							
+						case cue.FloatKind:
+							n, err := strconv.ParseFloat(t, 64)
+							if err != nil {
+								return err
+							}
+							newMap[k] = n
+						
+						// end intersting inputs
+						
+						default:
+							newMap[k] = v
+						}
+					default:
+						newMap[k] = v
+				}
+			} else {
+				newMap[k] = v
+			}
+		}
+
+		// fmt.Printf("newMap: %#v\n", newMap)
+
+		G.CueValue = G.CueValue.FillPath(cue.ParsePath("Create.Input"), newMap)
 	}
 
-	if !val.IsConcrete() {
-		return fmt.Errorf("Generator is missing CreateInput")
-	}
-
-	prompt := G.CueValue.LookupPath(cue.ParsePath("CreatePrompt"))
-	if prompt.Err() != nil {
-		fmt.Println("error:", prompt.Err())
-		return prompt.Err()
-	}
-
-	if !prompt.IsConcrete() || !prompt.Exists() {
-		return fmt.Errorf("Generator is missing CreatePrompt")
-	}
-
-	// fmt.Printf("%s: %v\n", G.Name, val)
-	// fmt.Println(prompt)
-
-	ans := map[string]any{}
-	// TODO deal with --input flags
-
-	// process create prompts
-	// Loop through all top level fields
-	iter, err := prompt.List()
+	G.CueValue, err = runPrompt(G.CueValue)
 	if err != nil {
 		return err
 	}
-	for iter.Next() {
-		value := iter.Value()
-		Q := map[string]any{}
-		err := value.Decode(&Q)
-		if err != nil {
-			return err
-		}
 
-		// fmt.Println("q:", Q)
-		// todo, extract Name
-		A, err := handleQuestion(Q)
-		if err != nil {
-			return err
-		}
-
-		// do we want to return a bool from handleQuestion
-		// to be more explicit about this check?
-		if A != nil {
-			ans[Q["Name"].(string)] = A
-		}
-	}
-
-	// fill CreateInput from --inputs and prompt
-	G.CueValue = G.CueValue.FillPath(cue.ParsePath("CreateInput"), ans)
-
-	// fmt.Println("Final:", G.CueValue)
-	// return fmt.Errorf("intentional error")
 	return nil
 }
 

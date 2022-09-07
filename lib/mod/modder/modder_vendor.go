@@ -99,6 +99,7 @@ func (mdr *Modder) VendorDep(R Replace) error {
 
 	// Fetch and Load module
 	if strings.HasPrefix(R.NewPath, "/") || strings.HasPrefix(R.NewPath, "./") || strings.HasPrefix(R.NewPath, "../") {
+		// fmt.Println("local replace:", R)
 		err := mdr.LoadLocalReplace(R)
 		if err != nil {
 			mdr.errors = append(mdr.errors, err)
@@ -172,8 +173,9 @@ func (mdr *Modder) LoadLocalReplace(R Replace) error {
 		ReplaceModule:  R.NewPath,
 		ReplaceVersion: R.NewVersion,
 	}
+	// fmt.Printf("LoadLocalReplace %#+v\n", m)
 
-	m.FS = osfs.New(R.NewPath)
+	m.FS = osfs.New(m.ReplaceModule)
 
 	err = m.LoadMetaFiles(mdr.ModFile, mdr.SumFile, mdr.MappingFile, true /* ignoreReplace directives */)
 	if err != nil {

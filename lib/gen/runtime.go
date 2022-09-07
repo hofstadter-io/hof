@@ -35,6 +35,9 @@ type Runtime struct {
 	rootToCwd     string  // module root -> working dir (foo/bar)
 	cwdToRoot     string  // module root <- working dir (../..)
 
+	// Create related
+	OriginalWkdir string
+
 	// Hof related
 	Generators map[string]*Generator
 	Stats      *RuntimeStats

@@ -21,5 +21,3 @@ func TestFormatters(t *testing.T) {
 		Setup:       envSetup,
 	})
 }
-
-
