@@ -1,21 +1,26 @@
 package create
 
 
-#Creator: {
+#Creator: Create: {
 	// schema and filled value for the create inputs
 	// all inputs will be unified with this (files, flags, prompt)
 	// it's contents should likely align with the prompt nesting
-	CreateInput?: {...}
+	Input?: {...}
 
 	// Init time inputs and prompts
 	// if an entry will is already set by flags, it will be skipped
-	CreatePrompt?: [...#Question]
+	Prompt?: [...#Question]
 
 	// (todo) Messages to print at start and end
-	CreateMessage?: {
+	Message?: {
 		Before: string
 		After:  string
 	}
+
+	// todo
+	Check: _     // check for tools on host system
+	PreFlow: _   // run hof flow beforehand
+	PostFlow: _  // run hof flow afterwards
 }
 
 #Question: {

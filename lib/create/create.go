@@ -80,6 +80,7 @@ func Create(module string, rootflags flags.RootPflagpole, cmdflags flags.CreateF
 		os.RemoveAll(tmpdir)
 	}()
 
+	fmt.Println("init'n generator")
 	genflags := flags.GenFlags
 	genflags.Generator = cmdflags.Generator
 	genflags.Outdir = cmdflags.Outdir
@@ -96,12 +97,13 @@ func Create(module string, rootflags flags.RootPflagpole, cmdflags flags.CreateF
 	// fmt.Println("  outdir: ", outdir)
 	genflags.Outdir = outdir
 
-	// create our runtime now
+	// create our runtime now, maybe we want a new func for this
+	//   since we want to ignore any current CUE module context
+	//   everything is put into a temp dir and rendered to CWD
 	R, err := gen.NewRuntime(nil, rootflags, genflags)
 	if err != nil {
 		return err
 	}
-
 
 	if R.Verbosity > 0 {
 		fmt.Println("CueDirs:", R.CueModuleRoot, R.WorkingDir)
@@ -116,7 +118,11 @@ func Create(module string, rootflags flags.RootPflagpole, cmdflags flags.CreateF
 func setupTmpdir(url, ver string) (tmpdir, subdir string, err error) {
 	var FS billy.Filesystem
 
-	tmpdir, err = os.MkdirTemp("", "hof-")
+	tmpdir, err = os.MkdirTemp("", "hof-create-")
+	if err != nil {
+		return tmpdir, "", err
+	}
+	err = os.MkdirAll(tmpdir, 0755)
 	if err != nil {
 		return tmpdir, "", err
 	}
@@ -171,7 +177,10 @@ func setupTmpdir(url, ver string) (tmpdir, subdir string, err error) {
 		// fmt.Println("subdir:", subdir)
 
 		// load into FS
+		// fmt.Println("starting to read:", modroot)
 		FS = osfs.New(modroot)
+		// fmt.Println("done reading")
+
 	}
 
 	// fmt.Println("writing", tmpdir)
@@ -184,8 +193,9 @@ func setupTmpdir(url, ver string) (tmpdir, subdir string, err error) {
 	// run 'hof mod vendor cue' in tmpdir
 	fmt.Println("fetching creator dependencies")
 	out, err := yagu.Bash("hof mod vendor cue", tmpdir)
-	fmt.Println(out)
+	// fmt.Println("done fetching dependencies\n", out)
 	if err != nil {
+		fmt.Println(out)
 		return tmpdir, subdir, fmt.Errorf("while fetching creator deps %w", err)
 	}
 
