@@ -40,6 +40,8 @@ jobs:
         env:
           HOFMOD_SSHKEY: ${{secrets.HOFMOD_SSHKEY}}
           GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
+      - name: Start formatting containers
+        run: hof fmt start
       - name: Run template test
         run: hof flow @test/gen ./test.cue
       - name: Run render tests

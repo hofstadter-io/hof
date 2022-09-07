@@ -69,6 +69,10 @@ import "github.com/hofstadter-io/ghacue"
 		GITHUB_TOKEN:       "${{secrets.HOFMOD_TOKEN}}"
 	}
 }, {
+	// maybe these should be services?
+	name: "Start formatting containers"
+	run:  "hof fmt start"
+}, {
 	name: "Run template test"
 	run: """
 		hof flow @test/gen ./test.cue
@@ -105,6 +109,7 @@ import "github.com/hofstadter-io/ghacue"
 		BITBUCKET_PASSWORD: "${{secrets.BITBUCKET_TOKEN}}"
 	}
 }, {
+	// should probably be last?
 	name: "Run fmt tests"
 	run: """
 		hof flow -f test/fmt ./test.cue
