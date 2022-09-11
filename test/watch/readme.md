@@ -1,7 +1,7 @@
 # watch test
 
 ```sh
-hof gen data.cue -T 'template.txt;out.txt' --watch '*.cue' --watch template.txt [--diff3]
+hof gen data.cue -T 'template.txt=out.txt' --watch
 ```
 
 1. Run the above

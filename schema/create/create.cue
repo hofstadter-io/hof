@@ -20,7 +20,7 @@ package create
 
 #Question: {
 	Name: string
-	Type: "input" | "multiline" | "password" | "confirm" | "select" | "multiselect"
+	Type: "input" | "multiline" | "password" | "confirm" | "select" | "multiselect" | "subgroup"
 	Prompt: string
 	// for (multi)select
 	Options?: [...string]
