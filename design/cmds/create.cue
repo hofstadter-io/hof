@@ -7,7 +7,7 @@ import (
 #CreateCommand: schema.#Command & {
 	Name:  "create"
 	Usage: "create <module location>"
-	Short: "easily bootstrap full project, components, and more"
+	Short: "bootstrap projects, components, and files from any git repo"
 	Long:  #CreateRootHelp
 
 	Args: [{
@@ -46,6 +46,8 @@ import (
 #CreateRootHelp: #"""
 hof create enables you to easily bootstrap
 code for full projects, components, and more.
+
+Docs: https://docs.hofstadter.io/hof-create/
 
 Any generator can support the create command
 and most will bootstrap a generator.

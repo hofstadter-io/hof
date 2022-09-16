@@ -78,7 +78,10 @@ func (mdr *Modder) WriteVendor() error {
 		// fmt.Printf("Writing %-48s => %s\n", m.ReplaceModule + "@" + m.ReplaceVersion, baseDir)
 
 		// Should we make a symlink for a local replace?
-		if mdr.SymlinkLocalReplaces && (strings.HasPrefix(m.ReplaceModule, "../") || strings.HasPrefix(m.ReplaceModule, "/")) {
+		hasLocalPrefix := strings.HasPrefix(m.ReplaceModule, "../") || strings.HasPrefix(m.ReplaceModule, "./") || strings.HasPrefix(m.ReplaceModule, "/")
+		// fmt.Println("symlinking?", mdr.SymlinkLocalReplaces, hasLocalPrefix, m.ReplaceModule, strings.HasPrefix(m.ReplaceModule, "/"))
+		// fmt.Printf("m: %#v\n", m)
+		if mdr.SymlinkLocalReplaces && hasLocalPrefix {
 			// count and create backPaths string
 			backPaths := strings.Repeat("../", strings.Count(baseDir, "/"))
 			// create final symlink string
@@ -94,6 +97,8 @@ func (mdr *Modder) WriteVendor() error {
 				mdr.errors = append(mdr.errors, err)
 				return fmt.Errorf("While creating baseDir for local replace\n%w\n", err)
 			}
+
+			fmt.Printf("local replace: symlinking %s to %s\n", m.Module, m.ReplaceModule)
 
 			// create the actual symlink
 			err = os.Symlink(originalBaseDir, targetSymlink)
@@ -124,6 +129,8 @@ func (mdr *Modder) WriteVendor() error {
 
 			}
 		}
+
+		// fmt.Println("writing local vendor")
 
 		if len(mdr.VendorIncludeGlobs) > 0 || len(mdr.VendorExcludeGlobs) > 0 {
 			// Just copy everything

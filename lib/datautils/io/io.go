@@ -3,7 +3,6 @@ package io
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"path/filepath"
@@ -12,7 +11,7 @@ import (
 
 	"github.com/clbanning/mxj"
 	"github.com/naoina/toml"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 /*
@@ -81,11 +80,6 @@ func ReadFile(filename string, obj *interface{}) (contentType string, err error)
 		return "", err
 	}
 
-	data, err = handleImports(data, filename)
-	if err != nil {
-		return "", err
-	}
-
 	ext := filepath.Ext(filename)[1:]
 	switch ext {
 
@@ -141,44 +135,11 @@ func ReadFile(filename string, obj *interface{}) (contentType string, err error)
 			}
 		}
 
+	// TODO, CUE once we can create values and share between runtimes
+
 	default:
 		return InferDataContentType(data)
 	}
 
 	return "", errors.New("unknown content type")
-}
-
-const importTag = "#!import"
-
-func handleImports(orig []byte, filename string) (content []byte, err error) {
-
-	if !bytes.Contains(orig, []byte(importTag)) {
-		return orig, nil
-	}
-
-	dir := filepath.Dir(filename)
-
-	lines := bytes.Split(orig, []byte("\n"))
-	for _, line := range lines {
-		if bytes.HasPrefix(line, []byte(importTag)) {
-			fields := bytes.Fields(line)
-			if len(fields) != 2 {
-				return orig, errors.New(fmt.Sprintf("Bad import statement '%s' in '%s'", string(line), filename))
-			}
-			ifile := string(fields[1])
-			ipath := filepath.Join(dir, ifile)
-
-			data, err := ioutil.ReadFile(ipath)
-			if err != nil {
-				return orig, err
-			}
-
-			content = append(content, data...)
-		} else {
-			content = append(content, line...)
-		}
-		content = append(content, '\n')
-	}
-
-	return content, nil
 }
