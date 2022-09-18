@@ -1,7 +1,14 @@
 FROM alpine:3.15
 MAINTAINER Hofstadter, Inc <open-source@hofstadter.io>
 
-COPY hof /usr/local/bin
+RUN apk add --no-cache --virtual .build-deps \
+		ca-certificates \
+		git \
+		&& \
+    apk del .build-deps && \
+    rm -rf /root/.cache
+
+COPY hof /usr/local/bin/hof
 ENTRYPOINT ["hof"]
 
 VOLUME ["/work"]

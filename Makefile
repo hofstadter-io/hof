@@ -1,3 +1,5 @@
+include ./ci/make.inc
+
 CUE_FILES  = $(shell find . -type f -name '*.cue' | grep -v 'cue.mod/pkg/' | sort)
 GO_FILES  = $(shell find . -type f -name '*.go' | grep -v 'cue.mod/pkg/' | sort)
 GHA_FILES  = $(shell ls .github/workflows/*.cue | sort)
@@ -19,21 +21,17 @@ $(workflows): workflow_%:
 hof:
 	CGO_ENABLED=0 go install ./cmd/hof
 
+.PHONY: hof.build
+hof.build:
+	CGO_ENABLED=0 go build -o hof ./cmd/hof
+
+hof.images:
+	make -C ci marchs
+
 # formatter images
 .PHONY: formatters
 formatters:
 	make -C formatters images
-
-# buildx / buildkit related
-buildx.setup:
-	docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-buildx.check:
-	docker buildx ls
-buildx.start:
-	docker buildx create --name builder --driver docker-container --use
-	docker buildx inspect --bootstrap
-buildx.stop:
-	docker buildx rm builder
 
 fmt: cuefmt gofmt
 
@@ -49,9 +47,10 @@ gofiles:
 gofmt:
 	find . -type f -name '*.go' '!' -path '*/cue.mod/*' '!' -path '*/templates/*' '!' -path '*/partials/*' '!' -path '*/.hof/*' -exec gofmt -w {} \;
 
-release:
+goreleaser.yml: cmd/hof/goreleaser.cue
+	cue export cmd/hof/goreleaser.cue -f -o cmd/hof/goreleaser.yml
+snapshot: goreleaser.yml
+	cd cmd/hof && goreleaser release -f goreleaser.yml --rm-dist -p 1 --snapshot
+release: goreleaser.yml
 	make -C formatters marchs
-	cd cmd/hof && goreleaser --rm-dist -p 1
-
-snapshot:
-	cd cmd/hof && goreleaser --rm-dist -p 1 --snapshot
+	cd cmd/hof && goreleaser release -f goreleaser.yml --rm-dist -p 1

@@ -1,13 +1,4 @@
-DIFF := $(shell git diff)
-TAG := $(shell git tag --points-at HEAD | tr -d "\n")
-
-# overrides
-TAG := $(if $(TAG),$(TAG),dirty)
-TAG := $(if $(DIFF),dirty,$(TAG))
-
-# informational
-tag:
-	@echo $(TAG)
+include ../ci/make.inc
 
 TOOLS := $(shell ls tools/)
 .PHONY: tools
@@ -19,46 +10,28 @@ IMAGES=$(addsuffix .image,$(TOOLS))
 .PHONY: images
 images: $(IMAGES)
 $(IMAGES):
-	docker build -t hofstadter/fmt-$(@:%.image=%):$(TAG) -f tools/$(@:%.image=%)/Dockerfile.debian tools/$(@:%.image=%)
-
-
-# PLATFORMS=linux/amd64
-# PLATFORMS=linux/arm64
-PLATFORMS=linux/amd64,linux/arm64
-# PLATFORMS=linux/amd64,linux/arm64,linux/arm/v7
-
-PUSH=--push
-
-EXTRA=--progress plain --no-cache
-
-.PHONY: marchs
-marchs: marchs.debian marchs.alpine
+	docker build -t hofstadter/fmt-$(@:%.image=%):$(IMAGE_TAG) -f tools/$(@:%.image=%)/Dockerfile.debian tools/$(@:%.image=%)
 
 MARCHS_DEB=$(addsuffix .march.debian,$(TOOLS))
 marchs.debian: $(MARCHS_DEB)
 $(MARCHS_DEB):
-	docker buildx build -t hofstadter/fmt-$(@:%.march.debian=%):$(TAG)-debian \
+	docker buildx build -t hofstadter/fmt-$(@:%.march.debian=%):$(IMAGE_TAG)-debian \
 		$(PUSH) --platform $(PLATFORMS) $(EXTRA) \
 		tools/$(@:%.march.debian=%) -f tools/$(@:%.march.debian=%)/Dockerfile.debian
 MARCHS_ALP=$(addsuffix .march.alpine,$(TOOLS))
 marchs.alpine: $(MARCHS_ALP)
 $(MARCHS_ALP):
-	docker buildx build -t hofstadter/fmt-$(@:%.march.alpine=%):$(TAG)-alpine \
+	docker buildx build -t hofstadter/fmt-$(@:%.march.alpine=%):$(IMAGE_TAG)-alpine \
 		$(PUSH) --platform $(PLATFORMS) $(EXTRA) \
 		tools/$(@:%.march.alpine=%) -f tools/$(@:%.march.alpine=%)/Dockerfile.alpine
 
 # make *.start
 .PHONY: $(addsuffix .start,$(TOOLS))
 $(addsuffix .start,$(TOOLS)):
-	docker run -d -P --name hof-fmt-$(@:%.start=%) hofstadter/fmt-$(@:%.start=%):$(TAG)
+	docker run -d -P --name hof-fmt-$(@:%.start=%) hofstadter/fmt-$(@:%.start=%):$(IMAGE_TAG)
 
 # make *.stop
 stop: $(addsuffix .stop,$(TOOLS))
 $(addsuffix .stop,$(TOOLS)):
 	docker rm -f hof-fmt-$(@:%.stop=%)
-
-# make *.push
-push: $(addsuffix .push,$(TOOLS))
-$(addsuffix .push,$(TOOLS)):
-	docker push hofstadter/fmt-$(@:%.push=%):$(TAG)
 
