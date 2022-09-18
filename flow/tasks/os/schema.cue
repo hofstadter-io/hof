@@ -162,5 +162,5 @@ WriteFile: {
 
 	filename: string
 	contents: string | bytes
-	mode:     int | *0o666
+	mode:     int | *0o644
 }

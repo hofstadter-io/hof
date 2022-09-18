@@ -24,27 +24,16 @@ func init() {
 		fmt.Println("init telemetry")
 	}
 	// short-circuit
-	if os.Getenv("HOF_TELEMETRY_DISABLED") != "" {
-		if debug {
-			fmt.Println("telemetry disabled in env")
+	ev := os.Getenv("HOF_TELEMETRY_DISABLED")
+	eb, _ := strconv.ParseBool(ev)
+	if ev != "" {
+		if eb {
+			if debug {
+				fmt.Println("telemetry disabled in env")
+			}
+			cid = "disabled"
+			return
 		}
-		cid = "disabled"
-		return
-	}
-
-	// check if in CI
-	vendor := cinful.Info()
-	if vendor != nil {
-		if debug {
-			fmt.Println("in CI")
-		}
-		// generate an ID
-		id, _ := uuid.NewUUID()
-		cid = id.String()
-
-		isCI = true
-		cid = "CI-" + cid
-		return
 	}
 
 	// setup dir info
@@ -77,23 +66,41 @@ func init() {
 		return
 	}
 
-	// create the ID for the first time
-	// prompting user for approval
+	// generate an ID
+	id, _ := uuid.NewUUID()
+	cid = id.String()
 
-	// if not found, ask and write
-	approve := askGaId()
-	if !approve {
-		err = writeGaId("disabled")
-	} else {
-		id, _ := uuid.NewUUID()
-		cid = id.String()
-		err = writeGaId(cid)
+	// check if in CI, and add prefix
+	vendor := cinful.Info()
+	if vendor != nil {
+		if debug {
+			fmt.Println("in CI")
+		}
+		isCI = true
+		cid = "CI-" + cid
 	}
 
+	err = writeGaId(cid)
 	if err != nil {
 		fmt.Println("Error writing telemetry config, please let the devs know")
 		return
 	}
+
+	// create the ID for the first time
+	// prompting user for approval
+
+	// if not found, ask and write
+	// if ev != "" {
+	// 	if !eb {
+	// 		approve := askGaId()
+	// 	}
+	// }
+	// if !approve {
+	// 	err = writeGaId("disabled")
+	// } else {
+	// 	id, _ := uuid.NewUUID()
+	// 	cid = id.String()
+	// }
 }
 
 func SendCommandPath(cmd string) {
@@ -110,10 +117,6 @@ func SendCommandPath(cmd string) {
 }
 
 func SendGaEvent(action, label string, value int) {
-	if os.Getenv("HOF_TELEMETRY_DISABLED") != "" {
-		return
-	}
-
 	if cid == "disabled" {
 		return
 	}
@@ -152,8 +155,6 @@ func SendGaEvent(action, label string, value int) {
 }
 
 func readGaId() (string, error) {
-	// ucd := yagu.UserHomeDir()
-
 	_, err := os.Lstat(fn)
 	if err != nil {
 		return "missing", err

@@ -38,7 +38,7 @@ import (
 	Relations: #Relations
 	Views?:     #Views
 
-	// TODO, can we calc this in hof and maintain output order stability?
+	// We calc Ordered* in hof to maintain output order stability
 	// (turn Ordered* into a default calculation, so user can always write their own)
 	OrderedFields: [...#Field] | *[ for F in Fields {F}]
 	OrderedRelations: [...#Relation] | *[ for R in Relations {R}]
