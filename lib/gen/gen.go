@@ -432,7 +432,7 @@ func InitModule(args []string, rootflags flags.RootPflagpole, cmdflags flags.Gen
 		return err
 	}
 	// todo, fetch deps
-	msg, err := yagu.Bash("hof mod vendor cue", "")
+	msg, err := yagu.Shell("hof mod vendor cue", "")
 	fmt.Println(msg)
 	if err != nil {
 		return err

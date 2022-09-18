@@ -8,6 +8,15 @@ import (
 	"strings"
 )
 
+func Shell(script, workdir string) (string, error) {
+	cmd := exec.Command("sh", "-p", "-c", script)
+	if workdir != "" {
+		cmd.Dir = workdir
+	}
+	out, err := cmd.CombinedOutput()
+	return string(out), err
+}
+
 func Bash(script, workdir string) (string, error) {
 	cmd := exec.Command("bash", "-p", "-c", script)
 	if workdir != "" {

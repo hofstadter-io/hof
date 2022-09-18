@@ -195,7 +195,7 @@ func setupTmpdir(url, ver string) (tmpdir, subdir string, err error) {
 
 	// run 'hof mod vendor cue' in tmpdir
 	fmt.Println("fetching creator dependencies")
-	out, err := yagu.Bash("hof mod vendor cue", tmpdir)
+	out, err := yagu.Shell("hof mod vendor cue", tmpdir)
 	// fmt.Println("done fetching dependencies\n", out)
 	if err != nil {
 		fmt.Println(out)
