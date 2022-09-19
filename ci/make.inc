@@ -28,7 +28,7 @@ PLATFORMS=linux/amd64,linux/arm64
 EXTRA=--progress plain --no-cache
 
 .PHONY: marchs
-marchs: marchs.debian marchs.alpine
+marchs: marchs.debian
 
 # buildx / buildkit related
 buildx.setup:

@@ -5,9 +5,6 @@ TOOLS := $(shell ls tools/)
 tools:
 	@echo $(TOOLS)
 
-PUSH=
-PLATFORMS=linux/amd64
-
 # make image.*
 IMAGES=$(addsuffix .image,$(TOOLS))
 .PHONY: images
