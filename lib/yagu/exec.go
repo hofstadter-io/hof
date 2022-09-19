@@ -9,7 +9,7 @@ import (
 )
 
 func Shell(script, workdir string) (string, error) {
-	cmd := exec.Command("sh", "-p", "-c", script)
+	cmd := exec.Command("sh", "-c", script)
 	if workdir != "" {
 		cmd.Dir = workdir
 	}

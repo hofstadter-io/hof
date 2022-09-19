@@ -1,6 +1,7 @@
 FROM alpine:3.15
 MAINTAINER Hofstadter, Inc <open-source@hofstadter.io>
 
+# add some need packages
 RUN apk add --no-cache --virtual .build-deps \
 		ca-certificates \
 		git \
@@ -8,8 +9,17 @@ RUN apk add --no-cache --virtual .build-deps \
     apk del .build-deps && \
     rm -rf /root/.cache
 
-COPY hof /usr/local/bin/hof
-ENTRYPOINT ["hof"]
+# setup running user
+RUN addgroup -S hof && adduser -S hof -G hof -D hof -h /home/hof
 
+# setup work dir
+RUN mkdir /work && chown -R hof:hof /work
 VOLUME ["/work"]
 WORKDIR /work
+
+# set running user
+USER hof
+
+# copy binary and set entrypoint
+COPY hof /usr/local/bin/hof
+ENTRYPOINT ["hof"]

@@ -70,7 +70,7 @@ var UpdateCmd = &cobra.Command{
 		}
 
 		// Semver Check?
-		cur := ProgramVersion{Version: "v" + verinfo.Version}
+		cur := ProgramVersion{Version: verinfo.Version}
 		if latest.Version == cur.Version || (UpdateVersionFlag == "" && cur.Version == "vLocal") {
 			return
 		} else {
@@ -89,7 +89,8 @@ var UpdateCmd = &cobra.Command{
 }
 
 func init() {
-	go CheckUpdate(false)
+	// disable automatic update checks
+	// go CheckUpdate(false)
 
 	help := UpdateCmd.HelpFunc()
 	usage := UpdateCmd.UsageFunc()
@@ -329,7 +330,7 @@ func downloadAndInstall(url string) error {
 		return err
 	}
 
-	// defer os.Remove(tmpfile.Name()) // clean up
+	defer os.Remove(tmpfile.Name()) // clean up
 
 	if _, err := tmpfile.Write(content); err != nil {
 		return err
@@ -348,8 +349,10 @@ func downloadAndInstall(url string) error {
 		return err
 	}
 
-	// Sudo copy the file
-	cmdStr := fmt.Sprintf("export OWNER=$(ls -l %s | awk '{ print $3 \":\" $4 }') && sudo mv %s %s-v%s && sudo cp %s %s && sudo chown $OWNER %s && sudo chmod 0755 %s",
+	// TODO (hof/update) replace current binary swap with something better
+	// either a straightup file write or a golang package that handles binary updates already (there's at least 1)
+	// copy the file
+	cmdStr := fmt.Sprintf("export OWNER=$(ls -l %s | awk '{ print $3 \":\" $4 }') && mv %s %s-v%s && cp %s %s && chown $OWNER %s && chmod 0755 %s",
 		real,                        // get owner
 		real, real, verinfo.Version, // backup
 		tmpfile.Name(), real, // cp

@@ -1,6 +1,7 @@
 FROM debian:11.3
 MAINTAINER Hofstadter, Inc <open-source@hofstadter.io>
 
+# add some need packages
 RUN apt-get update -y \
 	&& apt-get install -y \
 		ca-certificates \
@@ -9,8 +10,17 @@ RUN apt-get update -y \
 	&& apt-get autoremove --yes \
   && rm -rf /var/lib/{apt,dpkg,cache,log}/
 
-COPY hof /usr/local/bin/hof
-ENTRYPOINT ["hof"]
+# setup running user
+RUN useradd -m hof
 
+# setup work dir
+RUN mkdir /work && chown -R hof:hof /work
 VOLUME ["/work"]
 WORKDIR /work
+
+# set running user
+USER hof
+
+# copy binary and set entrypoint
+COPY hof /usr/local/bin/hof
+ENTRYPOINT ["hof"]

@@ -12,19 +12,20 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/verinfo"
 )
 
-const versionMessage = `
+const versionMessage = `hof - the high code framework
+
 Version:     v%s
 Commit:      %s
 
 BuildDate:   %s
 GoVersion:   %s
 OS / Arch:   %s %s
+ConfigDir:   %s
+CacheDir:    %s
 
-
-Author:   Hofstadter, Inc
-Homepage: https://hofstadter.io
-GitHub:   https://github.com/hofstadter-io/hof
-
+Author:      Hofstadter, Inc
+Homepage:    https://hofstadter.io
+GitHub:      https://github.com/hofstadter-io/hof
 `
 
 var VersionLong = `Print the build version for hof`
@@ -43,8 +44,8 @@ var VersionCmd = &cobra.Command{
 
 	Run: func(cmd *cobra.Command, args []string) {
 
-		s, e := os.UserConfigDir()
-		fmt.Printf("hof ConfigDir %q %v\n", filepath.Join(s, "hof"), e)
+		configDir, _ := os.UserConfigDir()
+		cacheDir, _ := os.UserCacheDir()
 
 		fmt.Printf(
 			versionMessage,
@@ -54,6 +55,8 @@ var VersionCmd = &cobra.Command{
 			verinfo.GoVersion,
 			verinfo.BuildOS,
 			verinfo.BuildArch,
+			filepath.Join(configDir,"hof"),
+			filepath.Join(cacheDir,"hof"),
 		)
 	},
 }
