@@ -2,6 +2,7 @@ package datamodel
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -217,8 +218,20 @@ func loadDatamodelHistory(dm *Datamodel, crt *cuetils.CueRuntime) error {
 		return err
 	}
 
+	// check basedir for existence before trying to load
+	basedir := filepath.Join(base, ".hof", "dm", dm.Name)
+	_, err = os.Lstat(basedir)
+	if err != nil {
+		if strings.Contains(err.Error(), "no such file or directory") {
+			return nil
+		}
+		return err
+	}
+
 	// get entrypoints
-	glob := filepath.Join(base, ".hof", "dm", dm.Name, "*.cue")
+	// todo, consider mapping these by output dir as well?
+	// (generally do we want to handle multiple data models with the same name?)
+	glob := filepath.Join(basedir, "*.cue")
 	entrypoints, err := zglob.Glob(glob)
 	if err != nil {
 		return err
@@ -230,6 +243,11 @@ func loadDatamodelHistory(dm *Datamodel, crt *cuetils.CueRuntime) error {
 	if err != nil {
 		return err
 	}
+
+	// todo, need to think through no-history situations & processing
+	// check that value exists and has no errors? (shouldn't crt.Load() be doing some of this? why is it not catching the error earlier?)
+	// where downstream do we need to check?
+	// why does it fail when models are not nested, but ok when they are nested under top-level DM value
 
 	// iterate over fields (checkpoints)
 	vers := []*Datamodel{}

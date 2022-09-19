@@ -1,0 +1,54 @@
+exec hof mod vendor cue
+exec hof datamodel list
+cmp stdout golden.stdout
+
+-- cue.mod/module.cue --
+module: "hof.io/test"
+-- cue.mods --
+module hof.io/test
+
+cue 0.4.3
+
+require (
+  github.com/hofstadter-io/hofmod-cli v0.7.12-beta.1
+)
+-- hof.cue --
+package datamodel
+
+import (
+	"github.com/hofstadter-io/hof/schema/dm"
+	"github.com/hofstadter-io/hof/schema/dm/fields"
+	"github.com/hofstadter-io/hof/schema/dm/sql"
+)
+
+#MyModels: dm.#Datamodel & {
+	Name: "MyModels"
+
+	Models: {
+		#AllModels
+	}
+}
+
+#AllModels: dm.#Models & {
+	"user":        User
+}
+
+User: dm.#Model & {
+	Name: "user"
+	Fields: {
+		sql.#CommonFields
+		email:   fields.Email
+		persona: fields.Enum & {
+			Vals: ["guest", "user", "admin", "owner"]
+			Default: "guest"
+		}
+		password: fields.Password
+		active:   fields.Bool
+
+		// this is the new field
+		username: fields.String
+	}
+}
+-- golden.stdout --
+NAME      MODELS  CHECKPOINTS  STATUS      SUBSUME 
+MyModels  1       0            no history  n/a      
