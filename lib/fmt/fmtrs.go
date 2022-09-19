@@ -80,6 +80,11 @@ var fmtrNames = []string{
 	"prettier",
 }
 
+// TODO, we need a better way to handle
+// files with no ext and more than one ext
+//   maybe we switch this map around? (and make map[string][]string)
+//   we could rebuild this map from the fmtr -> []ext map
+//   even better, we should do this in CUE and then decode to Go structs
 var extToFmtr = map[string]string {
 	// prettier
 	".js":      "prettier/babel",
@@ -95,7 +100,10 @@ var extToFmtr = map[string]string {
 	".md":      "prettier/markdown",
 	".vue":     "prettier/vue",
 
-	// prettier plugins, need testing
+	// TODO, there are a lot of others built in as well
+
+	// prettier plugins,
+	// probably a separate image?
 	".java":    "prettier/java",
 	".rb":      "prettier/ruby",
 	".rs":      "prettier/rust",
@@ -148,14 +156,14 @@ var fmtrDefaultConfigs = map[string]interface{}{
 		"parser": "ruby",
 	},
 	"prettier/rust": map[string]interface{}{
-		"parser": "rust",
+		"parser": "jinx-rust",
 	},
 	"prettier/php": map[string]interface{}{
 		"parser": "php",
 	},
 
 	"black/py": map[string]interface{}{
-		"parser": "go-template",
+		"parser": "",
 	},
 }
 
@@ -274,6 +282,10 @@ func FormatSource(filename string, content []byte, fmtrName string, config inter
 	}
 
 	content = body
+
+	if !bytes.HasSuffix(content, []byte{'\n'}) {
+		content = append(content, '\n')
+	}
 
 	return content, nil
 }

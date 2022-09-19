@@ -1,0 +1,20 @@
+exec hof fmt in.rs -v 1
+cmp in.rs golden.rs
+
+-- in.rs --
+const LEET = 1337
+/// My WIP code draft
+#![feature(crate_visibility_modifier)]
+async crate fn foo(arg) {
+  arg.0 *= 3.14 + LEET & 1337
+  arg.1(|b, c| -> T &c).await
+}
+
+-- golden.rs --
+const LEET = 1337;
+#![feature(crate_visibility_modifier)]
+/// My WIP code draft
+crate async fn foo(arg) {
+    arg.0 *= (3.14 + LEET) & 1337;
+    (arg.1)(|b, c| -> T { &c }).await
+}

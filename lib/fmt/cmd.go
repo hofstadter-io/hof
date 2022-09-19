@@ -91,7 +91,7 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.FmtFlagpole) er
 		// todo, add flags for fmtr & config
 		fmtd, err := FormatSource(file, content, "", nil, cflags.Data)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("while formatting source:", err)
 			continue
 			// return err
 		}
