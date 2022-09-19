@@ -14,7 +14,6 @@ IMAGES=$(addsuffix .image,$(TOOLS))
 images: $(IMAGES)
 $(IMAGES):
 	docker build -t hofstadter/fmt-$(@:%.image=%):$(FMTR_TAG) -f tools/$(@:%.image=%)/Dockerfile.debian tools/$(@:%.image=%)
-	docker build -t hofstadter/fmt-$(@:%.image=%):$(FMTR_TAG)-alpine -f tools/$(@:%.image=%)/Dockerfile.alpine tools/$(@:%.image=%)
 
 MARCHS_DEB=$(addsuffix .march.debian,$(TOOLS))
 marchs.debian: $(MARCHS_DEB)
@@ -22,6 +21,7 @@ $(MARCHS_DEB):
 	docker buildx build -t hofstadter/fmt-$(@:%.march.debian=%):$(FMTR_TAG)-debian \
 		$(PUSH) --platform $(PLATFORMS) $(EXTRA) \
 		tools/$(@:%.march.debian=%) -f tools/$(@:%.march.debian=%)/Dockerfile.debian
+
 MARCHS_ALP=$(addsuffix .march.alpine,$(TOOLS))
 marchs.alpine: $(MARCHS_ALP)
 $(MARCHS_ALP):
