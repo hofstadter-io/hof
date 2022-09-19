@@ -1,31 +1,41 @@
 FROM node:18-bullseye-slim
 
-WORKDIR /app
-
-ENV PATH="/usr/local/bin:/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin"
-
 # fixes for arm64
+ENV PATH="/usr/local/bin:/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin"
 RUN ln -s /usr/bin/dpkg-split /usr/sbin/dpkg-split
 RUN ln -s /usr/bin/dpkg-deb /usr/sbin/dpkg-deb
 RUN ln -s /bin/rm /usr/sbin/rm
 RUN ln -s /bin/tar /usr/sbin/tar
+RUN ln -s /bin/uname /usr/local/bin/uname
 
 # install extra tools
 RUN apt-get update -y \
 	&& apt-get install -y \
+		ca-certificates \
+		gcc \
+		git \
+		make \
 		ruby-dev \
 	&& apt-get clean \
 	&& apt-get autoremove --yes \
   && rm -rf /var/lib/{apt,dpkg,cache,log}/
+
+# arm64 fix
 RUN ln -s /usr/bin/ruby /usr/local/bin/ruby
 
+# ruby-prettier deps
 RUN gem install \
 	bundler \
+	haml \
 	prettier_print \
+	rbs \
 	syntax_tree \
-	syntax_tree-haml
+	syntax_tree-haml \
+	syntax_tree-rbs
 
-# install direct dependencies
+WORKDIR /app
+
+# install server deps
 COPY package.json yarn.lock /app/
 RUN yarn install
 

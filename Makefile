@@ -25,13 +25,12 @@ hof:
 hof.build:
 	CGO_ENABLED=0 go build -o hof ./cmd/hof
 
-hof.images:
-	make -C ci marchs
-
 # formatter images
-.PHONY: formatters
+.PHONY: formatters fmtr.release
 formatters:
 	make -C formatters images
+fmtr.release:
+	make -C formatters marchs
 
 fmt: cuefmt gofmt
 

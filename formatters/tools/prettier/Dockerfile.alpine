@@ -1,20 +1,31 @@
 FROM node:18-alpine3.16
 
-WORKDIR /app
-
+# arm64 fix
 ENV PATH="/usr/local/bin:/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin"
 
-# install extra tools
-RUN apk update && apk add \
-	ruby-dev
+# install deps
+RUN apk add --no-cache --virtual .build-deps \
+		ca-certificates \
+		gcc \
+		git \
+		make \
+		ruby-dev \
+	&& apk del .build-deps \
+	&& rm -rf /root/.cache
 
+# ruby setup
 RUN gem install \
 	bundler \
+	haml \
 	prettier_print \
+	rbs \
 	syntax_tree \
-	syntax_tree-haml
+	syntax_tree-haml \
+	syntax_tree-rbs
 
-# install direct dependencies
+WORKDIR /app
+
+# install server deps
 COPY package.json yarn.lock /app/
 RUN yarn install
 

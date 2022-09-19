@@ -5,6 +5,7 @@ MAINTAINER Hofstadter, Inc <open-source@hofstadter.io>
 RUN apk add --no-cache --virtual .build-deps \
 		ca-certificates \
 		git \
+		make \
 		&& \
     apk del .build-deps && \
     rm -rf /root/.cache

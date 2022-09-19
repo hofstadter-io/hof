@@ -6,6 +6,7 @@ RUN apt-get update -y \
 	&& apt-get install -y \
 		ca-certificates \
 		git \
+		make \
 	&& apt-get clean \
 	&& apt-get autoremove --yes \
   && rm -rf /var/lib/{apt,dpkg,cache,log}/

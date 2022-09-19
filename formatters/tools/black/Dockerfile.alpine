@@ -1,23 +1,27 @@
 FROM python:3.10-alpine
 
-WORKDIR /app
-
+# fixes for arm64
 ENV PATH="/usr/local/bin:/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin"
-
-RUN which uname
-
 RUN ln -s /bin/uname /usr/local/bin/uname
 
+# install deps
+RUN apk add --no-cache --virtual .build-deps \
+		ca-certificates \
+		git \
+	&& apk del .build-deps \
+	&& rm -rf /root/.cache
+
+WORKDIR /app
+
+# install server deps
 COPY Pipfile Pipfile.lock /app/
+RUN pip install --upgrade pip pipenv \
+	&& pipenv install --deploy --system \
+	&& pip uninstall -y pipenv
 
-RUN apk add --no-cache --virtual .build-deps build-base git && \
-    pip install --upgrade pip pipenv && \
-    pipenv install --deploy --system && \
-    pip uninstall -y pipenv && \
-    apk del .build-deps && \
-    rm -rf /root/.cache
+# our server code
+COPY app.py .
 
-COPY . /app
-
+# runtime settings
 EXPOSE 3000
 CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:3000", "--log-file", "-"]
