@@ -2,7 +2,7 @@ package workflows
 
 import "github.com/hofstadter-io/ghacue"
 
-_bases: ["debian", "alpine"]
+_bases: ["debian"]
 _formatters: [
 	"prettier",
 	"black",

@@ -9,7 +9,7 @@ RUN apk add --no-cache --virtual .build-deps \
 		gcc \
 		git \
 		make \
-		ruby-dev \
+		ruby ruby-dev ruby-bundler ruby-json ruby-irb ruby-rake ruby-bigdecimal \
 	&& apk del .build-deps \
 	&& rm -rf /root/.cache
 

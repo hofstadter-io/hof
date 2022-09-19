@@ -5,12 +5,16 @@ TOOLS := $(shell ls tools/)
 tools:
 	@echo $(TOOLS)
 
+PUSH=
+PLATFORMS=linux/amd64
+
 # make image.*
 IMAGES=$(addsuffix .image,$(TOOLS))
 .PHONY: images
 images: $(IMAGES)
 $(IMAGES):
 	docker build -t hofstadter/fmt-$(@:%.image=%):$(FMTR_TAG) -f tools/$(@:%.image=%)/Dockerfile.debian tools/$(@:%.image=%)
+	docker build -t hofstadter/fmt-$(@:%.image=%):$(FMTR_TAG)-alpine -f tools/$(@:%.image=%)/Dockerfile.alpine tools/$(@:%.image=%)
 
 MARCHS_DEB=$(addsuffix .march.debian,$(TOOLS))
 marchs.debian: $(MARCHS_DEB)
