@@ -18,7 +18,7 @@ import (
 var dir, fn, cid string
 var isCI bool
 
-var debug = true
+var debug = false
 
 func init() {
 	if debug {
