@@ -18,7 +18,7 @@ import (
 var dir, fn, cid string
 var isCI bool
 
-var debug = false
+var debug = true
 
 func init() {
 	if debug {
@@ -48,6 +48,9 @@ func init() {
 
 	// try reading
 	cid, err = readGaId()
+	if debug {
+		fmt.Println("realGaId:", cid, err)
+	}
 	if err != nil {
 		cid = "missing"
 	}
@@ -114,16 +117,16 @@ func SendCommandPath(cmd string) {
 	if isCI {
 		l = "ci"
 	}
-	SendGaEvent(c, l, 0)
-}
 
-func SendGaEvent(action, label string, value int) {
+	if debug {
+		fmt.Println("SendGaEvent:", c, l, cid)
+	}
 	if cid == "disabled" {
 		return
 	}
 
 	ua := fmt.Sprintf(
-		"%s/%s %s/%s",
+		"%s/%s (%s %s)",
 		"hof", verinfo.Version,
 		verinfo.BuildOS, verinfo.BuildArch,
 	)
@@ -132,20 +135,15 @@ func SendGaEvent(action, label string, value int) {
 		TID: "UA-103579574-5",
 		CID: cid,
 		UA:  ua,
-		CN:  "hof",
-		CS:  "hof/" + verinfo.Version,
-		CM:  verinfo.Version,
+		CN:  verinfo.Version,
+		CS:  verinfo.BuildOS,
+		CM:  verinfo.BuildArch,
 	}
 
 	evt := yagu.GaEvent{
-		Source:   cfg.UA,
-		Category: "hof",
-		Action:   action,
-		Label:    label,
-	}
-
-	if value >= 0 {
-		evt.Value = value
+		Action:   c, // path or cmd here
+		Source:   fmt.Sprintf("%s/%s",verinfo.BuildOS, verinfo.BuildArch),
+		Category: l,
 	}
 
 	if debug {

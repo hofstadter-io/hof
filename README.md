@@ -78,6 +78,7 @@ Usage:
   hof [flags] [command] [args]
 
 Main commands:
+  create                bootstrap projects, components, and files from any git repo
   datamodel             manage, diff, and migrate your data models
   gen                   modular and composable code gen: CUE & data + templates = _
   flow                  run CUE pipelines with the hof/flow DAG engine

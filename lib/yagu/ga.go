@@ -46,6 +46,9 @@ func SendGaEvent(cfg GaConfig, evt GaEvent) (string, error) {
 
 	vals := url.Values{}
 
+	// always
+	vals.Add("v", "1")
+
 	vals.Add("tid", cfg.TID)
 	vals.Add("cid", cfg.CID)
 	vals.Add("cs", cfg.CS)
@@ -65,13 +68,10 @@ func SendGaEvent(cfg GaConfig, evt GaEvent) (string, error) {
 	}
 
 	// TODO, move this parameter hackery for CLIs to hofmod-cli
-	vals.Add("dh", cfg.UA)
-	vals.Add("dt", cfg.CS)
+	vals.Add("dh", "hof/"+cfg.CN)
 	vals.Add("dp", evt.Action)
-	vals.Add("v", "1")
-	if evt.Source != "" {
-		vals.Add("ds", evt.Source)
-	}
+	vals.Add("dt", evt.Category)
+	vals.Add("dr", evt.Source)
 
 	payload := vals.Encode()
 
