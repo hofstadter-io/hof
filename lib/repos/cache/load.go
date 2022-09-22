@@ -33,7 +33,7 @@ func SetBaseDir(basedir string) {
 	cacheBaseDir = basedir
 }
 
-func Load(url, ver string) (billy.Filesystem, error) {
+func Load(url, ver string) (_ billy.Filesystem, err error) {
 	FS, err := Read(url, ver)
 	if err == nil {
 		return FS, nil

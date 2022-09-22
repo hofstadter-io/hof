@@ -55,10 +55,24 @@ func Create(module string, rootflags flags.RootPflagpole, cmdflags flags.CreateF
 	if len(parts) == 2 {
 		ver = parts[1]
 	}
+	if ver == "" {
+		ver = "latest"
+	}
+
+	refVal, refType, refCommit, err := cache.FindBestRef(url, ver)
+	if ver == "latest" {
+		fmt.Println("found:", refVal, refType, refCommit)
+	}
+	if err != nil {
+		return err
+	}
+	if refType != "tags" {
+		return fmt.Errorf("create currently only supports tags")
+	}
 	// fmt.Printf("looking for %s @ %s\n", url, ver)
 
 	fmt.Println("setting up...")
-	tmpdir, subdir, err = setupTmpdir(url, ver)
+	tmpdir, subdir, err = setupTmpdir(url, refVal)
 	if err != nil {
 		return fmt.Errorf("while setting up tmpdir: %w", err)
 	}
