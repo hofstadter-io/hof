@@ -15,7 +15,7 @@ $(IMAGES):
 MARCHS_DEB=$(addsuffix .march.debian,$(TOOLS))
 marchs.debian: $(MARCHS_DEB)
 $(MARCHS_DEB):
-	docker buildx build -t hofstadter/fmt-$(@:%.march.debian=%):$(FMTR_TAG)-debian \
+	docker buildx build -t hofstadter/fmt-$(@:%.march.debian=%):$(FMTR_TAG) \
 		$(PUSH) --platform $(PLATFORMS) $(EXTRA) \
 		tools/$(@:%.march.debian=%) -f tools/$(@:%.march.debian=%)/Dockerfile.debian
 
