@@ -42,7 +42,7 @@ common create prompts
   - noting that we may deviate because people may use create to add to their existing projects
 */
 
-func Create(module string, rootflags flags.RootPflagpole, cmdflags flags.CreateFlagpole) (err error) {
+func Create(module string, extra []string, rootflags flags.RootPflagpole, cmdflags flags.CreateFlagpole) (err error) {
 	var tmpdir, subdir string
 
 	cwd, err := os.Getwd()
@@ -61,7 +61,7 @@ func Create(module string, rootflags flags.RootPflagpole, cmdflags flags.CreateF
 
 	ref := ver
 
-	if ver == "latest" {
+	if looksLikeRepo(url) && ver == "latest" {
 		refVal, refType, refCommit, err := cache.FindBestRef(url, ver)
 		fmt.Println("found:", refVal, refType, refCommit)
 		if err != nil {
@@ -129,7 +129,7 @@ func Create(module string, rootflags flags.RootPflagpole, cmdflags flags.CreateF
 	}
 
 	// fmt.Println("pre-run-creator")
-	err = runCreator(R, cmdflags.Input)
+	err = runCreator(R, extra, cmdflags.Input)
 	// fmt.Println("post-run-creator")
 	return err
 }
@@ -229,7 +229,7 @@ func setupTmpdir(url, ver string) (tmpdir, subdir string, err error) {
 	return tmpdir, subdir, err
 }
 
-func runCreator(R *gen.Runtime, inputs []string) (err error) {
+func runCreator(R *gen.Runtime, extra, inputs []string) (err error) {
 
 	// minimally load and extract generators
 	err = R.LoadCue()
@@ -263,7 +263,7 @@ func runCreator(R *gen.Runtime, inputs []string) (err error) {
 
 	// handle create input / prompt
 	for _, G := range R.Generators {
-		err = handleGeneratorCreate(G, inputMap)
+		err = handleGeneratorCreate(G, extra, inputMap)
 		if err != nil {
 			return err
 		}
@@ -369,7 +369,10 @@ func loadCreateInputs(R *gen.Runtime, inputFlags []string) (input map[string]any
 }
 
 
-func handleGeneratorCreate(G *gen.Generator, inputMap map[string]any) (err error) {
+func handleGeneratorCreate(G *gen.Generator, extraArgs []string, inputMap map[string]any) (err error) {
+	// fill any extra args into generator value
+	G.CueValue = G.CueValue.FillPath(cue.ParsePath("Create.Args"), extraArgs)
+
 	genVal := G.CueValue
 
 		// pritn the befor message if set, otherwise default

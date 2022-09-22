@@ -45,12 +45,12 @@ func init() {
 	CreateCmd.Flags().StringVarP(&(flags.CreateFlags.Outdir), "outdir", "O", "", "base directory to write all output to")
 }
 
-func CreateRun(module string) (err error) {
+func CreateRun(module string, extra []string) (err error) {
 
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = create.Create(module, flags.RootPflags, flags.CreateFlags)
+	err = create.Create(module, extra, flags.RootPflags, flags.CreateFlags)
 
 	return err
 }
@@ -82,7 +82,7 @@ var CreateCmd = &cobra.Command{
 
 		}
 
-		err = CreateRun(module)
+		err = CreateRun(module, args[1:])
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
