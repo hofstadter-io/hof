@@ -27,7 +27,7 @@ require (
 	github.com/kr/pretty v0.3.0
 	github.com/ktrysmt/go-bitbucket v0.9.48
 	github.com/labstack/echo-contrib v0.12.0
-	github.com/labstack/echo/v4 v4.7.2
+	github.com/labstack/echo/v4 v4.9.0
 	github.com/lucsky/cuid v1.2.1
 	github.com/mattn/go-sqlite3 v1.14.14
 	github.com/mattn/go-zglob v0.0.3
