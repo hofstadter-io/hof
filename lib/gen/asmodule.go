@@ -324,13 +324,16 @@ const cuemodFileTemplate = `
 module: "{{ .Module }}/{{ .Name }}"
 `
 
+// todo, add version as template, so we can inject the current version and not have to maintain this version below
+// the harder part is development and fallback, to appropriate version for dep fetching, maybe support a replace too?
+// (but also we need to test the real thing, when not on a tag)
 const cuemodsTemplate = `
 module {{ .Module }}/{{ .Name }}
 
 cue v0.4.3
 
 require (
-	github.com/hofstadter-io/hof v0.6.7-alpha.3
+	github.com/hofstadter-io/hof v0.6.7
 )
 `
 
