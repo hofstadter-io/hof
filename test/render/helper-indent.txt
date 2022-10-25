@@ -1,0 +1,30 @@
+exec hof gen data.yaml schema.cue -T 'template.txt@schemas'
+cmp stdout golden.stdout
+
+-- data.yaml --
+vals:
+  - name: "a"
+    data: 1
+  - name: "b"
+    data: 2
+
+-- schema.cue --
+schemas: {
+	vals: [...{name: string, data: int}]
+	#foo: {bar: string}
+}
+
+-- template.txt --
+settings:
+    key1: val1
+    list:
+    {{ yaml .vals | indent 4 }}
+
+-- golden.stdout --
+settings:
+    key1: val1
+    list:
+    - data: 1
+      name: a
+    - data: 2
+      name: b
