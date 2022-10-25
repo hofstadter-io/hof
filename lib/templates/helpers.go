@@ -135,13 +135,38 @@ func Helper_join(sep string, ss ...string) string {
 	return strings.Join(ss, sep)
 }
 
-func Helper_indent(value, indent string) string {
+// Helper_indent indents lines of text, skipping the first line.
+// The intended behavior is to match Helm's indent helper
+func Helper_indent(indent interface{}, value string) string {
 	ret := ""
 	lines := strings.Split(value, "\n")
-	for _, line := range lines {
-		ret += indent + line + "\n"
+
+	// edge case
+	if len(lines) == 1 {
+		return value
 	}
-	ret = strings.TrimSuffix(ret, "\n")
+	
+	// don't indent first line, left to user to place
+	ret += lines[0] + "\n"
+	lines = lines[1:]
+
+	// indent, depending on arg
+	switch i := indent.(type) {
+		case string:
+			for _, line := range lines {
+				ret += i + line + "\n"
+			}
+
+		case int:
+			spaces := strings.Repeat(" ", i)
+			for _, line := range lines {
+				ret += spaces + line + "\n"
+			}
+
+		default:
+			return "indent only supports a string or integer as argument"
+	}
+
 	return ret
 }
 
