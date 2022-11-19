@@ -2,10 +2,8 @@ module github.com/hofstadter-io/hof
 
 go 1.18
 
-// replace cuelang.org/go => ../../cue/cue
-
 require (
-	cuelang.org/go v0.4.3
+	cuelang.org/go v0.5.0-beta.1
 	github.com/AlecAivazis/survey/v2 v2.3.5
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/aymerick/raymond v2.0.2+incompatible
