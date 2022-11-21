@@ -11,6 +11,7 @@ import (
 	"cuelang.org/go/cue"
 
 	"github.com/hofstadter-io/hof/lib/templates"
+	hfmt "github.com/hofstadter-io/hof/lib/fmt"
 )
 
 func (R *Runtime) AsModule() error {
@@ -101,6 +102,7 @@ func (R *Runtime) AsModule() error {
 		"Module": module,
 		"Package": pkg,
 		"Name": name,
+		"Entrypoints": R.Entrypoints,
 		"Inputs": ins,
 		"Configs": tcfgs,
 		"Templates": tfiles,
@@ -128,6 +130,11 @@ func (R *Runtime) AsModule() error {
 			fmt.Println(string(bs))
 			return nil
 		} else {
+			bs, err = hfmt.FormatSource(outpath, bs, "", nil, true)
+			if err != nil {
+				return err
+			}
+
 			if strings.Contains(outpath, "/") {
 				dir, _ := filepath.Split(outpath)
 				err := os.MkdirAll(dir, 0755)
@@ -337,8 +344,7 @@ require (
 )
 `
 
-const finalMsg = `Try running...
-  $ hof gen -G {{ .Name }}
-  $ cue eval
+const finalMsg = `To run the '{{.Name}}' generator...
+  $ hof gen{{range .Entrypoints}} {{.}}{{ end }} {{ .Name }}.cue -G {{ .Name }}
 `
 

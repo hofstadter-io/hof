@@ -11,6 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/templates"
 	"github.com/hofstadter-io/hof/lib/yagu"
+	hfmt "github.com/hofstadter-io/hof/lib/fmt"
 )
 
 func Gen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpole) error {
@@ -408,6 +409,10 @@ func InitModule(args []string, rootflags flags.RootPflagpole, cmdflags flags.Gen
 			fmt.Println(string(bs))
 			return nil
 		} else {
+			bs, err = hfmt.FormatSource(outpath, bs, "", nil, true)
+			if err != nil {
+				return err
+			}
 			if strings.Contains(outpath, "/") {
 				dir, _ := filepath.Split(outpath)
 				err := os.MkdirAll(dir, 0755)

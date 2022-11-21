@@ -1,0 +1,26 @@
+exec hof gen data.yaml -T template.txt=out.txt
+cmp out.txt out.golden
+
+exec hof gen data.yaml -T template.txt=out.txt --as-module hof.io/test/adhoc
+# cmp adhoc.cue module.golden
+
+exec hof gen data.yaml adhoc.cue
+cmp out.txt out.golden
+
+-- data.yaml --
+a: a
+b: 2
+val:
+  foo: bar
+-- template.txt --
+A is {{ .a }}
+B is {{ .b }}
+
+foo is {{ .val.foo }}
+-- out.golden --
+A is a
+B is 2
+
+foo is bar
+-- module.golden --
+

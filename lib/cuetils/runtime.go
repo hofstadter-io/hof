@@ -146,10 +146,28 @@ func (CRT *CueRuntime) load() (err error) {
 					continue
 				}
 
+				// add a package decl so the data is referencable from the cue
+				pkgDecl := &ast.Package {
+					Name: ast.NewIdent(bi.PkgName),
+				}
+
+				// extract the json top level fields (removing the outer unnamed struct)
+				jsonDecls := []ast.Decl{pkgDecl, A}
+				switch a := A.(type) {
+					case *ast.StructLit:
+						jsonDecls = append([]ast.Decl{pkgDecl}, a.Elts...)
+				}
+
+				// construct an ast.File to be consistent with Yaml
+				// (and also provide a filename for errors)
 				F := &ast.File{
 					Filename: f.Filename,
-					Decls:    []ast.Decl{A},
+					// Decls: A.(*ast.StructLit).Elts,
+					// Decls:    []ast.Decl{pkgDecl, A},
+					Decls: jsonDecls,
 				}
+
+				// merge in data
 				bi.AddSyntax(F)
 
 			case "yml", "yaml":
@@ -159,6 +177,14 @@ func (CRT *CueRuntime) load() (err error) {
 					errs = append(errs, err)
 					continue
 				}
+
+				// add a package decl so the data is referencable from the cue
+				pkgDecl := &ast.Package {
+					Name: ast.NewIdent(bi.PkgName),
+				}
+				F.Decls = append([]ast.Decl{pkgDecl}, F.Decls...)
+
+				// merge in data
 				bi.AddSyntax(F)
 
 			// TODO, handle other formats (toml,json)
