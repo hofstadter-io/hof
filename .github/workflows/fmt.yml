@@ -31,6 +31,24 @@ jobs:
           tags: '"hofstadter-io/fmt-prettier:dirty-debian"'
     strategy: {}
     services: {}
+  csharpier-debian:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up QEMU
+        uses: docker/setup-buildx-action@v2
+      - name: Set up Docker BuildX
+        uses: docker/setup-buildx-action@v2
+      - name: Build Image
+        uses: docker/build-push-action@v3
+        with:
+          context: formatters/tools/csharpier
+          file: formatters/tools/csharpier/Dockerfile.debian
+          platforms: linux/amd64,linux/arm64
+          tags: '"hofstadter-io/fmt-csharpier:dirty-debian"'
+    strategy: {}
+    services: {}
   black-debian:
     runs-on: ubuntu-latest
     steps:

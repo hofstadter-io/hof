@@ -5,6 +5,7 @@ import "github.com/hofstadter-io/ghacue"
 _bases: ["debian"]
 _formatters: [
 	"prettier",
+	"csharpier",
 	"black",
 ]
 
