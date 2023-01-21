@@ -5,6 +5,12 @@ TOOLS := $(shell ls tools/)
 tools:
 	@echo $(TOOLS)
 
+.PHONY: buildx
+buildx:
+	-docker buildx rm mybuilder
+	docker buildx create --name mybuilder --driver docker-container --bootstrap --use
+	docker buildx inspect
+
 # make image.*
 IMAGES=$(addsuffix .image,$(TOOLS))
 .PHONY: images
