@@ -77,6 +77,7 @@ func init() {
 
 var fmtrNames = []string{
 	"black",
+	"csharpier",
 	"prettier",
 }
 
@@ -86,6 +87,12 @@ var fmtrNames = []string{
 //   we could rebuild this map from the fmtr -> []ext map
 //   even better, we should do this in CUE and then decode to Go structs
 var extToFmtr = map[string]string {
+	// python
+	".py": "black/py",
+
+	// csharp
+	".cs": "csharpier/cs",
+
 	// prettier
 	".js":      "prettier/babel",
 	".jsx":     "prettier/babel",
@@ -103,17 +110,26 @@ var extToFmtr = map[string]string {
 	// TODO, there are a lot of others built in as well
 
 	// prettier plugins,
-	// probably a separate image?
+	// TODO probably a separate image?
 	".java":    "prettier/java",
 	".rb":      "prettier/ruby",
 	".rs":      "prettier/rust",
 	".php":     "prettier/php",
 
-	// black
-	".py": "black/py",
 }
 
 var fmtrDefaultConfigs = map[string]interface{}{
+	// python only
+	"black/py": map[string]interface{}{
+		"parser": "",
+	},
+
+	// csharp only
+	"csharpier/cs": map[string]interface{}{
+		"parser": "",
+	},
+
+	// pretty common
 	"prettier/babel": map[string]interface{}{
 		"semi": false,
 		"parser": "babel",
@@ -149,6 +165,7 @@ var fmtrDefaultConfigs = map[string]interface{}{
 		"parser": "go-template",
 	},
 
+	// pretty extra
 	"prettier/java": map[string]interface{}{
 		"parser": "java",
 	},
@@ -160,10 +177,6 @@ var fmtrDefaultConfigs = map[string]interface{}{
 	},
 	"prettier/php": map[string]interface{}{
 		"parser": "php",
-	},
-
-	"black/py": map[string]interface{}{
-		"parser": "",
 	},
 }
 

@@ -1,0 +1,21 @@
+exec hof fmt in.cs
+cmp in.cs golden.cs
+
+-- in.cs --
+public class ClassName {
+    public void CallMethod() { 
+        this.LongUglyMethod("1234567890", "abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    }
+}
+-- golden.cs --
+public class ClassName
+{
+    public void CallMethod()
+    {
+        this.LongUglyMethod(
+            "1234567890",
+            "abcdefghijklmnopqrstuvwxyz",
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        );
+    }
+}
