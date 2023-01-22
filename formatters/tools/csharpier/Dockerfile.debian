@@ -3,10 +3,21 @@ WORKDIR /App
 
 # Copy everything
 COPY . ./
+
 # Restore as distinct layers
 RUN dotnet restore
-# Build and publish a release
-RUN dotnet publish -c Release -o out
+
+# Build and publish a release (with help from https://github.com/f2calv/multi-arch-container-dotnet)
+ARG TARGETPLATFORM
+RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
+    RID=linux-x64 ; \
+    elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
+    RID=linux-arm64 ; \
+    elif [ "$TARGETPLATFORM" = "linux/arm/v7" ]; then \
+    RID=linux-arm ; \
+    fi \
+    && dotnet publish -c Release -o out -r $RID # --self-contained false
+
 
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:7.0-bullseye-slim
