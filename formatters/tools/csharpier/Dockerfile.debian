@@ -1,23 +1,23 @@
 FROM mcr.microsoft.com/dotnet/sdk:7.0-bullseye-slim AS build-env
 WORKDIR /App
 
+# https://github.com/dotnet/sdk/issues/28971#issuecomment-1308881150
+ARG TARGETARCH=amd64
+ARG TARGETOS=linux
+RUN echo $TARGETARCH
+RUN arch=$TARGETARCH \
+    && if [ "$arch" = "amd64" ]; then arch="x64"; fi \
+    && echo $TARGETOS-$arch > /tmp/rid
+RUN cat /tmp/rid
+
 # Copy everything
 COPY . ./
 
 # Restore as distinct layers
-RUN dotnet restore
+RUN dotnet restore -r $(cat /tmp/rid)
 
-# Build and publish a release (with help from https://github.com/f2calv/multi-arch-container-dotnet)
-ARG TARGETPLATFORM
-RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
-    RID=linux-x64 ; \
-    elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
-    RID=linux-arm64 ; \
-    elif [ "$TARGETPLATFORM" = "linux/arm/v7" ]; then \
-    RID=linux-arm ; \
-    fi \
-    && dotnet publish -c Release -o out -r $RID # --self-contained false
-
+# Build and publish a release
+RUN dotnet publish -c Release -o out -r $RID $(cat /tmp/rid) --self-contained false --no-restore
 
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:7.0-bullseye-slim
@@ -25,4 +25,4 @@ WORKDIR /App
 COPY --from=build-env /App/out/ .
 
 EXPOSE 3000
-ENTRYPOINT ["./Server"]
+ENTRYPOINT ["dotnet", "Server.dll"]
