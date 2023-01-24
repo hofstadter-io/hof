@@ -15,6 +15,7 @@
     "prettier": "^2.7.1",
     "prettier-plugin-go-template": "^0.0.13",
     "prettier-plugin-java": "^1.6.2",
+    "prettier-plugin-groovy": "^0.0.2",
     "prettier-plugin-rust": "^0.1.5"
   }
 }
