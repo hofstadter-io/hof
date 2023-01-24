@@ -81,11 +81,7 @@ var fmtrNames = []string{
 	"prettier",
 }
 
-// TODO, we need a better way to handle
-// files with no ext and more than one ext
-//   maybe we switch this map around? (and make map[string][]string)
-//   we could rebuild this map from the fmtr -> []ext map
-//   even better, we should do this in CUE and then decode to Go structs
+// Map file extensions to formatters
 var extToFmtr = map[string]string {
 	// python
 	".py": "black/py",
@@ -112,10 +108,16 @@ var extToFmtr = map[string]string {
 	// prettier plugins,
 	// TODO probably a separate image?
 	".java":    "prettier/java",
+	".groovy":  "prettier/groovy",
 	".rb":      "prettier/ruby",
 	".rs":      "prettier/rust",
 	".php":     "prettier/php",
 
+}
+
+// Map wellknown filenames to formatters
+var filenameToFmtr = map[string]string {
+	"Jenkinsfile": "prettier/groovy",
 }
 
 var fmtrDefaultConfigs = map[string]interface{}{
@@ -169,6 +171,9 @@ var fmtrDefaultConfigs = map[string]interface{}{
 	"prettier/java": map[string]interface{}{
 		"parser": "java",
 	},
+	"prettier/groovy": map[string]interface{}{
+		"parser": "groovy",
+	},
 	"prettier/ruby": map[string]interface{}{
 		"parser": "ruby",
 	},
@@ -182,12 +187,16 @@ var fmtrDefaultConfigs = map[string]interface{}{
 
 func FormatSource(filename string, content []byte, fmtrName string, config interface{}, formatData bool) ([]byte, error) {
 	// extract filename & extension
-	// TODO, better extract multipart extensions (as supported by prettier)
-	// want to prefer the longest
 	_, fn := filepath.Split(filename)
+	fileParts := strings.Split(fn, ".")
+	// filename without extension
+	fileBase := fileParts[0]
+	fileExt := strings.Join(fileParts[1:], ".")
 	ext := filepath.Ext(fn)
 
 	// short-circuit builtin mime-types
+	// what about when there are multiple dots? How do we handle like below? do we need to?
+	// examples: foo.tf.json & foo.tmpl.go
 	switch ext {
 		case ".go":
 			return gofmt.Source(content)
@@ -230,13 +239,50 @@ func FormatSource(filename string, content []byte, fmtrName string, config inter
 
 	}
 
-	// if the users hadn't 
-	if config == nil {
-		// look for extension to config
-		fmtrPath, ok := extToFmtr[ext]
+	fmtrTool := ""
+	ok := false
+
+	// formatter was manually set
+	if fmtrName != "" {
+		config, ok = fmtrDefaultConfigs[fmtrName]
 		if !ok {
-			// todo, ext not supported, alert (and not error?)
-			return content, nil
+			return content, fmt.Errorf("unknown formatter %q", fmtrName)
+		}
+
+		parts := strings.Split(fmtrName, "/")
+		fmtrTool = parts[0]
+	} else {
+		// infer the formatter from filename/ext
+		fmtrPath, ok := "", false
+
+		if fileExt == "" {
+			// look for wellknown filenames
+			fmtrPath, ok = filenameToFmtr[fileBase]
+			if !ok {
+				// todo, ext not supported, alert (and not error?)
+				return content, nil
+			}
+		} else {
+			// look for extension to config
+			// want to prefer the longest fileExt, then fallback to wellknown filebase
+			// might need to upgrade to loop
+			
+			// try longest filepath
+			fmtrPath, ok = extToFmtr[fileExt]
+			// try golang exn
+			if !ok {
+				fmtrPath, ok = extToFmtr[ext]
+			}
+			// try wellknown filepath
+			if !ok {
+				fmtrPath, ok = filenameToFmtr[fileBase]
+			}
+
+			// if still not ok, return original content, we won't format
+			if !ok {
+				// todo, ext not supported, alert (and not error?)
+				return content, nil
+			}
 		}
 
 		config, ok = fmtrDefaultConfigs[fmtrPath]
@@ -245,15 +291,15 @@ func FormatSource(filename string, content []byte, fmtrName string, config inter
 		}
 
 		parts := strings.Split(fmtrPath, "/")
-		fmtrName = parts[0]
+		fmtrTool = parts[0]
 	}
 
 	// we have a formatter picked out
-	fmtr := formatters[fmtrName]
+	fmtr := formatters[fmtrTool]
 
 	// start the formatter if not running
 	if !fmtr.Running {
-		err := startContainer(fmtrName)
+		err := startContainer(fmtrTool)
 		if err != nil {
 			return content, err
 		}
