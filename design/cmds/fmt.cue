@@ -14,8 +14,8 @@ import (
 		{
 			Name:    "data"
 			Type:    "bool"
-			Default: "false"
-			Help:    "include cue,yaml,json,toml,xml files"
+			Default: "true"
+			Help:    "include cue,yaml,json,toml,xml files, set to false to disable"
 			Long:    "data"
 			Short:   "d"
 		},
