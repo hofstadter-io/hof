@@ -11,7 +11,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/format"
+	cuejson "cuelang.org/go/pkg/encoding/json"
 	"github.com/clbanning/mxj"
 	"github.com/docker/docker/api/types"
 	"github.com/naoina/toml"
@@ -359,17 +361,26 @@ func formatCue(input []byte) ([]byte, error) {
 }
 
 func formatJson(input []byte) ([]byte, error) {
-	v := make(map[string]interface{})
-	err := json.Unmarshal(input, &v)
+	x, err := cuejson.Unmarshal(input)
 	if err != nil {
 		return nil, err
 	}	
 
-	bs, err := json.MarshalIndent(v, "", "  ")
+	var c cue.Context
+	v := c.BuildExpr(x)
+
+	s, err := cuejson.Marshal(v)
 	if err != nil {
 		return nil, err
 	}
-	return bs, nil
+
+	s, err = cuejson.Indent([]byte(s), "", "    ")
+	if err != nil {
+		return nil, err
+	}
+	s += "\n"
+
+	return []byte(s), nil
 }
 
 func formatYaml(input []byte) ([]byte, error) {

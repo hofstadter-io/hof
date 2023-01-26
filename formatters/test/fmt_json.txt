@@ -1,0 +1,17 @@
+exec hof fmt in.json
+cmp in.json golden.json
+
+-- in.json --
+{ "foo":  {
+    "b":    "bar",
+	"a": "A"
+  }
+}
+-- golden.json --
+{
+    "foo": {
+        "b": "bar",
+        "a": "A"
+    }
+}
+-- space-control --
