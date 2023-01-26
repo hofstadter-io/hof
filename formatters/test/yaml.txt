@@ -1,0 +1,11 @@
+exec hof fmt in.yaml
+cmp in.yaml golden.yaml
+
+-- in.yaml --
+foo:
+  b: "B"
+	a: "A"
+-- golden.yaml --
+foo:
+  b: "B"
+	a: "A"

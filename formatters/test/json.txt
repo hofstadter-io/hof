@@ -14,4 +14,3 @@ cmp in.json golden.json
         "a": "A"
     }
 }
--- space-control --
