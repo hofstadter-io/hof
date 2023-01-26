@@ -1,0 +1,14 @@
+exec hof fmt in.xml
+cmp in.xml golden.xml
+
+# ordering not stable...
+-- in.xml --
+<foo>
+	<b>B</b>
+  <a>A</a>
+  </foo>
+-- golden.xml --
+<foo>
+  <a>A</a>
+  <b>B</b>
+</foo>

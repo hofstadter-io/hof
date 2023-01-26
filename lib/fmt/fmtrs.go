@@ -16,7 +16,7 @@ import (
 	cuejson "cuelang.org/go/pkg/encoding/json"
 	"github.com/clbanning/mxj"
 	"github.com/docker/docker/api/types"
-	"github.com/naoina/toml"
+	"github.com/BurntSushi/toml"
 	"gopkg.in/yaml.v3"
 
 	"github.com/hofstadter-io/hof/cmd/hof/verinfo"
@@ -398,17 +398,19 @@ func formatYaml(input []byte) ([]byte, error) {
 }
 
 func formatToml(input []byte) ([]byte, error) {
+
 	v := make(map[string]interface{})
 	err := toml.Unmarshal(input, &v)
 	if err != nil {
 		return nil, err
 	}
 
-	bs, err := toml.Marshal(v)
+	buf := new(bytes.Buffer)
+	err = toml.NewEncoder(buf).Encode(v)
 	if err != nil {
 		return nil, err
 	}
-	return bs, nil
+	return buf.Bytes(), nil
 }
 
 func formatXml(input []byte) ([]byte, error) {
@@ -422,5 +424,6 @@ func formatXml(input []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	bs = append(bs, '\n')
 	return bs, nil
 }
