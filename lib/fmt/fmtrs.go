@@ -97,7 +97,6 @@ var extToFmtr = map[string]string {
 	".ts":      "prettier/typescript",
 	".tsx":     "prettier/typescript",
 	".graphql": "prettier/graphql",
-	".yml":     "prettier/yaml",
 	".html":    "prettier/html",
 	".css":     "prettier/css",
 	".less":    "prettier/less",
@@ -110,11 +109,13 @@ var extToFmtr = map[string]string {
 	// prettier plugins,
 	// TODO probably a separate image?
 	".java":    "prettier/java",
-	".groovy":  "prettier/groovy",
 	".rb":      "prettier/ruby",
 	".rs":      "prettier/rust",
 	".php":     "prettier/php",
 
+	// This one is buggy
+	// ".groovy":  "prettier/groovy",
+	// going to introduce a dedicated container with a groovy script / server backed by CodeNarc
 }
 
 // Map wellknown filenames to formatters
