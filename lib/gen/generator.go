@@ -223,11 +223,24 @@ func (G *Generator) Initialize() []error {
 	return errs
 }
 
+/* TODO, that the order of embedded vs disk files is inconsistent, we should clean this up and ensure consistent semantics (which may be the case?)
+	- statics: disk -> embed
+	- partials: embed -> disk
+	- templates: embed -> disk
+*/
+
 func (G *Generator) initStaticFiles() []error {
 	var errs []error
 
 	// Start with static file globs
 	for _, Static := range G.Statics {
+		// we need to check if the base directory exists, becuase we have defaults in the schema
+		_, err := os.Stat(Static.TrimPrefix)
+		if err != nil {
+			fmt.Printf("warning: %s not found, if you do not intend to use this directory, set 'Statics: []'\n", Static.TrimPrefix)
+			continue
+		}
+
 		for _, Glob := range Static.Globs {
 			bdir := G.CueModuleRoot
 			// lookup in vendor directory, this will need to change once CUE uses a shared cache in the user homedir
@@ -341,6 +354,13 @@ func (G *Generator) initPartials() []error {
 
 	// then partials from disk via globs
 	for _, tg := range G.Partials {
+		// we need to check if the base directory exists, becuase we have defaults in the schema
+		_, err := os.Stat(tg.TrimPrefix)
+		if err != nil {
+			fmt.Printf("warning: %s not found, if you do not intend to use this directory, set 'Partials: []'\n", tg.TrimPrefix)
+			continue
+		}
+
 		for _, glob := range tg.Globs {
 			// setup vars
 			prefix := filepath.Clean(tg.TrimPrefix)
@@ -416,6 +436,13 @@ func (G *Generator) initTemplates() []error {
 	}
 
 	for _, tg := range G.Templates {
+		// we need to check if the base directory exists, becuase we have defaults in the schema
+		_, err := os.Stat(tg.TrimPrefix)
+		if err != nil {
+			fmt.Printf("warning: %s not found, if you do not intend to use this directory, set 'Templates: []'\n", tg.TrimPrefix)
+			continue
+		}
+
 		for _, glob := range tg.Globs {
 			// setup vars
 			glob = filepath.Clean(glob)
