@@ -11,7 +11,7 @@ require (
 	github.com/bmatcuk/doublestar/v4 v4.6.0
 	github.com/clbanning/mxj v1.8.4
 	github.com/codemodus/kace v0.5.1
-	github.com/docker/docker v23.0.0+incompatible
+	github.com/docker/docker v20.10.23+incompatible
 	github.com/fatih/color v1.14.1
 	github.com/franela/goblin v0.0.0-20200512143142-b260c999b2d7
 	github.com/fsnotify/fsnotify v1.6.0
@@ -105,6 +105,7 @@ require (
 	github.com/protocolbuffers/txtpbfmt v0.0.0-20230130173531-76f626137dc9 // indirect
 	github.com/rivo/uniseg v0.4.3 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
+	github.com/sirupsen/logrus v1.7.0 // indirect
 	github.com/skeema/knownhosts v1.1.0 // indirect
 	github.com/smartystreets/goconvey v1.7.2 // indirect
 	github.com/spf13/afero v1.9.3 // indirect

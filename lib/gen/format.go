@@ -4,31 +4,15 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"os"
 
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/format"
 	"cuelang.org/go/encoding/yaml"
 	"github.com/clbanning/mxj"
-	"github.com/naoina/toml"
+	"github.com/BurntSushi/toml"
 
 	hfmt "github.com/hofstadter-io/hof/lib/fmt"
 )
-
-var FORMAT_DISABLED = false
-
-func init() {
-	val := os.Getenv("HOF_FORMAT_DISABLED")
-	if val == "true" || val == "1" {
-		FORMAT_DISABLED=true
-	}
-	
-	// gracefully init images / containers
-	err := hfmt.GracefulInit()
-	if err != nil {
-		FORMAT_DISABLED=true
-	}
-}
 
 type FmtConfig struct {
 	Formatter string
@@ -36,11 +20,8 @@ type FmtConfig struct {
 }
 
 func (F *File) FormatRendered() (err error) {
-	// should we format? (has it been disabled anywhere)
-	if !(FORMAT_DISABLED || F.FormattingDisabled) {
-		// inspect file settings to see if there is fmtr config...
-		// try using hof/fmt containers, this is auto inference
 
+	if !F.FormattingDisabled {
 		// current content
 		fmtd := F.RenderContent
 
@@ -137,11 +118,12 @@ func formatToml(val cue.Value) ([]byte, error) {
 		return nil, err
 	}
 
-	bs, err := toml.Marshal(v)
+	buf := new(bytes.Buffer)
+	err = toml.NewEncoder(buf).Encode(v)
 	if err != nil {
 		return nil, err
 	}
-	return bs, nil
+	return buf.Bytes(), nil
 }
 
 func formatXml(val cue.Value) ([]byte, error) {

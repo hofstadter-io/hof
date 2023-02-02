@@ -232,21 +232,22 @@ func (G *Generator) Initialize() []error {
 func (G *Generator) initStaticFiles() []error {
 	var errs []error
 
+	bdir := G.CueModuleRoot
+	// lookup in vendor directory, this will need to change once CUE uses a shared cache in the user homedir
+	if G.PackageName != "" {
+		bdir = filepath.Join(G.CueModuleRoot, CUE_VENDOR_DIR, G.PackageName)
+	}
+
 	// Start with static file globs
 	for _, Static := range G.Statics {
 		// we need to check if the base directory exists, becuase we have defaults in the schema
-		_, err := os.Stat(Static.TrimPrefix)
+		_, err := os.Stat(filepath.Join(bdir, Static.TrimPrefix))
 		if err != nil {
-			fmt.Printf("warning: %s not found, if you do not intend to use this directory, set 'Statics: []'\n", Static.TrimPrefix)
+			fmt.Printf("warning: %s not found for %s, if you do not intend to use this directory, set 'Statics: []'\n", Static.TrimPrefix, G.PackageName)
 			continue
 		}
 
 		for _, Glob := range Static.Globs {
-			bdir := G.CueModuleRoot
-			// lookup in vendor directory, this will need to change once CUE uses a shared cache in the user homedir
-			if G.PackageName != "" {
-				bdir = filepath.Join(G.CueModuleRoot, CUE_VENDOR_DIR, G.PackageName)
-			}
 
 			// get list of static files
 			matches, err := zglob.Glob(filepath.Join(bdir, Glob))
@@ -354,29 +355,32 @@ func (G *Generator) initPartials() []error {
 
 	// then partials from disk via globs
 	for _, tg := range G.Partials {
+		prefix := filepath.Clean(tg.TrimPrefix)
+		if G.PackageName != "" {
+			prefix = filepath.Join(CUE_VENDOR_DIR, G.PackageName, prefix)
+		}
+		prefix = filepath.Join(G.cwdToRoot, prefix)
+
 		// we need to check if the base directory exists, becuase we have defaults in the schema
-		_, err := os.Stat(tg.TrimPrefix)
+		_, err := os.Stat(prefix)
 		if err != nil {
-			fmt.Printf("warning: %s not found, if you do not intend to use this directory, set 'Partials: []'\n", tg.TrimPrefix)
+			fmt.Printf("warning: %s not found for %s, if you do not intend to use this directory, set 'Partials: []'\n", tg.TrimPrefix, G.PackageName)
 			continue
 		}
 
 		for _, glob := range tg.Globs {
 			// setup vars
-			prefix := filepath.Clean(tg.TrimPrefix)
 			glob = filepath.Clean(glob)
 
 			if !strings.HasPrefix(glob, "/") {
 
 				if G.PackageName != "" {
 					glob = filepath.Join(CUE_VENDOR_DIR, G.PackageName, glob)
-					prefix = filepath.Join(CUE_VENDOR_DIR, G.PackageName, prefix)
 				}
 
 				// this is how we deal with running generators in the same module
 				// they are defined in, while keeping the path spec for them simple
 				glob = filepath.Join(G.cwdToRoot, glob)
-				prefix = filepath.Join(G.cwdToRoot, prefix)
 			}
 
 			pMap, err := templates.CreateTemplateMapFromFolder(glob, prefix, tg.Delims)
@@ -436,23 +440,27 @@ func (G *Generator) initTemplates() []error {
 	}
 
 	for _, tg := range G.Templates {
+		prefix := filepath.Clean(tg.TrimPrefix)
+		if G.PackageName != "" {
+			prefix = filepath.Join(CUE_VENDOR_DIR, G.PackageName, prefix)
+		}
+		prefix = filepath.Join(G.cwdToRoot, prefix)
+
 		// we need to check if the base directory exists, becuase we have defaults in the schema
-		_, err := os.Stat(tg.TrimPrefix)
+		_, err := os.Stat(prefix)
 		if err != nil {
-			fmt.Printf("warning: %s not found, if you do not intend to use this directory, set 'Templates: []'\n", tg.TrimPrefix)
+			fmt.Printf("warning: %s not found in %s, if you do not intend to use this directory, set 'Templates: []'\n", tg.TrimPrefix, G.PackageName)
 			continue
 		}
 
 		for _, glob := range tg.Globs {
 			// setup vars
 			glob = filepath.Clean(glob)
-			prefix := filepath.Clean(tg.TrimPrefix)
 
 			// if not an absolute path
 			if !strings.HasPrefix(glob, "/") {
 				if G.PackageName != "" {
 					glob = filepath.Join(CUE_VENDOR_DIR, G.PackageName, glob)
-					prefix = filepath.Join(CUE_VENDOR_DIR, G.PackageName, prefix)
 				}
 
 				// this is how we deal with running generators in the same module

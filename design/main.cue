@@ -10,7 +10,7 @@ import (
 
 #CLI: schema.#Cli & {
 	Name:    "hof"
-	Package: "github.com/hofstadter-io/hof/cmd/hof"
+	Module: "github.com/hofstadter-io/hof"
 
 	Usage:      "hof"
 	Short:      "The High Code Framework"

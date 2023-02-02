@@ -25,6 +25,9 @@ import (
 const ContainerPrefix = "hof-fmt-"
 
 var defaultVersion = "dirty"
+var FORMAT_DISABLED = false
+var DOCKER_FORMAT_DISABLED = false
+
 
 func init() {
 	v := verinfo.Version
@@ -36,6 +39,24 @@ func init() {
 	if ov != "" {
 		defaultVersion = ov
 	}
+
+	formatters = make(map[string]*Formatter)
+	for _,fmtr := range fmtrNames {
+		formatters[fmtr] = &Formatter{Name: fmtr, Version: defaultVersion}
+	}
+
+	val := os.Getenv("HOF_FORMAT_DISABLED")
+	if val == "true" || val == "1" {
+		FORMAT_DISABLED=true
+		DOCKER_FORMAT_DISABLED=true
+	}
+	
+	// gracefully init images / containers
+	err := GracefulInit()
+	if err != nil {
+		DOCKER_FORMAT_DISABLED=true
+	}
+
 }
 
 func GracefulInit() error {
@@ -69,13 +90,6 @@ type Formatter struct {
 }
 
 var formatters map[string]*Formatter
-
-func init() {
-	formatters = make(map[string]*Formatter)
-	for _,fmtr := range fmtrNames {
-		formatters[fmtr] = &Formatter{Name: fmtr, Version: defaultVersion}
-	}
-}
 
 var fmtrNames = []string{
 	"black",
@@ -189,6 +203,11 @@ var fmtrDefaultConfigs = map[string]interface{}{
 }
 
 func FormatSource(filename string, content []byte, fmtrName string, config interface{}, formatData bool) ([]byte, error) {
+	// short circuit here, so we don't everywhere this function is used
+	if FORMAT_DISABLED {
+		return content, nil
+	}
+
 	// extract filename & extension
 	_, fn := filepath.Split(filename)
 	fileParts := strings.Split(fn, ".")
@@ -240,6 +259,11 @@ func FormatSource(filename string, content []byte, fmtrName string, config inter
 				return content, nil
 			}
 
+	}
+
+	// short circuit here, so we don't everywhere this function is used
+	if DOCKER_FORMAT_DISABLED {
+		return content, nil
 	}
 
 	fmtrTool := ""
