@@ -2,3 +2,7 @@ github.com/hofstadter-io/ghacue v0.1.1 h1:STfOkN4CrDGBnM6DcSrJp6ph8ZMY4tsyqqJIXv
 github.com/hofstadter-io/ghacue v0.1.1/cue.mods h1:6BbcRic6px1+lCLiW6O5dYt+GcCpnmzdpbcILHrqhOQ=
 github.com/hofstadter-io/hofmod-cli v0.7.11 h1:RxVCe+uI1r2RcmTQ6K14EAjV+x7+AwpRGy1f6DofXW0=
 github.com/hofstadter-io/hofmod-cli v0.7.11/cue.mods h1:ta2i4a3ruKBtxlgnqnD9m/qj9RzXDwYNSD0uA72a79o=
+github.com/hofstadter-io/hofmod-cli v0.7.12 h1:WmJYKJ/M4d1oEBof4/fL6Ou0bY0JRQzxxE/DSR4fFsI=
+github.com/hofstadter-io/hofmod-cli v0.7.12/cue.mods h1:iiwpsi0TR6vrIBpeRuzGKBKozMufvh6GgwT2KrSDcKQ=
+github.com/hofstadter-io/hofmod-cli v0.7.13 h1:DiVCmEKGgMm0E3/6FqiFtCr3GxdDdwu61Gf7cIETTcg=
+github.com/hofstadter-io/hofmod-cli v0.7.13/cue.mods h1:7VQb4YiD6gtNHooqK5vSLGEgkUgq9LjGWLJ9mpdEDGA=

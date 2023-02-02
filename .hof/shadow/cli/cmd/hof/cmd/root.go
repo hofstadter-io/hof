@@ -9,7 +9,6 @@ import (
 
 	"strings"
 
-	"github.com/hofstadter-io/hof/script/runtime"
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
@@ -167,15 +166,6 @@ func RunErr() error {
 
 	RootInit()
 	return RootCmd.Execute()
-}
-
-func CallTS(ts *runtime.Script, args []string) error {
-	RootCmd.SetArgs(args)
-
-	err := RootCmd.Execute()
-	ts.Check(err)
-
-	return err
 }
 
 const RootCustomHelp = `hof - the high code framework
