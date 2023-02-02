@@ -3,7 +3,7 @@ module github.com/hofstadter-io/hof
 go 1.18
 
 require (
-	cuelang.org/go v0.5.0-beta.3
+	cuelang.org/go v0.5.0-beta.5
 	github.com/AlecAivazis/survey/v2 v2.3.6
 	github.com/BurntSushi/toml v1.2.1
 	github.com/Masterminds/semver/v3 v3.2.0
