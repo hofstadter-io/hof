@@ -1,0 +1,132 @@
+# setup
+exec hof mod get github.com/hofstadter-io/hof@dm-revamp
+exec hof mod vendor
+
+# check v0 dirty
+exec hof datamodel list dm-v0.cue
+cmp stdout golden-v0d.stdout -trim-space
+
+# create checkpoint
+exec hof datamodel checkpoint dm-v0.cue
+
+# check v0 clean
+exec hof datamodel list dm-v0.cue
+cmp stdout golden-v0c.stdout -trim-space
+
+# check v1 dirty
+exec hof datamodel list dm-v1.cue
+cmp stdout golden-v1d.stdout -trim-space
+
+# check v1 diff
+exec hof datamodel diff dm-v1.cue
+cmp stdout golden-v1d-diff.stdout -trim-space
+
+
+-- cue.mod/module.cue --
+module: "hof.io/test"
+cue:    "v0.5.0"
+
+-- dm-v0.cue --
+package datamodel
+
+import (
+	"github.com/hofstadter-io/hof/schema/dm/fields"
+	"github.com/hofstadter-io/hof/schema/dm/sql"
+)
+
+MyModels: sql.Datamodel & {
+	Name: "MyModels"
+
+	Models: {
+		User: sql.Model & {
+			Fields: {
+				sql.CommonFields
+				email:   fields.Email
+				password: fields.Password
+				active:   fields.Bool
+
+				// this is the new field
+				username: fields.String
+			}
+		}
+	}
+}
+
+-- golden-v0d.stdout --
+NAME      TYPE       VERSION  STATUS      ID
+MyModels  datamodel  -        no-history  MyModels
+
+-- golden-v0c.stdout --
+NAME      TYPE       VERSION  STATUS  ID
+MyModels  datamodel  -        ok      MyModels
+
+-- dm-v1.cue --
+package datamodel
+
+import (
+	"github.com/hofstadter-io/hof/schema/dm/fields"
+	"github.com/hofstadter-io/hof/schema/dm/sql"
+)
+
+MyModels: sql.Datamodel & {
+	Name: "MyModels"
+
+	Models: {
+		User: sql.Model & {
+			Fields: {
+				sql.CommonFields
+				email:   fields.Email
+				persona: fields.Enum & {
+					Vals: ["guest", "user", "admin", "owner"]
+					Default: "guest"
+				}
+				password: fields.Password
+				active:   fields.Bool
+
+				// this is the new field
+				username: fields.String
+			}
+		}
+	}
+}
+
+-- golden-v1d.stdout --
+NAME      TYPE       VERSION  STATUS  ID
+MyModels  datamodel  -        dirty   MyModels
+
+-- golden-v1d-diff.stdout --
+package diff
+
+User: Fields: "+": persona: {
+	@history() // shorthand
+
+	// Lineage fields will be filled by hof
+	// $hof: Lense: ...
+	// $hof: History: ...
+
+	// schema for $hof: ...
+	$hof: {
+		apiVersion: "v1beta1"
+		metadata: {
+			// typical metadata
+			name: "persona"
+		}
+
+		// hof/datamodel
+		datamodel: {
+			root:    false
+			history: true
+			ordered: false
+			cue:     false
+			version: ""
+		}
+	}
+
+	// for easy access
+	Name: "persona"
+	Type: "string"
+	Vals: ["guest", "user", "admin", "owner"]
+	Nullable: false
+	Default:  "guest"
+}
+

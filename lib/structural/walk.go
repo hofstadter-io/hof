@@ -15,6 +15,7 @@ var defaultWalkOptions = []cue.Option{
 
 // Walk is an alternative to cue.Value.Walk which handles more field types
 // You can customize this with your own options
+// returning false will stop recursion for that node
 func Walk(v cue.Value, before func(cue.Value) bool, after func(cue.Value), options ...cue.Option) {
 
 	// call before and possibly stop recursion

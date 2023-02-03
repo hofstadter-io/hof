@@ -1,0 +1,11 @@
+exec hof datamodel list
+cmp stdout golden.stdout -trim-space
+
+-- hof.cue --
+package main
+
+foo: {
+	cow: "moo"
+}
+-- golden.stdout --
+NAME  TYPE  VERSION  STATUS  ID

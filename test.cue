@@ -72,8 +72,7 @@ tests: {
 	dm: {
 		@flow(test/dm)
 		run: GoTest & {
-			// dir: "lib/flow" // panics, segfault
-			dir: "test/datamodel"
+			dir: "lib/datamodel/test"
 		}
 	}
 

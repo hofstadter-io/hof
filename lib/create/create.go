@@ -95,7 +95,9 @@ func Create(module string, extra []string, rootflags flags.RootPflagpole, cmdfla
 	// defer jumping back
 	defer func() {
 		// fmt.Println("cleaning up", tmpdir)
-		os.RemoveAll(tmpdir)
+		if err == nil {
+			os.RemoveAll(tmpdir)
+		}
 	}()
 
 	fmt.Println("init'n generator")
@@ -221,7 +223,7 @@ func setupTmpdir(url, ver string) (tmpdir, subdir string, err error) {
 
 	}
 
-	// fmt.Println("writing", tmpdir)
+	fmt.Println("using temp dir:", tmpdir)
 
 	err = yagu.BillyWriteDirToOS(tmpdir, "/", FS)
 	if err != nil {
@@ -296,7 +298,8 @@ func runCreator(R *gen.Runtime, extra, inputs []string) (err error) {
 	if len(errs) > 0 {
 		fmt.Println("hello")
 		for _, e := range errs {
-			fmt.Println(e)
+			cuetils.PrintCueError(e)
+			// fmt.Println(e)
 		}
 		return fmt.Errorf("While loading generators")
 	}

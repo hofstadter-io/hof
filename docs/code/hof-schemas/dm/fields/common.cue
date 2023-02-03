@@ -1,10 +1,6 @@
 package fields
 
-import (
-	"github.com/hofstadter-io/hof/schema/dm"
-)
-
-#DataTypes: ID |
+DataTypes: ID |
 	UUID |
 	CUID |
 	Bool |
@@ -17,7 +13,13 @@ import (
 
 ID: UUID
 
-UUID: dm.#Field & {
+Field: {
+	Name: string
+	Type: string
+	Reln?: string
+}
+
+UUID: Field & {
 	Type:     "uuid"
 	Nullable: bool | *false
 	Unique:   bool | *true
@@ -27,19 +29,19 @@ UUID: dm.#Field & {
 	}
 }
 
-CUID: dm.#Field & {
+CUID: Field & {
 	Type:     "cuid"
 	Nullable: bool | *false
 	Unique:   bool | *true
 }
 
-Bool: dm.#Field & {
+Bool: Field & {
 	Type:     "bool"
 	Default:  string | *"false"
 	Nullable: bool | *false
 }
 
-String: dm.#Field & {
+String: Field & {
 	Type:     "string"
 	Length:   int | *64
 	Unique:   bool | *false
@@ -50,19 +52,19 @@ String: dm.#Field & {
 	}
 }
 
-Int: dm.#Field & {
+Int: Field & {
 	Type: "int"
 	Nullable: bool | *false
 	Default?: int
 }
 
-Float: dm.#Field & {
+Float: Field & {
 	Type: "float"
 	Nullable: bool | *false
 	Default?: float
 }
 
-Enum: dm.#Field & {
+Enum: Field & {
 	Type: "string"
 	Vals: [...string]
 	Nullable: bool | *false
@@ -80,14 +82,14 @@ Email: String & {
 	Unique: true
 }
 
-Date: dm.#Field & {
+Date: Field & {
 	Type: "date"
 }
 
-Time: dm.#Field & {
+Time: Field & {
 	Type: "time"
 }
 
-Datetime: dm.#Field & {
+Datetime: Field & {
 	Type: "datetime"
 }

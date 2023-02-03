@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+	"strings"
 
 	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-billy/v5/osfs"
@@ -41,6 +42,10 @@ func init() {
 		d, err := os.UserCacheDir()
 		if err != nil {
 			return
+		}
+		// workaround for running in TestScript tool
+		if strings.HasPrefix(d, "/no-home") {
+			d = strings.TrimPrefix(d, "/")
 		}
 
 		// save to hof dir for cache across projects

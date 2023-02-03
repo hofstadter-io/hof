@@ -14,14 +14,14 @@ ghacue.#Workflow & {
 			"fail-fast": false
 			matrix: {
 				"go": [...] & common.Versions.go
-				os: [...] & common.Versions.os
+				os:   [...] & common.Versions.os
 			}
 		}
 		environment: "hof mod testing"
-		"runs-on": "${{ matrix.os }}"
+		"runs-on":   "${{ matrix.os }}"
 
 		steps: [
-			common.Steps.go.setup & { #ver: "${{ matrix.go }}" },
+			common.Steps.go.setup & {#ver: "${{ matrix.go }}"},
 			common.Steps.go.cache,
 			common.Steps.checkout,
 			common.Steps.vars,
@@ -35,7 +35,7 @@ ghacue.#Workflow & {
 			common.Steps.docker.compat,
 			{
 				name: "Build Formatters"
-				run:  """
+				run: """
 					make formatters
 					docker images
 					hof fmt start
@@ -49,7 +49,7 @@ ghacue.#Workflow & {
 
 #TestSteps: [...{
 	env: {
-		GITHUB_TOKEN:       "${{secrets.HOFMOD_TOKEN}}"
+		GITHUB_TOKEN: "${{secrets.HOFMOD_TOKEN}}"
 	}
 }]
 
@@ -86,6 +86,11 @@ ghacue.#Workflow & {
 	name: "test/structural"
 	run: """
 		hof flow @test/st ./test.cue
+		"""
+}, {
+	name: "test/datamodel"
+	run: """
+		hof flow @test/dm ./test.cue
 		"""
 }, {
 	name: "test/flow"

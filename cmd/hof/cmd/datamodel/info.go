@@ -6,20 +6,20 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 
-	"github.com/hofstadter-io/hof/lib/datamodel"
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
+	"github.com/hofstadter-io/hof/lib/datamodel/cmd"
 )
 
-var infoLong = `print details for a data model`
+var infoLong = `print details for a datamodel`
 
 func InfoRun(args []string) (err error) {
 
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = datamodel.RunInfoFromArgs(args, flags.DatamodelPflags)
+	err = cmd.Run("info", args, flags.RootPflags, flags.DatamodelPflags)
 
 	return err
 }
@@ -32,7 +32,7 @@ var InfoCmd = &cobra.Command{
 		"i",
 	},
 
-	Short: "print details for a data model",
+	Short: "print details for a datamodel",
 
 	Long: infoLong,
 

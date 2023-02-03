@@ -1,0 +1,41 @@
+exec hof mod get github.com/hofstadter-io/hof@dm-revamp
+exec hof mod vendor
+exec hof datamodel list
+cmp stdout golden.stdout -trim-space
+
+-- cue.mod/module.cue --
+module: "hof.io/test"
+cue:    "v0.5.0"
+-- hof.cue --
+package datamodel
+
+import (
+	"github.com/hofstadter-io/hof/schema/dm/fields"
+	"github.com/hofstadter-io/hof/schema/dm/sql"
+)
+
+MyModels: sql.Datamodel & {
+	Name: "MyModels"
+
+	Models: {
+		User: sql.Model & {
+			Fields: {
+				sql.CommonFields
+				email:   fields.Email
+				persona: fields.Enum & {
+					Vals: ["guest", "user", "admin", "owner"]
+					Default: "guest"
+				}
+				password: fields.Password
+				active:   fields.Bool
+
+				// this is the new field
+				username: fields.String
+			}
+		}
+	}
+}
+
+-- golden.stdout --
+NAME      TYPE       VERSION  STATUS      ID
+MyModels  datamodel  -        no-history  MyModels

@@ -6,10 +6,18 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
+
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var logLong = `show the history of diffs for a data model`
+var logLong = `show the history for a datamodel`
+
+func init() {
+
+	LogCmd.Flags().BoolVarP(&(flags.Datamodel__LogFlags.ByValue), "by-value", "", false, "display snapshot log by value")
+	LogCmd.Flags().BoolVarP(&(flags.Datamodel__LogFlags.Details), "details", "", false, "print more when displaying the log")
+}
 
 func LogRun(args []string) (err error) {
 
@@ -27,7 +35,7 @@ var LogCmd = &cobra.Command{
 		"l",
 	},
 
-	Short: "show the history of diffs for a data model",
+	Short: "show the history for a datamodel",
 
 	Long: logLong,
 

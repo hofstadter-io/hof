@@ -18,6 +18,13 @@ import (
 )
 
 /*
+		Considder using: https://github.com/alitto/pond
+		We probably need to think about parallel flows vs tasks && limits on workers v tasks
+
+	we should start by using pond for the flow handling below with max parallelism
+*/
+
+/*
 Input is to rigid
 - reads from disk (can we workaround upstream?)
 -

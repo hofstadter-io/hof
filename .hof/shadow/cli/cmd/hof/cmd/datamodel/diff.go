@@ -9,7 +9,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var diffLong = `show the diff between data model version`
+var diffLong = `show the current diff or between datamodel versions`
 
 func DiffRun(args []string) (err error) {
 
@@ -27,7 +27,7 @@ var DiffCmd = &cobra.Command{
 		"d",
 	},
 
-	Short: "show the diff between data model version",
+	Short: "show the current diff or between datamodel versions",
 
 	Long: diffLong,
 
