@@ -289,6 +289,7 @@ import (
 	// Partials: [gen.#Templates & {Globs: ["./partials/**/*"], TrimPrefix: "./partials/"}]
 	Partials: []
 	{{ end }}
+	Statics: []
 
 	{{ if .Generators -}}
 	// these should be in the same CUE package

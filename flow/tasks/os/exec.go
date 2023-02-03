@@ -79,10 +79,16 @@ func (T *Exec) Run(ctx *hofcontext.Context) (interface{}, error) {
 		return nil, ferr
 	}
 
+	// (TODO): check for user's abort mode preference
+	doExit, err := extractExit(v)
+	if err != nil {
+		return nil, err
+	}
+
 	//
 	// run command
 	//
-	err := cmd.Run()
+	err = cmd.Run()
 
 	// TODO, how to run in the background and wait for signal?
 
@@ -90,6 +96,10 @@ func (T *Exec) Run(ctx *hofcontext.Context) (interface{}, error) {
 	ret := make(map[string]interface{})
 
 	if err != nil {
+		if doExit  {
+			return nil, err
+		}
+
 		ret["error"] = err.Error()
 	}
 
@@ -104,8 +114,6 @@ func (T *Exec) Run(ctx *hofcontext.Context) (interface{}, error) {
 	// fill exit code / successful
 	ret["exitcode"] = cmd.ProcessState.ExitCode()
 	ret["success"] = cmd.ProcessState.Success()
-
-	// (TODO): check for user's abort mode preference
 
 	return ret, nil
 }
@@ -154,6 +162,19 @@ func extractDir(ex cue.Value) (string, error) {
 		return s, nil
 	}
 	return "", nil
+}
+
+func extractExit(ex cue.Value) (bool, error) {
+	// handle Stdout
+	d := ex.LookupPath(cue.ParsePath("exitonerr"))
+	if d.Exists() {
+		b, err := d.Bool()
+		if err != nil {
+			return true, err
+		}
+		return b, nil
+	}
+	return true, nil
 }
 
 func extractEnv(ex cue.Value) ([]string, error) {
