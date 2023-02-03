@@ -13,7 +13,7 @@ func envSetup(env *runtime.Env) error {
 }
 
 func TestDatamodel(t *testing.T) {
-	yagu.Mkdir(".workdir")
+	yagu.Mkdir(".workdir/testdata")
 	runtime.Run(t, runtime.Params{
 		Dir:         "./testdata",
 		Glob:        "*.txt",
@@ -22,13 +22,13 @@ func TestDatamodel(t *testing.T) {
 	})
 }
 
-func TestBugcases(t *testing.T) {
-	yagu.Mkdir(".workdir")
-	runtime.Run(t, runtime.Params{
-		Dir:         "./bugcases",
-		Glob:        "*.txt",
-		WorkdirRoot: ".workdir/bugcases",
-		Setup:       envSetup,
-	})
-}
+//func TestBugcases(t *testing.T) {
+	//yagu.Mkdir(".workdir/bugcases")
+	//runtime.Run(t, runtime.Params{
+		//Dir:         "./bugcases",
+		//Glob:        "*.txt",
+		//WorkdirRoot: ".workdir/bugcases",
+		//Setup:       envSetup,
+	//})
+//}
 

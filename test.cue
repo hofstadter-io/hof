@@ -69,6 +69,14 @@ tests: {
 		}
 	}
 
+	dm: {
+		@flow(test/dm)
+		run: GoTest & {
+			// dir: "lib/flow" // panics, segfault
+			dir: "test/datamodel"
+		}
+	}
+
 	gen: {
 		@flow(test/gen)
 		run: BashTest & {

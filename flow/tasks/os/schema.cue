@@ -39,6 +39,9 @@ Exec: {
 
 	// error from cmd.Run()
 	error: string
+
+	// exit flow when task fails
+	exitonerr: bool | *true
 }
 
 // Get a filelock
