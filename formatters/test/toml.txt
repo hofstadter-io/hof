@@ -36,7 +36,7 @@ title = "TOML Example"
     cpu = 79.5
 
 [owner]
-  dob = 1979-05-27T15:32:00Z
+  dob = 1979-05-27T07:32:00-08:00
   name = "Tom Preston-Werner"
 
 [servers]

@@ -51,6 +51,14 @@ import "github.com/hofstadter-io/ghacue"
 }, {
 	name: "Build CLI"
 	run:  "go install ./cmd/hof"
+},{
+	name: "Set up Docker"
+	uses: "docker/setup-buildx-action@v2"
+	"if": "${{ !startsWith( runner.os, 'macos') }}"
+}, {
+	name: "Build Formatters"
+	run:  "make formatters"
+	"if": "${{ !startsWith( runner.os, 'macos') }}"
 }]
 
 #TestSteps: [{
@@ -72,6 +80,7 @@ import "github.com/hofstadter-io/ghacue"
 	// maybe these should be services?
 	name: "Start formatting containers"
 	run:  "hof fmt start"
+	"if": "${{ !startsWith( runner.os, 'macos') }}"
 }, {
 	name: "Run template test"
 	run: """
@@ -114,4 +123,5 @@ import "github.com/hofstadter-io/ghacue"
 	run: """
 		hof flow -f test/fmt ./test.cue
 	"""
+	"if": "${{ !startsWith( runner.os, 'macos') }}"
 }]

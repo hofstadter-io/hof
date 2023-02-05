@@ -5,4 +5,3 @@ Hi, I'm a template file on disk 'a'
 ---
 {% camelT "hell-world" %}
 ---
-

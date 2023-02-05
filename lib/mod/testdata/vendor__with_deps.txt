@@ -7,7 +7,7 @@ module github.com/test/withsolo
 cue v0.4.3
 
 require (
-    github.com/hofstadter-io/hof v0.5.16
+    github.com/hofstadter-io/hof v0.6.7
 )
 -- cue.mod/module.cue --
 module: "github.com/test/withsolo"
@@ -25,8 +25,8 @@ module github.com/test/withmulti
 cue v0.4.3
 
 require (
-    github.com/hofstadter-io/hof v0.5.16
-    github.com/hofstadter-io/hofmod-cli v0.7.2
+    github.com/hofstadter-io/hof v0.6.7
+    github.com/hofstadter-io/hofmod-cli v0.7.13
 )
 -- cue.mod/module.cue --
 module: "github.com/test/withmulti"
@@ -43,7 +43,7 @@ module github.com/test/mod-v000-a
 cue v0.4.3
 
 require (
-    github.com/hofstadter-io/hof-cuefig v0.0.0
+    github.com/hofstadter-io/hofmod-cli v0.0.0
 )
 -- cue.mod/module.cue --
 module: "github.com/test/mod-v000-a"
@@ -59,7 +59,7 @@ module github.com/test/mod-v000-b
 cue v0.4.3
 
 require (
-    github.com/hofstadter-io/hofmod-cuefig v0.0.0
+    github.com/hofstadter-io/hofmod-cli v0.0.0
     github.com/hofstadter-io/hof v0.0.0
 )
 -- cue.mod/module.cue --
