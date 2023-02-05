@@ -60,7 +60,6 @@ jobs:
         run: hof flow @test/st ./test.cue
       - name: Run flow tests
         run: hof flow -f test/flow ./test.cue
-        if: ${{ !startsWith( runner.os, 'macos') }}
       - name: Run mod tests
         run: hof flow -f test/mod ./test.cue
         env:
@@ -71,6 +70,7 @@ jobs:
           BITBUCKET_PASSWORD: ${{secrets.BITBUCKET_TOKEN}}
       - name: Run fmt tests
         run: "\thof flow -f test/fmt ./test.cue"
+        if: ${{ !startsWith( runner.os, 'macos') }}
     strategy:
       matrix:
         go-version:

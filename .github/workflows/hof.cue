@@ -105,7 +105,6 @@ import "github.com/hofstadter-io/ghacue"
 	run: """
 		hof flow -f test/flow ./test.cue
 		"""
-	"if": "${{ !startsWith( runner.os, 'macos') }}"
 }, {
 	name: "Run mod tests"
 	run: """
@@ -124,4 +123,5 @@ import "github.com/hofstadter-io/ghacue"
 	run: """
 		hof flow -f test/fmt ./test.cue
 	"""
+	"if": "${{ !startsWith( runner.os, 'macos') }}"
 }]
