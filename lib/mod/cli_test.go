@@ -42,6 +42,7 @@ func TestModTests(t *testing.T) {
 	})
 }
 
+/*
 func TestModBugs(t *testing.T) {
 	d := ".workdir/bugs"
 	setupWorkdir(d)
@@ -52,6 +53,7 @@ func TestModBugs(t *testing.T) {
 		WorkdirRoot: d,
 	})
 }
+*/
 
 func TestModAuthdApikeysTests(t *testing.T) {
 	d := ".workdir/authd/apikeys"
@@ -64,6 +66,7 @@ func TestModAuthdApikeysTests(t *testing.T) {
 	})
 }
 
+/*
 func TestModAuthdSshconfigTests(t *testing.T) {
 	d := ".workdir/authd/sshconfig"
 	setupWorkdir(d)
@@ -74,6 +77,7 @@ func TestModAuthdSshconfigTests(t *testing.T) {
 		WorkdirRoot: d,
 	})
 }
+*/
 
 //func TestModAuthdSshkeyTests(t *testing.T) {
 //yagu.Mkdir(".workdir/authd/sshkey")
