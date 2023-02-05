@@ -1,11 +1,17 @@
 github.com/hofstadter-io/ghacue v0.1.0 h1:zAFJQZLyJgF4tqUrOHWCPaFa/V+yo90mCx3nPUsFr5g=
 github.com/hofstadter-io/ghacue v0.1.0/cue.mods h1:6BbcRic6px1+lCLiW6O5dYt+GcCpnmzdpbcILHrqhOQ=
+github.com/hofstadter-io/ghacue v0.1.1 h1:STfOkN4CrDGBnM6DcSrJp6ph8ZMY4tsyqqJIXvLKHkQ=
+github.com/hofstadter-io/ghacue v0.1.1/cue.mods h1:6BbcRic6px1+lCLiW6O5dYt+GcCpnmzdpbcILHrqhOQ=
 github.com/hofstadter-io/hof v0.0.0 h1:0EaNVgyuJesZTzLrcyxutk6DClIC7rHJhKGkrmROHTk=
 github.com/hofstadter-io/hof v0.0.0/cue.mods h1:0oZRhMRdCe9UmE5ZbAfhUB3TG02AAw115goi2Wj5/Tc=
 github.com/hofstadter-io/hof v0.5.17 h1:HMwGGmoOk5Bovp+G1PUqyqhK60LYCvnma8u6NQlBpXQ=
 github.com/hofstadter-io/hof v0.5.17/cue.mods h1:IP07MlWVNF2ZlXOxrx0xiQnbhBf7SM3rXe7tyGrtG00=
 github.com/hofstadter-io/hof v0.6.2 h1:fQpPzxXmoE4x73Y7lVj0sSgSchnuVzsozJFi/wsnLbY=
 github.com/hofstadter-io/hof v0.6.2/cue.mods h1:n296s8ofXjQRnSrX8161p0lW4ImA1W9DxjHLyAGLV+U=
+github.com/hofstadter-io/hof v0.6.7 h1:z8UWqdTEqAKm0ypIIpuMVdb4je2GsBx3+0PaznH7B/s=
+github.com/hofstadter-io/hof v0.6.7/cue.mods h1:cvrlgZMxzJVCTxSNnZWQ4Irtge+6iL6yirDDmutuSV8=
+github.com/hofstadter-io/hofmod-cli v0.7.13 h1:DiVCmEKGgMm0E3/6FqiFtCr3GxdDdwu61Gf7cIETTcg=
+github.com/hofstadter-io/hofmod-cli v0.7.13/cue.mods h1:7VQb4YiD6gtNHooqK5vSLGEgkUgq9LjGWLJ9mpdEDGA=
 github.com/hofstadter-io/hofmod-cli v0.7.4 h1:2llW+2T2f2Vjlkt1xmZifL3WvK7kh6j7+CvxF+W2q60=
 github.com/hofstadter-io/hofmod-cli v0.7.4/cue.mods h1:a4G+nwOmyrri2hJFXXnGxct4l1LVhDQuOe+kXFKnYiw=
 github.com/hofstadter-io/hofmod-cli v0.7.5 h1:nlM56+hK8+TN+zVmlfSwAeIMRNXPPtkCt43dMMA7FaA=
