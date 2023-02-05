@@ -45,6 +45,9 @@ import "github.com/hofstadter-io/ghacue"
 }, {
 	name: "Checkout code"
 	uses: "actions/checkout@v3"
+},{
+	name: "Set up Docker"
+	uses: "docker/setup-buildx-action@v2"
 }, {
 	name: "Fetch Go deps"
 	run:  "go mod download"
