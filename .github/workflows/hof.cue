@@ -51,6 +51,9 @@ import "github.com/hofstadter-io/ghacue"
 }, {
 	name: "Build CLI"
 	run:  "go install ./cmd/hof"
+}, {
+	name: "Build Formatters"
+	run:  "make formatters"
 }]
 
 #TestSteps: [{

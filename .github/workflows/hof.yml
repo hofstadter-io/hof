@@ -28,6 +28,8 @@ jobs:
         run: go mod download
       - name: Build CLI
         run: go install ./cmd/hof
+      - name: Build Formatters
+        run: make formatters
       - name: Run self gen test
         run: |-
           # fetch CUE deps
