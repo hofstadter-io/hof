@@ -134,7 +134,7 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 	// helpful to load early so we can print file lists of what would be generated, etc...
 
 	// Finally write the generator files
-	for _, F := range G.Files {
+	for _, F := range G.OrderedFiles {
 		if G.verbosity > 1 {
 			fmt.Println("Writing:", F.Filepath)
 		}
