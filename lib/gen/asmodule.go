@@ -186,7 +186,7 @@ func (R *Runtime) AsModule() error {
 }
 
 const asModuleTemplate = `
-package {{ .Package }}
+package {{ snake .Package }}
 
 import (
 	"github.com/hofstadter-io/hof/schema/gen"

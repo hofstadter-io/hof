@@ -460,7 +460,7 @@ func InitModule(args []string, rootflags flags.RootPflagpole, cmdflags flags.Gen
 }
 
 const newModuleTemplate = `
-package {{ .Package }}
+package {{ snake .Package }}
 
 import (
 	"github.com/hofstadter-io/hof/schema/gen"
