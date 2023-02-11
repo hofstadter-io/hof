@@ -443,7 +443,7 @@ func InitModule(args []string, rootflags flags.RootPflagpole, cmdflags flags.Gen
 		return err
 	}
 	// make some dirs
-	dirs := []string{"templates", "partials", "statics", "examples", "creators", "generators", "schema"}
+	dirs := []string{"templates", "partials", "statics", "examples", "creators", "gen", "schema"}
 	for _, dir := range dirs {
 		err = os.MkdirAll(dir, 0755)
 		if err != nil {
