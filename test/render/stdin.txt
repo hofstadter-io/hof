@@ -1,0 +1,25 @@
+exec bash -c 'cat in.json | hof gen - -T template.txt'
+cmp stdout golden-json.stdout
+
+exec bash -c 'cat in.yaml | hof gen yaml: - -T template.txt'
+cmp stdout golden-yaml.stdout
+
+-- template.txt --
+{{ . }}
+-- in.yaml --
+vals:
+  - name: "a"
+    data: 1
+  - name: "b"
+    data: 2
+-- in.json --
+{
+	"a": "a",
+	"b": 2,
+	"val": { "foo": "bar" }
+}
+
+-- golden-json.stdout --
+map[a:a b:2 val:map[foo:bar]]
+-- golden-yaml.stdout --
+map[vals:[map[data:1 name:a] map[data:2 name:b]]]
