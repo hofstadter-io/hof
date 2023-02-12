@@ -1,6 +1,8 @@
 package cuetils
 
 import (
+	"bufio"
+	"bytes"
 	"fmt"
 	"os"
 	"strings"
@@ -130,75 +132,12 @@ func (CRT *CueRuntime) load() (err error) {
 
 		// handle data files
 		for _, f := range bi.OrphanedFiles {
-			d, err := os.ReadFile(f.Filename)
+			F, err := loadOrphanedFile(f, bi.PkgName)
 			if err != nil {
-				fmt.Println("while reading file")
 				errs = append(errs, err)
 				continue
 			}
-
-			switch f.Encoding {
-
-			case "json":
-				A, err := json.Extract(f.Filename, d)
-				if err != nil {
-					errs = append(errs, err)
-					continue
-				}
-
-				// add a package decl so the data is referencable from the cue
-				pkgDecl := &ast.Package {
-					Name: ast.NewIdent(bi.PkgName),
-				}
-
-				// extract the json top level fields (removing the outer unnamed struct)
-				jsonDecls := []ast.Decl{pkgDecl, A}
-				switch a := A.(type) {
-					case *ast.StructLit:
-						jsonDecls = append([]ast.Decl{pkgDecl}, a.Elts...)
-				}
-
-				// construct an ast.File to be consistent with Yaml
-				// (and also provide a filename for errors)
-				F := &ast.File{
-					Filename: f.Filename,
-					// Decls: A.(*ast.StructLit).Elts,
-					// Decls:    []ast.Decl{pkgDecl, A},
-					Decls: jsonDecls,
-				}
-
-				// merge in data
-				bi.AddSyntax(F)
-
-			case "yml", "yaml":
-				F, err := yaml.Extract(f.Filename, d)
-				if err != nil {
-					fmt.Println("while yaml extract")
-					errs = append(errs, err)
-					continue
-				}
-
-				// add a package decl so the data is referencable from the cue
-				pkgDecl := &ast.Package {
-					Name: ast.NewIdent(bi.PkgName),
-				}
-				F.Decls = append([]ast.Decl{pkgDecl}, F.Decls...)
-
-				// merge in data
-				bi.AddSyntax(F)
-
-			// TODO, handle other formats (toml,json)
-			//       which hof already works with
-
-			default:
-				// should only do this if it was also an arg
-				// otherwise we should ignore other files implicity discovered
-
-				// todo, re-enable this with better checks
-				// err := fmt.Errorf("unknown encoding for", f.Filename, f.Encoding)
-				// errs = append(errs, err)
-				continue
-			}
+			bi.AddSyntax(F)
 		}
 
 		// Build the Instance
@@ -228,4 +167,91 @@ func (CRT *CueRuntime) load() (err error) {
 	}
 
 	return nil
+}
+
+func loadOrphanedFile(f *build.File, pkgName string) (F *ast.File, err error) {
+
+	var d []byte
+
+	if f.Filename == "-" {
+    reader := bufio.NewReader(os.Stdin)
+    var buf bytes.Buffer
+    for {
+        b, err := reader.ReadByte()
+        if err != nil {
+            break
+        }
+        buf.WriteByte(b)
+    }
+		d = buf.Bytes()
+	} else {
+		d, err = os.ReadFile(f.Filename)
+		if err != nil {
+			return nil, fmt.Errorf("while loading data file: %w", err)
+		}
+	}
+
+
+	switch f.Encoding {
+
+	case "json":
+		A, err := json.Extract(f.Filename, d)
+		if err != nil {
+			return nil, fmt.Errorf("while extracting json file: %w", err)
+		}
+
+		// add a package decl so the data is referencable from the cue
+		pkgDecl := &ast.Package {
+			Name: ast.NewIdent(pkgName),
+		}
+
+		// extract the json top level fields (removing the outer unnamed struct)
+		jsonDecls := []ast.Decl{pkgDecl, A}
+		switch a := A.(type) {
+			case *ast.StructLit:
+				jsonDecls = append([]ast.Decl{pkgDecl}, a.Elts...)
+		}
+
+		// construct an ast.File to be consistent with Yaml
+		// (and also provide a filename for errors)
+		F := &ast.File{
+			Filename: f.Filename,
+			// Decls: A.(*ast.StructLit).Elts,
+			// Decls:    []ast.Decl{pkgDecl, A},
+			Decls: jsonDecls,
+		}
+
+		return F, nil
+
+	case "yml", "yaml":
+		F, err := yaml.Extract(f.Filename, d)
+		if err != nil {
+			return nil, fmt.Errorf("while extracting yaml file: %w", err)
+		}
+
+		// add a package decl so the data is referencable from the cue
+		pkgDecl := &ast.Package {
+			Name: ast.NewIdent(pkgName),
+		}
+		F.Decls = append([]ast.Decl{pkgDecl}, F.Decls...)
+
+		// merge in data
+		return F, nil
+
+	// ....
+	// case: ...
+
+	// TODO, handle other formats (toml,json)
+	//       which hof already works with
+
+	default:
+		// should only do this if it was also an arg
+		// otherwise we should ignore other files implicity discovered
+
+		// todo, re-enable this with better checks
+		// err := fmt.Errorf("unknown encoding for %q %q", f.Filename, f.Encoding)
+		// return nil, err
+		return nil, nil
+	}
+
 }

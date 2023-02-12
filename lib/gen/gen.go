@@ -107,6 +107,9 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 		So let's load them early, there is some helpful info in them
 	*/
 	if LT == 0 || LG > 0 {
+		if R.Verbosity > 1 {
+			fmt.Println("Loading Value Generator")
+		}
 
 		// load generators just so we can search for watch lists
 		err := R.ExtractGenerators()
@@ -144,6 +147,9 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 	}
 
 	if LT > 0 {
+		if R.Verbosity > 1 {
+			fmt.Println("Loading Adhoc Generator")
+		}
 		err = R.CreateAdhocGenerator()
 		if err != nil {
 			return err
@@ -160,6 +166,10 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 	*/
 	// todo, infer most entrypoints
 	for _, arg := range args {
+		// skip stdin arg, or args which are filetype specifiers
+		if arg == "-" || strings.HasSuffix(arg, ":") {
+			continue
+		}
 		info, err := os.Stat(arg)
 		if err != nil {
 			return err
