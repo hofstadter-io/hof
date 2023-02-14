@@ -2,8 +2,10 @@ package flow
 
 import (
 	"fmt"
+	"strings"
 
 	"cuelang.org/go/cue"
+	"github.com/bmatcuk/doublestar/v4"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/flow/context"
@@ -59,8 +61,19 @@ func matchFlow(attr cue.Attribute, args []string) (keep bool) {
 				fmt.Println("bad flow tag:", err)
 				return false
 			}
+
+			// exact match
 			if s == tag {
 				return true
+			}
+
+			// glob match
+			if strings.Contains(tag, "*") {
+				include, err := doublestar.PathMatch(tag, s)
+				if err != nil {
+					fmt.Println("warning:", err)
+				}
+				return include
 			}
 		}
 	}

@@ -1,68 +1,49 @@
 package workflows
 
-import "github.com/hofstadter-io/ghacue"
+import (
+	"github.com/hofstadter-io/ghacue"
+	"github.com/hofstadter-io/hof/.github/workflows/common"
+)
 
-#Workflow: ghacue.#Workflow & {
-	name: string
+ghacue.#Workflow & {
+	name: "hof"
 	on:   _ | *["push", "pull_request", "workflow_dispatch"]
 	env: HOF_TELEMETRY_DISABLED: "1"
 	jobs: test: {
-		strategy: matrix: {
-			"go-version": ["1.18.x", "1.19.x"]
-			os: ["ubuntu-latest", "macos-latest"]
-		}
-		strategy: "fail-fast": false
-		"runs-on": "${{ matrix.os }}"
-	}
-}
-
-#Workflow & {
-	name: "hof"
-	jobs: test: {
 		environment: "hof mod testing"
-		steps:
-			[ for step in #BuildSteps {step} ] +
-			[ for step in #TestSteps  {step} ]
+		"runs-on": "${{ matrix.os }}"
+		strategy: common.GoStrategy
+
+		steps: [
+			common.Steps.go.setup,
+			common.Steps.go.cache,
+			common.Steps.checkout,
+			common.Steps.go.deps,
+			{
+				name: "Build CLI"
+				run:  "go install ./cmd/hof"
+			},
+			common.Steps.docker.setup & {
+				"if": "${{ !startsWith( runner.os, 'macos') }}"
+			},
+			{
+				name: "Build Formatters"
+				run:  "make formatters"
+				"if": "${{ !startsWith( runner.os, 'macos') }}"
+			},
+		] + #TestSteps
 	}
 }
 
-#BuildSteps: [{
-	name: "Install Go"
-	uses: "actions/setup-go@v3"
-	with: "go-version": "${{ matrix.go-version }}"
-}, {
-	uses: "actions/cache@v3"
-	with: {
-		path: #"""
-			~/go/pkg/mod
-			~/.cache/go-build
-			~/Library/Caches/go-build
-			~\AppData\Local\go-build
-			"""#
-		key:            "${{ runner.os }}-go-${{ matrix.go-version }}-${{ hashFiles('**/go.sum') }}"
-		"restore-keys": "${{ runner.os }}-go-${{ matrix.go-version }}-"
+#TestSteps: [...{
+	env: {
+		HOFMOD_SSHKEY:      "${{secrets.HOFMOD_SSHKEY}}"
+		GITHUB_TOKEN:       "${{secrets.HOFMOD_TOKEN}}"
 	}
-}, {
-	name: "Checkout code"
-	uses: "actions/checkout@v3"
-}, {
-	name: "Fetch Go deps"
-	run:  "go mod download"
-}, {
-	name: "Build CLI"
-	run:  "go install ./cmd/hof"
-},{
-	name: "Set up Docker"
-	uses: "docker/setup-buildx-action@v2"
-	"if": "${{ !startsWith( runner.os, 'macos') }}"
-}, {
-	name: "Build Formatters"
-	run:  "make formatters"
-	"if": "${{ !startsWith( runner.os, 'macos') }}"
 }]
 
 #TestSteps: [{
-	name: "Run self gen test"
+	name: "test/self"
 	run: """
 		# fetch CUE deps
 		hof mod vendor cue
@@ -72,54 +53,44 @@ import "github.com/hofstadter-io/ghacue"
 		git diff
 		# git diff --exit-code
 		"""
-	env: {
-		HOFMOD_SSHKEY:      "${{secrets.HOFMOD_SSHKEY}}"
-		GITHUB_TOKEN:       "${{secrets.HOFMOD_TOKEN}}"
-	}
 }, {
 	// maybe these should be services?
-	name: "Start formatting containers"
+	name: "Start formatters"
 	run:  "hof fmt start"
 	"if": "${{ !startsWith( runner.os, 'macos') }}"
 }, {
-	name: "Run template test"
+	name: "test/gen"
 	run: """
 		hof flow @test/gen ./test.cue
 		"""
 }, {
-	name: "Run render tests"
+	name: "test/render"
 	run: """
 		hof flow @test/render ./test.cue
 		"""
-	env: {
-		HOFMOD_SSHKEY:      "${{secrets.HOFMOD_SSHKEY}}"
-		GITHUB_TOKEN:       "${{secrets.HOFMOD_TOKEN}}"
-	}
 }, {
-	name: "Run lib/structural tests"
+	name: "test/structural"
 	run: """
 		hof flow @test/st ./test.cue
 		"""
 }, {
-	name: "Run flow tests"
+	name: "test/flow"
 	run: """
 		hof flow -f test/flow ./test.cue
 		"""
 }, {
-	name: "Run mod tests"
+	name: "test/mod"
 	run: """
 		hof flow -f test/mod ./test.cue
 		"""
 	env: {
-		HOFMOD_SSHKEY:      "${{secrets.HOFMOD_SSHKEY}}"
-		GITHUB_TOKEN:       "${{secrets.HOFMOD_TOKEN}}"
 		GITLAB_TOKEN:       "${{secrets.GITLAB_TOKEN}}"
 		BITBUCKET_USERNAME: "hofstadter"
 		BITBUCKET_PASSWORD: "${{secrets.BITBUCKET_TOKEN}}"
 	}
 }, {
 	// should probably be last?
-	name: "Run fmt tests"
+	name: "test/fmt"
 	run: """
 		hof flow -f test/fmt ./test.cue
 	"""

@@ -1,6 +1,7 @@
 package render_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/hofstadter-io/hof/lib/yagu"
@@ -9,6 +10,7 @@ import (
 
 func envSetup(env *runtime.Env) error {
 	env.Vars = append(env.Vars, "HOF_TELEMETRY_DISABLED=1")
+	env.Vars = append(env.Vars, "GITHUB_TOKEN=" + os.Getenv("GITHUB_TOKEN"))
 	return nil
 }
 
