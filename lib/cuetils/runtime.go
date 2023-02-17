@@ -64,6 +64,12 @@ type CueRuntime struct {
 	CueInstance *cue.Instance
 	CueValue    cue.Value
 	Value       interface{}
+
+	// when CUE entrypoints have @placement
+	origEntrypoints []string
+
+	// when a user supplies an data.json@path.to.field
+	dataMappings    map[string]string
 }
 
 func (CRT *CueRuntime) ConvertToValue(in interface{}) (cue.Value, error) {
@@ -90,7 +96,31 @@ func (CRT *CueRuntime) ConvertToValue(in interface{}) (cue.Value, error) {
 }
 
 func (CRT *CueRuntime) Load() (err error) {
+	CRT.prepPlacedDatafiles()
 	return CRT.load()
+}
+
+func (CRT *CueRuntime) prepPlacedDatafiles() {
+	CRT.origEntrypoints = make([]string, 0, len(CRT.Entrypoints))
+
+	for i, E := range CRT.Entrypoints {
+		CRT.origEntrypoints = append(CRT.origEntrypoints, E)
+		if !strings.Contains(E, "@") {
+			continue
+		}
+
+		parts := strings.Split(E, "@")
+		if len(parts) != 2 {
+			continue
+		}
+
+		// add the mapping
+		fname, fpath := parts[0], parts[1]
+		CRT.dataMappings[fname] = fpath
+
+		CRT.Entrypoints[i] = fname
+	}
+
 }
 
 func (CRT *CueRuntime) load() (err error) {
@@ -132,7 +162,7 @@ func (CRT *CueRuntime) load() (err error) {
 
 		// handle data files
 		for _, f := range bi.OrphanedFiles {
-			F, err := loadOrphanedFile(f, bi.PkgName)
+			F, err := CRT.loadOrphanedFile(f, bi.PkgName, bi.Root, bi.Dir)
 			if err != nil {
 				errs = append(errs, err)
 				continue
@@ -169,9 +199,21 @@ func (CRT *CueRuntime) load() (err error) {
 	return nil
 }
 
-func loadOrphanedFile(f *build.File, pkgName string) (F *ast.File, err error) {
+func (CRT *CueRuntime) loadOrphanedFile(f *build.File, pkgName string, root, dir string) (F *ast.File, err error) {
 
 	var d []byte
+
+	fname := f.Filename
+	// strip dir from fname
+	if !strings.HasSuffix(dir, "/") {
+		dir += "/"
+	}
+	fname = strings.TrimPrefix(fname, dir)
+
+	mapping := CRT.dataMappings[fname]
+	// if mapping != "" {
+	// 	fmt.Printf("found entrypoint mapping: %s -> %s\n", f.Filename, mapping)
+	// }
 
 	if f.Filename == "-" {
     reader := bufio.NewReader(os.Stdin)
@@ -200,6 +242,26 @@ func loadOrphanedFile(f *build.File, pkgName string) (F *ast.File, err error) {
 			return nil, fmt.Errorf("while extracting json file: %w", err)
 		}
 
+		if mapping != "" {
+			ps := cue.ParsePath(mapping).Selectors()
+			// go in reverse, so we build up a tree
+			for i := len(ps)-1; i >= 0; i--  {
+				// build our label from the mapping path
+				p := ps[i]
+				ident := ast.NewIdent(p.String())
+
+				// create a struct with a field
+				f := &ast.Field {
+					Label: ident,
+					Value: A,
+				}
+				s := ast.NewStruct(f)
+
+				// now update
+				A = s
+			}
+		}
+
 		// add a package decl so the data is referencable from the cue
 		pkgDecl := &ast.Package {
 			Name: ast.NewIdent(pkgName),
@@ -207,9 +269,11 @@ func loadOrphanedFile(f *build.File, pkgName string) (F *ast.File, err error) {
 
 		// extract the json top level fields (removing the outer unnamed struct)
 		jsonDecls := []ast.Decl{pkgDecl, A}
-		switch a := A.(type) {
-			case *ast.StructLit:
-				jsonDecls = append([]ast.Decl{pkgDecl}, a.Elts...)
+		if mapping == "" {
+			switch a := A.(type) {
+				case *ast.StructLit:
+					jsonDecls = append([]ast.Decl{pkgDecl}, a.Elts...)
+			}
 		}
 
 		// construct an ast.File to be consistent with Yaml
@@ -228,6 +292,31 @@ func loadOrphanedFile(f *build.File, pkgName string) (F *ast.File, err error) {
 		if err != nil {
 			return nil, fmt.Errorf("while extracting yaml file: %w", err)
 		}
+
+		if mapping != "" {
+			A := ast.NewStruct()
+			A.Elts = F.Decls
+			ps := cue.ParsePath(mapping).Selectors()
+			// go in reverse, so we build up a tree
+			for i := len(ps)-1; i >= 0; i--  {
+				// build our label from the mapping path
+				p := ps[i]
+				ident := ast.NewIdent(p.String())
+
+				// create a struct with a field
+				f := &ast.Field {
+					Label: ident,
+					Value: A,
+				}
+				s := ast.NewStruct(f)
+
+				// now update
+				A = s
+			}
+
+			F.Decls = []ast.Decl{A}
+		}
+
 
 		// add a package decl so the data is referencable from the cue
 		pkgDecl := &ast.Package {

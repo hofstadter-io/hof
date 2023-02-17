@@ -22,6 +22,7 @@ func CueRuntimeFromEntrypoints(entrypoints []string) (crt *CueRuntime, err error
 			DataFiles:  false,
 			Overlay:    map[string]load.Source{},
 		},
+		dataMappings: make(map[string]string),
 	}
 
 	err = crt.Load()
@@ -41,7 +42,7 @@ func CueRuntimeFromEntrypointsAndFlags(entrypoints []string) (crt *CueRuntime, e
 		Tests:      false,
 		Tools:      false,
 		DataFiles:  false,
-		Overlay:    map[string]load.Source{},
+		Overlay:    make(map[string]load.Source),
 	}
 
 	// package?
@@ -52,9 +53,11 @@ func CueRuntimeFromEntrypointsAndFlags(entrypoints []string) (crt *CueRuntime, e
 	crt = &CueRuntime{
 		Entrypoints: entrypoints,
 		CueConfig:   cfg,
+		dataMappings: make(map[string]string),
 	}
 
 	err = crt.Load()
 
 	return crt, err
 }
+

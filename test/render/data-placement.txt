@@ -1,0 +1,45 @@
+exec hof gen data.json@foo.bar -T template.txt
+cmp stdout expected.txt
+exec hof gen data.yaml@foo.bar -T template.txt
+cmp stdout expected.txt
+
+-- data.json --
+{
+  "vals": [
+    {
+      "data": 1,
+      "name": "a"
+    },
+    {
+      "data": 2,
+      "name": "b"
+    }
+  ]
+}
+
+-- data.yaml --
+vals:
+  - name: "a"
+    data: 1
+  - name: "b"
+    data: 2
+
+-- template.txt --
+{{ json . }}
+-- expected.txt --
+{
+  "foo": {
+    "bar": {
+      "vals": [
+        {
+          "data": 1,
+          "name": "a"
+        },
+        {
+          "data": 2,
+          "name": "b"
+        }
+      ]
+    }
+  }
+}
