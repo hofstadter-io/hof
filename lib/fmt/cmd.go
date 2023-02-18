@@ -170,19 +170,26 @@ func Start(fmtr string) error {
 		return err
 	}
 
+	// override the default version
+	ver := defaultVersion
+	parts := strings.Split(fmtr, "@")
+	if len(parts) == 2 {
+		fmtr, ver = parts[0], parts[1]
+	}
+
 	if fmtr == "" {
 		fmtr = "all"
 	}
 
 	if fmtr == "all" {
 		for _, name := range fmtrNames {
-			err := startContainer(name)
+			err := startContainer(name, ver)
 			if err != nil {
 				fmt.Println(err)
 			}
 		}
 	} else {
-		return startContainer(fmtr)
+		return startContainer(fmtr, ver)
 	}
 	return nil
 }
@@ -216,19 +223,26 @@ func Pull(fmtr string) error {
 		return err
 	}
 
+	// override the default version
+	ver := defaultVersion
+	parts := strings.Split(fmtr, "@")
+	if len(parts) == 2 {
+		fmtr, ver = parts[0], parts[1]
+	}
+
 	if fmtr == "" {
 		fmtr = "all"
 	}
 
 	if fmtr == "all" {
 		for _, name := range fmtrNames {
-			err := pullContainer(name)
+			err := pullContainer(name, ver)
 			if err != nil {
 				fmt.Println(err)
 			}
 		}
 	} else {
-		return pullContainer(fmtr)
+		return pullContainer(fmtr, ver)
 	}
 	return nil
 }

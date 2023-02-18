@@ -105,9 +105,9 @@ func updateFormatterStatus() error {
 	return nil
 }
 
-func startContainer(fmtr string) error {
+func startContainer(fmtr, ver string) error {
 	// just try to pull, if already present this will not be noticed
-	err := maybePullContainer(fmtr)
+	err := maybePullContainer(fmtr, ver)
 	if err != nil {
 		return err
 	}
@@ -124,7 +124,7 @@ func startContainer(fmtr string) error {
 		// config
 		// todo, maybe walk back versions? (dirty -> latest release)
 		&container.Config{
-			Image: fmt.Sprintf("hofstadter/fmt-%s:%s", fmtr, defaultVersion),
+			Image: fmt.Sprintf("hofstadter/fmt-%s:%s", fmtr, ver),
 		},
 
 		// hostConfig
@@ -167,11 +167,11 @@ func stopContainer(fmtr string) error {
 	)
 }
 
-func pullContainer(fmtr string) error {
-	if defaultVersion == "dirty" {
+func pullContainer(fmtr, ver string) error {
+	if ver == "dirty" {
 		return fmt.Errorf("%s: You have local changes to hof, run 'make formatters' instead", fmtr)
 	}
-	ref := fmt.Sprintf("hofstadter/fmt-%s:%s", fmtr, defaultVersion)
+	ref := fmt.Sprintf("hofstadter/fmt-%s:%s", fmtr, ver)
 	fmt.Println("pulling:", ref)
 
 	r, err := dockerCli.ImagePull(context.Background(), ref, types.ImagePullOptions{})
@@ -187,8 +187,8 @@ func pullContainer(fmtr string) error {
 	return nil
 }
 
-func maybePullContainer(fmtr string) error {
-	if defaultVersion == "dirty" {
+func maybePullContainer(fmtr, ver string) error {
+	if ver == "dirty" {
 		return nil
 	}
 	F := formatters[fmtr]
@@ -202,7 +202,7 @@ func maybePullContainer(fmtr string) error {
 	}
 
 	if !found {
-		return pullContainer(fmtr)
+		return pullContainer(fmtr, ver)
 	}
 
 	return nil

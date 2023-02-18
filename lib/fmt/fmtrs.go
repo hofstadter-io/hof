@@ -326,7 +326,7 @@ func FormatSource(filename string, content []byte, fmtrName string, config inter
 
 	// start the formatter if not running
 	if !fmtr.Running {
-		err := startContainer(fmtrTool)
+		err := startContainer(fmtrTool, defaultVersion)
 		if err != nil {
 			return content, err
 		}
