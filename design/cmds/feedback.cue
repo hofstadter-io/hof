@@ -7,12 +7,10 @@ import (
 #FeedbackCommand: schema.#Command & {
 	// TBD:   "Ø"
 	Name:  "feedback"
-	Usage: "feedback [email] <message>"
-	Aliases: ["hi", "say", "from", "bug", "yo", "hello", "greetings", "support"]
+	Usage: "feedback <message>"
+	Aliases: ["hi"]
 	Short: "send feedback, bug reports, or any message"
 	Long: """
-		send feedback, bug reports, or any message
-			email:     (optional) your email, if you'd like us to reply
-			message:   your message, please be respectful to the person receiving it
+		Opens an issue on GitHub with some fields prefilled out
 		"""
 }

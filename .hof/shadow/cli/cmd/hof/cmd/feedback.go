@@ -9,9 +9,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var feedbackLong = `send feedback, bug reports, or any message
-	email:     (optional) your email, if you'd like us to reply
-	message:   your message, please be respectful to the person receiving it`
+var feedbackLong = `Opens an issue on GitHub with some fields prefilled out`
 
 func FeedbackRun(args []string) (err error) {
 
@@ -23,17 +21,10 @@ func FeedbackRun(args []string) (err error) {
 
 var FeedbackCmd = &cobra.Command{
 
-	Use: "feedback [email] <message>",
+	Use: "feedback <message>",
 
 	Aliases: []string{
 		"hi",
-		"say",
-		"from",
-		"bug",
-		"yo",
-		"hello",
-		"greetings",
-		"support",
 	},
 
 	Short: "send feedback, bug reports, or any message",

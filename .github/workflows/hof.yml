@@ -8,6 +8,17 @@ env:
 jobs:
   test:
     environment: hof mod testing
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        go-version:
+          - 1.18.x
+          - 1.19.x
+          - 1.20.x
+        os:
+          - ubuntu-latest
+          - macos-latest
     steps:
       - name: Install Go
         uses: actions/setup-go@v3
@@ -28,13 +39,16 @@ jobs:
         run: go mod download
       - name: Build CLI
         run: go install ./cmd/hof
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v2
+      - name: Set up Docker BuildX
         if: ${{ !startsWith( runner.os, 'macos') }}
+        uses: docker/setup-buildx-action@v2
       - name: Build Formatters
         run: make formatters
         if: ${{ !startsWith( runner.os, 'macos') }}
-      - name: Run self gen test
+      - name: test/self
+        env:
+          HOFMOD_SSHKEY: ${{secrets.HOFMOD_SSHKEY}}
+          GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
         run: |-
           # fetch CUE deps
           hof mod vendor cue
@@ -43,42 +57,44 @@ jobs:
           # should have no diff
           git diff
           # git diff --exit-code
-        env:
-          HOFMOD_SSHKEY: ${{secrets.HOFMOD_SSHKEY}}
-          GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
-      - name: Start formatting containers
+      - name: Start formatters
         run: hof fmt start
         if: ${{ !startsWith( runner.os, 'macos') }}
-      - name: Run template test
-        run: hof flow @test/gen ./test.cue
-      - name: Run render tests
-        run: hof flow @test/render ./test.cue
         env:
           HOFMOD_SSHKEY: ${{secrets.HOFMOD_SSHKEY}}
           GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
-      - name: Run lib/structural tests
+      - name: test/gen
+        env:
+          HOFMOD_SSHKEY: ${{secrets.HOFMOD_SSHKEY}}
+          GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
+        run: hof flow @test/gen ./test.cue
+      - name: test/render
+        env:
+          HOFMOD_SSHKEY: ${{secrets.HOFMOD_SSHKEY}}
+          GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
+        run: hof flow @test/render ./test.cue
+      - name: test/structural
+        env:
+          HOFMOD_SSHKEY: ${{secrets.HOFMOD_SSHKEY}}
+          GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
         run: hof flow @test/st ./test.cue
-      - name: Run flow tests
+      - name: test/flow
+        env:
+          HOFMOD_SSHKEY: ${{secrets.HOFMOD_SSHKEY}}
+          GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
         run: hof flow -f test/flow ./test.cue
-      - name: Run mod tests
+      - name: test/mod
         run: hof flow -f test/mod ./test.cue
         env:
-          HOFMOD_SSHKEY: ${{secrets.HOFMOD_SSHKEY}}
-          GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
           GITLAB_TOKEN: ${{secrets.GITLAB_TOKEN}}
           BITBUCKET_USERNAME: hofstadter
+          HOFMOD_SSHKEY: ${{secrets.HOFMOD_SSHKEY}}
           BITBUCKET_PASSWORD: ${{secrets.BITBUCKET_TOKEN}}
-      - name: Run fmt tests
+          GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
+      - name: test/fmt
         run: "\thof flow -f test/fmt ./test.cue"
         if: ${{ !startsWith( runner.os, 'macos') }}
-    strategy:
-      matrix:
-        go-version:
-          - 1.18.x
-          - 1.19.x
-        os:
-          - ubuntu-latest
-          - macos-latest
-      fail-fast: false
-    runs-on: ${{ matrix.os }}
+        env:
+          HOFMOD_SSHKEY: ${{secrets.HOFMOD_SSHKEY}}
+          GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
     services: {}

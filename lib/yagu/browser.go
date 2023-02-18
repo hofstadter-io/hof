@@ -26,3 +26,13 @@ func OpenBrowserCmd(url string) (*exec.Cmd, error) {
 
 	return exec.Command(args[0], args[1:]...), nil
 }
+
+func OpenBrowserCmdSafe(url string) (error) {
+	cmd, err := OpenBrowserCmd(url)
+	if err != nil {
+		fmt.Println(url)
+		return nil
+	}
+
+	return cmd.Run()
+}

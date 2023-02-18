@@ -43,3 +43,4 @@ UserProfile: dm.#Model & {
 		lastName:   fields.String
 	}
 }
+
