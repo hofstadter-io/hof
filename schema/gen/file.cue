@@ -24,9 +24,9 @@ package gen
 	// but it results in a significant slowdown 50-100% for hof self-gen
 	// Most likely need to wait for structural sharing to land in cue
 
-	// Include Common attributes
-	//  '.' will bre replaced by generator defaults
-	TemplateDelims?: #TemplateDelims
+	// Alternative Template Delimiters
+	Delims: #TemplateDelims
+	TemplateDelims?: Delims
 
 	// Formatting Control
 	Formatting?: {
