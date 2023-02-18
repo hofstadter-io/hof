@@ -20,6 +20,20 @@ ghacue.#Workflow & {
 	}
 
 	jobs: {
+		goreleaser: {
+			environment: "hof mod testing"
+			"runs-on": "ubuntu-latest"
+			steps: [
+				common.Steps.checkout,
+				common.Steps.vars,
+				common.Steps.docker.qemu,
+				common.Steps.docker.setup,
+				common.Steps.docker.login,
+				common.Steps.go.setup,
+				common.Steps.go.deps,
+				common.Steps.go.releaser,
+			]
+		}
 		formatter: {
 			environment: "hof mod testing"
 			"runs-on": "ubuntu-latest"

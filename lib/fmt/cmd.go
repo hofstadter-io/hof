@@ -183,6 +183,7 @@ func Start(fmtr string) error {
 
 	if fmtr == "all" {
 		for _, name := range fmtrNames {
+			fmt.Println("starting:", name, ver)
 			err := startContainer(name, ver)
 			if err != nil {
 				fmt.Println(err)
