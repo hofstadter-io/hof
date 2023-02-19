@@ -15,7 +15,6 @@ ghacue.#Workflow & {
 	name: "release"
 
 	on: push: {
-		"branches-ignore": ["*", "!_dev"]
 		tags: ["v*"]
 	}
 
