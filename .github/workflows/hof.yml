@@ -35,6 +35,17 @@ jobs:
           restore-keys: ${{ runner.os }}-go-${{ matrix.go-version }}-
       - name: Checkout code
         uses: actions/checkout@v3
+      - name: Setup Vars
+        id: vars
+        run: |-
+          SHA=${GITHUB_SHA::8}
+          TAG=$(git tag --points-at HEAD)
+          echo "HOF_FMT_VERSION=${TAG}" >> $GITHUB_ENV
+          if [ -z $TAG ]; then
+          	TAG=${SHA}
+          fi
+          echo "HOF_SHA=${SHA}" >> $GITHUB_ENV
+          echo "HOF_TAG=${TAG}" >> $GITHUB_ENV
       - name: Fetch Go deps
         run: go mod download
       - name: Build CLI
@@ -43,7 +54,9 @@ jobs:
         if: ${{ !startsWith( runner.os, 'macos') }}
         uses: docker/setup-buildx-action@v2
       - name: Build Formatters
-        run: make formatters
+        run: |-
+          make formatters
+          hof fmt info
         if: ${{ !startsWith( runner.os, 'macos') }}
       - name: test/self
         env:
@@ -58,7 +71,9 @@ jobs:
           git diff
           # git diff --exit-code
       - name: Start formatters
-        run: hof fmt start
+        run: |-
+          hof fmt start
+          hof fmt info
         if: ${{ !startsWith( runner.os, 'macos') }}
         env:
           HOFMOD_SSHKEY: ${{secrets.HOFMOD_SSHKEY}}
@@ -92,7 +107,9 @@ jobs:
           BITBUCKET_PASSWORD: ${{secrets.BITBUCKET_TOKEN}}
           GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
       - name: test/fmt
-        run: "\thof flow -f test/fmt ./test.cue"
+        run: |-
+          hof fmt info
+          hof flow -f test/fmt ./test.cue
         if: ${{ !startsWith( runner.os, 'macos') }}
         env:
           HOFMOD_SSHKEY: ${{secrets.HOFMOD_SSHKEY}}

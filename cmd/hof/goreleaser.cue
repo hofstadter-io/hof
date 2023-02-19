@@ -2,7 +2,7 @@ project_name: "hof"
 
 release: {
 	disable: false
-	draft:   false
+	draft:   true
 	github: {
 		name:  "hof"
 		owner: "hofstadter-io"
@@ -44,7 +44,7 @@ dockers: [...{
 		{base: "alpine", suf: "alpine-" },
 	] {
 		dockerfile: "../../ci/hof/docker/Dockerfile.\(cfg.base)"
-		image_templates: [ for suf in ["{{.Tag}}", "v{{ .Major }}.{{ .Minor }}", "{{ .ShortCommit }}", "latest"] {
+		image_templates: [ for suf in ["{{.Tag}}", "{{ .ShortCommit }}", "latest"] {
 			"hofstadter/hof:\(cfg.suf)\(suf)",
 		}]
 	}

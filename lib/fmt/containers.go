@@ -172,8 +172,6 @@ func pullContainer(fmtr, ver string) error {
 		return fmt.Errorf("%s: You have local changes to hof, run 'make formatters' instead", fmtr)
 	}
 	ref := fmt.Sprintf("hofstadter/fmt-%s:%s", fmtr, ver)
-	fmt.Println("pulling:", ref)
-
 	r, err := dockerCli.ImagePull(context.Background(), ref, types.ImagePullOptions{})
 	if err != nil {
 		return err
@@ -195,7 +193,7 @@ func maybePullContainer(fmtr, ver string) error {
 
 	found := false
 	for _, a := range F.Available {
-		if a == fmtr {
+		if a == ver {
 			found = true
 			break
 		}

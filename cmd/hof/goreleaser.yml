@@ -1,7 +1,7 @@
 project_name: hof
 release:
   disable: false
-  draft: false
+  draft: true
   github:
     name: hof
     owner: hofstadter-io
@@ -40,21 +40,18 @@ dockers:
     skip_push: false
     image_templates:
       - hofstadter/hof:{{.Tag}}
-      - hofstadter/hof:v{{ .Major }}.{{ .Minor }}
       - hofstadter/hof:{{ .ShortCommit }}
       - hofstadter/hof:latest
   - dockerfile: ../../ci/hof/docker/Dockerfile.debian
     skip_push: false
     image_templates:
       - hofstadter/hof:debian-{{.Tag}}
-      - hofstadter/hof:debian-v{{ .Major }}.{{ .Minor }}
       - hofstadter/hof:debian-{{ .ShortCommit }}
       - hofstadter/hof:debian-latest
   - dockerfile: ../../ci/hof/docker/Dockerfile.alpine
     skip_push: false
     image_templates:
       - hofstadter/hof:alpine-{{.Tag}}
-      - hofstadter/hof:alpine-v{{ .Major }}.{{ .Minor }}
       - hofstadter/hof:alpine-{{ .ShortCommit }}
       - hofstadter/hof:alpine-latest
 archives:

@@ -18,6 +18,7 @@ ghacue.#Workflow & {
 			common.Steps.go.setup,
 			common.Steps.go.cache,
 			common.Steps.checkout,
+			common.Steps.vars,
 			common.Steps.go.deps,
 			{
 				name: "Build CLI"
@@ -28,7 +29,10 @@ ghacue.#Workflow & {
 			},
 			{
 				name: "Build Formatters"
-				run:  "make formatters"
+				run:  """
+					make formatters
+					hof fmt info
+					"""
 				"if": "${{ !startsWith( runner.os, 'macos') }}"
 			},
 		] + #TestSteps
@@ -56,7 +60,10 @@ ghacue.#Workflow & {
 }, {
 	// maybe these should be services?
 	name: "Start formatters"
-	run:  "hof fmt start"
+	run:  """
+		hof fmt start
+		hof fmt info
+		"""
 	"if": "${{ !startsWith( runner.os, 'macos') }}"
 }, {
 	name: "test/gen"
@@ -92,7 +99,8 @@ ghacue.#Workflow & {
 	// should probably be last?
 	name: "test/fmt"
 	run: """
+		hof fmt info
 		hof flow -f test/fmt ./test.cue
-	"""
+		"""
 	"if": "${{ !startsWith( runner.os, 'macos') }}"
 }]

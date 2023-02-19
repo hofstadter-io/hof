@@ -29,6 +29,7 @@ jobs:
         run: |-
           SHA=${GITHUB_SHA::8}
           TAG=$(git tag --points-at HEAD)
+          echo "HOF_FMT_VERSION=${TAG}" >> $GITHUB_ENV
           if [ -z $TAG ]; then
           	TAG=${SHA}
           fi
@@ -44,5 +45,5 @@ jobs:
           context: formatters/tools/${{ matrix.formatter }}
           file: formatters/tools/${{ matrix.formatter }}/Dockerfile.debian
           platforms: linux/amd64,linux/arm64
-          tags: hofstadter-io/fmt-${{ matrix.formatter }}:${{ env.HOF_SHA }},hofstadter-io/fmt-${{ matrix.formatter }}:${{ env.HOF_TAG }}
+          tags: hofstadter/fmt-${{ matrix.formatter }}:${{ env.HOF_SHA }},hofstadter/fmt-${{ matrix.formatter }}:${{ env.HOF_TAG }}
     services: {}

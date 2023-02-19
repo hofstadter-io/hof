@@ -15,6 +15,7 @@ Steps: {
 		run: """
 		SHA=${GITHUB_SHA::8}
 		TAG=$(git tag --points-at HEAD)
+		echo "HOF_FMT_VERSION=${TAG}" >> $GITHUB_ENV
 		if [ -z $TAG ]; then
 			TAG=${SHA}
 		fi
@@ -46,6 +47,20 @@ Steps: {
 			name: "Fetch Go deps"
 			run:  "go mod download"
 		}
+		releaser: {
+			name: "Run GoReleaser"
+			uses: "goreleaser/goreleaser-action@v4"
+			with: {
+				// either 'goreleaser' (default) or 'goreleaser-pro'
+				distribution: "goreleaser"
+				version: "latest"
+				workdir: "cmd/hof"
+				args: "release --clean -f goreleaser.yml -p 1"
+			}
+			env: {
+				GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+			}
+		}
 	}
 
 	docker: {
@@ -76,8 +91,8 @@ Steps: {
 				file: "\(context)/Dockerfile.debian"
 				platforms: "linux/amd64,linux/arm64"
 				tags: strings.Join([
-					"hofstadter-io/fmt-${{ matrix.formatter }}:${{ env.HOF_SHA }}",
-					"hofstadter-io/fmt-${{ matrix.formatter }}:${{ env.HOF_TAG }}",
+					"hofstadter/fmt-${{ matrix.formatter }}:${{ env.HOF_SHA }}",
+					"hofstadter/fmt-${{ matrix.formatter }}:${{ env.HOF_TAG }}",
 				], ",")
 			}
 		}
