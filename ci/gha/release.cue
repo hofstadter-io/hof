@@ -34,12 +34,12 @@ ghacue.#Workflow & {
 			]
 		}
 		formatter: {
-			environment: "hof mod testing"
-			"runs-on": "ubuntu-latest"
 			strategy: {
 				"fail-fast": false
 				matrix: formatter: common.Formatters
 			}
+			environment: "hof mod testing"
+			"runs-on": "ubuntu-latest"
 
 			steps: [
 				common.Steps.checkout,
@@ -47,7 +47,7 @@ ghacue.#Workflow & {
 				common.Steps.docker.qemu,
 				common.Steps.docker.setup,
 				common.Steps.docker.login,
-				common.Steps.docker."fmtr-buildx" & { with: push: true },
+				common.Steps.docker.formatters & { with: push: true },
 			]
 		}
 	}

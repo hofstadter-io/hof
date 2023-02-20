@@ -20,6 +20,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/hofstadter-io/hof/cmd/hof/verinfo"
+	"github.com/hofstadter-io/hof/lib/docker"
 )
 
 const ContainerPrefix = "hof-fmt-"
@@ -52,15 +53,15 @@ func init() {
 	}
 	
 	// gracefully init images / containers
-	err := GracefulInit()
+	err := Init()
 	if err != nil {
 		DOCKER_FORMAT_DISABLED=true
 	}
 
 }
 
-func GracefulInit() error {
-	err := initDockerCli()
+func Init() error {
+	err := docker.InitDockerClient()
 	if err != nil {
 		return err
 	}
@@ -326,7 +327,7 @@ func FormatSource(filename string, content []byte, fmtrName string, config inter
 
 	// start the formatter if not running
 	if !fmtr.Running {
-		err := startContainer(fmtrTool, defaultVersion)
+		err := Start(fmtrTool)
 		if err != nil {
 			return content, err
 		}

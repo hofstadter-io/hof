@@ -6,10 +6,8 @@ Formatters: [
 	"black",
 ]
 
-GoStrategy: {
-	"fail-fast": false
-	matrix: {
-		"go-version": ["1.18.x", "1.19.x", "1.20.x"]
-		os: ["ubuntu-latest", "macos-latest"]
-	}
+Versions: {
+	docker: "20.x" | ["20.x", "23.x"]
+	go: "1.20.x" | ["1.18.x", "1.19.x", "1.20.x"]
+	os: "ubuntu-latest" | ["ubuntu-latest", "macos-latest"]
 }

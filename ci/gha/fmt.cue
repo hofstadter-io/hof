@@ -26,7 +26,7 @@ ghacue.#Workflow & {
 			common.Steps.vars,
 			common.Steps.docker.qemu,
 			common.Steps.docker.setup,
-			common.Steps.docker."fmtr-buildx",
+			common.Steps.docker.formatters,
 		]
 	}
 }
