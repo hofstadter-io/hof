@@ -5,10 +5,12 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/olekukonko/tablewriter"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+	"github.com/hofstadter-io/hof/lib/docker"
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
@@ -165,11 +167,6 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.FmtFlagpole) (e
 }
 
 func Start(fmtr string) error {
-	err := initDockerCli()
-	if err != nil {
-		return err
-	}
-
 	// override the default version
 	ver := defaultVersion
 	parts := strings.Split(fmtr, "@")
@@ -184,52 +181,55 @@ func Start(fmtr string) error {
 	if fmtr == "all" {
 		for _, name := range fmtrNames {
 			fmt.Println("starting:", name, ver)
-			err := startContainer(name, ver)
+			err := docker.StartContainer(
+				fmt.Sprintf("hofstadter/fmt-%s:%s", name, ver),
+				fmt.Sprintf("hof-fmt-%s", name),
+			)
 			if err != nil {
 				fmt.Println(err)
 			}
 		}
 	} else {
-		return startContainer(fmtr, ver)
+		return docker.StartContainer(
+			fmt.Sprintf("hofstadter/fmt-%s:%s", fmtr, ver),
+			fmt.Sprintf("hof-fmt-%s", fmtr),
+		)
 	}
+
+	// TODO, add alive command and wait for ready
+	time.Sleep(2000*time.Millisecond)
+
 	return nil
 }
 
 func Stop(fmtr string) error {
-	err := initDockerCli()
-	if err != nil {
-		return err
-	}
-
 	if fmtr == "" {
 		fmtr = "all"
 	}
 
 	if fmtr == "all" {
 		for _, name := range fmtrNames {
-			err := stopContainer(name)
+			err := docker.StopContainer(fmt.Sprintf("hof-fmt-%s", name))
 			if err != nil {
 				fmt.Println(err)
 			}
 		}
 	} else {
-		return stopContainer(fmtr)
+		return docker.StopContainer(fmt.Sprintf("hof-fmt-%s", fmtr))
 	}
 	return nil
 }
 
 func Pull(fmtr string) error {
-	err := initDockerCli()
-	if err != nil {
-		return err
-	}
-
 	// override the default version
 	ver := defaultVersion
 	parts := strings.Split(fmtr, "@")
 	if len(parts) == 2 {
 		fmtr, ver = parts[0], parts[1]
 	}
+	if ver == "dirty" {
+		return fmt.Errorf("%s: You have local changes to hof, run 'make formatters' instead", fmtr)
+	}
 
 	if fmtr == "" {
 		fmtr = "all"
@@ -237,23 +237,20 @@ func Pull(fmtr string) error {
 
 	if fmtr == "all" {
 		for _, name := range fmtrNames {
-			err := pullContainer(name, ver)
+			ref := fmt.Sprintf("hofstadter/fmt-%s:%s", name, ver)
+			err := docker.PullImage(ref)
 			if err != nil {
 				fmt.Println(err)
 			}
 		}
 	} else {
-		return pullContainer(fmtr, ver)
+		ref := fmt.Sprintf("hofstadter/fmt-%s:%s", fmtr, ver)
+		return docker.PullImage(ref)
 	}
 	return nil
 }
 
 func Info(which string) (err error) {
-	err = initDockerCli()
-	if err != nil {
-		return err
-	}
-
 	err = updateFormatterStatus()
 	if err != nil {
 		return err
@@ -299,6 +296,77 @@ func Info(which string) (err error) {
 			return rows, nil
 		},
 	)
+
+	return nil
+}
+
+func updateFormatterStatus() error {
+
+	images, err := docker.GetImages("hofstadter/fmt-")
+	if err != nil {
+		return err
+	}
+	containers, err := docker.GetContainers("hof-fmt-")
+	if err != nil {
+		return err
+	}
+
+	// reset formatters
+	for _, fmtr := range formatters {
+		fmtr.Running = false
+		fmtr.Container = nil
+		fmtr.Available = make([]string, 0)
+	}
+
+	for _, image := range images {
+		added := false
+		for _, tag := range image.RepoTags {
+			parts := strings.Split(tag, ":")
+			repo, ver := parts[0], parts[1]
+			name := strings.TrimPrefix(repo, "hofstadter/fmt-")
+			fmtr := formatters[name]
+			fmtr.Available = append(fmtr.Available, ver)
+			if !added {
+				fmtr.Images = append(fmtr.Images, &image)
+				added = true
+			}
+		}
+	}
+
+
+	for _, container := range containers {
+		// extract name
+		name := container.Names[0]
+		name = strings.TrimPrefix(name, "/" + ContainerPrefix)
+
+		// get fmtr
+		fmtr := formatters[name]
+
+		// determine the container status
+		if container.State == "running" {
+			fmtr.Running = true
+		} else {
+			fmtr.Running = false
+		}
+
+		p := 100000
+		for _, port := range container.Ports {
+			P := int(port.PublicPort)
+			if P < p {
+				p = P
+			}
+		}
+
+		if p != 100000 {
+			fmtr.Port = fmt.Sprint(p)
+		}
+
+		// save container to fmtr
+		c := container
+		fmtr.Container = &c
+
+		formatters[name] = fmtr
+	}
 
 	return nil
 }

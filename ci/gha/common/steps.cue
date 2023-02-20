@@ -26,9 +26,10 @@ Steps: {
 
 	go: {
 		setup: {
+			#ver: string | *(string & Versions.go)
 			name: "Install Go"
 			uses: "actions/setup-go@v3"
-			with: "go-version": "${{ matrix.go-version }}"
+			with: "go-version": #ver
 		}
 		cache: {
 			uses: "actions/cache@v3"
@@ -66,7 +67,10 @@ Steps: {
 	docker: {
 		qemu: {
 			name: "Set up QEMU"
-			uses: "docker/setup-buildx-action@v2"
+			uses: "docker/setup-qemu-action@v2"
+			with: {
+				platforms: "arm64"
+			}
 		}
 
 		setup: {
@@ -83,7 +87,7 @@ Steps: {
 			}
 		}
 
-		"fmtr-buildx": {
+		formatters: {
 			name: "Build Image"
 			uses: "docker/build-push-action@v3"
 			with: {
@@ -95,6 +99,15 @@ Steps: {
 					"hofstadter/fmt-${{ matrix.formatter }}:${{ env.HOF_TAG }}",
 				], ",")
 			}
+		}
+
+		compat: {
+			name: "Test Compatibility"
+			run: """
+				docker version
+				go run test/docker/main.go
+				"""
+
 		}
 	}
 }

@@ -10,12 +10,18 @@ ghacue.#Workflow & {
 	on:   _ | *["push", "pull_request", "workflow_dispatch"]
 	env: HOF_TELEMETRY_DISABLED: "1"
 	jobs: test: {
+		strategy: {
+			"fail-fast": false
+			matrix: {
+				"go": [...] & common.Versions.go
+				os: [...] & common.Versions.os
+			}
+		}
 		environment: "hof mod testing"
 		"runs-on": "${{ matrix.os }}"
-		strategy: common.GoStrategy
 
 		steps: [
-			common.Steps.go.setup,
+			common.Steps.go.setup & { #ver: "${{ matrix.go }}" },
 			common.Steps.go.cache,
 			common.Steps.checkout,
 			common.Steps.vars,
@@ -25,6 +31,9 @@ ghacue.#Workflow & {
 				run:  "go install ./cmd/hof"
 			},
 			common.Steps.docker.setup & {
+				"if": "${{ !startsWith( runner.os, 'macos') }}"
+			},
+			common.Steps.docker.compat & {
 				"if": "${{ !startsWith( runner.os, 'macos') }}"
 			},
 			{

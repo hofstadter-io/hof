@@ -7,23 +7,23 @@ env:
   HOF_TELEMETRY_DISABLED: "1"
 jobs:
   test:
-    environment: hof mod testing
-    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        go-version:
+        go:
           - 1.18.x
           - 1.19.x
           - 1.20.x
         os:
           - ubuntu-latest
           - macos-latest
+    environment: hof mod testing
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Install Go
         uses: actions/setup-go@v3
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version: ${{ matrix.go }}
       - uses: actions/cache@v3
         with:
           path: |-
@@ -53,6 +53,11 @@ jobs:
       - name: Set up Docker BuildX
         if: ${{ !startsWith( runner.os, 'macos') }}
         uses: docker/setup-buildx-action@v2
+      - name: Test Compatibility
+        if: ${{ !startsWith( runner.os, 'macos') }}
+        run: |-
+          docker version
+          go run test/docker/main.go
       - name: Build Formatters
         run: |-
           make formatters
