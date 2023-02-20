@@ -5,12 +5,12 @@ name: fmt
     paths:
       - lib/fmt/**
       - formatters/**
-      - .github/workflows/fmt.*
+      - ci/gha/fmt.*
   pull_request:
     paths:
       - lib/fmt/**
       - formatters/**
-      - .github/workflows/fmt.*
+      - ci/gha/fmt.*
 jobs:
   formatter:
     runs-on: ubuntu-latest

@@ -2,7 +2,7 @@ package workflows
 
 import (
 	"github.com/hofstadter-io/ghacue"
-	"github.com/hofstadter-io/hof/.github/workflows/common"
+	"github.com/hofstadter-io/hof/ci/gha/common"
 )
 
 ghacue.#Workflow & {
