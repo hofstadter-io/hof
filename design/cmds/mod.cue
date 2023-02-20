@@ -6,6 +6,7 @@ import (
 
 #ModCmdImports: [
 	{Path: "github.com/hofstadter-io/hof/lib/mod", ...},
+	{Path: "github.com/hofstadter-io/hof/cmd/hof/flags", ...},
 ]
 
 #ModCommand: schema.#Command & {
@@ -21,82 +22,81 @@ import (
 
 	OmitRun: true
 
-	Imports: #ModCmdImports
+	Pflags: [...schema.#Flag] & [ {
+		Name:    "Update"
+		Long:    "update"
+		Short:   "u"
+		Type:    "bool"
+		Default: "false"
+		Help:    "update dependencies while processing"
+	}]
 
-	PersistentPrerun: true
-	PersistentPrerunBody: """
-		  mod.InitLangs()
-		"""
-
-	Commands: [{
-		Name:  "info"
-		Usage: "info [language]"
-		Short: "print info about languages and modders known to hof mod"
-		Long: """
-			print info about languages and modders known to hof mod
-				- no arg prints a list of known languages
-				- an arg prints info about the language modder configuration that would be used
-			"""
-
-		Args: [{
-			Name: "lang"
-			Type: "string"
-			Help: "name of the language to print info about"
-		}]
-
-		Imports: #ModCmdImports
-
-		Body: """
-			msg, err := mod.LangInfo(lang)
+	#body: {
+		func: string
+		module: bool | *false
+		_modstr: string | *""
+		if module == true {
+			_modstr: "module, "
+		}
+		content: """
+			err = mod.\(func)(\(_modstr) flags.RootPflags, flags.ModPflags)
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
 			}
-			fmt.Println(msg)
 			"""
-	}, {
+	}
+
+	Commands: [{
 		Name:  "init"
-		Usage: "init <lang> <module>"
+		Usage: "init <module>"
 		Short: "initialize a new module in the current directory"
 		Long:  Short
 
 		Args: [{
-			Name:     "lang"
-			Type:     "string"
-			Required: true
-			Help:     "name of the language to print info about"
-		}, {
 			Name:     "module"
 			Type:     "string"
 			Required: true
-			Help:     "module name or path, depending on language"
+			Help:     "module path"
+		}]
+
+		Imports: #ModCmdImports
+		Body: (#body & { func: "Init", module: true }).content
+
+	}, {
+		Name:  "get"
+		Usage: "get <module>"
+		Short: "add a new dependency to the current module"
+		Long:  Short
+
+		Args: [{
+			Name:     "module"
+			Type:     "string"
+			Required: true
+			Help:     "module path@version"
 		}]
 
 		Imports: #ModCmdImports
 
-		Body: """
-			err = mod.Init(lang, module)
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-			"""
+		Body: (#body & { func: "Get", module: true }).content
 	}, {
-		// TBD:   "β"
-		Name:  "vendor"
-		Usage: "vendor [langs...]"
-		Short: "make a vendored copy of dependencies"
+		Name:  "tidy"
+		Usage: "tidy"
+		Short: "recalculate dependencies and update mod files"
 		Long:  Short
 
 		Imports: #ModCmdImports
 
-		Body: """
-			err = mod.ProcessLangs("vendor", args)
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-			"""
+		Body: (#body & { func: "Tidy" }).content
+	}, {
+		Name:  "vendor"
+		Usage: "vendor"
+		Short: "copy dependencies to cue.mod/pkg"
+		Long:  Short
+
+		Imports: #ModCmdImports
+
+		Body: (#body & { func: "Vendor" }).content
 	}]
 
 }

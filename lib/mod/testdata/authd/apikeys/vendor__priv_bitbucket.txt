@@ -1,15 +1,10 @@
 # hof mod vendor - with deps
 exec hof mod vendor
 
--- cue.mods --
-module github.com/test/priv-bitbucket
-
-cue v0.4.3
-
-require (
-    bitbucket.org/hofstadter/hofmod-test-priv-bitbucket v0.0.1
-)
 -- cue.mod/module.cue --
 module: "github.com/test/priv-bitbucket"
+cue: "v0.5.0"
 
--- dummy_end --
+require: {
+	"bitbucket.org/hofstadter/hofmod-test-priv-bitbucket": "v0.0.2"
+}

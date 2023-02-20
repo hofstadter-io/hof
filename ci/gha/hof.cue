@@ -58,13 +58,16 @@ ghacue.#Workflow & {
 #TestSteps: [{
 	name: "test/self"
 	run: """
-		# fetch CUE deps
-		hof mod vendor cue
-		# generate templates
+		# self: gen -> diff
+		set -e
+
+		# mods stuff & gen
+		hof mod tidy
+		hof mod vendor
 		hof gen
+
 		# should have no diff
-		git diff
-		# git diff --exit-code
+		git diff --exit-code
 		"""
 }, {
 	// maybe these should be services?

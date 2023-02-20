@@ -1,17 +1,13 @@
 # hof mod vendor - with deps
 exec hof mod vendor
 
--- cue.mods --
-module github.com/test/withsolo
-
-cue v0.4.3
-
-require (
-    github.com/hofstadter-io/hof v0.6.7
-)
 -- cue.mod/module.cue --
 module: "github.com/test/withsolo"
+cue: "v0.5.0"
 
+require: {
+	"github.com/hofstadter-io/hof": "v0.6.8-mod.1"
+}
 -- dummy_end --
 
 
@@ -19,17 +15,14 @@ module: "github.com/test/withsolo"
 # hof mod vendor - with deps
 exec hof mod vendor
 
--- cue.mods --
-module github.com/test/withmulti
-
-cue v0.4.3
-
-require (
-    github.com/hofstadter-io/hof v0.6.7
-    github.com/hofstadter-io/hofmod-cli v0.7.13
-)
 -- cue.mod/module.cue --
 module: "github.com/test/withmulti"
+cue: "v0.5.0"
+
+require: {
+	"github.com/hofstadter-io/hof": "v0.6.8-mod.1"
+  "github.com/hofstadter-io/hofmod-cli": "v0.8.0-mod.2"
+}
 
 -- dummy_end --
 
@@ -37,33 +30,26 @@ module: "github.com/test/withmulti"
 # hof mod vendor - require v0.0.0 - A
 exec hof mod vendor
 
--- cue.mods --
-module github.com/test/mod-v000-a
-
-cue v0.4.3
-
-require (
-    github.com/hofstadter-io/hofmod-cli v0.0.0
-)
 -- cue.mod/module.cue --
 module: "github.com/test/mod-v000-a"
+cue: "v0.5.0"
 
+require: {
+	"github.com/hofstadter-io/hof": "v0.0.0"
+}
 -- dummy_end --
 
 # hof mod vendor - BUG require v0.0.0 - B
 exec hof mod vendor
 
--- cue.mods --
-module github.com/test/mod-v000-b
-
-cue v0.4.3
-
-require (
-    github.com/hofstadter-io/hofmod-cli v0.0.0
-    github.com/hofstadter-io/hof v0.0.0
-)
 -- cue.mod/module.cue --
 module: "github.com/test/mod-v000-b"
+cue: "v0.5.0"
+
+require: {
+	"github.com/hofstadter-io/hof": "v0.0.0"
+  "github.com/hofstadter-io/hofmod-cli": "v0.0.0"
+}
 
 -- dummy_end --
 

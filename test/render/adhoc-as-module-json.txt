@@ -4,6 +4,9 @@ cmp out.txt out.golden
 exec hof gen data.json -T template.txt=out.txt --as-module hof.io/test/adhoc
 # cmp adhoc.cue module.golden
 
+# because tests...
+exec hof mod vendor
+
 exec hof gen data.json adhoc.cue
 cmp out.txt out.golden
 

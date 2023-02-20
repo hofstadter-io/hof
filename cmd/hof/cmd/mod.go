@@ -1,14 +1,11 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/spf13/cobra"
 
-	"github.com/hofstadter-io/hof/lib/mod"
-
 	"github.com/hofstadter-io/hof/cmd/hof/cmd/mod"
+
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
@@ -119,11 +116,9 @@ See the ./lib/mod/langs in the repository for examples.
 - We need a module system for our [hof-lang](https://hof-lang.org) project.
 `
 
-func ModPersistentPreRun(args []string) (err error) {
+func init() {
 
-	mod.InitLangs()
-
-	return err
+	ModCmd.PersistentFlags().BoolVarP(&(flags.ModPflags.Update), "update", "u", false, "update dependencies while processing")
 }
 
 var ModCmd = &cobra.Command{
@@ -137,18 +132,6 @@ var ModCmd = &cobra.Command{
 	Short: "polyglot dependency management based on go mods and MVS",
 
 	Long: modLong,
-
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		var err error
-
-		// Argument Parsing
-
-		err = ModPersistentPreRun(args)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-	},
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
@@ -189,8 +172,9 @@ func init() {
 	ModCmd.SetHelpFunc(thelp)
 	ModCmd.SetUsageFunc(tusage)
 
-	ModCmd.AddCommand(cmdmod.InfoCmd)
 	ModCmd.AddCommand(cmdmod.InitCmd)
+	ModCmd.AddCommand(cmdmod.GetCmd)
+	ModCmd.AddCommand(cmdmod.TidyCmd)
 	ModCmd.AddCommand(cmdmod.VendorCmd)
 
 }

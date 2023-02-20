@@ -1,47 +1,15 @@
-# hof mod init - no args
-! exec hof mod init
-stdout 'missing required argument: ''lang'''
-stderr 'hof mod init <lang> <module> \[flags\]'
-
-
 # hof mod init - missing module
-! exec hof mod init cue
+! exec hof mod init 
 stdout 'missing required argument: ''module'''
-stderr 'hof mod init <lang> <module> \[flags\]'
+stderr 'hof mod init <module> \[flags\]'
 
-
-# hof mod init - unknown lang, missing module
-! exec hof mod init blah
-stdout 'missing required argument: ''module'''
-stderr 'hof mod init <lang> <module> \[flags\]'
-
-
-# hof mod init - unknown lang, badfmt module
-! exec hof mod init blah blah
-stdout 'Unknown language "blah".'
+# hof mod init - bad path
+! exec hof mod init foobar
+stdout 'bad module name "foobar", should have domain format ''domain.com/...'''
 ! stderr '.'
 
 
-# hof mod init - unknown lang, goodfmt module
-! exec hof mod init blah github.com/test/unknownlang
-stdout 'Unknown language "blah".'
-! stderr '.'
-
-
-# hof mod init - known lan, badfmt module 
-! exec hof mod init cue blah
-stdout 'bad module format "blah", should be ''domain.com/repo/proj'''
-! stderr '.'
-
-
-# hof mod init - backwards args
-! exec hof mod init github.com/test/backwards cue
-stdout 'Unknown language "github.com/test/backwards".'
-! stderr .
-
-
-# hof mod init - ensure none of these created any files
-! exists cue.mods
-! exists cue.sums
+# hof mod init - ensure no files created
 ! exists cue.mod/
 ! exists cue.mod/module.cue
+! exists cue.mod/sums.cue

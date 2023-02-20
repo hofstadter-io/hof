@@ -159,17 +159,13 @@ func (R *Runtime) AsModule() error {
 		if err != nil {
 			return err
 		}
-		err = render("cue.mods", cuemodsTemplate)
-		if err != nil {
-			return err
-		}
 		err = render("cue.mod/module.cue", cuemodFileTemplate)
 		if err != nil {
 			return err
 		}
 
 		// fetch deps
-		cmd := exec.Command("hof", "mod", "vendor", "cue")
+		cmd := exec.Command("hof", "mod", "tidy")
 		out, err := cmd.CombinedOutput()
 		fmt.Println(string(out))
 		if err != nil {
@@ -330,19 +326,11 @@ import (
 
 const cuemodFileTemplate = `
 module: "{{ .Module }}/{{ .Name }}"
-`
+cue: "v0.5.0"
 
-// todo, add version as template, so we can inject the current version and not have to maintain this version below
-// the harder part is development and fallback, to appropriate version for dep fetching, maybe support a replace too?
-// (but also we need to test the real thing, when not on a tag)
-const cuemodsTemplate = `
-module {{ .Module }}/{{ .Name }}
-
-cue v0.4.3
-
-require (
-	github.com/hofstadter-io/hof v0.6.7
-)
+require: {
+	"github.com/hofstadter-io/hof": "v0.6.8-mod.1"
+}
 `
 
 const finalMsg = `To run the '{{.Name}}' generator...
