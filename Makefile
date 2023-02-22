@@ -10,13 +10,15 @@ help:
 	cat Makefile
 .PHONY: help
 
+.PHONY: github workflow devcontainer
+github: workflow devcontainer
 # GitHub Actions workflows
-.PHONY: workflow
 workflows = $(addprefix workflow_, $(GHA_FILES))
 workflow: $(workflows)
 $(workflows): workflow_%:
-	@cue export --out yaml $(subst workflow_,,$@) > $(subst workflow_,,$(subst .cue,,$@)).yml
-	@mv ci/gha/*.yml .github/workflows/
+	@cue export --out yaml $(subst workflow_,,$@) -f -o $(subst ci/gha,.github/workflows,$(subst workflow_,,$(subst .cue,,$@))).yml
+devcontainer: ci/devc/devcontainer.cue
+	@cue export ci/devc/devcontainer.cue -f -o .devcontainer/devcontainer.json
 
 .PHONY: hof
 hof:
