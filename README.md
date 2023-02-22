@@ -8,7 +8,7 @@ Enhance your workflow and automate repetitive development. Language and technolo
 1. __data model__ - define & manage data models - the source of truth
 2. __code generation__ - data + template = _ (anything) - technology agnostic
 3. __app blueprints__ - bootstrap config and other files - consistent skaffolding
-4. __task engine - composable, extendable tasks and workflows - a DAG engine
+4. __task engine__ - composable, extendable tasks and workflows - a DAG engine
 5. __modules__ - composable data models & generators - an ecosystem
 
 <img src="./images/how-hof-works.svg" alt="how hof works" width="100%" height="auto" style="max-width:600px">
@@ -85,19 +85,19 @@ Usage:
   hof [flags] [command] [args]
 
 Main commands:
-  create                bootstrap projects, components, and files from any git repo
+  create                dynamic blueprints from any git repo
   datamodel             manage, diff, and migrate your data models
   gen                   modular and composable code gen: CUE & data + templates = _
   flow                  run CUE pipelines with the hof/flow DAG engine
   fmt                   format any code and manage the formatters
-  mod                   polyglot dependency management based on go mods and MVS
+  mod                   go style dependency management for CUE
 
 Additional commands:
   help                  help about any command
   update                check for new versions and run self-updates
   version               print detailed version information
   completion            generate completion helpers for your terminal
-  feedback              send feedback, bug reports, or any message
+  feedback              open an issue or discussion on GitHub
 
 Flags:
   -h, --help             help for hof
@@ -106,5 +106,6 @@ Flags:
   -v, --verbosity int    set the verbosity of output
 
 Use "hof [command] --help / -h" for more information about a command.
+
 ```
 
