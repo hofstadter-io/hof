@@ -1,0 +1,16 @@
+exec hof mod init hof.io/test
+cmp cue.mod/module.cue match/cue.mod/module-init.cue
+
+exec hof mod get github.com/hofstadter-io/hof@v0.6.8-beta.3
+cmp cue.mod/module.cue match/cue.mod/module-get.cue
+
+-- match/cue.mod/module-init.cue --
+module: "hof.io/test"
+cue: "v0.5.0"
+-- match/cue.mod/module-get.cue --
+module: "hof.io/test"
+cue: "v0.5.0"
+
+require: {
+	"github.com/hofstadter-io/hof": "v0.6.8-beta.3"
+}

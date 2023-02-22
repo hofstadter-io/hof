@@ -268,7 +268,7 @@ func (cm *CueMod) WriteModFile() (err error) {
 
 	// write sections
 	writeSortedMap("exclude", cm.Exclude)
-	writeSortedMap("required", cm.Require)
+	writeSortedMap("require", cm.Require)
 	writeSortedMap("indirect", cm.Indirect)
 
 	// write replaces, enough different to warrant own code
