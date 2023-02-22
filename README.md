@@ -31,11 +31,8 @@ Learn more about CUE: [cuelang.org](https://cuelang.org) | [cuetorials.com](http
 
 Please see __[docs.hofstadter.io](https://docs.hofstadter.io)__ to learn more.
 
-The [first-example](https://docs.hofstadter.io/first-example)
-will take you through the process
-of creating and using a simple generator
-[Several demos](https://github.com/hofstadter-io/demos) in a separate repository
-and various `hofmod-*` repositories are available for you to use.
+The [getting-started](https://docs.hofstadter.io/getting-started/) section will take you on a tour of hof.
+The [first-example](https://docs.hofstadter.io/first-example/) shows you how to build and use a generator.
 
 Join us on Slack! [https://hofstadter-io.slack.com](https://join.slack.com/t/hofstadter-io/shared_invite/zt-e5f90lmq-u695eJur0zE~AG~njNlT1A)
 We are more than happy to answer your questions.
@@ -45,12 +42,12 @@ We are more than happy to answer your questions.
 
 ## Install
 
-You will have to download `hof` the first time.
+Download `hof` just once.
 After that `hof` will prompt you to update and
 install new releases as they become available.
 
-You can find the latest version from the
-[releases page](https://github.com/hofstadter-io/hof/releases)
+You can always find the latest version on our
+[GitHub releases page](https://github.com/hofstadter-io/hof/releases)
 or use `hof` to install a specific version of itself with `hof update --version vX.Y.Z`.
 
 ```shell
