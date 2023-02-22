@@ -1,0 +1,73 @@
+archives:
+    - files:
+        - thisfiledoesnotexist*
+      format: binary
+      replacements:
+        amd64: x86_64
+        darwin: Darwin
+        linux: Linux
+        windows: Windows
+builds:
+    - binary: hof
+      env:
+        - CGO_ENABLED=0
+      goarch:
+        - amd64
+        - arm64
+      goos:
+        - darwin
+        - linux
+        - windows
+      ldflags:
+        - -s -w
+        - -X github.com/hofstadter-io/hof/cmd/hof/verinfo.Version={{.Version}}
+        - -X github.com/hofstadter-io/hof/cmd/hof/verinfo.Commit={{.FullCommit}}
+        - -X github.com/hofstadter-io/hof/cmd/hof/verinfo.BuildDate={{.Date}}
+        - -X github.com/hofstadter-io/hof/cmd/hof/verinfo.BuildOS={{.Os}}
+        - -X github.com/hofstadter-io/hof/cmd/hof/verinfo.BuildArch={{.Arch}}
+        - -X github.com/hofstadter-io/hof/cmd/hof/verinfo.BuildArm={{.Arm}}
+      main: main.go
+changelog:
+    filters:
+        exclude:
+            - '^docs:'
+            - '^test:'
+    sort: asc
+checksum:
+    name_template: '{{ .ProjectName }}_{{ .Version }}_checksums.txt'
+dockers:
+    - dockerfile: ../../ci/hof/docker/Dockerfile.debian
+      image_templates:
+        - hofstadter/{{.ProjectName}}:{{.Tag}}
+        - hofstadter/{{.ProjectName}}:v{{ .Major }}.{{ .Minor }}
+        - hofstadter/{{.ProjectName}}:v{{ .Major }}
+        - hofstadter/{{.ProjectName}}:latest
+        - hofstadter/{{.ProjectName}}:{{.Tag}}-debian
+        - hofstadter/{{.ProjectName}}:v{{ .Major }}.{{ .Minor }}-debian
+        - hofstadter/{{.ProjectName}}:v{{ .Major }}-debian
+        - hofstadter/{{.ProjectName}}:latest-debian
+      skip_push: false
+    - dockerfile: ../../ci/hof/docker/Dockerfile.alpine
+      image_templates:
+        - hofstadter/{{.ProjectName}}:{{.Tag}}-alpine
+        - hofstadter/{{.ProjectName}}:v{{ .Major }}.{{ .Minor }}-alpine
+        - hofstadter/{{.ProjectName}}:v{{ .Major }}-alpine
+        - hofstadter/{{.ProjectName}}:latest-alpine
+      skip_push: false
+    - dockerfile: ../../ci/hof/docker/Dockerfile.scratch
+      image_templates:
+        - hofstadter/{{.ProjectName}}:{{.Tag}}-scratch
+        - hofstadter/{{.ProjectName}}:v{{ .Major }}.{{ .Minor }}-scratch
+        - hofstadter/{{.ProjectName}}:v{{ .Major }}-scratch
+        - hofstadter/{{.ProjectName}}:latest-scratch
+      skip_push: false
+project_name: hof
+release:
+    disable: false
+    draft: false
+    github:
+        name: hof
+        owner: hofstadter-io
+snapshot:
+    name_template: '{{ .Tag }}-SNAPSHOT-{{.ShortCommit}}'
+

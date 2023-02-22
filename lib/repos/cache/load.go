@@ -69,11 +69,11 @@ func Cache(url, ver string) (billy.Filesystem, error) {
 
 	FS, err := FetchRepoToMem(url, ver)
 	if err != nil {
-		return FS, err
+		return nil, err
 	}
 
 	if err := Write(remote, owner, repo, ver, FS); err != nil {
-		return FS, fmt.Errorf("While writing to cache\n%w\n", err)
+		return nil, fmt.Errorf("While writing to cache\n%w\n", err)
 	}
 
 	return FS, nil

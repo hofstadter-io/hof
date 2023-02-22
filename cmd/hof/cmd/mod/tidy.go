@@ -13,11 +13,11 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var vendorLong = `copy dependencies to cue.mod/pkg`
+var tidyLong = `recalculate dependencies and update mod files`
 
-func VendorRun(args []string) (err error) {
+func TidyRun(args []string) (err error) {
 
-	err = mod.Vendor(flags.RootPflags, flags.ModPflags)
+	err = mod.Tidy(flags.RootPflags, flags.ModPflags)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -26,13 +26,13 @@ func VendorRun(args []string) (err error) {
 	return err
 }
 
-var VendorCmd = &cobra.Command{
+var TidyCmd = &cobra.Command{
 
-	Use: "vendor",
+	Use: "tidy",
 
-	Short: "copy dependencies to cue.mod/pkg",
+	Short: "recalculate dependencies and update mod files",
 
-	Long: vendorLong,
+	Long: tidyLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
@@ -45,7 +45,7 @@ var VendorCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		err = VendorRun(args)
+		err = TidyRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -59,8 +59,8 @@ func init() {
 		return false
 	}
 
-	ohelp := VendorCmd.HelpFunc()
-	ousage := VendorCmd.UsageFunc()
+	ohelp := TidyCmd.HelpFunc()
+	ousage := TidyCmd.UsageFunc()
 	help := func(cmd *cobra.Command, args []string) {
 		if extra(cmd) {
 			return
@@ -82,7 +82,7 @@ func init() {
 		ga.SendCommandPath(cmd.CommandPath() + " usage")
 		return usage(cmd)
 	}
-	VendorCmd.SetHelpFunc(thelp)
-	VendorCmd.SetUsageFunc(tusage)
+	TidyCmd.SetHelpFunc(thelp)
+	TidyCmd.SetUsageFunc(tusage)
 
 }

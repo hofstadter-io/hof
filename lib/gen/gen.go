@@ -438,16 +438,12 @@ func InitModule(args []string, rootflags flags.RootPflagpole, cmdflags flags.Gen
 	if err != nil {
 		return err
 	}
-	err = render("cue.mods", cuemodsTemplate)
-	if err != nil {
-		return err
-	}
 	err = render("cue.mod/module.cue", cuemodFileTemplate)
 	if err != nil {
 		return err
 	}
 	// todo, fetch deps
-	msg, err := yagu.Shell("hof mod vendor cue", "")
+	msg, err := yagu.Shell("hof mod tidy", "")
 	fmt.Println(msg)
 	if err != nil {
 		return err

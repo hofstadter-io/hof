@@ -11,7 +11,6 @@ jobs:
       fail-fast: false
       matrix:
         go:
-          - 1.18.x
           - 1.19.x
           - 1.20.x
         os:
@@ -68,13 +67,16 @@ jobs:
           HOFMOD_SSHKEY: ${{secrets.HOFMOD_SSHKEY}}
           GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
         run: |-
-          # fetch CUE deps
-          hof mod vendor cue
-          # generate templates
+          # self: gen -> diff
+          set -e
+
+          # mods stuff & gen
+          hof mod tidy
+          hof mod vendor
           hof gen
+
           # should have no diff
-          git diff
-          # git diff --exit-code
+          git diff --exit-code
       - name: Start formatters
         run: |-
           hof fmt start

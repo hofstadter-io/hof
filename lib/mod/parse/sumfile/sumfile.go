@@ -6,6 +6,7 @@ package sumfile
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
@@ -93,4 +94,40 @@ func (sum *Sum) Write() (string, error) {
 	}
 
 	return w.String(), nil
+}
+
+func (sum *Sum) WriteCUE() ([]byte, error) {
+	// build up slice
+	var sorted []Version
+	for ver, _ := range sum.Mods {
+		sorted = append(sorted, ver)
+	}
+
+	// sort slice by ver.Path
+	sort.Slice(sorted, func(i, j int) bool {
+		if sorted[i].Path == sorted[j].Path {
+			return sorted[i].Version < sorted[j].Version
+		}
+		return sorted[i].Path < sorted[j].Path
+	})
+
+	var buf bytes.Buffer
+	buf.WriteString("sums: {\n")
+
+	for _, ver := range sorted {
+		hashes := sum.Mods[ver]
+		m := fmt.Sprintf("\t%q: %q: ", ver.Path, ver.Version)
+		h, err := json.Marshal(hashes)
+		if err != nil {
+			return nil, err
+		}
+
+		buf.WriteString(m)
+		buf.Write(h)
+		buf.WriteRune('\n')
+	}
+
+	buf.WriteString("}\n")
+
+	return buf.Bytes(), nil
 }

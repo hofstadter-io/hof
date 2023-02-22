@@ -40,7 +40,7 @@ func (ts *Script) CmdStatus(neg int, args []string) {
 
 }
 
-var execCache par.Cache
+var execCache par.Cache[string, any]
 
 // condition reports whether the given condition is satisfied.
 func (ts *Script) condition(cond string) (bool, error) {

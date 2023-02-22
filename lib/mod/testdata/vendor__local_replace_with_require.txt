@@ -3,27 +3,18 @@ exec hof mod vendor
 
 
 
--- cue.mods --
-module github.com/test/mod
-
-cue v0.4.3
-
-require (
-    github.com/hofstadter-io/hof v0.0.0
-)
-
-replace github.com/hofstadter-io/hof => ./simhof
-
 -- cue.mod/module.cue --
 module: "github.com/test/mod"
+cue: "v0.5.0"
 
--- dummy_end --
+require: {
+	"github.com/hofstadter-io/hof": "v0.6.8-mod.1"
+  "github.com/hofstadter-io/hofmod-cli": "v0.8.0-mod.2"
+}
 
-
--- simhof/cue.mods --
-module github.com/hofstadter-io/hof
-
-cue v0.4.3
+replace: {
+	"github.com/hofstadter-io/hof": "./simhof"
+}
 
 -- simhof/cue.mod/module.cue --
 module: "github.com/hofstadter-io/hof"

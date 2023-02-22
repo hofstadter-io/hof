@@ -8,14 +8,16 @@ import (
 
 	"github.com/hofstadter-io/hof/lib/mod"
 
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
+
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var vendorLong = `make a vendored copy of dependencies`
+var vendorLong = `copy dependencies to cue.mod/pkg`
 
 func VendorRun(args []string) (err error) {
 
-	err = mod.ProcessLangs("vendor", args)
+	err = mod.Vendor(flags.RootPflags, flags.ModPflags)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -26,9 +28,9 @@ func VendorRun(args []string) (err error) {
 
 var VendorCmd = &cobra.Command{
 
-	Use: "vendor [langs...]",
+	Use: "vendor",
 
-	Short: "make a vendored copy of dependencies",
+	Short: "copy dependencies to cue.mod/pkg",
 
 	Long: vendorLong,
 

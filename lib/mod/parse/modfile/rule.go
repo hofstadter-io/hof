@@ -172,7 +172,7 @@ func (f *File) add(errs *bytes.Buffer, line *Line, verb string, args []string, f
 	// and simply ignore those statements.
 	if !strict {
 		switch verb {
-		case "module", "require", "go":
+		case "module", "require", "go", "cue":
 			// want these even for dependency go.mods
 		default:
 			return
@@ -792,4 +792,35 @@ func (f *File) removeDups() {
 		stmts = append(stmts, stmt)
 	}
 	f.Syntax.Stmt = stmts
+}
+
+func (mod *File) WriteCUE() ([]byte, error) {
+	// build up slice
+	var sorted []module.Version
+	for _, ver := range mod.Require {
+		sorted = append(sorted, ver.Mod)
+	}
+
+	// sort slice by ver.Path
+	sort.Slice(sorted, func(i, j int) bool {
+		if sorted[i].Path == sorted[j].Path {
+			return sorted[i].Version < sorted[j].Version
+		}
+		return sorted[i].Path < sorted[j].Path
+	})
+	
+
+	var buf bytes.Buffer
+	buf.WriteString(fmt.Sprintf("module: %q\n", mod.Module.Mod.Path))
+	buf.WriteString(fmt.Sprintf("%s: %q\n", mod.Language.Name, mod.Language.Version))
+
+	buf.WriteString("\nrequire: {\n")
+	for _, ver := range sorted {
+		m := fmt.Sprintf("\t%q: %q\n", ver.Path, ver.Version)
+		buf.WriteString(m)
+	}
+
+	buf.WriteString("}\n")
+
+	return buf.Bytes(), nil
 }

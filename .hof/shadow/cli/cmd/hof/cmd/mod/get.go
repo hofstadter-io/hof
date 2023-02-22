@@ -8,32 +8,31 @@ import (
 
 	"github.com/hofstadter-io/hof/lib/mod"
 
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
+
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var infoLong = `print info about languages and modders known to hof mod
-	- no arg prints a list of known languages
-	- an arg prints info about the language modder configuration that would be used`
+var getLong = `add a new dependency to the current module`
 
-func InfoRun(lang string) (err error) {
+func GetRun(module string) (err error) {
 
-	msg, err := mod.LangInfo(lang)
+	err = mod.Get(module, flags.RootPflags, flags.ModPflags)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	fmt.Println(msg)
 
 	return err
 }
 
-var InfoCmd = &cobra.Command{
+var GetCmd = &cobra.Command{
 
-	Use: "info [language]",
+	Use: "get <module>",
 
-	Short: "print info about languages and modders known to hof mod",
+	Short: "add a new dependency to the current module",
 
-	Long: infoLong,
+	Long: getLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
@@ -46,15 +45,21 @@ var InfoCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		var lang string
+		if 0 >= len(args) {
+			fmt.Println("missing required argument: 'module'")
+			cmd.Usage()
+			os.Exit(1)
+		}
+
+		var module string
 
 		if 0 < len(args) {
 
-			lang = args[0]
+			module = args[0]
 
 		}
 
-		err = InfoRun(lang)
+		err = GetRun(module)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -68,8 +73,8 @@ func init() {
 		return false
 	}
 
-	ohelp := InfoCmd.HelpFunc()
-	ousage := InfoCmd.UsageFunc()
+	ohelp := GetCmd.HelpFunc()
+	ousage := GetCmd.UsageFunc()
 	help := func(cmd *cobra.Command, args []string) {
 		if extra(cmd) {
 			return
@@ -91,7 +96,7 @@ func init() {
 		ga.SendCommandPath(cmd.CommandPath() + " usage")
 		return usage(cmd)
 	}
-	InfoCmd.SetHelpFunc(thelp)
-	InfoCmd.SetUsageFunc(tusage)
+	GetCmd.SetHelpFunc(thelp)
+	GetCmd.SetUsageFunc(tusage)
 
 }
