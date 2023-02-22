@@ -1,6 +1,6 @@
 # hof - the high code framework
 
-`hof` is a tool that weaves togther data models, code generation, and task engie with CUE.
+`hof` is a tool that weaves together data models, code generation, and task engine with CUE.
 Enhance your workflow and automate repetitive development. Language and technology agnostic.
 
 <!-- something about osurce of thuth, unified abstraction later, interoperablility... -->
