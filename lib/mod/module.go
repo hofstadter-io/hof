@@ -28,6 +28,7 @@ type CueMod struct {
 	Require  map[string]string
 	Indirect map[string]string
 	Replace  map[string]Dep
+	Exclude  map[string]string
 	Sums     map[Dep][]string
 
 	// final list produced by MVS
@@ -57,6 +58,23 @@ func ReadModule(basedir string, FS billy.Filesystem) (cm *CueMod, err error) {
 		if _, ok := err.(*os.PathError); !ok && (strings.Contains(err.Error(), "file does not exist") || strings.Contains(err.Error(), "no such file")) {
 			return cm, err
 		}
+	}
+
+	// make any empty collections
+	if cm.Require == nil {
+		cm.Require = make(map[string]string)
+	}
+	if cm.Indirect == nil {
+		cm.Indirect = make(map[string]string)
+	}
+	if cm.Replace == nil {
+		cm.Replace = make(map[string]Dep)
+	}
+	if cm.Exclude == nil {
+		cm.Exclude = make(map[string]string)
+	}
+	if cm.Sums == nil {
+		cm.Sums = make(map[Dep][]string)
 	}
 
 	return cm, nil
@@ -97,6 +115,15 @@ func (cm *CueMod) ParseModFile(data []byte) (err error) {
 		return err
 	}
 
+
+	// parse excludes
+	excludes := v.LookupPath(cue.ParsePath("exclude"))
+	if excludes.Exists() {
+		err = excludes.Decode(&(cm.Exclude))
+		if err != nil {
+			return err
+		}
+	}
 
 	// read require files
 	requires  := v.LookupPath(cue.ParsePath("require"))
@@ -208,33 +235,14 @@ func (cm *CueMod) WriteModFile() (err error) {
 
 	var buf bytes.Buffer
 
-	// write top-level data
-	buf.WriteString(fmt.Sprintf("module: %q\n", cm.Module))
-	buf.WriteString(fmt.Sprintf("cue: %q\n", cm.CueVer))
-
-
-	// write requires
-	var sorted []module.Version
-	for path, ver := range cm.Require {
-		sorted = append(sorted, module.Version{Path: path, Version: ver})
-	}
-	sort.Slice(sorted, func(i, j int) bool {
-		if sorted[i].Path == sorted[j].Path {
-			return sorted[i].Version < sorted[j].Version
+	// local helper for writing some sections
+	writeSortedMap := func (name string, entries map[string]string) error {
+		if len(entries) == 0 {
+			return nil
 		}
-		return sorted[i].Path < sorted[j].Path
-	})
-	buf.WriteString("\nrequire: {\n")
-	for _, ver := range sorted {
-		m := fmt.Sprintf("\t%q: %q\n", ver.Path, ver.Version)
-		buf.WriteString(m)
-	}
-	buf.WriteString("}\n")
-
-	// write indirects
-	if len(cm.Indirect) > 0 {
+		// sort by path & version
 		var sorted []module.Version
-		for path, ver := range cm.Indirect {
+		for path, ver := range entries {
 			sorted = append(sorted, module.Version{Path: path, Version: ver})
 		}
 		sort.Slice(sorted, func(i, j int) bool {
@@ -243,15 +251,27 @@ func (cm *CueMod) WriteModFile() (err error) {
 			}
 			return sorted[i].Path < sorted[j].Path
 		})
-		buf.WriteString("\nindirect: {\n")
+
+		// write block
+		buf.WriteString(fmt.Sprintf("\n%s: {\n", name))
 		for _, ver := range sorted {
-			m := fmt.Sprintf("\t%q: %q\n", ver.Path, ver.Version)
-			buf.WriteString(m)
+			buf.WriteString(fmt.Sprintf("\t%q: %q\n", ver.Path, ver.Version))
 		}
 		buf.WriteString("}\n")
+
+		return nil
 	}
 
-	// write replaces
+	// write top-level data
+	buf.WriteString(fmt.Sprintf("module: %q\n", cm.Module))
+	buf.WriteString(fmt.Sprintf("cue: %q\n", cm.CueVer))
+
+	// write sections
+	writeSortedMap("exclude", cm.Exclude)
+	writeSortedMap("required", cm.Require)
+	writeSortedMap("indirect", cm.Indirect)
+
+	// write replaces, enough different to warrant own code
 	if len(cm.Replace) > 0 {
 		var sorted []module.Version
 		for path, _ := range cm.Replace {
