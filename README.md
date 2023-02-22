@@ -1,11 +1,15 @@
 # hof - the high code framework
 
-`hof` combines data models, code generation, and modules
-to help you write and maintain large amounts of code.
+`hof` is a tool that weaves togther data models, code generation, and task engie with CUE.
+Enhance your workflow and automate repetitive development. Language and technology agnostic.
+
+<!-- something about osurce of thuth, unified abstraction later, interoperablility... -->
 
 1. __data model__ - define & manage data models - the source of truth
 2. __code generation__ - data + template = _ (anything) - technology agnostic
-3. __modules__ - composable data models & generators - an ecosystem
+3. __app blueprints__ - bootstrap config and other files - consistent skaffolding
+4. __task engine - composable, extendable tasks and workflows - a DAG engine
+5. __modules__ - composable data models & generators - an ecosystem
 
 <img src="./images/how-hof-works.svg" alt="how hof works" width="100%" height="auto" style="max-width:600px">
 
@@ -19,9 +23,23 @@ has modules that span technologies, and continues to work as your application ev
 - modular and composable code generators with dependency management
 
 `hof` uses [CUE](https://cuelang.org) extensively to power the DX and implementation.
-There are also several utilities subcommands for
-adhoc file generation, data transformations, and
-CUE powered scripting.
+
+Learn more about CUE: [cuelang.org](https://cuelang.org) | [cuetorials.com](https://cuetorials.com)
+
+
+## Documentation
+
+Please see __[docs.hofstadter.io](https://docs.hofstadter.io)__ to learn more.
+
+The [first-example](https://docs.hofstadter.io/first-example)
+will take you through the process
+of creating and using a simple generator
+[Several demos](https://github.com/hofstadter-io/demos) in a separate repository
+and various `hofmod-*` repositories are available for you to use.
+
+Join us on Slack! [https://hofstadter-io.slack.com](https://join.slack.com/t/hofstadter-io/shared_invite/zt-e5f90lmq-u695eJur0zE~AG~njNlT1A)
+We are more than happy to answer your questions.
+
 
 ## [try hof on github](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=604970115)
 
@@ -52,19 +70,6 @@ source $HOME/.profile
 # Show the help text
 hof --help
 ```
-
-## Documentation
-
-Please see __[docs.hofstadter.io](https://docs.hofstadter.io)__ to learn more.
-
-The [first-example](https://docs.hofstadter.io/first-example)
-will take you through the process
-of creating and using a simple generator
-[Several demos](https://github.com/hofstadter-io/demos) in a separate repository
-and various `hofmod-*` repositories are available for you to use.
-
-Join us on Slack! [https://hofstadter-io.slack.com](https://join.slack.com/t/hofstadter-io/shared_invite/zt-e5f90lmq-u695eJur0zE~AG~njNlT1A)
-We are more than happy to answer your questions.
 
 
 ## Main Commands
