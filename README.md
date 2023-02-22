@@ -23,6 +23,8 @@ There are also several utilities subcommands for
 adhoc file generation, data transformations, and
 CUE powered scripting.
 
+## [try hof on github](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=604970115)
+
 ## Install
 
 You will have to download `hof` the first time.

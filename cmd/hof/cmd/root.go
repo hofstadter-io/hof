@@ -177,19 +177,19 @@ Usage:
   hof [flags] [command] [args]
 
 Main commands:
-  create                bootstrap projects, components, and files from any git repo
+  create                dynamic blueprints from any git repo
   datamodel             manage, diff, and migrate your data models
   gen                   modular and composable code gen: CUE & data + templates = _
   flow                  run CUE pipelines with the hof/flow DAG engine
   fmt                   format any code and manage the formatters
-  mod                   polyglot dependency management based on go mods and MVS
+  mod                   go style dependency management for CUE
 
 Additional commands:
   help                  help about any command
   update                check for new versions and run self-updates
   version               print detailed version information
   completion            generate completion helpers for your terminal
-  feedback              send feedback, bug reports, or any message
+  feedback              open an issue or discussion on GitHub
 
 Flags:
 <<flag-usage>>

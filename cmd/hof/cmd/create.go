@@ -15,28 +15,39 @@ import (
 var createLong = `hof create enables you to easily bootstrap
 code for full projects, components, and more.
 
-Docs: https://docs.hofstadter.io/hof-create/
+Examples can be found in the documentation:
 
-Any generator can support the create command
-and most will bootstrap a generator.
+  https://docs.hofstadter.io/hof-create/
+
+By adding one config file and templates to your repo
+your users can quickly bootstrap full applications,
+tooling configuration, and other code using your project.
+Share consistent scaffolding, configurable to users.
+
+Any hof generator can also support the create command
+and most choose to bootstrap a generator at minimum.
 This means you get all the same benefits from
 hof's code generation engine, turning your
 bootstrapped code into a living template.
 
-# create from any git repo and any ref
-hof create github.com/username/repo@v1.2.3
-hof create github.com/username/repo@a1b2c3f
-hof create github.com/username/repo@latest
+Run create from any git repo and any ref
 
-# -I supplies inputs as key/value pairs or from a file
-# when no flag is supplied, an interactive prompt is used
-hof create github.com/username/repo@v1.2.3 \
-  -I name=foo -I val=bar \
-  -I @inputs.cue
+  hof create github.com/username/repo@v1.2.3
+  hof create github.com/username/repo@a1b2c3f
+  hof create github.com/username/repo@latest
 
-# you can also reference local generators by their cue inputs
-# the location should start with a '.' (./ or ../) to indicate local mode
-hof create ../my-gen`
+-I supplies inputs as key/value pairs or from a file
+when no flag is supplied, an interactive prompt is used
+
+  hof create github.com/username/repo@v1.2.3 \
+    -I name=foo -I val=bar \
+    -I @inputs.cue
+
+You can also reference local generators by their cue inputs.
+This local lookup is indicated by ./ or ../ starting a path.
+Use this mode when developing and testing locally.
+
+  hof create ../my-gen`
 
 func init() {
 
@@ -59,7 +70,7 @@ var CreateCmd = &cobra.Command{
 
 	Use: "create <module location>",
 
-	Short: "bootstrap projects, components, and files from any git repo",
+	Short: "dynamic blueprints from any git repo",
 
 	Long: createLong,
 

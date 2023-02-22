@@ -14,7 +14,7 @@ import (
 	Name:  "mod"
 	Usage: "mod"
 	Aliases: ["m"]
-	Short: "polyglot dependency management based on go mods and MVS"
+	Short: "go style dependency management for CUE"
 	Long:  #ModLongHelp
 
 	//Topics: #ModTopics

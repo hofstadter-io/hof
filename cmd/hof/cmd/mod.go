@@ -129,7 +129,7 @@ var ModCmd = &cobra.Command{
 		"m",
 	},
 
-	Short: "polyglot dependency management based on go mods and MVS",
+	Short: "go style dependency management for CUE",
 
 	Long: modLong,
 

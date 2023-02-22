@@ -8,9 +8,25 @@ import (
 	// TBD:   "Ø"
 	Name:  "feedback"
 	Usage: "feedback <message>"
-	Aliases: ["hi"]
-	Short: "send feedback, bug reports, or any message"
+	Aliases: ["hi", "ask", "report"]
+	Short: "open an issue or discussion on GitHub"
 	Long: """
-		Opens an issue on GitHub with some fields prefilled out
+		Opens an issue or discusson on GitHub with some fields prefilled out
 		"""
+
+	Pflags: [{
+		Name:    "issue"
+		Long:    "issue"
+		Short:   "i"
+		Type:    "bool"
+		Default: "false"
+		Help:    "create an issue (discussion is default)"
+	},{
+		Name:    "labels"
+		Long:    "labels"
+		Short:   "l"
+		Type:    "string"
+		Default: "\"feedback\""
+		Help:    "labels,comma,separated"
+	}]
 }
