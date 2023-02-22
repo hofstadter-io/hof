@@ -27,20 +27,19 @@ has modules that span technologies, and continues to work as your application ev
 Learn more about CUE: [cuelang.org](https://cuelang.org) | [cuetorials.com](https://cuetorials.com)
 
 
-## Documentation
+## [Documentation](https://docs.hofstadter.io)
 
 Please see __[docs.hofstadter.io](https://docs.hofstadter.io)__ to learn more.
 
 The [getting-started](https://docs.hofstadter.io/getting-started/) section will take you on a tour of hof.
-The [first-example](https://docs.hofstadter.io/first-example/) shows you how to build and use a generator.
+The [first-example](https://docs.hofstadter.io/first-example/) section shows you how to build and use a generator.
 
 Join us on Slack! [https://hofstadter-io.slack.com](https://join.slack.com/t/hofstadter-io/shared_invite/zt-e5f90lmq-u695eJur0zE~AG~njNlT1A)
 We are more than happy to answer your questions.
 
 
-## [try hof on github](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=604970115)
+## Install or [try hof on github](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=604970115)
 
-## Install
 
 Download `hof` just once.
 After that `hof` will prompt you to update and
