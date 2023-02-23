@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="256"
+   height="256"
+   viewBox="0 0 256 256"
+   version="1.1"
+   id="svg13"
+   sodipodi:docname="hof-bludgold-_.svg"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)">
+  <metadata
+     id="metadata-hof">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>hofstadter-logo</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs-hof" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1016"
+     id="namedview-hof"
+     showgrid="true"
+     inkscape:zoom="2.3850521"
+     inkscape:cx="-5.0319577"
+     inkscape:cy="119.47709"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg13"
+     showguides="true">
+    <inkscape:grid
+       type="xygrid"
+       id="grid2196" />
+  </sodipodi:namedview>
+  <title
+     id="title">hofstadter-logo</title>
+  <g
+     id="background"
+     style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1"
+     transform="scale(5.8181818)">
+    <polygon
+       id="bg"
+       points="44,0 0,0 0,44 44,44 "
+       style="fill:#02344d;fill-opacity:1;fill-rule:nonzero" />
+  </g>
+  <g
+     id="underscore"
+     style="fill:#cba44f;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1"
+     transform="matrix(5.8181818,0,0,5.8181818,34.909091,28.8)">
+    <polygon
+       id="_"
+       points="0,34.05 1.1179039,30 32,30 30.951965,34.05 "
+       style="fill:#cba44f;fill-opacity:1;fill-rule:nonzero" />
+  </g>
+</svg>

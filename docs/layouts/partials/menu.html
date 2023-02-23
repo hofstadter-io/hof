@@ -1,0 +1,14 @@
+<nav class="navbar navbar-expand-md navbar-light ps-0">
+    <button class="navbar-toggler navbar-toggler-right collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidenav-left-collapse" aria-controls="sidenav-left-collapse" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+     <div class="collapse navbar-collapse align-items-start flex-column" id="sidenav-left-collapse">
+        {{- if not .Site.Params.disableSearch}}
+            <form class="form-inline my-2 my-lg-0 searchbox">
+                <input class="form-control me-sm-2 w-100" data-search-input id="search-by" type="text" placeholder="Search">
+            </form>
+        {{- end}}
+        {{ partial "menu-hugo.html" . }}
+    </div>
+</nav>

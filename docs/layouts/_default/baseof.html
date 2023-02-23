@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  {{- partial "head.html" . -}}
+  <body>
+
+      {{- partial "navbar.html" . -}}
+
+      <div class="container-fluid">
+        <div class="row">
+
+            <div class="docs-sidenav order-0 col-12 col-md-3 col-lg-2 col-xl-2 position-sticky border-right">
+                {{- partial "menu.html" . -}}
+            </div>
+
+            {{- if and (ne .Site.Params.toc false) (ne .Params.toc false) }}
+            <div class="docs-toc large order-lg-2 order-md-0 order-xs-1 col-12 col-lg-2 col-xl-2 position-sticky border-left">
+                {{- partial "tableofcontents.html" . -}}
+            </div>
+            <div class="main col-12 order-1 col-md-9 col-lg-10 col-xl-8 py-3" id="main-content">
+            {{else}}
+            <div class="main col-12 order-1 col-md-9 col-lg-10 col-xl-10 py-3" id="main-content">
+            {{end}}
+
+                {{ partial "breadcrumbs.html" . }}
+                {{- block "main" . }}{{- end }}
+
+                <div class="row">
+                    {{- if and (ne .Site.Params.disableReadmoreNav true) (ne .Params.disableReadmoreNav true) -}}
+                    <div class="position-relative mx-auto col-lg-9">
+                      {{ partial "next-prev-page.html" . }}
+                    </div>
+                    {{- end -}}
+                </div>
+
+              {{ partial "content-footer.html" . }}
+
+            </div>
+
+        </div>
+      </div>
+      {{- partial "footer.html" . -}}
+
+      {{- partial "scripts.html" . -}}
+
+  </body>
+</html>

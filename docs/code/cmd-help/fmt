@@ -1,0 +1,25 @@
+With hof fmt, you can
+  1. format any language from a single tool
+  2. run formatters as api servers for IDEs and hof
+  3. manage the underlying formatter containers
+
+Usage:
+  hof fmt [filepaths or globs] [flags]
+  hof fmt [command]
+
+Available Commands:
+  info        get formatter info
+  pull        docker pull a formatter
+  start       start a formatter
+  stop        stop a formatter
+
+Flags:
+  -d, --data   include cue,yaml,json,toml,xml files, set to false to disable (default true)
+  -h, --help   help for fmt
+
+Global Flags:
+  -p, --package string   the Cue package context to use during execution
+  -q, --quiet            turn off output and assume defaults at prompts
+  -v, --verbosity int    set the verbosity of output
+
+Use "hof fmt [command] --help" for more information about a command.

@@ -1,0 +1,31 @@
+User:
+  Name: User
+  Fields:
+    id:
+      Name: id
+      Type: int
+    admin:
+      Name: admin
+      Type: bool
+    username:
+      Name: username
+      Type: string
+    email:
+      Name: email
+      Type: string
+  Relation:
+    Post: HasMany
+Post:
+  Name: Post
+  Fields:
+    title:
+      Name: title
+      Type: string
+    body:
+      Name: body
+      Type: string
+    public:
+      Name: public
+      Type: bool
+  Relation:
+    User: BelongsTo

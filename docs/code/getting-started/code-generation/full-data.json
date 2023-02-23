@@ -1,0 +1,71 @@
+$ cue export schema.cue data.cue
+
+{
+    "Input": {
+        "User": {
+            "Name": "User",
+            "Fields": {
+                "id": {
+                    "Name": "id",
+                    "Type": "int"
+                },
+                "admin": {
+                    "Name": "admin",
+                    "Type": "bool"
+                },
+                "username": {
+                    "Name": "username",
+                    "Type": "string"
+                },
+                "email": {
+                    "Name": "email",
+                    "Type": "string"
+                }
+            },
+            "Relations": {
+                "Profile": "HasOne",
+                "Post": "HasMany"
+            }
+        },
+        "Profile": {
+            "Name": "Profile",
+            "Fields": {
+                "displayName": {
+                    "Name": "displayName",
+                    "Type": "string"
+                },
+                "status": {
+                    "Name": "status",
+                    "Type": "string"
+                },
+                "about": {
+                    "Name": "about",
+                    "Type": "string"
+                }
+            },
+            "Relations": {
+                "User": "BelongsTo"
+            }
+        },
+        "Post": {
+            "Name": "Post",
+            "Fields": {
+                "title": {
+                    "Name": "title",
+                    "Type": "string"
+                },
+                "body": {
+                    "Name": "body",
+                    "Type": "string"
+                },
+                "public": {
+                    "Name": "public",
+                    "Type": "bool"
+                }
+            },
+            "Relations": {
+                "User": "BelongsTo"
+            }
+        }
+    }
+}

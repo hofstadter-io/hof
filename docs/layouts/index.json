@@ -1,0 +1,12 @@
+[{{ range $index, $page := .Site.Pages }}
+{{- if and (ne $page.Type "json") (ne $page.Type "html") -}}
+{{- if and $index (gt $index 0) -}},{{- end }}
+{
+	"uri": "{{ $page.Permalink }}",
+	"title": {{ $page.Title | jsonify }},
+	"tags": {{ $page.Params.tags | jsonify }},
+	"description": {{ .Description | jsonify }},
+	"content": {{$page.Plain | jsonify}}
+}
+{{- end -}}
+{{- end -}}]

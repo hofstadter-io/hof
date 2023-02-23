@@ -1,0 +1,6 @@
+{{ $style := .Get "style" }}
+{{ $link := .Get "link" }}
+
+<a href="{{ $link }}" class="btn btn-{{ $style }}">
+    {{ print .Inner | markdownify }}
+</a>

@@ -1,0 +1,30 @@
+hof - the high code framework
+
+  Learn more at https://docs.hofstadter.io
+
+Usage:
+  hof [flags] [command] [args]
+
+Main commands:
+  create                dynamic blueprints from any git repo
+  datamodel             manage, diff, and migrate your data models
+  gen                   modular and composable code gen: CUE & data + templates = _
+  flow                  run CUE pipelines with the hof/flow DAG engine
+  fmt                   format any code and manage the formatters
+  mod                   go style dependency management for CUE
+
+Additional commands:
+  help                  help about any command
+  update                check for new versions and run self-updates
+  version               print detailed version information
+  completion            generate completion helpers for your terminal
+  feedback              open an issue or discussion on GitHub
+
+Flags:
+  -h, --help             help for hof
+  -p, --package string   the Cue package context to use during execution
+  -q, --quiet            turn off output and assume defaults at prompts
+  -v, --verbosity int    set the verbosity of output
+
+Use "hof [command] --help / -h" for more information about a command.
+

@@ -1,0 +1,27 @@
+exec hof flow ./in.cue
+
+-- in.cue --
+import "encoding/json"
+
+@flow()
+
+// seed with int value
+seed: { seed: 0, done: _ } @task(gen.Seed)
+
+gen: {
+  t: { _, #dep: seed.done } @task(gen.Now)
+  i: { _, #dep: seed.done } @task(gen.Int)
+  s: { _, #dep: seed.done } @task(gen.Str)
+  f: { _, #dep: seed.done } @task(gen.Float)
+  n: { _, #dep: seed.done } @task(gen.Norm)
+  u: { _, #dep: seed.done } @task(gen.UUID)
+  c: { _, #dep: seed.done } @task(gen.CUID)
+  g: { _, #dep: seed.done } @task(gen.Slug)
+}
+
+print: { 
+  @task(os.Stdout)
+  dep: { for k,v in gen { (k): v } } 
+  s: json.Indent(json.Marshal(dep), "", "  ")
+  text: s + "\n"
+}

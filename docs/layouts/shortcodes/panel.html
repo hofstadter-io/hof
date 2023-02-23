@@ -1,0 +1,16 @@
+{{ $style := .Get "style"}}
+
+<div class="card my-3 border-top-0 border-right-0 border-bottom-0 border-left border-{{ $style }} rounded" style="border-width:4px !important;">
+    <div class="wrap border border-left-0 rounded">
+        {{ with .Get "title" }}
+        <div class="card-header border-0 bg-white ps-3 text-{{ $style }}">
+            <h3 class="mb-0">{{.}}</h3>
+        </div>
+        {{ end }}
+        {{ if .Inner }}
+        <div class="card-body pt-1">
+            {{ print .Inner | markdownify }}
+        </div>
+        {{ end }}
+    </div>
+</div>

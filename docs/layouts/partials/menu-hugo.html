@@ -1,0 +1,72 @@
+<ul class="navbar-nav flex-column pt-3">
+	<li class="nav-item my-1">
+		<a href="/" class="nav-link py-0 px-2">Home</a>
+	</li>
+{{- $currentNode := . }}
+{{- $showvisitedlinks := .Site.Params.showVisitedLinks -}}
+
+{{- range .Site.Home.Sections.ByWeight}}
+{{- template "section-tree-nav" dict "sect" . "currentnode" $currentNode}}
+{{- end}}
+</ul>
+
+<!-- Template -->
+{{- define "section-tree-nav" }}
+{{- $currentNode := .currentnode }}
+{{- with .sect}}
+{{- if and .IsSection (or (not .Params.hidden) $.showhidden) -}}
+    {{- $numberOfPages := (add (len .Pages) (len .Sections)) -}}
+    {{- $hasChildren := ne $numberOfPages 0 -}}
+    {{- $isAncestor := .IsAncestor $currentNode -}}
+    {{- $isCurrent := (eq .RelPermalink $currentNode.RelPermalink) -}}
+    {{- safeHTML .Params.head -}}
+    <li data-nav-id="{{.RelPermalink}}" class="nav-item my-1
+        {{- if $isCurrent }} current{{ end }}
+        {{- if .Params.alwaysopen}} alwaysopen{{end -}}
+        ">
+        <span class="d-flex">
+          <a class="nav-link py-0 px-2 {{if (or $isCurrent $isAncestor)}}current{{end}}"
+          href="{{.RelPermalink}}">
+            {{.Title}}
+        </a>
+        {{- if $hasChildren }}
+        <span
+          onclick="toggleMenuItem()"
+          class="d-flex flex-fill justify-content-end align-items-center"
+        >
+        <i
+          class="me-1 py-0 fas fa-lg {{ if (or $isCurrent $isAncestor)}}fa-caret-down{{ else }}fa-caret-right{{ end }}"
+        ></i>
+        </span>
+        {{ end }}
+        </span>
+        {{- if $hasChildren }}
+        <ul class="list-unstyled ms-3 mb-2 {{ if not (or $isCurrent $isAncestor)}}d-none{{ end }}">
+          {{- .Scratch.Set "pages" .Pages }}
+          {{- if .Sections}}
+          {{- .Scratch.Set "pages" (.Pages | union .Sections) }}
+          {{- end}}
+          {{- $pages := (.Scratch.Get "pages") }}
+
+          {{- range $pages.ByWeight }}
+            {{- if and .Params.hidden (not $.showhidden) }}
+            {{- else}}
+            {{- template "section-tree-nav" dict "sect" . "currentnode" $currentNode }}
+            {{- end}}
+          {{- end}}
+        </ul>
+        {{- end}}
+    </li>
+{{- else}}
+    {{- if not .Params.Hidden }}
+        <li data-nav-id="{{.RelPermalink}}" class="nav-item my-1 {{- if eq .RelPermalink $currentNode.RelPermalink}} current{{end -}}">
+                <!-- I'm the params hidden -->
+                 <a href="{{.RelPermalink}}" class="nav-link py-0 px-2 {{- if eq .RelPermalink $currentNode.RelPermalink}} current{{end -}}">
+                    {{safeHTML .Params.Pre}}{{.LinkTitle}}{{safeHTML .Params.Post}}
+                </a>
+        </li>
+    {{- end}}
+{{- end}}
+{{- end}}
+{{- end}}
+

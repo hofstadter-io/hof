@@ -1,0 +1,4 @@
+{{ $style := .Get "style" }}
+<div class="table bd-content {{ $style }}">
+    {{ print .Inner | markdownify }}
+</div>

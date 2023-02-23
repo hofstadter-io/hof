@@ -1,0 +1,56 @@
+exec hof flow flow.cue
+cmp stdout golden.stdout
+
+-- flow.cue --
+package hof
+
+import "encoding/json"
+
+pick: {
+	args: cow: string
+}
+
+tasks: [string]: {
+	Out: _
+	...
+}
+
+tasks: {
+  @flow()
+	call: { 
+    @task(api.Call)
+    req: {
+      host: "https://postman-echo.com"
+      // method: "GET"
+      path: "/get"
+      query: {
+        cow: "moo"
+      }
+    }
+    resp: {
+      body: _
+      statusCode: 200
+    }
+  }
+  mask: {
+    @task(st.Mask)
+    val: call.resp.body
+    mask: { headers: "x-amzn-trace-id": string }
+  }
+	out: { text: json.Indent(json.Marshal(mask.out), "", "  ") +"\n" } @task(os.Stdout)
+}
+
+-- golden.stdout --
+{
+  "args": {
+    "cow": "moo"
+  },
+  "headers": {
+    "x-forwarded-proto": "https",
+    "x-forwarded-port": "443",
+    "host": "postman-echo.com",
+    "accept-encoding": "gzip",
+    "user-agent": "Go-http-client/2.0"
+  },
+  "url": "https://postman-echo.com/get?cow=moo"
+}

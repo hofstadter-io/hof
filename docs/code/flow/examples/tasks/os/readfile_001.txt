@@ -1,0 +1,14 @@
+exec hof flow flow.cue
+cmp stdout golden.stdout
+
+-- flow.cue --
+tasks: {
+  @flow()
+	r: { filename: "in.txt", contents: string } @task(os.ReadFile)
+  o: { text: r.contents } @task(os.Stdout)
+}
+
+-- in.txt --
+hello chat
+-- golden.stdout --
+hello chat

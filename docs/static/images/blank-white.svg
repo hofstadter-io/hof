@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="34"
+   height="8"
+   viewBox="0 0 34 8"
+   version="1.1"
+   id="svg13"
+   sodipodi:docname="blank-white.svg"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)">
+  <metadata
+     id="metadata19">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>FA015D11-60C1-4796-AF97-5484A5846F67</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs17">
+    <linearGradient
+       id="linearGradient830"
+       osb:paint="solid">
+      <stop
+         style="stop-color:#009dff;stop-opacity:1;"
+         offset="0"
+         id="stop828" />
+    </linearGradient>
+  </defs>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1016"
+     id="namedview15"
+     showgrid="false"
+     inkscape:zoom="9.5402082"
+     inkscape:cx="49.716781"
+     inkscape:cy="20.047334"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg13" />
+  <!-- Generator: sketchtool 54.1 (76490) - https://sketchapp.com -->
+  <title
+     id="title2">FA015D11-60C1-4796-AF97-5484A5846F67</title>
+  <desc
+     id="desc4">Created with sketchtool.</desc>
+  <g
+     id="Page-1"
+     style="fill:#ffffff;fill-rule:evenodd;stroke:none;stroke-width:1;fill-opacity:1"
+     transform="translate(0,-28)">
+    <g
+       id="Hofstadter-01"
+       transform="translate(-120,-79)"
+       style="fill-opacity:1;fill:#ffffff">
+      <g
+         id="Group-3"
+         transform="translate(0,37)"
+         style="fill-opacity:1;fill:#ffffff">
+        <g
+           id="Group-9"
+           style="fill-opacity:1;fill:#ffffff">
+          <g
+             id="logoHofstadter"
+             transform="translate(120,42)"
+             style="fill-opacity:1;fill:#ffffff">
+            <g
+               id="Group-4"
+               transform="translate(0.875)"
+               style="fill-opacity:1;fill:#ffffff">
+              <polygon
+                 id="_"
+                 points="32,30 30.951965,34.05 0,34.05 1.1179039,30 "
+                 style="fill:#ffffff;fill-rule:nonzero;fill-opacity:1" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

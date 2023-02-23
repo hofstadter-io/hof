@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="256"
+   height="256"
+   viewBox="0 0 256 256"
+   version="1.1"
+   id="svg13"
+   sodipodi:docname="hof-bluegold-_Cubes.svg"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   inkscape:export-filename="/home/tony/hof/websites/docs/static/images/hof-bludgold-_Cubes.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
+  <metadata
+     id="metadata-hof">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>hofstadter-logo</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs-hof" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1016"
+     id="namedview-hof"
+     showgrid="true"
+     inkscape:zoom="2.3850522"
+     inkscape:cx="-0.20173516"
+     inkscape:cy="146.62597"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg13"
+     showguides="true">
+    <inkscape:grid
+       type="xygrid"
+       id="grid2196" />
+  </sodipodi:namedview>
+  <title
+     id="title">hofstadter-logo</title>
+  <g
+     id="underscore"
+     style="fill:#cba44f;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1"
+     transform="matrix(5.8181818,0,0,5.8181818,35.188567,28.8)"
+     inkscape:export-xdpi="96"
+     inkscape:export-ydpi="96">
+    <polygon
+       id="_"
+       points="30.951965,34.05 0,34.05 1.1179039,30 32,30 "
+       style="fill:#cba44f;fill-opacity:1;fill-rule:nonzero" />
+  </g>
+  <path
+     id="path917"
+     d="M 171.59359,96.788606 V 58.792162 c 0,-5.061698 -2.9137,-9.583472 -7.33121,-11.371942 L 135.43889,35.778327 c -2.53772,-1.046081 -5.3574,-1.046081 -7.92646,0 L 98.688946,47.42022 C 94.271429,49.20869 91.35775,53.730464 91.35775,58.792162 V 96.788606 L 58.618023,110.05025 c -4.417514,1.75472 -7.331193,6.31023 -7.331193,11.37193 v 35.97177 c 0,4.58925 2.412401,8.80734 6.234647,10.86578 l 30.891264,16.63609 c 3.164319,1.72097 6.923906,1.72097 10.088219,0 l 32.99037,-17.74968 32.99037,17.74968 c 3.16431,1.72097 6.92391,1.72097 10.08823,0 l 30.89127,-16.63609 c 3.82224,-2.05844 6.23463,-6.27653 6.23463,-10.86578 v -35.97177 c 0,-5.0617 -2.91367,-9.58347 -7.33119,-11.37193 z M 135.25091,108.53174 V 75.495752 L 164.07442,64.798703 V 97.733456 Z M 98.908249,55.991362 131.49133,42.830961 164.07442,55.991362 v 0.06747 L 131.49133,68.409376 98.908249,56.025106 Z m 0,8.807341 28.823501,10.697049 V 108.53174 L 98.908249,97.733456 Z M 89.509288,175.95349 59.181961,159.62109 v -31.48373 l 30.327327,13.26165 z M 59.181961,118.95882 v -0.0676 l 34.274891,-13.83521 33.867598,13.66657 v 0.40493 l -33.867598,14.8139 z m 38.222458,22.44019 29.920031,-13.09292 v 31.55122 l -29.920031,16.12991 z m 68.173831,34.55448 -29.92004,-16.09618 v -31.51748 l 29.92004,13.09291 z m 38.22246,-16.3324 -30.32734,16.3324 v -34.55448 l 30.32734,-13.26165 z m 0,-40.66227 -34.2749,14.98261 -33.8676,-14.81389 v -0.40493 l 33.8676,-13.66657 34.2749,13.83529 z"
+     inkscape:connector-curvature="0"
+     style="fill:#02344d;fill-opacity:1;stroke-width:0.32514846"
+     inkscape:export-xdpi="96"
+     inkscape:export-ydpi="96" />
+</svg>

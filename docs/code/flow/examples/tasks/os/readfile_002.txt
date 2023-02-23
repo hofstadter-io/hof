@@ -1,0 +1,30 @@
+exec hof flow flow.cue
+cmp stdout golden.stdout
+
+-- flow.cue --
+tasks: {
+  @flow()
+	r: { filename: "in.json", contents: string } @task(os.ReadFile)
+  o: { text: r.contents } @task(os.Stdout)
+}
+
+-- in.json --
+"x": {
+	"a": {
+		"b": "B"
+	},
+	"b": 1
+	"c": 2
+	"d": "D"
+}
+
+-- golden.stdout --
+"x": {
+	"a": {
+		"b": "B"
+	},
+	"b": 1
+	"c": 2
+	"d": "D"
+}
+

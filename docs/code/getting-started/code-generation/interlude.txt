@@ -1,0 +1,4 @@
+$ hof gen interlude.json -T interlude.template
+
+Achelles: Did you see all them turtles?
+Dougie: They went all the way down!

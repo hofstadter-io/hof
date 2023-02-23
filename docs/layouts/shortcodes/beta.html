@@ -1,0 +1,8 @@
+{{ $style := .Get "style" }}
+<div class="alert alert-{{ $style }}" role="alert">
+	{{ if .Inner }}
+	{{ print .Inner | markdownify }}
+	{{ else }}
+	{{ .Site.Params.beta | markdownify }}
+	{{ end }}
+</div>

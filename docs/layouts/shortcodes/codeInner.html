@@ -1,0 +1,27 @@
+{{ .Scratch.Set "identifier" "" }}
+{{ .Scratch.Set "identifier" (first 10 (md5 .Inner)) }}
+
+{{ $title := .Get "title" }}
+{{ $lang := .Get "lang" }}
+
+
+<div class="position-relative mb-3" style="overflow-x: auto; overflow-y: hidden">
+    {{ if $title }}
+    <p class="ps-2 py-1 m-0 border bg-light code-title">{{ $title }}</p>
+    {{ end }}
+    <div class="border" id="{{printf "clipboard_%s" (.Scratch.Get "identifier") }}">
+      <div class="position-absolute pt-1 pe-1" style="right:0;">
+          <button class="btn btn-light" data-clipboard-target="#{{printf "clipboard_%s" (.Scratch.Get "identifier") }}">
+            <i class="far fa-copy"></i>
+          </button>
+      </div>
+      {{ if $lang }}
+        {{ (print "```" $lang .Inner "```") | markdownify }}
+      {{ else }}
+        {{ (print "```text" .Inner "```") | markdownify }}
+      {{ end }}
+    </div>
+</div>
+
+
+

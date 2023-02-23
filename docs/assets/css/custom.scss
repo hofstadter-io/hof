@@ -1,0 +1,230 @@
+/* -------------------------------------------------------------------------
+*   ACE DOCUMENTATION
+*   Stylesheet
+*   @author Vantage Design
+*   @version 1.0.4
+*   @license https://github.com/vantagedesign/ace-documentation/blob/master/LICENSE
+* ------------------------------------------------------------------------ */
+
+$hof-blue:  #02344d;
+$hof-gold:  #CBA44F;
+$hof-white: #f5f7fd;
+
+$primary:       $hof-blue;
+$secondary:     #6610f2;
+$success:       #28a745;
+$info:          #17a2b8;
+$warning:       #ffc107;
+$danger:        #dc3545;
+$light:         $hof-white;
+$dark:          #343a40;
+
+@import "bootstrap";
+@import "funcs";
+
+body, .main {
+	font-family: Roboto, sans-serif !important;
+}
+
+/* Typography styling */
+.main > h1{
+    padding-top: 2rem;
+    margin-bottom: 1rem;
+    color: $primary;
+}
+
+.main > h2, .main > h3 {
+	margin-top: 3rem;
+	color: $primary;
+}
+
+.main > h4, .main > h5, .main > h6{
+    margin-top: 1rem;
+    color: $primary;
+}
+
+#main-content {
+	p, ul, ol, summary {
+		font-size: 1.25rem;
+	}
+	.code-title {
+		font-size: 1rem;
+	}
+	.bottom-nav, .btn {
+		text-decoration: none !important;
+	}
+	.fas {
+		font-weight: 900;
+	}
+	a {
+		text-decoration: underline;
+		text-decoration-color: $hof-gold;
+		&:not(.btn):hover {
+      color: $hof-gold;
+			text-decoration-color: $hof-blue;
+		}
+	}
+}
+
+#main-content > .lead {
+	font-size: 1.5rem;
+}
+
+#TableOfContents {
+	a {
+		display: inline
+	}
+}
+
+.nav-link {
+  &.parent {
+    color: $primary !important;
+  }
+  &.current {
+    color: $primary !important;
+    font-weight: bold;
+  }
+}
+
+.nav-item.current {
+  color: $primary !important;
+}
+
+.fa-caret-right {
+  color: $hof-gold !important;
+}
+.fa-caret-down {
+  color: $hof-blue !important;
+}
+
+.highlight > pre {
+    padding:15px;
+}
+
+#navbarMain .navbar-nav {
+  li > a:not(.lang-link) {
+    color: $hof-white !important;
+  }
+  li > a:hover {
+      color: $hof-gold !important;
+  }
+}
+
+.navbar-brand {
+  img {
+    height: 1.67rem;
+    padding-bottom: 3px;
+  }
+  span {
+    color: $hof-gold;
+    font-weight: 420;
+    font-style: italic;
+  }
+}
+
+/* Side navigation menus */
+.docs-sidenav span.badge.badge-primary, .docs-toc span.badge.badge-primary{
+    font-size: 10px;
+}
+
+@media (min-width: 768px) {
+    .docs-sidenav, .docs-toc{
+        min-height: calc(100vh - 7rem);
+        top:4rem;
+        position: sticky;
+    }
+    .docs-sidenav .navbar, .docs-toc .navbar{
+        padding-right: 0;
+    }
+    .docs-sidenav .navbar-collapse, .docs-sidenav .navbar-nav{
+        width: 100%;
+    }
+    .docs-sidenav .nav-link, .docs-toc li a{
+        display: flex;
+        align-items: start;
+        justify-content: space-between;
+    }
+    .docs-sidenav .nav-link > span.badge.badge-primary, .docs-toc li a > span.badge.badge-primary{
+        margin-top: 5px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .docs-toc.large{
+        height: calc(100vh - 4rem);
+    }
+}
+
+@media (max-width: 1200px) {
+    .docs-toc.large{
+        display:none;
+    }
+}
+
+.docs-toc{
+    padding-top: 10px;
+}
+
+.docs-toc a{
+    font-size: 14px;
+    color: gray;
+		text-decoration: none;
+}
+
+.docs-toc a:hover{
+    color: #333;
+}
+
+.docs-toc ul{
+    list-style: none;
+    padding-left:8px;
+    margin-top:3px;
+}
+
+.docs-toc ul:first-child{
+    padding-left:0;
+}
+
+/* Table tweak for JavaScript methods */
+table td:first-child > code{
+    word-break: normal;
+}
+
+table > tbody > tr > td, .bd-content > table > tbody > tr > th, .bd-content > table > tfoot > tr > td, .bd-content > table > tfoot > tr > th, .bd-content > table > thead > tr > td, .bd-content > table > thead > tr > th {
+    padding: .75rem;
+    vertical-align: top;
+    border: 1px solid #dee2e6;
+}
+
+table > thead {
+  border: 1px solid #dee2e6;
+}
+
+h3.anchor {
+  padding-top: 8rem;
+  margin-top: -6rem;
+}
+
+.code-title {
+	font-family: Regular,Menlo,Monaco,Consolas,liberation mono,courier new,monospace;
+}
+
+pre.shiki {
+  // -moz-tab-size:2;-o-tab-size:2;tab-size:2;
+  -moz-tab-size:4;-o-tab-size:4;tab-size:4;
+}
+
+#np-btn, #pp-btn {
+  &:hover {
+    background-color: $hof-gold !important;
+  }
+}
+
+.dl-btn {
+  min-width: 120px;
+}
+
+.asciinema {
+	max-width: 800px;
+	margin: auto;
+}

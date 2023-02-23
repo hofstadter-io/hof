@@ -1,0 +1,8 @@
+{{ $author := .Get "author"}}
+
+<blockquote class="blockquote mx-5">
+  <i class="mb-0">{{ print .Inner | markdownify }}</i>
+  {{ if $author }}
+  <footer class="float-right text-muted pe-3 me-5 mt-3">~ {{ $author }}</footer>
+  {{ end }}
+</blockquote>

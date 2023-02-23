@@ -1,0 +1,11 @@
+{{ define "main" }}
+{{ $page := .Page }}
+"uri": "{{ $page.Permalink }}"
+"title": {{ $page.Title | jsonify }}
+"tags": {{ $page.Params.tags | jsonify }}
+"description": {{ $page.Description | jsonify }}
+"resources": {{ $page.Resources }}
+"content": ###"""
+{{$page.RawContent}}
+"""###
+{{ end }}

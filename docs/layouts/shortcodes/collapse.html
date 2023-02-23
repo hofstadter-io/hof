@@ -1,0 +1,11 @@
+{{ .Scratch.Set "identifier" (first 10 (md5 .Inner)) }}
+
+<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#{{printf "collapse_%s" (.Scratch.Get "identifier") }}" aria-expanded="false">
+    {{ print (.Get "title") }}
+</button>
+
+<div class="collapse" id="{{printf "collapse_%s" (.Scratch.Get "identifier") }}">
+  <div class="card card-body">
+    {{ .Inner }}
+  </div>
+</div>

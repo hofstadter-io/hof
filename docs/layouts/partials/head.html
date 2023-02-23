@@ -1,0 +1,65 @@
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+  <meta name="robots" content="index, follow" />
+  <meta name="googlebot" content="index,follow" />
+
+  <title itemprop="name">{{ partial "titlecrumbs.html" . }}</title>
+  <meta property="og:title" content="{{ partial "titlecrumbs.html" . }}" />
+  <meta name="twitter:title" content="{{ partial "titlecrumbs.html" . }}" />
+  <meta itemprop="name" content="{{ partial "titlecrumbs.html" . }}" />
+  <meta name="application-name" content="{{ partial "titlecrumbs.html" . }}" />
+  <meta property="og:site_name" content="{{ .Site.Params.sitename }}" />
+
+  <meta name="description" content="{{ .Params.description }}" />
+  <meta itemprop="description" content="{{ .Params.description }}" />
+  <meta property="og:description" content="{{ .Params.description }}" />
+  <meta name="twitter:description" content="{{ .Params.description }}" />
+
+  <base href="{{ .Permalink }}">
+  <link rel="canonical" href="{{ .Permalink }}" itemprop="url" />
+  <meta name="url" content="{{ .Permalink }}" />
+  <meta name="twitter:url" content="{{ .Permalink }}" />
+  <meta property="og:url" content="{{ .Permalink }}" />
+
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <link rel="icon" type="image/x-icon" sizes="16x16 32x32" href="/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
+
+  <meta name="keywords" content="{{.Site.Params.keywords}}{{ range .Params.keywords }} {{ . }}{{ end }}" />
+
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900italic,900' rel='stylesheet' type='text/css'>
+
+	{{ $options := (dict "targetPath" "style.css" "outputStyle" "compressed" "enableSourceMap" (not hugo.IsProduction) "includePaths" (slice "node_modules/bootstrap/scss")) }}
+
+  {{ $CSS := slice
+    ( resources.Get "node_modules/asciinema-player/dist/bundle/asciinema-player.css" )
+    ( resources.Get "node_modules/javascript-autocomplete/auto-complete.css" )
+    ( resources.Get "node_modules/@fortawesome/fontawesome-free/css/all.min.css" )
+
+    | resources.Concat "css/bundle.css"
+		| resources.Fingerprint "sha512" }}
+	{{ $CCSS := resources.Get "css/custom.scss" | resources.ToCSS $options | minify | resources.Fingerprint "sha512" }}
+
+  <link rel="stylesheet" href="{{ $CSS.RelPermalink }}" integrity="{{ $CSS.Data.Integrity }}">
+  <link rel="stylesheet" href="{{ $CCSS.RelPermalink }}" integrity="{{ $CCSS.Data.Integrity }}">
+
+
+  {{ if (and (not .Site.IsServer) .Site.Params.ga) }}
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ .Site.Params.ga }}"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '{{ .Site.Params.ga }}');
+  </script>
+  {{ end }}
+
+</head>

@@ -1,0 +1,24 @@
+exec hof flow flow.cue
+cmp test.stdout golden.stdout
+
+-- flow.cue --
+package t
+
+@flow()
+tasks: {
+  words: """
+  hello world
+  hallo chat!\n
+  """
+
+  t0: {  
+    @task(os.WriteFile)
+    filename: "test.stdout"
+    contents: words
+    mode: 0o666
+  }
+}
+
+-- golden.stdout --
+hello world
+hallo chat!

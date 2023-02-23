@@ -1,0 +1,37 @@
+{{ $ver := .Site.Params.hofver }}
+{{ $sem := substr $ver 1 }}
+{{ $base := printf "https://github.com/hofstadter-io/hof/releases/download/%s" $ver }}
+{{ $nix_x64 := printf "%s/hof_%s_Linux_x86_64" $base $sem }}
+{{ $mac_x64 := printf "%s/hof_%s_Darwin_x86_64" $base $sem }}
+{{ $win_x64 := printf "%s/hof_%s_Windows_x86_64.exe" $base $sem }}
+{{ $nix_arm := printf "%s/hof_%s_Linux_arm64" $base $sem }}
+{{ $mac_arm := printf "%s/hof_%s_Darwin_arm64" $base $sem }}
+{{ $win_arm := printf "%s/hof_%s_Windows_arm64.exe" $base $sem }}
+
+<div class="d-none d-sm-block">
+	<div class="d-flex pb-3">
+		<a href="{{ $nix_x64}}" class="btn btn-primary ms-5 dl-btn"> <b class="fab fa-linux me-1"></b> Linux x64</a>
+		<a href="{{ $mac_x64}}" class="btn btn-primary ms-5 dl-btn"> <i class="fab fa-apple me-1"></i> Mac x64</a>
+		<a href="{{ $win_x64}}" class="btn btn-primary ms-5 dl-btn"> <i class="fab fa-windows me-1"></i> Win x64</a>
+	</div>
+	<div class="d-flex pb-3">
+		<a href="{{ $nix_arm}}" class="btn btn-primary ms-5 dl-btn"> <b class="fab fa-linux me-1"></b> Linux arm</a>
+		<a href="{{ $mac_arm}}" class="btn btn-primary ms-5 dl-btn"> <i class="fab fa-apple me-1"></i> Mac arm</a>
+		<a href="{{ $win_arm}}" class="btn btn-primary ms-5 dl-btn"> <i class="fab fa-windows me-1"></i> Win arm</a>
+	</div>
+</div>
+
+<div class="d-sm-none d-xs-block">
+	<div class="d-flex pb-3">
+		<a href="{{ $nix_x64}}" class="btn btn-primary ms-5 dl-btn"> <b class="fab fa-linux me-1"></b> Linux x64</a>
+		<a href="{{ $nix_arm}}" class="btn btn-primary ms-5 dl-btn"> <b class="fab fa-linux me-1"></b> Linux arm</a>
+	</div>
+	<div class="d-flex pb-3">
+		<a href="{{ $mac_x64}}" class="btn btn-primary ms-5 dl-btn"> <i class="fab fa-apple me-1"></i> Mac x64</a>
+		<a href="{{ $mac_arm}}" class="btn btn-primary ms-5 dl-btn"> <i class="fab fa-apple me-1"></i> Mac arm</a>
+	</div>
+	<div class="d-flex pb-3">
+		<a href="{{ $win_x64}}" class="btn btn-primary ms-5 dl-btn"> <i class="fab fa-windows me-1"></i> Win x64</a>
+		<a href="{{ $win_arm}}" class="btn btn-primary ms-5 dl-btn"> <i class="fab fa-windows me-1"></i> Win arm</a>
+	</div>
+</div>

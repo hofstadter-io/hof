@@ -1,0 +1,42 @@
+Data models are sets of models which are used in many hof processes and modules.
+
+At their core, they represent the most abstract representation for objects and
+their relations in your applications. They are extended and annotated to add
+context fot their usage in different code generators: (DB vs Server vs Client).
+
+Beyond representing models in their current form, a history is maintained so that:
+  - database migrations can be created and managed
+  - servers can handle multiple model versions
+  - clients can implement feature flags
+Much of this is actually handled by code generators and must be implemented there.
+Hof handles the core data model definitions, history, and snapshot creation.
+
+Usage:
+  hof datamodel [command]
+
+Aliases:
+  datamodel, dm
+
+Available Commands:
+  checkpoint  create a snapshot of the data model
+  diff        show the diff between data model version
+  history     list the snapshots for a data model
+  info        print details for a data model
+  list        print available data models
+  log         show the history of diffs for a data model
+
+Flags:
+  -d, --datamodel strings   Datamodels for the datamodel commands
+  -f, --format string       Pick format from Cuetils (default "_")
+  -h, --help                help for datamodel
+  -m, --model strings       Models for the datamodel commands
+  -o, --output string       Output format [table,cue] (default "table")
+  -s, --since string        Timestamp to filter since
+  -u, --until string        Timestamp to filter until
+
+Global Flags:
+  -p, --package string   the Cue package context to use during execution
+  -q, --quiet            turn off output and assume defaults at prompts
+  -v, --verbosity int    set the verbosity of output
+
+Use "hof datamodel [command] --help" for more information about a command.

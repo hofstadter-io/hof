@@ -1,0 +1,10 @@
+# trim left spacing:"
+  {{- .foo }} "
+
+# trim right spacing:
+"{{ .foo -}}
+"
+
+# loop spacing
+{{ range .items }}- {{ . -}}
+{{ end }}

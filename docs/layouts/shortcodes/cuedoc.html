@@ -1,0 +1,6 @@
+{{ $page := .Get "page" }}
+{{ $base := .Site.Params.cuedocBase }}
+
+<a target="_blank" href="{{ $base }}{{ $page }}">
+    {{ print .Inner | markdownify }}
+</a>

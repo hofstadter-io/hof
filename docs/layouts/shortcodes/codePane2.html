@@ -1,0 +1,79 @@
+{{ .Scratch.Set "code1" "" }}
+{{ .Scratch.Set "content1" "" }}
+{{ .Scratch.Set "ident1" "" }}
+{{ $title1 := .Get "title1" }}
+{{ $lang1 := .Get "lang1" }}
+{{ $file1 := .Get "file1"}}
+{{ if ($file1) }}
+		{{ if (eq $file1 "inner") }}
+			{{ .Scratch.Set "content1" .Inner }}
+		{{ else }}
+			{{ .Scratch.Set "content1" ($file1 | readFile) }}
+		{{ end }}
+    {{ .Scratch.Set "ident1" (first 10 (md5 (.Scratch.Get "content1"))) }}
+{{ else }}
+    "missing content1"
+{{ end}}
+
+{{ .Scratch.Set "content2" "" }}
+{{ .Scratch.Set "ident2" "" }}
+{{ $title2 := .Get "title2" }}
+{{ $lang2 := .Get "lang2" }}
+{{ $file2 := .Get "file2"}}
+{{ if ($file2) }}
+		{{ if (eq $file2 "inner") }}
+			{{ .Scratch.Set "content2" .Inner }}
+		{{ else }}
+			{{ .Scratch.Set "content2" ($file2 | readFile) }}
+		{{ end }}
+    {{ .Scratch.Set "ident2" (first 10 (md5 (.Scratch.Get "content2"))) }}
+{{ else }}
+    "missing content2"
+{{ end}}
+
+<div class="d-flex flex-column flex-sm-row flex-wrap" style="overflow-x: auto; overflow-y: hidden">
+
+  <div class="px-1 flex-fill flex-column d-flex mb-3">
+    {{ if $title1 }}
+    <p class="ps-2 py-1 m-0 border bg-light code-title">{{ $title1 }}</p>
+    {{ end }}
+    <div class="position-relative border flex-fill" id="{{printf "clipboard_%s" (.Scratch.Get "ident1") }}">
+      <div class="position-absolute pt-1 pe-1" style="right:0;">
+        <button class="btn btn-light" data-clipboard-target="#{{printf "clipboard_%s" (.Scratch.Get "ident1") }}">
+          <i class="far fa-copy"></i>
+        </button>
+      </div>
+      {{ if $lang1 }}
+        {{ (print "```" $lang1 "\n" (.Scratch.Get "content1") "```") | markdownify }}
+      {{ else }}
+        <div class="highlight">
+          {{ .Scratch.Get "content1" | safeHTML }}
+        </div>
+      {{ end }}
+    </div>
+  </div>
+
+  <div class="px-1 flex-fill flex-column d-flex mb-3">
+    {{ if $title2 }}
+    <p class="ps-2 py-1 m-0 border bg-light code-title">{{ $title2 }}</p>
+    {{ end }}
+    <div class="position-relative border flex-fill" id="{{printf "clipboard_%s" (.Scratch.Get "ident2") }}">
+      <div class="position-absolute pt-1 pe-1" style="right:0;">
+          <button class="btn btn-light" data-clipboard-target="#{{printf "clipboard_%s" (.Scratch.Get "ident2") }}">
+          <i class="far fa-copy"></i>
+          </button>
+      </div>
+      {{ if $lang2 }}
+        {{ (print "```" $lang2 "\n" (.Scratch.Get "content2") "```") | markdownify }}
+      {{ else }}
+        <div class="highlight">
+          {{ .Scratch.Get "content2" | safeHTML }}
+        </div>
+      {{ end }}
+
+    </div>
+  </div>
+
+</div>
+
+

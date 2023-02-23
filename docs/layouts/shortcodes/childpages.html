@@ -1,0 +1,52 @@
+{{- $sortTerm :=  .Get "sort" | default "Weight" }}
+
+{{- .Scratch.Set "current" .Page }}
+{{- if (.Get "page")}}
+	{{- with .Site.GetPage "section" (.Get "page") }}
+		{{- $.Scratch.Set "current" . }}
+	{{- end }}
+{{- end }}
+{{- $cpage := (.Scratch.Get "current") }}
+
+{{- $brief := "" }}
+{{- if $cpage.Params.brief}}
+{{- $.Scratch.Set "brief" $cpage.Params.brief }}
+{{- end }}
+{{- if (.Get "brief")}}
+{{- $.Scratch.Set "brief" (.Get "brief") }}
+{{- end }}
+{{- $brief := (.Scratch.Get "brief") }}
+
+
+
+<br>
+{{ if ne .Page.Title $cpage.Title }}
+<a class="h1 text-primary" href="/{{ $cpage.File.Dir }}">{{ $cpage.Title }}</a>
+{{ if $brief }}<span class="text-dark h4 ms-2">{{ $brief }}</span>{{ end }}
+<br>
+<br>
+
+{{ end }}
+
+<ul class="ps-3 docs-children list-unstyled">
+	{{- .Scratch.Set "pages" $cpage.Pages }}
+    {{- if $cpage.Sections}}
+	    {{- .Scratch.Set "pages" ($cpage.Pages | union $cpage.Sections) }}
+    {{- end}}
+    {{- $pages := (.Scratch.Get "pages") }}
+
+	{{- if eq $sortTerm "Weight"}}
+		{{- template "childs" dict "menu" $pages.ByWeight "pages" .Site.Pages "sortTerm" $sortTerm "brief" (.Get "childBriefs")}}
+	{{end}}
+</ul>
+
+
+
+{{ define "childs" }}
+  {{ $cBrief := .brief }}
+  {{- range .menu }}
+    <li class="h5 py-1">
+      <a href="{{.RelPermalink}}"> {{ .Title }} </a>{{ if (and $cBrief .Params.brief) }} - {{ .Params.brief }}{{end}}
+    </li>
+  {{ end }}
+{{ end }}

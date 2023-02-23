@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="256"
+   height="256"
+   viewBox="0 0 256 256"
+   version="1.1"
+   id="svg13"
+   sodipodi:docname="hof-bluegold-_Cake.svg"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   inkscape:export-filename="/home/tony/hof/websites/docs/static/images/hof-bludgold-_Cake.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
+  <metadata
+     id="metadata-hof">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>hofstadter-logo</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs-hof" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1016"
+     id="namedview-hof"
+     showgrid="true"
+     inkscape:zoom="3.3729732"
+     inkscape:cx="87.32725"
+     inkscape:cy="139.17049"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g1504"
+     showguides="true">
+    <inkscape:grid
+       type="xygrid"
+       id="grid2196" />
+  </sodipodi:namedview>
+  <title
+     id="title">hofstadter-logo</title>
+  <g
+     id="background"
+     style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1"
+     transform="scale(5.8181818)">
+    <polygon
+       id="bg"
+       points="44,0 0,0 0,44 44,44 "
+       style="fill:#02344d;fill-opacity:1;fill-rule:nonzero" />
+  </g>
+  <g
+     id="underscore"
+     style="fill:#cba44f;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1"
+     transform="matrix(5.8181818,0,0,5.8181818,35.188567,28.8)">
+    <polygon
+       id="_"
+       points="30.951965,34.05 0,34.05 1.1179039,30 32,30 "
+       style="fill:#cba44f;fill-opacity:1;fill-rule:nonzero" />
+  </g>
+  <g
+     id="g1504"
+     class="fa-group"
+     transform="matrix(0.31417383,0,0,0.31417383,60.571428,30.571572)">
+    <path
+       id="path1500"
+       d="m 356.64652,379.22558 c -26.25933,0 -29.43858,30.01065 -70.10302,30.01065 -40.84262,0 -43.70301,-30.01065 -70.10301,-30.01065 -25.58409,0 -29.6918,30.01065 -69.86856,30.01065 -40.79573,0 -43.89058,-30.01065 -70.103012,-30.01065 -26.212432,0 -29.438577,30.01065 -70.1030156,30.01065 V 499.2682 H 426.51507 v -90.03197 c -40.56127,0 -44.07815,-30.01065 -69.86855,-30.01065 z M 96.397867,109.12968 c 16.646533,0 30.010653,-12.660743 30.010653,-37.513323 0,-24.852574 -18.75666,-52.518647 -30.010653,-52.518647 0,38.451152 -30.010654,30.948488 -30.010654,60.021311 a 29.916872,29.916872 0 0 0 30.010654,30.010659 z m 120.042623,0 c 16.64653,0 30.01065,-12.660743 30.01065,-37.513323 0,-24.852574 -18.75666,-52.518647 -30.01065,-52.518647 0,38.451152 -30.01066,30.948488 -30.01066,60.021311 a 29.916872,29.916872 0 0 0 30.01066,30.010659 z m 120.04262,0 c 16.64653,0 30.01065,-12.660743 30.01065,-37.513323 0,-24.852574 -18.75666,-52.518647 -30.01065,-52.518647 0,38.451152 -30.01066,30.948488 -30.01066,60.021311 a 29.916872,29.916872 0 0 0 30.01066,30.010659 z"
+       class="fa-secondary"
+       inkscape:connector-curvature="0"
+       style="opacity:1;fill:#cba44f;fill-opacity:1;stroke-width:0.93783295" />
+    <path
+       id="path1502"
+       d="m 426.51507,379.22558 c -26.25932,0 -29.31666,-30.01066 -69.86855,-30.01066 -40.73009,0 -43.91872,30.01066 -70.10302,30.01066 -25.97797,0 -29.49485,-30.01066 -70.10301,-30.01066 -40.17677,0 -44.28448,30.01066 -69.86856,30.01066 -26.4,0 -29.26039,-30.01066 -70.103012,-30.01066 -40.842626,0 -43.749908,30.01066 -70.1030156,30.01066 V 304.19894 A 45.015983,45.015983 0 0 1 51.381886,259.18296 H 66.387213 V 124.13501 h 60.021307 v 135.04795 h 60.02131 V 124.13501 h 60.02131 v 135.04795 h 60.02131 V 124.13501 h 60.02131 v 135.04795 h 15.00533 a 45.015983,45.015983 0 0 1 45.01598,45.01598 z"
+       class="fa-primary"
+       inkscape:connector-curvature="0"
+       style="fill:#f1ede0;fill-opacity:1;stroke-width:0.93783295" />
+  </g>
+</svg>

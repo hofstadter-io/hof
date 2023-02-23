@@ -1,0 +1,46 @@
+exec hof flow in.cue -t main
+
+-- in.cue --
+import "encoding/json"
+
+apicall: {
+  @flow(apicall)
+  In: string
+	r: { #F: In, Contents: string } @task(os/readfile)
+  j: json.Unmarshal(r.Contents)
+	r1: { #Req: j, Resp: _ } @task(api/call) @print("#Req",Resp)
+  Resp: r1.Resp
+}
+
+
+main: {
+  @flow(main)
+
+  input: { #O: "apicalling" } @task(os/stdout)
+
+  call: apicall & { In: "req.json" }
+  final: { #O: call.Resp } @task(os/stdout)
+
+  call2: apicall & { In: "req2.json" }
+  final2: { #O: call2.Resp } @task(os/stdout)
+}
+
+-- req.json --
+req: {
+	host: "https://postman-echo.com"
+	method: "GET"
+	path: "/get"
+	query: {
+		cow: "moo"
+	}
+}
+
+-- req2.json --
+req: {
+	host: "https://postman-echo.com"
+	method: "GET"
+	path: "/get"
+	query: {
+		req: "two"
+	}
+}

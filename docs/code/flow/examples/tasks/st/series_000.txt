@@ -1,0 +1,42 @@
+exec hof flow in.cue
+cmp stdout golden.stdout
+
+-- in.cue --
+x: {
+	"a": {
+		"b": "B"
+	},
+	"b": 1
+	"c": 2
+	"d": "D"
+}
+
+y: {
+	a: {
+		b: string
+	}
+	c: int
+	d: "D"
+}
+
+@flow()
+
+tasks: {
+
+	p1: { val: x, pick: y } @task(st.Pick)
+	
+	m1: { val: p1.out, mask: { c: int } } @task(st.Mask)
+	m2: { val: p1.out, mask: { a: _ } } @task(st.Mask)
+
+	u1: { val: m1.out, upsert: m2.out } @task(st.Upsert) @print(out)
+
+}
+
+-- golden.stdout --
+tasks.u1.out: {
+	a: {
+		b: "B"
+	}
+	d: "D"
+	c: 2
+}

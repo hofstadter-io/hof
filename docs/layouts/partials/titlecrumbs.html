@@ -1,0 +1,11 @@
+{{- template "titlecrumbnav" (dict "p1" . "p2" .) -}}
+Hofstadter
+{{- define "titlecrumbnav" -}}
+{{- if not .p1.IsHome -}}
+{{- .p1.Title }} | {{ end -}}
+{{- if .p1.Parent -}}
+{{- template "titlecrumbnav" (dict "p1" .p1.Parent "p2" .p2 )  -}}
+{{- else if not .p1.IsHome -}}
+{{- template "titlecrumbnav" (dict "p1" .p1.Site.Home "p2" .p2 )  -}}
+{{- end -}}
+{{- end -}}

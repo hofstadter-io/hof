@@ -1,0 +1,7 @@
+- https://en.wikipedia.org/wiki/Comparison_of_code_generation_tools
+- template base code gen survey https://arxiv.org/pdf/1703.06353.pdf
+- https://quicktype.io/
+- https://transform.tools/
+- CADL from Microsoft: https://microsoft.github.io/cadl/language-basics/overview
+- Smithy from Amazon: https://smithy.io/2.0/index.html
+- JSON Schema IDL vocab: https://github.com/json-schema-org/vocab-idl

@@ -1,0 +1,5 @@
+{{ $ver := .Site.Params.hofver -}}
+{{ $sem := substr $ver 1 -}}
+{{ $curl := printf "https://github.com/hofstadter-io/hof/releases/download/%s/hof_%s_$(uname -s)_$(uname -m)" $ver $sem -}}
+curl -L "{{ $curl }}" -o hof
+chmod +x hof && sudo mv hof /usr/local/bin

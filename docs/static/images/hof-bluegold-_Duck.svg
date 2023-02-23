@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="256"
+   height="256"
+   viewBox="0 0 256 256"
+   version="1.1"
+   id="svg13"
+   sodipodi:docname="hof-bluegold-_Duck.svg"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   inkscape:export-filename="/home/tony/hof/websites/docs/static/images/hof-bluegold-_Duck.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
+  <metadata
+     id="metadata-hof">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>hofstadter-logo</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs-hof" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1016"
+     id="namedview-hof"
+     showgrid="true"
+     inkscape:zoom="1.6864866"
+     inkscape:cx="249.25731"
+     inkscape:cy="-27.297814"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg13"
+     showguides="true">
+    <inkscape:grid
+       type="xygrid"
+       id="grid2196" />
+  </sodipodi:namedview>
+  <title
+     id="wildduck">hofstadter-logo</title>
+  <g
+     id="background"
+     style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1"
+     transform="scale(5.8181818)">
+    <polygon
+       id="bg"
+       points="44,0 0,0 0,44 44,44 "
+       style="fill:#02344d;fill-opacity:1;fill-rule:nonzero" />
+  </g>
+  <g
+     id="g932"
+     class="fa-group"
+     transform="matrix(0.33482143,0,0,0.33482143,42.291808,25.632143)"
+     style="filter:url(#filter3348)">
+    <path
+       id="path928"
+       d="m 512,128 a 96,96 0 0 1 -96,96 h -27 c 37.28,-13.18 59,-54.2 59,-96 z"
+       class="fa-secondary"
+       inkscape:connector-curvature="0"
+       style="opacity:1;fill:#cba44f;fill-opacity:1" />
+    <path
+       id="path930"
+       d="M 401.31,277.43 A 41.38,41.38 0 0 1 384,243.8 39.9,39.9 0 0 1 389,224 c 37.28,-13.18 59,-54.2 59,-96 a 96,96 0 0 0 -192,0 94.05,94.05 0 0 0 22.1,60.59 41.44,41.44 0 0 1 9.9,26.53 A 40.88,40.88 0 0 1 247.13,256 H 225.44 C 193.93,256 145.26,242.8 123.76,219.76 113.74,209 96,216.17 96,230.63 A 153.38,153.38 0 0 0 249.38,384 h -32 C 141.38,384 78.71,328.56 66.56,256 H 16.16 C 7,256 -0.63,263.66 0,272.75 8.62,388.64 105.36,480 223.43,480 h 107.2 c 55.51,0 110.81,-44.52 116.72,-99.71 A 111.23,111.23 0 0 0 401.31,277.43 Z M 352,144 a 16,16 0 1 1 16,-16 16,16 0 0 1 -16,16 z"
+       class="fa-primary"
+       inkscape:connector-curvature="0"
+       style="fill:#f1ede0;fill-opacity:1" />
+  </g>
+  <g
+     id="underscore"
+     style="fill:#cba44f;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1"
+     transform="matrix(5.8181818,0,0,5.8181818,34.909091,37.8)">
+    <polygon
+       id="_"
+       points="30.951965,34.05 0,34.05 1.1179039,30 32,30 "
+       style="fill:#cba44f;fill-opacity:1;fill-rule:nonzero" />
+  </g>
+</svg>
