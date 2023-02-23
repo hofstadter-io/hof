@@ -7,3 +7,5 @@
 /cue.mod/pkg/
 /cue.mod/gen/
 /node_modules/
+# symlinked to /node_modules/ directory, hence no trailing /
+/assets/node_modules
