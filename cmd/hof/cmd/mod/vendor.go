@@ -17,7 +17,7 @@ var vendorLong = `copy dependencies to cue.mod/pkg`
 
 func VendorRun(args []string) (err error) {
 
-	err = mod.Vendor(flags.RootPflags, flags.ModPflags)
+	err = mod.Vendor(flags.RootPflags)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

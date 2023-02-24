@@ -1,0 +1,25 @@
+# test tidy adds indirect
+exec hof mod tidy
+
+cmp cue.mod/module.cue cue.mod/module.golden
+exists cue.mod/pkg/github.com/hofstadter-io/ghacue
+
+-- cue.mod/module.cue --
+module: "github.com/hof/test"
+cue: "0.4.3"
+
+require: {
+	"github.com/hofstadter-io/hof": "v0.6.8-beta.5"
+}
+-- cue.mod/module.golden --
+module: "github.com/hof/test"
+cue: "0.4.3"
+
+require: {
+	"github.com/hofstadter-io/hof": "v0.6.8-beta.5"
+}
+
+indirect: {
+	"github.com/hofstadter-io/ghacue": "v0.2.0"
+	"github.com/hofstadter-io/hofmod-cli": "v0.8.0"
+}

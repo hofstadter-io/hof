@@ -1,7 +1,6 @@
-skip
-
 # hof mod vendor - with deps
-env GITHUB_TOKEN="thistokendoesnotexist"
+
+env GITHUB_TOKEN=thistokendoesnotexist
 ! exec hof mod vendor
 
 -- cue.mod/module.cue --
@@ -11,5 +10,3 @@ cue: "v0.5.0"
 require: {
 	"github.com/hofstadter-io/hofmod-test-priv-github": "v0.0.2"
 }
-
--- dummy_end --

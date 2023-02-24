@@ -2,14 +2,13 @@
 exec hof mod vendor
 
 
-
 -- cue.mod/module.cue --
 module: "github.com/test/mod"
 cue: "v0.5.0"
 
 require: {
-	"github.com/hofstadter-io/hof": "v0.6.8-mod.1"
-  "github.com/hofstadter-io/hofmod-cli": "v0.8.0-mod.2"
+	"github.com/hofstadter-io/hof": "v0.6.8-beta.5"
+  "github.com/hofstadter-io/hofmod-cli": "v0.8.1"
 }
 
 replace: {

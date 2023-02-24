@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hofstadter-io/hof/lib/gotils/imports"
 	"github.com/hofstadter-io/hof/lib/gotils/intern/os/execpath"
 	"github.com/hofstadter-io/hof/lib/gotils/par"
 	"github.com/hofstadter-io/hof/lib/gotils/testenv"
@@ -56,9 +55,6 @@ func (ts *Script) condition(cond string) (bool, error) {
 	case goruntime.GOOS, goruntime.GOARCH:
 		return true, nil
 	default:
-		if imports.KnownArch[cond] || imports.KnownOS[cond] {
-			return false, nil
-		}
 		if strings.HasPrefix(cond, "exec:") {
 			prog := cond[len("exec:"):]
 			ok := execCache.Do(prog, func() interface{} {

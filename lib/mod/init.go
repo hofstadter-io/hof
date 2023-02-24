@@ -15,7 +15,7 @@ var initFileContent = `module: %q
 cue: %q
 `
 
-func Init(module string, rflags flags.RootPflagpole, mflags flags.ModPflagpole) (error) {
+func Init(module string, rflags flags.RootPflagpole) (error) {
 	upgradeHofMods()
 
 	err := gomod.CheckPath(module)

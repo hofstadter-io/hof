@@ -232,7 +232,6 @@ func (cm *CueMod) WriteModule() (err error) {
 }
 
 func (cm *CueMod) WriteModFile() (err error) {
-
 	var buf bytes.Buffer
 
 	// local helper for writing some sections

@@ -1,4 +1,4 @@
-# hof mod init cue github.com/test/mod
+# hof mod init github.com/test/mod
 exec hof mod init github.com/test/mod
 ! stdout .
 

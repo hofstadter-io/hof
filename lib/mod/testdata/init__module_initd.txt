@@ -1,4 +1,3 @@
-env HOF_TELEMETRY_DISABLED=1
 # hof mod init - already exists
 ! exec hof mod init hof.io/test
 stdout 'CUE module already exists in this directory'

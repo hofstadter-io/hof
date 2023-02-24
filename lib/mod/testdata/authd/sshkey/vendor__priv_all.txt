@@ -15,17 +15,12 @@ exec bash -c 'echo $HOFMOD_SSHKEY > $HOME/.ssh/id_rsa'
 ## run cmd
 exec hof mod vendor
 
--- cue.mods --
-module github.com/test/priv-all
-
-cue v0.4.3
-
-require (
-    bitbucket.org/hofstadter/hofmod-test-priv-bitbucket v0.0.1
-    github.com/hofstadter-io/hofmod-test-priv-github v0.0.1
-    gitlab.com/_hofstadter/hofmod-test-priv-gitlab v0.0.1
-)
 -- cue.mod/module.cue --
 module: "github.com/test/priv-all"
+cue: "v0.5.0"
 
--- dummy_end --
+require: {
+    "bitbucket.org/hofstadter/hofmod-test-priv-bitbucket": "v0.0.2"
+    "github.com/hofstadter-io/hofmod-test-priv-github": "v0.0.2"
+    "gitlab.com/_hofstadter/hofmod-test-priv-gitlab": "v0.0.2"
+}

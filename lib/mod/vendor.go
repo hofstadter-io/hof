@@ -2,6 +2,7 @@ package mod
 
 import (
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 
@@ -11,7 +12,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
-func Vendor(rflags flags.RootPflagpole, mflags flags.ModPflagpole) (error) {
+func Vendor(rflags flags.RootPflagpole) (error) {
 	upgradeHofMods()
 
 	cm, err := loadRootMod()
@@ -19,13 +20,60 @@ func Vendor(rflags flags.RootPflagpole, mflags flags.ModPflagpole) (error) {
 		return err
 	}
 
-	return cm.Vendor(false, rflags.Verbosity)
+	if rflags.Verbosity > 0 {
+		fmt.Println("vendoring deps for:", cm.Module)
+	}
+
+	err = cm.ensureCached()
+	if err != nil {
+		return err
+	}
+
+	return cm.Vendor("copy", rflags.Verbosity)
 }
 
-func (cm *CueMod) Vendor(link bool, verbosity int) (err error) {
+func (cm *CueMod) Vendor(method string, verbosity int) (err error) {
+	pkgDir := filepath.Join(cm.Basedir, "cue.mod", "pkg")
+
+	// dynamically determine
+	if method == "" {
+
+		for path, _ := range cm.Require {
+			info, err := os.Lstat(filepath.Join(pkgDir, path))
+			if err == nil {
+				if info.Mode() & fs.ModeSymlink == fs.ModeSymlink {
+					method = "link"
+					break
+				} else if info.IsDir() {
+					method = "copy"
+					break
+				}
+			}
+		}
+
+		if method == "" {
+			for path, _ := range cm.Indirect {
+				if _, ok := cm.Replace[path]; ok {
+					info, err := os.Lstat(filepath.Join(pkgDir, path))
+					if err == nil {
+						if info.Mode() & fs.ModeSymlink == fs.ModeSymlink {
+							method = "link"
+							break
+						} else if info.IsDir() {
+							method = "copy"
+							break
+						}
+					}
+				}
+			}
+		}
+
+		if method == "" {
+			method = "link"
+		}
+	}
 
 	// cleanup before remaking
-	pkgDir := filepath.Join(cm.Basedir, "cue.mod", "pkg")
 	err = os.RemoveAll(pkgDir)
 	if err != nil {
 		return err
@@ -58,10 +106,10 @@ func (cm *CueMod) Vendor(link bool, verbosity int) (err error) {
 			src = filepath.Join(cm.Basedir, path)
 		} else {
 			remote, owner, repo := utils.ParseModURL(path)
-			src = cache.Outdir(remote, owner, repo, ver)
+			src = cache.ModuleOutdir(remote, owner, repo, ver)
 		}
 
-		err := linkOrCopy(link, src, dst)
+		err := linkOrCopy(method, src, dst)
 		if err != nil {
 			return err
 		}
@@ -101,20 +149,19 @@ func (cm *CueMod) Vendor(link bool, verbosity int) (err error) {
 	return nil
 }
 
-func linkOrCopy(link bool, src, dst string) (err error) {
-	if link {
+func linkOrCopy(method string, src, dst string) (err error) {
+	if method == "link" {
 		err = os.MkdirAll(filepath.Dir(dst), 0755)
 		if err != nil {
 			return err
 		}
-
 		err = os.Symlink(src, dst)
-		if err != nil {
-			return err
-		}
-	} else {
+
+	} else if method == "copy" {
 		err = yagu.CopyDir(src, dst)
+	} else {
+		panic("uknown mod install method: " + method)
 	}
 
-	return nil
+	return err
 }

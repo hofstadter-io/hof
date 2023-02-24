@@ -18,7 +18,9 @@ import (
 // It returns the script content section of the txtar archive.
 func (ts *Script) setupTest() string {
 	ts.workdir = filepath.Join(ts.testTempDir, "script-"+ts.name)
-	ts.Check(os.MkdirAll(filepath.Join(ts.workdir, "tmp"), 0777))
+
+	ts.resetDirs()
+
 	env := &Env{
 		Vars: []string{
 			"WORK=" + ts.workdir, // must be first for ts.abbrev
@@ -37,6 +39,18 @@ func (ts *Script) setupTest() string {
 	}
 
 	return ts.setupFromEnv(env)
+}
+
+func (ts *Script) resetDirs() {
+	dirs := []string{
+		"tmp",
+		"home",
+	}
+	for _, d := range dirs {
+		f := filepath.Join(ts.workdir, d)
+		ts.Check(os.RemoveAll(f))
+		ts.Check(os.MkdirAll(f, 0777))
+	}
 }
 
 // setupRun sets up the script execution for working in the current directory.

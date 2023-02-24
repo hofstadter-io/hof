@@ -2,59 +2,78 @@ package cache
 
 import (
 	"fmt"
-	"os"
-	"strings"
+	"sort"
 
 	"github.com/go-git/go-billy/v5"
-	"github.com/go-git/go-billy/v5/memfs"
+	"github.com/go-git/go-billy/v5/osfs"
+	gogit "github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
 	"golang.org/x/mod/semver"
 
-	"github.com/hofstadter-io/hof/lib/repos/bbc"
 	"github.com/hofstadter-io/hof/lib/repos/git"
-	"github.com/hofstadter-io/hof/lib/repos/github"
-	"github.com/hofstadter-io/hof/lib/repos/gitlab"
 	"github.com/hofstadter-io/hof/lib/repos/utils"
 )
 
 const hofPrivateVar = "HOF_PRIVATE"
 
-func FetchRepoToMem(url, ver string) (billy.Filesystem, error) {
-	fmt.Println("downloading: ", url, ver)
-	FS := memfs.New()
-
-	remote, owner, repo := utils.ParseModURL(url)
-
-	// check if in cache?
-
-	// TODO, how to deal with self-hosted / enterprise repos?
-	private := utils.MatchPrefixPatterns(os.Getenv(hofPrivateVar), url)
-
-	// TODO, make an interface for repo hosts
-	switch remote {
-	case "github.com":
-		if err := github.Fetch(FS, owner, repo, ver, private); err != nil {
-			return FS, fmt.Errorf("While fetching from github\n%w\n", err)
-		}
-
-	case "gitlab.com":
-		if err := gitlab.Fetch(FS, owner, repo, ver, private); err != nil {
-			return FS, fmt.Errorf("While fetching from gitlab\n%w\n", err)
-		}
-
-	case "bitbucket.org":
-		if err := bbc.Fetch(FS, owner, repo, ver, private); err != nil {
-			return FS, fmt.Errorf("While fetching from bitbucket\n%w\n", err)
-		}
-
-	default:
-		if err := git.Fetch(FS, remote, owner, repo, ver, private); err != nil {
-			return FS, fmt.Errorf("While fetching from git\n%w\n", err)
-		}
+func OpenRepoSource(path string) (*gogit.Repository, error) {
+	if debug {
+		fmt.Println("cache.OpenRepoSource:", path)
 	}
+
+	remote, owner, repo := utils.ParseModURL(path)
+	dir := SourceOutdir(remote, owner, repo)
+	return gogit.PlainOpen(dir)
+}
+
+func FetchRepoSource(path, ver string) (billy.Filesystem, error) {
+	if debug {
+		fmt.Println("cache.FetchRepoSource:", path)
+	}
+
+	remote, owner, repo := utils.ParseModURL(path)
+	dir := SourceOutdir(remote, owner, repo)
+
+	err := git.SyncSource(dir, remote, owner, repo, ver)
+	if err != nil {
+		return nil, err
+	}
+
+	FS := osfs.New(dir)
 
 	return FS, nil
 }
 
+func GetLatestTag(path string, pre bool) (string, error) {
+	R, err := OpenRepoSource(path)
+	if err != nil {
+		return "", err
+	}
+
+	refs, err := R.Tags()
+	if err != nil {
+		return "", err
+	}
+
+	var tags []string
+	refs.ForEach(func (ref *plumbing.Reference) error {
+		n := ref.Name().Short()
+		// maybe filter prereleases
+		if !pre && semver.Prerelease(n) != "" {
+			return nil
+		}
+		tags = append(tags, n)
+		return nil
+	})
+	
+	sort.Slice(tags, func(i, j int) bool {
+		// sort so greatest is at front
+		return semver.Compare(tags[i], tags[j]) > 0
+	})
+	return tags[0], nil
+}
+
+/*
 func FindBestRef(url, ver string) (_,_,_ string, err error) {
 	// fmt.Println("finding latest version for", url)
 	if ver == "" {
@@ -141,4 +160,4 @@ func FindBestRef(url, ver string) (_,_,_ string, err error) {
 
 	return refVal, refType, refCommit, nil
 }
-
+*/
