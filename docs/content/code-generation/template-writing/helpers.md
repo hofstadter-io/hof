@@ -18,6 +18,11 @@ Notes:
 - It can be advantagous to do as many manipulations in CUE rather than in the template system.
 
 
+`text/template` documentation can be found here:
+https://pkg.go.dev/text/template
+
+
+
 ### Encode to a data format:
 
 - `json` (`{{ json .Data }}`)

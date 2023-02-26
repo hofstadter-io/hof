@@ -1,7 +1,14 @@
 /dist/
 /resources/
-/code/*.html
+
+# ignore html files generatied from cue files
 /code/**/*.html
+# remember html files we manually write for examples
+!/code/**/templates/*.html
+!/code/**/templates/**/*.html
+!/code/**/partials/*.html
+!/code/**/partials/**/*.html
+
 # /code/flow/examples/
 # /code/flow/schemas/
 /cue.mod/pkg/

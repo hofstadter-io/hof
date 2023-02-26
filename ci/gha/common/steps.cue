@@ -24,6 +24,21 @@ Steps: {
 		"""
 	}
 
+	cue: {
+		install: {
+			#ver: string | *"v0.5.0-beta.5"
+			run: """
+			mkdir tmp
+			cd tmp
+			wget https://github.com/cue-lang/cue/releases/download/\(#ver)/cue_\(#ver)_linux_amd64.tar.gz -O cue.tar.gz
+			tar -xf cue.tar.gz
+			sudo mv cue /usr/local/bin/cue
+			cd ../
+			rm -rf tmp
+			"""
+		}
+	}
+
 	go: {
 		setup: {
 			#ver: string | *(string & Versions.go)
@@ -109,6 +124,46 @@ Steps: {
 				"""
 
 		}
+	}
+
+	gcloud: {
+		auth: {
+			name: "GCloud Auth"
+			uses: "google-github-actions/auth@v1"
+			with: credentials_json: "${{ secrets.HOF_GCLOUD_JSON }}"
+		}
+		setup: {
+			name: "GCloud Setup"
+      uses: "google-github-actions/setup-gcloud@v1"
+		}
+
+		dockerAuth: {
+			name: "Docker Auth"
+			run: """
+				gcloud auth configure-docker
+				"""
+		}
+	}
+
+	hof: {
+		install: {
+			name: "Build hof"
+			run:  "go install ./cmd/hof"
+		}
+	}
+
+	docs: {
+
+		setup: {
+			name: "Setup"
+			run:  """
+			hof fmt start prettier@v0.6.8-beta.6
+			cd docs
+			hof mod link
+			make deps
+			"""
+		}
+
 	}
 }
 

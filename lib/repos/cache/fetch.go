@@ -2,7 +2,7 @@ package cache
 
 import (
 	"fmt"
-	"sort"
+	"strings"
 
 	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-billy/v5/osfs"
@@ -55,22 +55,28 @@ func GetLatestTag(path string, pre bool) (string, error) {
 		return "", err
 	}
 
-	var tags []string
+	best := ""
 	refs.ForEach(func (ref *plumbing.Reference) error {
 		n := ref.Name().Short()
+
+		// skip any tags which do not start with v
+		if !strings.HasPrefix(n, "v") {
+			return nil
+		}
+
 		// maybe filter prereleases
 		if !pre && semver.Prerelease(n) != "" {
 			return nil
 		}
-		tags = append(tags, n)
+
+		// update best?
+		if best == "" || semver.Compare(n, best) > 0 {
+			best = n	
+		}
 		return nil
 	})
 	
-	sort.Slice(tags, func(i, j int) bool {
-		// sort so greatest is at front
-		return semver.Compare(tags[i], tags[j]) > 0
-	})
-	return tags[0], nil
+	return best, nil
 }
 
 /*

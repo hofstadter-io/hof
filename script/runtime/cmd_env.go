@@ -61,8 +61,12 @@ func (ts *Script) CmdEnv(neg int, args []string) {
 		}
 
 		// else, split and do things
-		k, v := env[:i], env[i+1:]
-		if v[0] == '@' {
+		parts := strings.Split(env, "=")
+		k, v := parts[0], ""
+		if len(parts) > 1 {
+			v = parts[1]
+		}
+		if len(v) > 0 && v[0] == '@' {
 			fname := v[1:] // for error messages
 			if fname == "stdout" {
 				v = ts.stdout

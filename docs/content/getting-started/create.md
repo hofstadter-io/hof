@@ -77,7 +77,7 @@ initial files needed to use their module.
 
 To learn more about writing creators, prompts, and how to give your users
 one-line bootstrapping or application blueprints, see the
-[hof create section](/hof-create/)
+[hof create section](/code-generation/creators/)
 
 
 ## Creator vs Generator Module

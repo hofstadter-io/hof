@@ -18,6 +18,6 @@ code/%.html: code/%.cue
 	@echo highlight "$<" as "$@"
 	@node hack/highlight.js < "$<" > "$@"
 
-.PHONY: gen-output-examples
-gen:
+.PHONY: examples
+examples:
 	make -C code/first-example gen

@@ -8,6 +8,14 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
+      - run: |-
+          mkdir tmp
+          cd tmp
+          wget https://github.com/cue-lang/cue/releases/download/v0.5.0-beta.5/cue_v0.5.0-beta.5_linux_amd64.tar.gz -O cue.tar.gz
+          tar -xf cue.tar.gz
+          sudo mv cue /usr/local/bin/cue
+          cd ../
+          rm -rf tmp
       - name: Install Go
         uses: actions/setup-go@v3
         with:
@@ -39,18 +47,16 @@ jobs:
       - name: Build hof
         run: go install ./cmd/hof
       - name: Setup
-        run: "cd docs\nmake first "
+        run: |-
+          hof fmt start prettier@v0.6.8-beta.6
+          cd docs
+          hof mod link
+          make deps
       - name: Test
         run: |-
           cd docs
+          make gen
           make test
-      - name: Build
-        run: |-
-          cd docs
-          make build
-      - name: Check
-        run: |-
-          cd docs
           make run &
           make broken-link
     strategy: {}

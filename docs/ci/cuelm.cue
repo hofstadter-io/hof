@@ -20,7 +20,7 @@ Update: schema.#List & {
 
 #Site: {
 	_Values: {
-		name: "hof-docs"
+		name: string | *"hof-docs" @tag(name)
 		namespace: "websites"
 
 		registry: "us.gcr.io/hof-io--develop"

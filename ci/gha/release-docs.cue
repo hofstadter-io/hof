@@ -8,23 +8,65 @@ import (
 ghacue.#Workflow & {
 	name: "release (docs)"
 
-	on: push: {
-		tags: ["docs-*"]
+	on: {
+		push: {
+			tags: ["docs-**"]
+		}
+		workflow_dispatch: {
+			inputs: {
+				deploy: {
+					description: "where to deploy"
+					required: true
+					default: "next"
+					type: "choice"
+					options: ["next", "prod"]
+				}
+			}
+		}
 	}
 
 	jobs: {
 		docs: {
 			"runs-on": "ubuntu-latest"
-			// environment: "hof docs"
+			environment: "hof docs"
 
 			steps: [
+				// general setup
+				common.Steps.cue.install,
+				common.Steps.go.setup & { #ver: "1.20.x" },
+				common.Steps.go.cache,
 				common.Steps.checkout,
 				common.Steps.vars,
+				common.Steps.go.deps,
+				common.Steps.hof.install,
+
+				// prod build site & image
+				common.Steps.docs.setup,
 				{
-					name: "Setup"
-					run:  "go install ./cmd/hof"
+					name: "Build"
+
+					run:  """
+					cd docs
+					make gen
+					make hugo.next
+					"""
 				},
 
+				// gcloud auth setup
+				common.Steps.gcloud.auth,
+				common.Steps.gcloud.setup,
+				common.Steps.gcloud.dockerAuth,
+
+				// push image & deploy
+				{
+					name: "Image"
+					run:  """
+					cd docs
+					make docker
+					make push
+					make deploy.next.view
+					"""
+				},
 			]
 		}
 	}

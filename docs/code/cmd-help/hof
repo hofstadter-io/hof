@@ -11,7 +11,7 @@ Main commands:
   gen                   modular and composable code gen: CUE & data + templates = _
   flow                  run CUE pipelines with the hof/flow DAG engine
   fmt                   format any code and manage the formatters
-  mod                   go style dependency management for CUE
+  mod                   CUE dependency management based on Go mods
 
 Additional commands:
   help                  help about any command
