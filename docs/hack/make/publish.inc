@@ -1,37 +1,39 @@
 build: hugo docker
-release: push deploy
 
 config.yaml: config.cue
 	cue export config.cue --out yaml --outfile config.yaml --force
 
-.PHONY: hugo
-hugo: config.yaml
+.PHONY: hugo hugo.prod
+hugo: hugo.prod
+hugo.prod: config.yaml
 	@rm -rf dist
 	@hugo --baseURL https://docs.hofstadter.io/ -d dist
+hugo.next: config.yaml
+	@rm -rf dist
+	@hugo --baseURL https://next.hofstadter.io/ -d dist
 
 .PHONY: docker
-docker: image push
+docker: image
 
 .PHONY: image
 image:
-	@docker build --no-cache -f ci/Dockerfile -t us.gcr.io/$(PROJECT)/docs.hofstadter.io:$(TAG) .
+	@docker build --no-cache -f ci/Dockerfile -t us.gcr.io/$(PROJECT)/docs.hofstadter.io:$(COMMIT) .
 
 .PHONY: nginx
 nginx:
-	@docker run --rm -it -p 8080:80 --name hof-docs us.gcr.io/$(PROJECT)/docs.hofstadter.io:$(TAG)
+	@docker run --rm -it -p 8080:80 --name hof-docs us.gcr.io/$(PROJECT)/docs.hofstadter.io:$(COMMIT)
 
 .PHONY: push
 push:
-	@docker push us.gcr.io/$(PROJECT)/docs.hofstadter.io:$(TAG)
+	@docker push us.gcr.io/$(PROJECT)/docs.hofstadter.io:$(COMMIT)
 
-.PHONY: deploy
-deploy:
-	@cue export ci/cuelm.cue -t version=$(TAG) -e Install | kubectl apply -f -
-
-.PHONY: deploy-view
-deploy-view:
-	@cue export ci/cuelm.cue -t version=$(TAG) -e Install
-
-
-
+.PHONY: deploy.prod deploy.prod.view deploy.next deploy.next.view
+deploy.prod:
+	@cue export ci/cuelm.cue -t version=$(COMMIT) -e Install | kubectl apply -f -
+deploy.prod.view:
+	@cue export ci/cuelm.cue -t version=$(COMMIT) -e Install
+deploy.next:
+	@cue export ci/cuelm.cue -t version=$(COMMIT) -t name=hof-next-docs -t domain="next.hofstadter.io" -e Install | kubectl apply -f -
+deploy.next.view:
+	@cue export ci/cuelm.cue -t version=$(COMMIT) -t name=hof-next-docs -t domain="next.hofstadter.io" -e Install
 

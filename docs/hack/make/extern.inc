@@ -3,7 +3,7 @@ extern: cmdhelp schemas
 
 schemas:
 	# todo, get from github @ version
-	cp -r ~/hof/hof/schema/* code/hof-schemas
+	cp -r ../schema/* code/hof-schemas
 
 .PHONY: cmdhelp
 cmdhelp:

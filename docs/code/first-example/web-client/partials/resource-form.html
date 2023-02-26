@@ -1,0 +1,9 @@
+{{ $R := $.RESOURCE }}
+<form id="modal-form">
+  {{ range $F := $R.Model.OrderedFields }}
+  <div class="mb-3">
+    <label for="{{ $F.Name }}Input" class="form-label">{{ $F.Name }}</label>
+    <input type="input" class="form-control" id="{{ $F.Name }}Input">
+  </div>
+  {{ end }}
+</form>

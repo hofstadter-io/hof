@@ -14,7 +14,7 @@ you can write to generate any file from any data.
 
 #### Learn about writing templates, with extra functions and helpers
 
-[Template writing docs](/reference/template-writing/)
+[Template writing docs](/code-generation/template-writing/)
 
 <br>
 

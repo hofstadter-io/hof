@@ -1,0 +1,21 @@
+{{ $R := $.RESOURCE }}
+<!-- Button trigger modal -->
+<button id="modal-btn" type="button" class="btn btn-primary btn-sm float-right" data-bs-toggle="modal" data-bs-target="#{{ camel $R.Name }}Modal">
+  ?
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="{{ camel $R.Name }}Modal" tabindex="-1" aria-labelledby="{{ camel $R.Name }}ModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="{{ camel $R.Name }}ModalLabel">{{ $R.Name }}</h3>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        {{ template "resource-form.html" . }}
+        <button onclick="{{ camel $R.Name }}Submit()" class="btn btn-primary" data-bs-dismiss="modal">Submit</button>
+      </div>
+    </div>
+  </div>
+</div>

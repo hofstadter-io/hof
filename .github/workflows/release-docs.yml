@@ -2,11 +2,43 @@ name: release (docs)
 "on":
   push:
     tags:
-      - docs-*
+      - docs-**
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: where to deploy
+        required: true
+        default: next
+        type: choice
+        options:
+          - next
+          - prod
 jobs:
   docs:
     runs-on: ubuntu-latest
+    environment: hof docs
     steps:
+      - run: |-
+          mkdir tmp
+          cd tmp
+          wget https://github.com/cue-lang/cue/releases/download/v0.5.0-beta.5/cue_v0.5.0-beta.5_linux_amd64.tar.gz -O cue.tar.gz
+          tar -xf cue.tar.gz
+          sudo mv cue /usr/local/bin/cue
+          cd ../
+          rm -rf tmp
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.20.x
+      - uses: actions/cache@v3
+        with:
+          path: |-
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            ~\AppData\Local\go-build
+          key: ${{ runner.os }}-go-${{ matrix.go-version }}-${{ hashFiles('**/go.sum') }}
+          restore-keys: ${{ runner.os }}-go-${{ matrix.go-version }}-
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Setup Vars
@@ -20,7 +52,34 @@ jobs:
           fi
           echo "HOF_SHA=${SHA}" >> $GITHUB_ENV
           echo "HOF_TAG=${TAG}" >> $GITHUB_ENV
-      - name: Setup
+      - name: Fetch Go deps
+        run: go mod download
+      - name: Build hof
         run: go install ./cmd/hof
+      - name: Setup
+        run: |-
+          hof fmt start prettier@v0.6.8-beta.6
+          cd docs
+          hof mod link
+          make deps
+      - name: Build
+        run: |-
+          cd docs
+          make gen
+          make hugo.next
+      - name: GCloud Auth
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.HOF_GCLOUD_JSON }}
+      - name: GCloud Setup
+        uses: google-github-actions/setup-gcloud@v1
+      - name: Docker Auth
+        run: gcloud auth configure-docker
+      - name: Image
+        run: |-
+          cd docs
+          make docker
+          make push
+          make deploy.next.view
     strategy: {}
     services: {}

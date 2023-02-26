@@ -5,8 +5,10 @@ weight: 20
 
 ## Template System
 
-Hof uses Go's `text/template` package (https://pkg.go.dev/text/template).
-All partials are registered with all templates for use with `{{ template "path/to/partial.ext" }}`.
+Hof uses Go's `text/template` package adding several helpers.
+You can put both full templates and partial (reusable) template snippets
+in directorys or the generator definition.
+All partials will be registered with all templates for use with `{{ template "path/to/partial.ext" }}`.
 
 #### Sections:
 

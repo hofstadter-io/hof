@@ -13,8 +13,6 @@ rather than dozens of source code, test files, and database schemas.
 We are working on this concurrently with the datamodels work.
 Like that section, we will post links here as they become available.
 
-As always, [join us in chat to learn more](https://gitter.im/hofstadter-io).
-
 The goal here is to emit code from Cue in a general and language agnostic way.
 
 This is the best example right now: https://github.com/hofstadter-io/hofmod-cli (edited) 

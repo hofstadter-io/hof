@@ -1,7 +1,7 @@
 include ./hack/make/*.inc
 
-TAG        = $(shell git rev-parse --short HEAD | tr -d "\n")
-PROJECT    = "hof-io--develop"
+COMMIT  = $(shell git rev-parse --short HEAD | tr -d "\n")
+PROJECT = "hof-io--develop"
 
 help:
 	@cat Makefile
@@ -11,15 +11,13 @@ run: dev
 lint: fmt broken-link
 test: verify
 
-.PHONY: fmt broken-link code highlight
+.PHONY: fmt broken-link highlight
 fmt: cuefmt gofmt
 broken-link: blc.dev
-examples: gen
 highlight: highlight-cue
 
 # build the world and push to production
-.PHONY: first setup publish
-first: deps setup
-setup: config.yaml extern code highlight
-publish: setup build deploy
+.PHONY: first gen
+first: deps gen
+gen: config.yaml extern examples highlight
 

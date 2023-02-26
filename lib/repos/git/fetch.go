@@ -177,6 +177,7 @@ func getAuth(remote, owner, repo string) (auth transport.AuthMethod, err error) 
 			Password: netrc.Password,
 		}	
 	} else if strings.Contains(remote, "github.com") && os.Getenv("GITHUB_TOKEN") != "" {
+		fmt.Println(remote, os.Getenv("GITHUB_TOKEN"))
 		auth = &http.BasicAuth{
 			Username: "github-token", // yes, this can be anything except an empty string
 			Password: os.Getenv("GITHUB_TOKEN"),
@@ -202,6 +203,10 @@ func getAuth(remote, owner, repo string) (auth transport.AuthMethod, err error) 
 		auth = ssh.Keys
 	}
 
+	// no auth found, so don't return any
+	if auth == nil {
+		return nil, nil
+	}
 	if debug {
 		fmt.Println("cache auth:", remote, auth)
 	}

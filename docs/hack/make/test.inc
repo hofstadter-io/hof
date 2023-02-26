@@ -5,4 +5,4 @@ verify_diff:
 	@git diff --exit-code code/
 
 verify_code:
-	make -C code all
+	make -C code test
