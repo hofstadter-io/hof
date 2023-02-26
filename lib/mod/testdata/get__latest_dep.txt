@@ -1,3 +1,8 @@
+skip
+
+# this works, but the result drifts over time
+# so we probably need to think about a better check
+
 exec hof mod init hof.io/test
 cmp cue.mod/module.cue match/cue.mod/module-init.cue
 
