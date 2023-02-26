@@ -3,13 +3,10 @@
 // license that can be found in the LICENSE file.
 
 //go:build plan9
-// +build plan9
 
 package filelock
 
-import (
-	"os"
-)
+import "io/fs"
 
 type lockType int8
 
@@ -19,7 +16,7 @@ const (
 )
 
 func lock(f File, lt lockType) error {
-	return &os.PathError{
+	return &fs.PathError{
 		Op:   lt.String(),
 		Path: f.Name(),
 		Err:  ErrNotSupported,
@@ -27,7 +24,7 @@ func lock(f File, lt lockType) error {
 }
 
 func unlock(f File) error {
-	return &os.PathError{
+	return &fs.PathError{
 		Op:   "Unlock",
 		Path: f.Name(),
 		Err:  ErrNotSupported,

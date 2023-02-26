@@ -1,55 +1,11 @@
 # hof mod vendor - with deps
 exec hof mod vendor
+exists cue.mod/pkg/github.com/hofstadter-io/hof/cue.mod/module.cue
 
 -- cue.mod/module.cue --
 module: "github.com/test/withsolo"
 cue: "v0.5.0"
 
 require: {
-	"github.com/hofstadter-io/hof": "v0.6.8-mod.1"
+	"github.com/hofstadter-io/hof": "v0.6.8-beta.5"
 }
--- dummy_end --
-
-
-
-# hof mod vendor - with deps
-exec hof mod vendor
-
--- cue.mod/module.cue --
-module: "github.com/test/withmulti"
-cue: "v0.5.0"
-
-require: {
-	"github.com/hofstadter-io/hof": "v0.6.8-mod.1"
-  "github.com/hofstadter-io/hofmod-cli": "v0.8.0-mod.2"
-}
-
--- dummy_end --
-
-
-# hof mod vendor - require v0.0.0 - A
-exec hof mod vendor
-
--- cue.mod/module.cue --
-module: "github.com/test/mod-v000-a"
-cue: "v0.5.0"
-
-require: {
-	"github.com/hofstadter-io/hof": "v0.0.0"
-}
--- dummy_end --
-
-# hof mod vendor - BUG require v0.0.0 - B
-exec hof mod vendor
-
--- cue.mod/module.cue --
-module: "github.com/test/mod-v000-b"
-cue: "v0.5.0"
-
-require: {
-	"github.com/hofstadter-io/hof": "v0.0.0"
-  "github.com/hofstadter-io/hofmod-cli": "v0.0.0"
-}
-
--- dummy_end --
-

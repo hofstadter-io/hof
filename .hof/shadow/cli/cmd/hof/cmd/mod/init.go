@@ -17,7 +17,7 @@ var initLong = `initialize a new module in the current directory`
 
 func InitRun(module string) (err error) {
 
-	err = mod.Init(module, flags.RootPflags, flags.ModPflags)
+	err = mod.Init(module, flags.RootPflags)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

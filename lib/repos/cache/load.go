@@ -11,11 +11,25 @@ import (
 	"github.com/hofstadter-io/hof/lib/repos/utils"
 )
 
-const CustomCacheBaseDirVar = "HOF_CACHE"
-var cacheBaseDir  string
+const NoCacheEnvVar = "HOF_NOCACHE"
+var noCache = false
+
+const CustomCacheDirEnvVar = "HOF_CACHE"
+var cacheBaseDir string
+var modBaseDir string
+var srcBaseDir string
+
+// CacheDir/{mod,src}
+
+var debug = false
 
 func init() {
-	e := os.Getenv(CustomCacheBaseDirVar)
+	nc := os.Getenv(NoCacheEnvVar)
+	if nc != "" {
+		noCache = true
+	}
+
+	e := os.Getenv(CustomCacheDirEnvVar)
 	if e != "" {
 		cacheBaseDir = e
 	} else {
@@ -25,26 +39,41 @@ func init() {
 		}
 
 		// save to hof dir for cache across projects
-		cacheBaseDir = filepath.Join(d, "hof/mods")
+		cacheBaseDir = filepath.Join(d, "hof")
 	}
+	modBaseDir = filepath.Join(cacheBaseDir, "mods")
+	srcBaseDir = filepath.Join(cacheBaseDir, "src")
 }
 
-func SetBaseDir(basedir string) {
+func SetCacheDir(basedir string) {
 	cacheBaseDir = basedir
 }
 
 func Load(url, ver string) (_ billy.Filesystem, err error) {
-	FS, err := Read(url, ver)
-	if err == nil {
-		return FS, nil
+	if debug {
+		fmt.Println("cache.Load:", url, ver)
+	}
+
+	if !noCache {
+		FS, err := Read(url, ver)
+		if err == nil {
+			// fmt.Println("cached:", url, ver)
+			return FS, nil
+		}
 	}
 
 	return Cache(url, ver)
 }
 
 func Read(url, ver string) (FS billy.Filesystem, err error) {
+	if debug {
+		fmt.Println("cache.Read:", url, ver)
+	}
 	remote, owner, repo := utils.ParseModURL(url)
-	dir := Outdir(remote, owner, repo, ver)
+	dir := SourceOutdir(remote, owner, repo)
+	if ver != "" {
+		dir = ModuleOutdir(remote, owner, repo, ver)
+	}
 
 	// check for existence
 	_, err = os.Lstat(dir)
@@ -59,23 +88,55 @@ func Read(url, ver string) (FS billy.Filesystem, err error) {
 }
 
 func Cache(url, ver string) (billy.Filesystem, error) {
-	remote, owner, repo := utils.ParseModURL(url)
+	if debug {
+		fmt.Println("cache.Cache:", url, ver)
+	}
+	if ver == "" {
+		return FetchRepoSource(url, ver)
+	}
+	return CacheModule(url, ver)
+}
 
-	// check for in cache
-	dir := Outdir(remote, owner, repo, ver)
-	if _, err := os.Lstat(dir); err == nil {
-		return nil, nil
+func CacheModule(url, ver string) (billy.Filesystem, error) {
+	if debug {
+		fmt.Println("cache.CacheModule:", url, ver)
+	}
+	remote, owner, repo := utils.ParseModURL(url)
+	dir := ModuleOutdir(remote, owner, repo, ver)
+
+	// check for existing directory
+	if _, err := os.Lstat(dir); err != nil {
+		if _, ok := err.(*os.PathError); !ok && err.Error() != "file does not exist" && err.Error() != "no such file or directory" {
+			return nil, err
+		}
+		// doesnt' exist, so continue
+	} else {
+		// the directory exists
+		if noCache {
+			err = os.RemoveAll(dir)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			// 
+			return nil, fmt.Errorf("module already exists and noCache is not enabled, you should check for existence or use Load to be dynamic")
+		}
 	}
 
-	FS, err := FetchRepoToMem(url, ver)
+	// we are smarter here and check to see if the tag already exists
+	// this will both clone new & sync existing repos as needed
+	// when ver != "", it will only fetch if the tag is not found
+	_, err := FetchRepoSource(url, ver)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := Write(remote, owner, repo, ver, FS); err != nil {
-		return nil, fmt.Errorf("While writing to cache\n%w\n", err)
+	// fmt.Println("making:", url, ver)
+	err = CopyRepoTag(url, ver)
+	if err != nil {
+		return nil, err
 	}
 
-	return FS, nil
+	return Read(url, ver)
 }
 

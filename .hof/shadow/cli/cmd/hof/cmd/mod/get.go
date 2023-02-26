@@ -15,9 +15,14 @@ import (
 
 var getLong = `add a new dependency to the current module`
 
+func init() {
+
+	GetCmd.Flags().BoolVarP(&(flags.Mod__GetFlags.Prerelease), "prerelease", "P", false, "include prerelease version when using @latest")
+}
+
 func GetRun(module string) (err error) {
 
-	err = mod.Get(module, flags.RootPflags, flags.ModPflags)
+	err = mod.Get(module, flags.RootPflags, flags.Mod__GetFlags)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

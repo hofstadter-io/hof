@@ -12,10 +12,10 @@ import (
 	"github.com/hofstadter-io/hof/lib/repos/cache"
 )
 
-func (cm *CueMod) SolveMVS() error {
+func (cm *CueMod) SolveMVS(latest bool) error {
 	// fmt.Println("solve mvs:", cm.Module)
 
-	rr := &RequirementResolver{ cm }
+	rr := &RequirementResolver{ cm, latest, make(map[string]bool) }
 
 	targets := []module.Version{}
 	for _, dep := range cm.Replace {
@@ -44,6 +44,9 @@ func (cm *CueMod) SolveMVS() error {
 // type needed by Go's mvs library
 type RequirementResolver struct {
 	rootMod *CueMod
+	latest  bool
+
+	fetched map[string]bool
 }
 
 func cmpVersion(v1, v2 string) int {
@@ -90,15 +93,35 @@ func (rr *RequirementResolver) Required(m module.Version) ([]module.Version, err
 		return nil, err
 	}
 
+	// fmt.Println("mvs:", m, M.Module)
+
 	deps := []module.Version{}
 	for path, ver := range M.Require {
 		// filter a replaced module or same module?
 		if _, ok := rr.rootMod.Replace[path]; ok || path == rr.rootMod.Module {
 			continue
 		}
+		if rr.latest {
+			// possibly extra calls here...?
+			_, err = cache.FetchRepoSource(path, "")
+			if err != nil {
+				return nil, err
+			}
+			nver, err := cache.GetLatestTag(path, false)
+			if err != nil {
+				return nil, err
+			}
+			// only update if newer (not if we explicitly require prerelease)
+			if semver.Compare(nver, ver) > 0 {
+				ver = nver
+			}
+		}
+
 		dep := module.Version{ Path: path, Version: ver }
 		deps = append(deps, dep)
 	}
+
+	// fmt.Println("deps:", deps)
 
 	return deps, nil
 }

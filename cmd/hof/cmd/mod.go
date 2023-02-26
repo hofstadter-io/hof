@@ -5,73 +5,37 @@ import (
 
 	"github.com/hofstadter-io/hof/cmd/hof/cmd/mod"
 
-	"github.com/hofstadter-io/hof/cmd/hof/flags"
-
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var modLong = `hof mod is a flexible tool and library based on Go mods.
-
-Use and create module systems with Minimum Version Selection (MVS) semantics
-and manage dependencies go mod style. Mix any set of language, code bases,
-git repositories, package managers, and subdirectories.
-
-
-### Features
-
-- Based on go mods MVS system, aiming for 100% reproducible builds.
-- Recursive dependencies, version resolution, and code instrospection.
-- Custom module systems with custom file names and vendor directories.
-- Control configuration for naming, vendoring, and other behaviors.
-- Polyglot support for multiple module systems and multiple languages within one tool.
-- Works with any git system and supports the main features from go mods.
-- Convert other vendor and module systems to MVS or just manage their files with MVS.
-- Private repository support for GitHub, GitLab, Bitbucket, and git+SSH.
-
-
-### Usage
-
-# Print known languages in the current directory
-hof mod info
-
-# Initialize this folder as a module
-hof mod init <lang> <module-path>
-
-# Add your requirements
-vim <lang>.mods  # go.mod like file
-
-# Pull in dependencies, no args discovers by *.mods and runs all
-hof mod vendor [langs...]
-
-# See all of the commands
-hof mod help
-
+var modLong = `hof mod is CUE dependency management based on Go mods.
 
 ### Module File
 
 The module file holds the requirements for project.
-It has the same format as a go.mod file.
+It is found in cue.mod/module.cue	
 
 ---
-# These are like golang import paths
-#   i.e. github.com/hofstadter-io/hof
-module <module-path> 
+// These are like golang import paths
+//   i.e. github.com/hofstadter-io/hof
+module: "<module-path>"
+cue: "v0.5.0"
 
-# Information about the module type / version
-#  some systems that take this into account
-# go = 1.14
-<lang> = <version>
+// Required dependencies section
+require: {
+  // "<module-path>": "<module-semver>"
+  "github.com/hofstadter-io/ghacue": "v0.2.0"
+  "github.com/hofstadter-io/hofmod-cli": "v0.8.1"
+}
 
-# Required dependencies section
-require (
-	# <module-path> <module-semver>
-	github.com/hof-lang/cuemod--cli-golang v0.0.0      # This is latest on HEAD
-	github.com/hof-lang/cuemod--cli-golang v0.1.5      # This is a tag v0.1.5 (can omit 'v' in tag, but not here)
-)
+// Indirect dependencies (managed by hof)
+indirect: { ... }
 
-# replace <module-path> => <module-path|local-path> [version]
-replace github.com/hof-lang/cuemod--cli-golang => github.com/hofstadter-io/hofmod-cli-golang v0.2.0
-replace github.com/hof-lang/cuemod--cli-golang => ../../cuelibs/cuemod--cli-golang
+// Replace dependencies with local or remote
+replace: {
+  "github.com/hofstadter-io/ghacue": "github.com/myorg/ghacue": "v0.4.2"
+  "github.com/hofstadter-io/hofmod-cli": "../mods/clie"
+}
 ---
 
 
@@ -79,47 +43,52 @@ replace github.com/hof-lang/cuemod--cli-golang => ../../cuelibs/cuemod--cli-gola
 
 hof mod prefers authenticated requests when fetching dependencies.
 This increase rate limits with hosts and supports private modules.
-Both token and sshkey base methods are supported.
+Both token and sshkey base methods are supported, with preferences:
 
-If you are using credentials, then private modules can be transparent.
-An ENV VAR like GOPRIVATE and CUEPRIVATE can be used to require credentials.
+1. Matching entry in .netrc
 
-The following ENV VARS are used to set credentials.
+2. ENV VARS for well known hosts.
 
-GITHUB_TOKEN
-GITLAB_TOKEN
-BITBUCKET_TOKEN or BITBUCKET_USERNAME / BITBUCKET_PASSWORD *
+  GITHUB_TOKEN
+  GITLAB_TOKEN
+  BITBUCKET_USERNAME / BITBUCKET_PASSWORD or BITBUCKET_TOKEN 
 
-SSH keys will be looked up in the following ~/.ssh/config, /etc/ssh/config, ~/.ssh/in_rsa
+  The bitbucket method will depend on the account type and enterprise license.
 
-You can configure the SSH key with
+3. SSH keys 
 
-HOF_SSHUSR and HOF_SSHKEY
+  the following are searched: ~/.ssh/config, /etc/ssh/config, ~/.ssh/in_rsa
 
-* The bitbucket method will depend on the account type and enterprise license.
+  You can configure the SSH key with HOF_SSHUSR and HOF_SSHKEY
 
 
-### Custom Module Systems
+### Usage
 
-.mvsconfig.cue allows you to define custom module systems.
-With some simple configuration, you can create and control
-and vendored module system based on go mods.
-You can also define global configurations.
+# Initialize this folder as a module (github.com/org/repo)
+hof mod init <module-path>
 
-See the ./lib/mod/langs in the repository for examples.
+# Add or update a dependency
+hof mod get github.com/hofstadter-io/hof@latest
+hof mod get github.com/hofstadter-io/hof@v0.6.8
+hof mod get github.com/hofstadter-io/hof@v0.6.8-beta.6
 
-### Motivation
+# Tidy module files
+hof mod tidy
 
-- MVS has better semantics for vendoring and gets us closer to 100% reproducible builds.
-- JS and Python can have MVS while still using the remainder of the tool chains.
-- Prototype for cuelang module and vendor management.
-- We need a module system for our [hof-lang](https://hof-lang.org) project.
+# symlink dependencies from local cache
+hof mod link
+
+# copy dependency code from local cache
+hof mod vendor
+
+# update dependencies
+hof mod get github.com/hofstadter-io/hof@latest
+hof mod get all@latest
+
+# print help
+hof mod help
+
 `
-
-func init() {
-
-	ModCmd.PersistentFlags().BoolVarP(&(flags.ModPflags.Update), "update", "u", false, "update dependencies while processing")
-}
 
 var ModCmd = &cobra.Command{
 
@@ -129,7 +98,7 @@ var ModCmd = &cobra.Command{
 		"m",
 	},
 
-	Short: "go style dependency management for CUE",
+	Short: "CUE dependency management based on Go mods",
 
 	Long: modLong,
 
@@ -175,6 +144,7 @@ func init() {
 	ModCmd.AddCommand(cmdmod.InitCmd)
 	ModCmd.AddCommand(cmdmod.GetCmd)
 	ModCmd.AddCommand(cmdmod.TidyCmd)
+	ModCmd.AddCommand(cmdmod.LinkCmd)
 	ModCmd.AddCommand(cmdmod.VendorCmd)
 
 }

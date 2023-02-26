@@ -77,14 +77,15 @@ func TestModAuthdSshconfigTests(t *testing.T) {
 		WorkdirRoot: d,
 	})
 }
-*/
 
-//func TestModAuthdSshkeyTests(t *testing.T) {
-//yagu.Mkdir(".workdir/authd/sshkey")
-//runtime.Run(t, runtime.Params{
-//Setup: envSetup,
-//Dir: "testdata/authd/sshkey",
-//Glob: "*.txt",
-//WorkdirRoot: ".workdir/authd/sshkey",
-//})
-//}
+func TestModAuthdSshkeyTests(t *testing.T) {
+	d := ".workdir/authd/sshkey"
+	setupWorkdir(d)
+	runtime.Run(t, runtime.Params{
+		Setup: envSetup,
+		Dir: "testdata/authd/sshkey",
+		Glob: "*.txt",
+		WorkdirRoot: d,
+	})
+}
+*/

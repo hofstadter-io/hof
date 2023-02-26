@@ -1,5 +1,6 @@
 # hof mod vendor - with deps
 exec hof mod vendor
+exists cue.mod/pkg/github.com/hofstadter-io/hofmod-test-priv-github/cue.mod/module.cue
 
 -- cue.mod/module.cue --
 module: "github.com/test/priv-github"

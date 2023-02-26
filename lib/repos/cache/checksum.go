@@ -12,7 +12,7 @@ func Checksum(mod, ver string) (string, error) {
 	remote, owner, repo := utils.ParseModURL(mod)
 	tag := ver
 
-	dir := Outdir(remote, owner, repo, tag)
+	dir := ModuleOutdir(remote, owner, repo, tag)
 
 	_, err := os.Lstat(dir)
 	if err != nil {

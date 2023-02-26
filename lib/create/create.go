@@ -62,15 +62,10 @@ func Create(module string, extra []string, rootflags flags.RootPflagpole, cmdfla
 	ref := ver
 
 	if looksLikeRepo(url) && ver == "latest" {
-		refVal, refType, refCommit, err := cache.FindBestRef(url, ver)
-		fmt.Println("found:", refVal, refType, refCommit)
+		ref, err = cache.GetLatestTag(url, false)
 		if err != nil {
 			return err
 		}
-		if refType != "tags" {
-			return fmt.Errorf("create currently only supports tags")
-		}
-		ref = refVal
 	}
 
 	fmt.Println("setting up...")

@@ -2,22 +2,19 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// js and nacl do not support inter-process file locking.
-//go:build !js && !nacl
-// +build !js,!nacl
+// js does not support inter-process file locking.
+//
+//go:build !js
 
 package lockedfile_test
 
 import (
 	"fmt"
-	"io/ioutil"
+	"internal/testenv"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"testing"
 	"time"
-
-	"github.com/hofstadter-io/hof/lib/gotils/testenv"
 
 	"github.com/hofstadter-io/hof/lib/gotils/lockedfile"
 )
@@ -25,7 +22,7 @@ import (
 func mustTempDir(t *testing.T) (dir string, remove func()) {
 	t.Helper()
 
-	dir, err := ioutil.TempDir("", filepath.Base(t.Name()))
+	dir, err := os.MkdirTemp("", filepath.Base(t.Name()))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -46,19 +43,32 @@ func mustBlock(t *testing.T, desc string, f func()) (wait func(*testing.T)) {
 		close(done)
 	}()
 
+	timer := time.NewTimer(quiescent)
+	defer timer.Stop()
 	select {
 	case <-done:
 		t.Fatalf("%s unexpectedly did not block", desc)
-		return nil
+	case <-timer.C:
+	}
 
-	case <-time.After(quiescent):
-		return func(t *testing.T) {
+	return func(t *testing.T) {
+		logTimer := time.NewTimer(quiescent)
+		defer logTimer.Stop()
+
+		select {
+		case <-logTimer.C:
+			// We expect the operation to have unblocked by now,
+			// but maybe it's just slow. Write to the test log
+			// in case the test times out, but don't fail it.
 			t.Helper()
-			select {
-			case <-time.After(probablyStillBlocked):
-				t.Fatalf("%s is unexpectedly still blocked after %v", desc, probablyStillBlocked)
-			case <-done:
-			}
+			t.Logf("%s is unexpectedly still blocked after %v", desc, quiescent)
+
+			// Wait for the operation to actually complete, no matter how long it
+			// takes. If the test has deadlocked, this will cause the test to time out
+			// and dump goroutines.
+			<-done
+
+		case <-done:
 		}
 	}
 }
@@ -157,8 +167,8 @@ func TestCanLockExistingFile(t *testing.T) {
 	defer remove()
 	path := filepath.Join(dir, "existing.txt")
 
-	if err := ioutil.WriteFile(path, []byte("ok"), 0777); err != nil {
-		t.Fatalf("ioutil.WriteFile: %v", err)
+	if err := os.WriteFile(path, []byte("ok"), 0777); err != nil {
+		t.Fatalf("os.WriteFile: %v", err)
 	}
 
 	f, err := lockedfile.Edit(path)
@@ -203,7 +213,7 @@ func TestSpuriousEDEADLK(t *testing.T) {
 		}
 		defer b.Close()
 
-		if err := ioutil.WriteFile(filepath.Join(dir, "locked"), []byte("ok"), 0666); err != nil {
+		if err := os.WriteFile(filepath.Join(dir, "locked"), []byte("ok"), 0666); err != nil {
 			t.Fatal(err)
 		}
 
@@ -228,7 +238,7 @@ func TestSpuriousEDEADLK(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	cmd := exec.Command(os.Args[0], "-test.run="+t.Name())
+	cmd := testenv.Command(t, os.Args[0], "-test.run="+t.Name())
 	cmd.Env = append(os.Environ(), fmt.Sprintf("%s=%s", dirVar, dir))
 
 	qDone := make(chan struct{})
@@ -247,10 +257,12 @@ locked:
 		if _, err := os.Stat(filepath.Join(dir, "locked")); !os.IsNotExist(err) {
 			break locked
 		}
+		timer := time.NewTimer(1 * time.Millisecond)
 		select {
 		case <-qDone:
+			timer.Stop()
 			break locked
-		case <-time.After(1 * time.Millisecond):
+		case <-timer.C:
 		}
 	}
 

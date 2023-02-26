@@ -83,12 +83,15 @@ tests: {
 			dir: "test/templates"
 			script: """
 				set -e
-				# mods stuff & gen
-				hof mod tidy
+				# deps & gen
 				hof mod vendor
+				echo "gha got here 1"
 				hof gen
 
 				# should have no diff
+				echo "gha got here 2"
+				git diff
+				git status
 				git diff --exit-code
 				"""
 		}

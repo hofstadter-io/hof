@@ -1,13 +1,14 @@
 package mod
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/repos/cache"
 )
 
-func Tidy(rflags flags.RootPflagpole, mflags flags.ModPflagpole) (error) {
+func Tidy(rflags flags.RootPflagpole) (error) {
 	upgradeHofMods()
 
 	cm, err := loadRootMod()
@@ -16,11 +17,12 @@ func Tidy(rflags flags.RootPflagpole, mflags flags.ModPflagpole) (error) {
 	}
 
 	if len(cm.Require) == 0 {
+		fmt.Println("no requirements found")
 		return nil
 	}
 
 	fns := []func () error {
-		cm.SolveMVS,
+		func () error { return cm.SolveMVS(false) },
 		cm.CleanDeps,
 		cm.CleanSums,
 		cm.WriteModule,
@@ -33,7 +35,10 @@ func Tidy(rflags flags.RootPflagpole, mflags flags.ModPflagpole) (error) {
 		}
 	}
 
-	return cm.Vendor(true, rflags.Verbosity)
+	// fmt.Println("tidy:", cm.Require, cm.Indirect)
+
+	// TODO, figure out link / vendor style
+	return cm.Vendor("", rflags.Verbosity)
 }
 
 func (cm *CueMod) CleanDeps() error {

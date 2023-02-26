@@ -5,128 +5,206 @@ import (
 	"os"
 	"path"
 	"strings"
+	"sync"
 
 	"github.com/go-git/go-billy/v5"
-	"github.com/go-git/go-billy/v5/memfs"
-	"github.com/go-git/go-billy/v5/osfs"
 	gogit "github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/config"
-	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/go-git/go-git/v5/plumbing/transport"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
 	"github.com/go-git/go-git/v5/storage/memory"
 
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
-// TODO, this file has inconsistency of auth creds adding
-// between the functions, this should be cleaned up
-// taking note that we want to create more consistency
-// across the various repo types
+var debug = false
 
-func NewRemote(srcUrl string) (*GitRepo, error) {
-
-	rc := &config.RemoteConfig{
-		Name: "origin",
-		URLs: []string{
-			"https://" + srcUrl,
-		},
+func SyncSource(dir, remote, owner, repo, ver string) error {
+	url := path.Join(repo,owner,repo)
+	if debug {
+		fmt.Println("git.SyncSource:", dir, url)
 	}
-
-	lo := &gogit.ListOptions{}
-
-	if strings.Contains(srcUrl, "github.com") && os.Getenv("GITHUB_TOKEN") != "" {
-		lo.Auth = &http.BasicAuth{
-			Username: "github-token", // yes, this can be anything except an empty string
-			Password: os.Getenv("GITHUB_TOKEN"),
+	_, err := os.Lstat(dir)
+	// does not exist
+	if err != nil {
+		// make plain clone
+		_, err := PlainClone(dir, remote, owner, repo)
+		if err != nil {
+			return err
 		}
-		// co.URL = "git@" + strings.Replace(srcUrl, "/", ":", 1)
+	} else {
+
+		R, err := gogit.PlainOpen(dir)
+		if err != nil {
+			return err
+		}
+		
+		// jenky...
+		foundTag := false
+		if ver != "" {
+			ref, err := R.Tag(ver)
+			if err == nil && ref != nil {
+				foundTag = true
+			} else if err.Error() == "tag not found" {
+				// do nothing
+			} else {
+				// some other error
+				return err
+			}
+		}
+
+		// don't bother sync'n if we already have the tag
+		if foundTag {
+			return nil
+		}
+
+		opts := &gogit.FetchOptions{
+			Depth: 1,
+			Tags:  gogit.AllTags,
+		}
+		err = authFetch(opts, remote, owner, repo)
+		if err != nil {
+			return err
+		}
+
+		if debug {
+			fmt.Println("git.FetchRepo:", dir, url)
+		}
+
+		fmt.Println("sync'n:", url)
+		err = R.Fetch(opts)
+		if err != nil {
+			if strings.Contains(err.Error(), "already up-to-date") {
+				return nil
+			}
+			return fmt.Errorf("while sync'n %s: %w", url, err)
+		}
 	}
 
-	// fmt.Println("URL:", rc.URLs[0])
-
-	// Clones the repository into the worktree (fs) and storer all the .git
-	// content into the storer
-	st := memory.NewStorage()
-	remote := gogit.NewRemote(st, rc)
-
-	return &GitRepo{
-		Store:       st,
-		Remote:      remote,
-		ListOptions: lo,
-	}, nil
+	return nil
 }
 
-func CloneLocalRepo(location string) (*GitRepo, error) {
-	fs := osfs.New(location)
-
-	// Only returning the Billy FS in this case
-	return &GitRepo{
-		FS: fs,
-	}, nil
-}
-
-func CloneRepoRef(srcUrl string, ref *plumbing.Reference) (*GitRepo, error) {
-
-	co := &gogit.CloneOptions{
-		URL:           "https://" + srcUrl,
-		SingleBranch:  true,
-		ReferenceName: ref.Name(),
+func PlainClone(dir, remote, owner, repo string) (*gogit.Repository, error) {
+	if debug {
+		fmt.Println("git.PlainClone:", dir, remote, owner, repo)
+	}
+	srcRepo := path.Join(owner, repo)
+	opts := &gogit.CloneOptions{
+		URL:   fmt.Sprintf("https://%s/%s", remote, srcRepo),
+		// Depth: 1,
+		Tags:  gogit.AllTags,
 	}
 
-	fmt.Println("cloning:", co.URL, ref)
-
-	if strings.Contains(srcUrl, "github.com") && os.Getenv("GITHUB_TOKEN") != "" {
-		co.Auth = &http.BasicAuth{
-			Username: "github-token", // yes, this can be anything except an empty string
-			Password: os.Getenv("GITHUB_TOKEN"),
-		}
-	}
-
-	// Clones the repository into the worktree (fs) and storer all the .git
-	// content into the storer
-	st := memory.NewStorage()
-	fs := memfs.New()
-	r, err := gogit.Clone(st, fs, co)
+	err := authClone(opts, remote, owner, repo)
 	if err != nil {
 		return nil, err
 	}
 
-	return &GitRepo{
-		Store: st,
-		FS:    fs,
-		Repo:  r,
-	}, nil
+	fmt.Println("fetch'n:", path.Join(repo,owner,repo))
+	R, err := gogit.PlainClone(dir, false, opts)
+	if err != nil {
+		return R, err
+	}
+
+
+	return R, nil
 }
 
-// FetchGit clone the repository inside FS.
-// If private flag is set, it will look for netrc credentials, fallbacking to SSH
-func Fetch(FS billy.Filesystem, remote, owner, repo, tag string, private bool) error {
+func Clone(FS billy.Filesystem, remote, owner, repo string) (*gogit.Repository, error) {
+	if debug {
+		fmt.Println("git.Clone:", remote, owner, repo)
+	}
 	srcRepo := path.Join(owner, repo)
-	gco := &gogit.CloneOptions{
+	opts := &gogit.CloneOptions{
 		URL:   fmt.Sprintf("https://%s/%s", remote, srcRepo),
 		Depth: 1,
+		Tags:  gogit.AllTags,
 	}
 
-	if tag != "v0.0.0" {
-		gco.ReferenceName = plumbing.NewTagReferenceName(tag)
-		gco.SingleBranch = true
+	err := authClone(opts, remote, owner, repo)
+	if err != nil {
+		return nil, err
 	}
 
-	if private {
-		if netrc, err := yagu.NetrcCredentials(remote); err == nil {
-			gco.Auth = &http.BasicAuth{
-				Username: netrc.Login,
-				Password: netrc.Password,
-			}
-		} else if ssh, err := yagu.SSHCredentials(remote); err == nil {
-			gco.Auth = ssh.Keys
-			gco.URL = fmt.Sprintf("%s@%s:%s", ssh.User, remote, srcRepo)
-		} else {
-			gco.URL = fmt.Sprintf("%s@%s:%s", "git", remote, srcRepo)
+	R, err := gogit.Clone(memory.NewStorage(), FS, opts)
+	if err != nil {
+		return R, err
+	}
+
+	return R, nil
+}
+
+func authClone(opts *gogit.CloneOptions, remote, owner, repo string) error {
+	auth, err := getAuth(remote, owner, repo)
+	if err != nil {
+		return err
+	}
+
+	opts.Auth = auth
+	/*
+	if ssh, err := yagu.SSHCredentials(remote); err == nil {
+		opts.URL = fmt.Sprintf("%s@%s:%s", ssh.User, remote, path.Join(owner,repo))
+	}
+	*/
+	return nil
+}
+
+func authFetch(opts *gogit.FetchOptions, remote, owner, repo string) error {
+	auth, err := getAuth(remote, owner, repo)
+	if err != nil {
+		return err
+	}
+
+	opts.Auth = auth
+	return nil
+}
+
+var authMap sync.Map
+
+func getAuth(remote, owner, repo string) (auth transport.AuthMethod, err error) {
+	// cached auth
+	val, ok := authMap.Load(remote)
+	if ok {
+		if debug {
+			fmt.Println("found auth:", remote, val)
 		}
+		return val.(transport.AuthMethod), nil
 	}
 
-	_, err := gogit.Clone(memory.NewStorage(), FS, gco)
+	// lookup auth
+	if netrc, err := yagu.NetrcCredentials(remote); err == nil {
+		auth = &http.BasicAuth{
+			Username: netrc.Login,
+			Password: netrc.Password,
+		}	
+	} else if strings.Contains(remote, "github.com") && os.Getenv("GITHUB_TOKEN") != "" {
+		auth = &http.BasicAuth{
+			Username: "github-token", // yes, this can be anything except an empty string
+			Password: os.Getenv("GITHUB_TOKEN"),
+		}
+	} else if strings.Contains(remote, "gitlab.com") && os.Getenv("GITLAB_TOKEN") != "" {
+		auth = &http.BasicAuth{
+			Username: "gitlab-token", // yes, this can be anything except an empty string
+			Password: os.Getenv("GITLAB_TOKEN"),
+		}
+	} else if strings.Contains(remote, "bitbucket.org") {
+		if os.Getenv("BITBUCKET_PASSWORD") != "" {
+			auth = &http.BasicAuth{
+				Username: os.Getenv("BITBUCKET_USERNAME"), // yes, this can be anything except an empty string
+				Password: os.Getenv("BITBUCKET_PASSWORD"),
+			}
+		} else if os.Getenv("BITBUCKET_TOKEN") != "" {
+			auth = &http.BasicAuth{
+				Username: "bitbucket-token", // yes, this can be anything except an empty string
+				Password: os.Getenv("BITBUCKET_TOKEN"),
+			}
+		}
+	} else if ssh, err := yagu.SSHCredentials(remote); err == nil {
+		auth = ssh.Keys
+	}
 
-	return err
+	if debug {
+		fmt.Println("cache auth:", remote, auth)
+	}
+	authMap.Store(remote, auth)
+	return auth, nil
 }

@@ -1,0 +1,11 @@
+exec hof mod vendor
+
+! exec hof mod get github.com/hofstadter-io/hof@v0.6.8-beta.3
+
+-- cue.mod/module.cue --
+module: "hof.io/test"
+cue: "v0.5.0"
+
+require: {
+	"github.com/hofstadter-io/hof": "v0.6.8-beta.3"
+}
