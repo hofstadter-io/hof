@@ -1,4 +1,4 @@
-name: release
+name: release (hof)
 "on":
   push:
     tags:

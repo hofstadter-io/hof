@@ -1,0 +1,48 @@
+name: docs
+"on":
+  push:
+    paths:
+      - docs/**
+      - ci/gha/docs.cue
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.20.x
+      - uses: actions/cache@v3
+        with:
+          path: |-
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            ~\AppData\Local\go-build
+          key: ${{ runner.os }}-go-${{ matrix.go-version }}-${{ hashFiles('**/go.sum') }}
+          restore-keys: ${{ runner.os }}-go-${{ matrix.go-version }}-
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup Vars
+        id: vars
+        run: |-
+          SHA=${GITHUB_SHA::8}
+          TAG=$(git tag --points-at HEAD)
+          echo "HOF_FMT_VERSION=${TAG}" >> $GITHUB_ENV
+          if [ -z $TAG ]; then
+          	TAG=${SHA}
+          fi
+          echo "HOF_SHA=${SHA}" >> $GITHUB_ENV
+          echo "HOF_TAG=${TAG}" >> $GITHUB_ENV
+      - name: Setup
+        run: "cd docs\nmake first "
+      - name: Test
+        run: make test
+      - name: Build
+        run: make build
+      - name: Check
+        run: |-
+          make run &
+          make broken-link
+    strategy: {}
+    services: {}

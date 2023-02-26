@@ -5,14 +5,8 @@ import (
 	"github.com/hofstadter-io/hof/ci/gha/common"
 )
 
-_formatters: [
-	"prettier",
-	"csharpier",
-	"black",
-]
-
 ghacue.#Workflow & {
-	name: "release"
+	name: "release (hof)"
 
 	on: push: {
 		tags: ["v*"]
