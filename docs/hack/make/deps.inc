@@ -8,12 +8,13 @@ deps:
 	npm install
 	npm install broken-link-checker -g
 	mkdir tmp
-	pushd tmp
+
+	cd tmp
 	wget https://github.com/gohugoio/hugo/releases/download/v$(HUGO_VER)/hugo_extended_$(HUGO_VER)_Linux-64bit.tar.gz
 	tar -xf hugo.tar.gz
 	chmod +x hugo
 	sudo mv hugo /usr/local/bin/hugo
-	popd tmp
+	cd ../	
 	rm -rf tmp
 	
 

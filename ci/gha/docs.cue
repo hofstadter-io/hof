@@ -22,6 +22,11 @@ ghacue.#Workflow & {
 				common.Steps.go.cache,
 				common.Steps.checkout,
 				common.Steps.vars,
+				common.Steps.go.deps,
+				{
+					name: "Build hof"
+					run:  "go install ./cmd/hof"
+				},
 				{
 					name: "Setup"
 					run:  """
@@ -32,12 +37,14 @@ ghacue.#Workflow & {
 				{
 					name: "Test"
 					run:  """
+					cd docs
 					make test
 					"""
 				},
 				{
 					name: "Build"
 					run:  """
+					cd docs
 					make build
 					"""
 				},
@@ -45,6 +52,7 @@ ghacue.#Workflow & {
 				{
 					name: "Check"
 					run:  """
+					cd docs
 					make run &
 					make broken-link
 					"""
