@@ -17,7 +17,8 @@ broken-link: blc.dev
 highlight: highlight-cue
 
 # build the world and push to production
-.PHONY: first gen
-first: deps gen
+.PHONY: first prettier gen
+first: deps prettier gen
 gen: config.yaml extern examples highlight
-
+prettier:
+	hof fmt start prettier
