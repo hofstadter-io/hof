@@ -6,6 +6,6 @@ stdout 'CUE module already exists in this directory'
 -- cue.mod/module.cue --
 
 module: "hof.io/test"
-cue: "v0.5.0"
+cue: "0.5.0"
 
 -- dummy-end --

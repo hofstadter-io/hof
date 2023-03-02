@@ -104,6 +104,17 @@ tests: {
 		}
 	}
 
+	create: {
+		@flow(test/create)
+		test: BashTest & {
+			dir: "test/create"
+			script: """
+				cd test_01 && make test && cd ..
+				cd test_02 && make test && cd ..
+				"""
+		}
+	}
+
 	st: {
 		@flow(test/st)
 		run: GoTest & {

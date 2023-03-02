@@ -40,6 +40,7 @@ ghacue.#Workflow & {
 				name: "Build Formatters"
 				run:  """
 					make formatters
+					hof fmt start
 					hof fmt info
 					"""
 				"if": "${{ !startsWith( runner.os, 'macos') }}"
@@ -70,14 +71,6 @@ ghacue.#Workflow & {
 		git diff --exit-code
 		"""
 }, {
-	// maybe these should be services?
-	name: "Start formatters"
-	run:  """
-		hof fmt start
-		hof fmt info
-		"""
-	"if": "${{ !startsWith( runner.os, 'macos') }}"
-}, {
 	name: "test/gen"
 	run: """
 		hof flow @test/gen ./test.cue
@@ -86,6 +79,11 @@ ghacue.#Workflow & {
 	name: "test/render"
 	run: """
 		hof flow @test/render ./test.cue
+		"""
+}, {
+	name: "test/create"
+	run: """
+		hof flow @test/create ./test.cue
 		"""
 }, {
 	name: "test/structural"

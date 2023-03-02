@@ -73,13 +73,13 @@ func CopyRepoTag(path, ver string) error {
 	// open git source
 	R, err := OpenRepoSource(path)
 	if err != nil {
-		return fmt.Errorf("(crt) open source error: %w", err)
+		return fmt.Errorf("(crt) open source error: %w for %s@%s", err, path, ver)
 	}
 
 	// get workign tree
 	wt, err := R.Worktree()
 	if err != nil {
-		return fmt.Errorf("(crt) worktree error: %w", err)
+		return fmt.Errorf("(crt) worktree error: %w for %s@%s", err, path, ver)
 	}
 
 	// checkout tag
@@ -88,14 +88,14 @@ func CopyRepoTag(path, ver string) error {
 		Force: true,
 	})
 	if err != nil {
-		return fmt.Errorf("(crt) checkout error: %w", err)
+		return fmt.Errorf("(crt) checkout error: %w for %s@%s", err, path, ver)
 	}
 
 	// copy
 	FS := osfs.New(dir)
 	err = Write(remote, owner, repo, ver, FS)
 	if err != nil {
-		return fmt.Errorf("(crt) writing error: %w", err)
+		return fmt.Errorf("(crt) writing error: %w for %s@%s", err, path, ver)
 	}
 
 	return nil

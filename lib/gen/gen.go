@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+	"github.com/hofstadter-io/hof/cmd/hof/verinfo"
 	"github.com/hofstadter-io/hof/lib/templates"
 	"github.com/hofstadter-io/hof/lib/yagu"
 	hfmt "github.com/hofstadter-io/hof/lib/fmt"
@@ -397,9 +398,11 @@ func InitModule(args []string, rootflags flags.RootPflagpole, cmdflags flags.Gen
 
 	// construct template input data
 	data := map[string]interface{}{
+		"CueVer": verinfo.CueVersion,
+		"HofVer": verinfo.HofVersion,
 		"Module": module,
-		"Package": pkg,
 		"Name": name,
+		"Package": pkg,
 	}
 
 	// local helper to render and write embedded templates
@@ -465,6 +468,10 @@ func InitModule(args []string, rootflags flags.RootPflagpole, cmdflags flags.Gen
 	return nil
 }
 
+const initMsg = `To run the '{{.Name}}' generator...
+  $ hof gen        ... or ...
+  $ hof gen{{range .Entrypoints}} {{.}}{{ end }} {{ .Name }}.cue -G {{ .Name }}
+`
 const newModuleTemplate = `
 package {{ snake .Package }}
 
@@ -521,12 +528,9 @@ import (
 	// your users do not set or see this field
 	PackageName: string | *"{{ .Module }}/{{ .Name }}"
 
-	// setup the default template locations
-	gen.#SubdirTemplates
-
 	// The final list of files for hof to generate
+	// fill this with file values
 	Out: [...gen.#File] & [
-		// fill this with file values
 	]
 
 	// you can create any intermediate values you need internally

@@ -9,6 +9,7 @@ import (
 	gomod "golang.org/x/mod/module"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+	"github.com/hofstadter-io/hof/cmd/hof/verinfo"
 )
 
 var initFileContent = `module: %q
@@ -32,7 +33,7 @@ func Init(module string, rflags flags.RootPflagpole) (error) {
 		return fmt.Errorf("CUE module already exists in this directory")
 	}
 
-	s := fmt.Sprintf(initFileContent, module, "v0.5.0")
+	s := fmt.Sprintf(initFileContent, module, verinfo.CueVersion)
 
 	// mkdir & write file
 	err = os.MkdirAll(filepath.Join("cue.mod", "pkg"), 0755)

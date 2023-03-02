@@ -21,6 +21,8 @@ func Tidy(rflags flags.RootPflagpole) (error) {
 		return nil
 	}
 
+	// fmt.Println(cm.Module, cm.Require)
+
 	fns := []func () error {
 		func () error { return cm.SolveMVS(false) },
 		cm.CleanDeps,

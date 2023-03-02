@@ -13,6 +13,14 @@ var (
 	GoVersion = "Unknown"
 	BuildOS   = "Unknown"
 	BuildArch = "Unknown"
+
+	CueVersion = "0.5.0"
+
+	// this is a version we can fetch with hof mod
+	// the value gets injected into templates in various places
+	// the default here is set to something useful for dev
+	// the release version is the same as the cli running it
+	HofVersion = "v0.6.8-create.1"
 )
 
 func init() {
@@ -40,5 +48,10 @@ func init() {
 		if dirty {
 			Commit += "+dirty"
 		}
+	}
+
+	// released binary override
+	if Version != "Local" {
+		HofVersion = Version
 	}
 }
