@@ -1,9 +1,0 @@
-module hof.io/test
-
-cue 0.4.3
-
-require (
-  github.com/hofstadter-io/hof v0.6.7
-)
-
-replace github.com/hofstadter-io/hof => /home/tony/hof/hof

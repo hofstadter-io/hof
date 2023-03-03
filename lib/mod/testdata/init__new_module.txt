@@ -7,5 +7,5 @@ cmp cue.mod/module.cue match/cue.mod/module.cue
 
 -- match/cue.mod/module.cue --
 module: "github.com/test/mod"
-cue: "v0.5.0"
+cue: "0.5.0"
 -- dummy_end --

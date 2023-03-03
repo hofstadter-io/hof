@@ -48,7 +48,7 @@ func SyncSource(dir, remote, owner, repo, ver string) error {
 				// do nothing
 			} else {
 				// some other error
-				return err
+				return fmt.Errorf("while getting tags for %s: %w", url, err)
 			}
 		}
 
@@ -58,7 +58,8 @@ func SyncSource(dir, remote, owner, repo, ver string) error {
 		}
 
 		opts := &gogit.FetchOptions{
-			Depth: 1,
+			// Depth: 1,
+			Force: true,
 			Tags:  gogit.AllTags,
 		}
 		err = authFetch(opts, remote, owner, repo)
@@ -76,7 +77,7 @@ func SyncSource(dir, remote, owner, repo, ver string) error {
 			if strings.Contains(err.Error(), "already up-to-date") {
 				return nil
 			}
-			return fmt.Errorf("while sync'n %s: %w", url, err)
+			fmt.Printf("warn: while sync'n %s: %v\n", url, err)
 		}
 	}
 
@@ -177,7 +178,6 @@ func getAuth(remote, owner, repo string) (auth transport.AuthMethod, err error) 
 			Password: netrc.Password,
 		}	
 	} else if strings.Contains(remote, "github.com") && os.Getenv("GITHUB_TOKEN") != "" {
-		fmt.Println(remote, os.Getenv("GITHUB_TOKEN"))
 		auth = &http.BasicAuth{
 			Username: "github-token", // yes, this can be anything except an empty string
 			Password: os.Getenv("GITHUB_TOKEN"),

@@ -10,6 +10,7 @@ import (
 
 	"cuelang.org/go/cue"
 
+	"github.com/hofstadter-io/hof/cmd/hof/verinfo"
 	"github.com/hofstadter-io/hof/lib/templates"
 	hfmt "github.com/hofstadter-io/hof/lib/fmt"
 )
@@ -98,19 +99,21 @@ func (R *Runtime) AsModule() error {
 
 	// construct template input data
 	data := map[string]interface{}{
-		"Outdir": FP.Outdir,
-		"Module": module,
-		"Package": pkg,
-		"Name": name,
-		"Entrypoints": R.Entrypoints,
-		"Inputs": ins,
 		"Configs": tcfgs,
-		"Templates": tfiles,
-		"Partials": FP.Partial,
-		"Generators": gens,
+		"CueVer": verinfo.CueVersion,
 		"Diff3": FP.Diff3,
-		"WatchFull": FP.WatchFull,
+		"Entrypoints": R.Entrypoints,
+		"Generators": gens,
+		"HofVer": verinfo.HofVersion,
+		"Inputs": ins,
+		"Module": module,
+		"Name": name,
+		"Outdir": FP.Outdir,
+		"Package": pkg,
+		"Partials": FP.Partial,
+		"Templates": tfiles,
 		"WatchFast": FP.WatchFast,
+		"WatchFull": FP.WatchFull,
 	}
 
 	// local helper to render and write embedded templates
@@ -326,14 +329,15 @@ import (
 
 const cuemodFileTemplate = `
 module: "{{ .Module }}/{{ .Name }}"
-cue: "v0.5.0"
+cue: "{{ .CueVer }}"
 
 require: {
-	"github.com/hofstadter-io/hof": "v0.6.8-beta.5"
+	"github.com/hofstadter-io/hof": "{{ .HofVer }}"
 }
 `
 
 const finalMsg = `To run the '{{.Name}}' generator...
+  $ hof gen        ... or ...
   $ hof gen{{range .Entrypoints}} {{.}}{{ end }} {{ .Name }}.cue -G {{ .Name }}
 `
 

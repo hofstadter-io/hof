@@ -96,18 +96,29 @@ func Create(module string, extra []string, rootflags flags.RootPflagpole, cmdfla
 	fmt.Println("init'n generator")
 	genflags := flags.GenFlags
 	genflags.Generator = cmdflags.Generator
-	genflags.Outdir = cmdflags.Outdir
 
+	// calculate workdir
+	outdir := cmdflags.Outdir
+	if outdir == "" {
+		outdir = cwd
+	} else if !filepath.IsAbs(outdir) {
+		outdir = filepath.Join(cwd, outdir)
+	}
+	// fmt.Println("  outdir: ", outdir)
+
+	/*
 	// from were we run to root
 	rel, err := filepath.Rel(workdir, "/")
 	if err != nil {
+		// fmt.Println("got here", err, wd, workdir, cwd, cmdflags.Outdir)
 		return err
 	}
 	// fmt.Println("  rel: ", rel)
 
 	// we want a relative path input, the runtime/generator will combine & clean this up
-	outdir := filepath.Join(rel, cwd, cmdflags.Outdir)
-	// fmt.Println("  outdir: ", outdir)
+	outdir = filepath.Join(rel, cwd, cmdflags.Outdir)
+	fmt.Println("  outdir: ", outdir)
+	*/
 	genflags.Outdir = outdir
 
 	// create our runtime now, maybe we want a new func for this
@@ -132,8 +143,16 @@ func Create(module string, extra []string, rootflags flags.RootPflagpole, cmdfla
 func setupTmpdir(url, ver string) (tmpdir, subdir string, err error) {
 	var FS billy.Filesystem
 
+	// put this here for testing and systems where the tmpdir dne
+	// assuming this is essentially a no-op when it already exists
+	err = os.MkdirAll(os.TempDir(), 0755)
+	if err != nil {
+		return "", "", err
+	}
+
 	tmpdir, err = os.MkdirTemp("", "hof-create-")
 	if err != nil {
+		// fmt.Println("got here", os.TempDir(), err)
 		return tmpdir, "", err
 	}
 	err = os.MkdirAll(tmpdir, 0755)
@@ -206,7 +225,7 @@ func setupTmpdir(url, ver string) (tmpdir, subdir string, err error) {
 
 	// run 'hof mod vendor cue' in tmpdir
 	fmt.Println("fetching creator dependencies")
-	out, err := yagu.Shell("hof mod vendor cue", tmpdir)
+	out, err := yagu.Shell("hof mod tidy", tmpdir)
 	// fmt.Println("done fetching dependencies\n", out)
 	if err != nil {
 		fmt.Println(out)
@@ -264,10 +283,13 @@ func runCreator(R *gen.Runtime, extra, inputs []string) (err error) {
 		}
 	}
 
+	// fmt.Printf("map: %#+v\n", inputMap)
+
 	// full load generators
 	// so author can use create inputs in other fields
 	errs := R.LoadGenerators()
 	if len(errs) > 0 {
+		fmt.Println("hello")
 		for _, e := range errs {
 			fmt.Println(e)
 		}
@@ -331,15 +353,13 @@ func loadCreateInputs(R *gen.Runtime, inputFlags []string) (input map[string]any
 			// we may need to remember the original working directory on the runtime
 			fn := filepath.Join(R.OriginalWkdir, inFlag[1:])
 			// fmt.Println("file flat:", inFlag, fn)
-			var data interface{}
-			data = make(map[string]any)
-			_, err := io.ReadFile(fn, &data)
-			if err != nil {
-				return input, err
-			}
-			// fmt.Println("(todo) input: ", fn, data)
 
-			for k,v := range data.(map[string]any) {
+			data, err := loadInputsFromFile(R, fn)
+			if err != nil {
+				return nil, err
+			}
+
+			for k,v := range data {
 				input[k] = v
 			}
 
@@ -495,4 +515,56 @@ func looksLikeRepo(str string) bool {
 
 	// we've checked all we can, assume a repo
 	return true
+}
+
+func loadInputsFromFile(R *gen.Runtime, fn string) (map[string]any, error) {
+	ext := filepath.Ext(fn)[1:]
+	data := make(map[string]any)
+
+	if ext == "cue" {
+		// read CUE file
+		content, err := os.ReadFile(fn)
+		if err != nil {
+			return nil, err
+		}
+
+		// compile CUE
+		ctx := R.CueRuntime.CueContext
+		v := ctx.CompileBytes(content, cue.Filename(fn))
+		if v.Err() != nil {
+			return nil, v.Err()
+		}
+
+		// decode into Go
+		err = v.Decode(&data)
+		if err != nil {
+			return nil, err
+		}
+
+	} else {
+		// this will read most datafile types
+		var d any
+		d = make(map[string]any)
+		_, err := io.ReadFile(fn, &d)
+		if err != nil {
+			return nil, err
+		}
+		data = d.(map[string]any)
+	}
+	
+
+	/*
+			var data interface{}
+			data = make(map[string]any)
+			_, err := io.ReadFile(fn, &data)
+			if err != nil {
+				return input, err
+			}
+			// fmt.Println("(todo) input: ", fn, data)
+
+			for k,v := range data.(map[string]any) {
+				input[k] = v
+			}
+	*/
+	return data, nil
 }

@@ -19,6 +19,7 @@ Commit:      %s
 
 BuildDate:   %s
 GoVersion:   %s
+CueVersion:  %s
 OS / Arch:   %s %s
 ConfigDir:   %s
 CacheDir:    %s
@@ -52,6 +53,7 @@ var VersionCmd = &cobra.Command{
 			verinfo.Version,
 			verinfo.Commit,
 			verinfo.BuildDate,
+			verinfo.CueVersion,
 			verinfo.GoVersion,
 			verinfo.BuildOS,
 			verinfo.BuildArch,

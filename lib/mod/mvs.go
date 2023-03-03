@@ -1,6 +1,7 @@
 package mod
 
 import (
+	"fmt"
 	"path/filepath"
 
 	"github.com/go-git/go-billy/v5"
@@ -90,7 +91,7 @@ func (rr *RequirementResolver) Required(m module.Version) ([]module.Version, err
 
 	M, err := ReadModule("", FS)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("while reading %s: %w", m, err)
 	}
 
 	// fmt.Println("mvs:", m, M.Module)
