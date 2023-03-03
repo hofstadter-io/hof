@@ -11,6 +11,7 @@ ghacue.#Workflow & {
 	on: push: {
 		tags: ["v*"]
 	}
+	env: HOF_TELEMETRY_DISABLED: "1"
 
 	jobs: {
 		goreleaser: {
@@ -19,8 +20,8 @@ ghacue.#Workflow & {
 			steps: [
 				common.Steps.checkout,
 				common.Steps.vars,
-				common.Steps.docker.qemu,
-				common.Steps.docker.setup,
+				common.Steps.buildx.qemu,
+				common.Steps.buildx.setup,
 				common.Steps.docker.login,
 				common.Steps.go.setup,
 				common.Steps.go.deps,
@@ -38,10 +39,10 @@ ghacue.#Workflow & {
 			steps: [
 				common.Steps.checkout,
 				common.Steps.vars,
-				common.Steps.docker.qemu,
-				common.Steps.docker.setup,
+				common.Steps.buildx.qemu,
+				common.Steps.buildx.setup,
 				common.Steps.docker.login,
-				common.Steps.docker.formatters & { with: push: true },
+				common.Steps.buildx.formatters & { with: push: true },
 			]
 		}
 	}

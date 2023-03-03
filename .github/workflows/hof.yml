@@ -49,23 +49,34 @@ jobs:
         run: go mod download
       - name: Build CLI
         run: go install ./cmd/hof
-      - name: Set up Docker BuildX
-        if: ${{ !startsWith( runner.os, 'macos') }}
-        uses: docker/setup-buildx-action@v2
+      - name: Set up Docker
+        uses: crazy-max/ghaction-setup-docker@v1
+        with:
+          version: 23.0.1
+        if: ${{ startsWith( runner.os, 'macos') }}
+      - name: Setup Docker MacOS var
+        run: echo "DOCKER_HOST="unix://$HOME/.colima/default/docker.sock"" >> $GITHUB_ENV
+        if: ${{ startsWith( runner.os, 'macos') }}
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.HOF_DOCKER_USER }}
+          password: ${{ secrets.HOF_DOCKER_TOKEN }}
       - name: Test Compatibility
-        if: ${{ !startsWith( runner.os, 'macos') }}
         run: |-
           docker version
+          docker info
+          docker context ls
           go run test/docker/main.go
       - name: Build Formatters
         run: |-
           make formatters
+          docker images
           hof fmt start
           hof fmt info
-        if: ${{ !startsWith( runner.os, 'macos') }}
+          docker ps -a
       - name: test/self
         env:
-          HOFMOD_SSHKEY: ${{secrets.HOFMOD_SSHKEY}}
           GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
         run: |-
           # self: gen -> diff
@@ -80,43 +91,38 @@ jobs:
           git diff --exit-code
       - name: test/gen
         env:
-          HOFMOD_SSHKEY: ${{secrets.HOFMOD_SSHKEY}}
           GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
         run: hof flow @test/gen ./test.cue
       - name: test/render
         env:
-          HOFMOD_SSHKEY: ${{secrets.HOFMOD_SSHKEY}}
           GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
         run: hof flow @test/render ./test.cue
       - name: test/create
         env:
-          HOFMOD_SSHKEY: ${{secrets.HOFMOD_SSHKEY}}
           GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
         run: hof flow @test/create ./test.cue
       - name: test/structural
         env:
-          HOFMOD_SSHKEY: ${{secrets.HOFMOD_SSHKEY}}
           GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
         run: hof flow @test/st ./test.cue
       - name: test/flow
         env:
-          HOFMOD_SSHKEY: ${{secrets.HOFMOD_SSHKEY}}
           GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
         run: hof flow -f test/flow ./test.cue
       - name: test/mod
         run: hof flow -f test/mod ./test.cue
         env:
+          HOFMOD_SSHKEY: ${{secrets.HOFMOD_SSHKEY}}
           GITLAB_TOKEN: ${{secrets.GITLAB_TOKEN}}
           BITBUCKET_USERNAME: hofstadter
-          HOFMOD_SSHKEY: ${{secrets.HOFMOD_SSHKEY}}
-          BITBUCKET_PASSWORD: ${{secrets.BITBUCKET_TOKEN}}
           GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
+          BITBUCKET_PASSWORD: ${{secrets.BITBUCKET_TOKEN}}
       - name: test/fmt
         run: |-
+          docker ps -a
           hof fmt info
           hof flow -f test/fmt ./test.cue
-        if: ${{ !startsWith( runner.os, 'macos') }}
         env:
-          HOFMOD_SSHKEY: ${{secrets.HOFMOD_SSHKEY}}
+          HOF_FMT_DEBUG: "1"
           GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
     services: {}

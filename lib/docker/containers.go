@@ -30,7 +30,7 @@ func GetContainers(ref string) ([]types.Container, error) {
 	)
 }
 
-func StartContainer(ref, name string) error {
+func StartContainer(ref, name string, env []string) error {
 	// just try to pull, if already present this will not be noticed
 	err := MaybePullImage(ref)
 	if err != nil {
@@ -50,6 +50,7 @@ func StartContainer(ref, name string) error {
 		// todo, maybe walk back versions? (dirty -> latest release)
 		&container.Config{
 			Image: ref,
+			Env: env,
 		},
 
 		// hostConfig

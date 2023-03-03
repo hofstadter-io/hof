@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/olekukonko/tablewriter"
 
@@ -184,6 +183,7 @@ func Start(fmtr string) error {
 			err := docker.StartContainer(
 				fmt.Sprintf("hofstadter/fmt-%s:%s", name, ver),
 				fmt.Sprintf("hof-fmt-%s", name),
+				fmtrEnvs[name],
 			)
 			if err != nil {
 				fmt.Println(err)
@@ -193,11 +193,12 @@ func Start(fmtr string) error {
 		return docker.StartContainer(
 			fmt.Sprintf("hofstadter/fmt-%s:%s", fmtr, ver),
 			fmt.Sprintf("hof-fmt-%s", fmtr),
+			fmtrEnvs[fmtr],
 		)
 	}
 
 	// TODO, add alive command and wait for ready
-	time.Sleep(2000*time.Millisecond)
+	// time.Sleep(2000*time.Millisecond)
 
 	return nil
 }

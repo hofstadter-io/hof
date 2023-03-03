@@ -30,20 +30,19 @@ ghacue.#Workflow & {
 				name: "Build CLI"
 				run:  "go install ./cmd/hof"
 			},
-			common.Steps.docker.setup & {
-				"if": "${{ !startsWith( runner.os, 'macos') }}"
-			},
-			common.Steps.docker.compat & {
-				"if": "${{ !startsWith( runner.os, 'macos') }}"
-			},
+			common.Steps.docker.setup,
+			common.Steps.docker.macos,
+			common.Steps.docker.login,
+			common.Steps.docker.compat,
 			{
 				name: "Build Formatters"
 				run:  """
 					make formatters
+					docker images
 					hof fmt start
 					hof fmt info
+					docker ps -a
 					"""
-				"if": "${{ !startsWith( runner.os, 'macos') }}"
 			},
 		] + #TestSteps
 	}
@@ -51,7 +50,6 @@ ghacue.#Workflow & {
 
 #TestSteps: [...{
 	env: {
-		HOFMOD_SSHKEY:      "${{secrets.HOFMOD_SSHKEY}}"
 		GITHUB_TOKEN:       "${{secrets.HOFMOD_TOKEN}}"
 	}
 }]
@@ -101,6 +99,7 @@ ghacue.#Workflow & {
 		hof flow -f test/mod ./test.cue
 		"""
 	env: {
+		HOFMOD_SSHKEY:      "${{secrets.HOFMOD_SSHKEY}}"
 		GITLAB_TOKEN:       "${{secrets.GITLAB_TOKEN}}"
 		BITBUCKET_USERNAME: "hofstadter"
 		BITBUCKET_PASSWORD: "${{secrets.BITBUCKET_TOKEN}}"
@@ -109,8 +108,11 @@ ghacue.#Workflow & {
 	// should probably be last?
 	name: "test/fmt"
 	run: """
+		docker ps -a
 		hof fmt info
 		hof flow -f test/fmt ./test.cue
 		"""
-	"if": "${{ !startsWith( runner.os, 'macos') }}"
+	env: {
+		HOF_FMT_DEBUG: "1"
+	}
 }]

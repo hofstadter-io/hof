@@ -1,7 +1,7 @@
 {
     "name": "hof cli",
     "image": "mcr.microsoft.com/devcontainers/universal:2",
-    "postCreateCommand": "make hof \u0026\u0026 hof mod tidy\necho \"hallo! you can now work on hof code, just type 'make hof' to rebuild\"",
+    "postCreateCommand": "sudo rm -rf /usr/local/hugo",
     "customizations": {
         "vscode": {
             "extensions": [

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/hofstadter-io/hof/lib/docker"
 )
@@ -13,13 +14,13 @@ func main() {
 	err := docker.InitDockerClient()
 	if err != nil {
 		fmt.Println("Error Initializing Client:", err)
-		return
+		os.Exit(1)
 	}
 
 	client, server, err := docker.GetVersion()
 	if err != nil {
 		fmt.Println("Error getting versions:", err)
-		return
+		os.Exit(1)
 	}
 
 	fmt.Println("client: ", client)
@@ -30,13 +31,13 @@ func main() {
 	err = docker.PullImage(img)
 	if err != nil {
 		fmt.Println("Error pulling image:", err)
-		return
+		os.Exit(1)
 	}
 
 	images, err := docker.GetImages(img)
 	if err != nil {
 		fmt.Println("Error detailing image:", err)
-		return
+		os.Exit(1)
 	}
 
 	for _, image := range images {

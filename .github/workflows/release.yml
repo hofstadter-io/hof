@@ -3,6 +3,8 @@ name: release (hof)
   push:
     tags:
       - v*
+env:
+  HOF_TELEMETRY_DISABLED: "1"
 jobs:
   goreleaser:
     environment: hof mod testing

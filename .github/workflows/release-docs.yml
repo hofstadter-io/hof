@@ -13,6 +13,8 @@ name: release (docs)
         options:
           - next
           - prod
+env:
+  HOF_TELEMETRY_DISABLED: "1"
 jobs:
   docs:
     runs-on: ubuntu-latest
