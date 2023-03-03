@@ -13,6 +13,7 @@ func InitDockerClient() (err error) {
 	dockerClient, err = client.NewClientWithOpts(
 		client.FromEnv,
 		client.WithAPIVersionNegotiation(),
+		client.WithHostFromEnv(),
 	)
 	if err != nil {
 		return fmt.Errorf("error: hof fmt requires docker\n%w", err)

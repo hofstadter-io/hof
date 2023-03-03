@@ -11,6 +11,7 @@ ghacue.#Workflow & {
 	on: push: {
 		paths: ["docs/**", "ci/gha/docs.cue"]
 	}
+	env: HOF_TELEMETRY_DISABLED: "1"
 
 	jobs: {
 		docs: {

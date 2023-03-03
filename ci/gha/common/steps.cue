@@ -79,7 +79,7 @@ Steps: {
 		}
 	}
 
-	docker: {
+	buildx: {
 		qemu: {
 			name: "Set up QEMU"
 			uses: "docker/setup-qemu-action@v2"
@@ -91,15 +91,6 @@ Steps: {
 		setup: {
 			name: "Set up Docker BuildX"
 			uses: "docker/setup-buildx-action@v2"
-		}
-
-		login: {
-			name: "Login to Docker Hub"
-			uses: "docker/login-action@v2"
-			with: {
-				username: "${{ secrets.HOF_DOCKER_USER }}"
-				password: "${{ secrets.HOF_DOCKER_TOKEN }}"
-			}
 		}
 
 		formatters: {
@@ -115,14 +106,42 @@ Steps: {
 				], ",")
 			}
 		}
+	}
+
+	docker: {
+		setup: {
+			name: "Set up Docker"
+			uses: "crazy-max/ghaction-setup-docker@v1"
+			with: {
+				version: "23.0.1"
+			}
+			"if": "${{ startsWith( runner.os, 'macos') }}"
+		}
+		macos: {
+			name: "Setup Docker MacOS var"
+			run: """
+				echo "DOCKER_HOST=\"unix://$HOME/.colima/default/docker.sock\"" >> $GITHUB_ENV
+				"""
+			"if": "${{ startsWith( runner.os, 'macos') }}"
+		}
+
+		login: {
+			name: "Login to Docker Hub"
+			uses: "docker/login-action@v2"
+			with: {
+				username: "${{ secrets.HOF_DOCKER_USER }}"
+				password: "${{ secrets.HOF_DOCKER_TOKEN }}"
+			}
+		}
 
 		compat: {
 			name: "Test Compatibility"
 			run: """
 				docker version
+				docker info
+				docker context ls
 				go run test/docker/main.go
 				"""
-
 		}
 	}
 

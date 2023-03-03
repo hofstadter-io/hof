@@ -8,7 +8,7 @@ package gen
 }
 
 #SubdirTemplates: {
-	#subdir: string
+	#subdir: string | *"."
 	Templates: [{
 		Globs: ["\(#subdir)/templates/**/*"]
 		TrimPrefix: "\(#subdir)/templates/"

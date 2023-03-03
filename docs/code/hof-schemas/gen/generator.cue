@@ -61,7 +61,7 @@ import (
 	Partials: [...#Templates] | *[#Templates & {Globs: ["./partials/**/*"], TrimPrefix: "./partials/"}]
 
 	// Statics are copied directly into the output, bypassing the rendering
-	Statics: [...#Statics] | *[#Statics & {Globs: ["./static/**/*"], TrimPrefix: "./static/"}]
+	Statics: [...#Statics] | *[#Statics & {Globs: ["./statics/**/*"], TrimPrefix: "./statics/"}]
 
 	// The following mirror their non-embedded versions
 	// however they have the content as a string in CUE

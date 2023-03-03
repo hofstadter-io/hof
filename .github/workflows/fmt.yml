@@ -5,15 +5,20 @@ name: fmt
     paths:
       - lib/fmt/**
       - formatters/**
-      - ci/gha/fmt.*
+      - ci/gha/fmt.cue
+      - .github/workflows/fmt.yml
   pull_request:
     paths:
       - lib/fmt/**
       - formatters/**
-      - ci/gha/fmt.*
+      - ci/gha/fmt.cue
+      - .github/workflows/fmt.yml
+env:
+  HOF_TELEMETRY_DISABLED: "1"
 jobs:
   formatter:
     runs-on: ubuntu-latest
+    environment: hof mod testing
     strategy:
       fail-fast: false
       matrix:
@@ -41,6 +46,11 @@ jobs:
           platforms: arm64
       - name: Set up Docker BuildX
         uses: docker/setup-buildx-action@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.HOF_DOCKER_USER }}
+          password: ${{ secrets.HOF_DOCKER_TOKEN }}
       - name: Build Image
         uses: docker/build-push-action@v3
         with:

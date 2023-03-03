@@ -7,6 +7,10 @@ package create
 	// it's contents should likely align with the prompt nesting
 	Input: {...}
 
+	// extra args provided by user when calling `hof create <repo> [args]`
+	// Filled by hof, you can map these to inputs however you like
+	Args: [...string]
+
 	// Init time inputs and prompts
 	// if an entry will is already set by flags, it will be skipped
 	Prompt: [...#Question]

@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"cuelang.org/go/cue"
@@ -29,11 +30,22 @@ var defaultVersion = "dirty"
 var FORMAT_DISABLED = false
 var DOCKER_FORMAT_DISABLED = false
 
+var debug = false
 
 func init() {
 	v := verinfo.Version
 	if v != "Local" {
 		defaultVersion = "v" + v
+	}
+
+	ds := os.Getenv("HOF_FMT_DEBUG")
+	if ds != "" {
+		dv, err := strconv.ParseBool(ds)
+		if err != nil {
+			fmt.Println("Error parsing HOF_FMT_DEBUG:", err)
+		} else {
+			debug = dv
+		}
 	}
 
 	ov := os.Getenv("HOF_FMT_VERSION")
@@ -46,18 +58,30 @@ func init() {
 		formatters[fmtr] = &Formatter{Name: fmtr, Version: defaultVersion}
 	}
 
-	val := os.Getenv("HOF_FORMAT_DISABLED")
-	if val == "true" || val == "1" {
-		FORMAT_DISABLED=true
-		DOCKER_FORMAT_DISABLED=true
+	val := os.Getenv("HOF_FMT_DISABLED")
+	if val != "" {
+		dv, err := strconv.ParseBool(ds)
+		if err != nil {
+			fmt.Println("Error parsing HOF_FMT_DISABLED:", err)
+		} else {
+			FORMAT_DISABLED=dv
+			DOCKER_FORMAT_DISABLED=dv
+		}
 	}
 	
 	// gracefully init images / containers
 	err := Init()
 	if err != nil {
+		if debug {
+			fmt.Println("fmt init error:", err)
+		}
 		DOCKER_FORMAT_DISABLED=true
 	}
 
+	if debug {
+		fmt.Println("FORMAT_DISABLED", FORMAT_DISABLED)
+		fmt.Println("DOCKER_FORMAT_DISABLED", DOCKER_FORMAT_DISABLED)
+	}
 }
 
 func Init() error {
@@ -96,6 +120,14 @@ var fmtrNames = []string{
 	"black",
 	"csharpier",
 	"prettier",
+}
+
+var fmtrEnvs = map[string][]string{
+	"black": nil,
+	"csharpier": nil,
+	"prettier": []string{
+		"PRETTIER_RUBY_TIMEOUT_MS=10000",
+	},
 }
 
 // Map file extensions to formatters
@@ -348,6 +380,10 @@ func FormatSource(filename string, content []byte, fmtrName string, config inter
 
 	url := "http://localhost:" + fmtr.Port
 
+	if debug {
+		fmt.Printf("fmt calling (%s) %s\n", fmtrTool, url)
+	}
+
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(bs))
 	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
 
@@ -368,6 +404,7 @@ func FormatSource(filename string, content []byte, fmtrName string, config inter
 		return content, fmt.Errorf("error while formatting %s", filename)
 	}
 
+	fmt.Println("  lens:", len(content), len(body), resp.StatusCode, string(body))
 	content = body
 
 	if !bytes.HasSuffix(content, []byte{'\n'}) {

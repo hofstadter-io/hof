@@ -24,6 +24,7 @@ ghacue.#Workflow & {
 			}
 		}
 	}
+	env: HOF_TELEMETRY_DISABLED: "1"
 
 	jobs: {
 		docs: {
