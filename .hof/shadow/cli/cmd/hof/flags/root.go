@@ -49,6 +49,7 @@ type RootPflagpole struct {
 	Package   string
 	Tags      []string
 	Verbosity int
+	InjectEnv bool
 	Quiet     bool
 }
 

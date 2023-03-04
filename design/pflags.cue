@@ -30,6 +30,14 @@ import (
 		Help:    "set the verbosity of output"
 	},
 	{
+		Name:    "InjectEnv"
+		Long:    "inject-env"
+		Short:   ""
+		Type:    "bool"
+		Default: ""
+		Help:    "inject all ENV VARs as default tag vars"
+	},
+	{
 		Name:    "quiet"
 		Long:    "quiet"
 		Short:   "q"
