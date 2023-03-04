@@ -2,6 +2,7 @@ package gen
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"cuelang.org/go/cue"
@@ -27,6 +28,9 @@ type AdhocTemplateConfig struct {
 
 	// Is this a repeated template
 	Repeated bool
+
+	// Is this a data file? What type?
+	DataFormat string
 }
 
 func (R *Runtime) CreateAdhocGenerator() error {
@@ -49,7 +53,9 @@ func (R *Runtime) CreateAdhocGenerator() error {
 			fmt.Printf("%s -> %#v\n", tf, cfg)
 		}
 		tcfgs = append(tcfgs, cfg)
-		globs = append(globs, cfg.Filepath)
+		if cfg.Filepath != "" {
+			globs = append(globs, cfg.Filepath)
+		}
 	}
 
 	G := NewGenerator("AdhocGen", R.CueRuntime.CueValue, R)
@@ -76,11 +82,23 @@ func (R *Runtime) CreateAdhocGenerator() error {
 
 		addFile := func(val cue.Value) (err error) {
 			f := new(File)
-			f.TemplatePath = cfg.Filepath
 
-			err = val.Decode(&f.In)
+			// we need this for rendering the output
+			// and/or setting the input for the file
+			var V any
+			err = val.Decode(&V)
 			if err != nil {
 				return err
+			}
+
+			// data or template file
+			if cfg.DataFormat != "" {
+				// fmt.Println("data file:", cfg.DataFormat)
+				f.DatafileFormat = cfg.DataFormat
+				f.Value = val
+			} else {
+				f.TemplatePath = cfg.Filepath
+				f.In = V
 			}
 
 			// Set output filepath, always render as a template
@@ -94,15 +112,23 @@ func (R *Runtime) CreateAdhocGenerator() error {
 					stdout += 1
 				}
 			}
+
+			// 
 			ft, err := templates.CreateFromString("outpath", op, nil)
 			if err != nil {
 				return err
 			}
-			bs, err := ft.Render(f.In)
+			bs, err := ft.Render(V)
 			if err != nil {
 				return err
 			}
 			f.Filepath = string(bs)
+
+			/*
+			if cfg.DataFormat != "" {
+				fmt.Println(*f)
+			}
+			*/
 
 			G.Out = append(G.Out, f)
 			return nil
@@ -154,14 +180,17 @@ func (R *Runtime) CreateAdhocGenerator() error {
 }
 
 // deconstructs the flag into struct
-// semicolon separated: <filepath>:<?cuepath>@<schema>;<?outpath>
+// semicolon separated: <filepath>:<?cuepath>@<schema>=<?outpath>
 func parseTemplateFlag(tf string) (cfg AdhocTemplateConfig, err error) {
-	// look for ;
+	// We work our way from end to start of the string, 
+
+	// look for =
 	parts := strings.Split(tf, "=")
 	if len(parts) > 1 {
 		tf = parts[0]
 		cfg.Outpath = parts[1]
 	}
+
 	// repeated template?
 	if strings.HasPrefix(cfg.Outpath, "[]") {
 		cfg.Outpath = strings.TrimPrefix(cfg.Outpath, "[]")
@@ -187,7 +216,13 @@ func parseTemplateFlag(tf string) (cfg AdhocTemplateConfig, err error) {
 	}
 
 	// should only have template path left
-	cfg.Filepath = tf
+	// if no template, then data file format
+	// infer from Outpath ext
+	if tf == "" {
+		cfg.DataFormat = filepath.Ext(cfg.Outpath)[1:]  // trim '.' from ext
+	} else {
+		cfg.Filepath = tf
+	}
 
 	return cfg, nil
 }

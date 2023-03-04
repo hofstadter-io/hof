@@ -103,6 +103,27 @@ $ hof gen data.cue schema.cue -T template.txt="{{ .name }}.txt"
 These can be combined so you can control
 where output goes and how files are named.
 
+{{<codeInner title="> terminal" lang="sh">}}
+$ hof gen data.cue schema.cue \
+  -O out \
+  -T template.txt="{{ .name }}.txt"
+{{</codeInner>}}
+
+### Write Data Files
+
+Omit the template path at the beginning
+and `hof` will infer the data format
+from the outpath file extension
+
+{{<codeInner title="> terminal" lang="sh">}}
+# full value to a single data file
+$ hof gen data.cue schema.cue -T =data.yaml
+
+# data file per item in iterable value
+$ hof gen data.cue schema.cue \
+  -O out \
+  -T :items="[]{{ .name }}.json"
+{{</codeInner>}}
 
 ### Multiple Templates
 
@@ -111,7 +132,7 @@ Each is independent and can have different options applied to
 the data and schemas from the CUE entrypoints. (we'll see this below)
 
 {{<codeInner title="> terminal" lang="sh">}}
-$ hof gen data.cue schema.cue -T template.txt -T debug.yaml -O out/
+$ hof gen data.cue schema.cue -T template.txt -T =debug.yaml -O out/
 {{</codeInner>}}
 
 
