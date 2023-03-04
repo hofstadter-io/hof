@@ -37,7 +37,7 @@ func getTagsAndSecrets(val cue.Value) (tags []cue.Value, secrets []cue.Value, er
 	return tags, secrets, errs
 }
 
-func injectTags(val cue.Value, tags []string) (cue.Value, error) {
+func injectSecrets(val cue.Value, tags []string) (cue.Value, error) {
 	tagMap := make(map[string]string)
 	for _, t := range tags {
 		fs := strings.SplitN(t, "=", 2)
@@ -54,9 +54,9 @@ func injectTags(val cue.Value, tags []string) (cue.Value, error) {
 
 		var err error
 		for _, attr := range attrs {
-			if attr.Name() == "tag" {
+			if attr.Name() == "secret" {
 				if attr.NumArgs() == 0 {
-					err = fmt.Errorf("@tag() has no inner args at %s", v.Path())
+					err = fmt.Errorf("@secret() has no inner args at %s", v.Path())
 					errs = append(errs, err)
 					return false
 				}

@@ -87,13 +87,6 @@ import (
 		Default: "nil"
 		Help:    "flow labels to match and run"
 	}, {
-		Name:    "tags"
-		Long:    "tags"
-		Short:   "t"
-		Type:    "[]string"
-		Default: "nil"
-		Help:    "data tags to inject before run"
-	}, {
 		Name:    "progress"
 		Long:    "progress"
 		Short:   ""

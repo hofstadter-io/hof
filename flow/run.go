@@ -46,7 +46,7 @@ func run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagp
 	// update entrypoints and Flow flags
 	entrypoints = entries
 	popts.Flow = append(popts.Flow, flowArgs...)
-	popts.Tags = append(popts.Tags, tagArgs...)
+	opts.Tags = append(opts.Tags, tagArgs...)
 
 	// load in CUE files
 	root, err := structural.LoadCueInputs(entrypoints, ctx, nil)
@@ -73,7 +73,7 @@ func run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagp
 	// how can we run middleware init type things (like creating a waitgroup or execpool, set logging level)
 
 	// this might be buggy?
-	root, err = injectTags(root, popts.Tags)
+	root, err = injectSecrets(root, opts.Tags)
 	if err != nil {
 		return err
 	}

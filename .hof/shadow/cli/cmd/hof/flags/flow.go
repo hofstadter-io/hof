@@ -4,7 +4,6 @@ type FlowFlagpole struct {
 	List     bool
 	Docs     bool
 	Flow     []string
-	Tags     []string
 	Progress bool
 	Stats    bool
 }

@@ -127,6 +127,7 @@ func updateAll(cm *CueMod, rflags flags.RootPflagpole, gflags flags.Mod__GetFlag
 		if err != nil {
 			return err
 		}
+		// explicitely not doing prerelease here, should we allow updating all to pre-releases?
 		nver, err := cache.GetLatestTag(path, false)
 		if err != nil {
 			return err
