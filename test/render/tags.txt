@@ -7,13 +7,17 @@ b: 2
 
 val: foo: "bar"
 
+dir: *"dir" | string @tag(dir,var=cwd)
+
 -- template.txt --
 A is {{ .a }}
 B is {{ .b }}
 
 foo is {{ .val.foo }}
+cwd is {{ trimto_last .dir "/" false }}
 -- expected.txt --
 A is A
 B is 2
 
 foo is bar
+cwd is script-tags.txt
