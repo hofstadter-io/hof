@@ -47,6 +47,7 @@ func PrintSubject(title, prefix, subject string, subjects map[string]string) boo
 
 type RootPflagpole struct {
 	Package   string
+	Tags      []string
 	Verbosity int
 	Quiet     bool
 }

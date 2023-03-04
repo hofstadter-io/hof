@@ -14,6 +14,14 @@ import (
 		Help:    "the Cue package context to use during execution"
 	},
 	{
+		Name:    "tags"
+		Long:    "tags"
+		Short:   "t"
+		Type:    "[]string"
+		Default: "nil"
+		Help:    "@tags() to be injected into CUE code"
+	},
+	{
 		Name:    "verbosity"
 		Long:    "verbosity"
 		Short:   "v"

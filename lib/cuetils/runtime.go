@@ -145,7 +145,7 @@ func (CRT *CueRuntime) load() (err error) {
 	if CRT.CueContext == nil {
 		CRT.CueContext = cuecontext.New()
 	}
-	CRT.BuildInstances = load.Instances(CRT.Entrypoints, nil)
+	CRT.BuildInstances = load.Instances(CRT.Entrypoints, CRT.CueConfig)
 	for _, bi := range CRT.BuildInstances {
 		// fmt.Printf("%d: start\n", i)
 

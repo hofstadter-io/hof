@@ -1,0 +1,19 @@
+exec hof gen data.cue -t a=A -T template.txt
+cmp stdout expected.txt
+
+-- data.cue --
+a: *"a" | string @tag(a)
+b: 2
+
+val: foo: "bar"
+
+-- template.txt --
+A is {{ .a }}
+B is {{ .b }}
+
+foo is {{ .val.foo }}
+-- expected.txt --
+A is A
+B is 2
+
+foo is bar
