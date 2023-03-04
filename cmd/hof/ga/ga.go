@@ -126,7 +126,7 @@ func SendCommandPath(cmd string) {
 	}
 
 	ua := fmt.Sprintf(
-		"%s/%s (%s %s)",
+		"%s %s (%s/%s)",
 		"hof", verinfo.Version,
 		verinfo.BuildOS, verinfo.BuildArch,
 	)
@@ -135,9 +135,8 @@ func SendCommandPath(cmd string) {
 		TID: "UA-103579574-5",
 		CID: cid,
 		UA:  ua,
-		CN:  verinfo.Version,
-		CS:  verinfo.BuildOS,
-		CM:  verinfo.BuildArch,
+		CS:  verinfo.Version,
+		CM:  l,
 	}
 
 	evt := yagu.GaEvent{
