@@ -44,12 +44,16 @@ var genLong = `hof unifies CUE with Go's text/template system and diff3
   # Templated output path, braces need quotes
   -T templateA.txt:='{{ .name | lower }}.txt'
 
+	# Data Files are created when no template
+  -T :sub.val='{{ .name | lower }}.json'
+
   # Repeated templates are used when
   # 1. the output has a '[]' prefix
   # 2. the input is a list or array
   #   The template will be processed per entry
   #   This also requires using a templated outpath
   -T template.txt:items='[]out/{{ .filepath }}.txt'
+  -T :items='[]out/{{ .filepath }}.yaml'
 
   # Output everything to a directory (out name is the same)
   -O out -T types.go -T handlers.go

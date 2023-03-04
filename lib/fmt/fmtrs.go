@@ -404,7 +404,6 @@ func FormatSource(filename string, content []byte, fmtrName string, config inter
 		return content, fmt.Errorf("error while formatting %s", filename)
 	}
 
-	fmt.Println("  lens:", len(content), len(body), resp.StatusCode, string(body))
 	content = body
 
 	if !bytes.HasSuffix(content, []byte{'\n'}) {

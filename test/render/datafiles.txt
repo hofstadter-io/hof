@@ -1,0 +1,32 @@
+exec hof gen data.cue -T =all.yaml
+cmp all.yaml expected-all.yaml
+
+exec hof gen data.cue -T :vals=vals.yaml
+cmp vals.yaml expected-vals.yaml
+
+exec hof gen data.cue schema.cue -T =all.yaml
+cmp all.yaml expected-all.yaml
+
+-- schema.cue --
+vals: [...{ name: string, data: int }]
+-- data.cue --
+foo: "bar"
+vals: [{
+	name: "a"
+	data: 1
+},{
+	name: "b"
+	data: 2
+}]
+-- expected-all.yaml --
+foo: bar
+vals:
+  - name: a
+    data: 1
+  - name: b
+    data: 2
+-- expected-vals.yaml --
+- name: a
+  data: 1
+- name: b
+  data: 2

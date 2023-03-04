@@ -1,0 +1,19 @@
+exec hof gen data.cue -T :vals='[]{{ .name }}.yaml'
+cmp a.yaml expected-a.yaml
+cmp b.yaml expected-b.yaml
+
+-- data.cue --
+vals: [{
+	name: "a"
+	data: 1
+},{
+	name: "b"
+	data: 2
+}]
+
+-- expected-a.yaml --
+name: a
+data: 1
+-- expected-b.yaml --
+name: b
+data: 2
