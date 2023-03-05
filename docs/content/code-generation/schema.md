@@ -137,7 +137,7 @@ whereas `TemplatePath` references one of the predefined templates.
 
 ##### TemplateDelims
 
-Only needed when you need alternative delimitors.
+Only needed when you need alternative delimiters.
 The default is `{{` and `}}`.
 
 

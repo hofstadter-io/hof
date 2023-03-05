@@ -47,11 +47,11 @@ func CheckPathExists(path string) (bool, error) {
 	_, err := os.Lstat(path)
 	if err != nil {
 		if _, ok := err.(*os.PathError); !ok && (strings.Contains(err.Error(), "file does not exist") || strings.Contains(err.Error(), "no such file")) {
-			// error is worse than non-existant
+			// error is worse than non-existent
 			return false, err
 		}
 
-		// file non-existant
+		// file non-existent
 		return false, nil
 	}
 

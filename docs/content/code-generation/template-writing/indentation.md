@@ -19,7 +19,7 @@ we want to reiterate that you should not
 template data files like Helm has you doing.
 This is overly difficult to get right
 and manipulation in CUE is much safer.
-Hof has dedicated capabilites for generating
+Hof has dedicated capabilities for generating
 data files in several formats along side your code
 by leveraging the CUE engine.
 

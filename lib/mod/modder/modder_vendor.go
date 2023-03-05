@@ -30,7 +30,7 @@ This module & deps
 
 	4) Now loop over depMap to pull in secondary dependencies
 	  - probably want to create a "newDeps" map here if we need to support wider recursion
-		- basically follow the last block, but load idependently and merge after
+		- basically follow the last block, but load independently and merge after
 		- do we need a separate modder when we process each dep?
 		  - probably if we are going to enable each module to optionally specify local behavior
 		- so first file we should read is the .mvsconfig, that maps <lang> to whatever

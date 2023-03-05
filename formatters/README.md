@@ -48,7 +48,7 @@ open a PR, get questions answered on slack
 
 We need to use `docker buildx` or `dagger`, and hardware / vm setup 
 which also supports qemu being setup right.
-Maybe we just build them in github actions going foward since they
+Maybe we just build them in github actions going forward since they
 have to be pushed and then pulled anyway...
 
 Searches related to building in GHA

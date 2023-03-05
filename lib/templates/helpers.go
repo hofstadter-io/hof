@@ -363,7 +363,7 @@ func Helper_file(filename string) string {
 		return string(body)
 	}
 
-	// return error on fallthrough, as a string for intemplate prcessing
+	// return error on fallthrough, as a string for intemplate processing
 	return fmt.Sprintf("ERROR: %v", err)
 }
 

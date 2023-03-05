@@ -103,7 +103,7 @@ func TodoCreateHandler(c echo.Context) (err error) {
 We also need to add a query parameter to an automatically generated route from a resource from our datamodel.
 
 For now, we added it manually to the handler, as in the code just above.
-We leave addition of this query paramater as a thought experiment.
+We leave addition of this query parameter as a thought experiment.
 
 - Can you conditionally add it in the `#DatamodelToResource` helper? (hint, this is probably the complex, but better way, check for `Reln == "BelongsTo"`)
 - Can you unconditionally add it through the example design? (hint, you will need to unify with the generator `In`)

@@ -193,7 +193,7 @@ func (G *Generator) ShadowPath() string {
 func (G *Generator) Initialize() []error {
 	var errs []error
 	if G.verbosity > 1 {
-		fmt.Println("initialzing:", G.NamePath())
+		fmt.Println("initializing:", G.NamePath())
 	}
 
 	// zero, read static files

@@ -85,7 +85,7 @@ How do we have a nice preview while designing in Plasmic?
 	- how do we setup our css, sass, bootstrap, font-awesome
 	- Is there a brand guideline template in Plasmic?
 	- Can we build one and create a source of truth repo?
-	- Design resuable data components in Plasmic, store in repo for import
+	- Design reusable data components in Plasmic, store in repo for import
 	- How is the expience of getting styling right compare between code, webflow, and plasmic?
 
 - hosting / serving / dev mode / hot reload

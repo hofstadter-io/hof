@@ -1,7 +1,7 @@
 # go-internal - awesome utils from the go compiler
 
 The Go compiler, whether surprisingly or not, has
-a ton of incredible code, utilties, and other hidden gems.
+a ton of incredible code, utilities, and other hidden gems.
 Many rely on `internal` packages and so we cannot import them directly.
 
 This repository contains code extracted from the Go compiler

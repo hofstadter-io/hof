@@ -44,8 +44,8 @@ type File struct {
 	Value cue.Value
 
 	// Template Instance Pointer
-	//   If local, this will be created when the template content is laoded
-	//   If a named template, acutal template lives in the generator and is created at folder import time
+	//   If local, this will be created when the template content is loaded
+	//   If a named template, actual template lives in the generator and is created at folder import time
 	TemplateInstance *templates.Template
 
 	// Content

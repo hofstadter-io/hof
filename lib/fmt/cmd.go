@@ -65,7 +65,7 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.FmtFlagpole) (e
 
 		// default for single files
 		g.glob = g.path
-		// if path is a dir and has no globs already, make it globby for recursion (simplfy UX for a common case)
+		// if path is a dir and has no globs already, make it globby for recursion (simplify UX for a common case)
 		if !strings.Contains(g.path, "*") {
 			info, err := os.Stat(g.path)
 			if err != nil {

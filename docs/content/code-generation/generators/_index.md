@@ -5,6 +5,6 @@ weight: 60
 ---
 
 {{<lead>}}
-Generators are resuable modules
+Generators are reusable modules
 of templates, schemas, and other files.
 {{</lead>}}

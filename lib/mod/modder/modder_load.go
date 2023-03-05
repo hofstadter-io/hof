@@ -80,7 +80,7 @@ func (mdr *Modder) LoadMetaFromFS(dir string) error {
 	// Initialize filesystem
 	mdr.FS = osfs.New(dir)
 
-	// Initialzie Module related fields
+	// Initialize Module related fields
 	mdr.module = &Module{
 		FS: mdr.FS,
 	}

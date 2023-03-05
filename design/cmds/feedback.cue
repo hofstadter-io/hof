@@ -11,7 +11,7 @@ import (
 	Aliases: ["hi", "ask", "report"]
 	Short: "open an issue or discussion on GitHub"
 	Long: """
-		Opens an issue or discusson on GitHub with some fields prefilled out
+		Opens an issue or discussion on GitHub with some fields prefilled out
 		"""
 
 	Pflags: [{

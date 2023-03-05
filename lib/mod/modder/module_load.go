@@ -133,7 +133,7 @@ func (m *Module) LoadMetaFiles(modname, sumname, mapname string, ignoreReplace b
 		return err
 	}
 
-	// Supressing the next to errors here
+	// Suppressing the next to errors here
 	//   because we can handle them not being around else where
 	err = m.LoadSumFile(sumname)
 	if err != nil {

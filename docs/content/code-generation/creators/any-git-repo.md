@@ -14,7 +14,7 @@ is what files you bootstrap for your users.
 1. Write a small creator
 1. Push a git tag
 1. `hof create github.com/user/repo@<tag>`
-1. Promt the user for a few inputs
+1. Prompt the user for a few inputs
 1. Generate some files for your user
 
 

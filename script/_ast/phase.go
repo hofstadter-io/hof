@@ -76,7 +76,7 @@ func (P *Parser) parsePhase() error {
 			p.SetEndLine(ph.DocLine() - 1)
 		}
 
-		// if p is not nil, we found our sibiling
+		// if p is not nil, we found our sibling
 		if p != nil {
 			p.SetEndLine(ph.DocLine() - 1)
 			// set same parent

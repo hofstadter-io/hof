@@ -335,7 +335,7 @@ func (R *Runtime) LoadGenerators() []error {
 	// NOTE3: maybe this goes here, and we make R "AdhocGen" aware
 	// if LT > 0 {  R.CreateAdhocGenerator(rootflags, cmdflags) }
 
-	// TODO, NOTE2: we should override gen2subgen withing this call
+	// TODO, NOTE2: we should override gen2subgen within this call
 	// we might need NOTE3 to pass adhoc partials into gens and subgens
 	/* from previous file */
 

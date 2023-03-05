@@ -43,7 +43,7 @@ What are these complications?
 - CUE's types often look like a Venn Diagram with a languages types
 - Native validation will be faster, will also need to be generated.
 - Casing preferences per language
-- Public, private, and protected visibilty
+- Public, private, and protected visibility
 - Default values, when and where they are setup
 
 It would be a burden to put this all on CUE developers to figure out and maintain.
@@ -57,7 +57,7 @@ If we want to have a single-source of truth, we need two things
 1. Mappings to our target languages and technologies
 
 CUE happens to be a good language and model for
-writing and validating both the represenation and mappings.
+writing and validating both the representation and mappings.
 
 
 ## Type DSLs
@@ -79,7 +79,7 @@ This will give the community a way to combine and specialize them as needed.
 
 ### A Type Schema
 
-With `hof`, we are building some resuable data model schemas.
+With `hof`, we are building some reusable data model schemas.
 This subsection will show you a simplified version for demonstration.
 
 - schema

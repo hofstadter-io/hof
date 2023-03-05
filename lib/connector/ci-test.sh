@@ -17,7 +17,7 @@ echo "===================================="
 go test -v -race ./...                   # Run all the tests with the race detector enabled
 
 echo ""
-echo "CHECKING go vet - offical static analyzer"
+echo "CHECKING go vet - official static analyzer"
 echo "===================================="
 go vet ./...                             # go vet is the official Go static analyzer
 

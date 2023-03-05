@@ -9,7 +9,7 @@ Generators are made of some CUE files and directories of templates.
 You can run `hof gen --init <name>` to bootstrap a new generator module.
 {{</lead>}}
 
-### Bootstraping Your Geneartor
+### Bootstrapping Your Geneartor
 
 Throughout the first example, you will be
 building a code generation module.
@@ -56,7 +56,7 @@ There are no restrictions or limits on what you can include.
 The default directories:
 
 - `schema` is where your schemas for the other parts go
-- `gen` holds CUE files for specifiying your generators
+- `gen` holds CUE files for specifying your generators
 - `templates`, `partials`, and `statics` are files for generators
 - `creators` are often in a subdirectory with their own templates
 - `examples` for using your generators, also helpful for testing

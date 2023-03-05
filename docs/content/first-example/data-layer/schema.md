@@ -14,7 +14,7 @@ needed to generate types, database tables, and much more.
 ### hof/dm.#Datamodel Schema
 
 `hof`'s core `#Datamodel` schema is intentionally minimal.
-It defines a hiearchy from `Datamodel > Model > Fields & Relations`.
+It defines a hierarchy from `Datamodel > Model > Fields & Relations`.
 The schema is sparce and open, having just what is needed
 for `hof dm` to checkpoint and introspect data models.
 

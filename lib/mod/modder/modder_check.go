@@ -49,19 +49,19 @@ func (mdr *Modder) CompareSumEntryToVendor(R Replace) error {
 	sf := mdr.module.SumFile
 
 	// sumfile ver from Replace
-	dirver := sumfile.Version{
+	driver := sumfile.Version{
 		Path:    R.NewPath,
 		Version: R.NewVersion,
 	}
 	modver := sumfile.Version{
 		Path:    R.NewPath,
-		Version: path.Join(dirver.Version, mdr.ModFile),
+		Version: path.Join(driver.Version, mdr.ModFile),
 	}
 
 	// sumfile dirhash
-	d, ok := sf.Mods[dirver]
+	d, ok := sf.Mods[driver]
 	if !ok {
-		merr := fmt.Errorf("Missing module dirhash in sumfile for '%v' from modfile entry '%v'", dirver, R)
+		merr := fmt.Errorf("Missing module dirhash in sumfile for '%v' from modfile entry '%v'", driver, R)
 		// mdr.errors = append(mdr.errors, merr)
 		return merr
 	}
@@ -90,7 +90,7 @@ func (mdr *Modder) CompareSumEntryToVendor(R Replace) error {
 	// Calc hashes for vendor from billy
 	vdrDirhash, err := yagu.BillyCalcHash(FS)
 	if err != nil {
-		merr := fmt.Errorf("While calculating vendor dirhash for '%v' from '%v'\n%w\n", dirver, R, err)
+		merr := fmt.Errorf("While calculating vendor dirhash for '%v' from '%v'\n%w\n", driver, R, err)
 		// mdr.errors = append(mdr.errors, merr)
 		return merr
 	}
@@ -105,7 +105,7 @@ func (mdr *Modder) CompareSumEntryToVendor(R Replace) error {
 
 	mismatch := false
 	if sumDirhash != vdrDirhash {
-		// merr := fmt.Errorf("Mismatched dir hashes in sumfile for '%v' from modfile entry '%v'", dirver, R)
+		// merr := fmt.Errorf("Mismatched dir hashes in sumfile for '%v' from modfile entry '%v'", driver, R)
 		// mdr.errors = append(mdr.errors, merr)
 		mismatch = true
 	}

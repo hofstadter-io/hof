@@ -70,7 +70,7 @@ func CalcDatamodelStepwiseDiff(dm *Datamodel) error {
 		// update before relooping
 		curr = prev
 	}
-	// TODO(subsume), decend into Models and Fields for diff / subsume for more granular information
+	// TODO(subsume), descend into Models and Fields for diff / subsume for more granular information
 
 	return nil
 }

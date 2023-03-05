@@ -64,7 +64,7 @@ func run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagp
 	// (temp), give each own context (created in here), or maybe by flag? Need at least the shared mutex
 	// (todo) possibly get back new root because middleware injected flags/tags?
 	taskCtx, err := buildRootContext(root, opts, popts)
-	// taskCtx, err := buildRootContext(sharedContex, root, opts, popts)
+	// taskCtx, err := buildRootContext(sharedContext, root, opts, popts)
 	if err != nil {
 		return err
 	}

@@ -16,7 +16,7 @@ we can generate any file for any language or framework.
 
 `hof gen` accepts CUE, Yaml, and JSON arguments
 and combines them with templates to generate files and directories of code.
-This process is highly flexable and controlled through flags and configuration,
+This process is highly flexible and controlled through flags and configuration,
 or what we call generators.
 
 {{<codeInner lang="sh">}}
@@ -333,7 +333,7 @@ Generators are `hof gen` flags as configuration,
 often in CUE modules and git repositories.
 The next page will overview modules more generally.
 The [first-example](/first-example/) covers
-creating a generator from scracth in detail.
+creating a generator from scratch in detail.
 
 To turn your adhoc `hof gen ... -T ...` commands into a generator
 by adding `--as-module <module name>` after the current flags.

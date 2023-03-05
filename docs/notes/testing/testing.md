@@ -97,7 +97,7 @@ hof test [-s <suite>] [-t <test>] <test.cue>
 ```
 
 Each flag can be specified multiple times.
-The flag values suppport regex, so "st" will match 'st' and 'test', so use '^st$' for just st
+The flag values support regex, so "st" will match 'st' and 'test', so use '^st$' for just st
 
 - Multiple `-s` suite flags "or" together
 - Multiple `-t` tester flags "and" together
@@ -314,7 +314,7 @@ Attributes are used so you can run specific groups or cases with granularity.
 
 ## API testing
 
-Similiar to TSuite testing, you can setup your test cases and configuration
+Similar to TSuite testing, you can setup your test cases and configuration
 using the power of Cue and __hof__.
 The difference here is that you only need to write Cue files
 and can omit language specific files.

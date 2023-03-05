@@ -13,7 +13,7 @@ import (
 	"github.com/hofstadter-io/hof/lib"
 )
 
-var feedbackLong = `Opens an issue or discusson on GitHub with some fields prefilled out`
+var feedbackLong = `Opens an issue or discussion on GitHub with some fields prefilled out`
 
 func init() {
 

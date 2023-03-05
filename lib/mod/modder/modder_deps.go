@@ -41,7 +41,7 @@ func (mdr *Modder) ReplaceDependency(m *Module) error {
 	return nil
 }
 
-// If not set, justs adds. If set, takes the one with the greater version.
+// If not set, just adds. If set, takes the one with the greater version.
 func (mdr *Modder) MvsMergeDependency(m *Module) error {
 	// Don't add the root module to the dependencies
 	if mdr.module.Module == m.Module {
@@ -96,7 +96,7 @@ func (mdr *Modder) MvsMergeDependency(m *Module) error {
 	return nil
 }
 
-// TODO, break this function appart
+// TODO, break this function apart
 func (mdr *Modder) addDependency(m *Module) error {
 	// Don't add the root module to the dependencies
 	if mdr.module.Module == m.Module {
