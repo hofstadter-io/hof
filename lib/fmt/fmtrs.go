@@ -156,9 +156,10 @@ var extToFmtr = map[string]string {
 	// prettier plugins,
 	// TODO probably a separate image?
 	".java":    "prettier/java",
+	".php":     "prettier/php",
 	".rb":      "prettier/ruby",
 	".rs":      "prettier/rust",
-	".php":     "prettier/php",
+	".sql":     "prettier/sql",
 
 	// This one is buggy
 	// ".groovy":  "prettier/groovy",
@@ -232,6 +233,9 @@ var fmtrDefaultConfigs = map[string]interface{}{
 	},
 	"prettier/php": map[string]interface{}{
 		"parser": "php",
+	},
+	"prettier/sql": map[string]interface{}{
+		"parser": "sql",
 	},
 }
 

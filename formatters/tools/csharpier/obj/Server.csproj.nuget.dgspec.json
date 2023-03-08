@@ -40,7 +40,7 @@
           "dependencies": {
             "CSharpier.Core": {
               "target": "Package",
-              "version": "[0.22.1, )"
+              "version": "[0.23.0, )"
             }
           },
           "imports": [

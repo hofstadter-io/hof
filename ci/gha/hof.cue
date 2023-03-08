@@ -112,7 +112,4 @@ ghacue.#Workflow & {
 		hof fmt info
 		hof flow -f test/fmt ./test.cue
 		"""
-	env: {
-		HOF_FMT_DEBUG: "1"
-	}
 }]

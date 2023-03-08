@@ -6,12 +6,12 @@ name = "pypi"
 [dev-packages]
 
 [packages]
-flask = "==2.0.3"
-gunicorn = "==20.1.0"
-flask-cors = "==3.0.10"
-Jinja2 = "==3.0.3"
+flask = "*"
+gunicorn = "*"
+flask-cors = "*"
+Jinja2 = "*"
 black = "*"
-Werkzeug = "==2.0.3"
+Werkzeug = "*"
 
 [requires]
 python_version = "3.9"

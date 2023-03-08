@@ -86,7 +86,7 @@ Main commands:
   gen                   modular and composable code gen: CUE & data + templates = _
   flow                  run CUE pipelines with the hof/flow DAG engine
   fmt                   format any code and manage the formatters
-  mod                   go style dependency management for CUE
+  mod                   CUE dependency management based on Go mods
 
 Additional commands:
   help                  help about any command
@@ -97,8 +97,10 @@ Additional commands:
 
 Flags:
   -h, --help             help for hof
+      --inject-env       inject all ENV VARs as default tag vars
   -p, --package string   the Cue package context to use during execution
   -q, --quiet            turn off output and assume defaults at prompts
+  -t, --tags strings     @tags() to be injected into CUE code
   -v, --verbosity int    set the verbosity of output
 
 Use "hof [command] --help / -h" for more information about a command.

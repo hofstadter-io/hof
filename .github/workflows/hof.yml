@@ -118,11 +118,10 @@ jobs:
           GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
           BITBUCKET_PASSWORD: ${{secrets.BITBUCKET_TOKEN}}
       - name: test/fmt
+        env:
+          GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
         run: |-
           docker ps -a
           hof fmt info
           hof flow -f test/fmt ./test.cue
-        env:
-          HOF_FMT_DEBUG: "1"
-          GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
     services: {}

@@ -57,9 +57,10 @@ Flags:
   -l, --list           list available pipelines
       --progress       print task progress as it happens
   -s, --stats          Print final task statistics
-  -t, --tags strings   data tags to inject before run
 
 Global Flags:
+      --inject-env       inject all ENV VARs as default tag vars
   -p, --package string   the Cue package context to use during execution
   -q, --quiet            turn off output and assume defaults at prompts
+  -t, --tags strings     @tags() to be injected into CUE code
   -v, --verbosity int    set the verbosity of output
