@@ -200,7 +200,7 @@ func loadDatamodelsAt(entrypoints []string, flgs flags.DatamodelPflagpole) ([]*D
 		} else {
 			dm.Subsume = dm.History.Past[0].Value.Subsume(dm.Value)
 		}
-		// TODO(subsume), decend into Models and Fields for diff / subsume for more granular information
+		// TODO(subsume), descend into Models and Fields for diff / subsume for more granular information
 	}
 
 	return dms, nil
@@ -292,7 +292,7 @@ func loadDatamodelHistory(dm *Datamodel, crt *cuetils.CueRuntime) error {
 		}
 
 		//
-		// TODO(subsume), decend into Models and Fields for diff / subsume for more granular information
+		// TODO(subsume), descend into Models and Fields for diff / subsume for more granular information
 		//
 
 		// go deeper to extract model values

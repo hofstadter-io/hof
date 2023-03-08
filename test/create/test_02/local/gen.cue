@@ -40,7 +40,7 @@ test: gen.#Generator & {
 				Name:   "framework"
 				Type:   "select"
 				Prompt: "select framework"
-				Options: ["React", "Vue", "Svelt"]
+				Options: ["React", "Vue", "Svelte"]
 			}]
 		},{
 			Name:       "backend"

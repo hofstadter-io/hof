@@ -206,7 +206,7 @@ after CUE v0.4.3
 - [ ] easier to customize / extend / sandbox tasks & middleware
 
 - [ ] history (persistent), get results from past runs, diff view
-     - official flow to import and snyc to your favorite cloud
+     - official flow to import and sync to your favorite cloud
 
 - [ ] required fields (from schema) as a field & check in tasks
       should/can we check a subtask like handler upfront?

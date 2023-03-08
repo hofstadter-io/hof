@@ -129,7 +129,7 @@ func (CRT *CueRuntime) load() (err error) {
 		_, err = os.Lstat(CRT.Workspace)
 		if err != nil {
 			if _, ok := err.(*os.PathError); !ok && (strings.Contains(err.Error(), "file does not exist") || strings.Contains(err.Error(), "no such file")) {
-				// error is worse than non-existant
+				// error is worse than non-existent
 				return err
 			}
 			// otherwise, does not exist, so we should init?
@@ -335,7 +335,7 @@ func (CRT *CueRuntime) loadOrphanedFile(f *build.File, pkgName string, root, dir
 
 	default:
 		// should only do this if it was also an arg
-		// otherwise we should ignore other files implicity discovered
+		// otherwise we should ignore other files implicitly discovered
 
 		// todo, re-enable this with better checks
 		// err := fmt.Errorf("unknown encoding for %q %q", f.Filename, f.Encoding)

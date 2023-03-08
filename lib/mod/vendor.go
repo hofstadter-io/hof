@@ -160,7 +160,7 @@ func linkOrCopy(method string, src, dst string) (err error) {
 	} else if method == "copy" {
 		err = yagu.CopyDir(src, dst)
 	} else {
-		panic("uknown mod install method: " + method)
+		panic("unknown mod install method: " + method)
 	}
 
 	return err

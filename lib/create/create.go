@@ -149,7 +149,7 @@ func Create(module string, extra []string, rootflags flags.RootPflagpole, cmdfla
 func setupTmpdir(url, ver string) (tmpdir, subdir string, err error) {
 	var FS billy.Filesystem
 
-	// put this here for testing and systems where the tmpdir dne
+	// put this here for testing and systems where the tmpdir done
 	// assuming this is essentially a no-op when it already exists
 	err = os.MkdirAll(os.TempDir(), 0755)
 	if err != nil {
@@ -396,7 +396,7 @@ func handleGeneratorCreate(G *gen.Generator, extraArgs []string, inputMap map[st
 
 	genVal := G.CueValue
 
-		// pritn the befor message if set, otherwise default
+		// pritn the before message if set, otherwise default
 	before := genVal.LookupPath(cue.ParsePath("Create.Message.Before"))
 	if before.Err() != nil {
 		fmt.Println("error:", before.Err())
@@ -458,7 +458,7 @@ func handleGeneratorCreate(G *gen.Generator, extraArgs []string, inputMap map[st
 							}
 							newMap[k] = n
 						
-						// end intersting inputs
+						// end interesting inputs
 						
 						default:
 							newMap[k] = v

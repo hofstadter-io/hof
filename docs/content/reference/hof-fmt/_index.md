@@ -15,7 +15,7 @@ You can create your own formatters as well.
 It runs the pre-output through before applying diff and merging
 with any custom code you added to output files.
 This is simplifies the job of template authors,
-but is also required to avoid unneccessary merge conflicts.
+but is also required to avoid unnecessary merge conflicts.
 
 You will need Docker available to use this feature.
 Hof will pull and run containers in the background.

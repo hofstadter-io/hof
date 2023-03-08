@@ -31,7 +31,7 @@ func compareReader(t *testing.T, a, b io.Reader) bool {
 func TestDiff3(t *testing.T) {
 
 	const testDir = "./testdata"
-	const generate = true // set to true to genereate the expected files *-m.txt and *-error.txt
+	const generate = true // set to true to generate the expected files *-m.txt and *-error.txt
 	files, err := ioutil.ReadDir(testDir)
 	if err != nil {
 		log.Fatal(err)

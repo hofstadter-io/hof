@@ -9,7 +9,7 @@ description: >
 
 {{<lead>}}
 This section expands on our first-example.
-We can import and resuse the generator.
+We can import and reuse the generator.
 We'll build a full-stack application
 with many extras from a unified design.
 {{</lead>}}

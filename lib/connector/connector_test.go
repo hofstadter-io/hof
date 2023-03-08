@@ -95,7 +95,7 @@ func TestAdd(t *testing.T) {
 			conn.Add(foo{})
 			g.Assert(len(conn.Items())).Equal(1)
 		})
-		g.It("should be able to add multple single item", func() {
+		g.It("should be able to add multiple single item", func() {
 			conn := New("my-connector")
 
 			conn.Add(foo{}, boo{})
@@ -136,7 +136,7 @@ func TestGet(t *testing.T) {
 		conn := New("my-connector")
 		conn.Add(&foo{}, &boo{}, &moo{})
 
-		g.It("should start with multple items", func() {
+		g.It("should start with multiple items", func() {
 			g.Assert(len(conn.Items())).Equal(3)
 		})
 

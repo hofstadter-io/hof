@@ -73,7 +73,7 @@ type Modder struct {
 	errors  []error `yaml:"-"`
 
 	// dependency modules (requires/replace)
-	// dependencies shoule respect any .mvsconfig it finds along side the module files
+	// dependencies should respect any .mvsconfig it finds along side the module files
 	// module writers can then have local control over how their module is handeled during vendoring
 	depsMap map[string]*Module `yaml:"-"`
 

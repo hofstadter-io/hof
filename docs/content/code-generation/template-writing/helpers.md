@@ -15,7 +15,7 @@ Notes:
 
 - Many of these are based on the Go stdlib functions with the same name.
 - Args can be literal, a .Variable, or the result of another function. See Go's documentation
-- It can be advantagous to do as many manipulations in CUE rather than in the template system.
+- It can be advantageous to do as many manipulations in CUE rather than in the template system.
 
 
 `text/template` documentation can be found here:

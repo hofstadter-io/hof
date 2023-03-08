@@ -44,7 +44,7 @@ func Gen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpol
 func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpole) (err error) {
 	// fix default Diff3 flag value when running hof gen
 	// needs to be interwoven here, probably?
-	// it's usage pattern is specific to our use cases right now, and want diff3 true for generators, but overriddable if set to false
+	// it's usage pattern is specific to our use cases right now, and want diff3 true for generators, but overridable if set to false
 	hasDiff3Flag := false
 	for _, arg := range os.Args {
 		if arg == "--diff3" || arg == "-D" {
@@ -82,7 +82,7 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 	fastWG := cmdflags.WatchFast
 
 	// determine watch mode
-	//  excplicit: -w
+	//  explicit: -w
 	//  implicit:  -W/-X
 	watch := cmdflags.Watch
 	if len(fullWG) > 0 || len(fastWG) > 0 {

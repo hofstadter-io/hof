@@ -11,7 +11,7 @@ import (
 
 func getTagsAndSecrets(val cue.Value) (tags []cue.Value, secrets []cue.Value, errs []error) {
 
-	// fuction used during tree walk to collect values with tags
+	// function used during tree walk to collect values with tags
 	collector := func(v cue.Value) bool {
 		attrs := v.Attributes(cue.ValueAttr)
 

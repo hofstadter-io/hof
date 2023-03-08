@@ -54,7 +54,7 @@ func (R *Runtime) Init() (err error) {
 	// These are used to track if we found a file or not
 	// contextFound, configFound, secretFound := false, false, false
 
-	// First check config/secret flags, non-existance should err as user specified a flag
+	// First check config/secret flags, non-existence should err as user specified a flag
 	//  if they exist, we load into local because we prefer that later
 	//if flags.RootPflags.Context != "" {
 	//val, err := cuefig.LoadContextConfig("", flags.RootPflags.Context)
@@ -301,7 +301,7 @@ func (R *Runtime) ContextSet(expr string) error {
 	//// now check for error from that config selection process
 	//if err != nil {
 	//if _, ok := err.(*os.PathError); !ok && (strings.Contains(err.Error(), "file does not exist") || strings.Contains(err.Error(), "no such file")) {
-	//// error is worse than non-existant
+	//// error is worse than non-existent
 	//return err
 	//}
 	//// file does not exist, so we should just set
@@ -354,7 +354,7 @@ func (R *Runtime) ConfigSet(expr string) error {
 	//// now check for error from that config selection process
 	//if err != nil {
 	//if _, ok := err.(*os.PathError); !ok && (strings.Contains(err.Error(), "file does not exist") || strings.Contains(err.Error(), "no such file")) {
-	//// error is worse than non-existant
+	//// error is worse than non-existent
 	//return err
 	//}
 	//// file does not exist, so we should just set
@@ -407,7 +407,7 @@ func (R *Runtime) SecretSet(expr string) error {
 	//// now check for error from that config selection process
 	//if err != nil {
 	//if _, ok := err.(*os.PathError); !ok && (strings.Contains(err.Error(), "file does not exist") || strings.Contains(err.Error(), "no such file")) {
-	//// error is worse than non-existant
+	//// error is worse than non-existent
 	//return err
 	//}
 	//// file does not exist, so we should just set

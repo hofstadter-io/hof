@@ -14,7 +14,7 @@ import (
 )
 
 /* TODO
-- more configuration for intialization
+- more configuration for initialization
 */
 
 func (mdr *Modder) Init(module string) error {

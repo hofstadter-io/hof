@@ -13,7 +13,7 @@ import (
 	// Name of the generator, will default to kebab(label) where defined
 	Name: common.NameLabel
 
-	// Generater wide input value to templates.
+	// Generator wide input value to templates.
 	// Merged with any template or file level In values
 	//   File.In will extend or replace any top-level fields here
 	In: {...}
@@ -30,7 +30,7 @@ import (
 
 	// Formatting Control
 	Formatting: {
-		// default for all files, unless overriden in a file
+		// default for all files, unless overridden in a file
 		Disabled: bool | *false
 
 		// Should data files also be formatted?
@@ -43,7 +43,7 @@ import (
 		// Hof has defaults it will use if none are specified
 
 		// map from file extensions to formatters
-		Formatters: [Extenstion=string]: {
+		Formatters: [Extension=string]: {
 			// Name of the formatter, like 'prettier' or 'black'
 			Formatter: string
 			// formatter specific configuration

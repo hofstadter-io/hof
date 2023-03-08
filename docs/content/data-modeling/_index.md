@@ -13,7 +13,7 @@ They form the basis for input to code generation and
 The goal `hof` started with was to 
 
 - write your data model in one place, as a source of truth
-- automate the  of utilites 
+- automate the  of utilities 
 
 
 

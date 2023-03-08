@@ -289,7 +289,7 @@ func InstallUpdate() (err error) {
 		return downloadAndInstall(url)
 
 	case "windows":
-		fmt.Println("Please downlaod and install manually from the link above.")
+		fmt.Println("Please download and install manually from the link above.")
 		return nil
 	}
 

@@ -30,7 +30,7 @@ and is combined with text templates to create the output.
 You can leverage existing designs and modules
 or create your own without modifying `hof`.
 The idea is to use the singular application design
-to automatically create the majority of the implemenetation
+to automatically create the majority of the implementation
 across the many technologies and languages.
 
 ___How does this work when I change my design or need to write custom code?___
@@ -92,7 +92,7 @@ Typically these are grouped in a module.
 
 Modules in __hof__ are a flexible and reusable implementation of the
 Minimum Version Selection (MVS)
-dependency managment algorithm popularized by Golang.
+dependency management algorithm popularized by Golang.
 They are polyglot because they can contain any of:
 
 - technology choices

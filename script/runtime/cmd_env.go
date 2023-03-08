@@ -148,7 +148,7 @@ func (ts *Script) MkAbs(file string) string {
 }
 
 // ReadFile returns the contents of the file with the
-// given name, intepreted relative to the test script's
+// given name, interpreted relative to the test script's
 // current directory. It interprets "stdout" and "stderr" to
 // mean the standard output or standard error from
 // the most recent exec or wait command respectively.

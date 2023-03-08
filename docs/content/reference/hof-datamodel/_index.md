@@ -14,6 +14,6 @@ so must our implementation.
 - define you data models in CUE
 - generate types, database tables, and API resources
 - checkpoint the data model and maintain a history
-- have the entire history available for generating migrations and tranformations
+- have the entire history available for generating migrations and transformations
 
 {{< childpages >}}

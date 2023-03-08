@@ -8,7 +8,7 @@ weight: 35
 `hof/flow` is a data and task engine
 with automatic dependency detection
 powered by `cue/flow`.
-It has more task types and capabilites.
+It has more task types and capabilities.
 {{</lead>}}
 
 {{<codeInner title="hof flow -h" >}}

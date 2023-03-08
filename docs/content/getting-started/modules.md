@@ -26,14 +26,14 @@ be repeated when you need to run them on other pages.
 - `hof mod vendor cue` fetches dependencies into `cue.mod/pkg/...`
 
 The name of a module must be the same the git repository.
-`hof` talks directly to git repositiories and many of
+`hof` talks directly to git repositories and many of
 `hof`'s commands will accept repositories as input too.
 
 The files and directories that make up a module:
 
 - `cue.mods` is where dependencies and versions are set, you write this file.
 - `cue.sums` contains the checksums for all dependencies and is managed by `hof mod`
-- `cue.mod/module.cue` denotes a CUE module and has a sinlge line
+- `cue.mod/module.cue` denotes a CUE module and has a single line
 - `cue.mod/pkg/...` is where the code for dependencies is located after fetching
 
 {{<codeInner title="cue.mod/module.cue">}}

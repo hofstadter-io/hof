@@ -28,7 +28,7 @@ We will first
 1. Start with a Go map for storage, later a database
 1. Create CRUD routes for the datamodel
 
-After we will see `hof`'s code __re__generation capabilites by
+After we will see `hof`'s code __re__generation capabilities by
 
 1. Customizing the generated code
 1. Updating the data model
