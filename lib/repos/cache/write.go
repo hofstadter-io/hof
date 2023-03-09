@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-billy/v5/osfs"
@@ -63,7 +64,7 @@ func Write(remote, owner, repo, tag string, FS billy.Filesystem) error {
 	return nil
 }
 
-func CopyRepoTag(path, ver string) error {
+func CopyRepoTag(path, ver string) (string, error) {
 	if debug {
 		fmt.Println("cache.CopyRepoTag:", path, ver)
 	}
@@ -73,31 +74,58 @@ func CopyRepoTag(path, ver string) error {
 	// open git source
 	R, err := OpenRepoSource(path)
 	if err != nil {
-		return fmt.Errorf("(crt) open source error: %w for %s@%s", err, path, ver)
+		return ver, fmt.Errorf("(crt) open source error: %w for %s@%s", err, path, ver)
 	}
 
 	// get working tree
 	wt, err := R.Worktree()
 	if err != nil {
-		return fmt.Errorf("(crt) worktree error: %w for %s@%s", err, path, ver)
+		return ver, fmt.Errorf("(crt) worktree error: %w for %s@%s", err, path, ver)
+	}
+
+	lver := ver
+	parts := strings.Split(lver, "-")
+	if strings.HasPrefix(lver, "v0.0.0-") {
+		lver = strings.Join(parts[2:], "-")
 	}
 
 	// checkout tag
 	err = wt.Checkout(&gogit.CheckoutOptions{
-		Branch: plumbing.ReferenceName("refs/tags/" + ver),
+		Branch: plumbing.NewTagReferenceName(lver),
 		Force: true,
 	})
 	if err != nil {
-		return fmt.Errorf("(crt) checkout error: %w for %s@%s", err, path, ver)
+		// err = fmt.Errorf("(crt) checkout error: %w for %s@%s", err, path, ver)
+		// try branch
+		err = wt.Checkout(&gogit.CheckoutOptions{
+			Branch: plumbing.NewRemoteReferenceName("origin", lver),
+			Force: true,
+		})
+
+		if err != nil {
+			err = wt.Checkout(&gogit.CheckoutOptions{
+				Hash: plumbing.NewHash(lver),
+				Force: true,
+			})
+			if err != nil {
+				return ver, fmt.Errorf("(crt) checkout error: unable to find version %q for module %q", ver, path)	
+			}
+
+		} else {
+			h, err := R.Head()
+			lver = strings.Join(append(parts[:2], h.Hash().String()), "-")
+			fmt.Println("Checking out branch:", path, ver, lver, err)
+			ver = lver
+		}
 	}
 
 	// copy
 	FS := osfs.New(dir)
 	err = Write(remote, owner, repo, ver, FS)
 	if err != nil {
-		return fmt.Errorf("(crt) writing error: %w for %s@%s", err, path, ver)
+		return ver, fmt.Errorf("(crt) writing error: %w for %s@%s", err, path, ver)
 	}
 
-	return nil
+	return ver, nil
 }
 

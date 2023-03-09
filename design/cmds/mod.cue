@@ -88,6 +88,15 @@ import (
 			}
 			"""
 	}, {
+		Name:  "verify"
+		Usage: "verify"
+		Short: "verify integrity of dependencies"
+		Long:  Short
+
+		Imports: #ModCmdImports
+
+		Body: (#body & { func: "Verify" }).content
+	}, {
 		Name:  "tidy"
 		Usage: "tidy"
 		Short: "recalculate dependencies and update mod files"

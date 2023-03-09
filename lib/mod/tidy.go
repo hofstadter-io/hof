@@ -16,14 +16,19 @@ func Tidy(rflags flags.RootPflagpole) (error) {
 		return err
 	}
 
+	// introspect and add any missing dependencies
+	// remove any unused?
+	cm.findDepsFromImports()
+
+	// if no deps, we can bail early
 	if len(cm.Require) == 0 {
 		fmt.Println("no requirements found")
 		return nil
 	}
 
-	// fmt.Println(cm.Module, cm.Require)
-
+	// define & run a sequence of functions
 	fns := []func () error {
+		cm.UpgradePseudoVersions,
 		func () error { return cm.SolveMVS(false) },
 		cm.CleanDeps,
 		cm.CleanSums,
@@ -37,10 +42,26 @@ func Tidy(rflags flags.RootPflagpole) (error) {
 		}
 	}
 
-	// fmt.Println("tidy:", cm.Require, cm.Indirect)
-
-	// TODO, figure out link / vendor style
+	// finally, write updated {module,sums}.cue
 	return cm.Vendor("", rflags.Verbosity)
+}
+
+func (cm *CueMod) UpgradePseudoVersions() (err error) {
+	for path, dep := range cm.Replace {
+		ver, _ := cache.UpgradePsuedoVersion(dep.Path, dep.Version)
+		dep.Version = ver
+		cm.Replace[path] = dep
+	}
+
+	for path, ver := range cm.Require {
+		if _, ok := cm.Replace[path]; ok {
+			continue
+		}
+		ver, _ = cache.UpgradePsuedoVersion(path, ver)
+		cm.Require[path] = ver
+	}
+
+	return nil
 }
 
 func (cm *CueMod) CleanDeps() error {
@@ -141,3 +162,4 @@ func (cm *CueMod) CleanSums() error {
 
 	return nil
 }
+

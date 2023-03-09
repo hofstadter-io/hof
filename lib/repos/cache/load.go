@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-billy/v5/osfs"
@@ -19,11 +20,15 @@ var cacheBaseDir string
 var modBaseDir string
 var srcBaseDir string
 
+// hacky, but we only want to sync once per repo per process
+var syncedRepos *sync.Map
+
 // CacheDir/{mod,src}
 
 var debug = false
 
 func init() {
+	syncedRepos = new(sync.Map)
 	nc := os.Getenv(NoCacheEnvVar)
 	if nc != "" {
 		noCache = true
@@ -132,7 +137,7 @@ func CacheModule(url, ver string) (billy.Filesystem, error) {
 	}
 
 	// fmt.Println("making:", url, ver)
-	err = CopyRepoTag(url, ver)
+	ver, err = CopyRepoTag(url, ver)
 	if err != nil {
 		return nil, err
 	}

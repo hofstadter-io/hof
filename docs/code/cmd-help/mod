@@ -90,6 +90,7 @@ Available Commands:
   link        symlink dependencies to cue.mod/pkg
   tidy        recalculate dependencies and update mod files
   vendor      copy dependencies to cue.mod/pkg
+  verify      verify integrity of dependencies
 
 Flags:
   -h, --help   help for mod

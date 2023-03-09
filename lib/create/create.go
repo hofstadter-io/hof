@@ -60,19 +60,18 @@ func Create(module string, extra []string, rootflags flags.RootPflagpole, cmdfla
 	}
 
 	ref := ver
-
-	if looksLikeRepo(url) && ver == "latest" {
-		// ensure we have the most up-to-date code
-		_, err = cache.FetchRepoSource(url, "")
+	// ensure we have the most up-to-date code
+	if looksLikeRepo(url) {
+		_, err = cache.FetchRepoSource(url, ver)
 		if err != nil {
 			return err
 		}
-
-		ref, err = cache.GetLatestTag(url, false)
+		ref, err = cache.UpgradePsuedoVersion(url, ver)
 		if err != nil {
 			return err
 		}
 	}
+
 
 	fmt.Println("setting up...")
 	tmpdir, subdir, err = setupTmpdir(url, ref)

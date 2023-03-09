@@ -1,0 +1,8 @@
+# this works, but the result drifts over time
+# so we probably need to think about a better check
+
+exec hof mod init hof.io/test
+exec hof mod get github.com/hofstadter-io/hof@a7d892fc4363e2b9d8ee41183fd12c32f71abf06
+exec hof mod vendor
+exists cue.mod/pkg/github.com/hofstadter-io/hof/cue.mod/module.cue
+

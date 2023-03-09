@@ -3,6 +3,7 @@ package mod
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 
 	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-billy/v5/osfs"
@@ -20,8 +21,8 @@ func (cm *CueMod) SolveMVS(latest bool) error {
 
 	targets := []module.Version{}
 	for _, dep := range cm.Replace {
-		dep := module.Version{ Path: dep.Path, Version: dep.Version }
-		targets = append(targets, dep)
+		d := module.Version{ Path: dep.Path, Version: dep.Version }
+		targets = append(targets, d)
 	}
 	for path, ver := range cm.Require {
 		// skip any replaced modules
@@ -60,15 +61,16 @@ func cmpVersion(v1, v2 string) int {
 	if v1 == "" {
 		return 1
 	}
+
 	return semver.Compare(v1, v2)
 }
 
 func (rr *RequirementResolver) Max(v1, v2 string) string {
-	if cmpVersion(v1, v2) < 0 {
+	x := cmpVersion(v1, v2)
+	// fmt.Println("MAX", v1, v2, x)
+	if x < 0 {
 		return v2
 	}
-	return v1
-
 	return v1
 }
 
@@ -98,16 +100,13 @@ func (rr *RequirementResolver) Required(m module.Version) ([]module.Version, err
 
 	deps := []module.Version{}
 	for path, ver := range M.Require {
-		// filter a replaced module or same module?
-		if _, ok := rr.rootMod.Replace[path]; ok || path == rr.rootMod.Module {
-			continue
-		}
 		if rr.latest {
 			// possibly extra calls here...?
 			_, err = cache.FetchRepoSource(path, "")
 			if err != nil {
 				return nil, err
 			}
+			// intentionally not supporting @next or prereleases when updating via all@latest
 			nver, err := cache.GetLatestTag(path, false)
 			if err != nil {
 				return nil, err
@@ -118,7 +117,21 @@ func (rr *RequirementResolver) Required(m module.Version) ([]module.Version, err
 			}
 		}
 
+		// filter a replaced module or same module?
+		_, ok1 := rr.rootMod.Replace[path]
+		if ok1 || path == rr.rootMod.Module {
+			// fmt.Println("mvs-skip:", path, ver)
+			continue
+		}
+		rver, ok2 := rr.rootMod.Require[path]
+		// ok2 = ok2 && path == rr.rootMod.Module
+		if ok2 && strings.HasPrefix(rver, "v0.0.0-") {
+			// fmt.Println("mvs-skip2:", path, ver, rver)
+			ver = rver
+		}
+
 		dep := module.Version{ Path: path, Version: ver }
+		// fmt.Println("mvs-add:", dep)
 		deps = append(deps, dep)
 	}
 
