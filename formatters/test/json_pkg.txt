@@ -1,0 +1,50 @@
+exec hof fmt package.json
+cmp package.json golden.json
+
+-- package.json --
+{
+  "name": "formatter",
+  "version": "0.0.1",
+  "description": "a collection of formatters as a server",
+  "main": "prettier.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "@prettier/plugin-php": "^0.19.3",
+    "@prettier/plugin-ruby": "^3.2.2",
+    "express": "^4.18.2",
+    "prettier": "^2.8.4",
+    "prettier-plugin-go-template": "^0.0.13",
+    "prettier-plugin-groovy": "^0.0.2",
+    "prettier-plugin-java": "^2.0.0",
+    "prettier-plugin-rust": "^0.1.8",
+    "prettier-plugin-sql": "^0.13.0"
+  }
+}
+
+-- golden.json --
+{
+  "name": "formatter",
+  "version": "0.0.1",
+  "description": "a collection of formatters as a server",
+  "main": "prettier.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" \u0026\u0026 exit 1"
+  },
+  "author": "",
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "@prettier/plugin-php": "^0.19.3",
+    "@prettier/plugin-ruby": "^3.2.2",
+    "express": "^4.18.2",
+    "prettier": "^2.8.4",
+    "prettier-plugin-go-template": "^0.0.13",
+    "prettier-plugin-groovy": "^0.0.2",
+    "prettier-plugin-java": "^2.0.0",
+    "prettier-plugin-rust": "^0.1.8",
+    "prettier-plugin-sql": "^0.13.0"
+  }
+}

@@ -2,10 +2,20 @@ exec hof fmt in.yaml
 cmp in.yaml golden.yaml
 
 -- in.yaml --
-foo:
-    b: "B"
-    a: "A"
+name: hof cli
+image: mcr.microsoft.com/devcontainers/universal:2
+postCreateCommand: sudo rm -rf /usr/local/hugo
+customizations:
+  vscode:
+    extensions:
+      - asdine.cue
+      - jallen7usa.vscode-cue-fmt
 -- golden.yaml --
-foo:
-    a: A
-    b: B
+name: hof cli
+image: mcr.microsoft.com/devcontainers/universal:2
+postCreateCommand: sudo rm -rf /usr/local/hugo
+customizations:
+  vscode:
+    extensions:
+      - asdine.cue
+      - jallen7usa.vscode-cue-fmt

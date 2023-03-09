@@ -9,8 +9,8 @@ cmp in.json golden.json
 }
 -- golden.json --
 {
-    "foo": {
-        "b": "bar",
-        "a": "A"
-    }
+  "foo": {
+    "b": "bar",
+    "a": "A"
+  }
 }
