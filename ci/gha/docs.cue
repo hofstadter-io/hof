@@ -9,7 +9,12 @@ ghacue.#Workflow & {
 	name: "docs"
 
 	on: push: {
-		paths: ["docs/**", "ci/gha/docs.cue"]
+		paths: [
+			"docs/**",
+			"ci/gha/docs.cue",
+			"design/**",
+			"schema/**",
+		]
 	}
 	env: HOF_TELEMETRY_DISABLED: "1"
 

@@ -4,6 +4,8 @@ name: docs
     paths:
       - docs/**
       - ci/gha/docs.cue
+      - design/**
+      - schema/**
 env:
   HOF_TELEMETRY_DISABLED: "1"
 jobs:
