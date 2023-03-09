@@ -18,7 +18,7 @@ func StartRun(formatter string) (err error) {
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = hfmt.Start(formatter)
+	err = hfmt.Start(formatter, true)
 
 	return err
 }

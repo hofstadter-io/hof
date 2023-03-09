@@ -2,6 +2,7 @@ package docker
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -30,7 +31,7 @@ func GetContainers(ref string) ([]types.Container, error) {
 	)
 }
 
-func StartContainer(ref, name string, env []string) error {
+func StartContainer(ref, name string, env []string, replace bool) error {
 	// just try to pull, if already present this will not be noticed
 	err := MaybePullImage(ref)
 	if err != nil {
@@ -40,7 +41,9 @@ func StartContainer(ref, name string, env []string) error {
 	// maybe stop here, by ignoring error
 	// we do this to cleanup and stopped / done images
 	// (typical of docker when a user restarts their computer)
-	StopContainer(name)
+	if replace {
+		StopContainer(name)
+	}
 
 	// now we can safely (re)create our container
 	ret, err := dockerClient.ContainerCreate(
@@ -91,6 +94,7 @@ func StopContainer(name string) error {
 }
 
 func PullImage(ref string) error {
+	fmt.Println("pulling:", ref)
 	opts := types.ImagePullOptions{}
 	r, err := dockerClient.ImagePull( context.Background(), ref, opts)
 	if err != nil {

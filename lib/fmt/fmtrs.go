@@ -2,11 +2,8 @@ package fmt
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	gofmt "go/format"
-	"io"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -20,7 +17,6 @@ import (
 	"github.com/clbanning/mxj"
 	"github.com/docker/docker/api/types"
 	"github.com/BurntSushi/toml"
-	// "gopkg.in/yaml.v3"
 
 	"github.com/hofstadter-io/hof/cmd/hof/verinfo"
 	"github.com/hofstadter-io/hof/lib/docker"
@@ -107,7 +103,9 @@ type Formatter struct {
 	Available []string
 
 	// Info
+	Status    string
 	Running   bool
+	Ready     bool
 	Port      string
 	Container *types.Container
 	Images    []*types.ImageSummary
@@ -129,6 +127,21 @@ var fmtrEnvs = map[string][]string{
 	"csharpier": nil,
 	"prettier": []string{
 		"PRETTIER_RUBY_TIMEOUT_MS=10000",
+	},
+}
+
+var fmtrReady = map[string]any {
+	"black": map[string]any {
+		"config": fmtrDefaultConfigs["black/py"],
+		"source": "n = 1",
+	},
+	"csharpier": map[string]any {
+		"config": fmtrDefaultConfigs["csharpier/cs"],
+		"source": "var n = 1;",
+	},
+	"prettier": map[string]any {
+		"config": fmtrDefaultConfigs["prettier/js"],
+		"source": "var n = 1;",
 	},
 }
 
@@ -365,53 +378,19 @@ func FormatSource(filename string, content []byte, fmtrName string, config inter
 
 	// start the formatter if not running
 	if !fmtr.Running {
-		err := Start(fmtrTool)
-		if err != nil {
-			return content, err
-		}
-		err = updateFormatterStatus()
+		err := Start(fmtrTool, false)
 		if err != nil {
 			return content, err
 		}
 	}
 
-	data := make(map[string]interface{})
-	data["source"] = string(content)
-	data["config"] = config
-
-	bs, err := json.Marshal(data)
+	fmtd, err := fmtr.Call(filename, content, config)
 	if err != nil {
 		return content, err
 	}
+	content = fmtd
 
-	url := "http://localhost:" + fmtr.Port
-
-	if debug {
-		fmt.Printf("fmt calling (%s) %s\n", fmtrTool, url)
-	}
-
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(bs))
-	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return content, err
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Println("response Body:", string(body))
-		return content, err
-	}
-	if resp.StatusCode >= 400 {
-		fmt.Println("\n" + string(body) + "\n")
-		return content, fmt.Errorf("error while formatting %s", filename)
-	}
-
-	content = body
-
+	// add a final newline if not present
 	if !bytes.HasSuffix(content, []byte{'\n'}) {
 		content = append(content, '\n')
 	}
