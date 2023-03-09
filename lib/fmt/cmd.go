@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/olekukonko/tablewriter"
 
@@ -168,7 +169,12 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.FmtFlagpole) (e
 	return nil
 }
 
-func Start(fmtr string) error {
+func Start(fmtr string, replace bool) error {
+	err := updateFormatterStatus()
+	if err != nil {
+		return err
+	}
+
 	// override the default version
 	ver := defaultVersion
 	parts := strings.Split(fmtr, "@")
@@ -180,24 +186,54 @@ func Start(fmtr string) error {
 		fmtr = "all"
 	}
 
+	startFmtr := func(name, ver string) error {
+		fmt.Println("starting:", name, ver)
+		return docker.StartContainer(
+			fmt.Sprintf("hofstadter/fmt-%s:%s", name, ver),
+			fmt.Sprintf("hof-fmt-%s", name),
+			fmtrEnvs[name],
+			replace,
+		)
+	}
+
+	waitFmtr := func(name string) error {
+		fmtr := formatters[name]
+
+		// wait for running & ready
+		err = fmtr.WaitForRunning(10, time.Second)
+		if err != nil {
+			return err
+		}
+		err = fmtr.WaitForReady(30, time.Second)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+
 	if fmtr == "all" {
 		for _, name := range fmtrNames {
-			fmt.Println("starting:", name, ver)
-			err := docker.StartContainer(
-				fmt.Sprintf("hofstadter/fmt-%s:%s", name, ver),
-				fmt.Sprintf("hof-fmt-%s", name),
-				fmtrEnvs[name],
-			)
+			err = startFmtr(name, ver)
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+		for _, name := range fmtrNames {
+			err = waitFmtr(name)
 			if err != nil {
 				fmt.Println(err)
 			}
 		}
 	} else {
-		return docker.StartContainer(
-			fmt.Sprintf("hofstadter/fmt-%s:%s", fmtr, ver),
-			fmt.Sprintf("hof-fmt-%s", fmtr),
-			fmtrEnvs[fmtr],
-		)
+		err = startFmtr(fmtr, ver)
+		if err != nil {
+			return err
+		}
+		err = waitFmtr(fmtr)
+		if err != nil {
+			return err
+		}
 	}
 
 	// TODO, add alive command and wait for ready
@@ -345,6 +381,8 @@ func updateFormatterStatus() error {
 
 		// get fmtr
 		fmtr := formatters[name]
+
+		fmtr.Status = container.State
 
 		// determine the container status
 		if container.State == "running" {
