@@ -1,0 +1,16 @@
+! exec hof fmt in.cs
+cmp stdout golden.stdout
+
+-- in.cs --
+public class ClassName {
+    public void CallMethod( { 
+        this.LongUglyMethod("1234567890", "abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    }
+}
+-- golden.stdout --
+formatting 1 file(s) from in.cs
+
+"Errors while formatting:\n(2,29): error CS1026: ) expected\n"
+
+while formatting source: error while formatting in.cs
+encountered 1 errors while formatting

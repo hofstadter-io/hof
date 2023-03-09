@@ -2,7 +2,7 @@
   "version": 3,
   "targets": {
     "net7.0": {
-      "CSharpier.Core/0.22.1": {
+      "CSharpier.Core/0.23.0": {
         "type": "package",
         "dependencies": {
           "Microsoft.CodeAnalysis.CSharp": "4.4.0",
@@ -367,14 +367,14 @@
     }
   },
   "libraries": {
-    "CSharpier.Core/0.22.1": {
-      "sha512": "LAmiA1FkvzBre1NLaCCjtZ6BVRLuW7jz0BA2VMMOQmxRR6dqS02jUGRX73q/gLaCEaE170+nnQ9zObFxsxXMrg==",
+    "CSharpier.Core/0.23.0": {
+      "sha512": "62/dIlxLrqgqmKNf4drFk5ij5wN+Q7rFx2Brq7wQgvdKJEBVO+m4phh15nh6yYnweNvnYvwU1AUWrA9GeLx0ZA==",
       "type": "package",
-      "path": "csharpier.core/0.22.1",
+      "path": "csharpier.core/0.23.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "csharpier.core.0.22.1.nupkg.sha512",
+        "csharpier.core.0.23.0.nupkg.sha512",
         "csharpier.core.nuspec",
         "lib/net6.0/CSharpier.dll",
         "lib/net7.0/CSharpier.dll",
@@ -1178,7 +1178,7 @@
   },
   "projectFileDependencyGroups": {
     "net7.0": [
-      "CSharpier.Core >= 0.22.1"
+      "CSharpier.Core >= 0.23.0"
     ]
   },
   "packageFolders": {
@@ -1220,7 +1220,7 @@
         "dependencies": {
           "CSharpier.Core": {
             "target": "Package",
-            "version": "[0.22.1, )"
+            "version": "[0.23.0, )"
           }
         },
         "imports": [

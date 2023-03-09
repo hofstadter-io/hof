@@ -3,9 +3,9 @@ cmp in.yaml golden.yaml
 
 -- in.yaml --
 foo:
-  b: "B"
-	a: "A"
+    b: "B"
+    a: "A"
 -- golden.yaml --
 foo:
-  b: "B"
-	a: "A"
+    a: A
+    b: B

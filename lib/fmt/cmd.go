@@ -105,6 +105,7 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.FmtFlagpole) (e
 		gs = append(gs, g)
 	}
 
+	errCount := 0
 	// loop over groups
 	for _, g := range gs {
 		// filter files (data & dirs)
@@ -149,8 +150,8 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.FmtFlagpole) (e
 			fmtd, err := FormatSource(file, content, g.formatter, nil, cflags.Data)
 			if err != nil {
 				fmt.Println("while formatting source:", err)
+				errCount += 1
 				continue
-				// return err
 			}
 
 			err = os.WriteFile(file, fmtd, info.Mode())
@@ -158,9 +159,11 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.FmtFlagpole) (e
 				return err
 			}
 		}
-
 	}
 
+	if errCount > 0 {
+		return fmt.Errorf("encountered %v errors while formatting", errCount)
+	}
 
 	return nil
 }

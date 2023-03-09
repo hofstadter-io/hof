@@ -1,0 +1,19 @@
+! exec hof fmt in.js
+cmp stdout golden.stdout
+
+-- in.js --
+function  foo )    {
+   console.log("hello world")
+  }
+-- golden.stdout --
+formatting 1 file(s) from in.js
+
+SyntaxError: Unexpected token, expected "(" (1:15)
+> 1 | function  foo )    {
+    |               ^
+  2 |    console.log("hello world")
+  3 |   }
+  4 |
+
+while formatting source: error while formatting in.js
+encountered 1 errors while formatting

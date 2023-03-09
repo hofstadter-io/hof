@@ -1,0 +1,35 @@
+exec hof fmt input.sql
+cmp input.sql golden.sql
+
+-- input.sql --
+-- this is a comment
+
+SELECT *
+FROM
+tbl
+WHERE
+  foo = 'bar';
+
+
+  UPDATE a SET id = 1 WHERE name IN (SELECT name FROM b)
+
+-- golden.sql --
+-- this is a comment
+SELECT
+  *
+FROM
+  tbl
+WHERE
+  foo = 'bar';
+
+UPDATE
+  a
+SET
+  id = 1
+WHERE
+  name IN (
+    SELECT
+      name
+    FROM
+      b
+  )

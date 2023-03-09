@@ -1,4 +1,5 @@
-﻿using CSharpier;
+﻿using System.Text;
+using CSharpier;
 
 var builder = WebApplication.CreateBuilder(args);
 var port = Environment.GetEnvironmentVariable("PORT") ?? "3000";
@@ -15,12 +16,21 @@ app.MapGet("/", () => {
 	return "CSharpier settings tbd...";
 });
 
-app.MapPost("/", async (HttpRequest request) => 
+app.MapPost("/", async (HttpContext context, HttpRequest request) => 
 {
 	var input = await request.ReadFromJsonAsync<Input>();
-	var formatted = await CodeFormatter.FormatAsync(input.Source);
+	var result = await CodeFormatter.FormatAsync(input.Source);
 
-	return formatted;
+	if (result.CompilationErrors.Any()) {
+		var msg = new StringBuilder();
+		msg.AppendLine("Errors while formatting:");
+		foreach (var err in result.CompilationErrors) {
+			msg.AppendLine(err.ToString());
+		}
+		return Results.BadRequest(msg.ToString());
+	}
+
+	return Results.Text(result.Code);
 });
 
 app.Run($"http://*:{port}");

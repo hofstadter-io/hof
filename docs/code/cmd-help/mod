@@ -95,8 +95,10 @@ Flags:
   -h, --help   help for mod
 
 Global Flags:
+      --inject-env       inject all ENV VARs as default tag vars
   -p, --package string   the Cue package context to use during execution
   -q, --quiet            turn off output and assume defaults at prompts
+  -t, --tags strings     @tags() to be injected into CUE code
   -v, --verbosity int    set the verbosity of output
 
 Use "hof mod [command] --help" for more information about a command.

@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "e4HyeZ3R1YSaa6aKjRDIvGDgzDnF5s76UuZyp51KyIONhYVz7rkRurxNwwTnzFx2YrMYTAPa3zgR/b+eMjuOJg==",
+  "dgSpecHash": "S7Bvd6q3PpZl3uv6aMWffbktHeaFoTRbfKWRwbdC2uVVy716GYwV9rHGZ9azFHs1VofMFXe074j6rTMDSYc+vQ==",
   "success": true,
   "projectFilePath": "/home/tony/hof/hof/formatters/tools/csharpier/Server.csproj",
   "expectedPackageFiles": [
-    "/home/tony/.nuget/packages/csharpier.core/0.22.1/csharpier.core.0.22.1.nupkg.sha512",
+    "/home/tony/.nuget/packages/csharpier.core/0.23.0/csharpier.core.0.23.0.nupkg.sha512",
     "/home/tony/.nuget/packages/microsoft.codeanalysis.analyzers/3.3.3/microsoft.codeanalysis.analyzers.3.3.3.nupkg.sha512",
     "/home/tony/.nuget/packages/microsoft.codeanalysis.common/4.4.0/microsoft.codeanalysis.common.4.4.0.nupkg.sha512",
     "/home/tony/.nuget/packages/microsoft.codeanalysis.csharp/4.4.0/microsoft.codeanalysis.csharp.4.4.0.nupkg.sha512",
