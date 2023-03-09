@@ -13,12 +13,14 @@ import (
 	"strings"
 
 	"cuelang.org/go/cue"
+	"cuelang.org/go/cue/cuecontext"
 	"cuelang.org/go/cue/format"
 	cuejson "cuelang.org/go/pkg/encoding/json"
+	cueyaml "cuelang.org/go/pkg/encoding/yaml"
 	"github.com/clbanning/mxj"
 	"github.com/docker/docker/api/types"
 	"github.com/BurntSushi/toml"
-	"gopkg.in/yaml.v3"
+	// "gopkg.in/yaml.v3"
 
 	"github.com/hofstadter-io/hof/cmd/hof/verinfo"
 	"github.com/hofstadter-io/hof/lib/docker"
@@ -440,7 +442,7 @@ func formatJson(input []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	s, err = cuejson.Indent([]byte(s), "", "    ")
+	s, err = cuejson.Indent([]byte(s), "", "  ")
 	if err != nil {
 		return nil, err
 	}
@@ -450,17 +452,20 @@ func formatJson(input []byte) ([]byte, error) {
 }
 
 func formatYaml(input []byte) ([]byte, error) {
-	v := make(map[string]interface{})
-	err := yaml.Unmarshal(input, &v)
+	expr, err := cueyaml.Unmarshal(input)
 	if err != nil {
 		return nil, err
 	}	
+	
+	ctx := cuecontext.New()
 
-	bs, err := yaml.Marshal(v)
+	v := ctx.BuildExpr(expr)
+
+	s, err := cueyaml.Marshal(v)
 	if err != nil {
 		return nil, err
 	}
-	return bs, nil
+	return []byte(s), nil
 }
 
 func formatToml(input []byte) ([]byte, error) {
