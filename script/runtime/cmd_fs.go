@@ -132,7 +132,7 @@ func (ts *Script) CmdExists(neg int, args []string) {
 			ts.Fatalf("%s %s unexpectedly exists", what, file)
 		}
 		if err != nil && neg == 0 {
-			ts.Fatalf("%s does not exist", file)
+			ts.Fatalf("%s does not exist: %s", file, err)
 		}
 		if err == nil && neg == 0 && readonly && info.Mode()&0222 != 0 {
 			ts.Fatalf("%s exists but is writable", file)

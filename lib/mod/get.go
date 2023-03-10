@@ -39,6 +39,7 @@ func Get(module string, rflags flags.RootPflagpole, gflags flags.Mod__GetFlagpol
 	}
 
 	fns := []func () error {
+		cm.UpgradePseudoVersions,
 		func () error { return cm.SolveMVS(updateMvs) },
 		cm.CleanDeps,
 		cm.CleanSums,
@@ -73,13 +74,8 @@ func updateOne(cm *CueMod, path, ver string, rflags flags.RootPflagpole, gflags 
 	}
 
 	// if latest, update
-	if ver == "latest" {
-		// make sure we have the latest
-		_, err = cache.FetchRepoSource(path, "")
-		if err != nil {
-			return err
-		}
-		ver, err = cache.GetLatestTag(path, gflags.Prerelease)
+	if ver == "latest" || ver == "next" {
+		ver, err = cache.GetLatestTag(path, gflags.Prerelease || ver == "next")
 		if err != nil {
 			return err
 		}
@@ -104,17 +100,11 @@ func updateOne(cm *CueMod, path, ver string, rflags flags.RootPflagpole, gflags 
 
 func updateAll(cm *CueMod, rflags flags.RootPflagpole, gflags flags.Mod__GetFlagpole) (err error) {
 	for path, ver := range cm.Require {
-		// make sure we have the latest
-		_, err = cache.FetchRepoSource(path, "")
-		if err != nil {
-			return err
-		}
 		nver, err := cache.GetLatestTag(path, false)
 		if err != nil {
 			return err
 		}
 
-		// fmt.Println(" ur:", path, ver, nver)
 		// only update if newer, incase we have specific prereleases
 		if semver.Compare(nver, ver) > 1 {
 			cm.Require[path] = nver
@@ -122,18 +112,13 @@ func updateAll(cm *CueMod, rflags flags.RootPflagpole, gflags flags.Mod__GetFlag
 	}
 
 	for path, ver := range cm.Indirect {
-		// make sure we have the latest
-		_, err = cache.FetchRepoSource(path, "")
-		if err != nil {
-			return err
-		}
 		// explicitly not doing prerelease here, should we allow updating all to pre-releases?
 		nver, err := cache.GetLatestTag(path, false)
 		if err != nil {
 			return err
 		}
-		// fmt.Println(" ui:", path, ver)
 
+		// only update if newer, incase we have specific prereleases
 		if semver.Compare(nver, ver) > 1 {
 			cm.Indirect[path] = ver
 		}

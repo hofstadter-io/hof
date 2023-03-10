@@ -19,9 +19,9 @@ import (
 var debug = false
 
 func SyncSource(dir, remote, owner, repo, ver string) error {
-	url := path.Join(repo,owner,repo)
+	url := path.Join(remote,owner,repo)
 	if debug {
-		fmt.Println("git.SyncSource:", dir, url)
+		fmt.Println("git.SyncSource:", dir, remote, owner, repo, ver, url)
 	}
 	_, err := os.Lstat(dir)
 	// does not exist
@@ -41,6 +41,11 @@ func SyncSource(dir, remote, owner, repo, ver string) error {
 		// jenky...
 		foundTag := false
 		if ver != "" {
+			if strings.HasPrefix(ver, "v0.0.0-") {
+				parts := strings.Split(ver, "-")
+				ver = strings.Join(parts[2:], "-")
+			}
+
 			ref, err := R.Tag(ver)
 			if err == nil && ref != nil {
 				foundTag = true

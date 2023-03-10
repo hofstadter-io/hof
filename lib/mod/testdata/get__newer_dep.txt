@@ -1,6 +1,6 @@
 exec hof mod vendor
 
-exec hof mod get github.com/hofstadter-io/hof@v0.6.8-create.1
+exec hof mod get github.com/hofstadter-io/hof@v0.6.8-beta.9
 cmp cue.mod/module.cue match/cue.mod/module-get.cue
 
 -- cue.mod/module.cue --
@@ -15,7 +15,7 @@ module: "hof.io/test"
 cue: "0.5.0"
 
 require: {
-	"github.com/hofstadter-io/hof": "v0.6.8-create.1"
+	"github.com/hofstadter-io/hof": "v0.6.8-beta.9"
 }
 
 indirect: {
