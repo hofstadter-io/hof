@@ -183,29 +183,36 @@ import (
 	
 	
 	### Usage
+
+	there are two main commands you will use, init & tidy
 	
-	# Initialize this folder as a module (github.com/org/repo)
-	hof mod init <module-path>
+	# Initialize the current folder as a module
+	hof mod init <module-path>     (like github.com/org/repo)
+
+	# Refresh dependencies, discovering any new imports
+	hof mod tidy
 	
-	# Add or update a dependency
-	hof mod get github.com/hofstadter-io/hof@latest
+	# Add a dependency
 	hof mod get github.com/hofstadter-io/hof@v0.6.8
 	hof mod get github.com/hofstadter-io/hof@v0.6.8-beta.6
+	hof mod get github.com/hofstadter-io/hof@latest   // latest semver
+	hof mod get github.com/hofstadter-io/hof@next     // next prerelease
+	hof mod get github.com/hofstadter-io/hof@main     // latest commit on branch
 	
-	# Tidy module files
-	hof mod tidy
-
-	# symlink dependencies from local cache
-	hof mod link
-
-	# copy dependency code from local cache
-	hof mod vendor
-
-	# update dependencies
+	# Update dependencies
 	hof mod get github.com/hofstadter-io/hof@latest
 	hof mod get all@latest
 
-	# print help
+	# Symlink dependencies from local cache
+	hof mod link
+
+	# Copy dependency code from local cache
+	hof mod vendor
+
+	# Verify dependency code against cue.mod/sums.cue
+	hof mod verify
+
+	# This helpful output
 	hof mod help
 	
 	

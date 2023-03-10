@@ -19,17 +19,17 @@ params:
   github_repo: https://github.com/hofstadter-io/hof-docs
   time_format_default: January 2, 2006
   keywords: hof hofstadter documentation docs
-  hofver: v0.6.8-beta.7
+  hofver: v0.6.8-beta.11
   cuever: v0.5.0-beta.5
   cuedocBase: https://pkg.go.dev/cuelang.org/go@v0.5.0-beta.5
   beta: |-
     The `hof gen` adhoc feature (`-T`) is only available in the next beta.
 
     ```
-    go install github.com/hofstadter-io/hof/cmd/hof@v0.6.8-beta.7
+    go install github.com/hofstadter-io/hof/cmd/hof@v0.6.8-beta.11
     ```
 
-    [Download binaries on GitHub](https://github.com/hofstadter-io/hof/releases/tag/v0.6.8-beta.7)
+    [Download binaries on GitHub](https://github.com/hofstadter-io/hof/releases/tag/v0.6.8-beta.11)
 markup:
   goldmark:
     renderer:
