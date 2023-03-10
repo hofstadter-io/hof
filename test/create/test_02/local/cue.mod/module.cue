@@ -2,5 +2,5 @@ module: "hof.io/test"
 cue: "0.5.0"
 
 require: {
-	"github.com/hofstadter-io/hof": "v0.6.8-create.1"
+	"github.com/hofstadter-io/hof": "v0.6.8-beta.10"
 }
