@@ -23,7 +23,7 @@ builds: [{
 	goarch: ["amd64", "arm64"]
 	goos: ["darwin", "linux", "windows"]
 	_flags: [
-		"Version={{ .Version }}",
+		"Version={{ .Tag }}",
 		"Commit={{ .FullCommit }}",
 		"BuildDate={{ .Date }}",
 		"BuildOS={{ .Os }}",

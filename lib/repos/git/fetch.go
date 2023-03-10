@@ -3,6 +3,7 @@ package git
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path"
 	"strings"
 	"sync"
@@ -26,7 +27,7 @@ func SyncSource(dir, remote, owner, repo, ver string) error {
 	_, err := os.Lstat(dir)
 	// does not exist
 	if err != nil {
-		// make plain clone
+		// make plain clone, first fetch
 		_, err := PlainClone(dir, remote, owner, repo)
 		if err != nil {
 			return err
@@ -38,30 +39,6 @@ func SyncSource(dir, remote, owner, repo, ver string) error {
 			return err
 		}
 		
-		// jenky...
-		foundTag := false
-		if ver != "" {
-			if strings.HasPrefix(ver, "v0.0.0-") {
-				parts := strings.Split(ver, "-")
-				ver = strings.Join(parts[2:], "-")
-			}
-
-			ref, err := R.Tag(ver)
-			if err == nil && ref != nil {
-				foundTag = true
-			} else if err.Error() == "tag not found" {
-				// do nothing
-			} else {
-				// some other error
-				return fmt.Errorf("while getting tags for %s: %w", url, err)
-			}
-		}
-
-		// don't bother sync'n if we already have the tag
-		if foundTag {
-			return nil
-		}
-
 		opts := &gogit.FetchOptions{
 			// Depth: 1,
 			Force: true,
@@ -82,7 +59,16 @@ func SyncSource(dir, remote, owner, repo, ver string) error {
 			if strings.Contains(err.Error(), "already up-to-date") {
 				return nil
 			}
-			fmt.Printf("warn: while sync'n %s: %v\n", url, err)
+
+			// fallback on an exec
+			cmd := exec.Command("git", "fetch")
+			cmd.Dir = dir
+
+			cerr := cmd.Run()
+			if cerr != nil {
+				fmt.Printf("warn: while sync'n %s: %v\n", url, err, cerr)
+			}
+
 		}
 	}
 

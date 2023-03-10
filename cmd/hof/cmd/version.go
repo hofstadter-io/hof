@@ -14,7 +14,7 @@ import (
 
 const versionMessage = `hof - the high code framework
 
-Version:     v%s
+Version:     %s
 Commit:      %s
 
 BuildDate:   %s

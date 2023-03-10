@@ -28,7 +28,7 @@ builds:
       - windows
     ldflags:
       - -s -w
-      - -X github.com/hofstadter-io/hof/cmd/hof/verinfo.Version={{ .Version }}
+      - -X github.com/hofstadter-io/hof/cmd/hof/verinfo.Version={{ .Tag }}
       - -X github.com/hofstadter-io/hof/cmd/hof/verinfo.Commit={{ .FullCommit }}
       - -X github.com/hofstadter-io/hof/cmd/hof/verinfo.BuildDate={{ .Date }}
       - -X github.com/hofstadter-io/hof/cmd/hof/verinfo.BuildOS={{ .Os }}
