@@ -119,7 +119,7 @@ func SendGaEvent(action, label string, value int) {
 	}
 
 	ua := fmt.Sprintf(
-		"%s/%s %s/%s",
+		"%s %s (%s/%s)",
 		"hof", verinfo.Version,
 		verinfo.BuildOS, verinfo.BuildArch,
 	)
