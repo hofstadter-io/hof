@@ -396,10 +396,15 @@ func InitModule(args []string, rootflags flags.RootPflagpole, cmdflags flags.Gen
 	}
 	fmt.Printf("Initializing: %s/%s in pkg %s", module, name, pkg)
 
+	ver := verinfo.HofVersion
+	if !strings.HasPrefix(ver, "v") {
+		ver = "v" + ver
+	}
+
 	// construct template input data
 	data := map[string]interface{}{
 		"CueVer": verinfo.CueVersion,
-		"HofVer": verinfo.HofVersion,
+		"HofVer": ver,
 		"Module": module,
 		"Name": name,
 		"Package": pkg,

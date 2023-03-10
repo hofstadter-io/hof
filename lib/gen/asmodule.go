@@ -97,6 +97,11 @@ func (R *Runtime) AsModule() error {
 	}
 	sort.Strings(gens)
 
+	ver := verinfo.HofVersion
+	if !strings.HasPrefix(ver, "v") {
+		ver = "v" + ver
+	}
+
 	// construct template input data
 	data := map[string]interface{}{
 		"Configs": tcfgs,
@@ -104,7 +109,7 @@ func (R *Runtime) AsModule() error {
 		"Diff3": FP.Diff3,
 		"Entrypoints": R.Entrypoints,
 		"Generators": gens,
-		"HofVer": verinfo.HofVersion,
+		"HofVer": ver,
 		"Inputs": ins,
 		"Module": module,
 		"Name": name,
