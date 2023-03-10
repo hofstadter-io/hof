@@ -394,7 +394,7 @@ func InitModule(args []string, rootflags flags.RootPflagpole, cmdflags flags.Gen
 		i := strings.LastIndex(name,":")
 		name, pkg = name[:i], name[i+1:]
 	}
-	fmt.Printf("Initializing: %s/%s in pkg %s", module, name, pkg)
+	fmt.Printf("Initializing: %s/%s in pkg %s\n", module, name, pkg)
 
 	ver := verinfo.HofVersion
 	if !strings.HasPrefix(ver, "v") {
