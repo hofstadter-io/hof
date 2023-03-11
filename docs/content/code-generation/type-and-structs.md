@@ -142,7 +142,7 @@ Run `hof gen types.cue schema.cue -P field.go -T "typeP.go;[]out/{{ lower .Name 
 {{<codePane3
 	title1="typeP.go" file1="code/getting-started/code-generation/typeP.go" lang1="go"
 	title2="field.go" file2="code/getting-started/code-generation/field.go" lang2="go"
-	title3="out/user.go" file3="code/getting-started/code-generation/out/user.go" lang3="go"
+	title3="out/user.go" file3="code/getting-started/code-generation/out/User.go" lang3="go"
 >}}
 
 ### SQL & TypeScript
