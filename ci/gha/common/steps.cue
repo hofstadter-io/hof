@@ -113,7 +113,7 @@ Steps: {
 			name: "Set up Docker"
 			uses: "crazy-max/ghaction-setup-docker@v1"
 			with: {
-				version: "23.0.1"
+				version: "v23.0.1"
 			}
 			"if": "${{ startsWith( runner.os, 'macos') }}"
 		}

@@ -124,28 +124,18 @@ func (CRT *CueRuntime) prepPlacedDatafiles() {
 }
 
 func (CRT *CueRuntime) load() (err error) {
-	// possibly, check for workpath
-	if CRT.Workspace != "" {
-		_, err = os.Lstat(CRT.Workspace)
-		if err != nil {
-			if _, ok := err.(*os.PathError); !ok && (strings.Contains(err.Error(), "file does not exist") || strings.Contains(err.Error(), "no such file")) {
-				// error is worse than non-existent
-				return err
-			}
-			// otherwise, does not exist, so we should init?
-			// XXX want to let applications decide how to handle this
-			return err
-		}
-	}
 
 	var errs []error
 
 	// XXX TODO XXX
-	//  add the second arg from our runtime when implemented
+	//  add the second arg from our runtime when implemented?
+	//  is this to support multiple CRT's at oncce?
+	//  or do we just wait for CUE to be better?
 	if CRT.CueContext == nil {
 		CRT.CueContext = cuecontext.New()
 	}
 	CRT.BuildInstances = load.Instances(CRT.Entrypoints, CRT.CueConfig)
+
 	for _, bi := range CRT.BuildInstances {
 		// fmt.Printf("%d: start\n", i)
 
