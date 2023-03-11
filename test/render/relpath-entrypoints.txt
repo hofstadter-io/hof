@@ -1,0 +1,29 @@
+cd work
+
+## cat relative, w/o module
+exec bash -c 'cat ../rel/data.cue | hof gen - -T t.txt'
+cmp stdout golden.output
+
+## ep relative, w/o module
+exec bash -c 'hof gen ../rel/data.cue -T t.txt'
+cmp stdout golden.output
+
+## make module
+exec hof mod init hof.io/tmp
+
+## cat relative, w/ module
+exec bash -c 'cat ../rel/data.cue | hof gen - -T t.txt'
+cmp stdout golden.output
+
+## ep relative, w/ module
+exec bash -c 'hof gen ../rel/data.cue -T t.txt'
+cmp stdout golden.output
+
+
+-- rel/data.cue --
+name: "doug"
+
+-- work/t.txt --
+hello {{ .name }}!
+-- work/golden.output --
+hello doug!

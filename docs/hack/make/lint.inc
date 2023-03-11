@@ -1,6 +1,6 @@
 # https://github.com/stevenvachon/broken-link-checker
-BLC_EXCLUDES=--exclude 'https://github.com/hofstadter-io/hof-docs/issues/new' \
-	--exclude 'https://github.com/hofstadter-io/hof-docs/edit'
+BLC_EXCLUDES=--exclude 'https://github.com/hofstadter-io/hof/issues/new' \
+	--exclude 'https://github.com/hofstadter-io/hof/edit'
 blc.dev:
 	blc -ro http://localhost:1313 ${BLC_EXCLUDES}
 blc.prd:

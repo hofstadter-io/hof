@@ -26,7 +26,7 @@ see the [custom formatters](/code-generation/formatting/custom-formatters/) sect
 
 ## Supported Languages
 
-If a language you need is missing, [open an issue](https://github.com/hofstadter-io/hof-docs/issues/new?title=hof%2Ffmt%3A%20add%20support%20for%20%3Clanguage%3E).
+If a language you need is missing, [open an issue](https://github.com/hofstadter-io/hof/issues/new?title=hof%2Ffmt%3A%20add%20support%20for%20%3Clanguage%3E).
 If you can, please provide a link to a common tool used for that language.
 
 <br>
