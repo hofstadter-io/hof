@@ -23,7 +23,7 @@ params: {
 	menushortcutsnewtab: true  // set true to open shortcuts links to a new tab/window
 	ga:                  "UA-103579574-2"
 	github_project_repo: "https://github.com/hofstadter-io/hof"
-	github_repo:         "https://github.com/hofstadter-io/hof-docs"
+	github_repo:         "https://github.com/hofstadter-io/hof"
 	time_format_default: "January 2, 2006"
 	keywords:            "hof hofstadter documentation docs"
 	hofver:              "v0.6.8-beta.11"
@@ -53,7 +53,7 @@ outputs: page: ["HTML"]
 
 menu: shortcuts: [{
 	name:   "<i class='fab fa-github'></i> GitHub"
-	url:    "https://github.com/hofstadter-io"
+	url:    "https://github.com/hofstadter-io/hof"
 	weight: 1
 }, {
 	name:   "<i class='fas fa-comments'></i> Slack"
