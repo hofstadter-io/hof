@@ -126,7 +126,7 @@ import (
 	}, {
 		Name:  "clean"
 		Usage: "clean"
-		Short: "clean hof's mod cache"
+		Short: "clean hof's module cache"
 		Long:  Short
 
 		Imports: #ModCmdImports

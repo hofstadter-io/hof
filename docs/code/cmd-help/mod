@@ -92,6 +92,7 @@ Aliases:
   mod, m
 
 Available Commands:
+  clean       clean hof's module cache
   get         add a new dependency to the current module
   init        initialize a new module in the current directory
   link        symlink dependencies to cue.mod/pkg

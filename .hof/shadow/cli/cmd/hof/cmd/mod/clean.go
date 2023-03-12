@@ -13,7 +13,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var cleanLong = `clean hof's mod cache`
+var cleanLong = `clean hof's module cache`
 
 func CleanRun(args []string) (err error) {
 
@@ -30,7 +30,7 @@ var CleanCmd = &cobra.Command{
 
 	Use: "clean",
 
-	Short: "clean hof's mod cache",
+	Short: "clean hof's module cache",
 
 	Long: cleanLong,
 
