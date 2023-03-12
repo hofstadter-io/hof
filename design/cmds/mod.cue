@@ -123,6 +123,15 @@ import (
 		Imports: #ModCmdImports
 
 		Body: (#body & { func: "Vendor" }).content
+	}, {
+		Name:  "clean"
+		Usage: "clean"
+		Short: "clean hof's mod cache"
+		Long:  Short
+
+		Imports: #ModCmdImports
+
+		Body: (#body & { func: "Clean" }).content
 	}]
 
 }

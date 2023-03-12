@@ -154,5 +154,6 @@ func init() {
 	ModCmd.AddCommand(cmdmod.TidyCmd)
 	ModCmd.AddCommand(cmdmod.LinkCmd)
 	ModCmd.AddCommand(cmdmod.VendorCmd)
+	ModCmd.AddCommand(cmdmod.CleanCmd)
 
 }

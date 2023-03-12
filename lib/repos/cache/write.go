@@ -15,6 +15,10 @@ import (
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
+func CleanCache() error {
+	return os.RemoveAll(cacheBaseDir)
+}
+
 func ModuleOutdir(remote, owner, repo, tag string) string {
 	outdir := filepath.Join(
 		modBaseDir,
