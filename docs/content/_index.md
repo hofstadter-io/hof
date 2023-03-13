@@ -16,6 +16,7 @@ making it an ideal choice for complex projects.
 
 One of the key features of `hof` is its data layer, which enables you to 
 manage configuration and models, creating code that is resilient to version skew. 
+
 This ensures that your code remains consistent, even as it evolves over time.
 
 In addition, `hof` offers a creator system that allows you to provide one-line 
