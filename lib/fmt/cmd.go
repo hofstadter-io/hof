@@ -11,6 +11,7 @@ import (
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/docker"
+	"github.com/hofstadter-io/hof/lib/repos/cache"
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
@@ -186,6 +187,14 @@ func Start(fmtr string, replace bool) error {
 		fmtr = "all"
 	}
 
+	if ver == "latest" || ver == "next" {
+		v, err := cache.GetLatestTag("github.com/hofstadter-io/hof", ver == "next")
+		if err != nil {
+			return err
+		}
+		ver = v
+	}
+
 	startFmtr := func(name, ver string) error {
 		fmt.Println("starting:", name, ver)
 		return docker.StartContainer(
@@ -267,6 +276,14 @@ func Pull(fmtr string) error {
 	if len(parts) == 2 {
 		fmtr, ver = parts[0], parts[1]
 	}
+	if ver == "latest" || ver == "next" {
+		v, err := cache.GetLatestTag("github.com/hofstadter-io/hof", ver == "next")
+		if err != nil {
+			return err
+		}
+		ver = v
+	}
+
 	if ver == "dirty" {
 		return fmt.Errorf("%s: You have local changes to hof, run 'make formatters' instead", fmtr)
 	}
