@@ -22,6 +22,9 @@ which use the most common tool for a language and use the most commonly used rul
 You can build your own and configure generators to use them too,
 see the [custom formatters](/code-generation/formatting/custom-formatters/) section
 
+```
+hof fmt
+```
 
 
 ## Supported Languages

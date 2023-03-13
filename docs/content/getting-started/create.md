@@ -14,6 +14,11 @@ Use them to give your users one-liners for getting started
 or to provide reusable application blueprints.
 {{</lead>}}
 
+{{<editorNote editor=sara color=red >}}
+Hey Tony!
+
+blah blah blah
+{{</editorNote>}}
 
 ## Running `hof create`
 

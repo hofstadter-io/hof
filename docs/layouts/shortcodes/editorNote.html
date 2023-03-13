@@ -1,0 +1,12 @@
+{{ if (.Site.IsServer) }}
+{{ $editor := .Get "editor" }}
+{{ $color := "red" }}
+{{ if .Get "color" }}{{ $color = .Get "color" }}{{ end }}
+
+<div style="color: {{ $color }}" class="card p-3">
+<h4>editor note - {{ $editor }}</h4>
+<pre>
+{{ .Inner }}
+</pre>
+</div>
+{{ end }}
