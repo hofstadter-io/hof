@@ -10,23 +10,24 @@ Welcome to the documentation site.
 # `hof` is a code generation framework
 
 `hof` is a versatile tool that leverages the power of CUE, data, and 
-templates to generate files of any kind. With its reusable and modular 
-generators, you can easily write and maintain large amounts of code, 
-making it an ideal choice for complex projects.
+templates<br>to generate files of any kind. 
+With its reusable and modular generators, you<br>can easily write and maintain
+large amounts of code, 
+making it an ideal<br>choice for complex projects.
 
 One of the key features of `hof` is its data layer, which enables you to 
-manage configuration and models, creating code that is resilient to version skew. 
+manage<br>configuration and models, creating code that is resilient to version skew. 
 
 This ensures that your code remains consistent, even as it evolves over time.
 
-In addition, `hof` offers a creator system that allows you to provide one-line 
-commands to your users. This provides an interactive prompt for getting started 
-with your projects, making it easy for users to get up and running quickly.
+In addition, `hof` offers a creator system that allows you to provide one-line<br>
+commands to your users. This provides an interactive prompt for getting<br>started 
+with your projects, making it easy for users to get up and running<br>quickly.
 
-To make managing dependencies easier, `hof` also includes a module system that 
-helps you keep track of your project's dependencies and make it easily 
-available to others. This simplifies the process of sharing your code with
-others and ensures that your project remains organized and well-managed.
+To make managing dependencies easier, `hof` also includes a module<br>system that 
+helps you keep track of your project's dependencies and<br>make it easily 
+available to others. This simplifies the process of sharing<br>your code with
+others and ensures that your project remains organized<br>and well-managed.
 
 1. __code generation__ - data + template = _ (anything) - technology agnostic
 1. __generators__ - reusable and modular code generation configuration
@@ -152,5 +153,3 @@ Both generators and models can be combined through dependencies and imports.
 You can extend, override, or otherwise customize as you need.
 They are separate from the tool so there is no need to change `hof` 
 to enable new technologies or patterns.
-
-
