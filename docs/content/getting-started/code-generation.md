@@ -55,7 +55,7 @@ Combine any data source with any template.
 	title1="interlude.json" file1="code/getting-started/code-generation/interlude.json" lang1="json"
 	title2="interlude.template" file2="code/getting-started/code-generation/interlude.template" lang2="txt"
 	title3="> terminal" file3="code/getting-started/code-generation/interlude.txt" lang3="txt"
-/>}}
+>}}
 
 #### `hof`'s templates are built on Go's `text/template` package with [extra helpers](/code-generation/template-writing/) added.
 
@@ -180,7 +180,7 @@ We define __a schema__ and write our types as __data values__ in CUE.
 {{<codePane2
 	title1="schema.cue" file1="code/getting-started/code-generation/schema.html"
 	title2="data.cue" file2="code/getting-started/code-generation/data.html"
-/>}}
+>}}
 
 We can use `cue` to see what the full data looks like
 
@@ -197,7 +197,7 @@ We can use `cue` to see what the full data looks like
 {{<codePane2
 	title1="types.go" file1="code/getting-started/code-generation/types.go" lang1="go"
 	title2="> terminal" file2="code/getting-started/code-generation/out/types.go" lang2="text"
-/>}}
+>}}
 
 
 ## Controlling Code Generation
@@ -220,7 +220,7 @@ or if it comes in a data format.
 {{<codePane2
 	title1="types.go" file1="code/getting-started/code-generation/typesInput.go" lang1="go"
 	title2="> terminal" file2="code/getting-started/code-generation/out/typesInput.go" lang2="text"
-/>}}
+>}}
 
 
 ### Partial Templates
@@ -251,7 +251,7 @@ $ hof gen data.cue schema.cue -P field.go -T types.go -O out/
 	title1="types.go" file1="code/getting-started/code-generation/typeP.go" lang1="go"
 	title2="field.go" file2="code/getting-started/code-generation/field.go" lang2="go"
 	title3="out/types.go" file3="code/getting-started/code-generation/out/types.go" lang3="text"
-/>}}
+>}}
 
 
 ### Repeated Templates
@@ -272,7 +272,7 @@ $ hof gen types.cue schema.cue -T type.go="[]{{ .Name }}.go" -O out/
 	title1="type.go" file1="code/getting-started/code-generation/type.go" lang1="go"
 	title2="out/User.go" file2="code/getting-started/code-generation/out/User.go" lang2="go"
 	title3="out/Post.go" file3="code/getting-started/code-generation/out/Post.go" lang3="go"
-/>}}
+>}}
 
 
 

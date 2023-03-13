@@ -3,6 +3,7 @@
 
 {{ $title := .Get "title" }}
 {{ $lang := .Get "lang" }}
+{{ $content := .Inner }}
 
 
 <div class="position-relative mb-3" style="overflow-x: auto; overflow-y: hidden">
@@ -16,9 +17,9 @@
           </button>
       </div>
       {{ if $lang }}
-        {{ (print "```" $lang .Inner "```") | markdownify }}
+        {{ (print "```" $lang $content "```") | markdownify }}
       {{ else }}
-        {{ (print "```text" .Inner "```") | markdownify }}
+        {{ (print "```text" $content "```") | markdownify }}
       {{ end }}
     </div>
 </div>

@@ -5,11 +5,7 @@
 {{ $lang1 := .Get "lang1" }}
 {{ $file1 := .Get "file1"}}
 {{ if ($file1) }}
-		{{ if (eq $file1 "inner") }}
-			{{ .Scratch.Set "content1" .Inner }}
-		{{ else }}
-			{{ .Scratch.Set "content1" ($file1 | readFile) }}
-		{{ end }}
+		{{ .Scratch.Set "content1" ($file1 | readFile) }}
     {{ .Scratch.Set "ident1" (first 10 (md5 (.Scratch.Get "content1"))) }}
 {{ else }}
     "missing content1"
@@ -21,11 +17,7 @@
 {{ $lang2 := .Get "lang2" }}
 {{ $file2 := .Get "file2"}}
 {{ if ($file2) }}
-		{{ if (eq $file2 "inner") }}
-			{{ .Scratch.Set "content2" .Inner }}
-		{{ else }}
-			{{ .Scratch.Set "content2" ($file2 | readFile) }}
-		{{ end }}
+		{{ .Scratch.Set "content2" ($file2 | readFile) }}
     {{ .Scratch.Set "ident2" (first 10 (md5 (.Scratch.Get "content2"))) }}
 {{ else }}
     "missing content2"
