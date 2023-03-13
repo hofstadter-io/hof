@@ -24,9 +24,9 @@ commands to your users. This provides an interactive prompt for getting started
 with your projects, making it easy for users to get up and running quickly.
 
 To make managing dependencies easier, `hof` also includes a module system that 
-helps you keep track of your project's dependencies and make it easily available 
-to others. This simplifies the process of sharing your code with others and ensures 
-that your project remains organized and well-managed.
+helps you keep track of your project's dependencies and make it easily 
+available to others. This simplifies the process of sharing your code with
+others and ensures that your project remains organized and well-managed.
 
 1. __code generation__ - data + template = _ (anything) - technology agnostic
 1. __generators__ - reusable and modular code generation configuration
