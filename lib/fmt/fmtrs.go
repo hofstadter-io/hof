@@ -33,7 +33,10 @@ var debug = false
 func init() {
 	v := verinfo.Version
 	if v != "Local" {
-		defaultVersion = "v" + v
+		if !strings.HasPrefix(v, "v") {
+			v = "v" + v
+		}
+		defaultVersion = v
 	}
 
 	ds := os.Getenv("HOF_FMT_DEBUG")
