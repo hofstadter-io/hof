@@ -3,10 +3,10 @@ set -eou pipefail
 
 # setup the development workspace
 
-HUGO_VER="0.109.0"
+HUGO_VER="0.111.3"
 CUE_VER="v0.5.0-beta.5"
 
-npm install
+npm ci
 ln -s ../node_modules assets/node_modules
 npm install broken-link-checker -g
 mkdir tmp

@@ -19,11 +19,16 @@ $danger:        #dc3545;
 $light:         $hof-white;
 $dark:          #343a40;
 
+$font-family-sans-serif:      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !default;
+$font-family-monospace:       SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !default;
+$font-family-base:            $font-family-sans-serif !default;
+
 @import "bootstrap";
 @import "funcs";
 
 body, .main {
 	font-family: Roboto, sans-serif !important;
+	font-weight: 300;
 }
 
 /* Typography styling */
