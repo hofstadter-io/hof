@@ -9,15 +9,23 @@ Welcome to the documentation site.
 
 # `hof` is a code generation framework
 
-`hof` combines CUE, data, and templates to generate any file.
-Reusable and modular generators can be created
-to help you write and maintain large amounts of code.
-The data layer helps you manage configuration and models so
-you create code which is resilent to version skew.
-Creators enable you to provide one-line commands to your users,
-and they will get an interactive prompt for getting started with your projects.
-The module system will help you manage dependencies
-and make your hof projects easily available to others.
+`hof` is a versatile tool that leverages the power of CUE, data, and 
+templates to generate files of any kind. With its reusable and modular 
+generators, you can easily write and maintain large amounts of code, 
+making it an ideal choice for complex projects.
+
+One of the key features of `hof` is its data layer, which enables you to 
+manage configuration and models, creating code that is resilient to version skew. 
+This ensures that your code remains consistent, even as it evolves over time.
+
+In addition, `hof` offers a creator system that allows you to provide one-line 
+commands to your users. This provides an interactive prompt for getting started 
+with your projects, making it easy for users to get up and running quickly.
+
+To make managing dependencies easier, `hof` also includes a module system that 
+helps you keep track of your project's dependencies and make it easily available 
+to others. This simplifies the process of sharing your code with others and ensures 
+that your project remains organized and well-managed.
 
 1. __code generation__ - data + template = _ (anything) - technology agnostic
 1. __generators__ - reusable and modular code generation configuration
