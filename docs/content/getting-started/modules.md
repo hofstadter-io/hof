@@ -60,7 +60,7 @@ In addition to setting, fetching, and validating dependencies,
 you can use `hof mod` to set up local development when working
 with multiple CUE or Hof modules.
 
-Use the' replace' directive in your `cue.mods` file just like you would in Go.
+Use the `replace` directive in your `cue.mods` file just like you would in Go.
 
 {{<codeInner title="cue.mods with replace">}}
 module github.com/user/repo
