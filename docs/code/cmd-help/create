@@ -36,7 +36,7 @@ Use this mode when developing and testing locally.
   hof create ../my-gen
 
 Usage:
-  hof create <module location> [flags]
+  hof create <module path> [extra args] [flags]
 
 Flags:
   -G, --generator strings   generator tags to run, default is all
