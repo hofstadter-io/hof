@@ -60,7 +60,7 @@ Combine any data source with any template.
 
 <br>
 
-You can also pipe any data into `hof gen` by using a" `-`" (hyphen).
+You can also pipe any data into `hof gen` by using a "`-`" (hyphen).
 This can be helpful when you want to render
 an API response or process command output.
 
