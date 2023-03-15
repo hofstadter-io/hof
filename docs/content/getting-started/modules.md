@@ -1,7 +1,7 @@
 ---
 title: "Modules"
-description: "Dependency management for CUE and code generators"
-brief: "Dependency management for CUE and code generators"
+description: "Dependency management for CUE and code generators."
+brief: "Dependency management for CUE and code generators."
 
 weight: 20
 ---
@@ -14,9 +14,9 @@ be used from the module system.
 
 "`hof mod`" is the subcommand based on Go modules
 for working with CUE modules and managing dependencies.
-The logic and format is the same, with much code shared between the implementations.
-Currently, while CUE is module aware and supports imports,
-it does not yet have dependency management, but it will work the same as well.
+The logic and format are the same, with much code shared between the implementations.
+While CUE is module aware and supports imports,
+it does not yet have dependency management, but it will work the same.
 This page has a brief overview. The commands will
 be repeated when you need to run them on other pages.
 
@@ -25,13 +25,13 @@ be repeated when you need to run them on other pages.
 - `hof mod init cue github.com/user/repo` initializes a new module
 - `hof mod vendor cue` fetches dependencies into `cue.mod/pkg/...`
 
-The name of a module must be the same the git repository.
-`hof` talks directly to git repositories and many of
+The name of a module must be the same as the git repository.
+`hof` talks directly to git repositories, and many of
 `hof`'s commands will accept repositories as input too.
 
 The files and directories that make up a module:
 
-- `cue.mods` is where dependencies and versions are set, you write this file.
+- `cue.mods` is where dependencies and versions are set; you write this file.
 - `cue.sums` contains the checksums for all dependencies and is managed by `hof mod`
 - `cue.mod/module.cue` denotes a CUE module and has a single line
 - `cue.mod/pkg/...` is where the code for dependencies is located after fetching
@@ -48,19 +48,19 @@ module github.com/user/repo
 cue {{<cue-version>}}
 
 require (
-	github.com/hofstadter-io/hof {{<hof-version>}}
+    github.com/hofstadter-io/hof {{<hof-version>}}
 )
 {{</codeInner>}}
 
 
 ### Replace for local development
 
-You can use `hof mod` for generally managing CUE or Hof modules and dependencies.
+You can use `hof mod` to manage CUE or Hof modules and dependencies generally.
 In addition to setting, fetching, and validating dependencies,
-you can use `hof mod` to setup local development when working
+you can use `hof mod` to set up local development when working
 with multiple CUE or Hof modules.
 
-In your `cue.mods` file, use the `replace` directive just like you would in Go.
+Use the' replace' directive in your `cue.mods` file just like you would in Go.
 
 {{<codeInner title="cue.mods with replace">}}
 module github.com/user/repo
@@ -68,7 +68,7 @@ module github.com/user/repo
 cue {{<cue-version>}}
 
 require (
-	github.com/username/repo v0.1.2
+    github.com/username/repo v0.1.2
 )
 
 // local replace with relative path
@@ -79,9 +79,8 @@ replace github.com/username/repo => ../repo
 $ hof mod vendor cue
 {{</codeInner>}}
 
-This will symlink any local replaces
+This command will symlink any local replaces
 to point from the CUE vendor directory
 to the replacement directory.
 You can then develop CUE or hof code
 without having to copy or vendor upstream dependencies.
-
