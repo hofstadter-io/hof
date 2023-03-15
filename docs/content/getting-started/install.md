@@ -20,7 +20,7 @@ Current version: <b>{{<hof-rel-link>}}</b>
 <br>
 
 {{<codeInner title="with Homebrew" lang="text">}}
-brew install hof
+brew install hofstadter-io/tap/hof
 {{</codeInner>}}
 
 {{<codeInner title="as a binary" lang="text">}}
