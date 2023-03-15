@@ -84,7 +84,7 @@ Use  `=` (equal) after the template name to write to the file.
 $ hof gen data.cue schema.cue -T template.txt=output.txt
 {{</codeInner>}}
 
-Use `-O' to write all outputs to a directory.
+Use `-O` to write all outputs to a directory.
 Files will have the same name as the template if not set individually.
 
 {{<codeInner title="> terminal" lang="sh">}}
