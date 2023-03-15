@@ -1,15 +1,15 @@
 ---
 title: "Installation"
-description: "Download and install the hof cli tool"
-brief: "Download and install the hof cli tool"
+description: "Download and install the hof CLI tool"
+brief: "Download and install the hof CLI tool"
 weight: 3
 ---
 
 {{<lead>}}
-__hof__ is available for all major operation systems and architectures.
+__hof__ is available for all major operating systems and architectures.
 {{</lead>}}
 
-git & docker should be available, but are also optional
+git & docker should be available but are also optional
 
 ## Installation
 
@@ -19,15 +19,15 @@ Current version: <b>{{<hof-rel-link>}}</b>
 
 <br>
 
-{{<codeInner title="installation commands" lang="text">}}
-// with homebrew
+{{<codeInner title="with Homebrew" lang="text">}}
 brew install hof
+{{</codeInner>}}
 
-
-// as a binary
+{{<codeInner title="as a binary" lang="text">}}
 {{<hof-curl>}}
+{{</codeInner>}}
 
-// or from source
+{{<codeInner title="from source" lang="text">}}
 go install github.com/hofstadter-io/hof/cmd/hof@latest
 {{</codeInner>}}
 
@@ -35,7 +35,7 @@ go install github.com/hofstadter-io/hof/cmd/hof@latest
 
 #### Binary downloads, rename the file to `hof` and place it in your PATH.
 
-these are the same links for curl
+these are the same links for the curl
 
 {{<hof-dl-btns>}}
 
@@ -59,7 +59,7 @@ Run `hof help` in your terminal.
 ## Updating __hof__
 
 
-The builtin update command can be used to check and install any version.
+The built-in update command can be used to check and install any version.
 
 {{<codeInner lang="sh">}}
 # Check for an update
@@ -71,5 +71,3 @@ hof update
 # Install a specific version
 hof update --version vX.Y.Z
 {{</codeInner>}}
-
-
