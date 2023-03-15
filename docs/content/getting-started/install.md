@@ -1,7 +1,7 @@
 ---
 title: "Installation"
-description: "Download and install the hof CLI tool"
-brief: "Download and install the hof CLI tool"
+description: "Download and install the hof CLI tool."
+brief: "Download and install the hof CLI tool."
 weight: 3
 ---
 
@@ -9,7 +9,7 @@ weight: 3
 __hof__ is available for all major operating systems and architectures.
 {{</lead>}}
 
-git & docker should be available but are also optional
+Git & Docker should be available but are also optional.
 
 ## Installation
 
@@ -35,7 +35,7 @@ go install github.com/hofstadter-io/hof/cmd/hof@latest
 
 #### Binary downloads, rename the file to `hof` and place it in your PATH.
 
-these are the same links for the curl
+These are the same links for the curl.
 
 {{<hof-dl-btns>}}
 
@@ -59,7 +59,7 @@ Run `hof help` in your terminal.
 ## Updating __hof__
 
 
-The built-in update command can be used to check and install any version.
+You can use the built-in update command to check and install any version.
 
 {{<codeInner lang="sh">}}
 # Check for an update
