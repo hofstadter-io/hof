@@ -68,9 +68,9 @@ func CreateRun(module string, extra []string) (err error) {
 
 var CreateCmd = &cobra.Command{
 
-	Use: "create <module location>",
+	Use: "create <module path> [extra args]",
 
-	Short: "dynamic blueprints from any git repo",
+	Short: "dynamic app blueprints from any git repo",
 
 	Long: createLong,
 
@@ -85,6 +85,12 @@ var CreateCmd = &cobra.Command{
 
 		// Argument Parsing
 
+		if 0 >= len(args) {
+			fmt.Println("missing required argument: 'module'")
+			cmd.Usage()
+			os.Exit(1)
+		}
+
 		var module string
 
 		if 0 < len(args) {
@@ -93,7 +99,15 @@ var CreateCmd = &cobra.Command{
 
 		}
 
-		err = CreateRun(module, args[1:])
+		var extra []string
+
+		if 1 < len(args) {
+
+			extra = args[1:]
+
+		}
+
+		err = CreateRun(module, extra)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

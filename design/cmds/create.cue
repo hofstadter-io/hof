@@ -6,15 +6,20 @@ import (
 
 #CreateCommand: schema.#Command & {
 	Name:  "create"
-	Usage: "create <module location>"
-	Short: "dynamic blueprints from any git repo"
+	Usage: "create <module path> [extra args]"
+	Short: "dynamic app blueprints from any git repo"
 	Long:  #CreateRootHelp
 
 	Args: [{
 		Name: "module"
 		Type: "string"
-		Required: false
+		Required: true
 		Help: "git repository or directory with a creator, accepts subdirs on both"
+	},{
+		Name: "extra"
+		Type: "[]string"
+		Rest: true
+		Help: "extra arguments for the creator, if it accepts them"
 	}]
 
 	Flags: [...schema.#Flag] & [ {

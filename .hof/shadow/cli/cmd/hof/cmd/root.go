@@ -178,7 +178,7 @@ Usage:
   hof [flags] [command] [args]
 
 Main commands:
-  create                dynamic blueprints from any git repo
+  create                dynamic app blueprints from any git repo
   datamodel             manage, diff, and migrate your data models
   gen                   modular and composable code gen: CUE & data + templates = _
   flow                  run CUE pipelines with the hof/flow DAG engine
