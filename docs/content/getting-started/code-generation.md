@@ -91,7 +91,7 @@ Files will have the same name as the template if not set individually.
 $ hof gen data.cue schema.cue -T template.txt -O out/
 {{</codeInner>}}
 
-The output name can be a template so that you can control the filename from the data.
+The output name can be an inline template so that you can control the filename from the data.
 Make sure you "wrap it in quotes".
 
 {{<codeInner title="> terminal" lang="sh">}}
