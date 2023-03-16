@@ -28,7 +28,6 @@ ghacue.#Workflow & {
 			common.Steps.vars,
 			common.Steps.buildx.qemu,
 			common.Steps.buildx.setup,
-			common.Steps.docker.login,
 			common.Steps.buildx.formatters,
 		]
 	}

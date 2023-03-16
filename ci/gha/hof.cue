@@ -32,7 +32,6 @@ ghacue.#Workflow & {
 			},
 			common.Steps.docker.setup,
 			common.Steps.docker.macos,
-			common.Steps.docker.login,
 			common.Steps.docker.compat,
 			{
 				name: "Build Formatters"
@@ -94,6 +93,15 @@ ghacue.#Workflow & {
 		hof flow -f test/flow ./test.cue
 		"""
 }, {
+	name: "test/fmt"
+	run: """
+		docker ps -a
+		hof fmt info
+		hof flow -f test/fmt ./test.cue
+		"""
+}, {
+	// should probably be last for external workflows?
+	// or maybe separate workflow for permissions?
 	name: "test/mod"
 	run: """
 		hof flow -f test/mod ./test.cue
@@ -104,12 +112,4 @@ ghacue.#Workflow & {
 		BITBUCKET_USERNAME: "hofstadter"
 		BITBUCKET_PASSWORD: "${{secrets.BITBUCKET_TOKEN}}"
 	}
-}, {
-	// should probably be last?
-	name: "test/fmt"
-	run: """
-		docker ps -a
-		hof fmt info
-		hof flow -f test/fmt ./test.cue
-		"""
 }]

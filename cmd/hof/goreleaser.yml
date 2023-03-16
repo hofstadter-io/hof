@@ -12,7 +12,7 @@ changelog:
       - '^test:'
   sort: asc
 checksum:
-  name_template: '{{ .ProjectName }}_{{ .Version }}_checksums.txt'
+  name_template: '{{ .ProjectName }}_{{ .Tag }}_checksums.txt'
 snapshot:
   name_template: '{{ .Tag }}-SNAPSHOT-{{ .ShortCommit }}'
 builds:
@@ -39,25 +39,26 @@ dockers:
   - dockerfile: ../../ci/hof/docker/Dockerfile.debian
     skip_push: false
     image_templates:
-      - hofstadter/hof:{{.Tag}}
-      - hofstadter/hof:{{ .ShortCommit }}
-      - hofstadter/hof:latest
+      - ghcr.io/hofstadter-io/hof:{{.Tag}}
+      - ghcr.io/hofstadter-io/hof:{{ .ShortCommit }}
+      - ghcr.io/hofstadter-io/hof:latest
   - dockerfile: ../../ci/hof/docker/Dockerfile.debian
     skip_push: false
     image_templates:
-      - hofstadter/hof:debian-{{.Tag}}
-      - hofstadter/hof:debian-{{ .ShortCommit }}
-      - hofstadter/hof:debian-latest
+      - ghcr.io/hofstadter-io/hof:debian-{{.Tag}}
+      - ghcr.io/hofstadter-io/hof:debian-{{ .ShortCommit }}
+      - ghcr.io/hofstadter-io/hof:debian-latest
   - dockerfile: ../../ci/hof/docker/Dockerfile.alpine
     skip_push: false
     image_templates:
-      - hofstadter/hof:alpine-{{.Tag}}
-      - hofstadter/hof:alpine-{{ .ShortCommit }}
-      - hofstadter/hof:alpine-latest
+      - ghcr.io/hofstadter-io/hof:alpine-{{.Tag}}
+      - ghcr.io/hofstadter-io/hof:alpine-{{ .ShortCommit }}
+      - ghcr.io/hofstadter-io/hof:alpine-latest
 archives:
   - files:
       - thisfiledoesnotexist*
     format: binary
+    name_template: '{{ .ProjectName }}_{{ .Tag }}_{{ .Os }}_{{ .Arch }}'
     replacements:
       amd64: x86_64
       darwin: Darwin

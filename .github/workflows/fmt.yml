@@ -46,16 +46,13 @@ jobs:
           platforms: arm64
       - name: Set up Docker BuildX
         uses: docker/setup-buildx-action@v2
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.HOF_DOCKER_USER }}
-          password: ${{ secrets.HOF_DOCKER_TOKEN }}
       - name: Build Image
         uses: docker/build-push-action@v3
         with:
           context: formatters/tools/${{ matrix.formatter }}
           file: formatters/tools/${{ matrix.formatter }}/Dockerfile.debian
           platforms: linux/amd64,linux/arm64
-          tags: hofstadter/fmt-${{ matrix.formatter }}:${{ env.HOF_SHA }},hofstadter/fmt-${{ matrix.formatter }}:${{ env.HOF_TAG }}
+          tags: ghcr.io/hofstadter-io/fmt-${{ matrix.formatter }}:${{ env.HOF_SHA }},ghcr.io/hofstadter-io/fmt-${{ matrix.formatter }}:${{ env.HOF_TAG }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     services: {}
