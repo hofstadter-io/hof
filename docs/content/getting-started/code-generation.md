@@ -32,7 +32,7 @@ template-based code generation.
 We will look at `hof gen -T` in this section.
 The [first example](/first-example/) is a walkthrough
 in writing a generator (the `-G` flag).
-The [getting-started/create](https://docs.hofstadter.io/getting-started/create/) section will introduce
+The [getting-started/create] section will introduce
 `hof create` for running generators directly from git repositories.
 
 The concepts and processing are the same across all of them and
