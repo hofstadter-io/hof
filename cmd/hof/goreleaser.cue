@@ -14,7 +14,7 @@ changelog: {
 	sort: "asc"
 }
 
-checksum: name_template: "{{ .ProjectName }}_{{ .Version }}_checksums.txt"
+checksum: name_template: "{{ .ProjectName }}_{{ .Tag }}_checksums.txt"
 snapshot: name_template: "{{ .Tag }}-SNAPSHOT-{{ .ShortCommit }}"
 
 builds: [{
@@ -54,6 +54,7 @@ archives: [{
 	// this makes it so a binary only is uploaded, rather than a tar file
 	files: ["thisfiledoesnotexist*"]
 	format: "binary"
+	name_template: "{{ .ProjectName }}_{{ .Tag }}_{{ .Os }}_{{ .Arch }}"
 	replacements: {
 		amd64:   "x86_64"
 		darwin:  "Darwin"
