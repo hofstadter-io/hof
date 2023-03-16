@@ -129,8 +129,9 @@ Steps: {
 			name: "Login to Docker Hub"
 			uses: "docker/login-action@v2"
 			with: {
-				username: "${{ secrets.HOF_DOCKER_USER }}"
-				password: "${{ secrets.HOF_DOCKER_TOKEN }}"
+				registry: "ghcr.io"
+				username: "${{ github.actor }}"
+				password: "${{ secrets.GITHUB_TOKEN }}"
 			}
 		}
 
