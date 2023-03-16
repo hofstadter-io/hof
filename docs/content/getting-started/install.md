@@ -2,7 +2,7 @@
 title: "Installation"
 description: "Download and install the hof CLI tool."
 brief: "Download and install the hof CLI tool."
-keywords: "homebrew, cli, get started, code generation tool, installation guide, DAG flow, run CUE pipelines, CUE dependency management, go mods"
+keywords: "homebrew, cli, get started, code generation tool, installation guide, hof/flow DAG engine, run CUE pipelines, CUE dependency management, go mods"
 weight: 3
 ---
 
@@ -20,10 +20,6 @@ Current version: <b>{{<hof-rel-link>}}</b>
 
 <br>
 
-{{<codeInner title="with Homebrew" lang="text">}}
-brew install hofstadter-io/tap/hof
-{{</codeInner>}}
-
 {{<codeInner title="as a binary" lang="text">}}
 {{<hof-curl>}}
 {{</codeInner>}}
@@ -33,6 +29,13 @@ go install github.com/hofstadter-io/hof/cmd/hof@latest
 {{</codeInner>}}
 
 <br>
+
+## Using Homebrew - macOS
+
+{{<codeInner title="with Homebrew" lang="text">}}
+brew install hofstadter-io/tap/hof
+{{</codeInner>}}
+
 
 #### Binary downloads, rename the file to `hof` and place it in your PATH.
 
