@@ -257,7 +257,6 @@ $ hof gen data.cue schema.cue -P field.go -T types.go -O out/
 We just saw how to loop over data and apply a template fragment.
 We can also render with __repeated templates__, which will write a file
 for each element of an iterable (list or struct fields).
-and write a file for each component.
 
 Use `[]` to render a file for each element in the input to a `-T` flag.
 
