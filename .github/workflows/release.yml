@@ -93,5 +93,5 @@ jobs:
           file: formatters/tools/${{ matrix.formatter }}/Dockerfile.debian
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: hofstadter/fmt-${{ matrix.formatter }}:${{ env.HOF_SHA }},hofstadter/fmt-${{ matrix.formatter }}:${{ env.HOF_TAG }}
+          tags: ghcr.io/hofstadter-io/fmt-${{ matrix.formatter }}:${{ env.HOF_SHA }},ghcr.io/hofstadter-io/fmt-${{ matrix.formatter }}:${{ env.HOF_TAG }}
     services: {}
