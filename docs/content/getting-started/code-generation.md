@@ -159,7 +159,7 @@ This means the value needs to be like JSON data before template rendering accept
 As you will see, `hof` provides you flexibility and control
 for how the CUE values are selected, combined, and mapped to templates.
 
-We keep parity with `cue` so tooling on the broader ecosystem
+We keep parity with `cue` so tooling from the broader ecosystem
 still works on our inputs and reduces context-switching costs.
 
 __You can safely use all the possibilities and power of CUE here.__
