@@ -142,7 +142,7 @@ Use `-w`/`--watch` to observe for changes and re-render output.
 $ hof gen data.cue schema.cue -T template.txt -T debug.yaml -O out/ --watch
 {{</codeInner>}}
 
-There are extra watch flags if automatic detection doesn't entirely work.
+There are extra watch flags if automatic detection misses files.
 
 
 ## On Using CUE
