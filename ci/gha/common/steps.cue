@@ -105,6 +105,9 @@ Steps: {
 					"ghcr.io/hofstadter-io/fmt-${{ matrix.formatter }}:${{ env.HOF_TAG }}",
 				], ",")
 			}
+			env: {
+				GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+			}
 		}
 	}
 
