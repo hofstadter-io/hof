@@ -1,5 +1,5 @@
 env COW=mooooooo
-exec hof gen data.cue -t a=A -T template.txt --inject-env
+exec hof gen data.cue -T template.txt -t a=A -t baz=BOP --inject-env
 cmp stdout expected.txt
 
 -- data.cue --
@@ -12,12 +12,15 @@ dir: *"dir" | string @tag(dir,var=cwd)
 
 cow: *"moo" | string @tag(cow,var=COW)
 
+baz: *"bop" | string @tag(baz,var=BAZ)
+
 -- template.txt --
 A is {{ .a }}
 B is {{ .b }}
 
 foo is {{ .val.foo }}
 cow is {{ .cow }}
+baz is {{ .baz }}
 cwd is {{ trimto_last .dir "/" false }}
 -- expected.txt --
 A is A
@@ -25,4 +28,5 @@ B is 2
 
 foo is bar
 cow is mooooooo
+baz is BOP
 cwd is script-tags.txt
