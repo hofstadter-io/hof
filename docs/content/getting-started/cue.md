@@ -26,7 +26,7 @@ Two key considerations drove the choice to use CUE:
 
 Other benefits of CUE include:
 
-- Configuration-like syntax with a whole, logical language.
+- Configuration-style syntax that is familiar, yet fresh.
 - Built on sound principles and rich heritage.
 - Declarative and logical, providing confidence in the validity and consistency of the configuration.
 - Purpose-built language and tooling for large-scale configuration.
