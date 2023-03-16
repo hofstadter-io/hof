@@ -14,12 +14,14 @@ import (
 func Get(module string, rflags flags.RootPflagpole, gflags flags.Mod__GetFlagpole) (error) {
 	upgradeHofMods()
 
+	path, ver := module, ""
 	parts := strings.Split(module, "@")
-	if len(parts) != 2 {
-		return fmt.Errorf("bad module format %q, should be 'domain.com/path/...@version'", module)
+	if len(parts) == 2 {
+		path, ver = parts[0], parts[1]
 	}
-
-	path, ver := parts[0], parts[1]
+	if ver == "" {
+		ver = "latest"
+	}
 
 	cm, err := loadRootMod()
 	if err != nil {

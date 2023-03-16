@@ -60,7 +60,7 @@ jobs:
         run: go install ./cmd/hof
       - name: Setup
         run: |-
-          hof fmt start prettier@v0.6.8-beta.6
+          hof fmt start prettier@v0.6.8-beta.11
           cd docs
           hof mod link
           make deps
