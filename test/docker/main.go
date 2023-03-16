@@ -26,7 +26,7 @@ func main() {
 	fmt.Println("client: ", client)
 	fmt.Println("server:", server.Version, server.APIVersion, server.MinAPIVersion)
 
-	img := "hofstadter/fmt-black:v0.6.8-beta.1"
+	img := "ghcr.io/hofstadter-io/fmt-black:v0.6.8-beta.11"
 
 	err = docker.PullImage(img)
 	if err != nil {

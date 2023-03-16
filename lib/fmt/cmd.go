@@ -198,7 +198,7 @@ func Start(fmtr string, replace bool) error {
 	startFmtr := func(name, ver string) error {
 		fmt.Println("starting:", name, ver)
 		return docker.StartContainer(
-			fmt.Sprintf("hofstadter/fmt-%s:%s", name, ver),
+			fmt.Sprintf("%s/fmt-%s:%s", CONTAINER_REPO, name, ver),
 			fmt.Sprintf("hof-fmt-%s", name),
 			fmtrEnvs[name],
 			replace,
@@ -294,14 +294,14 @@ func Pull(fmtr string) error {
 
 	if fmtr == "all" {
 		for _, name := range fmtrNames {
-			ref := fmt.Sprintf("hofstadter/fmt-%s:%s", name, ver)
+			ref := fmt.Sprintf("%s/fmt-%s:%s", CONTAINER_REPO, name, ver)
 			err := docker.PullImage(ref)
 			if err != nil {
 				fmt.Println(err)
 			}
 		}
 	} else {
-		ref := fmt.Sprintf("hofstadter/fmt-%s:%s", fmtr, ver)
+		ref := fmt.Sprintf("%s/fmt-%s:%s", CONTAINER_REPO, fmtr, ver)
 		return docker.PullImage(ref)
 	}
 	return nil
@@ -359,7 +359,7 @@ func Info(which string) (err error) {
 
 func updateFormatterStatus() error {
 
-	images, err := docker.GetImages("hofstadter/fmt-")
+	images, err := docker.GetImages(fmt.Sprintf("%s/fmt-", CONTAINER_REPO))
 	if err != nil {
 		return err
 	}
@@ -380,7 +380,7 @@ func updateFormatterStatus() error {
 		for _, tag := range image.RepoTags {
 			parts := strings.Split(tag, ":")
 			repo, ver := parts[0], parts[1]
-			name := strings.TrimPrefix(repo, "hofstadter/fmt-")
+			name := strings.TrimPrefix(repo, fmt.Sprintf("%s/fmt-", CONTAINER_REPO))
 			fmtr := formatters[name]
 			fmtr.Available = append(fmtr.Available, ver)
 			if !added {

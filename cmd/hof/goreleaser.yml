@@ -39,21 +39,21 @@ dockers:
   - dockerfile: ../../ci/hof/docker/Dockerfile.debian
     skip_push: false
     image_templates:
-      - hofstadter/hof:{{.Tag}}
-      - hofstadter/hof:{{ .ShortCommit }}
-      - hofstadter/hof:latest
+      - ghcr.io/hofstadter-io/hof:{{.Tag}}
+      - ghcr.io/hofstadter-io/hof:{{ .ShortCommit }}
+      - ghcr.io/hofstadter-io/hof:latest
   - dockerfile: ../../ci/hof/docker/Dockerfile.debian
     skip_push: false
     image_templates:
-      - hofstadter/hof:debian-{{.Tag}}
-      - hofstadter/hof:debian-{{ .ShortCommit }}
-      - hofstadter/hof:debian-latest
+      - ghcr.io/hofstadter-io/hof:debian-{{.Tag}}
+      - ghcr.io/hofstadter-io/hof:debian-{{ .ShortCommit }}
+      - ghcr.io/hofstadter-io/hof:debian-latest
   - dockerfile: ../../ci/hof/docker/Dockerfile.alpine
     skip_push: false
     image_templates:
-      - hofstadter/hof:alpine-{{.Tag}}
-      - hofstadter/hof:alpine-{{ .ShortCommit }}
-      - hofstadter/hof:alpine-latest
+      - ghcr.io/hofstadter-io/hof:alpine-{{.Tag}}
+      - ghcr.io/hofstadter-io/hof:alpine-{{ .ShortCommit }}
+      - ghcr.io/hofstadter-io/hof:alpine-latest
 archives:
   - files:
       - thisfiledoesnotexist*

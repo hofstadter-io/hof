@@ -28,6 +28,9 @@ var defaultVersion = "dirty"
 var FORMAT_DISABLED = false
 var DOCKER_FORMAT_DISABLED = false
 
+// (CONSIDER) make this comma seperated, so we can have fallback?
+var CONTAINER_REPO = "ghcr.io/hofstadter-io"
+
 var debug = false
 
 func init() {
@@ -68,6 +71,11 @@ func init() {
 			FORMAT_DISABLED=dv
 			DOCKER_FORMAT_DISABLED=dv
 		}
+	}
+
+	hr := os.Getenv("HOF_FMT_REGISTRY")
+	if hr != "" {
+		CONTAINER_REPO = hr
 	}
 	
 	// gracefully init images / containers

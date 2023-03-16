@@ -45,7 +45,7 @@ dockers: [...{
 	] {
 		dockerfile: "../../ci/hof/docker/Dockerfile.\(cfg.base)"
 		image_templates: [ for suf in ["{{.Tag}}", "{{ .ShortCommit }}", "latest"] {
-			"hofstadter/hof:\(cfg.suf)\(suf)",
+			"ghcr.io/hofstadter-io/hof:\(cfg.suf)\(suf)",
 		}]
 	}
 ]

@@ -101,8 +101,8 @@ Steps: {
 				file: "\(context)/Dockerfile.debian"
 				platforms: "linux/amd64,linux/arm64"
 				tags: strings.Join([
-					"hofstadter/fmt-${{ matrix.formatter }}:${{ env.HOF_SHA }}",
-					"hofstadter/fmt-${{ matrix.formatter }}:${{ env.HOF_TAG }}",
+					"ghcr.io/hofstadter-io/fmt-${{ matrix.formatter }}:${{ env.HOF_SHA }}",
+					"ghcr.io/hofstadter-io/fmt-${{ matrix.formatter }}:${{ env.HOF_TAG }}",
 				], ",")
 			}
 		}
@@ -176,7 +176,7 @@ Steps: {
 		setup: {
 			name: "Setup"
 			run:  """
-			hof fmt start prettier@v0.6.8-beta.6
+			hof fmt start prettier@v0.6.8-beta.11
 			cd docs
 			hof mod link
 			make deps
