@@ -125,7 +125,7 @@ $ hof gen data.cue schema.cue \
 
 ### Multiple Templates
 
-You can use the `-T` flag as often as you want.
+You can use the `-T` flag multiple times.
 Each is independent and can have different options for 
 the data and schemas from the CUE entry points. (we'll see this below)
 
