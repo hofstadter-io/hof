@@ -2,6 +2,7 @@
 title: "Installation"
 description: "Download and install the hof CLI tool."
 brief: "Download and install the hof CLI tool."
+keywords: "homebrew, cli, get started, code generation tool, installation guide, DAG flow, run CUE pipelines, CUE dependency management, go mods"
 weight: 3
 ---
 
