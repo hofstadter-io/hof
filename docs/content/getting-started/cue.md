@@ -2,7 +2,14 @@
 title: "CUE"
 description: "A declarative language for configuration and code generation."
 brief: "A declarative language for configuration and code generation."
-
+keywords:
+  - declarative code generation 
+  - cue 
+  - generators
+  - declarative schemas 
+  - reusable modules
+  - configuration-style syntax
+  - dependency management 
 weight: 5
 ---
 
