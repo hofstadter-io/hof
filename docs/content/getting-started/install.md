@@ -37,11 +37,7 @@ Current version: <b>{{<hof-rel-link>}}</b>
 go install github.com/hofstadter-io/hof/cmd/hof@latest
 {{</codeInner>}}
 
-<br>
-
-## Using Homebrew - macOS
-
-{{<codeInner title="with Homebrew" lang="text">}}
+{{<codeInner title="with Homebrew - macOS" lang="text">}}
 brew install hofstadter-io/tap/hof
 {{</codeInner>}}
 
@@ -83,4 +79,17 @@ hof update
 
 # Install a specific version
 hof update --version vX.Y.Z
+{{</codeInner>}}
+
+with Homebrew - macOS
+
+{{<codeInner lang="sh">}}
+# Check for an update in brew
+brew outdated hofstadter-io/tap/hof
+
+# Update to the latest version in brew
+brew upgrade hofstadter-io/tap/hof
+
+# To get more info regarding hof package
+brew info hof
 {{</codeInner>}}
