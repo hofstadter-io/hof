@@ -14,8 +14,9 @@ RUN cat /tmp/rid
 COPY . ./
 
 # Restore as distinct layer, with retry
-RUN cmd="dotnet restore -r $(cat /tmp/rid)"; \
-	for i in $(seq 1 5); do $cmd && s=0 && break || s=$? && sleep 1; done; (exit $s)
+RUN for i in $(seq 1 5); do \
+	dotnet restore -r $(cat /tmp/rid) \
+	&& s=0 && break || s=$? && sleep 1; done; (exit $s)
 
 # Build and publish a release
 RUN dotnet publish -c Release -o out -r $RID $(cat /tmp/rid) --self-contained false --no-restore
