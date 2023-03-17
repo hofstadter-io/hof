@@ -9,7 +9,7 @@ keywords:
   - declarative schemas 
   - reusable modules
   - configuration-style syntax
-  - dependency management 
+  - dependency management
 weight: 5
 ---
 
