@@ -32,9 +32,10 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
-
-  <meta name="keywords" content="{{.Site.Params.keywords}}{{ range .Params.keywords }} {{ . }}{{ end }}" />
-
+  
+ {{ $keywords := union .Site.Params.keywords .Params.keywords -}}
+  <meta name="keywords" content="{{ delimit $keywords ", " }}" />
+  
   <link href='https://fonts.googleapis.com/css?family=Roboto:300,300italic,400,400italic,500,500italic,700,700italic,900italic,900' rel='stylesheet' type='text/css'>
 
 	{{ $options := (dict "targetPath" "style.css" "outputStyle" "compressed" "enableSourceMap" (not hugo.IsProduction) "includePaths" (slice "node_modules/bootstrap/scss")) }}
