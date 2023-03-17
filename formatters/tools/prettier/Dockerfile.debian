@@ -38,7 +38,8 @@ WORKDIR /app
 
 # install server deps
 COPY package.json yarn.lock /app/
-RUN yarn install
+RUN cmd="yarn install"; \
+	for i in $(seq 1 5); do $cmd && s=0 && break || s=$? && sleep 1; done; (exit $s)
 
 # our server code
 COPY prettier.js .

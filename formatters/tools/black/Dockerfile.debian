@@ -19,10 +19,11 @@ RUN apt-get update -y \
 
 WORKDIR /app
 
-# install deps
+# install deps, with retry
 COPY Pipfile Pipfile.lock /app/
-RUN pip install --upgrade pip pipenv \
-	&& pipenv install --deploy --system \
+RUN cmd="pipenv install --deploy --system"; \
+	pip install --upgrade pip pipenv \
+	&& for i in $(seq 1 5); do $cmd && s=0 && break || s=$? && sleep 1; done; (exit $s) \
 	&& pip uninstall -y pipenv
 
 # our server code
