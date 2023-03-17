@@ -3,7 +3,17 @@ title: "Code Generation"
 linkTitle: "Code Gen"
 description: "Render any file from data and templates."
 brief: "Render any file from data and templates."
-
+keywords:
+  - code generation 
+  - code gen 
+  - generate files
+  - cue
+  - yaml
+  - json
+  - generators
+  - template-based
+  - ad-hoc template rendering
+  - modules
 weight: 10
 ---
 
