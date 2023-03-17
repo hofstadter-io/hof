@@ -91,5 +91,5 @@ brew outdated hofstadter-io/tap/hof
 brew upgrade hofstadter-io/tap/hof
 
 # To get more info regarding hof package
-brew info hof
+brew info hofstadter-io/tap/hof
 {{</codeInner>}}
