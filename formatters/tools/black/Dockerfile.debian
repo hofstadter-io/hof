@@ -9,14 +9,13 @@ RUN ln -s /bin/tar /usr/sbin/tar
 RUN ln -s /bin/uname /usr/local/bin/uname
 
 # install extra tools
-#  $cmd  \
 RUN for i in $(seq 1 5); do apt-get update -y \
 	&& apt-get install -y \
 		ca-certificates \
 		git \
 	&& apt-get clean \
 	&& apt-get autoremove --yes \
-  && rm -rf /var/lib/{apt,dpkg,cache,log}/ \
+	&& rm -rf /var/lib/{apt,dpkg,cache,log}/ \
 	&& s=0 && break || s=$? && sleep 1; done; (exit $s)
 
 WORKDIR /app
