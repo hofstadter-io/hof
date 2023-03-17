@@ -25,13 +25,6 @@ $(MARCHS_DEB):
 		$(PUSH) --platform $(PLATFORMS) $(EXTRA) \
 		tools/$(@:%.march.debian=%) -f tools/$(@:%.march.debian=%)/Dockerfile.debian
 
-MARCHS_ALP=$(addsuffix .march.alpine,$(TOOLS))
-marchs.alpine: $(MARCHS_ALP)
-$(MARCHS_ALP):
-	docker buildx build -t ghcr.io/hofstadter-io/fmt-$(@:%.march.alpine=%):$(FMTR_TAG)-alpine \
-		$(PUSH) --platform $(PLATFORMS) $(EXTRA) \
-		tools/$(@:%.march.alpine=%) -f tools/$(@:%.march.alpine=%)/Dockerfile.alpine
-
 # make *.start
 .PHONY: $(addsuffix .start,$(TOOLS))
 $(addsuffix .start,$(TOOLS)):
