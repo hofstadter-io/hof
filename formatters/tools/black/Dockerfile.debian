@@ -16,16 +16,17 @@ RUN for i in $(seq 1 5); do apt-get update -y \
 	&& apt-get clean \
 	&& apt-get autoremove --yes \
 	&& rm -rf /var/lib/{apt,dpkg,cache,log}/ \
-	&& s=0 && break || s=$? && sleep 1; done; (exit $s)
+	&& s=0 && break || s=$? && echo "RETRY $i" && sleep $i; done; (exit $s)
 
 WORKDIR /app
 
 # install deps, with retry
 COPY Pipfile Pipfile.lock /app/
-RUN cmd="pipenv install --deploy --system"; \
+RUN for i in $(seq 1 5); do \
 	pip install --upgrade pip pipenv \
-	&& for i in $(seq 1 5); do $cmd && s=0 && break || s=$? && sleep 1; done; (exit $s) \
-	&& pip uninstall -y pipenv
+	&& pipenv install --deploy --system \
+	&& pip uninstall -y pipenv \
+	&& s=0 && break || s=$? && echo "RETRY $i" && sleep $i; done; (exit $s)
 
 # our server code
 COPY app.py .

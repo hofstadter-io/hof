@@ -6,8 +6,8 @@ ARG TARGETARCH=amd64
 ARG TARGETOS=linux
 RUN echo $TARGETARCH
 RUN arch=$TARGETARCH \
-    && if [ "$arch" = "amd64" ]; then arch="x64"; fi \
-    && echo $TARGETOS-$arch > /tmp/rid
+	&& if [ "$arch" = "amd64" ]; then arch="x64"; fi \
+	&& echo $TARGETOS-$arch > /tmp/rid
 RUN cat /tmp/rid
 
 # Copy everything
@@ -16,7 +16,7 @@ COPY . ./
 # Restore as distinct layer, with retry
 RUN for i in $(seq 1 5); do \
 	dotnet restore -r $(cat /tmp/rid) \
-	&& s=0 && break || s=$? && sleep 1; done; (exit $s)
+	&& s=0 && break || s=$? && echo "RETRY $i" && sleep $i; done; (exit $s)
 
 # Build and publish a release
 RUN dotnet publish -c Release -o out -r $RID $(cat /tmp/rid) --self-contained false --no-restore

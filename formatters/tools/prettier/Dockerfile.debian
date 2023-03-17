@@ -20,8 +20,8 @@ RUN for i in $(seq 1 5); do \
 		ruby-dev \
 	&& apt-get clean \
 	&& apt-get autoremove --yes \
-  && rm -rf /var/lib/{apt,dpkg,cache,log}/ \
-	&& s=0 && break || s=$? && sleep 1; done; (exit $s)
+	&& rm -rf /var/lib/{apt,dpkg,cache,log}/ \
+	&& s=0 && break || s=$? && echo "RETRY $i" && sleep $i; done; (exit $s)
 
 # arm64 fix
 RUN ln -s /usr/bin/ruby /usr/local/bin/ruby
@@ -36,7 +36,7 @@ RUN for i in $(seq 1 5); do \
 	syntax_tree \
 	syntax_tree-haml \
 	syntax_tree-rbs \
-	&& s=0 && break || s=$? && sleep 1; done; (exit $s)
+	&& s=0 && break || s=$? && echo "RETRY $i" && sleep $i; done; (exit $s)
 
 WORKDIR /app
 
@@ -44,7 +44,7 @@ WORKDIR /app
 COPY package.json yarn.lock /app/
 RUN for i in $(seq 1 5); do \
 	yarn install \
-	&& s=0 && break || s=$? && sleep 1; done; (exit $s)
+	&& s=0 && break || s=$? && echo "RETRY $i" && sleep $i; done; (exit $s)
 
 # our server code
 COPY prettier.js .
