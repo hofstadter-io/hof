@@ -1,15 +1,25 @@
 ---
 title: "Installation"
-description: "Download and install the hof cli tool"
-brief: "Download and install the hof cli tool"
+description: "Download and install the hof CLI tool."
+brief: "Download and install the hof CLI tool."
+keywords:
+  - homebrew 
+  - cli 
+  - get started 
+  - code generation tool 
+  - installation guide 
+  - DAG engine 
+  - run CUE pipelines 
+  - CUE dependency management 
+  - go mods
 weight: 3
 ---
 
 {{<lead>}}
-__hof__ is available for all major operation systems and architectures.
+__hof__ is available for all major operating systems and architectures.
 {{</lead>}}
 
-git & docker should be available, but are also optional
+Git & Docker should be available but are also optional.
 
 ## Installation
 
@@ -19,23 +29,22 @@ Current version: <b>{{<hof-rel-link>}}</b>
 
 <br>
 
-{{<codeInner title="installation commands" lang="text">}}
-// with homebrew
-brew install hof
-
-
-// as a binary
+{{<codeInner title="as a binary" lang="text">}}
 {{<hof-curl>}}
+{{</codeInner>}}
 
-// or from source
+{{<codeInner title="from source" lang="text">}}
 go install github.com/hofstadter-io/hof/cmd/hof@latest
 {{</codeInner>}}
 
-<br>
+{{<codeInner title="with Homebrew - macOS" lang="text">}}
+brew install hofstadter-io/tap/hof
+{{</codeInner>}}
+
 
 #### Binary downloads, rename the file to `hof` and place it in your PATH.
 
-these are the same links for curl
+These are the same links for the curl.
 
 {{<hof-dl-btns>}}
 
@@ -59,7 +68,7 @@ Run `hof help` in your terminal.
 ## Updating __hof__
 
 
-The builtin update command can be used to check and install any version.
+You can use the built-in update command to check and install any version.
 
 {{<codeInner lang="sh">}}
 # Check for an update
@@ -72,4 +81,15 @@ hof update
 hof update --version vX.Y.Z
 {{</codeInner>}}
 
+with Homebrew - macOS
 
+{{<codeInner lang="sh">}}
+# Check for an update in brew
+brew outdated hofstadter-io/tap/hof
+
+# Update to the latest version in brew
+brew upgrade hofstadter-io/tap/hof
+
+# To get more info regarding hof package
+brew info hofstadter-io/tap/hof
+{{</codeInner>}}
