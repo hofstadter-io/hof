@@ -8,15 +8,14 @@ import (
 ghacue.#Workflow & {
 	name: "fmt"
 
-	_on:   ["push", "pull_request"]
+	_on: ["push", "pull_request"]
 	_paths: ["lib/fmt/**", "formatters/**", "ci/gha/fmt.cue", ".github/workflows/fmt.yml"]
-	on: { for evt in _on { (evt): paths: _paths } }
+	on: {for evt in _on {(evt): paths: _paths}}
 	on: workflow_dispatch: {}
 	env: HOF_TELEMETRY_DISABLED: "1"
 
-
 	jobs: formatter: {
-		"runs-on": "ubuntu-latest"
+		"runs-on":   "ubuntu-latest"
 		environment: "hof mod testing"
 		strategy: {
 			"fail-fast": false
@@ -27,7 +26,7 @@ ghacue.#Workflow & {
 			common.Steps.checkout,
 			common.Steps.vars,
 			common.Steps.buildx.qemu,
-			common.Steps.buildx.setup,
+			common.Steps.buildx.setup.linux,
 			common.Steps.buildx.formatters,
 		]
 	}

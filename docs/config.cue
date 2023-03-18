@@ -25,10 +25,12 @@ params: {
 	github_project_repo: "https://github.com/hofstadter-io/hof"
 	github_repo:         "https://github.com/hofstadter-io/hof"
 	time_format_default: "January 2, 2006"
-	keywords:            ["hof", "hofstadter", "documentation", "docs"]
 	hofver:              "v0.6.8-beta.12"
 	cuever:              "v0.5.0-beta.5"
 	cuedocBase:          "https://pkg.go.dev/cuelang.org/go@\(cuever)"
+	slackLink:           "https://join.slack.com/t/hofstadter-io/shared_invite/zt-e5f90lmq-u695eJur0zE~AG~njNlT1A"
+
+	keywords: ["hof", "hofstadter", "documentation", "docs"]
 
 	beta: """
 	The `hof gen` ad-hoc feature (`-T`) is only available in the next beta.
@@ -57,7 +59,7 @@ menu: shortcuts: [{
 	weight: 1
 }, {
 	name:   "<i class='fas fa-comments'></i> Slack"
-	url:    "https://join.slack.com/t/hofstadter-io/shared_invite/zt-e5f90lmq-u695eJur0zE~AG~njNlT1A"
+	url:    "\(params.slackLink)"
 	weight: 2
 }, {
 	name:   "<i class='fas fa-home'></i> hof.io"
