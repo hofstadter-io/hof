@@ -28,7 +28,7 @@ var defaultVersion = "dirty"
 var FORMAT_DISABLED = false
 var DOCKER_FORMAT_DISABLED = false
 
-// (CONSIDER) make this comma seperated, so we can have fallback?
+// (CONSIDER) make this comma separated, so we can have fallback?
 var CONTAINER_REPO = "ghcr.io/hofstadter-io"
 
 var debug = false
