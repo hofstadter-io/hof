@@ -85,7 +85,7 @@ func GetLatestBranch(path, branch string) (string, error) {
 	return branch, nil
 }
 
-func UpgradePsuedoVersion(path, ver string) (s string, err error) {
+func UpgradePseudoVersion(path, ver string) (s string, err error) {
 	// semver tag?
 	if semver.IsValid(ver) {
 		return ver, nil
