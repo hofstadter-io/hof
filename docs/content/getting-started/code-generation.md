@@ -21,11 +21,7 @@ weight: 10
 {{<lead>}}
 Code generation is central to `hof`.
 
-By rendering templates with data, we can __generate files for any programming language or framework__, saving developers valuable time and effort.
-
-Users can save time and reduce code errors using templates and data to generate files for different programming languages or frameworks. This process allows users to easily create standardized files with pre-determined code structure, formatting, and suitable content for a particular language or framework.
-
-It also enables users to quickly generate boilerplate code, reducing the amount of manual work required to set up new projects. Additionally, using templates, users can ensure consistency across their projects and adhere to best practices for coding in a particular language or framework. This strategy to file generation can increase productivity, and support developers in producing high-quality code efficiently.
+Hof's ad-hoc code generation feature enables developers to __generate files for any programming language or framework__ by rendering templates with data, saving developers valuable time and effort. This page showcases the idea and possibilities of code generation through `hof`.
 
 {{</lead>}}
 
