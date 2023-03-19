@@ -146,7 +146,7 @@ $ hof gen data.cue schema.cue -T template.txt -T =debug.yaml -O out/
 
 ### Watching for Changes
 
-Use the -`w/--watch` flag to watch for changes and re-render output. Think of the '-w/--watch' flag as a live-reload option that monitors your code and automatically re-renders your output when changes are detected.
+Use the -`w/--watch` flag to watch for changes and re-render output. Think of the `-w/--watch` flag as a live-reload option that monitors your code and automatically re-renders your output when changes are detected.
 
 {{<codeInner title="> terminal" lang="sh">}}
 $ hof gen data.cue schema.cue -T template.txt -T debug.yaml -O out/ --watch
