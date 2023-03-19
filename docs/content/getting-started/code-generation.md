@@ -89,7 +89,7 @@ $ cat data.yaml | hof gen yaml: - schema.cue -T template.txt
 
 ### Writing to file
 
-Use  `=` (equal) after the template name to write to file.
+Use  `=` (equal) to write to a file after the template name.
 
 {{<codeInner title="> terminal" lang="sh">}}
 $ hof gen data.cue schema.cue -T template.txt=output.txt
