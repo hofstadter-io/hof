@@ -48,7 +48,7 @@ func Tidy(rflags flags.RootPflagpole) (error) {
 
 func (cm *CueMod) UpgradePseudoVersions() (err error) {
 	for path, dep := range cm.Replace {
-		ver, _ := cache.UpgradePsuedoVersion(dep.Path, dep.Version)
+		ver, _ := cache.UpgradePseudoVersion(dep.Path, dep.Version)
 		dep.Version = ver
 		cm.Replace[path] = dep
 	}
@@ -57,7 +57,7 @@ func (cm *CueMod) UpgradePseudoVersions() (err error) {
 		if _, ok := cm.Replace[path]; ok {
 			continue
 		}
-		ver, _ = cache.UpgradePsuedoVersion(path, ver)
+		ver, _ = cache.UpgradePseudoVersion(path, ver)
 		cm.Require[path] = ver
 	}
 

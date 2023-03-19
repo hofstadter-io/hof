@@ -66,7 +66,7 @@ func Create(module string, extra []string, rootflags flags.RootPflagpole, cmdfla
 		if err != nil {
 			return err
 		}
-		ref, err = cache.UpgradePsuedoVersion(url, ver)
+		ref, err = cache.UpgradePseudoVersion(url, ver)
 		if err != nil {
 			return err
 		}
