@@ -21,7 +21,7 @@ weight: 10
 {{<lead>}}
 Code generation is central to `hof`.
 
-Hof's ad-hoc code generation feature enables developers to __generate files for any programming language or framework__ by rendering templates with data, saving developers valuable time and effort. This page showcases the idea and possibilities of code generation through `hof`.
+`hof`'s ad-hoc code generation feature enables developers to __generate files for any programming language or framework__ by rendering templates with data, saving developers valuable time and effort. This page showcases the idea and possibilities of code generation through `hof`.
 
 {{</lead>}}
 
