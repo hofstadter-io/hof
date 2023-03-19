@@ -1,5 +1,5 @@
 ---
-Title: Adhoc Code Gen
+Title: Ad-hoc Code Gen
 
 weight: 59
 ---

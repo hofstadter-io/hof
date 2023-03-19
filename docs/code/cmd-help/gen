@@ -78,7 +78,7 @@ Flags:
   -h, --help                  help for gen
       --init string           <name> to bootstrap a new genarator module
   -l, --list                  list available generators
-      --no-format             disable formatting during code gen (adhoc only)
+      --no-format             disable formatting during code gen (ad-hoc only)
   -O, --outdir string         base directory to write all output u
   -P, --partial strings       file globs to partial templates to register with the templates
   -s, --stats                 print generator statistics

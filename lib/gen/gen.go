@@ -91,7 +91,7 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 	}
 
 	/* We will run a generator if either
-	   not adhoc or is adhoc with the -G flag
+	   not ad-hoc or is ad-hoc with the -G flag
 		So let's load them early, there is some helpful info in them
 	*/
 	if LT == 0 || LG > 0 {
@@ -136,7 +136,7 @@ func runGen(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlag
 
 	if LT > 0 {
 		if R.Verbosity > 1 {
-			fmt.Println("Loading Adhoc Generator")
+			fmt.Println("Loading Ad-hoc Generator")
 		}
 		err = R.CreateAdhocGenerator()
 		if err != nil {
