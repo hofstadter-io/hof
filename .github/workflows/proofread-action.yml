@@ -1,0 +1,14 @@
+name: Proofread PRs
+on: [pull_request]
+
+jobs:
+  test:
+    permissions: write-all # Required since GitHub now gives actions read-only permissions by default
+    runs-on: ubuntu-latest
+    name: Proofread PRs
+    steps:
+      - name: Proofread PR
+        uses: awreck/proofread-action@v1
+        id: proofread
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }} # Required to write a PR review
