@@ -31,7 +31,7 @@ params: {
 	cuedocBase:          "https://pkg.go.dev/cuelang.org/go@\(cuever)"
 
 	beta: """
-	The `hof gen` adhoc feature (`-T`) is only available in the next beta.
+	The `hof gen` ad-hoc feature (`-T`) is only available in the next beta.
 
 	```
 	go install github.com/hofstadter-io/hof/cmd/hof@\(hofver)

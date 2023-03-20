@@ -48,7 +48,7 @@ each has a use case it is best at:
 
 ## Data + Templates
 
-`hof gen interlude.json -T interlude.template` is adhoc template rendering.
+`hof gen interlude.json -T interlude.template` is ad-hoc template rendering.
 Combine any data source with any template.
 
 {{<codePane3
@@ -335,7 +335,7 @@ The next page will overview modules more generally.
 The [first-example](/first-example/) covers
 creating a generator from scratch in detail.
 
-To turn your adhoc `hof gen ... -T ...` commands into a generator
+To turn your ad-hoc `hof gen ... -T ...` commands into a generator
 by adding `--as-module <module name>` after the current flags.
 
 {{<codeInner title="> terminal">}}
