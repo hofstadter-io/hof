@@ -247,7 +247,7 @@ $ hof gen data.cue schema.cue -P field.go -T types.go -O out/
 
 ### Repeated Templates
 
-In addition to looping over data and applying a template fragment, as mentioned in the previous example, you can use __repeated templates__ to write a file for each element in an iterable such as a list or struct field. 
+In addition to looping over data and applying a template fragment, you can use __repeated templates__ to write a file for each element in an iterable such as a list or struct field. 
 
 To render a file for each element in the input to a `-T` flag, use `[]`.
 
