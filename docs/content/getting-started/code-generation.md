@@ -222,7 +222,7 @@ pick the data and schema with flags. This approach can be helpful when we don't 
 Partial templates are fragments
 that are used in other templates.
 Unlike regular templates, these do not map to an output file. You can capture repeated sections
-like the fields to a struct or the arguments to a function.
+like the fields of a struct or the arguments to a function.
 
 
 Additionally, partials can invoke other partials, which is helpful for modularizing templates into logical components.
