@@ -144,7 +144,7 @@ func (T *Serve) Run(ctx *hofcontext.Context) (interface{}, error) {
 		return nil
 	}()
 
-	// check return of our adhoc func scope
+	// check return of our ad-hoc func scope
 	if err != nil {
 		return nil, err
 	}

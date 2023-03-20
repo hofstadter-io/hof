@@ -22,7 +22,7 @@ to define how an input is combined with templates
 to produce the output files.
 As a user, you will supply the input values
 to a specific geneartor to create code.
-Hof's adhoc code gen also assembles a generator
+Hof's ad-hoc code gen also assembles a generator
 from the arguments and flags you provide.
 
 {{< codePane title="hof/schema/gen.#Generator" file="code/hof-schemas/gen/generator.html" >}}

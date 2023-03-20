@@ -249,7 +249,7 @@ func (R *Runtime) ExtractGenerators() error {
 						}
 					} else {
 						// not -G was set, if a -T was set...
-						// we are in adhoc mode and skip all gens
+						// we are in ad-hoc mode and skip all gens
 						// (hmmm) will we even get here?
 						//   an earlier shortcircuit may prevent this
 						//   this is defensive anyhow
@@ -336,20 +336,20 @@ func (R *Runtime) LoadGenerators() []error {
 	// if LT > 0 {  R.CreateAdhocGenerator(rootflags, cmdflags) }
 
 	// TODO, NOTE2: we should override gen2subgen within this call
-	// we might need NOTE3 to pass adhoc partials into gens and subgens
+	// we might need NOTE3 to pass ad-hoc partials into gens and subgens
 	/* from previous file */
 
 	err := R.CreateAdhocGenerator()
 	if err != nil {
 		errs = append(errs, err)
 	}
-	// TODO, consider merging adhoc templates / partials
+	// TODO, consider merging ad-hoc templates / partials
 	// into generators, so we might override or fill in
 	// this could enable more powerful reuse by allowing
 	// a generator to use anoather "generic" generator module,
 	// which itself, would capture a pattern or algorithm?
 	// this "generic" module would be usable across targets
-	// NOTE, this might just be the location where adhoc
+	// NOTE, this might just be the location where ad-hoc
 	// can fill things in, see NOTE2 above for gen2subgen
 
 	return errs

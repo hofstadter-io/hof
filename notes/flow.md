@@ -143,7 +143,7 @@ to plugins
 
 ---
 
-hof adhoc generator for task implementations
+hof ad-hoc generator for task implementations
 (lots of repeat going on)
 
 ---

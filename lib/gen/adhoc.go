@@ -36,7 +36,7 @@ type AdhocTemplateConfig struct {
 func (R *Runtime) CreateAdhocGenerator() error {
 	if len(R.Flagpole.Template) == 0 {
 		if R.Verbosity > 1 {
-			fmt.Println("Skipping Adhoc Generator")
+			fmt.Println("Skipping Ad-hoc Generator")
 		}
 		return nil
 	}
@@ -59,7 +59,7 @@ func (R *Runtime) CreateAdhocGenerator() error {
 	}
 
 	G := NewGenerator("AdhocGen", R.CueRuntime.CueValue, R)
-	// reset some vals for adhoc
+	// reset some vals for ad-hoc
 	G.cwdToRoot = ""
 	G.Outdir = ""
 
@@ -168,7 +168,7 @@ func (R *Runtime) CreateAdhocGenerator() error {
 	errs := G.Initialize()
 	if len(errs) > 0 {
 		fmt.Println(errs)
-		return fmt.Errorf("while initializing adhoc generator")
+		return fmt.Errorf("while initializing ad-hoc generator")
 	}
 
 	if R.Verbosity > 2 {

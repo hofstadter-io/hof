@@ -319,9 +319,11 @@ You can find more examples in the
 ## What are Generators and Modules
 
 
-Generators are configurations for the `hof gen` flag, typically defined in CUE modules or Git repositories. 
+Generators are configurations for the `hof gen` flag, typically defined
+in CUE modules or Git repositories. 
 
-To turn your ad-hoc `hof gen ... -T ...` commands into a generator, add `--as-module <module name>` to the end of your current flag.
+To turn your ad-hoc `hof gen ... -T ...` commands into a generator, 
+add `--as-module <module name>` to the end of your current flag.
 
 
 {{<codeInner title="> terminal">}}

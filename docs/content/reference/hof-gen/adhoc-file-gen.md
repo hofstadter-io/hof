@@ -1,12 +1,12 @@
 ---
-title: "Adhoc File Gen"
-linkTitle: "Adhoc File Gen"
+title: "Ad-hoc File Gen"
+linkTitle: "Ad-hoc File Gen"
 weight: 25
 ---
 
 {{<lead>}}
 `hof gen` joins CUE with Go's text/template system and diff3.
-This section focuses on the adhoc, one-liners
+This section focuses on the ad-hoc, one-liners
 you can write to generate any file from any data.
 {{</lead>}}
 

@@ -65,7 +65,7 @@ import (
 			Name:    "NoFormat"
 			Type:    "bool"
 			Default: "false"
-			Help:    "disable formatting during code gen (adhoc only)"
+			Help:    "disable formatting during code gen (ad-hoc only)"
 			Long:    "no-format"
 		},
 		{

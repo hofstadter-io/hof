@@ -31,7 +31,7 @@ Use this to prototype revamp of `hof mod`
 	- inline partials:
 - [ ] record demo
 	- [ ] as a user creating an app only, import gens
-  - [ ] adhoc to module, show new mode & flags
+  - [ ] ad-hoc to module, show new mode & flags
   - [ ] generating types across languages (also as example for docs)
 - [ ] Mods
 	- [ ] `hofmod-types` build out a first version
