@@ -1,62 +1,59 @@
 ---
 title: "Code Generation"
 linkTitle: "Code Gen"
-description: "Render any file from data and templates."
 brief: "Render any file from data and templates."
+description: "Render any file from data and templates."
 keywords:
-  - code generation 
-  - code gen 
-  - generate files
-  - cue
-  - yaml
-  - JSON
-  - generators
+  - text/template
   - template-based
-  - ad-hoc template rendering
-  - modules
+  - ad-hoc rendering
 weight: 10
 ---
 
 
 {{<lead>}}
 Code generation is central to `hof`.
-
-`hof`'s ad-hoc code generation feature enables developers to __generate files for any programming language or framework__ by rendering templates with data, saving developers valuable time and effort. This page showcases the idea and possibilities of code generation through `hof`.
-
+`hof`'s ad-hoc code generation feature enables developers to
+__generate files for any programming language or framework__
+by rendering templates with data.
+This page introductes code generation through `hof`.
 {{</lead>}}
 
-With `hof gen`, you can provide CUE, Yaml, or JSON arguments, which are then combined with templates to generate files and directories of code automatically.
-
-
-Using flags and configurations, which we call generators, gives you complete control over the file generation process, quickly creating files tailored to your specific needs.
-
+With `hof gen`, you can combine CUE, Yaml, or JSON arguments
+with templates to generate files and directories of code automatically.
+Through flags and configurations, you have complete control over
+the file generation process and the final content created.
 
 {{<codeInner lang="sh">}}
 hof gen <cue, data, config>... [--flags...]
 {{</codeInner>}}
 
-In template-based code generation, two approaches dominate: ad-hoc and a more sophisticated configuration or module-based method.
+`hof`'s template-based code generation has two approaches:
+ad-hoc and a more sophisticated configuration or module-based method.
 
 1. `hof gen -T` is code gen from flags
 2. `hof gen -G` is code gen from config
 
 
-In this section, we will explore `hof gen -T`. Additionally, we will provide a step-by-step guide on creating a generator using the `-G` flag, as demonstrated in the [first example](/first-example/). 
-
-The [getting-started/create] section will also introduce `hof create`, which enables running generators directly from git repositories.
+In this section, we will explore the ad-hoc method which used the `-T` flag.
+The [first example](/first-example/) is a step-by-step guide
+on creating a generator using CUE based configuration.
+The [getting-started/create](/getting-started/create/) section
+will introduce `hof create`, which enables running generators directly from git repositories.
 
 Each of these methods utilizes the same core concepts and processes, and they are suitable for different use cases:
 
-- `hof gen -T` is ideal for simple scenarios or when no dependencies are involved.
-- `hof gen -G` is designed for creating reusable and shareable modules that may have dependencies.
-- `hof create` - is intended for interactive one-time interactive setup and bootstrapping.
+- `hof gen -T` is ideal for simpler scenarios when just a few files are involved.
+- `hof gen -G` is designed for large-scale code generation and reusable modules.
+- `hof create` is intended for one-time setup and application bootstrapping.
 
 [Code generation topics](/code-generation/) are discussed in a dedicated section.
 
 
 ## Data + Templates
 
-By running the command `hof gen interlude.json -T interlude.template`, users can perform ad-hoc template rendering to __combine any data source with any template__.
+By running the command `hof gen interlude.json -T interlude.template`,
+users can perform ad-hoc template rendering to __combine any data source with any template__.
 
 {{<codePane3
   title1="interlude.json" file1="code/getting-started/code-generation/interlude.json" lang1="json"
@@ -64,12 +61,12 @@ By running the command `hof gen interlude.json -T interlude.template`, users can
   title3="> terminal" file3="code/getting-started/code-generation/interlude.txt" lang3="txt"
 >}}
 
-#### `hof`'s templates are built on Go's `text/template` package with [extra helpers](/code-generation/template-writing/) added.
+#### `hof`'s templates are built on Go's `text/template` package with [extra helpers](/code-generation/template-writing/helpers/) added.
 
 <br>
 
-By using a hyphen symbol "`-`", you can stream any data into `hof gen`. This feature can be helpful when you need to render an API response or process the output of a command.
-
+By using a hyphen symbol "`-`", you can stream any data into `hof gen`.
+This feature can be helpful when you need to render an API response or process the output of a command.
 
 {{<codeInner lang="sh" title="> terminal">}}
 # use '-' to send output from another program to hof
@@ -85,20 +82,20 @@ $ cat data.yaml | hof gen yaml: - schema.cue -T template.txt
 
 ### Writing to file
 
-Use  `=` (equal) to write to a file after the template name.
+Use  `=` (equal) to write to a file by name.
 
 {{<codeInner title="> terminal" lang="sh">}}
 $ hof gen data.cue schema.cue -T template.txt=output.txt
 {{</codeInner>}}
 
-If you want to write all outputs to a directory, use the `-O` flag. 
+If you want to write all outputs to a directory, use the `-O` flag.
 Files will have the same name as the template if not set individually.
 
 {{<codeInner title="> terminal" lang="sh">}}
 $ hof gen data.cue schema.cue -T template.txt -O out/
 {{</codeInner>}}
 
-You can control the filename from the data by using an inline template as the output name. 
+You can set the filename from data by using an inline template as the output name. 
 Make sure you "wrap it in quotes".
 
 {{<codeInner title="> terminal" lang="sh">}}
@@ -133,7 +130,7 @@ $ hof gen data.cue schema.cue \
 
 You can use the `-T` flag multiple times.
 Each is independent and can have different options for 
-the data and schemas from the CUE entry points. (we'll see this below)
+the data and schemas from the CUE entrypoints. (we'll see this below)
 
 {{<codeInner title="> terminal" lang="sh">}}
 $ hof gen data.cue schema.cue -T template.txt -T =debug.yaml -O out/
@@ -142,7 +139,8 @@ $ hof gen data.cue schema.cue -T template.txt -T =debug.yaml -O out/
 
 ### Watching for Changes
 
-Use the -`w/--watch` flag to watch for changes and re-render output. Think of the `-w/--watch` flag as a live-reload option that monitors your code and automatically re-renders your output when changes are detected.
+Use the -`w/--watch` flag to watch for changes and re-render output.
+Think of the `-w/--watch` flag as a live-reload option that monitors your code and automatically re-renders your output when changes are detected.
 
 {{<codeInner title="> terminal" lang="sh">}}
 $ hof gen data.cue schema.cue -T template.txt -T debug.yaml -O out/ --watch
@@ -156,11 +154,22 @@ There are additional watch flags available if automatic detection misses files.
 
 `hof`'s inputs are `cue`'s inputs, or "CUE entry points".
 
-The inputs hold CUE values, which can be intermixed with your data to apply schemas, enrich the data, or transform before rendering. When running commands, the CUE entry points are combined into one considerable CUE value. The final data passed to a template must be concrete or fully specified. 
+The inputs hold CUE values, which can be intermixed with your data to apply schemas, enrich the data, or transform before rendering.
+When running commands, the CUE entrypoints are combined into a single CUE value.
+If you want to place data files in a specific path, use the `@path.to.location` syntax.
 
-This means the value needs to be like JSON data before template rendering accepts them. As you will see, hof provides flexibility and control for how the CUE values are selected, combined, and mapped to templates.
+{{<codeInner title="> terminal" lang="sh">}}
+$ hof gen data.json@inputs.data schema.cue -T template.txt -T =debug.yaml -O out/
+{{</codeInner>}}
 
-We keep parity with `cue`, so tooling from the broader ecosystem still works on our inputs and reduces context-switching costs. With hof, you can take advantage of all the possibilities and power of CUE while selecting, combining, and mapping the values to templates for rendering.
+The final data passed to a template must be concrete or fully specified. 
+This means the value needs to be like JSON data before template rendering accepts them.
+As you will see, hof provides flexibility and control for how the CUE values are selected, combined, and mapped to templates.
+
+We keep parity with `cue`, so tooling from the broader ecosystem
+still works on our inputs and reduces context-switching costs.
+With hof, you can take advantage of all the possibilities and power of CUE
+for selecting, combining, and mapping the values to templates for rendering.
 
 __You can safely use all the possibilities and power of CUE here.__
 
@@ -202,8 +211,6 @@ We can use `cue` to see what the full data looks like
 You can control how input data and schemas are combined with templates and written to files by using the flexible format of the `-T` flag for code generation.
 
 
-
-
 ### Selecting Values and Schemas
 
 Use `:<path>` to select a value and `@<path>` to apply a schema
@@ -232,7 +239,8 @@ There are two ways to define and use partial templates:
 - Use the `{{ define "name" }}` syntax in a regular template
 - User the `-P` to load them from a file
 
-For example, we _could_ extract the generation of fields into its template. We won't here, but as an example could include complex tasks like struct tags for Go fields. 
+For example, we _could_ extract the generation of fields into its template.
+We won't here, but as an example could include complex tasks like struct tags for Go fields. 
 
 {{<codeInner title="> terminal" lang="sh">}}
 $ hof gen data.cue schema.cue -P field.go -T types.go -O out/
@@ -247,7 +255,9 @@ $ hof gen data.cue schema.cue -P field.go -T types.go -O out/
 
 ### Repeated Templates
 
-In addition to looping over data and applying a template fragment, you can use __repeated templates__ to write a file for each element in an iterable such as a list or struct field. 
+In addition to looping over data and applying a template fragment, you can use
+__repeated templates__ to write a file for each element in an iterable such as a list or struct field.
+This is useful for creating a separate file for each type or API route.
 
 To render a file for each element in the input to a `-T` flag, use `[]`.
 
@@ -267,7 +277,7 @@ $ hof gen types.cue schema.cue -T type.go="[]{{ .Name }}.go" -O out/
 
 The `-T` flag in hof gen has a flexible format that allows you to customize your templates' input data, schema, and output path. 
 
-`-T "<template-path>:<input-path>[@schema-path];<out-path>"`
+`-T "<template-path>:<input-path>[@schema-path]=<out-path>"`
 
 This flag allows you to
 
@@ -277,8 +287,6 @@ This flag allows you to
 1. Write to file with `=<out-path>`
 1. Control the output filename with `="{{ .name }}.txt"`
 1. Render a single template multiple times with `="[]{{ .filepath }}"`
-
-With the `-T` flag, you can render multiple templates by using the flag more than once, and you can use partial templates and template helpers to create complex templates.
 
 <br>
 
@@ -312,7 +320,7 @@ hof gen input.cue ...
 {{</codeInner>}}
 
 You can find more examples in the
-[hof render tests](https://github.com/hofstadter-io/hof/tree/_dev/test/render).
+[hof ad-hoc render tests](https://github.com/hofstadter-io/hof/tree/_dev/test/render).
 
 
 
@@ -334,4 +342,6 @@ Several files are generated, including a CUE file that houses your generator and
 
 {{<codePane file="code/getting-started/code-generation/adhoc-mod-snippet.html" title="generator.cue snippet">}}
 
-The next page will provide an overview of modules in general, and the [first-example](/first-example/) offers detailed instructions for creating a generator from scratch.
+The next page will provide an overview of modules in general,
+and the [first-example](/first-example/) offers detailed instructions for creating a generator from scratch.
+
