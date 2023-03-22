@@ -23,17 +23,17 @@ params:
     - hofstadter
     - documentation
     - docs
-  hofver: v0.6.8-beta.11
+  hofver: v0.6.8-beta.12
   cuever: v0.5.0-beta.5
   cuedocBase: https://pkg.go.dev/cuelang.org/go@v0.5.0-beta.5
   beta: |-
     The `hof gen` ad-hoc feature (`-T`) is only available in the next beta.
 
     ```
-    go install github.com/hofstadter-io/hof/cmd/hof@v0.6.8-beta.11
+    go install github.com/hofstadter-io/hof/cmd/hof@v0.6.8-beta.12
     ```
 
-    [Download binaries on GitHub](https://github.com/hofstadter-io/hof/releases/tag/v0.6.8-beta.11)
+    [Download binaries on GitHub](https://github.com/hofstadter-io/hof/releases/tag/v0.6.8-beta.12)
 markup:
   goldmark:
     renderer:

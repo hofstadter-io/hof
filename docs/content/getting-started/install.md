@@ -4,14 +4,8 @@ description: "Download and install the hof CLI tool."
 brief: "Download and install the hof CLI tool."
 keywords:
   - homebrew 
-  - cli 
-  - get started 
-  - code generation tool 
-  - installation guide 
-  - DAG engine 
-  - run CUE pipelines 
-  - CUE dependency management 
-  - go mods
+  - downloads
+  - update
 weight: 3
 ---
 
@@ -27,6 +21,12 @@ Git & Docker should be available but are also optional.
 
 Current version: <b>{{<hof-rel-link>}}</b>
 
+{{< alert style="warning" >}}
+We recommend the latest beta over v0.6.7 as
+the core features have seen many improvements.
+You can expect it to be more stable and correct.
+{{</alert>}}
+
 <br>
 
 {{<codeInner title="as a binary" lang="text">}}
@@ -37,7 +37,7 @@ Current version: <b>{{<hof-rel-link>}}</b>
 go install github.com/hofstadter-io/hof/cmd/hof@latest
 {{</codeInner>}}
 
-{{<codeInner title="with Homebrew - macOS" lang="text">}}
+{{<codeInner title="with Homebrew" lang="text">}}
 brew install hofstadter-io/tap/hof
 {{</codeInner>}}
 
@@ -52,7 +52,7 @@ These are the same links for the curl.
 
 [All Releases](https://github.com/hofstadter-io/hof/releases)
 
-[Container Images](https://hub.docker.com/r/hofstadter/hof/tags)
+[Container Images](https://github.com/orgs/hofstadter-io/packages?repo_name=hof)
 
 
 
@@ -81,7 +81,7 @@ hof update
 hof update --version vX.Y.Z
 {{</codeInner>}}
 
-with Homebrew - macOS
+with Homebrew
 
 {{<codeInner lang="sh">}}
 # Check for an update in brew
