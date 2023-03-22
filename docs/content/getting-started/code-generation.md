@@ -16,7 +16,7 @@ Code generation is central to `hof`.
 `hof`'s ad-hoc code generation feature enables developers to
 __generate files for any programming language or framework__
 by rendering templates with data.
-This page introductes code generation through `hof`.
+This page introduces code generation through `hof`.
 {{</lead>}}
 
 With `hof gen`, you can combine CUE, Yaml, or JSON arguments
@@ -140,7 +140,8 @@ $ hof gen data.cue schema.cue -T template.txt -T =debug.yaml -O out/
 ### Watching for Changes
 
 Use the -`w/--watch` flag to watch for changes and re-render output.
-Think of the `-w/--watch` flag as a live-reload option that monitors your code and automatically re-renders your output when changes are detected.
+Think of the `-w/--watch` flag as a live-reload option that
+monitors your code and automatically re-renders your output when changes are detected.
 
 {{<codeInner title="> terminal" lang="sh">}}
 $ hof gen data.cue schema.cue -T template.txt -T debug.yaml -O out/ --watch
@@ -208,15 +209,16 @@ We can use `cue` to see what the full data looks like
 
 ## Controlling Code Generation
 
-You can control how input data and schemas are combined with templates and written to files by using the flexible format of the `-T` flag for code generation.
+You can control how input data and schemas are combined with templates
+and written to files by using the flexible format of the `-T` flag for code generation.
 
 
 ### Selecting Values and Schemas
 
 Use `:<path>` to select a value and `@<path>` to apply a schema
 
-We can remove the `.Input` from our templates and
-pick the data and schema with flags. This approach can be helpful when we don't have control over the input data or if it comes in a data format.
+We can remove the `.Input` from our templates and pick the data and schema with flags.
+This approach can be helpful when we don't have control over the input data or if it comes in a data format.
 
 {{<codePane2
   title1= "types.go" file1= "code/getting-started/code-generation/typesInput.go" lang1= "go"
@@ -226,8 +228,7 @@ pick the data and schema with flags. This approach can be helpful when we don't 
 
 ### Partial Templates
 
-Partial templates are fragments
-that are used in other templates.
+Partial templates are fragments that are used in other templates.
 Unlike regular templates, these do not map to an output file. You can capture repeated sections
 like the fields of a struct or the arguments to a function.
 
@@ -256,8 +257,10 @@ $ hof gen data.cue schema.cue -P field.go -T types.go -O out/
 ### Repeated Templates
 
 In addition to looping over data and applying a template fragment, you can use
-__repeated templates__ to write a file for each element in an iterable such as a list or struct field.
-This is useful for creating a separate file for each type or API route.
+__repeated templates__ to write a file for each element in a CUE or data iterable,
+such as a list or struct field.
+This is useful for creating a separate file for each item,
+be it a type, API route, UI component, or DB migration.
 
 To render a file for each element in the input to a `-T` flag, use `[]`.
 
@@ -275,7 +278,8 @@ $ hof gen types.cue schema.cue -T type.go="[]{{ .Name }}.go" -O out/
 
 ### Understanding the -T flag
 
-The `-T` flag in hof gen has a flexible format that allows you to customize your templates' input data, schema, and output path. 
+The `-T` flag in hof gen has a flexible format that
+allows you to customize your templates' input data, schema, and output path. 
 
 `-T "<template-path>:<input-path>[@schema-path]=<out-path>"`
 
