@@ -187,8 +187,8 @@ Steps: {
 			"""
 		}
 
-		domain: {
-			name: "domain"
+		env: {
+			name: "Docs Env"
 			run:  """
 			D="next"
 			[[ "$HOF_TAG" =~ ^docs-[0-9]{8}.[0-9]$ ]] && D="prod"

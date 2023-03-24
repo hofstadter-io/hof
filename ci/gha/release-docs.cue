@@ -43,6 +43,7 @@ ghacue.#Workflow & {
 
 				// prod build site & image
 				common.Steps.docs.setup,
+				common.Steps.docs.env,
 				{
 					name: "Build"
 
