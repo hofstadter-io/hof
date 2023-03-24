@@ -6,8 +6,8 @@ weight: 75
 
 
 {{<lead>}}
-`hof mod` is a builtin command for
-CUE module and dependency management support.
+`hof mod` is a command for
+CUE modules and dependency management.
 It is based on Go modules, backed by git,
 supports public and private repositories,
 and makes working with CUE modules easy.
