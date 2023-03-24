@@ -68,7 +68,7 @@ jobs:
         run: |-
           cd docs
           make gen
-          make hugo.next
+          make hugo.${DOCS_ENV}
       - name: GCloud Auth
         uses: google-github-actions/auth@v1
         with:

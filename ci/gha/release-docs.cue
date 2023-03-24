@@ -49,7 +49,7 @@ ghacue.#Workflow & {
 					run:  """
 					cd docs
 					make gen
-					make hugo.next
+					make hugo.${DOCS_ENV}
 					"""
 				},
 
