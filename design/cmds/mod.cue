@@ -175,6 +175,9 @@ import (
 	Both token and sshkey base methods are supported, with preferences:
 
 	1. Matching entry in .netrc
+	  machine github.com
+	  login github-token
+	  password <github-token-value>
 	
 	2. ENV VARS for well known hosts.
 	
@@ -186,9 +189,7 @@ import (
 	
 	3. SSH keys 
 
-	  the following are searched: ~/.ssh/config, /etc/ssh/config, ~/.ssh/in_rsa
-	
-	  You can configure the SSH key with HOF_SSHUSR and HOF_SSHKEY
+	  the following are searched: ~/.ssh/config, /etc/ssh/config, ~/.ssh/id_rsa
 	
 	
 	### Usage

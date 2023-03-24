@@ -1,14 +1,18 @@
 function addCasts() {
-	var cast = document.getElementById("create-cast");
+	var casts = ["create", "module"]
 
-	console.log(cast);
+	casts.forEach(c => {
+		var cast = document.getElementById(c + "-cast");
 
-	if (!!cast) {
-		AsciinemaPlayer.create('/casts/create.cast', cast, {
-			autoPlay: true,
-			loop: true,
-		});
-	}
+		console.log(cast);
+
+		if (!!cast) {
+			AsciinemaPlayer.create(`/casts/${c}.cast`, cast, {
+				autoPlay: true,
+				loop: true,
+			});
+		}
+	})
 }
 
 addCasts()
