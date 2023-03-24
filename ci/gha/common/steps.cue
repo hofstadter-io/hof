@@ -187,6 +187,15 @@ Steps: {
 			"""
 		}
 
+		env: {
+			name: "Docs Env"
+			run:  """
+			D="next"
+			[[ "$HOF_TAG" =~ ^docs-20[0-9]{6}.[0-9]+$ ]] && D="prod"
+			echo "DOCS_ENV=${D}" >> $GITHUB_ENV
+			"""
+		}
+
 	}
 }
 

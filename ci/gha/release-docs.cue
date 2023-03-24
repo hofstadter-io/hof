@@ -43,13 +43,14 @@ ghacue.#Workflow & {
 
 				// prod build site & image
 				common.Steps.docs.setup,
+				common.Steps.docs.env,
 				{
 					name: "Build"
 
 					run:  """
 					cd docs
 					make gen
-					make hugo.next
+					make hugo.${DOCS_ENV}
 					"""
 				},
 

@@ -64,11 +64,16 @@ jobs:
           cd docs
           hof mod link
           make deps
+      - name: Docs Env
+        run: |-
+          D="next"
+          [[ "$HOF_TAG" =~ ^docs-20[0-9]{6}.[0-9]+$ ]] && D="prod"
+          echo "DOCS_ENV=${D}" >> $GITHUB_ENV
       - name: Build
         run: |-
           cd docs
           make gen
-          make hugo.next
+          make hugo.${DOCS_ENV}
       - name: GCloud Auth
         uses: google-github-actions/auth@v1
         with:
