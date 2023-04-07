@@ -20,6 +20,10 @@ $(workflows): workflow_%:
 devcontainer: ci/devc/devcontainer.cue
 	@cue export ci/devc/devcontainer.cue -f -o .devcontainer/devcontainer.json
 
+.PHONY: hack 
+hack:
+	CGO_ENABLED=0 go install ./hack
+
 .PHONY: hof
 hof:
 	CGO_ENABLED=0 go install ./cmd/hof
@@ -28,6 +32,12 @@ hof:
 .PHONY: hof.build
 hof.build:
 	CGO_ENABLED=0 go build -o hof ./cmd/hof
+
+.PHONY: deps.check deps.update
+deps.check:
+	go list -u -m all | grep '\[.*\]'
+deps.update:
+	go get -u ./...
 
 # formatter images
 .PHONY: formatters fmtr.release

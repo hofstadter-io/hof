@@ -157,6 +157,12 @@ func (CRT *CueRuntime) load() (err error) {
 				errs = append(errs, err)
 				continue
 			}
+			// we don't know what this file is
+			if F == nil {
+				continue
+			}
+
+			// embed the data file, already placed if needed
 			bi.AddSyntax(F)
 		}
 
@@ -326,6 +332,7 @@ func (CRT *CueRuntime) loadOrphanedFile(f *build.File, pkgName string, root, dir
 	default:
 		// should only do this if it was also an arg
 		// otherwise we should ignore other files implicitly discovered
+		// we see go files here for example
 
 		// todo, re-enable this with better checks
 		// err := fmt.Errorf("unknown encoding for %q %q", f.Filename, f.Encoding)

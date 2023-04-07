@@ -1,0 +1,44 @@
+exec hof mod vendor cue
+exec hof datamodel list
+cmp stdout golden.stdout
+
+-- cue.mod/module.cue --
+module: "hof.io/test"
+-- cue.mods --
+module hof.io/test
+
+cue 0.5.0
+
+require (
+  github.com/hofstadter-io/hof v0.6.7
+)
+-- hof.cue --
+package datamodel
+
+import (
+	"github.com/hofstadter-io/hof/schema/dm"
+	"github.com/hofstadter-io/hof/schema/dm/fields"
+)
+
+#MyModels: dm.#Datamodel & {
+	Name: "MyModels"
+
+	Models: {
+		#AllModels
+	}
+}
+
+#AllModels: dm.#Models & {
+	"user-profile": UserProfile
+}
+
+UserProfile: dm.#Model & {
+	Fields: {
+		firstName:  fields.String
+		middleName: fields.String
+		lastName:   fields.String
+	}
+}
+
+-- golden.stdout --
+No datamodels found

@@ -9,7 +9,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var listLong = `print available data models`
+var listLong = `print available datamodels`
 
 func ListRun(args []string) (err error) {
 
@@ -27,7 +27,7 @@ var ListCmd = &cobra.Command{
 		"ls",
 	},
 
-	Short: "print available data models",
+	Short: "print available datamodels",
 
 	Long: listLong,
 

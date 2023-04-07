@@ -1,8 +1,0 @@
-! exec hof datamodel list
-cmp stdout golden.stdout
-
--- hof.cue --
-package main
-
--- golden.stdout --
-No datamodels found

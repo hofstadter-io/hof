@@ -9,17 +9,17 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 
-	"github.com/hofstadter-io/hof/lib/datamodel"
+	"github.com/hofstadter-io/hof/lib/datamodel/cmd"
 )
 
-var listLong = `print available data models`
+var listLong = `print available datamodels`
 
 func ListRun(args []string) (err error) {
 
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = datamodel.RunListFromArgs(args, flags.DatamodelPflags)
+	err = cmd.Run("list", args, flags.RootPflags, flags.DatamodelPflags)
 
 	return err
 }
@@ -32,7 +32,7 @@ var ListCmd = &cobra.Command{
 		"ls",
 	},
 
-	Short: "print available data models",
+	Short: "print available datamodels",
 
 	Long: listLong,
 

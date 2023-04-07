@@ -42,15 +42,9 @@ func (ts *Script) setupTest() string {
 }
 
 func (ts *Script) resetDirs() {
-	dirs := []string{
-		"tmp",
-		"home",
-	}
-	for _, d := range dirs {
-		f := filepath.Join(ts.workdir, d)
-		ts.Check(os.RemoveAll(f))
-		ts.Check(os.MkdirAll(f, 0777))
-	}
+	ts.Check(os.RemoveAll(ts.workdir))
+	ts.Check(os.MkdirAll(ts.workdir, 0777))
+	return
 }
 
 // setupRun sets up the script execution for working in the current directory.

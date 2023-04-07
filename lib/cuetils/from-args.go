@@ -44,7 +44,7 @@ func CueRuntimeFromEntrypointsAndFlags(entrypoints []string) (crt *CueRuntime, e
 		Module:     "",
 		Package:    "",
 		Dir:        "",
-		Tags:       flags.RootPflags.Tags,
+		Tags:       rflags.Tags,
 		TagVars:    load.DefaultTagVars(),
 		Tests:      false,
 		Tools:      false,

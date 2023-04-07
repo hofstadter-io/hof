@@ -112,6 +112,22 @@ func diffList(orig, next cue.Value, opts *Options) (cue.Value, bool) {
 }
 
 func diffLeaf(orig, next cue.Value, opts *Options) (cue.Value, bool) {
+	if orig.IncompleteKind() == next.IncompleteKind() {
+		if orig.IsConcrete() == next.IsConcrete() {
+			u := orig.Unify(next)
+			if u.Err() == nil {
+				return cue.Value{}, false
+			}
+		}
+	}
+
+	// need to know if this is a basic lit, so we know if we are changing a concrete value
+	ctx := orig.Context()
+	ret := ctx.CompileString("{}")
+	ret = ret.FillPath(cue.ParsePath("\"-\""), orig)
+	ret = ret.FillPath(cue.ParsePath("\"+\""), next)
+
+	/*
 	ctx := orig.Context()
 	ret := newStruct(ctx)
 	lbl := GetLabel(orig)
@@ -134,6 +150,7 @@ func diffLeaf(orig, next cue.Value, opts *Options) (cue.Value, bool) {
 	add := newStruct(ctx)
 	add = add.FillPath(cue.MakePath(lbl), next)
 	ret = ret.FillPath(cue.ParsePath("\"+\""), add)
+	*/
 
 	return ret, true
 }

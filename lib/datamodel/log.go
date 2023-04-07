@@ -2,66 +2,181 @@ package datamodel
 
 import (
 	"fmt"
+	"io"
+	"strings"
+
+	"cuelang.org/go/cue"
+	"cuelang.org/go/cue/format"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 )
 
-func RunLogFromArgs(args []string, flgs flags.DatamodelPflagpole) error {
-	// fmt.Println("lib/datamodel.Info", args, flgs)
+func (dm *Datamodel) PrintLog(out io.Writer, max int, ts string, dflags flags.DatamodelPflagpole, cflags flags.Datamodel__LogFlagpole) error {
+	// we add an extra 2 here because we want to indenty everything under a timestamp
+	return dm.T.printLogR(out, ts, "  ", "  ", max+2, dflags, cflags)
+}
 
-	dms, err := PrepDatamodels(args, flgs)
-	if err != nil {
+func (V *Value) printLogR(out io.Writer, ts, indent, spaces string, max int, dflags flags.DatamodelPflagpole, cflags flags.Datamodel__LogFlagpole) error {
+	if err := V.printLog(out, ts, indent, spaces, max, dflags, cflags); err != nil {
 		return err
 	}
 
-	for _, dm := range dms {
-		err = CalcDatamodelStepwiseDiff(dm)
-		if err != nil {
+	// recurse if children to load any nested histories
+	for _, c := range V.Children {
+		if err := c.T.printLogR(out, ts, indent + spaces, spaces, max, dflags, cflags); err != nil {
 			return err
 		}
 	}
 
-	for _, dm := range dms {
-		// shortcut if no history
-		if dm.History == nil || len(dm.History.Past) == 0 {
-			fmt.Printf("%s: no history")
-			fmt.Println(dm.Value)
-			continue
-		}
+	return nil
+}
 
-		fmt.Println("// current")
-		// print current subsume
-		if dm.Subsume != nil {
-			fmt.Println("// subsume:", dm.Subsume.Error())
-		} else {
-			fmt.Println("// subsume: yes")
-		}
-
-		// print current diff
-		if dm.Diff.Exists() {
-			fmt.Printf("%s: HEAD: %v\n\n", dm.Name, dm.Diff)
-		} else {
-			fmt.Printf("%s: HEAD: %v\n\n", dm.Name, "\"no diff\"")
-		}
-
-		// print history diff
-		past := dm.History.Past
-		for i := 0; i < len(past)-1; i++ {
-			curr := past[i]
-			fmt.Println("//", curr.Timestamp)
-			if curr.Subsume != nil {
-				fmt.Println("// subsume:", curr.Subsume.Error())
-			} else {
-				fmt.Println("// subsume: yes")
+func (V *Value) printLog(out io.Writer, ts, indent, spaces string, max int, dflags flags.DatamodelPflagpole, cflags flags.Datamodel__LogFlagpole) error {
+	if len(dflags.Expression) > 0 {
+		path := V.Hof.Path
+		found := false
+		for _, ex := range dflags.Expression {
+			if ex == path {
+				found = true
+				break
 			}
-			fmt.Printf("%s: \"HEAD~%d\": %v\n\n", dm.Name, i+1, curr.Diff)
+		}
+		if !found {
+			return nil
+		}
+	}
+
+	name := V.Hof.Label
+	extra := ""
+
+	hasNoHist := len(V.history) == 0
+	// fmt.Println("hasHist:", V.Hof.Path, hasHist)
+	if hasNoHist {
+		fmt.Fprintf(out, "%s%s\n", indent, name)
+		return nil
+	}
+
+	if V.hasSnapshotAt(ts) {
+		pos := V.getSnapshotPos(ts)
+		newVal := false
+		if pos == len(V.history)-1 {
+			extra = "- new value"
+			newVal = true
+		} else {
+			extra = "- has changes"
 		}
 
-		// print original (last) value
-		last := past[len(past)-1]
-		fmt.Println("//", last.Timestamp, "(original)")
-		fmt.Println("// subsume: n/a")
-		fmt.Printf("%s: \"HEAD~%d\": %v\n", dm.Name, len(past), last.Value)
+		fstr := fmt.Sprintf("%%s%%-%ds %%s\n", max - len(indent))
+		fmt.Fprintf(out, fstr, indent, name, extra)
+
+		if cflags.Details {
+			S := V.history[pos]
+			val := S.Lense.CurrDiff
+
+			if !newVal {
+				node := val.Syntax(
+					cue.Final(),
+					cue.Docs(true),
+					cue.Attributes(true),
+					cue.Definitions(true),
+					cue.Optional(true),
+					cue.Hidden(true),
+					cue.Concrete(true),
+					cue.ResolveReferences(true),
+				)
+				bytes, err := format.Node(
+					node,
+					format.Simplify(),
+				)
+				if err != nil {
+					return err
+				}
+				str := string(bytes)
+
+				lines := strings.Split(str, "\n")
+				str = ""
+				for _, line := range lines {
+					str += indent + line + "\n"
+				}
+				
+				fmt.Fprintln(out, str)
+			}
+
+		}
+	}
+
+	return nil
+}
+
+func (dm *Datamodel) PrintLogByValue(out io.Writer, max int, dflags flags.DatamodelPflagpole, cflags flags.Datamodel__LogFlagpole) error {
+		return dm.T.printLogByValueR(out, "", "  ", max, dflags)
+}
+
+func (V *Value) printLogByValueR(out io.Writer, indent, spaces string, max int, dflags flags.DatamodelPflagpole) error {
+	// load own history
+	if err := V.printLogByValue(out, indent, spaces, max, dflags); err != nil {
+		return err
+	}
+	if V.Hof.Datamodel.History {
+		V.printLogEntriesByValue(out, indent + spaces, dflags)
+	}
+
+	// recurse if children to load any nested histories
+	for _, c := range V.Children {
+		if err := c.T.printLogByValueR(out, indent + spaces, spaces, max, dflags); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (V *Value) printLogByValue(out io.Writer, indent, spaces string, max int, dflags flags.DatamodelPflagpole) error {
+	if len(dflags.Expression) > 0 {
+		path := V.Hof.Path
+		found := false
+		for _, ex := range dflags.Expression {
+			if ex == path {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return nil
+		}
+	}
+	name := V.Hof.Label
+	extra := ""
+	if V.hasDiff() {
+		extra = "- has changes"
+	}
+	if V.Hof.Datamodel.History && len(V.history) == 0 {
+		extra = "- new value"
+	}
+
+	fstr := fmt.Sprintf("%%s%%-%ds %%s\n", max - len(indent))
+	fmt.Fprintf(out, fstr, indent, name, extra)
+
+	return nil
+}
+
+func (V *Value) printLogEntriesByValue(out io.Writer, indent string, dflags flags.DatamodelPflagpole) error {
+	if len(dflags.Expression) > 0 {
+		path := V.Hof.Path
+		found := false
+		for _, ex := range dflags.Expression {
+			if ex == path {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return nil
+		}
+	}
+	// fmt.Println("got here", len(V.history))
+	for _, S := range V.history {
+		fmt.Fprintf(out, "%s  @%s  %q\n", indent, S.Timestamp, S.Message)
 	}
 
 	return nil

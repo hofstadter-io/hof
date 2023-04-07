@@ -3,10 +3,9 @@ module github.com/hofstadter-io/hof
 go 1.19
 
 require (
-	cuelang.org/go v0.5.0-beta.5
+	cuelang.org/go v0.5.0-rc.1
 	github.com/AlecAivazis/survey/v2 v2.3.6
 	github.com/BurntSushi/toml v1.2.1
-	github.com/Masterminds/semver/v3 v3.2.0
 	github.com/aymerick/raymond v2.0.2+incompatible
 	github.com/bmatcuk/doublestar/v4 v4.6.0
 	github.com/clbanning/mxj v1.8.4
@@ -21,12 +20,10 @@ require (
 	github.com/go-git/go-git/v5 v5.5.2
 	github.com/gofrs/flock v0.8.1
 	github.com/google/go-containerregistry v0.13.0
-	github.com/google/go-github/v47 v47.1.0
 	github.com/google/uuid v1.3.0
 	github.com/hofstadter-io/cinful v1.0.0
 	github.com/kevinburke/ssh_config v1.2.0
 	github.com/kr/pretty v0.3.1
-	github.com/ktrysmt/go-bitbucket v0.9.55
 	github.com/labstack/echo-contrib v0.14.0
 	github.com/labstack/echo/v4 v4.10.1
 	github.com/lucsky/cuid v1.2.1
@@ -40,10 +37,8 @@ require (
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/viper v1.15.0
 	github.com/stretchr/testify v1.8.1
-	github.com/xanzy/go-gitlab v0.80.2
 	go.uber.org/zap v1.24.0
 	golang.org/x/mod v0.8.0
-	golang.org/x/oauth2 v0.5.0
 	golang.org/x/text v0.7.0
 	gopkg.in/errgo.v2 v2.1.0
 	gopkg.in/inconshreveable/log15.v2 v2.16.0
@@ -75,9 +70,6 @@ require (
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
-	github.com/google/go-querystring v1.1.0 // indirect
-	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
-	github.com/hashicorp/go-retryablehttp v0.7.2 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/imdario/mergo v0.3.13 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
@@ -134,7 +126,6 @@ require (
 	golang.org/x/term v0.5.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.6.0 // indirect
-	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect

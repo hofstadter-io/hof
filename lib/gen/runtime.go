@@ -13,7 +13,13 @@ import (
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/cuetils"
+	dm "github.com/hofstadter-io/hof/lib/datamodel"
 )
+
+// TODO, probably move Runtime to own directory
+// so we can abstract out common functionality
+// some of the dir stuff and CUE setup would be
+// nice in other commands
 
 type Runtime struct {
 	sync.Mutex
@@ -40,6 +46,7 @@ type Runtime struct {
 
 	// Hof related
 	Generators map[string]*Generator
+	Datamodels map[string]*dm.Datamodel
 	Stats      *RuntimeStats
 }
 
@@ -48,6 +55,7 @@ func NewRuntime(entrypoints []string, rootflags flags.RootPflagpole, cmdflags fl
 		Entrypoints: entrypoints,
 		Flagpole:    cmdflags,
 		Generators:  make(map[string]*Generator),
+		Datamodels:  make(map[string]*dm.Datamodel),
 		Stats:       new(RuntimeStats),
 		Verbosity:  rootflags.Verbosity,
 		NoFormat:   cmdflags.NoFormat,

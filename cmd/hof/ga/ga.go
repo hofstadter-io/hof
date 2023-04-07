@@ -43,8 +43,13 @@ func init() {
 		cid = "disabled"
 		return
 	}
+	// workaround for running in TestScript tool
+	if strings.HasPrefix(ucd, "/no-home") {
+		ucd = strings.TrimPrefix(ucd, "/")
+	}
 	dir = filepath.Join(ucd, "hof")
 	fn = filepath.Join(dir, ".uuid")
+
 
 	// try reading
 	cid, err = readGaId()
@@ -171,7 +176,6 @@ func readGaId() (string, error) {
 }
 
 func writeGaId(value string) error {
-
 	err := os.MkdirAll(dir, 0755)
 	if err != nil {
 		return err

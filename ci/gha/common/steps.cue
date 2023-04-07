@@ -89,8 +89,26 @@ Steps: {
 		}
 
 		setup: {
-			name: "Set up Docker BuildX"
-			uses: "docker/setup-buildx-action@v2"
+			linux: {
+				name: "Set up Docker BuildX"
+				uses: "docker/setup-buildx-action@v2"
+			}
+			macos: {
+				name: "Set up Docker Colima"
+				run: """
+					brew install docker colima
+					colima start --cpu 1 --memory 2 --disk 10
+					"""
+			}
+		}
+
+		login: {
+			name: "Login to Docker Hub"
+			uses: "docker/login-action@v2"
+			with: {
+				username: "${{ secrets.HOF_DOCKER_USER }}"
+				password: "${{ secrets.HOF_DOCKER_TOKEN }}"
+			}
 		}
 
 		formatters: {

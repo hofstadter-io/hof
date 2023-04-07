@@ -9,7 +9,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var infoLong = `print details for a data model`
+var infoLong = `print details for a datamodel`
 
 func InfoRun(args []string) (err error) {
 
@@ -27,7 +27,7 @@ var InfoCmd = &cobra.Command{
 		"i",
 	},
 
-	Short: "print details for a data model",
+	Short: "print details for a datamodel",
 
 	Long: infoLong,
 
