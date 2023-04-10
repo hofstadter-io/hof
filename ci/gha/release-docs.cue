@@ -16,9 +16,9 @@ ghacue.#Workflow & {
 			inputs: {
 				deploy: {
 					description: "where to deploy"
-					required: true
-					default: "next"
-					type: "choice"
+					required:    true
+					default:     "next"
+					type:        "choice"
 					options: ["next", "prod"]
 				}
 			}
@@ -28,13 +28,13 @@ ghacue.#Workflow & {
 
 	jobs: {
 		docs: {
-			"runs-on": "ubuntu-latest"
+			"runs-on":   "ubuntu-latest"
 			environment: "hof docs"
 
 			steps: [
 				// general setup
 				common.Steps.cue.install,
-				common.Steps.go.setup & { #ver: "1.20.x" },
+				common.Steps.go.setup & {#ver: "1.20.x"},
 				common.Steps.go.cache,
 				common.Steps.checkout,
 				common.Steps.vars,
@@ -47,11 +47,11 @@ ghacue.#Workflow & {
 				{
 					name: "Build"
 
-					run:  """
-					cd docs
-					make gen
-					make hugo.${DOCS_ENV}
-					"""
+					run: """
+						cd docs
+						make gen
+						make hugo.${DOCS_ENV}
+						"""
 				},
 
 				// gcloud auth setup
@@ -62,15 +62,17 @@ ghacue.#Workflow & {
 				// push image & deploy
 				{
 					name: "Image"
-					run:  """
-					cd docs
-					make docker
-					make push
-					make deploy.next.view
-					"""
+					run: """
+						export TAG=${HOF_TAG}
+
+						cd docs
+						make docker
+						make push
+						make deploy.${DOCS_ENV}.view
+						"""
+					// todo, we need to create a CloudBuild and run that
 				},
 			]
 		}
 	}
 }
-

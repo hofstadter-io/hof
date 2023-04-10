@@ -6,11 +6,11 @@ description: >
   How to get help and support for __hof__
 ---
 
-## General Support
+## Community Support
 
-Hofstadter provides support through the following channels:
+You can get help & support in the community:
 
-- __[Chat on Slack](https://hofstadter-io.slack.com)__ for questions and conversations. Use __[this link for an invite](https://join.slack.com/t/hofstadter-io/shared_invite/zt-e5f90lmq-u695eJur0zE~AG~njNlT1A)__.
+- __[Chat on Slack]({{<slackLink>}})__ for questions and conversations. Use __[this link for an invite](https://join.slack.com/t/hofstadter-io/shared_invite/zt-e5f90lmq-u695eJur0zE~AG~njNlT1A)__.
 - __[Github Discussions](https://github.com/hofstadter-io/hof/discussions)__ are used for long-term recording of important questions and topics.
 - __[Github Issues](https://github.com/hofstadter-io/hof/issues)__ to file bugs and feature requests.
 

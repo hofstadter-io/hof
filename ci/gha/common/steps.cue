@@ -11,23 +11,23 @@ Steps: {
 
 	vars: {
 		name: "Setup Vars"
-		id: "vars"
+		id:   "vars"
 		run: """
-		SHA=${GITHUB_SHA::8}
-		TAG=$(git tag --points-at HEAD)
-		echo "HOF_FMT_VERSION=${TAG}" >> $GITHUB_ENV
-		if [ -z $TAG ]; then
-			TAG=${SHA}
-		fi
-		echo "HOF_SHA=${SHA}" >> $GITHUB_ENV
-		echo "HOF_TAG=${TAG}" >> $GITHUB_ENV
-		"""
+			SHA=${GITHUB_SHA::8}
+			TAG=$(git tag --points-at HEAD)
+			echo "HOF_FMT_VERSION=${TAG}" >> $GITHUB_ENV
+			if [ -z $TAG ]; then
+				TAG=${SHA}
+			fi
+			echo "HOF_SHA=${SHA}" >> $GITHUB_ENV
+			echo "HOF_TAG=${TAG}" >> $GITHUB_ENV
+			"""
 	}
 
 	cue: {
 		install: {
 			#ver: string | *"v0.5.0-beta.5"
-			run: """
+			run:  """
 			mkdir tmp
 			cd tmp
 			wget https://github.com/cue-lang/cue/releases/download/\(#ver)/cue_\(#ver)_linux_amd64.tar.gz -O cue.tar.gz
@@ -69,9 +69,9 @@ Steps: {
 			with: {
 				// either 'goreleaser' (default) or 'goreleaser-pro'
 				distribution: "goreleaser"
-				version: "latest"
-				workdir: "cmd/hof"
-				args: "release --clean -f goreleaser.yml -p 1"
+				version:      "latest"
+				workdir:      "cmd/hof"
+				args:         "release --clean -f goreleaser.yml -p 1"
 			}
 			env: {
 				GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
@@ -115,12 +115,12 @@ Steps: {
 			name: "Build Image"
 			uses: "docker/build-push-action@v3"
 			with: {
-				context: "formatters/tools/${{ matrix.formatter }}"
-				file: "\(context)/Dockerfile.debian"
+				context:   "formatters/tools/${{ matrix.formatter }}"
+				file:      "\(context)/Dockerfile.debian"
 				platforms: "linux/amd64,linux/arm64"
-				tags: strings.Join([
-					"ghcr.io/hofstadter-io/fmt-${{ matrix.formatter }}:${{ env.HOF_SHA }}",
-					"ghcr.io/hofstadter-io/fmt-${{ matrix.formatter }}:${{ env.HOF_TAG }}",
+				tags:      strings.Join([
+						"ghcr.io/hofstadter-io/fmt-${{ matrix.formatter }}:${{ env.HOF_SHA }}",
+						"ghcr.io/hofstadter-io/fmt-${{ matrix.formatter }}:${{ env.HOF_TAG }}",
 				], ",")
 			}
 			env: {
@@ -175,7 +175,7 @@ Steps: {
 		}
 		setup: {
 			name: "GCloud Setup"
-      uses: "google-github-actions/setup-gcloud@v1"
+			uses: "google-github-actions/setup-gcloud@v1"
 		}
 
 		dockerAuth: {
@@ -197,23 +197,23 @@ Steps: {
 
 		setup: {
 			name: "Setup"
-			run:  """
-			hof fmt start prettier@v0.6.8-beta.11
-			cd docs
-			hof mod link
-			make deps
-			"""
+			run: """
+				hof fmt start prettier@v0.6.8-beta.12
+				cd docs
+				hof mod link
+				make tools
+				make deps
+				"""
 		}
 
 		env: {
 			name: "Docs Env"
-			run:  """
-			D="next"
-			[[ "$HOF_TAG" =~ ^docs-20[0-9]{6}.[0-9]+$ ]] && D="prod"
-			echo "DOCS_ENV=${D}" >> $GITHUB_ENV
-			"""
+			run: """
+				D="next"
+				[[ "$HOF_TAG" =~ ^docs-20[0-9]{6}.[0-9]+$ ]] && D="prod"
+				echo "DOCS_ENV=${D}" >> $GITHUB_ENV
+				"""
 		}
 
 	}
 }
-

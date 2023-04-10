@@ -68,6 +68,14 @@ hof --help
 ```
 
 
+## Contributing & Community
+
+Interested in helping out or hanging out? The best ways to get started are
+
+1. [The Contributing Guild](https://docs.hofstadter.io/contributing/)
+2. [Joining the Community](https://docs.hofstadter.io/help-and-support/#community/)
+
+
 ## Main Commands
 
 ### hof

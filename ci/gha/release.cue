@@ -16,12 +16,12 @@ ghacue.#Workflow & {
 	jobs: {
 		goreleaser: {
 			environment: "hof mod testing"
-			"runs-on": "ubuntu-latest"
+			"runs-on":   "ubuntu-latest"
 			steps: [
 				common.Steps.checkout,
 				common.Steps.vars,
 				common.Steps.buildx.qemu,
-				common.Steps.buildx.setup,
+				common.Steps.buildx.setup.linux,
 				common.Steps.docker.login,
 				common.Steps.go.setup,
 				common.Steps.go.deps,
@@ -34,15 +34,15 @@ ghacue.#Workflow & {
 				matrix: formatter: common.Formatters
 			}
 			environment: "hof mod testing"
-			"runs-on": "ubuntu-latest"
+			"runs-on":   "ubuntu-latest"
 
 			steps: [
 				common.Steps.checkout,
 				common.Steps.vars,
 				common.Steps.buildx.qemu,
-				common.Steps.buildx.setup,
+				common.Steps.buildx.setup.linux,
 				common.Steps.docker.login,
-				common.Steps.buildx.formatters & { with: push: true },
+				common.Steps.buildx.formatters & {with: push: true},
 			]
 		}
 	}

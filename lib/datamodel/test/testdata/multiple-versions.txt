@@ -1,5 +1,5 @@
 # setup
-exec hof mod get github.com/hofstadter-io/hof@dm-revamp
+exec hof mod get github.com/hofstadter-io/hof@_dev
 exec hof mod vendor
 
 # check v0 dirty
@@ -118,7 +118,6 @@ User: Fields: "+": persona: {
 			history: true
 			ordered: false
 			cue:     false
-			version: ""
 		}
 	}
 

@@ -60,9 +60,10 @@ jobs:
         run: go install ./cmd/hof
       - name: Setup
         run: |-
-          hof fmt start prettier@v0.6.8-beta.11
+          hof fmt start prettier@v0.6.8-beta.12
           cd docs
           hof mod link
+          make tools
           make deps
       - name: Docs Env
         run: |-
@@ -84,9 +85,11 @@ jobs:
         run: gcloud auth configure-docker
       - name: Image
         run: |-
+          export TAG=${HOF_TAG}
+
           cd docs
           make docker
           make push
-          make deploy.next.view
+          make deploy.${DOCS_ENV}.view
     strategy: {}
     services: {}
