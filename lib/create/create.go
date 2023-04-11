@@ -15,7 +15,9 @@ import (
 	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/datautils/io"
 	"github.com/hofstadter-io/hof/lib/gen"
+	gencmd "github.com/hofstadter-io/hof/lib/gen/cmd"
 	"github.com/hofstadter-io/hof/lib/repos/cache"
+	"github.com/hofstadter-io/hof/lib/runtime"
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
@@ -131,14 +133,23 @@ func Create(module string, extra []string, rootflags flags.RootPflagpole, cmdfla
 	// create our runtime now, maybe we want a new func for this
 	//   since we want to ignore any current CUE module context
 	//   everything is put into a temp dir and rendered to CWD
-	R, err := gen.NewRuntime(nil, rootflags, genflags)
+
+	// create our core runtime
+	r, err := runtime.New(nil, rootflags)
 	if err != nil {
 		return err
 	}
+	// upgrade to a generator runtime
+	R := gencmd.NewGenRuntime(r, genflags)
 	R.OriginalWkdir = cwd
 
-	if R.Verbosity > 0 {
+	if R.Flags.Verbosity > 0 {
 		fmt.Println("CueDirs:", R.CueModuleRoot, R.WorkingDir)
+	}
+
+	err = R.Reload(false)
+	if err != nil {
+		return err
 	}
 
 	// fmt.Println("pre-run-creator")
@@ -250,19 +261,8 @@ func setupTmpdir(url, ver string) (tmpdir, subdir string, err error) {
 	return tmpdir, subdir, err
 }
 
-func runCreator(R *gen.Runtime, extra, inputs []string) (err error) {
+func runCreator(R *gencmd.Runtime, extra, inputs []string) (err error) {
 
-	// minimally load and extract generators
-	err = R.LoadCue()
-	if err != nil {
-		return err
-	}
-
-	// extract generators
-	err = R.ExtractGenerators()
-	if err != nil {
-		return err
-	}
 	if len(R.Generators) == 0 {
 		return fmt.Errorf("no generators found, please make sure there is a creator at the root of the repository")
 	}
@@ -277,7 +277,7 @@ func runCreator(R *gen.Runtime, extra, inputs []string) (err error) {
 		if err != nil {
 			return err
 		}
-		if R.Verbosity > 0 {
+		if R.Flags.Verbosity > 0 {
 			fmt.Println("Create flag-input:", inputMap)
 		}
 	}
@@ -288,24 +288,20 @@ func runCreator(R *gen.Runtime, extra, inputs []string) (err error) {
 		if err != nil {
 			return err
 		}
+		if G.Verbosity > 1 {
+			fmt.Println("G.Value:", G.Name, G.CueValue)
+		}
 	}
+
+
 
 	// fmt.Printf("map: %#+v\n", inputMap)
 
 	// full load generators
 	// so author can use create inputs in other fields
-	errs := R.LoadGenerators()
-	if len(errs) > 0 {
-		fmt.Println("hello")
-		for _, e := range errs {
-			cuetils.PrintCueError(e)
-			// fmt.Println(e)
-		}
-		return fmt.Errorf("While loading generators")
-	}
 
 	// run generators
-	errs = R.RunGenerators()
+	errs := R.RunGenerators()
 	if len(errs) > 0 {
 		for _, e := range errs {
 			fmt.Println(e)
@@ -331,7 +327,7 @@ func runCreator(R *gen.Runtime, extra, inputs []string) (err error) {
 		}
 
 		if !after.IsConcrete() || !after.Exists() {
-			if R.Verbosity > 0 {
+			if R.Flags.Verbosity > 0 {
 				fmt.Println("done creating")
 			}
 		} else {
@@ -346,7 +342,7 @@ func runCreator(R *gen.Runtime, extra, inputs []string) (err error) {
 	return nil
 }
 
-func loadCreateInputs(R *gen.Runtime, inputFlags []string) (input map[string]any, err error) {
+func loadCreateInputs(R *gencmd.Runtime, inputFlags []string) (input map[string]any, err error) {
 	if len(inputFlags) == 0 {
 		return nil, nil
 	}
@@ -398,7 +394,7 @@ func handleGeneratorCreate(G *gen.Generator, extraArgs []string, inputMap map[st
 
 	genVal := G.CueValue
 
-		// pritn the before message if set, otherwise default
+	// pritn the before message if set, otherwise default
 	before := genVal.LookupPath(cue.ParsePath("Create.Message.Before"))
 	if before.Err() != nil {
 		fmt.Println("error:", before.Err())
@@ -483,6 +479,16 @@ func handleGeneratorCreate(G *gen.Generator, extraArgs []string, inputMap map[st
 		return err
 	}
 
+	in := G.CueValue.LookupPath(cue.ParsePath("In"))
+	if !in.Exists() {
+		return fmt.Errorf("In gen:%s, missing In value", G.Name)
+	}
+
+	err = in.Decode(&G.In)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -525,7 +531,7 @@ func looksLikeRepo(str string) bool {
 	return true
 }
 
-func loadInputsFromFile(R *gen.Runtime, fn string) (map[string]any, error) {
+func loadInputsFromFile(R *gencmd.Runtime, fn string) (map[string]any, error) {
 	ext := filepath.Ext(fn)[1:]
 	data := make(map[string]any)
 
@@ -537,7 +543,7 @@ func loadInputsFromFile(R *gen.Runtime, fn string) (map[string]any, error) {
 		}
 
 		// compile CUE
-		ctx := R.CueRuntime.CueContext
+		ctx := R.Value.Context()
 		v := ctx.CompileBytes(content, cue.Filename(fn))
 		if v.Err() != nil {
 			return nil, v.Err()

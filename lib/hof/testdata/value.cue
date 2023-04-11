@@ -3,7 +3,7 @@ package hack
 val: {
 	foo: "bar"
 
-	#hof: {
+	$hof: {
 		metadata: {
 			labels: {
 				app: "val-app"
@@ -11,7 +11,7 @@ val: {
 			}
 		}
 		datamodel: {
-		  root: true
+			root:    true
 			history: true
 		}
 	}

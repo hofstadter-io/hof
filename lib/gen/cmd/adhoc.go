@@ -1,4 +1,4 @@
-package gen
+package cmd
 
 import (
 	"fmt"
@@ -7,6 +7,8 @@ import (
 
 	"cuelang.org/go/cue"
 
+	"github.com/hofstadter-io/hof/lib/gen"
+	"github.com/hofstadter-io/hof/lib/hof"
 	"github.com/hofstadter-io/hof/lib/templates"
 )
 
@@ -34,8 +36,8 @@ type AdhocTemplateConfig struct {
 }
 
 func (R *Runtime) CreateAdhocGenerator() error {
-	if len(R.Flagpole.Template) == 0 {
-		if R.Verbosity > 1 {
+	if len(R.GenFlags.Template) == 0 {
+		if R.Flags.Verbosity > 1 {
 			fmt.Println("Skipping Ad-hoc Generator")
 		}
 		return nil
@@ -44,12 +46,12 @@ func (R *Runtime) CreateAdhocGenerator() error {
 	// parse template flags
 	tcfgs := []AdhocTemplateConfig{}
 	globs := make([]string,0)
-	for _, tf := range R.Flagpole.Template {
-		cfg, err := parseTemplateFlag(tf)
+	for _, tf := range R.GenFlags.Template {
+		cfg, err := ParseTemplateFlag(tf)
 		if err != nil {
 			return err
 		}
-		if R.Verbosity > 2 {
+		if R.Flags.Verbosity > 2 {
 			fmt.Printf("%s -> %#v\n", tf, cfg)
 		}
 		tcfgs = append(tcfgs, cfg)
@@ -58,15 +60,24 @@ func (R *Runtime) CreateAdhocGenerator() error {
 		}
 	}
 
-	G := NewGenerator("AdhocGen", R.CueRuntime.CueValue, R)
+	var h hof.Hof
+	h.Label = "AdhocGen"
+	h.Path = R.Value.Path().String()
+	h.Gen.Root = true
+	h.Gen.Name = "AdhocGen"
+	node := &hof.Node[gen.Generator]{
+		Value: R.Value,
+		Hof: h,
+	}
+	G := gen.NewGenerator(node)
 	// reset some vals for ad-hoc
-	G.cwdToRoot = ""
+	G.CwdToRoot = ""
 	G.Outdir = ""
 
-	G.Templates = []*TemplateGlobs{ &TemplateGlobs{Globs: globs} }
-	G.Partials  = []*TemplateGlobs{ &TemplateGlobs{Globs: R.Flagpole.Partial} }
+	G.Templates = []*gen.TemplateGlobs{ &gen.TemplateGlobs{Globs: globs} }
+	G.Partials  = []*gen.TemplateGlobs{ &gen.TemplateGlobs{Globs: R.GenFlags.Partial} }
 
-	Val := R.CueRuntime.CueValue
+	Val := R.Value
 
 
 	stdout := 0
@@ -81,7 +92,7 @@ func (R *Runtime) CreateAdhocGenerator() error {
 		}
 
 		addFile := func(val cue.Value) (err error) {
-			f := new(File)
+			f := new(gen.File)
 
 			// we need this for rendering the output
 			// and/or setting the input for the file
@@ -105,7 +116,7 @@ func (R *Runtime) CreateAdhocGenerator() error {
 			op := cfg.Outpath
 			if op == "" {
 				// when -O is set, -T will replicate the template name to the outpath name
-				if R.Flagpole.Outdir != "" {
+				if R.GenFlags.Outdir != "" {
 					op = cfg.Filepath
 				} else {
 					op = fmt.Sprintf("hof-stdout-%d", stdout)
@@ -171,17 +182,17 @@ func (R *Runtime) CreateAdhocGenerator() error {
 		return fmt.Errorf("while initializing ad-hoc generator")
 	}
 
-	if R.Verbosity > 2 {
+	if R.Flags.Verbosity > 2 {
 		fmt.Printf("AdhocGen: %#v\n", G)
 	}
 
-	R.Generators["AdhocGen"] = G
+	R.Generators = append(R.Generators, G)
 	return nil
 }
 
 // deconstructs the flag into struct
 // semicolon separated: <filepath>:<?cuepath>@<schema>=<?outpath>
-func parseTemplateFlag(tf string) (cfg AdhocTemplateConfig, err error) {
+func ParseTemplateFlag(tf string) (cfg AdhocTemplateConfig, err error) {
 	// We work our way from end to start of the string, 
 
 	// look for =

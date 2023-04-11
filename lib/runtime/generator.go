@@ -3,16 +3,17 @@ package runtime
 import (
 	"fmt"
 	"regexp"
+	"time"
 
-	"github.com/hofstadter-io/hof/lib/datamodel"
+	"github.com/hofstadter-io/hof/lib/gen"
 	"github.com/hofstadter-io/hof/lib/hof"
 )
 
-type DatamodelEnricher func(*Runtime, *datamodel.Datamodel) error
+type GeneratorEnricher func(*Runtime, *gen.Generator) error
 
-func (R *Runtime) EnrichDatamodels(datamodels []string, enrich DatamodelEnricher) error {
+func (R *Runtime) EnrichGenerators(generators []string, enrich GeneratorEnricher) error {
 	if R.Flags.Verbosity > 1 {
-		fmt.Println("Runtime.EnrichDatamodels: ", datamodels)
+		fmt.Println("Runtime.EnrichGenerators: ", generators)
 		for _, node := range R.Nodes {
 			node.Print()
 		}
@@ -20,8 +21,8 @@ func (R *Runtime) EnrichDatamodels(datamodels []string, enrich DatamodelEnricher
 
 	keep := func(hn *hof.Node[any]) bool {
 		// filter by name
-		if len(datamodels) > 0 {
-			for _, d := range datamodels {
+		if len(generators) > 0 {
+			for _, d := range generators {
 				match, err := regexp.MatchString(d, hn.Hof.Metadata.Name)
 				if err != nil {
 					fmt.Println("error:", err)
@@ -42,45 +43,46 @@ func (R *Runtime) EnrichDatamodels(datamodels []string, enrich DatamodelEnricher
 		return true
 	}
 
-	// Find only the datamodel nodes
+	// Find only the generator nodes
 	// TODO, dedup any references
-	dms := []*datamodel.Datamodel{}
+	gens := []*gen.Generator{}
 	for _, node := range R.Nodes {
 		// check for DM root
-		if node.Hof.Datamodel.Root {
+		if node.Hof.Gen.Root {
 			if !keep(node) {
 				continue
 			}
-			t := func(n *hof.Node[datamodel.Value]) *datamodel.Value {
-				v := new(datamodel.Value)
-				v.Node = n
-				v.Snapshot = new(datamodel.Snapshot)
+			upgrade := func(n *hof.Node[gen.Generator]) *gen.Generator {
+				v := gen.NewGenerator(n)
 				return v
 			}
-			u := hof.Upgrade[any, datamodel.Value](node, t, nil)
+			u := hof.Upgrade[any, gen.Generator](node, upgrade, nil)
 			// we'd like this line in upgrade, but...
 			// how do we make T a Node[T] type (or ensure that it has a hof)
 			// u.T.Hof = u.Hof
-			dms = append(dms, &datamodel.Datamodel{Node: u})
+			gen := u.T
+			gen.Node = u
+			gens = append(gens, gen)
 		}
 	}
 
-	R.Datamodels = dms
+	R.Generators = gens
 
-	// filter datamodel if flag set?
-	// which flags do we handle here
-	//   vs in the various commands?
+	// what do we do to enrich a generator?
+	// load & validate?
+	// add datamodel history to input data?
 
-	// load history
-	// calc diffs? (or load)
-
-	for _, dm := range R.Datamodels {
-		err := enrich(R, dm)
+	start := time.Now()
+	defer func() {
+		end := time.Now()
+		R.Stats.GenLoadingTime = end.Sub(start)
+	}()
+	for _, gen := range R.Generators {
+		err := enrich(R, gen)
 		if err != nil {
 			return err
 		}
 	}
-
 
 	return nil
 }
