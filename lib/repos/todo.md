@@ -5,10 +5,13 @@
 
 ### mvp
 
+https://github.com/opencontainers/image-spec/blob/main/manifest.md
+
 - format
   - metadata
 	- mod files
 	- everything (same hash as git based possible)
+
 
 - round trip
   - package mod in OCI custom manifest
