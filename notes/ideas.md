@@ -45,3 +45,23 @@ https://github.com/lipence/cue/commit/6ed69100ebd62509577826657536172ab46cf257
 #### cue/flow
 
 return final value: https://github.com/cue-lang/cue/pull/1390
+
+======================
+
+## hof as cue
+
+`hof` as a drop in replacement for `cue`
+- ~mirror core commands and flags
+
+(flow is different, prob import too?)
+
+Other
+- structural | bulk commands
+- list & info
+
+======================
+
+## hof/flow
+
+- much to do here
+
