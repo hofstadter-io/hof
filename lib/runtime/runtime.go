@@ -2,7 +2,9 @@ package runtime
 
 import (
 	"os"
+	"path/filepath"
 	"strings"
+	"sync"
 
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/ast"
@@ -11,11 +13,15 @@ import (
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/datamodel"
+	"github.com/hofstadter-io/hof/lib/gen"
 	"github.com/hofstadter-io/hof/lib/hof"
+	"github.com/hofstadter-io/hof/lib/cuetils"
 )
 
 // This is the hof Runtime that backs most commands
 type Runtime struct {
+	sync.Mutex
+
 	// original flags used to load the CUE
 	Flags flags.RootPflagpole
 
@@ -27,8 +33,10 @@ type Runtime struct {
 	// Other important dirs when loading templates (auto set)
 	WorkingDir    string
 	CueModuleRoot string
-	rootToCwd     string  // module root -> working dir (foo/bar)
-	cwdToRoot     string  // module root <- working dir (../..)
+	RootToCwd     string  // module root -> working dir (foo/bar)
+	CwdToRoot     string  // module root <- working dir (../..)
+	// OutputDir     string  // where gen wants to write (tbd, other commands too)
+	OriginalWkdir string  // when we need to cd and then output back to this directory (create related, but could expand)
 
 	// CUE related fields
 	Entrypoints    []string
@@ -52,8 +60,11 @@ type Runtime struct {
 	// the commands from the types and core logic
 	Nodes      []*hof.Node[any]
 	Datamodels []*datamodel.Datamodel
-	// Generators map[string]*gen.Generator
+	Generators []*gen.Generator
 	// Workflows  map[string]*flow.Flow
+
+
+	Stats *RuntimeStats
 }
 
 func New(entrypoints []string, rflags flags.RootPflagpole) (*Runtime, error) {
@@ -91,8 +102,39 @@ func New(entrypoints []string, rflags flags.RootPflagpole) (*Runtime, error) {
 	r := &Runtime{
 		Flags: rflags,
 		Entrypoints: entrypoints,
+		origEntrypoints: entrypoints,
 		CueConfig:   cfg,
 		dataMappings: make(map[string]string),
+		Stats: new(RuntimeStats),
 	}
+
+	// calc cue dirs
+	var err error
+	r.CueModuleRoot, err = cuetils.FindModuleAbsPath("")
+	if err != nil {
+		return r, err
+	}
+	// TODO: we could make this configurable
+	r.WorkingDir, _ = os.Getwd()
+	if r.CueModuleRoot != "" {
+		r.CwdToRoot, err = filepath.Rel(r.WorkingDir, r.CueModuleRoot)
+		if err != nil {
+			return r, err
+		}
+		r.RootToCwd, err = filepath.Rel(r.CueModuleRoot, r.WorkingDir)
+		if err != nil {
+			return r, err
+		}
+	}
+
 	return r, nil
+}
+
+// OutputDir returns the absolute path to output dir for this runtime.
+// It accounts for module root and relative directories.
+func (R *Runtime) OutputDir(dir string) string {
+	if strings.HasPrefix(dir, "/") {
+		return dir
+	}
+	return filepath.Join(R.CueModuleRoot, R.RootToCwd, dir)
 }

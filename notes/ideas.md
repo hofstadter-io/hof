@@ -24,6 +24,7 @@ Go funcs:
 
 CLI:
 
+- list, info, etc commands at top level which cover (gen, dm, flow, etc...)
 - Support expression on globs, to select out a field on each file
 - move implementation?
 

@@ -1,14 +1,10 @@
-package gen
+package cmd
 
 import (
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
-	"time"
-
-	"github.com/fsnotify/fsnotify"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/yagu"
@@ -21,27 +17,30 @@ func shouldWatch(cmdflags flags.GenFlagpole) bool {
 	return cmdflags.Watch || len(cmdflags.WatchFull) > 0 || len(cmdflags.WatchFast) > 0
 }
 
-func buildWatchLists(R *Runtime, args []string, cmdflags flags.GenFlagpole) (wfiles, xfiles []string, err error) {
-	if !shouldWatch(cmdflags) {
+func (R *Runtime) buildWatchLists() (wfiles, xfiles []string, err error) {
+	if !shouldWatch(R.GenFlags) {
 		return
 	}
 
 	// TODO?, when determined to watch
 	// add generator templates / partials
 
-	fullWG := cmdflags.WatchFull
-	fastWG := cmdflags.WatchFast
+	fullWG := R.GenFlags.WatchFull
+	fastWG := R.GenFlags.WatchFast
 
 	/* Build up watch list
 		We need to buildup the watch list from flags
 		and any generator we might run, which might have watch settings
 	*/
 
-	if R.Verbosity > 1 {
+	if R.Flags.Verbosity > 1 {
 		fmt.Println("Creating Watch List")
 	}
+
+	// TODO, use CUE runtime information for this instead of args
+	//       we can do even better because CUE now supports walking imports
 	// todo, infer most entrypoints
-	for _, arg := range args {
+	for _, arg := range R.Entrypoints {
 		// skip stdin arg, or args which are filetype specifiers
 		if arg == "-" || strings.HasSuffix(arg, ":") {
 			continue
@@ -116,7 +115,7 @@ func buildWatchLists(R *Runtime, args []string, cmdflags flags.GenFlagpole) (wfi
 	}
 	// add partial templates to xcue globs
 	// can do outside loop since all gens have the same value
-	fastWG = append(fastWG, R.Flagpole.Partial...)
+	fastWG = append(fastWG, R.GenFlags.Partial...)
 
 	// this might be empty, we calc anyway for ease and sharing
 	wfiles, err = yagu.FilesFromGlobs(fullWG)
@@ -133,115 +132,4 @@ func buildWatchLists(R *Runtime, args []string, cmdflags flags.GenFlagpole) (wfi
 	fmt.Printf("found %d fastWG files from %v\n", len(xfiles), fastWG)
 
 	return
-}
-
-func DoWatch(F func(fast bool) (chan bool, error), dofast, onfirst bool, files []string, label string, quit chan bool) (error) {
-	// now loop
-	debounce := NewDebouncer(time.Millisecond * 50)
-
-	watcher, err := fsnotify.NewWatcher()
-	if err != nil {
-		return err
-	}
-	defer watcher.Close()
-
-	var wg sync.WaitGroup
-	wg.Add(1)
-
-	go func() {
-		defer wg.Done()
-
-		var tellDone chan bool
-
-		if onfirst {
-			// first call
-			fmt.Printf("first (%s)\n", label)
-			start := time.Now()
-			// first time should always be fast
-			tellDone, err = F(true)
-			end := time.Now()
-			elapsed := end.Sub(start).Round(time.Millisecond)
-			fmt.Printf(" done (%s) %v\n", label, elapsed)
-			if err != nil {
-				return
-			}
-		}
-
-		// watching loop
-		for {
-			select {
-			case event, ok := <-watcher.Events:
-				if !ok {
-					fmt.Println("event not ok", event)
-					break
-				}
-
-				if event.Op&fsnotify.Write == fsnotify.Write {
-					if tellDone != nil {
-						tellDone <- true
-					}
-
-					debounce(func() {
-						// kill previous sub-spawn (xcue)
-						fmt.Printf("regen (%s)\n", label)
-						start := time.Now()
-						tellDone, err = F(dofast)
-						end := time.Now()
-
-						elapsed := end.Sub(start).Round(time.Millisecond)
-						fmt.Printf(" done (%s) %v\n", label, elapsed)
-
-						if err != nil {
-							fmt.Println("error:", err)
-						}
-					})
-				}
-
-			case err, ok := <-watcher.Errors:
-				fmt.Println("error:", err)
-				if !ok {
-					break
-				}
-
-			case <-quit:
-				return
-			}
-		}
-	}()
-
-	for _, file := range files {
-		err = watcher.Add(file)
-		if err != nil {
-			return err
-		}
-	}
-	// fmt.Printf("watching (%s) %d files\n", label, len(files))
-
-	wg.Wait()
-
-	return nil
-}
-
-func NewDebouncer(after time.Duration) func(f func()) {
-	d := &debouncer{after: after}
-
-	return func(f func()) {
-		d.add(f)
-	}
-}
-
-type debouncer struct {
-	mu    sync.Mutex
-	after time.Duration
-	timer *time.Timer
-}
-
-func (d *debouncer) add(f func()) {
-	d.mu.Lock()
-	defer d.mu.Unlock()
-
-	if d.timer != nil {
-		d.timer.Stop()
-	}
-	d.timer = time.AfterFunc(d.after, f)
 }

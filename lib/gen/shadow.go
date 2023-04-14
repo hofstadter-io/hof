@@ -9,33 +9,18 @@ import (
 	"github.com/mattn/go-zglob"
 )
 
-const SHADOW_DIR = ".hof/shadow/"
-
-func (R *Runtime) CleanupRemainingShadow() (errs []error) {
-	if R.Verbosity > 0 {
-		fmt.Println("Cleaning shadow")
-	}
-
-	for _, G := range R.Generators {
-		gerrs := R.CleanupGeneratorShadow(G)
-		errs = append(errs, gerrs...)
-	}
-
-	return errs
-}
-
-func (R *Runtime) CleanupGeneratorShadow(G *Generator) (errs []error) {
+func (G *Generator) CleanupShadow(outputBase, shadowBase string, verbosity int) (errs []error) {
 	// calc dirs per generator
-	outputDir := filepath.Join(R.OutputDir(), G.OutputPath())
-	shadowDir := filepath.Join(R.ShadowDir(), G.ShadowPath())
+	outputDir := filepath.Join(outputBase, G.OutputPath())
+	shadowDir := filepath.Join(shadowBase, G.ShadowPath())
 
 	// Cleanup File & Shadow
-	errsC := G.CleanupRemainingShadow(outputDir, shadowDir, R.Verbosity)
+	errsC := G.CleanupRemainingShadow(outputDir, shadowDir, verbosity)
 	errs = append(errs, errsC...)
 
 	// process the subgenerators
 	for _, SG := range G.Generators {
-		sgerrs := R.CleanupGeneratorShadow(SG)
+		sgerrs := SG.CleanupShadow(outputBase, shadowBase, verbosity)
 		errs = append(errs, sgerrs...)
 	}
 
@@ -81,7 +66,7 @@ func (G *Generator) CleanupRemainingShadow(outputDir, shadowDir string, verbosit
 func (G *Generator) LoadShadow(basedir string) (error) {
 	shadow := map[string]*File{}
 
-	if G.verbosity > 1 {
+	if G.Verbosity > 1 {
 		fmt.Printf("Loading shadow @ %q\n", basedir)
 	}
 
@@ -93,7 +78,7 @@ func (G *Generator) LoadShadow(basedir string) (error) {
 			return err
 		}
 		// file not found, leave politely
-		if G.verbosity > 1 {
+		if G.Verbosity > 1 {
 			fmt.Println("  shadow not found")
 		}
 		return nil
@@ -111,7 +96,7 @@ func (G *Generator) LoadShadow(basedir string) (error) {
 		// TODO, we could get a conflict if the parent gen writes to a dir with same name as the subgen
 		if len(G.Generators) > 0 {
 			for _, sg := range G.Generators {
-				if G.verbosity > 2 {
+				if G.Verbosity > 2 {
 					fmt.Println("checking:", filepath.Join(basedir, sg.Name, "**", "*"), fpath)
 				}
 				match, err := zglob.Match(filepath.Join(basedir, sg.Name, "**", "*"), fpath)
@@ -136,7 +121,7 @@ func (G *Generator) LoadShadow(basedir string) (error) {
 		fpath = strings.TrimPrefix(fpath, "/")
 
 		// debug
-		if G.verbosity > 1 {
+		if G.Verbosity > 1 {
 			fmt.Println("  adding:", fpath)
 		}
 

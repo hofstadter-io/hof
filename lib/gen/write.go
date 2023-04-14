@@ -10,62 +10,6 @@ import (
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
-func (R *Runtime) RunGenerators() []error {
-	start := time.Now()
-	defer func() {
-		end := time.Now()
-		R.Stats.GenRunningTime = end.Sub(start)
-	}()
-
-	var errs []error
-
-	// Load shadow, can this be done in parallel with the last step?
-	// Don't do in parallel yet, Cue can be slow and hungry for memory
-	// CUE is not concurrency safe yet, even if, this doesn't take that long anyway
-	for _, G := range R.Generators {
-		gerrs := R.RunGenerator(G)
-		if len(gerrs) > 0 {
-			errs = append(errs, gerrs...)
-		}
-	}
-
-	return errs
-}
-
-func (R *Runtime) RunGenerator(G *Generator) (errs []error) {
-	if G.Disabled {
-		return
-	}
-
-	outputDir := filepath.Join(R.OutputDir(), G.OutputPath())
-	shadowDir := filepath.Join(R.ShadowDir(), G.ShadowPath())
-
-	// late load shadow, only if we are going to generate
-	err := G.LoadShadow(shadowDir)
-	if err != nil {
-		return []error{err}
-	}
-
-	// run this generator
-	errsG := G.GenerateFiles(outputDir)
-	if len(errsG) > 0 {
-		errs = append(errs, errsG...)
-		return errs
-	}
-
-	// run any subgenerators
-	for _, sg := range G.Generators {
-		// make sure
-		sg.UseDiff3 = G.UseDiff3
-		sgerrs := R.RunGenerator(sg)
-		if len(sgerrs) > 0 {
-			errs = append(errs, sgerrs...)
-		}
-	}
-
-	return errs
-}
-
 func (G *Generator) GenerateFiles(outdir string) []error {
 	errs := []error{}
 
@@ -81,7 +25,7 @@ func (G *Generator) GenerateFiles(outdir string) []error {
 		F.ShadowFile = G.Shadow[F.Filepath]
 
 		// this handles the diff logic
-		err := F.Render(outdir, G.UseDiff3, G.runtime.NoFormat)
+		err := F.Render(outdir, G.UseDiff3, G.NoFormat)
 		if err != nil {
 			F.IsErr = 1
 			F.Errors = append(F.Errors, err)
@@ -95,27 +39,13 @@ func (G *Generator) GenerateFiles(outdir string) []error {
 	return errs
 }
 
-func (R *Runtime) WriteOutput() []error {
-	var errs []error
-	if R.Verbosity > 0 {
-		fmt.Println("Writing output")
-	}
-
-	for _, G := range R.Generators {
-		gerrs := R.WriteGenerator(G)
-		errs = append(errs, gerrs...)
-	}
-
-	return errs
-}
-
-func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
+func (G *Generator) Write(outputBase, shadowBase string) (errs []error) {
 	if G.Disabled {
-		return errs
+		return nil
 	}
 
-	outputDir := filepath.Join(R.OutputDir(), G.OutputPath())
-	shadowDir := filepath.Join(R.ShadowDir(), G.ShadowPath())
+	outputDir := filepath.Join(outputBase, G.OutputPath())
+	shadowDir := filepath.Join(shadowBase, G.ShadowPath())
 
 	// TODO, thoughts from thinking about generator monorepos and template/partial/static lookup
 	// can we just figure out if the import is the same module by asking CUE?
@@ -135,7 +65,7 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 
 	// Finally write the generator files
 	for _, F := range G.OrderedFiles {
-		if G.verbosity > 1 {
+		if G.Verbosity > 1 {
 			fmt.Println("Writing:", F.Filepath)
 		}
 
@@ -170,7 +100,7 @@ func (R *Runtime) WriteGenerator(G *Generator) (errs []error) {
 	// process the subgenerators
 	for _, SG := range G.Generators {
 		SG.UseDiff3 = G.UseDiff3
-		sgerrs := R.WriteGenerator(SG)
+		sgerrs := G.Write(outputBase, shadowBase)
 		errs = append(errs, sgerrs...)
 	}
 

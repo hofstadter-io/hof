@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+	"github.com/hofstadter-io/hof/lib/datamodel"
 	"github.com/hofstadter-io/hof/lib/runtime"
 )
 
@@ -20,7 +21,7 @@ func Run(cmd string, args []string, rflags flags.RootPflagpole, dflags flags.Dat
 		return err
 	}
 
-	err = prepDatamodels(R, dflags)
+	err = R.EnrichDatamodels(dflags.Datamodels, EnrichDatamodel)
 	if err != nil {
 		return err
 	}
@@ -49,22 +50,14 @@ func Run(cmd string, args []string, rflags flags.RootPflagpole, dflags flags.Dat
 	return err
 }
 
-func prepDatamodels(R *runtime.Runtime, dflags flags.DatamodelPflagpole) error {
-
-	err := R.FindDatamodels(dflags)
+func EnrichDatamodel(R *runtime.Runtime, dm *datamodel.Datamodel) error {
+	err := dm.LoadHistory()
 	if err != nil {
 		return err
 	}
-
-	for _, dm := range R.Datamodels {
-		err = dm.LoadHistory()
-		if err != nil {
-			return err
-		}
-		err = dm.CalcDiffs()
-		if err != nil {
-			return err
-		}
+	err = dm.CalcDiffs()
+	if err != nil {
+		return err
 	}
 
 	return nil

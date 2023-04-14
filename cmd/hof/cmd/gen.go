@@ -9,7 +9,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 
-	"github.com/hofstadter-io/hof/lib/gen"
+	"github.com/hofstadter-io/hof/lib/gen/cmd"
 )
 
 var genLong = `hof unifies CUE with Go's text/template system and diff3
@@ -101,7 +101,7 @@ func GenRun(args []string) (err error) {
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = gen.Gen(args, flags.RootPflags, flags.GenFlags)
+	err = cmd.Run(args, flags.RootPflags, flags.GenFlags)
 
 	return err
 }

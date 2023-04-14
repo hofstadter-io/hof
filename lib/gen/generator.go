@@ -9,6 +9,7 @@ import (
 	"cuelang.org/go/cue"
 	"github.com/mattn/go-zglob"
 
+	"github.com/hofstadter-io/hof/lib/hof"
 	"github.com/hofstadter-io/hof/lib/templates"
 )
 
@@ -39,6 +40,7 @@ type TemplateContent struct {
 
 // A generator pulled from the cue instances
 type Generator struct {
+	*hof.Node[Generator]
 	//
 	// Set by Hof via cuelang extraction
 	// Label in Cuelang
@@ -50,8 +52,7 @@ type Generator struct {
 	// Other important dirs when loading templates (auto set)
 	CueModuleRoot string
 	WorkingDir    string
-	rootToCwd     string  // module root -> working dir (foo/bar)
-	cwdToRoot     string  // module root <- working dir (../..)
+	CwdToRoot     string  // module root <- working dir (../..)
 
 	// "Global" input, merged with out replacing onto the files
 	In  map[string]interface{}
@@ -93,7 +94,6 @@ type Generator struct {
 
 	// backpointers, if a subgen
 	parent  *Generator
-	runtime *Runtime
 
 	// Used for indexing into the vendor directory...
 	PackageName string
@@ -122,7 +122,7 @@ type Generator struct {
 
 	// Print extra information
 	Debug bool
-	verbosity int
+	Verbosity int
 
 	// Status for this generator and processing
 	Stats *GeneratorStats
@@ -131,22 +131,15 @@ type Generator struct {
 	CueValue cue.Value
 }
 
-func NewGenerator(label string, value cue.Value, R *Runtime) *Generator {
+func NewGenerator(node *hof.Node[Generator]) *Generator {
 	// TODO, only transfer what is needed
 
 	return &Generator{
-		// runtime copyin
-		runtime:       R,
-		CueModuleRoot: R.CueModuleRoot,
-		WorkingDir:    R.WorkingDir,
-		cwdToRoot:     R.cwdToRoot,
-		rootToCwd:     R.rootToCwd,
-		UseDiff3:      R.Flagpole.Diff3,
-		NoFormat:      R.Flagpole.NoFormat,
+		Node: node,
 
 		// generator specific vals
-		Name:          label,
-		CueValue:      value,
+		Name:          node.Hof.Label,
+		CueValue:      node.Value,
 
 		// initialize containers
 		PartialsMap:   templates.NewTemplateMap(),
@@ -192,7 +185,7 @@ func (G *Generator) ShadowPath() string {
 
 func (G *Generator) Initialize() []error {
 	var errs []error
-	if G.verbosity > 1 {
+	if G.Verbosity > 1 {
 		fmt.Println("initializing:", G.NamePath())
 	}
 
@@ -256,7 +249,7 @@ func (G *Generator) initStaticFiles() []error {
 				errs = append(errs, err)
 				return errs
 			}
-			if G.verbosity > 1 {
+			if G.Verbosity > 1 {
 				fmt.Printf("%s:%s:%s has %d static matches\n", G.NamePath(), bdir, Glob, len(matches))
 			}
 
@@ -275,7 +268,7 @@ func (G *Generator) initStaticFiles() []error {
 				mo = strings.TrimPrefix(mo, "/")
 				fp := filepath.Join(Static.OutPrefix, mo)
 
-				if G.verbosity > 2 {
+				if G.Verbosity > 2 {
 					fmt.Println("static FN:", match, filepath.Join(bdir, Static.TrimPrefix), mo)
 					fmt.Println("    ", fp, filepath.Clean(fp))
 				}
@@ -293,7 +286,7 @@ func (G *Generator) initStaticFiles() []error {
 					continue
 				}
 
-				if G.verbosity > 1 {
+				if G.Verbosity > 1 {
 					fmt.Printf(" +s %s:%s\n", G.NamePath(), F.Filepath)
 				}
 
@@ -317,7 +310,7 @@ func (G *Generator) initStaticFiles() []error {
 			continue
 		}
 
-		if G.verbosity > 1 {
+		if G.Verbosity > 1 {
 			fmt.Printf(" +s %s:%s\n", G.NamePath(), F.Filepath)
 		}
 
@@ -343,7 +336,7 @@ func (G *Generator) initPartials() []error {
 		// check for collisions
 		_, ok := G.PartialsMap[path]
 		if !ok {
-			if G.verbosity > 1 {
+			if G.Verbosity > 1 {
 				fmt.Printf(" +p %s:%s\n", G.NamePath(), path)
 			}
 			// TODO, do we also want to namespace with the template module name?
@@ -359,7 +352,7 @@ func (G *Generator) initPartials() []error {
 		if G.PackageName != "" {
 			prefix = filepath.Join(CUE_VENDOR_DIR, G.PackageName, prefix)
 		}
-		prefix = filepath.Join(G.cwdToRoot, prefix)
+		prefix = filepath.Join(G.CwdToRoot, prefix)
 
 		// we need to check if the base directory exists, becuase we have defaults in the schema
 		_, err := os.Stat(prefix)
@@ -380,11 +373,11 @@ func (G *Generator) initPartials() []error {
 
 				// this is how we deal with running generators in the same module
 				// they are defined in, while keeping the path spec for them simple
-				glob = filepath.Join(G.cwdToRoot, glob)
+				glob = filepath.Join(G.CwdToRoot, glob)
 			}
 
 			pMap, err := templates.CreateTemplateMapFromFolder(glob, prefix, tg.Delims)
-			if G.verbosity > 1 {
+			if G.Verbosity > 1 {
 				fmt.Printf("%s:%s has %d partial matches\n", G.NamePath(), glob, len(pMap))
 			}
 
@@ -396,7 +389,7 @@ func (G *Generator) initPartials() []error {
 			for k, T := range pMap {
 				_, ok := G.PartialsMap[k]
 				if !ok {
-					if G.verbosity > 1 {
+					if G.Verbosity > 1 {
 						fmt.Printf(" +p %s:%s\n", G.NamePath(), k)
 					}
 					// TODO, do we also want to namespace with the template module name?
@@ -428,7 +421,7 @@ func (G *Generator) initTemplates() []error {
 
 		_, ok := G.TemplateMap[path]
 		if !ok {
-			if G.verbosity > 1 {
+			if G.Verbosity > 1 {
 				fmt.Printf(" +t %s:%s\n", G.NamePath(), path)
 			}
 
@@ -444,7 +437,7 @@ func (G *Generator) initTemplates() []error {
 		if G.PackageName != "" {
 			prefix = filepath.Join(CUE_VENDOR_DIR, G.PackageName, prefix)
 		}
-		prefix = filepath.Join(G.cwdToRoot, prefix)
+		prefix = filepath.Join(G.CwdToRoot, prefix)
 
 		// we need to check if the base directory exists, becuase we have defaults in the schema
 		_, err := os.Stat(prefix)
@@ -466,12 +459,12 @@ func (G *Generator) initTemplates() []error {
 				// this is how we deal with running generators in the same module
 				// they are defined in, while keeping the path spec for them simple
 				// note, these will be no-ops when there is no cue.mod
-				glob = filepath.Join(G.cwdToRoot, glob)
-				prefix = filepath.Join(G.cwdToRoot, prefix)
+				glob = filepath.Join(G.CwdToRoot, glob)
+				prefix = filepath.Join(G.CwdToRoot, prefix)
 			}
 
 			pMap, err := templates.CreateTemplateMapFromFolder(glob, prefix, tg.Delims)
-			if G.verbosity > 1 {
+			if G.Verbosity > 1 {
 				fmt.Printf("%s:%s has %d template matches\n", G.NamePath(), glob, len(pMap))
 			}
 
@@ -483,7 +476,7 @@ func (G *Generator) initTemplates() []error {
 			for k, T := range pMap {
 				_, ok := G.TemplateMap[k]
 				if !ok {
-					if G.verbosity > 1 {
+					if G.Verbosity > 1 {
 						fmt.Printf(" +t %s:%s\n", G.NamePath(), k)
 					}
 
@@ -530,7 +523,7 @@ func (G *Generator) initFileGens() []error {
 			continue
 		}
 
-		if G.verbosity > 1 {
+		if G.Verbosity > 1 {
 			fmt.Printf(" +f %s:%s\n", G.NamePath(), F.Filepath)
 		}
 

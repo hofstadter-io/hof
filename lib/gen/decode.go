@@ -6,6 +6,8 @@ import (
 
 	"cuelang.org/go/cue"
 	"github.com/codemodus/kace"
+
+	"github.com/hofstadter-io/hof/lib/hof"
 )
 
 func (G *Generator) DecodeFromCUE() (errs []error) {
@@ -477,7 +479,17 @@ func (G *Generator) loadSubgens() (errs []error) {
 	for iter.Next() {
 		name := iter.Selector().String()
 		v := iter.Value()
-		sg := NewGenerator(name, v, G.runtime)
+
+		var h hof.Hof
+		h.Label = name
+		h.Path = v.Path().String()
+		h.Gen.Root = true
+		h.Gen.Name = name
+		node := &hof.Node[Generator]{
+			Value: v,
+			Hof: h,
+		}
+		sg := NewGenerator(node)
 		sg.parent = G
 		copyGenMeta(G, sg)
 
@@ -485,7 +497,7 @@ func (G *Generator) loadSubgens() (errs []error) {
 			fmt.Println("loading subgen:", name)
 		}
 
-		// todo, how might we pass the flag setting from runtime here?
+		// decode subgenerators
 		sgerrs := sg.DecodeFromCUE()
 		if len(sgerrs) > 0 {
 			errs = append(errs, sgerrs...)
@@ -498,12 +510,10 @@ func (G *Generator) loadSubgens() (errs []error) {
 }
 
 func copyGenMeta(from, to *Generator) {
-	to.runtime       = from.runtime
-	to.verbosity     = from.verbosity
+	to.Verbosity     = from.Verbosity
 	to.CueModuleRoot = from.CueModuleRoot
 	to.WorkingDir    = from.WorkingDir
-	to.rootToCwd     = from.rootToCwd
-	to.cwdToRoot     = from.cwdToRoot
+	to.CwdToRoot     = from.CwdToRoot
 	to.Diff3FlagSet  = from.Diff3FlagSet
 	to.UseDiff3      = from.UseDiff3
 

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/ast"
@@ -21,6 +22,15 @@ import (
 )
 
 func (R *Runtime) Load() (err error) {
+	if R.Flags.Verbosity > 0 {
+		fmt.Println("Loading from:", R.Entrypoints)
+	}
+	start := time.Now()
+	defer func() {
+		end := time.Now()
+		R.Stats.CueLoadingTime = end.Sub(start)
+	}()
+
 	R.prepPlacedDatafiles()
 	
 	err = R.load()

@@ -13,8 +13,8 @@ import (
 
 Datamodel: dm.Datamodel & {
 	// implied through definition, duplicated here for example clarity
-	#hof: metadata: {
-		id: "datamodel-abc123"
+	$hof: metadata: {
+		id:   "datamodel-abc123"
 		name: "MyDatamodel"
 	}
 	// entire value / datamodel has history without any extra annotation
@@ -25,7 +25,7 @@ Datamodel: dm.Datamodel & {
 
 	Config: {
 		// track a full-object as a CUE value
-		#hof: {
+		$hof: {
 			history: true
 			cue:     true
 		}
@@ -44,11 +44,11 @@ Datamodel: dm.Datamodel & {
 		@node()
 
 		#hof: datamodel: ordered: true
+
 		@ordered() // for stability, see below
 
 		// each struct field is a Model
-		[N=string]: Model & { #hof: metadata: name: N }
-
+		[N=string]: Model & {#hof: metadata: name: N}
 
 		// Actual Models
 		"User": User
@@ -56,9 +56,12 @@ Datamodel: dm.Datamodel & {
 }
 
 Model: M={
-	schema.DHof // needed for reFerences
+	schema.DHof// needed for reFerences
+
 	#hof: datamodel: history: true // needed for CUE compat
+
 	@history() // hof only shorthand
+
 	// Lineage fields will be filled by hof
 	// #hof: Lense: ...
 	// #hof: History: ...
@@ -75,9 +78,10 @@ Model: M={
 
 		// for stability, see below
 		#hof: datamodel: ordered: true
+
 		@ordered() // shorthand
 
-		[N=string]: Field & { #hof: metadata: name: N }
+		[N=string]: Field & {#hof: metadata: name: N}
 	}
 
 	// OrderedFields: [...Fields] will be
@@ -88,9 +92,11 @@ Model: M={
 }
 
 Field: F={
-	schema.DHof // needed for reFerences
+	schema.DHof// needed for reFerences
 	#hof: datamodel: history: true
+
 	@history() // shorthand
+
 	// Lineage fields will be filled by hof
 	// #hof: Lense: ...
 	// #hof: History: ...
@@ -118,7 +124,7 @@ User: {
 		UpdatedAt: fields.Datetime
 		DeletedAt: fields.Datetime
 
-		email:   fields.Email
+		email:    fields.Email
 		password: fields.Password
 		active:   fields.Bool
 
@@ -131,4 +137,3 @@ User: {
 		}
 	}
 }
-

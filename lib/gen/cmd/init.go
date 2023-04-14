@@ -1,4 +1,4 @@
-package gen
+package cmd
 
 import (
 	"fmt"
@@ -10,14 +10,107 @@ import (
 
 	"cuelang.org/go/cue"
 
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/cmd/hof/verinfo"
-	"github.com/hofstadter-io/hof/lib/templates"
 	hfmt "github.com/hofstadter-io/hof/lib/fmt"
+	"github.com/hofstadter-io/hof/lib/templates"
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
-func (R *Runtime) AsModule() error {
-	FP := R.Flagpole
-	name := FP.AsModule
+func InitModule(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpole) error {
+	name := cmdflags.InitModule
+	module := "hof.io"
+	if strings.Contains(name,"/") {
+		i := strings.LastIndex(name,"/")
+		module, name = name[:i], name[i+1:]
+	}
+	// possibly extract explicit package
+	pkg := name
+	if strings.Contains(name,":") {
+		i := strings.LastIndex(name,":")
+		name, pkg = name[:i], name[i+1:]
+	}
+	fmt.Printf("Initializing: %s/%s in pkg %s\n", module, name, pkg)
+
+	ver := verinfo.HofVersion
+	if !strings.HasPrefix(ver, "v") {
+		ver = "v" + ver
+	}
+
+	// construct template input data
+	data := map[string]interface{}{
+		"CueVer": verinfo.CueVersion,
+		"HofVer": ver,
+		"Module": module,
+		"Name": name,
+		"Package": pkg,
+	}
+
+	// local helper to render and write embedded templates
+	render := func(outpath, content string) error {
+		if rootflags.Verbosity > 0 {
+			fmt.Println("rendering:", outpath)
+		}
+		ft, err := templates.CreateFromString(outpath, content, nil)
+		if err != nil {
+			return err
+		}
+		bs, err := ft.Render(data)
+		if err != nil {
+			return err
+		}
+		if outpath == "-" {
+			fmt.Println(string(bs))
+			return nil
+		} else {
+			bs, err = hfmt.FormatSource(outpath, bs, "", nil, true)
+			if err != nil {
+				return err
+			}
+			if strings.Contains(outpath, "/") {
+				dir, _ := filepath.Split(outpath)
+				err := os.MkdirAll(dir, 0755)
+				if err != nil {
+					return err
+				}
+			}
+			return os.WriteFile(outpath, bs, 0644)
+		}
+	}
+
+	err := render(name + ".cue", newModuleTemplate)
+	if err != nil {
+		return err
+	}
+	err = render("cue.mod/module.cue", cuemodFileTemplate)
+	if err != nil {
+		return err
+	}
+	// todo, fetch deps
+	msg, err := yagu.Shell("hof mod tidy", "")
+	fmt.Println(msg)
+	if err != nil {
+		return err
+	}
+	// make some dirs
+	dirs := []string{"templates", "partials", "statics", "examples", "creators", "gen", "schema"}
+	for _, dir := range dirs {
+		err = os.MkdirAll(dir, 0755)
+		if err != nil {
+			return err
+		}
+	}
+
+	err = render("-", finalMsg)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (R *Runtime) adhocAsModule() error {
+	name := R.GenFlags.AsModule
 	module := "hof.io"
 	if strings.Contains(name,"/") {
 		i := strings.LastIndex(name,"/")
@@ -34,29 +127,45 @@ func (R *Runtime) AsModule() error {
 	// parse template flags
 	tcfgs  := []AdhocTemplateConfig{}
 	tfiles := make([]string,0)
-	for _, tf := range R.Flagpole.Template {
-		cfg, err := parseTemplateFlag(tf)
+	for _, tf := range R.GenFlags.Template {
+		cfg, err := ParseTemplateFlag(tf)
 		if err != nil {
 			return err
 		}
 		tcfgs  = append(tcfgs, cfg)
 		tfiles = append(tfiles, cfg.Filepath)
 
-		if R.Verbosity > 0 {
+		if R.Flags.Verbosity > 0 {
 			fmt.Printf("%#v\n", cfg)
 		}
 	}
 
 	// top-level fields that would have been accessible
 	ins := []string{}
-	// but not anything with this attribute
-	filters := map[string]bool{
-		"gen": true,
-		"hof": true,
+
+	// the function that decides if a top-level field
+	// should be added to the generator templates
+	// this is necessary so that the refrenced inputs still work
+	keep := func(value cue.Value) bool {
+		path := value.Path().String()
+		for _, node := range R.Nodes {
+			// if we find a match, we need to decide
+			if path == node.Hof.Path {
+				// exceptions to the rule below
+				// - it is a datamodel
+				if node.Hof.Datamodel.Root {
+					return true
+				}
+
+				// don't keep anything with a $hof field
+				return false
+			}
+		}
+		return true
 	}
 
 	// get top-level CUE value as a struct
-	S, err := R.CueRuntime.CueValue.Struct()
+	S, err := R.Value.Struct()
 	if err != nil {
 		return err
 	}
@@ -65,32 +174,17 @@ func (R *Runtime) AsModule() error {
 	// They must be regular by design
 	iter := S.Fields()
 	for iter.Next() {
-
-		// what we will add if not filtered
-		label := iter.Label()
-
-		// let's possibly filster
-		value := iter.Value()
-		attrs := value.Attributes(cue.ValueAttr)
-
-		filtered := false
-		// find top-level with gen attr
-		for _, A := range attrs {
-			// does it have "@gen()"
-			if _, ok := filters[A.Name()]; ok {
-				filtered = true
-			}
-		}
-
-		if !filtered {
-			ins = append(ins, label)
+		if keep(iter.Value()) {
+			ins = append(ins, iter.Label())
 		}
 	}
 
 	// get generator names that were loaded by -G
 	gens := []string{}
-	for label := range R.Generators {
+	for _, G := range R.Generators {
+		label := G.Hof.Label
 		if label == "AdhocGen" {
+			// this is probably no longer the case
 			continue
 		}
 		gens = append(gens, label)
@@ -106,24 +200,24 @@ func (R *Runtime) AsModule() error {
 	data := map[string]interface{}{
 		"Configs": tcfgs,
 		"CueVer": verinfo.CueVersion,
-		"Diff3": FP.Diff3,
+		"Diff3": R.GenFlags.Diff3,
 		"Entrypoints": R.Entrypoints,
 		"Generators": gens,
 		"HofVer": ver,
 		"Inputs": ins,
 		"Module": module,
 		"Name": name,
-		"Outdir": FP.Outdir,
+		"Outdir": R.GenFlags.Outdir,
 		"Package": pkg,
-		"Partials": FP.Partial,
+		"Partials": R.GenFlags.Partial,
 		"Templates": tfiles,
-		"WatchFast": FP.WatchFast,
-		"WatchFull": FP.WatchFull,
+		"WatchFast": R.GenFlags.WatchFast,
+		"WatchFull": R.GenFlags.WatchFull,
 	}
 
 	// local helper to render and write embedded templates
 	render := func(outpath, content string) error {
-		if R.Verbosity > 0 {
+		if R.Flags.Verbosity > 0 {
 			fmt.Println("rendering:", outpath)
 		}
 		ft, err := templates.CreateFromString(outpath, content, nil)
@@ -154,7 +248,7 @@ func (R *Runtime) AsModule() error {
 		}
 	}
 
-	if R.Verbosity > 0 {
+	if R.Flags.Verbosity > 0 {
 		fmt.Println("writing:", name)
 	}
 	if name == "-" {
@@ -328,6 +422,79 @@ import (
 	{{ end }}
 
 	// so your users can build on this
+	...
+}
+`
+
+
+const initMsg = `To run the '{{.Name}}' generator...
+  $ hof gen        ... or ...
+  $ hof gen{{range .Entrypoints}} {{.}}{{ end }} {{ .Name }}.cue -G {{ .Name }}
+`
+const newModuleTemplate = `
+package {{ snake .Package }}
+
+import (
+	"github.com/hofstadter-io/hof/schema/gen"
+)
+
+// This is example usage of your generator
+{{ camelT .Name }}Example: #{{ camelT .Name }}Generator & {
+	@gen({{ .Name }})
+
+	// inputs to the generator
+	Data: { ... }
+	Outdir: "./out/"
+	
+	// File globs to watch and trigger regen when changed
+	// Normally, a user would set this to their designs / datamodel
+	WatchFull: [...string]
+	// This is helpful when authoring generator modules
+	WatchFast:  [...string]
+
+	// required by examples inside the same module
+	// your users do not set or see this field
+	PackageName: ""
+}
+
+
+// This is your reusable generator module
+#{{ camelT .Name }}Generator: gen.#Generator & {
+
+	//
+	// user input fields
+	//
+
+	// this is the interface for this generator module
+	// typically you enforce schema(s) here
+	// Data: _
+	// Input: #Input
+
+	//
+	// Internal Fields
+	//
+
+	// This is the global input data the templates will see
+	// You can reshape and transform the user inputs
+	// While we put it under internal, you can expose In
+	// or you can omit In and skip having a global context
+	In: {
+		// fill as needed
+		...
+	}
+
+	// required for hof CUE modules to work
+	// your users do not set or see this field
+	PackageName: string | *"{{ .Module }}/{{ .Name }}"
+
+	// The final list of files for hof to generate
+	// fill this with file values
+	Out: [...gen.#File] & [
+	]
+
+	// you can create any intermediate values you need internally
+
+	// open, so your users can build on this
 	...
 }
 `
