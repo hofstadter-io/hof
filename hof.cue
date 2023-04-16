@@ -11,4 +11,12 @@ Cli: gen.#Generator & {
 	Outdir: "./"
 	Cli:    design.#CLI
 	WatchGlobs: ["./design/**/*"]
+	WatchExec: {
+		@task(os.Exec)
+		cmd: ["go", "install", "\(Outdir)/cmd/hof"]
+		env: {
+			CGO_ENABLE: "0"
+		}
+		exitcode: _
+	}
 }

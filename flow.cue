@@ -24,6 +24,9 @@ watchBuild: {
 			compile: {
 				@task(os.Exec)
 				cmd: ["go", "install", "\(root)/cmd/hof"]
+				env: {
+					CGO_ENABLE: "0"
+				}
 				exitcode: _
 			}
 			now: {
