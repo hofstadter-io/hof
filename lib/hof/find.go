@@ -135,7 +135,18 @@ func FindHofs(value cue.Value) (roots []*Node[any], err error) {
 				// add to parent's Children
 				nodes.Parent.Children = append(nodes.Parent.Children, nodes)
 			}
+
+			// temp hack until more general solution to stop recurions across core features
+			// better would be to walk the parent stack back up, looking for combos that stop recurstion
+			// like a Datamodel should be ignored within Gen or Flow
+			if nodes.Hof.Gen.Root == true {
+				// generators do not have any nested core features
+				// datamodels are being discovered multiple times
+				//   if we don't stop here
+				return true
+			}
 		}
+
 
 		return true
 	}
