@@ -127,7 +127,7 @@ func TestPushAndPull(t *testing.T) {
 			"!sums.cue",
 		}),
 		NewDir("", []string{
-			"cue.mod/",
+			"cue.mod/pkg",
 			".git",
 		}),
 	})
