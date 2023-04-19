@@ -394,17 +394,7 @@ func (G *Generator) loadFile(file *File, val cue.Value) error {
 			// manage In value
 			// If In exists
 			if in.Err() == nil {
-				// merge with G.In if map / struct
-				switch fin := file.In.(type) {
-				case map[string]interface{}:
-					for k, v := range G.In {
-						// only copy in top-level elements which do not exist already
-						if _, ok := fin[k]; !ok {
-							fin[k] = v
-						}
-					}
-					file.In = fin
-				}
+				file.MergeIn(G.In)
 			} else {
 				// else, just use G.In
 				file.In = G.In

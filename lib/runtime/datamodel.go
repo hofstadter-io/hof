@@ -19,6 +19,13 @@ func (R *Runtime) EnrichDatamodels(datamodels []string, enrich DatamodelEnricher
 	}
 
 	keep := func(hn *hof.Node[any]) bool {
+
+		// We only want datamodels at the root of the Node Tree
+		// Otherwise the DM is nested for usage elsewhere
+		if hn.Parent != nil {
+			return false
+		}
+
 		// filter by name
 		if len(datamodels) > 0 {
 			for _, d := range datamodels {
@@ -51,17 +58,19 @@ func (R *Runtime) EnrichDatamodels(datamodels []string, enrich DatamodelEnricher
 			if !keep(node) {
 				continue
 			}
-			t := func(n *hof.Node[datamodel.Value]) *datamodel.Value {
+
+			upgrade := func(n *hof.Node[datamodel.Value]) *datamodel.Value {
 				v := new(datamodel.Value)
 				v.Node = n
 				v.Snapshot = new(datamodel.Snapshot)
 				return v
 			}
-			u := hof.Upgrade[any, datamodel.Value](node, t, nil)
+
+			dm := hof.Upgrade[any, datamodel.Value](node, upgrade, nil)
 			// we'd like this line in upgrade, but...
 			// how do we make T a Node[T] type (or ensure that it has a hof)
 			// u.T.Hof = u.Hof
-			dms = append(dms, &datamodel.Datamodel{Node: u})
+			dms = append(dms, &datamodel.Datamodel{Node: dm})
 		}
 	}
 

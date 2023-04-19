@@ -55,7 +55,7 @@ type Generator struct {
 	CwdToRoot     string  // module root <- working dir (../..)
 
 	// "Global" input, merged with out replacing onto the files
-	In  map[string]interface{}
+	In  map[string]any
 	Val cue.Value
 
 	// File globs to watch and trigger regen on change

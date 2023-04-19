@@ -36,7 +36,7 @@ func New[T any](label string, val cue.Value, curr *T, parent *Node[T]) *Node[T] 
 	return n
 }
 
-func Upgrade[S, T any](src *Node[S], t func(*Node[T])*T, parent *Node[T]) *Node[T] {
+func Upgrade[S, T any](src *Node[S], upgrade func(*Node[T]) (*T), parent *Node[T]) *Node[T] {
 	n := &Node[T]{
 		Hof:      src.Hof,
 		Value:    src.Value,
@@ -44,11 +44,11 @@ func Upgrade[S, T any](src *Node[S], t func(*Node[T])*T, parent *Node[T]) *Node[
 		Children: make([]*Node[T], 0, len(src.Children)),
 	}
 
-	n.T = t(n)
+	n.T = upgrade(n)
 
 	// walk, upgrading children
 	for _, c := range src.Children {
-		u := Upgrade[S,T](c, t, n)
+		u := Upgrade[S,T](c, upgrade, n)
 		n.Children = append(n.Children, u)
 	}
 
