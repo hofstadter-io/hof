@@ -15,7 +15,8 @@ DHof: {
 			root:    bool | *false
 			history: bool | *false
 			ordered: bool | *false
-			cue:     bool | *false
+			// node:    bool | *false
+			cue: bool | *false
 		}
 
 		// hof/gen

@@ -1,12 +1,14 @@
 package gen
 
 import (
-  "github.com/hofstadter-io/hof/schema/common"
-  "github.com/hofstadter-io/hof/schema/create"
+	"github.com/hofstadter-io/hof/schema/common"
+	"github.com/hofstadter-io/hof/schema/create"
 )
 
 // Definition for a generator
 #Generator: {
+	$hof: gen: root: true
+
 	// Base directory for the output
 	Outdir: string | *"./"
 
@@ -22,8 +24,8 @@ import (
 	Val: {...}
 
 	// File globs to watch and trigger regen when changed
-	WatchFull: [...string]  // reloads & regens everything
-	WatchFast:  [...string] // skips CUE reload, regens everything
+	WatchFull: [...string] // reloads & regens everything
+	WatchFast: [...string] // skips CUE reload, regens everything
 
 	// Enable Diff3
 	Diff3: bool | *true
@@ -72,7 +74,7 @@ import (
 	EmbeddedStatics: [name=string]: string
 
 	// For subgenerators so a generator can leverage and design for other hofmods
-	Generators: [name=string]: #Generator & { Name: name }
+	Generators: [name=string]: #Generator & {Name: name}
 
 	// Embed the creator to get creator fields
 	create.#Creator
@@ -99,4 +101,3 @@ import (
 
 // deprecated
 #HofGenerator: #Generator
-

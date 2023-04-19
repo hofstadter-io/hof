@@ -14,8 +14,8 @@ DataTypes: ID |
 ID: UUID
 
 Field: {
-	Name: string
-	Type: string
+	Name:  string
+	Type:  string
 	Reln?: string
 }
 
@@ -48,18 +48,18 @@ String: Field & {
 	Nullable: bool | *false
 	Default?: string
 	Validation: {
-		Max: Length
+		Max: int | *Length
 	}
 }
 
 Int: Field & {
-	Type: "int"
+	Type:     "int"
 	Nullable: bool | *false
 	Default?: int
 }
 
 Float: Field & {
-	Type: "float"
+	Type:     "float"
 	Nullable: bool | *false
 	Default?: float
 }
