@@ -2,11 +2,12 @@ package sql
 
 import (
 	"github.com/hofstadter-io/hof/schema"
+	"github.com/hofstadter-io/hof/schema/dm"
 )
 
 Datamodel: {
 	$hof: datamodel: root: true
-
+	History: dm.History
 	// these are the models for the application
 	// they can map onto database tables and apis
 	Models: {
@@ -23,7 +24,7 @@ Model: M={
 	schema.DHof// needed for reFerences
 
 	$hof: datamodel: history: true // needed for CUE compat
-	@history() // hof only shorthand
+	History: dm.History
 
 	// Lineage fields will be filled by hof
 	// $hof: Lense: ...
@@ -51,6 +52,7 @@ Field: {
 	// TODO, decide if these should be the default
 	// schema.DHof// needed for reFerences
 	// $hof: datamodel: history: true // needed for CUE compat
+	// History: dm.History
 
 	Name: string
 	Type: string
