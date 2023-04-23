@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/google/go-containerregistry/pkg/authn"
+	"github.com/google/go-containerregistry/pkg/crane"
 	"github.com/google/go-containerregistry/pkg/name"
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/empty"
@@ -18,6 +19,14 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/google/go-containerregistry/pkg/v1/tarball"
 )
+
+func IsOCI(mod string) bool {
+	// TODO:
+	//   * This is naive. Revisit it.
+	//   * Cache these on disk once it is known what this is.
+	_, err := crane.Head(mod)
+	return err == nil
+}
 
 func Pull(tag, path string) error {
 	ref, err := name.ParseReference(tag)

@@ -1,6 +1,7 @@
 package git
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/go-git/go-billy/v5"
 	gogit "github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing/transport"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
 	"github.com/go-git/go-git/v5/storage/memory"
@@ -19,8 +21,29 @@ import (
 
 var debug = false
 
+func IsGit(ctx context.Context, host, owner, repo string) (bool, error) {
+	// TODO: Cache these on disk once it is known what this is.
+	rem := gogit.NewRemote(memory.NewStorage(), &config.RemoteConfig{
+		Name: "origin",
+		URLs: []string{"https://" + path.Join(host, owner, repo)},
+	})
+
+	auth, err := getAuth(host, owner, repo)
+	if err != nil {
+		return false, fmt.Errorf("get auth: %w", err)
+	}
+
+	_, err = rem.ListContext(ctx, &gogit.ListOptions{
+		Auth: auth,
+	})
+	// TODO: This isn't ideal. This could be a failure
+	// due to bad credentials and it would be better
+	// to test for that and prompt the user.
+	return err == nil, nil
+}
+
 func SyncSource(dir, remote, owner, repo, ver string) error {
-	url := path.Join(remote,owner,repo)
+	url := path.Join(remote, owner, repo)
 	if debug {
 		fmt.Println("git.SyncSource:", dir, remote, owner, repo, ver, url)
 	}
@@ -38,7 +61,7 @@ func SyncSource(dir, remote, owner, repo, ver string) error {
 		if err != nil {
 			return err
 		}
-		
+
 		opts := &gogit.FetchOptions{
 			// Depth: 1,
 			Force: true,
@@ -81,9 +104,9 @@ func PlainClone(dir, remote, owner, repo string) (*gogit.Repository, error) {
 	}
 	srcRepo := path.Join(owner, repo)
 	opts := &gogit.CloneOptions{
-		URL:   fmt.Sprintf("https://%s/%s", remote, srcRepo),
+		URL: fmt.Sprintf("https://%s/%s", remote, srcRepo),
 		// Depth: 1,
-		Tags:  gogit.AllTags,
+		Tags: gogit.AllTags,
 	}
 
 	err := authClone(opts, remote, owner, repo)
@@ -91,12 +114,11 @@ func PlainClone(dir, remote, owner, repo string) (*gogit.Repository, error) {
 		return nil, err
 	}
 
-	fmt.Println("fetch'n:", path.Join(repo,owner,repo))
+	fmt.Println("fetch'n:", path.Join(repo, owner, repo))
 	R, err := gogit.PlainClone(dir, false, opts)
 	if err != nil {
 		return R, err
 	}
-
 
 	return R, nil
 }
@@ -133,9 +155,9 @@ func authClone(opts *gogit.CloneOptions, remote, owner, repo string) error {
 
 	opts.Auth = auth
 	/*
-	if ssh, err := yagu.SSHCredentials(remote); err == nil {
-		opts.URL = fmt.Sprintf("%s@%s:%s", ssh.User, remote, path.Join(owner,repo))
-	}
+		if ssh, err := yagu.SSHCredentials(remote); err == nil {
+			opts.URL = fmt.Sprintf("%s@%s:%s", ssh.User, remote, path.Join(owner,repo))
+		}
 	*/
 	return nil
 }
@@ -167,7 +189,7 @@ func getAuth(remote, owner, repo string) (auth transport.AuthMethod, err error) 
 		auth = &http.BasicAuth{
 			Username: netrc.Login,
 			Password: netrc.Password,
-		}	
+		}
 	} else if strings.Contains(remote, "github.com") && os.Getenv("GITHUB_TOKEN") != "" {
 		auth = &http.BasicAuth{
 			Username: "github-token", // yes, this can be anything except an empty string

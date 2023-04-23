@@ -35,9 +35,8 @@ func FetchRepoSource(rpath, ver string) (billy.Filesystem, error) {
 	}
 
 	var (
-		p   = rmt.Parts()
-		dir = SourceOutdirParts(p...)
-		url = path.Join(p...)
+		dir = SourceOutdirParts(rmt.Host, rmt.Owner, rmt.Name)
+		url = path.Join(rmt.Host, rmt.Owner, rmt.Name)
 	)
 
 	// TODO:

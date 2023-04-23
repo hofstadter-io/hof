@@ -1,7 +1,6 @@
 package remote
 
 import (
-	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -9,19 +8,29 @@ import (
 
 func TestParse(t *testing.T) {
 	cases := []struct {
-		desc string
-		mod  string
-		out  Remote
+		desc    string
+		mod     string
+		outKind kind
 	}{
 		{
-			desc: "git",
-			mod:  "github.com/hofstadter-io/hof",
-			out:  gitRemote{},
+			desc:    "git github",
+			mod:     "github.com/hofstadter-io/hof",
+			outKind: kindGit,
 		},
 		{
-			desc: "oci",
-			mod:  "gcr.io/distroless/static-debian11",
-			out:  ociRemote{},
+			desc:    "git github private",
+			mod:     "github.com/andrewhare/env",
+			outKind: kindGit,
+		},
+		{
+			desc:    "git not github",
+			mod:     "git.kernel.org/pub/scm/bluetooth/bluez.git",
+			outKind: kindGit,
+		},
+		{
+			desc:    "oci",
+			mod:     "gcr.io/distroless/static-debian11",
+			outKind: kindOCI,
 		},
 	}
 
@@ -29,9 +38,11 @@ func TestParse(t *testing.T) {
 		c := c
 
 		t.Run(c.desc, func(t *testing.T) {
+			t.Parallel()
+
 			out, err := Parse(c.mod)
 			assert.NoError(t, err)
-			assert.Equal(t, reflect.TypeOf(c.out), reflect.TypeOf(out))
+			assert.Equal(t, c.outKind, out.kind)
 		})
 	}
 }
