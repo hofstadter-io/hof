@@ -110,8 +110,6 @@ func (R *Runtime) Reload(fast bool) (err error) {
 		return err
 	}
 
-
-
 	return nil
 }
 
@@ -143,8 +141,9 @@ func EnrichGeneratorBuilder(R *Runtime) func (R *runtime.Runtime, G *gen.Generat
 		}
 
 		// Load the Generator! (from in memory CUE)
-		// this is more of a decode from CUE
-		errs := G.DecodeFromCUE()
+		// this is more of a decode from CUE, maybe too much and needs to be split up?
+		// (all of it probably deserves to be within this Enrich function
+		errs := G.DecodeFromCUE(R.Datamodels)
 		if len(errs) != 0 {
 			var emsg string
 			for _, err := range errs {
@@ -172,6 +171,36 @@ func EnrichGeneratorBuilder(R *Runtime) func (R *runtime.Runtime, G *gen.Generat
 				fmt.Printf(warnModuleAuthorFmtStr, G.Hof.Metadata.Name, G.Hof.Path)
 			}
 		}
+
+
+		// TODO, inject datamodel history into generator input, as needed
+		// 1. discover any DM nodes inside our generator input
+		// 2. if found, look up the DM in Runtime and merge with In at that point
+		// 3. need to walk DM nodes for history, and merge at correct points
+		// 4. do we need to remerge G.In into F.In, or should we delay this until render time
+		//    what about needing to recurse to find where the value actually changed?
+		//    we have an open issue about creating different diff formats and embedding them all
+		//
+		// also deal with Ordered nodes, this should be one (set) of functions to handle this
+		//
+		// can we avoid merging in CUE and instead merge in Go maps?
+		//
+		// we should write various functions for this and call where necessary
+		// we may need History earlier, for outfile name interpolation, and may be able to skip here
+		// maybe want to do late, so that we can avoid many steps on a file when we (eventually) check inputs for difference
+		// [ FOR NOW, do everything in this Enrich function ]
+
+		/*
+		in := G.CueValue.LookupPath(cue.ParsePath("In"))
+		if !in.Exists() {
+			return fmt.Errorf("In gen:%s, missing In value", G.Name)
+		}
+
+		err = in.Decode(&something)
+		if err != nil {
+			return err
+		}
+		*/
 
 		return nil
 	}

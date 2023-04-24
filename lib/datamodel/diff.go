@@ -111,20 +111,17 @@ func (V *Value) calcDiff() error {
 		)
 		cv = cv.Context().BuildExpr(node.(*ast.StructLit))
 
-		// get other value
-		label := fmt.Sprintf("ver_%s", ls.Timestamp)
-		last := lv.LookupPath(cue.ParsePath(label))
-
-		diff, err := DiffValue(last, cv)
+		diff, err := DiffValue(lv, cv)
 		if err != nil {
 			return err
 		}
 		cs.Lense.CurrDiff = diff
 
-		// we don't want to use 'lv' here
-		// because of the ver_TS label
-		// which we removed for the diff above anyway
-		cv = last
+		// TODO, calc PrevDiff
+		// TODO, calc other diff shapes or representations?
+
+		// update current before next iteration
+		cv = lv
 		cs = ls
 	}
 

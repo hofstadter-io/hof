@@ -1,12 +1,14 @@
 package gen
 
 import (
+	"github.com/hofstadter-io/hof/schema"
 	"github.com/hofstadter-io/hof/schema/common"
 	"github.com/hofstadter-io/hof/schema/create"
 )
 
 // Definition for a generator
 #Generator: {
+	schema.DHof
 	$hof: gen: root: true
 
 	// Base directory for the output

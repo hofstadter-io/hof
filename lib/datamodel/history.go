@@ -135,6 +135,7 @@ func (V *Value) loadHistory() error {
 			return err
 		}
 
+		s.Pos = len(V.history)
 		V.history = append(V.history, s)
 	}
 

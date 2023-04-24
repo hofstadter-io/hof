@@ -6,7 +6,8 @@ import (
 )
 
 Datamodel: {
-	$hof: datamodel: root: true
+	$hof: datamodel: root:    true
+	$hof: datamodel: history: true // needed for CUE compat
 	History: dm.History
 	// these are the models for the application
 	// they can map onto database tables and apis
