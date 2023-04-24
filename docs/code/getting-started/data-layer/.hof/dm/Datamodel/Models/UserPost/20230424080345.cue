@@ -1,14 +1,14 @@
-package UserProfile
+package UserPost
 
-msg_20230423230059: "first checkpoint"
-ver_20230423230059: {
+msg_20230424080345: "add posts"
+ver_20230424080345: {
 	// schema for $hof: ...
 	$hof: {
 		apiVersion: "v1beta1"
 		// typical metadata
 		metadata: {
-			id:   "user-profile"
-			name: "UserProfile"
+			id:   "user-post"
+			name: "UserPost"
 		}
 
 		// hof/datamodel
@@ -23,13 +23,13 @@ ver_20230423230059: {
 	History: []
 
 	// for easy access
-	Name: "UserProfile"
+	Name: "UserPost"
 
 	// These are the fields of a model
 	// they can map onto database columnts and form fields
 	Fields: {
-		About: {
-			Name:     "About"
+		Title: {
+			Name:     "Title"
 			sqlType:  "varchar(64)"
 			Type:     "string"
 			Length:   64
@@ -37,21 +37,41 @@ ver_20230423230059: {
 			Nullable: false
 			Validation: Max: 64
 		}
-		Avatar: {
-			Name:     "Avatar"
+		Format: {
+			Name:     "Format"
 			sqlType:  "varchar(64)"
 			Type:     "string"
 			Length:   64
 			Unique:   false
 			Nullable: false
 			Validation: Max: 64
+		}
+		Content: {
+			Name:     "Content"
+			sqlType:  "varchar(2048)"
+			Type:     "string"
+			Length:   2048
+			Unique:   false
+			Nullable: false
+			Validation: Max: 2048
+		}
+		ID: {
+			Name:     "ID"
+			Type:     "uuid"
+			Nullable: false
+			Unique:   true
+			Default:  "uuid_generate_v4()"
+			Validation: Format: "uuid"
+		}
+		CreatedAt: {
+			Name: "CreatedAt"
+			Type: "datetime"
 		}
 		Owner: {
 			Name:     "Owner"
 			Type:     "uuid"
 			Nullable: false
 			Unique:   true
-			Default:  "gen_random_uuid()"
 			Validation: Format: "uuid"
 
 			// relation type, open to be flexible
@@ -63,6 +83,10 @@ ver_20230423230059: {
 
 			// we can enrich this for various types
 			// in our app or other reusable datamodels
+		}
+		UpdatedAt: {
+			Name: "UpdatedAt"
+			Type: "datetime"
 		}
 		$hof: datamodel: {
 			node:    true

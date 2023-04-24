@@ -255,6 +255,14 @@ func (G *Generator) initStaticFiles() []error {
 
 			// for each static file, calc some dirs and write output & shadow
 			for _, match := range matches {
+				info, err := os.Stat(match)
+				if err != nil {
+					fmt.Printf("warning: error while loading statics %s: %s\n", match, err)
+					continue
+				}
+				if info.IsDir() {
+					continue
+				}
 				// read the file
 				content, err := os.ReadFile(match)
 				if err != nil {

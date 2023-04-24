@@ -22,10 +22,7 @@ Datamodel: sql.Datamodel & {
 		// Actual Models
 		User: {
 			Fields: {
-				ID:        fields.UUID
-				CreatedAt: fields.Datetime
-				UpdatedAt: fields.Datetime
-				DeletedAt: fields.Datetime
+				sql.CommonFields
 
 				email:    fields.Email & sql.Varchar
 				password: fields.Password & sql.Varchar
@@ -39,17 +36,42 @@ Datamodel: sql.Datamodel & {
 				Profile: fields.UUID
 				Profile: Relation: {
 					Name:  "Profile"
-					Type:  "belongs-to"
-					Other: "Models.User"
+					Type:  "has-one"
+					Other: "Models.UserProfile"
+				}
+				Posts: fields.UUID
+				Posts: Relation: {
+					Name:  "Posts"
+					Type:  "has-many"
+					Other: "Models.Post"
 				}
 			}
 		}
 
 		UserProfile: {
 			Fields: {
+				sql.CommonFields
+
 				About:  sql.Varchar
 				Avatar: sql.Varchar
 				Social: sql.Varchar
+
+				Owner: fields.UUID
+				Owner: Relation: {
+					Name:  "Owner"
+					Type:  "belongs-to"
+					Other: "Models.User"
+				}
+			}
+		}
+
+		UserPost: {
+			Fields: {
+				sql.CommonFields
+
+				Title:   sql.Varchar
+				Format:  sql.Varchar
+				Content: sql.Varchar & {Length: 2048}
 
 				Owner: fields.UUID
 				Owner: Relation: {

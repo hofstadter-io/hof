@@ -5,7 +5,7 @@ import (
 )
 
 CommonFields: {
-	ID:        fields.UUID
+	ID:        fields.UUID & {Default: "" | *"uuid_generate_v4()"}
 	CreatedAt: fields.Datetime
 	UpdatedAt: fields.Datetime
 }

@@ -11,7 +11,7 @@ DataTypes: ID |
 	Password |
 	Email
 
-ID: UUID
+ID: UUID & {Default: "" | *"uuid_generate_v4()"}
 
 Field: {
 	Name:  string
@@ -23,7 +23,7 @@ UUID: Field & {
 	Type:     "uuid"
 	Nullable: bool | *false
 	Unique:   bool | *true
-	Default:  string | *"gen_random_uuid()"
+	Default?: string
 	Validation: {
 		Format: "uuid"
 	}

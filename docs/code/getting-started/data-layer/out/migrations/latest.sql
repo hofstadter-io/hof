@@ -1,4 +1,7 @@
-/* has currdiff */
-/* updating table */
-ALTER TABLE
-  user_profile ADD social varchar(64);
+/*  dirty changes, checkpoint when ready */
+/* == User == */
+/*    update - nothing to do */
+/* == UserPost == */
+/*    update - nothing to do */
+/* == UserProfile == */
+/*    update - nothing to do */

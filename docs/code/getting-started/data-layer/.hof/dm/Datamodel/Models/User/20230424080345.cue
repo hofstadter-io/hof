@@ -1,8 +1,8 @@
 package User
 
-msg_20230423230059: "first checkpoint"
+msg_20230424080345: "add posts"
 // Actual Models
-ver_20230423230059: {
+ver_20230424080345: {
 	// schema for $hof: ...
 	$hof: {
 		apiVersion: "v1beta1"
@@ -29,26 +29,6 @@ ver_20230423230059: {
 	// These are the fields of a model
 	// they can map onto database columnts and form fields
 	Fields: {
-		ID: {
-			Name:     "ID"
-			Type:     "uuid"
-			Nullable: false
-			Unique:   true
-			Default:  "gen_random_uuid()"
-			Validation: Format: "uuid"
-		}
-		CreatedAt: {
-			Name: "CreatedAt"
-			Type: "datetime"
-		}
-		UpdatedAt: {
-			Name: "UpdatedAt"
-			Type: "datetime"
-		}
-		DeletedAt: {
-			Name: "DeletedAt"
-			Type: "datetime"
-		}
 		email: {
 			Name:     "email"
 			sqlType:  "varchar(64)"
@@ -77,6 +57,12 @@ ver_20230423230059: {
 			Default:  "false"
 			Nullable: false
 		}
+		verified: {
+			Name:     "verified"
+			Type:     "bool"
+			Default:  "false"
+			Nullable: false
+		}
 
 		// this is the new field
 		username: {
@@ -88,6 +74,18 @@ ver_20230423230059: {
 			Nullable: false
 			Validation: Max: 64
 		}
+		ID: {
+			Name:     "ID"
+			Type:     "uuid"
+			Nullable: false
+			Unique:   true
+			Default:  "uuid_generate_v4()"
+			Validation: Format: "uuid"
+		}
+		CreatedAt: {
+			Name: "CreatedAt"
+			Type: "datetime"
+		}
 
 		// relation fields
 		Profile: {
@@ -95,18 +93,38 @@ ver_20230423230059: {
 			Type:     "uuid"
 			Nullable: false
 			Unique:   true
-			Default:  "gen_random_uuid()"
 			Validation: Format: "uuid"
 
 			// relation type, open to be flexible
 			Relation: {
 				Name:  "Profile"
-				Type:  "belongs-to"
-				Other: "Models.User"
+				Type:  "has-one"
+				Other: "Models.UserProfile"
 			}
 
 			// we can enrich this for various types
 			// in our app or other reusable datamodels
+		}
+		Posts: {
+			Name:     "Posts"
+			Type:     "uuid"
+			Nullable: false
+			Unique:   true
+			Validation: Format: "uuid"
+
+			// relation type, open to be flexible
+			Relation: {
+				Name:  "Posts"
+				Type:  "has-many"
+				Other: "Models.Post"
+			}
+
+			// we can enrich this for various types
+			// in our app or other reusable datamodels
+		}
+		UpdatedAt: {
+			Name: "UpdatedAt"
+			Type: "datetime"
 		}
 		$hof: datamodel: {
 			node:    true
