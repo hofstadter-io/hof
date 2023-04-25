@@ -17,6 +17,7 @@ func (G *Generator) upgradeDMs(dms []*datamodel.Datamodel) error {
 
 	val := G.CueValue
 
+	// build a hof.Node tree from the gen.CueValue
 	gNs, err := hof.FindHofs(val)
 	if err != nil {
 		return err
@@ -46,6 +47,18 @@ func (G *Generator) upgradeDMsR(hn *hof.Node[any], dms []*datamodel.Datamodel, r
 		}
 	}
 
+	// recursion into children
+	for _, c := range hn.Children {
+		G.upgradeDMsR(c, dms, root)
+	}
+	// we do all the real work post-order recursion
+	// so that parent enrichments include child enrichments
+
+	// return if we are not within the DM root
+	if root == nil {
+		return
+	}
+
 	// here, we need to inject any datamodel history(s)
 	// this is going to need some fancy, recursive processing
 	// so we will call out to a helper of some kind
@@ -53,19 +66,15 @@ func (G *Generator) upgradeDMsR(hn *hof.Node[any], dms []*datamodel.Datamodel, r
 		G.injectHistory(hn, dms, root)
 	}
 
+	//
+	// what about the diffs? (or more generally the lens)
+	//
+
 	// here we create an ordered version of the node at the same level
 	if hn.Hof.Datamodel.Ordered {
 		G.injectOrdered(hn, dms, root)
 	}
 
-	//
-	// what about the diffs? (or more generally the lens)
-	//
-
-	// recursion
-	for _, c := range hn.Children {
-		G.upgradeDMsR(c, dms, root)
-	}
 }
 
 func (G *Generator) injectHistory(hn *hof.Node[any], dms []*datamodel.Datamodel, root *datamodel.Datamodel) {
