@@ -6,10 +6,17 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
+
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var infoLong = `print details for about generators`
+
+func init() {
+
+	InfoCmd.Flags().StringSliceVarP(&(flags.Gen__InfoFlags.Expression), "expr", "e", nil, "CUE paths to select outputs, depending on the command")
+}
 
 func InfoRun(args []string) (err error) {
 

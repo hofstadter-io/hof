@@ -117,6 +117,14 @@ import (
 		Usage: "info"
 		Short: "print details for about generators"
 		Long:  Short
+		Flags: [{
+			Name:    "Expression"
+			Long:    "expr"
+			Short:   "e"
+			Type:    "[]string"
+			Default: "nil"
+			Help:    "CUE paths to select outputs, depending on the command"
+		}]
 	}, {
 		Name:  "list"
 		Usage: "list"

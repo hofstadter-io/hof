@@ -1,10 +1,31 @@
 package cmd
 
 import (
+	"fmt"
+
+	"cuelang.org/go/cue"
+
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 )
 
-func Info(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpole) error {
+func Info(args []string, rflags flags.RootPflagpole, gflags flags.GenFlagpole, iflags flags.Gen__InfoFlagpole) error {
+	R, err := prepRuntime(args, rflags, gflags)
+	if err != nil {
+		return err
+	}
+
+	for _, G := range R.Generators {
+		if len(iflags.Expression) == 0 {
+			fmt.Printf("%s: %v\n\n", G.Hof.Metadata.Name, G.CueValue)
+			continue
+		}
+
+		for _, ex := range iflags.Expression {
+			val := G.CueValue.LookupPath(cue.ParsePath(ex))
+			path := G.Hof.Metadata.Name + "." + ex
+			fmt.Printf("%s: %v\n\n", path, val)
+		}
+	}
 
 	return nil
 }

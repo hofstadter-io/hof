@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/datamodel"
 	"github.com/hofstadter-io/hof/lib/gen"
 	"github.com/hofstadter-io/hof/lib/runtime"
@@ -48,7 +49,8 @@ func prepRuntime(args []string, rflags flags.RootPflagpole, gflags flags.GenFlag
 	// First time load (not-fast)
 	err = R.Reload(false)
 	if err != nil {
-		return R, err
+		cuetils.PrintCueError(err)
+		return R, fmt.Errorf("while loading generators")
 	}
 
 	if len(R.Generators) == 0 {

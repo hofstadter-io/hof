@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 
 	"github.com/hofstadter-io/hof/lib/gen/cmd"
@@ -14,12 +15,17 @@ import (
 
 var infoLong = `print details for about generators`
 
+func init() {
+
+	InfoCmd.Flags().StringSliceVarP(&(flags.Gen__InfoFlags.Expression), "expr", "e", nil, "CUE paths to select outputs, depending on the command")
+}
+
 func InfoRun(args []string) (err error) {
 
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = cmd.Info(args, flags.RootPflags, flags.GenFlags)
+	err = cmd.Info(args, flags.RootPflags, flags.GenFlags, flags.Gen__InfoFlags)
 
 	return err
 }

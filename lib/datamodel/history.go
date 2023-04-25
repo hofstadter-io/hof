@@ -130,6 +130,10 @@ func (V *Value) loadHistory() error {
 		if f.IsDir() {
 			continue
 		}
+		ext := filepath.Ext(f.Name())
+		if ext != ".cue" {
+			continue
+		}
 		s, err := loadSnapshot(dir, f.Name(), V.Value.Context())
 		if err != nil {
 			return err
