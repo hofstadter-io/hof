@@ -267,7 +267,7 @@ func runCreator(R *gencmd.Runtime, extra, inputs []string) (err error) {
 		return fmt.Errorf("no generators found, please make sure there is a creator at the root of the repository")
 	}
 	if len(R.Generators) > 1 {
-		fmt.Println("Warning, you are running more than one generator. Use --list and -G if this was not your intention.")
+		fmt.Println("Warning, you are running more than one generator. Use -G to select specific generators if this was not your intention.")
 	}
 
 	var inputMap map[string]any

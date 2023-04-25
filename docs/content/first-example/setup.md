@@ -6,7 +6,7 @@ weight: 5
 
 {{<lead>}}
 Generators are made of some CUE files and directories of templates.
-You can run `hof gen --init <name>` to bootstrap a new generator module.
+You can run `hof gen init <name>` to bootstrap a new generator module.
 {{</lead>}}
 
 ### Bootstrapping Your Geneartor
@@ -24,7 +24,7 @@ git init   // (optional)
 
 // initialize a generator module
 // the name is often the same as a github repo
-hof gen --init hof.io/docs/example
+hof gen init hof.io/docs/example
 
 // temporary fix until v0.6.8
 mv generators gen

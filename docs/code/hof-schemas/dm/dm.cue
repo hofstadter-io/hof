@@ -1,15 +1,17 @@
 package dm
 
 import (
-  "github.com/hofstadter-io/hof/schema"
+	"github.com/hofstadter-io/hof/schema"
 )
 
 // This is a complete Value tracked as one
 // useful for schemas, config, and NoSQL
 Object: {
-	schema.DHof // needed for reFerences
-	$hof: datamodel: root: true
+	schema.DHof// needed for reFerences
+	$hof: datamodel: root:    true
 	$hof: datamodel: history: true
+
+	History: [...Snapshot]
 
 	// all fields will be tracked
 }
@@ -25,6 +27,14 @@ Value: {
 // It can be expanded and enriched to cover more
 // Useful for SQL, APIs, forms, and similar
 Datamodel: {
-	schema.DHof // needed for reFerences
+	schema.DHof// needed for reFerences
 	$hof: datamodel: root: true
 }
+
+// Schema for a snapshot, can include anything else
+Snapshot: {
+	Timestamp: string
+}
+
+// embedable history type
+History: [...Snapshot]

@@ -70,7 +70,10 @@ var genLong = `hof unifies CUE with Go's text/template system and diff3
   hof gen [entrypoints] -G [name]
 
 # Bootstrap a new generator module
-  hof gen --init github.com/hofstadter-io/demos
+  hof gen init github.com/hofstadter-io/demos
+
+# List availabel generators
+	hof gen list
 
 # Learn about writing templates, with extra functions and helpers
   https://docs.hofstadter.io/code-generation/template-writing/
