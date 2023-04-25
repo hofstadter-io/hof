@@ -4,7 +4,11 @@ import (
 	"fmt"
 	"os"
 
+	"path/filepath"
+
 	"github.com/spf13/cobra"
+
+	"github.com/hofstadter-io/hof/cmd/hof/cmd/gen"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 
@@ -80,7 +84,6 @@ var genLong = `hof unifies CUE with Go's text/template system and diff3
 
 func init() {
 
-	GenCmd.Flags().BoolVarP(&(flags.GenFlags.List), "list", "l", false, "list available generators")
 	GenCmd.Flags().BoolVarP(&(flags.GenFlags.Stats), "stats", "s", false, "print generator statistics")
 	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.Generator), "generator", "G", nil, "generator tags to run, default is all, or none if -T is used")
 	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.Template), "template", "T", nil, "template mapping to render, see help for format")
@@ -91,7 +94,6 @@ func init() {
 	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.WatchFull), "watch-globs", "W", nil, "filepath globs to watch for changes and trigger full regen")
 	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.WatchFast), "watch-fast", "X", nil, "filepath globs to watch for changes and trigger fast regen")
 	GenCmd.Flags().StringVarP(&(flags.GenFlags.AsModule), "as-module", "", "", "<github.com/username/<name>> like value for the generator module made from the given flags")
-	GenCmd.Flags().StringVarP(&(flags.GenFlags.InitModule), "init", "", "", "<name> to bootstrap a new genarator module")
 	GenCmd.Flags().StringVarP(&(flags.GenFlags.Outdir), "outdir", "O", "", "base directory to write all output u")
 }
 
@@ -114,6 +116,12 @@ var GenCmd = &cobra.Command{
 	Short: "modular and composable code gen: CUE & data + templates = _",
 
 	Long: genLong,
+
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		glob := toComplete + "*"
+		matches, _ := filepath.Glob(glob)
+		return matches, cobra.ShellCompDirectiveDefault
+	},
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
@@ -165,5 +173,9 @@ func init() {
 	}
 	GenCmd.SetHelpFunc(thelp)
 	GenCmd.SetUsageFunc(tusage)
+
+	GenCmd.AddCommand(cmdgen.InitCmd)
+	GenCmd.AddCommand(cmdgen.InfoCmd)
+	GenCmd.AddCommand(cmdgen.ListCmd)
 
 }

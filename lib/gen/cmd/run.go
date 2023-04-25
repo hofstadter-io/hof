@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
@@ -31,16 +30,12 @@ func Run(args []string, rflags flags.RootPflagpole, gflags flags.GenFlagpole) er
 	return nil
 }
 
-func run(args []string, rflags flags.RootPflagpole, gflags flags.GenFlagpole) error {
-	// shortcut when user wants to bootstrap a new generator module
-	if gflags.InitModule != "" {
-		return InitModule(args, rflags, gflags)
-	}
+func prepRuntime(args []string, rflags flags.RootPflagpole, gflags flags.GenFlagpole) (*Runtime, error) {
 
 	// create our core runtime
 	r, err := runtime.New(args, rflags)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	// upgrade to a generator runtime
 	R := NewGenRuntime(r, gflags)
@@ -53,29 +48,21 @@ func run(args []string, rflags flags.RootPflagpole, gflags flags.GenFlagpole) er
 	// First time load (not-fast)
 	err = R.Reload(false)
 	if err != nil {
-		return err
+		return R, err
 	}
 
 	if len(R.Generators) == 0 {
-		return fmt.Errorf("no generators found")
+		return R, fmt.Errorf("no generators found")
 	}
 
-	if R.GenFlags.List {
-		// TODO...
-		// 1. use table printer
-		// 2. move this command up, large blocks of this ought
-		gens := make([]string, 0, len(R.Generators))
-		for _, G := range R.Generators {
-			gens = append(gens, G.Hof.Metadata.Name)
-		}
-		if len(gens) == 0 {
-			return fmt.Errorf("no generators found")
-		}
-		fmt.Printf("Available Generators\n  ")
-		fmt.Println(strings.Join(gens, "\n  "))
-		
-		// print gens
-		return nil
+	return R, nil
+}
+
+func run(args []string, rflags flags.RootPflagpole, gflags flags.GenFlagpole) error {
+
+	R, err := prepRuntime(args, rflags, gflags)
+	if err != nil {
+		return err
 	}
 
 	// we need generators loaded at this point

@@ -14,6 +14,9 @@ const noRootFmt = `warning: root datamodel not found for child with %s at %s
 please pass the full datamodel to In values and select out later`
 
 func (G *Generator) upgradeDMs(dms []*datamodel.Datamodel) error {
+	if len(dms) == 0 {
+		return nil
+	}
 
 	val := G.CueValue
 

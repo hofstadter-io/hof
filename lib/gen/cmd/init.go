@@ -17,8 +17,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
-func InitModule(args []string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpole) error {
-	name := cmdflags.InitModule
+func InitModule(name string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpole) error {
 	module := "hof.io"
 	if strings.Contains(name,"/") {
 		i := strings.LastIndex(name,"/")
