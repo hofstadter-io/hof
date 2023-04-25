@@ -2,7 +2,6 @@ package gen
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"cuelang.org/go/cue"
@@ -11,98 +10,6 @@ import (
 	"github.com/hofstadter-io/hof/lib/hof"
 	"github.com/hofstadter-io/hof/lib/datamodel"
 )
-
-func (G *Generator) injectHistory(dms []*datamodel.Datamodel) error {
-
-	val := G.CueValue
-
-	gNs, err := hof.FindHofs(val)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println(G.Hof.Path, len(dms), len(dms[0].Node.T.History()), len(gNs))
-
-	// assert that there is only 1 gN
-	if len(gNs) != 1 {
-		return fmt.Errorf("%s at %s created multple $hof Nodes, you should not mix things like generators and datamodels withing the (exactly) same value, nesting is ok", G.Hof.Label, G.Hof.Path)
-	}
-
-	gN := gNs[0]
-	gN.Print()
-	// here, we need to inject any datamodel history(s)
-	// this is going to need some fancy, recursive processing
-	// so we will call out to a helper of some kind
-
-	G.injectHistoryR(gN, dms, nil)
-
-	//
-	// what about the diffs? (or more generally the lens)
-	//
-
-	return nil
-}
-
-func (G *Generator) injectHistoryR(hn *hof.Node[any], dms []*datamodel.Datamodel, root *datamodel.Datamodel) {
-	if hn.Hof.Datamodel.History {
-		fmt.Println("found hist at: ", hn.Hof.Path)
-		if hn.Hof.Datamodel.Root {
-			for _, dm := range dms {
-				if dm.Hof.Metadata.Name == hn.Hof.Metadata.Name {
-					root = dm
-				}
-			}
-			if root == nil {
-				fmt.Println("root datamodel not found")
-				// probably return an error instead of panic?
-				// panic("root datamodel not found")
-			} else {
-				hist := root.Node.T.History()
-				fmt.Println("injecting hist at: ", hn.Hof.Path, len(hist), hist[0].Timestamp)
-				p := hn.Hof.Path
-				start := G.Hof.Label + "."
-				p = strings.TrimPrefix(p, start)
-
-				if root.Node.T.Snapshot.Lense.CurrDiff.Exists() {
-					// fmt.Println("curr diff:", root.Node.T.Snapshot.Lense.CurrDiff)
-					data := map[string]any{
-						"CurrDiff": root.Node.T.Snapshot.Lense.CurrDiff,
-					}
-					G.CueValue = G.CueValue.FillPath(cue.ParsePath(p), data)
-				}
-
-
-				fmt.Println(start, p)
-				data := []map[string]any{}
-				for _, h := range hist {
-					d := map[string]any{
-						"Timestamp": h.Timestamp,
-						"Pos": h.Pos,
-						"Data": h.Data,
-					}
-					fmt.Println(h.Lense.CurrDiff)
-					if h.Lense.CurrDiff.Exists() {
-						d["CurrDiff"] = h.Lense.CurrDiff
-					}
-					data = append(data, d)
-				}
-				p += ".History"
-				G.CueValue = G.CueValue.FillPath(cue.ParsePath(p), data)
-				// fmt.Println(G.CueValue)
-			}
-		} else {
-			if root == nil {
-				fmt.Println("warning: root datamodel not found for child with history at, please pass the full datamodel to In values and select out later", hn.Hof.Path)
-			} else {
-				fmt.Println("TODO: non-root datamodel history injection not implemented yet", hn.Hof.Path)
-			}
-		}
-	}
-
-	for _, c := range hn.Children {
-		G.injectHistoryR(c, dms, root)
-	}
-}
 
 func (G *Generator) DecodeFromCUE(dms []*datamodel.Datamodel) (errs []error) {
 	// TODO, what if a user's generator doesn't use the schema?
@@ -113,7 +20,7 @@ func (G *Generator) DecodeFromCUE(dms []*datamodel.Datamodel) (errs []error) {
 	// fmt.Println("Gen Load:", G.Name)
 	start := time.Now()
 
-	if err := G.injectHistory(dms); err != nil {
+	if err := G.upgradeDMs(dms); err != nil {
 		errs = append(errs, err)
 	}
 
