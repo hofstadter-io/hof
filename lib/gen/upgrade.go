@@ -26,7 +26,7 @@ func (G *Generator) upgradeDMs(dms []*datamodel.Datamodel) error {
 		return err
 	}
 
-	fmt.Println(G.Hof.Path, len(dms), len(dms[0].Node.T.History()), len(gNs))
+	// fmt.Println(G.Hof.Path, len(dms), len(dms[0].Node.T.History()), len(gNs))
 
 	// assert that there is only 1 gN
 	if len(gNs) != 1 {
@@ -34,7 +34,7 @@ func (G *Generator) upgradeDMs(dms []*datamodel.Datamodel) error {
 	}
 
 	gN := gNs[0]
-	gN.Print()
+	// gN.Print()
 
 	G.upgradeDMsR(gN, dms, nil)
 
@@ -86,10 +86,10 @@ func (G *Generator) injectHistory(hn *hof.Node[any], dms []*datamodel.Datamodel,
 		return
 	}
 
-	fmt.Println("found @history at: ", hn.Hof.Path)
+	// fmt.Println("found @history at: ", hn.Hof.Path)
 	if hn.Hof.Datamodel.Root {
 		hist := root.Node.T.History()
-		fmt.Println("injecting hist at: ", hn.Hof.Path, len(hist), hist[0].Timestamp)
+		// fmt.Println("injecting hist at: ", hn.Hof.Path, len(hist), hist[0].Timestamp)
 		p := hn.Hof.Path
 		start := G.Hof.Label + "."
 		p = strings.TrimPrefix(p, start)
@@ -103,7 +103,7 @@ func (G *Generator) injectHistory(hn *hof.Node[any], dms []*datamodel.Datamodel,
 		}
 
 
-		fmt.Println(start, p)
+		// fmt.Println(start, p)
 		data := []map[string]any{}
 		for _, h := range hist {
 			d := map[string]any{
@@ -111,7 +111,7 @@ func (G *Generator) injectHistory(hn *hof.Node[any], dms []*datamodel.Datamodel,
 				"Pos": h.Pos,
 				"Data": h.Data,
 			}
-			fmt.Println(h.Lense.CurrDiff)
+			// fmt.Println(h.Lense.CurrDiff)
 			if h.Lense.CurrDiff.Exists() {
 				d["CurrDiff"] = h.Lense.CurrDiff
 			}
@@ -124,7 +124,9 @@ func (G *Generator) injectHistory(hn *hof.Node[any], dms []*datamodel.Datamodel,
 		if root == nil {
 			fmt.Println("warning: root datamodel not found for child with history at, please pass the full datamodel to In values and select out later", hn.Hof.Path)
 		} else {
-			fmt.Println("TODO: non-root datamodel history injection not implemented yet", hn.Hof.Path)
+			if G.Verbosity > 0 {
+				fmt.Println("TODO: non-root datamodel history injection not implemented yet", hn.Hof.Path)
+			}
 		}
 	}
 }
@@ -133,7 +135,7 @@ func (G *Generator) injectOrdered(hn *hof.Node[any], dms []*datamodel.Datamodel,
 	if root == nil {
 		return fmt.Errorf(noRootFmt, "@ordered", hn.Hof.Path)
 	}
-	fmt.Println("found @ordered at: ", hn.Hof.Path)
+	// fmt.Println("found @ordered at: ", hn.Hof.Path)
 
 	path := hn.Hof.Path
 	path = strings.TrimPrefix(path, G.Name + ".")
