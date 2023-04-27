@@ -20,10 +20,7 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/tarball"
 )
 
-func IsOCI(mod string) bool {
-	// TODO:
-	//   * This is naive. Revisit it.
-	//   * Cache these on disk once it is known what this is.
+func IsNetworkReachable(mod string) bool {
 	_, err := crane.Head(mod)
 	return err == nil
 }

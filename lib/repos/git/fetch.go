@@ -16,19 +16,21 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
 	"github.com/go-git/go-git/v5/storage/memory"
 
+	"github.com/hofstadter-io/hof/lib/repos/utils"
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 var debug = false
 
-func IsGit(ctx context.Context, host, owner, repo string) (bool, error) {
-	// TODO: Cache these on disk once it is known what this is.
+func IsNetworkReachable(ctx context.Context, mod string) (bool, error) {
 	rem := gogit.NewRemote(memory.NewStorage(), &config.RemoteConfig{
 		Name: "origin",
-		URLs: []string{"https://" + path.Join(host, owner, repo)},
+		URLs: []string{"https://" + mod},
 	})
 
-	auth, err := getAuth(host, owner, repo)
+	host, _, _ := utils.ParseModURL(mod)
+
+	auth, err := getAuth(host, "", "")
 	if err != nil {
 		return false, fmt.Errorf("get auth: %w", err)
 	}

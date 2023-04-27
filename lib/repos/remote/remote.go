@@ -2,7 +2,6 @@ package remote
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
 
@@ -18,48 +17,53 @@ func Parse(mod string) (*Remote, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	k, err := NewKnowns()
+	m, err := NewMirrors()
 	if err != nil {
 		return nil, fmt.Errorf("new knowns: %w", err)
 	}
 
+	// TODO: Is is worth having a complex type here to handle
+	// this kind of check? Will Mirrors get used elsewhere?
+	// If not, it would be better to simplify Mirrors to a
+	// function.
+	defer m.Close()
+
 	r := Remote{
-		mod:    mod,
-		knowns: k,
+		mod:     mod,
+		mirrors: m,
 	}
 
 	r.Host, r.Owner, r.Name = utils.ParseModURL(mod)
 
-	// TODO: Store knowns
-
-	isGit, err := git.IsGit(ctx, r.Host, r.Owner, r.Name)
-	switch {
-	case err != nil:
-		return nil, fmt.Errorf("is git: %w", err)
-	case isGit:
-		r.kind = KindGit
-		return &r, nil
-	case oci.IsOCI(mod):
+	isOCI, err := m.Is(ctx, KindOCI, mod)
+	if err != nil {
+		return nil, fmt.Errorf("mirror is oci: %w", err)
+	}
+	if isOCI {
 		r.kind = KindOCI
 		return &r, nil
 	}
 
-	return nil, errors.New("remote not known")
-}
+	isGit, err := m.Is(ctx, KindGit, mod)
+	if err != nil {
+		return nil, fmt.Errorf("mirror is git: %w", err)
+	}
+	if isGit {
+		r.kind = KindGit
+		return &r, nil
+	}
 
-type (
-	LocalDir string
-	Version  string
-)
+	return nil, fmt.Errorf("cannot parse %s", mod)
+}
 
 type Remote struct {
 	Host  string
 	Owner string
 	Name  string
 
-	mod    string
-	kind   Kind
-	knowns *Knowns
+	mod     string
+	kind    Kind
+	mirrors *Mirrors
 }
 
 func (r *Remote) Pull(ctx context.Context, dir, ver string) error {
@@ -74,7 +78,7 @@ func (r *Remote) Pull(ctx context.Context, dir, ver string) error {
 		}
 	}
 
-	return errors.New("pull: invalid kind")
+	return fmt.Errorf("usupported kind: %s", r.kind)
 }
 
 type Kind string
