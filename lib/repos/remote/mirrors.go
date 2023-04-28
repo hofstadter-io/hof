@@ -34,7 +34,7 @@ func mirrorsFilePath() (string, error) {
 		return p, nil
 	}
 
-	d, err := os.UserCacheDir()
+	d, err := os.UserConfigDir()
 	if err != nil {
 		return "", fmt.Errorf("user cache dir: %w", err)
 	}
