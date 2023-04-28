@@ -89,7 +89,7 @@ func Push(tag string, img v1.Image) error {
 		return fmt.Errorf("name parse reference: %w", err)
 	}
 
-	if err = remote.Write(ref, img); err != nil {
+	if err = remote.Write(ref, img, remote.WithAuthFromKeychain(authn.DefaultKeychain)); err != nil {
 		return fmt.Errorf("remote write: %w", err)
 	}
 

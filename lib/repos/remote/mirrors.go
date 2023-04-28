@@ -48,10 +48,9 @@ func NewMirrors() (*Mirrors, error) {
 		return nil, fmt.Errorf("mirrors file path: %w", err)
 	}
 
-	if _, err = os.Stat(p); errors.Is(err, os.ErrNotExist) {
-		return &Mirrors{
-			values: make(map[Kind][]string),
-		}, nil
+	info, err := os.Stat(p)
+	if errors.Is(err, os.ErrNotExist) || info.Size() == 0 {
+		return &Mirrors{values: make(map[Kind][]string)}, nil
 	}
 
 	f, err := os.Open(p)
@@ -166,13 +165,16 @@ func (m *Mirrors) Close() error {
 		return fmt.Errorf("mkdir %s: %w", dir, err)
 	}
 
-	f, err := os.OpenFile(p, os.O_CREATE|os.O_TRUNC, os.ModePerm)
+	f, err := os.OpenFile(p, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o600)
 	if err != nil {
-		return fmt.Errorf("os open file %s: %w", p, err)
+		return fmt.Errorf("open %s: %w", p, err)
 	}
 	defer f.Close()
 
-	if err := json.NewEncoder(f).Encode(&m.values); err != nil {
+	e := json.NewEncoder(f)
+	e.SetIndent("", "  ")
+
+	if err := e.Encode(&m.values); err != nil {
 		return fmt.Errorf("json encode %s: %w", p, err)
 	}
 

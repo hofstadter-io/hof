@@ -19,7 +19,7 @@ func Parse(mod string) (*Remote, error) {
 
 	m, err := NewMirrors()
 	if err != nil {
-		return nil, fmt.Errorf("new knowns: %w", err)
+		return nil, fmt.Errorf("new mirrors: %w", err)
 	}
 
 	// TODO: Is is worth having a complex type here to handle

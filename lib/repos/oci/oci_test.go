@@ -93,7 +93,7 @@ func TestBuild(t *testing.T) {
 func TestPushAndPull(t *testing.T) {
 	const ociRegistryAddr = "localhost:1111"
 
-	// Start OCI registry
+	//  Start OCI registry
 	go func() {
 		r := registry.New()
 		http.ListenAndServe(ociRegistryAddr, r)
