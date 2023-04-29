@@ -101,9 +101,9 @@ Aliases:
 Available Commands:
   checkpoint  create a snapshot of the data model
   diff        show the current diff or between datamodel versions
-  info        print details for a datamodel
   list        print available datamodels
   log         show the history for a datamodel
+  tree        print datamodel structure as a tree
 
 Flags:
   -d, --datamodel strings   specify one or more datamodels to operate on

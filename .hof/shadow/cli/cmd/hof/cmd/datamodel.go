@@ -163,7 +163,7 @@ func init() {
 
 	DatamodelCmd.AddCommand(cmddatamodel.CheckpointCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.DiffCmd)
-	DatamodelCmd.AddCommand(cmddatamodel.InfoCmd)
+	DatamodelCmd.AddCommand(cmddatamodel.TreeCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.ListCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.LogCmd)
 

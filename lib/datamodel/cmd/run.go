@@ -31,8 +31,8 @@ func Run(cmd string, args []string, rflags flags.RootPflagpole, dflags flags.Dat
 	case "list":
 		err = list(R, dflags)
 
-	case "info":
-		err = info(R, dflags)
+	case "tree":
+		err = tree(R, dflags)
 
 	case "checkpoint":
 		err = checkpoint(R, dflags, flags.Datamodel__CheckpointFlags)

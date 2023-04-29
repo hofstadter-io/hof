@@ -14,13 +14,13 @@ import (
 	"github.com/hofstadter-io/hof/lib/runtime"
 )
 
-func info(R *runtime.Runtime, dflags flags.DatamodelPflagpole) error {
+func tree(R *runtime.Runtime, dflags flags.DatamodelPflagpole) error {
 
 	// find max label width after indentation for column alignment
 	max := findMaxLabelLen(R, dflags)
 
 	for _, dm := range R.Datamodels {
-		if err := dm.PrintInfo(os.Stdout, max, dflags); err != nil {
+		if err := dm.PrintTree(os.Stdout, max, dflags); err != nil {
 			return err
 		}
 

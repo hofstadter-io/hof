@@ -12,29 +12,29 @@ import (
 	"github.com/hofstadter-io/hof/lib/datamodel/cmd"
 )
 
-var infoLong = `print details for a datamodel`
+var treeLong = `print datamodel structure as a tree`
 
-func InfoRun(args []string) (err error) {
+func TreeRun(args []string) (err error) {
 
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = cmd.Run("info", args, flags.RootPflags, flags.DatamodelPflags)
+	err = cmd.Run("tree", args, flags.RootPflags, flags.DatamodelPflags)
 
 	return err
 }
 
-var InfoCmd = &cobra.Command{
+var TreeCmd = &cobra.Command{
 
-	Use: "info",
+	Use: "tree",
 
 	Aliases: []string{
-		"i",
+		"t",
 	},
 
-	Short: "print details for a datamodel",
+	Short: "print datamodel structure as a tree",
 
-	Long: infoLong,
+	Long: treeLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
@@ -47,7 +47,7 @@ var InfoCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		err = InfoRun(args)
+		err = TreeRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -61,8 +61,8 @@ func init() {
 		return false
 	}
 
-	ohelp := InfoCmd.HelpFunc()
-	ousage := InfoCmd.UsageFunc()
+	ohelp := TreeCmd.HelpFunc()
+	ousage := TreeCmd.UsageFunc()
 	help := func(cmd *cobra.Command, args []string) {
 		if extra(cmd) {
 			return
@@ -84,7 +84,7 @@ func init() {
 		ga.SendCommandPath(cmd.CommandPath() + " usage")
 		return usage(cmd)
 	}
-	InfoCmd.SetHelpFunc(thelp)
-	InfoCmd.SetUsageFunc(tusage)
+	TreeCmd.SetHelpFunc(thelp)
+	TreeCmd.SetUsageFunc(tusage)
 
 }
