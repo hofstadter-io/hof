@@ -1,6 +1,6 @@
 /*  dirty changes, checkpoint when ready */
 {{ $DM := .DM }}
-{{ $DIFF := $DM.CurrDiff }}
+{{ $DIFF := $DM.Lense.CurrDiff }}
 
 {{ range $K, $M := $DM.Models }}
 {{ if and (ne $K "$hof") (ne $K "+")}}

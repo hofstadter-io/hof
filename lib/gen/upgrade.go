@@ -47,12 +47,15 @@ func (G *Generator) upgradeDMs(dms []*datamodel.Datamodel) error {
 	gN := gNs[0]
 	// gN.Print()
 
-	G.upgradeDMsR(gN, dms, nil)
+	err = G.upgradeDMsR(gN, dms, nil)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
-func (G *Generator) upgradeDMsR(hn *hof.Node[any], dms []*datamodel.Datamodel, root *datamodel.Datamodel) {
+func (G *Generator) upgradeDMsR(hn *hof.Node[any], dms []*datamodel.Datamodel, root *datamodel.Datamodel) error {
 	if root == nil && hn.Hof.Datamodel.Root {
 		for _, dm := range dms {
 			if dm.Hof.Metadata.Name == hn.Hof.Metadata.Name {
@@ -70,83 +73,116 @@ func (G *Generator) upgradeDMsR(hn *hof.Node[any], dms []*datamodel.Datamodel, r
 
 	// return if we are not within the DM root
 	if root == nil {
-		return
+		return nil
 	}
 
 	// here, we need to inject any datamodel history(s)
 	// this is going to need some fancy, recursive processing
 	// so we will call out to a helper of some kind
 	if hn.Hof.Datamodel.History {
-		G.injectHistory(hn, dms, root)
+		err := G.injectHistory(hn, dms, root)
+		if err != nil {
+			return err
+		}
 	}
-
-	//
-	// what about the diffs? (or more generally the lens)
-	//
 
 	// here we create an ordered version of the node at the same level
 	if hn.Hof.Datamodel.Ordered {
-		G.injectOrdered(hn, dms, root)
+		err := G.injectOrdered(hn, dms, root)
+		if err != nil {
+			return err
+		}
 	}
 
+	return nil
 }
 
-func (G *Generator) injectHistory(hn *hof.Node[any], dms []*datamodel.Datamodel, root *datamodel.Datamodel) {
+func (G *Generator) injectHistory(hn *hof.Node[any], dms []*datamodel.Datamodel, root *datamodel.Datamodel) error {
 	if root == nil {
-		fmt.Println(noRootFmt, "@history", hn.Hof.Path)
-		return
+		return fmt.Errorf(noRootFmt, "@history", hn.Hof.Path)
 	}
 
-	// fmt.Println("found @history at: ", hn.Hof.Path)
+	if G.Verbosity > 0 {
+		fmt.Println("found @history at: ", hn.Hof.Path, root.Hof.Path)
+	}
 
 	// Instead of this check, we should try to walk the root to find where it aligns with the current hn.
 	// In this way, we can hopefully write code that is ignorant of where in the node tree it is.
 
-	if hn.Hof.Datamodel.Root {
-		hist := root.Node.T.History()
-		// fmt.Println("injecting hist at: ", hn.Hof.Path, len(hist), hist[0].Timestamp)
-		p := hn.Hof.Path
-		start := G.Hof.Label + "."
-		p = strings.TrimPrefix(p, start)
+	// find matching node in root, for hn
+	match := root
+	if match.Hof.Metadata.ID != hn.Hof.Metadata.ID {
+		match = nil
+	}
 
-		if root.Node.T.Snapshot.Lense.CurrDiff.Exists() {
-			// fmt.Println("curr diff:", root.Node.T.Snapshot.Lense.CurrDiff)
-			data := map[string]any{
-				"CurrDiff": root.Node.T.Snapshot.Lense.CurrDiff,
-			}
-			G.CueValue = G.CueValue.FillPath(cue.ParsePath(p), data)
+	// this should not happen because we already verified that we are in the root
+	// so return an error
+	if match == nil {
+		// TODO return error
+		// fmt.Println("  no macth found")
+		return nil
+	}
+
+	// get & check history
+	hist := match.Node.T.History()
+	if G.Verbosity > 0 {
+		fmt.Println("injecting hist at: ", hn.Hof.Metadata.ID, match.Hof.Metadata.ID, len(hist), hist[0].Timestamp)
+	}
+
+	// build up the label
+	p := hn.Hof.Path
+
+	// trim the datamodel label since we are already in there via G.Value
+	start := G.Hof.Label + "."
+	p = strings.TrimPrefix(p, start)
+
+	// This is the current snapshot, outside the history object
+	// Inject the CurrDiff, if the model is dirty
+	if match.Node.T.Snapshot.Lense.CurrDiff.Exists() {
+		s, err := snapshotToData(match.Node.T.Snapshot)
+		if err != nil {
+			return err
 		}
+		G.CueValue = G.CueValue.FillPath(cue.ParsePath(p+".Snapshot"), s)
+	}
 
 
-		// fmt.Println(start, p)
-		data := []map[string]any{}
-		for _, h := range hist {
-			d := map[string]any{
-				"Timestamp": h.Timestamp,
-				"Pos": h.Pos,
-				"Data": h.Data,
-			}
-			// fmt.Println(h.Lense.CurrDiff)
-			if h.Lense.CurrDiff.Exists() {
-				d["CurrDiff"] = h.Lense.CurrDiff
-			}
-			data = append(data, d)
+	// fmt.Println(start, p)
+	// Datafy each snapshot
+	snaps := []any{}
+	for _, h := range hist {
+		s, err := snapshotToData(h)
+		if err != nil {
+			return err
 		}
-		p += ".History"
-		G.CueValue = G.CueValue.FillPath(cue.ParsePath(p), data)
-		// fmt.Println(G.CueValue)
-	} else {
-		if root == nil {
-			// The main problem here is knowing what datamodel a nested DM identirfier is part of.
-			// It is trivial to construct an example where the same name appears in two different datamodels.
+		snaps = append(snaps, s)
+	}
 
-			fmt.Println("warning: root datamodel not found for child with history at, please pass the full datamodel to In values and select out later", hn.Hof.Path)
-		} else {
-			if G.Verbosity > 0 {
-				fmt.Println("TODO: non-root datamodel history injection not implemented yet", hn.Hof.Path)
-			}
+	// Inject the value at the current path as "History" list
+	p += ".History"
+	G.CueValue = G.CueValue.FillPath(cue.ParsePath(p), snaps)
+	// fmt.Println(G.CueValue)
+
+	return nil
+}
+
+func snapshotToData(snap *datamodel.Snapshot) (any, error) {
+	s := make(map[string]any)
+	if snap.Timestamp != "" {
+		s["Timestamp"] = snap.Timestamp
+		s["Pos"] = snap.Pos
+		s["Data"] = snap.Data
+	}
+
+	if snap.Lense.CurrDiff.Exists() {
+		// TODO, add more diff types & formats here
+		s["Lense"] = map[string]any{
+			"CurrDiff": snap.Lense.CurrDiff,
+			// "PrevDiff": snap.Lense.PrevDiff,  // the backwards or down diff
 		}
 	}
+
+	return s, nil
 }
 
 func (G *Generator) injectOrdered(hn *hof.Node[any], dms []*datamodel.Datamodel, root *datamodel.Datamodel) error {

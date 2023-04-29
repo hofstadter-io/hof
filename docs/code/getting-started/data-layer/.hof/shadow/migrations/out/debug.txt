@@ -5,106 +5,7 @@ $hof:
     metadata:
         name: Datamodel
 History:
-    - CurrDiff:
-        Models:
-            +:
-                UserPost:
-                    $hof:
-                        apiVersion: v1beta1
-                        datamodel:
-                            cue: false
-                            history: true
-                            node: false
-                            ordered: false
-                            root: false
-                        metadata:
-                            name: UserPost
-                    Fields:
-                        $hof:
-                            datamodel:
-                                node: true
-                                ordered: true
-                        Content:
-                            Length: 2048
-                            Name: Content
-                            Nullable: false
-                            Type: string
-                            Unique: false
-                            Validation:
-                                Max: 2048
-                            sqlType: varchar(2048)
-                        CreatedAt:
-                            Name: CreatedAt
-                            Type: datetime
-                        Format:
-                            Length: 64
-                            Name: Format
-                            Nullable: false
-                            Type: string
-                            Unique: false
-                            Validation:
-                                Max: 64
-                            sqlType: varchar(64)
-                        ID:
-                            Default: uuid_generate_v4()
-                            Name: ID
-                            Nullable: false
-                            Type: uuid
-                            Unique: true
-                            Validation:
-                                Format: uuid
-                        Owner:
-                            Name: Owner
-                            Nullable: false
-                            Relation:
-                                Name: Owner
-                                Other: Models.User
-                                Type: belongs-to
-                            Type: uuid
-                            Unique: true
-                            Validation:
-                                Format: uuid
-                        Title:
-                            Length: 64
-                            Name: Title
-                            Nullable: false
-                            Type: string
-                            Unique: false
-                            Validation:
-                                Max: 64
-                            sqlType: varchar(64)
-                        UpdatedAt:
-                            Name: UpdatedAt
-                            Type: datetime
-                    History: []
-                    Name: UserPost
-            User:
-                Fields:
-                    +:
-                        Posts:
-                            Name: Posts
-                            Nullable: false
-                            Relation:
-                                Name: Posts
-                                Other: Models.Post
-                                Type: has-many
-                            Type: uuid
-                            Unique: true
-                            Validation:
-                                Format: uuid
-            UserProfile:
-                Fields:
-                    +:
-                        Social:
-                            Length: 64
-                            Name: Social
-                            Nullable: false
-                            Type: string
-                            Unique: false
-                            Validation:
-                                Max: 64
-                            sqlType: varchar(64)
-      Data:
+    - Data:
         $hof:
             datamodel:
                 history: true
@@ -351,19 +252,109 @@ History:
                         Type: datetime
                 History: []
                 Name: UserProfile
+      Lense:
+        CurrDiff:
+            Models:
+                +:
+                    UserPost:
+                        $hof:
+                            apiVersion: v1beta1
+                            datamodel:
+                                cue: false
+                                history: true
+                                node: false
+                                ordered: false
+                                root: false
+                            metadata:
+                                name: UserPost
+                        Fields:
+                            $hof:
+                                datamodel:
+                                    node: true
+                                    ordered: true
+                            Content:
+                                Length: 2048
+                                Name: Content
+                                Nullable: false
+                                Type: string
+                                Unique: false
+                                Validation:
+                                    Max: 2048
+                                sqlType: varchar(2048)
+                            CreatedAt:
+                                Name: CreatedAt
+                                Type: datetime
+                            Format:
+                                Length: 64
+                                Name: Format
+                                Nullable: false
+                                Type: string
+                                Unique: false
+                                Validation:
+                                    Max: 64
+                                sqlType: varchar(64)
+                            ID:
+                                Default: uuid_generate_v4()
+                                Name: ID
+                                Nullable: false
+                                Type: uuid
+                                Unique: true
+                                Validation:
+                                    Format: uuid
+                            Owner:
+                                Name: Owner
+                                Nullable: false
+                                Relation:
+                                    Name: Owner
+                                    Other: Models.User
+                                    Type: belongs-to
+                                Type: uuid
+                                Unique: true
+                                Validation:
+                                    Format: uuid
+                            Title:
+                                Length: 64
+                                Name: Title
+                                Nullable: false
+                                Type: string
+                                Unique: false
+                                Validation:
+                                    Max: 64
+                                sqlType: varchar(64)
+                            UpdatedAt:
+                                Name: UpdatedAt
+                                Type: datetime
+                        History: []
+                        Name: UserPost
+                User:
+                    Fields:
+                        +:
+                            Posts:
+                                Name: Posts
+                                Nullable: false
+                                Relation:
+                                    Name: Posts
+                                    Other: Models.Post
+                                    Type: has-many
+                                Type: uuid
+                                Unique: true
+                                Validation:
+                                    Format: uuid
+                UserProfile:
+                    Fields:
+                        +:
+                            Social:
+                                Length: 64
+                                Name: Social
+                                Nullable: false
+                                Type: string
+                                Unique: false
+                                Validation:
+                                    Max: 64
+                                sqlType: varchar(64)
       Pos: 2
       Timestamp: "20230424080345"
-    - CurrDiff:
-        Models:
-            User:
-                Fields:
-                    +:
-                        verified:
-                            Default: "false"
-                            Name: verified
-                            Nullable: false
-                            Type: bool
-      Data:
+    - Data:
         $hof:
             datamodel:
                 history: true
@@ -520,6 +511,17 @@ History:
                         Type: datetime
                 History: []
                 Name: UserProfile
+      Lense:
+        CurrDiff:
+            Models:
+                User:
+                    Fields:
+                        +:
+                            verified:
+                                Default: "false"
+                                Name: verified
+                                Nullable: false
+                                Type: bool
       Pos: 1
       Timestamp: "20230424080158"
     - Data:

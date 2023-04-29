@@ -136,6 +136,7 @@ func EnrichGeneratorBuilder(R *Runtime) func (R *runtime.Runtime, G *gen.Generat
 		if len(errs) != 0 {
 			var emsg string
 			for _, err := range errs {
+				err = cuetils.ExpandCueError(err)
 				emsg += fmt.Sprintf("%s\n", err.Error())
 			}
 			return fmt.Errorf("while decoding %s:\n%s", G.Hof.Path, emsg)

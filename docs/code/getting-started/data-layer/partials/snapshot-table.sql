@@ -1,6 +1,6 @@
 {{ $DM := .DM }}
 {{ $S := .Snapshot }}
-{{ $DIFF := $S.CurrDiff }}
+{{ $DIFF := $S.Lense.CurrDiff }}
 /* has snapshot {{ $S.Pos }} - {{ $S.Timestamp }}*/
 
 {{ range $K, $M := $S.Data.Models }}
