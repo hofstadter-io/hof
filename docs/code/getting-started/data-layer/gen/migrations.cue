@@ -55,10 +55,10 @@ Migrations: gen.#Generator & {
 			TemplatePath: "Makefile"
 			Filepath:     "Makefile"
 		},
-		{
-			TemplatePath: "debug.txt"
-			Filepath:     "debug.txt"
-		},
+		//{
+		//TemplatePath: "debug.txt"
+		//Filepath:     "debug.txt"
+		//},
 		{
 			TemplatePath: "migration.sql"
 			Filepath:     "migrations/latest.sql"
