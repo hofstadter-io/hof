@@ -202,7 +202,7 @@ import (
 	  Config       object     -        ok      Config
 	  MyDatamodel  datamodel  -        ok      datamodel-abc123
 
-	  $ hof dm info   (print the structure of the datamodels)
+	  $ hof dm tree   (print the structure of the datamodels)
 
 	  $ hof dm diff   (prints a tree based diff of the datamodel)
 
