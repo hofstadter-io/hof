@@ -106,14 +106,9 @@ func (G *Generator) injectHistory(hn *hof.Node[any], dms []*datamodel.Datamodel,
 		fmt.Println("found @history at: ", hn.Hof.Path, root.Hof.Path)
 	}
 
-	// Instead of this check, we should try to walk the root to find where it aligns with the current hn.
-	// In this way, we can hopefully write code that is ignorant of where in the node tree it is.
-
-	// find matching node in root, for hn
-	match := root
-	if match.Hof.Metadata.ID != hn.Hof.Metadata.ID {
-		match = nil
-	}
+	// We want to walk the root node tree to find where it aligns with the current hn.
+	// In this way, we can write code that is ignorant of where in the node tree it is.
+	match := findHistoryMatchR(hn, root.Node)
 
 	// this should not happen because we already verified that we are in the root
 	// so return an error
@@ -123,8 +118,9 @@ func (G *Generator) injectHistory(hn *hof.Node[any], dms []*datamodel.Datamodel,
 		return nil
 	}
 
+
 	// get & check history
-	hist := match.Node.T.History()
+	hist := match.T.History()
 	if G.Verbosity > 0 {
 		fmt.Println("injecting hist at: ", hn.Hof.Metadata.ID, match.Hof.Metadata.ID, len(hist), hist[0].Timestamp)
 	}
@@ -138,8 +134,8 @@ func (G *Generator) injectHistory(hn *hof.Node[any], dms []*datamodel.Datamodel,
 
 	// This is the current snapshot, outside the history object
 	// Inject the CurrDiff, if the model is dirty
-	if match.Node.T.Snapshot.Lense.CurrDiff.Exists() {
-		s, err := snapshotToData(match.Node.T.Snapshot)
+	if match.T.Snapshot.Lense.CurrDiff.Exists() {
+		s, err := snapshotToData(match.T.Snapshot)
 		if err != nil {
 			return err
 		}
@@ -166,6 +162,23 @@ func (G *Generator) injectHistory(hn *hof.Node[any], dms []*datamodel.Datamodel,
 	return nil
 }
 
+func findHistoryMatchR(hn *hof.Node[any], root *hof.Node[datamodel.Value]) *hof.Node[datamodel.Value] {
+	// are we currently there?
+	// TODO< make this check better
+	if root.Hof.Metadata.ID == hn.Hof.Metadata.ID {
+		return root
+	}
+
+	for _, c := range root.Children {
+		m := findHistoryMatchR(hn, c)
+		if m != nil {
+			return m
+		}
+	}
+
+	return nil
+}
+
 func snapshotToData(snap *datamodel.Snapshot) (any, error) {
 	s := make(map[string]any)
 	if snap.Timestamp != "" {
@@ -176,10 +189,8 @@ func snapshotToData(snap *datamodel.Snapshot) (any, error) {
 
 	if snap.Lense.CurrDiff.Exists() {
 		// TODO, add more diff types & formats here
-		s["Lense"] = map[string]any{
-			"CurrDiff": snap.Lense.CurrDiff,
-			// "PrevDiff": snap.Lense.PrevDiff,  // the backwards or down diff
-		}
+		s["CurrDiff"] = snap.Lense.CurrDiff
+		// s["DownDiff"] = snap.Lense.DownDiff
 	}
 
 	return s, nil
