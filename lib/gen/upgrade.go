@@ -164,11 +164,17 @@ func (G *Generator) injectHistory(hn *hof.Node[any], dms []*datamodel.Datamodel,
 
 func findHistoryMatchR(hn *hof.Node[any], root *hof.Node[datamodel.Value]) *hof.Node[datamodel.Value] {
 	// are we currently there?
-	// TODO< make this check better
+	// TODO: make this check better
+	// current limitation is no shared names in the same datamodel tree
+	//   (ID really, but when not set, then ID = name)
+	//   so this could suffice for a while if we tell users to set the ID in this case
+	//   maybe we can just force this by having a check somewhere during loading
 	if root.Hof.Metadata.ID == hn.Hof.Metadata.ID {
 		return root
 	}
 
+	// recurse if not there yet, we fully unwind on first match
+	// (which is where the naming issue above comes from)
 	for _, c := range root.Children {
 		m := findHistoryMatchR(hn, c)
 		if m != nil {
@@ -181,12 +187,16 @@ func findHistoryMatchR(hn *hof.Node[any], root *hof.Node[datamodel.Value]) *hof.
 
 func snapshotToData(snap *datamodel.Snapshot) (any, error) {
 	s := make(map[string]any)
+	// true for history snapshot entries
+	// false for the snapshot we use on the current value to hold the current diff (dirty datamodel)
 	if snap.Timestamp != "" {
 		s["Timestamp"] = snap.Timestamp
 		s["Pos"] = snap.Pos
 		s["Data"] = snap.Data
 	}
 
+	// check to see if this snapshot has a diff
+	// (true for all but the "first" (in time)
 	if snap.Lense.CurrDiff.Exists() {
 		// TODO, add more diff types & formats here
 		s["CurrDiff"] = snap.Lense.CurrDiff
@@ -196,11 +206,21 @@ func snapshotToData(snap *datamodel.Snapshot) (any, error) {
 	return s, nil
 }
 
+// the point of this is to have a stable order for cue values specified as a struct
+// since they get turned into Go maps, which have random order during iteration
+// generated code can shift around while being the "same"
+// This is where we auto-fill from @ordered(), but users can also do this manually
+// Note | XXX, CUE's order may change between versions, they are working towards defining a stable order
+//   at which point we will use the same for consistency. We should be backwards compatible at this point
+//   but there is risk until then
 func (G *Generator) injectOrdered(hn *hof.Node[any], dms []*datamodel.Datamodel, root *datamodel.Datamodel) error {
 	if root == nil {
 		return fmt.Errorf(noRootFmt, "@ordered", hn.Hof.Path)
 	}
-	// fmt.Println("found @ordered at: ", hn.Hof.Path)
+
+	if G.Verbosity > 0 {
+		fmt.Println("found @ordered at: ", hn.Hof.Path)
+	}
 
 	path := hn.Hof.Path
 	path = strings.TrimPrefix(path, G.Name + ".")
