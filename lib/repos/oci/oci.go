@@ -133,7 +133,7 @@ func layer(wd string, d Dir) (v1.Layer, error) {
 		w   = tar.NewWriter(&buf)
 	)
 
-	root := path.Join(wd, d.path)
+	root := path.Join(wd, d.relPath)
 
 	err := filepath.Walk(root, func(p string, i os.FileInfo, err error) error {
 		if err != nil {

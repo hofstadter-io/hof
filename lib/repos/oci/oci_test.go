@@ -32,6 +32,9 @@ func TestPushAndPull(t *testing.T) {
 	subDir := path.Join(rootOrig, "subdir")
 	require.NoError(t, os.Mkdir(subDir, 0o700))
 	require.NoError(t, os.WriteFile(path.Join(subDir, "three.txt"), []byte("333"), 0o700))
+	require.NoError(t, os.WriteFile(path.Join(subDir, "four.txt"), []byte("444"), 0o700))
+
+	require.NoError(t, os.WriteFile(path.Join(rootOrig, modIgnoreFile), []byte("four.txt"), 0o700))
 
 	run(t, rootOrig, "git", "init")
 	run(t, rootOrig, "git", "add", ".")
@@ -41,17 +44,10 @@ func TestPushAndPull(t *testing.T) {
 	run(t, rootOrig, "hof", "mod", "get", "github.com/hofstadter-io/hof@next")
 	run(t, rootOrig, "tree", "-a")
 
-	img, err := Build(rootOrig, []Dir{
-		NewDir(HofstadterModuleDeps, "cue.mod", []string{
-			"*",
-			"!module.cue",
-			"!sums.cue",
-		}),
-		NewDir(HofstadterModuleCode, "", []string{
-			"cue.mod/pkg",
-			".git",
-		}),
-	})
+	codeDir, err := NewCode(rootOrig)
+	require.NoError(t, err)
+
+	img, err := Build(rootOrig, []Dir{NewDeps(), codeDir})
 	require.NoError(t, err)
 
 	layers, err := img.Layers()
