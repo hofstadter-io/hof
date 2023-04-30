@@ -1,24 +1,27 @@
 package oci
 
 import (
+	"github.com/google/go-containerregistry/pkg/v1/types"
 	ignore "github.com/sabhiram/go-gitignore"
 )
 
-func NewDir(path string, ignores []string) Dir {
+func NewDir(mediaType types.MediaType, path string, ignores []string) Dir {
 	var ign *ignore.GitIgnore
 	if len(ignores) > 0 {
 		ign = ignore.CompileIgnoreLines(ignores...)
 	}
 
 	return Dir{
-		Path: path,
-		ign:  ign,
+		mediaType: mediaType,
+		path:      path,
+		ign:       ign,
 	}
 }
 
 type Dir struct {
-	ign  *ignore.GitIgnore
-	Path string
+	ign       *ignore.GitIgnore
+	path      string
+	mediaType types.MediaType
 }
 
 func (d Dir) Excluded(rel string) bool {

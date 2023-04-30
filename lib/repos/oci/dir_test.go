@@ -14,7 +14,7 @@ func TestDirExcluded(t *testing.T) {
 	}{
 		{
 			desc: "simple",
-			d: NewDir("/", []string{
+			d: NewDir("", "/", []string{
 				"foo",
 				"/bar/baz",
 			}),
@@ -26,7 +26,7 @@ func TestDirExcluded(t *testing.T) {
 		},
 		{
 			desc: "only permit specific files",
-			d: NewDir("cue.mod", []string{
+			d: NewDir("", "cue.mod", []string{
 				"*",
 				"!module.cue",
 				"!sums.cue",

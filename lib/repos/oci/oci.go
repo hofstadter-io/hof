@@ -17,8 +17,14 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/empty"
 	"github.com/google/go-containerregistry/pkg/v1/mutate"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
-	"github.com/google/go-containerregistry/pkg/v1/tarball"
+	"github.com/google/go-containerregistry/pkg/v1/stream"
 	"github.com/google/go-containerregistry/pkg/v1/types"
+)
+
+const (
+	HofstadterSchema1Beta types.MediaType = "application/vnd.hofstadter.module.v1beta1+json"
+	HofstadterModuleDeps  types.MediaType = "application/vnd.hofstadter.module.deps.tar.gzip"
+	HofstadterModuleCode  types.MediaType = "application/vnd.hofstadter.module.code.tar.gzip"
 )
 
 func IsNetworkReachable(mod string) bool {
@@ -111,6 +117,7 @@ func Build(workingDir string, dirs []Dir) (v1.Image, error) {
 	}
 
 	e := mutate.MediaType(empty.Image, types.OCIManifestSchema1)
+	e = mutate.ConfigMediaType(e, HofstadterSchema1Beta)
 
 	img, err := mutate.AppendLayers(e, layers...)
 	if err != nil {
@@ -126,7 +133,7 @@ func layer(wd string, d Dir) (v1.Layer, error) {
 		w   = tar.NewWriter(&buf)
 	)
 
-	root := path.Join(wd, d.Path)
+	root := path.Join(wd, d.path)
 
 	err := filepath.Walk(root, func(p string, i os.FileInfo, err error) error {
 		if err != nil {
@@ -173,10 +180,10 @@ func layer(wd string, d Dir) (v1.Layer, error) {
 		return nil, fmt.Errorf("tar writer close: %w", err)
 	}
 
-	l, err := tarball.LayerFromReader(&buf)
-	if err != nil {
-		return nil, fmt.Errorf("layer from reader: %w", err)
-	}
+	var (
+		rc = io.NopCloser(&buf)
+		mt = stream.WithMediaType(d.mediaType)
+	)
 
-	return l, nil
+	return stream.NewLayer(rc, mt), nil
 }
