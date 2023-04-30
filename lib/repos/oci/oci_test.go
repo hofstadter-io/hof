@@ -3,7 +3,6 @@ package oci
 import (
 	"bytes"
 	"fmt"
-	"net/http"
 	"os"
 	"os/exec"
 	"path"
@@ -12,7 +11,6 @@ import (
 	"testing"
 
 	"github.com/google/go-containerregistry/pkg/name"
-	"github.com/google/go-containerregistry/pkg/registry"
 	"github.com/google/go-containerregistry/pkg/v1/tarball"
 	"github.com/stretchr/testify/require"
 )
@@ -91,13 +89,14 @@ func TestBuild(t *testing.T) {
 }
 
 func TestPushAndPull(t *testing.T) {
-	const ociRegistryAddr = "localhost:1111"
+	// const ociRegistryAddr = "localhost:1111"
+	const ociRegistryAddr = "us-central1-docker.pkg.dev/hof-io--develop/testing"
 
-	//  Start OCI registry
-	go func() {
-		r := registry.New()
-		http.ListenAndServe(ociRegistryAddr, r)
-	}()
+	// Start OCI registry
+	//	go func() {
+	//		r := registry.New()
+	//		http.ListenAndServe(ociRegistryAddr, r)
+	//	}()
 
 	var (
 		rootOrig = t.TempDir()

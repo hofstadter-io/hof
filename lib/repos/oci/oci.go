@@ -18,6 +18,7 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/mutate"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/google/go-containerregistry/pkg/v1/tarball"
+	"github.com/google/go-containerregistry/pkg/v1/types"
 )
 
 func IsNetworkReachable(mod string) bool {
@@ -109,7 +110,9 @@ func Build(workingDir string, dirs []Dir) (v1.Image, error) {
 		layers = append(layers, l)
 	}
 
-	img, err := mutate.AppendLayers(empty.Image, layers...)
+	e := mutate.MediaType(empty.Image, types.OCIManifestSchema1)
+
+	img, err := mutate.AppendLayers(e, layers...)
 	if err != nil {
 		return nil, fmt.Errorf("append layers: %w", err)
 	}
@@ -124,6 +127,7 @@ func layer(wd string, d Dir) (v1.Layer, error) {
 	)
 
 	root := path.Join(wd, d.Path)
+
 	err := filepath.Walk(root, func(p string, i os.FileInfo, err error) error {
 		if err != nil {
 			return err
