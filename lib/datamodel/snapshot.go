@@ -24,6 +24,7 @@ const CheckpointFmt = "20060102150405"
 type Snapshot struct {
 	// The current value at this snapshot
 	Value cue.Value
+	Data  any
 
 	// Position in history
 	Pos int
@@ -67,7 +68,14 @@ func loadSnapshot(dir, fpath string, ctx *cue.Context) (*Snapshot, error) {
 	if v.Err() != nil {
 		return nil, v.Err()
 	}
-	s.Value = v
+
+	// extract datamodel and decode into data
+	fcp := fmt.Sprintf("ver_%s", ts)
+	s.Value = v.LookupPath(cue.ParsePath(fcp))
+	err = s.Value.Decode(&s.Data)
+	if err != nil {
+		return nil, err
+	}
 
 	msg := fmt.Sprintf("msg_%s", ts)
 	cmsg := v.LookupPath(cue.ParsePath(msg))

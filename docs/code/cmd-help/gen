@@ -53,7 +53,10 @@ hof unifies CUE with Go's text/template system and diff3
   hof gen [entrypoints] -G [name]
 
 # Bootstrap a new generator module
-  hof gen --init github.com/hofstadter-io/demos
+  hof gen init github.com/hofstadter-io/demos
+
+# List availabel generators
+	hof gen list
 
 # Learn about writing templates, with extra functions and helpers
   https://docs.hofstadter.io/code-generation/template-writing/
@@ -67,17 +70,21 @@ hof unifies CUE with Go's text/template system and diff3
 
 Usage:
   hof gen [files...] [flags]
+  hof gen [command]
 
 Aliases:
   gen, G
+
+Available Commands:
+  info        print details for about generators
+  init        initialize a new generator
+  list        print available generators
 
 Flags:
       --as-module string      <github.com/username/<name>> like value for the generator module made from the given flags
   -D, --diff3                 enable diff3 support for custom code
   -G, --generator strings     generator tags to run, default is all, or none if -T is used
   -h, --help                  help for gen
-      --init string           <name> to bootstrap a new genarator module
-  -l, --list                  list available generators
       --no-format             disable formatting during code gen (ad-hoc only)
   -O, --outdir string         base directory to write all output u
   -P, --partial strings       file globs to partial templates to register with the templates
@@ -93,3 +100,5 @@ Global Flags:
   -q, --quiet            turn off output and assume defaults at prompts
   -t, --tags strings     @tags() to be injected into CUE code
   -v, --verbosity int    set the verbosity of output
+
+Use "hof gen [command] --help" for more information about a command.

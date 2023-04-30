@@ -2,33 +2,18 @@ package sql
 
 import (
 	"github.com/hofstadter-io/hof/schema"
-	"github.com/hofstadter-io/hof/schema/dm/fields"
+	"github.com/hofstadter-io/hof/schema/dm"
 )
 
-CommonFields: {
-	ID:        fields.UUID
-	CreatedAt: fields.Datetime
-	UpdatedAt: fields.Datetime
-}
-
-SoftDelete: {
-	DeletedAt: fields.Datetime
-}
-
 Datamodel: {
-	@datamodel()
-
+	$hof: datamodel: root:    true
+	$hof: datamodel: history: true // needed for CUE compat
+	History: dm.History
 	// these are the models for the application
 	// they can map onto database tables and apis
 	Models: {
-		// create point where hof can list, info, etc..
-		$hof: datamodel: node: true
-		@node()
-
+		$hof: datamodel: node:    true
 		$hof: datamodel: ordered: true
-		@ordered() // for stability, see below
-
-		// each struct field is a Model
 		[N= !="$hof"]: Model & {$hof: metadata: name: N}
 	}
 
@@ -40,7 +25,7 @@ Model: M={
 	schema.DHof// needed for reFerences
 
 	$hof: datamodel: history: true // needed for CUE compat
-	@history() // hof only shorthand
+	History: dm.History
 
 	// Lineage fields will be filled by hof
 	// $hof: Lense: ...
@@ -52,15 +37,9 @@ Model: M={
 	// These are the fields of a model
 	// they can map onto database columnts and form fields
 	Fields: {
-		// create point where hof can list, info, etc..
-		$hof: datamodel: node: true
-		@node()
-
-		// for stability, see below
+		$hof: datamodel: node:    true
 		$hof: datamodel: ordered: true
-		@ordered() // shorthand
-
-		[N= !="$hof"]: Field & {$hof: metadata: name: N}
+		[N= !="$hof"]: Field & {Name: N}
 	}
 
 	// OrderedFields: [...Fields] will be
@@ -70,21 +49,21 @@ Model: M={
 	// we can process the fields to extract them
 }
 
-Field: F={
-	schema.DHof// needed for references
-	$hof: datamodel: history: true
-	@history() // shorthand
+Field: {
+	// TODO, decide if these should be the default
+	// schema.DHof// needed for reFerences
+	// $hof: datamodel: history: true // needed for CUE compat
+	// History: dm.History
 
-	// Lineage fields will be filled by hof
-	// $hof: Lense: ...
-	// $hof: History: ...
-
-	// for easy access
-	Name: F.$hof.metadata.name
+	Name: string
 	Type: string
 
 	// relation type, open to be flexible
-	Reln?: string
+	Relation?: {
+		Name:  string
+		Type:  "has-one" | "has-many" | "belongs-to" | "many-to-many"
+		Other: string // technically a cue path, but as a string
+	}
 
 	// what about {val, *val, []val, []*val}
 	// we probably don't care about pointer here

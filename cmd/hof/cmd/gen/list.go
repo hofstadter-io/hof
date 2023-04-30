@@ -1,4 +1,4 @@
-package cmddatamodel
+package cmdgen
 
 import (
 	"fmt"
@@ -6,30 +6,31 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib/gen/cmd"
 )
 
-var infoLong = `print details for a datamodel`
+var listLong = `print available generators`
 
-func InfoRun(args []string) (err error) {
+func ListRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = cmd.List(args, flags.RootPflags, flags.GenFlags)
 
 	return err
 }
 
-var InfoCmd = &cobra.Command{
+var ListCmd = &cobra.Command{
 
-	Use: "info",
+	Use: "list",
 
-	Aliases: []string{
-		"i",
-	},
+	Short: "print available generators",
 
-	Short: "print details for a datamodel",
-
-	Long: infoLong,
+	Long: listLong,
 
 	PreRun: func(cmd *cobra.Command, args []string) {
 
@@ -42,7 +43,7 @@ var InfoCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		err = InfoRun(args)
+		err = ListRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -56,8 +57,8 @@ func init() {
 		return false
 	}
 
-	ohelp := InfoCmd.HelpFunc()
-	ousage := InfoCmd.UsageFunc()
+	ohelp := ListCmd.HelpFunc()
+	ousage := ListCmd.UsageFunc()
 	help := func(cmd *cobra.Command, args []string) {
 		if extra(cmd) {
 			return
@@ -79,7 +80,7 @@ func init() {
 		ga.SendCommandPath(cmd.CommandPath() + " usage")
 		return usage(cmd)
 	}
-	InfoCmd.SetHelpFunc(thelp)
-	InfoCmd.SetUsageFunc(tusage)
+	ListCmd.SetHelpFunc(thelp)
+	ListCmd.SetUsageFunc(tusage)
 
 }

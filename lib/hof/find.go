@@ -135,7 +135,9 @@ func FindHofs(value cue.Value) (roots []*Node[any], err error) {
 				// add to parent's Children
 				nodes.Parent.Children = append(nodes.Parent.Children, nodes)
 			}
+
 		}
+
 
 		return true
 	}
@@ -177,3 +179,4 @@ func (n *Node[T]) indent() string {
 	}
 	return strings.Repeat("  ", d)
 }
+

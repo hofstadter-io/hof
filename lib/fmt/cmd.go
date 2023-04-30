@@ -197,6 +197,14 @@ func Start(fmtr string, replace bool) error {
 
 	startFmtr := func(name, ver string) error {
 		fmt.Println("starting:", name, ver)
+		fmtr := formatters[name]
+		// what other statuses do we need to check here? (maybe none)
+		if fmtr.Status == "exited" {
+			err := docker.StopContainer(fmt.Sprintf("hof-fmt-%s", name))
+			if err != nil {
+				return err
+			}
+		}
 		return docker.StartContainer(
 			fmt.Sprintf("%s/fmt-%s:%s", CONTAINER_REPO, name, ver),
 			fmt.Sprintf("hof-fmt-%s", name),

@@ -63,7 +63,6 @@ type Runtime struct {
 	Generators []*gen.Generator
 	// Workflows  map[string]*flow.Flow
 
-
 	Stats *RuntimeStats
 }
 

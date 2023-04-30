@@ -38,43 +38,6 @@ func (R *Runtime) runGen() (err error) {
 
 	// everything above is about the --diff3 flag
 
-	// b/c shorter names
-	//LT := len(R.GenFlags.Template)
-	//LG := len(R.GenFlags.Generator)
-
-	/* We will run a generator if either
-	   not ad-hoc or is ad-hoc with the -G flag
-		So let's load them early, there is some helpful info in them
-	*/
-	/* this should be handled withing the loading process
-		 it belongs elsewhere, probably R.localLoad()
-	if LT == 0 || LG > 0 {
-		if R.Flags. Verbosity > 1 {
-			fmt.Println("Loading Value Generator")
-		}
-
-		errsL := R.LoadGenerators()
-		if len(errsL) > 0 {
-			for _, e := range errsL {
-				fmt.Println(e)
-				// cuetils.PrintCueError(e)
-			}
-			return fmt.Errorf("\nErrors while loading generators\n")
-		}
-
-	}
-
-	if LT > 0 {
-		if R.Flags.Verbosity > 1 {
-			fmt.Println("Loading Ad-hoc Generator")
-		}
-		err = R.CreateAdhocGenerator()
-		if err != nil {
-			return err
-		}
-	}
-	*/
-
 
 	// First time code gen & output
 	err = R.genOnce()
@@ -82,9 +45,8 @@ func (R *Runtime) runGen() (err error) {
 		return err
 	}
 
-	doWatch := shouldWatch(R.GenFlags)
-
 	// return if we are not going into watch mode
+	doWatch := shouldWatch(R.GenFlags)
 	if !doWatch {
 		return nil
 	}
@@ -134,13 +96,6 @@ func (R *Runtime) runGen() (err error) {
 
 func (R *Runtime) genOnce() error {
 	verystart := time.Now()
-
-	/* needs to move to new xfilesGen, wfilesGen funcs
-	err := R.Reload(fast)
-	if err != nil {
-		return nil, err
-	}
-	*/
 
 	// issue #20 - Don't print and exit on error here, wait until after we have written, so we can still write good files
 	errsG := R.RunGenerators()

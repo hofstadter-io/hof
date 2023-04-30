@@ -21,22 +21,31 @@ func (hn *Node[T]) Print() {
 func (hn *Node[T]) printDatamodel(spacer, indent string) {
 	s := fmt.Sprintf("%s%s:", indent, hn.Hof.Path)
 	dm := hn.Hof.Datamodel
+	found := false
 	if dm.Root {
 		s += " @datamodel()"
+		found = true
 	}
 	if dm.Node {
 		s += " @node()"
+		found = true
 	}
 	if dm.History {
 		s += " @history()"
+		found = true
 	}
 	if dm.Ordered {
 		s += " @ordered()"
+		found = true
 	}
 	if dm.Cue {
 		s += " @cue()"
+		found = true
 	}
 	
+	if !found {
+		return
+	}
 	// print line
 	fmt.Println(s)
 	// pretty.Println(hn.Hof)
@@ -49,6 +58,9 @@ func (hn *Node[T]) printDatamodel(spacer, indent string) {
 
 func (hn *Node[T]) printGen(spacer, indent string) {
 	fmt.Printf("%s%s: @gen(%s)\n", indent, hn.Hof.Path, hn.Hof.Gen.Name)
+	for _, c := range hn.Children {
+		c.printDatamodel(spacer, indent+spacer)
+	}
 }
 
 func (hn *Node[T]) printFlow(spacer, indent string) {

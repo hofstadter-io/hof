@@ -86,10 +86,10 @@ import (
 		Short: "show the current diff or between datamodel versions"
 		Long:  Short
 	}, {
-		Name:  "info"
-		Usage: "info"
-		Aliases: ["i"]
-		Short: "print details for a datamodel"
+		Name:  "tree"
+		Usage: "tree"
+		Aliases: ["t"]
+		Short: "print datamodel structure as a tree"
 		Long:  Short
 	}, {
 		Name:  "list"
@@ -202,7 +202,7 @@ import (
 	  Config       object     -        ok      Config
 	  MyDatamodel  datamodel  -        ok      datamodel-abc123
 
-	  $ hof dm info   (print the structure of the datamodels)
+	  $ hof dm tree   (print the structure of the datamodels)
 
 	  $ hof dm diff   (prints a tree based diff of the datamodel)
 

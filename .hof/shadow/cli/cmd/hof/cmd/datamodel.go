@@ -90,7 +90,7 @@ Datamodel: sql.Datamodel & {
   Config       object     -        ok      Config
   MyDatamodel  datamodel  -        ok      datamodel-abc123
 
-  $ hof dm info   (print the structure of the datamodels)
+  $ hof dm tree   (print the structure of the datamodels)
 
   $ hof dm diff   (prints a tree based diff of the datamodel)
 
@@ -163,7 +163,7 @@ func init() {
 
 	DatamodelCmd.AddCommand(cmddatamodel.CheckpointCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.DiffCmd)
-	DatamodelCmd.AddCommand(cmddatamodel.InfoCmd)
+	DatamodelCmd.AddCommand(cmddatamodel.TreeCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.ListCmd)
 	DatamodelCmd.AddCommand(cmddatamodel.LogCmd)
 

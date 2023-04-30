@@ -8,19 +8,19 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 )
 
-func (dm *Datamodel) PrintInfo(out io.Writer, max int, dflags flags.DatamodelPflagpole) error {
-	return dm.T.printInfoR(out, "", "  ", max, dflags)
+func (dm *Datamodel) PrintTree(out io.Writer, max int, dflags flags.DatamodelPflagpole) error {
+	return dm.T.printTreeR(out, "", "  ", max, dflags)
 }
 
-func (V *Value) printInfoR(out io.Writer, indent, spaces string, max int, dflags flags.DatamodelPflagpole) error {
+func (V *Value) printTreeR(out io.Writer, indent, spaces string, max int, dflags flags.DatamodelPflagpole) error {
 	// print current info
-	if err := V.printInfo(out, indent, spaces, max, dflags); err != nil {
+	if err := V.printTree(out, indent, spaces, max, dflags); err != nil {
 		return err
 	}
 
 	// recurse into any child nodes
 	for _, c := range V.Children {
-		if err := c.T.printInfoR(out, indent + spaces, spaces, max, dflags); err != nil {
+		if err := c.T.printTreeR(out, indent + spaces, spaces, max, dflags); err != nil {
 			return err
 		}
 	}
@@ -28,7 +28,7 @@ func (V *Value) printInfoR(out io.Writer, indent, spaces string, max int, dflags
 	return nil
 }
 
-func (V *Value) printInfo(out io.Writer, indent, spaces string, max int, dflags flags.DatamodelPflagpole) error {
+func (V *Value) printTree(out io.Writer, indent, spaces string, max int, dflags flags.DatamodelPflagpole) error {
 	if len(dflags.Expression) > 0 {
 		path := V.Hof.Path
 		found := false

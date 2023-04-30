@@ -16,7 +16,8 @@ import (
 
 type File struct {
 	// Input Data, local to this file
-	In interface{}
+	// this can sometimes be a list for Adhoc
+	In any
 
 	// The full path under the output location
 	// empty implies don't generate, even though it may endup in the list
@@ -62,6 +63,21 @@ type File struct {
 	Errors []error
 	FileStats
 	parent *Generator
+}
+
+func (F *File) MergeIn(other map[string]any) {
+	// merge with other if map / struct
+	// (this is probably always the case (should be enforced?))
+	switch fin := F.In.(type) {
+	case map[string]any:
+		for k, v := range other {
+			// only copy in top-level elements which do not exist already
+			if _, ok := fin[k]; !ok {
+				fin[k] = v
+			}
+		}
+		F.In = fin
+	}
 }
 
 func (F *File) Render(outdir string, UseDiff3, NoFmt bool) error {
@@ -204,6 +220,9 @@ func (F *File) diff3() (write bool, err error) {
 		F.IsErr = 1
 		return false, err
 	}
+
+	// TODO, filter results which have an empty "Your File" content
+	// (will this break other legit cases?)
 
 	merged, err := ioutil.ReadAll(result.Result)
 	if err != nil {

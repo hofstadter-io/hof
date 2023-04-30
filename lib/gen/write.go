@@ -24,6 +24,8 @@ func (G *Generator) GenerateFiles(outdir string) []error {
 		// late bind shadow file to File, because we also late load the shadow dir
 		F.ShadowFile = G.Shadow[F.Filepath]
 
+		// TODO, merge G.In with F.In (this should be happening, cannot find)
+
 		// this handles the diff logic
 		err := F.Render(outdir, G.UseDiff3, G.NoFormat)
 		if err != nil {
