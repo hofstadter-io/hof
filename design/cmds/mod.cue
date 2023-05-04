@@ -132,6 +132,15 @@ import (
 		Imports: #ModCmdImports
 
 		Body: (#body & { func: "Clean" }).content
+	}, {
+		Name:  "push"
+		Usage: "push"
+		Short: "push a hof module"
+		Long:  Short
+
+		Imports: #ModCmdImports
+
+		Body: (#body & { func: "Push" }).content
 	}]
 
 }
