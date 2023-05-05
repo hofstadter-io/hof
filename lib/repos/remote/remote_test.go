@@ -4,33 +4,39 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestParse(t *testing.T) {
 	cases := []struct {
 		desc    string
 		mod     string
-		outKind kind
+		outKind Kind
 	}{
 		{
 			desc:    "git github",
 			mod:     "github.com/hofstadter-io/hof",
-			outKind: kindGit,
+			outKind: KindGit,
 		},
 		{
 			desc:    "git github private",
 			mod:     "github.com/andrewhare/env",
-			outKind: kindGit,
+			outKind: KindGit,
 		},
 		{
 			desc:    "git not github",
 			mod:     "git.kernel.org/pub/scm/bluetooth/bluez.git",
-			outKind: kindGit,
+			outKind: KindGit,
 		},
 		{
 			desc:    "oci",
 			mod:     "gcr.io/distroless/static-debian11",
-			outKind: kindOCI,
+			outKind: KindOCI,
+		},
+		{
+			desc:    "oci",
+			mod:     "us-central1-docker.pkg.dev/hof-io--develop/testing/test",
+			outKind: KindOCI,
 		},
 	}
 
@@ -41,7 +47,7 @@ func TestParse(t *testing.T) {
 			t.Parallel()
 
 			out, err := Parse(c.mod)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Equal(t, c.outKind, out.kind)
 		})
 	}

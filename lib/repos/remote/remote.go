@@ -81,6 +81,29 @@ func (r *Remote) Pull(ctx context.Context, dir, ver string) error {
 	return fmt.Errorf("usupported kind: %s", r.kind)
 }
 
+func (r *Remote) Publish(ctx context.Context, dir string, tag string) error {
+	switch r.kind {
+	case KindOCI:
+		codeDir, err := oci.NewCode(dir)
+		if err != nil {
+			return fmt.Errorf("oci new code: %w", err)
+		}
+
+		img, err := oci.Build(dir, []oci.Dir{oci.NewDeps(), codeDir})
+		if err != nil {
+			return fmt.Errorf("oci build: %w", err)
+		}
+
+		if err := oci.Push(tag, img); err != nil {
+			return fmt.Errorf("oci publish: %w", err)
+		}
+
+		return nil
+	}
+
+	return fmt.Errorf("unsupported kind: %s", r.kind)
+}
+
 type Kind string
 
 const (

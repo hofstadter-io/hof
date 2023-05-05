@@ -38,6 +38,7 @@ func IsNetworkReachable(ctx context.Context, mod string) (bool, error) {
 	_, err = rem.ListContext(ctx, &gogit.ListOptions{
 		Auth: auth,
 	})
+
 	// TODO: This isn't ideal. This could be a failure
 	// due to bad credentials and it would be better
 	// to test for that and prompt the user.

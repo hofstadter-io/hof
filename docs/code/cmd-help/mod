@@ -97,6 +97,7 @@ Available Commands:
   get         add a new dependency to the current module
   init        initialize a new module in the current directory
   link        symlink dependencies to cue.mod/pkg
+  publish     publish a module
   tidy        recalculate dependencies and update mod files
   vendor      copy dependencies to cue.mod/pkg
   verify      verify integrity of dependencies

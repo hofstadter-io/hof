@@ -156,6 +156,6 @@ func init() {
 	ModCmd.AddCommand(cmdmod.LinkCmd)
 	ModCmd.AddCommand(cmdmod.VendorCmd)
 	ModCmd.AddCommand(cmdmod.CleanCmd)
-	ModCmd.AddCommand(cmdmod.PushCmd)
+	ModCmd.AddCommand(cmdmod.PublishCmd)
 
 }

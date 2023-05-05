@@ -28,7 +28,8 @@ const (
 )
 
 func IsNetworkReachable(mod string) bool {
-	_, err := crane.Head(mod)
+	_, err := crane.Digest(mod, crane.WithAuthFromKeychain(authn.DefaultKeychain))
+	fmt.Println(mod, err)
 	return err == nil
 }
 
