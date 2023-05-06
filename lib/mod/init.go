@@ -26,6 +26,11 @@ func Init(module string, rflags flags.RootPflagpole) (err error) {
 	}
 	*/
 
+	err = ValidateModURL(module)
+	if err != nil {
+		return err
+	}
+
 	_, err = os.Lstat("cue.mod")
 	if err != nil {
 		if _, ok := err.(*os.PathError); !ok && (strings.Contains(err.Error(), "file does not exist") || strings.Contains(err.Error(), "no such file")) {

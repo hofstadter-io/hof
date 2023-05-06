@@ -3,9 +3,14 @@
 stdout 'missing required argument: ''module'''
 stderr 'hof mod init <module> \[flags\]'
 
-# hof mod init - bad path
+# hof mod init - missing slash
 ! exec hof mod init foobar
-stdout 'bad module name "foobar", should have domain format ''domain.com/...'''
+stdout 'error: modules require one or more ''/'', you provided "foobar"'
+! stderr '.'
+
+# hof mod init - missing domain
+! exec hof mod init foobar/baz
+stdout 'error: the first part of a module path must be a domain, you provided "foobar/baz"'
 ! stderr '.'
 
 

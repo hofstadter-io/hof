@@ -17,6 +17,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/gen"
 	gencmd "github.com/hofstadter-io/hof/lib/gen/cmd"
 	"github.com/hofstadter-io/hof/lib/repos/cache"
+	"github.com/hofstadter-io/hof/lib/mod"
 	"github.com/hofstadter-io/hof/lib/repos/remote"
 	"github.com/hofstadter-io/hof/lib/runtime"
 	"github.com/hofstadter-io/hof/lib/yagu"
@@ -49,6 +50,11 @@ func Create(module string, extra []string, rootflags flags.RootPflagpole, cmdfla
 	var tmpdir, subdir string
 
 	cwd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	err = mod.ValidateModURL(module)
 	if err != nil {
 		return err
 	}

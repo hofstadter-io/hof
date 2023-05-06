@@ -97,31 +97,7 @@ MyModels  datamodel  -        dirty   MyModels
 -- golden-v1d-diff.stdout --
 package diff
 
-User: Fields: "+": persona: {
-	@history() // shorthand
-
-	// Lineage fields will be filled by hof
-	// $hof: Lense: ...
-	// $hof: History: ...
-
-	// schema for $hof: ...
-	$hof: {
-		apiVersion: "v1beta1"
-		metadata: {
-			// typical metadata
-			name: "persona"
-		}
-
-		// hof/datamodel
-		datamodel: {
-			root:    false
-			history: true
-			ordered: false
-			cue:     false
-		}
-	}
-
-	// for easy access
+MyModels: Models: User: Fields: "+": persona: {
 	Name: "persona"
 	Type: "string"
 	Vals: ["guest", "user", "admin", "owner"]
@@ -129,3 +105,12 @@ User: Fields: "+": persona: {
 	Default:  "guest"
 }
 
+package diff
+
+User: Fields: "+": persona: {
+	Name: "persona"
+	Type: "string"
+	Vals: ["guest", "user", "admin", "owner"]
+	Nullable: false
+	Default:  "guest"
+}
