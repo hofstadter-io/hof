@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	modIgnoreFile = ".hofmodignore"
+	modIgnoreFile = ".hofmod-ignore"
 )
 
 func NewDir(mediaType types.MediaType, relPath string, ignores []string) Dir {

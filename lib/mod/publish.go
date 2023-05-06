@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/hofstadter-io/hof/lib/repos/remote"
@@ -42,10 +41,10 @@ func Publish(taggedMod string) error {
 		return fmt.Errorf("os get wd: %w", err)
 	}
 
-	d := filepath.Join(wd, "cue.mod", "pkg", mod)
+	// d := filepath.Join(wd, "cue.mod", "pkg", mod)
 
 	ctx := context.Background()
-	if err = rmt.Publish(ctx, d, taggedMod); err != nil {
+	if err = rmt.Publish(ctx, wd, taggedMod); err != nil {
 		return fmt.Errorf("remote publish: %w", err)
 	}
 
