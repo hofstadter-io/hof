@@ -25,8 +25,8 @@ import (
 
 const (
 	HofstadterSchema1Beta types.MediaType = "application/vnd.hofstadter.module.v1beta1+json"
-	HofstadterModuleDeps  types.MediaType = "application/vnd.hofstadter.module.deps.tar.gzip"
-	HofstadterModuleCode  types.MediaType = "application/vnd.hofstadter.module.code.tar.gzip"
+	HofstadterModuleDeps  types.MediaType = "application/vnd.hofstadter.module.deps.tar.gz"
+	HofstadterModuleCode  types.MediaType = "application/vnd.hofstadter.module.code.tar.gz"
 )
 
 func IsNetworkReachable(mod string) (bool, error) {
