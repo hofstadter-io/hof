@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path"
+	// "path"
 	"path/filepath"
 	"strings"
 
@@ -125,8 +125,9 @@ func Push(tag string, img v1.Image) error {
 func Build(workingDir string, dirs []Dir) (v1.Image, error) {
 	var layers []v1.Layer
 
-	// TODO: Parallelize.
 	for _, d := range dirs {
+		// todo, enable printing base on verbosity
+		fmt.Println(d)
 		l, err := layer(workingDir, d)
 		if err != nil {
 			return nil, fmt.Errorf("layer: %w", err)
@@ -152,9 +153,7 @@ func layer(wd string, d Dir) (v1.Layer, error) {
 		w   = tar.NewWriter(&buf)
 	)
 
-	root := path.Join(wd, d.relPath)
-
-	err := filepath.Walk(root, func(p string, i os.FileInfo, err error) error {
+	err := filepath.Walk(d.relPath, func(p string, i os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -162,6 +161,7 @@ func layer(wd string, d Dir) (v1.Layer, error) {
 		if d.Excluded(p) {
 			return nil
 		}
+		fmt.Println(p)
 
 		h, err := tar.FileInfoHeader(i, "")
 		if err != nil {

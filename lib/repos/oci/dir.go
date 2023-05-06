@@ -47,12 +47,13 @@ func NewDeps() Dir {
 		"*",
 		"!module.cue",
 		"!sums.cue",
+		"pkg/*",
 	})
 }
 
 func NewCode(workingDir string) (Dir, error) {
 	ignores := []string{
-		"cue.mod/pkg",
+		"cue.mod/**/",
 		".git",
 	}
 
@@ -68,5 +69,5 @@ func NewCode(workingDir string) (Dir, error) {
 		ignores = append(ignores, ls...)
 	}
 
-	return NewDir(HofstadterModuleCode, "", ignores), nil
+	return NewDir(HofstadterModuleCode, ".", ignores), nil
 }
