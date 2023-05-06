@@ -14,7 +14,7 @@ import (
 // the appropriate remote for it.
 func Parse(mod string) (*Remote, error) {
 	// TODO: Should pass a context in.
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	m, err := NewMirrors()
