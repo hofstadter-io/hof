@@ -29,6 +29,8 @@ const (
 	HofstadterModuleCode  types.MediaType = "application/vnd.hofstadter.module.code.tar.gz"
 )
 
+var debug = false
+
 func IsNetworkReachable(mod string) (bool, error) {
 	_, err := crane.Manifest(mod, crane.WithAuthFromKeychain(authn.DefaultKeychain))
 
@@ -51,8 +53,48 @@ func IsNetworkReachable(mod string) (bool, error) {
 	return err == nil, err
 }
 
-func Pull(tag, path string) error {
-	ref, err := name.ParseReference(tag)
+func ListTags(mod string) ([]string, error) {
+	return crane.ListTags(mod, crane.WithAuthFromKeychain(authn.DefaultKeychain))
+}
+
+// Looks up a Ref and returns the hash it currently points at
+// we recommend you setup a registry with immutable tags
+func GetRefHash(url, ref string) (string, error) {
+	if debug {
+		fmt.Println("oci.GetRefHash:", url, ref)
+	}
+	p := url + ":" + ref
+	r, err := name.ParseReference(p)
+	if err != nil {
+		return "", fmt.Errorf("whil parsing reference: %w", err)
+	}
+
+	img, err := remote.Image(r, remote.WithAuthFromKeychain(authn.DefaultKeychain))
+	if err != nil {
+		return "", fmt.Errorf("while finding remote image in oci.GetRefHash: %w", err)
+	}
+
+	hash, err := img.Digest()
+	if err != nil {
+		return "", fmt.Errorf("error getting hash in oci.GetRefHash: %s %s: %w", url, ref, err)
+	}
+
+	// trim hash algo off of front
+	s := hash.String()
+	pos := strings.Index(s, ":")
+	s = s[pos+1:]
+
+	return s, nil
+}
+
+func Pull(url, outPath string) error {
+	if debug {
+		fmt.Println("oci.Pull:", outPath, url)
+	}
+	p := strings.Index(url, "@")
+	P := url[:p]
+	fmt.Println("fetch'n:", P)
+	ref, err := name.ParseReference(url)
 	if err != nil {
 		return fmt.Errorf("name parse reference: %w", err)
 	}
@@ -65,7 +107,7 @@ func Pull(tag, path string) error {
 	r := mutate.Extract(img)
 	defer r.Close()
 
-	if err := untar(r, path); err != nil {
+	if err := untar(r, outPath); err != nil {
 		return fmt.Errorf("untar: %w", err)
 	}
 
@@ -88,13 +130,18 @@ func untar(r io.Reader, target string) error {
 		)
 
 		if i.IsDir() {
-			if err = os.MkdirAll(p, i.Mode()); err != nil {
+			if err = os.MkdirAll(p, 0755); err != nil {
 				return fmt.Errorf("mkdir all: %w", err)
 			}
 			continue
 		}
 
-		f, err := os.OpenFile(p, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, i.Mode())
+		// mkdir for file, in case we didn't get it first in the tar before the file
+		if err = os.MkdirAll(filepath.Dir(p), 0755); err != nil {
+			return fmt.Errorf("mkdir all: %w", err)
+		}
+
+		f, err := os.OpenFile(p, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 		if err != nil {
 			return fmt.Errorf("open file: %w", err)
 		}

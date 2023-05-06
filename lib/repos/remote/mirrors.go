@@ -17,10 +17,24 @@ var (
 	mirrorsGit = []string{
 		"github.com",
 		"gitlab.com",
-		"bitbucket.com",
+		"bitbucket.org",
 	}
 	mirrorsOCI = []string{}
+
+	MirrorsSingleton *Mirrors
 )
+
+func init() {
+	// TODO, this should be a singleton for the application
+	// right now, we read the file every time we parse a mod path
+	var err error
+	MirrorsSingleton, err = NewMirrors()
+	if err != nil {
+		panic(err)
+		// return nil, fmt.Errorf("new mirrors: %w", err)
+	}
+
+}
 
 const (
 	hofDir             = "hof"

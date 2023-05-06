@@ -52,3 +52,43 @@ func FetchRepoSource(mod, ver string) (billy.Filesystem, error) {
 
 	return osfs.New(dir), nil
 }
+
+func FetchOCISource(mod, ver string) (billy.Filesystem, error) {
+	if debug {
+		fmt.Println("cache.FetchOCISource:", mod, ver)
+	}
+
+	// upgrade pseudo version
+	s, err := UpgradePseudoVersion(mod, ver)
+	if err != nil {
+		return nil, err
+	}
+	ver = s
+
+	if debug {
+		fmt.Println("cache.FetchOCISource version resolve:", mod, ver)
+	}
+
+
+
+	rmt, err := remote.Parse(mod)
+	if err != nil {
+		return nil, fmt.Errorf("remote parse: %w", err)
+	}
+
+	dir := ModuleOutdir(rmt.Host, rmt.Owner, rmt.Name, ver)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	// only fetch if we haven't already this run
+	if _, ok := syncedRepos.Load(mod); !ok {
+		if err := rmt.Pull(ctx, dir, ver); err != nil {
+			return nil, fmt.Errorf("remote pull: %w", err)
+		}
+
+		syncedRepos.Store(mod, true)
+	}
+
+	return osfs.New(dir), nil
+}

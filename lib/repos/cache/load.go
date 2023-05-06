@@ -10,6 +10,7 @@ import (
 	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-billy/v5/osfs"
 
+	"github.com/hofstadter-io/hof/lib/repos/remote"
 	"github.com/hofstadter-io/hof/lib/repos/utils"
 )
 
@@ -101,8 +102,34 @@ func Cache(url, ver string) (billy.Filesystem, error) {
 	if debug {
 		fmt.Println("cache.Cache:", url, ver)
 	}
+
+	s, err := UpgradePseudoVersion(url, ver)
+	if err != nil {
+		return nil, err
+	}
+	ver = s
+
+	if debug {
+		fmt.Println("cache.Cache version resolve:", url, ver)
+	}
+
 	if ver == "" {
-		return FetchRepoSource(url, ver)
+		rmt, err := remote.Parse(url)
+		if err != nil {
+			return nil, err
+		}
+
+		kind, err := rmt.Kind()
+		if err != nil {
+			return nil, err
+		}
+
+		switch kind {
+		case remote.KindGit:
+			return FetchRepoSource(url, ver)
+		case remote.KindOCI:
+			return FetchOCISource(url, ver)
+		}
 	}
 	return CacheModule(url, ver)
 }
@@ -111,8 +138,19 @@ func CacheModule(url, ver string) (billy.Filesystem, error) {
 	if debug {
 		fmt.Println("cache.CacheModule:", url, ver)
 	}
-	remote, owner, repo := utils.ParseModURL(url)
-	dir := ModuleOutdir(remote, owner, repo, ver)
+
+	s, err := UpgradePseudoVersion(url, ver)
+	if err != nil {
+		return nil, err
+	}
+	ver = s
+
+	if debug {
+		fmt.Println("cache.CacheModule version resolve:", url, ver)
+	}
+
+	reg, owner, repo := utils.ParseModURL(url)
+	dir := ModuleOutdir(reg, owner, repo, ver)
 
 	// check for existing directory
 	if _, err := os.Lstat(dir); err != nil {
@@ -133,19 +171,35 @@ func CacheModule(url, ver string) (billy.Filesystem, error) {
 		}
 	}
 
-	// we are smarter here and check to see if the tag already exists
-	// this will both clone new & sync existing repos as needed
-	// when ver != "", it will only fetch if the tag is not found
-	_, err := FetchRepoSource(url, ver)
+	rmt, err := remote.Parse(url)
 	if err != nil {
 		return nil, err
 	}
 
-	// fmt.Println("making:", url, ver)
-	ver, err = CopyRepoTag(url, ver)
+	kind, err := rmt.Kind()
 	if err != nil {
 		return nil, err
 	}
+
+	switch kind {
+	case remote.KindGit:
+		// we are smarter here and check to see if the tag already exists
+		// this will both clone new & sync existing repos as needed
+		// when ver != "", it will only fetch if the tag is not found
+		_, err := FetchRepoSource(url, ver)
+		if err != nil {
+			return nil, err
+		}
+
+		// fmt.Println("making:", url, ver)
+		ver, err = CopyRepoTag(url, ver)
+		if err != nil {
+			return nil, err
+		}
+	case remote.KindOCI:
+		return FetchOCISource(url, ver)
+	}
+
 
 	return Read(url, ver)
 }
