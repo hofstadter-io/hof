@@ -163,11 +163,11 @@ func (m *Mirrors) Close() error {
 	}
 
 	dir := filepath.Dir(p)
-	if err = os.MkdirAll(dir, 0o600); err != nil {
+	if err = os.MkdirAll(dir, 0755); err != nil {
 		return fmt.Errorf("mkdir %s: %w", dir, err)
 	}
 
-	f, err := os.OpenFile(p, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o600)
+	f, err := os.OpenFile(p, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return fmt.Errorf("open %s: %w", p, err)
 	}
