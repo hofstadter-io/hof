@@ -3,6 +3,7 @@ package remote
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/hofstadter-io/hof/lib/repos/git"
@@ -58,7 +59,14 @@ func (r *Remote) Pull(ctx context.Context, dir, ver string) error {
 			return fmt.Errorf("git sync source: %w", err)
 		}
 	case KindOCI:
-		if err := oci.Pull(r.mod, dir); err != nil {
+		// extract hash from version
+		if strings.HasPrefix(ver, "v0.0.0-") {
+			parts := strings.Split(ver, "-")
+			ver = parts[len(parts)-1]
+			// HACK
+			ver = "sha256:" + ver
+		}
+		if err := oci.Pull(r.mod + "@" + ver, dir); err != nil {
 			return fmt.Errorf("oci pull: %w", err)
 		}
 

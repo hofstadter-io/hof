@@ -17,6 +17,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/gen"
 	gencmd "github.com/hofstadter-io/hof/lib/gen/cmd"
 	"github.com/hofstadter-io/hof/lib/repos/cache"
+	"github.com/hofstadter-io/hof/lib/repos/remote"
 	"github.com/hofstadter-io/hof/lib/runtime"
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
@@ -52,22 +53,45 @@ func Create(module string, extra []string, rootflags flags.RootPflagpole, cmdfla
 		return err
 	}
 
-	parts := strings.Split(module, "@")
-	url, ver := parts[0], ""
+	url, ver := module, ""
+
+	// figure out parts
+	parts := []string{module}
+	if strings.Contains(module, "@") {
+		parts = strings.Split(module, "@")
+	} else if strings.Contains(module, ":") {
+		parts = strings.Split(module, ":")
+	}
 	if len(parts) == 2 {
-		ver = parts[1]
+		url, ver = parts[0], parts[1]
 	}
 	if ver == "" {
 		ver = "latest"
 	}
 
 	ref := ver
-	// ensure we have the most up-to-date code
+
+	// if a remote, possibly upgrade a pseudo version (like lastest, next, or branch)
 	if looksLikeRepo(url) {
-		_, err = cache.FetchRepoSource(url, ver)
+		rmt, err := remote.Parse(url)
 		if err != nil {
-			return err
+			return fmt.Errorf("remote parse: %w", err)
 		}
+
+		kind, err := rmt.Kind()
+		if err != nil {
+			return fmt.Errorf("remote kind: %w", err)
+		}
+
+		switch kind {
+		case remote.KindGit:
+			// ensure we have the most up-to-date code, if a git repo
+			_, err = cache.FetchRepoSource(url, ver)
+			if err != nil {
+				return err
+			}
+		}
+
 		ref, err = cache.UpgradePseudoVersion(url, ver)
 		if err != nil {
 			return err

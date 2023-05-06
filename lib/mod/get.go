@@ -15,7 +15,14 @@ func Get(module string, rflags flags.RootPflagpole, gflags flags.Mod__GetFlagpol
 	upgradeHofMods()
 
 	path, ver := module, ""
-	parts := strings.Split(module, "@")
+
+	// figure out parts
+	parts := []string{module}
+	if strings.Contains(module, "@") {
+		parts = strings.Split(module, "@")
+	} else if strings.Contains(module, ":") {
+		parts = strings.Split(module, ":")
+	}
 	if len(parts) == 2 {
 		path, ver = parts[0], parts[1]
 	}
@@ -71,7 +78,7 @@ func updateOne(cm *CueMod, path, ver string, rflags flags.RootPflagpole, gflags 
 		return fmt.Errorf("cannot get current module")
 	}
 
-	// check for indirect and delete
+	// check for indirect and delete, the user is making it direct
 	_, ok := cm.Indirect[path]
 	if ok {
 		delete(cm.Indirect, path)
