@@ -115,6 +115,7 @@ func Push(tag string, img v1.Image) error {
 		return fmt.Errorf("name parse reference: %w", err)
 	}
 
+	fmt.Println("pushing...")
 	if err = remote.Write(ref, img, remote.WithAuthFromKeychain(authn.DefaultKeychain)); err != nil {
 		return fmt.Errorf("remote write: %w", err)
 	}
@@ -127,7 +128,7 @@ func Build(workingDir string, dirs []Dir) (v1.Image, error) {
 
 	for _, d := range dirs {
 		// todo, enable printing base on verbosity
-		fmt.Println(d)
+		fmt.Println("layer:", d.mediaType)
 		l, err := layer(workingDir, d)
 		if err != nil {
 			return nil, fmt.Errorf("layer: %w", err)
@@ -161,7 +162,8 @@ func layer(wd string, d Dir) (v1.Layer, error) {
 		if d.Excluded(p) {
 			return nil
 		}
-		fmt.Println(p)
+		// todo, print included filename based on verbosity
+		fmt.Println(" ", p)
 
 		h, err := tar.FileInfoHeader(i, "")
 		if err != nil {
