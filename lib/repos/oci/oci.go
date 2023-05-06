@@ -40,6 +40,8 @@ func IsNetworkReachable(mod string) (bool, error) {
 
 		switch c := terr.Errors[0].Code; c {
 		case transport.ManifestUnknownErrorCode:
+			return true, nil
+		case transport.NameUnknownErrorCode:
 			return false, errors.New("remote repo does not exist")
 		default:
 			return false, fmt.Errorf("unhandled transport code: %s", c)
