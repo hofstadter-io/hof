@@ -117,7 +117,7 @@ func PlainClone(dir, remote, owner, repo string) (*gogit.Repository, error) {
 		return nil, err
 	}
 
-	fmt.Println("fetch'n:", path.Join(repo, owner, repo))
+	fmt.Println("fetch'n:", path.Join(remote, owner, repo))
 	R, err := gogit.PlainClone(dir, false, opts)
 	if err != nil {
 		return R, err

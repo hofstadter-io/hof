@@ -42,7 +42,7 @@ func FetchRepoSource(mod, ver string) (billy.Filesystem, error) {
 	defer cancel()
 
 	// only fetch if we haven't already this run
-	if _, ok := syncedRepos.Load(mod); ok {
+	if _, ok := syncedRepos.Load(mod); !ok {
 		if err := rmt.Pull(ctx, dir, ver); err != nil {
 			return nil, fmt.Errorf("remote pull: %w", err)
 		}

@@ -36,7 +36,7 @@ func Parse(mod string) (*Remote, error) {
 	r.Host, r.Owner, r.Name = utils.ParseModURL(mod)
 
 	isOCI, err := m.Is(ctx, KindOCI, mod)
-	if err != nil {
+	if isOCI && err != nil {
 		return nil, fmt.Errorf("mirror is oci: %w", err)
 	}
 	if isOCI {
@@ -45,7 +45,7 @@ func Parse(mod string) (*Remote, error) {
 	}
 
 	isGit, err := m.Is(ctx, KindGit, mod)
-	if err != nil {
+	if isGit && err != nil {
 		return nil, fmt.Errorf("mirror is git: %w", err)
 	}
 	if isGit {
@@ -76,9 +76,12 @@ func (r *Remote) Pull(ctx context.Context, dir, ver string) error {
 		if err := oci.Pull(r.mod, dir); err != nil {
 			return fmt.Errorf("oci pull: %w", err)
 		}
+
+	default:
+		return fmt.Errorf("usupported kind: %s", r.kind)
 	}
 
-	return fmt.Errorf("usupported kind: %s", r.kind)
+	return nil
 }
 
 func (r *Remote) Publish(ctx context.Context, dir string, tag string) error {

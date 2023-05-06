@@ -100,8 +100,10 @@ func (m *Mirrors) Is(ctx context.Context, k Kind, mod string) (bool, error) {
 		return true, nil
 	}
 
+	// TODO, think through conditions here
+	// the error was taking priority over false
 	is, err := netCheck(ctx, mod)
-	if err != nil {
+	if !is && err != nil {
 		return false, err
 	}
 
