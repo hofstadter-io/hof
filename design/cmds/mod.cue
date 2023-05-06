@@ -132,6 +132,29 @@ import (
 		Imports: #ModCmdImports
 
 		Body: (#body & { func: "Clean" }).content
+	}, {
+		Name:  "publish"
+		Usage: "publish <module>"
+		Short: "publish a module"
+		Long:  Short
+
+		Args: [{
+			Name:     "module"
+			Type:     "string"
+			Required: true
+			Help:     "module path@version"
+		}]
+
+		Imports: [
+			{Path: "github.com/hofstadter-io/hof/lib/mod", ...},
+		]
+
+		Body: """
+			if err = mod.Publish(module); err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			"""
 	}]
 
 }

@@ -30,13 +30,11 @@ func ModuleOutdir(remote, owner, repo, tag string) string {
 }
 
 func SourceOutdir(remote, owner, repo string) string {
-	outdir := filepath.Join(
-		srcBaseDir,
-		remote,
-		owner,
-		repo,
-	)
-	return outdir
+	return SourceOutdirParts(remote, owner, repo)
+}
+
+func SourceOutdirParts(parts ...string) string {
+	return filepath.Join(srcBaseDir, filepath.Join(parts...))
 }
 
 func Write(remote, owner, repo, tag string, FS billy.Filesystem) error {
@@ -52,7 +50,7 @@ func Write(remote, owner, repo, tag string, FS billy.Filesystem) error {
 		return err
 	}
 
-	err =  yagu.BillyWriteDirToOS(outdir, "/", FS)
+	err = yagu.BillyWriteDirToOS(outdir, "/", FS)
 	if err != nil {
 		return err
 	}
@@ -96,23 +94,23 @@ func CopyRepoTag(path, ver string) (string, error) {
 	// checkout tag
 	err = wt.Checkout(&gogit.CheckoutOptions{
 		Branch: plumbing.NewTagReferenceName(lver),
-		Force: true,
+		Force:  true,
 	})
 	if err != nil {
 		// err = fmt.Errorf("(crt) checkout error: %w for %s@%s", err, path, ver)
 		// try branch
 		err = wt.Checkout(&gogit.CheckoutOptions{
 			Branch: plumbing.NewRemoteReferenceName("origin", lver),
-			Force: true,
+			Force:  true,
 		})
 
 		if err != nil {
 			err = wt.Checkout(&gogit.CheckoutOptions{
-				Hash: plumbing.NewHash(lver),
+				Hash:  plumbing.NewHash(lver),
 				Force: true,
 			})
 			if err != nil {
-				return ver, fmt.Errorf("(crt) checkout error: unable to find version %q for module %q", ver, path)	
+				return ver, fmt.Errorf("(crt) checkout error: unable to find version %q for module %q", ver, path)
 			}
 
 		} else {
@@ -132,4 +130,3 @@ func CopyRepoTag(path, ver string) (string, error) {
 
 	return ver, nil
 }
-

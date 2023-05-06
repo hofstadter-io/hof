@@ -11,5 +11,5 @@ indirect: {
 }
 
 replace: {
-	"github.com/hofstadter-io/hof": "../../../../"
+	// "github.com/hofstadter-io/hof": "../../../../"
 }

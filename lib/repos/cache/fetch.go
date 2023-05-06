@@ -1,14 +1,15 @@
 package cache
 
 import (
+	"context"
 	"fmt"
-	"path"
+	"time"
 
 	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-billy/v5/osfs"
 	gogit "github.com/go-git/go-git/v5"
 
-	"github.com/hofstadter-io/hof/lib/repos/git"
+	"github.com/hofstadter-io/hof/lib/repos/remote"
 	"github.com/hofstadter-io/hof/lib/repos/utils"
 )
 
@@ -22,28 +23,32 @@ func OpenRepoSource(path string) (*gogit.Repository, error) {
 	return gogit.PlainOpen(dir)
 }
 
-func FetchRepoSource(rpath, ver string) (billy.Filesystem, error) {
+func FetchRepoSource(mod, ver string) (billy.Filesystem, error) {
 	if debug {
-		fmt.Println("cache.FetchRepoSource:", rpath)
+		fmt.Println("cache.FetchRepoSource:", mod)
 	}
 
-	remote, owner, repo := utils.ParseModURL(rpath)
-	dir := SourceOutdir(remote, owner, repo)
-	url := path.Join(remote, owner, repo)
+	rmt, err := remote.Parse(mod)
+	if err != nil {
+		return nil, fmt.Errorf("remote parse: %w", err)
+	}
+
+	dir := SourceOutdirParts(rmt.Host, rmt.Owner, rmt.Name)
+
+	// TODO:
+	//   * Use a passed-in context.
+	//   * Choose a better timeout.
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
 
 	// only fetch if we haven't already this run
-	_, ok := syncedRepos.Load(url)
-	if !ok {
-
-		err := git.SyncSource(dir, remote, owner, repo, ver)
-		if err != nil {
-			return nil, err
+	if _, ok := syncedRepos.Load(mod); !ok {
+		if err := rmt.Pull(ctx, dir, ver); err != nil {
+			return nil, fmt.Errorf("remote pull: %w", err)
 		}
 
-		syncedRepos.Store(url, true)
+		syncedRepos.Store(mod, true)
 	}
 
-	FS := osfs.New(dir)
-
-	return FS, nil
+	return osfs.New(dir), nil
 }
