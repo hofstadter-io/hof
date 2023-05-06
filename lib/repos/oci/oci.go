@@ -52,6 +52,7 @@ func IsNetworkReachable(mod string) (bool, error) {
 }
 
 func Pull(tag, path string) error {
+	fmt.Println("oci.Pull:", path)
 	ref, err := name.ParseReference(tag)
 	if err != nil {
 		return fmt.Errorf("name parse reference: %w", err)
@@ -88,13 +89,18 @@ func untar(r io.Reader, target string) error {
 		)
 
 		if i.IsDir() {
-			if err = os.MkdirAll(p, i.Mode()); err != nil {
+			if err = os.MkdirAll(p, 0755); err != nil {
 				return fmt.Errorf("mkdir all: %w", err)
 			}
 			continue
 		}
 
-		f, err := os.OpenFile(p, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, i.Mode())
+		// mkdir for file, in case we didn't get it first in the tar before the file
+		if err = os.MkdirAll(filepath.Dir(p), 0755); err != nil {
+			return fmt.Errorf("mkdir all: %w", err)
+		}
+
+		f, err := os.OpenFile(p, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 		if err != nil {
 			return fmt.Errorf("open file: %w", err)
 		}

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	gomod "golang.org/x/mod/module"
+	// gomod "golang.org/x/mod/module"
 	"golang.org/x/mod/semver"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
@@ -59,11 +59,13 @@ func Get(module string, rflags flags.RootPflagpole, gflags flags.Mod__GetFlagpol
 	return cm.Vendor("", rflags.Verbosity)
 }
 
-func updateOne(cm *CueMod, path, ver string, rflags flags.RootPflagpole, gflags flags.Mod__GetFlagpole) (error) {
+func updateOne(cm *CueMod, path, ver string, rflags flags.RootPflagpole, gflags flags.Mod__GetFlagpole) (err error) {
+	/*
 	err := gomod.CheckPath(path)
 	if err != nil {
 		return fmt.Errorf("bad module name %q, should have domain format 'domain.com/...'", path)
 	}
+	*/
 
 	if path == cm.Module {
 		return fmt.Errorf("cannot get current module")

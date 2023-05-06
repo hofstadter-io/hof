@@ -12,6 +12,9 @@ import (
 
 
 func GetLatestTag(path string, pre bool) (string, error) {
+	if debug {
+		fmt.Println("cache.GetLatestBranch", path, pre)
+	}
 	_, err := FetchRepoSource(path, "")
 	if err != nil {
 		return "", err
@@ -52,6 +55,9 @@ func GetLatestTag(path string, pre bool) (string, error) {
 }
 
 func GetLatestBranch(path, branch string) (string, error) {
+	if debug {
+		fmt.Println("cache.GetLatestBranch", path, branch)
+	}
 	// sync
 	_, err := FetchRepoSource(path, "")
 	if err != nil {

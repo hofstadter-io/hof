@@ -26,7 +26,7 @@ var syncedRepos *sync.Map
 
 // CacheDir/{mod,src}
 
-var debug = false
+var debug = true
 
 func init() {
 	syncedRepos = new(sync.Map)
@@ -133,6 +133,7 @@ func CacheModule(url, ver string) (billy.Filesystem, error) {
 		}
 	}
 
+	fmt.Println("got here 1")
 	// we are smarter here and check to see if the tag already exists
 	// this will both clone new & sync existing repos as needed
 	// when ver != "", it will only fetch if the tag is not found
@@ -141,6 +142,7 @@ func CacheModule(url, ver string) (billy.Filesystem, error) {
 		return nil, err
 	}
 
+	fmt.Println("got here 2")
 	// fmt.Println("making:", url, ver)
 	ver, err = CopyRepoTag(url, ver)
 	if err != nil {

@@ -10,50 +10,25 @@ import (
 	"github.com/hofstadter-io/hof/lib/repos/utils"
 )
 
+
 // Parse parses a module name and returns
 // the appropriate remote for it.
 func Parse(mod string) (*Remote, error) {
-	// TODO: Should pass a context in.
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
 
-	m, err := NewMirrors()
-	if err != nil {
-		return nil, fmt.Errorf("new mirrors: %w", err)
-	}
 
 	// TODO: Is is worth having a complex type here to handle
 	// this kind of check? Will Mirrors get used elsewhere?
 	// If not, it would be better to simplify Mirrors to a
 	// function.
-	defer m.Close()
+	// defer m.Close()
 
-	r := Remote{
-		mod:     mod,
-		mirrors: m,
+	r := NewRemote(mod, MirrorsSingleton)
+	_, err := r.Kind()
+	if err != nil {
+		return nil, err
 	}
 
-	r.Host, r.Owner, r.Name = utils.ParseModURL(mod)
-
-	isOCI, err := m.Is(ctx, KindOCI, mod)
-	if isOCI && err != nil {
-		return nil, fmt.Errorf("mirror is oci: %w", err)
-	}
-	if isOCI {
-		r.kind = KindOCI
-		return &r, nil
-	}
-
-	isGit, err := m.Is(ctx, KindGit, mod)
-	if isGit && err != nil {
-		return nil, fmt.Errorf("mirror is git: %w", err)
-	}
-	if isGit {
-		r.kind = KindGit
-		return &r, nil
-	}
-
-	return nil, fmt.Errorf("cannot parse %s", mod)
+	return r, nil
 }
 
 type Remote struct {
@@ -64,6 +39,16 @@ type Remote struct {
 	mod     string
 	kind    Kind
 	mirrors *Mirrors
+}
+
+func NewRemote(mod string, mir *Mirrors) *Remote {
+	r := &Remote{
+		mod:     mod,
+		mirrors: mir,
+	}
+
+	r.Host, r.Owner, r.Name = utils.ParseModURL(mod)
+	return r
 }
 
 func (r *Remote) Pull(ctx context.Context, dir, ver string) error {
@@ -105,6 +90,36 @@ func (r *Remote) Publish(ctx context.Context, dir string, tag string) error {
 	}
 
 	return fmt.Errorf("unsupported kind: %s", r.kind)
+}
+
+func (r *Remote) Kind() (Kind, error) {
+	if r.kind != "" {
+		return  r.kind, nil
+	}
+
+	// TODO: Should pass a context in.
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	isOCI, err := r.mirrors.Is(ctx, KindOCI, r.mod)
+	if isOCI && err != nil {
+		return "", fmt.Errorf("mirror is oci: %w", err)
+	}
+	if isOCI {
+		r.kind = KindOCI
+		return "", nil
+	}
+
+	isGit, err := r.mirrors.Is(ctx, KindGit, r.mod)
+	if isGit && err != nil {
+		return "", fmt.Errorf("mirror is git: %w", err)
+	}
+	if isGit {
+		r.kind = KindGit
+		return "", nil
+	}
+
+	return "", fmt.Errorf("cannot determine registry kind for: %s", r.mod)
 }
 
 type Kind string

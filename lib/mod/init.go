@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	gomod "golang.org/x/mod/module"
+	// gomod "golang.org/x/mod/module"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/cmd/hof/verinfo"
@@ -16,13 +16,15 @@ var initFileContent = `module: %q
 cue: %q
 `
 
-func Init(module string, rflags flags.RootPflagpole) (error) {
+func Init(module string, rflags flags.RootPflagpole) (err error) {
 	upgradeHofMods()
 
+	/*
 	err := gomod.CheckPath(module)
 	if err != nil {
 		return fmt.Errorf("bad module name %q, should have domain format 'domain.com/...'", module)
 	}
+	*/
 
 	_, err = os.Lstat("cue.mod")
 	if err != nil {
