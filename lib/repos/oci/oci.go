@@ -3,6 +3,7 @@ package oci
 import (
 	"archive/tar"
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -17,6 +18,7 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/empty"
 	"github.com/google/go-containerregistry/pkg/v1/mutate"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
+	"github.com/google/go-containerregistry/pkg/v1/remote/transport"
 	"github.com/google/go-containerregistry/pkg/v1/stream"
 	"github.com/google/go-containerregistry/pkg/v1/types"
 )
@@ -27,10 +29,24 @@ const (
 	HofstadterModuleCode  types.MediaType = "application/vnd.hofstadter.module.code.tar.gzip"
 )
 
-func IsNetworkReachable(mod string) bool {
-	_, err := crane.Digest(mod, crane.WithAuthFromKeychain(authn.DefaultKeychain))
-	fmt.Println(mod, err)
-	return err == nil
+func IsNetworkReachable(mod string) (bool, error) {
+	_, err := crane.Manifest(mod, crane.WithAuthFromKeychain(authn.DefaultKeychain))
+
+	var terr *transport.Error
+	if errors.As(err, &terr) {
+		if len(terr.Errors) != 1 {
+			return false, fmt.Errorf("multiple transport errors: %w", terr)
+		}
+
+		switch c := terr.Errors[0].Code; c {
+		case transport.ManifestUnknownErrorCode:
+			return false, errors.New("remote repo does not exist")
+		default:
+			return false, fmt.Errorf("unhandled transport code: %s", c)
+		}
+	}
+
+	return err == nil, err
 }
 
 func Pull(tag, path string) error {

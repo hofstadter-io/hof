@@ -134,7 +134,7 @@ func (m *Mirrors) netCheckGit(ctx context.Context, mod string) (bool, error) {
 }
 
 func (m *Mirrors) netCheckOCI(ctx context.Context, mod string) (bool, error) {
-	return oci.IsNetworkReachable(mod), nil
+	return oci.IsNetworkReachable(mod)
 }
 
 func (m *Mirrors) Set(k Kind, s string) {
