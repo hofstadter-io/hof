@@ -21,33 +21,48 @@ image:
 
 .PHONY: nginx
 nginx:
-	@docker run --rm -it -p 8080:80 --name hof-docs us.gcr.io/$(PROJECT)/docs.hofstadter.io:$(TAG)
+	@docker run --rm -it -p 8080:80 -e GA_MP_APIKEY=${GA_MP_APIKEY} --name hof-docs us.gcr.io/$(PROJECT)/docs.hofstadter.io:$(TAG)
 
 .PHONY: push
 push:
 	@docker push us.gcr.io/$(PROJECT)/docs.hofstadter.io:$(TAG)
 
-.PHONY: deploy.prod deploy.prod.view deploy.next deploy.next.view
+.PHONY: deploy.prod deploy.prod.view deploy.prod.vet deploy.prod.all
+deploy.prod.all: build push deploy.prod
 deploy.prod:
-	@cue export ci/cuelm.cue -e Install \
+	cue export ci/cuelm.cue -e Install \
 		-t ga_mp_apikey=$(GA_MP_APIKEY) \
 		-t version=$(TAG) \
 		| kubectl apply -f -
 deploy.prod.view:
-	@cue export ci/cuelm.cue -e Install \
+	cue export ci/cuelm.cue -e Install \
+		-t ga_mp_apikey=$(GA_MP_APIKEY) \
+		-t version=$(TAG)
+deploy.prod.vet:
+	cue export ci/cuelm.cue -e Install \
 		-t ga_mp_apikey=$(GA_MP_APIKEY) \
 		-t version=$(TAG) \
+		| kubectl apply -f - --dry-run=server
+
+.PHONY: deploy.next deploy.next.view deploy.next.vet deploy.next.all
+deploy.next.all: build push deploy.next
 deploy.next:
-	@cue export ci/cuelm.cue -e Install \
+	cue export ci/cuelm.cue -e Install \
 		-t ga_mp_apikey=$(GA_MP_APIKEY) \
 		-t version=$(TAG) \
 		-t name=hof-next-docs \
 		-t domain="next.hofstadter.io" \
 		| kubectl apply -f -
 deploy.next.view:
-	@cue export ci/cuelm.cue -e Install \
+	cue export ci/cuelm.cue -e Install \
 		-t ga_mp_apikey=$(GA_MP_APIKEY) \
 		-t version=$(TAG) \
 		-t name=hof-next-docs\
 		-t domain="next.hofstadter.io"
-
+deploy.next.vet:
+	cue export ci/cuelm.cue -e Install \
+		-t ga_mp_apikey=$(GA_MP_APIKEY) \
+		-t version=$(TAG) \
+		-t name=hof-next-docs\
+		-t domain="next.hofstadter.io" \
+		| kubectl apply -f - --dry-run=server

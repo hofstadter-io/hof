@@ -29,13 +29,19 @@ server {
 
   location /mp/collect {
 		rewrite ^ /mp/collect?api_secret=$GA_MP_APIKEY break;
-    proxy_pass https://next.hofstadter.io;
+    proxy_pass https://www.google-analytics.com;
     access_log /var/log/nginx/proxy.log proxy_log;
   }
 
   location /debug/mp/collect {
 		rewrite ^ /debug/mp/collect?api_secret=$GA_MP_APIKEY break;
-    proxy_pass https://next.hofstadter.io;
+    proxy_pass https://www.google-analytics.com;
+    access_log /var/log/nginx/proxy.log proxy_log;
+  }
+
+  location /local/mp/collect {
+		rewrite ^ /debug/mp/collect;
+    proxy_pass http://localhost:8080;
     access_log /var/log/nginx/proxy.log proxy_log;
   }
 

@@ -99,7 +99,10 @@ Update: schema.#List & {
 						name:            "website"
 						image:           "\(_Values.registry)/\(_Values.image):\(_Values.version)"
 						imagePullPolicy: "Always"
-						env: [{"GA_MP_APIKEY": _Values.ga_mp_apikey}]
+						env: [{
+							name:  "GA_MP_APIKEY"
+							value: _Values.ga_mp_apikey
+						}]
 						ports: [{
 							containerPort: _Values.port
 							protocol:      "TCP"

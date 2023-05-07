@@ -134,7 +134,7 @@ func SendCommandPath(cmd string) {
 
 	// ids
 	vals.Add("measurement_id", "G-6CYEVMZL4R")
-	vals.Add("api_secret", os.Getenv("GA_MP_APIKEY")) 
+	// vals.Add("api_secret", os.Getenv("GA_MP_APIKEY")) 
 	vals.Add("cid", cid)
 	// vals.Add("_p", fmt.Sprint(rand.Intn(10000000000-1)))
 
@@ -163,6 +163,7 @@ func SendCommandPath(cmd string) {
 
 	gaURL := "https://next.hofstadter.io/mp/collect?"
 	//gaURL = "https://www.google-analytics.com/debug/mp/collect?"
+	//gaURL = "http://localhost:8080/mp/collect?"
 	url := gaURL +	vals.Encode()
 	if debug {
 		fmt.Println(url)
@@ -223,19 +224,19 @@ func SendCommandPath(cmd string) {
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		if debug {
-			fmt.Println("Read Error: ", resp.StatusCode, body, err)
+			fmt.Println("Read Error: ", resp.StatusCode, string(body), err)
 		}
 	}
 
 	if resp.StatusCode >= 500 {
 		if debug {
-			fmt.Println("Internal Error: ", resp.StatusCode, body, err)
+			fmt.Println("Internal Error: ", resp.StatusCode, string(body), err)
 		}
 		// return body, errors.New("Internal Error: " + body)
 	}
 	if resp.StatusCode >= 400 {
 		if debug {
-			fmt.Println("Bad Request: ", resp.StatusCode, body)
+			fmt.Println("Bad Request: ", resp.StatusCode, string(body))
 		}
 		// return body, errors.New("Bad Request: " + body)
 	}
