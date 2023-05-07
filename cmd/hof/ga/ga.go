@@ -123,6 +123,8 @@ func SendCommandPath(cmd string) {
 	if debug {
 		fmt.Println("try sending:", cmd)
 	}
+	cs := strings.Fields(cmd)
+	c := strings.Join(cs[1:], "/")
 
 	vals := url.Values{}
 
@@ -134,26 +136,24 @@ func SendCommandPath(cmd string) {
 
 	// ids
 	vals.Add("measurement_id", "G-6CYEVMZL4R")
-	// vals.Add("api_secret", os.Getenv("GA_MP_APIKEY")) 
+	vals.Add("en", "page_view")
 	vals.Add("cid", cid)
+	vals.Add("uid", cid)
 	// vals.Add("_p", fmt.Sprint(rand.Intn(10000000000-1)))
 
 	// system info
 	vals.Add("uaa", verinfo.BuildArch)
 	vals.Add("uap", verinfo.BuildOS)
 	vals.Add("dh", "cli.hofstadter.io")
+	vals.Add("dl", c)
+	vals.Add("dt", c)
 
-	// event info
-	cs := strings.Fields(cmd)
-	c := strings.Join(cs[1:], "/")
+	// cmd runner type
 	l := "user"
 	if isCI {
 		l = "ci"
 	}
 
-	vals.Add("en", "pageview")
-	vals.Add("dt", c)
-	vals.Add("dl", "http://cli.hofstadter.io/" + c)
 	vals.Add("cs", l)
 	vals.Add("cm", verinfo.Version)
 
@@ -162,6 +162,7 @@ func SendCommandPath(cmd string) {
 	}
 
 	gaURL := "https://next.hofstadter.io/mp/collect?"
+	// gaURL = "https://next.hofstadter.io/debug/mp/collect?"
 	//gaURL = "https://www.google-analytics.com/debug/mp/collect?"
 	//gaURL = "http://localhost:8080/mp/collect?"
 	url := gaURL +	vals.Encode()
@@ -177,19 +178,32 @@ func SendCommandPath(cmd string) {
 			"arch": verinfo.BuildArch,
 			"os": verinfo.BuildOS,
 			"runtype": l,
+			"engagement_time_msec" : 100,
+		},
+	}
+
+	pv := map[string]any{
+		"name": "page_view",
+		"params": map[string]any{
+			"page_location": c,
+			"page_title": cmd,
+			"page_source": l,
+			"page_medium": verinfo.Version,
+			"engagement_time_msec" : 100,
 		},
 	}
 
 	obj := map[string]any{
 		"client_id": cid,
-		"events": []map[string]any { evt },
-		//"user_properties": map[string]any{
-		//  "id": cid,
-		//  "version": verinfo.Version,
-		//  "arch": verinfo.BuildArch,
-		//  "os": verinfo.BuildOS,
-		//  "runtype": l,
-		//},
+		"user_id": cid,
+		"timestamp_micros" : 100,
+		"events": []map[string]any { evt, pv },
+		"user_properties": map[string]map[string]any{	
+			"version": { "value": verinfo.Version},
+			"os": { "value": verinfo.BuildOS },
+			"arch": { "value": verinfo.BuildArch },
+			"source": { "value": l},
+		},
 	}
 
 	postBody, err := json.MarshalIndent(obj, "", "  ")

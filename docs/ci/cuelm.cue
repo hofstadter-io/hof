@@ -24,7 +24,7 @@ Update: schema.#List & {
 		namespace: "websites"
 
 		registry: "us.gcr.io/hof-io--develop"
-		image:    "docs.hofstadter.io"
+		image:    string | *"\(domain)"
 		version:  string | *"manual" @tag(version)
 
 		domain: string | *"docs.hofstadter.io" @tag(domain)
