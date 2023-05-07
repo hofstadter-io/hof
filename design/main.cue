@@ -9,7 +9,7 @@ import (
 #Outdir: "./cmd/hof"
 
 #CLI: schema.#Cli & {
-	Name:    "hof"
+	Name:   "hof"
 	Module: "github.com/hofstadter-io/hof"
 
 	Usage:      "hof"
@@ -44,10 +44,10 @@ import (
 	//
 	// Addons
 	//
-	Releases: #CliReleases
-	Updates:  true
+	Releases:    #CliReleases
+	Updates:     true
 	EnablePProf: true
-	Telemetry: "UA-103579574-5"
+	Telemetry:   "G-6CYEVMZL4R"
 }
 
 #RootCustomHelp: """

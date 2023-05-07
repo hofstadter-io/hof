@@ -1,8 +1,12 @@
 package ga
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -10,7 +14,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hofstadter-io/cinful"
-	"github.com/hofstadter-io/hof/lib/yagu"
 
 	"github.com/hofstadter-io/hof/cmd/hof/verinfo"
 )
@@ -43,6 +46,7 @@ func init() {
 		cid = "disabled"
 		return
 	}
+
 	// workaround for running in TestScript tool
 	if strings.HasPrefix(ucd, "/no-home") {
 		ucd = strings.TrimPrefix(ucd, "/")
@@ -113,9 +117,33 @@ func init() {
 }
 
 func SendCommandPath(cmd string) {
+	if cid == "disabled" {
+		return
+	}
 	if debug {
 		fmt.Println("try sending:", cmd)
 	}
+
+	vals := url.Values{}
+
+	// always
+	vals.Add("v", "2")
+	if debug {
+		// vals.Add("_dbg", "1")
+	}
+
+	// ids
+	vals.Add("measurement_id", "G-6CYEVMZL4R")
+	vals.Add("api_secret", os.Getenv("GA_MP_APIKEY")) 
+	vals.Add("cid", cid)
+	// vals.Add("_p", fmt.Sprint(rand.Intn(10000000000-1)))
+
+	// system info
+	vals.Add("uaa", verinfo.BuildArch)
+	vals.Add("uap", verinfo.BuildOS)
+	vals.Add("dh", "cli.hofstadter.io")
+
+	// event info
 	cs := strings.Fields(cmd)
 	c := strings.Join(cs[1:], "/")
 	l := "user"
@@ -123,38 +151,98 @@ func SendCommandPath(cmd string) {
 		l = "ci"
 	}
 
-	if debug {
-		fmt.Println("SendGaEvent:", c, l, cid)
-	}
-	if cid == "disabled" {
-		return
-	}
-
-	ua := fmt.Sprintf(
-		"%s %s (%s/%s)",
-		"hof", verinfo.Version,
-		verinfo.BuildOS, verinfo.BuildArch,
-	)
-
-	cfg := yagu.GaConfig{
-		TID: "UA-103579574-5",
-		CID: cid,
-		UA:  ua,
-		CS:  verinfo.Version,
-		CM:  l,
-	}
-
-	evt := yagu.GaEvent{
-		Action:   c, // path or cmd here
-		Source:   fmt.Sprintf("%s/%s",verinfo.BuildOS, verinfo.BuildArch),
-		Category: l,
-	}
+	vals.Add("en", "pageview")
+	vals.Add("dt", c)
+	vals.Add("dl", "http://cli.hofstadter.io/" + c)
+	vals.Add("cs", l)
+	vals.Add("cm", verinfo.Version)
 
 	if debug {
-		fmt.Printf("sending:\n%#v\n%#v\n", cfg, evt)
+		// fmt.Printf("vals:%v\n", vals)
 	}
 
-	yagu.SendGaEvent(cfg, evt)
+	gaURL := "https://www.google-analytics.com/mp/collect?"
+	//gaURL = "https://www.google-analytics.com/debug/mp/collect?"
+	url := gaURL +	vals.Encode()
+	if debug {
+		fmt.Println(url)
+	}
+
+	evt := map[string]any{
+		"name": "cmd_run",
+		"params": map[string]any{
+			"cmd": c,
+			"version": verinfo.Version,
+			"arch": verinfo.BuildArch,
+			"os": verinfo.BuildOS,
+			"runtype": l,
+		},
+	}
+
+	obj := map[string]any{
+		"client_id": cid,
+		"events": []map[string]any { evt },
+		//"user_properties": map[string]any{
+		//  "id": cid,
+		//  "version": verinfo.Version,
+		//  "arch": verinfo.BuildArch,
+		//  "os": verinfo.BuildOS,
+		//  "runtype": l,
+		//},
+	}
+
+	postBody, err := json.MarshalIndent(obj, "", "  ")
+	if err != nil {
+		if debug {
+			fmt.Println("Marshal Error: ", err)
+		}
+	}
+	if debug {
+		fmt.Println("body: ", string(postBody))
+	}
+
+
+	reqBody := bytes.NewBuffer(postBody)
+
+	resp, err := http.Post(url, "application/json", reqBody)
+
+	if debug {
+		fmt.Println(resp, err)
+	}
+
+	// fmt.Println(resp, body, errs)
+
+	// hacky check for golang issue(?)
+
+	//if len(errs) != 0 && !strings.Contains(errs[0].Error(), "http2: server sent GOAWAY and closed the connection") {
+	//  return body, errs[0]
+	//}
+
+	defer resp.Body.Close()
+	//Read the response body
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		if debug {
+			fmt.Println("Read Error: ", resp.StatusCode, body, err)
+		}
+	}
+
+	if resp.StatusCode >= 500 {
+		if debug {
+			fmt.Println("Internal Error: ", resp.StatusCode, body, err)
+		}
+		// return body, errors.New("Internal Error: " + body)
+	}
+	if resp.StatusCode >= 400 {
+		if debug {
+			fmt.Println("Bad Request: ", resp.StatusCode, body)
+		}
+		// return body, errors.New("Bad Request: " + body)
+	}
+
+	if debug {
+		fmt.Println(string(body))
+	}
 }
 
 func readGaId() (string, error) {

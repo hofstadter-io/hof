@@ -34,13 +34,10 @@ var LinkCmd = &cobra.Command{
 
 	Long: linkLong,
 
-	PreRun: func(cmd *cobra.Command, args []string) {
+	Run: func(cmd *cobra.Command, args []string) {
 
 		ga.SendCommandPath(cmd.CommandPath())
 
-	},
-
-	Run: func(cmd *cobra.Command, args []string) {
 		var err error
 
 		// Argument Parsing
@@ -61,13 +58,20 @@ func init() {
 
 	ohelp := LinkCmd.HelpFunc()
 	ousage := LinkCmd.UsageFunc()
+
 	help := func(cmd *cobra.Command, args []string) {
+
+		ga.SendCommandPath(cmd.CommandPath() + " help")
+
 		if extra(cmd) {
 			return
 		}
 		ohelp(cmd, args)
 	}
 	usage := func(cmd *cobra.Command) error {
+
+		ga.SendCommandPath(cmd.CommandPath() + " usage")
+
 		if extra(cmd) {
 			return nil
 		}
@@ -75,11 +79,9 @@ func init() {
 	}
 
 	thelp := func(cmd *cobra.Command, args []string) {
-		ga.SendCommandPath(cmd.CommandPath() + " help")
 		help(cmd, args)
 	}
 	tusage := func(cmd *cobra.Command) error {
-		ga.SendCommandPath(cmd.CommandPath() + " usage")
 		return usage(cmd)
 	}
 	LinkCmd.SetHelpFunc(thelp)

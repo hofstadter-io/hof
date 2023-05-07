@@ -40,38 +40,11 @@ type GaEvent struct {
 	Value    int
 }
 
-func SendGaEvent(cfg GaConfig, evt GaEvent) (string, error) {
+func SendGaEvent(vals url.Values) (string, error) {
+
+	debug := true
 
 	gaURL := "https://www.google-analytics.com/collect"
-
-	vals := url.Values{}
-
-	// always
-	vals.Add("v", "1")
-
-	vals.Add("tid", cfg.TID)
-	vals.Add("cid", cfg.CID)
-	vals.Add("cs", cfg.CS)
-	vals.Add("cn", cfg.CN)
-	vals.Add("cm", cfg.CM)
-	if cfg.IP != "" {
-		vals.Add("uip", cfg.IP)
-	}
-	if cfg.UA != "" {
-		vals.Add("ua", cfg.UA)
-	}
-
-	if evt.Type != "" {
-		vals.Add("t", "pageview")
-	} else {
-		vals.Add("t", evt.Type)
-	}
-
-	// TODO, move this parameter hackery for CLIs to hofmod-cli
-	vals.Add("dh", "hof/"+cfg.CN)
-	vals.Add("dp", evt.Action)
-	vals.Add("dt", evt.Category)
-	vals.Add("dr", evt.Source)
 
 	payload := vals.Encode()
 
@@ -80,6 +53,10 @@ func SendGaEvent(cfg GaConfig, evt GaEvent) (string, error) {
 	req := gorequest.New().Post(gaURL).Send(payload)
 
 	resp, body, errs := req.End()
+
+	if debug {
+		fmt.Println(resp, body, errs)
+	}
 
 	// fmt.Println(resp, body, errs)
 

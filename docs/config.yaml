@@ -14,7 +14,7 @@ params:
   disableReadmoreNav: false
   highlightClientSide: false
   menushortcutsnewtab: true
-  ga: UA-103579574-2
+  ga: G-06EV4G0M20
   github_project_repo: https://github.com/hofstadter-io/hof
   github_repo: https://github.com/hofstadter-io/hof
   time_format_default: January 2, 2006

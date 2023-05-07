@@ -53,7 +53,8 @@
   <link rel="stylesheet" href="{{ $CCSS.RelPermalink }}" integrity="{{ $CCSS.Data.Integrity }}">
 
 
-  {{ if (and (not .Site.IsServer) .Site.Params.ga) }}
+  {{/* if (and (not .Site.IsServer) .Site.Params.ga) */}}
+  {{ if .Site.Params.ga }}
   <script async src="https://www.googletagmanager.com/gtag/js?id={{ .Site.Params.ga }}"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
