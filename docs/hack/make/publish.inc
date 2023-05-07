@@ -15,9 +15,11 @@ hugo.next: config.yaml
 .PHONY: docker
 docker: image
 
-.PHONY: image
+.PHONY: image image.next
 image:
 	@docker build --no-cache -f ci/Dockerfile -t us.gcr.io/$(PROJECT)/docs.hofstadter.io:$(TAG) .
+image.next:
+	@docker build --no-cache -f ci/Dockerfile -t us.gcr.io/$(PROJECT)/next.hofstadter.io:$(TAG) .
 
 .PHONY: nginx
 nginx:
@@ -26,6 +28,8 @@ nginx:
 .PHONY: push
 push:
 	@docker push us.gcr.io/$(PROJECT)/docs.hofstadter.io:$(TAG)
+push.next:
+	@docker push us.gcr.io/$(PROJECT)/next.hofstadter.io:$(TAG)
 
 .PHONY: deploy.prod deploy.prod.view deploy.prod.vet deploy.prod.all
 deploy.prod.all: build push deploy.prod
@@ -45,7 +49,7 @@ deploy.prod.vet:
 		| kubectl apply -f - --dry-run=server
 
 .PHONY: deploy.next deploy.next.view deploy.next.vet deploy.next.all
-deploy.next.all: build push deploy.next
+deploy.next.all: hugo.next image.next push.next deploy.next
 deploy.next:
 	cue export ci/cuelm.cue -e Install \
 		-t ga_mp_apikey=$(GA_MP_APIKEY) \
