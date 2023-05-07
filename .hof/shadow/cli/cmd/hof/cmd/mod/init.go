@@ -83,9 +83,6 @@ func init() {
 		ohelp(cmd, args)
 	}
 	usage := func(cmd *cobra.Command) error {
-
-		ga.SendCommandPath(cmd.CommandPath() + " usage")
-
 		if extra(cmd) {
 			return nil
 		}
