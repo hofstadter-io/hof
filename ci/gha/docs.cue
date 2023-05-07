@@ -8,13 +8,18 @@ import (
 ghacue.#Workflow & {
 	name: "docs"
 
-	on: push: {
-		paths: [
-			"docs/**",
-			"ci/gha/docs.cue",
-			"design/**",
-			"schema/**",
-		]
+	on: {
+		for p in ["push", "pull_request"] {
+			(p): {
+				paths: [
+					"docs/**",
+					"ci/gha/docs.cue",
+					"design/**",
+					"schema/**",
+					"cmd/**",
+				]
+			}
+		}
 	}
 	env: HOF_TELEMETRY_DISABLED: "1"
 
@@ -25,7 +30,7 @@ ghacue.#Workflow & {
 			steps: [
 				// general setup
 				common.Steps.cue.install,
-				common.Steps.go.setup & { #ver: "1.20.x" },
+				common.Steps.go.setup & {#ver: "1.20.x"},
 				common.Steps.go.cache,
 				common.Steps.checkout,
 				common.Steps.vars,
@@ -36,13 +41,13 @@ ghacue.#Workflow & {
 				common.Steps.docs.setup,
 				{
 					name: "Test"
-					run:  """
-					cd docs
-					make gen
-					make test
-					make run &
-					make broken-link
-					"""
+					run: """
+						cd docs
+						make gen
+						make test
+						make run &
+						make broken-link
+						"""
 				},
 			]
 		}
