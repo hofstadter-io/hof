@@ -162,7 +162,7 @@ func SendCommandPath(cmd string) {
 	}
 
 	gaURL := "https://next.hofstadter.io/mp/collect?"
-	// gaURL = "https://next.hofstadter.io/debug/mp/collect?"
+	//gaURL = "https://next.hofstadter.io/debug/mp/collect?"
 	//gaURL = "https://www.google-analytics.com/debug/mp/collect?"
 	//gaURL = "http://localhost:8080/mp/collect?"
 	url := gaURL +	vals.Encode()
@@ -189,6 +189,8 @@ func SendCommandPath(cmd string) {
 			"page_title": cmd,
 			"page_source": l,
 			"page_medium": verinfo.Version,
+			"source": l,
+			"medium": verinfo.Version,
 			"engagement_time_msec" : 100,
 		},
 	}
