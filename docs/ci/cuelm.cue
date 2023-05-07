@@ -30,6 +30,8 @@ Update: schema.#List & {
 		domain: string | *"docs.hofstadter.io" @tag(domain)
 		port:   80
 
+		ga_mp_apikey: string | *"" @tag(ga_mp_apikey)
+
 		#metadata: {
 			name:      _Values.name
 			namespace: _Values.namespace
@@ -97,6 +99,7 @@ Update: schema.#List & {
 						name:            "website"
 						image:           "\(_Values.registry)/\(_Values.image):\(_Values.version)"
 						imagePullPolicy: "Always"
+						env: [{"GA_MP_APIKEY": _Values.ga_mp_apikey}]
 						ports: [{
 							containerPort: _Values.port
 							protocol:      "TCP"
