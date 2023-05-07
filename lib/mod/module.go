@@ -300,6 +300,7 @@ func (cm *CueMod) WriteModFile() (err error) {
 	if err != nil {
 		return err
 	}
+	out += "\n"
 
 	return os.WriteFile(filepath.Join("cue.mod/module.cue"), []byte(out), 0644)
 }
