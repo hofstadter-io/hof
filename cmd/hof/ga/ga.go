@@ -161,7 +161,7 @@ func SendCommandPath(cmd string) {
 		// fmt.Printf("vals:%v\n", vals)
 	}
 
-	gaURL := "https://www.google-analytics.com/mp/collect?"
+	gaURL := "https://next.hofstadter.io/mp/collect?"
 	//gaURL = "https://www.google-analytics.com/debug/mp/collect?"
 	url := gaURL +	vals.Encode()
 	if debug {
