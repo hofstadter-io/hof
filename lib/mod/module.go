@@ -11,11 +11,10 @@ import (
 	"strings"
 
 	"cuelang.org/go/cue"
+	"cuelang.org/go/cue/format"
 	"cuelang.org/go/cue/cuecontext"
 	"github.com/go-git/go-billy/v5"
 	"golang.org/x/mod/module"
-
-	"github.com/hofstadter-io/hof/lib/cuetils"
 )
 
 
@@ -293,16 +292,12 @@ func (cm *CueMod) WriteModFile() (err error) {
 		buf.WriteString("}\n")
 	}
 
-	ctx := cuecontext.New()
-	val := ctx.CompileBytes(buf.Bytes())
-
-	out, err := cuetils.FormatOutput(val, "cue")
+	bs, err := format.Source(buf.Bytes())
 	if err != nil {
 		return err
 	}
-	out += "\n"
 
-	return os.WriteFile(filepath.Join("cue.mod/module.cue"), []byte(out), 0644)
+	return os.WriteFile(filepath.Join("cue.mod/module.cue"), bs, 0644)
 }
 
 func (cm *CueMod) WriteSumFile() (err error) {
@@ -338,13 +333,10 @@ func (cm *CueMod) WriteSumFile() (err error) {
 
 	buf.WriteString("}\n")
 
-	ctx := cuecontext.New()
-	val := ctx.CompileBytes(buf.Bytes())
-
-	out, err := cuetils.FormatOutput(val, "cue")
+	bs, err := format.Source(buf.Bytes())
 	if err != nil {
 		return err
 	}
 
-	return os.WriteFile(filepath.Join("cue.mod/sums.cue"), []byte(out), 0644)
+	return os.WriteFile(filepath.Join("cue.mod/sums.cue"), bs, 0644)
 }
