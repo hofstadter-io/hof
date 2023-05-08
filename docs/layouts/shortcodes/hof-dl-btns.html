@@ -1,12 +1,11 @@
 {{ $ver := .Site.Params.hofver }}
-{{ $sem := substr $ver 1 }}
 {{ $base := printf "https://github.com/hofstadter-io/hof/releases/download/%s" $ver }}
-{{ $nix_x64 := printf "%s/hof_%s_Linux_x86_64" $base $sem }}
-{{ $mac_x64 := printf "%s/hof_%s_Darwin_x86_64" $base $sem }}
-{{ $win_x64 := printf "%s/hof_%s_Windows_x86_64.exe" $base $sem }}
-{{ $nix_arm := printf "%s/hof_%s_Linux_arm64" $base $sem }}
-{{ $mac_arm := printf "%s/hof_%s_Darwin_arm64" $base $sem }}
-{{ $win_arm := printf "%s/hof_%s_Windows_arm64.exe" $base $sem }}
+{{ $nix_x64 := printf "%s/hof_%s_Linux_x86_64" $base $ver }}
+{{ $mac_x64 := printf "%s/hof_%s_Darwin_x86_64" $base $ver }}
+{{ $win_x64 := printf "%s/hof_%s_Windows_x86_64.exe" $base $ver }}
+{{ $nix_arm := printf "%s/hof_%s_Linux_arm64" $base $ver }}
+{{ $mac_arm := printf "%s/hof_%s_Darwin_arm64" $base $ver }}
+{{ $win_arm := printf "%s/hof_%s_Windows_arm64.exe" $base $ver }}
 
 <div class="d-none d-sm-block">
 	<div class="d-flex pb-3">
