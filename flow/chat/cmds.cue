@@ -65,7 +65,6 @@ chat: {
 }
 
 MakeCall: {
-
 	method: string | *"GET"
 	path:   string
 	data: {}
