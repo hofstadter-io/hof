@@ -16,6 +16,8 @@ import (
     - catch / retry on failed connection
 */
 
+var debug = false
+
 type call struct {
 }
 
@@ -192,10 +194,12 @@ func buildRequest(val cue.Value) (R *gorequest.SuperAgent, err error) {
 
 	data := req.LookupPath(cue.ParsePath("data"))
 	if data.Exists() {
-		err := data.Decode(&R.Data)
+		d := map[string]any{}
+		err := data.Decode(&d)
 		if err != nil {
 			return R, err
 		}
+		R = R.Send(d)
 	}
 
 	timeout := req.LookupPath(cue.ParsePath("timeout"))
@@ -273,6 +277,14 @@ func makeRequest(R *gorequest.SuperAgent) (gorequest.Response, error) {
 			fmt.Printf("Recovered in HTTP: %v %v\n", R, r)
 		}
 	}()
+
+	if debug {
+		s, err := R.Clone().AsCurlCommand()
+		if err != nil {
+			return nil, err
+		}
+		fmt.Println("CURL:", s)
+	}
 
 	resp, body, errs := R.End()
 

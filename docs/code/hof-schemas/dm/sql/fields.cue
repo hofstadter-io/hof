@@ -5,7 +5,7 @@ import (
 )
 
 CommonFields: {
-	ID:        fields.UUID & {Default: "" | *"uuid_generate_v4()"}
+	ID:        fields.UUID & {Default: string | *"uuid_generate_v4()"}
 	CreatedAt: fields.Datetime
 	UpdatedAt: fields.Datetime
 }
@@ -14,6 +14,11 @@ SoftDelete: {
 	DeletedAt: fields.Datetime
 }
 
+PrimaryKey: fields.UUID & {
+	Default: string | *"uuid_generate_v4()"
+	SQL: PrimaryKey: true
+}
+
 Varchar: F=fields.String & {
-	sqlType: "varchar(\(F.Length))"
+	SQL: Type: "character varying(\(F.Length))"
 }

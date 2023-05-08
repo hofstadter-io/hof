@@ -14,9 +14,10 @@ DataTypes: ID |
 ID: UUID & {Default: "" | *"uuid_generate_v4()"}
 
 Field: {
-	Name:  string
-	Type:  string
-	Reln?: string
+	Name:   string
+	Plural: string | *"\(Name)s"
+	Type:   string
+	Reln?:  string
 }
 
 UUID: Field & {

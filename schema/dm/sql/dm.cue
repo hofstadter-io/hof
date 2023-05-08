@@ -32,7 +32,8 @@ Model: M={
 	// $hof: History: ...
 
 	// for easy access
-	Name: M.$hof.metadata.name
+	Name:   M.$hof.metadata.name
+	Plural: string | *"\(Name)s"
 
 	// These are the fields of a model
 	// they can map onto database columnts and form fields

@@ -37,6 +37,8 @@ Hof: {
 
 		// hof/gen
 		gen?: {
+			root: bool | *false
+
 			// name of the generator
 			name: string | *""
 
@@ -47,6 +49,8 @@ Hof: {
 
 		// hof/flow, used for both flows & tasks
 		flow?: {
+			root: bool | *false
+
 			// name of the flow or task
 			name: string | *""
 
@@ -54,6 +58,12 @@ Hof: {
 			// if op is not empty, it is a task value
 			// TODO, maybe we make this "flow" for flows?
 			op: string | *"flow"
+		}
+
+		chat?: {
+			root: bool | *false
+			name: string | *""
+			type: string | *""
 		}
 	}
 }

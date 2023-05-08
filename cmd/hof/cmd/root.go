@@ -130,6 +130,7 @@ func RootInit() {
 	RootCmd.AddCommand(FlowCmd)
 	RootCmd.AddCommand(FmtCmd)
 	RootCmd.AddCommand(ModCmd)
+	RootCmd.AddCommand(ChatCmd)
 	RootCmd.AddCommand(RunCmd)
 	RootCmd.AddCommand(FeedbackCmd)
 

@@ -23,6 +23,7 @@ type Hof struct {
 	Datamodel Datamodel
 	Gen       Gen
 	Flow      Flow
+	Chat      Chat
 
 	// any extra config, set by users
 	Extra map[string]any
@@ -89,6 +90,15 @@ type Gen struct {
 */
 type Flow struct {
 	Root bool
-	Task string
 	Name string
+	Task string
+}
+
+/*
+  hof/chat configuration
+*/
+type Chat struct {
+	Root bool
+	Name string
+	Type string
 }
