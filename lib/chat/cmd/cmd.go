@@ -129,7 +129,7 @@ func chatCall(args []string, rflags flags.RootPflagpole, cflags flags.ChatFlagpo
 		Content: m,
 	}
 	msgs = append(msgs, msg)
-	resp, err := chat.OpenaiChat(msgs, "gpt-3.5-turbo")
+	resp, err := chat.OpenaiChat(msgs, cflags.Model)
 	fmt.Println(resp)
 	if err != nil {
 		return err
@@ -217,7 +217,7 @@ func dmCall(args []string, rflags flags.RootPflagpole, cflags flags.ChatFlagpole
 	}
 
 	// make the call
-	resp, err := chat.OpenaiChat(msgs, "gpt-3.5-turbo")
+	resp, err := chat.OpenaiChat(msgs, cflags.Model)
 	if err != nil {
 		return err
 	}
