@@ -59,9 +59,12 @@ ghacue.#Workflow & {
 		# self: gen -> diff
 		set -e
 
-		# mods stuff & gen
+		# mods & deps
 		hof mod tidy
+		hof fmt cue.mod/module.cue
 		hof mod vendor
+
+		# gen self
 		hof gen
 
 		# should have no diff

@@ -1,3 +1,4 @@
+
 server {
   listen 80;
   listen [::]:80;
@@ -7,11 +8,11 @@ server {
   add_header Referrer-Policy no-referrer-when-downgrade;
 
   set $CSP_DEFAULT_SRC "default-src 'self'";
-  set $CSP_SCRIPT_SRC "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://unpkg.com https://www.googletagmanager.com https://www.google-analytics.com";
+  set $CSP_SCRIPT_SRC "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com";
   set $CSP_STYLE_SRC "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com";
   set $CSP_FONT_SRC "font-src 'self' https://fonts.gstatic.com";
   set $CSP_IMG_SRC "img-src 'self' avatars.githubusercontent.com data: www.googletagmanager.com www.google-analytics.com";
-  set $CSP_CONNECT_SRC "connect-src 'self' www.google-analytics.com";
+  set $CSP_CONNECT_SRC "connect-src 'self' www.google-analytics.com analytics.google.com";
   set $CSP_FORM_ACTION "form-action 'self' https://hofstadter.us5.list-manage.com";
   set $CSP_FRAME_SRC "frame-src youtube.com www.youtube.com";
 
@@ -26,23 +27,14 @@ server {
     add_header Cache-Control "public";
   }
 
-  location /pv {
-    if ($time_iso8601 ~ "^(\d{4})-(\d{2})-(\d{2})") {
-      set $year $1;
-      set $month $2;
-      set $day $3;
-    }
-
-    # TODO, move this to a PV dir? 
-    access_log /var/log/pv/log.$year$month$day pv_fmt;
-
-    return 200 ':]';
+  location /mp/collect {
+    rewrite ^ /mp/collect?api_secret=$GA_MP_APIKEY break;
+    proxy_pass https://www.google-analytics.com;
   }
 
-  location /playground {
-    proxy_pass          https://cuelang.org/.netlify/functions/snippets;
-    proxy_set_header    Host cuelang.org;
-    proxy_redirect      off;
+  location /debug/mp/collect {
+    rewrite ^ /debug/mp/collect?api_secret=$GA_MP_APIKEY break;
+    proxy_pass https://www.google-analytics.com;
   }
 
   location / {

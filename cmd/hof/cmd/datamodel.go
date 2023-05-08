@@ -121,12 +121,6 @@ var DatamodelCmd = &cobra.Command{
 	Short: "manage, diff, and migrate your data models",
 
 	Long: datamodelLong,
-
-	PreRun: func(cmd *cobra.Command, args []string) {
-
-		ga.SendCommandPath(cmd.CommandPath())
-
-	},
 }
 
 func init() {
@@ -137,7 +131,11 @@ func init() {
 
 	ohelp := DatamodelCmd.HelpFunc()
 	ousage := DatamodelCmd.UsageFunc()
+
 	help := func(cmd *cobra.Command, args []string) {
+
+		ga.SendCommandPath(cmd.CommandPath() + " help")
+
 		if extra(cmd) {
 			return
 		}
@@ -151,11 +149,9 @@ func init() {
 	}
 
 	thelp := func(cmd *cobra.Command, args []string) {
-		ga.SendCommandPath(cmd.CommandPath() + " help")
 		help(cmd, args)
 	}
 	tusage := func(cmd *cobra.Command) error {
-		ga.SendCommandPath(cmd.CommandPath() + " usage")
 		return usage(cmd)
 	}
 	DatamodelCmd.SetHelpFunc(thelp)

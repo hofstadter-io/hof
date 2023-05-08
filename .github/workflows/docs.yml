@@ -6,6 +6,14 @@ name: docs
       - ci/gha/docs.cue
       - design/**
       - schema/**
+      - cmd/**
+  pull_request:
+    paths:
+      - docs/**
+      - ci/gha/docs.cue
+      - design/**
+      - schema/**
+      - cmd/**
 env:
   HOF_TELEMETRY_DISABLED: "1"
 jobs:

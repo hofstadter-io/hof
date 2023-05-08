@@ -36,13 +36,10 @@ var ListCmd = &cobra.Command{
 
 	Long: listLong,
 
-	PreRun: func(cmd *cobra.Command, args []string) {
+	Run: func(cmd *cobra.Command, args []string) {
 
 		ga.SendCommandPath(cmd.CommandPath())
 
-	},
-
-	Run: func(cmd *cobra.Command, args []string) {
 		var err error
 
 		// Argument Parsing
@@ -63,7 +60,11 @@ func init() {
 
 	ohelp := ListCmd.HelpFunc()
 	ousage := ListCmd.UsageFunc()
+
 	help := func(cmd *cobra.Command, args []string) {
+
+		ga.SendCommandPath(cmd.CommandPath() + " help")
+
 		if extra(cmd) {
 			return
 		}
@@ -77,11 +78,9 @@ func init() {
 	}
 
 	thelp := func(cmd *cobra.Command, args []string) {
-		ga.SendCommandPath(cmd.CommandPath() + " help")
 		help(cmd, args)
 	}
 	tusage := func(cmd *cobra.Command) error {
-		ga.SendCommandPath(cmd.CommandPath() + " usage")
 		return usage(cmd)
 	}
 	ListCmd.SetHelpFunc(thelp)

@@ -109,12 +109,6 @@ var ModCmd = &cobra.Command{
 	Short: "CUE dependency management based on Go mods",
 
 	Long: modLong,
-
-	PreRun: func(cmd *cobra.Command, args []string) {
-
-		ga.SendCommandPath(cmd.CommandPath())
-
-	},
 }
 
 func init() {
@@ -125,7 +119,11 @@ func init() {
 
 	ohelp := ModCmd.HelpFunc()
 	ousage := ModCmd.UsageFunc()
+
 	help := func(cmd *cobra.Command, args []string) {
+
+		ga.SendCommandPath(cmd.CommandPath() + " help")
+
 		if extra(cmd) {
 			return
 		}
@@ -139,11 +137,9 @@ func init() {
 	}
 
 	thelp := func(cmd *cobra.Command, args []string) {
-		ga.SendCommandPath(cmd.CommandPath() + " help")
 		help(cmd, args)
 	}
 	tusage := func(cmd *cobra.Command) error {
-		ga.SendCommandPath(cmd.CommandPath() + " usage")
 		return usage(cmd)
 	}
 	ModCmd.SetHelpFunc(thelp)

@@ -125,7 +125,7 @@ func SendGaEvent(action, label string, value int) {
 	)
 
 	cfg := yagu.GaConfig{
-		TID: "UA-103579574-5",
+		TID: "G-6CYEVMZL4R",
 		CID: cid,
 		UA:  ua,
 		CN:  "hof",

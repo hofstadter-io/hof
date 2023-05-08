@@ -129,7 +129,7 @@ var GenCmd = &cobra.Command{
 		return matches, cobra.ShellCompDirectiveDefault
 	},
 
-	PreRun: func(cmd *cobra.Command, args []string) {
+	Run: func(cmd *cobra.Command, args []string) {
 
 		extra := " "
 		// check mode
@@ -146,9 +146,6 @@ var GenCmd = &cobra.Command{
 
 		ga.SendCommandPath(cmd.CommandPath() + extra)
 
-	},
-
-	Run: func(cmd *cobra.Command, args []string) {
 		var err error
 
 		// Argument Parsing
@@ -169,7 +166,11 @@ func init() {
 
 	ohelp := GenCmd.HelpFunc()
 	ousage := GenCmd.UsageFunc()
+
 	help := func(cmd *cobra.Command, args []string) {
+
+		ga.SendCommandPath(cmd.CommandPath() + " help")
+
 		if extra(cmd) {
 			return
 		}
@@ -183,11 +184,9 @@ func init() {
 	}
 
 	thelp := func(cmd *cobra.Command, args []string) {
-		ga.SendCommandPath(cmd.CommandPath() + " help")
 		help(cmd, args)
 	}
 	tusage := func(cmd *cobra.Command) error {
-		ga.SendCommandPath(cmd.CommandPath() + " usage")
 		return usage(cmd)
 	}
 	GenCmd.SetHelpFunc(thelp)

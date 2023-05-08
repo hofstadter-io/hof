@@ -27,7 +27,7 @@ hack:
 .PHONY: hof
 hof:
 	CGO_ENABLED=0 go install ./cmd/hof
-	make -C docs cmdhelp
+	# make -C docs cmdhelp
 
 .PHONY: hof.build
 hof.build:

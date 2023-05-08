@@ -21,11 +21,11 @@ params: {
 	disableReadmoreNav:  false // set true to hide prev/next navigation, default is false
 	highlightClientSide: false // set true to use highlight.pack.js instead of the default hugo chroma highlighter
 	menushortcutsnewtab: true  // set true to open shortcuts links to a new tab/window
-	ga:                  "UA-103579574-2"
+	ga:                  "G-06EV4G0M20"
 	github_project_repo: "https://github.com/hofstadter-io/hof"
 	github_repo:         "https://github.com/hofstadter-io/hof"
 	time_format_default: "January 2, 2006"
-	hofver:              "v0.6.8-beta.12"
+	hofver:              "v0.6.8-beta.13"
 	cuever:              "v0.5.0-beta.5"
 	cuedocBase:          "https://pkg.go.dev/cuelang.org/go@\(cuever)"
 	slackLink:           "https://join.slack.com/t/hofstadter-io/shared_invite/zt-e5f90lmq-u695eJur0zE~AG~njNlT1A"

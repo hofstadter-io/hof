@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"cuelang.org/go/cue"
+	"cuelang.org/go/cue/format"
 	"cuelang.org/go/cue/cuecontext"
 	"github.com/go-git/go-billy/v5"
 	"golang.org/x/mod/module"
@@ -291,7 +292,12 @@ func (cm *CueMod) WriteModFile() (err error) {
 		buf.WriteString("}\n")
 	}
 
-	return os.WriteFile(filepath.Join("cue.mod/module.cue"), buf.Bytes(), 0644)
+	bs, err := format.Source(buf.Bytes())
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(filepath.Join("cue.mod/module.cue"), bs, 0644)
 }
 
 func (cm *CueMod) WriteSumFile() (err error) {
@@ -327,5 +333,10 @@ func (cm *CueMod) WriteSumFile() (err error) {
 
 	buf.WriteString("}\n")
 
-	return os.WriteFile(filepath.Join("cue.mod/sums.cue"), buf.Bytes(), 0644)
+	bs, err := format.Source(buf.Bytes())
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(filepath.Join("cue.mod/sums.cue"), bs, 0644)
 }
