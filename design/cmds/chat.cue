@@ -6,26 +6,9 @@ import (
 
 #ChatCommand: schema.#Command & {
 	Name:  "chat"
-	Usage: "chat jsonfile [extra args]"
+	Usage: "chat [args]"
 	Short: "Co-design with AI (alpha)"
 	Long:  #ChatRootHelp
-
-	Args: [{
-		Name:     "jsonfile"
-		Type:     "string"
-		Required: true
-		Help:     "The JSON file to operate on"
-	}, {
-		Name:     "instructions"
-		Type:     "string"
-		Required: true
-		Help:     "The instructions for the AI"
-	}, {
-		Name: "extra"
-		Type: "[]string"
-		Rest: true
-		Help: "extra arguments for the chat, tbd what they are"
-	}]
 
 	Flags: [...schema.#Flag] & [ {
 		Name:    "model"
@@ -54,8 +37,7 @@ import (
 }
 
 #ChatRootHelp: #"""
-	hof chat synergizes LLM technology with our code gen technology.
-	You can chat with the AI to help you write designs and code.
+	Use chat to work with hof features or from modules you import.
 	Module authors can provide custom prompts for their schemas.
 
 	Currently, only ChatGPT is supported. You can use any of the

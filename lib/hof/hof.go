@@ -23,6 +23,7 @@ type Hof struct {
 	Datamodel Datamodel
 	Gen       Gen
 	Flow      Flow
+	Chat      Chat
 
 	// any extra config, set by users
 	Extra map[string]any

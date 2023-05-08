@@ -2,16 +2,16 @@ package cmd
 
 import (
 	"fmt"
-	"os"
-	"strings"
+	// "os"
+	// "strings"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
-	"github.com/hofstadter-io/hof/lib/chat"
+	// "github.com/hofstadter-io/hof/lib/chat"
 	// "github.com/hofstadter-io/hof/lib/runtime"
 )
 
-func Run(jsonfile, inst string, extra []string, rflags flags.RootPflagpole, cflags flags.ChatFlagpole) error {
-	fmt.Printf("lib/chat.Run.%s %v %v %v\n", jsonfile, extra, rflags, cflags)
+func Run(args []string, rflags flags.RootPflagpole, cflags flags.ChatFlagpole) error {
+	fmt.Printf("lib/chat.Run.%s %v %v %v\n", args, rflags, cflags)
 
 	// load our cue, for future use
 	/*
@@ -26,6 +26,7 @@ func Run(jsonfile, inst string, extra []string, rflags flags.RootPflagpole, cfla
 	*/
 
 	// load code
+	/*
 	cbytes, err := os.ReadFile(jsonfile)
 	if err != nil {
 		return err
@@ -49,7 +50,6 @@ func Run(jsonfile, inst string, extra []string, rflags flags.RootPflagpole, cfla
 
 	// write code
 	fmt.Println(resp)
-	/*
 	err = os.WriteFile(jsonfile, []byte(resp), 0644)
 	if err != nil {
 		return err

@@ -10,6 +10,8 @@ import (
 	"github.com/hofstadter-io/hof/flow/task"
 )
 
+var debug = false
+
 func NewTasker(ctx *hofcontext.Context) cueflow.TaskFunc {
 	// This function implements the Runner interface.
 	// It parses Cue values, you will see all of them recursively
@@ -45,9 +47,9 @@ func NewTasker(ctx *hofcontext.Context) cueflow.TaskFunc {
 }
 
 func maybeTask(ctx *hofcontext.Context, val cue.Value, attr cue.Attribute) (cueflow.Runner, error) {
-	//if ctx.DebugTasks {
-	//fmt.Println("task?:", attr)
-	//}
+	if debug {
+		fmt.Println("task?:", attr)
+	}
 
 	taskId, err := attr.String(0)
 	if err != nil {

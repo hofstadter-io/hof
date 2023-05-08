@@ -55,6 +55,8 @@ func run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagp
 	popts.Flow = append(popts.Flow, flowArgs...)
 	opts.Tags = append(opts.Tags, tagArgs...)
 
+	// fmt.Println("args:", popts.Flow, opts.Tags)
+
 	// load in CUE files
 	root, err := structural.LoadCueInputs(entrypoints, ctx, nil)
 	if err != nil {

@@ -69,6 +69,21 @@ func injectSecrets(val cue.Value, tags []string) (cue.Value, error) {
 
 				return false
 			}
+			if attr.Name() == "tag" {
+				if attr.NumArgs() == 0 {
+					err = fmt.Errorf("@secret() has no inner args at %s", v.Path())
+					errs = append(errs, err)
+					return false
+				}
+				// TODO, better options &| UX here
+				arg, _ := attr.String(0)
+				_, ok := tagMap[arg]
+				if ok {
+					tagPaths[arg] = v.Path()
+				}
+
+				return false
+			}
 		}
 
 		return true

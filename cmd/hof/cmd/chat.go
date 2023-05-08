@@ -13,8 +13,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/chat/cmd"
 )
 
-var chatLong = `hof chat synergizes LLM technology with our code gen technology.
-You can chat with the AI to help you write designs and code.
+var chatLong = `Use chat to work with hof features or from modules you import.
 Module authors can provide custom prompts for their schemas.
 
 Currently, only ChatGPT is supported. You can use any of the
@@ -29,19 +28,19 @@ func init() {
 	ChatCmd.Flags().StringSliceVarP(&(flags.ChatFlags.Generator), "generator", "G", nil, "generator tags to run, default is all")
 }
 
-func ChatRun(jsonfile string, instructions string, extra []string) (err error) {
+func ChatRun(args []string) (err error) {
 
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = cmd.Run(jsonfile, instructions, extra, flags.RootPflags, flags.ChatFlags)
+	err = cmd.Run(args, flags.RootPflags, flags.ChatFlags)
 
 	return err
 }
 
 var ChatCmd = &cobra.Command{
 
-	Use: "chat jsonfile [extra args]",
+	Use: "chat [args]",
 
 	Short: "Co-design with AI (alpha)",
 
@@ -55,43 +54,7 @@ var ChatCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		if 0 >= len(args) {
-			fmt.Println("missing required argument: 'jsonfile'")
-			cmd.Usage()
-			os.Exit(1)
-		}
-
-		var jsonfile string
-
-		if 0 < len(args) {
-
-			jsonfile = args[0]
-
-		}
-
-		if 1 >= len(args) {
-			fmt.Println("missing required argument: 'instructions'")
-			cmd.Usage()
-			os.Exit(1)
-		}
-
-		var instructions string
-
-		if 1 < len(args) {
-
-			instructions = args[1]
-
-		}
-
-		var extra []string
-
-		if 2 < len(args) {
-
-			extra = args[2:]
-
-		}
-
-		err = ChatRun(jsonfile, instructions, extra)
+		err = ChatRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

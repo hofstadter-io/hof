@@ -24,6 +24,8 @@ type Input struct {
 	Value       cue.Value
 }
 
+var debug = false
+
 // Loads the entrypoints using the context provided
 // returns the value from the load after validating it
 func LoadCueInputs(entrypoints []string, ctx *cue.Context, cfg *load.Config) (cue.Value, error) {
@@ -75,7 +77,9 @@ func LoadCueInputs(entrypoints []string, ctx *cue.Context, cfg *load.Config) (cu
 			bi.AddSyntax(F)
 
 		default:
-			fmt.Println("unknown encoding for", f.Filename, f.Encoding)
+			if debug {
+				fmt.Println("unknown encoding for", f.Filename, f.Encoding)
+			}
 		}
 	}
 
