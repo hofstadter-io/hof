@@ -1,9 +1,9 @@
 package flags
 
 type ChatFlagpole struct {
-	Model      string
-	Parameters string
-	Generator  []string
+	Model   string
+	Prompt  string
+	Outfile string
 }
 
 var ChatFlags ChatFlagpole

@@ -24,8 +24,8 @@ Set OPENAI_API_KEY`
 func init() {
 
 	ChatCmd.Flags().StringVarP(&(flags.ChatFlags.Model), "model", "M", "gpt-3.5-turbo", "LLM model to use [gpt-3.5-turbo,gpt-4]")
-	ChatCmd.Flags().StringVarP(&(flags.ChatFlags.Parameters), "parameters", "P", "", "path to a config file containing model parameters")
-	ChatCmd.Flags().StringSliceVarP(&(flags.ChatFlags.Generator), "generator", "G", nil, "generator tags to run, default is all")
+	ChatCmd.Flags().StringVarP(&(flags.ChatFlags.Prompt), "prompt", "P", "", "path to the system prompt, the first message in the chat")
+	ChatCmd.Flags().StringVarP(&(flags.ChatFlags.Outfile), "outfile", "O", "", "path to write the output to")
 }
 
 func ChatRun(args []string) (err error) {

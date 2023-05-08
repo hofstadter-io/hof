@@ -34,8 +34,8 @@ func OpenaiChat(messages []openai.ChatCompletionMessage, model string) (string, 
 	req.Model = model
 	req.N = 1
 	req.MaxTokens = 2500
-	req.Temperature = 0.0
-	req.TopP = 1.0
+	req.Temperature = 0.042
+	req.TopP = 0.69
 	req.Messages = messages
 
 

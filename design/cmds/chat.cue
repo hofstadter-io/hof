@@ -19,21 +19,22 @@ import (
 		Short:   "M"
 	},
 		{
-			Name:    "parameters"
+			Name:    "prompt"
 			Type:    "string"
 			Default: "\"\""
-			Help:    "path to a config file containing model parameters"
-			Long:    "parameters"
+			Help:    "path to the system prompt, the first message in the chat"
+			Long:    "prompt"
 			Short:   "P"
 		},
 		{
-			Name:    "generator"
-			Type:    "[]string"
-			Default: "nil"
-			Help:    "generator tags to run, default is all"
-			Long:    "generator"
-			Short:   "G"
-		}]
+			Name:    "outfile"
+			Type:    "string"
+			Default: "\"\""
+			Help:    "path to write the output to"
+			Long:    "outfile"
+			Short:   "O"
+		},
+	]
 }
 
 #ChatRootHelp: #"""
