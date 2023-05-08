@@ -16,7 +16,7 @@ var apiKey string
 func init() {
 	apiKey = os.Getenv("OPENAI_API_KEY")
 	if apiKey == "" {
-		fmt.Println("OPENAI_API_KEY environment var is missing\nVisit https://platform.openai.com/account/api-keys to get one")
+		// fmt.Println("OPENAI_API_KEY environment var is missing\nVisit https://platform.openai.com/account/api-keys to get one")
 	}
 }
 
