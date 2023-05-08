@@ -89,6 +89,15 @@ type Gen struct {
 */
 type Flow struct {
 	Root bool
-	Task string
 	Name string
+	Task string
+}
+
+/*
+  hof/chat configuration
+*/
+type Chat struct {
+	Root bool
+	Name string
+	Type string
 }

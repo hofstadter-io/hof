@@ -106,6 +106,11 @@ func FindHofs(value cue.Value) (roots []*Node[any], err error) {
 				stack.Hof.Flow.Task = ac
 				stack.Hof.Flow.Name = label
 
+			case "chat":
+				stack.Hof.Chat.Root = true
+				stack.Hof.Chat.Name = label
+				stack.Hof.Chat.Type = ac
+
 			default:
 				found = false
 			}

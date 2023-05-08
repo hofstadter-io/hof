@@ -35,6 +35,7 @@ import (
 		cmds.#ModCommand,
 
 		// beta commands
+		cmds.#ChatCommand,
 		cmds.#RunCommand,
 
 		// additional commands
