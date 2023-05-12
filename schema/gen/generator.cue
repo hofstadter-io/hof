@@ -22,6 +22,14 @@ import (
 	//   File.In will extend or replace any top-level fields here
 	In: {...}
 
+	// Should In be added to the input of every output file?
+	applyInToAllOut: bool | *true
+
+	// doing this in the schema crushes CUE performance
+	//if applyInToAllOut == true {
+	//  Out: [...{"In": In}]
+	//}
+
 	// TODO, Generator wide cue.Value for writing incomplete values
 	Val: {...}
 

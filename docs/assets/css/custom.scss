@@ -31,6 +31,34 @@ body, .main {
 	font-weight: 300;
 }
 
+@mixin background-color-alpha($color,$alpha) {
+  background-color: rgba(red($color), green($color), blue($color), $alpha);
+}
+
+h1 > code,
+h2 > code,
+h3 > code,
+h4 > code,
+h5 > code,
+h6 > code,
+p > code,
+strong > code,
+b > code,
+i > code,
+li > code {
+	color: white;
+	@include background-color-alpha($hof-gold, 0.7);
+	padding-top: 2px;
+	padding-left: 4px;
+	padding-right: 4px;
+	border-radius: 4px;
+}
+
+pre {
+	border: solid 2px $hof-gold;
+	padding: 4px;
+}
+
 /* Typography styling */
 .main > h1{
     padding-top: 2rem;
