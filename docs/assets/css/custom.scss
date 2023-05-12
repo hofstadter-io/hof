@@ -55,8 +55,17 @@ li > code {
 }
 
 pre {
-	border: solid 2px $hof-gold;
-	padding: 4px;
+	border: solid 1px $hof-blue;
+	padding: 2px;
+}
+
+// injected code
+.border {
+	.highlight > pre {
+		border: solid 1px $hof-blue;
+		padding: 8px;
+		margin-bottom: 0;
+	}
 }
 
 /* Typography styling */

@@ -66,6 +66,7 @@ Main commands:
   \(cmds.#FlowCommand.Help)
   \(cmds.#FmtCommand.Help)
   \(cmds.#ModCommand.Help)
+  \(cmds.#ChatCommand.Help)
 
 Additional commands:
   help                  help about any command

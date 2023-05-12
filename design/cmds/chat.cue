@@ -7,7 +7,7 @@ import (
 #ChatCommand: schema.#Command & {
 	Name:  "chat"
 	Usage: "chat [args]"
-	Short: "Co-design with AI (alpha)"
+	Short: "co-create with AI (alpha)"
 	Long:  #ChatRootHelp
 
 	Flags: [...schema.#Flag] & [ {

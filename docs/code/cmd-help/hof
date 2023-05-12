@@ -12,6 +12,7 @@ Main commands:
   flow                  run CUE pipelines with the hof/flow DAG engine
   fmt                   format any code and manage the formatters
   mod                   CUE dependency management based on Go mods
+  chat                  co-create with AI (alpha)
 
 Additional commands:
   help                  help about any command
