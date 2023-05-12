@@ -71,7 +71,7 @@ var ChatCmd = &cobra.Command{
 
 	Use: "chat [args]",
 
-	Short: "Co-design with AI (alpha)",
+	Short: "co-create with AI (alpha)",
 
 	Long: chatLong,
 
