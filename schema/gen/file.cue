@@ -8,6 +8,9 @@ package gen
 	//   but will not replace any values set locally
 	In?: {...} // for templates
 
+	// local override if the generator is set the opposite way
+	applyGenInToOut: bool | *true
+
 	// note, how In gets combined may be opaque, and non-CUEish
 	// we should think about applying it at the schema level
 
