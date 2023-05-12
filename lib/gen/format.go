@@ -74,7 +74,7 @@ func formatData(val cue.Value, format string) ([]byte, error) {
 func formatCue(val cue.Value) ([]byte, error) {
 
 	syn := val.Syntax(
-		cue.Final(),
+		// cue.Final(),
 		cue.Definitions(true),
 		cue.Hidden(true),
 		cue.Optional(true),

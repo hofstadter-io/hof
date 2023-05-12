@@ -5,7 +5,7 @@ weight: 50
 
 {{<lead>}}
 Hof can generate data files during code generation.
-Create any JSON, Yaml, XML, Toml and CUE files (note, add all here)
+Create any JSON, Yaml, XML, Toml and CUE file 
 from a single source of truth CUE configuration and schemas.
 Use existing data and configurations as part of the input
 if you already have a source of truth.
@@ -83,11 +83,8 @@ We can then shorten our commands significantly.
 
 
 ```text
-hof gen -G app -t env=stg
+hof gen app.cue -t env=stg
 ```
-
-[put an example here]
-
 
 When you configure a data file for output in your generator configuration,
 the fields you set are different.
@@ -96,8 +93,21 @@ the fields you set are different.
 - `DatafileFormat` tells hof to generate data and what format
 - `Filepath` for where to write the file
 
-```text
-app: gen.Generator & {
+{{<codeInner title="A configuration generator (gen.cue)">}}
+package gen
+
+import (
+  // public module with hof's schemas
+  "github.com/hofstadter-io/hof/schema/gen"
+
+  // internal, private module
+  "github.com/my-org/devops/policies"
+)
+
+// A generator for application configuration
+// Developers will use this for consistent configuration
+AppConfig: gen.#Generator & {
+
   // input values, user provides these
   config: {...}  @embed(config.yaml)     // embed a file local to the user
   devops: {...}  & policies.#Schema      // apply an imported schema
@@ -134,7 +144,30 @@ app: gen.Generator & {
     // separate out more complex transforms
     Val: helm
   }]
-}
-```
 
-[Links to real world examples]
+  // some generator configuration to turn off certain features and warnings
+  diff3: false
+  Statics: []
+  Partials: []
+  Templates: []
+}
+{{</codeInner>}}
+
+{{<codeInner title="using in a project (app.cue)">}}
+package app
+
+import "github.com/my-org/devops/gen/config"
+
+app: config.AppConfig & {
+  @gen()
+
+  config: {
+    // can be inline or from a data file
+    ...
+  }
+}
+{{</codeInner>}}
+
+Users then run `hof gen app.cue [-t env=stg]`
+
+[Links to infra generator module]
