@@ -42,5 +42,6 @@ func ClosestVector(a []float64, bs [][]float64) (max float64, pos int, err error
 			pos = i
 		}
 	}
+
 	return max, pos, nil
 }

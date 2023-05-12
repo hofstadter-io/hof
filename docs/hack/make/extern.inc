@@ -14,4 +14,5 @@ cmdhelp:
 	@hof gen     -h > code/cmd-help/gen
 	@hof fmt     -h > code/cmd-help/fmt
 	@hof create  -h > code/cmd-help/create
+	@hof chat    -h > code/cmd-help/chat
 

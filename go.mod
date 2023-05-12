@@ -33,6 +33,7 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/parnurzeal/gorequest v0.2.16
 	github.com/pkg/errors v0.9.1
+	github.com/pkoukk/tiktoken-go v0.1.1
 	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06
 	github.com/sashabaranov/go-openai v1.9.1
 	github.com/sergi/go-diff v1.3.1
@@ -59,6 +60,7 @@ require (
 	github.com/cockroachdb/apd/v2 v2.0.2 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.14.3 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/dlclark/regexp2 v1.8.1 // indirect
 	github.com/docker/cli v23.0.3+incompatible // indirect
 	github.com/docker/distribution v2.8.1+incompatible // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
