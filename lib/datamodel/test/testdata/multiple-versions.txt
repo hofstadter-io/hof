@@ -98,8 +98,9 @@ MyModels  datamodel  -        dirty   MyModels
 package diff
 
 MyModels: Models: User: Fields: "+": persona: {
-	Name: "persona"
-	Type: "string"
+	Name:   "persona"
+	Plural: "personas"
+	Type:   "string"
 	Vals: ["guest", "user", "admin", "owner"]
 	Nullable: false
 	Default:  "guest"
@@ -108,8 +109,9 @@ MyModels: Models: User: Fields: "+": persona: {
 package diff
 
 User: Fields: "+": persona: {
-	Name: "persona"
-	Type: "string"
+	Name:   "persona"
+	Plural: "personas"
+	Type:   "string"
 	Vals: ["guest", "user", "admin", "owner"]
 	Nullable: false
 	Default:  "guest"
