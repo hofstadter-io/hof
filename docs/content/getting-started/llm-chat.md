@@ -53,3 +53,11 @@ data models and extra configuration needed for generators. This has many benefit
 - The code generation is backed by human written code, so no hallucinations.
 - The same benefits for generating code at scale with Hof.
 
+Other places we see LLMs helping Hof
+
+- importing existing code to CUE & Hof
+- automatically transforming existing code to hof generators
+- filling in the details and gaps in generated code
+- in our premium user interfaces for low-code
+  (these are more the multi-modal models, which come after LLMs, think Google Gemini)
+
