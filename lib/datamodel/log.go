@@ -52,7 +52,10 @@ func (V *Value) printLog(out io.Writer, ts, indent, spaces string, max int, dfla
 	hasNoHist := len(V.history) == 0
 	// fmt.Println("hasHist:", V.Hof.Path, hasHist)
 	if hasNoHist {
-		fmt.Fprintf(out, "%s%s\n", indent, name)
+		hasMoreHist := V.hasHistBelow()
+		if hasMoreHist {
+			fmt.Fprintf(out, "%s%s\n", indent, name)
+		}
 		return nil
 	}
 
@@ -60,10 +63,10 @@ func (V *Value) printLog(out io.Writer, ts, indent, spaces string, max int, dfla
 		pos := V.getSnapshotPos(ts)
 		newVal := false
 		if pos == len(V.history)-1 {
-			extra = "- new value"
+			extra = "+ new value"
 			newVal = true
 		} else {
-			extra = "- has changes"
+			extra = "~ has changes"
 		}
 
 		fstr := fmt.Sprintf("%%s%%-%ds %%s\n", max - len(indent))
@@ -148,10 +151,10 @@ func (V *Value) printLogByValue(out io.Writer, indent, spaces string, max int, d
 	name := V.Hof.Label
 	extra := ""
 	if V.hasDiff() {
-		extra = "- has changes"
+		extra = "~ has changes"
 	}
 	if V.Hof.Datamodel.History && len(V.history) == 0 {
-		extra = "- new value"
+		extra = "+ new value"
 	}
 
 	fstr := fmt.Sprintf("%%s%%-%ds %%s\n", max - len(indent))

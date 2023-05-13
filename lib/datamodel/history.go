@@ -152,3 +152,18 @@ func (V *Value) loadHistory() error {
 	return nil
 }
 
+// walks to see if there are any nodes with history as children
+func (V *Value) hasHistBelow() bool {
+	if V.Hof.Datamodel.History {
+		return true
+	}
+
+	for _, c := range V.Children {
+		b := c.T.hasHistBelow()
+		if b {
+			return b
+		}
+	}
+
+	return false
+}
