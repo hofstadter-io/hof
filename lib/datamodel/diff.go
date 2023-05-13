@@ -111,13 +111,20 @@ func (V *Value) calcDiff() error {
 		)
 		cv = cv.Context().BuildExpr(node.(*ast.StructLit))
 
+		// calculate CurrDiff
 		diff, err := DiffValue(lv, cv)
 		if err != nil {
 			return err
 		}
 		cs.Lense.CurrDiff = diff
 
-		// TODO, calc PrevDiff
+		// calculate PrevDiff
+		diff, err = DiffValue(cv, lv)
+		if err != nil {
+			return err
+		}
+		cs.Lense.PrevDiff = diff
+
 		// TODO, calc other diff shapes or representations?
 
 		// update current before next iteration
