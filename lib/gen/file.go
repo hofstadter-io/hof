@@ -36,6 +36,21 @@ type File struct {
 	// Template delimiters
 	TemplateDelims *templates.Delims
 
+	// CUE settings
+	Package        string
+	Raw            bool
+	Final          bool
+	Concrete       bool
+	Definitions    bool
+	Optional       bool 
+	Hidden         bool 
+	Attributes     bool
+	Docs           bool 
+	InlineImports  bool 
+	ErrorsAsValues bool
+
+
+
 	//
 	// Hof internal usage
 	//
@@ -276,7 +291,7 @@ func (F *File) diff2() (write bool, err error) {
 }
 
 func (F *File) RenderData() (err error) {
-	F.RenderContent, err = formatData(F.Value, F.DatafileFormat)
+	F.RenderContent, err = F.formatData(F.Value, F.DatafileFormat)
 	if err != nil {
 		F.Errors = append(F.Errors, err)
 		return err
