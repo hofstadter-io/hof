@@ -200,7 +200,7 @@ func snapshotToData(snap *datamodel.Snapshot) (any, error) {
 	if snap.Lense.CurrDiff.Exists() {
 		// TODO, add more diff types & formats here
 		s["CurrDiff"] = snap.Lense.CurrDiff
-		// s["DownDiff"] = snap.Lense.DownDiff
+		s["PrevDiff"] = snap.Lense.PrevDiff
 	}
 
 	return s, nil
