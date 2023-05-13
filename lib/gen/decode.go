@@ -2,6 +2,8 @@ package gen
 
 import (
 	"fmt"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"cuelang.org/go/cue"
@@ -368,6 +370,18 @@ func (G *Generator) decodeFile(file *File, val cue.Value) error {
 		tpE := file.TemplatePath == ""
 		dfE := file.DatafileFormat == ""
 
+		// infer datafile format, only if template values are not set
+		if tcE && tpE && file.DatafileFormat == "" {
+			ext := filepath.Ext(file.Filepath)
+			ext = strings.TrimPrefix(ext, ".")
+			switch ext {
+			case "yaml", "yml", "json", "xml", "toml", "cue":
+				file.DatafileFormat = ext
+				dfE = false
+			}
+		}
+
+
 		// check template fields (See TODO in schema/gen/file.cue)
 		// error if none are set
 		if tcE && tpE && dfE {
@@ -406,6 +420,10 @@ func (G *Generator) decodeFile(file *File, val cue.Value) error {
 			}
 
 		}
+
+		// Package ?
+
+		// Delims?
 
 		// Formatting
 		var err error

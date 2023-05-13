@@ -6,6 +6,8 @@ import (
 	"github.com/hofstadter-io/hof/schema/create"
 )
 
+Generator: #Generator
+
 // Definition for a generator
 #Generator: {
 	schema.DHof
@@ -31,7 +33,7 @@ import (
 	//}
 
 	// TODO, Generator wide cue.Value for writing incomplete values
-	Val: {...}
+	Val: _
 
 	// File globs to watch and trigger regen when changed
 	WatchFull: [...string] // reloads & regens everything
@@ -97,7 +99,8 @@ import (
 	// until embed is supported, at which point this shouldn't be needed at all
 	// only needed when you have example usage in the same module the generator is in
 	// set to the empty string ("") as a generator writer who is making an example in the same module
-	PackageName: string | *""
+	ModuleName:  string | *""
+	PackageName: ModuleName
 	// TODO, hof, can we introspect the generator / example packages and figure this out?
 
 	// print debug info during load & gen

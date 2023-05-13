@@ -15,7 +15,10 @@ package gen
 	// we should think about applying it at the schema level
 
 	// input value for data files, always remains a CUE value
-	Val?: {...} // for datafiles
+	Val?: _ // for datafiles
+
+	// for data files which need a package or namespace at the beginning
+	Package?: string
 
 	// The full path under the output location
 	// empty implies don't generate, even though it may end up in the out list

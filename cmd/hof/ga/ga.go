@@ -161,19 +161,19 @@ func SendCommandPath(cmd string) {
 		},
 	}
 
-	pv := map[string]any{
-		"name": "page_view",
-		"params": map[string]any{
-			"page_location": c,
-			"page_title": cmd,
-			"engagement_time_msec" : 250,
-		},
-	}
+	//pv := map[string]any{
+	//  "name": "page_view",
+	//  "params": map[string]any{
+	//    "page_location": c,
+	//    "page_title": cmd,
+	//    "engagement_time_msec" : 250,
+	//  },
+	//}
 
 	obj := map[string]any{
 		"client_id": cid,
 		"user_id": cid,
-		"events": []map[string]any { evt, pv },
+		"events": []map[string]any { evt },
 	}
 
 	postBody, err := json.MarshalIndent(obj, "", "  ")

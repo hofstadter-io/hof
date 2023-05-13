@@ -9,7 +9,7 @@ Generators are made of some CUE files and directories of templates.
 You can run `hof gen init <name>` to bootstrap a new generator module.
 {{</lead>}}
 
-### Bootstrapping Your Geneartor
+### Bootstrapping Your Generator
 
 Throughout the first example, you will be
 building a code generation module.
@@ -17,16 +17,17 @@ The following commands will create a new
 directory, git repository, and hof generator
 for you to start with.
 
-{{<codeInner title="Setup Commands">}}
-// create a directory
+{{<codeInner title="Create working directory">}}
 mkdir example && cd example
-git init   // (optional)
+git init      // (optional)
+{{</codeInner>}}
 
-// initialize a generator module
+{{<codeInner title="Initialize a generator module">}}
 // the name is often the same as a github repo
 hof gen init hof.io/docs/example
+{{</codeInner>}}
 
-// temporary fix until v0.6.8
+{{<codeInner title="temporary fix for v0.6.7">}}
 mv generators gen
 {{</codeInner>}}
 

@@ -20,16 +20,16 @@ push.prod:
 	@docker push us.gcr.io/$(PROJECT)/docs.hofstadter.io:$(TAG)
 
 deploy.prod:
-	cue export ci/cuelm.cue -e Install \
+	@cue export ci/cuelm.cue -e Install \
 		-t ga_mp_apikey=$(GA_MP_APIKEY) \
 		-t version=$(TAG) \
 		| kubectl apply -f -
 deploy.prod.view:
-	cue export ci/cuelm.cue -e Install \
+	@cue export ci/cuelm.cue -e Install \
 		-t ga_mp_apikey=$(GA_MP_APIKEY) \
 		-t version=$(TAG)
 deploy.prod.vet:
-	cue export ci/cuelm.cue -e Install \
+	@cue export ci/cuelm.cue -e Install \
 		-t ga_mp_apikey=$(GA_MP_APIKEY) \
 		-t version=$(TAG) \
 		| kubectl apply -f - --dry-run=server
@@ -47,20 +47,20 @@ push.next:
 	@docker push us.gcr.io/$(PROJECT)/next.hofstadter.io:$(TAG)
 
 deploy.next:
-	cue export ci/cuelm.cue -e Install \
+	@cue export ci/cuelm.cue -e Install \
 		-t ga_mp_apikey=$(GA_MP_APIKEY) \
 		-t version=$(TAG) \
 		-t name=hof-next-docs \
 		-t domain="next.hofstadter.io" \
 		| kubectl apply -f -
 deploy.next.view:
-	cue export ci/cuelm.cue -e Install \
+	@cue export ci/cuelm.cue -e Install \
 		-t ga_mp_apikey=$(GA_MP_APIKEY) \
 		-t version=$(TAG) \
 		-t name=hof-next-docs\
 		-t domain="next.hofstadter.io"
 deploy.next.vet:
-	cue export ci/cuelm.cue -e Install \
+	@cue export ci/cuelm.cue -e Install \
 		-t ga_mp_apikey=$(GA_MP_APIKEY) \
 		-t version=$(TAG) \
 		-t name=hof-next-docs\
