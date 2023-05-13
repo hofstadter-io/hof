@@ -1,0 +1,82 @@
+exec hof mod vendor
+exec hof gen gen.cue local.yaml
+
+cmp all.yaml expected-all.yaml
+# cmp vals.yaml expected-vals.yaml
+# cmp config.cue expected-config.cue
+
+-- cue.mod/module.cue --
+module: "hof.io/test"
+cue: "0.5.0"
+
+require: {
+	"github.com/hofstadter-io/hof": "v0.6.8-rc.1"
+}
+
+-- gen.cue --
+package tmp
+
+import "github.com/hofstadter-io/hof/schema/gen"
+
+config: {}
+
+app: gen.#Generator & {
+	@gen()
+
+	env: string | *"dev" @tag(env)
+
+	local: config
+	data: {
+		foo: "bar"
+		vals: [{
+			name: "a"
+			data: 1
+		}, {
+			name: "b"
+			data: 2
+		}]
+	}
+
+	Out: [{
+		Filepath: "all.yaml"
+		Val:      data
+	// }, {
+	// 	Filepath: "vals.yaml"
+	// 	Val:      data.vals
+	}, {
+		Filepath: "config.cue"
+		Val: {
+			app: local.config[env]
+			obj: {
+				a: int | *1
+				v: bool | *false
+			}
+		}
+	}]
+
+	Diff3: false
+	Statics: []
+	Partials: []
+	Templates: []
+}
+-- local.yaml --
+config:
+  dev:
+    host: "app.hof.dev"
+  stg:
+    host: "next.hof.dev"
+  prd:
+    host: "app.hof.io"
+
+-- expected-all.yaml --
+foo: bar
+vals:
+  - name: a
+    data: 1
+  - name: b
+    data: 2
+-- expected-vals.yaml --
+- name: a
+  data: 1
+- name: b
+  data: 2

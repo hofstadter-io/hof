@@ -97,6 +97,8 @@ func (R *Runtime) load() (err error) {
 
 		// handle data files
 		for _, f := range bi.OrphanedFiles {
+			// this function also checks to see if we should include the file
+			//   based on a few settings, but we have to do some path handling first...
 			F, err := R.loadOrphanedFile(f, bi.PkgName, bi.Root, bi.Dir)
 			if err != nil {
 				errs = append(errs, err)
@@ -104,7 +106,13 @@ func (R *Runtime) load() (err error) {
 			}
 			// we don't know what this file is
 			if F == nil {
+				if R.Flags.Verbosity > 1 {
+					fmt.Println("[load] ignoring data:", f.Filename)
+				}
 				continue
+			}
+			if R.Flags.Verbosity > 1 {
+				fmt.Println("[load] including data:", f.Filename)
 			}
 
 			// embed the data file, already placed if needed
@@ -151,7 +159,27 @@ func (R *Runtime) loadOrphanedFile(f *build.File, pkgName string, root, dir stri
 	}
 	fname = strings.TrimPrefix(fname, dir)
 
+
+	// only load data files which are explicitly listed
+	//   or if the --include-data flag is set
+	// this is checking to see if we should return early
+	if R.Flags.IgnoreData { // user is not including all data
+		// so check if explicitly supplied as an arg
+		fmt.Println("checking:", fname, R.Entrypoints)
+		match := false
+		for _, e := range R.Entrypoints {
+			if fname == e {
+				match = true
+				break
+			}
+		}
+		if !match {
+			return nil, nil
+		}
+	}
+
 	mapping := R.dataMappings[fname]
+
 	// if mapping != "" {
 	// 	fmt.Printf("found entrypoint mapping: %s -> %s\n", f.Filename, mapping)
 	// }
