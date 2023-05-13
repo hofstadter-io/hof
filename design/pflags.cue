@@ -5,7 +5,7 @@ import (
 )
 
 #CliPflags: [...schema.#Flag] & [
-	{
+		{
 		Name:    "package"
 		Long:    "package"
 		Short:   "p"
@@ -28,6 +28,14 @@ import (
 		Type:    "int"
 		Default: ""
 		Help:    "set the verbosity of output"
+	},
+	{
+		Name:    "IgnoreData"
+		Long:    "ignore-data"
+		Short:   ""
+		Type:    "bool"
+		Default: ""
+		Help:    "ignore all data files unless explicitly supplied"
 	},
 	{
 		Name:    "InjectEnv"

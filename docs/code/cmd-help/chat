@@ -49,6 +49,7 @@ Flags:
   -P, --prompt string    path to the system prompt, the first message in the chat
 
 Global Flags:
+      --ignore-data      ignore all data files unless explicitly supplied
       --inject-env       inject all ENV VARs as default tag vars
   -p, --package string   the Cue package context to use during execution
   -q, --quiet            turn off output and assume defaults at prompts
