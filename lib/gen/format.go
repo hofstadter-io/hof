@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"cuelang.org/go/cue"
-	// "cuelang.org/go/cue/ast"
+	"cuelang.org/go/cue/ast"
 	"cuelang.org/go/cue/format"
 	"cuelang.org/go/encoding/yaml"
 	"github.com/clbanning/mxj"
@@ -75,15 +75,6 @@ func (F *File) formatData(val cue.Value, format string) ([]byte, error) {
 func (F *File) formatCue(val cue.Value) ([]byte, error) {
 
 	// v := val
-	if F.Package != "" {
-		fmt.Printf("File has package: %# v\n", F.Hidden)
-		/*
-		pkgDecl := &ast.Package {
-			Name: ast.NewIdent(F.Package),
-		}
-		*/
-
-	}
 
 	opts := []cue.Option{
 		cue.Concrete(F.Concrete),
@@ -103,6 +94,34 @@ func (F *File) formatCue(val cue.Value) ([]byte, error) {
 	}
 
 	syn := val.Syntax(opts...)
+
+	fmt.Printf("%# v\n", syn)
+
+	//
+	if F.Package != "" {
+		pkgDecl := &ast.Package {
+			Name: ast.NewIdent(F.Package),
+		}
+		decls := []ast.Decl{pkgDecl}
+		// this could cause an issue?
+		switch t := syn.(type) {
+		case *ast.File:
+			t.Decls = append(decls, t.Decls...)
+
+		case *ast.StructLit:
+			decls = append(decls, t.Elts...)
+			f := &ast.File{
+				Decls: decls,
+			}
+			syn = f
+		case *ast.ListLit:
+			decls = append(decls, t)
+			f := &ast.File{
+				Decls: decls,
+			}
+			syn = f
+		}
+	}
 
 	bs, err := format.Node(syn)
 	if err != nil {
