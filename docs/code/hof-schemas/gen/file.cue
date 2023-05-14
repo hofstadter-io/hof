@@ -17,9 +17,6 @@ package gen
 	// input value for data files, always remains a CUE value
 	Val?: _ // for datafiles
 
-	// for data files which need a package or namespace at the beginning
-	Package?: string
-
 	// The full path under the output location
 	// empty implies don't generate, even though it may end up in the out list
 	// Support infering DatafileFormat by matching extensions
@@ -38,6 +35,20 @@ package gen
 	// TODO, we would like to make the above a disjunction (multi-field)
 	// but it results in a significant slowdown 50-100% for hof self-gen
 	// Most likely need to wait for structural sharing to land in cue
+
+	// CUE settings
+	// for data files which need a package or namespace at the beginning
+	Package:        string | *""
+	Raw:            bool | *false
+	Final:          bool | *false
+	Concrete:       bool | *true
+	Definitions:    bool | *true
+	Optional:       bool | *true
+	Hidden:         bool | *true
+	Attributes:     bool | *true
+	Docs:           bool | *true
+	InlineImports:  bool | *false
+	ErrorsAsValues: bool | *false
 
 	// Alternative Template Delimiters
 	Delims:          #TemplateDelims
