@@ -87,14 +87,20 @@ func (cm *CueMod) ReadModFile() (err error) {
 
 	f, err := cm.FS.Open(fn)
 	if err != nil {
-		return err
+		return fmt.Errorf("while opening cue.mod/module.cue %w", err)
 	}
 
 	data, err = io.ReadAll(f)
 	if err != nil {
-		return err
+		return fmt.Errorf("while reading cue.mod/module.cue %w", err)
 	}
-	return cm.ParseModFile(data)
+
+	err = cm.ParseModFile(data)
+	if err != nil {
+		return fmt.Errorf("while parsing cue.mod/module.cue %w", err)
+	}
+
+	return nil
 }
 
 func (cm *CueMod) ParseModFile(data []byte) (err error) {

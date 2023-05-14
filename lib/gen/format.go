@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"cuelang.org/go/cue"
+	"cuelang.org/go/cue/ast"
 	"cuelang.org/go/cue/format"
 	"cuelang.org/go/encoding/yaml"
 	"github.com/clbanning/mxj"
@@ -49,10 +50,10 @@ func (F *File) FormatRendered() (err error) {
 	return nil
 }
 
-func formatData(val cue.Value, format string) ([]byte, error) {
+func (F *File) formatData(val cue.Value, format string) ([]byte, error) {
 	switch format {
 	case "cue":
-		return formatCue(val)
+		return F.formatCue(val)
 
 	case "json":
 		return formatJson(val)
@@ -71,16 +72,56 @@ func formatData(val cue.Value, format string) ([]byte, error) {
 	}
 }
 
-func formatCue(val cue.Value) ([]byte, error) {
+func (F *File) formatCue(val cue.Value) ([]byte, error) {
 
-	syn := val.Syntax(
-		// cue.Final(),
-		cue.Definitions(true),
-		cue.Hidden(true),
-		cue.Optional(true),
-		cue.Attributes(true),
-		cue.Docs(true),
-	)
+	// v := val
+
+	opts := []cue.Option{
+		cue.Concrete(F.Concrete),
+		cue.Definitions(F.Definitions),
+		cue.Optional(F.Optional),
+		cue.Hidden(F.Hidden),
+		cue.Attributes(F.Attributes),
+		cue.Docs(F.Docs),
+		// cue.InlineImports(F.InlineImports),
+		cue.ErrorsAsValues(F.ErrorsAsValues),
+	}
+	if F.Final {
+		opts = append(opts, cue.Final())
+	}
+	if F.Raw {
+		opts = append(opts, cue.Raw())
+	}
+
+	syn := val.Syntax(opts...)
+
+	fmt.Printf("%# v\n", syn)
+
+	//
+	if F.Package != "" {
+		pkgDecl := &ast.Package {
+			Name: ast.NewIdent(F.Package),
+		}
+		decls := []ast.Decl{pkgDecl}
+		// this could cause an issue?
+		switch t := syn.(type) {
+		case *ast.File:
+			t.Decls = append(decls, t.Decls...)
+
+		case *ast.StructLit:
+			decls = append(decls, t.Elts...)
+			f := &ast.File{
+				Decls: decls,
+			}
+			syn = f
+		case *ast.ListLit:
+			decls = append(decls, t)
+			f := &ast.File{
+				Decls: decls,
+			}
+			syn = f
+		}
+	}
 
 	bs, err := format.Node(syn)
 	if err != nil {
