@@ -1,0 +1,173 @@
+# intended for local usage & development
+
+version: '3'
+services:
+
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3.7
+    restart: unless-stopped
+
+
+  # Kafka
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.1
+    restart: unless-stopped
+    logging:
+      driver: none
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+  kafka:
+    image: confluentinc/cp-kafka:7.3.1
+    restart: unless-stopped
+    depends_on:
+      - zookeeper
+    logging:
+      driver: none
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+
+
+  # Nats
+  nats:
+    image: nats:2
+    ports:
+      - "0.0.0.0:4222:4222"
+    restart: unless-stopped
+    command: ["-js"]
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+
+
+  # Google PubSub
+  gcp-pubsub:
+    image: google/cloud-sdk:414.0.0
+    entrypoint: gcloud --quiet beta emulators pubsub start --host-port=0.0.0.0:8085 --verbosity=debug --log-http
+    restart: unless-stopped
+
+
+  # Redis (watermill & cache)
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+
+  ## Databases
+
+  # TODO pin version
+  postgres:
+    container_name: postgres
+    image: postgres:12
+    environment:
+      - POSTGRES_USER=hof
+      - POSTGRES_PASSWORD=hof
+      - POSTGRES_DB=hof #optional (specify default database instead of $POSTGRES_DB)
+    ports:
+      - "5432:5432"
+    restart: always
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4:latest
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@hof.io
+      - PGADMIN_DEFAULT_PASSWORD=hofadmin
+    ports:
+      - "5050:80"
+    restart: always
+
+
+  mariadb:
+    image: mariadb:10.9
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    restart: always
+    environment:
+      - MYSQL_DATABASE=hof
+      - MYSQL_USER=hof
+      - MYSQL_ROOT_PASSWORD=hof
+      - MYSQL_PASSWORD=hof
+    expose:
+      - "3306:3306"
+
+
+  mssql:
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: hof123##
+    # mssql server image isn't available for arm64 architecture, so we use azure-sql instead
+    image: mcr.microsoft.com/azure-sql-edge:1.0.4
+    # If you really want to use MS SQL Server, uncomment the following line
+    #image: mcr.microsoft.com/mssql/server
+    restart: always
+    expose:
+      - "1431:1431"
+
+  # TODO pin version
+  mongo:
+    image: mongo
+    expose:
+      - "27017:27017"
+
+  opensearch:
+    image: opensearchproject/opensearch:2
+    ports:
+      - 9200:9200 # REST API
+      - 9600:9600 # Performance Analyzer
+    environment:
+      - cluster.name=opensearch-cluster # Name the cluster
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true # Disable JVM heap memory swapping
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m" # Set min and max JVM heap sizes to at least 50% of system RAM
+      - "DISABLE_INSTALL_DEMO_CONFIG=true" # Prevents execution of bundled demo script which installs demo certificates and security configurations to OpenSearch
+      - "DISABLE_SECURITY_PLUGIN=true" # Disables security plugin
+    ulimits:
+      memlock:
+        soft: -1 # Set memlock to unlimited (no soft or hard limit)
+        hard: -1
+      nofile:
+        soft: 65536 # Maximum number of open files for the opensearch user - set to at least 65536
+        hard: 65536
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data # Creates volume called opensearch-data and mounts it to the container
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:2
+    ports:
+      - 5601:5601 # Map host port 5601 to container port 5601
+    environment:
+      - 'OPENSEARCH_HOSTS=["http://opensearch:9200"]' # Define the OpenSearch nodes that OpenSearch Dashboards will query
+      - "DISABLE_SECURITY_DASHBOARDS_PLUGIN=true" # disables security dashboards plugin in OpenSearch Dashboards
+
+
+  memcached:
+    image: 'bitnami/memcached:latest'
+    ports:
+      - '11211:11211'
+
+  couchdb:
+    image: 'bitnami/couchdb:latest'
+    ports:
+      - "5984:5984"
+    environment:
+      - COUCHDB_USER=hof
+      - COUCHDB_PASSWORD=hof
+
+  etcd:
+    image: 'bitnami/etcd:latest'
+    environment:
+      - ALLOW_NONE_AUTHENTICATION=yes
+      - ETCD_ADVERTISE_CLIENT_URLS=http://etcd:2379
+    ports:
+      - "2379:2379"
+      - "2380:2380"
+
+
+volumes:
+  opensearch-data:

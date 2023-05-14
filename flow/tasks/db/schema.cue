@@ -13,7 +13,8 @@ Call: {
 
 	// db connection
 	conn: {
-		sqlite: string // db name
+		sqlite?:   string // db name
+		postgres?: string
 	}
 
 	// args to Call
@@ -29,6 +30,8 @@ Call: {
 		exec:  string
 		// args to statement, merged with top-level
 		args: string
+
+		results: _
 	}]
 
 	results: _
