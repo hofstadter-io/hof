@@ -7,6 +7,9 @@ import (
 	"cuelang.org/go/cue"
 
 	hofcontext "github.com/hofstadter-io/hof/flow/context"
+
+	// consider...
+	// https://github.com/vingarcia/ksql
 )
 
 type Call struct {
