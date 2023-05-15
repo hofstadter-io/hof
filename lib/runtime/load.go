@@ -165,7 +165,6 @@ func (R *Runtime) loadOrphanedFile(f *build.File, pkgName string, root, dir stri
 	// this is checking to see if we should return early
 	if R.Flags.IgnoreData { // user is not including all data
 		// so check if explicitly supplied as an arg
-		fmt.Println("checking:", fname, R.Entrypoints)
 		match := false
 		for _, e := range R.Entrypoints {
 			if fname == e {

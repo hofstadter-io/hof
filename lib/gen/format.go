@@ -95,7 +95,7 @@ func (F *File) formatCue(val cue.Value) ([]byte, error) {
 
 	syn := val.Syntax(opts...)
 
-	fmt.Printf("%# v\n", syn)
+	// fmt.Printf("%# v\n", syn)
 
 	//
 	if F.Package != "" {

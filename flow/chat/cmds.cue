@@ -58,14 +58,25 @@ chat: {
 	MakeCall
 	method: "POST"
 	path:   "/v1/chat/completions"
+	model:  "gpt-3.5-turbo"
 	data: {
-		model:    "gpt-3.5-turbo"
 		messages: prompts.BlueSky
 	}
 }
 
+planets: {
+	@flow(gpt/planets)
+	MakeCall
+	method: "POST"
+	path:   "/v1/chat/completions"
+	data: {
+		model:    "gpt-3.5-turbo"
+		messages: prompts.PlanetsGPT.messages
+	}
+}
+
 MakeCall: {
-	method: string | *"GET"
+	method: string | *"POST"
 	path:   string
 	data: {}
 	etl: {
