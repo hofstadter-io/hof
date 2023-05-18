@@ -18,10 +18,8 @@ type Template struct {
 
 	// golang
 	T *template.Template
-}
 
-func NewTemplate() *Template {
-	return &Template{}
+	Buf *bytes.Buffer
 }
 
 func (T *Template) Render(data interface{}) ([]byte, error) {
@@ -30,21 +28,22 @@ func (T *Template) Render(data interface{}) ([]byte, error) {
 		panic("template not set!")
 	}
 
-	var b bytes.Buffer
 	var err error
 
-	err = T.T.Execute(&b, data)
+	T.Buf.Reset()
+
+	err = T.T.Execute(T.Buf, data)
 	if err != nil {
 		return nil, err
 	}
-	out := string(b.Bytes())
+	out := T.Buf.Bytes()
 
-	return []byte(out), nil
+	return out, nil
 }
 
 // Creates a hof Template struct, initializing the correct template system. The system will be inferred if left empty
 func CreateFromString(name, content string, delims *Delims) (t *Template, err error) {
-	t = NewTemplate()
+	t = new(Template)
 	t.Name = name
 	t.Source = content
 
@@ -54,6 +53,8 @@ func CreateFromString(name, content string, delims *Delims) (t *Template, err er
 	if delims != nil {
 		t.T = t.T.Delims(delims.LHS, delims.RHS)
 	}
+
+	t.Buf = new(bytes.Buffer)
 
 	AddGolangHelpers(t.T)
 
