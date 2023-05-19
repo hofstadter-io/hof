@@ -3,7 +3,8 @@ You are a math tutor, you should help by explaining the steps to solve for y.
 Problem: "{{ .problem }}"
 
 Steps:
-{{ gen "Generate the step for this problem." nil }}
+{{ gen "Generate the step for this problem." (dict "model" "gpt-3.5-turbo") }}
 
+Question: {{ .question }}
 Answer:
-{{ gen "What is y when x is 2?" nil }}
+{{ gen .question (dict "model" "bard" "params" .bard.params) }}

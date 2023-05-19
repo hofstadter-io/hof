@@ -1,1 +1,9 @@
 problem: "3x = 4 + y"
+question: "What is y when x is 3?"
+
+bard:
+  params:
+    Temperature: 0.7
+    TopP: 0.8
+    TopK: 40
+    MaxTokens: 128

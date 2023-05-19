@@ -34,25 +34,6 @@ func GoogleChat(model string, messages []Message, examples []Example, params map
 			return "", fmt.Errorf("while acquiring gcloud auth: %w", err)
 		}
 	}
-	/*
-	{
-		"instances": [
-			{
-				"context": "",
-				"examples": [],
-				"messages": []
-			}
-		],
-		"parameters": {
-			"temperature": 0.2,
-			"maxOutputTokens": 256,
-			"topP": 0.8,
-			"topK": 40
-		}
-	}
-	*/
-
-	// fmt.Println("messages:", messages)
 
 	inst := make(map[string]any)
 	// process messages
@@ -82,10 +63,12 @@ func GoogleChat(model string, messages []Message, examples []Example, params map
 
 	// process parameters
 	prms := make(map[string]any)
-	prms["temperature"] = params["Temperature"]
-	prms["maxOutputTokens"] = params["MaxTokens"]
-	prms["topP"] = params["TopP"]
-	prms["topK"] = params["TopK"]
+	if params != nil {
+		prms["temperature"] = params["Temperature"]
+		prms["maxOutputTokens"] = params["MaxTokens"]
+		prms["topP"] = params["TopP"]
+		prms["topK"] = params["TopK"]
+	}
 
 	data := make(map[string]any)
 	data["instances"] = []map[string]any{inst}
