@@ -1,7 +1,7 @@
 package chat
 
 import (
-	// "encoding/json"
+	"encoding/json"
 	"strings"
 	"text/template"
 
@@ -14,15 +14,15 @@ convo: prompts.Datamodel & {
 		content: """
 			Create a data model called Interludes with Users.
 			Users have a Profile with an avatar, about section, and their current status.
-			Users can have many posts. They can write them and publish them at a later date.
+			Users can have many tweets. They can add hashtags and like other tweets.
 			"""
 	}]
 }
 
-testGPT: {
+chatGPT: {
 	@flow(chat/gpt)
 
-	MakeCallLLM & {
+	MakeCallLLMChat & {
 		model: "gpt3"
 		input: convo
 		etl: {
@@ -32,15 +32,34 @@ testGPT: {
 	}
 }
 
-testBard: {
+chatBard: {
 	@flow(chat/bard)
 
-	MakeCallLLM & {
+	MakeCallLLMChat & {
 		model: "bard"
 		input: convo
 		etl: {
 			resp: _
 			out:  resp.predictions[0].candidates[0].content
+		}
+	}
+}
+
+textBard: {
+	@flow(text/bard)
+
+	MakeCallLLMText & {
+		model: "bard"
+		input: convo
+		etl: {
+			resp: _
+			text: true
+			if text == false {
+				out: json.Indent(json.Marshal(resp), "", "  ") + "\n"
+			}
+			if text == true {
+				out: resp.predictions[0].content
+			}
 		}
 	}
 }
@@ -63,7 +82,7 @@ testBard: {
 	topp: float
 }
 
-MakeCallLLM: {
+MakeCallLLMChat: {
 
 	// user inputs
 	model:  "gpt3" | "gpt4" | "bard"
@@ -76,14 +95,14 @@ MakeCallLLM: {
 
 	// reshape for upstream AI provider
 	if model != "bard" {
-		MakeCallGPT & {
+		MakeCallGPTChat & {
 			"model":  model
 			"input":  input
 			"params": params
 		}
 	}
 	if model == "bard" {
-		MakeCallBard & {
+		MakeCallBardChat & {
 			"model":  model
 			"input":  input
 			"params": params
@@ -118,7 +137,62 @@ MakeCallLLM: {
 	}
 }
 
-MakeCallGPT: X={
+MakeCallLLMText: {
+
+	// user inputs
+	model:  "gpt3" | "gpt4" | "bard"
+	params: #Params
+	input:  #Input
+	etl: {
+		resp: {}
+		out: _ | *resp
+	}
+
+	// reshape for upstream AI provider
+	if model != "bard" {
+		MakeCallGPTText & {
+			"model":  model
+			"input":  input
+			"params": params
+		}
+	}
+	if model == "bard" {
+		MakeCallBardText & {
+			"model":  model
+			"input":  input
+			"params": params
+		}
+	}
+
+	steps: {
+
+		call: {
+			@task(api.Call)
+			apikey: string
+			req: {
+				headers: {
+					"Content-Type": "application/json"
+					Authorization:  "Bearer \(apikey)"
+				}
+				method: "POST"
+			}
+			resp: {
+				body: _
+			}
+		}
+
+		filter: etl & {resp: call.resp.body}
+
+		out: {
+			@task(os.Stdout)
+
+			text: filter.out
+			// text: json.Indent(json.Marshal(filter.out), "", "  ") + "\n"
+		}
+	}
+}
+
+MakeCallGPTChat: X={
 	model: string
 	input: #Input
 
@@ -150,9 +224,53 @@ MakeCallGPT: X={
 		call: req: host: "https://api.openai.com"
 		call: req: path: "/v1/chat/completions"
 		call: req: data: {
-			model: [
-				if X.model == "gpt3" {"gpt-3.5-turbo"},
-				if X.model == "gpt4" {"gpt-4"},
+			"model": [
+					if X.model == "gpt3" {"gpt-3.5-turbo"},
+					if X.model == "gpt4" {"gpt-4"},
+			][0]
+			messages: _msgs
+			// params...
+		}
+
+	}
+
+}
+
+MakeCallGPTText: X={
+	model: string
+	input: #Input
+
+	_prompt: template.Execute(_promptTemplate, input)
+	_promptTemplate: #"""
+		{{ .context }}
+		
+		Examples:
+		{{ range .examples }}
+		```
+		user: {{ .input }}
+		assistant: {{ .output }}
+		```
+		{{ end }}
+		"""#
+
+	_msgs: [{
+		role:    "system"
+		content: _prompt
+	}] + input.messages
+
+	steps: {
+		env: {
+			@task(os.Getenv)
+			OPENAI_API_KEY: string
+		}
+
+		call: apikey: env.OPENAI_API_KEY
+		call: req: host: "https://api.openai.com"
+		call: req: path: "/v1/chat/completions"
+		call: req: data: {
+			"model": [
+					if X.model == "gpt3" {"gpt-3.5-turbo"},
+					if X.model == "gpt4" {"gpt-4"},
 			][0]
 			messages: _msgs
 		}
@@ -161,7 +279,7 @@ MakeCallGPT: X={
 
 }
 
-MakeCallBard: {
+MakeCallBardChat: {
 	model: string
 	input: #Input
 	steps: {
@@ -176,7 +294,7 @@ MakeCallBard: {
 
 		call: apikey: gcp.key
 		call: req: host: "https://us-central1-aiplatform.googleapis.com"
-		call: req: path: "/v1/projects/hof-io--develop/locations/us-central1/publishers/google/models/chat-bison:predict"
+		call: req: path: "/v1/projects/hof-io--develop/locations/us-central1/publishers/google/models/chat-bison@001:predict"
 
 		_data: {
 			instances: [{
@@ -190,8 +308,58 @@ MakeCallBard: {
 					content: msg.content
 				}]
 			}]
+			// params...
 		}
 
 		call: req: data: _data
+	}
+}
+
+MakeCallBardText: {
+	model:  string
+	_model: "text-bison@001"
+	input:  #Input
+	steps: {
+		gcp: {
+			@task(os.Exec)
+
+			cmd: ["gcloud", "auth", "print-access-token"]
+
+			stdout: string
+			key:    strings.TrimSpace(stdout)
+		}
+
+		call: apikey: gcp.key
+		call: req: host: "https://us-central1-aiplatform.googleapis.com"
+		call: req: path: "/v1/projects/hof-io--develop/locations/us-central1/publishers/google/models/\(_model):predict"
+
+		_text: template.Execute("""
+			{{ .context }}
+			
+			Examples:
+			{{ range .examples }}
+			```
+			user> {{ .input }}
+
+			assistant> {{ .output }}
+			```
+			{{ end }}
+
+			{{ range .messages }}{{ .content }}{{ end }}
+			""", input)
+
+		_data: {
+			instances: [{
+				content: _text
+			}]
+		}
+
+		call: req: data: _data
+		call: req: data: parameters: {
+			temperature:     0.2
+			maxOutputTokens: 1024
+			topP:            0.8
+			topK:            40
+		}
 	}
 }

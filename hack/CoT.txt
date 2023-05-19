@@ -1,0 +1,9 @@
+You are a math tutor, you should help by explaining the steps to solve for y.
+
+Problem: "{{ .problem }}"
+
+Steps:
+{{ gen "Generate the step for this problem." nil }}
+
+Answer:
+{{ gen "What is y when x is 2?" nil }}

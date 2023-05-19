@@ -11,14 +11,125 @@ import (
 
 	"github.com/clbanning/mxj"
 	"github.com/codemodus/kace"
-	"github.com/hofstadter-io/hof/lib/dotpath"
 	"github.com/kr/pretty"
 	"github.com/naoina/toml"
 	"gopkg.in/yaml.v3"
+
+	"github.com/hofstadter-io/hof/lib/chat"
+	"github.com/hofstadter-io/hof/lib/dotpath"
 )
 
-func AddGolangHelpers(t *template.Template) *template.Template {
-	return t.Funcs(funcMap)
+func (T *Template) AddGolangHelpers() {
+	// traditional helpers
+	T.T = T.T.Funcs(funcMap)
+
+	// chat helpers
+
+	chatMap := template.FuncMap{
+		"chat": T.Helper_chat(),
+		"gen": T.Helper_gen(),
+	}
+
+	T.T = T.T.Funcs(chatMap)
+}
+
+func hchat(msg string, args map[string]any) string {
+
+	isOpenai := true
+	model := "gpt-3.5-turbo"
+	if m, ok := args["model"]; ok {
+		model = m.(string)
+	}
+	if strings.HasPrefix(model, "chat-") || model == "bard" {
+		isOpenai = false
+	}
+
+	P, ok := args["params"]
+	if !ok || P == nil {
+		P = make(map[string]any)
+	}
+	params := P.(map[string]any)
+
+	msgs := make([]chat.Message,0)
+	exas := make([]chat.Example,0)
+
+	msgs = append(msgs, chat.Message{
+		Role: "user",
+		Content: msg,
+	})
+
+	if isOpenai {
+		resp, err := chat.OpenaiChat(model, msgs, params)
+		if err != nil {
+			return fmt.Sprint(err)
+		}
+		return resp
+	} else {
+		resp, err := chat.GoogleChat(model, msgs, exas, params)
+		if err != nil {
+			return fmt.Sprint(err)
+		}
+		return resp
+	}
+}
+
+// returns the full response object
+func (T *Template) Helper_chat() func(string, ...map[string]any) any {
+
+	return func(msg string, args ...map[string]any) any {
+		if len(args) == 0 {
+			args = append(args, make(map[string]any))
+		}
+		arrrrgs := args[0]
+		curr := T.Buf.String()
+		input := curr + msg
+		body := hchat(input, arrrrgs)
+
+		data := map[string]any{}
+		err := json.Unmarshal([]byte(body), &data)
+		if err != nil {
+			return fmt.Sprintf("%s\n%s\n", body, err)
+		}
+
+		return data
+	}
+}
+
+// returns just the message
+func (T *Template) Helper_gen() any {
+
+	return func(msg string, args ...map[string]any) string {
+		if len(args) == 0 {
+			args = append(args, make(map[string]any))
+		}
+		arrrrgs := args[0]
+		curr := T.Buf.String()
+		input := curr + msg
+		body := hchat(input, arrrrgs)
+
+		isOpenai := true
+		model := "gpt-3.5-turbo"
+		if m, ok := arrrrgs["model"]; ok {
+			model = m.(string)
+		}
+		if strings.HasPrefix(model, "chat-") || model == "bard" {
+			isOpenai = false
+		}
+
+		if isOpenai {
+			resp, err := chat.OpenaiExtractContent(body)
+			if err != nil {
+				return fmt.Sprint(err)
+			}
+			return resp
+		} else {
+			resp, err := chat.GoogleExtractContent(body)
+			if err != nil {
+				return fmt.Sprint(err)
+			}
+			return resp
+		}
+	}
 }
 
 var funcMap = template.FuncMap{

@@ -12,6 +12,7 @@ import (
 	"cuelang.org/go/cue/load"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+	"github.com/hofstadter-io/hof/lib/chat"
 	"github.com/hofstadter-io/hof/lib/datamodel"
 	"github.com/hofstadter-io/hof/lib/gen"
 	"github.com/hofstadter-io/hof/lib/hof"
@@ -59,6 +60,7 @@ type Runtime struct {
 	// in each of these packages so we can separate
 	// the commands from the types and core logic
 	Nodes      []*hof.Node[any]
+	Chats      []*chat.Chat
 	Datamodels []*datamodel.Datamodel
 	Generators []*gen.Generator
 	// Workflows  map[string]*flow.Flow

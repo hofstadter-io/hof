@@ -61,9 +61,9 @@ Hof: {
 		}
 
 		chat?: {
-			root: bool | *false
-			name: string | *""
-			type: string | *""
+			root:  bool | *false
+			name:  string | *""
+			extra: string | *""
 		}
 	}
 }

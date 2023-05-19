@@ -98,7 +98,7 @@ type Flow struct {
   hof/chat configuration
 */
 type Chat struct {
-	Root bool
-	Name string
-	Type string
+	Root  bool
+	Name  string
+	Extra string
 }

@@ -56,7 +56,7 @@ func CreateFromString(name, content string, delims *Delims) (t *Template, err er
 
 	t.Buf = new(bytes.Buffer)
 
-	AddGolangHelpers(t.T)
+	t.AddGolangHelpers()
 
 	t.T, err = t.T.Parse(content)
 

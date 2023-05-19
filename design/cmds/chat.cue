@@ -10,31 +10,118 @@ import (
 	Short: "co-create with AI (alpha)"
 	Long:  #ChatRootHelp
 
-	Flags: [...schema.#Flag] & [ {
+	Pflags: [...schema.#Flag] & [{
 		Name:    "model"
 		Type:    "string"
 		Default: "\"gpt-3.5-turbo\""
-		Help:    "LLM model to use [gpt-3.5-turbo,gpt-4]"
+		Help:    "LLM model to use [gpt-3.5-turbo,gpt-4,bard,chat-bison]"
 		Long:    "model"
+		Short:   "m"
+	}, {
+		Name:    "system"
+		Type:    "[]string"
+		Default: "nil"
+		Help:    "string or path to the system prompt for the LLM, concatenated"
+		Long:    "system"
+		Short:   "S"
+	}, {
+		Name:    "messages"
+		Type:    "[]string"
+		Default: "nil"
+		Help:    "string or path to a message for the LLM"
+		Long:    "message"
 		Short:   "M"
-	},
-		{
-			Name:    "prompt"
-			Type:    "string"
-			Default: "\"\""
-			Help:    "path to the system prompt, the first message in the chat"
-			Long:    "prompt"
-			Short:   "P"
-		},
-		{
-			Name:    "outfile"
-			Type:    "string"
-			Default: "\"\""
-			Help:    "path to write the output to"
-			Long:    "outfile"
-			Short:   "O"
-		},
-	]
+	}, {
+		Name:    "examples"
+		Type:    "[]string"
+		Default: "nil"
+		Help:    "string or path to an example pair for the LLM"
+		Long:    "example"
+		Short:   "E"
+	}, {
+		Name:    "outfile"
+		Type:    "string"
+		Default: "\"\""
+		Help:    "path to write the output to"
+		Long:    "outfile"
+		Short:   "O"
+	}, {
+		Name:    "Choices"
+		Type:    "int"
+		Default: "1"
+		Help:    "param: choices or N (openai)"
+		Long:    "choices"
+		Short:   "N"
+	}, {
+		Name:    "MaxTokens"
+		Type:    "int"
+		Default: "256"
+		Help:    "param: MaxTokens"
+		Long:    "max-tokens"
+	}, {
+		Name:    "temperature"
+		Type:    "float64"
+		Default: "0.8"
+		Help:    "param: temperature"
+		Long:    "temp"
+	}, {
+		Name:    "TopP"
+		Type:    "float64"
+		Default: "0.42"
+		Help:    "param: TopP"
+		Long:    "topp"
+	}, {
+		Name:    "TopK"
+		Type:    "int"
+		Default: "40"
+		Help:    "param: TopK (google)"
+		Long:    "topk"
+	}, {
+		Name:    "Stop"
+		Type:    "[]string"
+		Default: "nil"
+		Help:    "param: Stop (openai)"
+		Long:    "stop"
+	}]
+
+	Commands: [{
+		Name:  "list"
+		Usage: "list"
+		Short: "print available chat plugins in the current module"
+		Long:  Short
+	}, {
+		Name:  "with"
+		Usage: "with [name]"
+		Short: "chat with a plugin in the current module"
+		Long:  Short
+		Args: [{
+			Name:     "name"
+			Type:     "string"
+			Required: true
+			Help:     "name of the chat plugin to display details for"
+		}, {
+			Name: "entrypoints"
+			Type: "[]string"
+			Rest: true
+			Help: "CUE entrypoints like most other commands"
+		}]
+	}, {
+		Name:  "info"
+		Usage: "info [name]"
+		Short: "print details of a specific chat plugin"
+		Long:  Short
+		Args: [{
+			Name:     "name"
+			Type:     "string"
+			Required: true
+			Help:     "name of the chat plugin to display details for"
+		}, {
+			Name: "entrypoints"
+			Type: "[]string"
+			Rest: true
+			Help: "CUE entrypoints like most other commands"
+		}]
+	}]
 }
 
 #ChatRootHelp: #"""
@@ -53,29 +140,37 @@ import (
 	Examples:
 
 	#
-	# Talk to ChatGPT
+	# Talk to LLMs (ChatGPT or Bard)
 	#
 
-	# Ask of ChatGPT from strings, files, and/or stdin
+	# select the model with -m
+	# full model name supported, also several shorthands
+	hof chat -m "gpt3" "why is the sky blue?" (gpt-3.5-turbo)
+	hof chat -m "bard" "why is the sky blue?"  (chat-bison@001)
+
+	# Ask of the LLM from strings, files, and/or stdin
+	# these will be concatenated to from the question
 	hof chat "Ask ChatGPT any question"    # as a string
 	hof chat question.txt                  # from a file
 	cat question.txt | hof chat -          # from stdin
 	hof chat context.txt "and a question"  # mix all three
 
-	# Provide a system message, these are special to ChatGPT
-	hof chat -P prompt.txt "now answer me this..."
+	# Provide a system message, these are special to LLMs
+	# this is typically where the prompt engineering happens
+	hof chat -S prompt.txt "now answer me this..."
+	hof chat -S "... if short prompt ..." "now answer me this..."
 
-	# Get file embeddings
-	hof chat embed file1.txt file2.txt -O embeddings.json
+	# Provide examples to the LLM
+	# for Bard, these are an additional input
+	# for ChatGPT, these will be appended to the system message
+	# examples are supplied as JSON, they should be [{ input: string, output: string }]
+	hof chat -E "<INPUT>: this is an input <OUTPUT>: this is an output" -E "..." "now answer me this..."
+	hof chat -E examples.json "now answer me this"
 
-	#
-	# Talk to your data model, this uses a special system message
-	#
+	# Provide message history to the LLM
+	# if messages are supplied as JSON, they should be { role: string, content: string }
+	hof chat -M "user> asked some question" -M "assistant> had a reply" "now answer me this..."
+	hof chat -M messages.json "now answer me this"
 
-	# hof will use dm.cue by default
-	hof chat dm "Create a data model called Interludes"
-	hof chat dm "Users should have a Profile with status and about fields."
 
-	# pass in a file to talk to a specific data model
-	hof chat dm my-dm.cue "Add a Post model and make it so Users have many."
 	"""#

@@ -602,7 +602,7 @@ func (G *Generator) registerPartials(T *templates.Template) error {
 
 		// todo, do we need to do this twice?, has it already been done?
 		// maybe? because of how text/template contexts work
-		templates.AddGolangHelpers(t)
+		T.AddGolangHelpers()
 		t.Parse(P.Source)
 	}
 
