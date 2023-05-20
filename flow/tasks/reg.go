@@ -5,8 +5,8 @@ import (
 
 	"github.com/hofstadter-io/hof/flow/tasks/api"
 	"github.com/hofstadter-io/hof/flow/tasks/csp"
+	"github.com/hofstadter-io/hof/flow/tasks/cue"
 	"github.com/hofstadter-io/hof/flow/tasks/db"
-	"github.com/hofstadter-io/hof/flow/tasks/ext"
 	"github.com/hofstadter-io/hof/flow/tasks/gen"
 	"github.com/hofstadter-io/hof/flow/tasks/hof"
 	"github.com/hofstadter-io/hof/flow/tasks/kv"
@@ -26,9 +26,9 @@ func RegisterDefaults(context *hofcontext.Context) {
 	context.Register("csp.Recv", csp.NewRecv)
 	context.Register("csp.Send", csp.NewSend)
 
-	context.Register("db.Call", db.NewCall)
+	context.Register("cue.Format", cue.NewCueFormat)
 
-	context.Register("ext.CueFormat", ext.NewCueFormat)
+	context.Register("db.Call", db.NewCall)
 
 	context.Register("gen.CUID", gen.NewCUID)
 	context.Register("gen.Float", gen.NewFloat)

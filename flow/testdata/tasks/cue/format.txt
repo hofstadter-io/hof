@@ -1,0 +1,39 @@
+exec hof flow flow.cue
+cmp test.stdout golden.stdout
+
+-- flow.cue --
+package t
+
+@flow()
+tasks: {
+	fmt: {
+		@task(cue.Format)
+		value: {
+			foo: string | *"bar"
+
+			n: int | *42
+
+			map: [string]: string
+		}
+
+		Package: "test"
+
+		Concrete: false
+	}
+
+  write: {  
+    @task(os.WriteFile)
+    filename: "test.stdout"
+    contents: fmt.out
+    mode: 0o666
+  }
+}
+
+-- golden.stdout --
+package test
+
+foo: string | *"bar"
+n:   int | *42
+map: {
+	[string]: string
+}
