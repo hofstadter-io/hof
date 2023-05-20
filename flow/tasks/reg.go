@@ -53,6 +53,7 @@ func RegisterDefaults(context *hofcontext.Context) {
 	context.Register("os.Glob", os.NewGlob)
 	context.Register("os.Mkdir", os.NewMkdir)
 	context.Register("os.ReadFile", os.NewReadFile)
+	context.Register("os.ReadGlobs", os.NewReadGlobs)
 	context.Register("os.Sleep", os.NewSleep)
 	context.Register("os.Stdin", os.NewStdin)
 	context.Register("os.Stdout", os.NewStdout)
