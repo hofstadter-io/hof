@@ -19,7 +19,7 @@ type Template struct {
 	// golang
 	T *template.Template
 
-	Buf bytes.Buffer
+	Buf *bytes.Buffer
 }
 
 func (T *Template) Render(data interface{}) ([]byte, error) {
@@ -32,11 +32,7 @@ func (T *Template) Render(data interface{}) ([]byte, error) {
 
 	T.Buf.Reset()
 
-	// var buf bytes.Buffer
-
-	err = T.T.Execute(&T.Buf, data)
-	// err = T.T.Execute(&buf, data)
-
+	err = T.T.Execute(T.Buf, data)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +60,7 @@ func CreateFromString(name, content string, delims Delims) (t *Template, err err
 		t.T = t.T.Delims(delims.LHS, delims.RHS)
 	}
 
-	// t.Buf = new(bytes.Buffer)
+	t.Buf = new(bytes.Buffer)
 
 	t.AddGolangHelpers()
 
