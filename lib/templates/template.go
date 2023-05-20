@@ -19,7 +19,7 @@ type Template struct {
 	// golang
 	T *template.Template
 
-	Buf *bytes.Buffer
+	Buf bytes.Buffer
 }
 
 func (T *Template) Render(data interface{}) ([]byte, error) {
@@ -32,13 +32,23 @@ func (T *Template) Render(data interface{}) ([]byte, error) {
 
 	T.Buf.Reset()
 
-	err = T.T.Execute(T.Buf, data)
+	// var buf bytes.Buffer
+
+	err = T.T.Execute(&T.Buf, data)
+	// err = T.T.Execute(&buf, data)
+
 	if err != nil {
 		return nil, err
 	}
-	out := T.Buf.Bytes()
 
-	return out, nil
+	// we need to get a string
+	// and then turn it into bytes
+	// to work around a memory issue
+	// with bytes.Buffer
+	out := T.Buf.String()
+	bs := []byte(out)
+
+	return bs, nil
 }
 
 // Creates a hof Template struct, initializing the correct template system. The system will be inferred if left empty
@@ -54,7 +64,7 @@ func CreateFromString(name, content string, delims Delims) (t *Template, err err
 		t.T = t.T.Delims(delims.LHS, delims.RHS)
 	}
 
-	t.Buf = new(bytes.Buffer)
+	// t.Buf = new(bytes.Buffer)
 
 	t.AddGolangHelpers()
 
