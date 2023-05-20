@@ -21,7 +21,7 @@ type TemplateGlobs struct {
 	// Prefix to trim
 	TrimPrefix string
 	// Custom delims
-	Delims *templates.Delims
+	Delims templates.Delims
 }
 
 type StaticGlobs struct {
@@ -35,7 +35,7 @@ type StaticGlobs struct {
 
 type TemplateContent struct {
 	Content string
-	Delims  *templates.Delims
+	Delims  templates.Delims
 }
 
 // A generator pulled from the cue instances
@@ -511,7 +511,7 @@ func (G *Generator) initFileGens() []error {
 	for _, F := range G.Out {
 		// support text/template in output file path
 		if strings.Contains(F.Filepath, "{{") {
-			ft, err := templates.CreateFromString("filepath", F.Filepath, nil)
+			ft, err := templates.CreateFromString("filepath", F.Filepath, templates.Delims{})
 			if err != nil {
 				errs = append(errs, err)
 			}
@@ -599,11 +599,10 @@ func (G *Generator) registerPartials(T *templates.Template) error {
 
 	for k, P := range G.PartialsMap {
 		t := T.T.New(k)
-
-		// todo, do we need to do this twice?, has it already been done?
-		// maybe? because of how text/template contexts work
-		T.AddGolangHelpers()
-		t.Parse(P.Source)
+		_, err := t.Parse(P.Source)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

@@ -1,0 +1,30 @@
+exec hof flow flow.cue
+cmp stdout golden.stdout
+
+-- flow.cue --
+package hof
+
+tasks: {
+  @flow()
+	call: { 
+    @task(hof.Template)
+		data: {
+			foo: "bar"
+			cow: "moo"
+		}
+		template: """
+		{{ upper .foo }}
+
+		{{ template "helper" . }}
+
+		"""
+
+		partials: helper: "cows go {{ upper .cow }}"
+  }
+	out: { text: call.out } @task(os.Stdout)
+}
+
+-- golden.stdout --
+BAR
+
+cows go MOO

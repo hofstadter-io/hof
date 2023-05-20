@@ -8,6 +8,7 @@ import (
 	"github.com/hofstadter-io/hof/flow/tasks/db"
 	"github.com/hofstadter-io/hof/flow/tasks/ext"
 	"github.com/hofstadter-io/hof/flow/tasks/gen"
+	"github.com/hofstadter-io/hof/flow/tasks/hof"
 	"github.com/hofstadter-io/hof/flow/tasks/kv"
 	"github.com/hofstadter-io/hof/flow/tasks/msg"
 	"github.com/hofstadter-io/hof/flow/tasks/os"
@@ -39,6 +40,8 @@ func RegisterDefaults(context *hofcontext.Context) {
 	context.Register("gen.Str", gen.NewStr)
 	context.Register("gen.UUID", gen.NewUUID)
 
+	context.Register("hof.Template", hof.NewHofTemplate)
+
 	context.Register("kv.Mem", kv.NewMem)
 
 	context.Register("msg.IrcClient", msg.NewIrcClient)
@@ -63,4 +66,5 @@ func RegisterDefaults(context *hofcontext.Context) {
 	context.Register("st.Pick", st.NewPick)
 	context.Register("st.Replace", st.NewReplace)
 	context.Register("st.Upsert", st.NewUpsert)
+
 }

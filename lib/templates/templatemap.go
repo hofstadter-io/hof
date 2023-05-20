@@ -16,7 +16,7 @@ func NewTemplateMap() TemplateMap {
 	return make(map[string]*Template)
 }
 
-func CreateTemplateMapFromFolder(glob, prefix string, delims *Delims) (tplMap TemplateMap, err error) {
+func CreateTemplateMapFromFolder(glob, prefix string, delims Delims) (tplMap TemplateMap, err error) {
 	tplMap = NewTemplateMap()
 	err = tplMap.ImportFromFolder(glob, prefix, delims)
 	if err != nil {
@@ -25,11 +25,11 @@ func CreateTemplateMapFromFolder(glob, prefix string, delims *Delims) (tplMap Te
 	return tplMap, nil
 }
 
-func (M TemplateMap) ImportTemplateFile(filename string, delims *Delims) error {
+func (M TemplateMap) ImportTemplateFile(filename string, delims Delims) error {
 	return M.importTemplate(filename, "", delims)
 }
 
-func (M TemplateMap) ImportFromFolder(glob, prefix string, delims *Delims) error {
+func (M TemplateMap) ImportFromFolder(glob, prefix string, delims Delims) error {
 	matches, err := zglob.Glob(glob)
 	if err != nil {
 		return err
@@ -58,7 +58,7 @@ func (M TemplateMap) ImportFromFolder(glob, prefix string, delims *Delims) error
 	return nil
 }
 
-func (M TemplateMap) importTemplate(filePath, prefix string, delims *Delims) error {
+func (M TemplateMap) importTemplate(filePath, prefix string, delims Delims) error {
 	source, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return err

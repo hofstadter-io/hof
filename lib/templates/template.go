@@ -14,7 +14,7 @@ type Template struct {
 	// Original inputs
 	Name   string
 	Source string
-	Delims *Delims
+	Delims Delims
 
 	// golang
 	T *template.Template
@@ -42,7 +42,7 @@ func (T *Template) Render(data interface{}) ([]byte, error) {
 }
 
 // Creates a hof Template struct, initializing the correct template system. The system will be inferred if left empty
-func CreateFromString(name, content string, delims *Delims) (t *Template, err error) {
+func CreateFromString(name, content string, delims Delims) (t *Template, err error) {
 	t = new(Template)
 	t.Name = name
 	t.Source = content
@@ -50,7 +50,7 @@ func CreateFromString(name, content string, delims *Delims) (t *Template, err er
 	// Golang wants helpers before parsing, and catches these errors early
 	t.T = template.New(name)
 
-	if delims != nil {
+	if delims.LHS != "" {
 		t.T = t.T.Delims(delims.LHS, delims.RHS)
 	}
 

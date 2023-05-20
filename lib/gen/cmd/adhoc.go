@@ -125,7 +125,7 @@ func (R *Runtime) CreateAdhocGenerator() error {
 			}
 
 			// 
-			ft, err := templates.CreateFromString("outpath", op, nil)
+			ft, err := templates.CreateFromString("outpath", op, templates.Delims{})
 			if err != nil {
 				return err
 			}

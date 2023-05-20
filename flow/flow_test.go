@@ -15,52 +15,36 @@ func envSetup(env *runtime.Env) error {
 	return nil
 }
 
-func TestAPIFlow(t *testing.T) {
-	yagu.Mkdir(".workdir/tasks/api")
+func doTaskTest(dir string, t *testing.T) {
+	yagu.Mkdir(".workdir/tasks/" + dir)
 	runtime.Run(t, runtime.Params{
-		Dir:         "testdata/tasks/api",
+		Dir:         "testdata/tasks/" + dir,
 		Glob:        "*.txt",
-		WorkdirRoot: ".workdir/tasks/api",
+		WorkdirRoot: ".workdir/tasks/" + dir,
 		Setup:       envSetup,
 	})
+}
+
+func TestAPIFlow(t *testing.T) {
+	doTaskTest("api", t)
 }
 
 func TestGenFlow(t *testing.T) {
-	yagu.Mkdir(".workdir/tasks/gen")
-	runtime.Run(t, runtime.Params{
-		Dir:         "testdata/tasks/gen",
-		Glob:        "*.txt",
-		WorkdirRoot: ".workdir/tasks/gen",
-		Setup:       envSetup,
-	})
+	doTaskTest("gen", t)
+}
+
+func TestHofFlow(t *testing.T) {
+	doTaskTest("hof", t)
 }
 
 func TestKVFlow(t *testing.T) {
-	yagu.Mkdir(".workdir/tasks/kv")
-	runtime.Run(t, runtime.Params{
-		Dir:         "testdata/tasks/kv",
-		Glob:        "*.txt",
-		WorkdirRoot: ".workdir/tasks/kv",
-		Setup:       envSetup,
-	})
+	doTaskTest("kv", t)
 }
 
 func TestOSFlow(t *testing.T) {
-	yagu.Mkdir(".workdir/tasks/os")
-	runtime.Run(t, runtime.Params{
-		Dir:         "testdata/tasks/os",
-		Glob:        "*.txt",
-		WorkdirRoot: ".workdir/tasks/os",
-		Setup:       envSetup,
-	})
+	doTaskTest("os", t)
 }
 
 func TestStFlow(t *testing.T) {
-	yagu.Mkdir(".workdir/tasks/st")
-	runtime.Run(t, runtime.Params{
-		Dir:         "testdata/tasks/st",
-		Glob:        "*.txt",
-		WorkdirRoot: ".workdir/tasks/st",
-		Setup:       envSetup,
-	})
+	doTaskTest("st", t)
 }
