@@ -1,5 +1,16 @@
 problem: "3x = 4 + y"
-question: "What is y when x is 3?"
+question: "What is y when x is 42?"
+
+multi:
+  params:
+    N: 3
+final:
+  params:
+    MaxTokens: 64
+  prompt: |
+    You should select the best potential solution,
+    complete "Final Answer: " with the number for your choice,
+    and then explain your rationale below
 
 bard:
   params:
