@@ -25,13 +25,8 @@ type Chat struct {
 	System   string
 	Examples []Example
 	Messages []Message
-	Paramaters map[string]any
+	Parameters map[string]any
 
-	Response any
-	Output   *string
-
-	PreExec any
-	PostExec any
 }
 
 type Session struct {

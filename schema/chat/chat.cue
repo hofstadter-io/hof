@@ -24,6 +24,7 @@ Chat: {
 	Files: [string]: string
 
 	// passed in from the user prompt
+	// as a module author, you should add this to the messages if not using the default
 	Question: string
 
 	//
@@ -55,6 +56,7 @@ Chat: {
 	// This is either
 	//  - the first message to OpenAI
 	//  - the context field to Google
+	// as a module author, you should add this to the messages if not using the default
 	System: string | *""
 
 	// Input/Output pairs as examples to the LLM
@@ -63,6 +65,7 @@ Chat: {
 	Examples: [...Example]
 
 	// The message history to send to the model
+	// If not supplied, the default is [system,question]
 	Messages: [...Message] | *[
 			if len(System) > 0 {
 			Role:    "system"
