@@ -34,7 +34,7 @@ type File struct {
 	FormattingConfig   *FmtConfig
 
 	// Template delimiters
-	TemplateDelims *templates.Delims
+	TemplateDelims templates.Delims
 
 	// CUE settings
 	Package        string

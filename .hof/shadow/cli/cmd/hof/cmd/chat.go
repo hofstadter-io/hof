@@ -4,7 +4,11 @@ import (
 	"fmt"
 	"os"
 
+	"path/filepath"
+
 	"github.com/spf13/cobra"
+
+	"github.com/hofstadter-io/hof/cmd/hof/cmd/chat"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 
@@ -26,37 +30,53 @@ Set OPENAI_API_KEY as an environment variable.
 Examples:
 
 #
-# Talk to ChatGPT
+# Talk to LLMs (ChatGPT or Bard)
 #
 
-# Ask of ChatGPT from strings, files, and/or stdin
+# select the model with -m
+# full model name supported, also several shorthands
+hof chat -m "gpt3" "why is the sky blue?" (gpt-3.5-turbo)
+hof chat -m "bard" "why is the sky blue?"  (chat-bison@001)
+
+# Ask of the LLM from strings, files, and/or stdin
+# these will be concatenated to from the question
 hof chat "Ask ChatGPT any question"    # as a string
 hof chat question.txt                  # from a file
 cat question.txt | hof chat -          # from stdin
 hof chat context.txt "and a question"  # mix all three
 
-# Provide a system message, these are special to ChatGPT
-hof chat -P prompt.txt "now answer me this..."
+# Provide a system message, these are special to LLMs
+# this is typically where the prompt engineering happens
+hof chat -S prompt.txt "now answer me this..."
+hof chat -S "... if short prompt ..." "now answer me this..."
 
-# Get file embeddings
-hof chat embed file1.txt file2.txt -O embeddings.json
+# Provide examples to the LLM
+# for Bard, these are an additional input
+# for ChatGPT, these will be appended to the system message
+# examples are supplied as JSON, they should be [{ input: string, output: string }]
+hof chat -E "<INPUT>: this is an input <OUTPUT>: this is an output" -E "..." "now answer me this..."
+hof chat -E examples.json "now answer me this"
 
-#
-# Talk to your data model, this uses a special system message
-#
+# Provide message history to the LLM
+# if messages are supplied as JSON, they should be { role: string, content: string }
+hof chat -M "user> asked some question" -M "assistant> had a reply" "now answer me this..."
+hof chat -M messages.json "now answer me this"
 
-# hof will use dm.cue by default
-hof chat dm "Create a data model called Interludes"
-hof chat dm "Users should have a Profile with status and about fields."
-
-# pass in a file to talk to a specific data model
-hof chat dm my-dm.cue "Add a Post model and make it so Users have many."`
+`
 
 func init() {
 
-	ChatCmd.Flags().StringVarP(&(flags.ChatFlags.Model), "model", "M", "gpt-3.5-turbo", "LLM model to use [gpt-3.5-turbo,gpt-4]")
-	ChatCmd.Flags().StringVarP(&(flags.ChatFlags.Prompt), "prompt", "P", "", "path to the system prompt, the first message in the chat")
-	ChatCmd.Flags().StringVarP(&(flags.ChatFlags.Outfile), "outfile", "O", "", "path to write the output to")
+	ChatCmd.PersistentFlags().StringVarP(&(flags.ChatPflags.Model), "model", "m", "gpt-3.5-turbo", "LLM model to use [gpt-3.5-turbo,gpt-4,bard,chat-bison]")
+	ChatCmd.PersistentFlags().StringSliceVarP(&(flags.ChatPflags.System), "system", "S", nil, "string or path to the system prompt for the LLM, concatenated")
+	ChatCmd.PersistentFlags().StringSliceVarP(&(flags.ChatPflags.Messages), "message", "M", nil, "string or path to a message for the LLM")
+	ChatCmd.PersistentFlags().StringSliceVarP(&(flags.ChatPflags.Examples), "example", "E", nil, "string or path to an example pair for the LLM")
+	ChatCmd.PersistentFlags().StringVarP(&(flags.ChatPflags.Outfile), "outfile", "O", "", "path to write the output to")
+	ChatCmd.PersistentFlags().IntVarP(&(flags.ChatPflags.Choices), "choices", "N", 1, "param: choices or N (openai)")
+	ChatCmd.PersistentFlags().IntVarP(&(flags.ChatPflags.MaxTokens), "max-tokens", "", 256, "param: MaxTokens")
+	ChatCmd.PersistentFlags().Float64VarP(&(flags.ChatPflags.Temperature), "temp", "", 0.8, "param: temperature")
+	ChatCmd.PersistentFlags().Float64VarP(&(flags.ChatPflags.TopP), "topp", "", 0.42, "param: TopP")
+	ChatCmd.PersistentFlags().IntVarP(&(flags.ChatPflags.TopK), "topk", "", 40, "param: TopK (google)")
+	ChatCmd.PersistentFlags().StringSliceVarP(&(flags.ChatPflags.Stop), "stop", "", nil, "param: Stop (openai)")
 }
 
 func ChatRun(args []string) (err error) {
@@ -74,6 +94,12 @@ var ChatCmd = &cobra.Command{
 	Short: "co-create with AI (alpha)",
 
 	Long: chatLong,
+
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		glob := toComplete + "*"
+		matches, _ := filepath.Glob(glob)
+		return matches, cobra.ShellCompDirectiveDefault
+	},
 
 	Run: func(cmd *cobra.Command, args []string) {
 
@@ -124,5 +150,9 @@ func init() {
 	}
 	ChatCmd.SetHelpFunc(thelp)
 	ChatCmd.SetUsageFunc(tusage)
+
+	ChatCmd.AddCommand(cmdchat.ListCmd)
+	ChatCmd.AddCommand(cmdchat.WithCmd)
+	ChatCmd.AddCommand(cmdchat.InfoCmd)
 
 }

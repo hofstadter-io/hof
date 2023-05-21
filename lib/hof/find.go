@@ -109,7 +109,7 @@ func FindHofs(value cue.Value) (roots []*Node[any], err error) {
 			case "chat":
 				stack.Hof.Chat.Root = true
 				stack.Hof.Chat.Name = label
-				stack.Hof.Chat.Type = ac
+				stack.Hof.Chat.Extra = ac
 
 			default:
 				found = false
@@ -140,7 +140,6 @@ func FindHofs(value cue.Value) (roots []*Node[any], err error) {
 				// add to parent's Children
 				nodes.Parent.Children = append(nodes.Parent.Children, nodes)
 			}
-
 		}
 
 

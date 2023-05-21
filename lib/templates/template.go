@@ -14,14 +14,12 @@ type Template struct {
 	// Original inputs
 	Name   string
 	Source string
-	Delims *Delims
+	Delims Delims
 
 	// golang
 	T *template.Template
-}
 
-func NewTemplate() *Template {
-	return &Template{}
+	Buf *bytes.Buffer
 }
 
 func (T *Template) Render(data interface{}) ([]byte, error) {
@@ -30,32 +28,41 @@ func (T *Template) Render(data interface{}) ([]byte, error) {
 		panic("template not set!")
 	}
 
-	var b bytes.Buffer
 	var err error
 
-	err = T.T.Execute(&b, data)
+	T.Buf.Reset()
+
+	err = T.T.Execute(T.Buf, data)
 	if err != nil {
 		return nil, err
 	}
-	out := string(b.Bytes())
 
-	return []byte(out), nil
+	// we need to get a string
+	// and then turn it into bytes
+	// to work around a memory issue
+	// with bytes.Buffer
+	out := T.Buf.String()
+	bs := []byte(out)
+
+	return bs, nil
 }
 
 // Creates a hof Template struct, initializing the correct template system. The system will be inferred if left empty
-func CreateFromString(name, content string, delims *Delims) (t *Template, err error) {
-	t = NewTemplate()
+func CreateFromString(name, content string, delims Delims) (t *Template, err error) {
+	t = new(Template)
 	t.Name = name
 	t.Source = content
 
 	// Golang wants helpers before parsing, and catches these errors early
 	t.T = template.New(name)
 
-	if delims != nil {
+	if delims.LHS != "" {
 		t.T = t.T.Delims(delims.LHS, delims.RHS)
 	}
 
-	AddGolangHelpers(t.T)
+	t.Buf = new(bytes.Buffer)
+
+	t.AddGolangHelpers()
 
 	t.T, err = t.T.Parse(content)
 

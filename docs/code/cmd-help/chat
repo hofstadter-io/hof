@@ -13,40 +13,60 @@ Set OPENAI_API_KEY as an environment variable.
 Examples:
 
 #
-# Talk to ChatGPT
+# Talk to LLMs (ChatGPT or Bard)
 #
 
-# Ask of ChatGPT from strings, files, and/or stdin
+# select the model with -m
+# full model name supported, also several shorthands
+hof chat -m "gpt3" "why is the sky blue?" (gpt-3.5-turbo)
+hof chat -m "bard" "why is the sky blue?"  (chat-bison@001)
+
+# Ask of the LLM from strings, files, and/or stdin
+# these will be concatenated to from the question
 hof chat "Ask ChatGPT any question"    # as a string
 hof chat question.txt                  # from a file
 cat question.txt | hof chat -          # from stdin
 hof chat context.txt "and a question"  # mix all three
 
-# Provide a system message, these are special to ChatGPT
-hof chat -P prompt.txt "now answer me this..."
+# Provide a system message, these are special to LLMs
+# this is typically where the prompt engineering happens
+hof chat -S prompt.txt "now answer me this..."
+hof chat -S "... if short prompt ..." "now answer me this..."
 
-# Get file embeddings
-hof chat embed file1.txt file2.txt -O embeddings.json
+# Provide examples to the LLM
+# for Bard, these are an additional input
+# for ChatGPT, these will be appended to the system message
+# examples are supplied as JSON, they should be [{ input: string, output: string }]
+hof chat -E "<INPUT>: this is an input <OUTPUT>: this is an output" -E "..." "now answer me this..."
+hof chat -E examples.json "now answer me this"
 
-#
-# Talk to your data model, this uses a special system message
-#
-
-# hof will use dm.cue by default
-hof chat dm "Create a data model called Interludes"
-hof chat dm "Users should have a Profile with status and about fields."
-
-# pass in a file to talk to a specific data model
-hof chat dm my-dm.cue "Add a Post model and make it so Users have many."
+# Provide message history to the LLM
+# if messages are supplied as JSON, they should be { role: string, content: string }
+hof chat -M "user> asked some question" -M "assistant> had a reply" "now answer me this..."
+hof chat -M messages.json "now answer me this"
 
 Usage:
   hof chat [args] [flags]
+  hof chat [command]
+
+Available Commands:
+  info        print details of a specific chat plugin
+  list        print available chat plugins in the current module
+  with        chat with a plugin in the current module
 
 Flags:
-  -h, --help             help for chat
-  -M, --model string     LLM model to use [gpt-3.5-turbo,gpt-4] (default "gpt-3.5-turbo")
-  -O, --outfile string   path to write the output to
-  -P, --prompt string    path to the system prompt, the first message in the chat
+  -N, --choices int       param: choices or N (openai) (default 1)
+  -E, --example strings   string or path to an example pair for the LLM
+  -h, --help              help for chat
+      --max-tokens int    param: MaxTokens (default 256)
+  -M, --message strings   string or path to a message for the LLM
+  -m, --model string      LLM model to use [gpt-3.5-turbo,gpt-4,bard,chat-bison] (default "gpt-3.5-turbo")
+  -O, --outfile string    path to write the output to
+      --stop strings      param: Stop (openai)
+  -S, --system strings    string or path to the system prompt for the LLM, concatenated
+      --temp float        param: temperature (default 0.8)
+      --topk int          param: TopK (google) (default 40)
+      --topp float        param: TopP (default 0.42)
 
 Global Flags:
       --ignore-data      ignore all data files unless explicitly supplied
@@ -55,3 +75,5 @@ Global Flags:
   -q, --quiet            turn off output and assume defaults at prompts
   -t, --tags strings     @tags() to be injected into CUE code
   -v, --verbosity int    set the verbosity of output
+
+Use "hof chat [command] --help" for more information about a command.

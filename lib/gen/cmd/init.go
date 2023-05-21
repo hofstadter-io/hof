@@ -50,7 +50,7 @@ func InitModule(name string, rootflags flags.RootPflagpole, cmdflags flags.GenFl
 		if rootflags.Verbosity > 0 {
 			fmt.Println("rendering:", outpath)
 		}
-		ft, err := templates.CreateFromString(outpath, content, nil)
+		ft, err := templates.CreateFromString(outpath, content, templates.Delims{})
 		if err != nil {
 			return err
 		}
@@ -219,7 +219,7 @@ func (R *Runtime) adhocAsModule() error {
 		if R.Flags.Verbosity > 0 {
 			fmt.Println("rendering:", outpath)
 		}
-		ft, err := templates.CreateFromString(outpath, content, nil)
+		ft, err := templates.CreateFromString(outpath, content, templates.Delims{})
 		if err != nil {
 			return err
 		}

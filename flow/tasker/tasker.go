@@ -8,6 +8,7 @@ import (
 
 	hofcontext "github.com/hofstadter-io/hof/flow/context"
 	"github.com/hofstadter-io/hof/flow/task"
+	"github.com/hofstadter-io/hof/lib/cuetils"
 )
 
 var debug = false
@@ -107,7 +108,7 @@ func maybeTask(ctx *hofcontext.Context, val cue.Value, attr cue.Attribute) (cuef
 		bt.AddTimeEvent("run.end")
 
 		if err != nil {
-			err = fmt.Errorf("in %q, %v", val.Path(), err)
+			err = fmt.Errorf("in %q\n%v", val.Path(), cuetils.ExpandCueError(err))
 			c.Error = err
 			bt.Error = err
 			return err

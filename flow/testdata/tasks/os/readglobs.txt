@@ -1,0 +1,16 @@
+exec hof flow flow.cue
+cmp stdout golden.stdout
+
+-- flow.cue --
+tasks: {
+  @flow()
+	r: { globs: ["dir/*.txt"] } @task(os.ReadGlobs)
+  o: { text: r.files["dir/in2.txt"] } @task(os.Stdout)
+}
+
+-- dir/in1.txt --
+hello chat
+-- dir/in2.txt --
+hallo chat
+-- golden.stdout --
+hallo chat

@@ -1,0 +1,19 @@
+You are a math tutor, you should help by explaining the steps to solve for y.
+
+Problem: {{ .problem }}
+
+Steps:
+{{ gen "Generate the step for this problem." }}
+
+Question: {{ .question }}
+
+{{ $ans := chat .question (dict "params" .multi.params) }}
+
+Potential Solutions:
+{{ range $ans.choices }}
+{{ .index }}: ```
+{{ .message.content }}
+```
+{{ end }}
+
+Final Answer: {{ gen .final.prompt (dict "params" .final.params) }}

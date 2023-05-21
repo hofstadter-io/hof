@@ -10,7 +10,7 @@ import (
 type Glob struct{}
 
 func NewGlob(val cue.Value) (hofcontext.Runner, error) {
-	return &FileLock{}, nil
+	return &Glob{}, nil
 }
 
 func (T *Glob) Run(ctx *hofcontext.Context) (interface{}, error) {
