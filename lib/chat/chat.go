@@ -15,18 +15,23 @@ type Chat struct {
 	HumanDescription   string
 	MachineDescription string
 
+	// user inputs
+	Args []string
+	Files map[string]string
+  Question string
+
 	Model   string
 
-	Prompts  map[string]string
-	Examples map[string]Example
-	Messages map[string]Message
-	Paramaters map[string]map[string]any
+	System   string
+	Examples []Example
+	Messages []Message
+	Paramaters map[string]any
 
-	Question string
-	Output   string
+	Response any
+	Output   *string
 
-	// internal
-	Session Session
+	PreExec any
+	PostExec any
 }
 
 type Session struct {

@@ -3,7 +3,6 @@ package cmd
 import (
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/chat"
-	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/runtime"
 )
 
@@ -30,11 +29,6 @@ func prepRuntime(args []string, rflags flags.RootPflagpole) (*runtime.Runtime, e
 
 func EnrichChat(R *runtime.Runtime, c *chat.Chat) error {
 
-	err := c.Value.Decode(c)
-	if err != nil {
-		err = cuetils.ExpandCueError(err)
-		return err
-	}
-
+	// no-op
 	return nil
 }
