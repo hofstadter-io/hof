@@ -25,8 +25,8 @@ params: {
 	github_project_repo: "https://github.com/hofstadter-io/hof"
 	github_repo:         "https://github.com/hofstadter-io/hof"
 	time_format_default: "January 2, 2006"
-	hofver:              "v0.6.8-rc.1"
-	cuever:              "v0.5.0-beta.5"
+	hofver:              "v0.6.8-rc.2"
+	cuever:              "v0.5.0"
 	cuedocBase:          "https://pkg.go.dev/cuelang.org/go@\(cuever)"
 	slackLink:           "https://join.slack.com/t/hofstadter-io/shared_invite/zt-e5f90lmq-u695eJur0zE~AG~njNlT1A"
 
