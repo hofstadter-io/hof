@@ -468,7 +468,7 @@ func (G *Generator) initTemplates() []error {
 				// they are defined in, while keeping the path spec for them simple
 				// note, these will be no-ops when there is no cue.mod
 				glob = filepath.Join(G.CwdToRoot, glob)
-				prefix = filepath.Join(G.CwdToRoot, prefix)
+				// prefix = filepath.Join(G.CwdToRoot, prefix)
 			}
 
 			pMap, err := templates.CreateTemplateMapFromFolder(glob, prefix, tg.Delims)
