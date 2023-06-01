@@ -233,10 +233,17 @@ func (G *Generator) initStaticFiles() []error {
 
 	// Start with static file globs
 	for _, Static := range G.Statics {
+
+		prefix := filepath.Clean(Static.TrimPrefix)
+		if G.PackageName != "" {
+			prefix = filepath.Join(CUE_VENDOR_DIR, G.PackageName, prefix)
+		}
+		prefix = filepath.Join(G.CwdToRoot, prefix)
+
 		// we need to check if the base directory exists, becuase we have defaults in the schema
-		_, err := os.Stat(filepath.Join(bdir, Static.TrimPrefix))
+		_, err := os.Stat(filepath.Join(bdir, prefix))
 		if err != nil {
-			fmt.Printf("warning: %s not found for %s, if you do not intend to use this directory, set 'Statics: []'\n", Static.TrimPrefix, G.PackageName)
+			fmt.Printf("warning: %s not found for %s, if you do not intend to use this directory, set 'Statics: []'\n", prefix, G.PackageName)
 			continue
 		}
 
@@ -271,13 +278,13 @@ func (G *Generator) initStaticFiles() []error {
 				}
 
 				// remove and add prefixes, per the configuration
-				mo := strings.TrimPrefix(match, filepath.Join(bdir, Static.TrimPrefix))
+				mo := strings.TrimPrefix(match, filepath.Join(bdir, prefix))
 				// because Join removes?
 				mo = strings.TrimPrefix(mo, "/")
 				fp := filepath.Join(Static.OutPrefix, mo)
 
 				if G.Verbosity > 2 {
-					fmt.Println("static FN:", match, filepath.Join(bdir, Static.TrimPrefix), mo)
+					fmt.Println("static FN:", match, filepath.Join(bdir, prefix), mo)
 					fmt.Println("    ", fp, filepath.Clean(fp))
 				}
 
