@@ -102,7 +102,7 @@ func (G *Generator) Write(outputBase, shadowBase string) (errs []error) {
 	// process the subgenerators
 	for _, SG := range G.Generators {
 		SG.UseDiff3 = G.UseDiff3
-		sgerrs := G.Write(outputBase, shadowBase)
+		sgerrs := SG.Write(outputBase, shadowBase)
 		errs = append(errs, sgerrs...)
 	}
 
