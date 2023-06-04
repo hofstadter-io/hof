@@ -96,6 +96,7 @@ type Generator struct {
 	parent  *Generator
 
 	// Used for indexing into the vendor directory...
+	// TODO, rename this ModuleName
 	PackageName string
 
 	// Use Diff3 & Shadow
@@ -235,15 +236,13 @@ func (G *Generator) initStaticFiles() []error {
 	for _, Static := range G.Statics {
 
 		prefix := filepath.Clean(Static.TrimPrefix)
-		if G.PackageName != "" {
-			prefix = filepath.Join(CUE_VENDOR_DIR, G.PackageName, prefix)
-		}
 		prefix = filepath.Join(G.CwdToRoot, prefix)
 
 		// we need to check if the base directory exists, becuase we have defaults in the schema
-		_, err := os.Stat(filepath.Join(bdir, prefix))
+		sdir := filepath.Join(bdir, prefix)
+		_, err := os.Stat(sdir)
 		if err != nil {
-			fmt.Printf("warning: %s not found for %s, if you do not intend to use this directory, set 'Statics: []'\n", prefix, G.PackageName)
+			fmt.Printf("warning: from %s, directory %s not found, for gen %s:%s, if you do not intend to use static files, set 'Statics: []'\n", bdir, prefix, G.PackageName, G.Hof.Path)
 			continue
 		}
 
