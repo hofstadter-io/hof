@@ -20,9 +20,23 @@ package gen
 	Statics: [{
 		Globs: ["\(#subdir)/statics/**/*"]
 		TrimPrefix: "\(#subdir)/statics/"
-	},{
-		Globs: ["\(#subdir)/static/**/*"]
-		TrimPrefix: "\(#subdir)/static/"
+	}]
+	...
+}
+
+#TemplateSubdirs: {
+	#subdir: string | *"."
+	Templates: [{
+		Globs: ["./templates/\(#subdir)/**/*"]
+		TrimPrefix: "./templates/\(#subdir)/"
+	}]
+	Partials: [{
+		Globs: ["./partials/\(#subdir)/**/*"]
+		TrimPrefix: "./partials/\(#subdir)/"
+	}]
+	Statics: [{
+		Globs: ["./statics/\(#subdir)/**/*"]
+		TrimPrefix: "./statics/\(#subdir)/"
 	}]
 	...
 }

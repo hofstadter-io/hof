@@ -14,7 +14,7 @@ Datamodel: {
 	Models: {
 		$hof: datamodel: node:    true
 		$hof: datamodel: ordered: true
-		[N= !="$hof"]: Model & {$hof: metadata: name: N}
+		[N= !="$hof"]: Model & {$hof: metadata: name: N, Name: N}
 	}
 
 	// OrderedModels: [...Model] will be
