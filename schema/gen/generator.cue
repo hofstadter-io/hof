@@ -99,7 +99,7 @@ Generator: #Generator
 	// until embed is supported, at which point this shouldn't be needed at all
 	// only needed when you have example usage in the same module the generator is in
 	// set to the empty string ("") as a generator writer who is making an example in the same module
-	ModuleName:  string | *""
+	ModuleName:  string
 	PackageName: ModuleName
 	// TODO, hof, can we introspect the generator / example packages and figure this out?
 
