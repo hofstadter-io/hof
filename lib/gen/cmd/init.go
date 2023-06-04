@@ -320,7 +320,7 @@ import (
 
 	// required by examples inside the same module
 	// your users do not set or see this field
-	PackageName: ""
+	ModuleName: ""
 }
 
 
@@ -453,7 +453,7 @@ import (
 
 	// required by examples inside the same module
 	// your users do not set or see this field
-	PackageName: ""
+	ModuleName: ""
 }
 
 
@@ -484,7 +484,7 @@ import (
 
 	// required for hof CUE modules to work
 	// your users do not set or see this field
-	PackageName: string | *"{{ .Module }}/{{ .Name }}"
+	ModuleName: string | *"{{ .Module }}/{{ .Name }}"
 
 	// The final list of files for hof to generate
 	// fill this with file values
