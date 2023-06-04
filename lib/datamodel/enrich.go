@@ -1,4 +1,4 @@
-package gen
+package datamodel
 
 import (
 	"fmt"
@@ -7,48 +7,31 @@ import (
 	"cuelang.org/go/cue"
 
 	"github.com/hofstadter-io/hof/lib/hof"
-	"github.com/hofstadter-io/hof/lib/datamodel"
 )
 
-const noRootFmt = `warning: root datamodel not found for child with %s at %s
-please pass the full datamodel to In values and select out later`
+func (dm *Datamodel) EnrichValue() error {
+	// fmt.Println("dm.EnrichValue()", dm.Hof.Path)
 
-// TODO, we may be able to move the upgrade logic to the datamodel package
-// and then unify the value with the ones we discover here.
-// The reason we are doing it here now is that the references get lost during decoding
-// and any changes we make to the datamodel are not reflected within the In value of the Genartor
-// Ideally, we could do this once and update values as needed.
-// It is likely we are doing work more than once.
-// We also need to ensure some order of operations here,
-//   as we need to have the history injected prior to decoding the majority of the Generator
-//   so that users can reference the history within the generator.
-//   The notable use case is making a file per snapshot for database migrations.
-
-func (G *Generator) upgradeDMs(dms []*datamodel.Datamodel) error {
-	if len(dms) == 0 {
-		return nil
-	}
-
-	val := G.Value
-	// fmt.Println(val)
+	// val := dm.Value()
 
 	// build a hof.Node tree from the gen.CueValue
-	gNs, err := hof.FindHofs(val)
-	if err != nil {
-		return err
-	}
+	//nodes, err := hof.FindHofs(val)
+	//if err != nil {
+		//return err
+	//}
+	//nodes := dm.Node
 
 	// fmt.Println(G.Hof.Path, len(dms), len(dms[0].Node.T.History()), len(gNs))
 
 	// assert that there is only 1 gN
-	if len(gNs) != 1 {
-		return fmt.Errorf("%s at %s created multiple $hof Nodes, you should not mix things like generators and datamodels withing the (exactly) same value, nesting is ok", G.Hof.Label, G.Hof.Path)
-	}
+	//if len(nodes) != 1 {
+	//  return fmt.Errorf("%s at %s created multiple $hof Nodes, you should not mix things like generators and datamodels withing the (exactly) same value, nesting is ok", dm.Hof.Label, dm.Hof.Path)
+	//}
 
-	gN := gNs[0]
-	gN.Print()
+	//node := nodes[0]
+	// gN.Print()
 
-	err = G.upgradeDMsR(gN, dms, nil)
+	err := dm.enrichR(dm.Node)
 	if err != nil {
 		return err
 	}
@@ -56,60 +39,26 @@ func (G *Generator) upgradeDMs(dms []*datamodel.Datamodel) error {
 	return nil
 }
 
-func (G *Generator) upgradeDMsR(hn *hof.Node[any], dms []*datamodel.Datamodel, root *datamodel.Datamodel) error {
-	// fmt.Println("G.upgradeDMsR - start", hn.Hof.Path)
-	if root == nil && hn.Hof.Datamodel.Root {
-		for _, dm := range dms {
-			if dm.Hof.Metadata.Name == hn.Hof.Metadata.Name {
-				root = dm
-				fmt.Println("G.upgradeDMsR - ROOT", root.Hof.Path, hn.Hof.Path)
-			}
-		}
-	}
-
-	// check for sub root, want to exit if nested root (it's picking up CUE attributes nested in histories)
-	if root != nil {
-		if root.Hof.Metadata.Name == hn.Hof.Metadata.Name {
-			fmt.Println("G.upgradeDMsR - root", root.Hof.Path, hn.Hof.Path)
-		}
-		if hn.Hof.Datamodel.Root {
-			fmt.Println("              + fill", root.Hof.Path, hn.Hof.Path)
-			hn.Value.FillPath(hn.Hof.Path, root.Value)
-		}
-	}
+func (dm *Datamodel) enrichR(hn *hof.Node[Value]) error {
 
 	// recursion into children
 	for _, c := range hn.Children {
-		err := G.upgradeDMsR(c, dms, root)
+		err := dm.enrichR(c)
 		if err != nil {
 			return err
 		}
 	}
 
-	return nil
 	// we do all the real work post-order recursion
 	// so that parent enrichments include child enrichments
 
-	// we do all the real work post-order recursion
-	// so that parent enrichments include child enrichments
-
-	// return if we are not within the DM root
-	if root == nil {
-		return nil
-	}
-
-	fmt.Println("G.upgradeDMsR - mid", hn.Hof.Path, root.Hof.Path)
-
-	if hn.Hof.Datamodel.Root {
-		fmt.Println("              - fill", root.Hof.Path, hn.Hof.Path)
-		hn.Value.FillPath(hn.Hof.Path, root.Value)
-	}
+	// fmt.Println("DM.enrichR", dm.Hof.Path, hn.Hof.Path)
 
 	// here, we need to inject any datamodel history(s)
 	// this is going to need some fancy, recursive processing
 	// so we will call out to a helper of some kind
 	if hn.Hof.Datamodel.History {
-		err := G.injectHistory(hn, dms, root)
+		err := dm.enrichHistory(hn)
 		if err != nil {
 			return err
 		}
@@ -117,28 +66,23 @@ func (G *Generator) upgradeDMsR(hn *hof.Node[any], dms []*datamodel.Datamodel, r
 
 	// here we create an ordered version of the node at the same level
 	//if hn.Hof.Datamodel.Ordered {
-	//  err := G.injectOrdered(hn, dms, root)
+	//  err := dm.enrichOrdered(hn)
 	//  if err != nil {
 	//    return err
 	//  }
 	//}
 
-	// fmt.Println("G.upgradeDMsR - end", hn.Hof.Path)
 	return nil
 }
 
-func (G *Generator) injectHistory(hn *hof.Node[any], dms []*datamodel.Datamodel, root *datamodel.Datamodel) error {
-	if root == nil {
-		return fmt.Errorf(noRootFmt, "@history", hn.Hof.Path)
-	}
-
-	if G.Verbosity > 0 {
-		fmt.Println("found @history at: ", hn.Hof.Path, hn.Hof.Metadata.ID, root.Hof.Path, root.Hof.Metadata.ID)
-	}
+func (dm *Datamodel) enrichHistory(hn *hof.Node[Value]) error {
+	// if G.Verbosity > 0 {
+		 fmt.Println("found @history at: ", hn.Hof.Path, hn.Hof.Metadata.ID, dm.Hof.Path, dm.Hof.Metadata.ID)
+	// }
 
 	// We want to walk the root node tree to find where it aligns with the current hn.
 	// In this way, we can write code that is ignorant of where in the node tree it is.
-	match := findHistoryMatchR(hn, root.Node)
+	match := findHistoryMatchR(hn, dm.Node)
 
 	// this should not happen because we already verified that we are in the root
 	// so return an error
@@ -151,15 +95,15 @@ func (G *Generator) injectHistory(hn *hof.Node[any], dms []*datamodel.Datamodel,
 
 	// get & check history
 	hist := match.T.History()
-	if G.Verbosity > 0 {
-		fmt.Println("injecting hist at: ", hn.Hof.Metadata.ID, match.Hof.Metadata.ID, len(hist), hist[0].Timestamp)
-	}
+	// if G.Verbosity > 0 {
+		 fmt.Println("injecting hist at: ", hn.Hof.Metadata.ID, match.Hof.Metadata.ID, len(hist), hist[0].Timestamp)
+	// }
 
 	// build up the label
 	p := hn.Hof.Path
 
 	// trim the datamodel label since we are already in there via G.Value
-	start := G.Hof.Label + "."
+	start := dm.Hof.Label + "."
 	p = strings.TrimPrefix(p, start)
 
 	// This is the current snapshot, outside the history object
@@ -169,8 +113,7 @@ func (G *Generator) injectHistory(hn *hof.Node[any], dms []*datamodel.Datamodel,
 		if err != nil {
 			return err
 		}
-		// XXX TODO XXX inject refrence rather than value
-		G.Value.FillPath(p+".Snapshot", s)
+		dm.Value.FillPath(p+".Snapshot", s)
 	}
 
 
@@ -188,13 +131,13 @@ func (G *Generator) injectHistory(hn *hof.Node[any], dms []*datamodel.Datamodel,
 	// Inject the value at the current path as "History" list
 	p += ".History"
 	// XXX TODO XXX inject refrence rather than value
-	G.Value.FillPath(p, snaps)
+	dm.Value.FillPath(p, snaps)
 	// fmt.Println(G.CueValue)
 
 	return nil
 }
 
-func findHistoryMatchR(hn *hof.Node[any], root *hof.Node[datamodel.Value]) *hof.Node[datamodel.Value] {
+func findHistoryMatchR(hn *hof.Node[Value], root *hof.Node[Value]) *hof.Node[Value] {
 	// are we currently there?
 	// TODO: make this check better
 	// current limitation is no shared names in the same datamodel tree
@@ -217,7 +160,7 @@ func findHistoryMatchR(hn *hof.Node[any], root *hof.Node[datamodel.Value]) *hof.
 	return nil
 }
 
-func snapshotToData(snap *datamodel.Snapshot) (any, error) {
+func snapshotToData(snap *Snapshot) (any, error) {
 	s := make(map[string]any)
 	// true for history snapshot entries
 	// false for the snapshot we use on the current value to hold the current diff (dirty datamodel)
@@ -245,18 +188,14 @@ func snapshotToData(snap *datamodel.Snapshot) (any, error) {
 // Note | XXX, CUE's order may change between versions, they are working towards defining a stable order
 //   at which point we will use the same for consistency. We should be backwards compatible at this point
 //   but there is risk until then
-func (G *Generator) injectOrdered(hn *hof.Node[any], dms []*datamodel.Datamodel, root *datamodel.Datamodel) error {
-	if root == nil {
-		return fmt.Errorf(noRootFmt, "@ordered", hn.Hof.Path)
-	}
-
-	if G.Verbosity > 0 {
-		fmt.Println("found @ordered at: ", hn.Hof.Path)
-	}
+func (dm *Datamodel) enrichOrdered(hn *hof.Node[any]) error {
+	// if G.Verbosity > 0 {
+		// fmt.Println("found @ordered at: ", hn.Hof.Path)
+	// }
 
 	path := hn.Hof.Path
-	path = strings.TrimPrefix(path, G.Name + ".")
-	value := G.Value.LookupPath(path).CueValue()
+	path = strings.TrimPrefix(path, dm.Hof.Metadata.Name + ".")
+	value := dm.Value.LookupPath(path).CueValue()
 
 	iter, err := value.Fields()
 	if err != nil {
@@ -281,6 +220,6 @@ func (G *Generator) injectOrdered(hn *hof.Node[any], dms []*datamodel.Datamodel,
 	l := value.Context().NewList(ordered...)
 
 	// fill into Gen value
-	G.Value.FillPath(path + "Ordered", l)
+	dm.Value.FillPath(path + "Ordered", l)
 	return nil
 }

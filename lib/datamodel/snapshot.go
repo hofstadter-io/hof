@@ -18,7 +18,7 @@ import (
 )
 
 // YYYYMMDDHHMMSS in Golang
-const CheckpointFmt = "20060102150405"
+const CheckpointTimeFmt = "20060102150405"
 
 // Snapshot represents a Value at a point in time
 type Snapshot struct {
@@ -194,7 +194,7 @@ func (V *Value) makeSnapshot(timestamp, message string) error {
 		return err
 	}
 
-	val := V.Value
+	val := V.CueValue()
 
 	// enrich val
 	// - $hof

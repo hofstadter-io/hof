@@ -164,7 +164,7 @@ func (R *Runtime) adhocAsModule() error {
 	}
 
 	// get top-level CUE value as a struct
-	S, err := R.Value.Struct()
+	S, err := R.Value.CueValue().Struct()
 	if err != nil {
 		return err
 	}

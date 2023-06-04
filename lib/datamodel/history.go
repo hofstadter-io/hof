@@ -1,6 +1,7 @@
 package datamodel
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
@@ -70,6 +71,7 @@ func (dm *Datamodel) LoadHistoryFrom(earliest string) error {
 
 // LoadHistory loads the full datamodel history
 func (dm *Datamodel) LoadHistory() error {
+	fmt.Println("dm.LoadHistory()", dm.Hof.Path)
 
 	has, err := dm.HasHistory()
 	if err != nil {
@@ -134,7 +136,7 @@ func (V *Value) loadHistory() error {
 		if ext != ".cue" {
 			continue
 		}
-		s, err := loadSnapshot(dir, f.Name(), V.Value.Context())
+		s, err := loadSnapshot(dir, f.Name(), V.CueValue().Context())
 		if err != nil {
 			return err
 		}

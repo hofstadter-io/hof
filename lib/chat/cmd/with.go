@@ -6,8 +6,6 @@ import (
 	"os"
 	"strings"
 
-	"cuelang.org/go/cue"
-
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 
 	flowcontext "github.com/hofstadter-io/hof/flow/context"
@@ -66,9 +64,9 @@ func With(name string, extra []string, rflags flags.RootPflagpole, cflags flags.
 	}
 
 	// fill in values from user before decoding
-	c.Value = c.Value.FillPath(cue.ParsePath("Args"), args)
-	c.Value = c.Value.FillPath(cue.ParsePath("Files"), files)
-	c.Value = c.Value.FillPath(cue.ParsePath("Question"), question)
+	c.Value.FillPath("Args", args)
+	c.Value.FillPath("Files", files)
+	c.Value.FillPath("Question", question)
 
 	// get the latest decoded version of the value
 	err = c.Value.Decode(c)
@@ -107,7 +105,7 @@ func With(name string, extra []string, rflags flags.RootPflagpole, cflags flags.
 	}
 
 	// maybe run the pre flow
-	preExec := c.Value.LookupPath(cue.ParsePath("PreExec"))
+	preExec := c.Value.LookupPath("PreExec").CueValue()
 	if preExec.Exists() && preExec.IsConcrete() {
 		if rflags.Verbosity > 0 {
 			fmt.Println("running pre exec flow:", preExec)
@@ -135,7 +133,7 @@ func With(name string, extra []string, rflags flags.RootPflagpole, cflags flags.
 			return err
 		}
 
-		c.Value = c.Value.FillPath(cue.ParsePath("PreExec"), preExec)
+		c.Value.FillPath("PreExec", preExec)
 		if c.Value.Err() != nil {
 			return err
 		}
@@ -165,7 +163,7 @@ func With(name string, extra []string, rflags flags.RootPflagpole, cflags flags.
 	if err != nil {
 		return err
 	}
-	c.Value = c.Value.FillPath(cue.ParsePath("Response"), resp)
+	c.Value.FillPath("Response", resp)
 
 	// get the latest decoded version of the value
 	// getting a weird "value was rounded down error" from CUE
@@ -175,7 +173,7 @@ func With(name string, extra []string, rflags flags.RootPflagpole, cflags flags.
 	//  return err
 	//}
 
-	postExec := c.Value.LookupPath(cue.ParsePath("PostExec"))
+	postExec := c.Value.LookupPath("PostExec").CueValue()
 	if postExec.Exists() && postExec.IsConcrete() {
 		if rflags.Verbosity > 0 {
 			fmt.Println("running post exec flow:", postExec)
@@ -202,7 +200,7 @@ func With(name string, extra []string, rflags flags.RootPflagpole, cflags flags.
 			return err
 		}
 
-		c.Value = c.Value.FillPath(cue.ParsePath("PostExec"), postExec)
+		c.Value.FillPath("PostExec", postExec)
 		if c.Value.Err() != nil {
 			return err
 		}
@@ -212,7 +210,7 @@ func With(name string, extra []string, rflags flags.RootPflagpole, cflags flags.
 	}
 
 
-	outVal := c.Value.LookupPath(cue.ParsePath("Output"))
+	outVal := c.Value.LookupPath("Output").CueValue()
 	out, err := outVal.String()
 	if err != nil {
 		return err

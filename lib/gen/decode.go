@@ -19,7 +19,7 @@ func (G *Generator) DecodeFromCUE(dms []*datamodel.Datamodel) (errs []error) {
 	// should we just unify with the schema here too?
 	// what about versions?
 
-	// fmt.Println("Gen Load:", G.Name)
+	fmt.Println("Gen Load:", G.Name)
 	start := time.Now()
 
 	if err := G.upgradeDMs(dms); err != nil {
@@ -123,7 +123,7 @@ func (G *Generator) DecodeFromCUE(dms []*datamodel.Datamodel) (errs []error) {
 }
 
 func (G *Generator) decodeName() error {
-	val := G.CueValue.LookupPath(cue.ParsePath("Name"))
+	val := G.Value.LookupPath("Name").CueValue()
 	if val.Err() != nil {
 		return val.Err()
 	}
@@ -137,7 +137,7 @@ func (G *Generator) decodeName() error {
 }
 
 func (G *Generator) decodeDebug() error {
-	val := G.CueValue.LookupPath(cue.ParsePath("Debug"))
+	val := G.Value.LookupPath("Debug").CueValue()
 	if val.Err() != nil {
 		return val.Err()
 	}
@@ -166,7 +166,7 @@ func (G *Generator) PrintInfo() {
 }
 
 func (G *Generator) decodeDiff3() error {
-	val := G.CueValue.LookupPath(cue.ParsePath("Diff3"))
+	val := G.Value.LookupPath("Diff3").CueValue()
 	if val.Err() != nil {
 		return val.Err()
 	}
@@ -175,7 +175,7 @@ func (G *Generator) decodeDiff3() error {
 }
 
 func (G *Generator) decodeOutdir() error {
-	val := G.CueValue.LookupPath(cue.ParsePath("Outdir"))
+	val := G.Value.LookupPath("Outdir").CueValue()
 	if val.Err() != nil {
 		return val.Err()
 	}
@@ -184,7 +184,7 @@ func (G *Generator) decodeOutdir() error {
 }
 
 func (G *Generator) decodeIn() error {
-	val := G.CueValue.LookupPath(cue.ParsePath("In"))
+	val := G.Value.LookupPath("In").CueValue()
 	if val.Err() != nil {
 		return val.Err()
 	}
@@ -195,7 +195,7 @@ func (G *Generator) decodeIn() error {
 
 func (G *Generator) decodeWatchFull() error {
 	G.WatchFull = make([]string, 0)
-	val := G.CueValue.LookupPath(cue.ParsePath("WatchFull"))
+	val := G.Value.LookupPath("WatchFull").CueValue()
 	if val.Err() != nil {
 		return nil
 		return val.Err()
@@ -206,7 +206,7 @@ func (G *Generator) decodeWatchFull() error {
 
 func (G *Generator) decodeWatchFast() error {
 	G.WatchFast = make([]string, 0)
-	val := G.CueValue.LookupPath(cue.ParsePath("WatchFast"))
+	val := G.Value.LookupPath("WatchFast").CueValue()
 	if val.Err() != nil {
 		return nil
 		return val.Err()
@@ -216,7 +216,7 @@ func (G *Generator) decodeWatchFast() error {
 }
 
 func (G *Generator) decodeFormattingBools() (err error) {
-	val := G.CueValue.LookupPath(cue.ParsePath("Formatting.Disabled"))
+	val := G.Value.LookupPath("Formatting.Disabled").CueValue()
 	if val.Err() != nil {
 		return nil
 		// return val.Err()
@@ -226,7 +226,7 @@ func (G *Generator) decodeFormattingBools() (err error) {
 		return err
 	}
 
-	val = G.CueValue.LookupPath(cue.ParsePath("Formatting.FormatData"))
+	val = G.Value.LookupPath("Formatting.FormatData").CueValue()
 	if val.Err() != nil {
 		return nil
 		// return val.Err()
@@ -239,7 +239,7 @@ func (G *Generator) decodeFormattingBools() (err error) {
 }
 
 func (G *Generator) decodeFormattingConfigs() error {
-	val := G.CueValue.LookupPath(cue.ParsePath("Formatting.Formatters"))
+	val := G.Value.LookupPath("Formatting.Formatters").CueValue()
 	if val.Err() != nil {
 		return nil
 		return val.Err()
@@ -250,7 +250,7 @@ func (G *Generator) decodeFormattingConfigs() error {
 }
 
 func (G *Generator) decodeTemplates() error {
-	val := G.CueValue.LookupPath(cue.ParsePath("Templates"))
+	val := G.Value.LookupPath("Templates").CueValue()
 	if val.Err() != nil {
 		return val.Err()
 	}
@@ -260,7 +260,7 @@ func (G *Generator) decodeTemplates() error {
 }
 
 func (G *Generator) decodePartials() error {
-	val := G.CueValue.LookupPath(cue.ParsePath("Partials"))
+	val := G.Value.LookupPath("Partials").CueValue()
 	if val.Err() != nil {
 		return val.Err()
 	}
@@ -270,7 +270,7 @@ func (G *Generator) decodePartials() error {
 }
 
 func (G *Generator) decodeStatics() error {
-	val := G.CueValue.LookupPath(cue.ParsePath("Statics"))
+	val := G.Value.LookupPath("Statics").CueValue()
 	if val.Err() != nil {
 		return val.Err()
 	}
@@ -280,7 +280,7 @@ func (G *Generator) decodeStatics() error {
 }
 
 func (G *Generator) decodeEmbeddedTemplates() error {
-	val := G.CueValue.LookupPath(cue.ParsePath("EmbeddedTemplates"))
+	val := G.Value.LookupPath("EmbeddedTemplates").CueValue()
 	if val.Err() != nil {
 		return val.Err()
 	}
@@ -290,7 +290,7 @@ func (G *Generator) decodeEmbeddedTemplates() error {
 }
 
 func (G *Generator) decodeEmbeddedPartials() error {
-	val := G.CueValue.LookupPath(cue.ParsePath("EmbeddedPartials"))
+	val := G.Value.LookupPath("EmbeddedPartials").CueValue()
 	if val.Err() != nil {
 		return val.Err()
 	}
@@ -300,7 +300,7 @@ func (G *Generator) decodeEmbeddedPartials() error {
 }
 
 func (G *Generator) decodeEmbeddedStatics() error {
-	val := G.CueValue.LookupPath(cue.ParsePath("EmbeddedStatics"))
+	val := G.Value.LookupPath("EmbeddedStatics").CueValue()
 	if val.Err() != nil {
 		return val.Err()
 	}
@@ -310,7 +310,7 @@ func (G *Generator) decodeEmbeddedStatics() error {
 }
 
 func (G *Generator) decodeVal() error {
-	val := G.CueValue.LookupPath(cue.ParsePath("Val"))
+	val := G.Value.LookupPath("Val")
 	if val.Err() != nil {
 		return val.Err()
 	}
@@ -321,7 +321,8 @@ func (G *Generator) decodeVal() error {
 }
 
 func (G *Generator) decodeOut() []error {
-	val := G.CueValue.LookupPath(cue.ParsePath("Out"))
+	V := G.Value.LookupPath("Out")
+	val := V.CueValue()
 	if val.Err() != nil {
 		return []error{val.Err()}
 	}
@@ -345,7 +346,9 @@ func (G *Generator) decodeOut() []error {
 		v := L.Value()
 		elem := Out[i]
 
-		err := G.decodeFile(elem, v)
+		lv := V.LookupPath(v.Path().String())
+
+		err := G.decodeFile(elem, lv)
 		if err != nil {
 			allErrs = append(allErrs, err)
 		}
@@ -360,7 +363,7 @@ func (G *Generator) decodeOut() []error {
 	return nil
 }
 
-func (G *Generator) decodeFile(file *File, val cue.Value) error {
+func (G *Generator) decodeFile(file *File, val *hof.Value) error {
 
 	// Only keep valid elements
 	// Invalid include conditional elements in CUE Gen which are not "included"
@@ -399,8 +402,8 @@ func (G *Generator) decodeFile(file *File, val cue.Value) error {
 
 		// If datafile format
 		if !dfE {
-			val := val.LookupPath(cue.ParsePath("Val"))
-			if val.Err() == nil && val.Exists() {
+			val := val.LookupPath("Val")
+			if val.Err() == nil && val.CueValue().Exists() {
 				file.Value = val
 			} else {
 				file.Value = G.Val
@@ -409,7 +412,7 @@ func (G *Generator) decodeFile(file *File, val cue.Value) error {
 			// TODO< check if a tc looks like a tp, or vice-a-versa
 			// perhaps look for a path or template indicators
 
-			in := val.LookupPath(cue.ParsePath("In"))
+			in := val.LookupPath("In")
 			// manage In value
 			// If In exists
 			if in.Err() == nil {
@@ -427,7 +430,7 @@ func (G *Generator) decodeFile(file *File, val cue.Value) error {
 
 		// Formatting
 		var err error
-		fval := val.LookupPath(cue.ParsePath("Formatting"))
+		fval := val.LookupPath("Formatting").CueValue()
 		if fval.Err() == nil && fval.Exists() {
 			fdval := fval.LookupPath(cue.ParsePath("Disabled"))
 			if fdval.Err() == nil && fdval.Exists() {
@@ -437,7 +440,7 @@ func (G *Generator) decodeFile(file *File, val cue.Value) error {
 				}
 			} else {
 				// use default from Generator, depending on file type (tmpl|data)
-				if file.Value.Exists() {
+				if file.Value.CueValue().Exists() {
 					file.FormattingDisabled = !G.FormatData
 				} else {
 					file.FormattingDisabled = G.FormattingDisabled
@@ -469,7 +472,7 @@ func (G *Generator) decodeFile(file *File, val cue.Value) error {
 }
 
 func (G *Generator) decodePackageName() error {
-	val := G.CueValue.LookupPath(cue.ParsePath("PackageName"))
+	val := G.Value.LookupPath("PackageName").CueValue()
 	if val.Err() != nil {
 		return val.Err()
 	}
@@ -479,7 +482,8 @@ func (G *Generator) decodePackageName() error {
 
 func (G *Generator) decodeSubgens(dms []*datamodel.Datamodel) (errs []error) {
 
-	val := G.CueValue.LookupPath(cue.ParsePath("Generators"))
+	V := G.Value.LookupPath("Generators")
+	val := V.CueValue()
 	if val.Err() != nil {
 		return []error{val.Err()}
 	}
@@ -499,7 +503,7 @@ func (G *Generator) decodeSubgens(dms []*datamodel.Datamodel) (errs []error) {
 		h.Gen.Root = true
 		h.Gen.Name = name
 		node := &hof.Node[Generator]{
-			Value: v,
+			Value: V.LookupPath(h.Path),
 			Hof: h,
 		}
 		sg := NewGenerator(node)

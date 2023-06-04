@@ -350,7 +350,7 @@ func runCreator(R *gencmd.Runtime, extra, inputs []string) (err error) {
 
 	// we wait until the very end of all generators to print after messages
 	for _, G := range R.Generators {
-		after := G.CueValue.LookupPath(cue.ParsePath("Create.Message.After"))
+		after := G.Value.LookupPath("Create.Message.After").CueValue()
 		if after.Err() != nil {
 			fmt.Println("error:", after.Err())
 			return after.Err()
@@ -420,9 +420,9 @@ func loadCreateInputs(R *gencmd.Runtime, inputFlags []string) (input map[string]
 
 func handleGeneratorCreate(G *gen.Generator, extraArgs []string, inputMap map[string]any) (err error) {
 	// fill any extra args into generator value
-	G.CueValue = G.CueValue.FillPath(cue.ParsePath("Create.Args"), extraArgs)
+	G.Value.FillPath("Create.Args", extraArgs)
 
-	genVal := G.CueValue
+	genVal := G.Value.CueValue()
 
 	// pritn the before message if set, otherwise default
 	before := genVal.LookupPath(cue.ParsePath("Create.Message.Before"))
@@ -501,15 +501,15 @@ func handleGeneratorCreate(G *gen.Generator, extraArgs []string, inputMap map[st
 
 		// fmt.Printf("newMap: %#v\n", newMap)
 
-		G.CueValue = G.CueValue.FillPath(cue.ParsePath("Create.Input"), newMap)
+		G.Value.FillPath("Create.Input", newMap)
 	}
 
-	G.CueValue, err = runPrompt(G.CueValue)
+	err = runPrompt(G.Value)
 	if err != nil {
 		return err
 	}
 
-	in := G.CueValue.LookupPath(cue.ParsePath("In"))
+	in := G.Value.LookupPath("In")
 	if !in.Exists() {
 		return fmt.Errorf("In gen:%s, missing In value", G.Name)
 	}

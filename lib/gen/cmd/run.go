@@ -82,7 +82,7 @@ func (R *Runtime) Reload(fast bool) (err error) {
 	defer R.Unlock()
 
 	if R.Flags.Verbosity > 1 {
-		fmt.Printf("Runtime.Reload(%b)\n", fast)
+		fmt.Printf("Runtime.Reload(%v)\n", fast)
 	}
 
 	R.Clear()
@@ -102,14 +102,101 @@ func (R *Runtime) Reload(fast bool) (err error) {
 	return nil
 }
 
-func (R *Runtime) Clear() {
-	R.Datamodels = make([]*datamodel.Datamodel, 0, len(R.Datamodels))
-	R.Generators = make([]*gen.Generator, 0, len(R.Generators))
+func (R *Runtime) localLoad() error {
+	fmt.Println("R.localLoad()")
+	err := R.EnrichDatamodels(nil, EnrichDatamodelBuilder(R))
+	if err != nil {
+		return err
+	}
+
+	// fmt.Println(R.Value)
+
+	// inject history & diffs
+	//err = R.()
+	//if err != nil {
+	//  return err
+	//}
+
+	// the generators to load up
+	gens := R.GenFlags.Generator
+	// we want to skip any generators
+	// if we are in adhoc mode and haven't set -G
+	if len(R.GenFlags.Template) > 0 && len(gens) == 0 {
+		// this value should not match user data
+		// so we effectively omit all generators, besides adhoc
+		gens = []string{"HOF_ADHOC_OMIT_GENERATORS"}
+	}
+
+	err = R.EnrichGenerators(gens, EnrichGeneratorBuilder(R))
+	if err != nil {
+		return err
+	}
+
+	err = R.Initialize()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (R *Runtime) Initialize() error {
+	if R.Flags.Verbosity > 1 {
+		fmt.Printf("Runtime.Initialize()\n")
+	}
+
+	err := R.CreateAdhocGenerator()
+	if err != nil {
+		return err
+	}
+
+	/*
+	for _, G := range R.Generators {
+		errs := G.Initialize()
+		if len(errs) != 0 {
+			var emsg string
+			for _, err := range errs {
+				emsg += fmt.Sprintf("%s\n", err.Error())
+			}
+			return fmt.Errorf("while initializing %s:\n%s", G.Hof.Path, emsg)
+		}
+	}
+	*/
+
+	return nil
+}
+
+func EnrichDatamodelBuilder(R *Runtime) func (R *runtime.Runtime, DM *datamodel.Datamodel) error {
+	return func (rt *runtime.Runtime, dm *datamodel.Datamodel) error {
+		err := dm.LoadHistory()
+		if err != nil {
+			return err
+		}
+		err = dm.CalcDiffs()
+		if err != nil {
+			return err
+		}
+
+		fmt.Println("R.EnrichDatamodel", dm.Hof.Path)
+		err = dm.EnrichValue()
+		if err != nil {
+			return err
+		}
+
+		// fill back value so available at root runtime value when decoding generators
+		R.Value.FillPath(dm.Hof.Path, dm.Value)
+		
+		return nil
+	}
 }
 
 func EnrichGeneratorBuilder(R *Runtime) func (R *runtime.Runtime, G *gen.Generator) error {
 
 	return func (rt *runtime.Runtime, G *gen.Generator) error {
+
+		// update the generator value to the latest found in the Runtime Value
+		// this should include the injected history now when decoding references
+		G.Value = R.Value.LookupPath(G.Hof.Path)
 
 		if G.Disabled {
 			return nil
@@ -128,6 +215,7 @@ func EnrichGeneratorBuilder(R *Runtime) func (R *runtime.Runtime, G *gen.Generat
 		if R.Flags.Verbosity > 1 {
 			fmt.Println("Loading Generator:", G.Hof.Metadata.Name)
 		}
+
 
 		// Load the Generator! (from in memory CUE)
 		// this is more of a decode from CUE, maybe too much and needs to be split up?

@@ -129,7 +129,7 @@ func (R *Runtime) load() (err error) {
 			continue
 		}
 
-		R.Value = V
+		R.Value = hof.WrapValue(V, "")
 
 	}
 

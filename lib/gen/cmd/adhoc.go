@@ -62,7 +62,7 @@ func (R *Runtime) CreateAdhocGenerator() error {
 
 	var h hof.Hof
 	h.Label = "AdhocGen"
-	h.Path = R.Value.Path().String()
+	h.Path = R.Value.Path()
 	h.Gen.Root = true
 	h.Gen.Name = "AdhocGen"
 	node := &hof.Node[gen.Generator]{
@@ -82,12 +82,12 @@ func (R *Runtime) CreateAdhocGenerator() error {
 
 	stdout := 0
 	for _, cfg := range tcfgs {
-		val := Val
+		val := Val.CueValue()
 		if cfg.Cuepath != "" {
 			val = val.LookupPath(cue.ParsePath(cfg.Cuepath))
 		}
 		if cfg.Schema != "" {
-			schema := Val.LookupPath(cue.ParsePath(cfg.Schema))
+			schema := val.LookupPath(cue.ParsePath(cfg.Schema))
 			val = val.Unify(schema)
 		}
 
@@ -106,7 +106,7 @@ func (R *Runtime) CreateAdhocGenerator() error {
 			if cfg.DataFormat != "" {
 				// fmt.Println("data file:", cfg.DataFormat)
 				f.DatafileFormat = cfg.DataFormat
-				f.Value = val
+				f.CueValue = val
 			} else {
 				f.TemplatePath = cfg.Filepath
 				f.In = V

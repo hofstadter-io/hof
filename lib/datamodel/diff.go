@@ -92,7 +92,7 @@ func (V *Value) calcDiff() error {
 	var cv, lv cue.Value
 	var cs, ls *Snapshot
 
-	cv = V.Value
+	cv = V.CueValue()
 	cs = V.Snapshot
 
 	for _, S := range V.history {
