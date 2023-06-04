@@ -121,7 +121,7 @@ func (R *Runtime) adhocAsModule() error {
 		i := strings.LastIndex(name,":")
 		name, pkg = name[:i], name[i+1:]
 	}
-	fmt.Printf("Initializing: %s/%s in pkg %s", module, name, pkg)
+	fmt.Printf("Initializing: %s/%s in pkg %s\n", module, name, pkg)
 
 	// parse template flags
 	tcfgs  := []AdhocTemplateConfig{}
@@ -290,7 +290,7 @@ import (
 )
 
 // This is example usage of your generator
-{{ camelT .Name }}Example: #{{ camelT .Name }}Generator & {
+{{ camelT .Name }}: Generator & {
 	@gen({{ .Name }})
 
 	// inputs to the generator
@@ -325,7 +325,7 @@ import (
 
 
 // This is your reusable generator module
-#{{ camelT .Name }}Generator: gen.#Generator & {
+Generator: gen.#Generator & {
 
 	//
 	// user input fields
@@ -370,7 +370,7 @@ import (
 
 	// required for hof CUE modules to work
 	// your users do not set or see this field
-	PackageName: string | *"{{ .Module }}/{{ .Name }}"
+	ModuleName: string | *"{{ .Module }}/{{ .Name }}"
 
 	{{ if .Templates -}}
 	// Templates: [gen.#Templates & {Globs: ["./templates/**/*"], TrimPrefix: "./templates/"}]
@@ -438,7 +438,7 @@ import (
 )
 
 // This is example usage of your generator
-{{ camelT .Name }}Example: #{{ camelT .Name }}Generator & {
+{{ camelT .Name }}: Generator & {
 	@gen({{ .Name }})
 
 	// inputs to the generator
@@ -458,7 +458,7 @@ import (
 
 
 // This is your reusable generator module
-#{{ camelT .Name }}Generator: gen.#Generator & {
+Generator: gen.#Generator & {
 
 	//
 	// user input fields
