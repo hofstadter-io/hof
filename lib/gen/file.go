@@ -11,7 +11,6 @@ import (
 	"github.com/sergi/go-diff/diffmatchpatch"
 
 	"github.com/hofstadter-io/hof/lib/diff3"
-	"github.com/hofstadter-io/hof/lib/hof"
 	"github.com/hofstadter-io/hof/lib/templates"
 )
 
@@ -58,8 +57,7 @@ type File struct {
 
 	// CUE value for datafiles
 	// (we use a different name here so that it does not automatically try to decode, which would require concreteness)
-	CueValue cue.Value
-	Value    *hof.Value
+	Value cue.Value
 
 	// Template Instance Pointer
 	//   If local, this will be created when the template content is loaded
@@ -293,7 +291,7 @@ func (F *File) diff2() (write bool, err error) {
 }
 
 func (F *File) RenderData() (err error) {
-	F.RenderContent, err = F.formatData(F.Value.CueValue(), F.DatafileFormat)
+	F.RenderContent, err = F.formatData(F.Value, F.DatafileFormat)
 	if err != nil {
 		F.Errors = append(F.Errors, err)
 		return err

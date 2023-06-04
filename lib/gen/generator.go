@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"cuelang.org/go/cue"
 	"github.com/mattn/go-zglob"
 
 	"github.com/hofstadter-io/hof/lib/hof"
@@ -55,7 +56,7 @@ type Generator struct {
 
 	// "Global" input, merged with out replacing onto the files
 	In  map[string]any
-	Val *hof.Value
+	Val cue.Value
 
 	// File globs to watch and trigger regen on change
 	WatchFull []string
@@ -127,8 +128,8 @@ type Generator struct {
 	// Status for this generator and processing
 	Stats *GeneratorStats
 
-	// shared singleton value from Runtime
-	Value *hof.Value
+	// Cuelang related, also set externally
+	CueValue cue.Value
 }
 
 func NewGenerator(node *hof.Node[Generator]) *Generator {
@@ -139,7 +140,7 @@ func NewGenerator(node *hof.Node[Generator]) *Generator {
 
 		// generator specific vals
 		Name:          node.Hof.Label,
-		Value:         node.Value,
+		CueValue:      node.Value,
 
 		// initialize containers
 		PartialsMap:   templates.NewTemplateMap(),
@@ -358,6 +359,9 @@ func (G *Generator) initPartials() []error {
 			errs = append(errs, fmt.Errorf("duplicate partial %s:%s", G.NamePath(), path))
 		}
 	}
+
+	// TODO, does this need to match how statics look up files
+	// with bdir, and what about when CwdToRoot is not empty under various conditions
 
 	// then partials from disk via globs
 	for _, tg := range G.Partials {

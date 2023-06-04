@@ -136,7 +136,7 @@ func (V *Value) loadHistory() error {
 		if ext != ".cue" {
 			continue
 		}
-		s, err := loadSnapshot(dir, f.Name(), V.CueValue().Context())
+		s, err := loadSnapshot(dir, f.Name(), V.Value.Context())
 		if err != nil {
 			return err
 		}

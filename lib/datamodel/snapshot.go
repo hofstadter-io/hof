@@ -194,7 +194,7 @@ func (V *Value) makeSnapshot(timestamp, message string) error {
 		return err
 	}
 
-	val := V.CueValue()
+	val := V.Value
 
 	// enrich val
 	// - $hof

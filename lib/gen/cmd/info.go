@@ -3,6 +3,8 @@ package cmd
 import (
 	"fmt"
 
+	"cuelang.org/go/cue"
+
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 )
 
@@ -18,7 +20,7 @@ func Info(args []string, rflags flags.RootPflagpole, gflags flags.GenFlagpole, i
 	}
 
 	for _, ex := range iflags.Expression {
-		val := R.Value.LookupPath(ex).CueValue()
+		val := R.Value.LookupPath(cue.ParsePath(ex))
 		path := val.Path()
 		fmt.Printf("%s: %v\n\n", path, val)
 	}

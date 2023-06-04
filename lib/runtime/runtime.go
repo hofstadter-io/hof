@@ -53,8 +53,8 @@ type Runtime struct {
 	// when a user supplies an data.json@path.to.field
 	dataMappings    map[string]string
 
-	// Our CUE value wrapper, an singleton for the Runtime
-	Value    *hof.Value
+	// The CUE value after all loading
+	Value    cue.Value
 
 	// we need to rethink how we organize the code
 	// in each of these packages so we can separate

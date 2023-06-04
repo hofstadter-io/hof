@@ -3,10 +3,9 @@ package create
 import (
 	"fmt"
 
+	"cuelang.org/go/cue"
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/AlecAivazis/survey/v2/terminal"
-
-	"github.com/hofstadter-io/hof/lib/hof"
 )
 
 type handler func (Q map[string]any) (A any, err error)
@@ -28,7 +27,7 @@ func init() {
 	}
 }
 
-func runPrompt(genVal *hof.Value) (err error) {
+func runPrompt(genVal cue.Value) (result cue.Value, err error) {
 	// run while there are unanswered questions
 	// we run in an extra loop to fill back answers
 	// and recalculate the prompt questions each iteration
@@ -37,26 +36,26 @@ func runPrompt(genVal *hof.Value) (err error) {
 	for !done {
 		done = true
 
-		inputVal := genVal.LookupPath("Create.Input")
+		inputVal := genVal.LookupPath(cue.ParsePath("Create.Input"))
 		if inputVal.Err() != nil {
-			return inputVal.Err()
+			return genVal, inputVal.Err()
 		}
 
 		// fmt.Printf("outer loop input: %#v\n", inputVal)
 
-		prompt := genVal.LookupPath("Create.Prompt")
+		prompt := genVal.LookupPath(cue.ParsePath("Create.Prompt"))
 		if prompt.Err() != nil {
-			return prompt.Err()
+			return genVal, prompt.Err()
 		}
 		if !prompt.IsConcrete() || !prompt.Exists() {
 			// to have a promptless generator, set it to the empty list
-			return fmt.Errorf("Generator is missing Create.Prompt, set to empty list for promptless")
+			return genVal, fmt.Errorf("Generator is missing Create.Prompt, set to empty list for promptless")
 		}
 
 		// prompt should be an ordered list of questions
 		iter, err := prompt.List()
 		if err != nil {
-			return err
+			return genVal, err
 		}
 
 		// loop over prompt questions, recursing as needed
@@ -67,18 +66,19 @@ func runPrompt(genVal *hof.Value) (err error) {
 			Q := map[string]any{}
 			err := value.Decode(&Q)
 			if err != nil {
-				return err
+				return genVal, err
 			}
 
 			// fmt.Printf("%#v\n", Q)
 
 			name := Q["Name"].(string)
+			namePath := cue.ParsePath(name)
 
 			// check if done already by inspececting in input
-			i := inputVal.LookupPath(name)
+			i := inputVal.LookupPath(namePath)
 			if i.Err() != nil {
 				if i.Exists() {
-					return i.Err()
+					return genVal, i.Err()
 				}
 			}
 			if i.Exists() && i.IsConcrete() {
@@ -95,21 +95,21 @@ func runPrompt(genVal *hof.Value) (err error) {
 			A, err := handleQuestion(Q)
 			if err != nil {
 				if err == terminal.InterruptErr {
-					return fmt.Errorf("user interrupt")
+					return genVal, fmt.Errorf("user interrupt")
 				}
-				return err
+				return genVal, err
 			}
 
 			// update input val
-			inputVal.FillPath(name, A)
-			genVal.FillPath("Create.Input", inputVal)
+			inputVal = inputVal.FillPath(namePath, A)
+			genVal = genVal.FillPath(cue.ParsePath("Create.Input"), inputVal)
 
 			// restart the prompt loop
 			break
 		}
 	}
 
-	return nil
+	return genVal, nil
 }
 
 func handleQuestion(Q map[string]any) (A any, err error) {

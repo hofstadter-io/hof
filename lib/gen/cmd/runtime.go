@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/datamodel"
 	"github.com/hofstadter-io/hof/lib/gen"
 	"github.com/hofstadter-io/hof/lib/runtime"
@@ -27,6 +28,36 @@ func NewGenRuntime(RT *runtime.Runtime, gflags flags.GenFlagpole) (*Runtime) {
 	}
 
 }
+
+func prepRuntime(args []string, rflags flags.RootPflagpole, gflags flags.GenFlagpole) (*Runtime, error) {
+
+	// create our core runtime
+	r, err := runtime.New(args, rflags)
+	if err != nil {
+		return nil, err
+	}
+	// upgrade to a generator runtime
+	R := NewGenRuntime(r, gflags)
+
+	// log cue dirs
+	if R.Flags.Verbosity > 1 {
+		fmt.Println("CueDirs:", R.CueModuleRoot, R.WorkingDir, R.CwdToRoot)
+	}
+
+	// First time load (not-fast)
+	err = R.Reload(false)
+	if err != nil {
+		cuetils.PrintCueError(err)
+		return R, fmt.Errorf("while loading generators")
+	}
+
+	if len(R.Generators) == 0 {
+		return R, fmt.Errorf("no generators found")
+	}
+
+	return R, nil
+}
+
 
 func (R *Runtime) Clear() {
 	R.Datamodels = make([]*datamodel.Datamodel, 0, len(R.Datamodels))

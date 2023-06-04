@@ -8,7 +8,7 @@ type Node[T any] struct {
 	Hof Hof
 
 	// do not modify, root value containing
-	Value *Value
+	Value cue.Value
 
 	// The wrapping type
 	T *T
@@ -21,10 +21,10 @@ type Node[T any] struct {
 	// cue paths to get up/down hierarchy
 }
 
-func New[T any](label, path string, val *Value, curr *T, parent *Node[T]) *Node[T] {
+func New[T any](label string, val cue.Value, curr *T, parent *Node[T]) *Node[T] {
 	n := &Node[T]{
 		Hof: Hof{
-			Path: path,
+			Path: val.Path().String(),
 			Label: label,
 		},
 		Value:    val,
@@ -53,8 +53,4 @@ func Upgrade[S, T any](src *Node[S], upgrade func(*Node[T]) (*T), parent *Node[T
 	}
 
 	return n
-}
-
-func (n Node[T]) CueValue() cue.Value {
-	return n.Value.CueValue()
 }

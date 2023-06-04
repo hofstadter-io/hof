@@ -1,7 +1,6 @@
 package datamodel
 
 import (
-	"fmt"
 	"strings"
 
 	"cuelang.org/go/cue"
@@ -77,7 +76,7 @@ func (dm *Datamodel) enrichR(hn *hof.Node[Value]) error {
 
 func (dm *Datamodel) enrichHistory(hn *hof.Node[Value]) error {
 	// if G.Verbosity > 0 {
-		 fmt.Println("found @history at: ", hn.Hof.Path, hn.Hof.Metadata.ID, dm.Hof.Path, dm.Hof.Metadata.ID)
+		 // fmt.Println("found @history at: ", hn.Hof.Path, hn.Hof.Metadata.ID, dm.Hof.Path, dm.Hof.Metadata.ID)
 	// }
 
 	// We want to walk the root node tree to find where it aligns with the current hn.
@@ -96,7 +95,7 @@ func (dm *Datamodel) enrichHistory(hn *hof.Node[Value]) error {
 	// get & check history
 	hist := match.T.History()
 	// if G.Verbosity > 0 {
-		 fmt.Println("injecting hist at: ", hn.Hof.Metadata.ID, match.Hof.Metadata.ID, len(hist), hist[0].Timestamp)
+		 // fmt.Println("injecting hist at: ", hn.Hof.Metadata.ID, match.Hof.Metadata.ID, len(hist), hist[0].Timestamp)
 	// }
 
 	// build up the label
@@ -113,7 +112,7 @@ func (dm *Datamodel) enrichHistory(hn *hof.Node[Value]) error {
 		if err != nil {
 			return err
 		}
-		dm.Value.FillPath(p+".Snapshot", s)
+		dm.Value = dm.Value.FillPath(cue.ParsePath(p+".Snapshot"), s)
 	}
 
 
@@ -131,7 +130,7 @@ func (dm *Datamodel) enrichHistory(hn *hof.Node[Value]) error {
 	// Inject the value at the current path as "History" list
 	p += ".History"
 	// XXX TODO XXX inject refrence rather than value
-	dm.Value.FillPath(p, snaps)
+	dm.Value = dm.Value.FillPath(cue.ParsePath(p), snaps)
 	// fmt.Println(G.CueValue)
 
 	return nil
@@ -195,7 +194,7 @@ func (dm *Datamodel) enrichOrdered(hn *hof.Node[any]) error {
 
 	path := hn.Hof.Path
 	path = strings.TrimPrefix(path, dm.Hof.Metadata.Name + ".")
-	value := dm.Value.LookupPath(path).CueValue()
+	value := dm.Value.LookupPath(cue.ParsePath(path))
 
 	iter, err := value.Fields()
 	if err != nil {
@@ -220,6 +219,6 @@ func (dm *Datamodel) enrichOrdered(hn *hof.Node[any]) error {
 	l := value.Context().NewList(ordered...)
 
 	// fill into Gen value
-	dm.Value.FillPath(path + "Ordered", l)
+	dm.Value = dm.Value.FillPath(cue.ParsePath(path + "Ordered"), l)
 	return nil
 }

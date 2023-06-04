@@ -9,7 +9,7 @@ import (
 )
 
 func Run(cmd string, args []string, rflags flags.RootPflagpole, dflags flags.DatamodelPflagpole) error {
-	fmt.Printf("lib/datamodel.Run.%s %v %v %v\n", cmd, args, rflags, dflags)
+	// fmt.Printf("lib/datamodel.Run.%s %v %v %v\n", cmd, args, rflags, dflags)
 
 	R, err := runtime.New(args, rflags)
 	if err != nil {
@@ -26,7 +26,7 @@ func Run(cmd string, args []string, rflags flags.RootPflagpole, dflags flags.Dat
 		return err
 	}
 
-	fmt.Println("R.dms:", len(R.Datamodels))
+	// fmt.Println("R.dms:", len(R.Datamodels))
 
 	// Now, with our datamodles at hand, run the command
 	switch cmd {
@@ -53,7 +53,6 @@ func Run(cmd string, args []string, rflags flags.RootPflagpole, dflags flags.Dat
 }
 
 func EnrichDatamodel(R *runtime.Runtime, dm *datamodel.Datamodel) error {
-	fmt.Println("enriching:", dm.Hof.Path)
 	err := dm.LoadHistory()
 	if err != nil {
 		return err
@@ -63,7 +62,8 @@ func EnrichDatamodel(R *runtime.Runtime, dm *datamodel.Datamodel) error {
 		return err
 	}
 
-	fmt.Println(R.Value.CueValue())
+	// fmt.Println("enriched:", dm.Hof.Path, dm.T.Value)
+	// fmt.Println(R.Value)
 
 	return nil
 }
