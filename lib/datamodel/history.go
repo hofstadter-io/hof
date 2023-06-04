@@ -1,7 +1,6 @@
 package datamodel
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
@@ -71,7 +70,6 @@ func (dm *Datamodel) LoadHistoryFrom(earliest string) error {
 
 // LoadHistory loads the full datamodel history
 func (dm *Datamodel) LoadHistory() error {
-	fmt.Println("dm.LoadHistory()", dm.Hof.Path)
 
 	has, err := dm.HasHistory()
 	if err != nil {

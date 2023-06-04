@@ -32,7 +32,6 @@ func (R *Runtime) Reload(fast bool) (err error) {
 }
 
 func (R *Runtime) localLoad() error {
-	fmt.Println("R.localLoad()")
 	err := R.EnrichDatamodels(nil, EnrichDatamodelBuilder(R))
 	if err != nil {
 		return err

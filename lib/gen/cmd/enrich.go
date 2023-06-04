@@ -22,7 +22,6 @@ func EnrichDatamodelBuilder(R *Runtime) func (R *runtime.Runtime, DM *datamodel.
 			return err
 		}
 
-		fmt.Println("R.EnrichDatamodel", dm.Hof.Path)
 		err = dm.EnrichValue()
 		if err != nil {
 			return err
@@ -40,19 +39,10 @@ func EnrichGeneratorBuilder(R *Runtime) func (R *runtime.Runtime, G *gen.Generat
 
 	return func (rt *runtime.Runtime, G *gen.Generator) error {
 
-		fmt.Println("R.EnrichGenerator", G.Hof.Path)
-		// fmt.Println(R.Value)
-
-		//dm := R.Value.LookupPath(cue.ParsePath("Datamodel"))
-		//fmt.Println(dm)
-
-		// update the generator value to the latest found in the Runtime Value
-		// this should include the injected history now when decoding references
-		// fmt.Println(G.CueValue)
-
 		if G.Disabled {
 			return nil
 		}
+
 		// some values to copy from runtime to generator
 		G.Verbosity     = R.Flags.Verbosity
 		G.Diff3FlagSet  = R.Diff3FlagSet

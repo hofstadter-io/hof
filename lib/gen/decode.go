@@ -22,7 +22,6 @@ func (G *Generator) DecodeFromCUE(root cue.Value) (errs []error) {
 	// this is done to ensure we are referencing the enriched root datamodels
 	G.CueValue = root.LookupPath(cue.ParsePath(G.Hof.Path))
 
-	fmt.Println("Gen Load:", G.Name)
 	start := time.Now()
 
 	if err := G.decodeDebug(); err != nil {

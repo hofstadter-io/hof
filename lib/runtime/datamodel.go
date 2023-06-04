@@ -49,9 +49,7 @@ func (R *Runtime) EnrichDatamodels(datamodels []string, enrich DatamodelEnricher
 		return true
 	}
 
-	fmt.Println("Runtime.Nodes:", len(R.Nodes))
-
-	// Find only the datamodel nodes
+	// Find only the datamodel nodes, these are all root nodes (in theory)
 	// TODO, dedup any references
 	dms := []*datamodel.Datamodel{}
 	for _, node := range R.Nodes {
@@ -60,8 +58,6 @@ func (R *Runtime) EnrichDatamodels(datamodels []string, enrich DatamodelEnricher
 			if !keep(node) {
 				continue
 			}
-
-			fmt.Println("upgrading:", node.Hof.Path)
 
 			upgrade := func(n *hof.Node[datamodel.Value]) *datamodel.Value {
 				v := new(datamodel.Value)
