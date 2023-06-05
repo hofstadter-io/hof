@@ -1,6 +1,6 @@
 ---
 title: "Web Client"
-brief: "and JS library"
+brief: "create a frontend UI"
 
 weight: 30
 ---

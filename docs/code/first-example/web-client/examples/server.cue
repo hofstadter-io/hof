@@ -5,14 +5,9 @@ import (
 )
 
 // A concrete value of the Server schem
-ServerDesign: schema.#Server & {
+Server: schema.Server & {
 	Name:        "Example"
 	Description: "An example server"
-
-	StaticFiles: [{
-		Globs: ["client/*"]
-		TrimPrefix: "client"
-	}]
 
 	Routes: [{
 		Name:   "EchoQ"

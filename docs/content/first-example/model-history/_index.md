@@ -1,7 +1,7 @@
 ---
 title: "Model History"
-brief: "and leveraging versions"
-description: "Switching the type storage to a database"
+brief: "track and automate changes to the data layer"
+description: "Learn how to manage versions and automate database migrations"
 
 weight: 60
 ---

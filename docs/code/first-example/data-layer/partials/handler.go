@@ -1,5 +1,6 @@
 {{ $ROUTE := . }}
 func {{ $ROUTE.Name }}Handler(c echo.Context) (err error) {
+	// hello
 
 	// process any path and query params
 	{{ range $P := $ROUTE.Params }}
@@ -15,6 +16,10 @@ func {{ $ROUTE.Name }}Handler(c echo.Context) (err error) {
 	{{ $ROUTE.Body }}
 	{{ else }}
 	// default body
+	fmt.Println(
+		{{ range $ROUTE.Params }}{{ . }},{{ end }}
+		{{ range $ROUTE.Query }}{{ . }},{{ end }}
+	)
 	c.String(http.StatusNotImplemented, "Not Implemented")
 	{{ end }}
 

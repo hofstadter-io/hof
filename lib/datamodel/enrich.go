@@ -204,6 +204,9 @@ func (dm *Datamodel) enrichOrdered(hn *hof.Node[any]) error {
 	var ordered []cue.Value
 	for iter.Next() {
 		sel := iter.Selector().String()
+		if sel == "#hof" {
+			continue
+		}
 		if sel == "$hof" {
 			continue
 		}

@@ -55,10 +55,11 @@ Resource: R={
 	Routes:  Routes
 }
 
-DatamodelToResources: {
+#DatamodelToResources: T={
 	"Datamodel": Datamodel
-	"Resources": Resources & {
-		for n, M in Datamodel.Models if n != "$hof" {
+	"Resources": Resources
+	"Resources": {
+		for n, M in T.Datamodel.Models {
 			"\(n)": {
 				Model: M
 				Name:  M.Name

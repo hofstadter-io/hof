@@ -6,15 +6,17 @@ import (
 )
 
 Datamodel: {
-	$hof: datamodel: root:    true
-	$hof: datamodel: history: true // needed for CUE compat
-	History: dm.History
+	#hof: datamodel: root: true
+
+	schema.Hof
+	dm.TrackHistory
+
 	// these are the models for the application
 	// they can map onto database tables and apis
 	Models: {
-		$hof: datamodel: node:    true
-		$hof: datamodel: ordered: true
-		[N= !="$hof"]: Model & {$hof: metadata: name: N}
+		#hof: datamodel: node:    true
+		#hof: datamodel: ordered: true
+		[N=string]: Model & {Name: N, #hof: metadata: name: N}
 	}
 
 	// OrderedModels: [...Model] will be
@@ -22,25 +24,19 @@ Datamodel: {
 }
 
 Model: M={
-	schema.DHof// needed for reFerences
-
-	$hof: datamodel: history: true // needed for CUE compat
-	History: dm.History
-
-	// Lineage fields will be filled by hof
-	// $hof: Lense: ...
-	// $hof: History: ...
+	schema.Hof
+	dm.TrackHistory
 
 	// for easy access
-	Name:   M.$hof.metadata.name
+	Name:   M.#hof.metadata.name
 	Plural: string | *"\(Name)s"
 
 	// These are the fields of a model
 	// they can map onto database columnts and form fields
 	Fields: {
-		$hof: datamodel: node:    true
-		$hof: datamodel: ordered: true
-		[N= !="$hof"]: Field & {Name: N}
+		#hof: datamodel: node:    true
+		#hof: datamodel: ordered: true
+		[N=string]: Field & {Name: N, #hof: metadata: name: N}
 	}
 
 	// OrderedFields: [...Fields] will be
@@ -51,9 +47,9 @@ Model: M={
 }
 
 Field: {
+	// schema.Hof
 	// TODO, decide if these should be the default
-	// schema.DHof// needed for reFerences
-	// $hof: datamodel: history: true // needed for CUE compat
+	// #hof: datamodel: history: true // needed for CUE compat
 	// History: dm.History
 
 	Name: string

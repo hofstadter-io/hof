@@ -1,4 +1,4 @@
-ServerDatamodel: schema.#Datamodel & {
+Datamodel: schema.Datamodel & {
 	Models: {
 		User: {
 			Relations: {

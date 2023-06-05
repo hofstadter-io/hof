@@ -1,5 +1,5 @@
 package schema
 
-#MySchema: {
+MySchema: {
 	// anything you want
 }

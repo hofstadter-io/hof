@@ -1,6 +1,6 @@
 ---
 title: "The Data Layer"
-brief: "and generating types"
+brief: "managing your data model"
 
 weight: 20
 ---

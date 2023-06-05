@@ -4,7 +4,7 @@ import (
 	"hof.io/docs/example/schema"
 )
 
-ServerDatamodel: schema.#Datamodel & {
+Datamodel: schema.Datamodel & {
 	Name: "ExampleDatamodel"
 
 	Models: {

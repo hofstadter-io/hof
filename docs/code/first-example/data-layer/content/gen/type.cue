@@ -1,7 +1,7 @@
-#Generator: gen.#Generator & {
+Generator: gen.Generator & {
 
 	// Exposed to the user
-	Datamodel: schema.#Datamodel
+	Datamodel: schema.Datamodel
 
 	// Added to the template input
 	In: {
@@ -14,7 +14,7 @@
 	]
 
 	// Define the files generated from our models
-	TypeFiles: [...gen.#File] & [
+	TypeFiles: [...gen.File] & [
 			for _, M in Datamodel.Models {
 			In: {
 				TYPE: {

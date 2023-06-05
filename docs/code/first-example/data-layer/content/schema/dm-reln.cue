@@ -1,4 +1,5 @@
-#Model: dm.#Model & {
+// We will enrich our data model with this
+Model: {
 
 	// Adds GoType
 	Relations: [string]: R={

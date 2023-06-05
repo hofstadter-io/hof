@@ -11,23 +11,23 @@ with data from the schema.
 {{</lead>}}
 
 
-- Based on Go `text/template` with [extra helpers](/code-generation/template-writing/)
-- Support for partial templates for reuse and separate of concerns
-- Typically in files, can also be a string in your CUE
-
 Generators have several kinds of files that end up in the output
 
-1. Once Templates - used to generate a single file, like `main.go` or `index.js`
-2. Repeated Templates - used in a loop to generate files per entry, for routes in this example
-3. Partial Templates - code snippets which are available in other templates
-3. Static Files - copied directly into the output, bypassing the template engine
+1. __Once Templates__ - used to generate a single file, like `main.go` or `index.js`
+2. __Repeated Templates__ - generate a file for each element, like routes in this example
+3. __Partial Templates__ - reusable template snippets which are available in all full templates
+3. __Static Files__ - copied directly into the output, bypassing the template engine
+
+Templates are based on Go `text/template` with extra helpers and conventions.
+We will cover the basics in the first-example and they should be familiar to other text templating systems.
+Read [template writing(/code-generation/template-writing/) to learn more about the details.
 
 ### Once Templates
 
 These files are needed once for every server we generate.
 Some have minimal templating and others loop over values, like `router.go`.
 
-{{<codePane lang="text" title="templates/go.mod" file="code/first-example/simple-server/templates/go.mod">}}
+{{<codePane lang="text" title="templates/go.mod" file="code/first-example/simple-server/templates/go.mod" collapse="true">}}
 {{<codePane lang="go" title="templates/server.go" file="code/first-example/simple-server/templates/server.go">}}
 
 {{<codePane lang="go" title="templates/router.go" file="code/first-example/simple-server/templates/router.go">}}
