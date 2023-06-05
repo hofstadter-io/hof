@@ -1,14 +1,14 @@
 package schema
 
 import (
-	"github.com/hofstadter-io/hof/schema/dm"
+	"github.com/hofstadter-io/hof/schema/dm/sql"
 )
 
-#Datamodel: dm.#Datamodel & {
-	Models: [string]: #Model
+Datamodel: sql.Datamodel & {
+	Models: [N= !="$hof"]: Model
 }
 
-#Model: dm.#Model & {
+Model: {
 	// field used for indexing
 	Index: string
 

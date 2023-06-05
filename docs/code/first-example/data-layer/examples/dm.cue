@@ -4,8 +4,9 @@ import (
 	"hof.io/docs/example/schema"
 )
 
-ServerDatamodel: schema.#Datamodel & {
-	Name: "ExampleDatamodel"
+Datamodel: schema.Datamodel & {
+	@datamodel(datamodel)
+	$hof: metadata: name: "Datamodel"
 
 	Models: {
 		User: {
