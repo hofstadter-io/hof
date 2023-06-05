@@ -1,13 +1,15 @@
 package gen
 
-#EmptyTemplates: {
+#EmptyTemplates: EmptyTemplates
+EmptyTemplates: {
 	Templates: []
 	Partials: []
 	Statics: []
 	...
 }
 
-#SubdirTemplates: {
+#SubdirTemplates: SubdirTemplates
+SubdirTemplates: {
 	#subdir: string | *"."
 	Templates: [{
 		Globs: ["\(#subdir)/templates/**/*"]
@@ -24,7 +26,8 @@ package gen
 	...
 }
 
-#TemplateSubdirs: {
+#TemplateSubdirs: TemplateSubdirs
+TemplateSubdirs: {
 	#subdir: string | *"."
 	Templates: [{
 		Globs: ["./templates/\(#subdir)/**/*"]
@@ -42,26 +45,30 @@ package gen
 }
 
 // #Statics is used for static files copied over, bypassing the template engine
-#Statics: {
+#Statics: Statics
+Statics: {
 	Globs: [...string]
 	TrimPrefix?: string
 	OutPrefix?:  string
 }
 
 // #Template is used for embedded or named templates or partials
-#Template: {
+#Template: Template
+Template: {
 	Content: string
 	Delims?: #TemplateDelims
 }
 
 // #Templates is used for templates or partials loaded from a filesystem
-#Templates: {
+#Templates: Template
+Templates: {
 	Globs: [...string]
 	TrimPrefix?: string
 	Delims?:     #TemplateDelims
 }
 
-#TemplateDelims: {
-	LHS: string
-	RHS: string
+#TemplateDelims: TemplateDelims
+TemplateDelims: {
+	LHS: string | *""
+	RHS: string | *""
 }
