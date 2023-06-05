@@ -1,4 +1,4 @@
-module {{ .Module }}
+module {{ .GOMODULE }}
 
 go 1.19
 

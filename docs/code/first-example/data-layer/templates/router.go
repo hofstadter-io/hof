@@ -7,10 +7,10 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	{{ if gt (len .SERVER.Routes ) 1 }}
-	"{{ .Module }}/routes"
+	"{{ .GOMODULE }}/routes"
 	{{ end }}
 	{{ if gt (len .Resources ) 1 }}
-	"{{ .Module }}/resources"
+	"{{ .GOMODULE }}/resources"
 	{{ end }}
 )
 
@@ -32,10 +32,12 @@ func setupRouter(e *echo.Echo) error {
 	// Explicit routes
 	g := e.Group("")
 
+	// Register the routes
 	{{ range $R := .SERVER.Routes -}}
 	routes.{{ $R.Name }}Routes(g)
 	{{ end }}
 
+	// Register the resources & their routes
 	{{ range $R := .Resources -}}
 	resources.{{ $R.Name }}Routes(g)
 	{{ end }}

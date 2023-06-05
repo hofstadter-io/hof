@@ -6,9 +6,9 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        {{ range $M := $.DM.OrderedModels }}
+        {{ range $M := $.DM.Models }}
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="/{{ kebab $M.Name }}">{{ $M.Name }}</a>
+          <a class="nav-link active" aria-current="page" href="/{{ kebab $M.Name }}.html">{{ $M.Name }}</a>
         </li>
         {{ end }}
       </ul>

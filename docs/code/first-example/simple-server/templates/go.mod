@@ -1,4 +1,4 @@
-module {{ .SERVER.GoModule }}
+module {{ .GOMODULE }}
 
 go 1.19
 

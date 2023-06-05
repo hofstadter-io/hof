@@ -9,7 +9,7 @@ import (
 )
 
 // Generator definition
-Generator: gen.Generator & {
+Generator: G = gen.Generator & {
 
 	// User inputs to this generator
 	// -----------------------------
@@ -24,16 +24,16 @@ Generator: gen.Generator & {
 	Outdir: string | *"./"
 
 	// Language fields
-	GoModule: string
+	GoModule: string | *G.ModuleName
 
 	// Required fields for hof
 	// ------------------------
 
 	// In is passed to every template
 	In: {
+		GOMODULE:  GoModule
 		SERVER:    Server
 		DM:        Datamodel
-		Module:    GoModule
 		Resources: (schema.#DatamodelToResources & {"Datamodel": DM}).Resources
 	}
 

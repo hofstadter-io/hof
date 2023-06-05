@@ -15,7 +15,7 @@ func setupMiddleware(e *echo.Echo) error {
 
 	{{ if .SERVER.Prometheus }}
 	// Setup metrics middleware
-	p := prometheus.NewPrometheus("{{ .SERVER.Name }}", nil)
+	p := prometheus.NewPrometheus("{{ .Server.Name }}", nil)
 	e.Use(p.HandlerFunc)
 	{{ end }}
 

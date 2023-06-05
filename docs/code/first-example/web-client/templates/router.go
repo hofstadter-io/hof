@@ -7,10 +7,10 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	{{ if gt (len .SERVER.Routes ) 1 }}
-	"{{ .Module }}/routes"
+	"{{ .GOMODULE }}/routes"
 	{{ end }}
 	{{ if gt (len .Resources ) 1 }}
-	"{{ .Module }}/resources"
+	"{{ .GOMODULE }}/resources"
 	{{ end }}
 )
 
