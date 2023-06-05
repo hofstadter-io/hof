@@ -1,11 +1,3 @@
-HttpMethod: "OPTIONS" | "HEAD" | "GET" | "POST" | "PATCH" | "PUT" | "DELETE" | "CONNECT" | "TRACE"
-
-Server: {
-	// ...
-
-	Routes: Routes
-}
-
 Routes: [...Route] | *[]
 Route: {
 	Name:   string

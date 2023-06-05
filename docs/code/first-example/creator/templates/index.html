@@ -1,0 +1,11 @@
+{{ template "header.html" . }}
+<div class="main">
+  {{ template "navbar.html" . }}
+
+  <div class="container pt-3">
+    <div class="row">
+      Welcome to the {{ $.SERVER.Name }} client
+    </div>
+  </div>
+</div>
+{{ template "footer.html" . }}

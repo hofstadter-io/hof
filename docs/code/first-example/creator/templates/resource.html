@@ -1,0 +1,20 @@
+{{ template "header.html" . }}
+<div class="main">
+  {{ template "navbar.html" . }}
+
+  <div class="container pt-3">
+    <div class="row">
+      <h3>
+        {{ $.RESOURCE.Name }}s
+        {{ template "resource-modal.html" . }}
+      </h3>
+    </div>
+    <div class="row">
+      <pre id="data">
+      </pre>
+    </div>
+  </div>
+</div>
+
+<script src="/{{ kebab $.RESOURCE.Name }}.js"> </script>
+{{ template "footer.html" . }}

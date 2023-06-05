@@ -12,9 +12,22 @@ set the constraints for users designing with your generator,
 and are the input to your code generation templates.
 {{</lead>}}
 
+### A Schema in Hof
 
-{{<codePane title="A minimal schema" file="code/first-example/simple-server/content/schema/minimal.html">}}
+A __Hof Schema__ is really any CUE value. Typically they represent two things:
 
+1. The schema to your generator
+1. The schema that your users will fill in
+
+{{<codePane title="A hof schema" file="code/first-example/simple-server/content/schema/minimal.html">}}
+
+Hof has several core schemas we will see along the way.
+The important ones are:
+
+- `schema/gen`: is the schema for a generator
+- `schema/dm`: is the schema for a data model
+
+{{<codePane title="A hof schema" file="code/first-example/simple-server/content/schema/hof-core.html">}}
 
 ### A Minimal REST Schema
 
@@ -22,11 +35,6 @@ Let's start by sketching out the minimal definition for a server.
 We put this in the `schema/` directory and thus CUE package.
 
 {{<codePane title="schema/server.cue" file="code/first-example/simple-server/content/schema/rest.html">}}
-
-Note how we use default values for "optional" fields in our generator UX,
-rather than CUE optional syntax.
-This avoids some nil-ness checks and conversions
-and make template writing easier.
 
 
 ### Routes and Handlers

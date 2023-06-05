@@ -11,17 +11,16 @@ Generator: {
 	// more meaningful fields presented to the user
 
 	// The list fo files for hof to generate
-	// Out: [...#File] | *[...]
-	Out: [...#File] | *[]
+	Out: [...File] | *[]
 
 	// Template (top-level) TemplateConfig (globs+config)
-	Templates: [...#Templates] | *[#Templates & {Globs: ["./templates/**/*"], TrimPrefix: "./templates/"}]
+	Templates: [...Templates] | *[Templates & {Globs: ["./templates/**/*"], TrimPrefix: "./templates/"}]
 
 	// Partial (nested) TemplateConfig (globs+config)
-	Partials: [...#Templates] | *[#Templates & {Globs: ["./partials/**/*"], TrimPrefix: "./partials/"}]
+	Partials: [...Templates] | *[Templates & {Globs: ["./partials/**/*"], TrimPrefix: "./partials/"}]
 
 	// Statics are copied directly into the output, bypassing the rendering
-	Statics: [...#Statics] | *[#Statics & {Globs: ["./static/**/*"], TrimPrefix: "./static/"}]
+	Statics: [...Statics] | *[Statics & {Globs: ["./static/**/*"], TrimPrefix: "./static/"}]
 
 	// ... other fields for generator writers
 }
