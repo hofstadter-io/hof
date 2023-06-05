@@ -4,8 +4,9 @@ import (
 	"hof.io/docs/example/schema"
 )
 
-ServerDatamodel: schema.#Datamodel & {
-	Name: "ExampleDatamodel"
+Datamodel: schema.Datamodel & {
+	@datamodel(datamodel)
+	#hof: metadata: name: "Datamodel"
 
 	Models: {
 		User: {
@@ -13,11 +14,13 @@ ServerDatamodel: schema.#Datamodel & {
 			Fields: {
 				Username: {Type: "string"}
 				Email: {Type: "string"}
-			}
-			Relations: {
 				Todos: {
-					Reln: "HasMany"
-					Type: "Todo"
+					Type: "string"
+					Relation: {
+						Type:  "has-many"
+						Name:  "Todos"
+						Other: "Todo"
+					}
 				}
 			}
 		}
@@ -27,11 +30,13 @@ ServerDatamodel: schema.#Datamodel & {
 			Fields: {
 				Title: {Type: "string"}
 				Content: {Type: "string"}
-			}
-			Relations: {
 				Author: {
-					Reln: "BelongsTo"
-					Type: "User"
+					Type: "string"
+					Relation: {
+						Type:  "belongs-to"
+						Name:  "Author"
+						Other: "User"
+					}
 				}
 			}
 		}

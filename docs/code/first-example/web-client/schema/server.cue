@@ -2,12 +2,11 @@ package schema
 
 import (
 	"strings"
-
 )
 
-#HttpMethod: "OPTIONS" | "HEAD" | "GET" | "POST" | "PATCH" | "PUT" | "DELETE" | "CONNECT" | "TRACE"
+HttpMethod: "OPTIONS" | "HEAD" | "GET" | "POST" | "PATCH" | "PUT" | "DELETE" | "CONNECT" | "TRACE"
 
-#Server: {
+Server: {
 	// Most schemas have a name field
 	Name: string
 
@@ -17,11 +16,10 @@ import (
 	Help:        string | *""
 
 	// The server routes
-	Routes: #Routes
+	Routes: Routes
 
 	// list of file globs to be embedded into the server when built
-	// todo, pass this back through the sections if it is not
-	StaticFiles: [...#Static]
+	EmbedGlobs: [...string]
 	// enable prometheus metrics
 	Prometheus: bool | *false
 
@@ -31,11 +29,11 @@ import (
 	SERVER_NAME: strings.ToUpper(Name)
 }
 
-#Routes: [...#Route] | *[]
-#Route: {
+Routes: [...Route] | *[]
+Route: {
 	Name:   string
 	Path:   string
-	Method: #HttpMethod
+	Method: HttpMethod
 
 	// Route and Query params
 	Params: [...string] | *[]
@@ -47,20 +45,21 @@ import (
 	Imports: [...string] | *[]
 
 	// Allows subroutes for routes
-	Routes: [...#Route]
+	Routes: [...Route]
 }
 
-#Resources: [string]: #Resource
-#Resource: {
-	Model:  #Model
-	Name:   Model.Name
-	Routes: #Routes
+Resources: [string]: Resource
+Resource: R={
+	"Model": Model
+	Name:    R.Model.Name
+	Routes:  Routes
 }
 
-#DatamodelToResources: {
-	Datamodel: #Datamodel
-	Resources: #Resources & {
-		for n, M in Datamodel.Models {
+#DatamodelToResources: T={
+	"Datamodel": Datamodel
+	"Resources": Resources
+	"Resources": {
+		for n, M in T.Datamodel.Models {
 			"\(n)": {
 				Model: M
 				Name:  M.Name
@@ -90,10 +89,4 @@ import (
 			}
 		}
 	}
-}
-
-#Static: {
-	Globs: [...string]
-	TrimPrefix?: string
-	AddPrefix?:  string
 }
