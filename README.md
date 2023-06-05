@@ -5,10 +5,13 @@ Automate repetitive setup, code, changes, and workflows using your tools. Hof is
 
 <!-- something about osurce of thuth, unified abstraction later, interoperablility... -->
 
-| | |
-|-----------|------------|
+| Core Features | |
+|:---                    |:-- |
 | __data model__         | define & manage data models - the source of truth |
 | __code generation__    | data + template = _ (anything) - technology agnostic |
+| __app blueprints__     | bootstrap config and other files - consistent skaffolding |
+| __task engine__        | composable, extendable tasks and workflows - a DAG engine |
+| __modules__            | composable data models & generators - an ecosystem |
 
 
 1. __data model__ - define & manage data models - the source of truth
