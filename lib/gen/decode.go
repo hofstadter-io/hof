@@ -10,21 +10,19 @@ import (
 	"github.com/codemodus/kace"
 
 	"github.com/hofstadter-io/hof/lib/hof"
-	"github.com/hofstadter-io/hof/lib/datamodel"
 )
 
-func (G *Generator) DecodeFromCUE(dms []*datamodel.Datamodel) (errs []error) {
+func (G *Generator) DecodeFromCUE(root cue.Value) (errs []error) {
 	// TODO, what if a user's generator doesn't use the schema?
 	// happens when to unspecified fields?
 	// should we just unify with the schema here too?
 	// what about versions?
 
-	// fmt.Println("Gen Load:", G.Name)
-	start := time.Now()
+	// update to the latest CUE runtime value, passed in as root
+	// this is done to ensure we are referencing the enriched root datamodels
+	G.CueValue = root.LookupPath(cue.ParsePath(G.Hof.Path))
 
-	if err := G.upgradeDMs(dms); err != nil {
-		errs = append(errs, err)
-	}
+	start := time.Now()
 
 	if err := G.decodeDebug(); err != nil {
 		errs = append(errs, err)
@@ -111,7 +109,7 @@ func (G *Generator) DecodeFromCUE(dms []*datamodel.Datamodel) (errs []error) {
 	G.Stats.LoadingTime = end.Sub(start)
 
 	// Load Subgens
-	if serr := G.decodeSubgens(dms); serr != nil {
+	if serr := G.decodeSubgens(root); serr != nil {
 		errs = append(errs, serr...)
 	}
 
@@ -477,7 +475,7 @@ func (G *Generator) decodePackageName() error {
 	return val.Decode(&G.PackageName)
 }
 
-func (G *Generator) decodeSubgens(dms []*datamodel.Datamodel) (errs []error) {
+func (G *Generator) decodeSubgens(root cue.Value) (errs []error) {
 
 	val := G.CueValue.LookupPath(cue.ParsePath("Generators"))
 	if val.Err() != nil {
@@ -511,7 +509,7 @@ func (G *Generator) decodeSubgens(dms []*datamodel.Datamodel) (errs []error) {
 		}
 
 		// decode subgenerators
-		sgerrs := sg.DecodeFromCUE(dms)
+		sgerrs := sg.DecodeFromCUE(root)
 		if len(sgerrs) > 0 {
 			errs = append(errs, sgerrs...)
 		}

@@ -69,6 +69,7 @@ func (R *Runtime) CreateAdhocGenerator() error {
 		Value: R.Value,
 		Hof: h,
 	}
+
 	G := gen.NewGenerator(node)
 	// reset some vals for ad-hoc
 	G.CwdToRoot = ""

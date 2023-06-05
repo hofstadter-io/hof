@@ -49,7 +49,7 @@ func (R *Runtime) EnrichDatamodels(datamodels []string, enrich DatamodelEnricher
 		return true
 	}
 
-	// Find only the datamodel nodes
+	// Find only the datamodel nodes, these are all root nodes (in theory)
 	// TODO, dedup any references
 	dms := []*datamodel.Datamodel{}
 	for _, node := range R.Nodes {

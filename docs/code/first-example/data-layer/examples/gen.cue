@@ -4,7 +4,7 @@ import (
 	"hof.io/docs/example/gen"
 )
 
-Server: gen.#Generator & {
+MyGen: gen.Generator & {
 	@gen(server)
 
 	Outdir:   "./output"
@@ -12,8 +12,8 @@ Server: gen.#Generator & {
 	Module:   "hof.io/docs/example"
 
 	// We write the design in a separate file 
-	Server:    ServerDesign
-	Datamodel: ServerDatamodel
+	"Server":    Server
+	"Datamodel": Datamodel
 
 	// Needed because we are using the generator from within it's directory
 	// Users who import your generator as a module will not need to set this

@@ -6,11 +6,10 @@ import (
 
 	"cuelang.org/go/cue"
 	"github.com/codemodus/kace"
-
-	"github.com/hofstadter-io/hof/lib/structural"
 )
 
 func FindHofs(value cue.Value) (roots []*Node[any], err error) {
+	// fmt.Println("FindHofs!")
 	var stack *Node[any] // cue stack
 	var nodes *Node[any] // hof nodes
 
@@ -30,23 +29,22 @@ func FindHofs(value cue.Value) (roots []*Node[any], err error) {
 			return true
 		}
 
+		// do not decend into $hof value itself
+		// or any definition
+		if label == "#hof" {
+			return false
+		}
+
 		// update cue stack
 		curr := New[any](label, val, nil, stack)
 		stack = curr
-
-		// do not decend into #hof value itself
-		// or any definition
-		if label == "$hof" {
-			stack = stack.Parent
-			return false
-		}
 
 
 		// did we find something of interest?
 		found := false
 
 		// look for #hof: _
-		hv := val.LookupPath(cue.ParsePath("$hof"))
+		hv := val.LookupPath(cue.ParsePath("#hof"))
 		if hv.Exists() {
 			found = true
 			err = hv.Decode(&(stack.Hof))
@@ -116,6 +114,26 @@ func FindHofs(value cue.Value) (roots []*Node[any], err error) {
 			}
 		}
 
+		// filters to end recursion
+		// check datamodel root because of nested history and roots snafu
+		if stack.Hof.Datamodel.Root {
+			// backtrack, walking parents		
+			for bt := nodes; bt != nil; bt = bt.Parent {
+				// we found a nested root datamodel
+				if bt.Hof.Datamodel.Root {
+					// stop recursion
+					fmt.Println("hof.DM: want to stop recursion here", bt.Hof.Path, stack.Hof.Path)
+					// return false
+				}	
+			}
+
+			// fmt.Println("found datamodel:", stack.Hof.Path)
+		}
+		if stack.Hof.Label == "History" {
+			stack = stack.Parent
+			return false
+		}
+
 		// we should update the nodes
 		if found {
 			// update hof node
@@ -126,11 +144,11 @@ func FindHofs(value cue.Value) (roots []*Node[any], err error) {
 			// more enrichment
 			if nodes.Hof.Metadata.Name == "" {
 				nodes.Hof.Metadata.Name = nodes.Hof.Label
-				nodes.Value = nodes.Value.FillPath(cue.ParsePath("$hof.metadata.name"), nodes.Hof.Metadata.Name)
+				nodes.Value = nodes.Value.FillPath(cue.ParsePath("#hof.metadata.name"), nodes.Hof.Metadata.Name)
 			}
 			if nodes.Hof.Metadata.ID == "" {
 				nodes.Hof.Metadata.ID = nodes.Hof.Metadata.Name
-				nodes.Value = nodes.Value.FillPath(cue.ParsePath("$hof.metadata.id"), kace.Kebab(nodes.Hof.Metadata.ID))
+				nodes.Value = nodes.Value.FillPath(cue.ParsePath("#hof.metadata.id"), kace.Kebab(nodes.Hof.Metadata.ID))
 			}
 
 			if nodes.Parent == nil {
@@ -141,7 +159,6 @@ func FindHofs(value cue.Value) (roots []*Node[any], err error) {
 				nodes.Parent.Children = append(nodes.Parent.Children, nodes)
 			}
 		}
-
 
 		return true
 	}
@@ -167,7 +184,7 @@ func FindHofs(value cue.Value) (roots []*Node[any], err error) {
 	}
 
 	// this is a depth first walk
-	structural.Walk(value, before, after)
+	Walk(value, before, after)
 
 	return roots, nil
 }
@@ -184,3 +201,50 @@ func (n *Node[T]) indent() string {
 	return strings.Repeat("  ", d)
 }
 
+
+var defaultWalkOptions = []cue.Option{
+	cue.Attributes(true),
+	cue.Concrete(false),
+	cue.Definitions(true),
+	cue.Hidden(false),
+	cue.Optional(true),
+	cue.Docs(true),
+}
+
+// Walk is an alternative to cue.Value.Walk which handles more field types
+// You can customize this with your own options
+// returning false will stop recursion for that node
+func Walk(v cue.Value, before func(cue.Value) bool, after func(cue.Value), options ...cue.Option) {
+
+	// call before and possibly stop recursion
+	if before != nil && !before(v) {
+		return
+	}
+
+	// possibly recurse
+	switch v.IncompleteKind() {
+	case cue.StructKind:
+		if options == nil {
+			options = defaultWalkOptions
+		}
+		s, _ := v.Fields(options...)
+
+		for s.Next() {
+			Walk(s.Value(), before, after, options...)
+		}
+
+	case cue.ListKind:
+		l, _ := v.List()
+		for l.Next() {
+			Walk(l.Value(), before, after, options...)
+		}
+
+		// no default (basic lit types)
+
+	}
+
+	if after != nil {
+		after(v)
+	}
+
+}

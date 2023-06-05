@@ -30,6 +30,7 @@ func (G *Generator) upgradeDMs(dms []*datamodel.Datamodel) error {
 	}
 
 	val := G.CueValue
+	// fmt.Println(val)
 
 	// build a hof.Node tree from the gen.CueValue
 	gNs, err := hof.FindHofs(val)
@@ -52,48 +53,134 @@ func (G *Generator) upgradeDMs(dms []*datamodel.Datamodel) error {
 		return err
 	}
 
+	// fmt.Println("gen final:", G.CueValue)
+
 	return nil
 }
 
 func (G *Generator) upgradeDMsR(hn *hof.Node[any], dms []*datamodel.Datamodel, root *datamodel.Datamodel) error {
+
+	// fmt.Println("G.upgradeDMsR - start", hn.Hof.Path)
+
 	if root == nil && hn.Hof.Datamodel.Root {
 		for _, dm := range dms {
 			if dm.Hof.Metadata.Name == hn.Hof.Metadata.Name {
 				root = dm
+				fmt.Println("G.upgradeDMsR - ROOT", root.Hof.Path, hn.Hof.Path)
+				// fmt.Println(root.Value)
+			}
+		}
+	}
+	skip := false
+	// hacks...
+	if hn.Hof.Label == "Snapshot" {
+		skip = true
+		// return nil
+	}
+	if hn.Hof.Label == "History" {
+		skip = true
+	}
+
+
+	// check for sub root, want to exit if nested root (it's picking up CUE attributes nested in histories)
+	if root != nil {
+
+		// skip if there is a nested root
+		if hn.Hof.Datamodel.Root {
+			for n := hn.Parent; n != nil; n = n.Parent {
+				if n.Hof.Datamodel.Root {
+					skip = true
+					break
+				}
 			}
 		}
 	}
 
+	// if root != nil {
+
+		// return on nested history discovery
+		if skip {
+			fmt.Println("              - skip?", hn.Hof.Path, skip)
+			return nil
+		}
+
+		if hn.Hof.Datamodel.History {
+			// here, we need to inject any datamodel history(s)
+
+			// calculate path to root if not the root
+			subpaths := []string{}
+			for n := hn; n != nil; n = n.Parent {
+				if n.Hof.Datamodel.Root {
+					break
+				}
+				subpaths = append(subpaths, n.Hof.Label)
+			}
+			// reverse subpath
+			for i, j := 0, len(subpaths)-1; i < j; i, j = i+1, j-1 {
+				subpaths[i], subpaths[j] = subpaths[j], subpaths[i]
+			}
+			// make into parsable CUE path
+			subpath := strings.Join(subpaths, ".")
+
+
+			path := hn.Hof.Path
+			// trim generator name
+			// path = strings.TrimPrefix(path, G.CueValue.Path().String())
+			// path = strings.TrimPrefix(path, ".")
+			// trim subpath
+			if subpath != "" {
+				path = strings.TrimSuffix(path, "." + subpath)
+			}
+
+			subval := root.Value
+			if subpath != "" {
+				fmt.Println("              - subpath", subpath)
+				subval = subval.LookupPath(cue.ParsePath(subpath))
+			}
+			// fmt.Println(subpath, subval)
+
+			// TODO, is this where we make a CUE reference by hand?
+			p := ""
+			if subpath == "" {
+				p = path
+			} else if path == "" {
+				p = subpath
+			} else {
+				p = path + "." + subpath
+			}
+			fmt.Printf("              - inject %q %q %q %q %q %q\n", root.Hof.Path, G.CueValue.Path(), hn.Hof.Path, path, subpath, p)
+			// fmt.Println(subval)
+
+			if subval.Err() != nil || !subval.Exists() {
+				return fmt.Errorf("Error looking up %q in datamodel %q value %w", subpath, root.Hof.Path, subval.Err())
+			}
+
+
+			// todo, how to we "merge" the data
+			G.CueValue = G.CueValue.FillPath(cue.ParsePath(p), subval)
+			// fmt.Println(G.CueValue)
+			// hn.Value = hn.Value.FillPath(cue.ParsePath(hn.Hof.Path), root.Value.LookupPath(cue.ParsePath(root.Hof.Path)))
+		}
+
+		// here we create an ordered version of the node at the same level
+		//if hn.Hof.Datamodel.Ordered {
+		//  err := G.injectOrdered(hn, dms, root)
+		//  if err != nil {
+		//    return err
+		//  }
+		//}
+
+	// }
+
 	// recursion into children
 	for _, c := range hn.Children {
-		G.upgradeDMsR(c, dms, root)
-	}
-	// we do all the real work post-order recursion
-	// so that parent enrichments include child enrichments
-
-	// return if we are not within the DM root
-	if root == nil {
-		return nil
-	}
-
-	// here, we need to inject any datamodel history(s)
-	// this is going to need some fancy, recursive processing
-	// so we will call out to a helper of some kind
-	if hn.Hof.Datamodel.History {
-		err := G.injectHistory(hn, dms, root)
+		err := G.upgradeDMsR(c, dms, root)
 		if err != nil {
 			return err
 		}
 	}
 
-	// here we create an ordered version of the node at the same level
-	if hn.Hof.Datamodel.Ordered {
-		err := G.injectOrdered(hn, dms, root)
-		if err != nil {
-			return err
-		}
-	}
-
+	// fmt.Println("              - end", hn.Hof.Path)
 	return nil
 }
 
@@ -103,7 +190,7 @@ func (G *Generator) injectHistory(hn *hof.Node[any], dms []*datamodel.Datamodel,
 	}
 
 	if G.Verbosity > 0 {
-		fmt.Println("found @history at: ", hn.Hof.Path, root.Hof.Path)
+		fmt.Println("found @history at: ", hn.Hof.Path, hn.Hof.Metadata.ID, root.Hof.Path, root.Hof.Metadata.ID)
 	}
 
 	// We want to walk the root node tree to find where it aligns with the current hn.
@@ -114,7 +201,7 @@ func (G *Generator) injectHistory(hn *hof.Node[any], dms []*datamodel.Datamodel,
 	// so return an error
 	if match == nil {
 		// TODO return error
-		// fmt.Println("  no macth found")
+		// fmt.Println("  no match found")
 		return nil
 	}
 
@@ -139,6 +226,7 @@ func (G *Generator) injectHistory(hn *hof.Node[any], dms []*datamodel.Datamodel,
 		if err != nil {
 			return err
 		}
+		// XXX TODO XXX inject refrence rather than value
 		G.CueValue = G.CueValue.FillPath(cue.ParsePath(p+".Snapshot"), s)
 	}
 
@@ -156,6 +244,7 @@ func (G *Generator) injectHistory(hn *hof.Node[any], dms []*datamodel.Datamodel,
 
 	// Inject the value at the current path as "History" list
 	p += ".History"
+	// XXX TODO XXX inject refrence rather than value
 	G.CueValue = G.CueValue.FillPath(cue.ParsePath(p), snaps)
 	// fmt.Println(G.CueValue)
 

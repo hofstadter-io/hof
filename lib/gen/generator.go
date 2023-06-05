@@ -360,6 +360,9 @@ func (G *Generator) initPartials() []error {
 		}
 	}
 
+	// TODO, does this need to match how statics look up files
+	// with bdir, and what about when CwdToRoot is not empty under various conditions
+
 	// then partials from disk via globs
 	for _, tg := range G.Partials {
 		prefix := filepath.Clean(tg.TrimPrefix)

@@ -10,7 +10,7 @@ import (
 )
 
 func checkpoint(R *runtime.Runtime, dflags flags.DatamodelPflagpole, cflags flags.Datamodel__CheckpointFlagpole) error {
-	timestamp := time.Now().UTC().Format(datamodel.CheckpointFmt)
+	timestamp := time.Now().UTC().Format(datamodel.CheckpointTimeFmt)
 	fmt.Printf("creating checkpoint: %s %q\n", timestamp, cflags.Message)
 
 	for _, dm := range R.Datamodels {

@@ -7,8 +7,8 @@ import (
 type Node[T any] struct {
 	Hof Hof
 
-	// containing value
-	Value    cue.Value
+	// do not modify, root value containing
+	Value cue.Value
 
 	// The wrapping type
 	T *T
@@ -39,7 +39,7 @@ func New[T any](label string, val cue.Value, curr *T, parent *Node[T]) *Node[T] 
 func Upgrade[S, T any](src *Node[S], upgrade func(*Node[T]) (*T), parent *Node[T]) *Node[T] {
 	n := &Node[T]{
 		Hof:      src.Hof,
-		Value:    src.Value,
+		Value:     src.Value,
 		Parent:   parent,
 		Children: make([]*Node[T], 0, len(src.Children)),
 	}
@@ -48,7 +48,7 @@ func Upgrade[S, T any](src *Node[S], upgrade func(*Node[T]) (*T), parent *Node[T
 
 	// walk, upgrading children
 	for _, c := range src.Children {
-		u := Upgrade[S,T](c, upgrade, n)
+		u := Upgrade(c, upgrade, n)
 		n.Children = append(n.Children, u)
 	}
 

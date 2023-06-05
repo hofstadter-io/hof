@@ -26,6 +26,8 @@ func Run(cmd string, args []string, rflags flags.RootPflagpole, dflags flags.Dat
 		return err
 	}
 
+	// fmt.Println("R.dms:", len(R.Datamodels))
+
 	// Now, with our datamodles at hand, run the command
 	switch cmd {
 	case "list":
@@ -59,6 +61,9 @@ func EnrichDatamodel(R *runtime.Runtime, dm *datamodel.Datamodel) error {
 	if err != nil {
 		return err
 	}
+
+	// fmt.Println("enriched:", dm.Hof.Path, dm.T.Value)
+	// fmt.Println(R.Value)
 
 	return nil
 }

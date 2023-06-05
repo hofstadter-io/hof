@@ -6,7 +6,8 @@ import (
 	"time"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
-	dmcmd "github.com/hofstadter-io/hof/lib/datamodel/cmd"
+	"github.com/hofstadter-io/hof/lib/cuetils"
+	"github.com/hofstadter-io/hof/lib/datamodel"
 	"github.com/hofstadter-io/hof/lib/gen"
 	"github.com/hofstadter-io/hof/lib/runtime"
 )
@@ -26,6 +27,41 @@ func NewGenRuntime(RT *runtime.Runtime, gflags flags.GenFlagpole) (*Runtime) {
 		GenFlags: gflags,
 	}
 
+}
+
+func prepRuntime(args []string, rflags flags.RootPflagpole, gflags flags.GenFlagpole) (*Runtime, error) {
+
+	// create our core runtime
+	r, err := runtime.New(args, rflags)
+	if err != nil {
+		return nil, err
+	}
+	// upgrade to a generator runtime
+	R := NewGenRuntime(r, gflags)
+
+	// log cue dirs
+	if R.Flags.Verbosity > 1 {
+		fmt.Println("CueDirs:", R.CueModuleRoot, R.WorkingDir, R.CwdToRoot)
+	}
+
+	// First time load (not-fast)
+	err = R.Reload(false)
+	if err != nil {
+		cuetils.PrintCueError(err)
+		return R, fmt.Errorf("while loading generators")
+	}
+
+	if len(R.Generators) == 0 {
+		return R, fmt.Errorf("no generators found")
+	}
+
+	return R, nil
+}
+
+
+func (R *Runtime) Clear() {
+	R.Datamodels = make([]*datamodel.Datamodel, 0, len(R.Datamodels))
+	R.Generators = make([]*gen.Generator, 0, len(R.Generators))
 }
 
 func (R *Runtime) WriteOutput() []error {
@@ -48,61 +84,6 @@ const SHADOW_DIR = ".hof/shadow/"
 // It accounts for module root and relative directories.
 func (R *Runtime) ShadowDir() string {
 	return filepath.Join(R.CueModuleRoot, SHADOW_DIR, R.RootToCwd, R.GenFlags.Outdir)
-}
-
-func (R *Runtime) localLoad() error {
-	err := R.EnrichDatamodels(nil, dmcmd.EnrichDatamodel)
-	if err != nil {
-		return err
-	}
-
-	// the generators to load up
-	gens := R.GenFlags.Generator
-	// we want to skip any generators
-	// if we are in adhoc mode and haven't set -G
-	if len(R.GenFlags.Template) > 0 && len(gens) == 0 {
-		// this value should not match user data
-		// so we effectively omit all generators, besides adhoc
-		gens = []string{"HOF_ADHOC_OMIT_GENERATORS"}
-	}
-
-	err = R.EnrichGenerators(gens, EnrichGeneratorBuilder(R))
-	if err != nil {
-		return err
-	}
-
-	err = R.Initialize()
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (R *Runtime) Initialize() error {
-	if R.Flags.Verbosity > 1 {
-		fmt.Printf("Runtime.Initialize()\n")
-	}
-
-	err := R.CreateAdhocGenerator()
-	if err != nil {
-		return err
-	}
-
-	/*
-	for _, G := range R.Generators {
-		errs := G.Initialize()
-		if len(errs) != 0 {
-			var emsg string
-			for _, err := range errs {
-				emsg += fmt.Sprintf("%s\n", err.Error())
-			}
-			return fmt.Errorf("while initializing %s:\n%s", G.Hof.Path, emsg)
-		}
-	}
-	*/
-
-	return nil
 }
 
 func (R *Runtime) RunGenerators() []error {
