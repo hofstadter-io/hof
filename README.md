@@ -7,18 +7,12 @@ Automate repetitive setup, code, changes, and workflows using your tools. Hof is
 
 | Core Features | |
 |:---                    |:-- |
-| __data model__         | define & manage data models - the source of truth |
-| __code generation__    | data + template = _ (anything) - technology agnostic |
-| __app blueprints__     | bootstrap config and other files - consistent skaffolding |
-| __task engine__        | composable, extendable tasks and workflows - a DAG engine |
-| __modules__            | composable data models & generators - an ecosystem |
+| __code generation__    | data + template = _ (anything) ...any file, technology agnostic |
+| __app blueprints__     | consistently bootstrap apps, code, config, and other files |
+| __data model__         | define and manage data models, evolve code with them |
+| __task engine__        | extensible task and workflow DAG engine |
+| __modules__            | composable dependencies for blueprints, models, and generators |
 
-
-1. __data model__ - define & manage data models - the source of truth
-2. __code generation__ - data + template = _ (anything) - technology agnostic
-3. __app blueprints__ - bootstrap config and other files - consistent skaffolding
-4. __task engine__ - composable, extendable tasks and workflows - a DAG engine
-5. __modules__ - composable data models & generators - an ecosystem
 
 <img src="./images/how-hof-works.svg" alt="how hof works" width="100%" height="auto" style="max-width:600px">
 
