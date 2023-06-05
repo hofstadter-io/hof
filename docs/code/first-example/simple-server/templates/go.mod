@@ -1,6 +1,6 @@
 module {{ .SERVER.GoModule }}
 
-go 1.17
+go 1.19
 
 require (
 	github.com/labstack/echo-contrib v0.11.0

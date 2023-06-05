@@ -1,11 +1,13 @@
 {{ .Scratch.Set "code" "" }}
 {{ .Scratch.Set "content" "" }}
 {{ .Scratch.Set "identifier" "" }}
+{{ .Scratch.Set "collapse" "" }}
 
 {{ $identifier := "" }}
 {{ $title := .Get "title" }}
 {{ $lang := .Get "lang" }}
 {{ $filepath := .Get "file"}}
+{{ $collapse := .Get "collapse"}}
 
 {{ if ($filepath) }}
     {{ .Scratch.Set "content" ($filepath | readFile) }}
@@ -16,7 +18,7 @@
 
 <div class="code-block position-relative mb-3" style="overflow-x: auto; overflow-y: hidden">
     {{ if $title }}
-    <p class="ps-2 py-1 m-0 border bg-light code-title">{{ $title }}</p>
+	<p class="ps-2 py-1 m-0 border bg-light code-title {{ if $collapse }}collapsable{{ end }}">{{ $title }}</p>
     {{ end }}
     <div class="border" id="{{printf "clipboard_%s" (.Scratch.Get "identifier") }}">
       <div class="position-absolute pt-1 pe-1" style="right:0;">

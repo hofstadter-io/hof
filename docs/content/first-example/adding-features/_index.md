@@ -1,6 +1,6 @@
 ---
 title: "Adding Features"
-brief: "and other nice to haves"
+brief: "provide extra out of the box"
 
 weight: 40
 ---

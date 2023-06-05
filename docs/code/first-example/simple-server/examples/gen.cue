@@ -4,16 +4,16 @@ import (
 	"hof.io/docs/example/gen"
 )
 
-Server: gen.#Generator & {
+// A runnable generator (@gen(<name>))
+Generator: gen.Generator & {
 	@gen(server)
 
-	Outdir:   "./output"
+	Outdir: "./output"
 
-	// We write the design in a separate file 
-	Server: ServerDesign
+	// The full design lives in a separate file 
+	"Server": Server
 
 	// Needed because we are using the generator from within it's directory
-	// Users who import your generator as a module will not need to set this
-	// It's a temporary requirement until CUE supports embedded files
-	PackageName: ""
+	// Normally, users will not see or set this field
+	ModuleName: ""
 }

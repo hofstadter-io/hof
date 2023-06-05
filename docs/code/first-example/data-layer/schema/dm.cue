@@ -5,24 +5,36 @@ import (
 )
 
 Datamodel: sql.Datamodel & {
-	Models: [N= !="$hof"]: Model
+	// Add our enrichment to the models
+	// Models: [M=string]: Model
+
+	Models: [M=string]: Model
 }
 
-Model: {
+// We will enrich our data model with this
+Model: sql.Model & {
 	// field used for indexing
-	Index: string
+	Index?: string
 
 	// Adds GoType
-	Relations: [string]: R={
+	Fields: [F=string]: Field & {Relation?: Name: string | *F}
+}
+
+Field: sql.Field & EnrichRelation
+
+EnrichRelation: {
+	Relation?: {
+		Type:   string
+		Other:  string
 		GoType: string
 
 		// Switch pattern
 		GoType: [
-			if R.Reln == "BelongsTo" {"*\(R.Type)"},
-			if R.Reln == "HasOne" {"*\(R.Type)"},
-			if R.Reln == "HasMany" {"[]*\(R.Type)"},
-			if R.Reln == "ManyToMany" {"[]*\(R.Type)"},
-			"unknown relation type: \(R.Reln)",
+			if Type == "belongs-to" {"*\(Other)"},
+			if Type == "has-one" {"*\(Other)"},
+			if Type == "has-many" {"[]*\(Other)"},
+			if Type == "many-to-many" {"[]*\(Other)"},
+			"unknown relation type: \(Type)",
 		][0]
 	}
 }

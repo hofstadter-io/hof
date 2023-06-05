@@ -1,16 +1,16 @@
-#HttpMethod: "OPTIONS" | "HEAD" | "GET" | "POST" | "PATCH" | "PUT" | "DELETE" | "CONNECT" | "TRACE"
+HttpMethod: "OPTIONS" | "HEAD" | "GET" | "POST" | "PATCH" | "PUT" | "DELETE" | "CONNECT" | "TRACE"
 
-#Server: {
+Server: {
 	// ...
 
-	Routes: #Routes
+	Routes: Routes
 }
 
-#Routes: [...#Route] | *[]
-#Route: {
+Routes: [...Route] | *[]
+Route: {
 	Name:   string
 	Path:   string
-	Method: #HttpMethod
+	Method: HttpMethod
 
 	// Route and Query params
 	Params: [...string] | *[]
@@ -22,5 +22,5 @@
 	Imports: [...string] | *[]
 
 	// Allows subroutes for routes
-	Routes: [...#Route]
+	Routes: [...Route]
 }

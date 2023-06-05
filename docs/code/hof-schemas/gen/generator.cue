@@ -6,12 +6,10 @@ import (
 	"github.com/hofstadter-io/hof/schema/create"
 )
 
-Generator: #Generator
-
 // Definition for a generator
-#Generator: {
-	schema.DHof
-	$hof: gen: root: true
+Generator: {
+	schema.Hof
+	#hof: gen: root: true
 
 	// Base directory for the output
 	Outdir: string | *"./"
@@ -86,7 +84,7 @@ Generator: #Generator
 	EmbeddedStatics: [name=string]: string
 
 	// For subgenerators so a generator can leverage and design for other hofmods
-	Generators: [name=string]: #Generator & {Name: name}
+	Generators: [name=string]: Generator & {Name: name}
 
 	// Embed the creator to get creator fields
 	create.#Creator
@@ -99,7 +97,7 @@ Generator: #Generator
 	// until embed is supported, at which point this shouldn't be needed at all
 	// only needed when you have example usage in the same module the generator is in
 	// set to the empty string ("") as a generator writer who is making an example in the same module
-	ModuleName:  string | *""
+	ModuleName:  string
 	PackageName: ModuleName
 	// TODO, hof, can we introspect the generator / example packages and figure this out?
 
@@ -113,4 +111,5 @@ Generator: #Generator
 }
 
 // deprecated
-#HofGenerator: #Generator
+#Generator:    Generator
+#HofGenerator: Generator

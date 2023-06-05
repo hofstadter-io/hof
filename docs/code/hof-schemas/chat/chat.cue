@@ -8,9 +8,9 @@ import (
 // You can put these in your module to provide ChatGPT like interactions
 // for the other components in your module, or make a module just for Chats.
 Chat: {
-	schema.DHof// needed for reFerences
+	schema.Hof// needed for reFerences
 
-	$hof: chat: root: true
+	#hof: chat: root: true
 
 	//
 	//  user inputs

@@ -1,7 +1,7 @@
 ---
 title: "Simple Server"
 linkTitle: "Simple Server"
-brief: "generating a simple API"
+brief: "create a REST API"
 weight: 10
 description: >
   Create a code generator for a REST API.

@@ -5,7 +5,7 @@ import (
 )
 
 // A concrete value of the Server schem
-ServerDesign: schema.#Server & {
+Server: schema.Server & {
 	GoModule: "hof.io/docs/example"
 
 	Name:        "Example"

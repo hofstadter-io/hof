@@ -1,6 +1,6 @@
 import "strings"
 
-#Server: {
+Server: {
 	// ...
 
 	// various casings of the resource Name

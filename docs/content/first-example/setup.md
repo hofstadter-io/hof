@@ -1,6 +1,6 @@
 ---
 title: "Setup"
-brief: "a new hof generator"
+brief: "a new generator"
 weight: 5
 ---
 
@@ -27,15 +27,11 @@ git init      // (optional)
 hof gen init hof.io/docs/example
 {{</codeInner>}}
 
-{{<codeInner title="temporary fix for v0.6.7">}}
-mv generators gen
-{{</codeInner>}}
-
-Your working directory should now look like:
+Your working directory should now look like this:
 
 {{<codeInner title="Module layout">}}
 example/
-|  // default directories
+|               // default directories
 ├── creators/
 ├── examples/
 ├── gen/
@@ -44,10 +40,7 @@ example/
 ├── statics/
 ├── templates/
 |
-|  // dependency files
-├── cue.mods
-├── cue.sums
-└── cue.mod/
+└── cue.mod/    // CUE dependencies
 {{</codeInner>}}
 
 You will often have other files depending on the languages or technologies you choose.

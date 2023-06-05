@@ -1,6 +1,6 @@
 package schema
 
-#Server: {
+Server: {
 	// Most schemas have a name field
 	Name: string
 

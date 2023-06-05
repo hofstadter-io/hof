@@ -7,11 +7,10 @@ import (
 // This is a complete Value tracked as one
 // useful for schemas, config, and NoSQL
 Object: {
-	schema.DHof// needed for reFerences
-	$hof: datamodel: root:    true
-	$hof: datamodel: history: true
+	schema.Hof// needed for reFerences
+	#hof: datamodel: root: true
 
-	History: [...Snapshot]
+	TrackHistory
 
 	// all fields will be tracked
 }
@@ -20,7 +19,7 @@ Object: {
 // (todo, should support full lattice)
 Value: {
 	Object
-	$hof: datamodel: cue: true
+	#hof: datamodel: cue: true
 }
 
 // This is a general datamodel useful in many applications
@@ -28,13 +27,19 @@ Value: {
 // Useful for SQL, APIs, forms, and similar
 Datamodel: {
 	schema.DHof// needed for reFerences
-	$hof: datamodel: root: true
+	#hof: datamodel: root: true
 }
 
 // Schema for a snapshot, can include anything else
 Snapshot: {
-	Timestamp: string
+	Timestamp: string | *""
 }
 
 // embedable history type
 History: [...Snapshot]
+
+TrackHistory: {
+	#hof: datamodel: history: true // needed for CUE compat
+	"Snapshot": Snapshot
+	"History":  History
+}

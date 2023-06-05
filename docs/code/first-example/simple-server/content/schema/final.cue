@@ -2,9 +2,9 @@ package schema
 
 import "strings"
 
-#HttpMethod: "OPTIONS" | "HEAD" | "GET" | "POST" | "PATCH" | "PUT" | "DELETE" | "CONNECT" | "TRACE"
+HttpMethod: "OPTIONS" | "HEAD" | "GET" | "POST" | "PATCH" | "PUT" | "DELETE" | "CONNECT" | "TRACE"
 
-#Server: {
+Server: {
 	// Most schemas have a name field
 	Name: string
 
@@ -14,10 +14,10 @@ import "strings"
 	Help:        string | *""
 
 	// language fields
-	GoModule:  string
+	GoModule: string
 
 	// The server routes
-	Routes: #Routes
+	Routes: Routes
 
 	// list of file globs to be embedded into the server when built
 	EmbedGlobs: [...string]
@@ -30,11 +30,11 @@ import "strings"
 	SERVER_NAME: strings.ToUpper(Name)
 }
 
-#Routes: [...#Route] | *[]
-#Route: {
+Routes: [...Route] | *[]
+Route: {
 	Name:   string
 	Path:   string
-	Method: #HttpMethod
+	Method: HttpMethod
 
 	// Route and Query params
 	Params: [...string] | *[]
@@ -46,5 +46,5 @@ import "strings"
 	Imports: [...string] | *[]
 
 	// Allows subroutes for routes
-	Routes: [...#Route]
+	Routes: [...Route]
 }
