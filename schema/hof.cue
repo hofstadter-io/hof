@@ -1,13 +1,13 @@
 package schema
 
-// Hof is used to embed $hof and include the needed metadata
+// Hof is used to embed #hof and include the needed metadata
 // for hof's core functionality (gen,datamodel,flow)
 // val: { schema.Hof, ... }
 Hof: {
 
-	// schema for $hof: ...
+	// schema for #hof: ...
 	#hof: {
-		// $hof version
+		// #hof version
 		apiVersion: "v1beta1"
 
 		// typical metadata

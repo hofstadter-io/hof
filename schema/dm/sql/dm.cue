@@ -8,8 +8,9 @@ import (
 Datamodel: {
 	#hof: datamodel: root: true
 
-	#hof: datamodel: history: true // needed for CUE compat
-	History: dm.History
+	schema.Hof
+	dm.TrackHistory
+
 	// these are the models for the application
 	// they can map onto database tables and apis
 	Models: {
@@ -23,15 +24,8 @@ Datamodel: {
 }
 
 Model: M={
-	schema.Hof// needed for reFerences
-
-	#hof: datamodel: history: true // needed for CUE compat
-
-	History: dm.History
-
-	// Lineage fields will be filled by hof
-	// $hof: Lense: ...
-	// $hof: History: ...
+	schema.Hof
+	dm.TrackHistory
 
 	// for easy access
 	Name:   M.#hof.metadata.name
@@ -53,9 +47,9 @@ Model: M={
 }
 
 Field: {
+	// schema.Hof
 	// TODO, decide if these should be the default
-	// schema.DHof// needed for reFerences
-	// $hof: datamodel: history: true // needed for CUE compat
+	// #hof: datamodel: history: true // needed for CUE compat
 	// History: dm.History
 
 	Name: string

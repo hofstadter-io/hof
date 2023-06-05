@@ -4,7 +4,7 @@ import (
 	"github.com/hofstadter-io/hof/schema/common"
 )
 
-#NamePrompt: {
+NamePrompt: {
 	Name:       "name"
 	Type:       "input"
 	Prompt:     "What is your CLI named"
@@ -12,7 +12,7 @@ import (
 	Validation: common.NameLabel
 }
 
-#RepoPrompt: {
+RepoPrompt: {
 	Name:       "repo"
 	Type:       "git"
 	Prompt:     "Git repository"

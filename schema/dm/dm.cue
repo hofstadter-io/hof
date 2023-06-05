@@ -8,10 +8,9 @@ import (
 // useful for schemas, config, and NoSQL
 Object: {
 	schema.Hof// needed for reFerences
-	#hof: datamodel: root:    true
-	#hof: datamodel: history: true
+	#hof: datamodel: root: true
 
-	History: [...Snapshot]
+	TrackHistory
 
 	// all fields will be tracked
 }
@@ -33,8 +32,14 @@ Datamodel: {
 
 // Schema for a snapshot, can include anything else
 Snapshot: {
-	Timestamp: string
+	Timestamp: string | *""
 }
 
 // embedable history type
 History: [...Snapshot]
+
+TrackHistory: {
+	#hof: datamodel: history: true // needed for CUE compat
+	"Snapshot": Snapshot
+	"History":  History
+}
