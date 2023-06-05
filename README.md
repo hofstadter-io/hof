@@ -5,6 +5,7 @@ Automate repetitive setup, code, changes, and workflows using your tools. Hof is
 
 <!-- something about osurce of thuth, unified abstraction later, interoperablility... -->
 
+| | |
 |-----------|------------|
 | __data model__         | define & manage data models - the source of truth |
 | __code generation__    | data + template = _ (anything) - technology agnostic |
