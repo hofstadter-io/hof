@@ -31,7 +31,7 @@ func FindHofs(value cue.Value) (roots []*Node[any], err error) {
 
 		// do not decend into $hof value itself
 		// or any definition
-		if label == "$hof" {
+		if label == "#hof" {
 			return false
 		}
 
@@ -44,7 +44,7 @@ func FindHofs(value cue.Value) (roots []*Node[any], err error) {
 		found := false
 
 		// look for #hof: _
-		hv := val.LookupPath(cue.ParsePath("$hof"))
+		hv := val.LookupPath(cue.ParsePath("#hof"))
 		if hv.Exists() {
 			found = true
 			err = hv.Decode(&(stack.Hof))
@@ -144,11 +144,11 @@ func FindHofs(value cue.Value) (roots []*Node[any], err error) {
 			// more enrichment
 			if nodes.Hof.Metadata.Name == "" {
 				nodes.Hof.Metadata.Name = nodes.Hof.Label
-				nodes.Value = nodes.Value.FillPath(cue.ParsePath("$hof.metadata.name"), nodes.Hof.Metadata.Name)
+				nodes.Value = nodes.Value.FillPath(cue.ParsePath("#hof.metadata.name"), nodes.Hof.Metadata.Name)
 			}
 			if nodes.Hof.Metadata.ID == "" {
 				nodes.Hof.Metadata.ID = nodes.Hof.Metadata.Name
-				nodes.Value = nodes.Value.FillPath(cue.ParsePath("$hof.metadata.id"), kace.Kebab(nodes.Hof.Metadata.ID))
+				nodes.Value = nodes.Value.FillPath(cue.ParsePath("#hof.metadata.id"), kace.Kebab(nodes.Hof.Metadata.ID))
 			}
 
 			if nodes.Parent == nil {

@@ -6,7 +6,7 @@ package schema
 Hof: {
 
 	// schema for $hof: ...
-	$hof: {
+	#hof: {
 		// $hof version
 		apiVersion: "v1beta1"
 
@@ -71,7 +71,7 @@ Hof: {
 // LabelNames is for embedding, so that the metadata name
 // is filled in from the struct they are embedded in
 // See the datamodel schemas for examples.
-LabelNames: [N= !="$hof"]: {$hof: metadata: name: N}
+LabelNames: [N=string]: {#hof: metadata: name: N}
 
 // Typical metadata useful in many places
 Metadata: {
