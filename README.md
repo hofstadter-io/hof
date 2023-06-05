@@ -1,9 +1,14 @@
 # hof - the high code framework
 
-`hof` is a tool that weaves together data models, code generation, and task engine with CUE.
-Enhance your workflow and automate repetitive development. Language and technology agnostic.
+Hof is a tool that weaves together data models, code generation, and task engine with CUE.
+Automate repetitive setup, code, changes, and workflows using your tools. Hof is technology agnostic.
 
 <!-- something about osurce of thuth, unified abstraction later, interoperablility... -->
+
+|-----------|------------|
+| __data model__         | define & manage data models - the source of truth |
+| __code generation__    | data + template = _ (anything) - technology agnostic |
+
 
 1. __data model__ - define & manage data models - the source of truth
 2. __code generation__ - data + template = _ (anything) - technology agnostic
