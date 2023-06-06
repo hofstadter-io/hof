@@ -57,9 +57,9 @@ Field: {
 
 	// relation type, open to be flexible
 	Relation?: {
-		Name:  string
-		Type:  "has-one" | "has-many" | "belongs-to" | "many-to-many"
-		Other: string // technically a cue path, but as a string
+		"Name": string | *Name
+		Type:   "has-one" | "has-many" | "belongs-to" | "many-to-many"
+		Other:  string // technically a cue path, but as a string
 	}
 
 	// what about {val, *val, []val, []*val}

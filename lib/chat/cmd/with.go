@@ -181,7 +181,7 @@ func With(name string, extra []string, rflags flags.RootPflagpole, cflags flags.
 			fmt.Println("running post exec flow:", postExec)
 		}
 		ctx := flowcontext.New()
-		ctx.RootValue = preExec
+		ctx.RootValue = postExec
 		ctx.Stdin = os.Stdin
 		ctx.Stdout = os.Stdout
 		ctx.Stderr = os.Stderr

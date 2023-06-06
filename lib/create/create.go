@@ -12,6 +12,12 @@ import (
 	"github.com/go-git/go-billy/v5/osfs"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+
+	flowcontext "github.com/hofstadter-io/hof/flow/context"
+	"github.com/hofstadter-io/hof/flow/middleware"
+	"github.com/hofstadter-io/hof/flow/tasks"
+	"github.com/hofstadter-io/hof/flow/flow"
+
 	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/datautils/io"
 	"github.com/hofstadter-io/hof/lib/gen"
@@ -314,16 +320,24 @@ func runCreator(R *gencmd.Runtime, extra, inputs []string) (err error) {
 
 	// handle create input / prompt
 	for _, G := range R.Generators {
-		err = handleGeneratorCreate(G, extra, inputMap)
+		// update G locally
+		err = handleGeneratorCreate(G, R.Flags, extra, inputMap)
 		if err != nil {
 			return err
 		}
 		if G.Verbosity > 1 {
 			fmt.Println("G.Value:", G.Name, G.CueValue)
 		}
+
+		// write G back into runtime value
+		R.Value = R.Value.FillPath(cue.ParsePath(G.Hof.Path), G.CueValue)
 	}
 
-
+	// fast reload generators with filled in inputs
+	err = R.Reload(true)
+	if err != nil {
+		return err
+	}
 
 	// fmt.Printf("map: %#+v\n", inputMap)
 
@@ -348,8 +362,57 @@ func runCreator(R *gencmd.Runtime, extra, inputs []string) (err error) {
 		return fmt.Errorf("While writing")
 	}
 
+	fmt.Println("post-exec", R.OriginalWkdir)
+	err = os.Chdir(R.OriginalWkdir)
+	if err != nil {
+		return err
+	}
+
 	// we wait until the very end of all generators to print after messages
 	for _, G := range R.Generators {
+
+		// maybe run post exec per creator
+		postExec := G.CueValue.LookupPath(cue.ParsePath("Create.PostExec"))
+		if postExec.Exists() {
+			if R.Flags.Verbosity > 0 {
+				fmt.Println("running post exec flow:", postExec)
+			}
+			ctx := flowcontext.New()
+			ctx.RootValue = postExec
+			ctx.Stdin = os.Stdin
+			ctx.Stdout = os.Stdout
+			ctx.Stderr = os.Stderr
+			ctx.Verbosity = R.Flags.Verbosity
+
+			// how to inject tags into original value
+			// fill / return value
+			middleware.UseDefaults(ctx, &R.Flags, &flags.FlowFlags)
+			tasks.RegisterDefaults(ctx)
+
+			p, err := flow.NewFlow(ctx, postExec)
+			if err != nil {
+				return err
+			}
+
+			err = p.Start()
+			if err != nil {
+				return err
+			}
+
+			G.CueValue = G.CueValue.FillPath(cue.ParsePath("Create.PostExec"), postExec)
+			if G.CueValue.Err() != nil {
+				return err
+			}
+
+		} else if !postExec.Exists() {
+			if G.Verbosity > 0 {
+				fmt.Println("post-exec not found")
+			}
+		} else if postExec.Err() != nil {
+			return postExec.Err()
+		}
+
+		// print final message to user
 		after := G.CueValue.LookupPath(cue.ParsePath("Create.Message.After"))
 		if after.Err() != nil {
 			fmt.Println("error:", after.Err())
@@ -418,10 +481,54 @@ func loadCreateInputs(R *gencmd.Runtime, inputFlags []string) (input map[string]
 }
 
 
-func handleGeneratorCreate(G *gen.Generator, extraArgs []string, inputMap map[string]any) (err error) {
+func handleGeneratorCreate(G *gen.Generator, rflags flags.RootPflagpole, extraArgs []string, inputMap map[string]any) (err error) {
+
 	// fill any extra args into generator value
 	G.CueValue = G.CueValue.FillPath(cue.ParsePath("Create.Args"), extraArgs)
 
+	// maybe run the pre flow
+	preExec := G.CueValue.LookupPath(cue.ParsePath("Create.PreExec"))
+	if preExec.Exists() {
+		if G.Verbosity > 0 {
+			fmt.Println("running pre exec flow:", preExec)
+		}
+
+		ctx := flowcontext.New()
+		ctx.RootValue = preExec
+		ctx.Stdin = os.Stdin
+		ctx.Stdout = os.Stdout
+		ctx.Stderr = os.Stderr
+		ctx.Verbosity = G.Verbosity
+
+		// how to inject tags into original value
+		// fill / return value
+		middleware.UseDefaults(ctx, &rflags, &flags.FlowFlags)
+		tasks.RegisterDefaults(ctx)
+
+		p, err := flow.NewFlow(ctx, preExec)
+		if err != nil {
+			return err
+		}
+
+		err = p.Start()
+		if err != nil {
+			return err
+		}
+
+		G.CueValue = G.CueValue.FillPath(cue.ParsePath("Create.PreExec"), preExec)
+		if G.CueValue.Err() != nil {
+			return err
+		}
+
+	} else if !preExec.Exists() {
+		if G.Verbosity > 0 {
+			fmt.Println("no pre-exec...")
+		}
+	} else if preExec.Err() != nil {
+		return preExec.Err()
+	}
+
+	// make a local to gen value
 	genVal := G.CueValue
 
 	// pritn the before message if set, otherwise default
@@ -509,6 +616,7 @@ func handleGeneratorCreate(G *gen.Generator, extraArgs []string, inputMap map[st
 		return err
 	}
 
+	/*
 	in := G.CueValue.LookupPath(cue.ParsePath("In"))
 	if !in.Exists() {
 		return fmt.Errorf("In gen:%s, missing In value", G.Name)
@@ -518,6 +626,7 @@ func handleGeneratorCreate(G *gen.Generator, extraArgs []string, inputMap map[st
 	if err != nil {
 		return err
 	}
+	*/
 
 	return nil
 }
