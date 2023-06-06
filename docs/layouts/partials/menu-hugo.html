@@ -24,8 +24,8 @@
         {{- if $isCurrent }} current{{ end }}
         {{- if .Params.alwaysopen}} alwaysopen{{end -}}
         ">
-        <span class="d-flex">
-          <a class="nav-link py-0 px-2 {{if (or $isCurrent $isAncestor)}}current{{end}}"
+        <span class="d-flex ">
+          <a class="nav-link py-0 px-2 {{if (or $isCurrent $isAncestor)}}current{{end}} {{- if .Draft }} bg-warning{{ end -}}"
           href="{{.RelPermalink}}">
             {{.Title}}
         </a>
@@ -59,9 +59,9 @@
     </li>
 {{- else}}
     {{- if not .Params.Hidden }}
-        <li data-nav-id="{{.RelPermalink}}" class="nav-item my-1 {{- if eq .RelPermalink $currentNode.RelPermalink}} current{{end -}}">
+        <li data-nav-id="{{.RelPermalink}}" class="nav-item my-1 {{- if eq .RelPermalink $currentNode.RelPermalink}} current{{end -}} "> 
                 <!-- I'm the params hidden -->
-                 <a href="{{.RelPermalink}}" class="nav-link py-0 px-2 {{- if eq .RelPermalink $currentNode.RelPermalink}} current{{end -}}">
+                 <a href="{{.RelPermalink}}" class="nav-link py-0 px-2 {{- if eq .RelPermalink $currentNode.RelPermalink}} current{{end -}} {{- if .Draft }}bg-warning {{ end -}}">
                     {{safeHTML .Params.Pre}}{{.LinkTitle}}{{safeHTML .Params.Post}}
                 </a>
         </li>

@@ -19,11 +19,14 @@ and they will get an interactive prompt for getting started with your projects.
 The module system will help you manage dependencies
 and make your hof projects easily available to others.
 
-1. __code generation__ - data + template = _ (anything) - technology agnostic
-1. __generators__ - reusable and modular code generation configuration
-1. __data layer__ - define, manage, and migrate data models
-1. __creators__ - interactive prompts for bootstrapping projects
-1. __modules__ - dependency management for CUE and your hof code
+| Core Features | |
+|:---                    |:-- |
+| __code generation__    | data + template = _ (anything) ...any file, technology agnostic |
+| __app blueprints__     | consistently bootstrap apps, code, config, and other files |
+| __data model__         | define and manage data models, evolve code with them |
+| __task engine__        | extensible task and workflow DAG engine |
+| __modules__            | composable dependencies for blueprints, models, and generators |
+
 
 <br>
 <br>
