@@ -228,7 +228,7 @@ func (F *File) diff3() (write bool, err error) {
 	O := bytes.NewReader(SF)
 	B := bytes.NewReader(FC)
 	labelB := "Code Gen"
-	detailed := false
+	detailed := true
 
 	result, err := diff3.Merge(A, O, B, detailed, labelA, labelB)
 	if err != nil {

@@ -8,6 +8,7 @@ import (
 
 	"github.com/fatih/color"
 
+	"github.com/hofstadter-io/hof/lib/gen"
 	"github.com/hofstadter-io/hof/lib/watch"
 )
 
@@ -154,13 +155,22 @@ func (R *Runtime) PrintMergeConflicts() {
 			continue
 		}
 
-		for _, F := range G.Files {
-			if F.IsConflicted > 0 {
-				msg := fmt.Sprint("MERGE CONFLICT in: ", F.Filepath)
-				color.Red(msg)
-			}
+		R.printGenMergeConflicts(G)
+	}
+}
+
+func (R *Runtime) printGenMergeConflicts(G *gen.Generator) {
+	for _, F := range G.Files {
+		if F.IsConflicted > 0 {
+			msg := fmt.Sprintf("MERGE CONFLICT in %s", F.Filepath)
+			color.Red(msg)
 		}
 	}
+
+	for _, SG := range G.Generators {
+		R.printGenMergeConflicts(SG)
+	}
+
 }
 
 func (R *Runtime) CleanupRemainingShadow() (errs []error) {

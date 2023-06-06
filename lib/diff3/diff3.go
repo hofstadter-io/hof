@@ -475,11 +475,12 @@ type MergeResult struct {
 }
 
 func addConflictMarkers(lines, conflictA, conflictB []string, labelA, labelB string) []string {
-	lines = append(lines, fmt.Sprintf("<<<<<<<<< %s", labelA))
+	lenA, lenB := len(conflictA), len(conflictB)
+	lines = append(lines, fmt.Sprintf("<<<<<<<<< %s (%v)", labelA, lenA))
 	lines = append(lines, conflictA...)
 	lines = append(lines, "=========")
 	lines = append(lines, conflictB...)
-	lines = append(lines, fmt.Sprintf(">>>>>>>>> %s", labelB))
+	lines = append(lines, fmt.Sprintf(">>>>>>>>> %s (%v)", labelB, lenB))
 	return lines
 }
 
@@ -507,20 +508,32 @@ func Merge(a, o, b io.Reader, detailed bool, labelA string, labelB string) (*Mer
 			lines = append(lines, item.ok...)
 
 		} else {
-			if detailed {
-				var c = diffComm(item.conflict.a, item.conflict.b)
-				for j := 0; j < len(c); j++ {
-					var inner = c[j]
-					if inner.common != nil {
-						lines = append(lines, inner.common...)
-					} else {
-						conflicts = true
-						lines = addConflictMarkers(lines, inner.file1, inner.file2, labelA, labelB)
-					}
+			// another check for an edge case when one conflict is actually empty
+			lenA, lenB := len(item.conflict.a), len(item.conflict.b)
+			if lenA == 0 || lenB == 0 {
+				if lenA > 0 {
+					lines = append(lines, item.conflict.a...)
+				}
+				if lenB > 0 {
+					lines = append(lines, item.conflict.b...)
 				}
 			} else {
-				conflicts = true
-				lines = addConflictMarkers(lines, item.conflict.a, item.conflict.b, labelA, labelB)
+				// real conflict
+				if detailed {
+					var c = diffComm(item.conflict.a, item.conflict.b)
+					for j := 0; j < len(c); j++ {
+						var inner = c[j]
+						if inner.common != nil {
+							lines = append(lines, inner.common...)
+						} else {
+							conflicts = true
+							lines = addConflictMarkers(lines, inner.file1, inner.file2, labelA, labelB)
+						}
+					}
+				} else {
+					conflicts = true
+					lines = addConflictMarkers(lines, item.conflict.a, item.conflict.b, labelA, labelB)
+				}
 			}
 		}
 	}
