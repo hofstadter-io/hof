@@ -509,6 +509,7 @@ func Merge(a, o, b io.Reader, detailed bool, labelA string, labelB string) (*Mer
 
 		} else {
 			// another check for an edge case when one conflict is actually empty
+			/*
 			lenA, lenB := len(item.conflict.a), len(item.conflict.b)
 			if lenA == 0 || lenB == 0 {
 				if lenA > 0 {
@@ -518,6 +519,7 @@ func Merge(a, o, b io.Reader, detailed bool, labelA string, labelB string) (*Mer
 					lines = append(lines, item.conflict.b...)
 				}
 			} else {
+			*/
 				// real conflict
 				if detailed {
 					var c = diffComm(item.conflict.a, item.conflict.b)
@@ -534,7 +536,7 @@ func Merge(a, o, b io.Reader, detailed bool, labelA string, labelB string) (*Mer
 					conflicts = true
 					lines = addConflictMarkers(lines, item.conflict.a, item.conflict.b, labelA, labelB)
 				}
-			}
+			// }
 		}
 	}
 	return &MergeResult{
