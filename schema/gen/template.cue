@@ -56,7 +56,7 @@ Statics: {
 #Template: Template
 Template: {
 	Content: string
-	Delims?: #TemplateDelims
+	Delims?: TemplateDelims
 }
 
 // #Templates is used for templates or partials loaded from a filesystem
@@ -64,7 +64,10 @@ Template: {
 Templates: {
 	Globs: [...string]
 	TrimPrefix?: string
-	Delims?:     #TemplateDelims
+	Delims?:     TemplateDelims
+
+	// apply delims to a subset of templates, by glob
+	DelimGlobs: [glob=string]: TemplateDelims
 }
 
 #TemplateDelims: TemplateDelims

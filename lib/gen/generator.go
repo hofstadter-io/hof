@@ -22,6 +22,7 @@ type TemplateGlobs struct {
 	TrimPrefix string
 	// Custom delims
 	Delims templates.Delims
+	DelimGlobs map[string]templates.Delims
 }
 
 type StaticGlobs struct {
@@ -381,19 +382,37 @@ func (G *Generator) initPartials() []error {
 		for _, glob := range tg.Globs {
 			// setup vars
 			glob = filepath.Clean(glob)
-
-			if !strings.HasPrefix(glob, "/") {
-
-				if G.PackageName != "" {
-					glob = filepath.Join(CUE_VENDOR_DIR, G.PackageName, glob)
-				}
-
-				// this is how we deal with running generators in the same module
-				// they are defined in, while keeping the path spec for them simple
-				glob = filepath.Join(G.CwdToRoot, glob)
+			delimMap := make(map[string]templates.Delims)
+			for g,d := range tg.DelimGlobs {
+				delimMap[filepath.Clean(g)] = d
 			}
 
-			pMap, err := templates.CreateTemplateMapFromFolder(glob, prefix, tg.Delims)
+			// if not an absolute path
+			if !strings.HasPrefix(glob, "/") {
+				if G.PackageName != "" {
+					glob = filepath.Join(CUE_VENDOR_DIR, G.PackageName, glob)
+					
+					tmpMap := make(map[string]templates.Delims)
+					for g,d := range delimMap {
+						g = filepath.Join(CUE_VENDOR_DIR, G.PackageName, g)
+						tmpMap[g] = d
+					}
+					delimMap = tmpMap
+				}
+				// this is how we deal with running generators in the same module
+				// they are defined in, while keeping the path spec for them simple
+				// note, these will be no-ops when there is no cue.mod
+				glob = filepath.Join(G.CwdToRoot, glob)
+				tmpMap := make(map[string]templates.Delims)
+				for g,d := range delimMap {
+					g = filepath.Join(G.CwdToRoot, g)
+					tmpMap[g] = d
+				}
+				delimMap = tmpMap
+				// prefix = filepath.Join(G.CwdToRoot, prefix)
+			}
+
+			pMap, err := templates.CreateTemplateMapFromFolder(glob, prefix, tg.Delims, delimMap)
 			if G.Verbosity > 1 {
 				fmt.Printf("%s:%s has %d partial matches\n", G.NamePath(), glob, len(pMap))
 			}
@@ -466,21 +485,37 @@ func (G *Generator) initTemplates() []error {
 		for _, glob := range tg.Globs {
 			// setup vars
 			glob = filepath.Clean(glob)
+			delimMap := make(map[string]templates.Delims)
+			for g,d := range tg.DelimGlobs {
+				delimMap[filepath.Clean(g)] = d
+			}
 
 			// if not an absolute path
 			if !strings.HasPrefix(glob, "/") {
 				if G.PackageName != "" {
 					glob = filepath.Join(CUE_VENDOR_DIR, G.PackageName, glob)
+					
+					tmpMap := make(map[string]templates.Delims)
+					for g,d := range delimMap {
+						g = filepath.Join(CUE_VENDOR_DIR, G.PackageName, g)
+						tmpMap[g] = d
+					}
+					delimMap = tmpMap
 				}
-
 				// this is how we deal with running generators in the same module
 				// they are defined in, while keeping the path spec for them simple
 				// note, these will be no-ops when there is no cue.mod
 				glob = filepath.Join(G.CwdToRoot, glob)
+				tmpMap := make(map[string]templates.Delims)
+				for g,d := range delimMap {
+					g = filepath.Join(G.CwdToRoot, g)
+					tmpMap[g] = d
+				}
+				delimMap = tmpMap
 				// prefix = filepath.Join(G.CwdToRoot, prefix)
 			}
 
-			pMap, err := templates.CreateTemplateMapFromFolder(glob, prefix, tg.Delims)
+			pMap, err := templates.CreateTemplateMapFromFolder(glob, prefix, tg.Delims, delimMap)
 			if G.Verbosity > 1 {
 				fmt.Printf("%s:%s has %d template matches\n", G.NamePath(), glob, len(pMap))
 			}

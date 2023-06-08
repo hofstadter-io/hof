@@ -16,9 +16,9 @@ func NewTemplateMap() TemplateMap {
 	return make(map[string]*Template)
 }
 
-func CreateTemplateMapFromFolder(glob, prefix string, delims Delims) (tplMap TemplateMap, err error) {
+func CreateTemplateMapFromFolder(glob, prefix string, delims Delims, delimMap map[string]Delims) (tplMap TemplateMap, err error) {
 	tplMap = NewTemplateMap()
-	err = tplMap.ImportFromFolder(glob, prefix, delims)
+	err = tplMap.ImportFromFolder(glob, prefix, delims, delimMap)
 	if err != nil {
 		return nil, fmt.Errorf("while importing %s\n%w\n", glob, err)
 	}
@@ -29,7 +29,8 @@ func (M TemplateMap) ImportTemplateFile(filename string, delims Delims) error {
 	return M.importTemplate(filename, "", delims)
 }
 
-func (M TemplateMap) ImportFromFolder(glob, prefix string, delims Delims) error {
+func (M TemplateMap) ImportFromFolder(glob, prefix string, delims Delims, delimMap map[string]Delims) error {
+	// all templates
 	matches, err := zglob.Glob(glob)
 	if err != nil {
 		return err
@@ -37,6 +38,20 @@ func (M TemplateMap) ImportFromFolder(glob, prefix string, delims Delims) error 
 	if len(matches) == 0 {
 		// return fmt.Errorf("No templates found for '%s'", glob)
 		return nil
+	}
+
+	// delimOverrides
+	overrides := make(map[string]Delims)
+	for g, d := range delimMap {
+		gmatches, err := zglob.Glob(g)
+		if err != nil {
+			return err
+		}
+		if len(gmatches) > 0 {
+			for _, fn := range gmatches {
+				overrides[fn] = d
+			}
+		}
 	}
 
 	for _, match := range matches {
@@ -49,7 +64,16 @@ func (M TemplateMap) ImportFromFolder(glob, prefix string, delims Delims) error 
 			continue
 		}
 
-		err = M.importTemplate(match, prefix, delims)
+		// override delims?
+		d := delims
+		if len(overrides) > 0 {
+			D, ok := overrides[match]
+			if ok {
+				d = D
+			}
+		}
+
+		err = M.importTemplate(match, prefix, d)
 		if err != nil {
 			return err
 		}
