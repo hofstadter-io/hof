@@ -293,6 +293,7 @@ func (G *Generator) initStaticFiles() []error {
 					Filepath:     filepath.Clean(fp),
 					RenderContent: []byte(content),
 					StaticFile:   true,
+					parent: G,
 				}
 
 				// check for collisions
@@ -317,6 +318,7 @@ func (G *Generator) initStaticFiles() []error {
 			Filepath:     filepath.Clean(p),
 			RenderContent: []byte(content),
 			StaticFile:   true,
+			parent: G,
 		}
 
 		// check for collisions
@@ -553,6 +555,8 @@ func (G *Generator) initFileGens() []error {
 	var errs []error
 
 	for _, F := range G.Out {
+		F.parent = G
+
 		// support text/template in output file path
 		if strings.Contains(F.Filepath, "{{") {
 			ft, err := templates.CreateFromString("filepath", F.Filepath, templates.Delims{})
@@ -570,7 +574,12 @@ func (G *Generator) initFileGens() []error {
 
 		// check for collisions
 		if old,ok := G.Files[F.Filepath]; ok {
-			fmt.Printf("WARN: duplicate generated file %q in %q & %q\n", F.Filepath, G.NamePath(), old.parent.NamePath())
+			static := ""
+			if old.StaticFile {
+				static = " (static)"
+			}
+			
+			fmt.Printf("WARN: duplicate generated file %q in %q & %q%s\n", F.Filepath, G.NamePath(), old.parent.NamePath(), static)
 			// errs = append(errs, fmt.Errorf("duplicate generated file %q in %q", F.Filepath, G.NamePath()))
 			continue
 		}
@@ -578,8 +587,6 @@ func (G *Generator) initFileGens() []error {
 		if G.Verbosity > 1 {
 			fmt.Printf(" +f %s:%s\n", G.NamePath(), F.Filepath)
 		}
-
-		F.parent = G
 
 		G.Files[F.Filepath] = F
 		G.OrderedFiles = append(G.OrderedFiles, F)
