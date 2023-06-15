@@ -97,6 +97,11 @@ func (F *File) MergeIn(other map[string]any) {
 
 func (F *File) Render(outdir string, UseDiff3, NoFmt bool) error {
 	// fmt.Println("F.Render:", F.Filepath, UseDiff3)
+
+	if F.Filepath == "" {
+		return fmt.Errorf("trying to render a file with no filepath")
+	}
+
 	var err error
 	F.RenderContent = bytes.TrimSpace(F.RenderContent)
 

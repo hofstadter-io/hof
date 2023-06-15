@@ -345,6 +345,7 @@ func (G *Generator) decodeOut() []error {
 
 		err := G.decodeFile(elem, v)
 		if err != nil {
+			err = fmt.Errorf("while decoding file in %s: %w", G.Name, err)
 			allErrs = append(allErrs, err)
 		}
 
@@ -362,106 +363,111 @@ func (G *Generator) decodeFile(file *File, val cue.Value) error {
 
 	// Only keep valid elements
 	// Invalid include conditional elements in CUE Gen which are not "included"
-	if file != nil && file.Filepath != "" {
+	if file == nil {
+		return fmt.Errorf("Generator %q got a nil file for decoding", G.Name)
+	}
 
-		tcE := file.TemplateContent == ""
-		tpE := file.TemplatePath == ""
-		dfE := file.DatafileFormat == ""
+	if file.Filepath == "" {
+		return fmt.Errorf("Generator %q got a file with no output 'Filepath' in %# v\n", G.Name, file)
+	}
 
-		// infer datafile format, only if template values are not set
-		if tcE && tpE && file.DatafileFormat == "" {
-			ext := filepath.Ext(file.Filepath)
-			ext = strings.TrimPrefix(ext, ".")
-			switch ext {
-			case "yaml", "yml", "json", "xml", "toml", "cue":
-				file.DatafileFormat = ext
-				dfE = false
-			}
+	tcE := file.TemplateContent == ""
+	tpE := file.TemplatePath == ""
+	dfE := file.DatafileFormat == ""
+
+	// infer datafile format, only if template values are not set
+	if tcE && tpE && file.DatafileFormat == "" {
+		ext := filepath.Ext(file.Filepath)
+		ext = strings.TrimPrefix(ext, ".")
+		switch ext {
+		case "yaml", "yml", "json", "xml", "toml", "cue":
+			file.DatafileFormat = ext
+			dfE = false
+		}
+	}
+
+
+	// check template fields (See TODO in schema/gen/file.cue)
+	// error if none are set
+	if tcE && tpE && dfE {
+		err := fmt.Errorf("In %s (%s), at least one of [TemplateContent, TemplatePath, DatafileFormat] must be set, all are empty", G.Name, file.Filepath)
+		file.Errors = append(file.Errors, err)
+		return err
+	}
+	// more than one is set
+	if !(tcE || tpE) || !(tcE || dfE) || !(tpE || dfE) {
+		err := fmt.Errorf("In %s (%s), only one of [TemplateContent, TemplatePath, DatafileFormat] may be set, multiple are", G.Name, file.Filepath)
+		file.Errors = append(file.Errors, err)
+		return err
+	}
+	// only one is set
+
+	// If datafile format
+	if !dfE {
+		val := val.LookupPath(cue.ParsePath("Val"))
+		if val.Err() == nil && val.Exists() {
+			file.Value = val
+		} else {
+			file.Value = G.Val
+		}
+	} else {
+		// TODO< check if a tc looks like a tp, or vice-a-versa
+		// perhaps look for a path or template indicators
+
+		in := val.LookupPath(cue.ParsePath("In"))
+		// manage In value
+		// If In exists
+		if in.Err() == nil {
+			file.MergeIn(G.In)
+		} else {
+			// else, just use G.In
+			file.In = G.In
 		}
 
+	}
 
-		// check template fields (See TODO in schema/gen/file.cue)
-		// error if none are set
-		if tcE && tpE && dfE {
-			err := fmt.Errorf("In %s (%s), at least one of [TemplateContent, TemplatePath, DatafileFormat] must be set, all are empty", G.Name, file.Filepath)
-			file.Errors = append(file.Errors, err)
-			return err
-		}
-		// more than one is set
-		if !(tcE || tpE) || !(tcE || dfE) || !(tpE || dfE) {
-			err := fmt.Errorf("In %s (%s), only one of [TemplateContent, TemplatePath, DatafileFormat] may be set, multiple are", G.Name, file.Filepath)
-			file.Errors = append(file.Errors, err)
-			return err
-		}
-		// only one is set
+	// Package ?
 
-		// If datafile format
-		if !dfE {
-			val := val.LookupPath(cue.ParsePath("Val"))
-			if val.Err() == nil && val.Exists() {
-				file.Value = val
-			} else {
-				file.Value = G.Val
+	// Delims?
+
+	// Formatting
+	var err error
+	fval := val.LookupPath(cue.ParsePath("Formatting"))
+	if fval.Err() == nil && fval.Exists() {
+		fdval := fval.LookupPath(cue.ParsePath("Disabled"))
+		if fdval.Err() == nil && fdval.Exists() {
+			file.FormattingDisabled, err = fdval.Bool()	
+			if err != nil {
+				return err
 			}
 		} else {
-			// TODO< check if a tc looks like a tp, or vice-a-versa
-			// perhaps look for a path or template indicators
-
-			in := val.LookupPath(cue.ParsePath("In"))
-			// manage In value
-			// If In exists
-			if in.Err() == nil {
-				file.MergeIn(G.In)
+			// use default from Generator, depending on file type (tmpl|data)
+			if file.Value.Exists() {
+				file.FormattingDisabled = !G.FormatData
 			} else {
-				// else, just use G.In
-				file.In = G.In
-			}
-
-		}
-
-		// Package ?
-
-		// Delims?
-
-		// Formatting
-		var err error
-		fval := val.LookupPath(cue.ParsePath("Formatting"))
-		if fval.Err() == nil && fval.Exists() {
-			fdval := fval.LookupPath(cue.ParsePath("Disabled"))
-			if fdval.Err() == nil && fdval.Exists() {
-				file.FormattingDisabled, err = fdval.Bool()	
-				if err != nil {
-					return err
-				}
-			} else {
-				// use default from Generator, depending on file type (tmpl|data)
-				if file.Value.Exists() {
-					file.FormattingDisabled = !G.FormatData
-				} else {
-					file.FormattingDisabled = G.FormattingDisabled
-				}
-			}
-
-			ffval := fval.LookupPath(cue.ParsePath("Foramtter"))
-			if ffval.Err() == nil && ffval.Exists() {
-				cfg := new(FmtConfig)
-				file.FormattingConfig = cfg
-				cfg.Formatter, err = ffval.String()
-				if err != nil {
-					return err
-				}
-
-				fcval := fval.LookupPath(cue.ParsePath("Config"))
-				err = fcval.Decode(&cfg.Config)
-				if err != nil {
-					return err
-				}
+				file.FormattingDisabled = G.FormattingDisabled
 			}
 		}
 
+		ffval := fval.LookupPath(cue.ParsePath("Foramtter"))
+		if ffval.Err() == nil && ffval.Exists() {
+			cfg := new(FmtConfig)
+			file.FormattingConfig = cfg
+			cfg.Formatter, err = ffval.String()
+			if err != nil {
+				return err
+			}
 
-		G.Out = append(G.Out, file)
+			fcval := fval.LookupPath(cue.ParsePath("Config"))
+			err = fcval.Decode(&cfg.Config)
+			if err != nil {
+				return err
+			}
+		}
 	}
+
+
+	G.Out = append(G.Out, file)
 
 	return nil
 }
@@ -511,7 +517,10 @@ func (G *Generator) decodeSubgens(root cue.Value) (errs []error) {
 		// decode subgenerators
 		sgerrs := sg.DecodeFromCUE(root)
 		if len(sgerrs) > 0 {
-			errs = append(errs, sgerrs...)
+			for _, err := range sgerrs {
+				err = fmt.Errorf("while decoding subgen %s:\n%w", sg.Name, err)
+				errs = append(errs, err)
+			}
 		}
 
 		G.Generators[name] = sg

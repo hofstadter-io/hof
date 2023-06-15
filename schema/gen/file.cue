@@ -8,27 +8,25 @@ File: {
 	//   but will not replace any values set locally
 	In?: {...} // for templates
 
-	// local override if the generator is set the opposite way
-	applyGenInToOut: bool | *true
-
-	// note, how In gets combined may be opaque, and non-CUEish
-	// we should think about applying it at the schema level
-
 	// input value for data files, always remains a CUE value
 	Val?: _ // for datafiles
 
 	// The full path under the output location
 	// empty implies don't generate, even though it may end up in the out list
-	// Support infering DatafileFormat by matching extensions
-	Filepath?: string
+	Filepath: string
 
-	// Only one of these three may be set
+	//
+	// One and only one of these next three may be set
+	//
+
 	// The template contents
 	TemplateContent?: string
+
 	// Path into the loaded templates
 	TemplatePath?: string
 
 	// Writes a datafile, bypassing template rendering
+	// Supports infering DatafileFormat by matching extensions
 	// You only have to set this when hof cannot infer from the file extension
 	DatafileFormat?: "cue" | "json" | "yaml" | "xml" | "toml"
 
@@ -62,6 +60,12 @@ File: {
 		// formatter specific configuration
 		Config: _
 	}
+
+	// note, how In gets combined may be opaque, and non-CUEish
+	// we should think about applying it at the schema level
+
+	// local override if the generator is set the opposite way
+	applyGenInToOut: bool | *true
 
 	// Note, intentionally closed to prevent user error when creating GenFiles
 }
