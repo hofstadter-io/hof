@@ -95,7 +95,7 @@ Flags:
   -W, --watch-globs strings   filepath globs to watch for changes and trigger full regen
 
 Global Flags:
-      --ignore-data      ignore all data files unless explicitly supplied
+      --include-data     auto include all data files found with cue files
       --inject-env       inject all ENV VARs as default tag vars
   -p, --package string   the Cue package context to use during execution
   -q, --quiet            turn off output and assume defaults at prompts

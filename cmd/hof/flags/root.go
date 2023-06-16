@@ -46,12 +46,12 @@ func PrintSubject(title, prefix, subject string, subjects map[string]string) boo
 }
 
 type RootPflagpole struct {
-	Package    string
-	Tags       []string
-	Verbosity  int
-	IgnoreData bool
-	InjectEnv  bool
-	Quiet      bool
+	Package     string
+	Tags        []string
+	Verbosity   int
+	IncludeData bool
+	InjectEnv   bool
+	Quiet       bool
 }
 
 var RootPflags RootPflagpole

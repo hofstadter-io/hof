@@ -23,7 +23,7 @@ func init() {
 	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Package), "package", "p", "", "the Cue package context to use during execution")
 	RootCmd.PersistentFlags().StringSliceVarP(&(flags.RootPflags.Tags), "tags", "t", nil, "@tags() to be injected into CUE code")
 	RootCmd.PersistentFlags().IntVarP(&(flags.RootPflags.Verbosity), "verbosity", "v", 0, "set the verbosity of output")
-	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.IgnoreData), "ignore-data", "", false, "ignore all data files unless explicitly supplied")
+	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.IncludeData), "include-data", "", false, "auto include all data files found with cue files")
 	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.InjectEnv), "inject-env", "", false, "inject all ENV VARs as default tag vars")
 	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Quiet), "quiet", "q", false, "turn off output and assume defaults at prompts")
 }

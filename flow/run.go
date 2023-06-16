@@ -6,7 +6,8 @@ import (
 	"strings"
 
 	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/cuecontext"
+
+	"github.com/hofstadter-io/hof/lib/cuetils"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	hofcontext "github.com/hofstadter-io/hof/flow/context"
@@ -36,7 +37,6 @@ func Run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagp
 
 // refactor out single/multi
 func run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagpole) error {
-	ctx := cuecontext.New()
 
 	// unsugar the @flow-names into popts
 	var entries, flowArgs, tagArgs []string
@@ -58,11 +58,12 @@ func run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagp
 	// fmt.Println("args:", popts.Flow, opts.Tags)
 
 	// load in CUE files
-	root, err := structural.LoadCueInputs(entrypoints, ctx, nil)
+	rt, err := cuetils.CueRuntimeFromEntrypointsAndFlags(entrypoints)
 	if err != nil {
 		s := structural.FormatCueError(err)
 		return fmt.Errorf("root: Error: %s", s)
 	}
+	root := rt.CueValue
 	if root.Err() != nil {
 		s := structural.FormatCueError(root.Err())
 		return fmt.Errorf("root.Err(): %s", s)

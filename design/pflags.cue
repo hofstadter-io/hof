@@ -30,12 +30,12 @@ import (
 		Help:    "set the verbosity of output"
 	},
 	{
-		Name:    "IgnoreData"
-		Long:    "ignore-data"
+		Name:    "IncludeData"
+		Long:    "include-data"
 		Short:   ""
 		Type:    "bool"
 		Default: ""
-		Help:    "ignore all data files unless explicitly supplied"
+		Help:    "auto include all data files found with cue files"
 	},
 	{
 		Name:    "InjectEnv"

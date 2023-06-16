@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/go-git/go-billy/v5"
@@ -60,6 +61,8 @@ type CueRuntime struct {
 	BuildInstances []*build.Instance
 	CueErrors      []error
 	FieldOpts      []cue.Option
+
+	IncludeData bool
 
 	CueInstance *cue.Instance
 	CueValue    cue.Value
@@ -205,6 +208,24 @@ func (CRT *CueRuntime) loadOrphanedFile(f *build.File, pkgName string, root, dir
 		dir += "/"
 	}
 	fname = strings.TrimPrefix(fname, dir)
+
+	// only load data files which are explicitly listed
+	//   or if the --include-data flag is set
+	// this is checking to see if we should return early
+	if !CRT.IncludeData { // user is not including all data
+		// so check if explicitly supplied as an arg
+		// fmt.Println("checking:", fname, R.Entrypoints)
+		match := false
+		for _, e := range CRT.Entrypoints {
+			if filepath.Clean(fname) == filepath.Clean(e) {
+				match = true
+				break
+			}
+		}
+		if !match {
+			return nil, nil
+		}
+	}
 
 	mapping := CRT.dataMappings[fname]
 	// if mapping != "" {

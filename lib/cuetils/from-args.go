@@ -71,6 +71,7 @@ func CueRuntimeFromEntrypointsAndFlags(entrypoints []string) (crt *CueRuntime, e
 	crt = &CueRuntime{
 		Entrypoints: entrypoints,
 		CueConfig:   cfg,
+		IncludeData: rflags.IncludeData,
 		dataMappings: make(map[string]string),
 	}
 
