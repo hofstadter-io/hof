@@ -157,11 +157,6 @@ func authClone(opts *gogit.CloneOptions, remote, owner, repo string) error {
 	}
 
 	opts.Auth = auth
-	/*
-		if ssh, err := yagu.SSHCredentials(remote); err == nil {
-			opts.URL = fmt.Sprintf("%s@%s:%s", ssh.User, remote, path.Join(owner,repo))
-		}
-	*/
 	return nil
 }
 
@@ -178,6 +173,7 @@ func authFetch(opts *gogit.FetchOptions, remote, owner, repo string) error {
 var authMap sync.Map
 
 func getAuth(remote, owner, repo string) (auth transport.AuthMethod, err error) {
+	fmt.Println("getAuth", remote, owner, repo)
 	// cached auth
 	val, ok := authMap.Load(remote)
 	if ok {
@@ -215,8 +211,8 @@ func getAuth(remote, owner, repo string) (auth transport.AuthMethod, err error) 
 				Password: os.Getenv("BITBUCKET_TOKEN"),
 			}
 		}
-	} else if ssh, err := yagu.SSHCredentials(remote); err == nil {
-		auth = ssh.Keys
+	//} else if ssh, err := yagu.SSHCredentials(remote); err == nil {
+	//  auth = ssh.Keys
 	}
 
 	// no auth found, so don't return any

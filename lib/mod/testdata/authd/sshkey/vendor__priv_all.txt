@@ -8,12 +8,33 @@ env GITLAB_TOKEN=
 env BITBUCKET_USERNAME=
 env BITBUCKET_PASSWORD=
 
-## setup default sshkey auth
+## setup sshkey auth
 mkdir $HOME/.ssh
 exec bash -c 'echo $HOFMOD_SSHKEY > $HOME/.ssh/id_rsa'
+exec bash -c 'echo $HOFMOD_PUBKEY > $HOME/.ssh/id_rsa.pub'
+cp ssh/config $HOME/.ssh/config
 
 ## run cmd
 exec hof mod vendor
+
+-- ssh/config --
+# github account
+Host github.com
+HostName github.com
+PreferredAuthentications publickey
+IdentityFile ~/.ssh/id_rsa
+
+# gitlab account
+Host gitlab.com
+HostName gitlab.com
+PreferredAuthentications publickey
+IdentityFile ~/.ssh/id_rsa
+
+# bitbucket account
+Host bitbucket.org
+HostName bitbucket.org
+PreferredAuthentications publickey
+IdentityFile ~/.ssh/id_rsa
 
 -- cue.mod/module.cue --
 module: "github.com/test/priv-all"

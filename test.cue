@@ -46,14 +46,19 @@ tests: {
 	// want to discover nested too
 	// @flow(test)
 
-	hack: {
-		test: string | *"TestMainFlow" @tag(test)
-		@flow(test/hack)
+	// primarily used by devs to select isolated tests to run
+	one: {
+		@flow(test/one)
+
+		test: string | *"TestModAuthdApikeysTests" @tag(test)
+		dir:  string | *"lib/mod"                  @tag(dir)
+
 		prt: {text: "testing: \(test)\n"} @task(os.Stdout)
+
 		run: {
 			@task(os.Exec)
 			cmd: ["bash", "-c", script]
-			dir:    "flow"
+			"dir":  dir
 			script: """
       rm -rf .workdir
       go test -run \(test) . 

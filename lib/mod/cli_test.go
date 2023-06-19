@@ -15,7 +15,6 @@ func envSetup(env *runtime.Env) error {
 		"GITLAB_TOKEN",
 		"BITBUCKET_USERNAME",
 		"BITBUCKET_PASSWORD",
-		"HOFMOD_SSHKEY",
 	}
 	for _, v := range vars {
 		if val := os.Getenv(v); val != "" {
@@ -66,26 +65,27 @@ func TestModAuthdApikeysTests(t *testing.T) {
 	})
 }
 
-/*
-func TestModAuthdSshconfigTests(t *testing.T) {
-	d := ".workdir/authd/sshconfig"
-	setupWorkdir(d)
-	runtime.Run(t, runtime.Params{
-		Setup:       envSetup,
-		Dir:         "testdata/authd/sshconfig",
-		Glob:        "*.txt",
-		WorkdirRoot: d,
-	})
-}
+// we don't support sshkey auth at this point
+// libraries are giving issue
 
-func TestModAuthdSshkeyTests(t *testing.T) {
-	d := ".workdir/authd/sshkey"
-	setupWorkdir(d)
-	runtime.Run(t, runtime.Params{
-		Setup: envSetup,
-		Dir: "testdata/authd/sshkey",
-		Glob: "*.txt",
-		WorkdirRoot: d,
-	})
-}
-*/
+//func TestModAuthdSshconfigTests(t *testing.T) {
+//  d := ".workdir/authd/sshconfig"
+//  setupWorkdir(d)
+//  runtime.Run(t, runtime.Params{
+//    Setup:       envSetup,
+//    Dir:         "testdata/authd/sshconfig",
+//    Glob:        "*.txt",
+//    WorkdirRoot: d,
+//  })
+//}
+
+//func TestModAuthdSshkeyTests(t *testing.T) {
+//  d := ".workdir/authd/sshkey"
+//  setupWorkdir(d)
+//  runtime.Run(t, runtime.Params{
+//    Setup: envSetup,
+//    Dir: "testdata/authd/sshkey",
+//    Glob: "*.txt",
+//    WorkdirRoot: d,
+//  })
+//}

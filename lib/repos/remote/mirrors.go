@@ -7,11 +7,14 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/hofstadter-io/hof/lib/repos/git"
 	"github.com/hofstadter-io/hof/lib/repos/oci"
 )
+
+const debug = 0
 
 var (
 	mirrorsGit = []string{
@@ -19,7 +22,9 @@ var (
 		"gitlab.com",
 		"bitbucket.org",
 	}
-	mirrorsOCI = []string{}
+	mirrorsOCI = []string{
+		"ghcr.io",
+	}
 
 	MirrorsSingleton *Mirrors
 )
@@ -41,6 +46,25 @@ const (
 	mirrorsFileName    = "mirrors.json"
 	mirrorsFileNameEnv = "HOF_MOD_MIRRORFILE"
 )
+
+// Holds the mirror mappings
+// todo, make the value more interesting
+// we probably want to know if pub/priv & auth settings
+// and what to mirror where, this only says what repo kind it is
+// prehaps we should make the primary key the url prefix,
+// and then look up details about [reg-type,reg-auth,reg-url,mods-mirrored]
+type Mirrors struct {
+	valuesMu sync.RWMutex
+	values   map[Kind][]string
+}
+
+// tbd
+type Mirror struct {
+	Kind Kind
+	URL  string	
+	Auth any
+	Prefixes []string
+}
 
 func mirrorsFilePath() (string, error) {
 	p := os.Getenv(mirrorsFileNameEnv)
@@ -82,12 +106,10 @@ func NewMirrors() (*Mirrors, error) {
 	return &m, nil
 }
 
-type Mirrors struct {
-	valuesMu sync.RWMutex
-	values   map[Kind][]string
-}
-
 func (m *Mirrors) Is(ctx context.Context, k Kind, mod string) (bool, error) {
+	if debug > 0 {
+		fmt.Println("mirrors.Is", k, mod)	
+	}
 	var (
 		mirrors  []string
 		netCheck func(context.Context, string) (bool, error)
@@ -105,7 +127,7 @@ func (m *Mirrors) Is(ctx context.Context, k Kind, mod string) (bool, error) {
 	}
 
 	for _, ss := range mirrors {
-		if mod == ss {
+		if strings.HasPrefix(mod, ss) {
 			return true, nil
 		}
 	}
@@ -136,7 +158,7 @@ func (m *Mirrors) hasValue(k Kind, mod string) bool {
 
 	if vals, ok := m.values[k]; ok {
 		for _, v := range vals {
-			if mod == v {
+			if strings.HasPrefix(mod, v) {
 				return true
 			}
 		}

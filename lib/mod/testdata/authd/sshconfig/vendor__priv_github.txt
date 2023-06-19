@@ -2,6 +2,25 @@
 env GITHUB_TOKEN=
 exec hof mod vendor
 
+-- ssh/config --
+# github account
+Host github.com
+HostName github.com
+PreferredAuthentications publickey
+IdentityFile ~/.ssh/id_rsa_myaccount_github
+
+# gitlab account
+Host gitlab.com
+HostName gitlab.com
+PreferredAuthentications publickey
+IdentityFile ~/.ssh/id_rsa_myaccount_gitlab
+
+# gitlab company account
+Host gitlab.my_company.com
+HostName gitlab.my_company.com
+PreferredAuthentications publickey
+IdentityFile ~/.ssh/id_rsa_mycompanyaccount_gitlab
+
 -- cue.mod/module.cue --
 module: "github.com/test/priv-github"
 cue: "v0.5.0"

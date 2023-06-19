@@ -110,6 +110,9 @@ func (r *Remote) Kind() (Kind, error) {
 	defer cancel()
 
 	isOCI, err := r.mirrors.Is(ctx, KindOCI, r.mod)
+	if debug > 0 {
+		// fmt.Println("isOCI?:", isOCI, err)
+	}
 	if isOCI && err != nil {
 		return "", fmt.Errorf("mirror is oci: %w", err)
 	}
@@ -119,6 +122,9 @@ func (r *Remote) Kind() (Kind, error) {
 	}
 
 	isGit, err := r.mirrors.Is(ctx, KindGit, r.mod)
+	if debug > 0 {
+		fmt.Println("isGit?:", isGit, err)
+	}
 	if isGit && err != nil {
 		return "", fmt.Errorf("mirror is git: %w", err)
 	}
@@ -126,6 +132,7 @@ func (r *Remote) Kind() (Kind, error) {
 		r.kind = KindGit
 		return "", nil
 	}
+
 
 	return "", fmt.Errorf("cannot determine registry kind for: %s", r.mod)
 }
