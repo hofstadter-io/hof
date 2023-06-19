@@ -13,7 +13,7 @@ File: {
 
 	// The full path under the output location
 	// empty implies don't generate, even though it may end up in the out list
-	Filepath: string
+	Filepath?: string
 
 	//
 	// One and only one of these next three may be set

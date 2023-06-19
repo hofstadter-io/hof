@@ -367,8 +367,13 @@ func (G *Generator) decodeFile(file *File, val cue.Value) error {
 		return fmt.Errorf("Generator %q got a nil file for decoding", G.Name)
 	}
 
+	// skip any files without filepath's
+	// some generators do this to exclude a file without removing it from the Out list
 	if file.Filepath == "" {
-		return fmt.Errorf("Generator %q got a file with no output 'Filepath' in %# v\n", G.Name, file)
+		if G.Verbosity > 0 {
+			fmt.Printf("WARN: Generator %q got a file with no output 'Filepath' in %# v\n", G.Name, file)
+		}
+		return nil
 	}
 
 	tcE := file.TemplateContent == ""
