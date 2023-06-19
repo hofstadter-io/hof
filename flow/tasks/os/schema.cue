@@ -19,15 +19,15 @@ Exec: {
 	// stdout captures the output from stdout if it is of type bytes or string.
 	// The default value of null indicates it is redirected to the stdout of the
 	// current process.
-	stdout?: null | string | bytes
+	stdout?: null | bool | string | bytes
 
 	// stderr is like stdout, but for errors.
-	stderr?: null | string | bytes
+	stderr?: null | bool | string | bytes
 
-	// stdin specifies the input for the process. If stdin is null, the stdin
+	// stdin specifies the input for the process. If stdin is bool (true or false), the stdin
 	// of the current process is redirected to this command (the default).
 	// If it is of typ bytes or string, that input will be used instead.
-	stdin?: *null | string | bytes
+	stdin?: *null | bool | string | bytes
 
 	// success is set to true when the process terminates with with a zero exit
 	// code or false otherwise. The user can explicitly specify the value

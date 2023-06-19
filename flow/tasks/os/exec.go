@@ -227,6 +227,9 @@ func extractIO(ex cue.Value) (Stdin io.Reader, Stdout, Stderr io.Writer, err err
 			}
 			Stdin = bytes.NewReader(b)
 
+		case cue.BoolKind:
+			Stdin = os.Stdin
+
 		case cue.NullKind:
 			// do nothing so no Stdin is set
 
@@ -248,6 +251,9 @@ func extractIO(ex cue.Value) (Stdin io.Reader, Stdout, Stderr io.Writer, err err
 		case cue.BytesKind:
 			Stdout = new(bytes.Buffer)
 
+		case cue.BoolKind:
+			Stdin = os.Stdout
+
 		case cue.NullKind:
 			// do nothing so no Stdin is set
 
@@ -268,6 +274,9 @@ func extractIO(ex cue.Value) (Stdin io.Reader, Stdout, Stderr io.Writer, err err
 			fallthrough
 		case cue.BytesKind:
 			Stderr = new(bytes.Buffer)
+
+		case cue.BoolKind:
+			Stdin = os.Stderr
 
 		case cue.NullKind:
 			// do nothing so no Stdin is set
