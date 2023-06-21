@@ -14,9 +14,9 @@ import (
 	"cuelang.org/go/cue/format"
 	cuejson "cuelang.org/go/pkg/encoding/json"
 	cueyaml "cuelang.org/go/pkg/encoding/yaml"
+	"github.com/BurntSushi/toml"
 	"github.com/clbanning/mxj"
 	"github.com/docker/docker/api/types"
-	"github.com/BurntSushi/toml"
 
 	"github.com/hofstadter-io/hof/cmd/hof/verinfo"
 	"github.com/hofstadter-io/hof/lib/docker"
@@ -24,9 +24,11 @@ import (
 
 const ContainerPrefix = "hof-fmt-"
 
-var defaultVersion = "dirty"
-var FORMAT_DISABLED = false
-var DOCKER_FORMAT_DISABLED = false
+var (
+	defaultVersion         = "dirty"
+	FORMAT_DISABLED        = false
+	DOCKER_FORMAT_DISABLED = false
+)
 
 // (CONSIDER) make this comma separated, so we can have fallback?
 var CONTAINER_REPO = "ghcr.io/hofstadter-io"
@@ -58,7 +60,7 @@ func init() {
 	}
 
 	formatters = make(map[string]*Formatter)
-	for _,fmtr := range fmtrNames {
+	for _, fmtr := range fmtrNames {
 		formatters[fmtr] = &Formatter{Name: fmtr, Version: defaultVersion}
 	}
 
@@ -68,8 +70,8 @@ func init() {
 		if err != nil {
 			fmt.Println("Error parsing HOF_FMT_DISABLED:", err)
 		} else {
-			FORMAT_DISABLED=dv
-			DOCKER_FORMAT_DISABLED=dv
+			FORMAT_DISABLED = dv
+			DOCKER_FORMAT_DISABLED = dv
 		}
 	}
 
@@ -77,14 +79,18 @@ func init() {
 	if hr != "" {
 		CONTAINER_REPO = hr
 	}
-	
+
+	if err := docker.InitDockerClient(); err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+
 	// gracefully init images / containers
-	err := Init()
-	if err != nil {
+	if err := Init(); err != nil {
 		if debug {
 			fmt.Println("fmt init error:", err)
 		}
-		DOCKER_FORMAT_DISABLED=true
+		DOCKER_FORMAT_DISABLED = true
 	}
 
 	if debug {
@@ -94,13 +100,7 @@ func init() {
 }
 
 func Init() error {
-	err := docker.InitDockerClient()
-	if err != nil {
-		return err
-	}
-
-	err = updateFormatterStatus()
-	if err != nil {
+	if err := updateFormatterStatus(); err != nil {
 		return err
 	}
 
@@ -109,8 +109,8 @@ func Init() error {
 
 type Formatter struct {
 	// name, same as tools/%
-	Name    string
-	Version string
+	Name      string
+	Version   string
 	Available []string
 
 	// Info
@@ -134,30 +134,30 @@ var fmtrNames = []string{
 }
 
 var fmtrEnvs = map[string][]string{
-	"black": nil,
+	"black":     nil,
 	"csharpier": nil,
-	"prettier": []string{
+	"prettier": {
 		"PRETTIER_RUBY_TIMEOUT_MS=10000",
 	},
 }
 
-var fmtrReady = map[string]any {
-	"black": map[string]any {
+var fmtrReady = map[string]any{
+	"black": map[string]any{
 		"config": fmtrDefaultConfigs["black/py"],
 		"source": "n = 1",
 	},
-	"csharpier": map[string]any {
+	"csharpier": map[string]any{
 		"config": fmtrDefaultConfigs["csharpier/cs"],
 		"source": "var n = 1;",
 	},
-	"prettier": map[string]any {
+	"prettier": map[string]any{
 		"config": fmtrDefaultConfigs["prettier/js"],
 		"source": "var n = 1;",
 	},
 }
 
 // Map file extensions to formatters
-var extToFmtr = map[string]string {
+var extToFmtr = map[string]string{
 	// python
 	".py": "black/py",
 
@@ -181,11 +181,11 @@ var extToFmtr = map[string]string {
 
 	// prettier plugins,
 	// TODO probably a separate image?
-	".java":    "prettier/java",
-	".php":     "prettier/php",
-	".rb":      "prettier/ruby",
-	".rs":      "prettier/rust",
-	".sql":     "prettier/sql",
+	".java": "prettier/java",
+	".php":  "prettier/php",
+	".rb":   "prettier/ruby",
+	".rs":   "prettier/rust",
+	".sql":  "prettier/sql",
 
 	// This one is buggy
 	// ".groovy":  "prettier/groovy",
@@ -193,7 +193,7 @@ var extToFmtr = map[string]string {
 }
 
 // Map wellknown filenames to formatters
-var filenameToFmtr = map[string]string {
+var filenameToFmtr = map[string]string{
 	"Jenkinsfile": "prettier/groovy",
 }
 
@@ -210,7 +210,7 @@ var fmtrDefaultConfigs = map[string]interface{}{
 
 	// pretty common
 	"prettier/babel": map[string]interface{}{
-		"semi": false,
+		"semi":   false,
 		"parser": "babel",
 	},
 	"prettier/typescript": map[string]interface{}{
@@ -283,44 +283,44 @@ func FormatSource(filename string, content []byte, fmtrName string, config inter
 	// what about when there are multiple dots? How do we handle like below? do we need to?
 	// examples: foo.tf.json & foo.tmpl.go
 	switch ext {
-		case ".go":
-			return gofmt.Source(content)
+	case ".go":
+		return gofmt.Source(content)
 
-		case ".cue":
+	case ".cue":
+		return formatCue(content)
+		if formatData {
 			return formatCue(content)
-			if formatData {
-				return formatCue(content)
-			} else {
-				return content, nil
-			}
+		} else {
+			return content, nil
+		}
 
-		case ".json":
-			if formatData {
-				return formatJson(content)
-			} else {
-				return content, nil
-			}
+	case ".json":
+		if formatData {
+			return formatJson(content)
+		} else {
+			return content, nil
+		}
 
-		case ".yml", ".yaml":
-			if formatData {
-				return formatYaml(content)
-			} else {
-				return content, nil
-			}
+	case ".yml", ".yaml":
+		if formatData {
+			return formatYaml(content)
+		} else {
+			return content, nil
+		}
 
-		case ".xml":
-			if formatData {
-				return formatXml(content)
-			} else {
-				return content, nil
-			}
+	case ".xml":
+		if formatData {
+			return formatXml(content)
+		} else {
+			return content, nil
+		}
 
-		case ".toml":
-			if formatData {
-				return formatToml(content)
-			} else {
-				return content, nil
-			}
+	case ".toml":
+		if formatData {
+			return formatToml(content)
+		} else {
+			return content, nil
+		}
 
 	}
 
@@ -356,7 +356,7 @@ func FormatSource(filename string, content []byte, fmtrName string, config inter
 			// look for extension to config
 			// want to prefer the longest fileExt, then fallback to wellknown filebase
 			// might need to upgrade to loop
-			
+
 			// try longest filepath
 			fmtrPath, ok = extToFmtr[fileExt]
 			// try golang exn
@@ -422,7 +422,7 @@ func formatJson(input []byte) ([]byte, error) {
 	x, err := cuejson.Unmarshal(input)
 	if err != nil {
 		return nil, err
-	}	
+	}
 
 	var c cue.Context
 	v := c.BuildExpr(x)
@@ -445,8 +445,8 @@ func formatYaml(input []byte) ([]byte, error) {
 	expr, err := cueyaml.Unmarshal(input)
 	if err != nil {
 		return nil, err
-	}	
-	
+	}
+
 	ctx := cuecontext.New()
 
 	v := ctx.BuildExpr(expr)
@@ -459,7 +459,6 @@ func formatYaml(input []byte) ([]byte, error) {
 }
 
 func formatToml(input []byte) ([]byte, error) {
-
 	v := make(map[string]interface{})
 	err := toml.Unmarshal(input, &v)
 	if err != nil {

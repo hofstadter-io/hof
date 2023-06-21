@@ -1,10 +1,12 @@
 package docker
 
 import (
+	"context"
 	"fmt"
+	"time"
 
-	"github.com/docker/docker/client"
 	credClient "github.com/docker/docker-credential-helpers/client"
+	"github.com/docker/docker/client"
 )
 
 var dockerClient *client.Client
@@ -18,6 +20,14 @@ func InitDockerClient() (err error) {
 	if err != nil {
 		return fmt.Errorf("error: hof fmt requires docker\n%w", err)
 	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	if _, err := dockerClient.Ping(ctx); err != nil {
+		return fmt.Errorf("docker ping: %w", err)
+	}
+
 	return nil
 }
 
