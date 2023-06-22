@@ -39,7 +39,7 @@ type Script struct {
 
 	env    []string                    // environment list (for os/exec)
 	envMap map[string]string           // environment mapping (matches env; on Windows keys are lowercase)
-	values map[interface{}]interface{} // values for custom commands
+	values map[any]any // values for custom commands
 
 	stdin  string // standard input to next 'go' command; set by 'stdin' command.
 	stdout string // standard output from last 'go' command; for 'stdout' command
@@ -48,6 +48,7 @@ type Script struct {
 
 	stopped bool      // test wants to stop early
 	start   time.Time // time phase started
+	failed  bool
 
 	background []backgroundCmd // backgrounded 'exec' and 'go' commands
 	deferred   func()          // deferred cleanup actions.
