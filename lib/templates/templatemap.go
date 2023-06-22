@@ -94,13 +94,11 @@ func (M TemplateMap) importTemplate(filePath, prefix string, delims Delims) erro
 		return fmt.Errorf("While parsing template file: %s\n%w", filePath, err)
 	}
 
-	if strings.HasPrefix(filePath, "/") {
-		// do nothing
-	} else if prefix != "" {
-		filePath, _ = filepath.Rel(prefix, filePath)
-	} else {
-		filePath = filepath.Clean(filePath)
-	}
+	// clean up filename before inserting into map, so when users reference in their generators, we align
+	filePath = strings.TrimPrefix(filePath, prefix)
+	filePath = strings.TrimPrefix(filePath, "/")  // be resilent to trailing slashes in the last value, or the lack therein
+	filePath = filepath.Clean(filePath)
+
 	M[filePath] = T
 	return nil
 }
