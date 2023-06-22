@@ -14,6 +14,31 @@ type Runtime struct {
 	Client *dagger.Client
 }
 
+
+func (R *Runtime) Hack(c *dagger.Container) (*dagger.Container, error) {
+	t := c.Pipeline("hack")
+
+	sock := R.Client.Host().UnixSocket("/var/run/docker.sock")
+	t = t.WithUnixSocket("/var/run/docker.sock", sock)
+
+	t = t.WithExec([]string{"bash", "-c", "docker run -p 4000:80 -d nginxdemos/hello && curl localhost:4000"})
+
+	var err error
+	t, err = t.Sync(R.Ctx)
+	if err != nil {
+		return t, err
+	}
+
+	//out, err := t.Stdout(R.Ctx)
+	//if err != nil {
+	//  fmt.Println(out)
+	//  return c, err
+	//}
+	//fmt.Println(out)
+
+	return c, nil
+}
+
 func (R *Runtime) LocalCodeAndDeps(c *dagger.Container) (*dagger.Container, error) {
 	c = c.Pipeline("load")
 	// setup mod cache

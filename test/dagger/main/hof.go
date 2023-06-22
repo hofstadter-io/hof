@@ -44,6 +44,11 @@ func main() {
 	c, err = R.BuildBase(nil)
 	checkErr(err)
 
+	_, err = R.Hack(c)
+	checkErr(err)
+
+	return
+
 	c, err = R.LocalCodeAndDeps(c)
 	checkErr(err)
 
