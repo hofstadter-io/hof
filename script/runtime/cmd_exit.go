@@ -21,7 +21,10 @@ func (ts *Script) CmdSkip(neg int, args []string) {
 		ts.t.Skip(args[0])
 	}
 	ts.t.Skip()
+	ts.stopped = true
 }
+
+// should we stop background in CmdStop? probably
 
 // stop stops execution of the test (marking it passed).
 func (ts *Script) CmdStop(neg int, args []string) {

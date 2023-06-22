@@ -1,79 +1,27 @@
-package main
+package dagger
 
 import (
 	"context"
 	"fmt"
-	"os"
+	"strings"
 
 	"dagger.io/dagger"
 )
 
 // so we don't have to pass these around everywhere
-type runtime struct {
-	ctx    context.Context
-	client *dagger.Client
+type Runtime struct {
+	Ctx    context.Context
+	Client *dagger.Client
 }
 
-type stage func (*dagger.Container) (*dagger.Container, error)
-
-func checkErr(err error) {
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-}
-
-func main() {
-	ctx := context.Background()
-
-	// initialize Dagger client
-	client, err := dagger.Connect(ctx, dagger.WithLogOutput(os.Stdout))
-	if err != nil {
-		panic(err)
-	}
-	defer client.Close()
-
-	R := &runtime{
-		ctx:    ctx,
-		client: client,
-	}
-
-	var c *dagger.Container
-
-	c, err = R.buildBase(nil)
-	checkErr(err)
-
-	c, err = R.loadCodeAndDeps(c)
-	checkErr(err)
-
-	c, err = R.buildHof(c)
-	checkErr(err)
-
-	c, d, err := R.buildHofMatrix(c)
-	checkErr(err)
-
-	ok, err := d.Export(R.ctx, ".")
-	checkErr(err)
-	if !ok {
-		panic("unable to write matrix build outputs")
-	}
-
-	err = R.sanityTest(c)
-	checkErr(err)
-
-	err = R.dockerTest(c)
-	checkErr(err)
-
-}
-
-func (R *runtime) loadCodeAndDeps(c *dagger.Container) (*dagger.Container, error) {
-	// c = c.Pipeline("load")
+func (R *Runtime) LocalCodeAndDeps(c *dagger.Container) (*dagger.Container, error) {
+	c = c.Pipeline("load")
 	// setup mod cache
-	modCache := R.client.CacheVolume("gomod")
+	modCache := R.Client.CacheVolume("gomod")
 	c = c.WithMountedCache("/go/pkg/mod", modCache)
 
 	// load hof's code
-	code := R.client.Host().Directory(".", dagger.HostDirectoryOpts{
+	code := R.Client.Host().Directory(".", dagger.HostDirectoryOpts{
 		Exclude: []string{"cue.mod/pkg", "docs", "next"},
 	})
 
@@ -83,16 +31,17 @@ func (R *runtime) loadCodeAndDeps(c *dagger.Container) (*dagger.Container, error
 	})
 	c = c.WithExec([]string{"go", "mod", "tidy"})
 
-	// build hof
+	// add full code
 	c = c.WithDirectory("/work", code)
 
+	// ensure cgo is disabled everywhere
 	c = c.WithEnvVariable("CGO_ENABLED", "0")
 
 	return c, nil
 }
 
-func (R *runtime) buildHof(c *dagger.Container) (*dagger.Container, error) {
-	// c = c.Pipeline("build")
+func (R *Runtime) BuildHof(c *dagger.Container) (*dagger.Container, error) {
+	c = c.Pipeline("build")
 	c = c.WithExec([]string{"go", "build", "./cmd/hof"})
 	// for testing
 	c = c.WithExec([]string{"cp", "hof", "/usr/bin/hof"})
@@ -100,27 +49,31 @@ func (R *runtime) buildHof(c *dagger.Container) (*dagger.Container, error) {
 	return c, nil
 }
 
-func (R *runtime) buildHofMatrix(c *dagger.Container) (*dagger.Container, *dagger.Directory, error) {
+func (R *Runtime) BuildHofMatrix(c *dagger.Container) (*dagger.Directory, error) {
 	// the matrix
 	geese := []string{"linux", "darwin"}
 	goarches := []string{"amd64", "arm64"}
 
 	// c = c.Pipeline("matrix")
 
+	outputs := R.Client.Directory()
+	outputs = outputs.Pipeline("outputs")
+
 	// build matrix for writing to host
-	outputs := R.client.Directory()
 	for _, goos := range geese {
 		for _, goarch := range goarches {
 			// create a directory for each OS and architecture
 			path := fmt.Sprintf("build/%s/%s/", goos, goarch)
 
-			// env vars
-			build := c.
+			// name the build
+			build := c.Pipeline(strings.TrimSuffix(path, "/"))
+
+			// set local env vars
+			build = build.
 				WithEnvVariable("GOOS", goos).
 				WithEnvVariable("GOARCH", goarch)
 
-			// name the build
-			// build = build.Pipeline(path)
+			// run the build
 			build = build.WithExec([]string{"go", "build", "-o", path, "./cmd/hof"})
 
 			// add build to outputs
@@ -128,16 +81,16 @@ func (R *runtime) buildHofMatrix(c *dagger.Container) (*dagger.Container, *dagge
 		}
 	}
 
-	return c, outputs, nil
+	return outputs, nil
 }
 
-func (R *runtime) buildBase(c *dagger.Container) (*dagger.Container, error) {
+func (R *Runtime) BuildBase(c *dagger.Container) (*dagger.Container, error) {
 
 	if c == nil {
-		c = R.client.Container().From("golang:1.20")
+		c = R.Client.Container().From("golang:1.20")
 	}
 
-	// c = c.Pipeline("base")
+	c = c.Pipeline("base")
 
 	// install packages
 	c = c.WithExec([]string{
@@ -149,14 +102,14 @@ func (R *runtime) buildBase(c *dagger.Container) (*dagger.Container, error) {
 		apt search docker
 		`,
 	})
-	out, err := c.Stdout(R.ctx)
+	out, err := c.Stdout(R.Ctx)
 	if err != nil {
 		fmt.Println(out)
 		return c, err
 	}
 
 	// add docker CLI
-	dockerCLI := R.client.Container().From("docker:24").
+	dockerCLI := R.Client.Container().From("docker:24").
 		File("/usr/local/bin/docker")
 
 	c = c.WithFile("/usr/local/bin/docker", dockerCLI)
@@ -167,11 +120,11 @@ func (R *runtime) buildBase(c *dagger.Container) (*dagger.Container, error) {
 	return c, nil
 }
 
-func (R *runtime) sanityTest(c *dagger.Container) error {
-	t := c.WithExec([]string{"hof", "version"})
-	// t = t.Pipeline("test/sanity")
+func (R *Runtime) SanityTest(c *dagger.Container) error {
+	t := c.Pipeline("test/sanity")
+	t = t.WithExec([]string{"hof", "version"})
 
-	out, err := t.Stdout(R.ctx)
+	out, err := t.Stdout(R.Ctx)
 	if err != nil {
 		fmt.Println(out)
 		return err
@@ -180,16 +133,16 @@ func (R *runtime) sanityTest(c *dagger.Container) error {
 	return nil
 }
 
-func (R *runtime) dockerTest(c *dagger.Container) error {
-	// c = c.Pipeline("test/flow")
+func (R *Runtime) DockerTest(c *dagger.Container) error {
+	t := c.Pipeline("test/flow")
 	// add socket
-	sock := R.client.Host().UnixSocket("/var/run/docker.sock")
-	c = c.WithUnixSocket("/var/run/docker.sock", sock)
+	sock := R.Client.Host().UnixSocket("/var/run/docker.sock")
+	t = t.WithUnixSocket("/var/run/docker.sock", sock)
 
-	c = c.WithExec([]string{"hof", "fmt", "info"})
+	t = t.WithExec([]string{"hof", "fmt", "info"})
 	// c = c.WithExec([]string{"hof", "fmt", "pull", "v0.6.8-rc.5"})
 
-	out, err := c.Stdout(R.ctx)
+	out, err := c.Stdout(R.Ctx)
 	if err != nil {
 		fmt.Println(out)
 		return err
