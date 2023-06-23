@@ -9,6 +9,8 @@ import (
 	"dagger.io/dagger"
 )
 
+const dockerVer = "docker:24"
+
 type runtime struct {
 	ctx    context.Context
 	client *dagger.Client
@@ -34,64 +36,73 @@ func main() {
 		client: client,
 	}
 
-	b, err := R.baseContainer()
+	// docker-cli
+	base, err := R.baseContainer()
 	checkErr(err)
 
-	d, err := R.dockerDaemon()
+	// docker daemon | dind
+	daemon, err := R.daemonContainer()
+	checkErr(err)
+
+	// attach deemon as a service to our base image
+	cntr, err := R.attachService(base, daemon)
 	checkErr(err)
 
 	go func() {
 		fmt.Println("starting daemon")
-		_, err := d.Sync(R.ctx)
+		_, err = daemon.ExitCode(R.ctx)
 		checkErr(err)
 	}()
 
 	fmt.Println("sleeping")
 	time.Sleep(10*time.Second)
 
-	c, err := R.dockerService(b, d)
+	err = R.dockerInfo(cntr)
 	checkErr(err)
 
-	err = R.dockerInfo(c)
-	checkErr(err)
-
-	err = R.dockerTest(c)
+	err = R.dockerTest(cntr)
 	checkErr(err)
 }
 
 func (R *runtime) baseContainer() (*dagger.Container, error) {
 
-	c := R.client.Container().From("docker:24-cli")
+	c := R.client.Container().From(dockerVer + "-cli")
+	c = c.Pipeline("base/image")
 
 	return c, nil
 }
 
-func (R *runtime) dockerDaemon() (*dagger.Container, error) {
+func (R *runtime) daemonContainer() (*dagger.Container, error) {
 
-	c := R.client.Container().From("docker:24-dind")
-	c = c.Pipeline("docker-daemon")
+	c := R.client.Container().From(dockerVer + "-dind")
+	c = c.Pipeline("daemon/image")
 
 	c = c.WithMountedCache("/tmp", R.client.CacheVolume("shared-tmp"))
 	c = c.WithExposedPort(2375)
 
 	c = c.WithExec(
-		[]string{"dockerd", "--log-level=error", "--host=tcp://0.0.0.0:2375", "--tls=false"},
+		[]string{
+			"dockerd",
+			"--log-level=info",
+			"--host=tcp://0.0.0.0:2375",
+			"--tls=false",
+		},
 		dagger.ContainerWithExecOpts{ InsecureRootCapabilities: true },
 	)
 	return c, nil
 }
 
-func (R *runtime) dockerService(c, d *dagger.Container) (*dagger.Container, error) {
-	t := c.Pipeline("docker-service")
+func (R *runtime) attachService(c, s *dagger.Container) (*dagger.Container, error) {
+	t := c.Pipeline("docker/service")
 	t = t.WithEnvVariable("DOCKER_HOST", "tcp://global-dockerd:2375")
-	t = t.WithServiceBinding("global-dockerd", d)
+	t = t.WithServiceBinding("global-dockerd", s)
 	t = t.WithMountedCache("/tmp", R.client.CacheVolume("shared-tmp"))
 
 	return t, nil
 }
 
 func (R *runtime) dockerInfo(c *dagger.Container) error {
-	t := c.Pipeline("info")
+	t := c.Pipeline("docker/info")
 
 	t = t.WithExec([]string{"docker", "info"})
 
@@ -105,15 +116,30 @@ func (R *runtime) dockerInfo(c *dagger.Container) error {
 }
 
 func (R *runtime) dockerTest(c *dagger.Container) error {
-	t := c.Pipeline("test")
+	t := c.Pipeline("docker/test")
 
 	t = t.WithExec([]string{"docker", "pull", "nginxdemos/hello"})
 	t = t.WithExec([]string{"docker", "images"})
 	// t = t.WithExec([]string{"ls", "-l", "/sys/fs/cgroup"})
 	t = t.WithExec([]string{"docker", "run", "-p", "4000:80", "-d", "nginxdemos/hello"})
-	t = t.WithExec([]string{"curl", "localhost:4000"})
+	t = t.WithExec([]string{"curl", "global-dockerd:4000"})
 
 	_, err := t.Sync(R.ctx)
+
+	return err
+}
+
+func (R *runtime) daemonTest(c *dagger.Container) error {
+	t := c.Pipeline("daemon/test")
+
+	t = t.WithExec([]string{"ls", "-l", "/sys/fs"})
+
+	out, err := t.Stdout(R.ctx)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(out)
 
 	return err
 }
