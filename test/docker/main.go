@@ -10,7 +10,7 @@ import (
 func main() {
 	fmt.Println("testing docker client/server compat")
 
-	err := container.InitDockerClient()
+	err := container.InitClient()
 	if err != nil {
 		fmt.Println("Error Initializing Client:", err)
 		os.Exit(1)

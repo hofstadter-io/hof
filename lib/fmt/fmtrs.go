@@ -96,7 +96,7 @@ func init() {
 }
 
 func Init() error {
-	err := container.InitDockerClient()
+	err := container.InitClient()
 	if err != nil {
 		return err
 	}

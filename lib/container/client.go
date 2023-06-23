@@ -2,22 +2,47 @@ package container
 
 import (
 	"fmt"
+	"os/exec"
 
 	credClient "github.com/docker/docker-credential-helpers/client"
-	"github.com/docker/docker/client"
 )
 
-var cClient *client.Client
-
-func InitDockerClient() (err error) {
-	cClient, err = client.NewClientWithOpts(
-		client.FromEnv,
-		client.WithAPIVersionNegotiation(),
-		client.WithHostFromEnv(),
-	)
-	if err != nil {
-		return fmt.Errorf("error: hof fmt requires docker\n%w", err)
+var (
+	client   Client
+	binaries = []RuntimeBinary{
+		RuntimeBinaryNerdctl,
+		RuntimeBinaryPodman,
+		RuntimeBinaryDocker,
 	}
+)
+
+var rt Runtime
+
+type Client struct {
+	runtimePath string
+}
+
+func InitClient() error {
+	var rb RuntimeBinary
+
+	for _, b := range binaries {
+		if _, err := exec.LookPath(string(b)); err == nil {
+			rb = b
+			break
+		}
+	}
+
+	switch rb {
+	case RuntimeBinaryNerdctl:
+		rt = newNerdctl()
+	case RuntimeBinaryPodman:
+		rt = newPodman()
+	case RuntimeBinaryDocker:
+		rt = newDocker()
+	default:
+		return fmt.Errorf("failed to find any of %s in PATH", binaries)
+	}
+
 	return nil
 }
 
