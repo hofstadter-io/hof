@@ -10,18 +10,18 @@ import (
 	"github.com/olekukonko/tablewriter"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
-	"github.com/hofstadter-io/hof/lib/docker"
+	"github.com/hofstadter-io/hof/lib/container"
 	"github.com/hofstadter-io/hof/lib/repos/cache"
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 var dataFileExtns = map[string]struct{}{
-	".cue": struct{}{},
-	".yml": struct{}{},
-	".yaml": struct{}{},
-	".json": struct{}{},
-	".toml": struct{}{},
-	".xml": struct{}{},
+	".cue":  {},
+	".yml":  {},
+	".yaml": {},
+	".json": {},
+	".toml": {},
+	".xml":  {},
 }
 
 type formatGroup struct {
@@ -51,7 +51,7 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.FmtFlagpole) (e
 			fmt.Println(args)
 		}
 
-		g := formatGroup {
+		g := formatGroup{
 			orig: arg,
 		}
 
@@ -119,14 +119,14 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.FmtFlagpole) (e
 			}
 			if info.IsDir() {
 				continue
-			}	
+			}
 			if !cflags.Data {
 				ext := filepath.Ext(file)
 				if _, ok := dataFileExtns[ext]; ok {
 					continue
 				}
 			}
-			files = append(files,file)
+			files = append(files, file)
 		}
 
 		// if verbosity great enough?
@@ -147,7 +147,7 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.FmtFlagpole) (e
 			if err != nil {
 				return err
 			}
-			
+
 			// todo, add flags for fmtr & config
 			fmtd, err := FormatSource(file, content, g.formatter, nil, cflags.Data)
 			if err != nil {
@@ -200,12 +200,12 @@ func Start(fmtr string, replace bool) error {
 		fmtr := formatters[name]
 		// what other statuses do we need to check here? (maybe none)
 		if fmtr.Status == "exited" {
-			err := docker.StopContainer(fmt.Sprintf("hof-fmt-%s", name))
+			err := container.StopContainer(fmt.Sprintf("hof-fmt-%s", name))
 			if err != nil {
 				return err
 			}
 		}
-		return docker.StartContainer(
+		return container.StartContainer(
 			fmt.Sprintf("%s/fmt-%s:%s", CONTAINER_REPO, name, ver),
 			fmt.Sprintf("hof-fmt-%s", name),
 			fmtrEnvs[name],
@@ -280,7 +280,7 @@ func Stop(fmtr string) error {
 	if fmtr == "all" {
 		hadErr := false
 		for _, name := range fmtrNames {
-			err := docker.StopContainer(fmt.Sprintf("hof-fmt-%s", name))
+			err := container.StopContainer(fmt.Sprintf("hof-fmt-%s", name))
 			if err != nil {
 				fmt.Println(err)
 				hadErr = true
@@ -290,7 +290,7 @@ func Stop(fmtr string) error {
 			return fmt.Errorf("error while stopping formatters")
 		}
 	} else {
-		return docker.StopContainer(fmt.Sprintf("hof-fmt-%s", fmtr))
+		return container.StopContainer(fmt.Sprintf("hof-fmt-%s", fmtr))
 	}
 	return nil
 }
@@ -311,7 +311,7 @@ func Pull(fmtr string) error {
 	}
 
 	if ver == "dirty" {
-		return fmt.Errorf("%s: You have local changes to hof, run 'make formatters' instead", fmtr)
+		//		return fmt.Errorf("%s: You have local changes to hof, run 'make formatters' instead", fmtr)
 	}
 
 	if fmtr == "" {
@@ -322,7 +322,7 @@ func Pull(fmtr string) error {
 		hadErr := false
 		for _, name := range fmtrNames {
 			ref := fmt.Sprintf("%s/fmt-%s:%s", CONTAINER_REPO, name, ver)
-			err := docker.PullImage(ref)
+			err := container.PullImage(ref)
 			if err != nil {
 				fmt.Println(err)
 				hadErr = true
@@ -333,7 +333,7 @@ func Pull(fmtr string) error {
 		}
 	} else {
 		ref := fmt.Sprintf("%s/fmt-%s:%s", CONTAINER_REPO, fmtr, ver)
-		return docker.PullImage(ref)
+		return container.PullImage(ref)
 	}
 	return nil
 }
@@ -347,9 +347,9 @@ func Info(which string) (err error) {
 	return printAsTable(
 		[]string{"Name", "Status", "Port", "Image", "Available"},
 		func(table *tablewriter.Table) ([][]string, error) {
-			var rows = make([][]string, 0, len(fmtrNames))
+			rows := make([][]string, 0, len(fmtrNames))
 			// fill with data
-			for _,f := range fmtrNames {
+			for _, f := range fmtrNames {
 				fmtr := formatters[f]
 
 				if which != "" {
@@ -358,7 +358,6 @@ func Info(which string) (err error) {
 					}
 				}
 
-				
 				if fmtr.Container != nil {
 					rows = append(rows, []string{
 						fmtr.Name,
@@ -389,12 +388,11 @@ func Info(which string) (err error) {
 }
 
 func updateFormatterStatus() error {
-
-	images, err := docker.GetImages(fmt.Sprintf("%s/fmt-", CONTAINER_REPO))
+	images, err := container.GetImages(fmt.Sprintf("%s/fmt-", CONTAINER_REPO))
 	if err != nil {
 		return err
 	}
-	containers, err := docker.GetContainers("hof-fmt-")
+	containers, err := container.GetContainers("hof-fmt-")
 	if err != nil {
 		return err
 	}
@@ -421,11 +419,10 @@ func updateFormatterStatus() error {
 		}
 	}
 
-
 	for _, container := range containers {
 		// extract name
 		name := container.Names[0]
-		name = strings.TrimPrefix(name, "/" + ContainerPrefix)
+		name = strings.TrimPrefix(name, "/"+ContainerPrefix)
 
 		// get fmtr
 		fmtr := formatters[name]
@@ -495,4 +492,3 @@ func printAsTable(headers []string, printer dataPrinter) error {
 
 	return nil
 }
-

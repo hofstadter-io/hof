@@ -1,16 +1,16 @@
-package docker
+package container
 
 import (
 	"fmt"
 
-	"github.com/docker/docker/client"
 	credClient "github.com/docker/docker-credential-helpers/client"
+	"github.com/docker/docker/client"
 )
 
-var dockerClient *client.Client
+var cClient *client.Client
 
 func InitDockerClient() (err error) {
-	dockerClient, err = client.NewClientWithOpts(
+	cClient, err = client.NewClientWithOpts(
 		client.FromEnv,
 		client.WithAPIVersionNegotiation(),
 		client.WithHostFromEnv(),

@@ -1,4 +1,4 @@
-package docker
+package container
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 func GetImages(ref string) ([]types.ImageSummary, error) {
 	ref += "*"
 	iFilter := filters.NewArgs(filters.Arg("reference", ref))
-	return dockerClient.ImageList(
+	return cClient.ImageList(
 		context.Background(),
 		types.ImageListOptions{
 			Filters: iFilter,
@@ -22,10 +22,10 @@ func GetImages(ref string) ([]types.ImageSummary, error) {
 
 func GetContainers(ref string) ([]types.Container, error) {
 	cFilter := filters.NewArgs(filters.Arg("name", ref))
-	return dockerClient.ContainerList(
+	return cClient.ContainerList(
 		context.Background(),
 		types.ContainerListOptions{
-			All: true,
+			All:     true,
 			Filters: cFilter,
 		},
 	)
@@ -46,14 +46,14 @@ func StartContainer(ref, name string, env []string, replace bool) error {
 	}
 
 	// now we can safely (re)create our container
-	ret, err := dockerClient.ContainerCreate(
+	ret, err := cClient.ContainerCreate(
 		context.Background(),
 
 		// config
 		// todo, maybe walk back versions? (dirty -> latest release)
 		&container.Config{
 			Image: ref,
-			Env: env,
+			Env:   env,
 		},
 
 		// hostConfig
@@ -71,12 +71,11 @@ func StartContainer(ref, name string, env []string, replace bool) error {
 		// name
 		name,
 	)
-
 	if err != nil {
 		return err
 	}
 
-	err = dockerClient.ContainerStart(
+	err = cClient.ContainerStart(
 		context.Background(),
 		ret.ID,
 		types.ContainerStartOptions{},
@@ -86,22 +85,22 @@ func StartContainer(ref, name string, env []string, replace bool) error {
 }
 
 func StopContainer(name string) error {
-	return dockerClient.ContainerRemove(
+	return cClient.ContainerRemove(
 		context.Background(),
 		name,
-		types.ContainerRemoveOptions{ Force: true },
+		types.ContainerRemoveOptions{Force: true},
 	)
 }
 
 func PullImage(ref string) error {
 	fmt.Println("pulling:", ref)
 	opts := types.ImagePullOptions{}
-	r, err := dockerClient.ImagePull( context.Background(), ref, opts)
+	r, err := cClient.ImagePull(context.Background(), ref, opts)
 	if err != nil {
 		return err
 	}
 
-	_, err = dockerClient.ImageLoad(context.Background(), r, false)
+	_, err = cClient.ImageLoad(context.Background(), r, false)
 	if err != nil {
 		return err
 	}
@@ -111,7 +110,7 @@ func PullImage(ref string) error {
 
 func MaybePullImage(ref string) error {
 	iFilter := filters.NewArgs(filters.Arg("reference", ref))
-	images, err := dockerClient.ImageList(
+	images, err := cClient.ImageList(
 		context.Background(),
 		types.ImageListOptions{
 			Filters: iFilter,
@@ -137,4 +136,3 @@ func MaybePullImage(ref string) error {
 
 	return nil
 }
-

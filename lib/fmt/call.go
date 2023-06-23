@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hofstadter-io/hof/lib/docker"
+	"github.com/hofstadter-io/hof/lib/container"
 )
 
 // this file has functions for
@@ -73,11 +73,11 @@ func (fmtr *Formatter) WaitForRunning(retry int, delay time.Duration) error {
 	// fmt.Println("wait-running.0:", fmtr.Name, fmtr.Status, fmtr.Running, fmtr.Ready)
 	// return if already running
 	if fmtr.Running {
-		return  nil
+		return nil
 	}
 
 	for i := 0; i < retry; i++ {
-		containers, err := docker.GetContainers("hof-fmt-" + fmtr.Name)
+		containers, err := container.GetContainers("hof-fmt-" + fmtr.Name)
 		if err != nil {
 			return err
 		}
@@ -85,7 +85,7 @@ func (fmtr *Formatter) WaitForRunning(retry int, delay time.Duration) error {
 		for _, container := range containers {
 			// extract name
 			name := container.Names[0]
-			name = strings.TrimPrefix(name, "/" + ContainerPrefix)
+			name = strings.TrimPrefix(name, "/"+ContainerPrefix)
 			// fmt.Println("wait-running:", fmtr.Name, name, container.State)
 			if name == fmtr.Name {
 				fmtr.Status = container.State
@@ -107,6 +107,7 @@ func (fmtr *Formatter) WaitForRunning(retry int, delay time.Duration) error {
 
 	return nil
 }
+
 func (fmtr *Formatter) WaitForReady(retry int, delay time.Duration) error {
 	// fmt.Println("wait-ready.0:", fmtr.Name, fmtr.Status, fmtr.Running, fmtr.Ready)
 
