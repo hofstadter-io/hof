@@ -44,6 +44,11 @@ func main() {
 	daemon, err := R.daemonContainer()
 	checkErr(err)
 
+	err = R.clientHack(daemon)
+	checkErr(err)
+
+	return
+
 	// attach deemon as a service to our base image
 	cntr, err := R.attachService(base, daemon)
 	checkErr(err)
@@ -85,7 +90,7 @@ func (R *runtime) daemonContainer() (*dagger.Container, error) {
 	c = c.WithExec(
 		[]string{
 			"dockerd",
-			"--log-level=warn",
+			"--log-level=debug",
 			"--host=tcp://0.0.0.0:2375",
 			"--tls=false",
 		},
@@ -117,16 +122,36 @@ func (R *runtime) dockerInfo(c *dagger.Container) error {
 	return nil
 }
 
+func (R *runtime) clientHack(daemon *dagger.Container) error {
+
+	cntr, err := R.baseContainer()
+	if err != nil {
+		return err
+	}
+
+	cntr, err = R.attachService(cntr, daemon)
+	if err != nil {
+		return err
+	}
+
+	path := "/info"
+	cntr = cntr.WithExec([]string{"curl", "global-dockerd:2375" + path})
+
+	cntr.Sync(R.ctx)
+
+	return nil
+}
+
 func (R *runtime) dockerTest(c *dagger.Container) error {
 	t := c.Pipeline("docker/test")
 
+	t = t.WithEnvVariable("CACHE", time.Now().String())
 
 	t = t.WithExec([]string{"docker", "pull", "hello-world"})
 	t = t.WithExec([]string{"docker", "run", "hello-world"})
 
 	t = t.WithExec([]string{"docker", "pull", "nginxdemos/hello"})
 	t = t.WithExec([]string{"docker", "images"})
-	t = t.WithEnvVariable("CACHE", time.Now().String())
 	t = t.WithExec([]string{"docker", "run", "-p", "4000:80", "-d", "nginxdemos/hello"})
 	t = t.WithExec([]string{"curl", "global-dockerd:4000"})
 
