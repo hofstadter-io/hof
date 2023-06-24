@@ -29,8 +29,8 @@ func init() {
 	}
 	// short-circuit
 	ev := os.Getenv("HOF_TELEMETRY_DISABLED")
-	eb, _ := strconv.ParseBool(ev)
 	if ev != "" {
+		eb, _ := strconv.ParseBool(ev)
 		if eb {
 			if debug {
 				fmt.Println("telemetry disabled in env")
@@ -201,11 +201,29 @@ func SendCommandPath(cmd string) {
 
 	resp, err := http.Post(url, "application/json", reqBody)
 
+	if resp == nil {
+		if debug {
+			fmt.Println("ga nil response")
+		}
+		return
+	}
+	if resp.Body == nil {
+		if debug {
+			fmt.Println("ga nil response body")
+		}
+		return
+	}
+
 	if debug {
 		fmt.Println(resp, err)
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		if resp != nil && resp.Body != nil {
+			resp.Body.Close()
+		}
+	}()
+
 	//Read the response body
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

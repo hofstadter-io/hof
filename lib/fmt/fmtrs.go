@@ -117,6 +117,7 @@ type Formatter struct {
 	Status    string
 	Running   bool
 	Ready     bool
+	Host      string
 	Port      string
 	Container *types.Container
 	Images    []*types.ImageSummary
