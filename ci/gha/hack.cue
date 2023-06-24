@@ -36,7 +36,7 @@ ghacue.#Workflow & {
 					run:  "go run ./test/dagger/main/dockerd-in-dagger.go"
 				},
 				{
-					name: "dagger-in-dagger"
+					name: "hof-in-dagger"
 					run:  "go run ./test/dagger/main/hof.go"
 					env: {
 						GITHUB_TOKEN: "${{secrets.HOFMOD_TOKEN}}"
