@@ -9,14 +9,6 @@ import (
 	hdagger "github.com/hofstadter-io/hof/test/dagger"
 )
 
-// so we don't have to pass these around everywhere
-type Runtime struct {
-	ctx    context.Context
-	client *dagger.Client
-}
-
-type stage func (*dagger.Container) (*dagger.Container, error)
-
 func checkErr(err error) {
 	if err != nil {
 		fmt.Println(err)
@@ -39,21 +31,36 @@ func main() {
 		Client: client,
 	}
 
-	var c *dagger.Container
+	// load hof's code from the host
+	// todo, find repo root with git
+	source := R.Client.Host().Directory(".", dagger.HostDirectoryOpts{
+		Exclude: []string{"cue.mod/pkg", "docs", "next"},
+	})
 
-	c, err = R.BuildBase(nil)
+	//
+	// Building
+	//
+	base := R.BaseContainer()
+	code := R.WithCodeAndDeps(base, source)
+	builder := R.BuildHof(code)
+	runner := R.RuntimeContainer(builder)
+
+	//
+	// TESTS
+	//
+
+	tester := R.SetupTestingEnv(runner)
+
+	err = R.HofVersion(tester)
 	checkErr(err)
 
-	_, err = R.Hack(c)
+	err = R.TestCommandFmt(tester, source)
+	checkErr(err)
+
+	err = R.TestAdhocRender(tester, source)
 	checkErr(err)
 
 	return
-
-	c, err = R.LocalCodeAndDeps(c)
-	checkErr(err)
-
-	c, err = R.BuildHof(c)
-	checkErr(err)
 
 	//err = R.SanityTest(c)
 	//checkErr(err)
@@ -70,8 +77,8 @@ func main() {
 	//  panic("unable to write matrix build outputs")
 	//}
 
-	err = R.RenderTests(c)
-	checkErr(err)
+	//err = R.RenderTests(c)
+	//checkErr(err)
 
 }
 

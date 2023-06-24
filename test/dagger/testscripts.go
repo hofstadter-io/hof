@@ -8,26 +8,23 @@ import (
 	"dagger.io/dagger"
 )
 
-
-// minimal implementation of test script in dagger
-func (R *Runtime) RenderTests(c *dagger.Container) error {
-	name := "test/render"
-	return R.runTestscriptDir(c, name)
+func (R *Runtime) SetupTestingEnv(c *dagger.Container) (*dagger.Container) {
+	c = c.WithEnvVariable("HOF_TELEMETRY_DISABLED", "1")
+	c = c.WithEnvVariable("GITHUB_TOKEN", os.Getenv("GITHUB_TOKEN"))
+	c = c.WithEnvVariable("HOF_FMT_VERSION", os.Getenv("HOF_FMT_VERSION"))
+	c = c.WithWorkdir("/test")
+	return c
 }
 
-func (R *Runtime) runTestscriptDir(c *dagger.Container, dir string) error {
+func (R *Runtime) RunTestscriptDir(c *dagger.Container, source *dagger.Directory, name, dir string) error {
 
-	d := c.Directory(dir)
+	d := source.Directory(dir)
 	files, err := d.Entries(R.Ctx)
 	if err != nil {
 		return err
 	}
 
-	p := c.Pipeline(dir)
-	p = p.WithEnvVariable("HOF_TELEMETRY_DISABLED", "1")
-	p = p.WithEnvVariable("GITHUB_TOKEN", os.Getenv("GITHUB_TOKEN"))
-	p = p.WithEnvVariable("HOF_FMT_VERSION", os.Getenv("HOF_FMT_VERSION"))
-	p = p.WithWorkdir("/test")
+	p := c.Pipeline(name)
 
 	errs := []error{}
 
@@ -71,7 +68,43 @@ func (R *Runtime) runTestscriptDir(c *dagger.Container, dir string) error {
 	return nil
 }
 
-func (R *Runtime) runTestscriptFile(c *dagger.Container, filepath string) error {
+func (R *Runtime) TestCommandFmt(c *dagger.Container, source *dagger.Directory) error {
+
+	t := c.Pipeline("test/fmt")
+
+	ver := "v0.6.8-rc.5"
+
+	daemon, err := R.DockerDaemonContainer()
+	if err != nil {
+		return err
+	}
+
+	t, err = R.AttachDaemonAsService(t, daemon)
+	if err != nil {
+		return err
+	}
+
+	t = t.WithEnvVariable("HOF_FMT_HOST", "http://global-dockerd")
+	t = t.WithEnvVariable("HOF_FMT_VERSION", ver)
+
+	t = t.WithExec([]string{"hof", "fmt", "start", "all"})
+	t = t.WithExec([]string{"hof", "fmt", "info"})
+
+	err = R.RunTestscriptDir(t, source, "test/fmt", "formatters/test")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (R *Runtime) TestAdhocRender(c *dagger.Container, source *dagger.Directory) error {
+	t := c.Pipeline("test/render")
+
+	err := R.RunTestscriptDir(t, source, "test/render", "test/render")
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

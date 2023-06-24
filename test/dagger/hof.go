@@ -18,60 +18,61 @@ type Runtime struct {
 func (R *Runtime) Hack(c *dagger.Container) (*dagger.Container, error) {
 	t := c.Pipeline("hack")
 
-	sock := R.Client.Host().UnixSocket("/var/run/docker.sock")
-	t = t.WithUnixSocket("/var/run/docker.sock", sock)
+	// dev time function, do whatever here
 
-	t = t.WithExec([]string{"bash", "-c", "docker run -p 4000:80 -d nginxdemos/hello && curl localhost:4000"})
-
-	var err error
-	t, err = t.Sync(R.Ctx)
-	if err != nil {
-		return t, err
-	}
-
-	//out, err := t.Stdout(R.Ctx)
-	//if err != nil {
-	//  fmt.Println(out)
-	//  return c, err
-	//}
-	//fmt.Println(out)
-
-	return c, nil
+	return t, nil
 }
 
-func (R *Runtime) LocalCodeAndDeps(c *dagger.Container) (*dagger.Container, error) {
-	c = c.Pipeline("load")
+func (R *Runtime) BaseContainer() (*dagger.Container) {
+
+	c := R.Client.Container().From("golang:1.20")
+
+	c = c.Pipeline("base")
+
+	// setup workdir
+	c = c.WithWorkdir("/work")
+
+	// add tools
+	c = R.AddDockerCLI(c)
+
+	return c
+}
+
+func (R *Runtime) RuntimeContainer(builder *dagger.Container) (*dagger.Container) {
+	hof := builder.File("/work/hof")
+
+	c := R.BaseContainer()
+	c = c.Pipeline("hof/runtime")
+	c = c.WithFile("/usr/local/bin/hof", hof)
+	
+	return c
+}
+
+func (R *Runtime) WithCodeAndDeps(c *dagger.Container, source *dagger.Directory) (*dagger.Container) {
+	c = c.Pipeline("hof/load")
+
 	// setup mod cache
 	modCache := R.Client.CacheVolume("gomod")
 	c = c.WithMountedCache("/go/pkg/mod", modCache)
 
-	// load hof's code
-	code := R.Client.Host().Directory(".", dagger.HostDirectoryOpts{
-		Exclude: []string{"cue.mod/pkg", "docs", "next"},
-	})
-
 	// get mods
-	c = c.WithDirectory("/work", code, dagger.ContainerWithDirectoryOpts{
+	c = c.WithDirectory("/work", source, dagger.ContainerWithDirectoryOpts{
 		Include: []string{"go.mod", "go.sums"},
 	})
-	c = c.WithExec([]string{"go", "mod", "tidy"})
+	c = c.WithExec([]string{"go", "mod", "download"})
 
 	// add full code
-	c = c.WithDirectory("/work", code)
+	c = c.WithDirectory("/work", source)
 
-	// ensure cgo is disabled everywhere
-	c = c.WithEnvVariable("CGO_ENABLED", "0")
-
-	return c, nil
+	return c
 }
 
-func (R *Runtime) BuildHof(c *dagger.Container) (*dagger.Container, error) {
-	c = c.Pipeline("build")
+func (R *Runtime) BuildHof(c *dagger.Container) (*dagger.Container) {
+	c = c.Pipeline("hof/build")
+	c = c.WithEnvVariable("CGO_ENABLED", "0")
 	c = c.WithExec([]string{"go", "build", "./cmd/hof"})
-	// for testing
-	c = c.WithExec([]string{"cp", "hof", "/usr/bin/hof"})
-
-	return c, nil
+	c = c.WithExec([]string{"cp", "hof", "/usr/local/bin/hof"})
+	return c
 }
 
 func (R *Runtime) BuildHofMatrix(c *dagger.Container) (*dagger.Directory, error) {
@@ -109,70 +110,10 @@ func (R *Runtime) BuildHofMatrix(c *dagger.Container) (*dagger.Directory, error)
 	return outputs, nil
 }
 
-func (R *Runtime) BuildBase(c *dagger.Container) (*dagger.Container, error) {
-
-	if c == nil {
-		c = R.Client.Container().From("golang:1.20")
-	}
-
-	c = c.Pipeline("base")
-
-	// install packages
-	c = c.WithExec([]string{
-		"bash", "-c",
-		`
-		apt-get update -y && \
-		apt-get install -y \
-		tree && \
-		apt search docker
-		`,
-	})
-	out, err := c.Stdout(R.Ctx)
-	if err != nil {
-		fmt.Println(out)
-		return c, err
-	}
-
-	// add docker CLI
-	dockerCLI := R.Client.Container().From("docker:24").
-		File("/usr/local/bin/docker")
-
-	c = c.WithFile("/usr/local/bin/docker", dockerCLI)
-
-	// setup workdir
-	c = c.WithWorkdir("/work")
-
-	return c, nil
-}
-
-func (R *Runtime) SanityTest(c *dagger.Container) error {
-	t := c.Pipeline("test/sanity")
+func (R *Runtime) HofVersion(c *dagger.Container) error {
+	t := c.Pipeline("hof/version")
 	t = t.WithExec([]string{"hof", "version"})
 
-	out, err := t.Stdout(R.Ctx)
-	if err != nil {
-		fmt.Println(out)
-		return err
-	}
-
-	return nil
-}
-
-func (R *Runtime) DockerTest(c *dagger.Container) error {
-	t := c.Pipeline("test/flow")
-	// add socket
-	sock := R.Client.Host().UnixSocket("/var/run/docker.sock")
-	t = t.WithUnixSocket("/var/run/docker.sock", sock)
-
-	t = t.WithExec([]string{"hof", "fmt", "info"})
-	// c = c.WithExec([]string{"hof", "fmt", "pull", "v0.6.8-rc.5"})
-
-	out, err := c.Stdout(R.Ctx)
-	if err != nil {
-		fmt.Println(out)
-		return err
-	}
-
-	fmt.Println(out)
-	return nil
+	_, err := t.Sync(R.Ctx)
+	return err
 }
