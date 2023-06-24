@@ -1,13 +1,15 @@
 package script
 
 import (
+	"fmt"
+
 	"github.com/hofstadter-io/hof/script/runtime"
 )
 
 func Run(glob string) error {
-	r := runtime.Runner{
+	r := &runtime.Runner{
 		// LogLevel: flags.RootVerbosePflag,
-		LogLevel: "yes please",
+		// LogLevel: "yes please",
 	}
 
 	p := runtime.Params{
@@ -21,7 +23,9 @@ func Run(glob string) error {
 
 	runtime.RunT(r, p)
 
-	// TODO check output / status?
+	if r.Failed {
+		return fmt.Errorf("failed in %s", glob)
+	}
 
 	return nil
 }

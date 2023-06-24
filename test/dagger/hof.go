@@ -27,13 +27,19 @@ func (R *Runtime) BaseContainer() (*dagger.Container) {
 
 	c := R.Client.Container().From("golang:1.20")
 
-	c = c.Pipeline("base")
+	// add tools
+	c = R.AddDockerCLI(c)
 
 	// setup workdir
 	c = c.WithWorkdir("/work")
 
-	// add tools
-	c = R.AddDockerCLI(c)
+	// setup mod cache
+	modCache := R.Client.CacheVolume("gomod")
+	c = c.WithMountedCache("/go/pkg/mod", modCache)
+
+	// setup build cache
+	buildCache := R.Client.CacheVolume("go-build")
+	c = c.WithMountedCache("/root/.cache/go-build", buildCache)
 
 	return c
 }
@@ -51,10 +57,6 @@ func (R *Runtime) RuntimeContainer(builder *dagger.Container) (*dagger.Container
 func (R *Runtime) WithCodeAndDeps(c *dagger.Container, source *dagger.Directory) (*dagger.Container) {
 	c = c.Pipeline("hof/load")
 
-	// setup mod cache
-	modCache := R.Client.CacheVolume("gomod")
-	c = c.WithMountedCache("/go/pkg/mod", modCache)
-
 	// get mods
 	c = c.WithDirectory("/work", source, dagger.ContainerWithDirectoryOpts{
 		Include: []string{"go.mod", "go.sums"},
@@ -70,6 +72,7 @@ func (R *Runtime) WithCodeAndDeps(c *dagger.Container, source *dagger.Directory)
 func (R *Runtime) BuildHof(c *dagger.Container) (*dagger.Container) {
 	c = c.Pipeline("hof/build")
 	c = c.WithEnvVariable("CGO_ENABLED", "0")
+
 	c = c.WithExec([]string{"go", "build", "./cmd/hof"})
 	c = c.WithExec([]string{"cp", "hof", "/usr/local/bin/hof"})
 	return c

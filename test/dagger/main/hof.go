@@ -50,35 +50,37 @@ func main() {
 	//
 
 	tester := R.SetupTestingEnv(runner)
+	tester = tester.Pipeline("TESTS")
+
+	// bust cache before testing
+	// tester = tester.WithEnvVariable("CACHE", time.Now().String())
 
 	err = R.HofVersion(tester)
 	checkErr(err)
 
+	// so we don't fail fast
+	errs := make(map[string]error)
+
 	err = R.TestCommandFmt(tester, source)
-	checkErr(err)
+	errs["fmt"] = err
 
 	err = R.TestAdhocRender(tester, source)
-	checkErr(err)
+	errs["render"] = err
 
-	return
+	err = R.TestMod(tester, source)
+	errs["mod"] = err
 
-	//err = R.SanityTest(c)
-	//checkErr(err)
+	err = R.TestCreate(tester, source)
+	errs["create"] = err
 
-	//err = R.DockerTest(c)
-	//checkErr(err)
-
-	//d, err := R.BuildHofMatrix(c)
-	//checkErr(err)
-
-	//ok, err := d.Export(R.Ctx, ".")
-	//checkErr(err)
-	//if !ok {
-	//  panic("unable to write matrix build outputs")
-	//}
-
-	//err = R.RenderTests(c)
-	//checkErr(err)
-
+	hadErr := false
+	for key, err := range errs {
+		if err != nil {
+			fmt.Println("error:", key, err)
+			hadErr = true
+		}
+	}
+	if hadErr {
+		os.Exit(1)
+	}
 }
-

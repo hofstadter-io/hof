@@ -65,7 +65,7 @@ func RunHLS(globs []string) error {
 }
 
 func runHLS(glob string) error {
-	r := runtime.Runner{
+	r := &runtime.Runner{
 		// LogLevel: flags.RootVerbosePflag,
 		// LogLevel: "",
 	}
@@ -80,6 +80,10 @@ func runHLS(glob string) error {
 	}
 
 	runtime.RunT(r, p)
+
+	if r.Failed {
+		return fmt.Errorf("failed in %s", glob)
+	}
 
 	// TODO check output / status?
 

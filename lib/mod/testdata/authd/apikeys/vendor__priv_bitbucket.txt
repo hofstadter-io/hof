@@ -1,5 +1,4 @@
 # hof mod vendor - with deps
-env
 exec hof mod vendor
 
 -- cue.mod/module.cue --
