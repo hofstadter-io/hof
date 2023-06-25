@@ -20,13 +20,26 @@ func (R *Runtime) ShowWorkdir(c *dagger.Container) *dagger.Container {
 	return c
 }
 
-func (R *Runtime) SetupTestingEnv(c *dagger.Container) (*dagger.Container) {
+func (R *Runtime) SetupTestingEnv(c *dagger.Container, source *dagger.Directory) (*dagger.Container) {
 	c = c.Pipeline("setup/testenv")
+
+	// add full code
+	c = c.WithDirectory("/work", source)
+
+	// set env vars
 	c = c.WithEnvVariable("HOF_TELEMETRY_DISABLED", "1")
 	c = c.WithEnvVariable("GITHUB_TOKEN", os.Getenv("GITHUB_TOKEN"))
 	c = c.WithEnvVariable("HOF_FMT_VERSION", os.Getenv("HOF_FMT_VERSION"))
+
+	// set fmt vars
+	ver := "v0.6.8-rc.5"
+	c = c.WithEnvVariable("HOF_FMT_VERSION", ver)
+	c = c.WithEnvVariable("HOF_FMT_HOST", "http://global-dockerd")
+
+	// set testing dir
 	c = c.WithWorkdir("/test")
 
+	// uncomment at dev time if needed
 	// c = R.AddDevTools(c)
 	return c
 }
@@ -53,7 +66,8 @@ func (R *Runtime) RunTestscriptDir(c *dagger.Container, source *dagger.Directory
 			t = t.WithExec([]string{"hof", "run", f})
 
 			// now we only sync and check results once
-			_, err = t.Sync(R.Ctx)
+			// _, err = t.Sync(R.Ctx)
+			_, err = t.ExitCode(R.Ctx)
 			if err != nil {
 				hadError = true
 			}
@@ -71,25 +85,10 @@ func (R *Runtime) TestCommandFmt(c *dagger.Container, source *dagger.Directory) 
 
 	t := c.Pipeline("test/fmt")
 
-	ver := "v0.6.8-rc.5"
-
-	daemon, err := R.DockerDaemonContainer()
-	if err != nil {
-		return err
-	}
-
-	t, err = R.AttachDaemonAsService(t, daemon)
-	if err != nil {
-		return err
-	}
-
-	t = t.WithEnvVariable("HOF_FMT_HOST", "http://global-dockerd")
-	t = t.WithEnvVariable("HOF_FMT_VERSION", ver)
-
 	t = t.WithExec([]string{"hof", "fmt", "start", "all"})
 	t = t.WithExec([]string{"hof", "fmt", "info"})
 
-	err = R.RunTestscriptDir(t, source, "test/fmt", "formatters/test")
+	err := R.RunTestscriptDir(t, source, "test/fmt", "formatters/test")
 	if err != nil {
 		return err
 	}
@@ -152,3 +151,51 @@ func (R *Runtime) TestCreate(c *dagger.Container, source *dagger.Directory) erro
 	return nil
 }
 
+func (R *Runtime) TestStructural(c *dagger.Container, source *dagger.Directory) error {
+	t := c.Pipeline("test/structural")
+
+	err := R.RunTestscriptDir(t, source, "test/structural", "lib/structural")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (R *Runtime) TestFlow(c *dagger.Container, source *dagger.Directory) error {
+	p := c.Pipeline("test/flow")
+
+	dirs := []string{
+		"flow/testdata/tasks",
+		"flow/testdata/tasks/api",
+		"flow/testdata/tasks/db",
+		"flow/testdata/tasks/ext",
+		"flow/testdata/tasks/gen",
+		"flow/testdata/tasks/hof",
+		"flow/testdata/tasks/kv",
+		"flow/testdata/tasks/os",
+		"flow/testdata/tasks/st",
+		"flow/testdata/concurrency",
+	}
+
+	for _, dir := range dirs {
+		t := p.Pipeline(dir)
+		err := R.RunTestscriptDir(t, source, dir, dir)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (R *Runtime) TestDatamodel(c *dagger.Container, source *dagger.Directory) error {
+	t := c.Pipeline("test/datamodel")
+
+	err := R.RunTestscriptDir(t, source, "test/datamodel", "lib/datamodel/test/testdata")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

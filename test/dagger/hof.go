@@ -14,24 +14,9 @@ type Runtime struct {
 	Client *dagger.Client
 }
 
-
-func (R *Runtime) Hack(c *dagger.Container) (*dagger.Container, error) {
-	t := c.Pipeline("hack")
-
-	// dev time function, do whatever here
-
-	return t, nil
-}
-
-func (R *Runtime) BaseContainer() (*dagger.Container) {
+func (R *Runtime) GolangImage() (*dagger.Container) {
 
 	c := R.Client.Container().From("golang:1.20")
-
-	// add tools
-	c = R.AddDockerCLI(c)
-
-	// setup workdir
-	c = c.WithWorkdir("/work")
 
 	// setup mod cache
 	modCache := R.Client.CacheVolume("gomod")
@@ -41,40 +26,57 @@ func (R *Runtime) BaseContainer() (*dagger.Container) {
 	buildCache := R.Client.CacheVolume("go-build")
 	c = c.WithMountedCache("/root/.cache/go-build", buildCache)
 
+	// add tools
+	c = R.AddDockerCLI(c)
+
+	// setup workdir
+	c = c.WithWorkdir("/work")
+
 	return c
 }
 
 func (R *Runtime) RuntimeContainer(builder *dagger.Container) (*dagger.Container) {
-	hof := builder.File("/work/hof")
+	hof := builder.File("hof")
 
-	c := R.BaseContainer()
-	c = c.Pipeline("hof/runtime")
+	c := R.GolangImage()
 	c = c.WithFile("/usr/local/bin/hof", hof)
+	c = c.Pipeline("hof/runtime")
 	
 	return c
 }
 
-func (R *Runtime) WithCodeAndDeps(c *dagger.Container, source *dagger.Directory) (*dagger.Container) {
-	c = c.Pipeline("hof/load")
+func (R *Runtime) FetchDeps(c *dagger.Container, source *dagger.Directory) (*dagger.Container) {
+	c = c.Pipeline("hof/deps")
 
-	// get mods
+	// get deps
 	c = c.WithDirectory("/work", source, dagger.ContainerWithDirectoryOpts{
 		Include: []string{"go.mod", "go.sums"},
 	})
 	c = c.WithExec([]string{"go", "mod", "download"})
 
-	// add full code
-	c = c.WithDirectory("/work", source)
-
+	// c = c.WithDirectory("/work", source)
 	return c
 }
 
-func (R *Runtime) BuildHof(c *dagger.Container) (*dagger.Container) {
+func (R *Runtime) BuildHof(c *dagger.Container, source *dagger.Directory) (*dagger.Container) {
 	c = c.Pipeline("hof/build")
+
+	// exclude files we don't need so we can avoid cache misses?
+	c = c.WithDirectory("/work", source, dagger.ContainerWithDirectoryOpts{
+		Exclude: []string{
+			"changelogs",
+			"ci",
+			"docs",
+			"hack",
+			"images",
+			"notes",
+			"test", 
+		},
+	})
+
 	c = c.WithEnvVariable("CGO_ENABLED", "0")
 
 	c = c.WithExec([]string{"go", "build", "./cmd/hof"})
-	c = c.WithExec([]string{"cp", "hof", "/usr/local/bin/hof"})
 	return c
 }
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"dagger.io/dagger"
 	hdagger "github.com/hofstadter-io/hof/test/dagger"
@@ -40,20 +41,35 @@ func main() {
 	//
 	// Building
 	//
-	base := R.BaseContainer()
-	code := R.WithCodeAndDeps(base, source)
-	builder := R.BuildHof(code)
+	base := R.GolangImage()
+	deps := R.FetchDeps(base, source)
+	builder := R.BuildHof(deps, source)
 	runner := R.RuntimeContainer(builder)
+
+	// builder.Sync(R.Ctx)
+	//out, err := runner.Stdout(ctx)
+	//fmt.Println(out)
+	//if err != nil {
+	//  panic(err)
+	//}
+
+	//return
 
 	//
 	// TESTS
 	//
 
-	tester := R.SetupTestingEnv(runner)
+	tester := R.SetupTestingEnv(runner, source)
 	tester = tester.Pipeline("TESTS")
 
+	// attach dockerd to the tester container
+	daemon, err := R.DockerDaemonContainer()
+	checkErr(err)
+	tester, err = R.AttachDaemonAsService(tester, daemon)
+	checkErr(err)
+
 	// bust cache before testing
-	// tester = tester.WithEnvVariable("CACHE", time.Now().String())
+	tester = tester.WithEnvVariable("CACHE", time.Now().String())
 
 	err = R.HofVersion(tester)
 	checkErr(err)
@@ -64,14 +80,25 @@ func main() {
 	err = R.TestCommandFmt(tester, source)
 	errs["fmt"] = err
 
-	err = R.TestAdhocRender(tester, source)
-	errs["render"] = err
-
 	err = R.TestMod(tester, source)
 	errs["mod"] = err
 
+	err = R.TestAdhocRender(tester, source)
+	errs["render"] = err
+
 	err = R.TestCreate(tester, source)
 	errs["create"] = err
+
+	err = R.TestFlow(tester, source)
+	errs["flow"] = err
+
+	err = R.TestStructural(tester, source)
+	errs["structural"] = err
+
+	err = R.TestDatamodel(tester, source)
+	errs["datamodel"] = err
+
+	tester.WithExec([]string{"echo", "finished!"})
 
 	hadErr := false
 	for key, err := range errs {
