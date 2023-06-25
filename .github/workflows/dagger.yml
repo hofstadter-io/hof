@@ -1,4 +1,4 @@
-name: hack
+name: dagger
 "on":
   - push
   - pull_request
@@ -7,8 +7,7 @@ env:
   HOF_TELEMETRY_DISABLED: "1"
   HOF_FMT_VERSION: v0.6.8-rc.5
 jobs:
-  dagger:
-    environment: hof mod testing
+  inception:
     runs-on: ubuntu-latest
     steps:
       - name: Install Go
@@ -57,9 +56,60 @@ jobs:
         run: go run ./test/dagger/main/dagger-in-dagger.go
       - name: dockerd-in-dagger
         run: go run ./test/dagger/main/dockerd-in-dagger.go
+    strategy: {}
+    services: {}
+  hof:
+    environment: hof mod testing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.20.x
+      - uses: actions/cache@v3
+        with:
+          path: |-
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            ~\AppData\Local\go-build
+          key: ${{ runner.os }}-go-${{ matrix.go-version }}-${{ hashFiles('**/go.sum') }}
+          restore-keys: ${{ runner.os }}-go-${{ matrix.go-version }}-
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup Vars
+        id: vars
+        run: |-
+          SHA=${GITHUB_SHA::8}
+          TAG=$(git tag --points-at HEAD)
+          echo "HOF_FMT_VERSION=${TAG}" >> $GITHUB_ENV
+          if [ -z $TAG ]; then
+          	TAG=${SHA}
+          fi
+          echo "HOF_SHA=${SHA}" >> $GITHUB_ENV
+          echo "HOF_TAG=${TAG}" >> $GITHUB_ENV
+      - name: Fetch Go deps
+        run: go mod download
+      - name: Set up Docker
+        uses: crazy-max/ghaction-setup-docker@v1
+        with:
+          version: v23.0.1
+        if: ${{ startsWith( runner.os, 'macos') }}
+      - name: Setup Docker MacOS var
+        run: echo "DOCKER_HOST="unix://$HOME/.colima/default/docker.sock"" >> $GITHUB_ENV
+        if: ${{ startsWith( runner.os, 'macos') }}
+      - name: Test Compatibility
+        run: |-
+          docker version
+          docker info
+          docker context ls
+          go run test/docker/main.go
       - name: hof-in-dagger
         run: go run ./test/dagger/main/hof.go
         env:
           GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
+          GITLAB_TOKEN: ${{secrets.GITLAB_TOKEN}}
+          BITBUCKET_USERNAME: hofstadter
+          BITBUCKET_PASSWORD: ${{secrets.BITBUCKET_TOKEN}}
     strategy: {}
     services: {}
