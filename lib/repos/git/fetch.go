@@ -173,7 +173,6 @@ func authFetch(opts *gogit.FetchOptions, remote, owner, repo string) error {
 var authMap sync.Map
 
 func getAuth(remote, owner, repo string) (auth transport.AuthMethod, err error) {
-	fmt.Println("getAuth", remote, owner, repo)
 	// cached auth
 	val, ok := authMap.Load(remote)
 	if ok {

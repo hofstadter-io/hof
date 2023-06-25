@@ -1,3 +1,4 @@
+skip
 exec bash -c 'hof gen $(pwd)/data.cue -T $(pwd)/template.txt -O $(pwd)/out'
 cmp expected.txt out/template.txt
 

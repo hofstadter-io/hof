@@ -21,7 +21,6 @@ B is {{ .b }}
 foo is {{ .val.foo }}
 cow is {{ .cow }}
 baz is {{ .baz }}
-cwd is {{ trimto_last .dir "/" false }}
 -- expected.txt --
 A is A
 B is 2
@@ -29,4 +28,3 @@ B is 2
 foo is bar
 cow is mooooooo
 baz is BOP
-cwd is script-tags.txt

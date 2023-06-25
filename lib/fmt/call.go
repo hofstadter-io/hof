@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"io"
+	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -31,7 +32,14 @@ func (fmtr *Formatter) Call(filename string, content []byte, config any) ([]byte
 		return content, err
 	}
 
-	url := "http://localhost:" + fmtr.Port
+	host := "http://localhost"
+	if val := os.Getenv("HOF_FMT_HOST"); val != "" {
+		host = val
+	} else if fmtr.Host != "" {
+		host = fmtr.Host	
+	}
+
+	url := host + ":" + fmtr.Port
 
 	if debug {
 		fmt.Printf("fmt calling (%s) %s\n", fmtr.Name, url)

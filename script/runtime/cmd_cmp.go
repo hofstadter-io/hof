@@ -6,7 +6,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/hofstadter-io/hof/lib/gotils/intern/textutil"
+	"github.com/hofstadter-io/hof/lib/gotils/diff"
 )
 
 // cmp compares two files.
@@ -87,6 +87,6 @@ func (ts *Script) doCmdCmp(args []string, env bool, trim bool) {
 		return
 	}
 
-	ts.Logf("[diff -%s(%d) +%s(%d)]\n%s\n", name1, len(text1), name2, len(text2), textutil.Diff(text1, text2))
+	ts.Logf("[diff -%s(%d) +%s(%d)]\n%s\n", name1, len(text1), name2, len(text2), diff.Diff(name1, []byte(text1), name2, []byte(text2)))
 	ts.Fatalf("%s and %s differ", name1, name2)
 }

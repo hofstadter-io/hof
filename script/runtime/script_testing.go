@@ -98,6 +98,9 @@ func RunT(t T, p Params) {
 				scriptUpdates: make(map[string]string),
 			}
 			defer func() {
+				if ts.failed {
+					os.Exit(1)
+				}
 				if p.TestWork || *testWork {
 					return
 				}
@@ -107,8 +110,10 @@ func RunT(t T, p Params) {
 					// parent directory too.
 					os.Remove(testTempDir)
 				}
+
 			}()
 			ts.run()
+
 		})
 	}
 }
@@ -142,5 +147,6 @@ func (ts *Script) Logf(format string, args ...interface{}) {
 // fatalf aborts the test with the given failure message.
 func (ts *Script) Fatalf(format string, args ...interface{}) {
 	fmt.Fprintf(&ts.log, "FAIL: %s:%d: %s\n", ts.file, ts.lineno, fmt.Sprintf(format, args...))
+	ts.failed = true
 	ts.t.FailNow()
 }

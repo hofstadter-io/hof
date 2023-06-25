@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/hofstadter-io/hof/cmd/hof/flags"
+	// "github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/script/runtime"
 )
 
@@ -29,35 +29,13 @@ func RunRunFromArgs(args []string) error {
 		}
 	}()
 
-	var cueFiles, hlsFiles, tbdFiles []string
+	var hlsFiles []string
 	for _, a := range args {
 		switch filepath.Ext(a) {
 
-		case ".cue":
-			cueFiles = append(cueFiles, a)
-		case ".hls":
+		case ".hls", ".txt":
 			hlsFiles = append(hlsFiles, a)
-
-		default:
-			tbdFiles = append(tbdFiles, a)
 		}
-	}
-
-	// only dealing with hls files for now,
-	// cue only should be pretty straight forward too
-	// not really sure what a mix means yet
-	//   for now just return error
-
-	if len(cueFiles) > 0 && len(hlsFiles) > 0 {
-		return fmt.Errorf("Cannot specify both cue and hls files at the same time yet. Pleases comment on what you think this should mean on github. Issue... ")
-	}
-
-	if len(cueFiles) > 0 {
-		err := RunCUE(cueFiles)
-		if err != nil {
-			return err
-		}
-		return nil
 	}
 
 	if len(hlsFiles) > 0 {
@@ -68,14 +46,8 @@ func RunRunFromArgs(args []string) error {
 		return nil
 	}
 
-	return fmt.Errorf("Please specify args of filepath glob(s) of .cue XOR .hls globs")
+	return fmt.Errorf("Please specify args of filepath glob(s) to .hls|.txt testscript files")
 	// return nil
-}
-
-func RunCUE(globs []string) error {
-	fmt.Printf("lib/ops.RunCUE: %v %# v\n", globs, flags.RunFlags)
-
-	return nil
 }
 
 // runs each glob element in order, globs are lexigraphically sorted
@@ -93,9 +65,9 @@ func RunHLS(globs []string) error {
 }
 
 func runHLS(glob string) error {
-	r := runtime.Runner{
+	r := &runtime.Runner{
 		// LogLevel: flags.RootVerbosePflag,
-		LogLevel: "yes please",
+		// LogLevel: "",
 	}
 
 	p := runtime.Params{
@@ -108,6 +80,10 @@ func runHLS(glob string) error {
 	}
 
 	runtime.RunT(r, p)
+
+	if r.Failed {
+		return fmt.Errorf("failed in %s", glob)
+	}
 
 	// TODO check output / status?
 

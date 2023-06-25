@@ -18,6 +18,7 @@ func envSetup(env *runtime.Env) error {
 func TestRender(t *testing.T) {
 	yagu.Mkdir(".workdir/render")
 	runtime.Run(t, runtime.Params{
+		Mode: "",
 		Dir:         "./",
 		Glob:        "*.txt",
 		WorkdirRoot: ".workdir/render",
