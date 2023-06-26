@@ -89,11 +89,9 @@ tests: {
 				set -e
 				# deps & gen
 				hof mod vendor
-				echo "gha got here 1"
 				hof gen
 
 				# should have no diff
-				echo "gha got here 2"
 				git diff
 				git status
 				git diff --exit-code
@@ -105,6 +103,10 @@ tests: {
 		@flow(test/render)
 		run: GoTest & {
 			dir: "test/render"
+			script: """
+				echo "no-op"
+				echo "now run in the dagger workflow"
+				"""
 		}
 	}
 

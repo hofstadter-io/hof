@@ -68,3 +68,19 @@ func (R *Runtime) AddDockerCLI(c *dagger.Container) (*dagger.Container) {
 
 	return c
 }
+
+func (R *Runtime) AddNerdctl(c *dagger.Container) (*dagger.Container) {
+
+	ver := "1.4.0"
+	//url := "https://github.com/containerd/nerdctl/releases/download/v%s/nerdctl-full-%s-linux-amd64.tar.gz"
+	//tar := R.Client.HTTP(fmt.Sprintf(url, ver, ver))
+
+	url := "https://github.com/containerd/nerdctl"
+	code := R.Client.Git(url, dagger.GitOpts{ KeepGitDir: true }).
+		Tag("v" + ver).
+		Tree()
+
+	c = c.Build(code)
+
+	return c
+}
