@@ -90,7 +90,7 @@ func init() {
 
 	GenCmd.Flags().BoolVarP(&(flags.GenFlags.Stats), "stats", "s", false, "print generator statistics")
 	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.Generator), "generator", "G", nil, "generator tags to run, default is all, or none if -T is used")
-	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.Template), "template", "T", nil, "template mapping to render, see help for format")
+	GenCmd.Flags().StringArrayVarP(&(flags.GenFlags.Template), "template", "T", nil, "template mapping to render, see help for format")
 	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.Partial), "partial", "P", nil, "file globs to partial templates to register with the templates")
 	GenCmd.Flags().BoolVarP(&(flags.GenFlags.Diff3), "diff3", "D", false, "enable diff3 support for custom code")
 	GenCmd.Flags().BoolVarP(&(flags.GenFlags.NoFormat), "no-format", "", false, "disable formatting during code gen (ad-hoc only)")

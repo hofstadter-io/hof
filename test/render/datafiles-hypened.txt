@@ -1,0 +1,43 @@
+exec cue export ./data.cue -e foo
+cmp stdout cue-foo.golden
+
+exec cue export ./data.cue -e 'foo["bar-baz"]'
+cmp stdout cue-bar.golden
+
+exec hof gen ./data.cue -T :foo=hof-foo.json
+exec cat hof-foo.json
+cmp stdout hof-foo.golden
+
+exec hof gen ./data.cue -T ':foo["bar-baz"]=hof-bar.json'
+exec cat hof-bar.json
+cmp stdout hof-bar.golden
+
+
+-- data.cue --
+foo: {
+	"bar-baz": {
+		cow: "moo"
+	}
+}
+
+
+-- cue-foo.golden --
+{
+    "bar-baz": {
+        "cow": "moo"
+    }
+}
+-- cue-bar.golden --
+{
+    "cow": "moo"
+}
+-- hof-foo.golden --
+{
+  "bar-baz": {
+    "cow": "moo"
+  }
+}
+-- hof-bar.golden --
+{
+  "cow": "moo"
+}

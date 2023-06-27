@@ -85,10 +85,18 @@ func (R *Runtime) CreateAdhocGenerator() error {
 	for _, cfg := range tcfgs {
 		val := Val
 		if cfg.Cuepath != "" {
-			val = val.LookupPath(cue.ParsePath(cfg.Cuepath))
+			p := cue.ParsePath(cfg.Cuepath)
+			if p.Err() != nil {
+				return fmt.Errorf("while parsing -T flag CUE path %w", p.Err())
+			}
+			val = val.LookupPath(p)
 		}
 		if cfg.Schema != "" {
-			schema := Val.LookupPath(cue.ParsePath(cfg.Schema))
+			p := cue.ParsePath(cfg.Schema)
+			if p.Err() != nil {
+				return fmt.Errorf("while parsing -T flag CUE schema %w", p.Err())
+			}
+			schema := Val.LookupPath(p)
 			val = val.Unify(schema)
 		}
 
@@ -195,6 +203,7 @@ func (R *Runtime) CreateAdhocGenerator() error {
 // semicolon separated: <filepath>:<?cuepath>@<schema>=<?outpath>
 func ParseTemplateFlag(tf string) (cfg AdhocTemplateConfig, err error) {
 	// We work our way from end to start of the string, 
+	orig := tf
 
 	// look for =
 	parts := strings.Split(tf, "=")
@@ -231,6 +240,9 @@ func ParseTemplateFlag(tf string) (cfg AdhocTemplateConfig, err error) {
 	// if no template, then data file format
 	// infer from Outpath ext
 	if tf == "" {
+		if cfg.Outpath == "" {
+			return cfg, fmt.Errorf("error parsing -T flag, expected output file for data file in %q", orig)
+		}
 		cfg.DataFormat = filepath.Ext(cfg.Outpath)[1:]  // trim '.' from ext
 	} else {
 		cfg.Filepath = tf
