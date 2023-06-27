@@ -2,18 +2,21 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
+	"strings"
+	"time"
 
 	"dagger.io/dagger"
+	hdagger "github.com/hofstadter-io/hof/test/dagger"
 )
 
-const dockerVer = "docker:24"
-
-type Runtime struct {
-	Ctx    context.Context
-	Client *dagger.Client
+func checkErr(err error) {
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
 
 func main() {
@@ -26,7 +29,7 @@ func main() {
 	}
 	defer client.Close()
 
-	R := &Runtime{
+	R := &hdagger.Runtime{
 		Ctx:    ctx,
 		Client: client,
 	}
@@ -35,27 +38,33 @@ func main() {
 	gcloud := R.GcloudImage()
 
 	t := gcloud
-	t = t.WithExec([]string{"gcloud", "version"})
-	t = t.WithExec([]string{"gcloud", "config", "list"})
+	t = t.WithEnvVariable("CACHEBUST", time.Now().String())
+	t = t.Pipeline("gcloud/list")
+	t = t.WithExec([]string{"gcloud", "compute", "instances", "list", "--format=json"})
+
+	out, err := t.Stdout(ctx)
+	checkErr(err)
+
+	vals := make([]map[string]any, 0)
+	err = json.Unmarshal([]byte(out), &vals)
+	checkErr(err)
+
+	for _, val := range vals {
+		name := val["name"].(string)
+		zone := val["zone"].(string)
+
+		// skip k8s vms
+		if strings.Contains(name, "gke") {
+			continue
+		}
+
+		d := t.Pipeline("gcloud/describe/" + name)
+		d = d.WithExec([]string{"gcloud", "compute", "instances", "describe", name, "--format=json", "--zone", zone})
+		d.Sync(ctx)
+	}
 
 
 	final := t
 	final.Sync(ctx)
 	// final.Stdout(ctx)
-}
-
-func (R *Runtime) GcloudImage() (*dagger.Container) {
-
-	cfg, err := os.UserConfigDir()
-	if err != nil {
-		fmt.Println(err)
-		return nil
-	}
-	d := R.Client.Host().Directory(filepath.Join(cfg, "gcloud"))
-
-	c := R.Client.Container().From("google/cloud-sdk")
-	c = c.WithEnvVariable("CLOUDSDK_CONFIG", "/gcloud/config")
-	c = c.WithDirectory("/gcloud/config", d)
-
-	return c
 }

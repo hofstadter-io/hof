@@ -1,8 +1,8 @@
 {
   "builders": [
     {
-      "image_name": "debian-docker-20230627-205835",
-      "image_family": "hof-debian-docker",
+      "image_name": "debian-nerdctl-rootless-20230627-205835",
+      "image_family": "hof-debian-nerdctl-rootless",
       "type": "googlecompute",
       "project_id": "hof-io--develop",
       "source_image": "debian-12-bookworm-v20230609",
@@ -18,7 +18,7 @@
       "type": "shell",
       "scripts": [
         "./scripts/packages.sh",
-        "./scripts/docker.sh"
+        "./scripts/nerdctl-rootless.sh"
       ]
     }
   ]
