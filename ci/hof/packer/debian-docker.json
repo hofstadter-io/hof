@@ -1,0 +1,35 @@
+{
+  "variables": {
+    "image_family": "hof-debian-docker",
+    "image_suffix": "{{ env `IMAGE_SUFFIX` }}"
+  },
+  "builders": [
+    {
+      "image_name": "debian-docker-{{ user `image_suffix` }}",
+      "image_family": "{{ user `image_family`}}",
+      "type": "googlecompute",
+      "project_id": "hof-io--develop",
+      "source_image": "debian-12-bookworm-v20230609",
+      "zone": "us-central1-a",
+
+			"ssh_username": "hof",
+      "machine_type": "n2-standard-2",
+      "disk_size": "25",
+      "disk_type": "pd-ssd",
+			"skip_create_image": true
+    }
+  ],
+
+  "provisioners": [
+    {
+      "type": "shell",
+			"scripts": [
+				"./scripts/packages.sh",
+				"./scripts/docker.sh"
+			]
+    }
+  ]
+
+}
+
+
