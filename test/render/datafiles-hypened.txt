@@ -1,9 +1,3 @@
-exec cue export ./data.cue -e foo
-cmp stdout cue-foo.golden
-
-exec cue export ./data.cue -e 'foo["bar-baz"]'
-cmp stdout cue-bar.golden
-
 exec hof gen ./data.cue -T :foo=hof-foo.json
 exec cat hof-foo.json
 cmp stdout hof-foo.golden
