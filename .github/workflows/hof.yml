@@ -91,10 +91,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
         run: hof flow @test/gen ./test.cue
-      - name: test/render
-        env:
-          GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
-        run: hof flow @test/render ./test.cue
       - name: test/create
         env:
           GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}

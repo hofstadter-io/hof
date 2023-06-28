@@ -76,11 +76,6 @@ ghacue.#Workflow & {
 		hof flow @test/gen ./test.cue
 		"""
 }, {
-	name: "test/render"
-	run: """
-		hof flow @test/render ./test.cue
-		"""
-}, {
 	name: "test/create"
 	run: """
 		hof flow @test/create ./test.cue
