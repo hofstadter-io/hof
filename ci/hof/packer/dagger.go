@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	gouser "os/user"
 	"time"
 
 	"dagger.io/dagger"
@@ -17,8 +18,14 @@ func checkErr(err error) {
 	}
 }
 
+var user string
+
 func main() {
 	ctx := context.Background()
+
+	u, err := gouser.Current()
+	checkErr(err)
+	user = u.Username
 
 	// initialize Dagger client
 	client, err := dagger.Connect(ctx, dagger.WithLogOutput(os.Stdout))
@@ -35,7 +42,7 @@ func main() {
 	// load hof's code from the host
 	// todo, find repo root with git
 	source := R.Client.Host().Directory(".", dagger.HostDirectoryOpts{
-		Exclude: []string{"cue.mod/pkg", "docs", "next"},
+		Exclude: []string{"cue.mod/pkg", "docs", "next", ".git"},
 	})
 
 	//
@@ -47,6 +54,8 @@ func main() {
 	//hof := builder.File("hof")
 
 	gcloud := R.GcloudImage()
+	gcloud = R.WithLocalGcloudConfig(gcloud)
+	// gcloud = R.WithLocalSSHDir(gcloud)
 
 	name := "test-debian"
 	t := gcloud.WithEnvVariable("CACHEBUST", time.Now().String())
@@ -89,6 +98,10 @@ func WithDeleteVM(gcloud *dagger.Container, name string) (*dagger.Container) {
 func WithGcloudScp(gcloud *dagger.Container, name string, dir *dagger.Directory) (*dagger.Container) {
 
 	c := gcloud.WithDirectory("/src", dir)
+
+	// tar file
+
+	// copy tar
 	c = c.WithExec([]string{
 		"gcloud",
 		"compute",
@@ -96,8 +109,10 @@ func WithGcloudScp(gcloud *dagger.Container, name string, dir *dagger.Directory)
 		"--recurse",
 		"--zone=us-central1-a",
 		"/src",
-		name + ":src",
+		user + "@" + name + ":src",
 	})
+
+	// untar
 
 	return c
 }
@@ -107,7 +122,7 @@ func WithGcloudRemoteCommand(gcloud *dagger.Container, name string, cmd string) 
 		"gcloud",
 		"compute",
 		"ssh",
-		name,
+		user + "@" + name,
 		"--zone=us-central1-a",
 		"--",
 		"bash", 

@@ -69,7 +69,7 @@ func main() {
 	checkErr(err)
 
 	// bust cache before testing
-	tester = tester.WithEnvVariable("CACHE", time.Now().String())
+	tester = tester.WithEnvVariable("CACHEBUST", time.Now().String())
 
 	err = R.HofVersion(tester)
 	checkErr(err)

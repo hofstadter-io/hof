@@ -1,9 +1,5 @@
 packer.gen: debian.cue
-	hof gen ./debian.cue \
-		-T :images.docker=debian-docker.json \
-		-T :images.nerdctl=debian-nerdctl.json \
-		-T ':images["nerdctl-rootless"]=debian-nerdctl-rootless.json' \
-		-T :images.podman=debian-podman.json
+	hof gen ./debian.cue -T ':images=[]debian-{{ .tool }}.json'
 
 packer.build: packer.gen
 	packer build -force debian-docker.json

@@ -17,15 +17,15 @@ _tools: [
 
 images: {
 	for tool in _tools {
-		(tool): _image & {_tool: tool}
+		(tool): _image & {"tool": tool}
 	}
 }
 
 _image: {
-	_tool: string
+	tool: string
 	builders: [{
-		image_name:   "debian-\(_tool)-\(_vars.suffix)"
-		image_family: "hof-debian-\(_tool)"
+		image_name:   "debian-\(tool)-\(_vars.suffix)"
+		image_family: "hof-debian-\(tool)"
 		type:         "googlecompute"
 		project_id:   "hof-io--develop"
 		source_image: "debian-12-bookworm-v20230609"
@@ -34,16 +34,16 @@ _image: {
 		ssh_username: "hof"
 		machine_type: "n2-standard-2"
 		disk_size:    "25"
-		disk_type:    "pd-ssd"
+		disk_type:    "pd-balanced"
 
-		// skip_create_image: true
+		skip_create_image: true
 	}]
 	provisioners: [
 		{
 			type: "shell"
 			scripts: [
 				"./scripts/packages.sh",
-				"./scripts/\(_tool).sh",
+				"./scripts/\(tool).sh",
 			]
 		},
 	]
