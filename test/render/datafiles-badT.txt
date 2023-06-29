@@ -1,0 +1,22 @@
+env HOF_TELEMETRY_DISABLED=1
+! exec hof gen ./data.cue -T :images.["nerdctl-rootless"]
+stdout 'error parsing -T flag, expected output file for data file'
+
+-- data.cue --
+foo: {
+	"bar-baz": {
+		cow: "moo"
+	}
+}
+
+
+-- cue-foo.golden --
+{
+    "bar-baz": {
+        "cow": "moo"
+    }
+}
+-- cue-bar.golden --
+{
+    "cow": "moo"
+}

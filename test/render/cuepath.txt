@@ -4,7 +4,7 @@ cmp stdout expected-all.txt
 exec hof gen data.cue -T 'template.txt:val'
 cmp stdout expected-val.txt
 
-exec hof gen data.cue -T "template.txt:val[""sub-field""]"
+exec hof gen data.cue -T 'template.txt:val["sub-field"]'
 cmp stdout expected-sub.txt
 
 -- data.cue --
