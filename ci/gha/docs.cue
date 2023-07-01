@@ -13,6 +13,10 @@ ghacue.#Workflow & {
 
 	jobs: {
 		docs: {
+			concurrency: {
+				group:                "${{ github.workflow }}-${{ github.ref_name }}"
+				"cancel-in-progress": true
+			}
 			"runs-on": "ubuntu-latest"
 
 			steps: [
