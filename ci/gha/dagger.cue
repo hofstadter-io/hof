@@ -15,6 +15,10 @@ ghacue.#Workflow & {
 	jobs: {
 		inception: {
 			"runs-on": "ubuntu-latest"
+			concurrency: {
+				group:                "${{ github.workflow }}-inception-${{ github.ref_name }}"
+				"cancel-in-progress": true
+			}
 
 			steps: [
 				common.Steps.go.setup & {#ver: "1.20.x"},
@@ -40,6 +44,10 @@ ghacue.#Workflow & {
 		hof: {
 			environment: "hof mod testing"
 			"runs-on":   "ubuntu-latest"
+			concurrency: {
+				group:                "${{ github.workflow }}-hof-${{ github.ref_name }}"
+				"cancel-in-progress": true
+			}
 
 			steps: [
 				common.Steps.go.setup & {#ver: "1.20.x"},
