@@ -3,7 +3,9 @@ package dagger
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"dagger.io/dagger"
 )
@@ -17,12 +19,13 @@ func (R *Runtime) GcloudImage() (*dagger.Container) {
 }
 
 func (R* Runtime) WithLocalGcloudConfig(c *dagger.Container) (*dagger.Container) {
-	cfg, err := os.UserConfigDir()
+	out, err := exec.Command("bash", "-c", "gcloud info --format='value(config. paths. global_config_dir)'").CombinedOutput()
 	if err != nil {
 		fmt.Println(err)
 		return nil
 	}
-	d := R.Client.Host().Directory(filepath.Join(cfg, "gcloud"))
+	cfg := strings.TrimSpace(string(out))
+	d := R.Client.Host().Directory(cfg)
 	c = c.WithEnvVariable("CLOUDSDK_CONFIG", "/gcloud/config")
 	c = c.WithMountedDirectory("/gcloud/config", d)
 
