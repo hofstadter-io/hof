@@ -11,6 +11,10 @@ ghacue.#Workflow & {
 	env: HOF_TELEMETRY_DISABLED: "1"
 
 	jobs: formatter: {
+		concurrency: {
+			group:                "${{ github.workflow }}-${{ github.ref_name }}"
+			"cancel-in-progress": true
+		}
 		"runs-on":   "ubuntu-latest"
 		environment: "hof mod testing"
 		strategy: {

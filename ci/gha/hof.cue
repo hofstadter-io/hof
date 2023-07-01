@@ -10,6 +10,10 @@ ghacue.#Workflow & {
 	on:   _ | *["push"]
 	env: HOF_TELEMETRY_DISABLED: "1"
 	jobs: test: {
+		concurrency: {
+			group:                "${{ github.workflow }}-${{ github.ref_name }}"
+			"cancel-in-progress": true
+		}
 		strategy: {
 			"fail-fast": false
 			matrix: {
