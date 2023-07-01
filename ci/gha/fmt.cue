@@ -12,7 +12,7 @@ ghacue.#Workflow & {
 
 	jobs: formatter: {
 		concurrency: {
-			group:                "${{ github.workflow }}-${{ github.ref_name }}"
+			group:                "${{ github.workflow }}-${{ matrix.formatter }}-${{ github.ref_name }}"
 			"cancel-in-progress": true
 		}
 		"runs-on":   "ubuntu-latest"

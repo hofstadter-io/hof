@@ -11,7 +11,7 @@ ghacue.#Workflow & {
 	env: HOF_TELEMETRY_DISABLED: "1"
 	jobs: test: {
 		concurrency: {
-			group:                "${{ github.workflow }}-${{ github.ref_name }}"
+			group:                "${{ github.workflow }}-${{ matrix.os }}-${{ matrix.go }}-${{ github.ref_name }}"
 			"cancel-in-progress": true
 		}
 		strategy: {
