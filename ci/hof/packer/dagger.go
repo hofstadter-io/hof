@@ -11,14 +11,25 @@ import (
 	hdagger "github.com/hofstadter-io/hof/test/dagger"
 )
 
+var (
+	// the os user running this pipeline
+	// used for vm login & auth
+	user string
+
+	runtimes = []string{
+		"docker",
+		"nerdctl",
+		"nerdctl-rootless",
+		"podman",
+	}
+)
+
 func checkErr(err error) {
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 }
-
-var user string
 
 func main() {
 	ctx := context.Background()
@@ -48,26 +59,63 @@ func main() {
 	//
 	// Building Hof
 	//
-	//base := R.GolangImage()
-	//deps := R.FetchDeps(base, source)
-	//builder := R.BuildHof(deps, source)
-	//hof := builder.File("hof")
+	base := R.GolangImage()
+	deps := R.FetchDeps(base, source)
+	builder := R.BuildHof(deps, source)
+	hof := builder.File("hof")
 
 	gcloud := R.GcloudImage()
 	gcloud = R.WithLocalGcloudConfig(gcloud)
-	// gcloud = R.WithLocalSSHDir(gcloud)
 
-	name := "test-debian"
-	t := gcloud.WithEnvVariable("CACHEBUST", time.Now().String())
-	t = WithBootVM(t, name)
-	t = WithGcloudScp(t, name, source)
-	t = WithGcloudRemoteCommand(t, name, "ls -l /src")
-	t = WithDeleteVM(t, name)
+	for _, runtime := range runtimes {
+		vmName := fmt.Sprintf("%s-fmt-test-%s", user, runtime)
+		vmFamily := fmt.Sprintf("hof-debian-%s", runtime)
+		t := gcloud.Pipeline(vmName)
+		t = t.WithEnvVariable("CACHEBUST", time.Now().String())
+		t = WithBootVM(t, vmName, vmFamily)
 
-	t.Sync(R.Ctx)
+		// any runtime extra pre-steps before testing
+		switch runtime {
+		case "docker":	
+			// will probably need something like this for nerdctl too
+			t = WithGcloudRemoteCommand(t, vmName, "sudo usermod -aG docker $USER")	
+
+			// we really want to test that it is permission issue and advise the user
+		  // we should also capture this as a test, so we need a setup where this fails intentionally
+		}
+
+		// remote commands to run
+		t = WithGcloudSendFile(t, vmName, "/usr/local/bin/hof", hof, true)
+		t = WithGcloudRemoteCommand(t, vmName, "hof version")
+		t = WithGcloudRemoteCommand(t, vmName, "hof fmt pull all@v0.6.8-rc.5")
+
+		// sync to run them for real
+		_, err = t.Sync(R.Ctx)
+		hadErr := false
+		if err != nil {
+			hadErr = true
+			fmt.Println("an error!:", err)
+		}
+
+		// always try deleting, we mostly ignore the error here (less likely, will also error if not exists)
+		d := gcloud.Pipeline("DELETE " + vmName)
+		d = d.WithEnvVariable("CACHEBUST", time.Now().String())
+		d = WithDeleteVM(d, vmName)
+		_, err := d.Sync(R.Ctx)
+		if err != nil {
+			fmt.Println("deleting error!:", err)
+		}
+
+		// stop if we had an error
+		if hadErr {
+			fmt.Println("stopping b/c error")
+			break
+		}
+	}
+
 }
 
-func WithBootVM(gcloud *dagger.Container, name string) (*dagger.Container) {
+func WithBootVM(gcloud *dagger.Container, name, imageFamily string) (*dagger.Container) {
 	args := []string{
 		"gcloud",
 		"compute",
@@ -76,7 +124,7 @@ func WithBootVM(gcloud *dagger.Container, name string) (*dagger.Container) {
 		name,
 		"--zone=us-central1-a",
 		"--machine-type=n2-standard-2",
-		"--image-family=hof-debian-nerdctl",
+		"--image-family=" + imageFamily,
 	}
 
 	return gcloud.WithExec(args)
@@ -88,11 +136,48 @@ func WithDeleteVM(gcloud *dagger.Container, name string) (*dagger.Container) {
 		"compute",
 		"instances",
 		"delete",
+		"--quiet",
 		name,
 		"--zone=us-central1-a",
 	}
 
-	return gcloud.WithExec(args)
+	gcloud = gcloud.WithExec(args)
+
+	return gcloud
+}
+
+func WithGcloudSendFile(gcloud *dagger.Container, name, remotePath string, file *dagger.File, sudo bool) (*dagger.Container) {
+	tmpPath := "/file-to-copy"
+	// add file in container
+	c := gcloud.WithFile(tmpPath, file)
+
+	// send file from container
+	c = c.WithExec([]string{
+		"gcloud",
+		"compute",
+		"scp",
+		"--zone=us-central1-a",
+		tmpPath,
+		user + "@" + name + ":file-copied-tmp",
+	})
+
+	// build up remote copy
+	mv := []string{
+		"gcloud",
+		"compute",
+		"ssh",
+		"--zone=us-central1-a",
+		user + "@" + name,
+		"--",
+	}
+	if sudo {
+		mv = append(mv, "sudo")
+	}
+	mv = append(mv, "mv", "file-copied-tmp", remotePath)
+
+	c = c.WithExec(mv)
+
+	return c
 }
 
 func WithGcloudScp(gcloud *dagger.Container, name string, dir *dagger.Directory) (*dagger.Container) {
@@ -127,6 +212,6 @@ func WithGcloudRemoteCommand(gcloud *dagger.Container, name string, cmd string) 
 		"--",
 		"bash", 
 		"-c",
-		cmd,
+		fmt.Sprintf("'set -euo pipefail; %s'", cmd),
 	})
 }
