@@ -8,19 +8,7 @@ import (
 ghacue.#Workflow & {
 	name: "docs"
 
-	on: {
-		for p in ["push"] {
-			(p): {
-				paths: [
-					"docs/**",
-					"ci/gha/docs.cue",
-					"design/**",
-					"schema/**",
-					"cmd/**",
-				]
-			}
-		}
-	}
+	on: _ | *["push"]
 	env: HOF_TELEMETRY_DISABLED: "1"
 
 	jobs: {
