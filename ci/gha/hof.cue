@@ -7,9 +7,13 @@ import (
 
 ghacue.#Workflow & {
 	name: "hof"
-	on:   _ | *["push", "pull_request", "workflow_dispatch"]
+	on:   _ | *["push"]
 	env: HOF_TELEMETRY_DISABLED: "1"
 	jobs: test: {
+		concurrency: {
+			group:                "${{ github.workflow }}-${{ matrix.os }}-${{ matrix.go }}-${{ github.ref_name }}"
+			"cancel-in-progress": true
+		}
 		strategy: {
 			"fail-fast": false
 			matrix: {

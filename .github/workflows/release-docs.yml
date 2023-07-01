@@ -20,6 +20,13 @@ jobs:
     runs-on: ubuntu-latest
     environment: hof docs
     steps:
+      - name: cancel if not our repository
+        run: |-
+          gh run cancel ${{ github.run_id }}	
+          gh run watch  ${{ github.run_id }}	
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: github.repository != hofstadter-io/hof
       - run: |-
           mkdir tmp
           cd tmp

@@ -8,23 +8,15 @@ import (
 ghacue.#Workflow & {
 	name: "docs"
 
-	on: {
-		for p in ["push", "pull_request"] {
-			(p): {
-				paths: [
-					"docs/**",
-					"ci/gha/docs.cue",
-					"design/**",
-					"schema/**",
-					"cmd/**",
-				]
-			}
-		}
-	}
+	on: _ | *["push"]
 	env: HOF_TELEMETRY_DISABLED: "1"
 
 	jobs: {
 		docs: {
+			concurrency: {
+				group:                "${{ github.workflow }}-${{ github.ref_name }}"
+				"cancel-in-progress": true
+			}
 			"runs-on": "ubuntu-latest"
 
 			steps: [

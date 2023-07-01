@@ -7,14 +7,14 @@ import (
 
 ghacue.#Workflow & {
 	name: "fmt"
-
-	_on: ["push", "pull_request"]
-	_paths: ["lib/fmt/**", "formatters/**", "ci/gha/fmt.cue", ".github/workflows/fmt.yml"]
-	on: {for evt in _on {(evt): paths: _paths}}
-	on: workflow_dispatch: {}
+	on:   _ | *["push"]
 	env: HOF_TELEMETRY_DISABLED: "1"
 
 	jobs: formatter: {
+		concurrency: {
+			group:                "${{ github.workflow }}-${{ matrix.formatter }}-${{ github.ref_name }}"
+			"cancel-in-progress": true
+		}
 		"runs-on":   "ubuntu-latest"
 		environment: "hof mod testing"
 		strategy: {

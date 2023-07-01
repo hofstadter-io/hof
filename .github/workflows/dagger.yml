@@ -1,14 +1,15 @@
 name: dagger
 "on":
   - push
-  - pull_request
-  - workflow_dispatch
 env:
   HOF_TELEMETRY_DISABLED: "1"
   HOF_FMT_VERSION: v0.6.8-rc.5
 jobs:
   inception:
     runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-inception-${{ github.ref_name }}
+      cancel-in-progress: true
     steps:
       - name: Install Go
         uses: actions/setup-go@v3
@@ -61,6 +62,9 @@ jobs:
   hof:
     environment: hof mod testing
     runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-hof-${{ github.ref_name }}
+      cancel-in-progress: true
     steps:
       - name: Install Go
         uses: actions/setup-go@v3

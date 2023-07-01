@@ -7,7 +7,7 @@ import (
 
 ghacue.#Workflow & {
 	name: "dagger"
-	on:   _ | *["push", "pull_request", "workflow_dispatch"]
+	on:   _ | *["push"]
 	env: {
 		HOF_TELEMETRY_DISABLED: "1"
 		HOF_FMT_VERSION:        "v0.6.8-rc.5"
@@ -15,6 +15,10 @@ ghacue.#Workflow & {
 	jobs: {
 		inception: {
 			"runs-on": "ubuntu-latest"
+			concurrency: {
+				group:                "${{ github.workflow }}-inception-${{ github.ref_name }}"
+				"cancel-in-progress": true
+			}
 
 			steps: [
 				common.Steps.go.setup & {#ver: "1.20.x"},
@@ -40,6 +44,10 @@ ghacue.#Workflow & {
 		hof: {
 			environment: "hof mod testing"
 			"runs-on":   "ubuntu-latest"
+			concurrency: {
+				group:                "${{ github.workflow }}-hof-${{ github.ref_name }}"
+				"cancel-in-progress": true
+			}
 
 			steps: [
 				common.Steps.go.setup & {#ver: "1.20.x"},

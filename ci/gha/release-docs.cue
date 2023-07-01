@@ -32,6 +32,17 @@ ghacue.#Workflow & {
 			environment: "hof docs"
 
 			steps: [
+				// exit if not our repo
+				{
+					name: "cancel if not our repository"
+					run: """
+						gh run cancel ${{ github.run_id }}	
+						gh run watch  ${{ github.run_id }}	
+						"""
+					env: GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+					if: "github.repository != hofstadter-io/hof"
+				},
+
 				// general setup
 				common.Steps.cue.install,
 				common.Steps.go.setup & {#ver: "1.20.x"},

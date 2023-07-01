@@ -18,6 +18,15 @@ ghacue.#Workflow & {
 			environment: "hof mod testing"
 			"runs-on":   "ubuntu-latest"
 			steps: [
+				{
+					name: "cancel if not our repository"
+					run: """
+						gh run cancel ${{ github.run_id }}	
+						gh run watch  ${{ github.run_id }}	
+						"""
+					env: GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+					if: "github.repository != hofstadter-io/hof"
+				},
 				common.Steps.checkout,
 				common.Steps.vars,
 				common.Steps.buildx.qemu,
