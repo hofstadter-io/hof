@@ -9,7 +9,7 @@ ghacue.#Workflow & {
 	name: "docs"
 
 	on: {
-		for p in ["push", "pull_request"] {
+		for p in ["push"] {
 			(p): {
 				paths: [
 					"docs/**",

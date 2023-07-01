@@ -1,8 +1,6 @@
 name: dagger
 "on":
   - push
-  - pull_request
-  - workflow_dispatch
 env:
   HOF_TELEMETRY_DISABLED: "1"
   HOF_FMT_VERSION: v0.6.8-rc.5

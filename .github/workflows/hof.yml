@@ -1,8 +1,6 @@
 name: hof
 "on":
   - push
-  - pull_request
-  - workflow_dispatch
 env:
   HOF_TELEMETRY_DISABLED: "1"
 jobs:

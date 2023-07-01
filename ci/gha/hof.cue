@@ -7,7 +7,7 @@ import (
 
 ghacue.#Workflow & {
 	name: "hof"
-	on:   _ | *["push", "pull_request", "workflow_dispatch"]
+	on:   _ | *["push"]
 	env: HOF_TELEMETRY_DISABLED: "1"
 	jobs: test: {
 		strategy: {

@@ -7,12 +7,6 @@ name: fmt
       - formatters/**
       - ci/gha/fmt.cue
       - .github/workflows/fmt.yml
-  pull_request:
-    paths:
-      - lib/fmt/**
-      - formatters/**
-      - ci/gha/fmt.cue
-      - .github/workflows/fmt.yml
 env:
   HOF_TELEMETRY_DISABLED: "1"
 jobs:

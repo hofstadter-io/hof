@@ -8,7 +8,7 @@ import (
 ghacue.#Workflow & {
 	name: "fmt"
 
-	_on: ["push", "pull_request"]
+	_on: ["push"]
 	_paths: ["lib/fmt/**", "formatters/**", "ci/gha/fmt.cue", ".github/workflows/fmt.yml"]
 	on: {for evt in _on {(evt): paths: _paths}}
 	on: workflow_dispatch: {}

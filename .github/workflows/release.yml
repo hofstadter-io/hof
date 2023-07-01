@@ -10,6 +10,13 @@ jobs:
     environment: hof mod testing
     runs-on: ubuntu-latest
     steps:
+      - name: cancel if not our repository
+        run: |-
+          gh run cancel ${{ github.run_id }}	
+          gh run watch  ${{ github.run_id }}	
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: github.repository != hofstadter-io/hof
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Setup Vars

@@ -7,7 +7,7 @@ import (
 
 ghacue.#Workflow & {
 	name: "dagger"
-	on:   _ | *["push", "pull_request", "workflow_dispatch"]
+	on:   _ | *["push"]
 	env: {
 		HOF_TELEMETRY_DISABLED: "1"
 		HOF_FMT_VERSION:        "v0.6.8-rc.5"
