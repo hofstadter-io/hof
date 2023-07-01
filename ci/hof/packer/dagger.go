@@ -75,13 +75,19 @@ func main() {
 		t = WithBootVM(t, vmName, vmFamily)
 
 		// any runtime extra pre-steps before testing
+		// we really want to test that it is permission issue and advise the user
+		// we should also capture this as a test, so we need a setup where this fails intentionally
 		switch runtime {
 		case "docker":	
 			// will probably need something like this for nerdctl too
 			t = WithGcloudRemoteCommand(t, vmName, "sudo usermod -aG docker $USER")	
 
-			// we really want to test that it is permission issue and advise the user
-		  // we should also capture this as a test, so we need a setup where this fails intentionally
+		case "nerdctl":
+			// https://github.com/containerd/nerdctl/blob/main/docs/faq.md#does-nerdctl-have-an-equivalent-of-sudo-usermod--ag-docker-user-
+			// make a user home bin and add to path
+			t = WithGcloudRemoteCommand(t, vmName, "mkdir -p $HOME/bin && chmod 700 $HOME/bin && echo 'PATH=$HOME/bin:$PATH' >> .profile")	
+			// copy nerdctl and set bits appropriatedly
+			t = WithGcloudRemoteCommand(t, vmName, "cp /usr/local/bin/nerdctl $HOME/bin && sudo chown root $HOME/bin/nerdctl && sudo chmod +s $HOME/bin/nerdctl")	
 		}
 
 		// remote commands to run
