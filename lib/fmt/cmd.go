@@ -230,17 +230,30 @@ func Start(fmtr string, replace bool) error {
 	}
 
 	if fmtr == "all" {
+		hadErr := false
+
+		// start them all
 		for _, name := range fmtrNames {
 			err = startFmtr(name, ver)
 			if err != nil {
 				fmt.Println(err)
+				hadErr = true
 			}
 		}
+		if hadErr {
+			return fmt.Errorf("error while starting formatters")
+		}
+
+		// wait for all to be ready
 		for _, name := range fmtrNames {
 			err = waitFmtr(name)
 			if err != nil {
 				fmt.Println(err)
+				hadErr = true
 			}
+		}
+		if hadErr {
+			return fmt.Errorf("error while waiting on formatters")
 		}
 	} else {
 		err = startFmtr(fmtr, ver)
@@ -265,11 +278,16 @@ func Stop(fmtr string) error {
 	}
 
 	if fmtr == "all" {
+		hadErr := false
 		for _, name := range fmtrNames {
 			err := docker.StopContainer(fmt.Sprintf("hof-fmt-%s", name))
 			if err != nil {
 				fmt.Println(err)
+				hadErr = true
 			}
+		}
+		if hadErr {
+			return fmt.Errorf("error while stopping formatters")
 		}
 	} else {
 		return docker.StopContainer(fmt.Sprintf("hof-fmt-%s", fmtr))
@@ -301,12 +319,17 @@ func Pull(fmtr string) error {
 	}
 
 	if fmtr == "all" {
+		hadErr := false
 		for _, name := range fmtrNames {
 			ref := fmt.Sprintf("%s/fmt-%s:%s", CONTAINER_REPO, name, ver)
 			err := docker.PullImage(ref)
 			if err != nil {
 				fmt.Println(err)
+				hadErr = true
 			}
+		}
+		if hadErr {
+			return fmt.Errorf("error while pulling formatters")
 		}
 	} else {
 		ref := fmt.Sprintf("%s/fmt-%s:%s", CONTAINER_REPO, fmtr, ver)
