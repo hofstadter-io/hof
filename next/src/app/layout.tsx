@@ -27,12 +27,10 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={classnames(inter.className, "min-h-screen antialiased")}>
         <Providers>
-          <div className="flex flex-col">
+          <div className="flex flex-col min-h-screen">
             <Navbar />
 
-            <div className="authModal">{authModal}</div>
-
-            <div className="flex flex-row flex-1 w-screen">{children}</div>
+            <div className="flex flex-row grow w-screen">{children}</div>
 
             <Footer />
           </div>

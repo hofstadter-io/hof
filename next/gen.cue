@@ -13,6 +13,10 @@ Generator: gen.Generator & {
 	App:    schema.App & {
 		Name:   "docs"
 		Module: "github.com/hofstadter-io/hof"
+
+		search: enabled:   false
+		auth: enabled:     false
+		database: enabled: false
 	}
 
 	Datamodel: {}
