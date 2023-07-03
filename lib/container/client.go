@@ -2,7 +2,6 @@ package container
 
 import (
 	"fmt"
-<<<<<<< HEAD
 	"os/exec"
 
 	credClient "github.com/docker/docker-credential-helpers/client"
