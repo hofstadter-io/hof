@@ -11,7 +11,6 @@ require (
 	github.com/bmatcuk/doublestar/v4 v4.6.0
 	github.com/clbanning/mxj v1.8.4
 	github.com/codemodus/kace v0.5.1
-	github.com/docker/docker-credential-helpers v0.7.0
 	github.com/fatih/color v1.15.0
 	github.com/franela/goblin v0.0.0-20200512143142-b260c999b2d7
 	github.com/fsnotify/fsnotify v1.6.0
@@ -68,6 +67,7 @@ require (
 	github.com/docker/cli v23.0.3+incompatible // indirect
 	github.com/docker/distribution v2.8.1+incompatible // indirect
 	github.com/docker/docker v23.0.3+incompatible // indirect
+	github.com/docker/docker-credential-helpers v0.7.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/emicklei/proto v1.11.1 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
