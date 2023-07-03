@@ -437,8 +437,8 @@ func updateFormatterStatus() error {
 		}
 
 		p := 100000
-		for _, port := range container.Ports {
-			P := int(port.PublicPort)
+		for _, port := range container.PortList() {
+			P := int(port)
 			if P < p {
 				p = P
 			}

@@ -11,7 +11,6 @@ require (
 	github.com/bmatcuk/doublestar/v4 v4.6.0
 	github.com/clbanning/mxj v1.8.4
 	github.com/codemodus/kace v0.5.1
-	github.com/docker/docker v23.0.3+incompatible
 	github.com/docker/docker-credential-helpers v0.7.0
 	github.com/fatih/color v1.15.0
 	github.com/franela/goblin v0.0.0-20200512143142-b260c999b2d7
@@ -68,15 +67,13 @@ require (
 	github.com/dlclark/regexp2 v1.8.1 // indirect
 	github.com/docker/cli v23.0.3+incompatible // indirect
 	github.com/docker/distribution v2.8.1+incompatible // indirect
-	github.com/docker/go-connections v0.4.0 // indirect
-	github.com/docker/go-units v0.5.0 // indirect
+	github.com/docker/docker v23.0.3+incompatible // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/emicklei/proto v1.11.1 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/gammazero/deque v0.2.1 // indirect
 	github.com/go-git/gcfg v1.5.1-0.20230307220236-3a3c6141e376 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
-	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.3 // indirect

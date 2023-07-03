@@ -16,7 +16,6 @@ import (
 	cueyaml "cuelang.org/go/pkg/encoding/yaml"
 	"github.com/BurntSushi/toml"
 	"github.com/clbanning/mxj"
-	"github.com/docker/docker/api/types"
 
 	"github.com/hofstadter-io/hof/cmd/hof/verinfo"
 	"github.com/hofstadter-io/hof/lib/container"
@@ -121,8 +120,8 @@ type Formatter struct {
 	Ready     bool
 	Host      string
 	Port      string
-	Container *types.Container
-	Images    []*types.ImageSummary
+	Container *container.Container
+	Images    []*container.Image
 
 	Config  interface{}
 	Default interface{}

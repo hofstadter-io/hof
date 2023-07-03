@@ -2,12 +2,12 @@ package container
 
 import (
 	"context"
-
-	"github.com/docker/docker/api/types"
+	"time"
 )
 
-func GetVersion() (string, types.Version, error) {
-	clientVer := cClient.ClientVersion()
-	serverVer, err := cClient.ServerVersion(context.Background())
-	return clientVer, serverVer, err
+func GetVersion() (RuntimeVersion, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	return rt.Version(ctx)
 }

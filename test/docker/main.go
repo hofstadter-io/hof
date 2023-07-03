@@ -16,14 +16,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	client, server, err := container.GetVersion()
+	ver, err := container.GetVersion()
 	if err != nil {
 		fmt.Println("Error getting versions:", err)
 		os.Exit(1)
 	}
 
-	fmt.Println("client: ", client)
-	fmt.Println("server:", server.Version, server.APIVersion, server.MinAPIVersion)
+	fmt.Println("client: ", ver.Client.Version)
+	fmt.Println("server:", ver.Server.Version, ver.Server.APIVersion, ver.Server.MinAPIVersion)
 
 	img := "ghcr.io/hofstadter-io/fmt-black:v0.6.8-beta.11"
 

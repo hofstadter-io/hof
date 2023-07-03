@@ -1,47 +1,74 @@
 package container
 
-import "time"
+import (
+	"strconv"
+	"strings"
+	"time"
+)
 
 type Image struct {
-	ID          string    `json:"Id"`
-	ParentID    string    `json:"ParentId"`
-	RepoTags    any       `json:"RepoTags"`
-	RepoDigests []string  `json:"RepoDigests"`
-	Size        int       `json:"Size"`
-	SharedSize  int       `json:"SharedSize"`
-	VirtualSize int       `json:"VirtualSize"`
-	Labels      any       `json:"Labels"`
-	Containers  int       `json:"Containers"`
-	Names       []string  `json:"Names"`
-	Digest      string    `json:"Digest"`
-	History     []string  `json:"History"`
-	Created     int       `json:"Created"`
-	CreatedAt   time.Time `json:"CreatedAt"`
+	CreatedAt   time.Time
+	Labels      map[string]string
+	ParentID    string
+	Digest      string
+	ID          string
+	Names       []string
+	RepoDigests []string
+	History     []string
+	RepoTags    []string
+	VirtualSize int
+	SharedSize  int
+	Containers  int
+	Size        int
+	Created     int
 }
 
 type Container struct {
-	AutoRemove bool              `json:"AutoRemove"`
-	Command    []string          `json:"Command"`
-	CreatedAt  string            `json:"CreatedAt"`
-	Exited     bool              `json:"Exited"`
-	ExitedAt   int64             `json:"ExitedAt"`
-	ExitCode   int               `json:"ExitCode"`
-	ID         string            `json:"Id"`
-	Image      string            `json:"Image"`
-	ImageID    string            `json:"ImageID"`
-	IsInfra    bool              `json:"IsInfra"`
-	Labels     map[string]string `json:"Labels"`
-	Mounts     []any             `json:"Mounts"`
-	Names      []string          `json:"Names"`
-	Namespaces any               `json:"Namespaces"`
-	Networks   []any             `json:"Networks"`
-	Pid        int               `json:"Pid"`
-	Pod        string            `json:"Pod"`
-	PodName    string            `json:"PodName"`
-	Ports      any               `json:"Ports"`
-	Size       any               `json:"Size"`
-	StartedAt  int               `json:"StartedAt"`
-	State      string            `json:"State"`
-	Status     string            `json:"Status"`
-	Created    int               `json:"Created"`
+	Size       string
+	Ports      string
+	Namespaces string
+	Labels     map[string]string
+	ID         string
+	PodName    string
+	CreatedAt  string
+	Image      string
+	ImageID    string
+	State      string
+	Pod        string
+	Status     string
+	Names      []string
+	Mounts     []any
+	Networks   []any
+	Command    []string
+	Pid        int
+	ExitedAt   int64
+	ExitCode   int
+	Created    int
+	StartedAt  int
+	IsInfra    bool
+	Exited     bool
+	AutoRemove bool
+}
+
+func (c Container) PortList() []int {
+	var (
+		parts = strings.Split(c.Ports, ",")
+		ls    = make([]int, 0, len(parts))
+	)
+
+	for _, p := range parts {
+		pp := strings.Split(p, "/")
+		if len(pp) != 2 {
+			continue
+		}
+
+		i, err := strconv.Atoi(pp[0])
+		if err != nil {
+			continue
+		}
+
+		ls = append(ls, i)
+	}
+
+	return ls
 }
