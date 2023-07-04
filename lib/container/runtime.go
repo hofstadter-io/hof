@@ -108,7 +108,7 @@ func (r runtime) Containers(ctx context.Context, name Name) ([]Container, error)
 		containers []Container
 	)
 
-	if err := r.execJSON(ctx, &containers, "container", "ls", arg); err != nil {
+	if err := r.execJSON(ctx, &containers, "container", "ls", "--filter", arg); err != nil {
 		return nil, fmt.Errorf("exec json: %w", err)
 	}
 
@@ -121,7 +121,7 @@ func (r runtime) Images(ctx context.Context, ref Ref) ([]Image, error) {
 		images []Image
 	)
 
-	if err := r.execJSON(ctx, &images, "image", "ls", arg); err != nil {
+	if err := r.execJSON(ctx, &images, "image", "ls", "--filter", arg); err != nil {
 		return nil, fmt.Errorf("exec json: %w", err)
 	}
 
