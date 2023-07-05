@@ -79,8 +79,6 @@ func (r runtime) exec(ctx context.Context, args ...string) (io.Reader, error) {
 }
 
 func (r runtime) execJSON(ctx context.Context, resp any, args ...string) error {
-	args = append(args, []string{"--format", "json"}...)
-
 	stdout, err := r.exec(ctx, args...)
 	if err != nil {
 		return fmt.Errorf("exec: %w", err)
@@ -95,7 +93,7 @@ func (r runtime) execJSON(ctx context.Context, resp any, args ...string) error {
 
 func (r runtime) Version(ctx context.Context) (RuntimeVersion, error) {
 	var rv RuntimeVersion
-	if err := r.execJSON(ctx, &rv, "version"); err != nil {
+	if err := r.execJSON(ctx, &rv, "version", "--format", "json"); err != nil {
 		return rv, fmt.Errorf("exec json: %w", err)
 	}
 
@@ -103,12 +101,14 @@ func (r runtime) Version(ctx context.Context) (RuntimeVersion, error) {
 }
 
 func (r runtime) Containers(ctx context.Context, name Name) ([]Container, error) {
-	var (
-		arg        = fmt.Sprintf("name=%s", name)
-		containers []Container
-	)
+	args := []string{
+		"container", "ls",
+		"--filter", fmt.Sprintf("name=%s", name),
+		"--format", "{{ json . }}",
+	}
 
-	if err := r.execJSON(ctx, &containers, "container", "ls", "--filter", arg); err != nil {
+	var containers []Container
+	if err := r.execJSON(ctx, &containers, args...); err != nil {
 		return nil, fmt.Errorf("exec json: %w", err)
 	}
 
@@ -116,12 +116,14 @@ func (r runtime) Containers(ctx context.Context, name Name) ([]Container, error)
 }
 
 func (r runtime) Images(ctx context.Context, ref Ref) ([]Image, error) {
-	var (
-		arg    = fmt.Sprintf("reference=%s*", ref)
-		images []Image
-	)
+	args := []string{
+		"image", "ls",
+		"--filter", fmt.Sprintf("reference=%s*", ref),
+		"--format", "{{ json . }}",
+	}
 
-	if err := r.execJSON(ctx, &images, "image", "ls", "--filter", arg); err != nil {
+	var images []Image
+	if err := r.execJSON(ctx, &images, args...); err != nil {
 		return nil, fmt.Errorf("exec json: %w", err)
 	}
 
