@@ -1,4 +1,4 @@
-package ci
+package k8s
 
 import (
 	"github.com/hofstadter-io/cuelm/schema"
@@ -20,15 +20,17 @@ Update: schema.#List & {
 
 #Site: {
 	_Values: {
-		name:      string | *"hof-docs" @tag(name)
-		namespace: "websites"
+		name:      string | *"docs" @tag(name)
+		namespace: string
 
-		registry: "us.gcr.io/hof-io--develop"
-		image:    string | *"\(domain)"
+		registry: string
 		version:  string | *"manual" @tag(version)
 
-		domain: string | *"docs.hofstadter.io" @tag(domain)
-		port:   80
+		domain: string @tag(domain)
+		port: {
+			nginx:  80
+			server: 3000
+		}
 
 		ga_mp_apikey: string | *"" @tag(ga_mp_apikey)
 
@@ -81,8 +83,8 @@ Update: schema.#List & {
 			selector: _Values.#metadata.labels
 			type:     "NodePort"
 			ports: [{
-				port:       _Values.port
-				targetPort: _Values.port
+				port:       _Values.port.nginx
+				targetPort: _Values.port.nginx
 			}]
 		}
 	}
@@ -96,32 +98,47 @@ Update: schema.#List & {
 				metadata: labels: _Values.#metadata.labels
 				spec: {
 					containers: [{
-						name:            "website"
-						image:           "\(_Values.registry)/\(_Values.image):\(_Values.version)"
+						name:            "nginx"
+						image:           "\(_Values.registry)/docs-nginx:\(_Values.version)"
 						imagePullPolicy: "Always"
 						env: [{
 							name:  "GA_MP_APIKEY"
 							value: _Values.ga_mp_apikey
 						}]
 						ports: [{
-							containerPort: _Values.port
+							containerPort: _Values.port.nginx
 							protocol:      "TCP"
 						}]
-						readinessProbe: {
-							httpGet: port: _Values.port
-							initialDelaySeconds: 6
-							failureThreshold:    3
-							periodSeconds:       10
-						}
-						livenessProbe: {
-							httpGet: port: _Values.port
-							initialDelaySeconds: 6
-							failureThreshold:    3
-							periodSeconds:       10
-						}
+						_Probes & {_port: _Values.port.nginx}
+					}, {
+						name:            "server"
+						image:           "\(_Values.registry)/docs-server:\(_Values.version)"
+						imagePullPolicy: "Always"
+						ports: [{
+							containerPort: _Values.port.server
+							protocol:      "TCP"
+						}]
+						_Probes & {_port: _Values.port.server}
 					}]
 				}
 			}
 		}
 	}
+
+	_Probes: {
+		_port: int
+		readinessProbe: {
+			httpGet: port: _port
+			initialDelaySeconds: 6
+			failureThreshold:    3
+			periodSeconds:       10
+		}
+		livenessProbe: {
+			httpGet: port: _port
+			initialDelaySeconds: 6
+			failureThreshold:    3
+			periodSeconds:       10
+		}
+	}
+
 }

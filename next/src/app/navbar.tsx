@@ -11,8 +11,8 @@ const content = {
 
   menu: [
     {
-      title: "Docs",
-      href: "/docs",
+      title: "Dagger",
+      href: "/dagger",
     },
     {
       title: "Essays",

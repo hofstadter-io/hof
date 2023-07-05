@@ -1,0 +1,52 @@
+server {
+  listen 80;
+  listen [::]:80;
+
+  add_header X-Frame-Options SAMEORIGIN;
+  add_header X-Content-Type-Options nosniff;
+  add_header Referrer-Policy no-referrer-when-downgrade;
+
+  set $CSP_DEFAULT_SRC "default-src 'self'";
+  set $CSP_SCRIPT_SRC "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com";
+  set $CSP_STYLE_SRC "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com";
+  set $CSP_FONT_SRC "font-src 'self' https://fonts.gstatic.com";
+  set $CSP_IMG_SRC "img-src 'self' avatars.githubusercontent.com data: www.googletagmanager.com www.google-analytics.com";
+  set $CSP_CONNECT_SRC "connect-src 'self' www.google-analytics.com analytics.google.com";
+  set $CSP_FORM_ACTION "form-action 'self' https://hofstadter.us5.list-manage.com";
+  set $CSP_FRAME_SRC "frame-src youtube.com www.youtube.com";
+
+  add_header Content-Security-Policy "${CSP_DEFAULT_SRC}; ${CSP_SCRIPT_SRC}; ${CSP_STYLE_SRC}; ${CSP_FONT_SRC}; ${CSP_IMG_SRC}; ${CSP_CONNECT_SRC}; ${CSP_FORM_ACTION}; ${CSP_FRAME_SRC};";
+
+	# GA4
+  location /mp/collect {
+    rewrite ^ /mp/collect?api_secret=$GA_MP_APIKEY break;
+    proxy_pass https://www.google-analytics.com;
+  }
+  location /debug/mp/collect {
+    rewrite ^ /debug/mp/collect?api_secret=$GA_MP_APIKEY break;
+    proxy_pass https://www.google-analytics.com;
+  }
+
+	# our main next server
+  location / {
+    proxy_pass http://localhost:3000;
+    proxy_read_timeout     60;
+    proxy_connect_timeout  60;
+    proxy_redirect         off;
+
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_cache_bypass $http_upgrade;
+  }
+
+	# _next static file weirdness
+  location /_next/static {
+		# cache for 1 year, as these should never change and only get new hashes
+    add_header Cache-Control "public, max-age=31536000, immutable";
+    proxy_pass http://localhost:3000/_next/static;
+  }
+
+}

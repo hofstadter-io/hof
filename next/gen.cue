@@ -11,8 +11,8 @@ Generator: gen.Generator & {
 	Name:   "docs"
 	Outdir: "./"
 	App:    schema.App & {
-		Name:   "docs"
-		Module: "github.com/hofstadter-io/hof"
+		name:   "docs"
+		module: "github.com/hofstadter-io/hof"
 
 		search: enabled:   false
 		auth: enabled:     false

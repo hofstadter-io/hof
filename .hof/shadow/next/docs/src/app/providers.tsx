@@ -3,6 +3,7 @@
 import React from "react";
 
 import { ThemeProvider, useTheme } from "@wits/next-themes";
+
 import { MDXProvider } from "@mdx-js/react";
 import "@code-hike/mdx/dist/index.css";
 

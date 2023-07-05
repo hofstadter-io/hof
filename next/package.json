@@ -29,7 +29,7 @@
     "deepmerge-ts": "^5.1.0",
     "eslint": "8.42.0",
     "eslint-config-next": "13.4.4",
-    "next": "13.4.4",
+    "next": "13.4.8",
     "next-auth": "^4.22.1",
     "next-mdx-remote": "^4.4.1",
     "postcss": "8.4.24",
@@ -39,9 +39,10 @@
     "shiki": "^0.14.2",
     "swr": "^2.1.5",
     "tailwindcss": "3.3.2",
-    "typescript": "5.1.3"
+    "typescript": "^5.1.3"
   },
   "devDependencies": {
+    "@dagger.io/dagger": "^0.6.2",
     "prisma": "^4.15.0",
     "supabase": "^1.64.8",
     "ts-node": "^10.9.1"
