@@ -18,21 +18,23 @@ Update: schema.#List & {
 	]
 }
 
+_registry: "us-central1-docker.pkg.dev/hof-io--develop/testing"
+
 #Site: {
 	_Values: {
 		name:      string | *"hof-next-docs" @tag(name)
-		namespace: string | *"websites"
+		namespace: string | *"websites"      @tag(namespace)
 
-		registry: string | *"us-central1-docker.pkg.dev/hof-io--develop/testing"
-		version:  string | *"manual" @tag(version)
+		version:  string | *"manual"             @tag(version)
+		registry: string | *_registry            @tag(registry)
+		domain:   string | *"next.hofstadter.io" @tag(domain)
 
-		domain: string | *"next.hofstadter.io" @tag(domain)
+		ga_mp_apikey: string | *"" @tag(ga_mp_apikey)
+
 		port: {
 			nginx:  80
 			server: 3000
 		}
-
-		ga_mp_apikey: string | *"" @tag(ga_mp_apikey)
 
 		#metadata: {
 			name:      _Values.name

@@ -1,49 +1,126 @@
 import util from 'util';
-import { exec as origExec } from "child_process"
-const exec = util.promisify(origExec)
+import { exec as origExec } from "child_process";
+const exec = util.promisify(origExec);
+
+import { Command } from 'commander';
 
 import Client, { connect, Container, Directory, File } from "@dagger.io/dagger"
 
+// set defaults here
 const registry = "us-central1-docker.pkg.dev/hof-io--develop/testing"
-const version = "0.0.2"
+const version = "0.0.3"
 const cluster = "studios-cluster"
 const zone = "us-central1-a"
 
-// initialize Dagger client
-connect(
-  async (client: Client) => {
+const cue_version = "v0.6.0-alpha.2"
+const hof_version = "v0.6.8-rc.5"
 
-		// get our source
-    const source = client.host().directory(".", { exclude: [".next", "node_modules/"] })
+// initialize command interface
+const cli = new Command();
+// override the default command version reporting flag
+cli.version('0.0.1', '-V, --script-version', 'output the current version of this script');
 
-		const image = makeImage(client, source)
-		const nginx = makeNginx(client, source)
+// set the flags
+cli
+	.option('-v, --version <value>', 'set the version to use for the command', version)
+	.option('--registry <value>', 'set the container registry to use', registry)
+  .option('--cluster <value>', 'set the gke k8s cluster name', cluster)
+	.option('--zone <value>', 'set the gcloud zone', zone)
 
-		// await exportImage(image, `docs:${version}`)
-		await image.publish(`${registry}/docs-server:${version}`)
-		await nginx.publish(`${registry}/docs-nginx:${version}`)
+	// these defaults appear in the cuelm.cue
+	.option('--domain <value>', 'the host domain for your application')
+	.option('--name <value>', 'the name for the k8s resources')
+	.option('--namespace <value>', 'the k8s namespace to use')
+	.option('--dry-run', 'print the k8s resources yaml')
 
-		var gcloud = await gcloudImage(client)
+// set commands
+cli
+	.command('build')
+  .description('build the images')
+  .action(() => {
+		run(build)
+	})
 
-		const cuelm = source.file("./ci/k8s/cuelm.cue")
+cli
+	.command('publish')
+  .description('publish the images')
+  .action(() => {
+		run(publish)
+	})
 
-		deploy(gcloud, cluster, zone, cuelm)
-			.sync()
+cli
+	.command('deploy')
+  .description('deploy the app')
+  .action(() => {
+		run(deploy)
+	})
 
-  },
-  { LogOutput: process.stderr }
-)
+// parse args (run cli?)
+cli.parse(process.argv);
 
-function deploy(gcloud: Container, cluster: string, zone: string, cuelm: File) {
-	return gcloud.withEnvVariable("CACHEBUST", Date.now().toString())
-		.withExec(["gcloud", "container", "clusters", "get-credentials", cluster, "--zone", zone])
+
+function run(fn: any) {
+	// initialize Dagger client
+	connect(
+		async (client: Client) => {
+
+			// get our source
+			const source: Directory = client.host().directory(".", { exclude: [".next", "node_modules/"] })
+
+			await fn(client, source)
+
+		},
+		{ LogOutput: process.stderr }
+	)
+}
+
+async function build(client: Client, source: Directory) {
+	const image = makeImage(client, source)
+	const nginx = makeNginx(client, source)
+	image.sync()
+	nginx.sync()
+}
+
+async function publish(client: Client, source: Directory) {
+	const image = makeImage(client, source)
+	const nginx = makeNginx(client, source)
+
+	const opts = cli.opts()
+
+	// await exportImage(image, `docs:${version}`)
+	await image.publish(`${opts.registry}/docs-server:${opts.version}`)
+	await nginx.publish(`${opts.registry}/docs-nginx:${opts.version}`)
+}
+
+async function deploy(client: Client, source: Directory) {
+	const gcloud = await gcloudImage(client)
+	const cuelm = source.file("./ci/k8s/cuelm.cue")
+
+	const opts = cli.opts()
+
+	var cuecmd = ["cue", "export", "cuelm.cue", "-e", "Install", "-f", "-o", "cuelm.yaml"]
+	cuecmd.push("-t", `version=${opts.version}`)
+	cuecmd.push("-t", `registry=${opts.registry}`)
+	if (opts.domain) {
+		cuecmd.push("-t", `domain=${opts.domain}`)
+	}
+	if (opts.name) {
+		cuecmd.push("-t", `name=${opts.name}`)
+	}
+	if (opts.namespace) {
+		cuecmd.push("-t", `namespace=${opts.namespace}`)
+	}
+
+	gcloud.withEnvVariable("CACHEBUST", Date.now().toString())
+		.withExec(["gcloud", "container", "clusters", "get-credentials", opts.cluster, "--zone", opts.zone])
 		.withWorkdir("/work")
 		.withFile("/work/cuelm.cue", cuelm)
 		.withExec(["hof", "mod", "init", "hof.io/deploy"])
 		.withExec(["hof", "mod", "tidy"])
-		.withExec(["cue", "export", "cuelm.cue", "-e", "Install", "-f", "-o", "cuelm.yaml", "-t", `version=${version}`])
+		.withExec(cuecmd)
 		.withExec(["cat", "cuelm.yaml"])
 		.withExec(["kubectl", "apply", "-f", "cuelm.yaml"])
+		.sync()
 }
 
 function makeImage(client: Client, source: Directory) {
@@ -144,8 +221,7 @@ function untargz(client: Client, targz: File) {
 }
 
 function addCue(client: Client, container: Container) {
-	const ver = "v0.6.0-alpha.2"
-	const url = `https://github.com/cue-lang/cue/releases/download/${ver}/cue_${ver}_linux_amd64.tar.gz`
+	const url = `https://github.com/cue-lang/cue/releases/download/${cue_version}/cue_${cue_version}_linux_amd64.tar.gz`
 	const targz = client.http(url)
 
 	const cue = untargz(client, targz).file("cue")
@@ -154,8 +230,7 @@ function addCue(client: Client, container: Container) {
 }
 
 function addHof(client: Client, container: Container) {
-	const ver = "v0.6.8-rc.5"
-	const url = `https://github.com/hofstadter-io/hof/releases/download/${ver}/hof_${ver}_Linux_x86_64`
+	const url = `https://github.com/hofstadter-io/hof/releases/download/${hof_version}/hof_${hof_version}_Linux_x86_64`
 	const hof = client.http(url)
 
 	return container
