@@ -21,18 +21,18 @@ Update: schema.#List & {
 #Site: {
 	_Values: {
 		name:      string | *"docs" @tag(name)
-		namespace: string
+		namespace: string           @tag(namespace)
 
-		registry: string
 		version:  string | *"manual" @tag(version)
+		registry: string             @tag(registry)
+		domain:   string             @tag(domain)
 
-		domain: string @tag(domain)
+		ga_mp_apikey: string | *"" @tag(ga_mp_apikey)
+
 		port: {
 			nginx:  80
 			server: 3000
 		}
-
-		ga_mp_apikey: string | *"" @tag(ga_mp_apikey)
 
 		#metadata: {
 			name:      _Values.name
