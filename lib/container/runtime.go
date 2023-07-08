@@ -72,8 +72,6 @@ func (r runtime) exec(ctx context.Context, args ...string) (io.Reader, error) {
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 
-	fmt.Println("exec:", cmd.String())
-
 	if err := cmd.Run(); err != nil {
 		return nil, fmt.Errorf("cmd run: %w\n%s", err, stderr.String())
 	}
@@ -87,11 +85,6 @@ func (r runtime) execJSON(ctx context.Context, resp any, args ...string) error {
 		return fmt.Errorf("exec: %w", err)
 	}
 
-	b, _ := io.ReadAll(stdout)
-	fmt.Println(string(b))
-
-	stdout = bytes.NewReader(b)
-
 	if err := json.NewDecoder(stdout).Decode(resp); err != nil {
 		return fmt.Errorf("json decode: %w", err)
 	}
@@ -101,7 +94,7 @@ func (r runtime) execJSON(ctx context.Context, resp any, args ...string) error {
 
 func (r runtime) Version(ctx context.Context) (RuntimeVersion, error) {
 	var rv RuntimeVersion
-	if err := r.execJSON(ctx, &rv, "version", "--format", "json"); err != nil {
+	if err := r.execJSON(ctx, &rv, "version", "--format", "{{ json . }}"); err != nil {
 		return rv, fmt.Errorf("exec json: %w", err)
 	}
 
