@@ -1,6 +1,7 @@
 package container
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"encoding/json"
@@ -122,12 +123,17 @@ func (r runtime) Images(ctx context.Context, ref Ref) ([]Image, error) {
 		"--format", "{{ json . }}",
 	}
 
-	var resp imageResponse
-	if err := r.execJSON(ctx, &resp, args...); err != nil {
-		return nil, fmt.Errorf("exec json: %w", err)
+	stdout, err := r.exec(ctx, args...)
+	if err != nil {
+		return nil, fmt.Errorf("exec: %w", err)
 	}
 
-	return resp.Images, nil
+	imgs, err := ndjson[Image](stdout)
+	if err != nil {
+		return nil, fmt.Errorf("ndjson: %w", err)
+	}
+
+	return imgs, nil
 }
 
 func (r runtime) Pull(ctx context.Context, ref Ref) error {
@@ -171,4 +177,25 @@ func (r runtime) Remove(ctx context.Context, name Name) error {
 	}
 
 	return nil
+}
+
+func ndjson[T any](r io.Reader) ([]T, error) {
+	var (
+		ts []T
+		s  = bufio.NewScanner(r)
+	)
+
+	for s.Scan() {
+		var t T
+		if err := json.Unmarshal(s.Bytes(), &t); err != nil {
+			return nil, fmt.Errorf("json unmarshal: %w", err)
+		}
+		ts = append(ts, t)
+	}
+
+	if err := s.Err(); err != nil {
+		return nil, fmt.Errorf("scanner: %w", err)
+	}
+
+	return ts, nil
 }

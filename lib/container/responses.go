@@ -1,10 +1,6 @@
 package container
 
 import (
-	"encoding/json"
-	"errors"
-	"fmt"
-	"io"
 	"strconv"
 	"strings"
 )
@@ -24,35 +20,6 @@ type Image struct {
 	RepoTags     []string
 	Names        []string
 	History      []string
-}
-
-type imageResponse struct {
-	Images []Image
-}
-
-func (i *imageResponse) UnmarshalJSON(b []byte) error {
-	if len(b) == 0 {
-		return io.EOF
-	}
-
-	var err error
-
-	switch b[0] {
-	case '{':
-		var img Image
-		err = json.Unmarshal(b, &img)
-		i.Images = append(i.Images, img)
-	case '[':
-		err = json.Unmarshal(b, &i.Images)
-	default:
-		return errors.New("invalid JSON input")
-	}
-
-	if err != nil {
-		return fmt.Errorf("json unmarshal: %w", err)
-	}
-
-	return nil
 }
 
 type Container struct {
