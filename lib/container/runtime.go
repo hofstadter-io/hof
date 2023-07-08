@@ -85,6 +85,11 @@ func (r runtime) execJSON(ctx context.Context, resp any, args ...string) error {
 		return fmt.Errorf("exec: %w", err)
 	}
 
+	b, _ := io.ReadAll(stdout)
+	fmt.Println(string(b))
+
+	stdout = bytes.NewReader(b)
+
 	if err := json.NewDecoder(stdout).Decode(resp); err != nil {
 		return fmt.Errorf("json decode: %w", err)
 	}
