@@ -122,12 +122,12 @@ func (r runtime) Images(ctx context.Context, ref Ref) ([]Image, error) {
 		"--format", "{{ json . }}",
 	}
 
-	var images []Image
-	if err := r.execJSON(ctx, &images, args...); err != nil {
+	var resp imageResponse
+	if err := r.execJSON(ctx, &resp, args...); err != nil {
 		return nil, fmt.Errorf("exec json: %w", err)
 	}
 
-	return images, nil
+	return resp.Images, nil
 }
 
 func (r runtime) Pull(ctx context.Context, ref Ref) error {
@@ -147,6 +147,7 @@ func (r runtime) Run(ctx context.Context, ref Ref, p Params) error {
 
 	args := []string{
 		"run",
+		"-P",
 		"--detach",
 		"--name", string(p.Name),
 	}
