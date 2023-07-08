@@ -72,6 +72,8 @@ func (r runtime) exec(ctx context.Context, args ...string) (io.Reader, error) {
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 
+	fmt.Println("exec:", cmd.String())
+
 	if err := cmd.Run(); err != nil {
 		return nil, fmt.Errorf("cmd run: %w\n%s", err, stderr.String())
 	}
