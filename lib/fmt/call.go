@@ -88,7 +88,7 @@ func (fmtr *Formatter) WaitForRunning(retry int, delay time.Duration) error {
 
 		for _, container := range containers {
 			// extract name
-			name := container.Names
+			name := container.Names[0]
 			name = strings.TrimPrefix(name, ContainerPrefix)
 			// fmt.Println("wait-running:", fmtr.Name, name, container.State)
 			if name == fmtr.Name {

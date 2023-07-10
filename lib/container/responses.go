@@ -1,75 +1,113 @@
 package container
 
 import (
+	"encoding/json"
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
 )
 
 type Image struct {
-	Labels       map[string]string
-	CreatedAt    string
-	CreatedSince string
-	Size         string
-	ParentID     string
-	Digest       string
-	ID           string
-	VirtualSize  string
-	UniqueSize   string
-	Containers   string
-	RepoDigests  []string
-	RepoTags     []string
-	Names        []string
-	History      []string
-}
-
-type Container struct {
-	Labels     string
-	CreatedAt  string
-	Namespaces string
-	Ports      string
-	ID         string
-	PodName    string
-	Command    string
-	Image      string
-	ImageID    string
-	State      string
-	Pod        string
-	Status     string
-	Size       string
-	Names      string
-	Mounts     string
-	Pid        int
-	ExitedAt   int64
-	ExitCode   int
-	Created    int
-	StartedAt  int
-	IsInfra    bool
-	Exited     bool
-	AutoRemove bool
+	ID       string
+	RepoTags []string
 }
 
 var portExp = regexp.MustCompile(`:(\d+)->`)
 
-func (c Container) PortList() []int {
-	var (
-		parts = strings.Split(c.Ports, ",")
-		ls    = make([]int, 0, len(parts))
-	)
+type Container struct {
+	Ports  PortList
+	Image  string
+	State  string
+	Status string
+	Names  NameList
+}
 
-	for _, p := range parts {
-		pp := portExp.FindStringSubmatch(p)
-		if len(pp) != 2 {
-			continue
-		}
+type PortList []int
 
-		i, err := strconv.Atoi(pp[1])
-		if err != nil {
-			continue
-		}
-
-		ls = append(ls, i)
+func (l *PortList) UnmarshalJSON(b []byte) error {
+	if len(b) == 0 {
+		return nil
 	}
 
-	return ls
+	var ll []int
+
+	switch b[0] {
+	case '[':
+		var hps []structuredPort
+		if err := json.Unmarshal(b, &hps); err != nil {
+			return fmt.Errorf("json unmarshal port list structured: %w", err)
+		}
+
+		for _, hp := range hps {
+			ll = append(ll, hp.HostPort)
+		}
+	default:
+		var s string
+		if err := json.Unmarshal(b, &s); err != nil {
+			return fmt.Errorf("json unmarshal port list string: %w", err)
+		}
+
+		parts := strings.Split(s, ",")
+		for _, p := range parts {
+			pp := portExp.FindStringSubmatch(p)
+			if len(pp) != 2 {
+				continue
+			}
+
+			i, err := strconv.Atoi(pp[1])
+			if err != nil {
+				continue
+			}
+
+			ll = append(ll, i)
+		}
+	}
+
+	*l = ll
+
+	return nil
+}
+
+type NameList []string
+
+func (l *NameList) UnmarshalJSON(b []byte) error {
+	if len(b) == 0 {
+		return nil
+	}
+
+	var ll []string
+	switch b[0] {
+	case '[':
+		if err := json.Unmarshal(b, &ll); err != nil {
+			return fmt.Errorf("json unmarshal name list array: %w", err)
+		}
+	default:
+		var s string
+		if err := json.Unmarshal(b, &s); err != nil {
+			return fmt.Errorf("unmarshal as string: %w", err)
+		}
+
+		ll = strings.Split(s, ",")
+	}
+
+	*l = ll
+
+	return nil
+}
+
+type structuredPort struct {
+	HostPort int `json:"host_port"`
+}
+
+type RuntimeVersion struct {
+	Client struct {
+		Version    string
+		APIVersion string
+	}
+	Server struct {
+		Version       string
+		APIVersion    string
+		MinAPIVersion string
+	}
 }

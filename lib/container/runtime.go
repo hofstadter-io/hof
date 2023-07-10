@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 	"os/exec"
 )
 
@@ -29,18 +30,6 @@ type Params struct {
 	Replace bool
 }
 
-type RuntimeVersion struct {
-	Client struct {
-		Version    string
-		APIVersion string
-	}
-	Server struct {
-		Version       string
-		APIVersion    string
-		MinAPIVersion string
-	}
-}
-
 type Runtime interface {
 	Version(context.Context) (RuntimeVersion, error)
 	Images(context.Context, Ref) ([]Image, error)
@@ -51,15 +40,19 @@ type Runtime interface {
 }
 
 func newRuntime(bin RuntimeBinary) runtime {
+	_, debug := os.LookupEnv("HOF_CONTAINER_DEBUG")
+
 	return runtime{
-		bin: bin,
+		bin:   bin,
+		debug: debug,
 	}
 }
 
 var _ Runtime = runtime{}
 
 type runtime struct {
-	bin RuntimeBinary
+	bin   RuntimeBinary
+	debug bool
 }
 
 func (r runtime) exec(ctx context.Context, args ...string) (io.Reader, error) {
@@ -74,6 +67,11 @@ func (r runtime) exec(ctx context.Context, args ...string) (io.Reader, error) {
 
 	if err := cmd.Run(); err != nil {
 		return nil, fmt.Errorf("cmd run: %w\n%s", err, stderr.String())
+	}
+
+	if r.debug {
+		fmt.Println(cmd.String())
+		fmt.Println(stdout.String())
 	}
 
 	return &stdout, nil

@@ -432,7 +432,7 @@ func updateFormatterStatus() error {
 
 	for _, container := range containers {
 		// extract name
-		name := container.Names
+		name := container.Names[0]
 		name = strings.TrimPrefix(name, ContainerPrefix)
 
 		// get fmtr
@@ -448,10 +448,9 @@ func updateFormatterStatus() error {
 		}
 
 		p := 100000
-		for _, port := range container.PortList() {
-			P := int(port)
-			if P < p {
-				p = P
+		for _, port := range container.Ports {
+			if port < p {
+				p = port
 			}
 		}
 
