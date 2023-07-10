@@ -1,6 +1,7 @@
 package container
 
 import (
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -23,22 +24,21 @@ type Image struct {
 }
 
 type Container struct {
-	Size       string
-	Ports      string
+	Labels     string
+	CreatedAt  string
 	Namespaces string
-	Labels     map[string]string
+	Ports      string
 	ID         string
 	PodName    string
-	CreatedAt  string
+	Command    string
 	Image      string
 	ImageID    string
 	State      string
 	Pod        string
 	Status     string
-	Names      []string
-	Mounts     []any
-	Networks   []any
-	Command    []string
+	Size       string
+	Names      string
+	Mounts     string
 	Pid        int
 	ExitedAt   int64
 	ExitCode   int
@@ -49,6 +49,8 @@ type Container struct {
 	AutoRemove bool
 }
 
+var portExp = regexp.MustCompile(`:(\d+)->`)
+
 func (c Container) PortList() []int {
 	var (
 		parts = strings.Split(c.Ports, ",")
@@ -56,12 +58,12 @@ func (c Container) PortList() []int {
 	)
 
 	for _, p := range parts {
-		pp := strings.Split(p, "/")
+		pp := portExp.FindStringSubmatch(p)
 		if len(pp) != 2 {
 			continue
 		}
 
-		i, err := strconv.Atoi(pp[0])
+		i, err := strconv.Atoi(pp[1])
 		if err != nil {
 			continue
 		}

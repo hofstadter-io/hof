@@ -108,9 +108,14 @@ func (r runtime) Containers(ctx context.Context, name Name) ([]Container, error)
 		"--format", "{{ json . }}",
 	}
 
-	var containers []Container
-	if err := r.execJSON(ctx, &containers, args...); err != nil {
-		return nil, fmt.Errorf("exec json: %w", err)
+	stdout, err := r.exec(ctx, args...)
+	if err != nil {
+		return nil, fmt.Errorf("exec: %w", err)
+	}
+
+	containers, err := ndjson[Container](stdout)
+	if err != nil {
+		return nil, fmt.Errorf("ndjson: %w", err)
 	}
 
 	return containers, nil

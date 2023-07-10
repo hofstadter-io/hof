@@ -24,7 +24,7 @@ IMAGES=$(addsuffix .image,$(TOOLS))
 .PHONY: images
 images: $(IMAGES)
 $(IMAGES):
-	${RUNTIME} build -t ghcr.io/hofstadter-io/fmt-$(@:%.image=%):$(FMTR_TAG) -f tools/$(@:%.image=%)/Dockerfile.debian tools/$(@:%.image=%)
+	${RUNTIME} build -t ghcr.io/hofstadter-io/fmt-$(@:%.image=%):$(FMTR_TAG) $(BUILD_EXTRA) -f tools/$(@:%.image=%)/Dockerfile.debian tools/$(@:%.image=%)
 
 MARCHS_DEB=$(addsuffix .march.debian,$(TOOLS))
 marchs.debian: $(MARCHS_DEB)

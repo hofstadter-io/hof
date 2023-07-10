@@ -173,7 +173,7 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.FmtFlagpole) (e
 func Start(fmtr string, replace bool) error {
 	err := updateFormatterStatus()
 	if err != nil {
-		return err
+		return fmt.Errorf("update formatter status: %w", err)
 	}
 
 	// override the default version
@@ -197,20 +197,31 @@ func Start(fmtr string, replace bool) error {
 
 	startFmtr := func(name, ver string) error {
 		fmt.Println("starting:", name, ver)
-		fmtr := formatters[name]
+
+		var (
+			fmtr = formatters[name]
+			ref  = fmt.Sprintf("%s/fmt-%s:%s", CONTAINER_REPO, name, ver)
+			n    = ContainerPrefix + name
+		)
+
 		// what other statuses do we need to check here? (maybe none)
 		if fmtr.Status == "exited" {
-			err := container.StopContainer(fmt.Sprintf("hof-fmt-%s", name))
-			if err != nil {
-				return err
+			if err = container.StopContainer(n); err != nil {
+				return fmt.Errorf("stop container %s: %w", n, err)
 			}
 		}
-		return container.StartContainer(
-			fmt.Sprintf("%s/fmt-%s:%s", CONTAINER_REPO, name, ver),
-			fmt.Sprintf("hof-fmt-%s", name),
+
+		err = container.StartContainer(
+			ref,
+			n,
 			fmtrEnvs[name],
 			replace,
 		)
+		if err != nil {
+			return fmt.Errorf("start container %s: %w", n, err)
+		}
+
+		return nil
 	}
 
 	waitFmtr := func(name string) error {
@@ -280,7 +291,7 @@ func Stop(fmtr string) error {
 	if fmtr == "all" {
 		hadErr := false
 		for _, name := range fmtrNames {
-			err := container.StopContainer(fmt.Sprintf("hof-fmt-%s", name))
+			err := container.StopContainer(ContainerPrefix + name)
 			if err != nil {
 				fmt.Println(err)
 				hadErr = true
@@ -290,7 +301,7 @@ func Stop(fmtr string) error {
 			return fmt.Errorf("error while stopping formatters")
 		}
 	} else {
-		return container.StopContainer(fmt.Sprintf("hof-fmt-%s", fmtr))
+		return container.StopContainer(ContainerPrefix + fmtr)
 	}
 	return nil
 }
@@ -311,7 +322,7 @@ func Pull(fmtr string) error {
 	}
 
 	if ver == "dirty" {
-		//		return fmt.Errorf("%s: You have local changes to hof, run 'make formatters' instead", fmtr)
+		return fmt.Errorf("%s: You have local changes to hof, run 'make formatters' instead", fmtr)
 	}
 
 	if fmtr == "" {
@@ -390,11 +401,11 @@ func Info(which string) (err error) {
 func updateFormatterStatus() error {
 	images, err := container.GetImages(fmt.Sprintf("%s/fmt-", CONTAINER_REPO))
 	if err != nil {
-		return err
+		return fmt.Errorf("get images: %w", err)
 	}
-	containers, err := container.GetContainers("hof-fmt-")
+	containers, err := container.GetContainers(ContainerPrefix)
 	if err != nil {
-		return err
+		return fmt.Errorf("get containers: %w", err)
 	}
 
 	// reset formatters
@@ -421,8 +432,8 @@ func updateFormatterStatus() error {
 
 	for _, container := range containers {
 		// extract name
-		name := container.Names[0]
-		name = strings.TrimPrefix(name, "/"+ContainerPrefix)
+		name := container.Names
+		name = strings.TrimPrefix(name, ContainerPrefix)
 
 		// get fmtr
 		fmtr := formatters[name]
