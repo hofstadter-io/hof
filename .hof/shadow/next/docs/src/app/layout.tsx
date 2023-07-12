@@ -5,11 +5,36 @@ import { Inter } from "next/font/google";
 const inter = Inter({ subsets: ["latin"] });
 
 import { Providers } from "./providers";
-import Navbar from "./navbar";
-import Footer from "./footer";
+import Navbar from "@/src/components/ui/navbars/default";
+import Footer from "@/src/components/ui/footers/default";
 
-import Tree from "@/src/components/content-tree/component";
-import SiteTree from "./site-tree.json";
+import ThemeChanger from "@/src/components/ui/themes/changer";
+
+import PrefMenu from "@/src/components/ui/navbars/pref-menu";
+
+const navbar = {
+  brand: {
+    name: "docs",
+    href: "/",
+  },
+
+  links: [
+    {
+      title: "Docs",
+      href: "/docs",
+    },
+    {
+      title: "Posts",
+      href: "/posts",
+    },
+    {
+      title: "About",
+      href: "/about",
+    },
+  ],
+
+  dropdown: <PrefMenu ThemeChanger={ThemeChanger} />,
+};
 
 export const metadata = {
   title: "myapp",
@@ -18,21 +43,19 @@ export const metadata = {
 
 export default function RootLayout({
   children,
-  authModal,
 }: {
   children: React.ReactNode;
-  authModal: React.ReactNode;
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={classnames(inter.className, "min-h-screen antialiased")}>
         <Providers>
           <div className="flex flex-col min-h-screen">
-            <Navbar />
+            <Navbar {...navbar} />
 
             <div className="flex flex-row grow w-screen">{children}</div>
 
-            <Footer />
+            <Footer copyright="docs" />
           </div>
         </Providers>
       </body>
