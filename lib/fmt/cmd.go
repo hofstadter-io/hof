@@ -10,18 +10,18 @@ import (
 	"github.com/olekukonko/tablewriter"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
-	"github.com/hofstadter-io/hof/lib/docker"
+	"github.com/hofstadter-io/hof/lib/container"
 	"github.com/hofstadter-io/hof/lib/repos/cache"
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 var dataFileExtns = map[string]struct{}{
-	".cue": struct{}{},
-	".yml": struct{}{},
-	".yaml": struct{}{},
-	".json": struct{}{},
-	".toml": struct{}{},
-	".xml": struct{}{},
+	".cue":  {},
+	".yml":  {},
+	".yaml": {},
+	".json": {},
+	".toml": {},
+	".xml":  {},
 }
 
 type formatGroup struct {
@@ -51,7 +51,7 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.FmtFlagpole) (e
 			fmt.Println(args)
 		}
 
-		g := formatGroup {
+		g := formatGroup{
 			orig: arg,
 		}
 
@@ -119,14 +119,14 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.FmtFlagpole) (e
 			}
 			if info.IsDir() {
 				continue
-			}	
+			}
 			if !cflags.Data {
 				ext := filepath.Ext(file)
 				if _, ok := dataFileExtns[ext]; ok {
 					continue
 				}
 			}
-			files = append(files,file)
+			files = append(files, file)
 		}
 
 		// if verbosity great enough?
@@ -147,7 +147,7 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.FmtFlagpole) (e
 			if err != nil {
 				return err
 			}
-			
+
 			// todo, add flags for fmtr & config
 			fmtd, err := FormatSource(file, content, g.formatter, nil, cflags.Data)
 			if err != nil {
@@ -173,7 +173,7 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.FmtFlagpole) (e
 func Start(fmtr string, replace bool) error {
 	err := updateFormatterStatus()
 	if err != nil {
-		return err
+		return fmt.Errorf("update formatter status: %w", err)
 	}
 
 	// override the default version
@@ -197,20 +197,31 @@ func Start(fmtr string, replace bool) error {
 
 	startFmtr := func(name, ver string) error {
 		fmt.Println("starting:", name, ver)
-		fmtr := formatters[name]
+
+		var (
+			fmtr = formatters[name]
+			ref  = fmt.Sprintf("%s/fmt-%s:%s", CONTAINER_REPO, name, ver)
+			n    = ContainerPrefix + name
+		)
+
 		// what other statuses do we need to check here? (maybe none)
 		if fmtr.Status == "exited" {
-			err := docker.StopContainer(fmt.Sprintf("hof-fmt-%s", name))
-			if err != nil {
-				return err
+			if err = container.StopContainer(n); err != nil {
+				return fmt.Errorf("stop container %s: %w", n, err)
 			}
 		}
-		return docker.StartContainer(
-			fmt.Sprintf("%s/fmt-%s:%s", CONTAINER_REPO, name, ver),
-			fmt.Sprintf("hof-fmt-%s", name),
+
+		err = container.StartContainer(
+			ref,
+			n,
 			fmtrEnvs[name],
 			replace,
 		)
+		if err != nil {
+			return fmt.Errorf("start container %s: %w", n, err)
+		}
+
+		return nil
 	}
 
 	waitFmtr := func(name string) error {
@@ -280,7 +291,7 @@ func Stop(fmtr string) error {
 	if fmtr == "all" {
 		hadErr := false
 		for _, name := range fmtrNames {
-			err := docker.StopContainer(fmt.Sprintf("hof-fmt-%s", name))
+			err := container.StopContainer(ContainerPrefix + name)
 			if err != nil {
 				fmt.Println(err)
 				hadErr = true
@@ -290,7 +301,7 @@ func Stop(fmtr string) error {
 			return fmt.Errorf("error while stopping formatters")
 		}
 	} else {
-		return docker.StopContainer(fmt.Sprintf("hof-fmt-%s", fmtr))
+		return container.StopContainer(ContainerPrefix + fmtr)
 	}
 	return nil
 }
@@ -322,7 +333,7 @@ func Pull(fmtr string) error {
 		hadErr := false
 		for _, name := range fmtrNames {
 			ref := fmt.Sprintf("%s/fmt-%s:%s", CONTAINER_REPO, name, ver)
-			err := docker.PullImage(ref)
+			err := container.PullImage(ref)
 			if err != nil {
 				fmt.Println(err)
 				hadErr = true
@@ -333,7 +344,7 @@ func Pull(fmtr string) error {
 		}
 	} else {
 		ref := fmt.Sprintf("%s/fmt-%s:%s", CONTAINER_REPO, fmtr, ver)
-		return docker.PullImage(ref)
+		return container.PullImage(ref)
 	}
 	return nil
 }
@@ -343,14 +354,17 @@ func Info(which string) (err error) {
 	if err != nil {
 		return err
 	}
+	/*
+	*/
 
 	return printAsTable(
 		[]string{"Name", "Status", "Port", "Image", "Available"},
 		func(table *tablewriter.Table) ([][]string, error) {
-			var rows = make([][]string, 0, len(fmtrNames))
+			rows := make([][]string, 0, len(fmtrNames))
 			// fill with data
-			for _,f := range fmtrNames {
+			for _, f := range fmtrNames {
 				fmtr := formatters[f]
+				// fmt.Printf("%s: %# +v\n", f, fmtr.Images[0])
 
 				if which != "" {
 					if !strings.HasPrefix(fmtr.Name, which) {
@@ -358,7 +372,6 @@ func Info(which string) (err error) {
 					}
 				}
 
-				
 				if fmtr.Container != nil {
 					rows = append(rows, []string{
 						fmtr.Name,
@@ -370,8 +383,9 @@ func Info(which string) (err error) {
 				} else {
 					img := ""
 					if len(fmtr.Images) > 0 {
+						// fmt.Println(fmtr.Images[0])
 						if len(fmtr.Images[0].RepoTags) > 0 {
-							img = fmtr.Images[0].RepoTags[0]
+							img = fmtr.Images[0].Repository
 						}
 					}
 					rows = append(rows, []string{
@@ -389,14 +403,13 @@ func Info(which string) (err error) {
 }
 
 func updateFormatterStatus() error {
-
-	images, err := docker.GetImages(fmt.Sprintf("%s/fmt-", CONTAINER_REPO))
+	images, err := container.GetImages(fmt.Sprintf("%s/fmt-", CONTAINER_REPO))
 	if err != nil {
-		return err
+		return fmt.Errorf("get images: %w", err)
 	}
-	containers, err := docker.GetContainers("hof-fmt-")
+	containers, err := container.GetContainers(ContainerPrefix)
 	if err != nil {
-		return err
+		return fmt.Errorf("get containers: %w", err)
 	}
 
 	// reset formatters
@@ -404,28 +417,23 @@ func updateFormatterStatus() error {
 		fmtr.Running = false
 		fmtr.Container = nil
 		fmtr.Available = make([]string, 0)
+		fmtr.Images = []*container.Image{}
 	}
 
 	for _, image := range images {
-		added := false
-		for _, tag := range image.RepoTags {
-			parts := strings.Split(tag, ":")
-			repo, ver := parts[0], parts[1]
-			name := strings.TrimPrefix(repo, fmt.Sprintf("%s/fmt-", CONTAINER_REPO))
-			fmtr := formatters[name]
-			fmtr.Available = append(fmtr.Available, ver)
-			if !added {
-				fmtr.Images = append(fmtr.Images, &image)
-				added = true
-			}
-		}
-	}
+		img := image
+		name := strings.TrimPrefix(image.Repository, fmt.Sprintf("%s/fmt-", CONTAINER_REPO))
+		fmtr := formatters[name]
+		fmtr.Available = append(fmtr.Available, image.RepoTags...)
+		fmtr.Images = append(fmtr.Images, &img)
 
+		// fmt.Println(name, fmtr, image)
+	}
 
 	for _, container := range containers {
 		// extract name
 		name := container.Names[0]
-		name = strings.TrimPrefix(name, "/" + ContainerPrefix)
+		name = strings.TrimPrefix(name, ContainerPrefix)
 
 		// get fmtr
 		fmtr := formatters[name]
@@ -441,9 +449,8 @@ func updateFormatterStatus() error {
 
 		p := 100000
 		for _, port := range container.Ports {
-			P := int(port.PublicPort)
-			if P < p {
-				p = P
+			if port < p {
+				p = port
 			}
 		}
 
@@ -495,4 +502,3 @@ func printAsTable(headers []string, printer dataPrinter) error {
 
 	return nil
 }
-

@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hofstadter-io/hof/lib/docker"
+	"github.com/hofstadter-io/hof/lib/container"
 )
 
 // this file has functions for
@@ -36,7 +36,7 @@ func (fmtr *Formatter) Call(filename string, content []byte, config any) ([]byte
 	if val := os.Getenv("HOF_FMT_HOST"); val != "" {
 		host = val
 	} else if fmtr.Host != "" {
-		host = fmtr.Host	
+		host = fmtr.Host
 	}
 
 	url := host + ":" + fmtr.Port
@@ -46,6 +46,10 @@ func (fmtr *Formatter) Call(filename string, content []byte, config any) ([]byte
 	}
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(bs))
+	if err != nil {
+		return nil, fmt.Errorf("http new request: %w", err)
+	}
+
 	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
 
 	client := &http.Client{}
@@ -73,11 +77,11 @@ func (fmtr *Formatter) WaitForRunning(retry int, delay time.Duration) error {
 	// fmt.Println("wait-running.0:", fmtr.Name, fmtr.Status, fmtr.Running, fmtr.Ready)
 	// return if already running
 	if fmtr.Running {
-		return  nil
+		return nil
 	}
 
 	for i := 0; i < retry; i++ {
-		containers, err := docker.GetContainers("hof-fmt-" + fmtr.Name)
+		containers, err := container.GetContainers(ContainerPrefix + fmtr.Name)
 		if err != nil {
 			return err
 		}
@@ -85,7 +89,7 @@ func (fmtr *Formatter) WaitForRunning(retry int, delay time.Duration) error {
 		for _, container := range containers {
 			// extract name
 			name := container.Names[0]
-			name = strings.TrimPrefix(name, "/" + ContainerPrefix)
+			name = strings.TrimPrefix(name, ContainerPrefix)
 			// fmt.Println("wait-running:", fmtr.Name, name, container.State)
 			if name == fmtr.Name {
 				fmtr.Status = container.State
@@ -105,8 +109,9 @@ func (fmtr *Formatter) WaitForRunning(retry int, delay time.Duration) error {
 		time.Sleep(delay)
 	}
 
-	return nil
+	return fmt.Errorf("formatter %s never started", fmtr.Name)
 }
+
 func (fmtr *Formatter) WaitForReady(retry int, delay time.Duration) error {
 	// fmt.Println("wait-ready.0:", fmtr.Name, fmtr.Status, fmtr.Running, fmtr.Ready)
 
