@@ -22,50 +22,51 @@ import (
 	]
 
 	Args: [{
-		Name: "files"
-		Type: "[]string"
+		Name:     "files"
+		Type:     "[]string"
 		Required: true
-		Rest: true
-		Help: "filepath or glob"
+		Rest:     true
+		Help:     "filepath or glob"
 	}]
 
 	_carg: [{
-		Name:     "formatter"
-		Type:     "string"
-		Help:     "formatter name"
+		Name: "formatter"
+		Type: "string"
+		Help: "formatter name"
 	}]
 
 	Commands: [{
 		Name:  "info"
 		Usage: "info"
+		Aliases: ["status"]
 		Short: "get formatter info"
 		Long:  Short
-		Args: _carg
+		Args:  _carg
 	}, {
 		Name:  "pull"
 		Usage: "pull"
 		Short: "docker pull a formatter"
 		Long:  Short
-		Args: _carg
+		Args:  _carg
 	}, {
 		Name:  "start"
 		Usage: "start"
 		Short: "start a formatter"
 		Long:  Short
-		Args: _carg
+		Args:  _carg
 	}, {
 		Name:  "stop"
 		Usage: "stop"
 		Short: "stop a formatter"
 		Long:  Short
-		Args: _carg
+		Args:  _carg
 	}]
 
 }
 
 #FmtRootHelp: """
-With hof fmt, you can
-  1. format any language from a single tool
-  2. run formatters as api servers for IDEs and hof
-  3. manage the underlying formatter containers
-"""
+	With hof fmt, you can
+	  1. format any language from a single tool
+	  2. run formatters as api servers for IDEs and hof
+	  3. manage the underlying formatter containers
+	"""
