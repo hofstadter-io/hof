@@ -9,6 +9,8 @@ import (
 	"io"
 	"os"
 	"os/exec"
+
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 type RuntimeBinary string
@@ -136,7 +138,24 @@ func (r runtime) Images(ctx context.Context, ref Ref) ([]Image, error) {
 		return nil, fmt.Errorf("ndjson: %w", err)
 	}
 
-	return imgs, nil
+	// need to process images here, merge Tag into RepoTags by Repository
+	m := map[string]Image{}
+	for _, img := range imgs {
+		i, ok := m[img.Repository]
+		if !ok { 
+			i = img
+		}
+		i.RepoTags = append(i.RepoTags, img.Tag)
+		m[img.Repository] = i
+	}
+
+	// build up return list
+	ret := []Image{}
+	for _, i := range m {
+		ret = append(ret, i)
+	}
+
+	return ret, nil
 }
 
 func (r runtime) Pull(ctx context.Context, ref Ref) error {
@@ -154,9 +173,15 @@ func (r runtime) Run(ctx context.Context, ref Ref, p Params) error {
 		}
 	}
 
+	port, err := yagu.GetFreePort()
+	if err != nil {
+		return fmt.Errorf("while getting a free port: %w", err)
+	}
+
 	args := []string{
 		"run",
-		"-P",
+		"-p",
+		fmt.Sprintf("%d:3000", port),
 		"--detach",
 		"--name", string(p.Name),
 	}

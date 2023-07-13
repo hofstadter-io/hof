@@ -354,6 +354,8 @@ func Info(which string) (err error) {
 	if err != nil {
 		return err
 	}
+	/*
+	*/
 
 	return printAsTable(
 		[]string{"Name", "Status", "Port", "Image", "Available"},
@@ -362,6 +364,7 @@ func Info(which string) (err error) {
 			// fill with data
 			for _, f := range fmtrNames {
 				fmtr := formatters[f]
+				// fmt.Printf("%s: %# +v\n", f, fmtr.Images[0])
 
 				if which != "" {
 					if !strings.HasPrefix(fmtr.Name, which) {
@@ -380,8 +383,9 @@ func Info(which string) (err error) {
 				} else {
 					img := ""
 					if len(fmtr.Images) > 0 {
+						// fmt.Println(fmtr.Images[0])
 						if len(fmtr.Images[0].RepoTags) > 0 {
-							img = fmtr.Images[0].RepoTags[0]
+							img = fmtr.Images[0].Repository
 						}
 					}
 					rows = append(rows, []string{
@@ -413,21 +417,17 @@ func updateFormatterStatus() error {
 		fmtr.Running = false
 		fmtr.Container = nil
 		fmtr.Available = make([]string, 0)
+		fmtr.Images = []*container.Image{}
 	}
 
 	for _, image := range images {
-		added := false
-		for _, tag := range image.RepoTags {
-			parts := strings.Split(tag, ":")
-			repo, ver := parts[0], parts[1]
-			name := strings.TrimPrefix(repo, fmt.Sprintf("%s/fmt-", CONTAINER_REPO))
-			fmtr := formatters[name]
-			fmtr.Available = append(fmtr.Available, ver)
-			if !added {
-				fmtr.Images = append(fmtr.Images, &image)
-				added = true
-			}
-		}
+		img := image
+		name := strings.TrimPrefix(image.Repository, fmt.Sprintf("%s/fmt-", CONTAINER_REPO))
+		fmtr := formatters[name]
+		fmtr.Available = append(fmtr.Available, image.RepoTags...)
+		fmtr.Images = append(fmtr.Images, &img)
+
+		// fmt.Println(name, fmtr, image)
 	}
 
 	for _, container := range containers {

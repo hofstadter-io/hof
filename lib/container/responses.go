@@ -10,6 +10,8 @@ import (
 
 type Image struct {
 	ID       string
+	Repository string
+	Tag string
 	RepoTags []string
 }
 

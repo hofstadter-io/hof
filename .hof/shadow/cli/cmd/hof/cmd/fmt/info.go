@@ -23,6 +23,10 @@ var InfoCmd = &cobra.Command{
 
 	Use: "info",
 
+	Aliases: []string{
+		"status",
+	},
+
 	Short: "get formatter info",
 
 	Long: infoLong,
