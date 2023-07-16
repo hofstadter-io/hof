@@ -13,6 +13,7 @@ type Image struct {
 	Repository string
 	Tag string
 	RepoTags []string
+	Names []string
 }
 
 var portExp = regexp.MustCompile(`:(\d+)->`)

@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
@@ -103,7 +104,7 @@ func (r runtime) Version(ctx context.Context) (RuntimeVersion, error) {
 
 func (r runtime) Containers(ctx context.Context, name Name) ([]Container, error) {
 	args := []string{
-		"container", "ls",
+		"container", "ls", "-a",
 		"--filter", fmt.Sprintf("name=%s", name),
 		"--format", "{{ json . }}",
 	}
@@ -116,6 +117,22 @@ func (r runtime) Containers(ctx context.Context, name Name) ([]Container, error)
 	containers, err := ndjson[Container](stdout)
 	if err != nil {
 		return nil, fmt.Errorf("ndjson: %w", err)
+	}
+
+	// fmt.Println("CONTAINERS:", containers)
+
+	// HACK: various fixes...
+	for i, _ := range containers {
+		c := containers[i]
+		if c.State == "" && c.Status != "" {
+			c.State = c.Status
+		}
+		// fix status string
+		if strings.HasPrefix(c.State, "Up") {
+			c.State = "running"
+		}
+		
+		containers[i] = c
 	}
 
 	return containers, nil
@@ -138,14 +155,27 @@ func (r runtime) Images(ctx context.Context, ref Ref) ([]Image, error) {
 		return nil, fmt.Errorf("ndjson: %w", err)
 	}
 
+	// fmt.Println("IMAGES:", imgs)
+
 	// need to process images here, merge Tag into RepoTags by Repository
 	m := map[string]Image{}
 	for _, img := range imgs {
+		// HACK podman fix for different output
+		if img.Repository == "" {
+			if len(img.Names) > 0 {
+				n := img.Names[0]
+				p := strings.Index(n, ":")
+				img.Repository = n[:p]
+				img.Tag = n[p+1:]
+			}
+		}
 		i, ok := m[img.Repository]
 		if !ok { 
 			i = img
 		}
-		i.RepoTags = append(i.RepoTags, img.Tag)
+		if img.Tag != "" {
+			i.RepoTags = append(i.RepoTags, img.Tag)
+		}
 		m[img.Repository] = i
 	}
 
@@ -210,20 +240,38 @@ func (r runtime) Remove(ctx context.Context, name Name) error {
 func ndjson[T any](r io.Reader) ([]T, error) {
 	var (
 		ts []T
-		s  = bufio.NewScanner(r)
+		R  = bufio.NewReader(r)
 	)
 
-	for s.Scan() {
-		var t T
-		if err := json.Unmarshal(s.Bytes(), &t); err != nil {
-			return nil, fmt.Errorf("json unmarshal: %w", err)
+	bs, err := io.ReadAll(R)
+	if err != nil {
+		return nil, fmt.Errorf("readall []: %w", err)
+	}
+	// fmt.Println("bs:", len(bs), string(bs))
+
+	//// some runtimes return an array
+	if bytes.HasPrefix(bs, []byte{'['}) {
+		if err := json.Unmarshal(bs, &ts); err != nil {
+			return nil, fmt.Errorf("json unmarshal []: %w", err)
 		}
-		ts = append(ts, t)
+	} else if len(bs) > 0 {
+		// fmt.Println("GOT HERE")
+		// other runtimes return an ndjson
+		S  := bufio.NewScanner(bytes.NewReader(bs))
+		for S.Scan() {
+			var t T
+			if err := json.Unmarshal(S.Bytes(), &t); err != nil {
+				return nil, fmt.Errorf("json unmarshal: %w", err)
+			}
+			// fmt.Println("t:", t)
+			ts = append(ts, t)
+		}
+
+		if err := S.Err(); err != nil {
+			return nil, fmt.Errorf("scanner: %w", err)
+		}
 	}
 
-	if err := s.Err(); err != nil {
-		return nil, fmt.Errorf("scanner: %w", err)
-	}
-
+	// fmt.Println("ts:", ts)
 	return ts, nil
 }

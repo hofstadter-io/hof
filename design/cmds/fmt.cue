@@ -55,6 +55,12 @@ import (
 		Long:  Short
 		Args:  _carg
 	}, {
+		Name:  "test"
+		Usage: "test"
+		Short: "test that formatter(s) are working"
+		Long:  Short
+		Args:  _carg
+	}, {
 		Name:  "stop"
 		Usage: "stop"
 		Short: "stop a formatter"
