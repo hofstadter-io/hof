@@ -283,6 +283,73 @@ func Start(fmtr string, replace bool) error {
 	return nil
 }
 
+func Test(fmtr string) error {
+	err := updateFormatterStatus()
+	if err != nil {
+		return fmt.Errorf("update formatter status: %w", err)
+	}
+
+	// override the default version
+	ver := defaultVersion
+	parts := strings.Split(fmtr, "@")
+	if len(parts) == 2 {
+		fmtr, ver = parts[0], parts[1]
+	}
+
+	if fmtr == "" {
+		fmtr = "all"
+	}
+
+	if ver == "latest" || ver == "next" {
+		v, err := cache.GetLatestTag("github.com/hofstadter-io/hof", ver == "next")
+		if err != nil {
+			return err
+		}
+		ver = v
+	}
+
+	waitFmtr := func(name string) error {
+		fmtr := formatters[name]
+
+		// wait for running & ready
+		err = fmtr.WaitForRunning(10, time.Second)
+		if err != nil {
+			return err
+		}
+		err = fmtr.WaitForReady(30, time.Second)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	if fmtr == "all" {
+		hadErr := false
+
+		// wait for all to be ready
+		for _, name := range fmtrNames {
+			err = waitFmtr(name)
+			if err != nil {
+				fmt.Println(err)
+				hadErr = true
+			}
+			fmt.Println(name, "ok")
+		}
+		if hadErr {
+			return fmt.Errorf("error while waiting on formatters")
+		}
+	} else {
+		err = waitFmtr(fmtr)
+		if err != nil {
+			return err
+		}
+		fmt.Println("ok")
+	}
+
+	return nil
+}
+
 func Stop(fmtr string) error {
 	if fmtr == "" {
 		fmtr = "all"
@@ -333,6 +400,7 @@ func Pull(fmtr string) error {
 		hadErr := false
 		for _, name := range fmtrNames {
 			ref := fmt.Sprintf("%s/fmt-%s:%s", CONTAINER_REPO, name, ver)
+			fmt.Println("pulling:", ref)
 			err := container.PullImage(ref)
 			if err != nil {
 				fmt.Println(err)
@@ -364,7 +432,7 @@ func Info(which string) (err error) {
 			// fill with data
 			for _, f := range fmtrNames {
 				fmtr := formatters[f]
-				// fmt.Printf("%s: %# +v\n", f, fmtr.Images[0])
+				// fmt.Printf("%s: %# +v\n", f, fmtr)
 
 				if which != "" {
 					if !strings.HasPrefix(fmtr.Name, which) {
@@ -424,7 +492,16 @@ func updateFormatterStatus() error {
 		img := image
 		name := strings.TrimPrefix(image.Repository, fmt.Sprintf("%s/fmt-", CONTAINER_REPO))
 		fmtr := formatters[name]
-		fmtr.Available = append(fmtr.Available, image.RepoTags...)
+		if fmtr == nil {
+			fmt.Printf("%q %# +v\n", name, image)
+			continue
+		}
+		if len(image.RepoTags) > 0 {
+			fmtr.Available = append(fmtr.Available, image.RepoTags...)
+		} else {
+			// podman...?
+			fmtr.Available = append(fmtr.Available, image.RepoTags...)
+		}
 		fmtr.Images = append(fmtr.Images, &img)
 
 		// fmt.Println(name, fmtr, image)

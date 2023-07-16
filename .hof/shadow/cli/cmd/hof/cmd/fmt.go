@@ -114,6 +114,7 @@ func init() {
 	FmtCmd.AddCommand(cmdfmt.InfoCmd)
 	FmtCmd.AddCommand(cmdfmt.PullCmd)
 	FmtCmd.AddCommand(cmdfmt.StartCmd)
+	FmtCmd.AddCommand(cmdfmt.TestCmd)
 	FmtCmd.AddCommand(cmdfmt.StopCmd)
 
 }

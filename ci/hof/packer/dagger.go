@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	gouser "os/user"
+	"strings"
 	"time"
 
 	"dagger.io/dagger"
@@ -17,9 +18,9 @@ var (
 	user string
 
 	runtimes = []string{
-		"docker",
-		"nerdctl",
-		"nerdctl-rootless",
+		//"docker",
+		//"nerdctl",
+		//"nerdctl-rootless",
 		"podman",
 	}
 )
@@ -69,10 +70,12 @@ func main() {
 
 	for _, runtime := range runtimes {
 		vmName := fmt.Sprintf("%s-fmt-test-%s", user, runtime)
-		vmFamily := fmt.Sprintf("hof-debian-%s", runtime)
 		t := gcloud.Pipeline(vmName)
 		t = t.WithEnvVariable("CACHEBUST", time.Now().String())
-		t = WithBootVM(t, vmName, vmFamily)
+		
+		// start VM
+		//vmFamily := fmt.Sprintf("hof-debian-%s", runtime)
+		//t = WithBootVM(t, vmName, vmFamily)
 
 		// any runtime extra pre-steps before testing
 		// we really want to test that it is permission issue and advise the user
@@ -80,20 +83,30 @@ func main() {
 		switch runtime {
 		case "docker":	
 			// will probably need something like this for nerdctl too
-			t = WithGcloudRemoteCommand(t, vmName, "sudo usermod -aG docker $USER")	
+			t = WithGcloudRemoteBash(t, vmName, "sudo usermod -aG docker $USER")	
 
 		case "nerdctl":
 			// https://github.com/containerd/nerdctl/blob/main/docs/faq.md#does-nerdctl-have-an-equivalent-of-sudo-usermod--ag-docker-user-
 			// make a user home bin and add to path
-			t = WithGcloudRemoteCommand(t, vmName, "mkdir -p $HOME/bin && chmod 700 $HOME/bin && echo 'PATH=$HOME/bin:$PATH' >> .profile")	
+			// t = WithGcloudRemoteBash(t, vmName, "mkdir -p $HOME/bin && chmod 700 $HOME/bin && echo 'PATH=$HOME/bin:$PATH' >> .profile")	
 			// copy nerdctl and set bits appropriatedly
-			t = WithGcloudRemoteCommand(t, vmName, "cp /usr/local/bin/nerdctl $HOME/bin && sudo chown root $HOME/bin/nerdctl && sudo chmod +s $HOME/bin/nerdctl")	
+			// t = WithGcloudRemoteBash(t, vmName, "cp /usr/local/bin/nerdctl $HOME/bin && sudo chown $(id -u):$(id -g) $HOME/bin/nerdctl && sudo chmod 0755 $HOME/bin/nerdctl && sudo chown root $HOME/bin/nerdctl && sudo chmod +s $HOME/bin/nerdctl")	
+			// t = WithGcloudRemoteCommand(t, vmName, "nerdctl version")	
+
+		case "nerdctl-rootless":
+			// ensure the current user can run nerdctl
+			t = WithGcloudRemoteBash(t, vmName, "containerd-rootless-setuptool.sh install")	
+			t = WithGcloudRemoteCommand(t, vmName, "nerdctl version")	
 		}
 
 		// remote commands to run
 		t = WithGcloudSendFile(t, vmName, "/usr/local/bin/hof", hof, true)
-		t = WithGcloudRemoteCommand(t, vmName, "hof version")
-		t = WithGcloudRemoteCommand(t, vmName, "hof fmt pull all@v0.6.8-rc.5")
+		t = WithGcloudRemoteBash(t, vmName, "hof version")
+		t = WithGcloudRemoteBash(t, vmName, "hof fmt pull all@v0.6.8-rc.5")
+		t = WithGcloudRemoteBash(t, vmName, "hof fmt start all@v0.6.8-rc.5")
+		t = WithGcloudRemoteBash(t, vmName, "hof fmt status")
+		t = WithGcloudRemoteBash(t, vmName, "hof fmt test")
+		t = WithGcloudRemoteBash(t, vmName, "hof fmt stop")
 
 		// sync to run them for real
 		_, err = t.Sync(R.Ctx)
@@ -106,7 +119,7 @@ func main() {
 		// always try deleting, we mostly ignore the error here (less likely, will also error if not exists)
 		d := gcloud.Pipeline("DELETE " + vmName)
 		d = d.WithEnvVariable("CACHEBUST", time.Now().String())
-		d = WithDeleteVM(d, vmName)
+		// d = WithDeleteVM(d, vmName)
 		_, err := d.Sync(R.Ctx)
 		if err != nil {
 			fmt.Println("deleting error!:", err)
@@ -130,6 +143,7 @@ func WithBootVM(gcloud *dagger.Container, name, imageFamily string) (*dagger.Con
 		name,
 		"--zone=us-central1-a",
 		"--machine-type=n2-standard-2",
+		"--boot-disk-size=100GB",
 		"--image-family=" + imageFamily,
 	}
 
@@ -208,7 +222,7 @@ func WithGcloudScp(gcloud *dagger.Container, name string, dir *dagger.Directory)
 	return c
 }
 
-func WithGcloudRemoteCommand(gcloud *dagger.Container, name string, cmd string) (*dagger.Container) {
+func WithGcloudRemoteBash(gcloud *dagger.Container, name string, cmd string) (*dagger.Container) {
 	return gcloud.WithExec([]string{
 		"gcloud",
 		"compute",
@@ -220,4 +234,17 @@ func WithGcloudRemoteCommand(gcloud *dagger.Container, name string, cmd string) 
 		"-c",
 		fmt.Sprintf("'set -euo pipefail; %s'", cmd),
 	})
+}
+
+func WithGcloudRemoteCommand(gcloud *dagger.Container, name string, cmd string) (*dagger.Container) {
+	run := []string{
+		"gcloud",
+		"compute",
+		"ssh",
+		user + "@" + name,
+		"--zone=us-central1-a",
+		"--",
+	}
+	run = append(run, strings.Fields(cmd)...)
+	return gcloud.WithExec(run)
 }
