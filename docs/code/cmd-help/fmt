@@ -12,6 +12,7 @@ Available Commands:
   pull        docker pull a formatter
   start       start a formatter
   stop        stop a formatter
+  test        test that formatter(s) are working
 
 Flags:
   -d, --data   include cue,yaml,json,toml,xml files, set to false to disable (default true)
