@@ -68,7 +68,7 @@ func main() {
 
 	// mount local config & secrets
 	gcloud = R.WithLocalGcloudConfig(gcloud)
-	gcloud = R.WithLocalSSHDir(gcloud)
+	// gcloud = R.WithLocalSSHDir(gcloud)
 
 	//
 	// Testing on matrix of {arch}x{runtime}
@@ -116,10 +116,10 @@ func main() {
 			// remote commands to run
 			t = WithGcloudSendFile(t, vmName, "/usr/local/bin/hof", hof, true)
 			t = WithGcloudRemoteBash(t, vmName, "hof version")
-			t = WithGcloudRemoteBash(t, vmName, "hof fmt pull all@v0.6.8-rc.5")
-			t = WithGcloudRemoteBash(t, vmName, "hof fmt start all@v0.6.8-rc.5")
+			t = WithGcloudRemoteBash(t, vmName, "hof fmt pull prettier@v0.6.8-rc.5")
+			t = WithGcloudRemoteBash(t, vmName, "hof fmt start prettier@v0.6.8-rc.5")
 			t = WithGcloudRemoteBash(t, vmName, "hof fmt status")
-			t = WithGcloudRemoteBash(t, vmName, "hof fmt test")
+			t = WithGcloudRemoteBash(t, vmName, "hof fmt test prettier")
 			t = WithGcloudRemoteBash(t, vmName, "hof fmt stop")
 
 			// sync to run them for real
@@ -132,7 +132,7 @@ func main() {
 			// always try deleting, we mostly ignore the error here (less likely, will also error if not exists)
 			d := gcloud.Pipeline("DELETE " + vmName)
 			d = d.WithEnvVariable("CACHEBUST", time.Now().String())
-			// d = WithDeleteVM(d, vmName)
+			d = WithDeleteVM(d, vmName)
 			_, err := d.Sync(R.Ctx)
 			if err != nil {
 				fmt.Println("deleting error!:", err)
