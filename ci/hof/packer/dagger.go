@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	gouser "os/user"
-	"strings"
 	"time"
 
 	"dagger.io/dagger"
@@ -18,11 +17,18 @@ var (
 	user string
 
 	runtimes = []string{
-		//"docker",
-		//"nerdctl",
-		//"nerdctl-rootless",
+		"docker",
+		"nerdctl",
+		"nerdctl-rootless",
 		"podman",
 	}
+	arches = []string{
+		// "amd",
+		"arm",
+	}
+
+	machSize = "standard-2"
+	diskSize = "200GB"
 )
 
 func checkErr(err error) {
@@ -57,88 +63,99 @@ func main() {
 		Exclude: []string{"cue.mod/pkg", "docs", "next", ".git"},
 	})
 
-	//
-	// Containers we will need
-	//
-	base := R.GolangImage()
-	deps := R.FetchDeps(base, source)
-	builder := R.BuildHof(deps, source)
-	hof := builder.File("hof")
-
+	// gcloud image to run commands in
 	gcloud := R.GcloudImage()
+
+	// mount local config & secrets
 	gcloud = R.WithLocalGcloudConfig(gcloud)
+	gcloud = R.WithLocalSSHDir(gcloud)
 
-	// run steps for each runtime & arch
-	for _, runtime := range runtimes {
-		vmName := fmt.Sprintf("%s-fmt-test-%s", user, runtime)
-		t := gcloud.Pipeline(vmName)
-		t = t.WithEnvVariable("CACHEBUST", time.Now().String())
-		
-		// start VM
-		vmFamily := fmt.Sprintf("hof-debian-%s", runtime)
-		t = WithBootVM(t, vmName, vmFamily)
+	//
+	// Testing on matrix of {arch}x{runtime}
+	//
+	hadErr := false
+	for _, arch := range arches {
+		// build hof the normal way
+		base := R.GolangImage(fmt.Sprintf("linux/%s64", arch))
+		deps := R.FetchDeps(base, source)
+		builder := R.BuildHof(deps, source)
+		hof := builder.File("hof")
 
-		// any runtime extra pre-steps before testing
-		// we really want to test that it is permission issue and advise the user
-		// we should also capture this as a test, so we need a setup where this fails intentionally
-		switch runtime {
-		case "docker":	
-			// will probably need something like this for nerdctl too
-			t = WithGcloudRemoteBash(t, vmName, "sudo usermod -aG docker $USER")	
+		for _, runtime := range runtimes {
+			vmName := fmt.Sprintf("%s-fmt-test-%s-%s", user, runtime, arch)
+			t := gcloud.Pipeline(vmName)
+			t = t.WithEnvVariable("CACHEBUST", time.Now().String())
+			
+			// start VM
+			vmFamily := fmt.Sprintf("debian-%s-%s", runtime, arch)
+			t = WithBootVM(t, vmName, vmFamily, arch)
 
-		case "nerdctl":
-			// https://github.com/containerd/nerdctl/blob/main/docs/faq.md#does-nerdctl-have-an-equivalent-of-sudo-usermod--ag-docker-user-
-			// make a user home bin and add to path
-			t = WithGcloudRemoteBash(t, vmName, "mkdir -p $HOME/bin && chmod 700 $HOME/bin && echo 'PATH=$HOME/bin:$PATH' >> .profile")	
-			// copy nerdctl and set bits appropriatedly
-			t = WithGcloudRemoteBash(t, vmName, "cp /usr/local/bin/nerdctl $HOME/bin && sudo chown $(id -u):$(id -g) $HOME/bin/nerdctl && sudo chmod 0755 $HOME/bin/nerdctl && sudo chown root $HOME/bin/nerdctl && sudo chmod +s $HOME/bin/nerdctl")	
-			t = WithGcloudRemoteCommand(t, vmName, "nerdctl version")	
+			// any runtime extra pre-steps before testing
+			// we really want to test that it is permission issue and advise the user
+			// we should also capture this as a test, so we need a setup where this fails intentionally
+			switch runtime {
+			case "docker":	
+				// will probably need something like this for nerdctl too
+				t = WithGcloudRemoteBash(t, vmName, "sudo usermod -aG docker $USER")	
 
-		case "nerdctl-rootless":
-			// ensure the current user can run nerdctl
-			t = WithGcloudRemoteBash(t, vmName, "containerd-rootless-setuptool.sh install")	
-			t = WithGcloudRemoteCommand(t, vmName, "nerdctl version")	
-		}
+			case "nerdctl":
+				t = WithGcloudRemoteBash(t, vmName, "sudo nerdctl apparmor load")	
+				// https://github.com/containerd/nerdctl/blob/main/docs/faq.md#does-nerdctl-have-an-equivalent-of-sudo-usermod--ag-docker-user-
+				// make a user home bin and add to path
+				t = WithGcloudRemoteBash(t, vmName, "mkdir -p $HOME/bin && chmod 700 $HOME/bin && echo 'PATH=$HOME/bin:$PATH' >> .profile")	
+				// copy nerdctl and set bits appropriatedly
+				t = WithGcloudRemoteBash(t, vmName, "cp /usr/local/bin/nerdctl $HOME/bin && sudo chown $(id -u):$(id -g) $HOME/bin/nerdctl && sudo chmod 0755 $HOME/bin/nerdctl && sudo chown root $HOME/bin/nerdctl && sudo chmod +s $HOME/bin/nerdctl")	
+				t = WithGcloudRemoteBash(t, vmName, "nerdctl version")	
 
-		// send hof to VM
-		t = WithGcloudSendFile(t, vmName, "/usr/local/bin/hof", hof, true)
+			case "nerdctl-rootless":
+				// ensure the current user can run nerdctl
+				t = WithGcloudRemoteBash(t, vmName, "containerd-rootless-setuptool.sh install")	
+				t = WithGcloudRemoteBash(t, vmName, "nerdctl version")	
+			}
 
-		// remote commands to run
-		// TODO, ship testscript(s) instead
-		t = WithGcloudRemoteBash(t, vmName, "hof version")
-		t = WithGcloudRemoteBash(t, vmName, "hof fmt pull all@v0.6.8-rc.5")
-		t = WithGcloudRemoteBash(t, vmName, "hof fmt start all@v0.6.8-rc.5")
-		t = WithGcloudRemoteBash(t, vmName, "hof fmt status")
-		t = WithGcloudRemoteBash(t, vmName, "hof fmt test")
-		t = WithGcloudRemoteBash(t, vmName, "hof fmt stop")
+			// remote commands to run
+			t = WithGcloudSendFile(t, vmName, "/usr/local/bin/hof", hof, true)
+			t = WithGcloudRemoteBash(t, vmName, "hof version")
+			t = WithGcloudRemoteBash(t, vmName, "hof fmt pull all@v0.6.8-rc.5")
+			t = WithGcloudRemoteBash(t, vmName, "hof fmt start all@v0.6.8-rc.5")
+			t = WithGcloudRemoteBash(t, vmName, "hof fmt status")
+			t = WithGcloudRemoteBash(t, vmName, "hof fmt test")
+			t = WithGcloudRemoteBash(t, vmName, "hof fmt stop")
 
-		// sync to run them for real
-		_, err = t.Sync(R.Ctx)
-		hadErr := false
-		if err != nil {
-			hadErr = true
-			fmt.Println("an error!:", err)
-		}
+			// sync to run them for real
+			_, err = t.Sync(R.Ctx)
+			if err != nil {
+				hadErr = true
+				fmt.Println("an error!:", err)
+			}
 
-		// always try deleting, we mostly ignore the error here (less likely, will also error if not exists)
-		d := gcloud.Pipeline("DELETE " + vmName)
-		d = d.WithEnvVariable("CACHEBUST", time.Now().String())
-		d = WithDeleteVM(d, vmName)
-		_, err := d.Sync(R.Ctx)
-		if err != nil {
-			fmt.Println("deleting error!:", err)
-		}
+			// always try deleting, we mostly ignore the error here (less likely, will also error if not exists)
+			d := gcloud.Pipeline("DELETE " + vmName)
+			d = d.WithEnvVariable("CACHEBUST", time.Now().String())
+			// d = WithDeleteVM(d, vmName)
+			_, err := d.Sync(R.Ctx)
+			if err != nil {
+				fmt.Println("deleting error!:", err)
+			}
 
+			// stop if we had an error
+			if hadErr {
+				break
+			}
+		} // end runtime loop
 		// stop if we had an error
 		if hadErr {
 			fmt.Println("stopping b/c error")
 			break
 		}
+	} // end arch loop
+} // end main
+
+func WithBootVM(gcloud *dagger.Container, name, imageFamily, arch string) (*dagger.Container) {
+	mach := "n2-" + machSize
+	if arch == "arm" {
+		mach = "t2a-" + machSize
 	}
-
-}
-
-func WithBootVM(gcloud *dagger.Container, name, imageFamily string) (*dagger.Container) {
 	args := []string{
 		"gcloud",
 		"compute",
@@ -146,8 +163,8 @@ func WithBootVM(gcloud *dagger.Container, name, imageFamily string) (*dagger.Con
 		"create",
 		name,
 		"--zone=us-central1-a",
-		"--machine-type=n2-standard-2",
-		"--boot-disk-size=100GB",
+		"--machine-type=" + mach,
+		"--boot-disk-size=" + diskSize,
 		"--image-family=" + imageFamily,
 	}
 
@@ -235,20 +252,8 @@ func WithGcloudRemoteBash(gcloud *dagger.Container, name string, cmd string) (*d
 		"--zone=us-central1-a",
 		"--",
 		"bash", 
+		"--login",
 		"-c",
 		fmt.Sprintf("'set -euo pipefail; %s'", cmd),
 	})
-}
-
-func WithGcloudRemoteCommand(gcloud *dagger.Container, name string, cmd string) (*dagger.Container) {
-	run := []string{
-		"gcloud",
-		"compute",
-		"ssh",
-		user + "@" + name,
-		"--zone=us-central1-a",
-		"--",
-	}
-	run = append(run, strings.Fields(cmd)...)
-	return gcloud.WithExec(run)
 }

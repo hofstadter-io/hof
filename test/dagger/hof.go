@@ -14,12 +14,11 @@ type Runtime struct {
 	Client *dagger.Client
 }
 
-func (R *Runtime) GolangImage() (*dagger.Container) {
-
-	c := R.Client.Container().From("golang:1.20")
+func (R *Runtime) GolangImage(platform string) (*dagger.Container) {
+	c := R.Client.Container(dagger.ContainerOpts{Platform: dagger.Platform(platform)}).From("golang:1.20")
 
 	// setup mod cache
-	modCache := R.Client.CacheVolume("gomod")
+	modCache := R.Client.CacheVolume("gomod-" + platform)
 	c = c.WithMountedCache("/go/pkg/mod", modCache)
 
 	// setup build cache
@@ -35,10 +34,10 @@ func (R *Runtime) GolangImage() (*dagger.Container) {
 	return c
 }
 
-func (R *Runtime) RuntimeContainer(builder *dagger.Container) (*dagger.Container) {
+func (R *Runtime) RuntimeContainer(builder *dagger.Container, platform string) (*dagger.Container) {
 	hof := builder.File("hof")
 
-	c := R.GolangImage()
+	c := R.GolangImage(platform)
 	c = c.WithFile("/usr/local/bin/hof", hof)
 	c = c.Pipeline("hof/runtime")
 	

@@ -228,11 +228,11 @@ func Start(fmtr string, replace bool) error {
 		fmtr := formatters[name]
 
 		// wait for running & ready
-		err = fmtr.WaitForRunning(10, time.Second)
+		err = fmtr.WaitForRunning(60, time.Second)
 		if err != nil {
 			return err
 		}
-		err = fmtr.WaitForReady(30, time.Second)
+		err = fmtr.WaitForReady(60, time.Second)
 		if err != nil {
 			return err
 		}
@@ -312,11 +312,11 @@ func Test(fmtr string) error {
 		fmtr := formatters[name]
 
 		// wait for running & ready
-		err = fmtr.WaitForRunning(10, time.Second)
+		err = fmtr.WaitForRunning(60, time.Second)
 		if err != nil {
 			return err
 		}
-		err = fmtr.WaitForReady(30, time.Second)
+		err = fmtr.WaitForReady(60, time.Second)
 		if err != nil {
 			return err
 		}

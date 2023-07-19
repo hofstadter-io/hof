@@ -4,11 +4,12 @@ set -euo pipefail
 echo "nerdctl"
 
 VER="1.4.0"
+ARCH=${ARCH:-amd}
 
 # nerdctl full
 pushd /tmp
-wget https://github.com/containerd/nerdctl/releases/download/v${VER}/nerdctl-full-${VER}-linux-amd64.tar.gz
-sudo tar Cxzf /usr/local nerdctl-full-${VER}-linux-amd64.tar.gz
+wget -q https://github.com/containerd/nerdctl/releases/download/v${VER}/nerdctl-full-${VER}-linux-${ARCH}64.tar.gz
+sudo tar Cxzf /usr/local nerdctl-full-${VER}-linux-${ARCH}64.tar.gz
 popd
 
 # enable containerd for rootfull
@@ -27,3 +28,5 @@ sudo ln -s /usr/sbin/ip6tables /usr/local/bin/ip6tables
 sudo nerdctl version
 sudo nerdctl info
 sudo nerdctl run hello-world
+
+# sudoless has to be setup per user by linking files, so we do that later
