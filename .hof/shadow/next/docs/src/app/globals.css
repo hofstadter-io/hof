@@ -17,14 +17,6 @@
   }
 }
 
-body {
-  transition: 1s all ease;
-}
-
-summary {
-  transition: 0s all;
-}
-
 .ch-frame-buttons {
   display: none !important;
 }

@@ -7,10 +7,12 @@ import { Command } from 'commander';
 import Client, { connect, Container, Directory, File } from "@dagger.io/dagger"
 
 // set defaults here
-const registry = ""
 const version = ""
+const registry = ""
 const cluster = ""
 const zone = ""
+const namespace = ""
+const name = ""
 
 const cue_version = "v0.6.0-alpha.2"
 const hof_version = "v0.6.8-rc.5"
@@ -22,16 +24,20 @@ cli.version('0.0.1', '-V, --script-version', 'output the current version of this
 
 // set the flags
 cli
+	.option('--dry-run', 'print the k8s resources yaml')
 	.option('-v, --version <value>', 'set the version to use for the command', version)
 	.option('--registry <value>', 'set the container registry to use', registry)
   .option('--cluster <value>', 'set the gke k8s cluster name', cluster)
 	.option('--zone <value>', 'set the gcloud zone', zone)
+	.option('--namespace <value>', 'the k8s namespace to use', namespace)
+	.option('--name <value>', 'the name for the k8s resources', name)
 
-	// these defaults appear in the cuelm.cue
+	// for deploy
 	.option('--domain <value>', 'the host domain for your application')
-	.option('--name <value>', 'the name for the k8s resources')
-	.option('--namespace <value>', 'the k8s namespace to use')
-	.option('--dry-run', 'print the k8s resources yaml')
+	// for secrets...
+	.option('-f, --file <value>', 'path to an env file', '.env')
+	.option('--replace', 'replace the file')
+
 
 // set commands
 cli
@@ -46,6 +52,13 @@ cli
   .description('publish the images')
   .action(() => {
 		run(publish)
+	})
+
+cli
+	.command('secret')
+  .description('update the secrets .env file')
+  .action(() => {
+		run(secret)
 	})
 
 cli
@@ -93,12 +106,32 @@ async function publish(client: Client, source: Directory) {
 }
 
 async function deploy(client: Client, source: Directory) {
+	const c = await cuelm(client, source, "Install")
+	c.sync()
+}
+
+async function secret(client: Client, source: Directory) {
+	const opts = cli.opts()
+
+	const envFile = source.file(opts.file)
+
 	const gcloud = await gcloudImage(client)
+	gcloud
+		.withWorkdir("/work")
+		.withFile("/work/.env", envFile)
+		.withEnvVariable("CACHEBUST", Date.now().toString())
+		.withExec(["gcloud", "container", "clusters", "get-credentials", opts.cluster, "--zone", opts.zone])
+		.withExec(["kubectl", "create", "secret", "generic", opts.name, "--namespace", opts.namespace, "--from-env-file", ".env"])
+		.sync()
+}
+
+async function cuelm(client: Client, source: Directory, what: string) {
 	const cuelm = source.file("./ci/k8s/cuelm.cue")
 
 	const opts = cli.opts()
+	console.warn(opts)
 
-	var cuecmd = ["cue", "export", "cuelm.cue", "-e", "Install", "-f", "-o", "cuelm.yaml"]
+	var cuecmd = ["cue", "export", "cuelm.cue", "-e", what, "-f", "-o", "cuelm.yaml"]
 	cuecmd.push("-t", `version=${opts.version}`)
 	cuecmd.push("-t", `registry=${opts.registry}`)
 	if (opts.domain) {
@@ -111,19 +144,29 @@ async function deploy(client: Client, source: Directory) {
 		cuecmd.push("-t", `namespace=${opts.namespace}`)
 	}
 
-	gcloud.withEnvVariable("CACHEBUST", Date.now().toString())
-		.withExec(["gcloud", "container", "clusters", "get-credentials", opts.cluster, "--zone", opts.zone])
+	var gcloud = await gcloudImage(client)
+	gcloud = gcloud
 		.withWorkdir("/work")
 		.withFile("/work/cuelm.cue", cuelm)
 		.withExec(["hof", "mod", "init", "hof.io/deploy"])
 		.withExec(["hof", "mod", "tidy"])
 		.withExec(cuecmd)
 		.withExec(["cat", "cuelm.yaml"])
-		.withExec(["kubectl", "apply", "-f", "cuelm.yaml"])
-		.sync()
+
+	if (!opts.dryRun) {
+		gcloud = gcloud
+			.withEnvVariable("CACHEBUST", Date.now().toString())
+			.withExec(["gcloud", "container", "clusters", "get-credentials", opts.cluster, "--zone", opts.zone])
+			.withExec(["kubectl", "apply", "-f", "cuelm.yaml"])
+	}
+
+	return gcloud
 }
 
 function makeImage(client: Client, source: Directory) {
+	// cache for node_modules
+	// const nodeCache = client.cacheVolume("node")
+
 	// build up base image
 	const base = client.container()
 		.from("node:18-alpine").pipeline("base")
@@ -134,26 +177,27 @@ function makeImage(client: Client, source: Directory) {
 	// fetches dependencies
 	const deps = base.pipeline("deps")
 		.withDirectory("/app", source, { include: ["package.json", "package-lock.json"] })
-		.withExec(["npm", "install", "--production"])
+		// .withMountedCache("/app/node_modules", nodeCache)
+		.withExec(["npm", "install"])
 		.directory("/app/node_modules")
 
 	// builds next production output
-	const next = base.pipeline("build")
+	const build = base.pipeline("build")
+		.withEnvVariable("NODE_ENV", "production")
 		.withDirectory("/app", source)
 		.withDirectory("/app/node_modules", deps)
+		
 		.withExec(["npm", "run", "build"])
-		.directory("/app/.next")
 
 	const runner = base.pipeline("runner")
 		// runner setup
-		.withEnvVariable("NODE_ENV", "production")
 		.withExec(["addgroup", "--system", "--gid", "1001", "nodejs"])
 		.withExec(["adduser", "--system", "--uid", "1001", "nextjs"])
 
 		// code and stuff
-		.withDirectory("/app", source, { include: ["package.json", "package-lock.json"] })
-		.withDirectory("/app/node_modules", deps)
-		.withDirectory("/app/.next", next, { owner: "nextjs:nodejs" })
+		.withDirectory("/app", source, { include: ["package.json", "package-lock.json", "next.config.js", "prisma/", "public/"] })
+		.withDirectory("/app/node_modules", build.directory("/app/node_modules"))
+		.withDirectory("/app/.next", build.directory("/app/.next"), { owner: "nextjs:nodejs" })
 
 		// runtime settings
 		.withUser("nextjs")

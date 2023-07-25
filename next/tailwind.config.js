@@ -6,7 +6,6 @@ module.exports = {
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
-  theme: {},
   plugins: [
 		require('@tailwindcss/typography'),
 		require("daisyui"),
@@ -15,5 +14,13 @@ module.exports = {
 	daisyui: {
 		logs: false,
 		// styled: false,
+	},
+
+  theme: {
+		extend: {
+			textDecorationThickness: {
+				3: '3px',
+			}
+		}
 	}
 }

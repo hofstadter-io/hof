@@ -32,8 +32,14 @@ _registry: "us-central1-docker.pkg.dev/hof-io--develop/testing"
 		ga_mp_apikey: string | *"" @tag(ga_mp_apikey)
 
 		port: {
-			nginx:  80
-			server: 3000
+			nginx:    80
+			server:   3000
+			postgres: 5432
+		}
+
+		resources: {
+			requests: {cpu: "100m", memory: "100Mi"}
+			// limits: {cpu: "200m", memory: "200Mi"}
 		}
 
 		#metadata: {
@@ -111,6 +117,7 @@ _registry: "us-central1-docker.pkg.dev/hof-io--develop/testing"
 							containerPort: _Values.port.nginx
 							protocol:      "TCP"
 						}]
+						resources: _Values.resources
 						_Probes & {_port: _Values.port.nginx}
 					}, {
 						name:            "server"
@@ -120,7 +127,31 @@ _registry: "us-central1-docker.pkg.dev/hof-io--develop/testing"
 							containerPort: _Values.port.server
 							protocol:      "TCP"
 						}]
+						envFrom: [{
+							secretRef: name: "studios"
+						}]
+						resources: _Values.resources
 						_Probes & {_port: _Values.port.server}
+					}, {
+						name:            "postgres"
+						image:           "postgres:14"
+						imagePullPolicy: "Always"
+						ports: [{
+							containerPort: _Values.port.postgres
+							protocol:      "TCP"
+						}]
+						env: [
+							{name: "POSTGRES_USER", value:     "supacode"},
+							{name: "POSTGRES_PASSWORD", value: "supacode"},
+							{name: "POSTGRES_DB", value:       "supacode"},
+						]
+						resources: _Values.resources
+						// _Probes & {_port: _Values.port.postgres}
+					}]
+
+					volumes: [{
+						name: "env-file"
+						secret: secretName: "studios"
 					}]
 				}
 			}

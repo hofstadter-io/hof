@@ -3,9 +3,9 @@ import type { NextRequest } from "next/server";
 
 // This function can be marked `async` if using `await` inside
 export function middleware(request: NextRequest) {
-  console.log("middleware-PRE:", request.url);
+  // console.log("middleware-PRE:", request.url)
   const response = NextResponse.next();
-  console.log("middleware-POST:", request.url);
+  // console.log("middleware-POST:", request.url)
   return response;
 }
 

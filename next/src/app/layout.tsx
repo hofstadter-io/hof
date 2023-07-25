@@ -24,8 +24,8 @@ const navbar = {
       href: "/dagger",
     },
     {
-      title: "Posts",
-      href: "/posts",
+      title: "Editor",
+      href: "/editor",
     },
     {
       title: "About",
@@ -48,12 +48,18 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={classnames(inter.className, "min-h-screen antialiased")}>
+      <body
+        className={classnames(
+          inter.className,
+          "min-h-screen antialiased",
+          "transition-all"
+        )}
+      >
         <Providers>
           <div className="flex flex-col min-h-screen">
             <Navbar {...navbar} />
 
-						<div className="flex grow min-w-screen">{children}</div>
+						<div className="flex grow content-stretch min-w-screen">{children}</div>
 
             <Footer copyright="Hofstadter, Inc" />
           </div>

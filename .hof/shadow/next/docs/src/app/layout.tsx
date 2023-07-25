@@ -48,9 +48,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={classnames(inter.className, "min-h-screen antialiased")}>
+      <body
+        className={classnames(
+          inter.className,
+          "min-h-screen antialiased",
+          "transition-all"
+        )}
+      >
         <Providers>
-          <div className="flex flex-col min-h-screen">
+          <div className="flex flex-col min-h-screen delay-1000">
             <Navbar {...navbar} />
 
             <div className="flex flex-row grow w-screen">{children}</div>
