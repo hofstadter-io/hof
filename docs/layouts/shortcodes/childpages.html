@@ -28,7 +28,8 @@
 
 {{ end }}
 
-<ul class="ps-3 docs-children list-unstyled">
+<table class="table table-borderless">
+<tbody style="font-size: 120%">
 	{{- .Scratch.Set "pages" $cpage.Pages }}
     {{- if $cpage.Sections}}
 	    {{- .Scratch.Set "pages" ($cpage.Pages | union $cpage.Sections) }}
@@ -38,15 +39,16 @@
 	{{- if eq $sortTerm "Weight"}}
 		{{- template "childs" dict "menu" $pages.ByWeight "pages" .Site.Pages "sortTerm" $sortTerm "brief" (.Get "childBriefs")}}
 	{{end}}
-</ul>
-
+</tbody>
+</table>
 
 
 {{ define "childs" }}
   {{ $cBrief := .brief }}
   {{- range .menu }}
-    <li class="h5 py-1">
-      <a href="{{.RelPermalink}}"> {{ .Title }} </a>{{ if (and $cBrief .Params.brief) }} - {{ .Params.brief }}{{end}}
-    </li>
+		<tr>
+			<td class="border-0"><a href="{{.RelPermalink}}">{{ .Title }}</a></td>
+			{{ if (and $cBrief .Params.brief) }}<td class="border-0">{{ .Params.brief }}</td>{{end}}
+    </tr>
   {{ end }}
 {{ end }}

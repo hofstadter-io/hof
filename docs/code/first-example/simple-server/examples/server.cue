@@ -6,10 +6,14 @@ import (
 
 // A concrete value of the Server schem
 Server: schema.Server & {
+	GitRepo:  "hof.io/docs/example"
 	GoModule: "hof.io/docs/example"
 
 	Name:        "Example"
 	Description: "An example server"
+
+	Auth: apikey: true
+	Prometheus: true
 
 	Routes: [{
 		Name:   "EchoQ"
@@ -40,5 +44,4 @@ Server: schema.Server & {
 			"""
 	}]
 
-	Prometheus: true
 }

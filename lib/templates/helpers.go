@@ -203,6 +203,7 @@ var funcMap = template.FuncMap{
 	"add":     Helper_add,
 	"inc":     Helper_inc,
 
+	"typeof":  Helper_gokind,
 	"gokind":  Helper_gokind,
 	"builtin": Helper_builtin,
 

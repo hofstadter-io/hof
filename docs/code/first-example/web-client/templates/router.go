@@ -4,13 +4,10 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/labstack/echo-contrib/echoprometheus"
 
 	{{ if gt (len .SERVER.Routes ) 1 }}
-	"{{ .Module }}/routes"
-	{{ end }}
-	{{ if gt (len .Resources ) 1 }}
-	"{{ .Module }}/resources"
+	"{{ .SERVER.GoModule }}/routes"
 	{{ end }}
 )
 
@@ -22,25 +19,15 @@ func setupRouter(e *echo.Echo) error {
 	})
 
 	{{ if .SERVER.Prometheus }}
-	h := promhttp.Handler()
-	e.GET("/internal/metrics", func(c echo.Context) error {
-		h.ServeHTTP(c.Response(), c.Request())
-		return nil
-	})
+	e.GET("/internal/metrics", echoprometheus.NewHandler())
 	{{ end }}
 
-	// Static content
-	e.Static("/", "client")
+	// Application routes group
+	g := e.Group("")
 
-	// API routes
-	g := e.Group("/api")
-
+	// Register the routes
 	{{ range $R := .SERVER.Routes -}}
 	routes.{{ $R.Name }}Routes(g)
-	{{ end }}
-
-	{{ range $R := .Resources -}}
-	resources.{{ $R.Name }}Routes(g)
 	{{ end }}
 
 	return nil

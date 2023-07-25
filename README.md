@@ -1,15 +1,18 @@
 # hof - the high code framework
 
-`hof` is a tool that weaves together data models, code generation, and task engine with CUE.
-Enhance your workflow and automate repetitive development. Language and technology agnostic.
+Hof is a tool that weaves together data models, code generation, and task engine with CUE.
+Automate repetitive setup, code, changes, and workflows using your tools. Hof is technology agnostic.
 
 <!-- something about osurce of thuth, unified abstraction later, interoperablility... -->
 
-1. __data model__ - define & manage data models - the source of truth
-2. __code generation__ - data + template = _ (anything) - technology agnostic
-3. __app blueprints__ - bootstrap config and other files - consistent skaffolding
-4. __task engine__ - composable, extendable tasks and workflows - a DAG engine
-5. __modules__ - composable data models & generators - an ecosystem
+| Core Features | |
+|:---                    |:-- |
+| __code generation__    | data + template = _ (anything) ...any file, technology agnostic |
+| __app blueprints__     | consistently bootstrap apps, code, config, and other files |
+| __data model__         | define and manage data models, evolve code with them |
+| __task engine__        | extensible task and workflow DAG engine |
+| __modules__            | composable dependencies for blueprints, models, and generators |
+
 
 <img src="./images/how-hof-works.svg" alt="how hof works" width="100%" height="auto" style="max-width:600px">
 

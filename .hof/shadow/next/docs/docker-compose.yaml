@@ -1,0 +1,42 @@
+# intended for local usage & development
+
+version: '3'
+services:
+
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3.7
+    restart: unless-stopped
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  postgres:
+    container_name: postgres
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=supacode
+      - POSTGRES_PASSWORD=supacode
+      - POSTGRES_DB=supacode
+    ports:
+      - "5432:5432"
+    restart: always
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4:latest
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=supacode@hof.io
+      - PGADMIN_DEFAULT_PASSWORD=supacode-admin
+    ports:
+      - "5050:80"
+    restart: always
+
+  mongo:
+    # comment
+    image: mongo
+    expose:
+      - "27017:27017"

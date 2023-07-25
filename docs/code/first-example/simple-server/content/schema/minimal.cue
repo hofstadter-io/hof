@@ -1,5 +1,6 @@
 package schema
 
-MySchema: {
-	// anything you want
+// A schema is any value
+Schema: {
+	// with any fields you want
 }

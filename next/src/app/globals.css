@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply text-slate-700 bg-slate-100 dark:text-slate-100 dark:bg-slate-600;
+  }
+
+  .navbar,
+  .footer {
+    @apply text-slate-200 bg-slate-800;
+  }
+  .menu,
+  .navbar .dropdown-content {
+    @apply text-slate-700 bg-slate-200 dark:text-slate-100 dark:bg-slate-700;
+  }
+}
+
+.ch-frame-buttons {
+  display: none !important;
+}
+
+.ch-spotlight p {
+  margin: 0;
+}

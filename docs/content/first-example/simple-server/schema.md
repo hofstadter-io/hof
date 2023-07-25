@@ -5,15 +5,18 @@ weight: 10
 ---
 
 {{<lead>}}
-__Hof Schemas__ are CUE definitions and serve as the contract between
+__Hof Schemas__ are CUE values and serve as the contract between
 you, the generator writer, and your users.
-Your schemas capture the essence of the problem,
-set the constraints for users designing with your generator,
-and are the input to your code generation templates.
+Your schemas capture the essence of the problem or application.
+They provide the constraints for users developing with your generator
+and ensure input to your generator is valid.
 {{</lead>}}
 
+### A Schema in Hof
 
-{{<codePane title="A minimal schema" file="code/first-example/simple-server/content/schema/minimal.html">}}
+A __Hof Schema__ is a CUE value.
+
+{{<codePane title="schema/myschema.cue" file="code/first-example/simple-server/content/schema/minimal.html">}}
 
 
 ### A Minimal REST Schema
@@ -22,11 +25,6 @@ Let's start by sketching out the minimal definition for a server.
 We put this in the `schema/` directory and thus CUE package.
 
 {{<codePane title="schema/server.cue" file="code/first-example/simple-server/content/schema/rest.html">}}
-
-Note how we use default values for "optional" fields in our generator UX,
-rather than CUE optional syntax.
-This avoids some nil-ness checks and conversions
-and make template writing easier.
 
 
 ### Routes and Handlers
@@ -51,23 +49,25 @@ for every generated server.
 ### Calculated Fields
 
 These are fields and values you can infer from a user's input that they do not need to set.
-They are often for making template writing easier
-by formatting or collecting values.
+They are often for making template writing easier by formatting or collecting values.
+You can also transform or enrich user input using CUE here as well as in generators.
+Later, we will use this technique to define the CRUD routes for a resource based on the user's data model.
 
 {{<codePane title="schema/server.cue" file="code/first-example/simple-server/content/schema/calc.html">}}
 
 
-### Language Fields
+### Language and Tool Fields
 
-There are typically language specifics which may need to be configured.
-You will likely need to make some accessible to your users.
+There are typically language or tools specifics which may need to be configured.
+Often, you will want to make some of these accessible to your users.
+You can even create generators which are multilingual or lets your
+user select their preferred technologies.
 
 {{<codePane title="schema/server.cue" file="code/first-example/simple-server/content/schema/lang.html">}}
 
 
 ### Final Schema
 
-<details>
-<summary>Final Schema</summary>
-{{<codePane title="schema/server.cue" file="code/first-example/simple-server/content/schema/final.html">}}
-</details>
+This is our final schema after combining all the parts above.
+
+{{<codePane title="schema/server.cue" file="code/first-example/simple-server/schema/server.html">}}

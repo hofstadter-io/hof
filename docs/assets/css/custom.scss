@@ -46,12 +46,17 @@ strong > code,
 b > code,
 i > code,
 li > code {
-	color: white;
-	@include background-color-alpha($hof-gold, 0.7);
-	padding-top: 2px;
-	padding-left: 4px;
-	padding-right: 4px;
+	color: $hof-blue;
+	@include background-color-alpha(#e5e7eb, 1.0);
+	padding-bottom: 0px;
+	padding-top: 4px;
+	padding-left: 6px;
+	padding-right: 6px;
 	border-radius: 4px;
+}
+h1 > code,
+h2 > code {
+	padding-top: 6px;
 }
 
 pre {
@@ -145,10 +150,20 @@ pre {
 
 #navbarMain .navbar-nav {
   li > a:not(.lang-link) {
+		transition-property: all;
+		transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+		transition-duration: 200ms;
     color: $hof-white !important;
+		text-decoration-color: $hof-gold;
+		text-underline-offset: 2px !important;
   }
   li > a:hover {
-      color: $hof-gold !important;
+		transition-property: all;
+		transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+		transition-duration: 200ms;
+		color: $hof-gold !important;
+		text-decoration: underline !important;
+		text-underline-offset: 5px !important;
   }
 }
 
@@ -157,11 +172,56 @@ pre {
     height: 1.67rem;
     padding-bottom: 3px;
   }
+  
+	transition-property: all;
+	transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+	transition-duration: 200ms;
+	color: $hof-white !important;
+	text-decoration: none !important;
+	text-decoration-color: $hof-gold;
+	text-underline-offset: 2px !important;
   span {
     color: $hof-gold;
     font-weight: 420;
     font-style: italic;
   }
+
+	&:hover {
+		transition-property: all;
+		transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+		transition-duration: 200ms;
+		color: $hof-gold !important;
+		text-decoration: underline !important;
+		text-decoration-color: $hof-gold;
+		text-underline-offset: 5px !important;
+		span {
+			color: $hof-blue;
+			font-weight: 420;
+			font-style: italic;
+		}
+	}
+}
+
+footer {
+  a:not(.lang-link) {
+		transition-property: all;
+		transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+		transition-duration: 200ms;
+    color: $hof-white !important;
+		text-decoration: none !important;
+		text-decoration-color: $hof-gold;
+		text-underline-offset: 2px !important;
+  }
+
+	a:hover {
+		transition-property: all;
+		transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+		transition-duration: 200ms;
+		color: $hof-gold !important;
+		text-decoration: underline !important;
+		text-underline-offset: 5px !important;
+	}
+
 }
 
 /* Side navigation menus */
@@ -213,8 +273,13 @@ pre {
 		text-decoration: none;
 }
 
-.docs-toc a:hover{
+.docs-sidenav a:hover,
+.docs-toc a:hover {
     color: #333;
+		text-decoration: underline !important;
+		text-decoration-color: #333 !important;
+		text-underline-offset: 3px !important;
+		text-decoration-thickness: 1px !important;
 }
 
 .docs-toc ul{

@@ -28,12 +28,12 @@ We will first
 1. Start with a Go map for storage, later a database
 1. Create CRUD routes for the datamodel
 
-After we will see `hof`'s code __re__generation capabilities by
+After we will see `hof`'s code _regeneration_ capabilities by
 
 1. Customizing the generated code
 1. Updating the data model
 1. Regenerating our application 
-1. Inspecting and discussing the result
+1. See how `hof` fits into typical application development
 
 Finally, we will look at how to upgrade our generator to use a database.
 Automatic migrations are covered in the [model history section](/first-example/model-history/).

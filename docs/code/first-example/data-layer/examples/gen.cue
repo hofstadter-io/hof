@@ -7,16 +7,14 @@ import (
 MyGen: gen.Generator & {
 	@gen(server)
 
-	Outdir:   "./output"
-	GoModule: "hof.io/docs/example"
-	Module:   "hof.io/docs/example"
-
-	// We write the design in a separate file 
-	"Server":    Server
-	"Datamodel": Datamodel
+	Outdir: "./output"
+	// ModuleName: "hof.io/docs/example"
 
 	// Needed because we are using the generator from within it's directory
-	// Users who import your generator as a module will not need to set this
-	// It's a temporary requirement until CUE supports embedded files
-	PackageName: ""
+	// Normally, users will not see or set this field
+	ModuleName: ""
+
+	// We write the details in a separate file 
+	"Server":    Server
+	"Datamodel": Datamodel
 }

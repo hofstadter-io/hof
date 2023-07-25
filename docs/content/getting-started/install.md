@@ -57,14 +57,6 @@ These are the same links for the curl.
 
 
 
-## Testing __hof__
-
-Run `hof help` in your terminal.
-
-{{<codePane file="code/cmd-help/hof" title="$ hof help" lang="text">}}
-
-
-
 ## Updating __hof__
 
 
@@ -93,3 +85,14 @@ brew upgrade hofstadter-io/tap/hof
 # To get more info regarding hof package
 brew info hofstadter-io/tap/hof
 {{</codeInner>}}
+
+
+
+## Testing __hof__
+
+Run `hof help` in your terminal.
+
+{{<codePane file="code/cmd-help/hof" title="$ hof help" lang="text">}}
+
+
+
