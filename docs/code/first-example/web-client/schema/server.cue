@@ -1,8 +1,6 @@
 package schema
 
-import (
-	"strings"
-)
+import "strings"
 
 HttpMethod: "OPTIONS" | "HEAD" | "GET" | "POST" | "PATCH" | "PUT" | "DELETE" | "CONNECT" | "TRACE"
 
@@ -15,13 +13,26 @@ Server: {
 	Description: string | *""
 	Help:        string | *""
 
+	// The project's git repo
+	GitRepo: string | *""
+
+	// language fields
+	GoModule: string
+
 	// The server routes
 	Routes: Routes
 
 	// list of file globs to be embedded into the server when built
 	EmbedGlobs: [...string]
+
 	// enable prometheus metrics
-	Prometheus: bool | *false
+	Prometheus: bool
+
+	// auth settings (optional)
+	Auth?: {
+		apikey: bool | *false
+		basic:  bool | *false
+	}
 
 	// various casings of the server Name
 	serverName:  strings.ToCamel(Name)

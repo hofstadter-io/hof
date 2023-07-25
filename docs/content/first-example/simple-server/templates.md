@@ -7,7 +7,7 @@ weight: 20
 {{<lead>}}
 Templates are the implementation for your generator.
 They are parameterized files which are filled in
-with data from the schema.
+with data from the schema and user input.
 {{</lead>}}
 
 
@@ -16,7 +16,8 @@ Generators have several kinds of files that end up in the output
 1. __Once Templates__ - used to generate a single file, like `main.go` or `index.js`
 2. __Repeated Templates__ - generate a file for each element, like routes in this example
 3. __Partial Templates__ - reusable template snippets which are available in all full templates
-3. __Static Files__ - copied directly into the output, bypassing the template engine
+4. __Static Files__ - copied directly into the output, bypassing the template engine
+5. __Config Files__ - generate yaml or json into the output, bypassing the template engine
 
 Templates are based on Go `text/template` with extra helpers and conventions.
 We will cover the basics in the first-example and they should be familiar to other text templating systems.
@@ -41,6 +42,15 @@ in the "full-example" section where the implementation is more complete.
 
 {{<codePane lang="go" title="templates/route.go" file="code/first-example/simple-server/templates/route.go">}}
 {{<codePane lang="go" title="partials/handler.go" file="code/first-example/simple-server/partials/handler.go">}}
+
+### Static Files
+
+By default, anything in the `static/` dir will be copied into the output dir.
+You can configure one or more manually via the generator by setting the `Statics` field on your generator.
+
+### Config Files
+
+
 
 ### Rendered Output Files
 

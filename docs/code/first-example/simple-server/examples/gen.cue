@@ -13,7 +13,6 @@ Generator: gen.Generator & {
 
 	// Needed because we are using the generator from within it's directory
 	// Normally, users will not see or set this field
-	GoModule:   "hof.io/docs/example"
 	ModuleName: ""
 
 	// We write the details in a separate file 

@@ -7,7 +7,7 @@ import (
 )
 
 // Generator definition
-Generator: G = gen.Generator & {
+Generator: gen.Generator & {
 
 	// User inputs to this generator
 	// -----------------------------
@@ -21,15 +21,11 @@ Generator: G = gen.Generator & {
 	// Base output directory, defaults to current
 	Outdir: string | *"./"
 
-	// Language fields
-	GoModule: string | *G.ModuleName
-
 	// Required fields for hof
 	// ------------------------
 
 	// In is passed to every template
 	In: {
-		GOMODULE:  GoModule
 		SERVER:    Server
 		DM:        Datamodel
 		Resources: (schema.#DatamodelToResources & {"Datamodel": DM}).Resources
@@ -68,6 +64,11 @@ Generator: G = gen.Generator & {
 		{
 			TemplatePath: "middleware.go"
 			Filepath:     "middleware.go"
+		},
+		// a conditional file
+		if Server.Auth != _|_ {
+			TemplatePath: "auth.go"
+			Filepath:     "auth.go"
 		},
 	]
 

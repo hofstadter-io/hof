@@ -5,9 +5,11 @@ weight: 15
 ---
 
 {{<lead>}}
-Generators specify the mapping from inputs to templates.
-They will have input schema(s) and some configuration options for users,
-and map the `In` field to the `Out` field for `hof` to process.
+Generators specify the mapping from inputs through templates to output files.
+Using the schema and user input, you decide what files to generate,
+what inputs to provide to templates, and can reshape or enrich the inputs.
+Your generator file definds this process to
+map the `In` field to the `Out` field for `hof` to process.
 {{</lead>}}
 
 <br>
@@ -51,7 +53,7 @@ There are typically two types of files (templates)
 
 ### Server Generator
 
-
+The following is the generator for our simple REST server.
 
 {{<codePane file="code/first-example/simple-server/gen/server.html" title="gen/server.cue">}}
 

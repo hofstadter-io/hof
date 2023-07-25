@@ -1,6 +1,6 @@
 ---
 title: "Using"
-brief: "a generator to create"
+brief: "creating with our generator"
 weight: 25
 ---
 
@@ -11,7 +11,7 @@ Users _design_ by filling in the schema for a __Hof Generator__.
 ### Server, @gen(server)
 
 This is the block which defines an entrypoint to `hof gen`,
-using `@gen(tags...)` and unifying with our generator `gen.#HofGenerator`.
+using `@gen(tags...)` and unifying with our generator `gen.Generator`.
 
 {{<codePane title="examples/gen.cue" file="code/first-example/simple-server/examples/gen.html">}}
 

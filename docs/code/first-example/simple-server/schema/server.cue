@@ -13,6 +13,9 @@ Server: {
 	Description: string | *""
 	Help:        string | *""
 
+	// The project's git repo
+	GitRepo: string | *""
+
 	// language fields
 	GoModule: string
 
@@ -21,8 +24,15 @@ Server: {
 
 	// list of file globs to be embedded into the server when built
 	EmbedGlobs: [...string]
+
 	// enable prometheus metrics
 	Prometheus: bool
+
+	// auth settings (optional)
+	Auth?: {
+		apikey: bool | *false
+		basic:  bool | *false
+	}
 
 	// various casings of the server Name
 	serverName:  strings.ToCamel(Name)
