@@ -2,8 +2,11 @@ module github.com/hofstadter-io/hof
 
 go 1.19
 
+// replace cuelang.org/go => ../../cue/cue
+
 require (
-	cuelang.org/go v0.5.0
+	// cuelang.org/go v0.5.0
+	cuelang.org/go v0.6.0-alpha.2.0.20230726101506-cabc1dbb9f31
 	dagger.io/dagger v0.7.2
 	github.com/AlecAivazis/survey/v2 v2.3.6
 	github.com/BurntSushi/toml v1.2.1
@@ -25,7 +28,7 @@ require (
 	github.com/kr/pretty v0.3.1
 	github.com/labstack/echo-contrib v0.14.1
 	github.com/labstack/echo/v4 v4.10.2
-	github.com/lib/pq v1.0.0
+	github.com/lib/pq v1.10.7
 	github.com/lucsky/cuid v1.2.1
 	github.com/mattn/go-zglob v0.0.4
 	github.com/naoina/toml v0.1.1
@@ -60,7 +63,7 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/cloudflare/circl v1.3.3 // indirect
-	github.com/cockroachdb/apd/v2 v2.0.2 // indirect
+	github.com/cockroachdb/apd/v3 v3.2.0 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.14.3 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dlclark/regexp2 v1.8.1 // indirect

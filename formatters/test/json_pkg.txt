@@ -32,7 +32,7 @@ cmp package.json golden.json
   "description": "a collection of formatters as a server",
   "main": "prettier.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" \u0026\u0026 exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "BSD-3-Clause",

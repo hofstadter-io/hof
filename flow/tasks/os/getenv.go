@@ -1,6 +1,7 @@
 package os
 
 import (
+	"fmt"
 	g_os "os"
 
 	"cuelang.org/go/cue"
@@ -32,7 +33,11 @@ func (T *Getenv) Run(ctx *hofcontext.Context) (interface{}, error) {
 			key := sel.String()
 			val := g_os.Getenv(key)
 			// fmt.Println("pdeps:", t.PathDependencies(cue.MakePath(sel)))
-			v = v.FillPath(cue.MakePath(sel), val)
+
+		// HACK, this works around a bug in CUE
+		// p := cue.MakePath(sel)
+		p := cue.ParsePath(fmt.Sprint(sel))
+			v = v.FillPath(p, val)
 		}
 	} else {
 		// otherwise, try to fill a field

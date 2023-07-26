@@ -99,6 +99,7 @@ func RunT(t T, p Params) {
 			}
 			defer func() {
 				if ts.failed {
+					fmt.Println(ts.log.String())
 					os.Exit(1)
 				}
 				if p.TestWork || *testWork {

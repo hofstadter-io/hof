@@ -1,6 +1,8 @@
 package structural
 
 import (
+	"fmt"
+
 	"cuelang.org/go/cue"
 	// "cuelang.org/go/cue/errors"
 )
@@ -9,7 +11,10 @@ func MaskValue(mask, val cue.Value, opts *Options) (cue.Value, error) {
 	if opts == nil {
 		opts = &Options{}
 	}
-	r, _ := maskValue(mask, val, opts)
+	r, ok := maskValue(mask, val, opts)
+	if !ok {
+		return r, fmt.Errorf("error masking value %v %v %v", val, mask, r)
+	}
 	return r, nil
 }
 
@@ -54,13 +59,14 @@ func maskStruct(mask, from cue.Value, opts *Options) (cue.Value, bool) {
 	for iter.Next() {
 		cnt++
 		s := iter.Selector()
-		p := cue.MakePath(s)
+		// HACK, this works around a bug in CUE
+		// p := cue.MakePath(s)
+		p := cue.ParsePath(fmt.Sprint(s))
 		m := mask.LookupPath(p)
 		// fmt.Println(cnt, iter.Value(), f, f.Exists())
 		// check that field exists in from. Should we be checking f.Err()?
 		if m.Exists() {
 			r, include := maskValue(m, iter.Value(), opts)
-			// fmt.Println("r:", r, ok, p)
 			if include {
 				result = result.FillPath(p, r)
 			}
@@ -75,8 +81,6 @@ func maskStruct(mask, from cue.Value, opts *Options) (cue.Value, bool) {
 	if cnt == 0 && mask.Allows(cue.AnyString) {
 		return from, true
 	}
-
-	// fmt.Println("result:", result)
 
 	return result, true
 
@@ -120,9 +124,10 @@ func maskLeaf(mask, from cue.Value, opts *Options) (cue.Value, bool) {
 	if mask.IsConcrete() {
 		if from.IsConcrete() {
 			r := mask.Unify(from)
-			// need to check for errors here?
+			// need to check for errors here? (errors don't exist iirc)
 			return r, !r.Exists()
 		} else {
+			// if the mask is concrete, and the from value is not, then we should not include ... what, the value or masking event
 			return cue.Value{}, false
 		}
 	} else {

@@ -27,5 +27,6 @@ func (T *Upsert) Run(ctx *hofcontext.Context) (interface{}, error) {
 		return nil, err
 	}
 
-	return v.FillPath(cue.ParsePath("out"), r), nil
+	r, err = v.FillPath(cue.ParsePath("out"), r), nil
+	return r, err
 }

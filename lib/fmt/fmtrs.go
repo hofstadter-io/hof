@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"strings"
 
-	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/cuecontext"
 	"cuelang.org/go/cue/format"
 	cuejson "cuelang.org/go/pkg/encoding/json"
@@ -426,8 +425,8 @@ func formatJson(input []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	var c cue.Context
-	v := c.BuildExpr(x)
+	ctx := cuecontext.New()
+	v := ctx.BuildExpr(x)
 
 	s, err := cuejson.Marshal(v)
 	if err != nil {
