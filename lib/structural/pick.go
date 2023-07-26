@@ -1,6 +1,8 @@
 package structural
 
 import (
+	"fmt"
+
 	"cuelang.org/go/cue"
 	// "cuelang.org/go/cue/errors"
 )
@@ -53,7 +55,9 @@ func pickStruct(pick, from cue.Value, opts *Options) (cue.Value, bool) {
 	for iter.Next() {
 		cnt++
 		s := iter.Selector()
-		p := cue.MakePath(s)
+		// HACK, this works around a bug in CUE
+		// p := cue.MakePath(s)
+		p := cue.ParsePath(fmt.Sprint(s))
 		f := from.LookupPath(p)
 		// fmt.Println(cnt, iter.Value(), f, f.Exists())
 		// check that field exists in from. Should we be checking f.Err()?

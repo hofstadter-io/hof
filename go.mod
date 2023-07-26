@@ -2,9 +2,11 @@ module github.com/hofstadter-io/hof
 
 go 1.19
 
+// replace cuelang.org/go => ../../cue/cue
+
 require (
 	// cuelang.org/go v0.5.0
-	cuelang.org/go v0.6.0-alpha.2
+	cuelang.org/go v0.6.0-alpha.2.0.20230726101506-cabc1dbb9f31
 	dagger.io/dagger v0.7.2
 	github.com/AlecAivazis/survey/v2 v2.3.6
 	github.com/BurntSushi/toml v1.2.1

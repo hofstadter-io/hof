@@ -37,10 +37,10 @@ func upsertStruct(up, val cue.Value, opts *Options) (cue.Value, bool) {
 	iter, _ := val.Fields(defaultWalkOptions...)
 	for iter.Next() {
 		s := iter.Selector()
-		p := cue.MakePath(s)
+		// HACK, this works around a bug in CUE
+		// p := cue.MakePath(s)
+		p := cue.ParsePath(fmt.Sprint(s))
 		u := up.LookupPath(p)
-
-		fmt.Println(p)
 
 		// check that field exists in from. Should we be checking f.Err()?
 		if u.Exists() {
@@ -58,10 +58,12 @@ func upsertStruct(up, val cue.Value, opts *Options) (cue.Value, bool) {
 	iter, _ = up.Fields(defaultWalkOptions...)
 	for iter.Next() {
 		s := iter.Selector()
-		p := cue.MakePath(s)
-		v := val.LookupPath(p)
 
-		fmt.Println(p, val, v, v.Exists(), v.Err(), v.IncompleteKind())
+		// HACK, this works around a bug in CUE
+		// p := cue.MakePath(s)
+		p := cue.ParsePath(fmt.Sprint(s))
+
+		v := val.LookupPath(p)
 
 		// check that field exists in from. Should we be checking f.Err()?
 		if !v.Exists() {

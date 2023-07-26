@@ -1,6 +1,8 @@
 package structural
 
 import (
+	"fmt"
+
 	"cuelang.org/go/cue"
 )
 
@@ -35,7 +37,9 @@ func patchStruct(patch, val cue.Value, opts *Options) (cue.Value, bool) {
 	iter, _ := val.Fields(defaultWalkOptions...)
 	for iter.Next() {
 		s := iter.Selector()
-		p := cue.MakePath(s)
+		// HACK, this works around a bug in CUE
+		// p := cue.MakePath(s)
+		p := cue.ParsePath(fmt.Sprint(s))
 		r := rmv.LookupPath(p)
 
 		// skip any field which exists, it was the same in the original diff

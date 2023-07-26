@@ -260,7 +260,9 @@ func diffStruct(orig, next cue.Value) (cue.Value, bool) {
 	iter, _ := orig.Fields(fieldOptions...)
 	for iter.Next() {
 		s := iter.Selector()
-		p := cue.MakePath(s)
+		// HACK, this works around a bug in CUE
+		// p := cue.MakePath(s)
+		p := cue.ParsePath(fmt.Sprint(s))
 		u := next.LookupPath(p)
 
 		// check that field exists in from. Should we be checking f.Err()?
@@ -281,7 +283,9 @@ func diffStruct(orig, next cue.Value) (cue.Value, bool) {
 	iter, _ = next.Fields(fieldOptions...)
 	for iter.Next() {
 		s := iter.Selector()
-		p := cue.MakePath(s)
+		// HACK, this works around a bug in CUE
+		// p := cue.MakePath(s)
+		p := cue.ParsePath(fmt.Sprint(s))
 		v := orig.LookupPath(p)
 
 		// check that field exists in from. Should we be checking f.Err()?

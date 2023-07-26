@@ -53,6 +53,14 @@ m2: {
 
 m1p: { c: int }
 m2p: { a: _ }
+
+expected: {
+	a: {
+		b: "B"
+	}
+	c: 2
+	d: "D"
+}
 `
 
 func checkErr(err error) {
@@ -69,12 +77,12 @@ func main() {
 	val := c.CompileString(code)
 	fmt.Println("val:", val)
 
-	x := val.LookupPath(cue.ParsePath("x"))
-	y := val.LookupPath(cue.ParsePath("y"))
+	//x := val.LookupPath(cue.ParsePath("x"))
+	//y := val.LookupPath(cue.ParsePath("y"))
 
-	// p1 := val.LookupPath(cue.ParsePath("p1"))
-	p1, err := st.PickValue(y, x, nil)
-	checkErr(err)
+	p1 := val.LookupPath(cue.ParsePath("p1"))
+	//p1, err := st.PickValue(y, x, nil)
+	//checkErr(err)
 	fmt.Println("p1:", p1)
 
 	// Swapping here, it works
@@ -84,9 +92,10 @@ func main() {
 	checkErr(err)
 	fmt.Println("m1:", m1)
 
-	m2p := val.LookupPath(cue.ParsePath("m2p"))
-	m2, err := st.MaskValue(m2p, p1, nil)
-	checkErr(err)
+	m2 := val.LookupPath(cue.ParsePath("m2"))
+	//m2p := val.LookupPath(cue.ParsePath("m2p"))
+	//m2, err := st.MaskValue(m2p, p1, nil)
+	//checkErr(err)
 	fmt.Println("m2:", m2)
 
 	// swapping m1, m2 will produce a `c: _` which does not exist anywhere

@@ -1,9 +1,10 @@
 package structural
 
 import (
+	"fmt"
+
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/errors"
-	"fmt"
 )
 
 // require one value by another
@@ -46,7 +47,9 @@ func requireStruct(require, from cue.Value, opts *Options) error {
 	iter, _ := require.Fields(defaultWalkOptions...)
 	for iter.Next() {
 		s := iter.Selector()
-		p := cue.MakePath(s)
+		// HACK, this works around a bug in CUE
+		// p := cue.MakePath(s)
+		p := cue.ParsePath(fmt.Sprint(s))
 		f := from.LookupPath(p)
 		// fmt.Println(cnt, iter.Value(), f, f.Exists())
 		// check that field exists in from. Should we be checking f.Err()?
