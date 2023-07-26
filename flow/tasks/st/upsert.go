@@ -1,11 +1,9 @@
 package st
 
 import (
-	"fmt"
 	"cuelang.org/go/cue"
 
 	hofcontext "github.com/hofstadter-io/hof/flow/context"
-	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/structural"
 )
 
@@ -28,9 +26,6 @@ func (T *Upsert) Run(ctx *hofcontext.Context) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	s, err := cuetils.PrintCue(r)
-	fmt.Println(s)
 
 	r, err = v.FillPath(cue.ParsePath("out"), r), nil
 	return r, err

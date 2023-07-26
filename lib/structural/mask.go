@@ -131,8 +131,6 @@ func maskLeaf(mask, from cue.Value, opts *Options) (cue.Value, bool) {
 			return cue.Value{}, false
 		}
 	} else {
-		fmt.Println(mask)
-		fmt.Println(from)
 		r := mask.Unify(from)
 		// need to check for errors here?
 		return r, !r.Exists()
