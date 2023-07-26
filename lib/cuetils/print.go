@@ -71,12 +71,12 @@ func CueSyntax(val cue.Value, opts []cue.Option) ast.Node {
 
 func PrintCueValue(val cue.Value) (string, error) {
 	node := val.Syntax(
+		cue.Final(),
 		cue.Attributes(true),
 		cue.Concrete(false),
 		cue.Definitions(true),
 		cue.Docs(true),
 		cue.Hidden(true),
-		cue.Final(),
 		cue.Optional(false),
 		cue.ResolveReferences(true),
 	)

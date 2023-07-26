@@ -3,6 +3,7 @@ module github.com/hofstadter-io/hof
 go 1.19
 
 require (
+	// cuelang.org/go v0.5.0
 	cuelang.org/go v0.6.0-alpha.2
 	dagger.io/dagger v0.7.2
 	github.com/AlecAivazis/survey/v2 v2.3.6
@@ -37,7 +38,6 @@ require (
 	github.com/sashabaranov/go-openai v1.9.1
 	github.com/sergi/go-diff v1.3.1
 	github.com/spf13/cobra v1.7.0
-	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.15.0
 	github.com/stretchr/testify v1.8.2
 	go.uber.org/zap v1.24.0
@@ -117,6 +117,7 @@ require (
 	github.com/spf13/afero v1.9.5 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
+	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect

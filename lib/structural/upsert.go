@@ -1,6 +1,8 @@
 package structural
 
 import (
+	"fmt"
+
 	"cuelang.org/go/cue"
 )
 
@@ -38,10 +40,11 @@ func upsertStruct(up, val cue.Value, opts *Options) (cue.Value, bool) {
 		p := cue.MakePath(s)
 		u := up.LookupPath(p)
 
+		fmt.Println(p)
+
 		// check that field exists in from. Should we be checking f.Err()?
 		if u.Exists() {
 			r, ok := upsertValue(u, iter.Value(), opts)
-			// fmt.Println("r:", r, ok, p)
 			if ok {
 				result = result.FillPath(p, r)
 			}
@@ -57,6 +60,8 @@ func upsertStruct(up, val cue.Value, opts *Options) (cue.Value, bool) {
 		s := iter.Selector()
 		p := cue.MakePath(s)
 		v := val.LookupPath(p)
+
+		fmt.Println(p, val, v, v.Exists(), v.Err(), v.IncompleteKind())
 
 		// check that field exists in from. Should we be checking f.Err()?
 		if !v.Exists() {

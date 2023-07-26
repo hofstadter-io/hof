@@ -1,6 +1,7 @@
 package structural
 
 import (
+	"fmt"
 	"cuelang.org/go/cue"
 	// "cuelang.org/go/cue/errors"
 )
@@ -60,7 +61,7 @@ func maskStruct(mask, from cue.Value, opts *Options) (cue.Value, bool) {
 		// check that field exists in from. Should we be checking f.Err()?
 		if m.Exists() {
 			r, include := maskValue(m, iter.Value(), opts)
-			// fmt.Println("r:", r, ok, p)
+			fmt.Println("r:", r, include, p)
 			if include {
 				result = result.FillPath(p, r)
 			}
@@ -76,7 +77,7 @@ func maskStruct(mask, from cue.Value, opts *Options) (cue.Value, bool) {
 		return from, true
 	}
 
-	// fmt.Println("result:", result)
+	fmt.Println("result:", result)
 
 	return result, true
 
@@ -121,12 +122,16 @@ func maskLeaf(mask, from cue.Value, opts *Options) (cue.Value, bool) {
 		if from.IsConcrete() {
 			r := mask.Unify(from)
 			// need to check for errors here?
+			fmt.Println("ML1:", r.Exists(), r.Err())
 			return r, !r.Exists()
 		} else {
 			return cue.Value{}, false
 		}
 	} else {
+		fmt.Println(mask)
+		fmt.Println(from)
 		r := mask.Unify(from)
+		fmt.Println("ML2:", r.Exists(), r.Err())
 		// need to check for errors here?
 		return r, !r.Exists()
 	}
