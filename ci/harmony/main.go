@@ -132,7 +132,12 @@ func main() {
 					Pipeline(fmt.Sprintf("%s/%s", gkey, ckey)).
 					WithWorkdir("/harmony").
 					WithDirectory("/harmony", repo)
+					// run tidy on code base for them
+					tester = tester.WithExec([]string{"go", "mod", "tidy"})
 			}
+
+			// run tidy on code base for them
+			tester = tester.WithExec([]string{"hof", "mod", "tidy"})
 
 			// cache bust
 			tester = tester.WithEnvVariable("CACHEBUST", time.Now().String())

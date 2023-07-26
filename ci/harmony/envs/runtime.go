@@ -135,12 +135,14 @@ func (R *Runtime) FetchGoDeps(c *dagger.Container, source *dagger.Directory) (*d
 	})
 	c = c.WithExec([]string{"go", "mod", "download"})
 
-	// c = c.WithDirectory("/work", source)
 	return c
 }
 
 func (R *Runtime) BuildHof(c *dagger.Container, source *dagger.Directory) (*dagger.Container) {
 	c = c.Pipeline("hof/build")
+
+	// extra tidy just before build (because we harmonize here)
+	c = c.WithExec([]string{"go", "mod", "tidy"})
 
 	// exclude files we don't need so we can avoid cache misses?
 	c = c.WithDirectory("/work", source, dagger.ContainerWithDirectoryOpts{

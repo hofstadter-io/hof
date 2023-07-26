@@ -6,7 +6,10 @@ Registry: "hofmod-cli": {
 
 	// run the same commands for all cases
 	[string]: scripts: [
-		"hof mod tidy",
+		"""
+			hof mod tidy
+			cue eval -a
+			""",
 	]
 
 	"v0.8.6": {
