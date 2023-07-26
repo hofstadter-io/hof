@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"dagger.io/dagger"
 	"github.com/kr/pretty"
@@ -89,6 +90,12 @@ func main() {
 	daemon, err := R.DockerDaemonContainer()
 	checkErr(err)
 
+	// attach dockerd to the tester containers
+	runner, err = R.AttachDaemonAsService(runner, daemon)
+	checkErr(err)
+	builder, err = R.AttachDaemonAsService(builder, daemon)
+	checkErr(err)
+
 	for gkey, group := range *reg {
 		// should we skip this group?
 		if R.RunGroup != "" && !strings.HasPrefix(gkey, R.RunGroup) {
@@ -127,9 +134,8 @@ func main() {
 					WithDirectory("/harmony", repo)
 			}
 
-			// attach dockerd to the tester container
-			tester, err = R.AttachDaemonAsService(tester, daemon)
-			checkErr(err)
+			// cache bust
+			tester = tester.WithEnvVariable("CACHEBUST", time.Now().String())
 
 			for _, script := range C.Scripts {
 				s := tester.WithExec([]string{"bash", "-c", script})

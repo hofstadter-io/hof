@@ -2,6 +2,7 @@ package envs
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"strings"
 
@@ -73,7 +74,8 @@ func (R *Runtime) GitSource(url, ref string) (*dagger.Directory) {
 
 func (R *Runtime) BaseImage() (*dagger.Container) {
 
-	c := R.Client.Container().From("golang:" + R.GoVer)
+	golang := R.Client.Container().From("golang:" + R.GoVer)
+	c := golang
 
 	// setup mod cache
 	modCache := R.Client.CacheVolume("gomod")
@@ -83,16 +85,43 @@ func (R *Runtime) BaseImage() (*dagger.Container) {
 	buildCache := R.Client.CacheVolume("go-build")
 	c = c.WithMountedCache("/root/.cache/go-build", buildCache)
 
-	// setup workdir
-	c = c.WithWorkdir("/work")
-
-	// add tools
+	// add container tools
 	switch R.ContainerRuntime {
 	case "docker":
 		c = R.AddDockerCLI(c)
 	default:
 		panic("unsupported runtime: " + R.ContainerRuntime)
 	}
+
+	// add packages
+	c = c.WithExec([]string{
+		"apt-get", "update", "-y",
+	})
+	c = c.WithExec([]string{
+		"apt-get", "install", "-y", 
+		"gcc",
+		"git",
+		"make",
+		"python3",
+		"tar",
+		"tree",
+		"wget",
+	})
+
+	// get CUE binary
+	url := fmt.Sprintf("https://github.com/cue-lang/cue/releases/download/%s/cue_%s_linux_amd64.tar.gz", R.CueVer, R.CueVer)
+	tar := fmt.Sprintf("cue_%s_linux_amd64.tar.gz", R.CueVer)
+	t := golang.WithWorkdir("/tmp")
+	t = t.WithExec([]string{ "wget", url})
+	t = t.WithExec([]string{ "ls", "-lh"})
+	t = t.WithExec([]string{ "tar", "-xf", tar})
+	cue := t.File("/tmp/cue")
+
+	// add CUE binary
+	c = c.WithFile("/usr/local/bin/cue", cue)
+
+	// setup workdir
+	c = c.WithWorkdir("/work")
 
 	return c
 }
