@@ -58,7 +58,7 @@ func main() {
 	})
 
 	//
-	// Building Hof
+	// Containers we will need
 	//
 	base := R.GolangImage()
 	deps := R.FetchDeps(base, source)
@@ -68,14 +68,15 @@ func main() {
 	gcloud := R.GcloudImage()
 	gcloud = R.WithLocalGcloudConfig(gcloud)
 
+	// run steps for each runtime & arch
 	for _, runtime := range runtimes {
 		vmName := fmt.Sprintf("%s-fmt-test-%s", user, runtime)
 		t := gcloud.Pipeline(vmName)
 		t = t.WithEnvVariable("CACHEBUST", time.Now().String())
 		
 		// start VM
-		//vmFamily := fmt.Sprintf("hof-debian-%s", runtime)
-		//t = WithBootVM(t, vmName, vmFamily)
+		vmFamily := fmt.Sprintf("hof-debian-%s", runtime)
+		t = WithBootVM(t, vmName, vmFamily)
 
 		// any runtime extra pre-steps before testing
 		// we really want to test that it is permission issue and advise the user
@@ -88,10 +89,10 @@ func main() {
 		case "nerdctl":
 			// https://github.com/containerd/nerdctl/blob/main/docs/faq.md#does-nerdctl-have-an-equivalent-of-sudo-usermod--ag-docker-user-
 			// make a user home bin and add to path
-			// t = WithGcloudRemoteBash(t, vmName, "mkdir -p $HOME/bin && chmod 700 $HOME/bin && echo 'PATH=$HOME/bin:$PATH' >> .profile")	
+			t = WithGcloudRemoteBash(t, vmName, "mkdir -p $HOME/bin && chmod 700 $HOME/bin && echo 'PATH=$HOME/bin:$PATH' >> .profile")	
 			// copy nerdctl and set bits appropriatedly
-			// t = WithGcloudRemoteBash(t, vmName, "cp /usr/local/bin/nerdctl $HOME/bin && sudo chown $(id -u):$(id -g) $HOME/bin/nerdctl && sudo chmod 0755 $HOME/bin/nerdctl && sudo chown root $HOME/bin/nerdctl && sudo chmod +s $HOME/bin/nerdctl")	
-			// t = WithGcloudRemoteCommand(t, vmName, "nerdctl version")	
+			t = WithGcloudRemoteBash(t, vmName, "cp /usr/local/bin/nerdctl $HOME/bin && sudo chown $(id -u):$(id -g) $HOME/bin/nerdctl && sudo chmod 0755 $HOME/bin/nerdctl && sudo chown root $HOME/bin/nerdctl && sudo chmod +s $HOME/bin/nerdctl")	
+			t = WithGcloudRemoteCommand(t, vmName, "nerdctl version")	
 
 		case "nerdctl-rootless":
 			// ensure the current user can run nerdctl
@@ -99,8 +100,11 @@ func main() {
 			t = WithGcloudRemoteCommand(t, vmName, "nerdctl version")	
 		}
 
-		// remote commands to run
+		// send hof to VM
 		t = WithGcloudSendFile(t, vmName, "/usr/local/bin/hof", hof, true)
+
+		// remote commands to run
+		// TODO, ship testscript(s) instead
 		t = WithGcloudRemoteBash(t, vmName, "hof version")
 		t = WithGcloudRemoteBash(t, vmName, "hof fmt pull all@v0.6.8-rc.5")
 		t = WithGcloudRemoteBash(t, vmName, "hof fmt start all@v0.6.8-rc.5")
@@ -119,7 +123,7 @@ func main() {
 		// always try deleting, we mostly ignore the error here (less likely, will also error if not exists)
 		d := gcloud.Pipeline("DELETE " + vmName)
 		d = d.WithEnvVariable("CACHEBUST", time.Now().String())
-		// d = WithDeleteVM(d, vmName)
+		d = WithDeleteVM(d, vmName)
 		_, err := d.Sync(R.Ctx)
 		if err != nil {
 			fmt.Println("deleting error!:", err)
