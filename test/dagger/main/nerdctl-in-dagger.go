@@ -59,19 +59,35 @@ func main() {
 
 }
 
+const socat = `
+set -euo pipefail
+
+touch /run/containerd/containerd
+socat -d -d UNIX-LISTEN:/run/containerd/containerd.sock,reuseaddr,mode=777 TCP:global-containerd:2375 &
+sleep 1
+ls -lh /run/containerd
+%s
+pkill socat
+`
+
 func withRuntimeTest(runtime string, c *dagger.Container) (*dagger.Container) {
 	t := c.Pipeline(runtime + "/test")
+
+	opts := dagger.ContainerWithExecOpts{ SkipEntrypoint: true, InsecureRootCapabilities: true }
+
+	t = t.WithExec([]string{"mkdir", "/run/containerd"}, opts)
+	t = t.WithExec([]string{"apt-get", "install", "-y", "socat"}, opts)
+
 	t = t.WithEnvVariable("CACHE", time.Now().String())
 
 	//t = t.WithEnvVariable("PATH", "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin")
 	//t = t.WithEntrypoint([]string{})
 
-	opts := dagger.ContainerWithExecOpts{ SkipEntrypoint: true, InsecureRootCapabilities: true }
+	t = t.WithExec([]string{"bash", "-c", fmt.Sprintf(socat, runtime + " --version")}, opts)
+	t = t.WithExec([]string{"bash", "-c", fmt.Sprintf(socat, runtime + " info")}, opts)
 
-	t = t.WithExec([]string{"ls", "-lh", "/usr/local/bin"}, opts)
-
-	t = t.WithExec([]string{runtime, "--version"}, opts)
-	t = t.WithExec([]string{runtime, "-a", "grpc://global-containerd:2375", "info"}, opts)
+	t = t.WithExec([]string{"bash", "-c", fmt.Sprintf(socat, runtime + " pull hello-world")}, opts)
+	t = t.WithExec([]string{"bash", "-c", fmt.Sprintf(socat, runtime + " run hello-world")}, opts)
 
 	//t = t.WithExec([]string{bin, "pull", "hello-world"})
 	//t = t.WithExec([]string{bin, "run", "hello-world"})
