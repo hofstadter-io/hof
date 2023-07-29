@@ -31,7 +31,7 @@ func init() {
 	}
 
 	pflag.StringVar(&R.HofVer, "hof", "local", "set Hof version")
-	pflag.StringVar(&R.CueVer, "cue", "v0.5.0", "set CUE version")
+	pflag.StringVar(&R.CueVer, "cue", "v0.6.0-beta.1", "set CUE version")
 	pflag.StringVar(&R.GoVer, "go", "1.20", "set Go version")
 	pflag.StringVar(&R.ContainerRuntime, "container-runtime", "docker", "set container runtime")
 	pflag.StringVar(&R.ContainerVersion, "container-version", "24", "set container version")
