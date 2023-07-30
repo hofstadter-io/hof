@@ -54,6 +54,8 @@ func UpdateFormatterStatus() error {
 		fmtr.Status = container.State
 
 		// determine the container status
+		// TODO, we have various places where we ETL the container runtime responses
+		//       we should move this to CUE, centralize it, and support multiple versions
 		if container.State == "running" {
 			fmtr.Running = true
 		} else {
