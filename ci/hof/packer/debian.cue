@@ -8,42 +8,77 @@ _vars: {
 	suffix: string | *_out @tag(suffix)
 }
 
-_tools: [
-	"docker",
-	"nerdctl",
-	"nerdctl-rootless",
-	"podman",
+_matrix: {
+	tools: [
+		"docker",
+		"nerdctl",
+		"nerdctl-rootless",
+		"podman",
+	]
+	archs: [
+		"amd",
+		"arm",
+	]
+}
+
+packer: [
+	for tool in _matrix.tools for arch in _matrix.archs {
+		"debian-\(tool)-\(arch).json"
+	},
 ]
 
 images: {
-	for tool in _tools {
-		(tool): _image & {"tool": tool}
+	for tool in _matrix.tools for arch in _matrix.archs {
+		"\(tool)-\(arch)": _image & {#tool: tool, #arch: arch}
 	}
 }
 
 _image: {
-	tool: string
+	#tool: string
+
+	#arch: string
+
+	// skip_create_image: true
+
+	// foo
 	builders: [{
-		image_name:   "debian-\(tool)-\(_vars.suffix)"
-		image_family: "hof-debian-\(tool)"
+		_name:        "debian-\(#tool)-\(#arch)"
+		image_name:   "\(_name)-\(_vars.suffix)"
+		image_family: _name
 		type:         "googlecompute"
-		project_id:   "hof-io--develop"
-		source_image: "debian-12-bookworm-v20230609"
 		zone:         "us-central1-a"
+		project_id:   "hof-io--develop"
 
 		ssh_username: "hof"
-		machine_type: "n2-standard-2"
-		disk_size:    "25"
-		disk_type:    "pd-balanced"
 
-		skip_create_image: true
+		disk_size: "25"
+		disk_type: "pd-balanced"
+
+		// base image
+		_debianVersion: "v20230609"
+		source_image:   [
+				if #arch == "amd" {"debian-12-bookworm-\(_debianVersion)"},
+				if #arch == "arm" {"debian-12-bookworm-arm64-\(_debianVersion)"},
+				"unknown arch",
+		][0]
+
+		// machine type
+		machine_type: [
+				if #arch == "amd" {"n2-standard-2"},
+				if #arch == "arm" {"t2a-standard-2"},
+				"unknown arch",
+		][0]
 	}]
 	provisioners: [
 		{
 			type: "shell"
+			env: {
+				"TOOL": #tool
+				"ARCH": #arch
+			}
 			scripts: [
 				"./scripts/packages.sh",
-				"./scripts/\(tool).sh",
+				"./scripts/\(#tool).sh",
 			]
 		},
 	]

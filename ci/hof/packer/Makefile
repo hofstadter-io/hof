@@ -1,8 +1,12 @@
+packer.files:
+	@echo $(FILES)
+
 packer.gen: debian.cue
-	hof gen ./debian.cue -T ':images=[]debian-{{ .tool }}.json'
+	hof gen ./debian.cue -T ':images=[]{{ lookup "builders.[0].image_family" . }}.json'
 
 packer.build: packer.gen
-	packer build -force debian-docker.json
-	packer build -force debian-nerdctl.json
-	packer build -force debian-nerdctl-rootless.json
-	packer build -force debian-podman.json
+	@set -e; for file in $(shell cue eval debian.cue -e 'strings.Join(packer,"\n")' --out text); do \
+		echo $$file; \
+		packer build -force $$file; \
+		echo $$file; \
+	done

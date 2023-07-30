@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:7.0-bullseye-slim AS build-env
+FROM mcr.microsoft.com/dotnet/sdk:7.0-bookworm-slim AS build-env
 WORKDIR /App
 
 # https://github.com/dotnet/sdk/issues/28971#issuecomment-1308881150
@@ -22,7 +22,7 @@ RUN for i in $(seq 1 5); do \
 RUN dotnet publish -c Release -o out -r $RID $(cat /tmp/rid) --self-contained false --no-restore
 
 # Build runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:7.0-bullseye-slim
+FROM mcr.microsoft.com/dotnet/aspnet:7.0-bookworm-slim
 WORKDIR /App
 COPY --from=build-env /App/out/ .
 

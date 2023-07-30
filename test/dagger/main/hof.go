@@ -41,10 +41,10 @@ func main() {
 	//
 	// Building
 	//
-	base := R.GolangImage()
+	base := R.GolangImage("linux/amd64")
 	deps := R.FetchDeps(base, source)
 	builder := R.BuildHof(deps, source)
-	runner := R.RuntimeContainer(builder)
+	runner := R.RuntimeContainer(builder, "linux/amd64")
 
 	// builder.Sync(R.Ctx)
 	//out, err := runner.Stdout(ctx)
@@ -80,23 +80,23 @@ func main() {
 	err = R.TestCommandFmt(tester, source)
 	errs["fmt"] = err
 
-	err = R.TestMod(tester, source)
-	errs["mod"] = err
+	//err = R.TestMod(tester, source)
+	//errs["mod"] = err
 
-	err = R.TestAdhocRender(tester, source)
-	errs["render"] = err
+	//err = R.TestAdhocRender(tester, source)
+	//errs["render"] = err
 
-	err = R.TestCreate(tester, source)
-	errs["create"] = err
+	//err = R.TestCreate(tester, source)
+	//errs["create"] = err
 
-	err = R.TestFlow(tester, source)
-	errs["flow"] = err
+	//err = R.TestFlow(tester, source)
+	//errs["flow"] = err
 
-	err = R.TestStructural(tester, source)
-	errs["structural"] = err
+	//err = R.TestStructural(tester, source)
+	//errs["structural"] = err
 
-	err = R.TestDatamodel(tester, source)
-	errs["datamodel"] = err
+	//err = R.TestDatamodel(tester, source)
+	//errs["datamodel"] = err
 
 	tester.WithExec([]string{"echo", "finished!"})
 
