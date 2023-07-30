@@ -50,7 +50,7 @@ ghacue.#Workflow & {
 			}
 
 			steps: [
-				common.Steps.go.setup & {#ver: "1.20.x"},
+				common.Steps.go.setup,
 				common.Steps.go.cache,
 				common.Steps.checkout,
 				common.Steps.vars,
