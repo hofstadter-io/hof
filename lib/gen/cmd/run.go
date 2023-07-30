@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+	hfmt "github.com/hofstadter-io/hof/lib/fmt"
 )
 
 func Run(args []string, rflags flags.RootPflagpole, gflags flags.GenFlagpole) error {
@@ -28,6 +29,11 @@ func Run(args []string, rflags flags.RootPflagpole, gflags flags.GenFlagpole) er
 }
 
 func run(args []string, rflags flags.RootPflagpole, gflags flags.GenFlagpole) error {
+
+	err := hfmt.UpdateFormatterStatus()
+	if err != nil {
+		return fmt.Errorf("update formatter status: %w", err)
+	}
 
 	R, err := prepRuntime(args, rflags, gflags)
 	if err != nil {

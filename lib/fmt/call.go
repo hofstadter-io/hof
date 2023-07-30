@@ -109,10 +109,10 @@ func (fmtr *Formatter) WaitForRunning(retry int, delay time.Duration) error {
 			// here, we update all formatter statuses in the wait/retry loop of each
 			// this might end up being ok, since the next formatter will come in return immediately
 			// ... maybe we can just remove this call?
-			err = updateFormatterStatus()
-			if err != nil {
-				return err
-			}
+			//err = UpdateFormatterStatus()
+			//if err != nil {
+			//  return err
+			//}
 			return nil
 		}
 
