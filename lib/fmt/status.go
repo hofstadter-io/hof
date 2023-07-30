@@ -51,6 +51,17 @@ func UpdateFormatterStatus() error {
 		// get fmtr
 		fmtr := formatters[name]
 
+		c := container
+		updateFmtrContainer(fmtr, &c)
+
+		formatters[name] = fmtr
+	}
+
+	return nil
+}
+
+func updateFmtrContainer(fmtr *Formatter, container *container.Container) {
+
 		fmtr.Status = container.State
 
 		// determine the container status
@@ -74,12 +85,6 @@ func UpdateFormatterStatus() error {
 		}
 
 		// save container to fmtr
-		c := container
-		fmtr.Container = &c
-
-		formatters[name] = fmtr
-	}
-
-	return nil
+		fmtr.Container = container
 }
 

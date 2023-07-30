@@ -97,22 +97,13 @@ func (fmtr *Formatter) WaitForRunning(retry int, delay time.Duration) error {
 			name = strings.TrimPrefix(name, ContainerPrefix)
 			// fmt.Println("wait-running:", fmtr.Name, name, container.State)
 			if name == fmtr.Name {
-				fmtr.Status = container.State
+				c := container
+				updateFmtrContainer(fmtr, &c)
 				break
 			}
 		}
 
-		if fmtr.Status == "running" {
-			fmtr.Running = true
-			// we need to be more detailed here if we are going to make this a sync.Once
-			// (well we can't once here, but we want to generally for most other uses)
-			// here, we update all formatter statuses in the wait/retry loop of each
-			// this might end up being ok, since the next formatter will come in return immediately
-			// ... maybe we can just remove this call?
-			//err = UpdateFormatterStatus()
-			//if err != nil {
-			//  return err
-			//}
+		if fmtr.Running {
 			return nil
 		}
 
@@ -146,7 +137,7 @@ func (fmtr *Formatter) WaitForReady(retry int, delay time.Duration) error {
 
 	for i := 0; i < retry; i++ {
 		_, err := fmtr.Call("ready-check", []byte(payload["source"].(string)), payload["config"])
-		// fmt.Println("wait-ready:", i, fmtr.Name, fmtr.Ready, err)
+		fmt.Println("wait-ready:", i, fmtr.Name, fmtr.Ready, err)
 		// if no error, then ready
 		if err == nil {
 			fmtr.Ready = true
