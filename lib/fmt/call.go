@@ -74,6 +74,11 @@ func (fmtr *Formatter) Call(filename string, content []byte, config any) ([]byte
 }
 
 func (fmtr *Formatter) WaitForRunning(retry int, delay time.Duration) error {
+
+	// We should probably rethink how this works, such that
+	// we minimize our exec out to docker (et al)
+	// we can exec once and then check on all formatters
+
 	// fmt.Println("wait-running.0:", fmtr.Name, fmtr.Status, fmtr.Running, fmtr.Ready)
 	// return if already running
 	if fmtr.Running {
@@ -99,6 +104,11 @@ func (fmtr *Formatter) WaitForRunning(retry int, delay time.Duration) error {
 
 		if fmtr.Status == "running" {
 			fmtr.Running = true
+			// we need to be more detailed here if we are going to make this a sync.Once
+			// (well we can't once here, but we want to generally for most other uses)
+			// here, we update all formatter statuses in the wait/retry loop of each
+			// this might end up being ok, since the next formatter will come in return immediately
+			// ... maybe we can just remove this call?
 			err = updateFormatterStatus()
 			if err != nil {
 				return err

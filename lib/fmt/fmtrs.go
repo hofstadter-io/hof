@@ -79,7 +79,7 @@ func init() {
 	}
 
 	// gracefully init images / containers
-	err := Init()
+	err := container.InitClient()
 	if err != nil {
 		if debug {
 			fmt.Println("fmt init error:", err)
@@ -91,20 +91,6 @@ func init() {
 		fmt.Println("FORMAT_DISABLED", FORMAT_DISABLED)
 		fmt.Println("DOCKER_FORMAT_DISABLED", DOCKER_FORMAT_DISABLED)
 	}
-}
-
-func Init() error {
-	err := container.InitClient()
-	if err != nil {
-		return err
-	}
-
-	err = updateFormatterStatus()
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 type Formatter struct {

@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sort"
 	"time"
 
 	"github.com/olekukonko/tablewriter"
@@ -440,6 +441,8 @@ func Info(which string) (err error) {
 					}
 				}
 
+				sort.Strings(fmtr.Available)
+
 				if fmtr.Container != nil {
 					rows = append(rows, []string{
 						fmtr.Name,
@@ -466,8 +469,6 @@ func Info(which string) (err error) {
 			return rows, nil
 		},
 	)
-
-	return nil
 }
 
 func updateFormatterStatus() error {

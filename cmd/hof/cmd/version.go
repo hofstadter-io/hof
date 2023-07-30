@@ -8,8 +8,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
-
 	"github.com/hofstadter-io/hof/cmd/hof/verinfo"
+	"github.com/hofstadter-io/hof/lib/container"
 )
 
 const versionMessage = `hof - the high code framework
@@ -23,6 +23,7 @@ CueVersion:  %s
 OS / Arch:   %s %s
 ConfigDir:   %s
 CacheDir:    %s
+Containers:  %s
 
 Author:      Hofstadter, Inc
 Homepage:    https://hofstadter.io
@@ -48,6 +49,16 @@ var VersionCmd = &cobra.Command{
 		configDir, _ := os.UserConfigDir()
 		cacheDir, _ := os.UserCacheDir()
 
+		err := container.InitClient()
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		rt, err := container.GetVersion()
+		if err != nil {
+			fmt.Println(err)
+		}
+
 		fmt.Printf(
 			versionMessage,
 			verinfo.Version,
@@ -59,6 +70,7 @@ var VersionCmd = &cobra.Command{
 			verinfo.BuildArch,
 			filepath.Join(configDir,"hof"),
 			filepath.Join(cacheDir,"hof"),
+			rt,
 		)
 	},
 }
