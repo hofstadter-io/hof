@@ -14,15 +14,20 @@ type Runtime struct {
 	Client *dagger.Client
 }
 
+var goVer = "golang:1.20"
+
 func (R *Runtime) GolangImage(platform string) (*dagger.Container) {
-	c := R.Client.Container(dagger.ContainerOpts{Platform: dagger.Platform(platform)}).From("golang:1.20")
+	c := R.Client.
+		Pipeline(fmt.Sprintf("%s %s", goVer, platform)).
+		Container(dagger.ContainerOpts{Platform: dagger.Platform(platform)}).
+		From(goVer)
 
 	// setup mod cache
 	modCache := R.Client.CacheVolume("gomod-" + platform)
 	c = c.WithMountedCache("/go/pkg/mod", modCache)
 
 	// setup build cache
-	buildCache := R.Client.CacheVolume("go-build")
+	buildCache := R.Client.CacheVolume("go-build-" + platform)
 	c = c.WithMountedCache("/root/.cache/go-build", buildCache)
 
 	// add tools

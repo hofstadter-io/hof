@@ -23,7 +23,7 @@ var (
 		"podman",
 	}
 	arches = []string{
-		// "amd",
+		"amd",
 		"arm",
 	}
 
