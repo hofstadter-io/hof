@@ -61,6 +61,13 @@ import (
 			Long:    "no-format"
 		},
 		{
+			Name:    "KeepDeleted"
+			Type:    "bool"
+			Default: "false"
+			Help:    "keep files that would be deleted after code generation"
+			Long:    "keep-deleted"
+		},
+		{
 			Name:    "watch"
 			Type:    "bool"
 			Default: "false"

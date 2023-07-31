@@ -7,27 +7,29 @@ import (
 	"strings"
 
 	"github.com/mattn/go-zglob"
+
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
-func (G *Generator) CleanupShadow(outputBase, shadowBase string, verbosity int) (errs []error) {
+func (G *Generator) CleanupShadow(outputBase, shadowBase string, verbosity int, keepDeleted bool) (errs []error) {
 	// calc dirs per generator
 	outputDir := filepath.Join(outputBase, G.OutputPath())
 	shadowDir := filepath.Join(shadowBase, G.ShadowPath())
 
 	// Cleanup File & Shadow
-	errsC := G.CleanupRemainingShadow(outputDir, shadowDir, verbosity)
+	errsC := G.CleanupRemainingShadow(outputDir, shadowDir, verbosity, keepDeleted)
 	errs = append(errs, errsC...)
 
 	// process the subgenerators
 	for _, SG := range G.Generators {
-		sgerrs := SG.CleanupShadow(outputBase, shadowBase, verbosity)
+		sgerrs := SG.CleanupShadow(outputBase, shadowBase, verbosity, keepDeleted)
 		errs = append(errs, sgerrs...)
 	}
 
 	return errs
 }
 
-func (G *Generator) CleanupRemainingShadow(outputDir, shadowDir string, verbosity int) (errs []error) {
+func (G *Generator) CleanupRemainingShadow(outputDir, shadowDir string, verbosity int, keepDeleted bool) (errs []error) {
 	// no need if not diff3
 	if !G.UseDiff3 {
 		return nil
@@ -42,22 +44,32 @@ func (G *Generator) CleanupRemainingShadow(outputDir, shadowDir string, verbosit
 			fmt.Println("  -", f)
 		}
 
-		// TODO (good-first-issue, small)
-		// this is a good place to delete dirs
-		// (1) get dirname of each
-		// (2) if empty, then remove
-
-		err := os.Remove(genFilename)
+		// always remove the shadow file
+		err := os.Remove(shadowFilename)
 		if err != nil {
 			errs = append(errs, err)
 		}
 
-		err = os.Remove(shadowFilename)
+		// remove the actual file, unless user says otherwise
+		if !keepDeleted {
+			err := os.Remove(genFilename)
+			if err != nil {
+				errs = append(errs, err)
+			}
+
+			G.Stats.NumDeleted += 1
+		}
+
+
+		err = yagu.RemoveEmptyDirs(filepath.Dir(shadowFilename))
+		if err != nil {
+			errs = append(errs, err)
+		}
+		err = yagu.RemoveEmptyDirs(filepath.Dir(genFilename))
 		if err != nil {
 			errs = append(errs, err)
 		}
 
-		G.Stats.NumDeleted += 1
 	}
 
 	return errs
