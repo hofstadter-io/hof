@@ -57,6 +57,7 @@ jobs:
           make deps
       - name: Test
         run: |-
+          hof fmt start prettier@v0.6.8-rc.5
           cd docs
           make gen
           make test

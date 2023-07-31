@@ -4,7 +4,7 @@ exists cue.mod/pkg/github.com/hofstadter-io/hof/cue.mod/module.cue
 
 -- cue.mod/module.cue --
 module: "github.com/test/withsolo"
-cue: "0.5.0"
+cue: "0.6.0-beta.1"
 
 require: {
 	"github.com/hofstadter-io/hof": "v0.0.0-20230309083347-a7d892fc4363e2b9d8ee41183fd12c32f71abf06"

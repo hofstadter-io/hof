@@ -23,7 +23,7 @@ IdentityFile ~/.ssh/id_rsa_mycompanyaccount_gitlab
 
 -- cue.mod/module.cue --
 module: "github.com/test/priv-github"
-cue: "v0.5.0"
+cue: "0.6.0-beta.1"
 
 require: {
 	"github.com/hofstadter-io/hofmod-test-priv-github": "v0.0.2"

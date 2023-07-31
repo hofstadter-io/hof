@@ -93,15 +93,6 @@ func (r runtime) execJSON(ctx context.Context, resp any, args ...string) error {
 	return nil
 }
 
-func (r runtime) Version(ctx context.Context) (RuntimeVersion, error) {
-	var rv RuntimeVersion
-	if err := r.execJSON(ctx, &rv, "version", "--format", "{{ json . }}"); err != nil {
-		return rv, fmt.Errorf("exec json: %w", err)
-	}
-
-	return rv, nil
-}
-
 func (r runtime) Containers(ctx context.Context, name Name) ([]Container, error) {
 	args := []string{
 		"container", "ls", "-a",
@@ -272,6 +263,5 @@ func ndjson[T any](r io.Reader) ([]T, error) {
 		}
 	}
 
-	// fmt.Println("ts:", ts)
 	return ts, nil
 }

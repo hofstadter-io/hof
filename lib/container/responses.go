@@ -16,8 +16,6 @@ type Image struct {
 	Names []string
 }
 
-var portExp = regexp.MustCompile(`:(\d+)->`)
-
 type Container struct {
 	Ports  PortList
 	Image  string
@@ -27,6 +25,14 @@ type Container struct {
 }
 
 type PortList []int
+
+type NameList []string
+
+type structuredPort struct {
+	HostPort int `json:"host_port"`
+}
+
+var portExp = regexp.MustCompile(`:(\d+)->`)
 
 func (l *PortList) UnmarshalJSON(b []byte) error {
 	if len(b) == 0 {
@@ -72,8 +78,6 @@ func (l *PortList) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-type NameList []string
-
 func (l *NameList) UnmarshalJSON(b []byte) error {
 	if len(b) == 0 {
 		return nil
@@ -97,20 +101,4 @@ func (l *NameList) UnmarshalJSON(b []byte) error {
 	*l = ll
 
 	return nil
-}
-
-type structuredPort struct {
-	HostPort int `json:"host_port"`
-}
-
-type RuntimeVersion struct {
-	Client struct {
-		Version    string
-		APIVersion string
-	}
-	Server struct {
-		Version       string
-		APIVersion    string
-		MinAPIVersion string
-	}
 }

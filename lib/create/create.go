@@ -20,6 +20,7 @@ import (
 
 	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/datautils/io"
+	hfmt "github.com/hofstadter-io/hof/lib/fmt"
 	"github.com/hofstadter-io/hof/lib/gen"
 	gencmd "github.com/hofstadter-io/hof/lib/gen/cmd"
 	"github.com/hofstadter-io/hof/lib/repos/cache"
@@ -112,6 +113,11 @@ func Create(module string, extra []string, rootflags flags.RootPflagpole, cmdfla
 
 
 	fmt.Println("setting up...")
+	err = hfmt.UpdateFormatterStatus()
+	if err != nil {
+		return fmt.Errorf("update formatter status: %w", err)
+	}
+
 	tmpdir, subdir, err = setupTmpdir(url, ref)
 	if err != nil {
 		return fmt.Errorf("while setting up tmpdir: %w", err)

@@ -22,7 +22,7 @@ ghacue.#Workflow & {
 			steps: [
 				// general setup
 				common.Steps.cue.install,
-				common.Steps.go.setup & {#ver: "1.20.x"},
+				common.Steps.go.setup,
 				common.Steps.go.cache,
 				common.Steps.checkout,
 				common.Steps.vars,
@@ -34,6 +34,7 @@ ghacue.#Workflow & {
 				{
 					name: "Test"
 					run: """
+						hof fmt start prettier@v0.6.8-rc.5
 						cd docs
 						make gen
 						make test
