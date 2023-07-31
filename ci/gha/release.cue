@@ -25,7 +25,7 @@ ghacue.#Workflow & {
 						gh run watch  ${{ github.run_id }}	
 						"""
 					env: GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-					if: "github.repository != hofstadter-io/hof"
+					if: "github.repository != 'hofstadter-io/hof'"
 				},
 				common.Steps.checkout,
 				common.Steps.vars,

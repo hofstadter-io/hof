@@ -16,7 +16,7 @@ jobs:
           gh run watch  ${{ github.run_id }}	
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: github.repository != hofstadter-io/hof
+        if: github.repository != 'hofstadter-io/hof'
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Setup Vars
