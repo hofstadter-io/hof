@@ -85,6 +85,7 @@ Flags:
   -D, --diff3                  enable diff3 support for custom code
   -G, --generator strings      generator tags to run, default is all, or none if -T is used
   -h, --help                   help for gen
+      --keep-deleted           keep files that would be deleted after code generation
       --no-format              disable formatting during code gen (ad-hoc only)
   -O, --outdir string          base directory to write all output u
   -P, --partial strings        file globs to partial templates to register with the templates

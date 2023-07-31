@@ -179,7 +179,7 @@ func (R *Runtime) CleanupRemainingShadow() (errs []error) {
 	}
 
 	for _, G := range R.Generators {
-		gerrs := G.CleanupShadow(R.OutputDir(R.GenFlags.Outdir), R.ShadowDir(), R.Flags.Verbosity)
+		gerrs := G.CleanupShadow(R.OutputDir(R.GenFlags.Outdir), R.ShadowDir(), R.Flags.Verbosity, R.GenFlags.KeepDeleted)
 		errs = append(errs, gerrs...)
 	}
 

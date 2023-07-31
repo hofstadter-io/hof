@@ -94,6 +94,7 @@ func init() {
 	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.Partial), "partial", "P", nil, "file globs to partial templates to register with the templates")
 	GenCmd.Flags().BoolVarP(&(flags.GenFlags.Diff3), "diff3", "D", false, "enable diff3 support for custom code")
 	GenCmd.Flags().BoolVarP(&(flags.GenFlags.NoFormat), "no-format", "", false, "disable formatting during code gen (ad-hoc only)")
+	GenCmd.Flags().BoolVarP(&(flags.GenFlags.KeepDeleted), "keep-deleted", "", false, "keep files that would be deleted after code generation")
 	GenCmd.Flags().BoolVarP(&(flags.GenFlags.Watch), "watch", "w", false, "run in watch mode, regenerating when files change, implied by -W/X")
 	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.WatchFull), "watch-globs", "W", nil, "filepath globs to watch for changes and trigger full regen")
 	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.WatchFast), "watch-fast", "X", nil, "filepath globs to watch for changes and trigger fast regen")
