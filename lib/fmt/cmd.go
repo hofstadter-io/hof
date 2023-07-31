@@ -43,6 +43,11 @@ type formatGroup struct {
 }
 
 func Run(args []string, rflags flags.RootPflagpole, cflags flags.FmtFlagpole) (err error) {
+	err = UpdateFormatterStatus()
+	if err != nil {
+		return fmt.Errorf("update formatter status: %w", err)
+	}
+
 	// we need to build up a struct to iterate over
 	gs := []formatGroup{}
 
