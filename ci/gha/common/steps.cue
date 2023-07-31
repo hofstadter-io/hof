@@ -69,7 +69,7 @@ Steps: {
 			with: {
 				// either 'goreleaser' (default) or 'goreleaser-pro'
 				distribution: "goreleaser"
-				version:      "latest"
+				version:      "1.18.2"
 				workdir:      "cmd/hof"
 				args:         "release --clean -f goreleaser.yml -p 1"
 			}
