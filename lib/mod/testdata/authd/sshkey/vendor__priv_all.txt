@@ -38,7 +38,7 @@ IdentityFile ~/.ssh/id_rsa
 
 -- cue.mod/module.cue --
 module: "github.com/test/priv-all"
-cue: "v0.5.0"
+cue: "0.6.0-beta.1"
 
 require: {
     "bitbucket.org/hofstadter/hofmod-test-priv-bitbucket": "v0.0.2"

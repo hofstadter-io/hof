@@ -4,7 +4,7 @@ exec hof mod vendor
 
 -- cue.mod/module.cue --
 module: "hof.io/test"
-cue:    "0.5.0"
+cue:    "0.6.0-beta.1"
 
 require: {
 	"github.com/hofstadter-io/hof": "v0.6.8-beta.3"
