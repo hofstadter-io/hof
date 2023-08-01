@@ -205,10 +205,14 @@ func Start(fmtr string, replace bool) error {
 		fmt.Println("starting:", name, ver)
 
 		var (
-			fmtr = formatters[name]
+			fmtr, ok = formatters[name]
 			ref  = fmt.Sprintf("%s/fmt-%s:%s", CONTAINER_REPO, name, ver)
 			n    = ContainerPrefix + name
 		)
+
+		if !ok {
+			return fmt.Errorf("unknown formatter %q", name)
+		}
 
 		// what other statuses do we need to check here? (maybe none)
 		if fmtr.Status == "exited" {
