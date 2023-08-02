@@ -9,7 +9,7 @@ cmp cue.mod/module.cue match/cue.mod/module.cue
 
 -- match/cue.mod/module.cue --
 module: "github.com/test/mod"
-cue: "0.6.0-beta.1"
+cue: "0.6.0-rc.1"
 -- dummy_end --
 
 

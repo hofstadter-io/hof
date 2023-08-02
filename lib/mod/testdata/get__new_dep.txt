@@ -6,10 +6,10 @@ cmp cue.mod/module.cue match/cue.mod/module-get.cue
 
 -- match/cue.mod/module-init.cue --
 module: "hof.io/test"
-cue: "0.6.0-beta.1"
+cue: "0.6.0-rc.1"
 -- match/cue.mod/module-get.cue --
 module: "hof.io/test"
-cue:    "0.6.0-beta.1"
+cue:    "0.6.0-rc.1"
 
 require: {
 	"github.com/hofstadter-io/hof": "v0.6.8-beta.5"

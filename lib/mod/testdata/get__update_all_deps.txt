@@ -3,7 +3,7 @@ cmp cue.mod/module.cue match/cue.mod/module-get.cue
 
 -- cue.mod/module.cue --
 module: "github.com/hof/test"
-cue: "0.6.0-beta.1"
+cue: "0.6.0-rc.1"
 
 require: {
 	"github.com/hofstadter-io/hof": "v0.6.8-beta.13"
@@ -15,7 +15,7 @@ indirect: {
 }
 -- match/cue.mod/module-get.cue --
 module: "github.com/hof/test"
-cue:    "0.6.0-beta.1"
+cue:    "0.6.0-rc.1"
 
 require: {
 	"github.com/hofstadter-io/hof": "v0.6.8-beta.13"
