@@ -3,7 +3,7 @@ exec hof mod vendor
 
 -- cue.mod/module.cue --
 module: "github.com/test/priv-bitbucket"
-cue: "0.6.0-beta.1"
+cue: "0.6.0"
 
 require: {
 	"bitbucket.org/hofstadter/hofmod-test-priv-bitbucket": "v0.0.2"

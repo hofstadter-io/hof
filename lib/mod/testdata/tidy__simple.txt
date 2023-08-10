@@ -6,14 +6,14 @@ exists cue.mod/pkg/github.com/hofstadter-io/ghacue
 
 -- cue.mod/module.cue --
 module: "github.com/hof/test"
-cue: "0.6.0-rc.1"
+cue: "0.6.0"
 
 require: {
 	"github.com/hofstadter-io/hof": "v0.6.8-beta.5"
 }
 -- cue.mod/module.golden --
 module: "github.com/hof/test"
-cue:    "0.6.0-rc.1"
+cue:    "0.6.0"
 
 require: {
 	"github.com/hofstadter-io/hof": "v0.6.8-beta.5"

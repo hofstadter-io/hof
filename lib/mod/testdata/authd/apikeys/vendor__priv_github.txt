@@ -4,7 +4,7 @@ exists cue.mod/pkg/github.com/hofstadter-io/hofmod-test-priv-github/cue.mod/modu
 
 -- cue.mod/module.cue --
 module: "github.com/test/priv-github"
-cue: "0.6.0-beta.1"
+cue: "0.6.0"
 
 require: {
 	"github.com/hofstadter-io/hofmod-test-priv-github": "v0.0.2"
