@@ -7,7 +7,7 @@ hof mod tidy
 
 -- cue.mod/module.cue --
 module: "github.com/hofstadter-io/hof-docs"
-cue: "0.6.0-rc.1"
+cue: "0.6.0"
 
 require: {
 	"github.com/hofstadter-io/cuelm": "v0.1.0"
