@@ -29,6 +29,8 @@ func (cm *CueMod) SolveMVS(latest bool) error {
 		if _, ok := cm.Replace[path]; ok {
 			continue
 		}
+		// todo, we probably need to get the lastest of each target before starting MVS here
+		// but only when latest == true
 		dep := module.Version{ Path: path, Version: ver }
 		targets = append(targets, dep)
 	}
