@@ -60,7 +60,7 @@ This makes your code immediately reuseable by pushing commits or a semver tag.
 
 {{<codeInner>}}
 module: "github.com/hofstadter-io/hof"
-cue: "0.5.0"
+cue: "0.6.0"
 
 require:  { ... } // your dependencies
 indirect: { ... } // dependency-dependencies
