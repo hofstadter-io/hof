@@ -12,7 +12,7 @@ exists out/always.txt
 
 -- cue.mod/module.cue --
 module: "hof.io/test"
-cue: "0.6.0-beta.1"
+cue: "0.6.0"
 
 require: {
 	"github.com/hofstadter-io/hof": "v0.6.8-rc.5"
