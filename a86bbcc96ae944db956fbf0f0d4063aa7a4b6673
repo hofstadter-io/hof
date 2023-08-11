@@ -1,0 +1,1 @@
+{"timestamp":"1626884853","author":"verdverm","description":"Generally speaking, I tried to follow the Golang model which prefers to use host APIs over the git protocol. I believe they will fall back to git if there are no APIs specified. This is for security reasons."}
