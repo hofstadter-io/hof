@@ -53,3 +53,5 @@
 {"timestamp":"1626884048","author":"verdverm","location":{"commit":"8733464b4f5e3ccbd43a28b67f2f905aa25655c8","path":"lib/mod/cache/fetch.go","range":{"startLine":137}},"description":"Might as well remove the commented out section rather than reformatting it"}
 
 {"timestamp":"1626884062","author":"verdverm","location":{"commit":"8733464b4f5e3ccbd43a28b67f2f905aa25655c8","path":"lib/mod/modder/modder_vendor.go","range":{"startLine":127}},"description":"Might as well remove the commented out section rather than reformatting it"}
+
+{"timestamp":"1626884187","author":"verdverm","location":{"commit":"8733464b4f5e3ccbd43a28b67f2f905aa25655c8","path":".gitignore","range":{"startLine":44}},"description":"Not really sure why any of this is here anyhow. I use vim and do not need this"}
