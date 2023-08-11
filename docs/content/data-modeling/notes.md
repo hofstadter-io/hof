@@ -4,6 +4,10 @@ title: Notes
 weight: 100
 ---
 
+{{<lead>}}
+These are some notes that haven't found a home yet or have not been written about.
+{{</lead>}}
+
 Data Lenses:
 
 - [Project Cambria](https://www.inkandswitch.com/cambria/) (main inspiration)
