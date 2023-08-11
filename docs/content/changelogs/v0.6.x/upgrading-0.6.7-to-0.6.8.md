@@ -74,8 +74,9 @@ You now only need one loop to process all model fields,
 rather than before where you needed a loop each for `Fields` and `Relations`.
 You can still get each separately by filtering the `Fields` on the `Relation` sub-field.
 
+<br>
 
-Before (old way) [schema](https://github.com/hofstadter-io/hof/blob/v0.6.7/schema/dm/dm.cue):
+#### Before ([old schema](https://github.com/hofstadter-io/hof/blob/v0.6.7/schema/dm/dm.cue))
 
 ```text
 #MyModels: dm.#Datamodel & {
@@ -108,15 +109,17 @@ Before (old way) [schema](https://github.com/hofstadter-io/hof/blob/v0.6.7/schem
 }
 ```
 
+<br>
 
-Changes:
+#### Changes
 
 - `dm.#Datamodel` -> `sql.Datamodel`
 - `Model.Relations.[name].Reln` -> `Model.Fields.[name].Relation.Type`
 - `Model.Relations.[name].Type` -> `Model.Fields.[name].Relation.Other`
 
+<br>
 
-After (new way) [schema](https://github.com/hofstadter-io/hof/blob/v0.6.8/schema/dm/sql/dm.cue):
+#### After ([new schema](https://github.com/hofstadter-io/hof/blob/v0.6.8/schema/dm/sql/dm.cue))
 
 ```text
 MyModels: sql.Datamodel & {
