@@ -55,3 +55,5 @@
 {"timestamp":"1626884062","author":"verdverm","location":{"commit":"8733464b4f5e3ccbd43a28b67f2f905aa25655c8","path":"lib/mod/modder/modder_vendor.go","range":{"startLine":127}},"description":"Might as well remove the commented out section rather than reformatting it"}
 
 {"timestamp":"1626884187","author":"verdverm","location":{"commit":"8733464b4f5e3ccbd43a28b67f2f905aa25655c8","path":".gitignore","range":{"startLine":44}},"description":"Not really sure why any of this is here anyhow. I use vim and do not need this"}
+
+{"timestamp":"1626884407","author":"verdverm","location":{"commit":"8733464b4f5e3ccbd43a28b67f2f905aa25655c8","path":"go.mod","range":{"startLine":31}},"description":"Can we pin this to the most recent semver:\r\nhttps://github.com/kevinburke/ssh_config/releases/tag/v1.1.0\r\n\r\nThis version seems out of date"}
