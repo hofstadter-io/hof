@@ -1,1 +1,3 @@
 {"timestamp":"1666695102","author":"verdverm","description":"did this manually, tested against more recent code"}
+
+{"timestamp":"1666695105","author":"dependabot[bot]","description":"OK, I won't notify you again about this release, but will get in touch when a new version is available. If you'd rather skip all updates until the next major or minor version, let me know by commenting `@dependabot ignore this major version` or `@dependabot ignore this minor version`.\n\nIf you change your mind, just re-open this PR and I'll resolve any conflicts on it."}
