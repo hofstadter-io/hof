@@ -1,3 +1,5 @@
 {"timestamp":"1681869703","author":"verdverm","description":"where do we add the metadata to the image? we probably need to at least set the manifest type, yea?"}
 
 {"timestamp":"1681872570","author":"andrewhare","description":"\u003e where do we add the metadata to the image? we probably need to at least set the manifest type, yea?\r\n\r\nGood thought. I will add that."}
+
+{"timestamp":"1681923971","author":"verdverm","description":"We need to think about module mirroring, and import path constraints we have considered. How can someone mirror modules or use something like Harbor?\r\n\r\nMaybe this is what GOPROXY | CUEPROXY would hold? Map this pattern to this IP or domain, and by explicitly setting you know you are in advanced territory?\r\n\r\nhttps://go.dev/ref/mod#module-proxy"}
