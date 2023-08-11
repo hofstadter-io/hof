@@ -11,3 +11,5 @@
 {"timestamp":"1688420772","author":"verdverm","location":{"commit":"d4a18c78a7a5b2edfdbb5e7e5a0d6def8e271673","path":"lib/container/client.go","range":{"startLine":28}},"description":"We should look for a `HOF_CONTAINER_RUNTIME` variable here so the users can force a particular runtime, regardless of our fallback ordering."}
 
 {"timestamp":"1688420818","author":"verdverm","location":{"commit":"d4a18c78a7a5b2edfdbb5e7e5a0d6def8e271673","path":"lib/container/runtime.go","range":{"startLine":112}},"description":"no `arg` here, but there is a `--filter` flag we can use to the same effect"}
+
+{"timestamp":"1688420887","author":"verdverm","location":{"commit":"d4a18c78a7a5b2edfdbb5e7e5a0d6def8e271673","path":"lib/container/runtime.go","range":{"startLine":151}},"description":"Do we need to deal with exposing ports here?  I was using the equivalent of the \"expose all\" option to docker, via the sdk, the docker cli has a flag for this, but the other runtimes do not iirc. (which is where the newer runtimes are a PITA)\r\n\r\nWe were going to manually find the next available port starting at some arbitrary value like 4242. "}
