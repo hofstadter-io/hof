@@ -5,3 +5,5 @@
 {"timestamp":"1626891203","author":"verdverm","description":"Go falls back on git for private repos, there is special git config override for Go"}
 
 {"timestamp":"1626891386","author":"verdverm","description":"Also, trying to keep this CUE Proposal in mind which will also be very Go like\r\n\r\nhttps://github.com/cue-lang/cue/issues/851"}
+
+{"timestamp":"1626898339","author":"b4nst","description":"Yes, I'm actually using this for Cue projects so I'm also 💯 to follow cue-lang/cue#851 "}
