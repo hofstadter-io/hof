@@ -23,3 +23,5 @@
 {"timestamp":"1627418774","author":"verdverm","description":"I'd say enabling ENV VARS like GITHUB_USER / GITHUB_PASS / GITHUB_APIKEY isn't pressing for this and is an easy addition if someone wants it"}
 
 {"timestamp":"1627418970","author":"verdverm","description":"Is there a particular `netrc` lib to use, or will the underlying http / git.v5 packages take care of this automagically?"}
+
+{"timestamp":"1627421926","author":"b4nst","description":"We can copy pasta the official [netrc.go](https://golang.org/src/cmd/go/internal/auth/netrc.go) since it's sadly not publicly exposed"}
