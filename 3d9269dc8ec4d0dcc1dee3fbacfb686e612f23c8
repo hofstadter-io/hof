@@ -7,3 +7,5 @@
 {"timestamp":"1678923208","author":"verdverm","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":15}},"description":"we probably want another sentence here, like what does this give the users (or what capabilities do you gain)"}
 
 {"timestamp":"1678923276","author":"verdverm","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":30}},"description":"... is _adhoc_ code gen ...\r\n\r\n... is _something_ code gen...\r\n\r\nwhat do you think?"}
+
+{"timestamp":"1678923342","author":"verdverm","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":36}},"description":"we do not want absolute links, then it doesn't work locally or on next\r\n\r\nso just the `/getting-started/create/` in the parens"}
