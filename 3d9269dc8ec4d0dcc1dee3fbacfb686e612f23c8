@@ -51,3 +51,5 @@
 {"timestamp":"1678967373","author":"stavares843","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":153}},"description":"I can bulk edit from entrypoints to entry points 🔨 "}
 
 {"timestamp":"1678967458","author":"stavares843","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":180}},"description":"Seems so. In localhost didn't break anything. I use Vscode. Should I revert the spacings?"}
+
+{"timestamp":"1678967528","author":"stavares843","location":{"commit":"9d79e224c55400aee5df5bc132bc191d684a3eb2","path":"docs/content/getting-started/code-generation.md","range":{"startLine":259}},"description":"```suggestion\r\nWe can also render with repeated templates, which will write a file\r\nfor each element of an iterable (list or struct fields).\r\n```"}
