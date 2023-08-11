@@ -85,3 +85,5 @@
 {"timestamp":"1679163941","author":"verdverm","location":{"commit":"5632a2c9413e5c38389fd4aa7cfd40e2be5fd33a","path":"docs/content/getting-started/code-generation.md","range":{"startLine":93}},"description":"this is a little confusing, I read this after as a temporal relation, but we want to communicate spacial.\r\n\r\ni.e. the file name comes after the equal sign"}
 
 {"timestamp":"1679164154","author":"verdverm","location":{"commit":"5632a2c9413e5c38389fd4aa7cfd40e2be5fd33a","path":"docs/content/getting-started/code-generation.md","range":{"startLine":150}},"description":"_To observe for_ sounds weird to me. Any objection to going back to observe -\u003e watch?\r\n\r\nLet'a add a sentence after, like \"think of this like a live-reload you find in other tools\""}
+
+{"timestamp":"1679164276","author":"verdverm","location":{"commit":"5632a2c9413e5c38389fd4aa7cfd40e2be5fd33a","path":"docs/content/getting-started/code-generation.md","range":{"startLine":324}},"description":"we may revisit this section later, when working on the `hof mod` documentation revamp"}
