@@ -25,3 +25,5 @@
 {"timestamp":"1678923832","author":"verdverm","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":163}},"description":"on -\u003e from?"}
 
 {"timestamp":"1678923879","author":"verdverm","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":180}},"description":"what's up with the spaces between the = and the arg? Is that something your IDE did?"}
+
+{"timestamp":"1678924194","author":"verdverm","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":250}},"description":"same questions about = space here, but it is inconsistent\r\n\r\ngenerally, I'd like to not have the space, it is weird that is only on one side of the = too"}
