@@ -19,3 +19,5 @@
 {"timestamp":"1627418522","author":"b4nst","description":"I think a `netrc` fallbacking to an `ssh` auth would give enough flexibility to tackle every systems without overthinking it. We could also implementing some sort of dynamic env, but in the end it's quite common to just echo the env in the netrc file for CI systems."}
 
 {"timestamp":"1627418623","author":"verdverm","description":"https://stackoverflow.com/questions/6031214/git-how-to-use-netrc-file-on-windows-to-save-user-and-password\r\n\r\nI've typically seen CI systems using ENV VARS to expose credentials, typically through a secret system that prevents them from being printed"}
+
+{"timestamp":"1627418774","author":"verdverm","description":"I'd say enabling ENV VARS like GITHUB_USER / GITHUB_PASS / GITHUB_APIKEY isn't pressing for this and is an easy addition if someone wants it"}
