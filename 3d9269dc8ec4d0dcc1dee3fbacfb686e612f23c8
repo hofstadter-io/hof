@@ -35,3 +35,5 @@
 {"timestamp":"1678965963","author":"stavares843","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":36}},"description":"```suggestion\r\nThe [getting-started/create] section will introduce\r\n```"}
 
 {"timestamp":"1678966445","author":"stavares843","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":163}},"description":"If the intention is to say that we are keeping the input format compatible with cue, in order to ensure that tools from the broader ecosystem can still work on their inputs, then the first sentence is more appropriate. - `from` \r\n\r\nIf the intention is to say that the input format is already compatible with the broader ecosystem, then the second sentence seems to be more appropriate. - `on` "}
+
+{"timestamp":"1678966460","author":"stavares843","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":163}},"description":"i've updated to `from` 🔨 "}
