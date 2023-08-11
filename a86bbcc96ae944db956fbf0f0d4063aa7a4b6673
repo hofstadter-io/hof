@@ -7,3 +7,5 @@
 {"timestamp":"1626891386","author":"verdverm","description":"Also, trying to keep this CUE Proposal in mind which will also be very Go like\r\n\r\nhttps://github.com/cue-lang/cue/issues/851"}
 
 {"timestamp":"1626898339","author":"b4nst","description":"Yes, I'm actually using this for Cue projects so I'm also 💯 to follow cue-lang/cue#851 "}
+
+{"timestamp":"1626898803","author":"b4nst","description":"Go is using `GOPRIVATE` env var since 1.13 for private modules IIRC. Maybe we can use something similar here. For GitLab infinite nested level, I think you have to use the `.git` suffix. At least this is how I'm doing it, and the only way I know as for now.  "}
