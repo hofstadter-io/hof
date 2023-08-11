@@ -3,3 +3,5 @@
 {"timestamp":"1679166143","author":"verdverm","description":"lgtm\r\n\r\nI do want to revisit page keywords \u0026 description later, in a separate PR where we can focus on them"}
 
 {"timestamp":"1678922501","author":"verdverm","location":{"commit":"c0ea5448372fbe2ddab9421a27a546c98245c922","path":"docs/content/getting-started/install.md","range":{"startLine":60}},"description":"This section works for linux but not mac. I think we should separate the sections like install and add one for homebrew"}
+
+{"timestamp":"1678922570","author":"verdverm","location":{"commit":"c0ea5448372fbe2ddab9421a27a546c98245c922","path":"docs/content/getting-started/install.md","range":{"startLine":5}},"description":"add keywords section here\r\n\r\nyou should get a message on slack tomorrow, I tried scheduling so as not to disturb your off hours"}
