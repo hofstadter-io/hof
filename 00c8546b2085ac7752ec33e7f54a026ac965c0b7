@@ -1,0 +1,1 @@
+{"timestamp":"1690764279","reviewRef":"refs/pull/251/head","targetRef":"refs/heads/_dev","requester":"verdverm","description":"hof/cmd: better startup\n\nimprove when and how we get fmtr / container info so we do less work, only where needed","baseCommit":"1c82ebeae655797ddad61bcfad1207bc4619ca26"}
