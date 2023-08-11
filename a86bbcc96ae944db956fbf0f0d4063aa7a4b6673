@@ -87,3 +87,5 @@
 {"timestamp":"1627418165","author":"b4nst","location":{"commit":"5e05a16478bcdaf70286418efa40dc427ee9ffe7","path":"lib/mod/cache/mod.go","range":{"startLine":6}},"description":"Meaning one without the `owner` part? Maybe just returning empty owner will trick the rest of the code?"}
 
 {"timestamp":"1627418196","author":"b4nst","location":{"commit":"5e05a16478bcdaf70286418efa40dc427ee9ffe7","path":"lib/mod/cache/mod.go","range":{"startLine":6}},"description":"wilco"}
+
+{"timestamp":"1627418517","author":"verdverm","location":{"commit":"5e05a16478bcdaf70286418efa40dc427ee9ffe7","path":"lib/mod/cache/mod.go","range":{"startLine":6}},"description":"I was thinking about if an empty owner would do it, but haven't looked at this code in a while 😕 "}
