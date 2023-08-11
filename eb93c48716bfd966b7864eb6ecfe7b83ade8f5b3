@@ -1,0 +1,1 @@
+{"timestamp":"1677372026","reviewRef":"refs/pull/140/head","targetRef":"refs/heads/_dev","requester":"verdverm","description":"hof/mod: additional features and bugfixes\n\n- Add `hof mod get \u0026 link` commands\r\n- Rewrite fetching \u0026 caching\r\n- Nuke a bunch of files\r\n- Fix related code to changes\r\n- Wordsmith the cli a bit"}
