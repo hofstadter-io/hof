@@ -1,1 +1,3 @@
 {"timestamp":"1652410820","author":"verdverm","description":"I think it would be best to `gofmt` and `cue fmt` all the source\r\n\r\nShould also add this to CI so that we can detect it earlier"}
+
+{"timestamp":"1653513660","author":"verdverm","description":"Should be fixed in https://github.com/hofstadter-io/hof/commit/5d6c52f960786c0ab06d59e736261de81c99e772"}
