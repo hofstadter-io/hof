@@ -79,3 +79,5 @@
 {"timestamp":"1679055538","author":"stavares843","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":15}},"description":"what do you think?"}
 
 {"timestamp":"1679060936","author":"stavares843","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":30}},"description":"In template-based code generation, two approaches dominate: ad-hoc and a more sophisticated configuration or module-based method.\r\n\r\nwhat do you think?\r\n\r\n"}
+
+{"timestamp":"1679061845","author":"stavares843","location":{"commit":"1b644805af1bd8f74d6daf22e68b8250ec400d30","path":"docs/content/getting-started/code-generation.md","range":{"startLine":7}},"description":"added 🔨 "}
