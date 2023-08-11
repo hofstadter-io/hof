@@ -19,3 +19,5 @@
 {"timestamp":"1678989030","author":"stavares843","location":{"commit":"c0ea5448372fbe2ddab9421a27a546c98245c922","path":"docs/content/getting-started/install.md","range":{"startLine":5}},"description":"added keywords 🔨 let me know your thoughts!"}
 
 {"timestamp":"1678990916","author":"verdverm","location":{"commit":"c0ea5448372fbe2ddab9421a27a546c98245c922","path":"docs/content/getting-started/install.md","range":{"startLine":60}},"description":"We still want two Mac code blocks, one for install, one for update\r\n\r\nI think they go better under the respectively named section, rather than making a mac section"}
+
+{"timestamp":"1678991002","author":"verdverm","location":{"commit":"f5679538d55fd7c40d55884e7a22aa8b363a328c","path":"docs/content/getting-started/install.md","range":{"startLine":6}},"description":"I believe the keywords needs to be a Yaml list like my example, each phrase on a separate line\r\n\r\nFYI, this top \"header\" section in the Markdown is Yaml that is used as metadata in Hugo"}
