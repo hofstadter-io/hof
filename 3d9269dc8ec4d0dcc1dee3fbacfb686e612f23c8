@@ -31,3 +31,5 @@
 {"timestamp":"1678924344","author":"verdverm","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":261}},"description":"We can also render with __repeated templates__, which will write a file\r\nfor each element of an iterable (list or struct fields).\r\n\r\n?"}
 
 {"timestamp":"1678965930","author":"stavares843","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":36}},"description":"got it, will revert! thought was missing the rest of the hyperlink 🔨 "}
+
+{"timestamp":"1678965963","author":"stavares843","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":36}},"description":"```suggestion\r\nThe [getting-started/create] section will introduce\r\n```"}
