@@ -1,3 +1,5 @@
 {"timestamp":"1679053787","author":"stavares843","description":"all feedback was addressed 🔨 \r\n\r\n![image](https://user-images.githubusercontent.com/29093946/225896546-bc9b1a3e-5810-4a5a-9682-4a70194858ba.png)\r\n"}
 
 {"timestamp":"1678921555","author":"verdverm","location":{"commit":"9047e5f9174b2aa246bbc6afe5c3348292cda691","path":"docs/content/getting-started/cue.md","range":{"startLine":30}},"description":"not sure I like \"whole\" here, I haven't heard that word used with a programming language\r\n\r\nmaybe we make it \"... with a proper language, including ... something ...\"?\r\n\r\nWhat do you think"}
+
+{"timestamp":"1678922361","author":"stavares843","location":{"commit":"9047e5f9174b2aa246bbc6afe5c3348292cda691","path":"docs/content/getting-started/cue.md","range":{"startLine":30}},"description":"```suggestion\r\n- Configuration syntax with a complete, logical language.\r\n```"}
