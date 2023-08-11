@@ -109,3 +109,5 @@
 {"timestamp":"1679342361","author":"verdverm","location":{"commit":"f97ff6acb9fb791343b2f5b1d2d224c991c1e7a3","path":"docs/content/getting-started/code-generation.md","range":{"startLine":226}},"description":"\"of\" a struct"}
 
 {"timestamp":"1679342406","author":"verdverm","location":{"commit":"f97ff6acb9fb791343b2f5b1d2d224c991c1e7a3","path":"docs/content/getting-started/code-generation.md","range":{"startLine":251}},"description":"~as mentioned in the previous example,~"}
+
+{"timestamp":"1679342632","author":"verdverm","location":{"commit":"f97ff6acb9fb791343b2f5b1d2d224c991c1e7a3","path":"docs/content/getting-started/code-generation.md","range":{"startLine":323}},"description":"Generators are file based configuration for `hof gen` that is equivalent to setting flags. These are typically packaged as a CUE module in a Git repository, but can also exist within your current project if you do not want to share or reuse them.\r\n\r\nSomething like this..."}
