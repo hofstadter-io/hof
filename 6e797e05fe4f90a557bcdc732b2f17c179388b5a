@@ -1,0 +1,1 @@
+{"timestamp":"1652410820","author":"verdverm","description":"I think it would be best to `gofmt` and `cue fmt` all the source\r\n\r\nShould also add this to CI so that we can detect it earlier"}
