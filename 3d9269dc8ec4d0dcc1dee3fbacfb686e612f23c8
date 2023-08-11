@@ -55,3 +55,5 @@
 {"timestamp":"1678967528","author":"stavares843","location":{"commit":"9d79e224c55400aee5df5bc132bc191d684a3eb2","path":"docs/content/getting-started/code-generation.md","range":{"startLine":259}},"description":"```suggestion\r\nWe can also render with repeated templates, which will write a file\r\nfor each element of an iterable (list or struct fields).\r\n```"}
 
 {"timestamp":"1678967567","author":"stavares843","location":{"commit":"450262132508d72f55a67f620fcf12e834541d72","path":"docs/content/getting-started/code-generation.md","range":{"startLine":261}},"description":"```suggestion\r\n```"}
+
+{"timestamp":"1678967587","author":"stavares843","location":{"commit":"66e3f120261a9452774d9a83642ae6233943ae46","path":"docs/content/getting-started/code-generation.md","range":{"startLine":259}},"description":"```suggestion\r\nWe can also render with __repeated templates__, which will write a file\r\n```"}
