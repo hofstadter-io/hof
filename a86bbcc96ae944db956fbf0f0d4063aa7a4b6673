@@ -35,3 +35,5 @@
 {"timestamp":"1627930321","author":"b4nst","description":"@verdverm I did rebase `_dev`. I'm currently facing `1 workflow awaiting approval` so I guess there is something to do on your side to approve it, right?"}
 
 {"timestamp":"1627930393","author":"verdverm","description":"@b4nst indeed, I had missed that and we should see it running now. Thanks!"}
+
+{"timestamp":"1627930622","author":"verdverm","description":"@b4nst This looks really good, thanks for the contribution!\r\n\r\nI'm going to merge without manually testing on Windows and any issues I find I will open a separate ticket for.\r\n\r\nWould you like to open a separate PR for updating the docs? We could release a new patch version after that"}
