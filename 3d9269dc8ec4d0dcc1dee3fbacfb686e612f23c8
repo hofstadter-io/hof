@@ -67,3 +67,5 @@
 {"timestamp":"1678991677","author":"verdverm","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":30}},"description":"The location of this comment may have confused things... the change above is fine.\r\n\r\nI'm thinking about the right-hand side of the 1. \u0026 2. bullets, and wordsmithing the part after the is...\r\n\r\nThe two methods are ad hoc and _something_, no thinking of a good word to fill in that _something_, which is the config / re-generate-able / module based code gen (for when things get bigger or more complex)\r\n\r\nI may be over thinking this 🤔 "}
 
 {"timestamp":"1678991694","author":"verdverm","location":{"commit":"1b644805af1bd8f74d6daf22e68b8250ec400d30","path":"docs/content/getting-started/code-generation.md","range":{"startLine":7}},"description":"keywords"}
+
+{"timestamp":"1678991749","author":"verdverm","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":51}},"description":"let's use the hyphenated version, it also stands out more visually"}
