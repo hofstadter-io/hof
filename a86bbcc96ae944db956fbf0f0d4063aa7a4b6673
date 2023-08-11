@@ -25,3 +25,5 @@
 {"timestamp":"1627418970","author":"verdverm","description":"Is there a particular `netrc` lib to use, or will the underlying http / git.v5 packages take care of this automagically?"}
 
 {"timestamp":"1627421926","author":"b4nst","description":"We can copy pasta the official [netrc.go](https://golang.org/src/cmd/go/internal/auth/netrc.go) since it's sadly not publicly exposed"}
+
+{"timestamp":"1627925373","author":"b4nst","description":"@verdverm some news for you. `netrc` usage done, `*PRIVATE` env set dynamically on mod. The resolving model is not so dynamic tho, at it uses the go glob matching technique. That being said it works for both go and CUE (with `GOPRIVATE` and `CUEPRIVATE`)\r\n\r\nI've started to look at `cuelang.org/go` type repository. I think using an empty owner is fine. I just need to refactor URL building to always use some sort of `filepath` or `path` join function. "}
