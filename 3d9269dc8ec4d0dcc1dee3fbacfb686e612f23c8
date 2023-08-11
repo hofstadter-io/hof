@@ -9,3 +9,5 @@
 {"timestamp":"1678923276","author":"verdverm","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":30}},"description":"... is _adhoc_ code gen ...\r\n\r\n... is _something_ code gen...\r\n\r\nwhat do you think?"}
 
 {"timestamp":"1678923342","author":"verdverm","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":36}},"description":"we do not want absolute links, then it doesn't work locally or on next\r\n\r\nso just the `/getting-started/create/` in the parens"}
+
+{"timestamp":"1678923386","author":"verdverm","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":51}},"description":"should my _adhoc_ be _ad-hoc_ in all the places?\r\n\r\nor maybe no hyphen either?\r\n\r\nhttps://www.quora.com/Is-it-adhoc-or-ad-hoc-or-ad-hoc-Which-is-correct"}
