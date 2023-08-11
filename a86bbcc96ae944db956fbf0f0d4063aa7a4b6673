@@ -59,3 +59,5 @@
 {"timestamp":"1626884407","author":"verdverm","location":{"commit":"8733464b4f5e3ccbd43a28b67f2f905aa25655c8","path":"go.mod","range":{"startLine":31}},"description":"Can we pin this to the most recent semver:\r\nhttps://github.com/kevinburke/ssh_config/releases/tag/v1.1.0\r\n\r\nThis version seems out of date"}
 
 {"timestamp":"1626884996","author":"b4nst","location":{"commit":"8733464b4f5e3ccbd43a28b67f2f905aa25655c8","path":".gitignore","range":{"startLine":44}},"description":"We can of course. This is there mostly because I did some dirty things and add a swap file, and I have the reflex of `gi vim \u003e\u003e .gitignore` when I see a swap file in the workdir. No prob to remove that if this is not ok with you."}
+
+{"timestamp":"1626885136","author":"b4nst","location":{"commit":"8733464b4f5e3ccbd43a28b67f2f905aa25655c8","path":"lib/mod/cache/fetch.go","range":{"startLine":107}},"description":"Didn't have the chance to try on Windows. I'm not really a Windows user so it's really possible that we'll have to tweak this a little bit in order to fit in a standard Windows way of retrieving the right ssh key."}
