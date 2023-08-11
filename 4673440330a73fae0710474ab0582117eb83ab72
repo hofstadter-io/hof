@@ -13,3 +13,5 @@
 {"timestamp":"1681911875","author":"verdverm","location":{"commit":"8ac0ae8c8773a125ed8f60407cb4de82badc405c","path":"lib/repos/remote/remote.go","range":{"startLine":77}},"description":"We should also consider having a well-known list compiled into the binary as well as the file, so one cannot change github.com to be a OCI registry in the file on disk"}
 
 {"timestamp":"1681912134","author":"verdverm","location":{"commit":"8ac0ae8c8773a125ed8f60407cb4de82badc405c","path":"lib/repos/remote/remote.go","range":{"startLine":37}},"description":"What is the benefit of making these types, and then having to cast strings to them where they are used, liken in `cache/fetch.go`"}
+
+{"timestamp":"1681931957","author":"andrewhare","location":{"commit":"8ac0ae8c8773a125ed8f60407cb4de82badc405c","path":"lib/repos/remote/remote.go","range":{"startLine":37}},"description":"It makes for a cleaner API. I'm hoping that we can eventually refactor other parts of the system to know about these types (so casting won't be necessary)."}
