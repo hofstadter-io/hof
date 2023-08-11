@@ -39,3 +39,5 @@
 {"timestamp":"1627930622","author":"verdverm","description":"@b4nst This looks really good, thanks for the contribution!\r\n\r\nI'm going to merge without manually testing on Windows and any issues I find I will open a separate ticket for.\r\n\r\nWould you like to open a separate PR for updating the docs? We could release a new patch version after that"}
 
 {"timestamp":"1627930773","author":"verdverm","description":"It should only require\r\n\r\n- updating the help docs here: https://github.com/hofstadter-io/hof/blob/_dev/design/cli/cmds/mod.cue\r\n- regenerating the CLI (`hof gen`) from within the repo (also need to make sure the replaced modules are around for CUE)"}
+
+{"timestamp":"1627934938","author":"b4nst","description":"@verdverm sure! I'll tackle that asap"}
