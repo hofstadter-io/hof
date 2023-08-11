@@ -1,0 +1,1 @@
+{"timestamp":"1677932278","reviewRef":"refs/pull/146/head","targetRef":"refs/heads/_dev","requester":"verdverm","description":"hof/gen: support datafiles in adhoc mode\n\nWe can infer data file mode in `-T :entries=\"{{ .name }}.yaml\"` by the missing template path. We use the outpath file extension as the data file format."}
