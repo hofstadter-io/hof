@@ -1,0 +1,1 @@
+{"timestamp":"1679340873","author":"verdverm","description":"A few points here:\r\n\r\n1. We want something we can run locally too, to avoid sending commits off to actions because of laziness\r\n2. Where is the source for this action?\r\n3. hof's GHA are defined as CUE, with the Yaml generated"}
