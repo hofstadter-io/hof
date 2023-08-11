@@ -13,3 +13,5 @@
 {"timestamp":"1678991270","author":"verdverm","location":{"commit":"9047e5f9174b2aa246bbc6afe5c3348292cda691","path":"docs/content/getting-started/cue.md","range":{"startLine":30}},"description":"Actually, looking at the later bullets they contain the same information we are debating\r\n\r\nwhat about something like \"Configuration-style syntax that is familiar, yet fresh\"\r\n\r\n"}
 
 {"timestamp":"1678991380","author":"verdverm","location":{"commit":"99c5a6bc91606aff215f9d64cf3c22c510f53e56","path":"docs/content/getting-started/cue.md","range":{"startLine":6}},"description":"keywords"}
+
+{"timestamp":"1678998603","author":"stavares843","location":{"commit":"9047e5f9174b2aa246bbc6afe5c3348292cda691","path":"docs/content/getting-started/cue.md","range":{"startLine":30}},"description":"neat 🎨 "}
