@@ -3,3 +3,5 @@
 {"timestamp":"1678965891","author":"stavares843","description":"sounds good! 🔨 "}
 
 {"timestamp":"1679234557","author":"stavares843","description":"closing for now, will reopen after we discuss it in the gdocs 🔨 "}
+
+{"timestamp":"1678918700","author":"stavares843","location":{"commit":"dbf930e11cb589d0aba51a1312b4b4d8a0885737","path":"docs/content/getting-started/modules.md","range":{"startLine":64}},"description":"```suggestion\r\nUse the `replace` directive in your `cue.mods` file just like you would in Go.\r\n```"}
