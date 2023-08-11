@@ -7,3 +7,5 @@
 {"timestamp":"1679341947","author":"verdverm","description":"Under-the-hood, this is using LanguageTool\r\n\r\n- https://github.com/awreck/proofread-action/blob/main/index.js#L31\r\n- https://languagetool.org/proofreading-api\r\n\r\n"}
 
 {"timestamp":"1679342554","author":"stavares843","description":"Got it, will close for now! I added because it was a 5m task 😄 thanks for taking a look! 🔨 "}
+
+{"timestamp":"1679343502","author":"verdverm","description":"I don't think this action is usable based on: https://dev.languagetool.org/public-http-api\r\n\r\nWe have much more than 20 pages, other limits seem problematic.\r\n\r\nThis action seems to violate their TOS"}
