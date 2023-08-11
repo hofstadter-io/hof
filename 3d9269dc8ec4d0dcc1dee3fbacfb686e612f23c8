@@ -45,3 +45,5 @@
 {"timestamp":"1678967184","author":"stavares843","location":{"commit":"45bee325d399504a010817d4f9bbff5cd8f5e939","path":"docs/content/getting-started/code-generation.md","range":{"startLine":82}},"description":"```suggestion\r\nUse  `=` (equal) after the template name to write to a file.\r\n```"}
 
 {"timestamp":"1678967225","author":"stavares843","location":{"commit":"2a3dcd5d13abf7617ffe555ec73a2919ffd8c3b8","path":"docs/content/getting-started/code-generation.md","range":{"startLine":129}},"description":"```suggestion\r\nYou can use the `-T` flag multiple times.\r\n```"}
+
+{"timestamp":"1678967272","author":"stavares843","location":{"commit":"589b7ba96a315752b60f3d57cc55505849fd1c0d","path":"docs/content/getting-started/code-generation.md","range":{"startLine":146}},"description":"```suggestion\r\nThere are extra watch flags if automatic detection misses files.\r\n```"}
