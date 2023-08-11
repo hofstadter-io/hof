@@ -7,3 +7,5 @@
 {"timestamp":"1682209493","author":"andrewhare","description":"@verdverm I've committed some more work but it's still WIP. The main things to note are:\r\n\r\n* Simplified `remote.Parse`\r\n* New `Knowns` type to manage builtin and user-encountered remotes\r\n* Better organization for checking remotes (by moving the functions to their respective `git` or `oci` packages)"}
 
 {"timestamp":"1683372856","author":"verdverm","description":"merging this, all but one test passing locally, won't work until the last commit in this PR is merged\r\n\r\n(fetching the latest commit on _dev has error because of symlinks in a cue.mod/pkg dir)"}
+
+{"timestamp":"1681911828","author":"verdverm","location":{"commit":"8ac0ae8c8773a125ed8f60407cb4de82badc405c","path":"lib/repos/remote/remote.go","range":{"startLine":81}},"description":"Will probably need auth here if the repo is private. Are you planning to refactor that code into this package or a separate one?\r\n"}
