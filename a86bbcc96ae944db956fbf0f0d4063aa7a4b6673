@@ -15,3 +15,5 @@
 {"timestamp":"1627415032","author":"verdverm","description":"I'm not keen to rely on a `GO...` env var for all modders. Perhaps some of this per language / code host settings can be put in the modder config / schema? What do you think?"}
 
 {"timestamp":"1627415625","author":"verdverm","description":"Thinking about auth, what are the various scenarios? How would this work in a CI system that might be different than local dev? (Do all the major CI systems rely on sshkeys to fetch private code?)"}
+
+{"timestamp":"1627418522","author":"b4nst","description":"I think a `netrc` fallbacking to an `ssh` auth would give enough flexibility to tackle every systems without overthinking it. We could also implementing some sort of dynamic env, but in the end it's quite common to just echo the env in the netrc file for CI systems."}
