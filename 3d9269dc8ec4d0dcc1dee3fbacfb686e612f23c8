@@ -83,3 +83,5 @@
 {"timestamp":"1679061845","author":"stavares843","location":{"commit":"1b644805af1bd8f74d6daf22e68b8250ec400d30","path":"docs/content/getting-started/code-generation.md","range":{"startLine":7}},"description":"added 🔨 "}
 
 {"timestamp":"1679163941","author":"verdverm","location":{"commit":"5632a2c9413e5c38389fd4aa7cfd40e2be5fd33a","path":"docs/content/getting-started/code-generation.md","range":{"startLine":93}},"description":"this is a little confusing, I read this after as a temporal relation, but we want to communicate spacial.\r\n\r\ni.e. the file name comes after the equal sign"}
+
+{"timestamp":"1679164154","author":"verdverm","location":{"commit":"5632a2c9413e5c38389fd4aa7cfd40e2be5fd33a","path":"docs/content/getting-started/code-generation.md","range":{"startLine":150}},"description":"_To observe for_ sounds weird to me. Any objection to going back to observe -\u003e watch?\r\n\r\nLet'a add a sentence after, like \"think of this like a live-reload you find in other tools\""}
