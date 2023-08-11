@@ -29,7 +29,7 @@ The primary changes were:
 - change how relations between models is represented
 
 
-### Upgrading your imports
+### Upgrading Imports
 
 We changed two things that impact imports
 
