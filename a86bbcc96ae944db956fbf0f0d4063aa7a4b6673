@@ -31,3 +31,5 @@
 {"timestamp":"1627929724","author":"b4nst","description":"Ok should be gtg now"}
 
 {"timestamp":"1627930005","author":"verdverm","description":"@b4nst nice\r\n\r\nCan you merge develop? I've setup GitHub Actions which will build and \"test\" (most tests are failing... which we won't worry about here) This is mostly so I can see if my PR setup is working, I recall there GH introducing something about first-time permissions due to abuse\r\n\r\nThis should show it at least building and running across the various platforms\r\n\r\nI'll give windows a manual try later tonight"}
+
+{"timestamp":"1627930321","author":"b4nst","description":"@verdverm I did rebase `_dev`. I'm currently facing `1 workflow awaiting approval` so I guess there is something to do on your side to approve it, right?"}
