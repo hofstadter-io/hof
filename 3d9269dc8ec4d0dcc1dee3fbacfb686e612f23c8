@@ -23,3 +23,5 @@
 {"timestamp":"1678923821","author":"verdverm","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":153}},"description":"this space is going to be needed in a lot of places... :/"}
 
 {"timestamp":"1678923832","author":"verdverm","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":163}},"description":"on -\u003e from?"}
+
+{"timestamp":"1678923879","author":"verdverm","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":180}},"description":"what's up with the spaces between the = and the arg? Is that something your IDE did?"}
