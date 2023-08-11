@@ -101,6 +101,15 @@ to a package in languages like Go or Python
     title3="your-module/schema/dm.cue"  file3="code/data-modeling/using-enrichers.html"
 >}}
 
+
+### Future ideas
+
+We plan to make data models usable in other `hof` sub-systems
+
+- more features around multiple datamodels. Multiple are supported today, we could provide mappings from an instance in one to the other.
+- `hof/flow` to enable similar transparent, inter-version transforms
+- `hof/chat` to provide generator specific schemas for LLMs to target (like Microsoft/Guidance)
+
 ## Datamodel Commands
 
 {{<codeInner title="example command usage" lang="shell">}}
