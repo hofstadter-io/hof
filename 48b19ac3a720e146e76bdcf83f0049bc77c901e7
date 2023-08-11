@@ -1,0 +1,1 @@
+{"timestamp":"1690757714","reviewRef":"refs/pull/237/head","targetRef":"refs/heads/_dev","requester":"andrewhare","description":"Require docker\n\n@verdverm This makes Docker a hard requirement when initializing the client.","baseCommit":"ec5d18ff740358a6810c3531c79b471c6e31a22b"}
