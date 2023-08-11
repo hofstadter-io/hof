@@ -45,3 +45,5 @@
 {"timestamp":"1626806289","author":"b4nst","location":{"commit":"7a14a8a4b867cf01a673321840efaae4a5e7422d","path":"lib/mod/cache/fetch.go","range":{"startLine":38}},"description":"I added this because I found it difficult to guess were it was failing in the first time. "}
 
 {"timestamp":"1626883687","author":"verdverm","location":{"commit":"8733464b4f5e3ccbd43a28b67f2f905aa25655c8","path":".gitignore","range":{"startLine":44}},"description":"Can we remove the 3 toptal lines?"}
+
+{"timestamp":"1626883845","author":"verdverm","location":{"commit":"8733464b4f5e3ccbd43a28b67f2f905aa25655c8","path":"lib/mod/cache/fetch.go","range":{"startLine":82}},"description":"Let's remove the print statement if this is working"}
