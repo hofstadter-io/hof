@@ -47,3 +47,5 @@
 {"timestamp":"1626883687","author":"verdverm","location":{"commit":"8733464b4f5e3ccbd43a28b67f2f905aa25655c8","path":".gitignore","range":{"startLine":44}},"description":"Can we remove the 3 toptal lines?"}
 
 {"timestamp":"1626883845","author":"verdverm","location":{"commit":"8733464b4f5e3ccbd43a28b67f2f905aa25655c8","path":"lib/mod/cache/fetch.go","range":{"startLine":82}},"description":"Let's remove the print statement if this is working"}
+
+{"timestamp":"1626883921","author":"verdverm","location":{"commit":"8733464b4f5e3ccbd43a28b67f2f905aa25655c8","path":"lib/mod/cache/fetch.go","range":{"startLine":107}},"description":"Would this work for Windows? Didn't think that `~` worked there.\r\n\r\nI should be able to test it."}
