@@ -69,3 +69,5 @@
 {"timestamp":"1626885246","author":"verdverm","location":{"commit":"8733464b4f5e3ccbd43a28b67f2f905aa25655c8","path":"lib/mod/cache/fetch.go","range":{"startLine":24}},"description":"Same comment about reverting here"}
 
 {"timestamp":"1626885325","author":"verdverm","location":{"commit":"8733464b4f5e3ccbd43a28b67f2f905aa25655c8","path":"lib/mod/cache/fetch.go","range":{"startLine":50}},"description":"Same comment about reverting"}
+
+{"timestamp":"1626885590","author":"verdverm","location":{"commit":"8733464b4f5e3ccbd43a28b67f2f905aa25655c8","path":"lib/mod/cache/lookup.go","range":{"startLine":13}},"description":"Ah, I see this may be for the GitLab infamy? We should probably add a check for gitlab and try to fetch the archive file if that is your primary use case."}
