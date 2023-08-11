@@ -49,3 +49,5 @@
 {"timestamp":"1678967272","author":"stavares843","location":{"commit":"589b7ba96a315752b60f3d57cc55505849fd1c0d","path":"docs/content/getting-started/code-generation.md","range":{"startLine":146}},"description":"```suggestion\r\nThere are extra watch flags if automatic detection misses files.\r\n```"}
 
 {"timestamp":"1678967373","author":"stavares843","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":153}},"description":"I can bulk edit from entrypoints to entry points 🔨 "}
+
+{"timestamp":"1678967458","author":"stavares843","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":180}},"description":"Seems so. In localhost didn't break anything. I use Vscode. Should I revert the spacings?"}
