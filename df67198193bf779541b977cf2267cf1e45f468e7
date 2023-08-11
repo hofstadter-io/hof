@@ -13,3 +13,5 @@
 {"timestamp":"1678922831","author":"stavares843","location":{"commit":"c0ea5448372fbe2ddab9421a27a546c98245c922","path":"docs/content/getting-started/install.md","range":{"startLine":10}},"description":"true, this wasn't flagged when i scanned for typos because isn't a typo, a grammar scan is a good idea, will check about a CI for that"}
 
 {"timestamp":"1678968874","author":"stavares843","location":{"commit":"c0ea5448372fbe2ddab9421a27a546c98245c922","path":"docs/content/getting-started/install.md","range":{"startLine":60}},"description":"\u003cimg width=\"1227\" alt=\"Captura de ecrã 2023-03-16, às 12 13 58\" src=\"https://user-images.githubusercontent.com/29093946/225614052-ae8f96e7-f3ff-472e-89b9-c0111bbeaeaa.png\"\u003e\r\n\r\nwhat do you think of this?"}
+
+{"timestamp":"1678987111","author":"stavares843","location":{"commit":"c0ea5448372fbe2ddab9421a27a546c98245c922","path":"docs/content/getting-started/install.md","range":{"startLine":10}},"description":"saw this one, will try it out in a test repo to see if works\r\nhttps://github.com/awreck/proofread-action"}
