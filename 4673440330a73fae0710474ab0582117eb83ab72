@@ -11,3 +11,5 @@
 {"timestamp":"1681911828","author":"verdverm","location":{"commit":"8ac0ae8c8773a125ed8f60407cb4de82badc405c","path":"lib/repos/remote/remote.go","range":{"startLine":81}},"description":"Will probably need auth here if the repo is private. Are you planning to refactor that code into this package or a separate one?\r\n"}
 
 {"timestamp":"1681911875","author":"verdverm","location":{"commit":"8ac0ae8c8773a125ed8f60407cb4de82badc405c","path":"lib/repos/remote/remote.go","range":{"startLine":77}},"description":"We should also consider having a well-known list compiled into the binary as well as the file, so one cannot change github.com to be a OCI registry in the file on disk"}
+
+{"timestamp":"1681912134","author":"verdverm","location":{"commit":"8ac0ae8c8773a125ed8f60407cb4de82badc405c","path":"lib/repos/remote/remote.go","range":{"startLine":37}},"description":"What is the benefit of making these types, and then having to cast strings to them where they are used, liken in `cache/fetch.go`"}
