@@ -1,1 +1,3 @@
 {"timestamp":"1678328338","author":"verdverm","description":"fixed in #150 "}
+
+{"timestamp":"1678328341","author":"dependabot[bot]","description":"OK, I won't notify you again about this release, but will get in touch when a new version is available. If you'd rather skip all updates until the next major or minor version, let me know by commenting `@dependabot ignore this major version` or `@dependabot ignore this minor version`.\n\nIf you change your mind, just re-open this PR and I'll resolve any conflicts on it."}
