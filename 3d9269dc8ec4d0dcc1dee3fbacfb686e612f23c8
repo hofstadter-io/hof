@@ -37,3 +37,5 @@
 {"timestamp":"1678966445","author":"stavares843","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":163}},"description":"If the intention is to say that we are keeping the input format compatible with cue, in order to ensure that tools from the broader ecosystem can still work on their inputs, then the first sentence is more appropriate. - `from` \r\n\r\nIf the intention is to say that the input format is already compatible with the broader ecosystem, then the second sentence seems to be more appropriate. - `on` "}
 
 {"timestamp":"1678966460","author":"stavares843","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":163}},"description":"i've updated to `from` 🔨 "}
+
+{"timestamp":"1678966470","author":"stavares843","location":{"commit":"60c5e61ae83dfd0595f1847ccb37c3397769c565","path":"docs/content/getting-started/code-generation.md","range":{"startLine":163}},"description":"```suggestion\r\nWe keep parity with `cue` so tooling from the broader ecosystem\r\n```"}
