@@ -29,3 +29,5 @@
 {"timestamp":"1678924194","author":"verdverm","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":250}},"description":"same questions about = space here, but it is inconsistent\r\n\r\ngenerally, I'd like to not have the space, it is weird that is only on one side of the = too"}
 
 {"timestamp":"1678924344","author":"verdverm","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":261}},"description":"We can also render with __repeated templates__, which will write a file\r\nfor each element of an iterable (list or struct fields).\r\n\r\n?"}
+
+{"timestamp":"1678965930","author":"stavares843","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":36}},"description":"got it, will revert! thought was missing the rest of the hyperlink 🔨 "}
