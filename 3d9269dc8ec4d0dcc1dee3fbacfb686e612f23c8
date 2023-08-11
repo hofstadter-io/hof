@@ -107,3 +107,5 @@
 {"timestamp":"1679342137","author":"verdverm","location":{"commit":"f97ff6acb9fb791343b2f5b1d2d224c991c1e7a3","path":"docs/content/getting-started/code-generation.md","range":{"startLine":39}},"description":"I don't think \"dominate\" is a great word here\r\n\r\nShould we add a few words about ad-hoc at all?"}
 
 {"timestamp":"1679342361","author":"verdverm","location":{"commit":"f97ff6acb9fb791343b2f5b1d2d224c991c1e7a3","path":"docs/content/getting-started/code-generation.md","range":{"startLine":226}},"description":"\"of\" a struct"}
+
+{"timestamp":"1679342406","author":"verdverm","location":{"commit":"f97ff6acb9fb791343b2f5b1d2d224c991c1e7a3","path":"docs/content/getting-started/code-generation.md","range":{"startLine":251}},"description":"~as mentioned in the previous example,~"}
