@@ -81,3 +81,5 @@
 {"timestamp":"1627415318","author":"verdverm","location":{"commit":"5e05a16478bcdaf70286418efa40dc427ee9ffe7","path":"lib/mod/cache/mod.go","range":{"startLine":6}},"description":"@b4nst Thoughts on how we might deal with a `cuelang.org/go` type repository?"}
 
 {"timestamp":"1627415381","author":"verdverm","location":{"commit":"5e05a16478bcdaf70286418efa40dc427ee9ffe7","path":"lib/mod/cache/mod.go","range":{"startLine":6}},"description":"Maybe call this `parseModURL` and change the filename to `util.go`"}
+
+{"timestamp":"1627415474","author":"verdverm","location":{"commit":"5e05a16478bcdaf70286418efa40dc427ee9ffe7","path":"lib/mod/cache/mod_test.go","range":{"startLine":14}},"description":"`\"small\": {mod: \"cuelang.org/go\", expected tbd ??? }`\r\n\r\n"}
