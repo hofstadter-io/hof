@@ -17,3 +17,5 @@
 {"timestamp":"1678987111","author":"stavares843","location":{"commit":"c0ea5448372fbe2ddab9421a27a546c98245c922","path":"docs/content/getting-started/install.md","range":{"startLine":10}},"description":"saw this one, will try it out in a test repo to see if works\r\nhttps://github.com/awreck/proofread-action"}
 
 {"timestamp":"1678989030","author":"stavares843","location":{"commit":"c0ea5448372fbe2ddab9421a27a546c98245c922","path":"docs/content/getting-started/install.md","range":{"startLine":5}},"description":"added keywords 🔨 let me know your thoughts!"}
+
+{"timestamp":"1678990916","author":"verdverm","location":{"commit":"c0ea5448372fbe2ddab9421a27a546c98245c922","path":"docs/content/getting-started/install.md","range":{"startLine":60}},"description":"We still want two Mac code blocks, one for install, one for update\r\n\r\nI think they go better under the respectively named section, rather than making a mac section"}
