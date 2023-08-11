@@ -7,3 +7,5 @@
 {"timestamp":"1678922383","author":"stavares843","location":{"commit":"9047e5f9174b2aa246bbc6afe5c3348292cda691","path":"docs/content/getting-started/cue.md","range":{"startLine":30}},"description":"what do you think of this instead?"}
 
 {"timestamp":"1678923104","author":"verdverm","location":{"commit":"9047e5f9174b2aa246bbc6afe5c3348292cda691","path":"docs/content/getting-started/cue.md","range":{"startLine":30}},"description":"I like the `-like` because it isn't exactly configuration syntax, but then maybe it's not worth pointing that out here...\r\n\r\nLet me think on it overnight"}
+
+{"timestamp":"1678968639","author":"stavares843","location":{"commit":"9047e5f9174b2aa246bbc6afe5c3348292cda691","path":"docs/content/getting-started/cue.md","range":{"startLine":30}},"description":"other suggestions:\r\n\r\n- Configuration-style syntax with a comprehensive, logical programming language.\r\n- A logical, full-featured programming language using a configuration-like syntax.\r\n- Configuration-like syntax that allows for full logical programming language features.\r\n"}
