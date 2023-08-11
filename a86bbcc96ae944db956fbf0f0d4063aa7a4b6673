@@ -79,3 +79,5 @@
 {"timestamp":"1626891270","author":"verdverm","location":{"commit":"8733464b4f5e3ccbd43a28b67f2f905aa25655c8","path":"lib/mod/cache/lookup.go","range":{"startLine":13}},"description":"is the last component always the repo?\r\n\r\nWill have to look into how Go handles these things"}
 
 {"timestamp":"1627415318","author":"verdverm","location":{"commit":"5e05a16478bcdaf70286418efa40dc427ee9ffe7","path":"lib/mod/cache/mod.go","range":{"startLine":6}},"description":"@b4nst Thoughts on how we might deal with a `cuelang.org/go` type repository?"}
+
+{"timestamp":"1627415381","author":"verdverm","location":{"commit":"5e05a16478bcdaf70286418efa40dc427ee9ffe7","path":"lib/mod/cache/mod.go","range":{"startLine":6}},"description":"Maybe call this `parseModURL` and change the filename to `util.go`"}
