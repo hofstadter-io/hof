@@ -1,1 +1,3 @@
 {"timestamp":"1679234573","author":"stavares843","description":"feedback addressed 🔨 "}
+
+{"timestamp":"1678918112","author":"stavares843","location":{"commit":"3d9269dc8ec4d0dcc1dee3fbacfb686e612f23c8","path":"docs/content/getting-started/code-generation.md","range":{"startLine":64}},"description":"```suggestion\r\nYou can also pipe any data into `hof gen` by using a \"`-`\" (hyphen).\r\n```"}
