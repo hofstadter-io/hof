@@ -1,1 +1,3 @@
 {"timestamp":"1678250160","author":"verdverm","description":"Thank you @stavares843 \r\n\r\nWhat tool did you use to lint my spelling errors? Is that something you know how to set up as a GitHub Action?\r\n\r\n_note to self, this is a good reason to find a better neovim plugin for spelling_"}
+
+{"timestamp":"1678298171","author":"stavares843","description":"i used this one 🔨 \r\nhttps://github.com/crate-ci/typos\r\n\r\nit also has a Github Action, I can add that, or add a custom one that uses that command, I'm experienced with CI/CD pipelines mostly in Github Actions"}
