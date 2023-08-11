@@ -5,3 +5,5 @@
 {"timestamp":"1679341633","author":"verdverm","description":"This is not a priority compared to content.\r\n\r\n\u003e \u003e hof's GHA are defined as CUE, with the Yaml generated\r\n\u003e yes in this case this action only runs in the .md files\r\n\r\nI mean the actual action workflow is written as CUE, not Yaml (see the ci/gha directory)"}
 
 {"timestamp":"1679341947","author":"verdverm","description":"Under-the-hood, this is using LanguageTool\r\n\r\n- https://github.com/awreck/proofread-action/blob/main/index.js#L31\r\n- https://languagetool.org/proofreading-api\r\n\r\n"}
+
+{"timestamp":"1679342554","author":"stavares843","description":"Got it, will close for now! I added because it was a 5m task 😄 thanks for taking a look! 🔨 "}
