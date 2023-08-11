@@ -15,3 +15,5 @@
 {"timestamp":"1678991380","author":"verdverm","location":{"commit":"99c5a6bc91606aff215f9d64cf3c22c510f53e56","path":"docs/content/getting-started/cue.md","range":{"startLine":6}},"description":"keywords"}
 
 {"timestamp":"1678998603","author":"stavares843","location":{"commit":"9047e5f9174b2aa246bbc6afe5c3348292cda691","path":"docs/content/getting-started/cue.md","range":{"startLine":30}},"description":"neat 🎨 "}
+
+{"timestamp":"1678998625","author":"stavares843","location":{"commit":"9047e5f9174b2aa246bbc6afe5c3348292cda691","path":"docs/content/getting-started/cue.md","range":{"startLine":30}},"description":"```suggestion\r\n- Configuration-style syntax that is familiar, yet fresh.\r\n```"}
