@@ -127,3 +127,5 @@
 {"timestamp":"1679346300","author":"verdverm","location":{"commit":"f97ff6acb9fb791343b2f5b1d2d224c991c1e7a3","path":"docs/content/getting-started/code-generation.md","range":{"startLine":39}},"description":"There are two methods for code gen\r\n\r\n1. ad-hoc\r\n2. config\r\n\r\nnot two methods of ad-hoc\r\n\r\nwe have more words for the second method, so expanding on the first seems prudent "}
 
 {"timestamp":"1679347068","author":"verdverm","location":{"commit":"49ee149f0db12d26cc05dfbdebd8948293be4294","path":"docs/content/getting-started/code-generation.md","range":{"startLine":53}},"description":"interactive is used twice in this sentence, maybe we can remove both instances, not sure it is important to highlight the interactive feature of create at this point\r\n\r\nthere is an extra hyphen too"}
+
+{"timestamp":"1679347956","author":"verdverm","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":15}},"description":"this paragraph changed a lot more than I expected from my previous comment"}
