@@ -13,3 +13,5 @@
 {"timestamp":"1678923386","author":"verdverm","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":51}},"description":"should my _adhoc_ be _ad-hoc_ in all the places?\r\n\r\nor maybe no hyphen either?\r\n\r\nhttps://www.quora.com/Is-it-adhoc-or-ad-hoc-or-ad-hoc-Which-is-correct"}
 
 {"timestamp":"1678923535","author":"verdverm","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":95}},"description":"an inline template"}
+
+{"timestamp":"1678923547","author":"verdverm","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":82}},"description":"a file?"}
