@@ -73,3 +73,5 @@
 {"timestamp":"1626885590","author":"verdverm","location":{"commit":"8733464b4f5e3ccbd43a28b67f2f905aa25655c8","path":"lib/mod/cache/lookup.go","range":{"startLine":13}},"description":"Ah, I see this may be for the GitLab infamy? We should probably add a check for gitlab and try to fetch the archive file if that is your primary use case."}
 
 {"timestamp":"1626885904","author":"b4nst","location":{"commit":"8733464b4f5e3ccbd43a28b67f2f905aa25655c8","path":"lib/mod/cache/lookup.go","range":{"startLine":13}},"description":"Yes indeed it's for the GitLab infamy... You mean by using the GitLab api?"}
+
+{"timestamp":"1626888344","author":"b4nst","location":{"commit":"8733464b4f5e3ccbd43a28b67f2f905aa25655c8","path":"lib/mod/cache/lookup.go","range":{"startLine":13}},"description":"If doing something custom for GitLab, I guess we'll have to try every path to distinguish repo path from monorepo internal directory, right? Maybe we could use the same thing `go` is doing (enforcing the `.git` suffix)."}
