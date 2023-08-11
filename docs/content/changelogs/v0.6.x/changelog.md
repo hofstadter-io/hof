@@ -1,5 +1,5 @@
 ---
-title: v0.6.x
+title: Changes by patch
 weight: 10
 ---
 
