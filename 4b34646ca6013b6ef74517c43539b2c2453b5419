@@ -7,3 +7,5 @@
 {"timestamp":"1688422088","author":"verdverm","description":"The hard to find error in `dagger` action is here: https://github.com/hofstadter-io/hof/actions/runs/5447803566/jobs/9910243719#step:10:185"}
 
 {"timestamp":"1688420719","author":"verdverm","location":{"commit":"d4a18c78a7a5b2edfdbb5e7e5a0d6def8e271673","path":"lib/container/client.go","range":{"startLine":16}},"description":"we might want to make docker come first, the `hof` action failure, while not because of this, did illuminate that we are using docker in the action, but workers have both docker and podman installed by default. So hof itself is picking up on this extra podman we were not aware of, and thus some things are being done with docker while others with podman. Docker is probably still the easiest to have as the default."}
+
+{"timestamp":"1688420772","author":"verdverm","location":{"commit":"d4a18c78a7a5b2edfdbb5e7e5a0d6def8e271673","path":"lib/container/client.go","range":{"startLine":28}},"description":"We should look for a `HOF_CONTAINER_RUNTIME` variable here so the users can force a particular runtime, regardless of our fallback ordering."}
