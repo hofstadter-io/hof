@@ -5,3 +5,5 @@
 {"timestamp":"1678918122","author":"stavares843","location":{"commit":"3d9269dc8ec4d0dcc1dee3fbacfb686e612f23c8","path":"docs/content/getting-started/code-generation.md","range":{"startLine":88}},"description":"```suggestion\r\nUse `-O` to write all outputs to a directory.\r\n```"}
 
 {"timestamp":"1678923208","author":"verdverm","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":15}},"description":"we probably want another sentence here, like what does this give the users (or what capabilities do you gain)"}
+
+{"timestamp":"1678923276","author":"verdverm","location":{"commit":"1f3bd6507a37b235b276729366d9830c59380aba","path":"docs/content/getting-started/code-generation.md","range":{"startLine":30}},"description":"... is _adhoc_ code gen ...\r\n\r\n... is _something_ code gen...\r\n\r\nwhat do you think?"}
