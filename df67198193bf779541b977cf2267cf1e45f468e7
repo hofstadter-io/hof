@@ -5,3 +5,5 @@
 {"timestamp":"1678922501","author":"verdverm","location":{"commit":"c0ea5448372fbe2ddab9421a27a546c98245c922","path":"docs/content/getting-started/install.md","range":{"startLine":60}},"description":"This section works for linux but not mac. I think we should separate the sections like install and add one for homebrew"}
 
 {"timestamp":"1678922570","author":"verdverm","location":{"commit":"c0ea5448372fbe2ddab9421a27a546c98245c922","path":"docs/content/getting-started/install.md","range":{"startLine":5}},"description":"add keywords section here\r\n\r\nyou should get a message on slack tomorrow, I tried scheduling so as not to disturb your off hours"}
+
+{"timestamp":"1678922655","author":"verdverm","location":{"commit":"c0ea5448372fbe2ddab9421a27a546c98245c922","path":"docs/content/getting-started/install.md","range":{"startLine":10}},"description":"I wonder if there is a grammar checker that we could run to catch more of my wording errors :] 🤔 "}
