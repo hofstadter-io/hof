@@ -10,7 +10,7 @@ test: gen.#Generator & {
 
 	Outdir: "./out"
 
-	PackageName: ""
+	ModuleName: ""
 
 	Create: {
 		Message: {
@@ -26,46 +26,46 @@ test: gen.#Generator & {
 			Prompt:     "Please enter a name for..."
 			Required:   true
 			Validation: common.NameLabel
-		},{
+		}, {
 			Name:       "about"
 			Type:       "input"
 			Prompt:     "Tell us about it..."
 			Required:   true
 			Validation: common.NameLabel
-		},{
-			Name:       "frontend"
-			Type:       "confirm"
-			Prompt:     "create frontend"
+		}, {
+			Name:   "frontend"
+			Type:   "confirm"
+			Prompt: "create frontend"
 			Questions: [{
 				Name:   "framework"
 				Type:   "select"
 				Prompt: "select framework"
 				Options: ["React", "Vue", "Svelte"]
 			}]
-		},{
-			Name:       "backend"
-			Type:       "confirm"
-			Prompt:     "create backend"
+		}, {
+			Name:   "backend"
+			Type:   "confirm"
+			Prompt: "create backend"
 			Questions: [{
 				Name:   "language"
 				Type:   "select"
 				Prompt: "select framework"
 				Options: ["Go", "JS", "TS", "Python"]
 			}]
-		},{
-			Name:       "database"
-			Type:       "confirm"
-			Prompt:     "create database"
+		}, {
+			Name:   "database"
+			Type:   "confirm"
+			Prompt: "create database"
 			Questions: [{
 				Name:   "vendor"
 				Type:   "select"
 				Prompt: "select framework"
 				Options: ["Postgres", "Mysql", "Sqlite", "Mongo"]
 			}]
-		},{
-			Name:       "sdks"
-			Type:       "confirm"
-			Prompt:     "create SDKs"
+		}, {
+			Name:   "sdks"
+			Type:   "confirm"
+			Prompt: "create SDKs"
 			Questions: [{
 				Name:   "languages"
 				Type:   "multiselect"
@@ -102,8 +102,8 @@ test: gen.#Generator & {
 	EmbeddedTemplates: {
 		debug: {
 			Content: """
-			{{ yaml . }}
-			"""
+				{{ yaml . }}
+				"""
 		}
 	}
 }

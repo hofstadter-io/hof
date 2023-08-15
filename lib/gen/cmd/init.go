@@ -77,7 +77,11 @@ func InitModule(name string, rootflags flags.RootPflagpole, cmdflags flags.GenFl
 		}
 	}
 
-	err := render(name + ".cue", newModuleTemplate)
+	err := render(name + ".cue", newModuleTopTemplate)
+	if err != nil {
+		return err
+	}
+	err = render("gen/gen.cue", newModuleGenTemplate)
 	if err != nil {
 		return err
 	}
@@ -251,12 +255,20 @@ func (R *Runtime) adhocAsModule() error {
 		fmt.Println("writing:", name)
 	}
 	if name == "-" {
-		err = render(name, asModuleTemplate)
+		err = render(name, asModuleTopTemplate)
+		if err != nil {
+			return err
+		}
+		err = render(name, asModuleGenTemplate)
 		if err != nil {
 			return err
 		}
 	} else {
-		err = render(name + ".cue", asModuleTemplate)
+		err = render(name + ".cue", asModuleTopTemplate)
+		if err != nil {
+			return err
+		}
+		err = render("gen/gen.cue", asModuleGenTemplate)
 		if err != nil {
 			return err
 		}
@@ -282,15 +294,15 @@ func (R *Runtime) adhocAsModule() error {
 	return nil
 }
 
-const asModuleTemplate = `
+const asModuleTopTemplate = `
 package {{ snake .Package }}
 
 import (
-	"github.com/hofstadter-io/hof/schema/gen"
+	"{{ .Module }}/{{ .Name }}/gen"
 )
 
 // This is example usage of your generator
-{{ camelT .Name }}: Generator & {
+{{ camelT .Name }}: gen.Generator & {
 	@gen({{ .Name }})
 
 	// inputs to the generator
@@ -322,10 +334,18 @@ import (
 	// your users do not set or see this field
 	ModuleName: ""
 }
+`
 
+
+const asModuleGenTemplate = `
+package gen
+
+import (
+	"github.com/hofstadter-io/hof/schema/gen"
+)
 
 // This is your reusable generator module
-Generator: gen.#Generator & {
+Generator: gen.Generator & {
 
 	//
 	// user input fields
@@ -430,15 +450,15 @@ const initMsg = `To run the '{{.Name}}' generator...
   $ hof gen        ... or ...
   $ hof gen{{range .Entrypoints}} {{.}}{{ end }} {{ .Name }}.cue -G {{ .Name }}
 `
-const newModuleTemplate = `
+const newModuleTopTemplate = `
 package {{ snake .Package }}
 
 import (
-	"github.com/hofstadter-io/hof/schema/gen"
+	"{{ .Module }}/{{ .Name }}/gen"
 )
 
 // This is example usage of your generator
-{{ camelT .Name }}: Generator & {
+{{ camelT .Name }}: gen.Generator & {
 	@gen({{ .Name }})
 
 	// inputs to the generator
@@ -455,10 +475,17 @@ import (
 	// your users do not set or see this field
 	ModuleName: ""
 }
+`
 
+const newModuleGenTemplate = `
+package gen
+
+import (
+	"github.com/hofstadter-io/hof/schema/gen"
+)
 
 // This is your reusable generator module
-Generator: gen.#Generator & {
+Generator: gen.Generator & {
 
 	//
 	// user input fields

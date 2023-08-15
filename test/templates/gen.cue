@@ -45,7 +45,7 @@ TestGen: #TestGen & {
 #TestGen: gen.#HofGenerator & {
 	Outdir: "output"
 
-	PackageName: ""
+	ModuleName: ""
 
 	In: {
 		Val:   _

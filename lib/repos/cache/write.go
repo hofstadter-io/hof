@@ -91,12 +91,16 @@ func CopyRepoTag(path, ver string) (string, error) {
 		lver = strings.Join(parts[2:], "-")
 	}
 
+	// fmt.Println("PVL", path, ver, lver)
+
 	// checkout tag
 	err = wt.Checkout(&gogit.CheckoutOptions{
 		Branch: plumbing.NewTagReferenceName(lver),
 		Force:  true,
 	})
 	if err != nil {
+		// fmt.Printf("(crt) -- checkout error: %v for %s@%s\n", err, path, ver)
+
 		// err = fmt.Errorf("(crt) checkout error: %w for %s@%s", err, path, ver)
 		// try branch
 		err = wt.Checkout(&gogit.CheckoutOptions{
@@ -110,7 +114,7 @@ func CopyRepoTag(path, ver string) (string, error) {
 				Force: true,
 			})
 			if err != nil {
-				return ver, fmt.Errorf("(crt) checkout error: unable to find version %q for module %q", ver, path)
+				return ver, fmt.Errorf("(crt) checkout error: unable to find version %q for module %q: %w", ver, path, err)
 			}
 
 		} else {

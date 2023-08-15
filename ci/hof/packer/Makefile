@@ -10,3 +10,6 @@ packer.build: packer.gen
 		packer build -force $$file; \
 		echo $$file; \
 	done
+
+dagger:
+	dagger run go run dagger.go

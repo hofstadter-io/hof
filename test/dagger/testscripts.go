@@ -32,7 +32,7 @@ func (R *Runtime) SetupTestingEnv(c *dagger.Container, source *dagger.Directory)
 	c = c.WithEnvVariable("HOF_FMT_VERSION", os.Getenv("HOF_FMT_VERSION"))
 
 	// set fmt vars
-	ver := "v0.6.8-rc.5"
+	ver := "v0.6.8"
 	c = c.WithEnvVariable("HOF_FMT_VERSION", ver)
 	c = c.WithEnvVariable("HOF_FMT_HOST", "http://global-dockerd")
 
@@ -62,12 +62,11 @@ func (R *Runtime) RunTestscriptDir(c *dagger.Container, source *dagger.Directory
 		if ext == ".txt" {
 			t := p.Pipeline(filepath.Join(dir, f))
 
-			t = t.WithFile(filepath.Join("/test", f), d.File(f))
+			t = t.WithMountedFile(filepath.Join("/test", f), d.File(f))
 			t = t.WithExec([]string{"hof", "run", f})
 
 			// now we only sync and check results once
-			// _, err = t.Sync(R.Ctx)
-			_, err = t.ExitCode(R.Ctx)
+			_, err = t.Sync(R.Ctx)
 			if err != nil {
 				hadError = true
 			}

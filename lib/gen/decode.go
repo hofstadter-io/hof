@@ -478,9 +478,14 @@ func (G *Generator) decodeFile(file *File, val cue.Value) error {
 }
 
 func (G *Generator) decodePackageName() error {
-	val := G.CueValue.LookupPath(cue.ParsePath("PackageName"))
+	val := G.CueValue.LookupPath(cue.ParsePath("ModuleName"))
 	if val.Err() != nil {
-		return val.Err()
+		pval := G.CueValue.LookupPath(cue.ParsePath("PackageName"))
+		if pval.Err() != nil {
+			return fmt.Errorf("while decoding ModuleName: %w %w", val.Err(), pval.Err())
+		}
+		fmt.Println("warning, PackageName is being deprecated, use ModuleName going forward")
+		val = pval
 	}
 
 	return val.Decode(&G.PackageName)

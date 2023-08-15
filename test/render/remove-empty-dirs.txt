@@ -1,4 +1,4 @@
-exec hof mod tidy
+exec hof mod vendor
 
 exec hof gen -t maybe=true
 exists out/always.txt
@@ -29,7 +29,7 @@ g: gen.Generator & {
 	maybe: bool | *false @tag(maybe,type=bool)
 
 	Outdir: "out"
-	PackageName: ""
+	ModuleName: ""
 
 	Out: [
 		{ TemplatePath: "always.txt", Filepath: "always.txt" },

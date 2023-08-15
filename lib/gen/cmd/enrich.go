@@ -78,7 +78,7 @@ func EnrichGeneratorBuilder(R *Runtime) func (R *runtime.Runtime, G *gen.Generat
 		// 3. you are a user doing this in a subdir completely?
 		const warnModuleAuthorFmtStr = `
 		You are running the %q generator at %q
-			with PackageName: ""
+			with ModuleName: ""
 
 		Note, that when running hof from inside a generator module,
 		it currently must be run from the root.

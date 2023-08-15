@@ -21,7 +21,7 @@ var (
 	// the value gets injected into templates in various places
 	// the default here is set to something useful for dev
 	// the release version is the same as the cli running it
-	HofVersion = "v0.6.8-rc.6"
+	HofVersion = "v0.6.8"
 )
 
 

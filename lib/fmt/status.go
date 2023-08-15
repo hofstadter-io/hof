@@ -9,6 +9,10 @@ import (
 )
 
 func UpdateFormatterStatus() error {
+	if DOCKER_FORMAT_DISABLED {
+		return nil
+	}
+
 	images, err := container.GetImages(fmt.Sprintf("%s/fmt-", CONTAINER_REPO))
 	if err != nil {
 		return fmt.Errorf("get images: %w", err)

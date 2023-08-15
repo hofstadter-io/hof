@@ -87,6 +87,11 @@ func init() {
 		DOCKER_FORMAT_DISABLED = true
 	}
 
+	b := container.GetBinary()
+	if b == "none" {
+		DOCKER_FORMAT_DISABLED = true
+	}
+
 	if debug {
 		fmt.Println("FORMAT_DISABLED", FORMAT_DISABLED)
 		fmt.Println("DOCKER_FORMAT_DISABLED", DOCKER_FORMAT_DISABLED)

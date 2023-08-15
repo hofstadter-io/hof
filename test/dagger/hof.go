@@ -30,9 +30,6 @@ func (R *Runtime) GolangImage(platform string) (*dagger.Container) {
 	buildCache := R.Client.CacheVolume("go-build-" + platform)
 	c = c.WithMountedCache("/root/.cache/go-build", buildCache)
 
-	// add tools
-	c = R.AddDockerCLI(c)
-
 	// setup workdir
 	c = c.WithWorkdir("/work")
 

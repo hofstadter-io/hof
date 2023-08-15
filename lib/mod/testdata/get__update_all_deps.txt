@@ -1,15 +1,15 @@
 exec hof mod get all@latest
 cmp cue.mod/module.cue match/cue.mod/module-get.cue
 
+# we really need a different set of purposefully set public repos to test this with
+# every time we update hof, this breaks
+
 -- cue.mod/module.cue --
 module: "github.com/hof/test"
 cue: "0.6.0"
 
 require: {
-	"github.com/hofstadter-io/hof": "v0.6.8"
-
-	// this has a bug (panic) in MVS, probably due to the initial target list & it needing to be pointing at the latest tag, rather than the current value (at least the requires)
-	// "github.com/hofstadter-io/hof": "v0.6.8-rc.6"
+	"github.com/hofstadter-io/hof": "v0.6.8-rc.6"
 }
 
 indirect: {
@@ -25,7 +25,7 @@ require: {
 }
 
 indirect: {
-	"github.com/hofstadter-io/cuelm":      "v0.1.1"
+	"github.com/hofstadter-io/cuelm":      "v0.2.0"
 	"github.com/hofstadter-io/ghacue":     "v0.2.0"
 	"github.com/hofstadter-io/hofmod-cli": "v0.8.6"
 	"github.com/hofstadter-io/supacode":   "v0.0.7"

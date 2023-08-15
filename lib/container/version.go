@@ -19,7 +19,15 @@ type RuntimeVersion struct {
 	}
 }
 
+func GetBinary() (string) {
+	return rt.Binary()
+}
+
 func GetVersion() (RuntimeVersion, error) {
+	if rt.Binary() == "none" {
+		return RuntimeVersion{Name: "none"}, nil
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
