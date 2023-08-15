@@ -17,6 +17,7 @@ import (
 type RuntimeBinary string
 
 const (
+	RuntimeBinaryNone    RuntimeBinary = "none"
 	RuntimeBinaryNerdctl RuntimeBinary = "nerdctl"
 	RuntimeBinaryPodman  RuntimeBinary = "podman"
 	RuntimeBinaryDocker  RuntimeBinary = "docker"
@@ -34,6 +35,7 @@ type Params struct {
 }
 
 type Runtime interface {
+	Binary() string
 	Version(context.Context) (RuntimeVersion, error)
 	Images(context.Context, Ref) ([]Image, error)
 	Containers(context.Context, Name) ([]Container, error)
@@ -51,11 +53,15 @@ func newRuntime(bin RuntimeBinary) runtime {
 	}
 }
 
-var _ Runtime = runtime{}
+var rt Runtime
 
 type runtime struct {
 	bin   RuntimeBinary
 	debug bool
+}
+
+func (r runtime) Binary() string {
+	return string(r.bin)
 }
 
 func (r runtime) exec(ctx context.Context, args ...string) (io.Reader, error) {

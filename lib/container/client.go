@@ -12,13 +12,19 @@ const (
 	envRuntime = "HOF_CONTAINER_RUNTIME"
 )
 
-var rt Runtime
-
 type Client struct {
 	runtimePath string
 }
 
 func InitClient() error {
+	urt := os.Getenv(envRuntime)
+
+	// short-circuit if none is explicitly set
+	if urt == "none" {
+		rt = newNone()
+		return nil
+	}
+
 	var (
 		rb       RuntimeBinary
 		binaries = []RuntimeBinary{
@@ -43,8 +49,12 @@ func InitClient() error {
 		rt = newPodman()
 	case RuntimeBinaryDocker:
 		rt = newDocker()
+	case "none":
+		rt = newNone()
 	default:
-		return fmt.Errorf("failed to find any of %s in PATH", binaries)
+		fmt.Println("failed to find any container runtimes %s in PATH", binaries)
+		fmt.Println("set HOF_CONTAINER_RUNTIME=none to disable this message")
+		rt = newNone()
 	}
 
 	return nil

@@ -4,20 +4,33 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"dagger.io/dagger"
+	"github.com/spf13/pflag"
+
 	hdagger "github.com/hofstadter-io/hof/test/dagger"
 )
 
-func checkErr(err error) {
+func check(err error) {
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 }
 
+var RUNTIME string
+var TESTS string
+
+func init() {
+	pflag.StringVarP(&RUNTIME, "runtime", "r", "docker", "container runtime to use [docker, nerdctl, podman, none]")
+	pflag.StringVarP(&TESTS, "tests", "t", "", "tests to run, comma separated")
+}
+
 func main() {
+	pflag.Parse()
+
 	ctx := context.Background()
 
 	// initialize Dagger client
@@ -46,15 +59,6 @@ func main() {
 	builder := R.BuildHof(deps, source)
 	runner := R.RuntimeContainer(builder, "linux/amd64")
 
-	// builder.Sync(R.Ctx)
-	//out, err := runner.Stdout(ctx)
-	//fmt.Println(out)
-	//if err != nil {
-	//  panic(err)
-	//}
-
-	//return
-
 	//
 	// TESTS
 	//
@@ -62,52 +66,85 @@ func main() {
 	tester := R.SetupTestingEnv(runner, source)
 	tester = tester.Pipeline("TESTS")
 
-	// attach dockerd to the tester container
-	daemon, err := R.DockerDaemonContainer()
-	checkErr(err)
-	tester, err = R.AttachDaemonAsService(tester, daemon)
-	checkErr(err)
+	switch RUNTIME {
+	case "none":
+		tester = tester.WithEnvVariable("HOF_CONTAINER_RUNTIME", "none")
+	
+	case "docker" :
+		// add tools
+		tester = R.AddDockerCLI(tester)
+
+		// attach dockerd to the tester container
+		daemon, err := R.DockerDaemonContainer()
+		check(err)
+		tester, err = R.AttachDaemonAsService(tester, daemon)
+		check(err)
+	}
 
 	// bust cache before testing
-	tester = tester.WithEnvVariable("CACHEBUST", time.Now().String())
+	tester = tester.
+		WithEnvVariable("CACHEBUST", time.Now().String()).
+		WithExec([]string{"env"})
 
+	// sync the graph
+	tester, err = tester.Sync(R.Ctx)
+	if err != nil {
+		check(err)
+	}
+
+	// run hof version as a first sanity test
 	err = R.HofVersion(tester)
-	checkErr(err)
+	check(err)
 
-	// so we don't fail fast
-	errs := make(map[string]error)
+	// build up a test map so we can easily select which ones to run
+	tests := make(map[string]func() error)
+	tests["render"] = func() error {
+		return R.TestAdhocRender(tester, source)
+	}
+	tests["create"] = func() error {
+		return R.TestCreate(tester, source)
+	}
+	tests["flow"] = func() error {
+		return R.TestFlow(tester, source)
+	}
+	tests["st"] = func() error {
+		return R.TestStructural(tester, source)
+	}
+	tests["dm"] = func() error {
+		return R.TestDatamodel(tester, source)
+	}
+	tests["mod"] = func() error {
+		return  R.TestMod(tester, source)
+	}
+	tests["fmt"] = func() error {
+		return R.TestCommandFmt(tester, source)
+	}
 
-	err = R.TestCommandFmt(tester, source)
-	errs["fmt"] = err
+	// decide what tests to run
+	ts := []string{}
+	if TESTS == "" {
+		for k := range tests {
+			ts = append(ts,k)
+		}
+	} else {
+		ts = strings.Split(TESTS,",")
+	}
 
-	//err = R.TestMod(tester, source)
-	//errs["mod"] = err
+	// run tests
+	for _,t := range ts {
+		fn, ok := tests[t]
+		if !ok {
+			fmt.Println("unknown test %q", t)
+			os.Exit(1)
+		}
 
-	//err = R.TestAdhocRender(tester, source)
-	//errs["render"] = err
-
-	//err = R.TestCreate(tester, source)
-	//errs["create"] = err
-
-	//err = R.TestFlow(tester, source)
-	//errs["flow"] = err
-
-	//err = R.TestStructural(tester, source)
-	//errs["structural"] = err
-
-	//err = R.TestDatamodel(tester, source)
-	//errs["datamodel"] = err
-
-	tester.WithExec([]string{"echo", "finished!"})
-
-	hadErr := false
-	for key, err := range errs {
+		err := fn()
 		if err != nil {
-			fmt.Println("error:", key, err)
-			hadErr = true
+			fmt.Println(err)
+			os.Exit(1)
 		}
 	}
-	if hadErr {
-		os.Exit(1)
-	}
+
+	tester.WithExec([]string{"echo", "finished!"})
+	fmt.Println("tests finished!")
 }

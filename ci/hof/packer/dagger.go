@@ -17,10 +17,11 @@ var (
 	user string
 
 	runtimes = []string{
-		"docker",
-		"nerdctl",
-		"nerdctl-rootless",
-		"podman",
+		"none",
+		//"docker",
+		//"nerdctl",
+		//"nerdctl-rootless",
+		//"podman",
 	}
 	arches = []string{
 		"amd",
@@ -37,6 +38,12 @@ func checkErr(err error) {
 		os.Exit(1)
 	}
 }
+
+/*
+ *
+ *  Note, this script must be run from the repo root
+ *
+ */
 
 func main() {
 	ctx := context.Background()
