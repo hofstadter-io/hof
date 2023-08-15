@@ -18,10 +18,10 @@ var (
 
 	runtimes = []string{
 		"none",
-		//"docker",
-		//"nerdctl",
-		//"nerdctl-rootless",
-		//"podman",
+		"docker",
+		"nerdctl",
+		"nerdctl-rootless",
+		"podman",
 	}
 	arches = []string{
 		"amd",
@@ -123,11 +123,16 @@ func main() {
 			// remote commands to run
 			t = WithGcloudSendFile(t, vmName, "/usr/local/bin/hof", hof, true)
 			t = WithGcloudRemoteBash(t, vmName, "hof version")
-			t = WithGcloudRemoteBash(t, vmName, "hof fmt pull prettier@v0.6.8-rc.5")
-			t = WithGcloudRemoteBash(t, vmName, "hof fmt start prettier@v0.6.8-rc.5")
-			t = WithGcloudRemoteBash(t, vmName, "hof fmt status")
-			t = WithGcloudRemoteBash(t, vmName, "hof fmt test prettier")
-			t = WithGcloudRemoteBash(t, vmName, "hof fmt stop")
+			t = WithGcloudRemoteBash(t, vmName, "echo '{}' | hof gen - -T :=foo.json")
+
+			// todo, what do we want to run on the remote VM?
+			if runtime != "none" {
+				t = WithGcloudRemoteBash(t, vmName, "hof fmt pull prettier@v0.6.8")
+				t = WithGcloudRemoteBash(t, vmName, "hof fmt start prettier@v0.6.8")
+				t = WithGcloudRemoteBash(t, vmName, "hof fmt status")
+				t = WithGcloudRemoteBash(t, vmName, "hof fmt test prettier")
+				t = WithGcloudRemoteBash(t, vmName, "hof fmt stop")
+			}
 
 			// sync to run them for real
 			_, err = t.Sync(R.Ctx)
