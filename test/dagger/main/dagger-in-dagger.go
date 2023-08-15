@@ -101,11 +101,10 @@ func (R *runtime) addPackages(c *dagger.Container) (*dagger.Container, error) {
 	if err != nil {
 		return c, err
 	}
-	_, err := c.Sync(R.ctx)
+	_, err = c.Sync(R.ctx)
 	if err != nil {
 		return c, err
 	}
-	fmt.Println("out:", code)
 	fmt.Println(out)
 
 	return c, nil
