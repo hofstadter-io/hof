@@ -117,7 +117,7 @@ func updateAll(cm *CueMod, rflags flags.RootPflagpole, gflags flags.Mod__GetFlag
 		}
 
 		// only update if newer, incase we have specific prereleases
-		if semver.Compare(nver, ver) > 1 {
+		if semver.Compare(nver, ver) == 1 {
 			cm.Require[path] = nver
 		}
 	}
