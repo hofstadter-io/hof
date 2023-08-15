@@ -44,7 +44,7 @@ func main() {
 	daemon, err := R.daemonContainer()
 	checkErr(err)
 
-	_, err = daemon.ExitCode(R.ctx)
+	_, err = daemon.Sync(R.ctx)
 	checkErr(err)
 
 

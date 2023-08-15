@@ -24,6 +24,7 @@ var srcBaseDir string
 
 // hacky, but we only want to sync once per repo per process
 var syncedRepos *sync.Map
+var cacheLock sync.Mutex
 
 // CacheDir/{mod,src}
 
@@ -183,6 +184,10 @@ func CacheModule(url, ver string) (billy.Filesystem, error) {
 
 	switch kind {
 	case remote.KindGit:
+		cacheLock.Lock()
+		defer cacheLock.Unlock()
+
+		// fmt.Println("FETCH:", url, ver)
 		// we are smarter here and check to see if the tag already exists
 		// this will both clone new & sync existing repos as needed
 		// when ver != "", it will only fetch if the tag is not found
@@ -191,8 +196,9 @@ func CacheModule(url, ver string) (billy.Filesystem, error) {
 			return nil, err
 		}
 
-		// fmt.Println("making:", url, ver)
+		// fmt.Println("MAKE COPY:", url, ver)
 		ver, err = CopyRepoTag(url, ver)
+		// fmt.Println("DONE MAKING:", url, ver)
 		if err != nil {
 			return nil, err
 		}

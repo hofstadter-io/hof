@@ -78,6 +78,11 @@ func (rr *RequirementResolver) Max(v1, v2 string) string {
 
 func (rr *RequirementResolver) Required(m module.Version) ([]module.Version, error) {
 
+	// skip if it is the same as the root module
+	if rr.rootMod.Module == m.Path {
+		return nil, nil
+	}
+
 	var FS billy.Filesystem
 	var err error
 

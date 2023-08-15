@@ -99,6 +99,7 @@ Generator: {
 	// set to the empty string ("") as a generator writer who is making an example in the same module
 	ModuleName:  string
 	PackageName: ModuleName
+	ModuleName:  PackageName
 	// TODO, hof, can we introspect the generator / example packages and figure this out?
 
 	// print debug info during load & gen

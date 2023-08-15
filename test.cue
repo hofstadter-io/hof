@@ -99,16 +99,16 @@ tests: {
 		}
 	}
 
-	//render: {
-	//  @flow(test/render)
-	//  run: GoTest & {
-	//    dir: "test/render"
-	//    script: """
-	//      echo "no-op"
-	//      echo "now run in the dagger workflow"
-	//      """
-	//  }
-	//}
+	render: {
+		@flow(test/render)
+		run: GoTest & {
+			dir: "test/render"
+			script: """
+				echo "no-op"
+				echo "now run in the dagger workflow"
+				"""
+		}
+	}
 
 	create: {
 		@flow(test/create)

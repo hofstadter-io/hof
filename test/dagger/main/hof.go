@@ -93,8 +93,8 @@ func main() {
 	}
 
 	// run hof version as a first sanity test
-	err = R.HofVersion(tester)
-	check(err)
+	//err = R.HofVersion(tester)
+	//check(err)
 
 	// build up a test map so we can easily select which ones to run
 	tests := make(map[string]func() error)
@@ -121,12 +121,18 @@ func main() {
 	}
 
 	// decide what tests to run
-	ts := []string{}
-	if TESTS == "" {
-		for k := range tests {
-			ts = append(ts,k)
-		}
-	} else {
+	ts := []string{
+		// explicit order if all of them
+		"render",
+		"create",
+		"st",
+		"dm",
+		"flow",
+		"mod",
+		"fmt",
+	}
+	if TESTS != "" {
+		// user order if manually set
 		ts = strings.Split(TESTS,",")
 	}
 

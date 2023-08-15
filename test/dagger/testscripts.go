@@ -62,7 +62,7 @@ func (R *Runtime) RunTestscriptDir(c *dagger.Container, source *dagger.Directory
 		if ext == ".txt" {
 			t := p.Pipeline(filepath.Join(dir, f))
 
-			t = t.WithFile(filepath.Join("/test", f), d.File(f))
+			t = t.WithMountedFile(filepath.Join("/test", f), d.File(f))
 			t = t.WithExec([]string{"hof", "run", f})
 
 			// now we only sync and check results once
