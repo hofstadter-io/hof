@@ -126,6 +126,10 @@ func main() {
 			t = WithGcloudRemoteBash(t, vmName, "echo '{}' | hof gen - -T :=foo.json")
 
 			// todo, what do we want to run on the remote VM?
+			// we test everthing with docker, we added these tests as a sanity on the tools
+			// what we really need is the "full" test suite with none (no container runtime)
+			// "full" because there are some tests we cannot run, because you need a container formatter
+			// what is not easy is to separate the directory of testscripts, unless we make 2 dirs, which might be the easy solution
 			if runtime != "none" {
 				t = WithGcloudRemoteBash(t, vmName, "hof fmt pull prettier@v0.6.8")
 				t = WithGcloudRemoteBash(t, vmName, "hof fmt start prettier@v0.6.8")

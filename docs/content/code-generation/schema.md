@@ -93,7 +93,7 @@ We have used this for
 - Building higher level generators, for example an APP which has Client, Server, and Database subgenerators with a single input.
 
 
-##### PackageName
+##### ModuleName
 
 This is the CUE module name of your generator.
 It is used for indexing into the `cue.mod` folder
