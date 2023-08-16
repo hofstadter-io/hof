@@ -94,10 +94,11 @@ func updateOne(cm *CueMod, path, ver string, rflags flags.RootPflagpole, gflags 
 	}
 
 	// check for already required at a version equal or greater (no downgrades with get)
+	// HMMM, let's remove this restriction, GO supports downgrading, let's inform the user
 	currVer, ok := cm.Require[path]
 	if ok {
-		if semver.Compare(currVer, ver) >= 0 {
-			return fmt.Errorf("%s@%s is already required", path, currVer)
+		if semver.Compare(currVer, ver) > 0 {
+			fmt.Printf("Downgrading: %s from %s to %s\n", path, currVer, ver)
 		}
 	}
 

@@ -55,9 +55,11 @@ func NewRemote(mod string, mir *Mirrors) *Remote {
 func (r *Remote) Pull(ctx context.Context, dir, ver string) error {
 	switch r.kind {
 	case KindGit:
-		if err := git.SyncSource(dir, r.Host, r.Owner, r.Name, ver); err != nil {
+		// ensure we have up-to-date code in .cache/hof/src/<module>
+		if err := git.SyncSource(dir, r.Host, r.Owner, r.Name); err != nil {
 			return fmt.Errorf("git sync source: %w", err)
 		}
+
 	case KindOCI:
 		// extract hash from version
 		if strings.HasPrefix(ver, "v0.0.0-") {
