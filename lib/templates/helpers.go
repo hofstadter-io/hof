@@ -1,6 +1,7 @@
 package templates
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -28,6 +29,7 @@ func (T *Template) AddGolangHelpers() {
 	chatMap := template.FuncMap{
 		"chat": T.Helper_chat(),
 		"gen": T.Helper_gen(),
+		"render": T.Helper_render(),
 	}
 
 	T.T = T.T.Funcs(chatMap)
@@ -536,7 +538,7 @@ var known_builtins = map[string]struct{}{
 	"interface{}": struct{}{},
 }
 
-func Helper_builtin(str string) interface{} {
+func Helper_builtin(str string) any {
 	_, ok := known_builtins[str]
 	if ok {
 		return true
@@ -544,7 +546,7 @@ func Helper_builtin(str string) interface{} {
 	return nil
 }
 
-func Helper_lookup(path string, data interface{}) interface{} {
+func Helper_lookup(path string, data any) any {
 	if data == nil {
 		return fmt.Sprint("Nil data supplied for " + path)
 	}
@@ -565,4 +567,22 @@ func Helper_lookup(path string, data interface{}) interface{} {
 	}
 
 	return obj
+}
+
+// todo, should we support turning the content back to an objecct?
+// perhaps better to have different functions for this
+func (T *Template) Helper_render() (func (name string, data any) any) {
+
+	return func(name string, data any) any {
+		t := T.T.Lookup(name)
+
+		var b bytes.Buffer
+
+		err := t.Execute(&b, data)
+		if err != nil {
+			return err.Error()
+		}
+
+		return b.String()
+	}
 }
