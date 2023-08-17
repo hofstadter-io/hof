@@ -114,6 +114,7 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.FmtFlagpole) (e
 	}
 
 	errCount := 0
+	notCount := 0
 	// loop over groups
 	for _, g := range gs {
 		// filter files (data & dirs)
@@ -139,8 +140,8 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.FmtFlagpole) (e
 		fmt.Printf("formatting %d file(s) from %s\n", len(files), g.orig)
 
 		for _, file := range files {
-			if rflags.Verbosity > 0 {
-				fmt.Println(file)
+			if rflags.Verbosity > 2 {
+				fmt.Println("formatting:", file)
 			}
 
 			// duplicated, but we need the info to preserve mode below
@@ -157,9 +158,20 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.FmtFlagpole) (e
 			// todo, add flags for fmtr & config
 			fmtd, err := FormatSource(file, content, g.formatter, nil, cflags.Data)
 			if err != nil {
-				fmt.Println("while formatting source:", err)
-				errCount += 1
+				if _, ok := err.(*NoFormatterError); ok {
+					if rflags.Verbosity > 0 {
+						fmt.Println("warning, while formatting source:", err)
+					}
+					notCount += 1
+				} else {
+					fmt.Println("error, while formatting source:", err)
+					errCount += 1
+				}
 				continue
+			}
+
+			if rflags.Verbosity > 1 {
+				fmt.Println("formatted:", file)
 			}
 
 			err = os.WriteFile(file, fmtd, info.Mode())
@@ -169,6 +181,9 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.FmtFlagpole) (e
 		}
 	}
 
+	if notCount > 0 {
+		fmt.Printf("unable to format %d files, run with -v 1 to see which files\n", notCount)
+	}
 	if errCount > 0 {
 		return fmt.Errorf("encountered %v errors while formatting", errCount)
 	}

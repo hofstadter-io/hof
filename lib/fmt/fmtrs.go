@@ -257,10 +257,23 @@ var fmtrDefaultConfigs = map[string]interface{}{
 	},
 }
 
+type NoFormatterError struct{
+	filename string
+	reason   string
+}
+
+func NewNoFormatterError(filename, reason string) *NoFormatterError {
+	return &NoFormatterError{filename: filename, reason: reason}
+}
+
+func (e *NoFormatterError) Error() string {
+	return fmt.Sprintf("no formatter found for %s, %s", e.filename, e.reason)
+}
+
 func FormatSource(filename string, content []byte, fmtrName string, config interface{}, formatData bool) ([]byte, error) {
 	// short circuit here, so we don't everywhere this function is used
 	if FORMAT_DISABLED {
-		return content, nil
+		return content, NewNoFormatterError(filename, "all formatting disabled")
 	}
 
 	// extract filename & extension
@@ -318,7 +331,7 @@ func FormatSource(filename string, content []byte, fmtrName string, config inter
 
 	// short circuit here, so we don't everywhere this function is used
 	if DOCKER_FORMAT_DISABLED {
-		return content, nil
+		return content, NewNoFormatterError(filename, "container formatting disabled")
 	}
 
 	fmtrTool := ""
@@ -341,8 +354,7 @@ func FormatSource(filename string, content []byte, fmtrName string, config inter
 			// look for wellknown filenames
 			fmtrPath, ok = filenameToFmtr[fileBase]
 			if !ok {
-				// todo, ext not supported, alert (and not error?)
-				return content, nil
+				return content, NewNoFormatterError(filename, "no formatter found for filetype")
 			}
 		} else {
 			// look for extension to config
@@ -362,8 +374,7 @@ func FormatSource(filename string, content []byte, fmtrName string, config inter
 
 			// if still not ok, return original content, we won't format
 			if !ok {
-				// todo, ext not supported, alert (and not error?)
-				return content, nil
+				return content, NewNoFormatterError(filename, "no formatter found for filetype")
 			}
 		}
 
