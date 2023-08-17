@@ -164,7 +164,7 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.FmtFlagpole) (e
 					}
 					notCount += 1
 				} else {
-					fmt.Println("error, while formatting source:", err)
+					fmt.Println("while formatting source:", err)
 					errCount += 1
 				}
 				continue
