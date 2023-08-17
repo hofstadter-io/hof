@@ -1,0 +1,20 @@
+exec hof gen data.cue -T template.txt -P partial.txt
+cmp stdout golden.stdout
+
+-- data.cue --
+val: {
+	name: "a"
+	data: 1
+}
+
+foo: "bar"
+
+-- template.txt --
+{{ $x := render "partial.txt" (dict "name" .val.name "ROOT" .) }}
+X is: {{ $x }}
+-- partial.txt --
+{{ .name }}...
+foo is {{ .ROOT.foo }}
+-- golden.stdout --
+X is: a...
+foo is bar
