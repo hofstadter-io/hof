@@ -14,7 +14,7 @@ ModCommand: schema.Command & {
 	Name:  "mod"
 	Usage: "mod"
 	Aliases: ["m"]
-	Short: "CUE dependency management based on Go mods"
+	Short: "CUE module dependency management"
 	Long:  ModLongHelp
 
 	//Topics: #ModTopics

@@ -7,7 +7,7 @@ import (
 CreateCommand: schema.Command & {
 	Name:  "create"
 	Usage: "create <module path> [extra args]"
-	Short: "dynamic app blueprints from any git repo"
+	Short: "starter kits or blueprints from any git repo"
 	Long:  CreateRootHelp
 
 	Args: [{

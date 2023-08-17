@@ -9,7 +9,7 @@ GenCommand: schema.Command & {
 	Name:  "gen"
 	Usage: "gen [files...]"
 	Aliases: ["G"]
-	Short: "modular and composable code gen: CUE & data + templates = _"
+	Short: "CUE powered code generation"
 	Long:  GenLongHelp
 
 	Flags: [...schema.Flag] & [

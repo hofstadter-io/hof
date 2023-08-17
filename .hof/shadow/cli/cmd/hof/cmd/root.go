@@ -128,8 +128,13 @@ func RootInit() {
 	RootCmd.AddCommand(DatamodelCmd)
 	RootCmd.AddCommand(GenCmd)
 	RootCmd.AddCommand(FlowCmd)
+	RootCmd.AddCommand(StCmd)
 	RootCmd.AddCommand(FmtCmd)
 	RootCmd.AddCommand(ModCmd)
+	RootCmd.AddCommand(DefCmd)
+	RootCmd.AddCommand(EvalCmd)
+	RootCmd.AddCommand(ExportCmd)
+	RootCmd.AddCommand(VetCmd)
 	RootCmd.AddCommand(ChatCmd)
 	RootCmd.AddCommand(RunCmd)
 	RootCmd.AddCommand(FeedbackCmd)
@@ -180,13 +185,17 @@ Usage:
   hof [flags] [command] [args]
 
 Main commands:
-  create                dynamic app blueprints from any git repo
-  datamodel             manage, diff, and migrate your data models
-  gen                   modular and composable code gen: CUE & data + templates = _
-  flow                  run CUE pipelines with the hof/flow DAG engine
-  fmt                   format any code and manage the formatters
-  mod                   CUE dependency management based on Go mods
   chat                  co-create with AI (alpha)
+  create                starter kits or blueprints from any git repo
+  datamodel             manage, diff, and migrate your data models
+  def                   print consolidated CUE definitions
+  eval                  evaluate and print CUE configuration
+  export                output data in a standard format
+  flow                  run workflows and tasks powered by CUE
+  fmt                   format any code and manage the formatters
+  gen                   CUE powered code generation
+  mod                   CUE module dependency management
+  vet                   validate data with CUE
 
 Additional commands:
   help                  help about any command

@@ -106,7 +106,7 @@ var ModCmd = &cobra.Command{
 		"m",
 	},
 
-	Short: "CUE dependency management based on Go mods",
+	Short: "CUE module dependency management",
 
 	Long: modLong,
 }

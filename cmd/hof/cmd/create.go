@@ -70,7 +70,7 @@ var CreateCmd = &cobra.Command{
 
 	Use: "create <module path> [extra args]",
 
-	Short: "dynamic app blueprints from any git repo",
+	Short: "starter kits or blueprints from any git repo",
 
 	Long: createLong,
 

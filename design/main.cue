@@ -31,8 +31,15 @@ CLI: schema.Cli & {
 		cmds.DatamodelCommand,
 		cmds.GenCommand,
 		cmds.FlowCommand,
+		cmds.StCommand,
 		cmds.FmtCommand,
 		cmds.ModCommand,
+
+		// cue commands
+		cmds.DefCommand,
+		cmds.EvalCommand,
+		cmds.ExportCommand,
+		cmds.VetCommand,
 
 		// beta commands
 		cmds.ChatCommand,
@@ -60,13 +67,17 @@ Usage:
   hof [flags] [command] [args]
 
 Main commands:
+  \(cmds.ChatCommand.Help)
   \(cmds.CreateCommand.Help)
   \(cmds.DatamodelCommand.Help)
-  \(cmds.GenCommand.Help)
+  \(cmds.DefCommand.Help)
+  \(cmds.EvalCommand.Help)
+  \(cmds.ExportCommand.Help)
   \(cmds.FlowCommand.Help)
   \(cmds.FmtCommand.Help)
+  \(cmds.GenCommand.Help)
   \(cmds.ModCommand.Help)
-  \(cmds.ChatCommand.Help)
+  \(cmds.VetCommand.Help)
 
 Additional commands:
   help                  help about any command

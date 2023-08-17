@@ -8,7 +8,7 @@ FlowCommand: schema.Command & {
 	Name: "flow"
 	Aliases: ["f"]
 	Usage: "flow [cue files...] [@flow/name...] [+key=value]"
-	Short: "run CUE pipelines with the hof/flow DAG engine"
+	Short: "run workflows and tasks powered by CUE"
 	Long:  """
   \(Short)
 
