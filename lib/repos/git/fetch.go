@@ -45,10 +45,10 @@ func IsNetworkReachable(ctx context.Context, mod string) (bool, error) {
 	return err == nil, nil
 }
 
-func SyncSource(dir, remote, owner, repo, ver string) error {
+func SyncSource(dir, remote, owner, repo string) error {
 	url := path.Join(remote, owner, repo)
 	if debug {
-		fmt.Println("git.SyncSource:", dir, remote, owner, repo, ver, url)
+		fmt.Println("git.SyncSource:", dir, remote, owner, repo, url)
 	}
 	_, err := os.Lstat(dir)
 	// does not exist

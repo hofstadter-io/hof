@@ -86,7 +86,7 @@ func EnrichGeneratorBuilder(R *Runtime) func (R *runtime.Runtime, G *gen.Generat
 		See GitHub issue: https://github.com/hofstadter-io/hof/issues/103
 		`
 
-		if G.PackageName == "" {
+		if G.ModuleName == "" {
 			if R.Flags.Verbosity > 0 {
 				fmt.Printf(warnModuleAuthorFmtStr, G.Hof.Metadata.Name, G.Hof.Path)
 			}

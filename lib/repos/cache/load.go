@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
-	"strings"
+	// "strings"
 
 	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-billy/v5/osfs"
@@ -45,10 +45,11 @@ func init() {
 		if err != nil {
 			return
 		}
+
 		// workaround for running in TestScript tool
-		if strings.HasPrefix(d, "/no-home") {
-			d = strings.TrimPrefix(d, "/")
-		}
+		//if strings.HasPrefix(d, "/no-home") {
+		//  d = strings.TrimPrefix(d, "/")
+		//}
 
 		// save to hof dir for cache across projects
 		cacheBaseDir = filepath.Join(d, "hof")
@@ -187,7 +188,6 @@ func CacheModule(url, ver string) (billy.Filesystem, error) {
 		cacheLock.Lock()
 		defer cacheLock.Unlock()
 
-		// fmt.Println("FETCH:", url, ver)
 		// we are smarter here and check to see if the tag already exists
 		// this will both clone new & sync existing repos as needed
 		// when ver != "", it will only fetch if the tag is not found

@@ -88,7 +88,7 @@ func (G *Generator) DecodeFromCUE(root cue.Value) (errs []error) {
 		errs = append(errs, serr...)
 	}
 
-	if err := G.decodePackageName(); err != nil {
+	if err := G.decodeModuleName(); err != nil {
 		errs = append(errs, err)
 	}
 
@@ -155,7 +155,7 @@ func (G *Generator) PrintInfo() {
 	fmt.Println("EPrtl:  ", len(G.EmbeddedPartials))
 	fmt.Println("EStcs:  ", len(G.EmbeddedStatics))
 	fmt.Println()
-	fmt.Println(G.PackageName, G.Disabled)
+	fmt.Println(G.ModuleName, G.Disabled)
 	fmt.Println("Diff3:  ", G.UseDiff3)
 	fmt.Println("TMap:   ", len(G.TemplateMap))
 	fmt.Println("PMap:   ", len(G.PartialsMap))
@@ -477,10 +477,10 @@ func (G *Generator) decodeFile(file *File, val cue.Value) error {
 	return nil
 }
 
-func (G *Generator) decodePackageName() error {
+func (G *Generator) decodeModuleName() error {
 	val := G.CueValue.LookupPath(cue.ParsePath("ModuleName"))
 	if val.Err() != nil {
-		pval := G.CueValue.LookupPath(cue.ParsePath("PackageName"))
+		pval := G.CueValue.LookupPath(cue.ParsePath("ModuleName"))
 		if pval.Err() != nil {
 			return fmt.Errorf("while decoding ModuleName: %w %w", val.Err(), pval.Err())
 		}
@@ -488,7 +488,7 @@ func (G *Generator) decodePackageName() error {
 		val = pval
 	}
 
-	return val.Decode(&G.PackageName)
+	return val.Decode(&G.ModuleName)
 }
 
 func (G *Generator) decodeSubgens(root cue.Value) (errs []error) {

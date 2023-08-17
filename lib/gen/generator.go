@@ -97,8 +97,9 @@ type Generator struct {
 	parent  *Generator
 
 	// Used for indexing into the vendor directory...
-	// TODO, rename this ModuleName
-	PackageName string
+	// This should be `ModuleName: string | *"github.com/..." in your generator
+	// and set to "" if you use the generator from within the module itself
+	ModuleName string
 
 	// Use Diff3 & Shadow
 	Diff3FlagSet bool // set by flag
@@ -230,8 +231,8 @@ func (G *Generator) initStaticFiles() []error {
 	// baseDir should always be an absolute path
 	baseDir := G.CueModuleRoot
 	// lookup in vendor directory, this will need to change once CUE uses a shared cache in the user homedir
-	if G.PackageName != "" {
-		baseDir = filepath.Join(G.CueModuleRoot, CUE_VENDOR_DIR, G.PackageName)
+	if G.ModuleName != "" {
+		baseDir = filepath.Join(G.CueModuleRoot, CUE_VENDOR_DIR, G.ModuleName)
 	}
 
 	// Start with static file globs
@@ -243,7 +244,7 @@ func (G *Generator) initStaticFiles() []error {
 		fullTrimDir := filepath.Join(baseDir, prefix)
 		_, err := os.Stat(fullTrimDir)
 		if err != nil {
-			fmt.Printf("warning: from %s, directory %s not found, for gen %s:%s, if you do not intend to use static files, set 'Statics: []'\n", baseDir, prefix, G.PackageName, G.Hof.Path)
+			fmt.Printf("warning: from %s, directory %s not found, for gen %s:%s, if you do not intend to use static files, set 'Statics: []'\n", baseDir, prefix, G.ModuleName, G.Hof.Path)
 			continue
 		}
 
@@ -367,8 +368,8 @@ func (G *Generator) initPartials() []error {
 	// baseDir should always be an absolute path
 	baseDir := G.CueModuleRoot
 	// lookup in vendor directory, this will need to change once CUE uses a shared cache in the user homedir
-	if G.PackageName != "" {
-		baseDir = filepath.Join(G.CueModuleRoot, CUE_VENDOR_DIR, G.PackageName)
+	if G.ModuleName != "" {
+		baseDir = filepath.Join(G.CueModuleRoot, CUE_VENDOR_DIR, G.ModuleName)
 	}
 
 	// then partials from disk via globs
@@ -379,7 +380,7 @@ func (G *Generator) initPartials() []error {
 		fullTrimDir := filepath.Join(baseDir, prefix)
 		_, err := os.Stat(fullTrimDir)
 		if err != nil {
-			fmt.Printf("warning: from %s, directory %s not found, for gen %s:%s, if you do not intend to use partials files, set 'Partials: []'\n", baseDir, prefix, G.PackageName, G.Hof.Path)
+			fmt.Printf("warning: from %s, directory %s not found, for gen %s:%s, if you do not intend to use partials files, set 'Partials: []'\n", baseDir, prefix, G.ModuleName, G.Hof.Path)
 			continue
 		}
 
@@ -454,8 +455,8 @@ func (G *Generator) initTemplates() []error {
 	// baseDir should always be an absolute path
 	baseDir := G.CueModuleRoot
 	// lookup in vendor directory, this will need to change once CUE uses a shared cache in the user homedir
-	if G.PackageName != "" {
-		baseDir = filepath.Join(G.CueModuleRoot, CUE_VENDOR_DIR, G.PackageName)
+	if G.ModuleName != "" {
+		baseDir = filepath.Join(G.CueModuleRoot, CUE_VENDOR_DIR, G.ModuleName)
 	}
 
 	for _, tg := range G.Templates {
@@ -465,7 +466,7 @@ func (G *Generator) initTemplates() []error {
 		fullTrimDir := filepath.Join(baseDir, prefix)
 		_, err := os.Stat(fullTrimDir)
 		if err != nil {
-			fmt.Printf("warning: from %s, directory %s not found, for gen %s:%s, if you do not intend to use templates files, set 'Templates: []'\n", baseDir, prefix, G.PackageName, G.Hof.Path)
+			fmt.Printf("warning: from %s, directory %s not found, for gen %s:%s, if you do not intend to use templates files, set 'Templates: []'\n", baseDir, prefix, G.ModuleName, G.Hof.Path)
 			continue
 		}
 

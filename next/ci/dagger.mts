@@ -14,8 +14,8 @@ const zone = "us-central1-a"
 const namespace = "websites"
 const name = "hof-next-docs"
 
-const cue_version = "v0.6.0-alpha.2"
-const hof_version = "v0.6.8-rc.5"
+const cue_version = "v0.6.0"
+const hof_version = "v0.6.8"
 
 // initialize command interface
 const cli = new Command();

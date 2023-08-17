@@ -153,6 +153,7 @@ func GetBranchLatestHash(path, branch string) (string, error) {
 	if err != nil {
 		return branch, err
 	}
+
 	// open repo
 	R, err := OpenRepoSource(path)
 	if err != nil {
@@ -170,15 +171,25 @@ func GetBranchLatestHash(path, branch string) (string, error) {
 		Branch: plumbing.NewRemoteReferenceName("origin", branch),
 		Force: true,
 	})
-	if err == nil {
-		h, err := R.Head()
-		if err != nil {
-			return branch, err
+	if err != nil {
+		// if error checking out branch name, try to check out a hash
+		herr := wt.Checkout(&gogit.CheckoutOptions{
+			Hash:  plumbing.NewHash(branch),
+			Force: true,
+		})
+		// if no error, we can return "branch" which is a commit
+		if herr == nil {
+			return branch, nil
 		}
-		return h.Hash().String(), nil
+		// else, we can return the "ref not found" error from the first checkout
+		return branch, err
 	}
 
-	return branch, nil
+	h, err := R.Head()
+	if err != nil {
+		return branch, err
+	}
+	return h.Hash().String(), nil
 }
 
 func UpgradePseudoVersion(path, ver string) (s string, err error) {
@@ -198,10 +209,10 @@ func UpgradePseudoVersion(path, ver string) (s string, err error) {
 		}
 	}
 
-	// branch? need to find commit
+	// branch? need to find commit, what if branch does not exist
 	nver, err := GetHashForNamedRef(path, ver)
 	if err != nil {
-		return ver, err
+		return ver, fmt.Errorf("while upgrading pseudo version for %s@%s: %w", path, ver, err)
 	}
 	if nver != "" {
 		ver = nver

@@ -305,6 +305,10 @@ func setupTmpdir(url, ver string) (tmpdir, subdir string, err error) {
 
 func runCreator(R *gencmd.Runtime, extra, inputs []string) (err error) {
 
+	if R.Flags.Verbosity > 0 {
+		fmt.Println("running creator with:", extra, inputs)
+	}
+
 	if len(R.Generators) == 0 {
 		return fmt.Errorf("no generators found, please make sure there is a creator at the root of the repository")
 	}

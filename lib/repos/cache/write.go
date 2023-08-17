@@ -10,6 +10,7 @@ import (
 	"github.com/go-git/go-billy/v5/osfs"
 	gogit "github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
+	"golang.org/x/mod/semver"
 
 	"github.com/hofstadter-io/hof/lib/repos/utils"
 	"github.com/hofstadter-io/hof/lib/yagu"
@@ -70,6 +71,9 @@ func CopyRepoTag(path, ver string) (string, error) {
 	if debug {
 		fmt.Println("cache.CopyRepoTag:", path, ver)
 	}
+
+	// HMMM, upgrade pseudoversion here?
+
 	remote, owner, repo := utils.ParseModURL(path)
 	dir := SourceOutdir(remote, owner, repo)
 
@@ -85,47 +89,58 @@ func CopyRepoTag(path, ver string) (string, error) {
 		return ver, fmt.Errorf("(crt) worktree error: %w for %s@%s", err, path, ver)
 	}
 
+	// we aren't really using this, but want to think through the logic and make it available
+	verType := "branch"
+	if semver.IsValid(ver) {
+		verType = "tag"
+	}
+
 	lver := ver
+	// trim the prefix from module versions that are actually commits
+	// then using the commit hash for checkout
 	parts := strings.Split(lver, "-")
 	if strings.HasPrefix(lver, "v0.0.0-") {
 		lver = strings.Join(parts[2:], "-")
+		verType = "commit"
 	}
 
-	// fmt.Println("PVL", path, ver, lver)
+	if debug {
+		fmt.Println("PVL", path, ver, lver, verType)
+	}
 
-	// checkout tag
-	err = wt.Checkout(&gogit.CheckoutOptions{
-		Branch: plumbing.NewTagReferenceName(lver),
-		Force:  true,
-	})
-	if err != nil {
-		// fmt.Printf("(crt) -- checkout error: %v for %s@%s\n", err, path, ver)
+	// what we are doing here is trying to checkout the right thing
+	// before doing the copy
+	// choices are: [tag, branch, commit]
+	// maybe any commit inputs should already have been upgraded?
+	// going with this for now, we should catch an error in tests
+	// and ensure there is a test, then remove these last few comment lines
 
-		// err = fmt.Errorf("(crt) checkout error: %w for %s@%s", err, path, ver)
-		// try branch
+	// checkout ref
+	switch verType {
+	case "tag":
+		err = wt.Checkout(&gogit.CheckoutOptions{
+			Branch: plumbing.NewTagReferenceName(lver),
+			Force:  true,
+		})
+
+	case "commit":
+		err = wt.Checkout(&gogit.CheckoutOptions{
+			Hash:  plumbing.NewHash(lver),
+			Force: true,
+		})
+
+	case "branch":
 		err = wt.Checkout(&gogit.CheckoutOptions{
 			Branch: plumbing.NewRemoteReferenceName("origin", lver),
 			Force:  true,
 		})
 
-		if err != nil {
-			err = wt.Checkout(&gogit.CheckoutOptions{
-				Hash:  plumbing.NewHash(lver),
-				Force: true,
-			})
-			if err != nil {
-				return ver, fmt.Errorf("(crt) checkout error: unable to find version %q for module %q: %w", ver, path, err)
-			}
-
-		} else {
-			h, err := R.Head()
-			lver = strings.Join(append(parts[:2], h.Hash().String()), "-")
-			fmt.Println("Checking out branch:", path, ver, lver, err)
-			ver = lver
-		}
+	}
+	if err != nil {
+		return "", err
 	}
 
-	// copy
+	// Now we can copy from src to mods
 	FS := osfs.New(dir)
 	err = Write(remote, owner, repo, ver, FS)
 	if err != nil {
