@@ -4,7 +4,7 @@ import (
 	"github.com/hofstadter-io/hofmod-cli/schema"
 )
 
-#GenCommand: schema.#Command & {
+GenCommand: schema.Command & {
 	// TBD:   "✓"
 	Name:  "gen"
 	Usage: "gen [files...]"
@@ -12,7 +12,7 @@ import (
 	Short: "modular and composable code gen: CUE & data + templates = _"
 	Long:  GenLongHelp
 
-	Flags: [...schema.#Flag] & [
+	Flags: [...schema.Flag] & [
 		{
 			Name:    "stats"
 			Type:    "bool"

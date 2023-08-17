@@ -4,13 +4,13 @@ import (
 	"github.com/hofstadter-io/hofmod-cli/schema"
 )
 
-#ChatCommand: schema.#Command & {
+ChatCommand: schema.Command & {
 	Name:  "chat"
 	Usage: "chat [args]"
 	Short: "co-create with AI (alpha)"
-	Long:  #ChatRootHelp
+	Long:  ChatRootHelp
 
-	Pflags: [...schema.#Flag] & [{
+	Pflags: [...schema.Flag] & [{
 		Name:    "model"
 		Type:    "string"
 		Default: "\"gpt-3.5-turbo\""
@@ -124,7 +124,7 @@ import (
 	}]
 }
 
-#ChatRootHelp: #"""
+ChatRootHelp: #"""
 	Use chat to work with hof features or from modules you import.
 	Module authors can provide custom prompts for their schemas.
 

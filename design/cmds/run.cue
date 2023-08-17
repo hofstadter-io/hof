@@ -5,13 +5,13 @@ import (
 )
 
 // TODO, JAMStack / HofKit
-#RunCommand: schema.#Command & {
+RunCommand: schema.Command & {
 	TBD:   "β"
 	Name:  "run"
 	Usage: "run"
 	Aliases: ["r"]
 	Short: "Hof Line Script (HLS) is a successor to bash and python based scripting"
-	Long:  #RunCommandHelp
+	Long:  RunCommandHelp
 
 	Flags: [
 		{
@@ -81,7 +81,7 @@ import (
 
 }
 
-#RunCommandHelp: ##"""
+RunCommandHelp: ##"""
 	HofLineScript (HLS) run polyglot command and scripts seamlessly across runtimes
 	
 	can accept cue & flags or just a .hls file

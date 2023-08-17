@@ -4,7 +4,7 @@ import (
 	"github.com/hofstadter-io/hofmod-cli/schema"
 )
 
-#FlowCommand: schema.#Command & {
+FlowCommand: schema.Command & {
 	Name: "flow"
 	Aliases: ["f"]
 	Usage: "flow [cue files...] [@flow/name...] [+key=value]"
