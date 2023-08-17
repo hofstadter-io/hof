@@ -63,8 +63,12 @@ func InitModule(name string, rootflags flags.RootPflagpole, cmdflags flags.GenFl
 			return nil
 		} else {
 			bs, err = hfmt.FormatSource(outpath, bs, "", nil, true)
+			// only want real errors
+			// todo, we may want to inform the user better here
 			if err != nil {
-				return err
+				if _, ok := err.(*hfmt.NoFormatterError); !ok {
+					return err
+				}
 			}
 			if strings.Contains(outpath, "/") {
 				dir, _ := filepath.Split(outpath)
@@ -237,7 +241,13 @@ func (R *Runtime) adhocAsModule() error {
 		} else {
 			bs, err = hfmt.FormatSource(outpath, bs, "", nil, true)
 			if err != nil {
-				return err
+				// only want real errors
+				// todo, we may want to inform the user better here
+				if err != nil {
+					if _, ok := err.(*hfmt.NoFormatterError); !ok {
+						return err
+					}
+				}
 			}
 
 			if strings.Contains(outpath, "/") {
