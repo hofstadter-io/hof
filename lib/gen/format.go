@@ -34,13 +34,21 @@ func (F *File) FormatRendered() (err error) {
 				F.FormattingConfig.Config,
 				!F.FormattingDisabled,
 			)
+			// only want real errors
+			// todo, we may want to inform the user better here
 			if err != nil {
-				return err
+				if _, ok := err.(*hfmt.NoFormatterError); !ok {
+					return err
+				}
 			}
 		} else {
 			fmtd, err = hfmt.FormatSource(F.Filepath, fmtd, "", nil, !F.FormattingDisabled)
+			// only want real errors
+			// todo, we may want to inform the user better here
 			if err != nil {
-				return err
+				if _, ok := err.(*hfmt.NoFormatterError); !ok {
+					return err
+				}
 			}
 		}
 
