@@ -41,7 +41,7 @@ Almost every system was upgraded in this release and it marks a milestone in API
 ### breaking changes
 
 The data model schemas have changed to enable the new features.
-You can [learn how to upgrade them from this link](./changelogs/).
+You can [learn how to upgrade them from this link](./upgrading-0.6.7-to-0.6.8/).
 
 [v0.6.7...v0.6.8 diff on GitHub](https://github.com/hofstadter-io/hof/compare/v0.6.7...v0.6.8)
 
@@ -62,7 +62,7 @@ Easy bootstrap or add files to an existing project from any remote repository.
 - makes it easy for you to provide one-line setup instructions for your own generators
 
 To learn more about `hof create`, see
-[docs/getting-started/create](https://docs.hofstadter.io/getting-started/create/).
+[docs/getting-started/create](/getting-started/create/).
 
 ### breaking changes:
 
@@ -155,10 +155,9 @@ hof gen data.yaml schema.cue -T template.txt > output.txt
 See the following to learn more
 
 - `hof gen -h`
-- [hof demos](https://github.com/hofstadter-io/demos)
-- [code-generation/file-rendering](https://docs.hofstadter.io/code-generation/file-rendering/)
-- [code-generation/type-rendering](https://docs.hofstadter.io/code-generation/type-rendering/)
-- [reference/hof-gen/adhoc-file-gen](https://docs.hofstadter.io/reference/hof-gen/adhoc-file-gen/)
+- [getting-started/code-generation](/getting-started/code-generation/)
+- [code-generation/adhoc](/code-generation/adhoc/)
+- [reference/hof-gen/adhoc-file-gen](/reference/hof-gen/adhoc-file-gen/)
 
 ### other changes
 
@@ -181,8 +180,9 @@ hof flow is a custom cue/flow runtime with more task types.
 See the following to learn more:
 
 - `hof flow -h`
-- [getting-started/data-flow](https://docs.hofstadter.io/getting-started/data-flow/)
-- [reference/hof-flow](https://docs.hofstadter.io/reference/hof-flow/)
+- [getting-started](/getting-started/task-engine/)
+- [task-engine](/task-engine/)
+- [reference](/reference/hof-flow/)
 
 ### other changes
 
@@ -204,8 +204,8 @@ Define, validate, checkpoint, diff, and migrate.
 See the following to learn more:
 
 - `hof datamodel -h`
-- [getting-started/data-modeling](https://docs.hofstadter.io/getting-started/data-modeling/)
-- [reference/hof-datamodel](https://docs.hofstadter.io/reference/hof-datamodel/)
+- [getting-started/data-layer](/getting-started/data-layer/)
+- [reference/hof-datamodel](/reference/hof-datamodel/)
 
 ### other changes
 

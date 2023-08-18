@@ -135,7 +135,8 @@ Datamodels form the basis for input to code generation.
 Typically, a generator will require a `dm.Datamodel` and
 some other inputs specific to that generator.
 You can then use them in the templates like any other value.
-The [checkpointing & history](/data-modeling/checkpointing-and-history/) page will cover using these during code gen.
+
+<!--The [checkpointing & history](/data-modeling/checkpointing-and-history/) page will cover using these during code gen.-->
 
 Here is an example snippet that you would use with our
 [supacode generator for full stack applications](https://github.com/hofstadter-io/supacode).
