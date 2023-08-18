@@ -41,7 +41,7 @@ Almost every system was upgraded in this release and it marks a milestone in API
 ### breaking changes
 
 The data model schemas have changed to enable the new features.
-You can [learn how to upgrade them from this link](./upgrading-0.6.7-to-0.6.8/).
+You can [learn how to upgrade them from this link](../upgrading-0.6.7-to-0.6.8/).
 
 [v0.6.7...v0.6.8 diff on GitHub](https://github.com/hofstadter-io/hof/compare/v0.6.7...v0.6.8)
 
