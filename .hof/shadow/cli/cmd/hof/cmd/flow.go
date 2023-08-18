@@ -60,7 +60,7 @@ Arguments:
 
 func init() {
 
-	FlowCmd.Flags().BoolVarP(&(flags.FlowFlags.List), "list", "l", false, "list available pipelines")
+	FlowCmd.Flags().BoolVarP(&(flags.FlowFlags.List), "list", "", false, "list available pipelines")
 	FlowCmd.Flags().BoolVarP(&(flags.FlowFlags.Docs), "docs", "d", false, "print pipeline docs")
 	FlowCmd.Flags().StringSliceVarP(&(flags.FlowFlags.Flow), "flow", "f", nil, "flow labels to match and run")
 	FlowCmd.Flags().BoolVarP(&(flags.FlowFlags.Progress), "progress", "", false, "print task progress as it happens")

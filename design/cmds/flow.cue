@@ -68,7 +68,6 @@ FlowCommand: schema.Command & {
 	Flags: [{
 		Name:    "list"
 		Long:    "list"
-		Short:   "l"
 		Type:    "bool"
 		Default: "false"
 		Help:    "list available pipelines"

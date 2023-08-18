@@ -6,13 +6,17 @@ Usage:
   hof [flags] [command] [args]
 
 Main commands:
-  create                dynamic app blueprints from any git repo
-  datamodel             manage, diff, and migrate your data models
-  gen                   modular and composable code gen: CUE & data + templates = _
-  flow                  run CUE pipelines with the hof/flow DAG engine
-  fmt                   format any code and manage the formatters
-  mod                   CUE dependency management based on Go mods
   chat                  co-create with AI (alpha)
+  create                starter kits or blueprints from any git repo
+  datamodel             manage, diff, and migrate your data models
+  def                   print consolidated CUE definitions
+  eval                  evaluate and print CUE configuration
+  export                output data in a standard format
+  flow                  run workflows and tasks powered by CUE
+  fmt                   format any code and manage the formatters
+  gen                   CUE powered code generation
+  mod                   CUE module dependency management
+  vet                   validate data with CUE
 
 Additional commands:
   help                  help about any command
@@ -26,6 +30,7 @@ Flags:
       --include-data     auto include all data files found with cue files
       --inject-env       inject all ENV VARs as default tag vars
   -p, --package string   the Cue package context to use during execution
+  -l, --path strings     CUE expression for single path component when placing data files
   -q, --quiet            turn off output and assume defaults at prompts
   -t, --tags strings     @tags() to be injected into CUE code
   -v, --verbosity int    set the verbosity of output

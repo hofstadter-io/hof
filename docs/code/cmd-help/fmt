@@ -22,6 +22,7 @@ Global Flags:
       --include-data     auto include all data files found with cue files
       --inject-env       inject all ENV VARs as default tag vars
   -p, --package string   the Cue package context to use during execution
+  -l, --path strings     CUE expression for single path component when placing data files
   -q, --quiet            turn off output and assume defaults at prompts
   -t, --tags strings     @tags() to be injected into CUE code
   -v, --verbosity int    set the verbosity of output
