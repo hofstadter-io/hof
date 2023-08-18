@@ -1,0 +1,63 @@
+! exec hof eval -e nonExist
+cmp stderr expect/nonExist/stderr
+cmp stdout expect/nonExist/stdout
+
+# Issue #550: ignore incomplete error in different package
+exec hof eval -e incomplete
+cmp stderr expect/incomplete/stderr
+cmp stdout expect/incomplete/stdout
+
+# Issue #384
+! exec hof eval foo.bar
+cmp stderr expect/foobar/stderr
+
+# Issue #999
+exec hof export --out text -e 'yaml.MarshalStream(X)' issue999/x.cue
+cmp stdout expect/issue999/stdout
+
+-- expect/nonExist/stdout --
+-- expect/nonExist/stderr --
+reference "nonExist" not found:
+    --expression:1:1
+-- expect/incomplete/stdout --
+
+-- expect/incomplete/stderr --
+-- expect/foobar/stdout --
+
+-- expect/foobar/stderr --
+unknown file extension .bar
+-- input/ --
+-- partial.cue --
+package exitcode
+
+import (
+	pkg "foo.com/example"
+)
+
+a: 1
+
+incomplete: pkg.Settings
+
+foo: bar: "hello"
+
+-- cue.mod/pkg/foo.com/example/example.cue --
+package example
+
+Settings: {}
+blah: Settings.anyKey
+
+-- issue999/x.cue --
+X: [
+	{
+		a: 1
+	},
+	{
+		b: 2
+	},
+]
+
+-- expect/issue999/stdout --
+a: 1
+---
+b: 2
+

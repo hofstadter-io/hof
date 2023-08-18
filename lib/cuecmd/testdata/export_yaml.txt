@@ -1,0 +1,21 @@
+exec hof export --out yaml ./hello
+cmp stdout expect-stdout
+-- expect-stdout --
+message: Hello World!
+test: {}
+-- hello/data.cue --
+package hello
+
+_who: "World"
+-- hello/hello.cue --
+package hello
+
+message: "Hello \(_who)!" // who declared in data.cue
+
+test: {
+	_foo: string // technically in error, but test anyway.
+	if *(len(_foo) > 0) | false {
+		command: ["foo", "bar"]
+	}
+}
+-- hello/cue.mod --

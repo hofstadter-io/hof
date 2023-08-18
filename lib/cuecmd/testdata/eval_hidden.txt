@@ -1,0 +1,30 @@
+# File starting with .
+exec hof eval .foo.cue
+cmp stdout expect-stdout-dot
+
+# File starting with _
+exec hof eval _foo.cue
+cmp stdout expect-stdout-underscore
+
+# Ensure package eval excludes both for completeness
+exec hof eval .
+cmp stdout expect-stdout-pkg
+
+-- .foo.cue --
+package foo
+
+a: 42
+-- _foo.cue --
+package foo
+
+b: 42
+-- foo.cue --
+package foo
+
+c: 42
+-- expect-stdout-dot --
+a: 42
+-- expect-stdout-underscore --
+b: 42
+-- expect-stdout-pkg --
+c: 42

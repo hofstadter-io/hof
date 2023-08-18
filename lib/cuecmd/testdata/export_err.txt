@@ -1,0 +1,48 @@
+! exec hof eval ./exporterr --out json
+cmp stdout expect-stdout
+cmp stderr expect-stderr
+
+! exec hof eval ./exporterr -c
+cmp stdout expect-stdout
+cmp stderr expect-stderr
+
+! exec hof export ./exporterr
+cmp stdout expect-stdout
+cmp stderr expect-stderr
+
+! exec hof export repeated.cue -o openapi:export.json
+! stdout .
+cmp stderr expect-stderr-openapi
+
+! exec hof eval repeated.cue --out openapi
+! stdout .
+cmp stderr expect-stderr-openapi
+
+-- repeated.cue --
+info: {
+    title: "test title"
+}
+
+info: {
+    title: "test title 2"
+}
+-- expect-stderr-openapi --
+info.title: conflicting values "test title 2" and "test title":
+    ./repeated.cue:2:12
+    ./repeated.cue:6:12
+-- expect-stderr --
+a.b.2.c: incomplete value int:
+    ./exporterr/export_err.cue:3:18
+out: invalid interpolation: undefined field: d:
+    ./exporterr/export_err.cue:7:6
+    ./exporterr/export_err.cue:7:16
+-- expect-stdout --
+-- exporterr/export_err.cue --
+package exporterr
+
+a: b: [0, 1, {c: int}, 3]
+
+// Issue #553
+b: c: "hello"
+out: "d is \(b.d)"
+-- exporterr/cue.mod --

@@ -1,0 +1,18 @@
+exec hof vet schema.cue json: foo.data
+! stderr .
+
+exec hof export schema.cue json: foo.data
+cmp stdout export-stdout
+
+-- schema.cue --
+[string]: string
+
+-- foo.data --
+{ "a": "b" }
+{ "c": "d" }
+
+-- export-stdout --
+{
+    "a": "b",
+    "c": "d"
+}

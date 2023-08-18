@@ -1,0 +1,28 @@
+! exec hof eval -c -e b.a.b -e b.idx
+cmp stderr expect-stderr
+cmp stdout expect-stdout
+
+-- expect-stdout --
+// b.a.b
+4
+-- expect-stderr --
+// b.idx
+b.idx: invalid non-ground value string (must be concrete string):
+    ./partial.cue:8:7
+-- partial.cue --
+package partial
+
+def: *1 | int
+sum: 1 | 2
+
+b: {
+	idx: a[str] // should resolve to top-level `a`
+	str: string
+}
+b: a: b: 4
+a: {
+	b: 3
+	c: 4
+}
+c: b & {str: "b"}
+
