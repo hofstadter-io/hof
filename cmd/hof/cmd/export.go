@@ -9,6 +9,8 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib/cuecmd"
 )
 
 var exportLong = `output data in a standard format`
@@ -17,14 +19,18 @@ func init() {
 
 	ExportCmd.Flags().StringSliceVarP(&(flags.ExportFlags.Expression), "expression", "e", nil, "evaluate these expressions only")
 	ExportCmd.Flags().BoolVarP(&(flags.ExportFlags.Extensions), "extensions", "x", false, "include hof extensions when evaluating CUE code")
-	ExportCmd.Flags().BoolVarP(&(flags.ExportFlags.Escape), "espace", "", false, "use HTLM escaping")
+	ExportCmd.Flags().BoolVarP(&(flags.ExportFlags.List), "list", "", false, "concatenate multiple objects into a list")
 	ExportCmd.Flags().StringVarP(&(flags.ExportFlags.Out), "out", "", "", "output data format, when detection does not work")
+	ExportCmd.Flags().StringVarP(&(flags.ExportFlags.Schema), "schema", "d", "", "expression to select schema for evaluating values in non-CUE files")
+	ExportCmd.Flags().BoolVarP(&(flags.ExportFlags.Escape), "espace", "", false, "use HTLM escaping")
 }
 
 func ExportRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = cuecmd.Export(args, flags.RootPflags, flags.ExportFlags)
 
 	return err
 }

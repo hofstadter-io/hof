@@ -4,13 +4,11 @@ Shared:
 -p, --package string           package name for non-CUE files
 -l, --path stringArray         CUE expression for single path component (see 'cue help flags' for details)
 
-  -f, --force                    force overwriting existing files
-      --list                     concatenate multiple objects into a list
-      --merge                    merge non-CUE files (default true)
-  -n, --name string              glob filter for non-CUE file names in directories
-      --out string               output format (run 'cue filetypes' for more info)
-  -o, --outfile string           filename or - for stdout with optional file prefix (run 'cue filetypes' for more info)
-  -d, --schema string            expression to select schema for evaluating values in non-CUE files
+		--list                     concatenate multiple objects into a list
+
+		--out string               output format (run 'cue filetypes' for more info)
+-o, --outfile string           filename or - for stdout with optional file prefix (run 'cue filetypes' for more info)
+-d, --schema string            expression to select schema for evaluating values in non-CUE files
 
 
 Global Flags:
@@ -22,4 +20,7 @@ Global Flags:
   -v, --verbose      print information about progress
 
 
-
+Intentionally not supporting: (because we have other means | always write, git can detect changes)
+  -n, --name string              glob filter for non-CUE file names in directories
+  -f, --force                    force overwriting existing files
+  		--merge                    merge non-CUE files (default true)

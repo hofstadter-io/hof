@@ -17,6 +17,9 @@ func init() {
 
 	DefCmd.Flags().StringSliceVarP(&(flags.DefFlags.Expression), "expression", "e", nil, "evaluate these expressions only")
 	DefCmd.Flags().BoolVarP(&(flags.DefFlags.Extensions), "extensions", "x", false, "include hof extensions when evaluating CUE code")
+	DefCmd.Flags().BoolVarP(&(flags.DefFlags.List), "list", "", false, "concatenate multiple objects into a list")
+	DefCmd.Flags().StringVarP(&(flags.DefFlags.Out), "out", "", "", "output data format, when detection does not work")
+	DefCmd.Flags().StringVarP(&(flags.DefFlags.Schema), "schema", "d", "", "expression to select schema for evaluating values in non-CUE files")
 	DefCmd.Flags().BoolVarP(&(flags.DefFlags.InlineImports), "inline-imports", "", false, "expand references to non-core imports")
 	DefCmd.Flags().BoolVarP(&(flags.DefFlags.Attributes), "attributes", "a", false, "diplay field attributes")
 }

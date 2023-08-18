@@ -77,6 +77,7 @@ Main commands:
   \(cmds.FmtCommand.Help)
   \(cmds.GenCommand.Help)
   \(cmds.ModCommand.Help)
+  \(cmds.StCommand.Help)
   \(cmds.VetCommand.Help)
 
 Additional commands:

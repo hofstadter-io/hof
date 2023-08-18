@@ -9,6 +9,8 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib/cuecmd"
 )
 
 var evalLong = `evaluate and print CUE configuration`
@@ -17,6 +19,9 @@ func init() {
 
 	EvalCmd.Flags().StringSliceVarP(&(flags.EvalFlags.Expression), "expression", "e", nil, "evaluate these expressions only")
 	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.Extensions), "extensions", "x", false, "include hof extensions when evaluating CUE code")
+	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.List), "list", "", false, "concatenate multiple objects into a list")
+	EvalCmd.Flags().StringVarP(&(flags.EvalFlags.Out), "out", "", "", "output data format, when detection does not work")
+	EvalCmd.Flags().StringVarP(&(flags.EvalFlags.Schema), "schema", "d", "", "expression to select schema for evaluating values in non-CUE files")
 	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.All), "all", "a", false, "show optional and hidden fields")
 	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.Concrete), "concrete", "c", false, "require the evaluation to be concrete")
 	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.Attributes), "attributes", "A", false, "diplay field attributes")
@@ -27,7 +32,9 @@ func init() {
 func EvalRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = cuecmd.Eval(args, flags.RootPflags, flags.EvalFlags)
 
 	return err
 }

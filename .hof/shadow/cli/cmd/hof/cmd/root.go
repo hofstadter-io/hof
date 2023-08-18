@@ -196,6 +196,7 @@ Main commands:
   fmt                   format any code and manage the formatters
   gen                   CUE powered code generation
   mod                   CUE module dependency management
+  st                    apply CUE transformations in bulk
   vet                   validate data with CUE
 
 Additional commands:

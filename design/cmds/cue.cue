@@ -4,6 +4,8 @@ import (
 	"github.com/hofstadter-io/hofmod-cli/schema"
 )
 
+// ideally this could be a separate flagpole,
+// and then embedded into other flagpoles
 SharedCueFlags: [...schema.Flag] & [{
 	Name:    "expression"
 	Long:    "expression"
@@ -18,6 +20,25 @@ SharedCueFlags: [...schema.Flag] & [{
 	Type:    "bool"
 	Default: "false"
 	Help:    "include hof extensions when evaluating CUE code"
+}, {
+	Name:    "list"
+	Long:    "list"
+	Type:    "bool"
+	Default: "false"
+	Help:    "concatenate multiple objects into a list"
+}, {
+	Name:    "out"
+	Long:    "out"
+	Type:    "string"
+	Default: "\"\""
+	Help:    "output data format, when detection does not work"
+}, {
+	Name:    "schema"
+	Long:    "schema"
+	Short:   "d"
+	Type:    "string"
+	Default: "\"\""
+	Help:    "expression to select schema for evaluating values in non-CUE files"
 }]
 
 DefCommand: schema.Command & {
@@ -98,12 +119,6 @@ ExportCommand: schema.Command & {
 		Type:    "bool"
 		Default: "false"
 		Help:    "use HTLM escaping"
-	}, {
-		Name:    "out"
-		Long:    "out"
-		Type:    "string"
-		Default: "\"\""
-		Help:    "output data format, when detection does not work"
 	}]
 }
 

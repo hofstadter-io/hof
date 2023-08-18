@@ -9,6 +9,8 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+
+	"github.com/hofstadter-io/hof/lib/cuecmd"
 )
 
 var defLong = `print consolidated CUE definitions`
@@ -17,6 +19,9 @@ func init() {
 
 	DefCmd.Flags().StringSliceVarP(&(flags.DefFlags.Expression), "expression", "e", nil, "evaluate these expressions only")
 	DefCmd.Flags().BoolVarP(&(flags.DefFlags.Extensions), "extensions", "x", false, "include hof extensions when evaluating CUE code")
+	DefCmd.Flags().BoolVarP(&(flags.DefFlags.List), "list", "", false, "concatenate multiple objects into a list")
+	DefCmd.Flags().StringVarP(&(flags.DefFlags.Out), "out", "", "", "output data format, when detection does not work")
+	DefCmd.Flags().StringVarP(&(flags.DefFlags.Schema), "schema", "d", "", "expression to select schema for evaluating values in non-CUE files")
 	DefCmd.Flags().BoolVarP(&(flags.DefFlags.InlineImports), "inline-imports", "", false, "expand references to non-core imports")
 	DefCmd.Flags().BoolVarP(&(flags.DefFlags.Attributes), "attributes", "a", false, "diplay field attributes")
 }
@@ -24,7 +29,9 @@ func init() {
 func DefRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = cuecmd.Def(args, flags.RootPflags, flags.DefFlags)
 
 	return err
 }

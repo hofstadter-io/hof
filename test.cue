@@ -140,4 +140,10 @@ tests: {
 			dir: "formatters/test"
 		}
 	}
+	cue: {
+		@flow(test/cue)
+		run: GoTest & {
+			dir: "lib/cuecmd"
+		}
+	}
 }
