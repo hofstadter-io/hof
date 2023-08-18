@@ -6,11 +6,12 @@ weight: 75
 
 
 {{<lead>}}
-`hof mod` is a command for
-CUE modules and dependency management.
-It is based on Go modules, backed by git,
-supports public and private repositories,
-and makes working with CUE modules easy.
+`hof mod` helps you manage
+CUE modules and dependencies.
+They are based on Go modules,
+can be backed by git or oci,
+support public and private visibility,
+and make working with CUE modules easy!
 {{</lead>}}
 
 
@@ -59,7 +60,7 @@ This makes your code immediately reuseable by pushing commits or a semver tag.
 
 {{<codeInner>}}
 module: "github.com/hofstadter-io/hof"
-cue: "0.5.0"
+cue: "0.6.0"
 
 require:  { ... } // your dependencies
 indirect: { ... } // dependency-dependencies
@@ -130,5 +131,5 @@ A module will only be fetched once on a system.
 You can find the cache directory in `hof version` and
 you can delete it with `hof mod clean`.
 
-Note, Hofstadter does not run any proxies or sumdb and all requests go directly to the code host.
+Note, Hofstadter does not run any proxies or sumdb and all requests go directly to the module host.
 

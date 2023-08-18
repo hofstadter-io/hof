@@ -177,7 +177,6 @@ pre {
 	transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 	transition-duration: 200ms;
 	color: $hof-white !important;
-	text-decoration: none !important;
 	text-decoration-color: $hof-gold;
 	text-underline-offset: 2px !important;
   span {
@@ -191,8 +190,8 @@ pre {
 		transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 		transition-duration: 200ms;
 		color: $hof-gold !important;
-		text-decoration: underline !important;
 		text-decoration-color: $hof-gold;
+		text-decoration: underline !important;
 		text-underline-offset: 5px !important;
 		span {
 			color: $hof-blue;

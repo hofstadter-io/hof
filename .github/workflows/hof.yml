@@ -50,6 +50,9 @@ jobs:
         run: go mod download
       - name: Build CLI
         run: go install ./cmd/hof
+      - name: Update QEMU on MacOS
+        run: brew reinstall -f --force-bottle qemu
+        if: ${{ startsWith( runner.os, 'macos') }}
       - name: Set up Docker
         uses: crazy-max/ghaction-setup-docker@v1
         with:
