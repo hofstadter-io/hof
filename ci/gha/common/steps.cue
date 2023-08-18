@@ -138,6 +138,14 @@ Steps: {
 			}
 			"if": "${{ startsWith( runner.os, 'macos') }}"
 		}
+		machack: {
+			name: "Update QEMU on MacOS"
+			run: """
+				brew reinstall -f --force-bottle qemu
+				"""
+			"if": "${{ startsWith( runner.os, 'macos') }}"
+		}
+
 		macos: {
 			name: "Setup Docker MacOS var"
 			run: """
