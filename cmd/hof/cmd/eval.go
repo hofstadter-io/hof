@@ -15,7 +15,11 @@ var evalLong = `evaluate and print CUE configuration`
 
 func init() {
 
-	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.Issue), "issue", "i", false, "create an issue (discussion is default)")
+	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.All), "all", "a", false, "show optional and hidden fields")
+	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.Concrete), "concrete", "c", false, "require the evaluation to be concrete")
+	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.Attributes), "attributes", "A", false, "diplay field attributes")
+	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.Hidden), "hidden", "H", false, "diplay hidden fields")
+	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.Optional), "optional", "O", false, "diplay optional fields")
 }
 
 func EvalRun(args []string) (err error) {

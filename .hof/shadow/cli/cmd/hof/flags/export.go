@@ -1,7 +1,8 @@
 package flags
 
 type ExportFlagpole struct {
-	Issue bool
+	Escape bool
+	Out    string
 }
 
 var ExportFlags ExportFlagpole

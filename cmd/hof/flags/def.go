@@ -1,7 +1,8 @@
 package flags
 
 type DefFlagpole struct {
-	Issue bool
+	InlineImports bool
+	Attributes    bool
 }
 
 var DefFlags DefFlagpole

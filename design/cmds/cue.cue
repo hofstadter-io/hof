@@ -4,20 +4,20 @@ import (
 	"github.com/hofstadter-io/hofmod-cli/schema"
 )
 
-CueFlags: [...schema.Flag] & [{
-	Name:    "all"
-	Long:    "all"
-	Short:   "a"
-	Type:    "bool"
-	Default: "false"
-	Help:    "show optional and hidden fields"
+SharedCueFlags: [...schema.Flag] & [{
+	Name:    "expression"
+	Long:    "expression"
+	Short:   "e"
+	Type:    "[]string"
+	Default: "nil"
+	Help:    "evaluate these expressions only"
 }, {
 	Name:    "path"
 	Long:    "path"
 	Short:   "l"
 	Type:    "[]string"
-	Default: "\"feedback\""
-	Help:    "labels,comma,separated"
+	Default: "nil"
+	Help:    "CUE expression for single path componenti when placing data files"
 }]
 
 DefCommand: schema.Command & {
@@ -27,12 +27,18 @@ DefCommand: schema.Command & {
 	Long:  Short
 
 	Flags: [{
-		Name:    "issue"
-		Long:    "issue"
-		Short:   "i"
+		Name:    "InlineImports"
+		Long:    "inline-imports"
 		Type:    "bool"
 		Default: "false"
-		Help:    "create an issue (discussion is default)"
+		Help:    "expand references to non-core imports"
+	}, {
+		Name:    "attributes"
+		Long:    "attributes"
+		Short:   "a"
+		Type:    "bool"
+		Default: "false"
+		Help:    "diplay field attributes"
 	}]
 }
 
@@ -43,12 +49,40 @@ EvalCommand: schema.Command & {
 	Long:  Short
 
 	Flags: [{
-		Name:    "issue"
-		Long:    "issue"
-		Short:   "i"
+		Name:    "all"
+		Long:    "all"
+		Short:   "a"
 		Type:    "bool"
 		Default: "false"
-		Help:    "create an issue (discussion is default)"
+		Help:    "show optional and hidden fields"
+	}, {
+		Name:    "concrete"
+		Long:    "concrete"
+		Short:   "c"
+		Type:    "bool"
+		Default: "false"
+		Help:    "require the evaluation to be concrete"
+	}, {
+		Name:    "attributes"
+		Long:    "attributes"
+		Short:   "A"
+		Type:    "bool"
+		Default: "false"
+		Help:    "diplay field attributes"
+	}, {
+		Name:    "hidden"
+		Long:    "hidden"
+		Short:   "H"
+		Type:    "bool"
+		Default: "false"
+		Help:    "diplay hidden fields"
+	}, {
+		Name:    "optional"
+		Long:    "optional"
+		Short:   "O"
+		Type:    "bool"
+		Default: "false"
+		Help:    "diplay optional fields"
 	}]
 }
 
@@ -59,12 +93,17 @@ ExportCommand: schema.Command & {
 	Long:  Short
 
 	Flags: [{
-		Name:    "issue"
-		Long:    "issue"
-		Short:   "i"
+		Name:    "escape"
+		Long:    "espace"
 		Type:    "bool"
 		Default: "false"
-		Help:    "create an issue (discussion is default)"
+		Help:    "use HTLM escaping"
+	}, {
+		Name:    "out"
+		Long:    "out"
+		Type:    "string"
+		Default: "\"\""
+		Help:    "output data format, when detection does not work"
 	}]
 }
 
@@ -75,12 +114,12 @@ VetCommand: schema.Command & {
 	Long:  Short
 
 	Flags: [{
-		Name:    "issue"
-		Long:    "issue"
-		Short:   "i"
+		Name:    "concrete"
+		Long:    "concrete"
+		Short:   "c"
 		Type:    "bool"
 		Default: "false"
-		Help:    "create an issue (discussion is default)"
+		Help:    "require the evaluation to be concrete"
 	}]
 }
 

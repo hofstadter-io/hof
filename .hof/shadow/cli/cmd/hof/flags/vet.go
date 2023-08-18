@@ -1,7 +1,7 @@
 package flags
 
 type VetFlagpole struct {
-	Issue bool
+	Concrete bool
 }
 
 var VetFlags VetFlagpole

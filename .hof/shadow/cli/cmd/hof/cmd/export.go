@@ -15,7 +15,8 @@ var exportLong = `output data in a standard format`
 
 func init() {
 
-	ExportCmd.Flags().BoolVarP(&(flags.ExportFlags.Issue), "issue", "i", false, "create an issue (discussion is default)")
+	ExportCmd.Flags().BoolVarP(&(flags.ExportFlags.Escape), "espace", "", false, "use HTLM escaping")
+	ExportCmd.Flags().StringVarP(&(flags.ExportFlags.Out), "out", "", "", "output data format, when detection does not work")
 }
 
 func ExportRun(args []string) (err error) {

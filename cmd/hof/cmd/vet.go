@@ -15,7 +15,7 @@ var vetLong = `validate data with CUE`
 
 func init() {
 
-	VetCmd.Flags().BoolVarP(&(flags.VetFlags.Issue), "issue", "i", false, "create an issue (discussion is default)")
+	VetCmd.Flags().BoolVarP(&(flags.VetFlags.Concrete), "concrete", "c", false, "require the evaluation to be concrete")
 }
 
 func VetRun(args []string) (err error) {

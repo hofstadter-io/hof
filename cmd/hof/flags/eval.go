@@ -1,7 +1,11 @@
 package flags
 
 type EvalFlagpole struct {
-	Issue bool
+	All        bool
+	Concrete   bool
+	Attributes bool
+	Hidden     bool
+	Optional   bool
 }
 
 var EvalFlags EvalFlagpole

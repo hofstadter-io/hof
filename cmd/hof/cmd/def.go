@@ -15,7 +15,8 @@ var defLong = `print consolidated CUE definitions`
 
 func init() {
 
-	DefCmd.Flags().BoolVarP(&(flags.DefFlags.Issue), "issue", "i", false, "create an issue (discussion is default)")
+	DefCmd.Flags().BoolVarP(&(flags.DefFlags.InlineImports), "inline-imports", "", false, "expand references to non-core imports")
+	DefCmd.Flags().BoolVarP(&(flags.DefFlags.Attributes), "attributes", "a", false, "diplay field attributes")
 }
 
 func DefRun(args []string) (err error) {
