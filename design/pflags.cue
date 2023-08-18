@@ -24,7 +24,7 @@ CliPflags: [...schema.Flag] & [ {
 	Short:   "l"
 	Type:    "[]string"
 	Default: "nil"
-	Help:    "CUE expression for single path componenti when placing data files"
+	Help:    "CUE expression for single path component when placing data files"
 }, {
 	Name:    "verbosity"
 	Long:    "verbosity"
@@ -53,5 +53,4 @@ CliPflags: [...schema.Flag] & [ {
 	Type:    "bool"
 	Default: ""
 	Help:    "turn off output and assume defaults at prompts"
-},
-]
+}]

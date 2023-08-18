@@ -15,6 +15,8 @@ var defLong = `print consolidated CUE definitions`
 
 func init() {
 
+	DefCmd.Flags().StringSliceVarP(&(flags.DefFlags.Expression), "expression", "e", nil, "evaluate these expressions only")
+	DefCmd.Flags().BoolVarP(&(flags.DefFlags.Extensions), "extensions", "x", false, "include hof extensions when evaluating CUE code")
 	DefCmd.Flags().BoolVarP(&(flags.DefFlags.InlineImports), "inline-imports", "", false, "expand references to non-core imports")
 	DefCmd.Flags().BoolVarP(&(flags.DefFlags.Attributes), "attributes", "a", false, "diplay field attributes")
 }

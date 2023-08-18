@@ -15,6 +15,8 @@ var vetLong = `validate data with CUE`
 
 func init() {
 
+	VetCmd.Flags().StringSliceVarP(&(flags.VetFlags.Expression), "expression", "e", nil, "evaluate these expressions only")
+	VetCmd.Flags().BoolVarP(&(flags.VetFlags.Extensions), "extensions", "x", false, "include hof extensions when evaluating CUE code")
 	VetCmd.Flags().BoolVarP(&(flags.VetFlags.Concrete), "concrete", "c", false, "require the evaluation to be concrete")
 }
 

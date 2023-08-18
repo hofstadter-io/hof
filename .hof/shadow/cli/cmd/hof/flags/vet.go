@@ -1,7 +1,9 @@
 package flags
 
 type VetFlagpole struct {
-	Concrete bool
+	Expression []string
+	Extensions bool
+	Concrete   bool
 }
 
 var VetFlags VetFlagpole

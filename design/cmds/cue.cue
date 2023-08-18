@@ -12,12 +12,12 @@ SharedCueFlags: [...schema.Flag] & [{
 	Default: "nil"
 	Help:    "evaluate these expressions only"
 }, {
-	Name:    "path"
-	Long:    "path"
-	Short:   "l"
-	Type:    "[]string"
-	Default: "nil"
-	Help:    "CUE expression for single path componenti when placing data files"
+	Name:    "extensions"
+	Long:    "extensions"
+	Short:   "x"
+	Type:    "bool"
+	Default: "false"
+	Help:    "include hof extensions when evaluating CUE code"
 }]
 
 DefCommand: schema.Command & {
@@ -26,7 +26,7 @@ DefCommand: schema.Command & {
 	Short: "print consolidated CUE definitions"
 	Long:  Short
 
-	Flags: [{
+	Flags: SharedCueFlags + [{
 		Name:    "InlineImports"
 		Long:    "inline-imports"
 		Type:    "bool"
@@ -48,7 +48,7 @@ EvalCommand: schema.Command & {
 	Short: "evaluate and print CUE configuration"
 	Long:  Short
 
-	Flags: [{
+	Flags: SharedCueFlags + [{
 		Name:    "all"
 		Long:    "all"
 		Short:   "a"
@@ -92,7 +92,7 @@ ExportCommand: schema.Command & {
 	Short: "output data in a standard format"
 	Long:  Short
 
-	Flags: [{
+	Flags: SharedCueFlags + [{
 		Name:    "escape"
 		Long:    "espace"
 		Type:    "bool"
@@ -113,7 +113,7 @@ VetCommand: schema.Command & {
 	Short: "validate data with CUE"
 	Long:  Short
 
-	Flags: [{
+	Flags: SharedCueFlags + [{
 		Name:    "concrete"
 		Long:    "concrete"
 		Short:   "c"
@@ -122,5 +122,3 @@ VetCommand: schema.Command & {
 		Help:    "require the evaluation to be concrete"
 	}]
 }
-
-// Eval, Export, Vet
