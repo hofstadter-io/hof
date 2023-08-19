@@ -21,6 +21,7 @@ func init() {
 	ExportCmd.Flags().BoolVarP(&(flags.ExportFlags.Extensions), "extensions", "x", false, "include hof extensions when evaluating CUE code")
 	ExportCmd.Flags().BoolVarP(&(flags.ExportFlags.List), "list", "", false, "concatenate multiple objects into a list")
 	ExportCmd.Flags().StringVarP(&(flags.ExportFlags.Out), "out", "", "", "output data format, when detection does not work")
+	ExportCmd.Flags().StringVarP(&(flags.ExportFlags.Outfile), "outfile", "o", "", "filename or - for stdout with optional file prefix")
 	ExportCmd.Flags().StringVarP(&(flags.ExportFlags.Schema), "schema", "d", "", "expression to select schema for evaluating values in non-CUE files")
 	ExportCmd.Flags().BoolVarP(&(flags.ExportFlags.Escape), "espace", "", false, "use HTLM escaping")
 }

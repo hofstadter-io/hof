@@ -6,8 +6,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/runtime"
 )
 
-func makeRuntime(cmd string, args []string, rflags flags.RootPflagpole) (*runtime.Runtime, error) {
-	// fmt.Printf("lib/datamodel.Run.%s %v %v %v\n", cmd, args, rflags, dflags)
+func makeRuntime(args []string, rflags flags.RootPflagpole) (*runtime.Runtime, error) {
 
 	R, err := runtime.New(args, rflags)
 	if err != nil {

@@ -5,6 +5,7 @@ type EvalFlagpole struct {
 	Extensions bool
 	List       bool
 	Out        string
+	Outfile    string
 	Schema     string
 	All        bool
 	Concrete   bool

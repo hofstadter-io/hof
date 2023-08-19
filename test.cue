@@ -141,9 +141,24 @@ tests: {
 		}
 	}
 	cue: {
-		@flow(test/cue)
-		run: GoTest & {
-			dir: "lib/cuecmd"
+		all: {
+			@flow(test/cue)
+			run: GoTest & {
+				dir: "lib/cuecmd"
+			}
+		}
+
+		def: {
+			@flow(test/cue/def)
+			run: {
+				@task(os.Exec)
+				cmd: ["bash", "-c", _script]
+				dir: "lib/cuecmd"
+				_script: """
+					rm -rf .workdir
+					go test -cover -run Def ./
+					"""
+			}
 		}
 	}
 }

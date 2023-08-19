@@ -33,6 +33,13 @@ SharedCueFlags: [...schema.Flag] & [{
 	Default: "\"\""
 	Help:    "output data format, when detection does not work"
 }, {
+	Name:    "outfile"
+	Long:    "outfile"
+	Short:   "o"
+	Type:    "string"
+	Default: "\"\""
+	Help:    "filename or - for stdout with optional file prefix"
+}, {
 	Name:    "schema"
 	Long:    "schema"
 	Short:   "d"

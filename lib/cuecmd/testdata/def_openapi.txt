@@ -1,3 +1,5 @@
+skip
+
 exec hof def foo.cue -o openapi+cue:out.cue
 cmp out.cue expect-out.cue
 

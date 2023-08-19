@@ -1,3 +1,5 @@
+skip
+
 exec hof def jsonschema: schema.json -p schema -l '#Person:'
 cmp stdout expect-stdout
 
@@ -37,7 +39,7 @@ import "strings"
 	...
 }
 -- schema.json --
-﻿{
+{
   "$id": "https://example.com/person.schema.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Person",

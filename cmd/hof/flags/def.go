@@ -5,6 +5,7 @@ type DefFlagpole struct {
 	Extensions    bool
 	List          bool
 	Out           string
+	Outfile       string
 	Schema        string
 	InlineImports bool
 	Attributes    bool

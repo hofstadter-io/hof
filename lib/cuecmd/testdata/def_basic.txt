@@ -25,5 +25,7 @@ package foo
 #A: {
 	// a is an integer
 	a: int
-	b: c: int
+	b: {
+		c: int
+	}
 }

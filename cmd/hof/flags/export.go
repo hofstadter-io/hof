@@ -5,6 +5,7 @@ type ExportFlagpole struct {
 	Extensions bool
 	List       bool
 	Out        string
+	Outfile    string
 	Schema     string
 	Escape     bool
 }

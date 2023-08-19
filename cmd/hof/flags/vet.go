@@ -5,6 +5,7 @@ type VetFlagpole struct {
 	Extensions bool
 	List       bool
 	Out        string
+	Outfile    string
 	Schema     string
 	Concrete   bool
 }
