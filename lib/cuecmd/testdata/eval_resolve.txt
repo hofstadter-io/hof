@@ -1,4 +1,4 @@
-# Issue #736
+# Issue #736 (CUE)
 #
 # references should never resolve to files of an
 # anonymous package (no package or package _).

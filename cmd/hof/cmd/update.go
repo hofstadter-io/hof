@@ -35,7 +35,7 @@ var (
 func init() {
 	UpdateCmd.Flags().BoolVarP(&UpdateCheckFlag, "check", "", false, "only check for an update")
 	UpdateCmd.Flags().BoolVarP(&UpdateCheckFlag, "list", "", false, "show local installed version")
-	UpdateCmd.Flags().StringVarP(&UpdateVersionFlag, "version", "V", "", "the version to update or install")
+	UpdateCmd.Flags().StringVarP(&UpdateVersionFlag, "version", "", "", "the version to update or install")
 }
 
 const updateMessage = `

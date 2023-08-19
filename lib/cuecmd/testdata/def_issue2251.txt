@@ -1,4 +1,4 @@
-# See also issue304.txtar
+# See also #304 (CUE)
 
 exec hof def 1.cue --outfile 2.cue
 exec hof def 2.cue --outfile 3.cue

@@ -1,7 +1,7 @@
 # TODO: line numbers for errors.
 
-#Issue 1153
-#Issue 1152
+#Issue 1153 (CUE)
+#Issue 1152 (CUE)
 
 # Default export mode
 ! exec hof export x.cue

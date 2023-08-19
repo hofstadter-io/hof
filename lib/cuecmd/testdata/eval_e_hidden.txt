@@ -1,4 +1,4 @@
-# Issue #904
+# Issue #904 (CUE)
 exec hof eval -e _a
 stdout '34'
 

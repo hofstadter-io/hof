@@ -1,4 +1,4 @@
-#Issue 1479
+#Issue 1479 (CUE)
 
 exec hof eval x.cue data.json y.cue
 

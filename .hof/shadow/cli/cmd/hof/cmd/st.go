@@ -6,17 +6,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/hofstadter-io/hof/cmd/hof/flags"
-
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var stLong = `apply CUE transformations in bulk`
-
-func init() {
-
-	StCmd.Flags().BoolVarP(&(flags.StFlags.Issue), "issue", "i", false, "create an issue (discussion is default)")
-}
 
 func StRun(args []string) (err error) {
 

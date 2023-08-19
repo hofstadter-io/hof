@@ -1,9 +1,9 @@
-#Issue #2336
+#Issue #2336 (CUE)
 
 exec hof export x.cue
 cmp stdout stdout.golden
 
-#Issue #2307
+#Issue #2307 (CUE)
 
 ! exec hof export y.cue
 cmp stderr stderr.golden

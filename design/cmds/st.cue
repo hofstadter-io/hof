@@ -10,12 +10,12 @@ StCommand: schema.Command & {
 	Short: "apply CUE transformations in bulk"
 	Long:  Short
 
-	Flags: [{
-		Name:    "issue"
-		Long:    "issue"
-		Short:   "i"
-		Type:    "bool"
-		Default: "false"
-		Help:    "create an issue (discussion is default)"
-	}]
+	//Flags: [{
+	//  Name:    "issue"
+	//  Long:    "issue"
+	//  Short:   "i"
+	//  Type:    "bool"
+	//  Default: "false"
+	//  Help:    "create an issue (discussion is default)"
+	//}]
 }

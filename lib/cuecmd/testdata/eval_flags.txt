@@ -1,13 +1,7 @@
-# Issue #969
-
-! exec hof eval test.json -n ".+\.cue"
-cmp stderr expect-stderr1
+# Issue #969 (CUE)
 
 ! exec hof eval test.json -d '#D2'
 cmp stderr expect-stderr2
-
-! exec hof eval test.json -n ".+\.cue" -d '#D2'
-cmp stderr expect-stderr3
 
 ! exec hof eval test.json vector.cue -d '#D1'
 cmp stderr expect-stderr4

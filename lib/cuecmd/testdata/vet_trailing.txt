@@ -1,5 +1,5 @@
 # Regression test for two vet issues relating trailing input,
-# https://cuelang.org/issue/2179 and https://cuelang.org/issue/2439.
+# https://cuelang.org/issue/2179 and https://cuelang.org/issue/2439. (CUE)
 
 # First, sanity check that other commands spot the trailing invalid syntax.
 ! exec hof eval   data-trailing-garbage.json

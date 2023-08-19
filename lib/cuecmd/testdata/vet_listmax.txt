@@ -1,4 +1,4 @@
-# cuelang.org/issues/345
+#345 (CUE)
 
 stdin foo.json
 exec hof vet x.cue json: -

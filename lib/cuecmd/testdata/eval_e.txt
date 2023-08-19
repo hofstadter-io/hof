@@ -2,16 +2,16 @@
 cmp stderr expect/nonExist/stderr
 cmp stdout expect/nonExist/stdout
 
-# Issue #550: ignore incomplete error in different package
+# Issue #550 (CUE): ignore incomplete error in different package
 exec hof eval -e incomplete
 cmp stderr expect/incomplete/stderr
 cmp stdout expect/incomplete/stdout
 
-# Issue #384
+# Issue #384 (CUE)
 ! exec hof eval foo.bar
 cmp stderr expect/foobar/stderr
 
-# Issue #999
+# Issue #999 (CUE)
 exec hof export --out text -e 'yaml.MarshalStream(X)' issue999/x.cue
 cmp stdout expect/issue999/stdout
 

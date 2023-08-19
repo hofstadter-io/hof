@@ -10,34 +10,34 @@ ChatCommand: schema.Command & {
 	Short: "co-create with AI (alpha)"
 	Long:  ChatRootHelp
 
-	Pflags: [...schema.Flag] & [{
+	Flags: [...schema.Flag] & [{
 		Name:    "model"
 		Type:    "string"
 		Default: "\"gpt-3.5-turbo\""
 		Help:    "LLM model to use [gpt-3.5-turbo,gpt-4,bard,chat-bison]"
 		Long:    "model"
-		Short:   "m"
+		Short:   "M"
 	}, {
 		Name:    "system"
 		Type:    "[]string"
 		Default: "nil"
 		Help:    "string or path to the system prompt for the LLM, concatenated"
 		Long:    "system"
-		Short:   "S"
+		Short:   "s"
 	}, {
 		Name:    "messages"
 		Type:    "[]string"
 		Default: "nil"
 		Help:    "string or path to a message for the LLM"
 		Long:    "message"
-		Short:   "M"
+		Short:   "m"
 	}, {
 		Name:    "examples"
 		Type:    "[]string"
 		Default: "nil"
 		Help:    "string or path to an example pair for the LLM"
 		Long:    "example"
-		Short:   "E"
+		Short:   "e"
 	}, {
 		Name:    "outfile"
 		Type:    "string"

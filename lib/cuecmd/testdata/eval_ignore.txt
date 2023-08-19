@@ -1,8 +1,8 @@
 exec hof eval -i in.cue
 cmp stdout expect/stdout
 
-# Issue #1981
-# Issue #1786
+# Issue #1981 (CUE)
+# Issue #1786 (CUE)
 -- in.cue --
 a: 4
 a: 5

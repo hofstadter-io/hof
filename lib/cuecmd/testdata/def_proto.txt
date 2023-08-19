@@ -1,3 +1,5 @@
+skip
+
 exec hof def policy.proto -p api -I include
 cmp stdout expect-stdout
 

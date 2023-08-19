@@ -51,7 +51,7 @@ GenCommand: schema.Command & {
 			Default: "false"
 			Help:    "enable diff3 support for custom code"
 			Long:    "diff3"
-			Short:   "D"
+			Short:   "3"
 		},
 		{
 			Name:    "NoFormat"

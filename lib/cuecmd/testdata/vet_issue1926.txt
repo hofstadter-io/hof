@@ -1,4 +1,4 @@
-# https://cuelang.org/issues/1926
+#1926 (CUE)
 
 exec hof export foo.cue dev.json
 exec hof vet    foo.cue dev.json

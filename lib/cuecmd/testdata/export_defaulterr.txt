@@ -1,4 +1,4 @@
-#Issue 1304
+#Issue 1304 (CUE)
 
 ! exec hof export --out json x.cue
 cmp stdout expect_stdout_json
