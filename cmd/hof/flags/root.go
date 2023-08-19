@@ -49,12 +49,14 @@ type RootPflagpole struct {
 	Package      string
 	Tags         []string
 	Path         []string
-	Verbosity    int
+	Schema       []string
 	IncludeData  bool
+	WithContext  bool
 	InjectEnv    bool
-	Quiet        bool
 	AllErrors    bool
 	IngoreErrors bool
+	Quiet        bool
+	Verbosity    int
 }
 
 var RootPflags RootPflagpole

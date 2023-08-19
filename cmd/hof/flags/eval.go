@@ -2,11 +2,9 @@ package flags
 
 type EvalFlagpole struct {
 	Expression    []string
-	Extensions    bool
 	List          bool
 	Out           string
 	Outfile       string
-	Schema        string
 	InlineImports bool
 	Comments      bool
 	All           bool

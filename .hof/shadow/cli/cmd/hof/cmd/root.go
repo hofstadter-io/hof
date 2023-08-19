@@ -23,12 +23,14 @@ func init() {
 	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Package), "package", "p", "", "the Cue package context to use during execution")
 	RootCmd.PersistentFlags().StringSliceVarP(&(flags.RootPflags.Tags), "tags", "t", nil, "@tags() to be injected into CUE code")
 	RootCmd.PersistentFlags().StringSliceVarP(&(flags.RootPflags.Path), "path", "l", nil, "CUE expression for single path component when placing data files")
-	RootCmd.PersistentFlags().IntVarP(&(flags.RootPflags.Verbosity), "verbosity", "v", 0, "set the verbosity of output")
+	RootCmd.PersistentFlags().StringSliceVarP(&(flags.RootPflags.Schema), "schema", "d", nil, "expression to select schema to apply to data files")
 	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.IncludeData), "include-data", "D", false, "auto include all data files found with cue files")
+	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.WithContext), "with-context", "", false, "add extra context for data files, usable in the -l/path flag")
 	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.InjectEnv), "inject-env", "V", false, "inject all ENV VARs as default tag vars")
-	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Quiet), "quiet", "q", false, "turn off output and assume defaults at prompts")
 	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.AllErrors), "all-errors", "E", false, "print all available errors")
 	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.IngoreErrors), "ignore-errors", "i", false, "turn off output and assume defaults at prompts")
+	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Quiet), "quiet", "q", false, "turn off output and assume defaults at prompts")
+	RootCmd.PersistentFlags().IntVarP(&(flags.RootPflags.Verbosity), "verbosity", "v", 0, "set the verbosity of output")
 }
 
 func RootPersistentPreRun(args []string) (err error) {

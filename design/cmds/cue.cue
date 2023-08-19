@@ -14,13 +14,13 @@ SharedCueFlags: [...schema.Flag] & [{
 	Default: "nil"
 	Help:    "evaluate these expressions only"
 }, {
-	Name:    "extensions"
-	Long:    "extensions"
-	Short:   "x"
-	Type:    "bool"
-	Default: "false"
-	Help:    "include hof extensions when evaluating CUE code"
-}, {
+	//  Name:    "extensions"
+	//  Long:    "extensions"
+	//  Short:   "x"
+	//  Type:    "bool"
+	//  Default: "false"
+	//  Help:    "include hof extensions when evaluating CUE code"
+	//}, {
 	Name:    "list"
 	Long:    "list"
 	Type:    "bool"
@@ -33,19 +33,13 @@ SharedCueFlags: [...schema.Flag] & [{
 	Default: "\"\""
 	Help:    "output data format, when detection does not work"
 }, {
+	// TODO, consider adding the -T flag from gen here, but only data outputs
 	Name:    "outfile"
 	Long:    "outfile"
 	Short:   "o"
 	Type:    "string"
 	Default: "\"\""
 	Help:    "filename or - for stdout with optional file prefix"
-}, {
-	Name:    "schema"
-	Long:    "schema"
-	Short:   "d"
-	Type:    "string"
-	Default: "\"\""
-	Help:    "expression to select schema for evaluating values in non-CUE files"
 }]
 
 DefCommand: schema.Command & {

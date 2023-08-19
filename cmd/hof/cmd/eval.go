@@ -16,13 +16,10 @@ import (
 var evalLong = `evaluate and print CUE configuration`
 
 func init() {
-
 	EvalCmd.Flags().StringArrayVarP(&(flags.EvalFlags.Expression), "expression", "e", nil, "evaluate these expressions only")
-	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.Extensions), "extensions", "x", false, "include hof extensions when evaluating CUE code")
 	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.List), "list", "", false, "concatenate multiple objects into a list")
 	EvalCmd.Flags().StringVarP(&(flags.EvalFlags.Out), "out", "", "", "output data format, when detection does not work")
 	EvalCmd.Flags().StringVarP(&(flags.EvalFlags.Outfile), "outfile", "o", "", "filename or - for stdout with optional file prefix")
-	EvalCmd.Flags().StringVarP(&(flags.EvalFlags.Schema), "schema", "d", "", "expression to select schema for evaluating values in non-CUE files")
 	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.InlineImports), "inline-imports", "", false, "expand references to non-core imports")
 	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.Comments), "comments", "C", false, "include comments in output")
 	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.All), "all", "a", false, "show optional and hidden fields")
