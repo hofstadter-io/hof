@@ -17,7 +17,7 @@ var evalLong = `evaluate and print CUE configuration`
 
 func init() {
 
-	EvalCmd.Flags().StringSliceVarP(&(flags.EvalFlags.Expression), "expression", "e", nil, "evaluate these expressions only")
+	EvalCmd.Flags().StringArrayVarP(&(flags.EvalFlags.Expression), "expression", "e", nil, "evaluate these expressions only")
 	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.Extensions), "extensions", "x", false, "include hof extensions when evaluating CUE code")
 	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.List), "list", "", false, "concatenate multiple objects into a list")
 	EvalCmd.Flags().StringVarP(&(flags.EvalFlags.Out), "out", "", "", "output data format, when detection does not work")

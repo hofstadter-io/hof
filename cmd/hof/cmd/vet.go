@@ -17,7 +17,7 @@ var vetLong = `validate data with CUE`
 
 func init() {
 
-	VetCmd.Flags().StringSliceVarP(&(flags.VetFlags.Expression), "expression", "e", nil, "evaluate these expressions only")
+	VetCmd.Flags().StringArrayVarP(&(flags.VetFlags.Expression), "expression", "e", nil, "evaluate these expressions only")
 	VetCmd.Flags().BoolVarP(&(flags.VetFlags.Extensions), "extensions", "x", false, "include hof extensions when evaluating CUE code")
 	VetCmd.Flags().BoolVarP(&(flags.VetFlags.List), "list", "", false, "concatenate multiple objects into a list")
 	VetCmd.Flags().StringVarP(&(flags.VetFlags.Out), "out", "", "", "output data format, when detection does not work")
