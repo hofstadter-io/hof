@@ -1,6 +1,4 @@
 ! exec hof eval non-existing .
 ! stdout .
-cmp stderr expect-stderr
+cmp stderr "cannot find package \"non-existing\""
 
--- expect-stderr --
-cannot find package "non-existing"

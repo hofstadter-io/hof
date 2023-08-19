@@ -26,16 +26,12 @@ func Def(args []string, rflags flags.RootPflagpole, cflags flags.DefFlagpole) er
 
 	// build options
 	opts := []cue.Option{
-		cue.Docs(true),
-	}
-	if cflags.Attributes {
-		opts = append(opts, cue.Attributes(true))
-	}
-	if cflags.InlineImports {
-		opts = append(opts, cue.InlineImports(true))
+		cue.Docs(cflags.Comments),
+		cue.Attributes(cflags.Attributes),
+		cue.InlineImports(cflags.InlineImports),
 	}
 
-	err = writeOutput(val, opts, cflags.Outfile, cflags.Expression)
+	err = writeOutput(val, opts, cflags.Out, cflags.Outfile, cflags.Expression)
 	if err != nil {
 		return err
 	}

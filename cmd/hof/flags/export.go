@@ -8,6 +8,7 @@ type ExportFlagpole struct {
 	Outfile    string
 	Schema     string
 	Escape     bool
+	Comments   bool
 }
 
 var ExportFlags ExportFlagpole

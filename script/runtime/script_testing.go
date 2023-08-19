@@ -85,7 +85,7 @@ func RunT(t T, p Params) {
 		file := file
 		name := strings.TrimSuffix(filepath.Base(file), ".hls")
 		t.Run(name, func(t T) {
-			t.Parallel()
+			// t.Parallel()
 			ts := &Script{
 				t:             t,
 				testTempDir:   testTempDir,

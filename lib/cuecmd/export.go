@@ -1,7 +1,7 @@
 package cuecmd
 
 import (
-	"fmt"
+	"cuelang.org/go/cue"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/runtime"
@@ -24,7 +24,17 @@ func Export(args []string, rflags flags.RootPflagpole, cflags flags.ExportFlagpo
 		return val.Err()
 	}
 
-	fmt.Println(val)
+	// build options
+	opts := []cue.Option{
+		cue.Concrete(true),
+		cue.Final(),
+		cue.Docs(cflags.Comments),
+	}
+
+	err = writeOutput(val, opts, cflags.Out, cflags.Outfile, cflags.Expression)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

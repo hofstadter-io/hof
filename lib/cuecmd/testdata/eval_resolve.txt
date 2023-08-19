@@ -4,13 +4,13 @@
 # anonymous package (no package or package _).
 
 ! exec hof eval data.yaml check.cue
-cmp stderr out-stderr
+cmp stderr '#map: reference "nodes" not found'
 
 ! exec hof eval none.cue check.cue
-cmp stderr out-stderr
+cmp stderr '#map: reference "nodes" not found'
 
 ! exec hof eval anon.cue check.cue
-cmp stderr out-stderr
+cmp stderr '#map: reference "nodes" not found'
 
 # TODO: allow this for now. Files without a package clause should not resolve
 # across other files.

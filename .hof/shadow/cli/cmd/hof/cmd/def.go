@@ -22,6 +22,7 @@ func init() {
 	DefCmd.Flags().StringVarP(&(flags.DefFlags.Outfile), "outfile", "o", "", "filename or - for stdout with optional file prefix")
 	DefCmd.Flags().StringVarP(&(flags.DefFlags.Schema), "schema", "d", "", "expression to select schema for evaluating values in non-CUE files")
 	DefCmd.Flags().BoolVarP(&(flags.DefFlags.InlineImports), "inline-imports", "", false, "expand references to non-core imports")
+	DefCmd.Flags().BoolVarP(&(flags.DefFlags.Comments), "comments", "C", false, "include comments in output")
 	DefCmd.Flags().BoolVarP(&(flags.DefFlags.Attributes), "attributes", "a", false, "diplay field attributes")
 }
 

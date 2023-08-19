@@ -8,6 +8,7 @@ type DefFlagpole struct {
 	Outfile       string
 	Schema        string
 	InlineImports bool
+	Comments      bool
 	Attributes    bool
 }
 

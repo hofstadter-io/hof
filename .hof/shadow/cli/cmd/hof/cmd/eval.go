@@ -21,6 +21,8 @@ func init() {
 	EvalCmd.Flags().StringVarP(&(flags.EvalFlags.Out), "out", "", "", "output data format, when detection does not work")
 	EvalCmd.Flags().StringVarP(&(flags.EvalFlags.Outfile), "outfile", "o", "", "filename or - for stdout with optional file prefix")
 	EvalCmd.Flags().StringVarP(&(flags.EvalFlags.Schema), "schema", "d", "", "expression to select schema for evaluating values in non-CUE files")
+	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.InlineImports), "inline-imports", "", false, "expand references to non-core imports")
+	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.Comments), "comments", "C", false, "include comments in output")
 	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.All), "all", "a", false, "show optional and hidden fields")
 	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.Concrete), "concrete", "c", false, "require the evaluation to be concrete")
 	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.Attributes), "attributes", "A", false, "diplay field attributes")

@@ -83,8 +83,6 @@ func (R *Runtime) load() (err error) {
 	R.BuildInstances = load.Instances(R.Entrypoints, R.CueConfig)
 
 	for _, bi := range R.BuildInstances {
-		// fmt.Printf("%d: start\n", i)
-
 		if bi.Err != nil || bi.Incomplete {
 			es := errors.Errors(bi.Err)
 			for _, e := range es {
@@ -123,10 +121,7 @@ func (R *Runtime) load() (err error) {
 		// Build the Instance
 		V := R.CueContext.BuildInstance(bi)
 		if V.Err() != nil {
-			es := errors.Errors(V.Err())
-			for _, e := range es {
-				errs = append(errs, e.(error))
-			}
+			errs = append(errs, V.Validate())
 			continue
 		}
 

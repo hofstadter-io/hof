@@ -64,16 +64,16 @@ func (F *File) formatData(val cue.Value, format string) ([]byte, error) {
 		return F.formatCue(val)
 
 	case "json":
-		return formatJson(val)
+		return FormatJson(val)
 
 	case "yml", "yaml":
-		return formatYaml(val)
+		return FormatYaml(val)
 
 	case "xml":
-		return formatXml(val)
+		return FormatXml(val)
 
 	case "toml":
-		return formatToml(val)
+		return FormatToml(val)
 
 	default:
 		return nil, fmt.Errorf("unknown output encoding %q", format)
@@ -101,14 +101,14 @@ func (F *File) formatCue(val cue.Value) ([]byte, error) {
 		opts = append(opts, cue.Raw())
 	}
 
+	return FormatCue(val, opts, F.Package)
+}
+
+func FormatCue(val cue.Value, opts []cue.Option, pkg string) ([]byte, error) {
 	syn := val.Syntax(opts...)
-
-	// fmt.Printf("%# v\n", syn)
-
-	//
-	if F.Package != "" {
+	if pkg != "" {
 		pkgDecl := &ast.Package {
-			Name: ast.NewIdent(F.Package),
+			Name: ast.NewIdent(pkg),
 		}
 		decls := []ast.Decl{pkgDecl}
 		// this could cause an issue?
@@ -139,7 +139,7 @@ func (F *File) formatCue(val cue.Value) ([]byte, error) {
 	return bs, nil
 }
 
-func formatJson(val cue.Value) ([]byte, error) {
+func FormatJson(val cue.Value) ([]byte, error) {
 	var w bytes.Buffer
 	d := json.NewEncoder(&w)
 	d.SetIndent("", "  ")
@@ -152,7 +152,7 @@ func formatJson(val cue.Value) ([]byte, error) {
 	return w.Bytes(), nil
 }
 
-func formatYaml(val cue.Value) ([]byte, error) {
+func FormatYaml(val cue.Value) ([]byte, error) {
 	bs, err := yaml.Encode(val)
 	if err != nil {
 		return nil, err
@@ -160,7 +160,7 @@ func formatYaml(val cue.Value) ([]byte, error) {
 	return bs, nil
 }
 
-func formatToml(val cue.Value) ([]byte, error) {
+func FormatToml(val cue.Value) ([]byte, error) {
 	v := make(map[string]interface{})
 	err := val.Decode(&v)
 	if err != nil {
@@ -175,7 +175,7 @@ func formatToml(val cue.Value) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func formatXml(val cue.Value) ([]byte, error) {
+func FormatXml(val cue.Value) ([]byte, error) {
 	v := make(map[string]interface{})
 	err := val.Decode(&v)
 	if err != nil {

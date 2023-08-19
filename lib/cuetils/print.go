@@ -154,15 +154,15 @@ func CueErrorToString(err error) string {
 	cwd, _ := os.Getwd()
 	w := &bytes.Buffer{}
 
-	for _, e := range errors.Errors(err) {
-		for _, e2 := range errors.Errors(e) {
-			errors.Print(w, e2, &errors.Config{
-				Format:  format,
-				Cwd:     cwd,
-				ToSlash: true,
-			})
-		}
-	}
+	errors.Print(w, err, &errors.Config{
+		Format:  format,
+		Cwd:     cwd,
+		ToSlash: true,
+	})
+	// for _, e := range errors.Errors(err) {
+		// for _, e2 := range errors.Errors(e) {
+		// }
+	// }
 
 	return w.String()
 }

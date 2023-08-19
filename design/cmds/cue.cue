@@ -61,6 +61,13 @@ DefCommand: schema.Command & {
 		Default: "false"
 		Help:    "expand references to non-core imports"
 	}, {
+		Name:    "comments"
+		Long:    "comments"
+		Short:   "C"
+		Type:    "bool"
+		Default: "false"
+		Help:    "include comments in output"
+	}, {
 		Name:    "attributes"
 		Long:    "attributes"
 		Short:   "a"
@@ -77,6 +84,19 @@ EvalCommand: schema.Command & {
 	Long:  Short
 
 	Flags: SharedCueFlags + [{
+		Name:    "InlineImports"
+		Long:    "inline-imports"
+		Type:    "bool"
+		Default: "false"
+		Help:    "expand references to non-core imports"
+	}, {
+		Name:    "comments"
+		Long:    "comments"
+		Short:   "C"
+		Type:    "bool"
+		Default: "false"
+		Help:    "include comments in output"
+	}, {
 		Name:    "all"
 		Long:    "all"
 		Short:   "a"
@@ -122,10 +142,17 @@ ExportCommand: schema.Command & {
 
 	Flags: SharedCueFlags + [{
 		Name:    "escape"
-		Long:    "espace"
+		Long:    "escape"
 		Type:    "bool"
 		Default: "false"
 		Help:    "use HTLM escaping"
+	}, {
+		Name:    "comments"
+		Long:    "comments"
+		Short:   "C"
+		Type:    "bool"
+		Default: "false"
+		Help:    "include comments in output"
 	}]
 }
 
