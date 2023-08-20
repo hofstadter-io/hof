@@ -137,7 +137,7 @@ func (R *Runtime) genOnce() error {
 
 	R.PrintMergeConflicts()
 
-	if R.GenFlags.Stats {
+	if R.Flags.Stats {
 		R.PrintStats()
 		fmt.Printf("\nTotal Elapsed Time: %s\n\n", elapsed)
 	}

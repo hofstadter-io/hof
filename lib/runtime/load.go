@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"time"
 
@@ -26,10 +27,12 @@ func (R *Runtime) Load() (err error) {
 	if R.Flags.Verbosity > 0 {
 		fmt.Println("Loading from:", R.Entrypoints)
 	}
+
+	// stats / timing
 	start := time.Now()
 	defer func() {
 		end := time.Now()
-		R.Stats.CueLoadingTime = end.Sub(start)
+		R.Stats.Add("cue/load", end.Sub(start))
 	}()
 
 	R.prepPlacedDatafiles()
@@ -48,6 +51,11 @@ func (R *Runtime) Load() (err error) {
 }
 
 func (R *Runtime) prepPlacedDatafiles() {
+	start := time.Now()
+	defer func() {
+		end := time.Now()
+		R.Stats.Add("data/load", end.Sub(start))
+	}()
 	R.origEntrypoints = make([]string, 0, len(R.Entrypoints))
 
 	for i, E := range R.Entrypoints {
@@ -69,7 +77,55 @@ func (R *Runtime) prepPlacedDatafiles() {
 	}
 }
 
+func (R *Runtime) prepOrphanedFiles(bi *build.Instance) (err error) {
+	// TODO, compare with len(entrypoints)
+	//       and be more intelligent
+	var errs []errors.Error
+
+	// handle data files
+	for _, f := range bi.OrphanedFiles {
+		// this function also checks to see if we should include the file
+		//   based on a few settings, but we have to do some path handling first...
+		F, err := R.loadOrphanedFile(f, bi.PkgName, bi.Root, bi.Dir)
+		if err != nil {
+			if R.Flags.Verbosity > 1 {
+				fmt.Println("[load] error in data:", f.Filename, err)
+			}
+			errs = append(errs, errors.Promote(err,""))
+			continue
+		}
+		// we don't know what this file is
+		if F == nil {
+			if R.Flags.Verbosity > 1 {
+				fmt.Println("[load] ignoring data:", f.Filename)
+			}
+			continue
+		}
+		if R.Flags.Verbosity > 1 {
+			fmt.Println("[load] including data:", f.Filename)
+		}
+
+		// embed the data file, already placed if needed
+		bi.AddSyntax(F)
+	}
+
+	if len(errs) > 0 {
+		_e := errors.New("in prepOrphanedFiles")
+		e := errors.Promote(_e,"")
+		for _, err := range errs {
+			e = errors.Append(e, err)
+		}
+	}
+
+	return nil
+}
+
 func (R *Runtime) load() (err error) {
+	start := time.Now()
+	defer func() {
+		end := time.Now()
+		R.Stats.Add("gen/load", end.Sub(start))
+	}()
 
 	var errs []error
 
@@ -91,31 +147,9 @@ func (R *Runtime) load() (err error) {
 			continue
 		}
 
-		// TODO, compare with len(entrypoints)
-		//       and be more intelligent
-
-		// handle data files
-		for _, f := range bi.OrphanedFiles {
-			// this function also checks to see if we should include the file
-			//   based on a few settings, but we have to do some path handling first...
-			F, err := R.loadOrphanedFile(f, bi.PkgName, bi.Root, bi.Dir)
-			if err != nil {
-				errs = append(errs, err)
-				continue
-			}
-			// we don't know what this file is
-			if F == nil {
-				if R.Flags.Verbosity > 1 {
-					fmt.Println("[load] ignoring data:", f.Filename)
-				}
-				continue
-			}
-			if R.Flags.Verbosity > 1 {
-				fmt.Println("[load] including data:", f.Filename)
-			}
-
-			// embed the data file, already placed if needed
-			bi.AddSyntax(F)
+		err = R.prepOrphanedFiles(bi)
+		if err != nil {
+			errs = append(errs, err)
 		}
 
 		// Build the Instance
@@ -145,6 +179,9 @@ func (R *Runtime) load() (err error) {
 }
 
 func (R *Runtime) loadOrphanedFile(f *build.File, pkgName string, root, dir string) (F *ast.File, err error) {
+	if R.Flags.Verbosity > 1 {
+		fmt.Println("[load]:", f.Filename, reflect.TypeOf(f.Source))
+	}
 
 	var d []byte
 
@@ -176,9 +213,9 @@ func (R *Runtime) loadOrphanedFile(f *build.File, pkgName string, root, dir stri
 
 	mapping := R.dataMappings[fname]
 
-	// if mapping != "" {
-	// 	fmt.Printf("found entrypoint mapping: %s -> %s\n", f.Filename, mapping)
-	// }
+	if R.Flags.Verbosity > 1 && mapping != "" {
+		fmt.Printf("[load] found entrypoint mapping: %s -> %s\n", f.Filename, mapping)
+	}
 
 	if f.Filename == "-" {
     reader := bufio.NewReader(os.Stdin)
@@ -198,7 +235,6 @@ func (R *Runtime) loadOrphanedFile(f *build.File, pkgName string, root, dir stri
 		}
 	}
 
-
 	switch f.Encoding {
 
 	case "json":
@@ -207,24 +243,9 @@ func (R *Runtime) loadOrphanedFile(f *build.File, pkgName string, root, dir stri
 			return nil, fmt.Errorf("while extracting json file: %w", err)
 		}
 
-		if mapping != "" {
-			ps := cue.ParsePath(mapping).Selectors()
-			// go in reverse, so we build up a tree
-			for i := len(ps)-1; i >= 0; i--  {
-				// build our label from the mapping path
-				p := ps[i]
-				ident := ast.NewIdent(p.String())
-
-				// create a struct with a field
-				f := &ast.Field {
-					Label: ident,
-					Value: A,
-				}
-				s := ast.NewStruct(f)
-
-				// now update
-				A = s
-			}
+		A, err = R.placeOrphanInAST(A.(*ast.StructLit), mapping)
+		if err != nil {
+			return nil, err
 		}
 
 		// add a package decl so the data is referencable from the cue
@@ -258,30 +279,15 @@ func (R *Runtime) loadOrphanedFile(f *build.File, pkgName string, root, dir stri
 			return nil, fmt.Errorf("while extracting yaml file: %w", err)
 		}
 
-		if mapping != "" {
-			A := ast.NewStruct()
-			A.Elts = F.Decls
-			ps := cue.ParsePath(mapping).Selectors()
-			// go in reverse, so we build up a tree
-			for i := len(ps)-1; i >= 0; i--  {
-				// build our label from the mapping path
-				p := ps[i]
-				ident := ast.NewIdent(p.String())
+		A := ast.NewStruct()
+		A.Elts = F.Decls
 
-				// create a struct with a field
-				f := &ast.Field {
-					Label: ident,
-					Value: A,
-				}
-				s := ast.NewStruct(f)
-
-				// now update
-				A = s
-			}
-
-			F.Decls = []ast.Decl{A}
+		A, err = R.placeOrphanInAST(A, mapping)
+		if err != nil {
+			return nil, err
 		}
 
+		F.Decls = []ast.Decl{A}
 
 		// add a package decl so the data is referencable from the cue
 		pkgDecl := &ast.Package {
@@ -308,5 +314,75 @@ func (R *Runtime) loadOrphanedFile(f *build.File, pkgName string, root, dir stri
 		// return nil, err
 		return nil, nil
 	}
+
+}
+
+func (R *Runtime) placeOrphanInAST(S *ast.StructLit, mapping string) (*ast.StructLit, error) {
+	// fmt.Println("GOT HERE")
+	if mapping != "" {
+		// @path placed datafiles
+		ps := cue.ParsePath(mapping).Selectors()
+		// go in reverse, so we build up a tree
+		for i := len(ps)-1; i >= 0; i--  {
+			// build our label from the mapping path
+			p := ps[i]
+			ident := ast.NewIdent(p.String())
+
+			// create a struct with a field
+			f := &ast.Field {
+				Label: ident,
+				Value: S,
+			}
+			s := ast.NewStruct(f)
+
+			// now update
+			S = s
+		}
+	} else if len(R.Flags.Path) > 0 {
+		// -l/--path placed datafiles
+		ps := R.Flags.Path
+		// fmt.Println("PathFlags:", ps)
+
+		ctx := R.CueContext
+		v := ctx.BuildExpr(S)
+		if v.Err() != nil {
+			return nil, v.Err()
+		}
+
+		if R.Flags.WithContext {
+
+		}
+
+		for i := len(ps)-1; i >= 0; i--  {
+			// build our label from the mapping path
+			p := ps[i]
+
+			pv := ctx.CompileString(p, cue.Filename(p), cue.Scope(v))
+
+			str, err := pv.String()
+			if err != nil {
+				return nil, err
+			}
+
+			ident := ast.NewIdent(str)
+
+			// create a struct with a field
+			f := &ast.Field {
+				Label: ident,
+				Value: S,
+			}
+			s := ast.NewStruct(f)
+
+			// now update
+			S = s
+		}
+	}
+
+	// apply a schema to the values (here, or later)
+	if len(R.Flags.Schema) > 0 {
+
+	}
+
+	return S, nil
 
 }

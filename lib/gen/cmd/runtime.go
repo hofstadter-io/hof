@@ -90,7 +90,7 @@ func (R *Runtime) RunGenerators() []error {
 	start := time.Now()
 	defer func() {
 		end := time.Now()
-		R.Stats.GenRunningTime = end.Sub(start)
+		R.Stats.Add("gen/run", end.Sub(start))
 	}()
 
 	var errs []error

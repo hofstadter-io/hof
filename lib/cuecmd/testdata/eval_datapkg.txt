@@ -1,4 +1,4 @@
-#Issue: 1596
+#Issue: 1596 (CUE)
 
 exec hof eval . instance.json
 cmp stdout expect-stdout-eval

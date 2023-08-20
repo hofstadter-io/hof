@@ -110,21 +110,35 @@ EvalCommand: schema.Command & {
 		Short:   "A"
 		Type:    "bool"
 		Default: "false"
-		Help:    "diplay field attributes"
+		Help:    "display field attributes"
+	}, {
+		Name:    "definitions"
+		Long:    "definitions"
+		Short:   "S"
+		Type:    "bool"
+		Default: "true"
+		Help:    "display defintions"
 	}, {
 		Name:    "hidden"
 		Long:    "hidden"
 		Short:   "H"
 		Type:    "bool"
 		Default: "false"
-		Help:    "diplay hidden fields"
+		Help:    "display hidden fields"
 	}, {
 		Name:    "optional"
 		Long:    "optional"
 		Short:   "O"
 		Type:    "bool"
 		Default: "false"
-		Help:    "diplay optional fields"
+		Help:    "display optional fields"
+	}, {
+		Name:    "final"
+		Long:    "final"
+		Short:   "F"
+		Type:    "bool"
+		Default: "false"
+		Help:    "finalize the value"
 	}]
 }
 
@@ -163,5 +177,40 @@ VetCommand: schema.Command & {
 		Type:    "bool"
 		Default: "false"
 		Help:    "require the evaluation to be concrete"
+	}, {
+		Name:    "comments"
+		Long:    "comments"
+		Short:   "C"
+		Type:    "bool"
+		Default: "false"
+		Help:    "include comments in output"
+	}, {
+		Name:    "attributes"
+		Long:    "attributes"
+		Short:   "A"
+		Type:    "bool"
+		Default: "false"
+		Help:    "display field attributes"
+	}, {
+		Name:    "definitions"
+		Long:    "definitions"
+		Short:   "S"
+		Type:    "bool"
+		Default: "true"
+		Help:    "display defintions"
+	}, {
+		Name:    "hidden"
+		Long:    "hidden"
+		Short:   "H"
+		Type:    "bool"
+		Default: "false"
+		Help:    "display hidden fields"
+	}, {
+		Name:    "optional"
+		Long:    "optional"
+		Short:   "O"
+		Type:    "bool"
+		Default: "false"
+		Help:    "display optional fields"
 	}]
 }

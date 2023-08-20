@@ -88,7 +88,6 @@ var genLong = `hof unifies CUE with Go's text/template system and diff3
 
 func init() {
 
-	GenCmd.Flags().BoolVarP(&(flags.GenFlags.Stats), "stats", "s", false, "print generator statistics")
 	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.Generator), "generator", "G", nil, "generator tags to run, default is all, or none if -T is used")
 	GenCmd.Flags().StringArrayVarP(&(flags.GenFlags.Template), "template", "T", nil, "template mapping to render, see help for format")
 	GenCmd.Flags().StringSliceVarP(&(flags.GenFlags.Partial), "partial", "P", nil, "file globs to partial templates to register with the templates")

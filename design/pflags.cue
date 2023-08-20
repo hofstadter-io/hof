@@ -68,6 +68,13 @@ CliPflags: [...schema.Flag] & [ {
 	Default: ""
 	Help:    "turn off output and assume defaults at prompts"
 }, {
+	Name:    "stats"
+	Type:    "bool"
+	Default: "false"
+	Help:    "print generator statistics"
+	Long:    "stats"
+	Short:   "s"
+}, {
 	Name:    "quiet"
 	Long:    "quiet"
 	Short:   "q"

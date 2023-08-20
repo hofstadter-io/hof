@@ -70,26 +70,7 @@ func writeOutput(val cue.Value, opts []cue.Option, outtype, outfile string, exs 
 			fmt.Fprintln(out, "//", ex)
 		}
 
-		var v cue.Value
-
-		if ex == "" {
-			// special case
-			v = val
-		} else {
-			p := cue.ParsePath(ex)
-			if p.Err() == nil {
-				v = val.LookupPath(p)
-			} else {
-				ctx := val.Context()
-				v = ctx.CompileString(
-					ex,
-					cue.Filename(ex),
-					cue.InferBuiltins(true),
-					cue.Scope(val),
-				)
-			}
-		}
-
+		v := getValByEx(ex, val)
 		if v.Err() != nil {
 			hadError = true
 			fmt.Fprint(out, v.Err())
@@ -183,4 +164,23 @@ func writeOutput(val cue.Value, opts []cue.Option, outtype, outfile string, exs 
 	}
 
 	return nil
+}
+
+func getValByEx(ex string, val cue.Value) cue.Value {
+	if ex == "" || ex == "." {
+		return val
+	} else {
+		p := cue.ParsePath(ex)
+		if p.Err() == nil {
+			return val.LookupPath(p)
+		} else {
+			ctx := val.Context()
+			return ctx.CompileString(
+				ex,
+				cue.Filename(ex),
+				cue.InferBuiltins(true),
+				cue.Scope(val),
+			)
+		}
+	}
 }

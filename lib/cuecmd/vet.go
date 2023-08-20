@@ -2,6 +2,10 @@ package cuecmd
 
 import (
 	"fmt"
+	"os"
+	"time"
+
+	"cuelang.org/go/cue"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/runtime"
@@ -9,7 +13,17 @@ import (
 
 func Vet(args []string, rflags flags.RootPflagpole, cflags flags.VetFlagpole) error {
 
+	start := time.Now()
 	R, err := runtime.New(args, rflags)
+
+	defer func() {
+		if R.Flags.Stats {
+			fmt.Println(R.Stats)
+			end := time.Now()
+			fmt.Printf("\nTotal Elapsed Time: %s\n\n", end.Sub(start))
+		}
+	}()
+
 	if err != nil {
 		return err
 	}
@@ -24,7 +38,51 @@ func Vet(args []string, rflags flags.RootPflagpole, cflags flags.VetFlagpole) er
 		return val.Err()
 	}
 
-	fmt.Println(val)
+	// build options
+	opts := []cue.Option{
+		cue.Concrete(cflags.Concrete),
+		cue.Docs(cflags.Comments),
+		cue.Attributes(cflags.Attributes),
+		cue.Definitions(cflags.Definitions),
+		cue.Optional(cflags.Optional),
+		cue.Hidden(cflags.Hidden),
+		cue.ErrorsAsValues(rflags.IngoreErrors),
+	}
+
+	out := os.Stdout
+	exs := cflags.Expression
+	if len(exs) == 0 {
+		exs = []string{""}
+	}
+
+	hadError := false
+	handleErr := func(ex string, err error) {
+		if err == nil {
+			return
+		}
+		hadError = true
+		if len(exs) > 1 {
+			fmt.Fprintln(out, "//", ex)
+		}
+		fmt.Fprint(out, err)
+	}
+
+	for _, ex := range exs {
+
+		v := getValByEx(ex, val)
+		if v.Err() != nil {
+			handleErr(ex, v.Err())
+			continue
+		}
+	
+		err := v.Validate(append(opts, )...)
+		handleErr(ex, err)
+	}
+
+	if hadError {
+		// messages already printed, we want an empty message
+		return fmt.Errorf("")
+	}
 
 	return nil
 }

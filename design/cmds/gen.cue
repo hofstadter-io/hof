@@ -12,101 +12,81 @@ GenCommand: schema.Command & {
 	Short: "CUE powered code generation"
 	Long:  GenLongHelp
 
-	Flags: [...schema.Flag] & [
-		{
-			Name:    "stats"
-			Type:    "bool"
-			Default: "false"
-			Help:    "print generator statistics"
-			Long:    "stats"
-			Short:   "s"
-		},
-		{
-			Name:    "generator"
-			Type:    "[]string"
-			Default: "nil"
-			Help:    "generator tags to run, default is all, or none if -T is used"
-			Long:    "generator"
-			Short:   "G"
-		},
-		{
-			Name:    "template"
-			Type:    "[]string"
-			Default: "nil"
-			Help:    "template mapping to render, see help for format"
-			Long:    "template"
-			Short:   "T"
-		},
-		{
-			Name:    "partial"
-			Type:    "[]string"
-			Default: "nil"
-			Help:    "file globs to partial templates to register with the templates"
-			Long:    "partial"
-			Short:   "P"
-		},
-		{
-			Name:    "diff3"
-			Type:    "bool"
-			Default: "false"
-			Help:    "enable diff3 support for custom code"
-			Long:    "diff3"
-			Short:   "3"
-		},
-		{
-			Name:    "NoFormat"
-			Type:    "bool"
-			Default: "false"
-			Help:    "disable formatting during code gen (ad-hoc only)"
-			Long:    "no-format"
-		},
-		{
-			Name:    "KeepDeleted"
-			Type:    "bool"
-			Default: "false"
-			Help:    "keep files that would be deleted after code generation"
-			Long:    "keep-deleted"
-		},
-		{
-			Name:    "watch"
-			Type:    "bool"
-			Default: "false"
-			Help:    "run in watch mode, regenerating when files change, implied by -W/X"
-			Long:    "watch"
-			Short:   "w"
-		},
-		{
-			Name:    "WatchFull"
-			Type:    "[]string"
-			Default: "nil"
-			Help:    "filepath globs to watch for changes and trigger full regen"
-			Long:    "watch-globs"
-			Short:   "W"
-		},
-		{
-			Name:    "WatchFast"
-			Type:    "[]string"
-			Default: "nil"
-			Help:    "filepath globs to watch for changes and trigger fast regen"
-			Long:    "watch-fast"
-			Short:   "X"
-		},
-		{
-			Name:    "AsModule"
-			Type:    "string"
-			Default: ""
-			Help:    "<github.com/username/<name>> like value for the generator module made from the given flags"
-			Long:    "as-module"
-		},
-		{
-			Name:    "Outdir"
-			Type:    "string"
-			Default: ""
-			Help:    "base directory to write all output u"
-			Long:    "outdir"
-			Short:   "O"
-		},
-	]
+	Flags: [...schema.Flag] & [{
+		Name:    "generator"
+		Type:    "[]string"
+		Default: "nil"
+		Help:    "generator tags to run, default is all, or none if -T is used"
+		Long:    "generator"
+		Short:   "G"
+	}, {
+		Name:    "template"
+		Type:    "[]string"
+		Default: "nil"
+		Help:    "template mapping to render, see help for format"
+		Long:    "template"
+		Short:   "T"
+	}, {
+		Name:    "partial"
+		Type:    "[]string"
+		Default: "nil"
+		Help:    "file globs to partial templates to register with the templates"
+		Long:    "partial"
+		Short:   "P"
+	}, {
+		Name:    "diff3"
+		Type:    "bool"
+		Default: "false"
+		Help:    "enable diff3 support for custom code"
+		Long:    "diff3"
+		Short:   "3"
+	}, {
+		Name:    "NoFormat"
+		Type:    "bool"
+		Default: "false"
+		Help:    "disable formatting during code gen (ad-hoc only)"
+		Long:    "no-format"
+	}, {
+		Name:    "KeepDeleted"
+		Type:    "bool"
+		Default: "false"
+		Help:    "keep files that would be deleted after code generation"
+		Long:    "keep-deleted"
+	}, {
+		Name:    "watch"
+		Type:    "bool"
+		Default: "false"
+		Help:    "run in watch mode, regenerating when files change, implied by -W/X"
+		Long:    "watch"
+		Short:   "w"
+	}, {
+		Name:    "WatchFull"
+		Type:    "[]string"
+		Default: "nil"
+		Help:    "filepath globs to watch for changes and trigger full regen"
+		Long:    "watch-globs"
+		Short:   "W"
+	}, {
+		Name:    "WatchFast"
+		Type:    "[]string"
+		Default: "nil"
+		Help:    "filepath globs to watch for changes and trigger fast regen"
+		Long:    "watch-fast"
+		Short:   "X"
+	}, {
+		Name:    "AsModule"
+		Type:    "string"
+		Default: ""
+		Help:    "<github.com/username/<name>> like value for the generator module made from the given flags"
+		Long:    "as-module"
+	}, {
+		Name:    "Outdir"
+		Type:    "string"
+		Default: ""
+		Help:    "base directory to write all output u"
+		Long:    "outdir"
+		Short:   "O"
+	}]
 
 	Commands: [{
 		Name:  "init"

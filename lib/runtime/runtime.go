@@ -12,6 +12,7 @@ import (
 	"cuelang.org/go/cue/load"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+	"github.com/hofstadter-io/hof/flow/flow"
 	"github.com/hofstadter-io/hof/lib/chat"
 	"github.com/hofstadter-io/hof/lib/datamodel"
 	"github.com/hofstadter-io/hof/lib/gen"
@@ -63,9 +64,9 @@ type Runtime struct {
 	Chats      []*chat.Chat
 	Datamodels []*datamodel.Datamodel
 	Generators []*gen.Generator
-	// Workflows  map[string]*flow.Flow
+	Workflows  []*flow.Flow
 
-	Stats *RuntimeStats
+	Stats RuntimeStats
 }
 
 func New(entrypoints []string, rflags flags.RootPflagpole) (*Runtime, error) {
@@ -106,7 +107,7 @@ func New(entrypoints []string, rflags flags.RootPflagpole) (*Runtime, error) {
 		origEntrypoints: entrypoints,
 		CueConfig:   cfg,
 		dataMappings: make(map[string]string),
-		Stats: new(RuntimeStats),
+		Stats: make(RuntimeStats),
 	}
 
 	// calc cue dirs

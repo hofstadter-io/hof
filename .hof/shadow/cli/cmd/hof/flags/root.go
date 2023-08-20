@@ -55,6 +55,7 @@ type RootPflagpole struct {
 	InjectEnv    bool
 	AllErrors    bool
 	IngoreErrors bool
+	Stats        bool
 	Quiet        bool
 	Verbosity    int
 }

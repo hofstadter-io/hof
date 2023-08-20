@@ -10,8 +10,10 @@ type EvalFlagpole struct {
 	All           bool
 	Concrete      bool
 	Attributes    bool
+	Definitions   bool
 	Hidden        bool
 	Optional      bool
+	Final         bool
 }
 
 var EvalFlags EvalFlagpole

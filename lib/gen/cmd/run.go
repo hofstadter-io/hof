@@ -21,7 +21,7 @@ func Run(args []string, rflags flags.RootPflagpole, gflags flags.GenFlagpole) er
 	veryend := time.Now()
 	elapsed := veryend.Sub(verystart).Round(time.Millisecond)
 
-	if gflags.Stats {
+	if rflags.Stats {
 		fmt.Printf("\nGrand Total Elapsed Time: %s\n\n", elapsed)
 	}
 
