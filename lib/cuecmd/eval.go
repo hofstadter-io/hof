@@ -43,8 +43,8 @@ func Eval(args []string, rflags flags.RootPflagpole, cflags flags.EvalFlagpole) 
 	opts := []cue.Option{
 		cue.Concrete(cflags.Concrete),
 		cue.Docs(cflags.Comments),
-		cue.Definitions(cflags.Definitions),
 		cue.Attributes(cflags.Attributes),
+		cue.Definitions(cflags.Definitions),
 		cue.Optional(cflags.Optional),
 		cue.Hidden(cflags.Hidden),
 		cue.InlineImports(cflags.InlineImports),
