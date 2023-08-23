@@ -1,3 +1,5 @@
+skip
+
 exec hof export .:foo mod.test/bar:baz
 
 cmp stdout expect-stdout

@@ -3,6 +3,7 @@ package flags
 type VetFlagpole struct {
 	Expression  []string
 	List        bool
+	Simplify    bool
 	Out         string
 	Outfile     string
 	Concrete    bool

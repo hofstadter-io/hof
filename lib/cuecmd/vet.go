@@ -40,13 +40,20 @@ func Vet(args []string, rflags flags.RootPflagpole, cflags flags.VetFlagpole) er
 
 	// build options
 	opts := []cue.Option{
-		cue.Concrete(cflags.Concrete),
 		cue.Docs(cflags.Comments),
 		cue.Attributes(cflags.Attributes),
 		cue.Definitions(cflags.Definitions),
 		cue.Optional(cflags.Optional),
-		cue.Hidden(cflags.Hidden),
-		cue.ErrorsAsValues(rflags.IngoreErrors),
+		cue.ErrorsAsValues(rflags.IngoreErrors || rflags.AllErrors),
+	}
+
+	// these two have to be done specially
+	// because there are three options [true, false, missing]
+	if cflags.Concrete {
+		opts = append(opts, cue.Concrete(true))
+	}
+	if cflags.Hidden {
+		opts = append(opts, cue.Hidden(true))
 	}
 
 	out := os.Stdout
@@ -67,9 +74,12 @@ func Vet(args []string, rflags flags.RootPflagpole, cflags flags.VetFlagpole) er
 		fmt.Fprint(out, err)
 	}
 
+	// TODO, need to find unplaced data files and validate them
+
 	for _, ex := range exs {
 
-		v := getValByEx(ex, val)
+		pkg := R.BuildInstances[0].ID()
+		v := getValByEx(ex, pkg, val)
 		if v.Err() != nil {
 			handleErr(ex, v.Err())
 			continue

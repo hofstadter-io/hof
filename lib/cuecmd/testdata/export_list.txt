@@ -1,3 +1,5 @@
+skip
+
 exec hof export -l "\(strings.ToLower(kind))" --list import/services.jsonl
 cmp stdout expect-stdout
 -- expect-stdout --

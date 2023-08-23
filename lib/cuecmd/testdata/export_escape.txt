@@ -14,13 +14,13 @@ specialJSON: #"\ ""#
 specialHTML: "& < >"
 -- stdout.golden --
 {
-    "simple": "hello",
-    "specialJSON": "\\ \"",
-    "specialHTML": "& < >"
+  "simple": "hello",
+  "specialJSON": "\\ \"",
+  "specialHTML": "& < >"
 }
 -- stdout-escape.golden --
 {
-    "simple": "hello",
-    "specialJSON": "\\ \"",
-    "specialHTML": "\u0026 \u003c \u003e"
+  "simple": "hello",
+  "specialJSON": "\\ \"",
+  "specialHTML": "\u0026 \u003c \u003e"
 }

@@ -64,7 +64,7 @@ func (F *File) formatData(val cue.Value, format string) ([]byte, error) {
 		return F.formatCue(val)
 
 	case "json":
-		return FormatJson(val)
+		return FormatJson(val, false)
 
 	case "yml", "yaml":
 		return FormatYaml(val)
@@ -139,10 +139,11 @@ func FormatCue(val cue.Value, opts []cue.Option, pkg string) ([]byte, error) {
 	return bs, nil
 }
 
-func FormatJson(val cue.Value) ([]byte, error) {
+func FormatJson(val cue.Value, escape bool) ([]byte, error) {
 	var w bytes.Buffer
 	d := json.NewEncoder(&w)
 	d.SetIndent("", "  ")
+	d.SetEscapeHTML(escape)
 
 	err := d.Encode(val)
 	if _, ok := err.(*json.MarshalerError); ok {

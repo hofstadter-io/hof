@@ -14,7 +14,6 @@ cmp stderr expect_stderr_yaml
 
 -- x.cue --
 toto: value: *_|_ | (*"toto" | string)
-
 -- expect_stdout_cue --
 -- expect_stderr_cue --
 toto.value: incomplete value "toto" | string

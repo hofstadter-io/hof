@@ -28,7 +28,7 @@ func init() {
 	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.InjectEnv), "inject-env", "V", false, "inject all ENV VARs as default tag vars")
 	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.AllErrors), "all-errors", "E", false, "print all available errors")
 	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.IngoreErrors), "ignore-errors", "i", false, "turn off output and assume defaults at prompts")
-	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Stats), "stats", "s", false, "print generator statistics")
+	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Stats), "stats", "", false, "print generator statistics")
 	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Quiet), "quiet", "q", false, "turn off output and assume defaults at prompts")
 	RootCmd.PersistentFlags().IntVarP(&(flags.RootPflags.Verbosity), "verbosity", "v", 0, "set the verbosity of output")
 }

@@ -27,6 +27,12 @@ SharedCueFlags: [...schema.Flag] & [{
 	Default: "false"
 	Help:    "concatenate multiple objects into a list"
 }, {
+	Name:    "simplify"
+	Long:    "simplify"
+	Type:    "bool"
+	Default: "false"
+	Help:    "simplify CUE statements where possible"
+}, {
 	Name:    "out"
 	Long:    "out"
 	Type:    "string"
@@ -105,6 +111,12 @@ EvalCommand: schema.Command & {
 		Default: "false"
 		Help:    "require the evaluation to be concrete"
 	}, {
+		Name:    "escape"
+		Long:    "escape"
+		Type:    "bool"
+		Default: "false"
+		Help:    "use HTLM escaping"
+	}, {
 		Name:    "attributes"
 		Long:    "attributes"
 		Short:   "A"
@@ -133,11 +145,25 @@ EvalCommand: schema.Command & {
 		Default: "false"
 		Help:    "display optional fields"
 	}, {
-		Name:    "final"
-		Long:    "final"
-		Short:   "F"
+		Name:    "resolve"
+		Long:    "resolve"
+		Short:   ""
 		Type:    "bool"
 		Default: "false"
+		Help:    "resolve references in value"
+	}, {
+		Name:    "defaults"
+		Long:    "defaults"
+		Short:   ""
+		Type:    "bool"
+		Default: "false"
+		Help:    "use default values if not set"
+	}, {
+		Name:    "final"
+		Long:    "final"
+		Short:   ""
+		Type:    "bool"
+		Default: "true"
 		Help:    "finalize the value"
 	}]
 }

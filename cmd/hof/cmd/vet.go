@@ -19,6 +19,7 @@ func init() {
 
 	VetCmd.Flags().StringArrayVarP(&(flags.VetFlags.Expression), "expression", "e", nil, "evaluate these expressions only")
 	VetCmd.Flags().BoolVarP(&(flags.VetFlags.List), "list", "", false, "concatenate multiple objects into a list")
+	VetCmd.Flags().BoolVarP(&(flags.VetFlags.Simplify), "simplify", "", false, "simplify CUE statements where possible")
 	VetCmd.Flags().StringVarP(&(flags.VetFlags.Out), "out", "", "", "output data format, when detection does not work")
 	VetCmd.Flags().StringVarP(&(flags.VetFlags.Outfile), "outfile", "o", "", "filename or - for stdout with optional file prefix")
 	VetCmd.Flags().BoolVarP(&(flags.VetFlags.Concrete), "concrete", "c", false, "require the evaluation to be concrete")
@@ -57,7 +58,8 @@ var VetCmd = &cobra.Command{
 
 		err = VetRun(args)
 		if err != nil {
-			fmt.Println(err)
+			// fmt.Println(err)
+			fmt.Fprint(os.Stderr, err)
 			os.Exit(1)
 		}
 	},

@@ -73,7 +73,6 @@ CliPflags: [...schema.Flag] & [ {
 	Default: "false"
 	Help:    "print generator statistics"
 	Long:    "stats"
-	Short:   "s"
 }, {
 	Name:    "quiet"
 	Long:    "quiet"

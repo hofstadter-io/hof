@@ -14,7 +14,7 @@ cmp stderr stderr.golden
 	age?:  int
 }
 -- stdout.golden --
-{}
+
 -- y.cue --
 a: x!: 5
 a: x?: int // do not include this position

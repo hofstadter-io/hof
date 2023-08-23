@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"cuelang.org/go/cue"
+	"cuelang.org/go/cue/format"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/runtime"
@@ -44,7 +45,13 @@ func Export(args []string, rflags flags.RootPflagpole, cflags flags.ExportFlagpo
 		cue.Docs(cflags.Comments),
 	}
 
-	err = writeOutput(val, opts, cflags.Out, cflags.Outfile, cflags.Expression)
+	fopts := []format.Option{}
+	if cflags.Simplify {
+		fopts = append(fopts, format.Simplify())
+	}
+
+	pkg := R.BuildInstances[0].PkgName
+	err = writeOutput(val, pkg, opts, fopts, cflags.Out, cflags.Outfile, cflags.Expression, cflags.Escape, false)
 	if err != nil {
 		return err
 	}

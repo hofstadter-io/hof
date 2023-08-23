@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"cuelang.org/go/cue"
+	"cuelang.org/go/cue/format"
+	"github.com/kr/pretty"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/cuetils"
@@ -37,25 +39,47 @@ func Eval(args []string, rflags flags.RootPflagpole, cflags flags.EvalFlagpole) 
 		return cuetils.ExpandCueError(val.Err())
 	}
 
-	fmt.Println("Defs?", cflags.Definitions)
+	id := R.BuildInstances[0].ID()
+	fmt.Println("ID:", id)
+
+	if R.Flags.Verbosity > 1 {
+		fmt.Printf("%# v\n", pretty.Formatter(R.Flags))
+		fmt.Printf("%# v\n", pretty.Formatter(cflags))
+	}
 
 	// build options
 	opts := []cue.Option{
-		cue.Concrete(cflags.Concrete),
 		cue.Docs(cflags.Comments),
 		cue.Attributes(cflags.Attributes),
+		cue.Definitions(true),
 		cue.Definitions(cflags.Definitions),
-		cue.Optional(cflags.Optional),
-		cue.Hidden(cflags.Hidden),
+		cue.Optional(cflags.Optional || cflags.All),
 		cue.InlineImports(cflags.InlineImports),
-		cue.ErrorsAsValues(rflags.IngoreErrors),
+		cue.ErrorsAsValues(rflags.IngoreErrors || rflags.AllErrors),
+		cue.ResolveReferences(cflags.Resolve),
+	}
+
+	// these two have to be done specially
+	// because there are three options [true, false, missing]
+	if cflags.Concrete {
+		opts = append(opts, cue.Concrete(true))
+	}
+	if cflags.Hidden || cflags.All {
+		opts = append(opts, cue.Hidden(true))
 	}
 
 	if cflags.Final {
-		opts = append(opts, cue.Final())
+		// prepend final, so others still apply
+		opts = append([]cue.Option{cue.Final()}, opts...)
 	}
 
-	err = writeOutput(val, opts, cflags.Out, cflags.Outfile, cflags.Expression)
+	fopts := []format.Option{}
+	if cflags.Simplify {
+		fopts = append(fopts, format.Simplify())
+	}
+
+	pkg := R.BuildInstances[0].ID()
+	err = writeOutput(val, pkg, opts, fopts, cflags.Out, cflags.Outfile, cflags.Expression, cflags.Escape, cflags.Defaults)
 	if err != nil {
 		return err
 	}

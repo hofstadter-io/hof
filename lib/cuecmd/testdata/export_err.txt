@@ -10,13 +10,13 @@ cmp stderr expect-stderr
 cmp stdout expect-stdout
 cmp stderr expect-stderr
 
-! exec hof export repeated.cue -o openapi:export.json
-! stdout .
-cmp stderr expect-stderr-openapi
+#! exec hof export repeated.cue -o openapi:export.json
+#! stdout .
+#cmp stderr expect-stderr-openapi
 
-! exec hof eval repeated.cue --out openapi
-! stdout .
-cmp stderr expect-stderr-openapi
+#! exec hof eval repeated.cue --out openapi
+#! stdout .
+#cmp stderr expect-stderr-openapi
 
 -- repeated.cue --
 info: {

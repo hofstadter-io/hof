@@ -18,6 +18,7 @@ var defLong = `print consolidated CUE definitions`
 func init() {
 	DefCmd.Flags().StringArrayVarP(&(flags.DefFlags.Expression), "expression", "e", nil, "evaluate these expressions only")
 	DefCmd.Flags().BoolVarP(&(flags.DefFlags.List), "list", "", false, "concatenate multiple objects into a list")
+	DefCmd.Flags().BoolVarP(&(flags.DefFlags.Simplify), "simplify", "", false, "simplify CUE statements where possible")
 	DefCmd.Flags().StringVarP(&(flags.DefFlags.Out), "out", "", "", "output data format, when detection does not work")
 	DefCmd.Flags().StringVarP(&(flags.DefFlags.Outfile), "outfile", "o", "", "filename or - for stdout with optional file prefix")
 	DefCmd.Flags().BoolVarP(&(flags.DefFlags.InlineImports), "inline-imports", "", false, "expand references to non-core imports")
@@ -53,7 +54,8 @@ var DefCmd = &cobra.Command{
 
 		err = DefRun(args)
 		if err != nil {
-			fmt.Println(err)
+			// fmt.Println(err)
+			fmt.Fprint(os.Stderr, err)
 			os.Exit(1)
 		}
 	},

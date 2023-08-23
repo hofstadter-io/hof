@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 
@@ -16,6 +17,7 @@ import (
 	"cuelang.org/go/cue/cuecontext"
 	"cuelang.org/go/cue/errors"
 	"cuelang.org/go/cue/load"
+	"cuelang.org/go/cue/token"
 	"cuelang.org/go/encoding/json"
 	"cuelang.org/go/encoding/yaml"
 
@@ -83,10 +85,10 @@ func (R *Runtime) prepOrphanedFiles(bi *build.Instance) (err error) {
 	var errs []errors.Error
 
 	// handle data files
-	for _, f := range bi.OrphanedFiles {
+	for i, f := range bi.OrphanedFiles {
 		// this function also checks to see if we should include the file
 		//   based on a few settings, but we have to do some path handling first...
-		F, err := R.loadOrphanedFile(f, bi.PkgName, bi.Root, bi.Dir)
+		F, err := R.loadOrphanedFile(f, bi.PkgName, bi.Root, bi.Dir, i, len(bi.OrphanedFiles))
 		if err != nil {
 			if R.Flags.Verbosity > 1 {
 				fmt.Println("[load] error in data:", f.Filename, err)
@@ -165,7 +167,8 @@ func (R *Runtime) load() (err error) {
 
 	if len(errs) > 0 {
 		R.CueErrors = errs
-		s := fmt.Sprintf("Errors while loading Cue entrypoints: %s %v\n", R.WorkingDir, R.Entrypoints)
+		// s := fmt.Sprintf("Errors while loading Cue entrypoints: %s %v\n", R.WorkingDir, R.Entrypoints)
+		var s string
 		for _, E := range errs {
 			es := errors.Errors(E)
 			for _, e := range es {
@@ -178,7 +181,7 @@ func (R *Runtime) load() (err error) {
 	return nil
 }
 
-func (R *Runtime) loadOrphanedFile(f *build.File, pkgName string, root, dir string) (F *ast.File, err error) {
+func (R *Runtime) loadOrphanedFile(f *build.File, pkgName string, root, dir string, index, total int) (F *ast.File, err error) {
 	if R.Flags.Verbosity > 1 {
 		fmt.Println("[load]:", f.Filename, reflect.TypeOf(f.Source))
 	}
@@ -235,6 +238,19 @@ func (R *Runtime) loadOrphanedFile(f *build.File, pkgName string, root, dir stri
 		}
 	}
 
+	withContext := func(e ast.Expr) ast.Expr {
+		if R.Flags.WithContext {
+			return ast.NewStruct(
+				"data", e,
+				"filename", ast.NewString(f.Filename),
+				"index", ast.NewLit(token.INT, strconv.Itoa(index)),
+				"recordCount", ast.NewLit(token.INT, strconv.Itoa(total)),
+			)
+		}
+		return e
+	}
+
+
 	switch f.Encoding {
 
 	case "json":
@@ -243,7 +259,9 @@ func (R *Runtime) loadOrphanedFile(f *build.File, pkgName string, root, dir stri
 			return nil, fmt.Errorf("while extracting json file: %w", err)
 		}
 
-		A, err = R.placeOrphanInAST(A.(*ast.StructLit), mapping)
+		C := withContext(A)
+
+		A, err = R.placeOrphanInAST(A.(*ast.StructLit), C, mapping)
 		if err != nil {
 			return nil, err
 		}
@@ -281,8 +299,9 @@ func (R *Runtime) loadOrphanedFile(f *build.File, pkgName string, root, dir stri
 
 		A := ast.NewStruct()
 		A.Elts = F.Decls
+		C := withContext(A)
 
-		A, err = R.placeOrphanInAST(A, mapping)
+		A, err = R.placeOrphanInAST(A, C, mapping)
 		if err != nil {
 			return nil, err
 		}
@@ -317,8 +336,8 @@ func (R *Runtime) loadOrphanedFile(f *build.File, pkgName string, root, dir stri
 
 }
 
-func (R *Runtime) placeOrphanInAST(S *ast.StructLit, mapping string) (*ast.StructLit, error) {
-	// fmt.Println("GOT HERE")
+func (R *Runtime) placeOrphanInAST(S *ast.StructLit, C ast.Expr, mapping string) (*ast.StructLit, error) {
+	// fmt.Println("GOT HERE", S, R.Flags.Path)
 	if mapping != "" {
 		// @path placed datafiles
 		ps := cue.ParsePath(mapping).Selectors()
@@ -344,20 +363,24 @@ func (R *Runtime) placeOrphanInAST(S *ast.StructLit, mapping string) (*ast.Struc
 		// fmt.Println("PathFlags:", ps)
 
 		ctx := R.CueContext
-		v := ctx.BuildExpr(S)
+		v := ctx.BuildExpr(C)
 		if v.Err() != nil {
 			return nil, v.Err()
-		}
-
-		if R.Flags.WithContext {
-
 		}
 
 		for i := len(ps)-1; i >= 0; i--  {
 			// build our label from the mapping path
 			p := ps[i]
 
-			pv := ctx.CompileString(p, cue.Filename(p), cue.Scope(v))
+			pv := ctx.CompileString(
+				p, 
+				cue.Filename(p),
+				cue.InferBuiltins(true),
+				cue.Scope(v),
+			)
+			if pv.Err() != nil {
+				return nil, pv.Err()
+			}
 
 			str, err := pv.String()
 			if err != nil {

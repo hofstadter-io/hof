@@ -154,7 +154,7 @@ func run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagp
 			return err
 		}
 
-		if popts.Stats {
+		if opts.Stats {
 			err = printFinalContext(flow.HofContext)
 			if err != nil {
 				return err

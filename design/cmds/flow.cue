@@ -72,13 +72,6 @@ FlowCommand: schema.Command & {
 		Default: "false"
 		Help:    "list available pipelines"
 	}, {
-		Name:    "docs"
-		Long:    "docs"
-		Short:   "d"
-		Type:    "bool"
-		Default: "false"
-		Help:    "print pipeline docs"
-	}, {
 		Name:    "flow"
 		Long:    "flow"
 		Short:   "f"
@@ -92,12 +85,5 @@ FlowCommand: schema.Command & {
 		Type:    "bool"
 		Default: "false"
 		Help:    "print task progress as it happens"
-	}, {
-		Name:    "stats"
-		Type:    "bool"
-		Default: "false"
-		Help:    "Print final task statistics"
-		Long:    "stats"
-		Short:   "s"
 	}]
 }

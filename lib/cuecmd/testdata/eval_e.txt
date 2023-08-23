@@ -9,7 +9,7 @@ cmp stdout expect/incomplete/stdout
 
 # Issue #384 (CUE)
 ! exec hof eval foo.bar
-cmp stderr expect/foobar/stderr
+cmp stderr expect/foobar/stderr -trim-space
 
 # Issue #999 (CUE)
 exec hof export --out text -e 'yaml.MarshalStream(X)' issue999/x.cue
@@ -17,8 +17,7 @@ cmp stdout expect/issue999/stdout
 
 -- expect/nonExist/stdout --
 -- expect/nonExist/stderr --
-reference "nonExist" not found:
-    --expression:1:1
+field not found: nonExist
 -- expect/incomplete/stdout --
 
 -- expect/incomplete/stderr --
