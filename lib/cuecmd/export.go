@@ -50,7 +50,7 @@ func Export(args []string, rflags flags.RootPflagpole, cflags flags.ExportFlagpo
 		fopts = append(fopts, format.Simplify())
 	}
 
-	pkg := R.BuildInstances[0].PkgName
+	pkg := R.BuildInstances[0].ID()
 	err = writeOutput(val, pkg, opts, fopts, cflags.Out, cflags.Outfile, cflags.Expression, cflags.Escape, false)
 	if err != nil {
 		return err
