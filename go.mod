@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	cuelang.org/go v0.6.0
-	dagger.io/dagger v0.8.2
+	dagger.io/dagger v0.8.4
 	github.com/AlecAivazis/survey/v2 v2.3.7
 	github.com/BurntSushi/toml v1.3.2
 	github.com/aymerick/raymond v2.0.2+incompatible

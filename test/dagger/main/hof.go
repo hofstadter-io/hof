@@ -119,6 +119,9 @@ func main() {
 	tests["fmt"] = func() error {
 		return R.TestCommandFmt(tester, source)
 	}
+	tests["cue"] = func() error {
+		return R.TestCuecmd(tester, source)
+	}
 
 	// decide what tests to run
 	ts := []string{
@@ -130,6 +133,7 @@ func main() {
 		"flow",
 		"mod",
 		"fmt",
+		"cue",
 	}
 	if TESTS != "" {
 		// user order if manually set

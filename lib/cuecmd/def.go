@@ -50,7 +50,14 @@ func Def(args []string, rflags flags.RootPflagpole, cflags flags.DefFlagpole) er
 		fopts = append(fopts, format.Simplify())
 	}
 
-	pkg := R.BuildInstances[0].ID()
+	bi := R.BuildInstances[0]
+	if R.Flags.Verbosity > 1 {
+		fmt.Println("ID:", bi.ID(), bi.PkgName, bi.Module)
+	}
+	pkg := bi.PkgName
+	if bi.Module == "" {
+		pkg = bi.ID()
+	}
 	err = writeOutput(val, pkg, opts, fopts, cflags.Out, cflags.Outfile, cflags.Expression, false, false)
 	if err != nil {
 		return err

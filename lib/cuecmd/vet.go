@@ -78,7 +78,14 @@ func Vet(args []string, rflags flags.RootPflagpole, cflags flags.VetFlagpole) er
 
 	for _, ex := range exs {
 
-		pkg := R.BuildInstances[0].ID()
+		bi := R.BuildInstances[0]
+		if R.Flags.Verbosity > 1 {
+			fmt.Println("ID:", bi.ID(), bi.PkgName, bi.Module)
+		}
+		pkg := bi.PkgName
+		if bi.Module == "" {
+			pkg = bi.ID()
+		}
 		v := getValByEx(ex, pkg, val)
 		if v.Err() != nil {
 			handleErr(ex, v.Err())

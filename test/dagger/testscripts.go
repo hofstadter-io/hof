@@ -198,3 +198,15 @@ func (R *Runtime) TestDatamodel(c *dagger.Container, source *dagger.Directory) e
 
 	return nil
 }
+
+func (R *Runtime) TestCuecmd(c *dagger.Container, source *dagger.Directory) error {
+	t := c.Pipeline("test/cuecmd")
+
+	err := R.RunTestscriptDir(t, source, "test/cuecmd", "lib/cuecmd/testdata")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+

@@ -31,16 +31,15 @@ func Eval(args []string, rflags flags.RootPflagpole, cflags flags.EvalFlagpole) 
 
 	err = R.Load()
 	if err != nil {
+		fmt.Println("load.Err", err)
 		return cuetils.ExpandCueError(err)
 	}
 
 	val := R.Value
 	if val.Err() != nil {
+		fmt.Println("val.Err", val.Err())
 		return cuetils.ExpandCueError(val.Err())
 	}
-
-	id := R.BuildInstances[0].ID()
-	fmt.Println("ID:", id)
 
 	if R.Flags.Verbosity > 1 {
 		fmt.Printf("%# v\n", pretty.Formatter(R.Flags))
@@ -78,7 +77,14 @@ func Eval(args []string, rflags flags.RootPflagpole, cflags flags.EvalFlagpole) 
 		fopts = append(fopts, format.Simplify())
 	}
 
-	pkg := R.BuildInstances[0].ID()
+	bi := R.BuildInstances[0]
+	if R.Flags.Verbosity > 1 {
+		fmt.Println("ID:", bi.ID(), bi.PkgName, bi.Module)
+	}
+	pkg := bi.PkgName
+	if bi.Module == "" {
+		pkg = bi.ID()
+	}
 	err = writeOutput(val, pkg, opts, fopts, cflags.Out, cflags.Outfile, cflags.Expression, cflags.Escape, cflags.Defaults)
 	if err != nil {
 		return err

@@ -88,7 +88,18 @@ func (R *Runtime) prepOrphanedFiles(bi *build.Instance) (err error) {
 	for i, f := range bi.OrphanedFiles {
 		// this function also checks to see if we should include the file
 		//   based on a few settings, but we have to do some path handling first...
-		F, err := R.loadOrphanedFile(f, bi.ID(), bi.Root, bi.Dir, i, len(bi.OrphanedFiles))
+
+		bi := R.BuildInstances[0]
+		if R.Flags.Verbosity > 1 {
+			fmt.Println("ID:", bi.ID(), bi.PkgName, bi.Module)
+		}
+		pkg := bi.PkgName
+		//if bi.Module == "" {
+		//  pkg = bi.ID()
+		//}
+		// fmt.Println("ID:", bi.ID(), bi.PkgName, bi.Module)
+
+		F, err := R.loadOrphanedFile(f, pkg, bi.Root, bi.Dir, i, len(bi.OrphanedFiles))
 		if err != nil {
 			if R.Flags.Verbosity > 1 {
 				fmt.Println("[load] error in data:", f.Filename, err)

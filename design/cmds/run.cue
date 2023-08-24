@@ -38,7 +38,6 @@ RunCommand: schema.Command & {
 			Default: "nil"
 			Help:    "<name>: _ @run(suite)'s to run"
 			Long:    "suite"
-			Short:   "s"
 			...
 		},
 		{
@@ -47,7 +46,6 @@ RunCommand: schema.Command & {
 			Default: "nil"
 			Help:    "<name>: _ @run(script)'s to run"
 			Long:    "runner"
-			Short:   "r"
 			...
 		},
 		{
@@ -56,7 +54,6 @@ RunCommand: schema.Command & {
 			Default: "nil"
 			Help:    "exrta environment variables for scripts"
 			Long:    "env"
-			Short:   "e"
 			...
 		},
 		{
@@ -65,7 +62,6 @@ RunCommand: schema.Command & {
 			Default: "nil"
 			Help:    "exrta data to include in the scripts context"
 			Long:    "data"
-			Short:   "d"
 			...
 		},
 		{
@@ -74,7 +70,6 @@ RunCommand: schema.Command & {
 			Default: ""
 			Help:    "working directory"
 			Long:    "workdir"
-			Short:   "w"
 			...
 		},
 	]

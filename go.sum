@@ -37,8 +37,8 @@ cloud.google.com/go/storage v1.10.0/go.mod h1:FLPqc6j+Ki4BU591ie1oL6qBQGu2Bl/tZ9
 cloud.google.com/go/storage v1.14.0/go.mod h1:GrKmX003DSIwi9o29oFT7YDnHYwZoctc3fOKtUw0Xmo=
 cuelang.org/go v0.6.0 h1:dJhgKCog+FEZt7OwAYV1R+o/RZPmE8aqFoptmxSWyr8=
 cuelang.org/go v0.6.0/go.mod h1:9CxOX8aawrr3BgSdqPj7V0RYoXo7XIb+yDFC6uESrOQ=
-dagger.io/dagger v0.8.2 h1:vtND1W7rcuWZoPeD9y4+2u7VVGKNeMVchxZUHEqDKA4=
-dagger.io/dagger v0.8.2/go.mod h1:Nwl7WI8YETaZhGjPJvkiOZnKLJXBaJOkSarp5m4+FxA=
+dagger.io/dagger v0.8.4 h1:2zNu40cBvPZc/CSgMnLRfayfQj5VtbJlDtWJyWGwGSQ=
+dagger.io/dagger v0.8.4/go.mod h1:Nwl7WI8YETaZhGjPJvkiOZnKLJXBaJOkSarp5m4+FxA=
 dario.cat/mergo v1.0.0 h1:AGCNq9Evsj31mOgNPcLyXc+4PNABt905YmuqPYYpBWk=
 dario.cat/mergo v1.0.0/go.mod h1:uNxQE+84aUszobStD9th8a29P2fMDhsBdgRYvZOxGmk=
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
