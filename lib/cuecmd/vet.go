@@ -8,6 +8,7 @@ import (
 	"cuelang.org/go/cue"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/runtime"
 )
 
@@ -28,6 +29,10 @@ func Vet(args []string, rflags flags.RootPflagpole, cflags flags.VetFlagpole) er
 		return err
 	}
 
+	wantErrors := rflags.IngoreErrors || rflags.AllErrors
+
+	// this is a bit hacky (?), but we use this so we can vet the orphaned files rather than add them to the value
+	R.DontPlaceOrphanedFiles = true
 	err = R.Load()
 	if err != nil {
 		return err
@@ -44,7 +49,7 @@ func Vet(args []string, rflags flags.RootPflagpole, cflags flags.VetFlagpole) er
 		cue.Attributes(cflags.Attributes),
 		cue.Definitions(cflags.Definitions),
 		cue.Optional(cflags.Optional),
-		cue.ErrorsAsValues(rflags.IngoreErrors || rflags.AllErrors),
+		cue.ErrorsAsValues(wantErrors),
 	}
 
 	// these two have to be done specially
@@ -67,6 +72,7 @@ func Vet(args []string, rflags flags.RootPflagpole, cflags flags.VetFlagpole) er
 		if err == nil {
 			return
 		}
+		err = cuetils.ExpandCueError(err)
 		hadError = true
 		if len(exs) > 1 {
 			fmt.Fprintln(out, "//", ex)
@@ -74,27 +80,65 @@ func Vet(args []string, rflags flags.RootPflagpole, cflags flags.VetFlagpole) er
 		fmt.Fprint(out, err)
 	}
 
-	// TODO, need to find unplaced data files and validate them
+	// TODO, how do we think about the cross-product of { files } x { -e } x { -l }
+	// maybe -l doesn't make sense here? (or only files that can be placed)
 
-	for _, ex := range exs {
-
-		bi := R.BuildInstances[0]
-		if R.Flags.Verbosity > 1 {
-			fmt.Println("ID:", bi.ID(), bi.PkgName, bi.Module)
-		}
-		pkg := bi.PkgName
-		if bi.Module == "" {
-			pkg = bi.ID()
-		}
-		v := getValByEx(ex, pkg, val)
-		if v.Err() != nil {
-			handleErr(ex, v.Err())
-			continue
-		}
-	
-		err := v.Validate(append(opts, )...)
-		handleErr(ex, err)
+	// setup our bi and other stuff
+	bi := R.BuildInstances[0]
+	if R.Flags.Verbosity > 1 {
+		fmt.Println("ID:", bi.ID(), bi.PkgName, bi.Module)
 	}
+	pkg := bi.PkgName
+	if bi.Module == "" {
+		pkg = bi.ID()
+	}
+
+	// vet the orphaned files
+	if len(bi.OrphanedFiles) > 0 {
+		for i, f := range bi.OrphanedFiles {
+			// fmt.Println("vet:", f.Filename)
+			F, err := R.LoadOrphanedFile(f, pkg, bi.Root, bi.Dir, i, len(bi.OrphanedFiles))
+			if err != nil {
+				handleErr("during load", err)
+				continue
+			}
+			fv := R.CueContext.BuildFile(F, cue.Filename(f.Filename))
+
+			// vet the value with each expression
+			for _, ex := range exs {
+
+				v := getValByEx(ex, pkg, val)
+				if v.Err() != nil {
+					handleErr(ex, v.Err())
+					continue
+				}
+				
+				v = v.Unify(fv)
+			
+				// we want to ensure concrete when validating data (orphaned files)
+				opts = append(opts, cue.Concrete(true))
+				err := v.Validate(append(opts, )...)
+				handleErr(ex, err)
+			}
+
+		}
+	} else {
+		// vet the root value at each expression
+		// often this will default to [""] which is just the whole value
+		for _, ex := range exs {
+
+			v := getValByEx(ex, pkg, val)
+			if v.Err() != nil {
+				handleErr(ex, v.Err())
+				continue
+			}
+		
+			err := v.Validate(append(opts, )...)
+			handleErr(ex, err)
+		}
+	}
+
+
 
 	if hadError {
 		// messages already printed, we want an empty message

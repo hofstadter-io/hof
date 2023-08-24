@@ -50,7 +50,7 @@ func EnrichDatamodel(R *runtime.Runtime, dm *datamodel.Datamodel) error {
 	return nil
 }
 
-func writeOutput(val cue.Value, pkg string, opts []cue.Option, fopts []format.Option, outtype, outfile string, exs []string, escape, defaults bool) (err error) {
+func writeOutput(val cue.Value, pkg string, opts []cue.Option, fopts []format.Option, outtype, outfile string, exs, schemas []string, escape, defaults, wantErrors bool) (err error) {
 	// fmt.Println("writeOutput", pkg, exs)
 	// when not set, this makes it so our loop will iterate once and output everything
 	if len(exs) == 0 {
@@ -85,21 +85,31 @@ func writeOutput(val cue.Value, pkg string, opts []cue.Option, fopts []format.Op
 
 	// error handling, so we can still process everything
 	hadError := false
-	handleErr := func(err error) {
+	handleErr := func(err error, ex string) {
 		hadError = true
+		if len(exs) > 1 {
+			fmt.Fprintln(os.Stderr, "//", ex)
+		}
 		fmt.Fprint(os.Stderr, cuetils.ExpandCueError(err))
+	}
+
+	handleStuff := func(err error, s, ex string) {
+		if err != nil {
+			handleErr(err, ex)
+			return
+		}
+		if len(exs) > 1 {
+			fmt.Fprintln(out, "//", ex)
+		}
+		fmt.Fprint(out, s)
 	}
 
 	// range of expressions the user desires
 	for _, ex := range exs {
 		// if more than one output, prefix with name in commment
-		if len(exs) > 1 {
-			fmt.Fprintln(out, "//", ex)
-		}
-
 		v := getValByEx(ex, pkg, val)
-		if v.Err() != nil {
-			handleErr(v.Err())
+		if !wantErrors && v.Err() != nil {
+			handleErr(v.Err(), ex)
 			continue
 		}
 
@@ -107,24 +117,33 @@ func writeOutput(val cue.Value, pkg string, opts []cue.Option, fopts []format.Op
 			v, _ = v.Default()
 		}
 
-		err = v.Validate(opts...)
-		if err != nil {
-			handleErr(err)
-			continue
+		for _, schema := range schemas {
+			s := getValByEx(schema, pkg, val)
+			// we don't ignore here because we want to actually have these schemas in the value to use
+			// and ignore any errors the data may have against them
+			if s.Err() != nil {
+				return fmt.Errorf("unable to find schema in value: %w\n", s.Err())
+			}
+
+			// keep unifying with all schemas
+			v = v.Unify(s)
+		}
+
+		if !wantErrors {
+			err = v.Validate(opts...)
+			if err != nil {
+				handleErr(err, ex)
+				continue
+			}
 		}
 
 		// we have a good(ish) value now, without basic errors
 
 		switch outtype {
 		case "cue":
-			write := func(n ast.Node) error {
+			write := func(n ast.Node) {
 				b, err := format.Node(n, fopts...)
-				if err != nil {	
-					handleErr(err)
-					return err
-				}
-				fmt.Fprint(out, string(b))
-				return nil
+				handleStuff(err, string(b), ex)
 			}
 
 			// get formatted value
@@ -133,51 +152,27 @@ func writeOutput(val cue.Value, pkg string, opts []cue.Option, fopts []format.Op
 			syn = cuetils.ToFile(syn)
 
 			// eval / write the value
-			err = write(syn)
-			if err != nil {
-				handleErr(err)
-				continue
-			}
+			write(syn)
 
 		case "json":
 			b, err := gen.FormatJson(v, escape)
-			if err != nil {
-				handleErr(err)
-				continue
-			}
-			fmt.Fprint(out, string(b))
+			handleStuff(err, string(b), ex)
 
 		case "yaml":
 			b, err := gen.FormatYaml(v)
-			if err != nil {
-				handleErr(err)
-				continue
-			}
-			fmt.Fprint(out, string(b))
+			handleStuff(err, string(b), ex)
 
 		case "xml":
 			b, err := gen.FormatXml(v)
-			if err != nil {
-				handleErr(err)
-				continue
-			}
-			fmt.Fprintln(out, string(b))
+			handleStuff(err, string(b), ex)
 
 		case "toml":
 			b, err := gen.FormatToml(v)
-			if err != nil {
-				handleErr(err)
-				continue
-			}
-			fmt.Fprint(out, string(b))
+			handleStuff(err, string(b), ex)
 			
 		case "text":
 			s, err := v.String()
-			if err != nil {
-				handleErr(err)
-				continue
-			}
-			fmt.Fprint(out, s)
+			handleStuff(err, s, ex)
 			
 		default:
 			return fmt.Errorf("unknown output type %s", outtype)	
@@ -193,7 +188,6 @@ func writeOutput(val cue.Value, pkg string, opts []cue.Option, fopts []format.Op
 }
 
 func getValByEx(ex, pkg string, val cue.Value) cue.Value {
-	// fmt.Println("EX:", ex)
 	if ex == "" || ex == "." {
 		return val
 	} else {

@@ -58,7 +58,7 @@ func Export(args []string, rflags flags.RootPflagpole, cflags flags.ExportFlagpo
 	if bi.Module == "" {
 		pkg = bi.ID()
 	}
-	err = writeOutput(val, pkg, opts, fopts, cflags.Out, cflags.Outfile, cflags.Expression, cflags.Escape, false)
+	err = writeOutput(val, pkg, opts, fopts, cflags.Out, cflags.Outfile, cflags.Expression, rflags.Schema, cflags.Escape, false, false)
 	if err != nil {
 		return err
 	}

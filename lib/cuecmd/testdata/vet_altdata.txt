@@ -8,11 +8,10 @@ cmp stdout export-stdout
 [string]: string
 
 -- foo.data --
-{ "a": "b" }
-{ "c": "d" }
-
--- export-stdout --
-{
-    "a": "b",
-    "c": "d"
+{ 
+  "a": "b",
+  "c": "d"
 }
+-- export-stdout --
+a: "b"
+c: "d"

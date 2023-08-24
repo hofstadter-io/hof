@@ -2,7 +2,7 @@ package runtime
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"strings"
 	"unicode"
 
@@ -41,18 +41,36 @@ func (ts *Script) CmdCmpenv(neg int, args []string) {
 }
 
 func (ts *Script) doCmdCmp(args []string, env bool, trim bool) {
-	name1, name2 := args[0], args[1]
+	// TODO, check args here
+
+	arg2isStr := false
 
 	// why are args (text1&2) handled differently here?
-	text1 := ts.ReadFile(name1)
-	absName2 := ts.MkAbs(name2)
-	data, err := ioutil.ReadFile(absName2)
-	ts.Check(err)
-	text2 := string(data)
+	// (later, answer is because you can check for existance of a string (arg2) in a file / output (arg1)
+	text1 := ts.ReadFile(args[0])
+	var text2 string
+	// first try file, otherwise assume string
+	absName2 := ts.MkAbs(args[1])
+	_, err := os.Stat(absName2)
+	if err != nil {
+		// file does not exist, assume it is a string
+		if _, ok := err.(*os.PathError); ok {
+			arg2isStr = true
+			text2 = args[1]
+		} else {
+			ts.Check(err)
+		}
+	} else {
+		data, err := os.ReadFile(absName2)
+		ts.Check(err)
+		text2 = string(data)
+	}
 	if env {
 		text2 = ts.expand(text2)
 	}
-	if text1 == text2 {
+
+	// for strings, we just look to see if it exists anywhere, not complete match
+	if (arg2isStr && strings.Contains(text1, text2)) || text1 == text2 {
 		return
 	}
 
@@ -87,6 +105,6 @@ func (ts *Script) doCmdCmp(args []string, env bool, trim bool) {
 		return
 	}
 
-	ts.Logf("[diff -%s(%d) +%s(%d)]\n%s\n", name1, len(text1), name2, len(text2), diff.Diff(name1, []byte(text1), name2, []byte(text2)))
-	ts.Fatalf("%s and %s differ", name1, name2)
+	ts.Logf("[diff -%s(%d) +%s(%d)]\n%s\n", args[0], len(text1), args[1], len(text2), diff.Diff(args[0], []byte(text1), args[1], []byte(text2)))
+	ts.Fatalf("%s and %s differ", args[0], args[1])
 }

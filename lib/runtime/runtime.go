@@ -48,6 +48,9 @@ type Runtime struct {
 	CueErrors      []error
 	FieldOpts      []cue.Option
 
+	// this is a bit hacky, but we use this with vet to validate data (and probably st as well)
+	DontPlaceOrphanedFiles bool
+
 	// when CUE entrypoints have @placement
 	origEntrypoints []string
 

@@ -80,6 +80,10 @@ func (R *Runtime) prepPlacedDatafiles() {
 }
 
 func (R *Runtime) prepOrphanedFiles(bi *build.Instance) (err error) {
+	// a bit hacky...
+	if R.DontPlaceOrphanedFiles {
+		return nil
+	}
 	// TODO, compare with len(entrypoints)
 	//       and be more intelligent
 	var errs []errors.Error
@@ -89,7 +93,6 @@ func (R *Runtime) prepOrphanedFiles(bi *build.Instance) (err error) {
 		// this function also checks to see if we should include the file
 		//   based on a few settings, but we have to do some path handling first...
 
-		bi := R.BuildInstances[0]
 		if R.Flags.Verbosity > 1 {
 			fmt.Println("ID:", bi.ID(), bi.PkgName, bi.Module)
 		}
@@ -99,7 +102,7 @@ func (R *Runtime) prepOrphanedFiles(bi *build.Instance) (err error) {
 		//}
 		// fmt.Println("ID:", bi.ID(), bi.PkgName, bi.Module)
 
-		F, err := R.loadOrphanedFile(f, pkg, bi.Root, bi.Dir, i, len(bi.OrphanedFiles))
+		F, err := R.LoadOrphanedFile(f, pkg, bi.Root, bi.Dir, i, len(bi.OrphanedFiles))
 		if err != nil {
 			if R.Flags.Verbosity > 1 {
 				fmt.Println("[load] error in data:", f.Filename, err)
@@ -128,6 +131,7 @@ func (R *Runtime) prepOrphanedFiles(bi *build.Instance) (err error) {
 		for _, err := range errs {
 			e = errors.Append(e, err)
 		}
+		return e
 	}
 
 	return nil
@@ -149,6 +153,7 @@ func (R *Runtime) load() (err error) {
 	if R.CueContext == nil {
 		R.CueContext = cuecontext.New()
 	}
+	R.CueConfig.DataFiles = R.Flags.IncludeData
 	R.BuildInstances = load.Instances(R.Entrypoints, R.CueConfig)
 
 	for _, bi := range R.BuildInstances {
@@ -167,12 +172,13 @@ func (R *Runtime) load() (err error) {
 
 		// Build the Instance
 		V := R.CueContext.BuildInstance(bi)
+		// always set value, in case user wants to ignore or show all
+		R.Value = V
 		if V.Err() != nil {
 			errs = append(errs, V.Validate())
 			continue
 		}
 
-		R.Value = V
 
 	}
 
@@ -192,7 +198,7 @@ func (R *Runtime) load() (err error) {
 	return nil
 }
 
-func (R *Runtime) loadOrphanedFile(f *build.File, pkgName string, root, dir string, index, total int) (F *ast.File, err error) {
+func (R *Runtime) LoadOrphanedFile(f *build.File, pkgName string, root, dir string, index, total int) (F *ast.File, err error) {
 	if R.Flags.Verbosity > 1 {
 		fmt.Println("[load]:", f.Filename, reflect.TypeOf(f.Source))
 	}
@@ -347,7 +353,8 @@ func (R *Runtime) loadOrphanedFile(f *build.File, pkgName string, root, dir stri
 
 }
 
-func (R *Runtime) placeOrphanInAST(S *ast.StructLit, C ast.Expr, mapping string) (*ast.StructLit, error) {
+func (R *Runtime) placeOrphanInAST(N ast.Node, C ast.Expr, mapping string) (*ast.StructLit, error) {
+	S := N.(*ast.StructLit)
 	// fmt.Println("GOT HERE", S, R.Flags.Path)
 	if mapping != "" {
 		// @path placed datafiles

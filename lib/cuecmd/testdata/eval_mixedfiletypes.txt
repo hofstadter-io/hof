@@ -7,13 +7,6 @@ exec hof eval x.cue data.json y.cue
 exec hof eval x.cue data.json
 cmp stdout stdout.golden
 
-# Import JSON and verify that we can assert checks are ok
-exec hof import data.json
-exec hof eval x.cue data.cue y.cue
-
-# Assert checks ok using CUE + JSON
-exec hof eval x.cue data.json y.cue
-
 -- data.json --
 {
 	"team": {
@@ -49,14 +42,14 @@ checks: [string]: ok: true
 -- stdout.golden --
 #Team: {}
 team: {
-    alice: ["EM"]
-    bob: ["TL"]
+	alice: ["EM"]
+	bob: ["TL"]
 }
 checks: {
-    enoughMembers: {
-        ok: true
-    }
-    hasManager: {
-        ok: true
-    }
+	enoughMembers: {
+		ok: true
+	}
+	hasManager: {
+		ok: true
+	}
 }

@@ -30,5 +30,7 @@ sortedx: error in call to list.Sort: field not found: less:
 import "list"
 
 x: [1, 2, 3]
+// This should be a fatal error, as the passed struct will never be
+// able to contain `less` by making the configuration more concrete.
 sortedx: list.Sort(x, {})
 -- expect-stderr2 --

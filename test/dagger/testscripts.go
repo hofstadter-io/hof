@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"dagger.io/dagger"
+	"github.com/mattn/go-zglob"
 )
 
 func (R *Runtime) AddDevTools(c *dagger.Container) (*dagger.Container) {
@@ -44,7 +45,7 @@ func (R *Runtime) SetupTestingEnv(c *dagger.Container, source *dagger.Directory)
 	return c
 }
 
-func (R *Runtime) RunTestscriptDir(c *dagger.Container, source *dagger.Directory, name, dir string) error {
+func (R *Runtime) RunTestscriptDir(c *dagger.Container, source *dagger.Directory, name, dir, pattern string) error {
 
 	d := source.Directory(dir)
 	files, err := d.Entries(R.Ctx)
@@ -59,17 +60,29 @@ func (R *Runtime) RunTestscriptDir(c *dagger.Container, source *dagger.Directory
 	hadError := false
 	for _, f := range files {
 		ext := filepath.Ext(f)
-		if ext == ".txt" {
-			t := p.Pipeline(filepath.Join(dir, f))
-
-			t = t.WithMountedFile(filepath.Join("/test", f), d.File(f))
-			t = t.WithExec([]string{"hof", "run", f})
-
-			// now we only sync and check results once
-			_, err = t.Sync(R.Ctx)
+		var F *dagger.File
+		if pattern != "" {
+			match, err := zglob.Match(pattern, f)		
 			if err != nil {
-				hadError = true
+				return err
 			}
+			if !match {
+				continue
+			}
+			F = d.File(f)
+		} else if ext == ".txt" || ext == ".txtar" {
+			F = d.File(f)
+		}
+
+		t := p.Pipeline(filepath.Join(dir, f))
+
+		t = t.WithMountedFile(filepath.Join("/test", f), F)
+		t = t.WithExec([]string{"hof", "run", f})
+
+		// now we only sync and check results once
+		_, err = t.Sync(R.Ctx)
+		if err != nil {
+			hadError = true
 		}
 	}
 
@@ -87,7 +100,7 @@ func (R *Runtime) TestCommandFmt(c *dagger.Container, source *dagger.Directory) 
 	t = t.WithExec([]string{"hof", "fmt", "start", "all"})
 	t = t.WithExec([]string{"hof", "fmt", "info"})
 
-	err := R.RunTestscriptDir(t, source, "test/fmt", "formatters/test")
+	err := R.RunTestscriptDir(t, source, "test/fmt", "formatters/test", "")
 	if err != nil {
 		return err
 	}
@@ -98,7 +111,7 @@ func (R *Runtime) TestCommandFmt(c *dagger.Container, source *dagger.Directory) 
 func (R *Runtime) TestAdhocRender(c *dagger.Container, source *dagger.Directory) error {
 	t := c.Pipeline("test/render")
 
-	err := R.RunTestscriptDir(t, source, "test/render", "test/render")
+	err := R.RunTestscriptDir(t, source, "test/render", "test/render", "")
 	if err != nil {
 		return err
 	}
@@ -113,13 +126,13 @@ func (R *Runtime) TestMod(c *dagger.Container, source *dagger.Directory) error {
 	t = t.WithEnvVariable("BITBUCKET_USERNAME", os.Getenv("BITBUCKET_USERNAME"))
 	t = t.WithEnvVariable("BITBUCKET_PASSWORD", os.Getenv("BITBUCKET_PASSWORD"))
 
-	err := R.RunTestscriptDir(t, source, "test/mod", "lib/mod/testdata")
+	err := R.RunTestscriptDir(t, source, "test/mod", "lib/mod/testdata", "")
 	if err != nil {
 		return err
 	}
 
 	t = t.Pipeline("test/mod/auth")
-	err = R.RunTestscriptDir(t, source, "test/mod/auth", "lib/mod/testdata/authd/apikeys")
+	err = R.RunTestscriptDir(t, source, "test/mod/auth", "lib/mod/testdata/authd/apikeys", "")
 	if err != nil {
 		return err
 	}
@@ -153,7 +166,7 @@ func (R *Runtime) TestCreate(c *dagger.Container, source *dagger.Directory) erro
 func (R *Runtime) TestStructural(c *dagger.Container, source *dagger.Directory) error {
 	t := c.Pipeline("test/structural")
 
-	err := R.RunTestscriptDir(t, source, "test/structural", "lib/structural")
+	err := R.RunTestscriptDir(t, source, "test/structural", "lib/structural", "")
 	if err != nil {
 		return err
 	}
@@ -179,7 +192,7 @@ func (R *Runtime) TestFlow(c *dagger.Container, source *dagger.Directory) error 
 
 	for _, dir := range dirs {
 		t := p.Pipeline(dir)
-		err := R.RunTestscriptDir(t, source, dir, dir)
+		err := R.RunTestscriptDir(t, source, dir, dir, "")
 		if err != nil {
 			return err
 		}
@@ -191,7 +204,7 @@ func (R *Runtime) TestFlow(c *dagger.Container, source *dagger.Directory) error 
 func (R *Runtime) TestDatamodel(c *dagger.Container, source *dagger.Directory) error {
 	t := c.Pipeline("test/datamodel")
 
-	err := R.RunTestscriptDir(t, source, "test/datamodel", "lib/datamodel/test/testdata")
+	err := R.RunTestscriptDir(t, source, "test/datamodel", "lib/datamodel/test/testdata", "")
 	if err != nil {
 		return err
 	}
@@ -202,7 +215,18 @@ func (R *Runtime) TestDatamodel(c *dagger.Container, source *dagger.Directory) e
 func (R *Runtime) TestCuecmd(c *dagger.Container, source *dagger.Directory) error {
 	t := c.Pipeline("test/cuecmd")
 
-	err := R.RunTestscriptDir(t, source, "test/cuecmd", "lib/cuecmd/testdata")
+	err := R.RunTestscriptDir(t, source, "test/cuecmd", "lib/cuecmd/testdata", "")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (R *Runtime) TestHack(c *dagger.Container, source *dagger.Directory) error {
+	t := c.Pipeline("test/hack")
+
+	err := R.RunTestscriptDir(t, source, "test/hack", "lib/cuecmd/testdata", "vet_*.txt")
 	if err != nil {
 		return err
 	}

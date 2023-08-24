@@ -122,6 +122,9 @@ func main() {
 	tests["cue"] = func() error {
 		return R.TestCuecmd(tester, source)
 	}
+	tests["hack"] = func() error {
+		return R.TestHack(tester, source)
+	}
 
 	// decide what tests to run
 	ts := []string{

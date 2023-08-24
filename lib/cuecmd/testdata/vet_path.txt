@@ -1,26 +1,28 @@
-! exec hof vet -l 'strings.ToLower(kind)' -l name services.jsonl services.cue
+! exec hof vet -l 'strings.ToLower(kind)' -l name s1.json s2.json s3.json services.cue
 cmp stderr expect-stderr
 -- expect-stderr --
 deployment.Booster.name: invalid value "Booster" (out of bound !~"^[A-Z]"):
     ./services.cue:1:29
-    ./services.jsonl:3:13
+    ./s2.json:3:13
 service."Supplement\nfoo".name: invalid value "Supplement\nfoo" (out of bound !~"^[A-Z]"):
     ./services.cue:2:26
-    ./services.jsonl:3:13
+    ./s3.json:3:13
 -- services.cue --
 deployment: [string]: name: !~"^[A-Z]"
 service: [string]: name: !~"^[A-Z]"
 
--- services.jsonl --
+-- s1.json --
 {
     "kind": "Service",
     "name": "booster"
 }
+-- s2.json --
 {
     "kind": "Deployment",
     "name": "Booster",
     "replicas": 1
 }
+-- s3.json --
 {
     "kind": "Service",
     "name": "Supplement\nfoo"

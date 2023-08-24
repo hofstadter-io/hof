@@ -4,7 +4,8 @@ stdin foo.json
 exec hof vet x.cue json: -
 
 exec hof export foo.json x.cue
-cmp stdout out/x.json
+cmp stdout golden.stdout
+
 -- foo.json --
 {
     "ports": [
@@ -24,16 +25,6 @@ import "list"
 ports: [... int]
 newPort: list.Max(ports) + 1
 
--- out/x.json --
-{
-    "ports": [
-        2,
-        5,
-        7,
-        2,
-        76,
-        98,
-        3
-    ],
-    "newPort": 99
-}
+-- golden.stdout --
+ports: [2, 5, 7, 2, 76, 98, 3]
+newPort: 99
