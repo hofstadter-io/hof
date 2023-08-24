@@ -38,11 +38,6 @@ func Vet(args []string, rflags flags.RootPflagpole, cflags flags.VetFlagpole) er
 		return err
 	}
 
-	val := R.Value
-	if val.Err() != nil {
-		return val.Err()
-	}
-
 	// build options
 	opts := []cue.Option{
 		cue.Docs(cflags.Comments),
@@ -61,7 +56,6 @@ func Vet(args []string, rflags flags.RootPflagpole, cflags flags.VetFlagpole) er
 		opts = append(opts, cue.Hidden(true))
 	}
 
-	out := os.Stdout
 	exs := cflags.Expression
 	if len(exs) == 0 {
 		exs = []string{""}
@@ -75,9 +69,9 @@ func Vet(args []string, rflags flags.RootPflagpole, cflags flags.VetFlagpole) er
 		err = cuetils.ExpandCueError(err)
 		hadError = true
 		if len(exs) > 1 {
-			fmt.Fprintln(out, "//", ex)
+			fmt.Fprintln(os.Stderr, "//", ex)
 		}
-		fmt.Fprint(out, err)
+		fmt.Fprint(os.Stderr, err)
 	}
 
 	// TODO, how do we think about the cross-product of { files } x { -e } x { -l }
@@ -94,25 +88,28 @@ func Vet(args []string, rflags flags.RootPflagpole, cflags flags.VetFlagpole) er
 	}
 
 	// vet the orphaned files
+	hadOrphan := false // MORE HACKS FOR INCUESISTENCY, .txt files are now showing up here
 	if len(bi.OrphanedFiles) > 0 {
 		for i, f := range bi.OrphanedFiles {
-			// fmt.Println("vet:", f.Filename)
 			F, err := R.LoadOrphanedFile(f, pkg, bi.Root, bi.Dir, i, len(bi.OrphanedFiles))
 			if err != nil {
 				handleErr("during load", err)
 				continue
 			}
-			fv := R.CueContext.BuildFile(F, cue.Filename(f.Filename))
+			// probably a filetype CUE does not understand
+			if F == nil {
+				if R.Flags.Verbosity > 1 {
+					fmt.Printf("nil file for %s\n", f.Filename)
+				}
+				continue
+			}
+			hadOrphan = true
+			fv := R.CueContext.BuildFile(F)
 
 			// vet the value with each expression
 			for _, ex := range exs {
 
-				v := getValByEx(ex, pkg, val)
-				if v.Err() != nil {
-					handleErr(ex, v.Err())
-					continue
-				}
-				
+				v := getValByEx(ex, pkg, R.Value)	
 				v = v.Unify(fv)
 			
 				// we want to ensure concrete when validating data (orphaned files)
@@ -122,14 +119,17 @@ func Vet(args []string, rflags flags.RootPflagpole, cflags flags.VetFlagpole) er
 			}
 
 		}
-	} else {
+	}
+
+	// ugh, more hacks because inCUEsistency...
+	if !hadOrphan {
 		// vet the root value at each expression
 		// often this will default to [""] which is just the whole value
 		for _, ex := range exs {
 
-			v := getValByEx(ex, pkg, val)
+			v := getValByEx(ex, pkg, R.Value)
 			if v.Err() != nil {
-				handleErr(ex, v.Err())
+				handleErr(ex, v.Validate())
 				continue
 			}
 		

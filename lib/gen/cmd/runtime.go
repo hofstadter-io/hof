@@ -51,6 +51,8 @@ func prepRuntime(args []string, rflags flags.RootPflagpole, gflags flags.GenFlag
 		return R, fmt.Errorf("while loading generators")
 	}
 
+	fmt.Printf("%# +v\n", R.Value)
+
 	if len(R.Generators) == 0 {
 		return R, fmt.Errorf("no generators found")
 	}

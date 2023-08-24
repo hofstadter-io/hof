@@ -1,4 +1,7 @@
 #345 (CUE)
+# https://github.com/cue-lang/cue/issues/2569 (NEW BUG)
+
+skip
 
 stdin foo.json
 exec hof vet x.cue json: -

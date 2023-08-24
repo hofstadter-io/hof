@@ -30,12 +30,8 @@ func Def(args []string, rflags flags.RootPflagpole, cflags flags.DefFlagpole) er
 
 	err = R.Load()
 	if err != nil {
+		fmt.Println("Def:", err)
 		return err
-	}
-
-	val := R.Value
-	if val.Err() != nil {
-		return val.Err()
 	}
 
 	// build options
@@ -58,7 +54,7 @@ func Def(args []string, rflags flags.RootPflagpole, cflags flags.DefFlagpole) er
 	if bi.Module == "" {
 		pkg = bi.ID()
 	}
-	err = writeOutput(val, pkg, opts, fopts, cflags.Out, cflags.Outfile, cflags.Expression, rflags.Schema, false, false, false)
+	err = writeOutput(R.Value, pkg, opts, fopts, cflags.Out, cflags.Outfile, cflags.Expression, rflags.Schema, false, false, true)
 	if err != nil {
 		return err
 	}

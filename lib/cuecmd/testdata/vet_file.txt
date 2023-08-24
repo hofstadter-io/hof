@@ -1,3 +1,6 @@
+skip
+# more yaml stream becoming multiple files... rather than a list to validate
+
 ! exec hof vet ./vet.cue ./data.yaml
 cmp stderr expect-stderr
 

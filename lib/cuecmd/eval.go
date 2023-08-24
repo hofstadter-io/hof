@@ -25,23 +25,23 @@ func Eval(args []string, rflags flags.RootPflagpole, cflags flags.EvalFlagpole) 
 		}
 	}()
 
-	wantErrors := rflags.IngoreErrors || rflags.AllErrors
+	wantErrorsInValue := rflags.IngoreErrors || rflags.AllErrors
 
 	if err != nil {
 		return cuetils.ExpandCueError(err)
 	}
 
 	err = R.Load()
-	if err != nil && !wantErrors {
+	if err != nil && !wantErrorsInValue {
 		// fmt.Println("load.Err", err)
 		return cuetils.ExpandCueError(err)
 	}
 
 	val := R.Value
 	// fmt.Println("val:", val.Err())
-	if val.Err() != nil && !wantErrors {
+	if val.Err() != nil && !wantErrorsInValue {
 		// fmt.Println("val.Err", val.Err())
-		return cuetils.ExpandCueError(val.Err())
+		return cuetils.ExpandCueError(val.Validate())
 	}
 
 	if R.Flags.Verbosity > 1 {
@@ -56,7 +56,7 @@ func Eval(args []string, rflags flags.RootPflagpole, cflags flags.EvalFlagpole) 
 		cue.Definitions(cflags.Definitions),
 		cue.Optional(cflags.Optional || cflags.All),
 		cue.InlineImports(cflags.InlineImports),
-		cue.ErrorsAsValues(wantErrors),
+		cue.ErrorsAsValues(wantErrorsInValue),
 		cue.ResolveReferences(cflags.Resolve),
 	}
 
@@ -87,7 +87,7 @@ func Eval(args []string, rflags flags.RootPflagpole, cflags flags.EvalFlagpole) 
 	if bi.Module == "" {
 		pkg = bi.ID()
 	}
-	err = writeOutput(val, pkg, opts, fopts, cflags.Out, cflags.Outfile, cflags.Expression, rflags.Schema, cflags.Escape, cflags.Defaults, wantErrors)
+	err = writeOutput(val, pkg, opts, fopts, cflags.Out, cflags.Outfile, cflags.Expression, rflags.Schema, cflags.Escape, cflags.Defaults, wantErrorsInValue)
 	if err != nil {
 		return err
 	}

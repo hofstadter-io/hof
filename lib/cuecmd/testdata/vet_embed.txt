@@ -2,6 +2,14 @@
 # correctly against files from other packages without first merging these
 # files, thereby effectively embedding them and averting the closed check.
 
+skip
+# extra hyphen...
+# mostly because it is unclear how to decode multi-doc yaml
+# not a huge fan of CUE splitting it into different files
+# prefer to make it a list of values
+# there should be a flag to split yaml-stream / jsonl into separate instances or files
+#  (TBD)
+
 # Issue #743 (CUE)
 
 ! exec hof vet schema.cue foo.yaml

@@ -50,7 +50,15 @@ func EnrichDatamodel(R *runtime.Runtime, dm *datamodel.Datamodel) error {
 	return nil
 }
 
-func writeOutput(val cue.Value, pkg string, opts []cue.Option, fopts []format.Option, outtype, outfile string, exs, schemas []string, escape, defaults, wantErrors bool) (err error) {
+func writeOutput(
+	val cue.Value,
+	pkg string,
+	opts []cue.Option,
+	fopts []format.Option,
+	outtype, outfile string,
+	exs, schemas []string,
+	escape, defaults, wantErrors bool,
+) (err error) {
 	// fmt.Println("writeOutput", pkg, exs)
 	// when not set, this makes it so our loop will iterate once and output everything
 	if len(exs) == 0 {
@@ -193,7 +201,6 @@ func getValByEx(ex, pkg string, val cue.Value) cue.Value {
 	} else {
 		p := exToPath(ex, pkg)
 		if p.Err() == nil {
-			// fmt.Println("GOT HERE:", p)
 			return val.LookupPath(p)
 		} else {
 			ctx := val.Context()
