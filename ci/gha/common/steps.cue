@@ -145,12 +145,12 @@ Steps: {
 			name: "Setup Docker on MacOS"
 			run: """
 				brew install docker
+				brew reinstall -f --force-bottle qemu lima colima 
+				colima start debug --cpu 3 --memory 10 --disk 12
 				"""
 			_run: """
-				brew reinstall -f --force-bottle qemu docker lima colima 
 				limactl info
 				colima delete -f
-				colima start debug --cpu 3 --memory 10 --disk 12
 				colima status
 				ls -l $HOME/.colima/default
 				"""
