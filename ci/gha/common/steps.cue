@@ -133,15 +133,7 @@ Steps: {
 	}
 
 	docker: {
-		setup: {
-			name: "Set up Docker"
-			uses: "crazy-max/ghaction-setup-docker@v1"
-			with: {
-				version: "v" + Versions.docker
-			}
-			"if": "${{ startsWith( runner.os, 'macos') }}"
-		}
-		machack: {
+		macSetup: {
 			name: "Setup Docker on MacOS"
 			run: """
 				brew install docker
@@ -157,7 +149,7 @@ Steps: {
 			"if": "${{ startsWith( runner.os, 'macos') }}"
 		}
 
-		macos: {
+		macSocket: {
 			name: "Setup MacOS docker socket"
 			run: """
 				echo "DOCKER_HOST=\"unix://$HOME/.colima/default/docker.sock\"" >> $GITHUB_ENV

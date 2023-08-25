@@ -26,8 +26,6 @@ ghacue.#Workflow & {
 				common.Steps.checkout,
 				common.Steps.vars,
 				common.Steps.go.deps,
-				common.Steps.docker.setup,
-				common.Steps.docker.macos,
 				common.Steps.docker.compat,
 
 				{
@@ -55,8 +53,6 @@ ghacue.#Workflow & {
 				common.Steps.checkout,
 				common.Steps.vars,
 				common.Steps.go.deps,
-				common.Steps.docker.setup,
-				common.Steps.docker.macos,
 				common.Steps.docker.compat,
 
 				{

@@ -30,9 +30,8 @@ ghacue.#Workflow & {
 			common.Steps.checkout,
 			common.Steps.vars,
 
-			// common.Steps.docker.setup,
-			common.Steps.docker.machack,
-			// common.Steps.docker.macos,
+			common.Steps.docker.macSetup,
+			common.Steps.docker.macSocket,
 			common.Steps.docker.compat,
 
 			// application steps
