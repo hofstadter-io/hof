@@ -136,8 +136,13 @@ Steps: {
 		macSetup: {
 			name: "Setup Docker on MacOS"
 			run: """
+				# Workaround for https://github.com/actions/runner-images/issues/8104
+				brew remove --ignore-dependencies qemu
+				curl -o ./qemu.rb https://raw.githubusercontent.com/Homebrew/homebrew-core/dc0669eca9479e9eeb495397ba3a7480aaa45c2e/Formula/qemu.rb
+				brew install ./qemu.rb
+
 				brew install docker
-				brew reinstall -f --force-bottle qemu lima colima 
+				brew reinstall -f --force-bottle lima colima 
 				colima start debug --cpu 3 --memory 10 --disk 12
 				"""
 			_run: """
