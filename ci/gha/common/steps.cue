@@ -145,7 +145,7 @@ Steps: {
 			run: """
 				brew reinstall -f --force-bottle qemu
 				brew install docker colima
-				limactl version
+				limactl info
 				colima start --cpu 3 --memory 10 --disk 12
 				"""
 			"if": "${{ startsWith( runner.os, 'macos') }}"
