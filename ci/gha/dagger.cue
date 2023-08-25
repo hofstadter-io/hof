@@ -10,7 +10,7 @@ ghacue.#Workflow & {
 	on:   _ | *["push"]
 	env: {
 		HOF_TELEMETRY_DISABLED: "1"
-		HOF_FMT_VERSION:        "v0.6.8-rc.5"
+		HOF_FMT_VERSION:        "v0.6.8"
 	}
 	jobs: {
 		inception: {
@@ -21,7 +21,7 @@ ghacue.#Workflow & {
 			}
 
 			steps: [
-				common.Steps.go.setup & {#ver: "1.20.x"},
+				common.Steps.go.setup & {#ver: "1.21.x"},
 				common.Steps.go.cache,
 				common.Steps.checkout,
 				common.Steps.vars,
