@@ -99,8 +99,6 @@ Steps: {
 				run: """
 					brew reinstall -f --force-bottle qemu
 					brew install docker colima
-					limactl version
-					colima delete
 					colima start --cpu 3 --memory 10 --disk 12
 					"""
 			}
@@ -143,9 +141,10 @@ Steps: {
 			"if": "${{ startsWith( runner.os, 'macos') }}"
 		}
 		machack: {
-			name: "Update QEMU on MacOS"
+			name: "Setup Docker on MacOS"
 			run: """
 				brew reinstall -f --force-bottle qemu
+				brew install docker colima
 				limactl version
 				colima start --cpu 3 --memory 10 --disk 12
 				"""
@@ -153,7 +152,7 @@ Steps: {
 		}
 
 		macos: {
-			name: "Setup Docker MacOS var"
+			name: "Setup MacOS docker socket"
 			run: """
 				echo "DOCKER_HOST=\"unix://$HOME/.colima/default/docker.sock\"" >> $GITHUB_ENV
 				"""
