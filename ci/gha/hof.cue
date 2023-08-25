@@ -18,7 +18,8 @@ ghacue.#Workflow & {
 			"fail-fast": false
 			matrix: {
 				"go": [...] & common.Versions.go
-				os:   [...] & common.Versions.os
+				// os:   [...] & common.Versions.os
+				os: ["ubuntu-latest"]
 			}
 		}
 		environment: "hof mod testing"
@@ -29,15 +30,17 @@ ghacue.#Workflow & {
 			common.Steps.go.cache,
 			common.Steps.checkout,
 			common.Steps.vars,
+
+			common.Steps.docker.macSetup,
+			common.Steps.docker.macSocket,
+			common.Steps.docker.compat,
+
+			// application steps
 			common.Steps.go.deps,
 			{
 				name: "Build CLI"
 				run:  "go install ./cmd/hof"
 			},
-			common.Steps.docker.machack,
-			common.Steps.docker.setup,
-			common.Steps.docker.macos,
-			common.Steps.docker.compat,
 			{
 				name: "Build Formatters"
 				run: """

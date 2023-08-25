@@ -16,7 +16,6 @@ jobs:
           - 1.21.x
         os:
           - ubuntu-latest
-          - macos-latest
     environment: hof mod testing
     runs-on: ${{ matrix.os }}
     steps:
@@ -46,20 +45,11 @@ jobs:
           fi
           echo "HOF_SHA=${SHA}" >> $GITHUB_ENV
           echo "HOF_TAG=${TAG}" >> $GITHUB_ENV
-      - name: Fetch Go deps
-        run: go mod download
-      - name: Build CLI
-        run: go install ./cmd/hof
-      - name: Update QEMU on MacOS
-        run: brew reinstall -f --force-bottle qemu
+      - name: Setup Docker on MacOS
+        run: "brew install docker\nbrew reinstall -f --force-bottle qemu lima colima \ncolima start debug --cpu 3 --memory 10 --disk 12"
         if: ${{ startsWith( runner.os, 'macos') }}
-      - name: Set up Docker
-        uses: crazy-max/ghaction-setup-docker@v1
-        with:
-          version: v23.0.1
-        if: ${{ startsWith( runner.os, 'macos') }}
-      - name: Setup Docker MacOS var
-        run: echo "DOCKER_HOST="unix://$HOME/.colima/default/docker.sock"" >> $GITHUB_ENV
+      - name: Setup MacOS docker socket
+        run: echo "DOCKER_HOST="unix:///var/run/docker.sock"" >> $GITHUB_ENV
         if: ${{ startsWith( runner.os, 'macos') }}
       - name: Test Compatibility
         run: |-
@@ -67,6 +57,10 @@ jobs:
           docker info
           docker context ls
           go run test/docker/main.go
+      - name: Fetch Go deps
+        run: go mod download
+      - name: Build CLI
+        run: go install ./cmd/hof
       - name: Build Formatters
         run: |-
           make formatters

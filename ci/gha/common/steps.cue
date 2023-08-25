@@ -95,9 +95,12 @@ Steps: {
 			}
 			macos: {
 				name: "Set up Docker Colima"
+				// colima settings based on github default macos worker
 				run: """
-					brew install docker colima
-					colima start --cpu 1 --memory 2 --disk 10
+					brew reinstall -f --force-bottle qemu lima colima docker
+					limactl info
+					colime delete
+					colima start debug --cpu 3 --memory 10 --disk 12
 					"""
 			}
 		}
@@ -130,26 +133,20 @@ Steps: {
 	}
 
 	docker: {
-		setup: {
-			name: "Set up Docker"
-			uses: "crazy-max/ghaction-setup-docker@v1"
-			with: {
-				version: "v23.0.1"
-			}
-			"if": "${{ startsWith( runner.os, 'macos') }}"
-		}
-		machack: {
-			name: "Update QEMU on MacOS"
+		macSetup: {
+			name: "Setup Docker on MacOS"
 			run: """
-				brew reinstall -f --force-bottle qemu
+				brew install docker
+				brew reinstall -f --force-bottle qemu lima colima 
+				colima start debug --cpu 3 --memory 10 --disk 12
 				"""
 			"if": "${{ startsWith( runner.os, 'macos') }}"
 		}
 
-		macos: {
-			name: "Setup Docker MacOS var"
+		macSocket: {
+			name: "Setup MacOS docker socket"
 			run: """
-				echo "DOCKER_HOST=\"unix://$HOME/.colima/default/docker.sock\"" >> $GITHUB_ENV
+				echo "DOCKER_HOST=\"unix:///var/run/docker.sock\"" >> $GITHUB_ENV
 				"""
 			"if": "${{ startsWith( runner.os, 'macos') }}"
 		}

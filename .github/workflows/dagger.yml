@@ -39,14 +39,6 @@ jobs:
           echo "HOF_TAG=${TAG}" >> $GITHUB_ENV
       - name: Fetch Go deps
         run: go mod download
-      - name: Set up Docker
-        uses: crazy-max/ghaction-setup-docker@v1
-        with:
-          version: v23.0.1
-        if: ${{ startsWith( runner.os, 'macos') }}
-      - name: Setup Docker MacOS var
-        run: echo "DOCKER_HOST="unix://$HOME/.colima/default/docker.sock"" >> $GITHUB_ENV
-        if: ${{ startsWith( runner.os, 'macos') }}
       - name: Test Compatibility
         run: |-
           docker version
@@ -94,14 +86,6 @@ jobs:
           echo "HOF_TAG=${TAG}" >> $GITHUB_ENV
       - name: Fetch Go deps
         run: go mod download
-      - name: Set up Docker
-        uses: crazy-max/ghaction-setup-docker@v1
-        with:
-          version: v23.0.1
-        if: ${{ startsWith( runner.os, 'macos') }}
-      - name: Setup Docker MacOS var
-        run: echo "DOCKER_HOST="unix://$HOME/.colima/default/docker.sock"" >> $GITHUB_ENV
-        if: ${{ startsWith( runner.os, 'macos') }}
       - name: Test Compatibility
         run: |-
           docker version
