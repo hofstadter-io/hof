@@ -32,7 +32,7 @@ ghacue.#Workflow & {
 
 			// common.Steps.docker.setup,
 			common.Steps.docker.machack,
-			common.Steps.docker.macos,
+			// common.Steps.docker.macos,
 			common.Steps.docker.compat,
 
 			// application steps
