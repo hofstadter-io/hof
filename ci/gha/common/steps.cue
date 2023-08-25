@@ -146,7 +146,7 @@ Steps: {
 			run: """
 				brew reinstall -f --force-bottle qemu docker lima colima 
 				limactl info
-				colima delete
+				colima delete -f
 				colima start debug --cpu 3 --memory 10 --disk 12
 				colima status
 				ls -l $HOME/.colima/default
