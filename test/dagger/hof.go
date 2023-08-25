@@ -14,7 +14,7 @@ type Runtime struct {
 	Client *dagger.Client
 }
 
-var goVer = "golang:1.20"
+var goVer = "golang:1.21"
 
 func (R *Runtime) GolangImage(platform string) (*dagger.Container) {
 	c := R.Client.

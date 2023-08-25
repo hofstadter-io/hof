@@ -13,7 +13,7 @@ jobs:
       - run: |-
           mkdir tmp
           cd tmp
-          wget https://github.com/cue-lang/cue/releases/download/v0.5.0-beta.5/cue_v0.5.0-beta.5_linux_amd64.tar.gz -O cue.tar.gz
+          wget https://github.com/cue-lang/cue/releases/download/v0.6.0/cue_v0.6.0_linux_amd64.tar.gz -O cue.tar.gz
           tar -xf cue.tar.gz
           sudo mv cue /usr/local/bin/cue
           cd ../
@@ -21,7 +21,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v3
         with:
-          go-version: 1.20.x
+          go-version: 1.21.x
       - uses: actions/cache@v3
         with:
           path: |-
@@ -50,14 +50,14 @@ jobs:
         run: go install ./cmd/hof
       - name: Setup
         run: |-
-          hof fmt start prettier@v0.6.8-beta.12
+          hof fmt start prettier@v0.6.8
           cd docs
           hof mod link
           make tools
           make deps
       - name: Test
         run: |-
-          hof fmt start prettier@v0.6.8-rc.5
+          hof fmt start prettier@v0.6.8
           cd docs
           make gen
           make test
