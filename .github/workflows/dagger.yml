@@ -45,7 +45,7 @@ jobs:
           version: v24.0.5
         if: ${{ startsWith( runner.os, 'macos') }}
       - name: Setup MacOS docker socket
-        run: echo "DOCKER_HOST="unix://$HOME/.colima/gha/docker.sock"" >> $GITHUB_ENV
+        run: echo "DOCKER_HOST="unix://$HOME/.colima/default/docker.sock"" >> $GITHUB_ENV
         if: ${{ startsWith( runner.os, 'macos') }}
       - name: Test Compatibility
         run: |-
@@ -100,7 +100,7 @@ jobs:
           version: v24.0.5
         if: ${{ startsWith( runner.os, 'macos') }}
       - name: Setup MacOS docker socket
-        run: echo "DOCKER_HOST="unix://$HOME/.colima/gha/docker.sock"" >> $GITHUB_ENV
+        run: echo "DOCKER_HOST="unix://$HOME/.colima/default/docker.sock"" >> $GITHUB_ENV
         if: ${{ startsWith( runner.os, 'macos') }}
       - name: Test Compatibility
         run: |-
