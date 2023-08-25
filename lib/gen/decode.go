@@ -540,12 +540,13 @@ func (G *Generator) decodeSubgens(root cue.Value) (errs []error) {
 }
 
 func copyGenMeta(from, to *Generator) {
-	to.Verbosity     = from.Verbosity
-	to.CueModuleRoot = from.CueModuleRoot
-	to.WorkingDir    = from.WorkingDir
-	to.CwdToRoot     = from.CwdToRoot
-	to.Diff3FlagSet  = from.Diff3FlagSet
-	to.UseDiff3      = from.UseDiff3
+	to.Verbosity      = from.Verbosity
+	to.CueModuleRoot  = from.CueModuleRoot
+	to.RootModuleName = from.RootModuleName
+	to.WorkingDir     = from.WorkingDir
+	to.CwdToRoot      = from.CwdToRoot
+	to.Diff3FlagSet   = from.Diff3FlagSet
+	to.UseDiff3       = from.UseDiff3
 
 	// todo, how might we pass the flag setting from runtime here?
 }

@@ -30,7 +30,6 @@ func Def(args []string, rflags flags.RootPflagpole, cflags flags.DefFlagpole) er
 
 	err = R.Load()
 	if err != nil {
-		fmt.Println("Def:", err)
 		return err
 	}
 
@@ -39,6 +38,7 @@ func Def(args []string, rflags flags.RootPflagpole, cflags flags.DefFlagpole) er
 		cue.Docs(cflags.Comments),
 		cue.Attributes(cflags.Attributes),
 		cue.InlineImports(cflags.InlineImports),
+		cue.Concrete(false),
 	}
 
 	fopts := []format.Option{}

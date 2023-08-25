@@ -110,6 +110,11 @@ func Vet(args []string, rflags flags.RootPflagpole, cflags flags.VetFlagpole) er
 			for _, ex := range exs {
 
 				v := getValByEx(ex, pkg, R.Value)	
+				if !v.Exists() {
+					handleErr(ex, v.Err())
+					continue
+				}
+
 				v = v.Unify(fv)
 			
 				// we want to ensure concrete when validating data (orphaned files)
@@ -128,8 +133,8 @@ func Vet(args []string, rflags flags.RootPflagpole, cflags flags.VetFlagpole) er
 		for _, ex := range exs {
 
 			v := getValByEx(ex, pkg, R.Value)
-			if v.Err() != nil {
-				handleErr(ex, v.Validate())
+			if !v.Exists() {
+				handleErr(ex, v.Err())
 				continue
 			}
 		

@@ -15,11 +15,11 @@ DatamodelCommand: schema.Command & {
 
 	Pflags: [...schema.Flag] & [ {
 		Name:    "Datamodels"
-		Long:    "datamodel"
-		Short:   "d"
+		Long:    "model"
+		Short:   "M"
 		Type:    "[]string"
 		Default: "nil"
-		Help:    "specify one or more datamodels to operate on"
+		Help:    "specify one or more data models to operate on"
 	}, {
 		// TODO, move this up to root pflags
 		Name:    "Expression"

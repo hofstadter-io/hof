@@ -35,6 +35,7 @@ func (R *Runtime) EnrichGenerators(generators []string, enrich GeneratorEnricher
 			}
 			upgrade := func(n *hof.Node[gen.Generator]) *gen.Generator {
 				v := gen.NewGenerator(n)
+				v.RootModuleName = R.BuildInstances[0].Module
 				return v
 			}
 			u := hof.Upgrade[any, gen.Generator](node, upgrade, nil)

@@ -323,7 +323,7 @@ func (G *Generator) injectOrdered(hn *hof.Node[any], dms []*datamodel.Datamodel,
 	var ordered []cue.Value
 	for iter.Next() {
 		sel := iter.Selector().String()
-		if sel == "$hof" {
+		if sel == "#hof" {
 			continue
 		}
 

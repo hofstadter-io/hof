@@ -52,6 +52,7 @@ type Generator struct {
 
 	// Other important dirs when loading templates (auto set)
 	CueModuleRoot string
+	RootModuleName string
 	WorkingDir    string
 	CwdToRoot     string  // module root <- working dir (../..)
 
@@ -231,7 +232,7 @@ func (G *Generator) initStaticFiles() []error {
 	// baseDir should always be an absolute path
 	baseDir := G.CueModuleRoot
 	// lookup in vendor directory, this will need to change once CUE uses a shared cache in the user homedir
-	if G.ModuleName != "" {
+	if G.ModuleName != "" && G.ModuleName != G.RootModuleName {
 		baseDir = filepath.Join(G.CueModuleRoot, CUE_VENDOR_DIR, G.ModuleName)
 	}
 
@@ -368,7 +369,7 @@ func (G *Generator) initPartials() []error {
 	// baseDir should always be an absolute path
 	baseDir := G.CueModuleRoot
 	// lookup in vendor directory, this will need to change once CUE uses a shared cache in the user homedir
-	if G.ModuleName != "" {
+	if G.ModuleName != "" && G.ModuleName != G.RootModuleName {
 		baseDir = filepath.Join(G.CueModuleRoot, CUE_VENDOR_DIR, G.ModuleName)
 	}
 
@@ -455,7 +456,7 @@ func (G *Generator) initTemplates() []error {
 	// baseDir should always be an absolute path
 	baseDir := G.CueModuleRoot
 	// lookup in vendor directory, this will need to change once CUE uses a shared cache in the user homedir
-	if G.ModuleName != "" {
+	if G.ModuleName != "" && G.ModuleName != G.RootModuleName {
 		baseDir = filepath.Join(G.CueModuleRoot, CUE_VENDOR_DIR, G.ModuleName)
 	}
 

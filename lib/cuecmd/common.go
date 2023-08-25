@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/ast"
 	"cuelang.org/go/cue/format"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
@@ -116,10 +115,14 @@ func writeOutput(
 	for _, ex := range exs {
 		// if more than one output, prefix with name in commment
 		v := getValByEx(ex, pkg, val)
-		if !wantErrors && v.Err() != nil {
+		if !v.Exists() {
 			handleErr(v.Err(), ex)
 			continue
 		}
+		//if !wantErrors && v.Err() != nil {
+		//  handleErr(v.Err(), ex)
+		//  continue
+		//}
 
 		if defaults {
 			v, _ = v.Default()
@@ -149,18 +152,13 @@ func writeOutput(
 
 		switch outtype {
 		case "cue":
-			write := func(n ast.Node) {
-				b, err := format.Node(n, fopts...)
-				handleStuff(err, string(b), ex)
-			}
-
 			// get formatted value
 			syn := v.Syntax(opts...)
 			// hack to remove the extra {} around values when in some situations
 			syn = cuetils.ToFile(syn)
 
-			// eval / write the value
-			write(syn)
+			b, err := format.Node(syn, fopts...)
+			handleStuff(err, string(b), ex)
 
 		case "json":
 			b, err := gen.FormatJson(v, escape)

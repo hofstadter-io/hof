@@ -311,6 +311,12 @@ import (
 	"{{ .Module }}/{{ .Name }}/gen"
 )
 
+// these are local labels that will align with the data file
+{{- range .Inputs }}
+{{.}}: _
+{{- end }}
+
+
 // This is example usage of your generator
 {{ camelT .Name }}: gen.Generator & {
 	@gen({{ .Name }})

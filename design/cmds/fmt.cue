@@ -16,8 +16,7 @@ FmtCommand: schema.Command & {
 			Type:    "bool"
 			Default: "true"
 			Help:    "include cue,yaml,json,toml,xml files, set to false to disable"
-			Long:    "data"
-			Short:   "d"
+			Long:    "fmt-data"
 		},
 	]
 

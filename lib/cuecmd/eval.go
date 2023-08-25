@@ -38,11 +38,6 @@ func Eval(args []string, rflags flags.RootPflagpole, cflags flags.EvalFlagpole) 
 	}
 
 	val := R.Value
-	// fmt.Println("val:", val.Err())
-	if val.Err() != nil && !wantErrorsInValue {
-		// fmt.Println("val.Err", val.Err())
-		return cuetils.ExpandCueError(val.Validate())
-	}
 
 	if R.Flags.Verbosity > 1 {
 		fmt.Printf("%# v\n", pretty.Formatter(R.Flags))
@@ -87,7 +82,20 @@ func Eval(args []string, rflags flags.RootPflagpole, cflags flags.EvalFlagpole) 
 	if bi.Module == "" {
 		pkg = bi.ID()
 	}
-	err = writeOutput(val, pkg, opts, fopts, cflags.Out, cflags.Outfile, cflags.Expression, rflags.Schema, cflags.Escape, cflags.Defaults, wantErrorsInValue)
+
+	err = writeOutput(
+		val,
+		pkg,
+		opts,
+		fopts,
+		cflags.Out,
+		cflags.Outfile,
+		cflags.Expression,
+		rflags.Schema,
+		cflags.Escape,
+		cflags.Defaults,
+		wantErrorsInValue,
+	)
 	if err != nil {
 		return err
 	}

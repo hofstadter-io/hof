@@ -72,6 +72,8 @@ func (R *Runtime) RunTestscriptDir(c *dagger.Container, source *dagger.Directory
 			F = d.File(f)
 		} else if ext == ".txt" || ext == ".txtar" {
 			F = d.File(f)
+		} else {
+			continue
 		}
 
 		t := p.Pipeline(filepath.Join(dir, f))

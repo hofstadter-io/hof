@@ -50,9 +50,10 @@ func EnrichGeneratorBuilder(R *Runtime) func (R *runtime.Runtime, G *gen.Generat
 		G.NoFormat      = R.GenFlags.NoFormat
 
 		// todo, we would like to get rid of these if possible
-		G.CueModuleRoot = R.CueModuleRoot
-		G.WorkingDir    = R.WorkingDir
-		G.CwdToRoot     = R.CwdToRoot
+		G.RootModuleName = R.BuildInstances[0].Module
+		G.CueModuleRoot  = R.CueModuleRoot
+		G.WorkingDir     = R.WorkingDir
+		G.CwdToRoot      = R.CwdToRoot
 
 		if R.Flags.Verbosity > 1 {
 			fmt.Println("Loading Generator:", G.Hof.Metadata.Name)
@@ -86,7 +87,7 @@ func EnrichGeneratorBuilder(R *Runtime) func (R *runtime.Runtime, G *gen.Generat
 		See GitHub issue: https://github.com/hofstadter-io/hof/issues/103
 		`
 
-		if G.ModuleName == "" {
+		if G.ModuleName == "" || G.ModuleName == R.BuildInstances[0].Module {
 			if R.Flags.Verbosity > 0 {
 				fmt.Printf(warnModuleAuthorFmtStr, G.Hof.Metadata.Name, G.Hof.Path)
 			}
