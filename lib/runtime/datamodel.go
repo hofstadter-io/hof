@@ -3,6 +3,7 @@ package runtime
 import (
 	"fmt"
 	"regexp"
+	"time"
 
 	"github.com/hofstadter-io/hof/lib/datamodel"
 	"github.com/hofstadter-io/hof/lib/hof"
@@ -11,6 +12,12 @@ import (
 type DatamodelEnricher func(*Runtime, *datamodel.Datamodel) error
 
 func (R *Runtime) EnrichDatamodels(datamodels []string, enrich DatamodelEnricher) error {
+	start := time.Now()
+	defer func() {
+		end := time.Now()
+		R.Stats.Add("enrich/data", end.Sub(start))
+	}()
+
 	if R.Flags.Verbosity > 1 {
 		fmt.Println("Runtime.EnrichDatamodels: ", datamodels)
 		for _, node := range R.Nodes {

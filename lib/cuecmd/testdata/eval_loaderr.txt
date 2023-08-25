@@ -1,0 +1,3 @@
+! exec hof eval non-existing .
+! stdout .
+cmp stderr 'cannot find package "non-existing"'

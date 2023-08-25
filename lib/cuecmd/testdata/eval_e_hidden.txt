@@ -1,0 +1,19 @@
+# Issue #904 (CUE)
+exec hof eval -e _a
+stdout '34'
+
+exec hof eval -e _a dep.cue
+stdout '34'
+
+exec hof eval -e _a tst.cue
+stdout '34'
+
+exec hof eval -H
+stdout '_a: 34'
+
+-- dep.cue --
+package dep
+
+_a: 34
+-- tst.cue --
+_a: 34

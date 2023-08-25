@@ -19,7 +19,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/cuetils"
 )
 
-func With(name string, extra []string, rflags flags.RootPflagpole, cflags flags.ChatPflagpole) error {
+func With(name string, extra []string, rflags flags.RootPflagpole, cflags flags.ChatFlagpole) error {
 	args := []string{}
 	files := map[string]string{}
 	entrypoints := []string{}

@@ -12,6 +12,7 @@ RepoRoot: {
 watchBuild: {
 	@flow(watch/build)
 
+	// have to localize this task in a flow for it to work
 	RR:   RepoRoot
 	root: RR.out
 	dirs: ["cmd", "flow", "lib", "gen"]

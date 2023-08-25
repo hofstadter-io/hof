@@ -81,4 +81,5 @@ The `indent` helper is disucssed in the
 - `gokind` (`{{ gokind .Value }}`) - returns the Go reflect.Kind as a string
 - `builtin` (`{{ builtin }}`) - returns true if the string is a known Go builtin
 - `file` (`{{ file "path/to/file.txt" }}`) - loads a file from disk
+- `render` (`{{ $content := render "partial-name" <context> }}`) - render a partial template to a variable
 

@@ -1,0 +1,11 @@
+exec hof export data.cue -e a+c -e d.e.f --out yaml
+cmp stdout expect-stdout
+-- expect-stdout --
+// a+c
+4
+// d.e.f
+jam
+-- data.cue --
+a: 1
+c: 3
+d: e: f: "jam"

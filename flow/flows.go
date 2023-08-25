@@ -118,14 +118,14 @@ func printFlows(val cue.Value, opts *flags.RootPflagpole, popts *flags.FlowFlagp
 			if attr.Name() == "flow" {
 				if len(args) == 0 || matchFlow(attr, args) {
 					foundAny = true
-					if popts.Docs {
-						s := ""
-						docs := v.Doc()
-						for _, d := range docs {
-							s += d.Text()
-						}
-						fmt.Print(s)
-					}
+					//if popts.Docs {
+					//  s := ""
+					//  docs := v.Doc()
+					//  for _, d := range docs {
+					//    s += d.Text()
+					//  }
+					//  fmt.Print(s)
+					//}
 					if opts.Verbosity > 0 {
 						s, _ := cuetils.FormatCue(v)
 						fmt.Printf("%s: %s\n", v.Path(), s)

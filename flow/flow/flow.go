@@ -9,10 +9,13 @@ import (
 
 	hofcontext "github.com/hofstadter-io/hof/flow/context"
 	"github.com/hofstadter-io/hof/flow/tasker"
+	"github.com/hofstadter-io/hof/lib/hof"
 	"github.com/hofstadter-io/hof/lib/structural"
 )
 
 type Flow struct {
+	*hof.Node[Flow]
+
 	Root  cue.Value
 	Orig  cue.Value
 	Final cue.Value

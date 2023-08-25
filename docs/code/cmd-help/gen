@@ -82,25 +82,30 @@ Available Commands:
 
 Flags:
       --as-module string       <github.com/username/<name>> like value for the generator module made from the given flags
-  -D, --diff3                  enable diff3 support for custom code
+  -3, --diff3                  enable diff3 support for custom code
   -G, --generator strings      generator tags to run, default is all, or none if -T is used
   -h, --help                   help for gen
       --keep-deleted           keep files that would be deleted after code generation
       --no-format              disable formatting during code gen (ad-hoc only)
   -O, --outdir string          base directory to write all output u
   -P, --partial strings        file globs to partial templates to register with the templates
-  -s, --stats                  print generator statistics
   -T, --template stringArray   template mapping to render, see help for format
   -w, --watch                  run in watch mode, regenerating when files change, implied by -W/X
   -X, --watch-fast strings     filepath globs to watch for changes and trigger fast regen
   -W, --watch-globs strings    filepath globs to watch for changes and trigger full regen
 
 Global Flags:
-      --include-data     auto include all data files found with cue files
-      --inject-env       inject all ENV VARs as default tag vars
-  -p, --package string   the Cue package context to use during execution
-  -q, --quiet            turn off output and assume defaults at prompts
-  -t, --tags strings     @tags() to be injected into CUE code
-  -v, --verbosity int    set the verbosity of output
+  -E, --all-errors           print all available errors
+  -i, --ignore-errors        turn off output and assume defaults at prompts
+  -D, --include-data         auto include all data files found with cue files
+  -V, --inject-env           inject all ENV VARs as default tag vars
+  -p, --package string       the Cue package context to use during execution
+  -l, --path stringArray     CUE expression for single path component when placing data files
+  -q, --quiet                turn off output and assume defaults at prompts
+  -d, --schema stringArray   expression to select schema to apply to data files
+      --stats                print generator statistics
+  -t, --tags stringArray     @tags() to be injected into CUE code
+  -v, --verbosity int        set the verbosity of output
+      --with-context         add extra context for data files, usable in the -l/path flag
 
 Use "hof gen [command] --help" for more information about a command.

@@ -1,5 +1,7 @@
 package hof
 
+import "strings"
+
 BashTest: {
 	@task(os.Exec)
 	script: string
@@ -138,6 +140,43 @@ tests: {
 		@flow(test/fmt)
 		run: GoTest & {
 			dir: "formatters/test"
+		}
+	}
+	cue: {
+		all: {
+			@flow(test/cue)
+			run: GoTest & {
+				dir: "lib/cuecmd"
+			}
+		}
+
+		hack: {
+			@flow(test/cue/hack)
+			run: {
+				@task(os.Exec)
+				cmd: ["bash", "-c", _script]
+				dir: "lib/cuecmd"
+				_script: """
+					rm -rf .workdir
+					go test -cover -run Eval ./
+					"""
+			}
+		}
+
+		for k in ["def", "eval", "export", "vet"] {
+			(k): {
+				let K = strings.ToTitle(k)
+				#hof: Flow: {Root: true, Name: "test/cue/\(k)"}
+				run: {
+					@task(os.Exec)
+					cmd: ["bash", "-c", _script]
+					dir:     "lib/cuecmd"
+					_script: """
+						rm -rf .workdir
+						go test -cover -run \(K) ./
+						"""
+				}
+			}
 		}
 	}
 }

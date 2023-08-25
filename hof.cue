@@ -6,10 +6,10 @@ import (
 	"github.com/hofstadter-io/hof/design"
 )
 
-Cli: gen.#Generator & {
+Cli: gen.Generator & {
 	@gen(cli,hof)
 	Outdir: "./"
-	Cli:    design.#CLI
+	Cli:    design.CLI
 	WatchGlobs: ["./design/**/*"]
 	WatchExec: {
 		@task(os.Exec)

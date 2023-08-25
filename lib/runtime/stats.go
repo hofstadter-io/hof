@@ -3,40 +3,31 @@ package runtime
 import (
 	"bytes"
 	"fmt"
-	"text/template"
 	"time"
 )
 
-type RuntimeStats struct {
-	CueLoadingTime time.Duration
-	GenLoadingTime time.Duration
-	GenRunningTime time.Duration
+type RuntimeStats map[string]time.Duration
+
+func (S RuntimeStats) Add(name string, dur time.Duration) {
+	S[name] = dur
 }
-
-func (S *RuntimeStats) String() string {
+func (S RuntimeStats) String() string {
 	var b bytes.Buffer
-	var err error
 
-	// Parse Template
-	t := template.Must(template.New("stats").Parse(runtimeStatsTemplate))
-
-	// Round timings
-	S.CueLoadingTime = S.CueLoadingTime.Round(time.Microsecond)
-	S.GenLoadingTime = S.GenLoadingTime.Round(time.Microsecond)
-	S.GenRunningTime = S.GenRunningTime.Round(time.Microsecond)
-
-	// Render template
-	err = t.Execute(&b, S)
-	if err != nil {
-		return fmt.Sprint(err)
+	order := []string{
+		"cue/load",
+		"data/load",
+		"gen/load",
+		"gen/run",
+		"enrich/data",
+		"enrich/gen",
+		// "enrich/flow",
 	}
 
+	for _, o := range order {
+		d, _ := S[o]
+		fmt.Fprintf(&b, "%-16s%v\n", o, d.Round(time.Millisecond))
+	}
 	return b.String()
 }
-
-const runtimeStatsTemplate = `
-CueLoadingTime      {{ .CueLoadingTime }}
-GenLoadingTime      {{ .GenLoadingTime }}
-GenRunningTime      {{ .GenRunningTime }}
-`
 

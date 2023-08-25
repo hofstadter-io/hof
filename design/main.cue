@@ -6,52 +6,59 @@ import (
 	"github.com/hofstadter-io/hof/design/cmds"
 )
 
-#Outdir: "./cmd/hof"
+Outdir: "./cmd/hof"
 
-#CLI: schema.#Cli & {
+CLI: schema.Cli & {
 	Name:   "hof"
 	Module: "github.com/hofstadter-io/hof"
 
 	Usage:      "hof"
 	Short:      "The High Code Framework"
 	Long:       Short
-	CustomHelp: #RootCustomHelp
+	CustomHelp: RootCustomHelp
 
 	OmitRun:           true
 	PersistentPrerun:  true
 	PersistentPostrun: true
 
-	Pflags: #CliPflags
+	Pflags: CliPflags
 
-	//Commands: [...schema.#Command]
+	//Commands: [...schema.Command]
 	Commands: [
 
 		// main commands
-		cmds.#CreateCommand,
-		cmds.#DatamodelCommand,
-		cmds.#GenCommand,
-		cmds.#FlowCommand,
-		cmds.#FmtCommand,
-		cmds.#ModCommand,
+		cmds.CreateCommand,
+		cmds.DatamodelCommand,
+		cmds.GenCommand,
+		cmds.FlowCommand,
+		cmds.StCommand,
+		cmds.FmtCommand,
+		cmds.ModCommand,
+
+		// cue commands
+		cmds.DefCommand,
+		cmds.EvalCommand,
+		cmds.ExportCommand,
+		cmds.VetCommand,
 
 		// beta commands
-		cmds.#ChatCommand,
-		cmds.#RunCommand,
+		cmds.ChatCommand,
+		cmds.RunCommand,
 
 		// additional commands
-		cmds.#FeedbackCommand,
+		cmds.FeedbackCommand,
 	]
 
 	//
 	// Addons
 	//
-	Releases:    #CliReleases
+	Releases:    CliReleases
 	Updates:     true
 	EnablePProf: true
 	Telemetry:   "G-6CYEVMZL4R"
 }
 
-#RootCustomHelp: """
+RootCustomHelp: """
 hof - the high code framework
 
   Learn more at https://docs.hofstadter.io
@@ -60,20 +67,25 @@ Usage:
   hof [flags] [command] [args]
 
 Main commands:
-  \(cmds.#CreateCommand.Help)
-  \(cmds.#DatamodelCommand.Help)
-  \(cmds.#GenCommand.Help)
-  \(cmds.#FlowCommand.Help)
-  \(cmds.#FmtCommand.Help)
-  \(cmds.#ModCommand.Help)
-  \(cmds.#ChatCommand.Help)
+  \(cmds.ChatCommand.Help)
+  \(cmds.CreateCommand.Help)
+  \(cmds.DatamodelCommand.Help)
+  \(cmds.DefCommand.Help)
+  \(cmds.EvalCommand.Help)
+  \(cmds.ExportCommand.Help)
+  \(cmds.FlowCommand.Help)
+  \(cmds.FmtCommand.Help)
+  \(cmds.GenCommand.Help)
+  \(cmds.ModCommand.Help)
+  \(cmds.StCommand.Help)
+  \(cmds.VetCommand.Help)
 
 Additional commands:
   help                  help about any command
   update                check for new versions and run self-updates
   version               print detailed version information
   completion            generate completion helpers for your terminal
-  \(cmds.#FeedbackCommand.Help)
+  \(cmds.FeedbackCommand.Help)
 
 Flags:
 <<flag-usage>>

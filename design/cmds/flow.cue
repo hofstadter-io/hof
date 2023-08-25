@@ -4,11 +4,11 @@ import (
 	"github.com/hofstadter-io/hofmod-cli/schema"
 )
 
-#FlowCommand: schema.#Command & {
+FlowCommand: schema.Command & {
 	Name: "flow"
 	Aliases: ["f"]
 	Usage: "flow [cue files...] [@flow/name...] [+key=value]"
-	Short: "run CUE pipelines with the hof/flow DAG engine"
+	Short: "run workflows and tasks powered by CUE"
 	Long:  """
   \(Short)
 
@@ -68,17 +68,9 @@ import (
 	Flags: [{
 		Name:    "list"
 		Long:    "list"
-		Short:   "l"
 		Type:    "bool"
 		Default: "false"
 		Help:    "list available pipelines"
-	}, {
-		Name:    "docs"
-		Long:    "docs"
-		Short:   "d"
-		Type:    "bool"
-		Default: "false"
-		Help:    "print pipeline docs"
 	}, {
 		Name:    "flow"
 		Long:    "flow"
@@ -93,12 +85,5 @@ import (
 		Type:    "bool"
 		Default: "false"
 		Help:    "print task progress as it happens"
-	}, {
-		Name:    "stats"
-		Type:    "bool"
-		Default: "false"
-		Help:    "Print final task statistics"
-		Long:    "stats"
-		Short:   "s"
 	}]
 }

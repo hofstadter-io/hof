@@ -1,0 +1,50 @@
+#Issue: 1596 (CUE)
+
+exec hof eval config.cue instance.json
+cmp stdout expect-stdout-eval
+
+exec hof def  config.cue instance.json
+cmp stdout expect-stdout-def
+
+exec hof vet  config.cue instance.json
+
+-- cue.mod/module.cue --
+module: "mod.test/config"
+
+-- components/widget.cue --
+package widget
+
+#Widget: {
+        model: string
+        explicit: "literal string"
+}
+
+-- config.cue --
+package config
+
+import (
+	"mod.test/config/components:widget"
+)
+
+w: widget.#Widget
+
+-- instance.json --
+{
+	"w": {
+		"model": "retroencabulator"
+	}
+}
+
+-- expect-stdout-eval --
+w: {
+	model:    "retroencabulator"
+	explicit: "literal string"
+}
+-- expect-stdout-def --
+package config
+
+import "mod.test/config/components:widget"
+
+w: widget.#Widget & {
+	model: "retroencabulator"
+}

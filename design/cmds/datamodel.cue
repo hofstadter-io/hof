@@ -4,22 +4,22 @@ import (
 	"github.com/hofstadter-io/hofmod-cli/schema"
 )
 
-#DatamodelCommand: schema.#Command & {
+DatamodelCommand: schema.Command & {
 	Name:  "datamodel"
 	Usage: "datamodel"
 	Aliases: ["dm"]
 	Short: "manage, diff, and migrate your data models"
-	Long:  #DatamodelRootHelp
+	Long:  DatamodelRootHelp
 
 	OmitRun: true
 
-	Pflags: [...schema.#Flag] & [ {
+	Pflags: [...schema.Flag] & [ {
 		Name:    "Datamodels"
-		Long:    "datamodel"
-		Short:   "d"
+		Long:    "model"
+		Short:   "M"
 		Type:    "[]string"
 		Default: "nil"
-		Help:    "specify one or more datamodels to operate on"
+		Help:    "specify one or more data models to operate on"
 	}, {
 		// TODO, move this up to root pflags
 		Name:    "Expression"
@@ -64,7 +64,7 @@ import (
 		Aliases: ["cp", "x"]
 		Short: "create a snapshot of the data model"
 		Long:  Short
-		Flags: [...schema.#Flag] & [{
+		Flags: [...schema.Flag] & [{
 			//Name:    "bump"
 			//Long:    "bump"
 			//Short:   "B"
@@ -103,7 +103,7 @@ import (
 		Aliases: ["l"]
 		Short: "show the history for a datamodel"
 		Long:  Short
-		Flags: [...schema.#Flag] & [{
+		Flags: [...schema.Flag] & [{
 			Name:    "ByValue"
 			Long:    "by-value"
 			Short:   ""
@@ -121,7 +121,7 @@ import (
 	}]
 }
 
-#DatamodelRootHelp: """
+DatamodelRootHelp: """
 	Data models are values or objects used in many hof processes and modules.
 	The "datamodel" command helps you manage them and track their change history.
 	At their core, they represent the models that make up your application.

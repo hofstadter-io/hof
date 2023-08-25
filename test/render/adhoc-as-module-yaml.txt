@@ -1,7 +1,7 @@
 exec hof gen data.yaml -T template.txt=out.txt
 cmp out.txt out.golden
 
-exec hof gen data.yaml -T template.txt=out.txt --as-module hof.io/test/adhoc
+exec hof gen data.yaml -D -T template.txt=out.txt --as-module hof.io/test/adhoc
 # cmp adhoc.cue module.golden
 
 # because tests...

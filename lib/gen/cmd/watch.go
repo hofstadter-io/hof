@@ -74,7 +74,7 @@ func (R *Runtime) buildWatchLists() (wfiles, xfiles []string, err error) {
 		}
 
 		// when package is set or not...
-		if G.ModuleName == "" {
+		if G.ModuleName == "" || G.ModuleName == R.BuildInstances[0].Module {
 			// when not set, we are probably in the module
 			// thus we are in all-in-one mode or module authoring
 

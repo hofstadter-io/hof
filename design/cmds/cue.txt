@@ -1,0 +1,26 @@
+Shared:
+
+-e, --expression stringArray   evaluate this expression only
+-p, --package string           package name for non-CUE files
+-l, --path stringArray         CUE expression for single path component (see 'cue help flags' for details)
+
+		--list                     concatenate multiple objects into a list
+
+		--out string               output format (run 'cue filetypes' for more info)
+-o, --outfile string           filename or - for stdout with optional file prefix (run 'cue filetypes' for more info)
+-d, --schema string            expression to select schema for evaluating values in non-CUE files
+
+
+Global Flags:
+  -E, --all-errors   print all available errors
+  -i, --ignore       proceed in the presence of errors
+  -s, --simplify     simplify output
+      --strict       report errors for lossy mappings
+      --trace        trace computation
+  -v, --verbose      print information about progress
+
+
+Intentionally not supporting: (because we have other means | always write, git can detect changes)
+  -n, --name string              glob filter for non-CUE file names in directories
+  -f, --force                    force overwriting existing files
+  		--merge                    merge non-CUE files (default true)

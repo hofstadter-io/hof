@@ -1,0 +1,28 @@
+exec hof vet in.cue
+cmp stdout expect-stdout1
+cmp stderr expect-stderr1
+
+! exec hof vet -c in.cue
+cmp stdout expect-stdout2
+cmp stderr expect-stderr2
+
+! exec hof vet data.json in.cue
+cmp stdout expect-stdout2
+cmp stderr expect-stderr2
+
+! exec hof vet data.yaml in.cue
+cmp stdout expect-stdout2
+cmp stderr expect-stderr2
+
+-- in.cue --
+x!: string
+-- data.json --
+{}
+-- data.yaml --
+y: 1
+-- expect-stdout1 --
+-- expect-stderr1 --
+-- expect-stdout2 --
+-- expect-stderr2 --
+x: field is required but not present:
+    ./in.cue:1:1

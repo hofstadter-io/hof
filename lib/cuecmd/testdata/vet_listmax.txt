@@ -1,0 +1,33 @@
+#345 (CUE)
+# https://github.com/cue-lang/cue/issues/2569 (NEW BUG)
+
+skip
+
+stdin foo.json
+exec hof vet x.cue json: -
+
+exec hof export foo.json x.cue
+cmp stdout golden.stdout
+
+-- foo.json --
+{
+    "ports": [
+        2,
+        5,
+        7,
+        2,
+        76,
+        98,
+        3
+    ],
+    "newPort": 99
+}
+-- x.cue --
+import "list"
+
+ports: [... int]
+newPort: list.Max(ports) + 1
+
+-- golden.stdout --
+ports: [2, 5, 7, 2, 76, 98, 3]
+newPort: 99

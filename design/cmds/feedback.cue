@@ -4,7 +4,7 @@ import (
 	"github.com/hofstadter-io/hofmod-cli/schema"
 )
 
-#FeedbackCommand: schema.#Command & {
+FeedbackCommand: schema.Command & {
 	// TBD:   "Ø"
 	Name:  "feedback"
 	Usage: "feedback <message>"
@@ -17,14 +17,14 @@ import (
 	Pflags: [{
 		Name:    "issue"
 		Long:    "issue"
-		Short:   "i"
+		Short:   "I"
 		Type:    "bool"
 		Default: "false"
 		Help:    "create an issue (discussion is default)"
-	},{
+	}, {
 		Name:    "labels"
 		Long:    "labels"
-		Short:   "l"
+		Short:   "L"
 		Type:    "string"
 		Default: "\"feedback\""
 		Help:    "labels,comma,separated"

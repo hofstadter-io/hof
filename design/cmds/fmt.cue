@@ -4,20 +4,19 @@ import (
 	"github.com/hofstadter-io/hofmod-cli/schema"
 )
 
-#FmtCommand: schema.#Command & {
+FmtCommand: schema.Command & {
 	Name:  "fmt"
 	Usage: "fmt [filepaths or globs]"
 	Short: "format any code and manage the formatters"
-	Long:  #FmtRootHelp
+	Long:  FmtRootHelp
 
-	Flags: [...schema.#Flag] & [
+	Flags: [...schema.Flag] & [
 		{
 			Name:    "data"
 			Type:    "bool"
 			Default: "true"
 			Help:    "include cue,yaml,json,toml,xml files, set to false to disable"
-			Long:    "data"
-			Short:   "d"
+			Long:    "fmt-data"
 		},
 	]
 
@@ -70,7 +69,7 @@ import (
 
 }
 
-#FmtRootHelp: """
+FmtRootHelp: """
 	With hof fmt, you can
 	  1. format any language from a single tool
 	  2. run formatters as api servers for IDEs and hof

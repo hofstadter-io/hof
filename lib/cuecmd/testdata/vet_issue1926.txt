@@ -1,0 +1,45 @@
+#1926 (CUE)
+
+exec hof export foo.cue dev.json
+exec hof vet    foo.cue dev.json
+
+exec hof export foo.cue prd.json
+exec hof vet    foo.cue prd.json
+
+! exec hof export foo.cue bad.json
+! exec hof vet    foo.cue bad.json
+
+-- foo.cue --
+package foo
+
+_env: =~"(prd)-"
+
+#Foo
+
+#Foo: {
+	env: "dev" | _env
+	baz: bool | *false
+
+	if env == "dev" {
+		_defaults.dev
+	}
+}
+
+_defaults: {
+	"dev": {
+		baz: true
+	}
+}
+
+-- bad.json --
+{
+	"env": "bad-foo"
+}
+-- prd.json --
+{
+	"env": "prd-foo"
+}
+-- dev.json --
+{
+	"env": "dev"
+}

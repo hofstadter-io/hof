@@ -1,4 +1,4 @@
-run CUE pipelines with the hof/flow DAG engine
+run workflows and tasks powered by CUE
 
 Use hof/flow to transform data, call APIs, work with DBs,
 read and write files, call any program, handle events,
@@ -51,17 +51,21 @@ Aliases:
   flow, f
 
 Flags:
-  -d, --docs           print pipeline docs
   -f, --flow strings   flow labels to match and run
   -h, --help           help for flow
-  -l, --list           list available pipelines
+      --list           list available pipelines
       --progress       print task progress as it happens
-  -s, --stats          Print final task statistics
 
 Global Flags:
-      --include-data     auto include all data files found with cue files
-      --inject-env       inject all ENV VARs as default tag vars
-  -p, --package string   the Cue package context to use during execution
-  -q, --quiet            turn off output and assume defaults at prompts
-  -t, --tags strings     @tags() to be injected into CUE code
-  -v, --verbosity int    set the verbosity of output
+  -E, --all-errors           print all available errors
+  -i, --ignore-errors        turn off output and assume defaults at prompts
+  -D, --include-data         auto include all data files found with cue files
+  -V, --inject-env           inject all ENV VARs as default tag vars
+  -p, --package string       the Cue package context to use during execution
+  -l, --path stringArray     CUE expression for single path component when placing data files
+  -q, --quiet                turn off output and assume defaults at prompts
+  -d, --schema stringArray   expression to select schema to apply to data files
+      --stats                print generator statistics
+  -t, --tags stringArray     @tags() to be injected into CUE code
+  -v, --verbosity int        set the verbosity of output
+      --with-context         add extra context for data files, usable in the -l/path flag

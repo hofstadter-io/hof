@@ -1,0 +1,21 @@
+exec hof eval -c -a
+cmp stdout eval_conc.cue
+
+exec hof eval --out yaml
+cmp stdout eval_conc.yaml
+
+-- eval_conc.cue --
+message: "Hello World!"
+-- eval_conc.yaml --
+message: Hello World!
+-- cmd_echo.out --
+Hello World!
+
+-- data.cue --
+package hello
+
+#who: "World"
+-- hello.cue --
+package hello
+
+message: "Hello \(#who)!" // who declared in data.cue

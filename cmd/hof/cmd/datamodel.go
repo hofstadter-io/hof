@@ -106,7 +106,7 @@ Datamodel: sql.Datamodel & {
 
 func init() {
 
-	DatamodelCmd.PersistentFlags().StringSliceVarP(&(flags.DatamodelPflags.Datamodels), "datamodel", "d", nil, "specify one or more datamodels to operate on")
+	DatamodelCmd.PersistentFlags().StringSliceVarP(&(flags.DatamodelPflags.Datamodels), "model", "M", nil, "specify one or more data models to operate on")
 	DatamodelCmd.PersistentFlags().StringSliceVarP(&(flags.DatamodelPflags.Expression), "expr", "e", nil, "CUE paths to select outputs, depending on the command")
 }
 

@@ -1,0 +1,84 @@
+skip
+
+exec hof def jsonschema: schema.json -p schema -l '#Person:'
+cmp stdout expect-stdout
+
+# auto mode
+exec hof def schema.json -p schema -l '#Person:'
+cmp stdout expect-stdout
+
+exec hof def jsonschema: bad.json
+
+! exec hof def jsonschema: bad.json --strict
+cmp stderr expect-stderr
+
+! exec hof export data.yaml schema.json
+cmp stderr expect-stderr2
+
+! exec hof vet data.yaml schema.json
+cmp stderr expect-stderr3
+
+-- expect-stdout --
+package schema
+
+import "strings"
+
+#Person: {
+	// Person
+	@jsonschema(schema="http://json-schema.org/draft-07/schema#")
+	@jsonschema(id="https://example.com/person.schema.json")
+
+	// The person's first name.
+	firstName?: string
+
+	// The person's last name.
+	lastName?: strings.MinRunes(1)
+
+	// Age in years which must be equal to or greater than zero.
+	age?: >=0 & int
+	...
+}
+-- schema.json --
+{
+  "$id": "https://example.com/person.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Person",
+  "type": "object",
+  "properties": {
+    "firstName": {
+      "type": "string",
+      "description": "The person's first name."
+    },
+    "lastName": {
+      "type": "string",
+      "description": "The person's last name.",
+      "minLength": 1
+    },
+    "age": {
+      "description": "Age in years which must be equal to or greater than zero.",
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}
+
+-- bad.json --
+{
+  "type": "number",
+  "foo": "bar"
+}
+-- expect-stderr --
+unsupported constraint "foo":
+    ./bad.json:3:3
+-- data.yaml --
+age: twenty
+
+-- expect-stderr2 --
+age: conflicting values "twenty" and int (mismatched types string and int):
+    ./data.yaml:1:7
+    ./schema.json:18:7
+-- expect-stderr3 --
+age: conflicting values "twenty" and int (mismatched types string and int):
+    ./data.yaml:1:7
+    ./schema.json:18:7
+-- cue.mod --

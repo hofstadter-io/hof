@@ -2,7 +2,6 @@ package runtime
 
 import (
 	"fmt"
-	"regexp"
 	"time"
 
 	"github.com/hofstadter-io/hof/lib/gen"
@@ -12,6 +11,12 @@ import (
 type GeneratorEnricher func(*Runtime, *gen.Generator) error
 
 func (R *Runtime) EnrichGenerators(generators []string, enrich GeneratorEnricher) error {
+	start := time.Now()
+	defer func() {
+		end := time.Now()
+		R.Stats.Add("enrich/gen", end.Sub(start))
+	}()
+
 	if R.Flags.Verbosity > 1 {
 		fmt.Println("Runtime.EnrichGenerators: ", generators)
 		for _, node := range R.Nodes {
@@ -19,41 +24,18 @@ func (R *Runtime) EnrichGenerators(generators []string, enrich GeneratorEnricher
 		}
 	}
 
-	keep := func(hn *hof.Node[any]) bool {
-		// filter by name
-		if len(generators) > 0 {
-			for _, d := range generators {
-				match, err := regexp.MatchString(d, hn.Hof.Metadata.Name)
-				if err != nil {
-					fmt.Println("error:", err)
-					return false
-				}
-				if match {
-					return true
-				}
-			}
-			return false
-		}
-
-		// filter by time
-
-		// filter by version?
-
-		// default to true, should include everything when no checks are needed
-		return true
-	}
-
 	// Find only the generator nodes
 	// TODO, dedup any references
 	gens := []*gen.Generator{}
 	for _, node := range R.Nodes {
-		// check for DM root
+		// check for Gen root
 		if node.Hof.Gen.Root {
-			if !keep(node) {
+			if !keepFilter(node, generators) {
 				continue
 			}
 			upgrade := func(n *hof.Node[gen.Generator]) *gen.Generator {
 				v := gen.NewGenerator(n)
+				v.RootModuleName = R.BuildInstances[0].Module
 				return v
 			}
 			u := hof.Upgrade[any, gen.Generator](node, upgrade, nil)
@@ -72,11 +54,6 @@ func (R *Runtime) EnrichGenerators(generators []string, enrich GeneratorEnricher
 	// load & validate?
 	// add datamodel history to input data?
 
-	start := time.Now()
-	defer func() {
-		end := time.Now()
-		R.Stats.GenLoadingTime = end.Sub(start)
-	}()
 	for _, gen := range R.Generators {
 		err := enrich(R, gen)
 		if err != nil {

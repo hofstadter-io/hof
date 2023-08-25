@@ -2,6 +2,7 @@ package runtime
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/hofstadter-io/hof/lib/chat"
 )
@@ -9,6 +10,12 @@ import (
 type ChatEnricher func(*Runtime, *chat.Chat) error
 
 func (R *Runtime) EnrichChats(chats []string, enrich ChatEnricher) error {
+	start := time.Now()
+	defer func() {
+		end := time.Now()
+		R.Stats.Add("enrich/chat", end.Sub(start))
+	}()
+
 	if R.Flags.Verbosity > 1 {
 		fmt.Println("Runtime.Chat: ", chats)
 		for _, node := range R.Nodes {

@@ -1,0 +1,52 @@
+# TODO: line numbers for errors.
+
+#Issue 1153 (CUE)
+#Issue 1152 (CUE)
+
+# Default export mode
+! exec hof export x.cue
+cmp stderr out/stderr
+
+# JSON
+! exec hof export --out json x.cue
+cmp stderr out/stderr
+
+# Yaml
+! exec hof export --out yaml x.cue
+cmp stderr out/stderr
+
+# CUE data
+! exec hof export --out cue x.cue
+cmp stderr out/stderr
+
+# Concrete
+! exec hof eval -c x.cue
+cmp stderr out/stderr
+
+# CUE
+exec hof eval --out cue x.cue
+cmp stdout expect-cue
+
+-- x.cue --
+package foo
+
+#SomeBaseType: {
+	"a" | "b"
+	#AUTO: "z"
+}
+
+V1: ("x" | "y") | *"z"
+V2: ("x" | "y") | *#SomeBaseType.#AUTO
+
+-- expect-cue --
+#SomeBaseType: {
+	"a"
+	#AUTO: "z"
+} | {
+	"b"
+	#AUTO: "z"
+}
+V1: "z"
+V2: "x" | "y"
+-- out/stderr --
+V2: incomplete value "x" | "y"

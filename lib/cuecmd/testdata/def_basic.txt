@@ -1,0 +1,31 @@
+exec hof def
+cmp stdout expect-stdout1
+
+exec hof def data.cue
+cmp stdout expect-stdout2
+
+-- schema.cue --
+// foo
+package foo
+
+#A: {
+    // a is an integer
+    a: int
+    b: { c: int } // TODO: should we _not_ simplify?
+}
+
+-- data.cue --
+3
+-- expect-stdout2 --
+3
+-- expect-stdout1 --
+// foo
+package foo
+
+#A: {
+	// a is an integer
+	a: int
+	b: {
+		c: int
+	}
+}

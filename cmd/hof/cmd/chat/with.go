@@ -18,7 +18,7 @@ func WithRun(name string, entrypoints []string) (err error) {
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = cmd.With(name, entrypoints, flags.RootPflags, flags.ChatPflags)
+	err = cmd.With(name, entrypoints, flags.RootPflags, flags.ChatFlags)
 
 	return err
 }

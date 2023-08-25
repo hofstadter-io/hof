@@ -12,7 +12,7 @@ import (
 	"github.com/hofstadter-io/hof/flow"
 )
 
-var flowLong = `run CUE pipelines with the hof/flow DAG engine
+var flowLong = `run workflows and tasks powered by CUE
 
 Use hof/flow to transform data, call APIs, work with DBs,
 read and write files, call any program, handle events,
@@ -61,11 +61,9 @@ Arguments:
 
 func init() {
 
-	FlowCmd.Flags().BoolVarP(&(flags.FlowFlags.List), "list", "l", false, "list available pipelines")
-	FlowCmd.Flags().BoolVarP(&(flags.FlowFlags.Docs), "docs", "d", false, "print pipeline docs")
+	FlowCmd.Flags().BoolVarP(&(flags.FlowFlags.List), "list", "", false, "list available pipelines")
 	FlowCmd.Flags().StringSliceVarP(&(flags.FlowFlags.Flow), "flow", "f", nil, "flow labels to match and run")
 	FlowCmd.Flags().BoolVarP(&(flags.FlowFlags.Progress), "progress", "", false, "print task progress as it happens")
-	FlowCmd.Flags().BoolVarP(&(flags.FlowFlags.Stats), "stats", "s", false, "Print final task statistics")
 }
 
 func FlowRun(entrypoints []string) (err error) {
@@ -83,7 +81,7 @@ var FlowCmd = &cobra.Command{
 		"f",
 	},
 
-	Short: "run CUE pipelines with the hof/flow DAG engine",
+	Short: "run workflows and tasks powered by CUE",
 
 	Long: flowLong,
 

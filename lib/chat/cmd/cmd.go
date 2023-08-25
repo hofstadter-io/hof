@@ -12,7 +12,7 @@ import (
 	// "github.com/hofstadter-io/hof/lib/runtime"
 )
 
-func Run(args []string, rflags flags.RootPflagpole, cflags flags.ChatPflagpole) error {
+func Run(args []string, rflags flags.RootPflagpole, cflags flags.ChatFlagpole) error {
 	if len(args) == 0 {
 		return fmt.Errorf("no input provided")
 	}
@@ -20,7 +20,7 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.ChatPflagpole) 
 	return chatCall(args, rflags, cflags)
 }
 
-func chatCall(args []string, rflags flags.RootPflagpole, cflags flags.ChatPflagpole) error {
+func chatCall(args []string, rflags flags.RootPflagpole, cflags flags.ChatFlagpole) error {
 	// figure out model details
 	isOpenai := true
 	model := cflags.Model

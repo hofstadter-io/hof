@@ -1,0 +1,12 @@
+exec hof eval ./data.cue
+cmp stdout expect-stdout
+
+exec hof eval ./data.cue -o out.cue
+cmp out.cue expect-out.cue
+
+-- data.cue --
+3
+-- expect-stdout --
+3
+-- expect-out.cue --
+3

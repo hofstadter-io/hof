@@ -155,7 +155,12 @@ func (CRT *CueRuntime) load() (err error) {
 
 		// handle data files
 		for _, f := range bi.OrphanedFiles {
-			F, err := CRT.loadOrphanedFile(f, bi.PkgName, bi.Root, bi.Dir)
+
+			pkg := bi.PkgName
+			//if bi.Module == "" {
+			//  pkg = bi.ID()
+			//}
+			F, err := CRT.loadOrphanedFile(f, pkg, bi.Root, bi.Dir)
 			if err != nil {
 				errs = append(errs, err)
 				continue

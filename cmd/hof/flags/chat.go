@@ -1,6 +1,6 @@
 package flags
 
-type ChatPflagpole struct {
+type ChatFlagpole struct {
 	Model       string
 	System      []string
 	Messages    []string
@@ -14,4 +14,4 @@ type ChatPflagpole struct {
 	Stop        []string
 }
 
-var ChatPflags ChatPflagpole
+var ChatFlags ChatFlagpole

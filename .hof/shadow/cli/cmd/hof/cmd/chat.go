@@ -66,17 +66,17 @@ hof chat -M messages.json "now answer me this"
 
 func init() {
 
-	ChatCmd.PersistentFlags().StringVarP(&(flags.ChatPflags.Model), "model", "m", "gpt-3.5-turbo", "LLM model to use [gpt-3.5-turbo,gpt-4,bard,chat-bison]")
-	ChatCmd.PersistentFlags().StringSliceVarP(&(flags.ChatPflags.System), "system", "S", nil, "string or path to the system prompt for the LLM, concatenated")
-	ChatCmd.PersistentFlags().StringSliceVarP(&(flags.ChatPflags.Messages), "message", "M", nil, "string or path to a message for the LLM")
-	ChatCmd.PersistentFlags().StringSliceVarP(&(flags.ChatPflags.Examples), "example", "E", nil, "string or path to an example pair for the LLM")
-	ChatCmd.PersistentFlags().StringVarP(&(flags.ChatPflags.Outfile), "outfile", "O", "", "path to write the output to")
-	ChatCmd.PersistentFlags().IntVarP(&(flags.ChatPflags.Choices), "choices", "N", 1, "param: choices or N (openai)")
-	ChatCmd.PersistentFlags().IntVarP(&(flags.ChatPflags.MaxTokens), "max-tokens", "", 256, "param: MaxTokens")
-	ChatCmd.PersistentFlags().Float64VarP(&(flags.ChatPflags.Temperature), "temp", "", 0.8, "param: temperature")
-	ChatCmd.PersistentFlags().Float64VarP(&(flags.ChatPflags.TopP), "topp", "", 0.42, "param: TopP")
-	ChatCmd.PersistentFlags().IntVarP(&(flags.ChatPflags.TopK), "topk", "", 40, "param: TopK (google)")
-	ChatCmd.PersistentFlags().StringSliceVarP(&(flags.ChatPflags.Stop), "stop", "", nil, "param: Stop (openai)")
+	ChatCmd.Flags().StringVarP(&(flags.ChatFlags.Model), "model", "M", "gpt-3.5-turbo", "LLM model to use [gpt-3.5-turbo,gpt-4,bard,chat-bison]")
+	ChatCmd.Flags().StringSliceVarP(&(flags.ChatFlags.System), "system", "s", nil, "string or path to the system prompt for the LLM, concatenated")
+	ChatCmd.Flags().StringSliceVarP(&(flags.ChatFlags.Messages), "message", "m", nil, "string or path to a message for the LLM")
+	ChatCmd.Flags().StringSliceVarP(&(flags.ChatFlags.Examples), "example", "e", nil, "string or path to an example pair for the LLM")
+	ChatCmd.Flags().StringVarP(&(flags.ChatFlags.Outfile), "outfile", "O", "", "path to write the output to")
+	ChatCmd.Flags().IntVarP(&(flags.ChatFlags.Choices), "choices", "N", 1, "param: choices or N (openai)")
+	ChatCmd.Flags().IntVarP(&(flags.ChatFlags.MaxTokens), "max-tokens", "", 256, "param: MaxTokens")
+	ChatCmd.Flags().Float64VarP(&(flags.ChatFlags.Temperature), "temp", "", 0.8, "param: temperature")
+	ChatCmd.Flags().Float64VarP(&(flags.ChatFlags.TopP), "topp", "", 0.42, "param: TopP")
+	ChatCmd.Flags().IntVarP(&(flags.ChatFlags.TopK), "topk", "", 40, "param: TopK (google)")
+	ChatCmd.Flags().StringSliceVarP(&(flags.ChatFlags.Stop), "stop", "", nil, "param: Stop (openai)")
 }
 
 func ChatRun(args []string) (err error) {

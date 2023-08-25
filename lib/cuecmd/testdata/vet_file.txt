@@ -1,0 +1,52 @@
+skip
+# more yaml stream becoming multiple files... rather than a list to validate
+
+! exec hof vet ./vet.cue ./data.yaml
+cmp stderr expect-stderr
+
+! exec hof vet . ./data.yaml
+cmp stderr expect-stderr2
+
+-- expect-stderr --
+translations.hello.lang: incomplete value string:
+    ./vet.cue:3:31
+translations.hello.lang: conflicting values false and string (mismatched types bool and string):
+    ./data.yaml:13:11
+    ./vet.cue:3:25
+    ./vet.cue:3:31
+-- expect-stderr2 --
+translations.hello.lang: incomplete value string:
+    ./vet.cue:3:31
+translations.hello.lang: conflicting values false and string (mismatched types bool and string):
+    ./data.yaml:13:11
+    ./vet.cue:3:25
+    ./vet.cue:3:31
+-- vet.cue --
+package foo
+
+translations: [string]: lang: string
+
+#File: {
+	translations: {...}
+}
+-- data.yaml --
+# translated messages
+translations:
+  hello:
+    lang: gsw
+    text: Grüetzi
+---
+translations:
+  hello:
+    text: Hoi
+---
+translations:
+  hello:
+    lang: false
+    text: Hallo
+---
+translations:
+  hello:
+    lang: nl
+    text: Hallo
+skip: true

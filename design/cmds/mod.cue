@@ -4,18 +4,18 @@ import (
 	"github.com/hofstadter-io/hofmod-cli/schema"
 )
 
-#ModCmdImports: [
+ModCmdImports: [
 	{Path: "github.com/hofstadter-io/hof/lib/mod", ...},
 	{Path: "github.com/hofstadter-io/hof/cmd/hof/flags", ...},
 ]
 
-#ModCommand: schema.#Command & {
+ModCommand: schema.Command & {
 	// TBD:   "β"
 	Name:  "mod"
 	Usage: "mod"
 	Aliases: ["m"]
-	Short: "CUE dependency management based on Go mods"
-	Long:  #ModLongHelp
+	Short: "CUE module dependency management"
+	Long:  ModLongHelp
 
 	//Topics: #ModTopics
 	//Examples: #ModExamples
@@ -23,8 +23,8 @@ import (
 	OmitRun: true
 
 	#body: {
-		func: string
-		module: bool | *false
+		func:    string
+		module:  bool | *false
 		_modstr: string | *""
 		if module == true {
 			_modstr: "module, "
@@ -51,9 +51,8 @@ import (
 			Help:     "module path"
 		}]
 
-		Imports: #ModCmdImports
-		Body: (#body & { func: "Init", module: true }).content
-
+		Imports: ModCmdImports
+		Body:    (#body & {func: "Init", module: true}).content
 	}, {
 		Name:  "get"
 		Usage: "get <module>"
@@ -67,7 +66,7 @@ import (
 			Help:     "module path@version"
 		}]
 
-		Flags: [...schema.#Flag] & [ {
+		Flags: [...schema.Flag] & [ {
 			Name:    "Prerelease"
 			Long:    "prerelease"
 			Short:   "P"
@@ -93,45 +92,45 @@ import (
 		Short: "verify integrity of dependencies"
 		Long:  Short
 
-		Imports: #ModCmdImports
+		Imports: ModCmdImports
 
-		Body: (#body & { func: "Verify" }).content
+		Body: (#body & {func: "Verify"}).content
 	}, {
 		Name:  "tidy"
 		Usage: "tidy"
 		Short: "recalculate dependencies and update mod files"
 		Long:  Short
 
-		Imports: #ModCmdImports
+		Imports: ModCmdImports
 
-		Body: (#body & { func: "Tidy" }).content
+		Body: (#body & {func: "Tidy"}).content
 	}, {
 		Name:  "link"
 		Usage: "link"
 		Short: "symlink dependencies to cue.mod/pkg"
 		Long:  Short
 
-		Imports: #ModCmdImports
+		Imports: ModCmdImports
 
-		Body: (#body & { func: "Link" }).content
+		Body: (#body & {func: "Link"}).content
 	}, {
 		Name:  "vendor"
 		Usage: "vendor"
 		Short: "copy dependencies to cue.mod/pkg"
 		Long:  Short
 
-		Imports: #ModCmdImports
+		Imports: ModCmdImports
 
-		Body: (#body & { func: "Vendor" }).content
+		Body: (#body & {func: "Vendor"}).content
 	}, {
 		Name:  "clean"
 		Usage: "clean"
 		Short: "clean hof's module cache"
 		Long:  Short
 
-		Imports: #ModCmdImports
+		Imports: ModCmdImports
 
-		Body: (#body & { func: "Clean" }).content
+		Body: (#body & {func: "Clean"}).content
 	}, {
 		Name:  "publish"
 		Usage: "publish <module>"
@@ -159,7 +158,7 @@ import (
 
 }
 
-#ModLongHelp: string & ##"""
+ModLongHelp: string & ##"""
 	hof mod is CUE dependency management based on Go mods.
 	
 	### Module File

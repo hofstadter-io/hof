@@ -22,10 +22,16 @@ func init() {
 
 	RootCmd.PersistentFlags().StringVarP(&(flags.RootPflags.Package), "package", "p", "", "the Cue package context to use during execution")
 	RootCmd.PersistentFlags().StringSliceVarP(&(flags.RootPflags.Tags), "tags", "t", nil, "@tags() to be injected into CUE code")
-	RootCmd.PersistentFlags().IntVarP(&(flags.RootPflags.Verbosity), "verbosity", "v", 0, "set the verbosity of output")
-	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.IncludeData), "include-data", "", false, "auto include all data files found with cue files")
-	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.InjectEnv), "inject-env", "", false, "inject all ENV VARs as default tag vars")
+	RootCmd.PersistentFlags().StringSliceVarP(&(flags.RootPflags.Path), "path", "l", nil, "CUE expression for single path component when placing data files")
+	RootCmd.PersistentFlags().StringSliceVarP(&(flags.RootPflags.Schema), "schema", "d", nil, "expression to select schema to apply to data files")
+	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.IncludeData), "include-data", "D", false, "auto include all data files found with cue files")
+	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.WithContext), "with-context", "", false, "add extra context for data files, usable in the -l/path flag")
+	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.InjectEnv), "inject-env", "V", false, "inject all ENV VARs as default tag vars")
+	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.AllErrors), "all-errors", "E", false, "print all available errors")
+	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.IngoreErrors), "ignore-errors", "i", false, "turn off output and assume defaults at prompts")
+	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Stats), "stats", "", false, "print generator statistics")
 	RootCmd.PersistentFlags().BoolVarP(&(flags.RootPflags.Quiet), "quiet", "q", false, "turn off output and assume defaults at prompts")
+	RootCmd.PersistentFlags().IntVarP(&(flags.RootPflags.Verbosity), "verbosity", "v", 0, "set the verbosity of output")
 }
 
 func RootPersistentPreRun(args []string) (err error) {
@@ -128,8 +134,13 @@ func RootInit() {
 	RootCmd.AddCommand(DatamodelCmd)
 	RootCmd.AddCommand(GenCmd)
 	RootCmd.AddCommand(FlowCmd)
+	RootCmd.AddCommand(StCmd)
 	RootCmd.AddCommand(FmtCmd)
 	RootCmd.AddCommand(ModCmd)
+	RootCmd.AddCommand(DefCmd)
+	RootCmd.AddCommand(EvalCmd)
+	RootCmd.AddCommand(ExportCmd)
+	RootCmd.AddCommand(VetCmd)
 	RootCmd.AddCommand(ChatCmd)
 	RootCmd.AddCommand(RunCmd)
 	RootCmd.AddCommand(FeedbackCmd)
@@ -180,13 +191,18 @@ Usage:
   hof [flags] [command] [args]
 
 Main commands:
-  create                dynamic app blueprints from any git repo
-  datamodel             manage, diff, and migrate your data models
-  gen                   modular and composable code gen: CUE & data + templates = _
-  flow                  run CUE pipelines with the hof/flow DAG engine
-  fmt                   format any code and manage the formatters
-  mod                   CUE dependency management based on Go mods
   chat                  co-create with AI (alpha)
+  create                starter kits or blueprints from any git repo
+  datamodel             manage, diff, and migrate your data models
+  def                   print consolidated CUE definitions
+  eval                  evaluate and print CUE configuration
+  export                output data in a standard format
+  flow                  run workflows and tasks powered by CUE
+  fmt                   format any code and manage the formatters
+  gen                   CUE powered code generation
+  mod                   CUE module dependency management
+  st                    apply CUE transformations in bulk
+  vet                   validate data with CUE
 
 Additional commands:
   help                  help about any command
