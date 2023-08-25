@@ -42,10 +42,10 @@ jobs:
       - name: Set up Docker
         uses: crazy-max/ghaction-setup-docker@v1
         with:
-          version: v24.0.1
+          version: v24.0.5
         if: ${{ startsWith( runner.os, 'macos') }}
       - name: Setup MacOS docker socket
-        run: echo "DOCKER_HOST="unix://$HOME/.colima/default/docker.sock"" >> $GITHUB_ENV
+        run: echo "DOCKER_HOST="unix://$HOME/.colima/gha/docker.sock"" >> $GITHUB_ENV
         if: ${{ startsWith( runner.os, 'macos') }}
       - name: Test Compatibility
         run: |-
@@ -97,10 +97,10 @@ jobs:
       - name: Set up Docker
         uses: crazy-max/ghaction-setup-docker@v1
         with:
-          version: v24.0.1
+          version: v24.0.5
         if: ${{ startsWith( runner.os, 'macos') }}
       - name: Setup MacOS docker socket
-        run: echo "DOCKER_HOST="unix://$HOME/.colima/default/docker.sock"" >> $GITHUB_ENV
+        run: echo "DOCKER_HOST="unix://$HOME/.colima/gha/docker.sock"" >> $GITHUB_ENV
         if: ${{ startsWith( runner.os, 'macos') }}
       - name: Test Compatibility
         run: |-

@@ -144,10 +144,12 @@ Steps: {
 		machack: {
 			name: "Setup Docker on MacOS"
 			run: """
+				brew list
 				brew reinstall -f --force-bottle qemu lima colima docker
 				limactl info
+				colima stop --force
 				colima delete
-				colima start debug --cpu 3 --memory 10 --disk 12
+				colima start gha --cpu 3 --memory 10 --disk 12
 				"""
 			"if": "${{ startsWith( runner.os, 'macos') }}"
 		}
@@ -155,7 +157,7 @@ Steps: {
 		macos: {
 			name: "Setup MacOS docker socket"
 			run: """
-				echo "DOCKER_HOST=\"unix://$HOME/.colima/default/docker.sock\"" >> $GITHUB_ENV
+				echo "DOCKER_HOST=\"unix://$HOME/.colima/gha/docker.sock\"" >> $GITHUB_ENV
 				"""
 			"if": "${{ startsWith( runner.os, 'macos') }}"
 		}
