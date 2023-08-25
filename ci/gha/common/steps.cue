@@ -95,9 +95,13 @@ Steps: {
 			}
 			macos: {
 				name: "Set up Docker Colima"
+				// colima settings based on github default macos worker
 				run: """
+					brew reinstall -f --force-bottle qemu
 					brew install docker colima
-					colima start --cpu 1 --memory 2 --disk 10
+					limactl version
+					colima delete
+					colima start --cpu 3 --memory 10 --disk 12
 					"""
 			}
 		}
@@ -134,7 +138,7 @@ Steps: {
 			name: "Set up Docker"
 			uses: "crazy-max/ghaction-setup-docker@v1"
 			with: {
-				version: "v23.0.1"
+				version: "v" + Versions.docker
 			}
 			"if": "${{ startsWith( runner.os, 'macos') }}"
 		}
@@ -142,6 +146,9 @@ Steps: {
 			name: "Update QEMU on MacOS"
 			run: """
 				brew reinstall -f --force-bottle qemu
+				limactl version
+				colima delete
+				colima start --cpu 3 --memory 10 --disk 12
 				"""
 			"if": "${{ startsWith( runner.os, 'macos') }}"
 		}
