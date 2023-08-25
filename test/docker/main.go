@@ -25,7 +25,7 @@ func main() {
 	fmt.Println("client: ", ver.Client.Version)
 	fmt.Println("server:", ver.Server.Version, ver.Server.APIVersion, ver.Server.MinAPIVersion)
 
-	img := "ghcr.io/hofstadter-io/fmt-black:v0.6.8-beta.11"
+	img := "ghcr.io/hofstadter-io/fmt-black:v0.6.8"
 
 	err = container.PullImage(img)
 	if err != nil {

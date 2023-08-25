@@ -133,12 +133,42 @@ Steps: {
 	}
 
 	docker: {
+		macAction: {
+			name: "Set up Docker"
+			uses: "crazy-max/ghaction-setup-docker@v1"
+			with: {
+				version: "v" + Versions.docker
+			}
+			"if": "${{ startsWith( runner.os, 'macos') }}"
+		}
 		macSetup: {
 			name: "Setup Docker on MacOS"
 			run: """
 				brew install docker
 				brew reinstall -f --force-bottle qemu lima colima 
-				colima start debug --cpu 3 --memory 10 --disk 12
+
+				# hack to codesign for entitlement
+				cat >entitlements.xml <<EOF
+				<?xml version="1.0" encoding="UTF-8"?>
+				<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+				<plist version="1.0">
+				<dict>
+						<key>com.apple.security.hypervisor</key>
+						<true/>
+				</dict>
+				</plist>
+				EOF
+				codesign --sign - --entitlements entitlements.xml --force /usr/local/bin/qemu-system-x86_64
+
+				colima start --cpu 3 --memory 10 --disk 12
+				"""
+
+			_run: """
+				# extra hack stuff
+				brew uninstall qemu lima colima
+				curl -OSL https://raw.githubusercontent.com/Homebrew/homebrew-core/dc0669eca9479e9eeb495397ba3a7480aaa45c2e/Formula/qemu.rb
+				brew install ./qemu.rb
+				brew install --ignore-dependencies lima colima
 				"""
 			"if": "${{ startsWith( runner.os, 'macos') }}"
 		}
@@ -146,6 +176,9 @@ Steps: {
 		macSocket: {
 			name: "Setup MacOS docker socket"
 			run: """
+				echo "DOCKER_HOST=\"unix://$HOME/.colima/default/docker.sock\"" >> $GITHUB_ENV
+				"""
+			_run: """
 				echo "DOCKER_HOST=\"unix:///var/run/docker.sock\"" >> $GITHUB_ENV
 				"""
 			"if": "${{ startsWith( runner.os, 'macos') }}"

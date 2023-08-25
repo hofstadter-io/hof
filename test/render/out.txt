@@ -1,0 +1,4 @@
+A is a
+B is 2
+
+foo is bar
