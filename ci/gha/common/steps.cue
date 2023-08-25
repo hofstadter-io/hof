@@ -147,7 +147,6 @@ Steps: {
 			run: """
 				brew reinstall -f --force-bottle qemu
 				limactl version
-				colima delete
 				colima start --cpu 3 --memory 10 --disk 12
 				"""
 			"if": "${{ startsWith( runner.os, 'macos') }}"

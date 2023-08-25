@@ -34,8 +34,8 @@ ghacue.#Workflow & {
 				name: "Build CLI"
 				run:  "go install ./cmd/hof"
 			},
-			// common.Steps.docker.machack,
-			common.Steps.docker.setup,
+			// common.Steps.docker.setup,
+			common.Steps.docker.machack,
 			common.Steps.docker.macos,
 			common.Steps.docker.compat,
 			{
