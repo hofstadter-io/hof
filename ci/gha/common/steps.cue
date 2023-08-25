@@ -152,7 +152,7 @@ Steps: {
 		macSocket: {
 			name: "Setup MacOS docker socket"
 			run: """
-				echo "DOCKER_HOST=\"unix://$HOME/.colima/default/docker.sock\"" >> $GITHUB_ENV
+				echo "DOCKER_HOST=\"unix:///var/run/docker.sock\"" >> $GITHUB_ENV
 				"""
 			"if": "${{ startsWith( runner.os, 'macos') }}"
 		}
