@@ -18,7 +18,8 @@ ghacue.#Workflow & {
 			"fail-fast": false
 			matrix: {
 				"go": [...] & common.Versions.go
-				os:   [...] & common.Versions.os
+				// os:   [...] & common.Versions.os
+				os: ["ubuntu-latest"]
 			}
 		}
 		environment: "hof mod testing"

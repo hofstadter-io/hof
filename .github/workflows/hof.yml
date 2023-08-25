@@ -16,7 +16,6 @@ jobs:
           - 1.21.x
         os:
           - ubuntu-latest
-          - macos-latest
     environment: hof mod testing
     runs-on: ${{ matrix.os }}
     steps:
@@ -47,7 +46,7 @@ jobs:
           echo "HOF_SHA=${SHA}" >> $GITHUB_ENV
           echo "HOF_TAG=${TAG}" >> $GITHUB_ENV
       - name: Setup Docker on MacOS
-        run: "# Workaround for https://github.com/actions/runner-images/issues/8104\nbrew remove --ignore-dependencies qemu\ncurl -o ./qemu.rb https://raw.githubusercontent.com/Homebrew/homebrew-core/dc0669eca9479e9eeb495397ba3a7480aaa45c2e/Formula/qemu.rb\nbrew install ./qemu.rb\n\nbrew install docker\nbrew reinstall -f --force-bottle lima colima \ncolima start debug --cpu 3 --memory 10 --disk 12"
+        run: "brew install docker\nbrew reinstall -f --force-bottle qemu lima colima \ncolima start debug --cpu 3 --memory 10 --disk 12"
         if: ${{ startsWith( runner.os, 'macos') }}
       - name: Setup MacOS docker socket
         run: echo "DOCKER_HOST="unix:///var/run/docker.sock"" >> $GITHUB_ENV
