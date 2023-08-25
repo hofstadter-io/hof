@@ -143,10 +143,9 @@ Steps: {
 		machack: {
 			name: "Setup Docker on MacOS"
 			run: """
-				brew reinstall -f --force-bottle qemu
-				brew install docker colima
+				brew reinstall -f --force-bottle qemu lima colima docker
 				limactl info
-				colima start --cpu 3 --memory 10 --disk 12
+				colima start debug --cpu 3 --memory 10 --disk 12
 				"""
 			"if": "${{ startsWith( runner.os, 'macos') }}"
 		}
