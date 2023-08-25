@@ -144,10 +144,8 @@ Steps: {
 		machack: {
 			name: "Setup Docker on MacOS"
 			run: """
-				brew list
 				brew reinstall -f --force-bottle qemu docker lima colima 
 				limactl info
-				colima stop --force
 				colima delete
 				colima start debug --cpu 3 --memory 10 --disk 12
 				colima status
