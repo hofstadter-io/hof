@@ -16,6 +16,7 @@ Main commands:
   fmt                   format any code and manage the formatters
   gen                   CUE powered code generation
   mod                   CUE module dependency management
+  st                    apply CUE transformations in bulk
   vet                   validate data with CUE
 
 Additional commands:
@@ -26,14 +27,19 @@ Additional commands:
   feedback              open an issue or discussion on GitHub
 
 Flags:
-  -h, --help             help for hof
-      --include-data     auto include all data files found with cue files
-      --inject-env       inject all ENV VARs as default tag vars
-  -p, --package string   the Cue package context to use during execution
-  -l, --path strings     CUE expression for single path component when placing data files
-  -q, --quiet            turn off output and assume defaults at prompts
-  -t, --tags strings     @tags() to be injected into CUE code
-  -v, --verbosity int    set the verbosity of output
+  -E, --all-errors           print all available errors
+  -h, --help                 help for hof
+  -i, --ignore-errors        turn off output and assume defaults at prompts
+  -D, --include-data         auto include all data files found with cue files
+  -V, --inject-env           inject all ENV VARs as default tag vars
+  -p, --package string       the Cue package context to use during execution
+  -l, --path stringArray     CUE expression for single path component when placing data files
+  -q, --quiet                turn off output and assume defaults at prompts
+  -d, --schema stringArray   expression to select schema to apply to data files
+      --stats                print generator statistics
+  -t, --tags stringArray     @tags() to be injected into CUE code
+  -v, --verbosity int        set the verbosity of output
+      --with-context         add extra context for data files, usable in the -l/path flag
 
 Use "hof [command] --help / -h" for more information about a command.
 
