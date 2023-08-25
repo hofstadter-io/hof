@@ -29,15 +29,18 @@ ghacue.#Workflow & {
 			common.Steps.go.cache,
 			common.Steps.checkout,
 			common.Steps.vars,
+
+			// common.Steps.docker.setup,
+			common.Steps.docker.machack,
+			common.Steps.docker.macos,
+			common.Steps.docker.compat,
+
+			// application steps
 			common.Steps.go.deps,
 			{
 				name: "Build CLI"
 				run:  "go install ./cmd/hof"
 			},
-			// common.Steps.docker.setup,
-			common.Steps.docker.machack,
-			common.Steps.docker.macos,
-			common.Steps.docker.compat,
 			{
 				name: "Build Formatters"
 				run: """

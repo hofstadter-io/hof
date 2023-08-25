@@ -97,9 +97,10 @@ Steps: {
 				name: "Set up Docker Colima"
 				// colima settings based on github default macos worker
 				run: """
-					brew reinstall -f --force-bottle qemu
-					brew install docker colima
-					colima start --cpu 3 --memory 10 --disk 12
+					brew reinstall -f --force-bottle qemu lima colima docker
+					limactl info
+					colime delete
+					colima start debug --cpu 3 --memory 10 --disk 12
 					"""
 			}
 		}
@@ -145,6 +146,7 @@ Steps: {
 			run: """
 				brew reinstall -f --force-bottle qemu lima colima docker
 				limactl info
+				colima delete
 				colima start debug --cpu 3 --memory 10 --disk 12
 				"""
 			"if": "${{ startsWith( runner.os, 'macos') }}"

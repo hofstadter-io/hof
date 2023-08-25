@@ -46,14 +46,11 @@ jobs:
           fi
           echo "HOF_SHA=${SHA}" >> $GITHUB_ENV
           echo "HOF_TAG=${TAG}" >> $GITHUB_ENV
-      - name: Fetch Go deps
-        run: go mod download
-      - name: Build CLI
-        run: go install ./cmd/hof
       - name: Setup Docker on MacOS
         run: |-
           brew reinstall -f --force-bottle qemu lima colima docker
           limactl info
+          colima delete
           colima start debug --cpu 3 --memory 10 --disk 12
         if: ${{ startsWith( runner.os, 'macos') }}
       - name: Setup MacOS docker socket
@@ -65,6 +62,10 @@ jobs:
           docker info
           docker context ls
           go run test/docker/main.go
+      - name: Fetch Go deps
+        run: go mod download
+      - name: Build CLI
+        run: go install ./cmd/hof
       - name: Build Formatters
         run: |-
           make formatters
