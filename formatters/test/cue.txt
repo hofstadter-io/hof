@@ -1,5 +1,5 @@
 # exec cue fmt in.cue
-exec hof fmt -d in.cue
+exec hof fmt in.cue
 cmp in.cue golden.cue
 
 -- in.cue --
