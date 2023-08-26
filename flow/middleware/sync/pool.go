@@ -15,7 +15,7 @@ type Pool struct {
 	next hofcontext.Runner
 }
 
-func NewPool(opts *flags.RootPflagpole, popts *flags.FlowFlagpole) *Pool {
+func NewPool(opts flags.RootPflagpole, popts flags.FlowPflagpole) *Pool {
 	// fmt.Println("Pool: new")
 	return &Pool{}
 }

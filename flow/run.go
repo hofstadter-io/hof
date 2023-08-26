@@ -31,12 +31,12 @@ Input is to rigid
 -
 */
 
-func Run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagpole) error {
+func Run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowPflagpole) error {
 	return run(entrypoints, opts, popts)
 }
 
 // refactor out single/multi
-func run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagpole) error {
+func run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowPflagpole) error {
 
 	// unsugar the @flow-names into popts
 	var entries, flowArgs, tagArgs []string
@@ -155,7 +155,7 @@ func run(entrypoints []string, opts *flags.RootPflagpole, popts *flags.FlowFlagp
 		}
 
 		if opts.Stats {
-			err = printFinalContext(flow.HofContext)
+			err = printFinalContext(flow.FlowCtx)
 			if err != nil {
 				return err
 			}
@@ -189,7 +189,7 @@ var walkOptions = []cue.Option{
 	cue.Docs(true),
 }
 
-func buildRootContext(val cue.Value, opts *flags.RootPflagpole, popts *flags.FlowFlagpole) (*hofcontext.Context, error) {
+func buildRootContext(val cue.Value, opts *flags.RootPflagpole, popts *flags.FlowPflagpole) (*hofcontext.Context, error) {
 	// lookup the secret label in val
 	// and build a filter write for stdout / stderr
 	c := hofcontext.New()

@@ -81,7 +81,7 @@ func matchFlow(attr cue.Attribute, args []string) (keep bool) {
 	return false
 }
 
-func flowList(val cue.Value, opts *flags.RootPflagpole, popts *flags.FlowFlagpole) []string {
+func flowList(val cue.Value, opts *flags.RootPflagpole, popts *flags.FlowPflagpole) []string {
 	var names []string
 
 	accum := func(v cue.Value) bool {
@@ -107,7 +107,7 @@ func flowList(val cue.Value, opts *flags.RootPflagpole, popts *flags.FlowFlagpol
 	return names
 }
 
-func printFlows(val cue.Value, opts *flags.RootPflagpole, popts *flags.FlowFlagpole) error {
+func printFlows(val cue.Value, opts *flags.RootPflagpole, popts *flags.FlowPflagpole) error {
 	args := popts.Flow
 	foundAny := false
 
@@ -152,7 +152,7 @@ func printFlows(val cue.Value, opts *flags.RootPflagpole, popts *flags.FlowFlagp
 // maybe this becomes recursive so we can find
 // nested flows, but not recurse when we find one
 // only recurse when we have something which is not a flow or task
-func findFlows(ctx *context.Context, val cue.Value, opts *flags.RootPflagpole, popts *flags.FlowFlagpole) ([]*flow.Flow, error) {
+func findFlows(ctx *context.Context, val cue.Value, opts *flags.RootPflagpole, popts *flags.FlowPflagpole) ([]*flow.Flow, error) {
 	flows := []*flow.Flow{}
 
 	// TODO, look for lists?
@@ -169,7 +169,7 @@ func findFlows(ctx *context.Context, val cue.Value, opts *flags.RootPflagpole, p
 	_, found, keep := hasFlowAttr(val, args)
 	if keep {
 		// invoke TaskFactory
-		p, err := flow.NewFlow(ctx, val)
+		p, err := flow.OldFlow(ctx, val)
 		if err != nil {
 			return flows, err
 		}
@@ -191,7 +191,7 @@ func findFlows(ctx *context.Context, val cue.Value, opts *flags.RootPflagpole, p
 
 		_, found, keep := hasFlowAttr(v, args)
 		if keep {
-			p, err := flow.NewFlow(ctx, v)
+			p, err := flow.OldFlow(ctx, v)
 			if err != nil {
 				return flows, err
 			}

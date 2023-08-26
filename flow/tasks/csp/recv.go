@@ -120,7 +120,7 @@ func (T *Recv) Run(ctx *hofcontext.Context) (interface{}, error) {
 			}
 			fmt.Println("H:", s)
 
-			p, err := flow.NewFlow(ctx, H)
+			p, err := flow.OldFlow(ctx, H)
 			if err != nil {
 				fmt.Println("Error(csp/recv/new):", err)
 				return nil, nil

@@ -92,6 +92,21 @@ type Flow struct {
 	Root bool
 	Name string
 	Task string
+	Pool Pool
+}
+
+/*
+	hof/flow configuration
+	@pool(<name>[,num])
+  @pool(name,3) // create pool of 3
+  @pool(name)   // take from pool
+*/
+type Pool struct {
+	Name   string
+	Number int
+
+	Make   bool
+	Take   bool
 }
 
 /*

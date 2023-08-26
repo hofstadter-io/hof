@@ -122,10 +122,10 @@ func With(name string, extra []string, rflags flags.RootPflagpole, cflags flags.
 
 		// how to inject tags into original value
 		// fill / return value
-		middleware.UseDefaults(ctx, &rflags, &flags.FlowFlags)
+		middleware.UseDefaults(ctx, rflags, flags.FlowPflags)
 		tasks.RegisterDefaults(ctx)
 
-		p, err := flow.NewFlow(ctx, preExec)
+		p, err := flow.OldFlow(ctx, preExec)
 		if err != nil {
 			return err
 		}
@@ -189,10 +189,10 @@ func With(name string, extra []string, rflags flags.RootPflagpole, cflags flags.
 
 		// how to inject tags into original value
 		// fill / return value
-		middleware.UseDefaults(ctx, &rflags, &flags.FlowFlags)
+		middleware.UseDefaults(ctx, rflags, flags.FlowPflags)
 		tasks.RegisterDefaults(ctx)
 
-		p, err := flow.NewFlow(ctx, postExec)
+		p, err := flow.OldFlow(ctx, postExec)
 		if err != nil {
 			return err
 		}

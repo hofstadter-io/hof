@@ -70,3 +70,6 @@ snapshot: goreleaser.yml
 release: goreleaser.yml
 	make -C formatters marchs
 	cd cmd/hof && goreleaser release -f goreleaser.yml --rm-dist -p 1
+
+workdir.clean:
+	find . -type d -name '.workdir' -exec rm -rf {} \;

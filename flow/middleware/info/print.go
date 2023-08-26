@@ -14,7 +14,7 @@ type Print struct {
 	next hofcontext.Runner
 }
 
-func NewPrint(opts *flags.RootPflagpole, popts *flags.FlowFlagpole) *Print {
+func NewPrint(opts flags.RootPflagpole, popts flags.FlowPflagpole) *Print {
 	return &Print{}
 }
 

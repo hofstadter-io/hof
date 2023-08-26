@@ -7,10 +7,10 @@ import (
 	"cuelang.org/go/cue"
 	cueflow "cuelang.org/go/tools/flow"
 
-	hofcontext "github.com/hofstadter-io/hof/flow/context"
+	flowctx "github.com/hofstadter-io/hof/flow/context"
 	"github.com/hofstadter-io/hof/flow/tasker"
+	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/hof"
-	"github.com/hofstadter-io/hof/lib/structural"
 )
 
 type Flow struct {
@@ -20,15 +20,23 @@ type Flow struct {
 	Orig  cue.Value
 	Final cue.Value
 
-	HofContext *hofcontext.Context
-	Ctrl       *cueflow.Controller
+	FlowCtx *flowctx.Context
+	Ctrl    *cueflow.Controller
 }
 
-func NewFlow(ctx *hofcontext.Context, val cue.Value) (*Flow, error) {
+func NewFlow(node *hof.Node[Flow]) *Flow {
+	return &Flow{
+		Node: node,
+		Root: node.Value,
+		Orig: node.Value,
+	}
+}
+
+func OldFlow(ctx *flowctx.Context, val cue.Value) (*Flow, error) {
 	p := &Flow{
-		Root:       val,
-		Orig:       val,
-		HofContext: ctx,
+		Root:    val,
+		Orig:    val,
+		FlowCtx: ctx,
 	}
 	return p, nil
 }
@@ -39,7 +47,7 @@ func (P *Flow) Start() error {
 }
 
 func (P *Flow) run() error {
-	// root := P.HofContext.RootValue
+	// root := P.FlowCtx.RootValue
 	root := P.Root
 	// Setup the flow Config
 	cfg := &cueflow.Config{
@@ -64,15 +72,17 @@ func (P *Flow) run() error {
 	u := v.Unify(root)
 
 	// create the workflow which will build the task graph
-	P.Ctrl = cueflow.New(cfg, u, tasker.NewTasker(P.HofContext))
+	P.Ctrl = cueflow.New(cfg, u, tasker.NewTasker(P.FlowCtx))
 
-	err := P.Ctrl.Run(P.HofContext.GoContext)
+	err := P.Ctrl.Run(P.FlowCtx.GoContext)
 
 	// fmt.Println("flow(end):", P.path, P.rpath)
 	P.Final = P.Ctrl.Value()
 	if err != nil {
-		s := structural.FormatCueError(err)
-		return fmt.Errorf("Error: %s", s)
+		s := cuetils.CueErrorToString(err)
+		fmt.Println(s)
+		fmt.Println(P)
+		return fmt.Errorf("Error in %s: %s", P.Hof.Metadata.Name, s)
 	}
 
 	return nil

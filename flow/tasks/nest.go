@@ -22,10 +22,14 @@ func (T *Nest) Run(ctx *hofcontext.Context) (interface{}, error) {
 	orig := ctx.FlowStack
 	ctx.FlowStack = append(orig, fmt.Sprint(val.Path()))
 
-	p, err := flow.NewFlow(ctx, val)
+	fmt.Println(ctx.FlowStack)
+
+	p, err := flow.OldFlow(ctx, val)
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Println(p.Hof)
 
 	err = p.Start()
 	if err != nil {

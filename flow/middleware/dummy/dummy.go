@@ -14,7 +14,7 @@ type Dummy struct {
 	next hofcontext.Runner
 }
 
-func NewDummy(opts *flags.RootPflagpole, popts *flags.FlowFlagpole) *Dummy {
+func NewDummy(opts flags.RootPflagpole, popts flags.FlowPflagpole) *Dummy {
 	return &Dummy{}
 }
 

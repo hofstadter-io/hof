@@ -238,7 +238,7 @@ func buildIrcHandler(ct_ctx *hofcontext.Context, val cue.Value) (irc.HandlerFunc
 
 			orig := ct_ctx.FlowStack
 			ct_ctx.FlowStack = append(ct_ctx.FlowStack, fmt.Sprint(val.Path()))
-			p, err := flow.NewFlow(ct_ctx, v)
+			p, err := flow.OldFlow(ct_ctx, v)
 			if err != nil {
 				fmt.Println("Error(flow/new):", err)
 				return

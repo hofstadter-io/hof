@@ -1,9 +1,8 @@
 package flags
 
-type FlowFlagpole struct {
-	List     bool
+type FlowPflagpole struct {
 	Flow     []string
 	Progress bool
 }
 
-var FlowFlags FlowFlagpole
+var FlowPflags FlowPflagpole

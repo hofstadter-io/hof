@@ -2,6 +2,7 @@ package hof
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"cuelang.org/go/cue"
@@ -26,10 +27,12 @@ func FindHofs(value cue.Value) (roots []*Node[any], err error) {
 
 		// return early and recurse for root value
 		if label == "" {
-			return true
+			label = "<<root>>"
+			// hmm, we don't want this any more
+			// return true
 		}
 
-		// do not decend into $hof value itself
+		// do not decend into #hof value itself
 		// or any definition
 		if label == "#hof" {
 			return false
@@ -96,13 +99,39 @@ func FindHofs(value cue.Value) (roots []*Node[any], err error) {
 
 			// this doesnt handle empty @flow()
 			case "flow":
+				if ac == "" {
+					ac = "<anonymous>"
+				}
 				stack.Hof.Flow.Root = true
 				stack.Hof.Flow.Name = ac
+				// extra, a bit hacky
+				stack.Hof.Metadata.Name = ac
+
 			// this doesn't handle task names
 			// maybe we split into parts
 			case "task":
 				stack.Hof.Flow.Task = ac
 				stack.Hof.Flow.Name = label
+
+			case "pool":
+
+				parts := strings.Split(ac, ",")
+
+				if len(parts) > 1 {
+					stack.Hof.Flow.Pool.Name = parts[0]
+					stack.Hof.Flow.Pool.Make = true
+					c, err := strconv.Atoi(parts[1])
+					if err != nil {
+						fmt.Println("warning: unable to parse %q to int", parts[1])
+						
+					} else {
+						stack.Hof.Flow.Pool.Number = c
+					}
+
+				} else {
+					stack.Hof.Flow.Pool.Name = ac
+					stack.Hof.Flow.Pool.Take = true
+				}
 
 			case "chat":
 				stack.Hof.Chat.Root = true
