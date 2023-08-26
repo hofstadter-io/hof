@@ -1,10 +1,11 @@
-exec hof eval -t env=staging -t name=bar
+exec hof eval -t env=staging -t name=bar -t auth=true
 cmp stdout expect-stdout
 
 -- expect-stdout --
 var: {
 	env:  "staging"
 	name: "bar"
+	auth: true
 }
 -- tags.cue --
 package tags
@@ -12,6 +13,7 @@ package tags
 
 var: env: "prod" | "staging" @tag(env,short=prod|staging)
 var: name: string @tag(name)
+var: auth: bool | *false @tag(auth,type=bool)
 
 // This is prohibited as for now.
 // foo: [string]: string @tag(all)
