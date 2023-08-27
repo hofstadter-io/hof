@@ -69,7 +69,7 @@ jobs:
           hof fmt start
           hof fmt info
           docker ps -a
-        if: ${{ startsWith( runner.os, 'ubuntu') }}
+        if: '!${{ startsWith( runner.os, ''ubuntu'') }}'
       - name: Start Formatters
         run: |-
           docker images
