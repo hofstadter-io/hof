@@ -29,7 +29,6 @@ tasks: {
 	m2: { val: p1.out, mask: { a: _ } } @task(st.Mask)
 
 	u1: { val: m1.out, upsert: m2.out } @task(st.Upsert) @print(out)
-
 }
 
 -- golden.stdout --

@@ -243,7 +243,7 @@ func (T *Serve) routeFromValue(path string, route cue.Value, e *echo.Echo, ctx *
 		// fmt.Println("tmp", tmp)
 
 		if isPipe {
-			p, err := flow.NewFlow(ctx, tmp)
+			p, err := flow.OldFlow(ctx, tmp)
 			if err != nil {
 				fmt.Println("handler pipe/new error:", err)
 				return err

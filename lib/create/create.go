@@ -396,10 +396,10 @@ func runCreator(R *gencmd.Runtime, extra, inputs []string) (err error) {
 
 			// how to inject tags into original value
 			// fill / return value
-			middleware.UseDefaults(ctx, &R.Flags, &flags.FlowFlags)
+			middleware.UseDefaults(ctx, R.Flags, flags.FlowPflags)
 			tasks.RegisterDefaults(ctx)
 
-			p, err := flow.NewFlow(ctx, postExec)
+			p, err := flow.OldFlow(ctx, postExec)
 			if err != nil {
 				return err
 			}
@@ -512,10 +512,10 @@ func handleGeneratorCreate(G *gen.Generator, rflags flags.RootPflagpole, extraAr
 
 		// how to inject tags into original value
 		// fill / return value
-		middleware.UseDefaults(ctx, &rflags, &flags.FlowFlags)
+		middleware.UseDefaults(ctx, rflags, flags.FlowPflags)
 		tasks.RegisterDefaults(ctx)
 
-		p, err := flow.NewFlow(ctx, preExec)
+		p, err := flow.OldFlow(ctx, preExec)
 		if err != nil {
 			return err
 		}

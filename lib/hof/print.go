@@ -6,19 +6,19 @@ import (
 
 func (hn *Node[T]) Print() {
 	if hn.Hof.Datamodel.Root {
-		hn.printDatamodel("  ", "")
+		hn.PrintDatamodel("  ", "")
 	}
 
 	if hn.Hof.Gen.Root {
-		hn.printGen("  ", "")
+		hn.PrintGen("  ", "")
 	}
 
 	if hn.Hof.Flow.Root {
-		hn.printFlow("  ", "")
+		hn.PrintFlow("  ", "")
 	}
 }
 
-func (hn *Node[T]) printDatamodel(spacer, indent string) {
+func (hn *Node[T]) PrintDatamodel(spacer, indent string) {
 	s := fmt.Sprintf("%s%s:", indent, hn.Hof.Path)
 	dm := hn.Hof.Datamodel
 	found := false
@@ -52,20 +52,20 @@ func (hn *Node[T]) printDatamodel(spacer, indent string) {
 
 	// recurse
 	for _, c := range hn.Children {
-		c.printDatamodel(spacer, indent+spacer)
+		c.PrintDatamodel(spacer, indent+spacer)
 	}
 }
 
-func (hn *Node[T]) printGen(spacer, indent string) {
+func (hn *Node[T]) PrintGen(spacer, indent string) {
 	fmt.Printf("%s%s: @gen(%s)\n", indent, hn.Hof.Path, hn.Hof.Gen.Name)
 	for _, c := range hn.Children {
-		c.printDatamodel(spacer, indent+spacer)
+		c.PrintDatamodel(spacer, indent+spacer)
 	}
 }
 
-func (hn *Node[T]) printFlow(spacer, indent string) {
-	s := fmt.Sprintf("%s%s:", indent, hn.Hof.Path)
+func (hn *Node[T]) PrintFlow(spacer, indent string) {
 	f := hn.Hof.Flow
+	s := fmt.Sprintf("%s%s:", indent, hn.Hof.Path)
 
 	if f.Root {
 		s += fmt.Sprintf(" @flow(%s)", f.Name)
@@ -79,6 +79,6 @@ func (hn *Node[T]) printFlow(spacer, indent string) {
 
 	// recurse
 	for _, c := range hn.Children {
-		c.printFlow(spacer, indent+spacer)
+		c.PrintFlow(spacer, indent+spacer)
 	}
 }

@@ -1,11 +1,11 @@
-exec hof mod get github.com/hofstadter-io/hof@_dev
+exec hof mod get github.com/hofstadter-io/hof@v0.6.8
 exec hof mod vendor
 exec hof datamodel list
 cmp stdout golden.stdout -trim-space
 
 -- cue.mod/module.cue --
 module: "hof.io/test"
-cue:    "v0.5.0"
+cue:    "v0.6.0"
 -- hof.cue --
 package datamodel
 

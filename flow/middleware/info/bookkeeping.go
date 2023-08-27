@@ -17,7 +17,7 @@ type Bookkeeping struct {
 	next hofcontext.Runner
 }
 
-func NewBookkeeping(cfg BookkeepingConfig, opts *flags.RootPflagpole, popts *flags.FlowFlagpole) *Bookkeeping {
+func NewBookkeeping(cfg BookkeepingConfig, opts flags.RootPflagpole, popts flags.FlowPflagpole) *Bookkeeping {
 	return &Bookkeeping{
 		cfg: cfg,
 	}

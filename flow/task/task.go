@@ -6,6 +6,8 @@ import (
 	"cuelang.org/go/cue"
 	cueflow "cuelang.org/go/tools/flow"
 	"github.com/google/uuid"
+
+	"github.com/hofstadter-io/hof/lib/hof"
 )
 
 type Task interface {
@@ -34,6 +36,7 @@ type BaseTask struct {
 
 	// cue bookkeeping
 	CueTask *cueflow.Task
+	Node    *hof.Node[any]
 	Orig    cue.Value
 	Start   cue.Value
 	Final   cue.Value
@@ -46,10 +49,12 @@ type BaseTask struct {
 	TimeEvents map[string]time.Time
 }
 
-func NewBaseTask(val cue.Value) *BaseTask {
+func NewBaseTask(node *hof.Node[any]) *BaseTask {
+	val := node.Value
 	return &BaseTask{
 		ID:         val.Path().String(),
 		UUID:       uuid.New(),
+		Node:       node,
 		Orig:       val,
 		TimeEvents: make(map[string]time.Time),
 	}

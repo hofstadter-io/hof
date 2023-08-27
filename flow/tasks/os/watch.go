@@ -115,7 +115,7 @@ func (T *Watch) Run(ctx *hofcontext.Context) (interface{}, error) {
 
 						// fmt.Println(v)
 
-						p, err := flow.NewFlow(ctx, v)
+						p, err := flow.OldFlow(ctx, v)
 						if err != nil {
 							fmt.Println("Error(flow/new):", err)
 							return

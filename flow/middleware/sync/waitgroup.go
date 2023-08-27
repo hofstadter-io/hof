@@ -18,7 +18,7 @@ type Wait struct {
 	name string
 }
 
-func NewWait(opts *flags.RootPflagpole, popts *flags.FlowFlagpole) *Wait {
+func NewWait(opts flags.RootPflagpole, popts flags.FlowPflagpole) *Wait {
 	return &Wait{}
 }
 

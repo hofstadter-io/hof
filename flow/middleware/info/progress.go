@@ -16,7 +16,7 @@ type Progress struct {
 	use  bool
 }
 
-func NewProgress(opts *flags.RootPflagpole, popts *flags.FlowFlagpole) *Progress {
+func NewProgress(opts flags.RootPflagpole, popts flags.FlowPflagpole) *Progress {
 	return &Progress{
 		use: popts.Progress,
 	}

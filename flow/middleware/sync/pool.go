@@ -7,47 +7,43 @@ import (
 	"github.com/gammazero/workerpool"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
-	hofcontext "github.com/hofstadter-io/hof/flow/context"
+	flowctx "github.com/hofstadter-io/hof/flow/context"
+	"github.com/hofstadter-io/hof/lib/hof"
 )
 
 type Pool struct {
 	val  cue.Value
-	next hofcontext.Runner
+	next flowctx.Runner
 }
 
-func NewPool(opts *flags.RootPflagpole, popts *flags.FlowFlagpole) *Pool {
+func NewPool(opts flags.RootPflagpole, popts flags.FlowPflagpole) *Pool {
 	// fmt.Println("Pool: new")
 	return &Pool{}
 }
 
-func (M *Pool) Run(ctx *hofcontext.Context) (results interface{}, err error) {
+func (M *Pool) Run(ctx *flowctx.Context) (results interface{}, err error) {
 	val := ctx.Value
-	attrs := val.Attributes(cue.ValueAttr)
-	hasAttr := false
-	var a cue.Attribute
-	for _, attr := range attrs {
-		n := attr.Name()
-		if n == "pool" {
-			a = attr
-			hasAttr = true
-			break
-		}
+
+	node, err := hof.ParseHof[any](val)
+	if err != nil {
+		return nil, err
+	}
+	if node == nil  {
+		panic("we should have found a node to even get here")
 	}
 
-	if hasAttr && a.NumArgs() == 1 {
-		pn, err := a.String(0)
-		if err != nil {
-			return nil, err
-		}
+	hofp := node.Hof.Flow.Pool
 
-		pool, ok := ctx.Pools.Load(pn)
+	// Make (pool) is setup before hand? (as middleware?)
+	if hofp.Take {
+
+		pool, ok := ctx.Pools.Load(hofp.Name)
 		if !ok {
-			return nil, fmt.Errorf("unknown exec pool %q @ %s\n", pn, val.Path())
+			return nil, fmt.Errorf("unknown exec pool %q @ %s\n", hofp.Name, val.Path())
 		}
 
 		P, ok := pool.(*workerpool.WorkerPool)
 		P.SubmitWait(func() {
-			// fmt.Println("Pool: run @", M.val.Path())
 			results, err = M.next.Run(ctx)
 		})
 	} else {
@@ -55,53 +51,48 @@ func (M *Pool) Run(ctx *hofcontext.Context) (results interface{}, err error) {
 		results, err = M.next.Run(ctx)
 	}
 
-	// fmt.Println("Pool: post @", M.val.Path())
-
 	return results, err
 }
 
-func (M *Pool) Apply(ctx *hofcontext.Context, runner hofcontext.RunnerFunc) hofcontext.RunnerFunc {
-	return func(val cue.Value) (hofcontext.Runner, error) {
-		hasAttr := false
-		attrs := val.Attributes(cue.ValueAttr)
-		var a cue.Attribute
-		for _, attr := range attrs {
-			n := attr.Name()
-			if n == "pool" {
-				a = attr
-				hasAttr = true
-				break
-			}
+func (M *Pool) Apply(ctx *flowctx.Context, runner flowctx.RunnerFunc) flowctx.RunnerFunc {
+	// fmt.Println("pool.Apply call")
+	return func(val cue.Value) (flowctx.Runner, error) {
+
+		// fmt.Println("pool.Apply func")
+
+		// parse out the local #hof node data
+		node, err := hof.ParseHof[any](val)
+		if err != nil {
+			return nil, err
+		}
+		if node == nil  {
+			panic("we should have found a node to even get here")
 		}
 
+		// convenience
+		hofp := node.Hof.Flow.Pool
+
+		// hmmm, not sure if this actually runs it?
+		// probably does, which is why it is paired with a no-op
+		// so that a task is found, maybe this is where we are doubling up?
 		next, err := runner(val)
 		if err != nil {
 			return nil, err
 		}
 
-		if !hasAttr {
+		// if not a pool making task, return
+		if hofp.Name == "" {
 			return next, nil
 		}
 
-		// fmt.Printf("Pool: found @ %s %v %p\n", val.Path(), a, M)
+		// fmt.Printf("Pool: found @ %s %#v\n", val.Path(), hofp)
 
 		// setup pool by name here
 
-		pn, err := a.String(0)
-		if err != nil {
-			return nil, err
-		}
-
-		if a.NumArgs() > 1 {
-			// fmt.Println("Pool: make @", val.Path(), a)
-			max, err := a.Int(1)
-			if err != nil {
-				return nil, err
-			}
-
-			pool := workerpool.New(int(max))
+		if hofp.Make {
+			pool := workerpool.New(hofp.Number)
 			// fmt.Println("Pool: store @", val.Path(), pool)
-			ctx.Pools.Store(pn, pool)
+			ctx.Pools.Store(hofp.Name, pool)
 		}
 
 		return &Pool{

@@ -164,7 +164,17 @@ func CueErrorToString(err error) string {
 		// }
 	// }
 
-	return w.String()
+	// ugh, whitespace cleanup...
+	// it is relatively reasonable to do this here
+	// as this is called in many places, and also
+	// called multiple times on the same error via wrapping
+	s := w.String()
+	noline := ""
+	if strings.HasSuffix(s, "\n") {
+		noline = "\n"
+	}
+
+	return strings.TrimSpace(s) + noline
 }
 
 func ExpandCueError(err error) error {

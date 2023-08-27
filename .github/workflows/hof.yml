@@ -105,16 +105,16 @@ jobs:
       - name: test/flow
         env:
           GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
-        run: hof flow -f test/flow ./test.cue
+        run: hof flow @test/flow ./test.cue
       - name: test/fmt
         env:
           GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
         run: |-
           docker ps -a
           hof fmt info
-          hof flow -f test/fmt ./test.cue
+          hof flow @test/fmt ./test.cue
       - name: test/mod
-        run: hof flow -f test/mod ./test.cue
+        run: hof flow @test/mod ./test.cue
         env:
           HOFMOD_SSHKEY: ${{secrets.HOFMOD_SSHKEY}}
           GITLAB_TOKEN: ${{secrets.GITLAB_TOKEN}}

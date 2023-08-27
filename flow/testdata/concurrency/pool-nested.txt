@@ -1,0 +1,82 @@
+exec hof flow in.cue
+
+-- in.cue --
+package concurrency
+
+import (
+	"encoding/json"
+	"list"
+)
+
+// demonstrates limiting a task to
+// at most N concurrent processors
+nestExample: this={
+	@flow(nest)
+
+	max: int | *5 @tag(max,type=int)
+	ids: list.Range(0, max, 1)
+
+	for i, _ in ids {
+		"task-\(i)": {
+			@task(nest)
+
+			call: {
+				@task(api.Call)
+				req: {
+					host:   "https://postman-echo.com"
+					method: "GET"
+					path:   "/get"
+					query: {
+						cow:  "moo"
+						task: "call-\(i)"
+					}
+				}
+
+				resp: _
+			}
+
+			fool: {
+				@task(api.Call)
+				_val: call.resp.body.args.task
+				req: {
+					host:   "https://postman-echo.com"
+					method: "GET"
+					path:   "/get"
+					query: {
+						cow:  "moo"
+						task: "foo-\(i)-\(_val)"
+					}
+				}
+
+				resp: _
+			}
+
+			wait: {
+				@task(os.Sleep)
+				_dep:     fool.resp.body.args.task
+				duration: "1s"
+			}
+		}
+	}
+
+	final: {
+		@task(os.Stdout)
+
+		// dep: [ for i, _ in ids {this["task-\(i)"].wait}]
+		dep: this["task-0"].wait
+
+		_data: {
+			for i, _ in ids {
+				"task-\(i)": {
+					call: this["task-\(i)"].call.resp.body
+					fool: this["task-\(i)"].fool.resp.body
+				}
+			}
+		}
+
+		text: "final: " + json.Indent(json.Marshal(_data), "", "  ") + "\n"
+	}
+
+}
+-- golden.stdout --
+tbd

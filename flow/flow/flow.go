@@ -7,10 +7,10 @@ import (
 	"cuelang.org/go/cue"
 	cueflow "cuelang.org/go/tools/flow"
 
-	hofcontext "github.com/hofstadter-io/hof/flow/context"
+	flowctx "github.com/hofstadter-io/hof/flow/context"
 	"github.com/hofstadter-io/hof/flow/tasker"
+	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/hof"
-	"github.com/hofstadter-io/hof/lib/structural"
 )
 
 type Flow struct {
@@ -20,32 +20,65 @@ type Flow struct {
 	Orig  cue.Value
 	Final cue.Value
 
-	HofContext *hofcontext.Context
-	Ctrl       *cueflow.Controller
+	FlowCtx *flowctx.Context
+	Ctrl    *cueflow.Controller
 }
 
-func NewFlow(ctx *hofcontext.Context, val cue.Value) (*Flow, error) {
+func NewFlow(node *hof.Node[Flow]) *Flow {
+	return &Flow{
+		Node: node,
+		Root: node.Value,
+		Orig: node.Value,
+	}
+}
+
+func OldFlow(ctx *flowctx.Context, val cue.Value) (*Flow, error) {
 	p := &Flow{
-		Root:       val,
-		Orig:       val,
-		HofContext: ctx,
+		Root:    val,
+		Orig:    val,
+		FlowCtx: ctx,
 	}
 	return p, nil
 }
 
 // This is for the top-level flows
 func (P *Flow) Start() error {
-	return P.run()
+	err := P.run()
+	// fmt.Println("Start().Err", P.Orig.Path(), err)	
+	return err
 }
 
 func (P *Flow) run() error {
-	// root := P.HofContext.RootValue
+	// fmt.Println("FLOW.run:", P.FlowCtx.RootValue.Path(), P.Root.Path())
+	// root := P.FlowCtx.RootValue
 	root := P.Root
 	// Setup the flow Config
 	cfg := &cueflow.Config{
-		InferTasks:     true,
-		IgnoreConcrete: true,
+		// InferTasks:      true,
+		IgnoreConcrete:  true,
+		FindHiddenTasks: true,
 		UpdateFunc: func(c *cueflow.Controller, t *cueflow.Task) error {
+			//if t != nil {
+			//  fmt.Println("Flow.Update()", t.Index(), t.Path())
+			//} else {
+			//  fmt.Println("Flow.Update()", "nil task")
+			//}
+			if t != nil {
+				v := t.Value()
+
+				node, err := hof.ParseHof[any](v)
+				if err != nil {
+					return err
+				}
+				if node == nil  {
+					panic("we should have found a node to even get here")
+				}
+
+				if node.Hof.Flow.Print.Level > 0 && !node.Hof.Flow.Print.Before {
+					pv := v.LookupPath(cue.ParsePath(node.Hof.Flow.Print.Path))
+					fmt.Printf("%s.%s: %v\n", node.Hof.Path, node.Hof.Flow.Print.Path, pv)
+				}
+			}
 			return nil
 		},
 	}
@@ -64,16 +97,20 @@ func (P *Flow) run() error {
 	u := v.Unify(root)
 
 	// create the workflow which will build the task graph
-	P.Ctrl = cueflow.New(cfg, u, tasker.NewTasker(P.HofContext))
+	P.Ctrl = cueflow.New(cfg, u, tasker.NewTasker(P.FlowCtx))
 
-	err := P.Ctrl.Run(P.HofContext.GoContext)
+	err := P.Ctrl.Run(P.FlowCtx.GoContext)
 
 	// fmt.Println("flow(end):", P.path, P.rpath)
 	P.Final = P.Ctrl.Value()
 	if err != nil {
-		s := structural.FormatCueError(err)
-		return fmt.Errorf("Error: %s", s)
+		s := cuetils.CueErrorToString(err)
+		// fmt.Println("Flow ERR in?", P.Orig.Path(), s)
+		
+		//fmt.Println(P)
+		return fmt.Errorf("Error in %s | %s: %s", P.Hof.Metadata.Name, P.Orig.Path(), s)
 	}
+	// fmt.Println("NOT HERE", P.Orig.Path())
 
 	return nil
 }

@@ -20,8 +20,8 @@ poolExample: {
 
 	for i, _ in list.Range(0, max, 1) {
 		"task-\(i)": {
-			// @pool(api)
 			@task(nest)
+			@pool(api)
 			call: {
 				@task(api.Call)
 				req: {
