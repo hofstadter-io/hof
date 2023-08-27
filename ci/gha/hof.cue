@@ -101,21 +101,21 @@ ghacue.#Workflow & {
 }, {
 	name: "test/flow"
 	run: """
-		hof flow -f test/flow ./test.cue
+		hof flow @test/flow ./test.cue
 		"""
 }, {
 	name: "test/fmt"
 	run: """
 		docker ps -a
 		hof fmt info
-		hof flow -f test/fmt ./test.cue
+		hof flow @test/fmt ./test.cue
 		"""
 }, {
 	// should probably be last for external workflows?
 	// or maybe separate workflow for permissions?
 	name: "test/mod"
 	run: """
-		hof flow -f test/mod ./test.cue
+		hof flow @test/mod ./test.cue
 		"""
 	env: {
 		HOFMOD_SSHKEY:      "${{secrets.HOFMOD_SSHKEY}}"

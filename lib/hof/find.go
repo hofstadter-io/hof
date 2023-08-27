@@ -45,9 +45,6 @@ func upgradeAttrs[T any](node *Node[T], label string) bool {
 
 		// this doesnt handle empty @flow()
 		case "flow":
-			if ac == "" {
-				ac = "<anonymous>"
-			}
 			node.Hof.Flow.Root = true
 			node.Hof.Flow.Name = ac
 			// extra, a bit hacky
