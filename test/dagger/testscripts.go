@@ -180,6 +180,7 @@ func (R *Runtime) TestFlow(c *dagger.Container, source *dagger.Directory) error 
 	p := c.Pipeline("test/flow")
 
 	dirs := []string{
+		"flow/testdata/bulk",
 		"flow/testdata/tasks",
 		"flow/testdata/tasks/api",
 		"flow/testdata/tasks/db",

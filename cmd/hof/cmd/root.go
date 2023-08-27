@@ -134,7 +134,6 @@ func RootInit() {
 	RootCmd.AddCommand(DatamodelCmd)
 	RootCmd.AddCommand(GenCmd)
 	RootCmd.AddCommand(FlowCmd)
-	RootCmd.AddCommand(StCmd)
 	RootCmd.AddCommand(FmtCmd)
 	RootCmd.AddCommand(ModCmd)
 	RootCmd.AddCommand(DefCmd)
@@ -201,7 +200,6 @@ Main commands:
   fmt                   format any code and manage the formatters
   gen                   CUE powered code generation
   mod                   CUE module dependency management
-  st                    apply CUE transformations in bulk
   vet                   validate data with CUE
 
 Additional commands:

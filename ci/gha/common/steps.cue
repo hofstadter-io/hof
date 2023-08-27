@@ -136,6 +136,7 @@ Steps: {
 		macAction: {
 			name: "Set up Docker"
 			uses: "crazy-max/ghaction-setup-docker@v1"
+			env: SIGN_QEMU_BINARY: "1"
 			with: {
 				version: "v" + Versions.docker
 			}
@@ -144,6 +145,9 @@ Steps: {
 		macSetup: {
 			name: "Setup Docker on MacOS"
 			run: """
+				brew install docker
+				"""
+			_runB: """
 				brew install docker
 				brew reinstall -f --force-bottle qemu lima colima 
 

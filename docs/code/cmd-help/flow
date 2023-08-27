@@ -11,8 +11,10 @@ Available Commands:
   list        print available flows
 
 Flags:
+  -B, --bulk string    exprs for inputs to run workflow in bulk mode
   -F, --flow strings   flow labels to match and run
   -h, --help           help for flow
+  -P, --parallel int   global flow parallelism (default 1)
       --progress       print task progress as it happens
 
 Global Flags:

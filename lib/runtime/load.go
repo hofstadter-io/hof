@@ -25,6 +25,7 @@ import (
 
 	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/hof"
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 func (R *Runtime) Load() (err error) {
@@ -61,24 +62,43 @@ func (R *Runtime) prepPlacedDatafiles() {
 		R.Stats.Add("data/load", end.Sub(start))
 	}()
 	R.origEntrypoints = make([]string, 0, len(R.Entrypoints))
+	entries := []string{}
 
-	for i, E := range R.Entrypoints {
+	// we cloud probably do something to support both globs and @ placement, but there is -l as well
+	for _, E := range R.Entrypoints {
 		R.origEntrypoints = append(R.origEntrypoints, E)
-		if !strings.Contains(E, "@") {
+
+		// expand globs
+		if strings.Contains(E, "*") {
+			files, err := yagu.FilesFromGlobs([]string{E})
+			if err != nil {
+				fmt.Println("warning: error while globing %q: %v", E, err)
+			}
+			entries = append(entries, files...)
 			continue
 		}
 
-		parts := strings.Split(E, "@")
-		if len(parts) != 2 {
+		// placed data
+		if strings.Contains(E, "@") {
+			parts := strings.Split(E, "@")
+			if len(parts) == 2 {
+				// add the mapping
+				fname, fpath := parts[0], parts[1]
+				R.dataMappings[fname] = fpath
+				entries = append(entries, fname)
 			continue
+			}
 		}
 
-		// add the mapping
-		fname, fpath := parts[0], parts[1]
-		R.dataMappings[fname] = fpath
-
-		R.Entrypoints[i] = fname
+		// else, just the entrypoint as is
+		entries = append(entries, E)
 	}
+
+	if R.Flags.Verbosity > 1 {
+		fmt.Println("update entrypoints:", entries)
+	}
+
+	R.Entrypoints = entries
 }
 
 func (R *Runtime) load() (err error) {

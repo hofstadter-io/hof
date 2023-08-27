@@ -3,57 +3,28 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"cuelang.org/go/cue"
+	"github.com/gammazero/workerpool"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
-	"github.com/hofstadter-io/hof/flow/flow"
 	flowctx "github.com/hofstadter-io/hof/flow/context"
+	"github.com/hofstadter-io/hof/flow/flow"
 	"github.com/hofstadter-io/hof/flow/middleware"
-	"github.com/hofstadter-io/hof/flow/task" // ensure tasks register
+	"github.com/hofstadter-io/hof/flow/task"  // ensure tasks register
 	"github.com/hofstadter-io/hof/flow/tasks" // ensure tasks register
+	"github.com/hofstadter-io/hof/lib/hof"
 )
 
-func Run(args []string, rflags flags.RootPflagpole, cflags flags.FlowPflagpole) error {
-
-	// prep our runtime
-	R, err := prepRuntime(args, rflags, cflags)
+func prepFlow(R *Runtime, val cue.Value) (*flow.Flow, error) {
+	node, err := hof.ParseHof[flow.Flow](val)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	// this sets up the flows to run
-	//err = R.EnrichFlows(cflags.Flow, EnrichFlows)
-	//if err != nil {
-	//  return err
-	//}
-
-	for _, flow := range R.Workflows {
-		prepFlow(R, flow)
-
-		if R.Flags.Verbosity > 0 {
-			fmt.Println("running:", flow.Hof.Metadata.Name)
-		}
-
-		err := flow.Start()
-		if err != nil {
-			return err
-		}
-
-		if R.Flags.Stats {
-			err = printFinalContext(flow.FlowCtx)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
-}
-
-func prepFlow(R *Runtime, f *flow.Flow) {
 	c := flowctx.New()
-	c.RootValue = R.Value
+	c.RootValue = val
 	c.Stdin = os.Stdin
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr
@@ -64,7 +35,123 @@ func prepFlow(R *Runtime, f *flow.Flow) {
 	middleware.UseDefaults(c, R.Flags, R.FlowFlags)
 	tasks.RegisterDefaults(c)
 
-	f.FlowCtx = c
+	f, err := flow.OldFlow(c, val)
+	f.Node = node
+	return f, err
+}
+
+func Run(args []string, rflags flags.RootPflagpole, cflags flags.FlowPflagpole) error {
+
+	wp := workerpool.New(cflags.Parallel)
+
+	// prep our runtime
+	R, err := prepRuntime(args, rflags, cflags)
+	if err != nil {
+		return err
+	}
+
+	var src, dst string
+	if cflags.Bulk != "" {
+		parts := strings.Split(cflags.Bulk, "@")
+		if len(parts) != 2 {
+			return fmt.Errorf("bad format for -B/--bulk flag, requires <src.path>@<dst.path>")
+		}
+		src, dst = parts[0], parts[1]
+		if src == "" || dst == "" {
+			return fmt.Errorf("bad format for -B/--bulk flag, requires <src.path>@<dst.path>")
+		}
+	}
+
+	errCnt := 0
+
+	for _, WF := range R.Workflows {
+
+		if R.Flags.Verbosity > 0 {
+			fmt.Println("running:", WF.Hof.Metadata.Name)
+		}
+
+		// runs the workflow in a single value
+		fn := func(val cue.Value) error {
+
+			F, err := prepFlow(R, val)
+			if err != nil {
+				return err
+			}
+
+			err = F.Start()
+			if err != nil {
+				return err
+			}
+
+			if R.Flags.Stats {
+				err = printFinalContext(F.FlowCtx)
+				if err != nil {
+					return err
+				}
+			}
+
+			return nil
+		}
+
+		// bulk processing
+		if src != "" && dst != "" {
+			fmt.Printf("flowing %q in bulk mode using %d workers\n", WF.Hof.Flow.Name, cflags.Parallel)
+			// get Src data
+			Src := R.Value.LookupPath(cue.ParsePath(src))
+
+			// build up iter from Src
+			var iter *cue.Iterator
+			switch Src.IncompleteKind() {
+			case cue.StructKind:
+				iter, err = Src.Fields()
+			case cue.ListKind:
+				var i cue.Iterator
+				i, err = Src.List()
+				iter = &i
+			default:
+				fmt.Println("unknown iterable", Src.Validate())	
+			}
+			if err != nil {
+				return err
+			}
+
+			// loop over data
+			for iter.Next() {
+				data := iter.Value()
+
+				wp.Submit(func(){
+					fmt.Println(">>>", data.Path())
+		
+					v := WF.Root.FillPath(cue.ParsePath(dst), data)
+
+					err := fn(v)
+					if err != nil {
+						fmt.Println(err)
+						errCnt += 1
+					}
+					fmt.Println()
+				})
+			}	
+
+			wp.StopWait()
+
+		} else {
+			wp.Submit(func(){
+				err := fn(WF.Root)
+				if err != nil {
+					fmt.Println(err)
+					errCnt += 1
+				}
+			})
+		} 
+	}
+
+	wp.StopWait()
+	if errCnt > 0 {
+		return fmt.Errorf("%d error(s) were encountered", errCnt)
+	}
+
+	return nil
 }
 
 func printFinalContext(ctx *flowctx.Context) error {

@@ -57,11 +57,27 @@ var rt Runtime
 
 type runtime struct {
 	bin   RuntimeBinary
+	env   []string
 	debug bool
 }
 
 func (r runtime) Binary() string {
 	return string(r.bin)
+}
+
+// passthrough likely env vars for our runtimes
+func (r runtime) addEnv() {
+	vars := []string{
+		"DOCKER_HOST",
+		"CONTAINERD_ADDRESS",
+		"CONTAINERD_NAMESPACE",
+	}
+
+	for _,v := range vars {
+		val := os.Getenv(v)
+		jnd := fmt.Sprintf("%s=%s", v, val)
+		r.env = append(r.env, jnd)
+	}
 }
 
 func (r runtime) exec(ctx context.Context, args ...string) (io.Reader, error) {
@@ -70,7 +86,11 @@ func (r runtime) exec(ctx context.Context, args ...string) (io.Reader, error) {
 		stderr bytes.Buffer
 	)
 
+	// get env so we can inject
+	r.addEnv()
+
 	cmd := exec.CommandContext(ctx, string(r.bin), args...)
+	cmd.Env = r.env
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 

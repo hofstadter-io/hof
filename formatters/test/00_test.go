@@ -1,6 +1,7 @@
 package fmt_test
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
@@ -10,10 +11,22 @@ import (
 
 func envSetup(env *runtime.Env) error {
 	env.Vars = append(env.Vars, "HOF_TELEMETRY_DISABLED=1")
-	env.Vars = append(env.Vars, "DOCKER_HOST=" + os.Getenv("DOCKER_HOST"))
-	env.Vars = append(env.Vars, "GITHUB_TOKEN=" + os.Getenv("GITHUB_TOKEN"))
-	env.Vars = append(env.Vars, "HOF_FMT_VERSION=" + os.Getenv("HOF_FMT_VERSION"))
-	env.Vars = append(env.Vars, "HOF_FMT_DEBUG=" + os.Getenv("HOF_FMT_DEBUG"))
+
+	vars := []string{
+		"GITHUB_TOKEN",
+		"HOF_FMT_VERSION",
+		"HOF_FMT_DEBUG",
+		"DOCKER_HOST",
+		"CONTAINERD_ADDRESS",
+		"CONTAINERD_NAMESPACE",
+	}
+
+	for _,v := range vars {
+		val := os.Getenv(v)
+		jnd := fmt.Sprintf("%s=%s", v, val)
+		env.Vars = append(env.Vars, jnd)
+	}
+
 	return nil
 }
 

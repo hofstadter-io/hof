@@ -45,9 +45,9 @@ func NewTasker(ctx *flowctx.Context) cueflow.TaskFunc {
 func makeTask(ctx *flowctx.Context, node *hof.Node[any]) (cueflow.Runner, error) {
 
 	taskId := node.Hof.Flow.Task
-	// taskName := node.Hof.Flow.Name
 
-	// fmt.Println("makeTask:", taskId, taskName, node.Hof.Path, node.Hof.Flow.Root, node.Parent)
+	//taskName := node.Hof.Flow.Name
+	//fmt.Println("makeTask:", taskId, taskName, node.Hof.Path, node.Hof.Flow.Root, node.Parent)
 
 	// lookup context.RunnerFunc
 	runnerFunc := ctx.Lookup(taskId)
@@ -95,7 +95,14 @@ func makeTask(ctx *flowctx.Context, node *hof.Node[any]) (cueflow.Runner, error)
 		}
 		if node.Hof.Flow.Print.Level > 0 && node.Hof.Flow.Print.Before {
 			pv := c.Value.LookupPath(cue.ParsePath(node.Hof.Flow.Print.Path))
-			fmt.Printf("%s.%s: %# v\n", node.Hof.Path, node.Hof.Flow.Print.Path, pv)
+			if node.Hof.Path == "" {
+				fmt.Printf("%s", node.Hof.Flow.Print.Path)
+			} else if node.Hof.Flow.Print.Path == "" {
+				fmt.Printf("%s", node.Hof.Path)
+			} else {
+				fmt.Printf("%s.%s", node.Hof.Path, node.Hof.Flow.Print.Path)
+			}
+			fmt.Printf(": %#v\n", pv)
 		}
 		
 		c.BaseTask = bt

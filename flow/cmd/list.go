@@ -16,7 +16,7 @@ func List(args []string, rflags flags.RootPflagpole, cflags flags.FlowPflagpole)
 	fmt.Println("Available Generators")
 	flows := make([]string, 0, len(R.Workflows))
 	for _, G := range R.Workflows {
-		fmt.Println(" ", G.Hof.Flow.Name, G.Value.Path())
+		fmt.Println(" ", G.Hof.Flow.Name)
 		flows = append(flows, G.Hof.Flow.Name)
 	}
 	sort.Strings(flows)

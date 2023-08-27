@@ -160,8 +160,6 @@ func CueErrorToString(err error) string {
 		ToSlash: true,
 	})
 	// for _, e := range errors.Errors(err) {
-		// for _, e2 := range errors.Errors(e) {
-		// }
 	// }
 
 	// ugh, whitespace cleanup...

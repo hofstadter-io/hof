@@ -19,6 +19,20 @@ FlowCommand: schema.Command & {
 		Default: "nil"
 		Help:    "flow labels to match and run"
 	}, {
+		Name:    "bulk"
+		Long:    "bulk"
+		Short:   "B"
+		Type:    "string"
+		Default: ""
+		Help:    "exprs for inputs to run workflow in bulk mode"
+	}, {
+		Name:    "parallel"
+		Long:    "parallel"
+		Short:   "P"
+		Type:    "int"
+		Default: "1"
+		Help:    "global flow parallelism"
+	}, {
 		Name:    "progress"
 		Long:    "progress"
 		Short:   ""
