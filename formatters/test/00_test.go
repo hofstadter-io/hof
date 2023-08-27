@@ -1,6 +1,7 @@
 package fmt_test
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
@@ -14,7 +15,7 @@ func envSetup(env *runtime.Env) error {
 	vars := []string{
 		"GITHUB_TOKEN",
 		"HOF_FMT_VERSION",
-		"HOF_FMT_DEBUG"
+		"HOF_FMT_DEBUG",
 		"DOCKER_HOST",
 		"CONTAINERD_ADDRESS",
 		"CONTAINERD_NAMESPACE",
