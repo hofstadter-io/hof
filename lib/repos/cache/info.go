@@ -197,16 +197,16 @@ func UpgradePseudoVersion(path, ver string) (s string, err error) {
 		fmt.Println("cache.UpgradePsuedoVersion", path, ver)
 	}
 
-	// semver tag?
-	if semver.IsValid(ver) {
-		return ver, nil
-	}
-
 	if ver == "latest" || ver == "next" {
 		ver, err = GetLatestTag(path, ver == "next")
 		if err != nil {
 			return ver, err
 		}
+	}
+
+	// do we have a valid semver tag now?
+	if semver.IsValid(ver) {
+		return ver, nil
 	}
 
 	// branch? need to find commit, what if branch does not exist
@@ -218,6 +218,7 @@ func UpgradePseudoVersion(path, ver string) (s string, err error) {
 		ver = nver
 	}
 
+	// commit
 	if !strings.HasPrefix(ver, "v") {
 		now := time.Now().UTC().Format("20060102150405")
 		ver = fmt.Sprintf("v0.0.0-%s-%s", now, ver)
