@@ -10,11 +10,17 @@ import (
 )
 
 func envSetup(env *runtime.Env) error {
+
 	vars := []string{
 		"GITHUB_TOKEN",
 		"GITLAB_TOKEN",
 		"BITBUCKET_USERNAME",
 		"BITBUCKET_PASSWORD",
+
+		"HOF_FMT_VERSION",
+		"DOCKER_HOST",
+		"CONTAINERD_ADDRESS",
+		"CONTAINERD_NAMESPACE",
 	}
 	for _, v := range vars {
 		if val := os.Getenv(v); val != "" {
