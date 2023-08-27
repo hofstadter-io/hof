@@ -50,6 +50,17 @@ ghacue.#Workflow & {
 					hof fmt info
 					docker ps -a
 					"""
+				"if": "${{ startsWith( runner.os, 'ubuntu') }}"
+			},
+			{
+				name: "Start Formatters"
+				run: """
+					docker images
+					hof fmt start @v0.6.8
+					hof fmt info
+					docker ps -a
+					"""
+				"if": "${{ startsWith( runner.os, 'macos') }}"
 			},
 		] + #TestSteps
 	}

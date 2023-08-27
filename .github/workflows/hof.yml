@@ -69,6 +69,14 @@ jobs:
           hof fmt start
           hof fmt info
           docker ps -a
+        if: ${{ startsWith( runner.os, 'ubuntu') }}
+      - name: Start Formatters
+        run: |-
+          docker images
+          hof fmt start @v0.6.8
+          hof fmt info
+          docker ps -a
+        if: ${{ startsWith( runner.os, 'macos') }}
       - name: test/self
         env:
           GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
