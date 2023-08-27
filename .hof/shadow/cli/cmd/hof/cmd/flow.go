@@ -21,7 +21,7 @@ func init() {
 
 	FlowCmd.PersistentFlags().StringSliceVarP(&(flags.FlowPflags.Flow), "flow", "F", nil, "flow labels to match and run")
 	FlowCmd.PersistentFlags().StringVarP(&(flags.FlowPflags.Bulk), "bulk", "B", "", "exprs for inputs to run workflow in bulk mode")
-	FlowCmd.PersistentFlags().IntVarP(&(flags.FlowPflags.Parallel), "parallel", "P", 1, "bulk processing parallelism")
+	FlowCmd.PersistentFlags().IntVarP(&(flags.FlowPflags.Parallel), "parallel", "P", 1, "global flow parallelism")
 	FlowCmd.PersistentFlags().BoolVarP(&(flags.FlowPflags.Progress), "progress", "", false, "print task progress as it happens")
 }
 

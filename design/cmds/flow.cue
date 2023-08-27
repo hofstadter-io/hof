@@ -31,7 +31,7 @@ FlowCommand: schema.Command & {
 		Short:   "P"
 		Type:    "int"
 		Default: "1"
-		Help:    "bulk processing parallelism"
+		Help:    "global flow parallelism"
 	}, {
 		Name:    "progress"
 		Long:    "progress"
