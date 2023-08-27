@@ -76,7 +76,14 @@ func (P *Flow) run() error {
 
 				if node.Hof.Flow.Print.Level > 0 && !node.Hof.Flow.Print.Before {
 					pv := v.LookupPath(cue.ParsePath(node.Hof.Flow.Print.Path))
-					fmt.Printf("%s.%s: %v\n", node.Hof.Path, node.Hof.Flow.Print.Path, pv)
+					if node.Hof.Path == "" {
+						fmt.Printf("%s", node.Hof.Flow.Print.Path)
+					} else if node.Hof.Flow.Print.Path == "" {
+						fmt.Printf("%s", node.Hof.Path)
+					} else {
+						fmt.Printf("%s.%s", node.Hof.Path, node.Hof.Flow.Print.Path)
+					}
+					fmt.Printf(": %v\n", pv)
 				}
 			}
 			return nil

@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"cuelang.org/go/cue"
 
@@ -22,11 +23,18 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.FlowPflagpole) 
 		return err
 	}
 
-	// this sets up the flows to run
-	//err = R.EnrichFlows(cflags.Flow, EnrichFlows)
-	//if err != nil {
-	//  return err
-	//}
+	var src, dst string
+	if cflags.Bulk != "" {
+		fmt.Println("Bulk:", cflags.Bulk)
+		parts := strings.Split(cflags.Bulk, "@")
+		if len(parts) != 2 {
+			return fmt.Errorf("bad format for -B/--bulk flag, requires <src.path>@<dst.path>")
+		}
+		src, dst = parts[0], parts[1]
+		if src == "" || dst == "" {
+			return fmt.Errorf("bad format for -B/--bulk flag, requires <src.path>@<dst.path>")
+		}
+	}
 
 	for _, flow := range R.Workflows {
 		prepFlow(R, flow)
@@ -35,17 +43,31 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.FlowPflagpole) 
 			fmt.Println("running:", flow.Hof.Metadata.Name)
 		}
 
-		err := flow.Start()
-		if err != nil {
-			return err
+		fn := func() error {
+			err := flow.Start()
+			if err != nil {
+				return err
+			}
+
+			if R.Flags.Stats {
+				err = printFinalContext(flow.FlowCtx)
+				if err != nil {
+					return err
+				}
+			}
+
+			return nil
 		}
 
-		if R.Flags.Stats {
-			err = printFinalContext(flow.FlowCtx)
+		if src != "" && dst != "" {
+			fmt.Println("flowing in bulk mode")
+		} else {
+			err := fn()
 			if err != nil {
 				return err
 			}
 		}
+ 
 	}
 
 	return nil

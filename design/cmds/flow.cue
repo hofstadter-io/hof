@@ -22,8 +22,8 @@ FlowCommand: schema.Command & {
 		Name:    "bulk"
 		Long:    "bulk"
 		Short:   "B"
-		Type:    "[]string"
-		Default: "nil"
+		Type:    "string"
+		Default: ""
 		Help:    "exprs for inputs to run workflow in bulk mode"
 	}, {
 		Name:    "progress"

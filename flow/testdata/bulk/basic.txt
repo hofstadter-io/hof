@@ -1,0 +1,85 @@
+exec hof flow -t one=true
+cmp stdout golden1.stdout
+
+exec hof gen data.cue -T ':data=[]{{.g}}{{.h}}.json' -O data
+exec tree data
+
+exev hof flow flow.cue data/d4.json@native.IN
+cmp stdout goldenD.stdout
+
+hof flow flow.cue data/* -l '"bulk"' -l '"\(g)\(h)"' -F native -B bulk@IN
+cmp stdout goldenN.stdout
+
+-- data.cue --
+package bulk
+
+_x: ["a", "b", "c", "d"]
+_y: ["1", "2", "3", "4", "5"]
+
+data: _data1
+
+_data1: {
+	for _, x in _x for _, y in _y {
+		"\(x)\(y)": {
+			g: x
+			h: y
+		}
+	}
+}
+-- flow.cue --
+package bulk
+
+import "strconv"
+
+native: {
+	@flow(native)
+
+	one: bool | *false @tag(one,type=bool)
+	if one {
+		IN: data["a1"]
+	}
+	IN: {
+		g: string
+		h: =~#"\d+"#
+	}
+
+	OUT: {
+		g: string
+		h: int
+		c: string
+	}
+
+	_pick: {
+		@task(st.Pick)
+		val: IN
+		pick: {g: _}
+	}
+
+	_atoi: {
+		num: strconv.Atoi(IN.h)
+	}
+
+	OUT: {
+		@task(noop)
+		@print()
+		g: _pick.out.g
+		h: _atoi.num
+		c: "\(IN.g)\(IN.h)"
+	}
+
+}
+-- golden1.stdout --
+OUT: {
+	g: "a"
+	h: 1
+	c: "a1"
+}
+-- goldenD.stdout --
+OUT: {
+	g: "d"
+	h: 4
+	c: "d4"
+}
+-- goldenN.stdout --
+<tbd>
+

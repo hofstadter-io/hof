@@ -21,7 +21,7 @@ var flowLong = `run workflows and tasks powered by CUE`
 func init() {
 
 	FlowCmd.PersistentFlags().StringSliceVarP(&(flags.FlowPflags.Flow), "flow", "F", nil, "flow labels to match and run")
-	FlowCmd.PersistentFlags().StringSliceVarP(&(flags.FlowPflags.Bulk), "bulk", "B", nil, "exprs for inputs to run workflow in bulk mode")
+	FlowCmd.PersistentFlags().StringVarP(&(flags.FlowPflags.Bulk), "bulk", "B", "", "exprs for inputs to run workflow in bulk mode")
 	FlowCmd.PersistentFlags().BoolVarP(&(flags.FlowPflags.Progress), "progress", "", false, "print task progress as it happens")
 }
 

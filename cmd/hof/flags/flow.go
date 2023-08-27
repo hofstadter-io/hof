@@ -2,7 +2,7 @@ package flags
 
 type FlowPflagpole struct {
 	Flow     []string
-	Bulk     []string
+	Bulk     string
 	Progress bool
 }
 
