@@ -26,7 +26,7 @@ func ParseHof[T any](val cue.Value) (*Node[T], error) {
 	// do not decend into #hof value itself
 	// or any definition
 	if label == "#hof" {
-		return nil, nil
+		return nil, fmt.Errorf("you are trying to parse the #hof value, rather than the containing node at %v", path)
 	}
 
 	// return early and recurse for root value?

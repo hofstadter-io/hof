@@ -46,7 +46,7 @@ func (R *Runtime) Load() (err error) {
 		return err
 	}
 
-	R.Nodes, err = hof.FindHofs(R.Value)
+	R.Nodes, err = hof.FindHofsOrig(R.Value)
 	if err != nil {
 		return err
 	}
