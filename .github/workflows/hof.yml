@@ -62,21 +62,12 @@ jobs:
         run: go mod download
       - name: Build CLI
         run: go install ./cmd/hof
-      - name: Build Formatters
-        run: |-
-          make formatters
-          docker images
-          hof fmt start
-          hof fmt info
-          docker ps -a
-        if: '!startsWith( runner.os, ''macos'')'
       - name: Start Formatters
         run: |-
           docker images
           hof fmt start @v0.6.8
           hof fmt info
           docker ps -a
-        if: startsWith( runner.os, 'macos')
       - name: test/self
         env:
           GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}

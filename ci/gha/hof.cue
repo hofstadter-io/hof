@@ -41,17 +41,17 @@ ghacue.#Workflow & {
 				name: "Build CLI"
 				run:  "go install ./cmd/hof"
 			},
-			{
-				name: "Build Formatters"
-				run: """
-					make formatters
-					docker images
-					hof fmt start
-					hof fmt info
-					docker ps -a
-					"""
-				"if": "!startsWith( runner.os, 'macos')"
-			},
+			//{
+			//  name: "Build Formatters"
+			//  run: """
+			//    make formatters
+			//    docker images
+			//    hof fmt start
+			//    hof fmt info
+			//    docker ps -a
+			//    """
+			//  "if": "!startsWith( runner.os, 'macos')"
+			//},
 			{
 				name: "Start Formatters"
 				run: """
@@ -60,7 +60,7 @@ ghacue.#Workflow & {
 					hof fmt info
 					docker ps -a
 					"""
-				"if": "startsWith( runner.os, 'macos')"
+				// "if": "startsWith( runner.os, 'macos')"
 			},
 		] + #TestSteps
 	}
