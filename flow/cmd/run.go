@@ -136,14 +136,17 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.FlowPflagpole) 
 			wp.StopWait()
 
 		} else {
-			err := fn(WF.Root)
-			if err != nil {
-				return err
-			}
-		}
- 
+			wp.Submit(func(){
+				err := fn(WF.Root)
+				if err != nil {
+					fmt.Println(err)
+					errCnt += 1
+				}
+			})
+		} 
 	}
 
+	wp.StopWait()
 	if errCnt > 0 {
 		return fmt.Errorf("%d error(s) were encountered", errCnt)
 	}
