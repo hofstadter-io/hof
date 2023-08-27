@@ -151,10 +151,10 @@ func ParseHof[T any](val cue.Value) (*Node[T], error) {
 	//  // fmt.Println("found datamodel:", stack.Hof.Path)
 	//}
 
-	// skip any injected History labels?
-	if node.Hof.Label == "History" {
-		return nil, nil
-	}
+	//// skip any injected History labels?
+	//if node.Hof.Label == "History" {
+	//  return nil, nil
+	//}
 
 	// HACK for nested task, so that it does not get picked up twice
 	// (1) inside of a flow  (2) as the root of a flow
@@ -197,6 +197,12 @@ func FindHofs(value cue.Value) (roots []*Node[any], err error) {
 
 		// did we find something?
 		if node != nil {
+
+			// skip any injected History labels?
+			if node.Hof.Label == "History" {
+				return false
+			}
+
 			// is this the root of that interesting thing?
 			// otherwise, push onto the stack and update parent/child pointers
 			if stack == nil {
@@ -212,8 +218,10 @@ func FindHofs(value cue.Value) (roots []*Node[any], err error) {
 			}
 
 			// hmm, should this go before or after the stack update?
+			// it doesn't work if we do, so... trying to reconcile this with history
 			// this is anything that can have a nested flow, ideally this could be inferred from the node / enrichment
-			if node.Hof.Flow.Task == "nest" ||  node.Hof.Flow.Task == "" {
+			if node.Hof.Flow.Task == "nest" ||
+				(node.Hof.Flow.Name != "" && node.Hof.Flow.Task == ""){
 				// fmt.Println("ending hof recursion in nest", node.Hof.Path, node.Hof.Label)
 				return false
 			}
