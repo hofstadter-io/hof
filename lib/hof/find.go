@@ -188,6 +188,19 @@ func FindHofs(value cue.Value) (roots []*Node[any], err error) {
 	var stack *Node[any] // cue stack
 
 	before := func (val cue.Value) bool {
+		// get some info
+		path := val.Path()
+		sels := path.Selectors()
+		last := cue.Selector{}
+		label := ""
+		if len(sels) > 0 {
+			last = sels[len(sels)-1]
+			label = last.String()
+		}
+
+		if label == "#hof" {
+			return false
+		}
 
 		node, err := ParseHof[any](val)
 		if err != nil {
