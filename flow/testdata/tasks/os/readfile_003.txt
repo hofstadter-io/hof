@@ -8,7 +8,5 @@ tasks: {
 }
 
 -- golden.stdout --
-Error in <anonymous>: task failed: in "r"
+Error in <anonymous> | tasks: task failed: in "r"
 open in.txt: no such file or directory
-
-

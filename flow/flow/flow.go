@@ -63,6 +63,22 @@ func (P *Flow) run() error {
 			//} else {
 			//  fmt.Println("Flow.Update()", "nil task")
 			//}
+			if t != nil {
+				v := t.Value()
+
+				node, err := hof.ParseHof[any](v)
+				if err != nil {
+					return err
+				}
+				if node == nil  {
+					panic("we should have found a node to even get here")
+				}
+
+				if node.Hof.Flow.Print.Level > 0 && !node.Hof.Flow.Print.Before {
+					pv := v.LookupPath(cue.ParsePath(node.Hof.Flow.Print.Path))
+					fmt.Printf("%s.%s: %v\n", node.Hof.Path, node.Hof.Flow.Print.Path, pv)
+				}
+			}
 			return nil
 		},
 	}

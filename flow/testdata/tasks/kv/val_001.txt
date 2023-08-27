@@ -5,30 +5,28 @@ cmp stdout golden.stdout
 @flow()
 
 set: {
-  @task(kv.Mem)
-  key: "foo"
-  val: {
-    bar: "baz"
-    num: int
-  }
+	@task(kv.Mem)
+	key: "foo"
+	val: {
+		bar: "baz"
+		num: int
+	}
 }
 
 get: {
 
-  wait: {
-    @task(os.Sleep)
-    duration: "1s"
-  }
+	wait: {
+		@task(os.Sleep)
+		duration: "1s"
+	}
 
-  load: {
-    @task(kv.Mem)
-    $dep: wait.done
-    key: "foo"
-    @print(val)
-  }
+	load: {
+		@task(kv.Mem)
+		$dep: wait.done
+		key:  "foo"
+	}
+
+	print: {text: load.val.bar + "\n"} @task(os.Stdout)
 }
 -- golden.stdout --
-get.load.val: {
-	bar: "baz"
-	num: int
-}
+baz

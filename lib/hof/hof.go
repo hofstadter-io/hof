@@ -92,7 +92,10 @@ type Flow struct {
 	Root bool
 	Name string
 	Task string
-	Pool Pool
+
+	// middleware related
+	Pool  Pool
+	Print Print
 }
 
 /*
@@ -107,6 +110,13 @@ type Pool struct {
 
 	Make   bool
 	Take   bool
+}
+
+type Print struct {
+	Level   int
+	Before  bool
+	Message string
+	Path    string
 }
 
 /*

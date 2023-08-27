@@ -11,6 +11,7 @@ import (
 
 // parse out a #hof for a single value
 func ParseHof[T any](val cue.Value) (*Node[T], error) {
+	attrs := val.Attributes(cue.ValueAttr)
 
 	// get some info
 	path := val.Path()
@@ -56,7 +57,6 @@ func ParseHof[T any](val cue.Value) (*Node[T], error) {
 	// look for attributes
 	// this is where we upgrade our @sugar() to equivalent #hof: { ... } in the Golang Hof type
 	
-	attrs := val.Attributes(cue.ValueAttr)
 	for _, A := range attrs {
 		an, ac := A.Name(), A.Contents()
 		found = true
@@ -124,6 +124,11 @@ func ParseHof[T any](val cue.Value) (*Node[T], error) {
 			node.Hof.Chat.Root = true
 			node.Hof.Chat.Name = label
 			node.Hof.Chat.Extra = ac
+
+		case "print":
+			// TODO, better parsing of AC to get parts
+			node.Hof.Flow.Print.Level = 1
+			node.Hof.Flow.Print.Path  = ac
 
 		default:
 			found = false
@@ -206,7 +211,9 @@ func FindHofs(value cue.Value) (roots []*Node[any], err error) {
 				stack = node
 			}
 
-			if node.Hof.Flow.Task == "nest" {
+			// hmm, should this go before or after the stack update?
+			// this is anything that can have a nested flow, ideally this could be inferred from the node / enrichment
+			if node.Hof.Flow.Task == "nest" ||  node.Hof.Flow.Task == "" {
 				// fmt.Println("ending hof recursion in nest", node.Hof.Path, node.Hof.Label)
 				return false
 			}

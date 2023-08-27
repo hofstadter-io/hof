@@ -7,6 +7,7 @@ import (
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	hofcontext "github.com/hofstadter-io/hof/flow/context"
+	"github.com/hofstadter-io/hof/lib/hof"
 )
 
 type Print struct {
@@ -20,6 +21,8 @@ func NewPrint(opts flags.RootPflagpole, popts flags.FlowPflagpole) *Print {
 
 func (M *Print) Run(ctx *hofcontext.Context) (results interface{}, err error) {
 	result, err := M.next.Run(ctx)
+
+	fmt.Println("HELLO")
 
 	attrs := M.val.Attributes(cue.ValueAttr)
 	for _, attr := range attrs {
@@ -51,23 +54,30 @@ func (M *Print) Run(ctx *hofcontext.Context) (results interface{}, err error) {
 
 func (M *Print) Apply(ctx *hofcontext.Context, runner hofcontext.RunnerFunc) hofcontext.RunnerFunc {
 	return func(val cue.Value) (hofcontext.Runner, error) {
-		hasAttr := false
-		attrs := val.Attributes(cue.ValueAttr)
-		for _, attr := range attrs {
-			if attr.Name() == "print" {
-				hasAttr = true
-				break
-			}
+		// parse out the local #hof node data
+		node, err := hof.ParseHof[any](val)
+		if err != nil {
+			return nil, err
 		}
+		if node == nil  {
+			panic("we should have found a node to even get here")
+		}
+
+		p := node.Hof.Flow.Print
+
+		// convenience
+		fmt.Println("found print", val.Path(), node.Hof.Path, p)
 
 		next, err := runner(val)
 		if err != nil {
 			return nil, err
 		}
 
-		if !hasAttr {
+		if p.Level > 0 {
 			return next, nil
 		}
+
+		fmt.Println("found print")
 
 		return &Print{
 			val:  val,

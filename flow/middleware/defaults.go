@@ -10,7 +10,7 @@ import (
 
 func UseDefaults(ctx *hofcontext.Context, opts flags.RootPflagpole, popts flags.FlowPflagpole) {
 	// ctx.Use(dummy.NewDummy(opts, popts))
-	ctx.Use(info.NewPrint(opts, popts))
+	// ctx.Use(info.NewPrint(opts, popts))
 	ctx.Use(info.NewProgress(opts, popts))
 	//ctx.Use(info.NewBookkeeping(info.BookkeepingConfig{
 	//Workdir: ".hof/flow",

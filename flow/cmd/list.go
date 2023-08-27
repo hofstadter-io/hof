@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"sort"
-	"strings"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 )
@@ -14,16 +13,24 @@ func List(args []string, rflags flags.RootPflagpole, cflags flags.FlowPflagpole)
 		return err
 	}
 
-	// TODO...
-	// 1. use table printer
-	// 2. move this command up, large blocks of this ought
+	fmt.Printf("Available Generators\n  ")
 	flows := make([]string, 0, len(R.Workflows))
 	for _, G := range R.Workflows {
+		fmt.Println(G.Hof.Flow.Name, G.Value.Path())
 		flows = append(flows, G.Hof.Flow.Name)
 	}
 	sort.Strings(flows)
-	fmt.Printf("Available Generators\n  ")
-	fmt.Println(strings.Join(flows, "\n  "))
+
+	// TODO...
+	// 1. use table printer
+	// 2. move this command up, large blocks of this ought
+	//flows := make([]string, 0, len(R.Workflows))
+	//for _, G := range R.Workflows {
+	//  flows = append(flows, G.Hof.Flow.Name)
+	//}
+	//sort.Strings(flows)
+	//fmt.Printf("Available Generators\n  ")
+	//fmt.Println(strings.Join(flows, "\n  "))
 	
 	// print gens
 	return nil

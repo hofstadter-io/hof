@@ -89,10 +89,14 @@ func makeTask(ctx *flowctx.Context, node *hof.Node[any]) (cueflow.Runner, error)
 		c := flowctx.Copy(ctx)
 
 		c.Value = t.Value()
-		//node, err := hof.ParseHof[any](c.Value)
-		//if err != nil {
-		//  return err
-		//}
+		node, err := hof.ParseHof[any](c.Value)
+		if err != nil {
+			return err
+		}
+		if node.Hof.Flow.Print.Level > 0 && node.Hof.Flow.Print.Before {
+			pv := c.Value.LookupPath(cue.ParsePath(node.Hof.Flow.Print.Path))
+			fmt.Printf("%s.%s: %# v\n", node.Hof.Path, node.Hof.Flow.Print.Path, pv)
+		}
 		
 		c.BaseTask = bt
 
@@ -134,6 +138,10 @@ func makeTask(ctx *flowctx.Context, node *hof.Node[any]) (cueflow.Runner, error)
 			}
 
 			bt.Final = t.Value()
+			//if node.Hof.Flow.Print.Level > 0 && !node.Hof.Flow.Print.Before {
+			//  // pv := bt.Final.LookupPath(cue.ParsePath(node.Hof.Flow.Print.Path))
+			//  fmt.Printf("%s.%s: %# v\n", node.Hof.Path, node.Hof.Flow.Print.Path, value)
+			//}
 
 		}
 		return nil
