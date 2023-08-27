@@ -11,6 +11,7 @@ Available Commands:
   list        print available flows
 
 Flags:
+  -B, --bulk strings   exprs for inputs to run workflow in bulk mode
   -F, --flow strings   flow labels to match and run
   -h, --help           help for flow
       --progress       print task progress as it happens
