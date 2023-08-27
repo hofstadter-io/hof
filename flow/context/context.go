@@ -23,6 +23,7 @@ type Context struct {
 	Stdout io.Writer
 	Stderr io.Writer
 
+	// the value worked on
 	Value cue.Value
 	Error error
 

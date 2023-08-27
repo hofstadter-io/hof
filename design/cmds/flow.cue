@@ -26,6 +26,13 @@ FlowCommand: schema.Command & {
 		Default: ""
 		Help:    "exprs for inputs to run workflow in bulk mode"
 	}, {
+		Name:    "parallel"
+		Long:    "parallel"
+		Short:   "P"
+		Type:    "int"
+		Default: "1"
+		Help:    "bulk processing parallelism"
+	}, {
 		Name:    "progress"
 		Long:    "progress"
 		Short:   ""

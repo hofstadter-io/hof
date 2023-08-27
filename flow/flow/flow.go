@@ -98,6 +98,7 @@ func (P *Flow) run() error {
 		cfg.Root = P.Orig.Path()
 	}
 
+
 	// copy orig for good measure
 	// This is helpful for when
 	v := P.Orig.Context().CompileString("{...}")
@@ -106,7 +107,9 @@ func (P *Flow) run() error {
 	// create the workflow which will build the task graph
 	P.Ctrl = cueflow.New(cfg, u, tasker.NewTasker(P.FlowCtx))
 
+	// fmt.Println("Flow.run() start")
 	err := P.Ctrl.Run(P.FlowCtx.GoContext)
+	// fmt.Println("Flow.run() end", err)
 
 	// fmt.Println("flow(end):", P.path, P.rpath)
 	P.Final = P.Ctrl.Value()

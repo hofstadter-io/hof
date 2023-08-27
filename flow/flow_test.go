@@ -48,3 +48,14 @@ func TestOSFlow(t *testing.T) {
 func TestStFlow(t *testing.T) {
 	doTaskTest("st", t)
 }
+
+func TestBulk(t *testing.T) {
+	yagu.Mkdir(".workdir/bulk")
+	runtime.Run(t, runtime.Params{
+		Dir:         "testdata/bulk/",
+		Glob:        "*.txt",
+		WorkdirRoot: ".workdir/bulk/",
+		Setup:       envSetup,
+	})
+}
+

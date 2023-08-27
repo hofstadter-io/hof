@@ -2,12 +2,11 @@ exec hof flow -t one=true
 cmp stdout golden1.stdout
 
 exec hof gen data.cue -T ':data=[]{{.g}}{{.h}}.json' -O data
-exec tree data
 
-exev hof flow flow.cue data/d4.json@native.IN
+exec hof flow flow.cue data/d4.json@native.IN
 cmp stdout goldenD.stdout
 
-hof flow flow.cue data/* -l '"bulk"' -l '"\(g)\(h)"' -F native -B bulk@IN
+exec hof flow flow.cue data/* -l '"bulk"' -l '"\(g)\(h)"' -F native -B bulk@IN
 cmp stdout goldenN.stdout
 
 -- data.cue --
@@ -30,6 +29,8 @@ _data1: {
 package bulk
 
 import "strconv"
+
+data: _
 
 native: {
 	@flow(native)
@@ -81,5 +82,143 @@ OUT: {
 	c: "d4"
 }
 -- goldenN.stdout --
-<tbd>
+flowing "native" in bulk mode using 1 workers
+>>> bulk.a1
+OUT: {
+	g: "a"
+	h: 1
+	c: "a1"
+}
 
+>>> bulk.a2
+OUT: {
+	g: "a"
+	h: 2
+	c: "a2"
+}
+
+>>> bulk.a3
+OUT: {
+	g: "a"
+	h: 3
+	c: "a3"
+}
+
+>>> bulk.a4
+OUT: {
+	g: "a"
+	h: 4
+	c: "a4"
+}
+
+>>> bulk.a5
+OUT: {
+	g: "a"
+	h: 5
+	c: "a5"
+}
+
+>>> bulk.b1
+OUT: {
+	g: "b"
+	h: 1
+	c: "b1"
+}
+
+>>> bulk.b2
+OUT: {
+	g: "b"
+	h: 2
+	c: "b2"
+}
+
+>>> bulk.b3
+OUT: {
+	g: "b"
+	h: 3
+	c: "b3"
+}
+
+>>> bulk.b4
+OUT: {
+	g: "b"
+	h: 4
+	c: "b4"
+}
+
+>>> bulk.b5
+OUT: {
+	g: "b"
+	h: 5
+	c: "b5"
+}
+
+>>> bulk.c1
+OUT: {
+	g: "c"
+	h: 1
+	c: "c1"
+}
+
+>>> bulk.c2
+OUT: {
+	g: "c"
+	h: 2
+	c: "c2"
+}
+
+>>> bulk.c3
+OUT: {
+	g: "c"
+	h: 3
+	c: "c3"
+}
+
+>>> bulk.c4
+OUT: {
+	g: "c"
+	h: 4
+	c: "c4"
+}
+
+>>> bulk.c5
+OUT: {
+	g: "c"
+	h: 5
+	c: "c5"
+}
+
+>>> bulk.d1
+OUT: {
+	g: "d"
+	h: 1
+	c: "d1"
+}
+
+>>> bulk.d2
+OUT: {
+	g: "d"
+	h: 2
+	c: "d2"
+}
+
+>>> bulk.d3
+OUT: {
+	g: "d"
+	h: 3
+	c: "d3"
+}
+
+>>> bulk.d4
+OUT: {
+	g: "d"
+	h: 4
+	c: "d4"
+}
+
+>>> bulk.d5
+OUT: {
+	g: "d"
+	h: 5
+	c: "d5"
+}
