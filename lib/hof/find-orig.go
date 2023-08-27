@@ -68,53 +68,9 @@ func FindHofsOrig(value cue.Value) (roots []*Node[any], err error) {
 		stack.Hof.Label = label
 		stack.Hof.Path = val.Path().String()
 
-		// look for attributes
-		attrs := val.Attributes(cue.ValueAttr)
-		for _, A := range attrs {
-			an, ac := A.Name(), A.Contents()
-			found = true
-			switch an {
-				case "hof":
-					switch ac {
-						case "datamodel":
-						 stack.Hof.Datamodel.Root = true
-					}
-				case "id":
-					stack.Hof.Metadata.ID = ac
-
-			case "datamodel":
-				 stack.Hof.Datamodel.Root = true
-			case "history":
-				 stack.Hof.Datamodel.History = true
-			case "ordered":
-				 stack.Hof.Datamodel.Ordered = true
-			case "cue":
-				 stack.Hof.Datamodel.Cue = true
-
-			// doesn't handle empty case, do we support that
-			// we probably should
-			case "gen":
-				stack.Hof.Gen.Root = true
-				stack.Hof.Gen.Name = ac
-
-			// this doesnt handle empty @flow()
-			case "flow":
-				stack.Hof.Flow.Root = true
-				stack.Hof.Flow.Name = ac
-			// this doesn't handle task names
-			// maybe we split into parts
-			case "task":
-				stack.Hof.Flow.Task = ac
-				stack.Hof.Flow.Name = label
-
-			case "chat":
-				stack.Hof.Chat.Root = true
-				stack.Hof.Chat.Name = label
-				stack.Hof.Chat.Extra = ac
-
-			default:
-				found = false
-			}
+		ufound := upgradeAttrs(stack, label)
+		if ufound {
+			found = ufound
 		}
 
 		// filters to end recursion

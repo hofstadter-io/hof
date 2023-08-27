@@ -9,57 +9,16 @@ import (
 	"github.com/codemodus/kace"
 )
 
-// parse out a #hof for a single value
-func ParseHof[T any](val cue.Value) (*Node[T], error) {
+// this is where we upgrade our @sugar() to equivalent #hof: { ... } in the Golang Hof type
+func upgradeAttrs[T any](node *Node[T], label string) bool {
+	val := node.Value
 	attrs := val.Attributes(cue.ValueAttr)
 
-	// get some info
-	path := val.Path()
-	sels := path.Selectors()
-	last := cue.Selector{}
-	label := ""
-	if len(sels) > 0 {
-		last = sels[len(sels)-1]
-		label = last.String()
-	}
-
-	// do not decend into #hof value itself
-	// or any definition
-	if label == "#hof" {
-		return nil, fmt.Errorf("you are trying to parse the #hof value, rather than the containing node at %v", path)
-	}
-
-	// return early and recurse for root value?
-	if label == "" {
-		label = "<<root>>"
-		// return nil, nil
-	}
-
-	// create new node
-	node := New[T](label, val, nil, nil)
+	// did we find any attribute
 	found := false
-	
-	// look for #hof: _
-	hv := val.LookupPath(cue.ParsePath("#hof"))
-	if hv.Exists() {
-		err := hv.Decode(&(node.Hof))
-		if err != nil {
-			return node, err
-		}
-		found = true
-	}
-
-	// need to re-add label, path, name? here, after decode
-	node.Hof.Label = label
-	node.Hof.Path = path.String()
-
-	//
-	// look for attributes
-	// this is where we upgrade our @sugar() to equivalent #hof: { ... } in the Golang Hof type
-	
 	for _, A := range attrs {
 		an, ac := A.Name(), A.Contents()
-		found = true
+		lfound := true
 		switch an {
 			case "hof":
 				switch ac {
@@ -131,9 +90,67 @@ func ParseHof[T any](val cue.Value) (*Node[T], error) {
 			node.Hof.Flow.Print.Path  = ac
 
 		default:
-			found = false
+		  lfound = false
+		}
+		// write to outer found
+		if lfound {
+			found = true
 		}
 	}
+
+	return found
+}
+
+// parse out a #hof for a single value
+func ParseHof[T any](val cue.Value) (*Node[T], error) {
+
+	// get some info
+	path := val.Path()
+	sels := path.Selectors()
+	last := cue.Selector{}
+	label := ""
+	if len(sels) > 0 {
+		last = sels[len(sels)-1]
+		label = last.String()
+	}
+
+	// do not decend into #hof value itself
+	// or any definition
+	if label == "#hof" {
+		return nil, fmt.Errorf("you are trying to parse the #hof value, rather than the containing node at %v", path)
+	}
+
+	// return early and recurse for root value?
+	if label == "" {
+		label = "<<root>>"
+		// return nil, nil
+	}
+
+	// create new node
+	node := New[T](label, val, nil, nil)
+	found := false
+	
+	// look for #hof: _
+	hv := val.LookupPath(cue.ParsePath("#hof"))
+	if hv.Exists() {
+		err := hv.Decode(&(node.Hof))
+		if err != nil {
+			return node, err
+		}
+		found = true
+	}
+
+	// need to re-add label, path, name? here, after decode
+	node.Hof.Label = label
+	node.Hof.Path = path.String()
+
+	//
+	// look for attributes
+	ufound := upgradeAttrs(node, label)
+	if ufound {
+		found = ufound
+	}
+	
 
 	// filters to end recursion
 	// check datamodel root because of nested history and roots snafu

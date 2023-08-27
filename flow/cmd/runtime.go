@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/flow/flow"
@@ -26,9 +27,28 @@ func NewFlowRuntime(RT *runtime.Runtime, cflags flags.FlowPflagpole) (*Runtime) 
 }
 
 func prepRuntime(args []string, rflags flags.RootPflagpole, cflags flags.FlowPflagpole) (*Runtime, error) {
+	// unsugar the @flow-names into popts
+	var entries, flowArgs, tagArgs []string
+	for _, e := range args {
+		if strings.HasPrefix(e, "@") {
+			flowArgs = append(flowArgs, strings.TrimPrefix(e, "@"))
+		} else if strings.HasPrefix(e, "+") {
+			tagArgs = append(tagArgs, strings.TrimPrefix(e, "+"))
+		} else {
+			entries = append(entries, e)
+		}
+	}
+
+	// update entrypoints and Flow flags
+	rflags.Tags = append(rflags.Tags, tagArgs...)
+	cflags.Flow = append(cflags.Flow, flowArgs...)
+
+	if rflags.Verbosity > 0 {
+		fmt.Println("flow modified inputs", entries, cflags.Flow, rflags.Tags)
+	}
 
 	// create our core runtime
-	r, err := runtime.New(args, rflags)
+	r, err := runtime.New(entries, rflags)
 	if err != nil {
 		return nil, err
 	}
@@ -45,13 +65,6 @@ func prepRuntime(args []string, rflags flags.RootPflagpole, cflags flags.FlowPfl
 		fmt.Println("prepRuntime Error:", R.Value.Err())
 		return R, cuetils.ExpandCueError(R.Value.Validate())
 	}
-
-	//fmt.Println("HOF NODES")
-	//nodes := R.Nodes
-	//for _, n := range nodes {
-	//  n.Print()
-	//}
-
 
 	err = R.EnrichFlows(cflags.Flow, NoOp)
 	if err != nil {

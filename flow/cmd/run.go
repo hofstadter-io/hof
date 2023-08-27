@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	"cuelang.org/go/cue"
 
@@ -16,22 +15,6 @@ import (
 )
 
 func Run(args []string, rflags flags.RootPflagpole, cflags flags.FlowPflagpole) error {
-	// unsugar the @flow-names into popts
-	var entries, flowArgs, tagArgs []string
-	for _, e := range args {
-		if strings.HasPrefix(e, "@") {
-			flowArgs = append(flowArgs, strings.TrimPrefix(e, "@"))
-		} else if strings.HasPrefix(e, "+") {
-			tagArgs = append(tagArgs, strings.TrimPrefix(e, "+"))
-		} else {
-			entries = append(entries, e)
-		}
-	}
-	// update entrypoints and Flow flags
-	args = entries
-	rflags.Tags = append(rflags.Tags, tagArgs...)
-	cflags.Flow = append(cflags.Flow, flowArgs...)
-
 
 	// prep our runtime
 	R, err := prepRuntime(args, rflags, cflags)

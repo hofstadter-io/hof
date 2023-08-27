@@ -1,7 +1,6 @@
 package runtime
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/hofstadter-io/hof/flow/flow"
@@ -11,6 +10,7 @@ import (
 type FlowEnricher func(*Runtime, *flow.Flow) error
 
 func (R *Runtime) EnrichFlows(flows []string, enrich FlowEnricher) error {
+	// fmt.Println("Flow.Runtime.Enrich", flows)
 	start := time.Now()
 	defer func() {
 		end := time.Now()
@@ -18,10 +18,10 @@ func (R *Runtime) EnrichFlows(flows []string, enrich FlowEnricher) error {
 	}()
 
 	if R.Flags.Verbosity > 1 {
-		fmt.Println("Runtime.Flow: ", flows)
-		for _, node := range R.Nodes {
-			node.Print()
-		}
+		//fmt.Println("Runtime.Flow: ", flows)
+		//for _, node := range R.Nodes {
+		//  node.Print()
+		//}
 	}
 
 	// Find only the datamodel nodes
@@ -30,7 +30,7 @@ func (R *Runtime) EnrichFlows(flows []string, enrich FlowEnricher) error {
 	for _, node := range R.Nodes {
 		// check for Chat root
 		if node.Hof.Flow.Root {
-
+			// fmt.Println("flow.root:", node.Hof.Path)
 			if !keepFilter(node, flows) {
 				continue
 			}
