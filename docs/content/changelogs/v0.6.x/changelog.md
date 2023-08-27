@@ -3,6 +3,25 @@ title: Changes by patch
 weight: 10
 ---
 
+## v0.6.9 (alpha.1)
+
+This release brings more consistency to hof.
+
+Changes:
+
+- many flags changed to bring consistency with CUE and internally
+- upgrade flow to new runtime, this marks the point all subsystems have migrated
+- a few improvements, we still want to do a flow refactor in a future release
+- add support for bulk processing with parallelism
+- support for CUE style data placement
+- add CUE commands [def,eval,export,vet]
+
+Other:
+
+- several bug fixes in mod, containers, #hof
+- deal with macos woes on GHA
+
+
 ## v0.6.8
 
 Almost every system was upgraded in this release and it marks a milestone in API stability.
