@@ -14,6 +14,7 @@ import (
 )
 
 func Eval(args []string, rflags flags.RootPflagpole, cflags flags.EvalFlagpole) error {
+
 	start := time.Now()
 	R, err := runtime.New(args, rflags)
 
@@ -33,7 +34,6 @@ func Eval(args []string, rflags flags.RootPflagpole, cflags flags.EvalFlagpole) 
 
 	err = R.Load()
 	if err != nil && !wantErrorsInValue {
-		// fmt.Println("load.Err", err)
 		return cuetils.ExpandCueError(err)
 	}
 

@@ -5,6 +5,7 @@ import (
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/flow/flow"
+	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/runtime"
 )
 
@@ -37,12 +38,24 @@ func prepRuntime(args []string, rflags flags.RootPflagpole, cflags flags.FlowPfl
 
 	err = R.Load()
 	if err != nil {
-		return R, err
+		return R, cuetils.ExpandCueError(err)
 	}
+
+	if R.Value.Err() != nil {
+		fmt.Println("prepRuntime Error:", R.Value.Err())
+		return R, cuetils.ExpandCueError(R.Value.Validate())
+	}
+
+	//fmt.Println("HOF NODES")
+	//nodes := R.Nodes
+	//for _, n := range nodes {
+	//  n.Print()
+	//}
+
 
 	err = R.EnrichFlows(cflags.Flow, NoOp)
 	if err != nil {
-		return R, err
+		return R, cuetils.ExpandCueError(err)
 	}
 
 	// log cue dirs
@@ -52,6 +65,7 @@ func prepRuntime(args []string, rflags flags.RootPflagpole, cflags flags.FlowPfl
 	if len(R.Workflows) == 0 {
 		return R, fmt.Errorf("no workflows found")
 	}
+
 
 	return R, nil
 }

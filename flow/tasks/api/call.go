@@ -10,6 +10,7 @@ import (
 	"github.com/parnurzeal/gorequest"
 
 	hofcontext "github.com/hofstadter-io/hof/flow/context"
+	"github.com/hofstadter-io/hof/lib/cuetils"
 )
 
 /*  TODO
@@ -33,7 +34,7 @@ func (T *Call) Run(ctx *hofcontext.Context) (interface{}, error) {
 	// unify with schema
 	val = val.Unify(task_call)
 	if val.Err() != nil {
-		return nil, val.Err()
+		return nil, cuetils.ExpandCueError(val.Err())
 	}
 
 	var R *gorequest.SuperAgent

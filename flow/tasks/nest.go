@@ -5,35 +5,39 @@ import (
 
 	"cuelang.org/go/cue"
 
-	hofcontext "github.com/hofstadter-io/hof/flow/context"
+	flowctx "github.com/hofstadter-io/hof/flow/context"
 	"github.com/hofstadter-io/hof/flow/flow"
+	"github.com/hofstadter-io/hof/lib/hof"
 )
 
 // this is buggy, need upstream support
 type Nest struct{}
 
-func NewNest(val cue.Value) (hofcontext.Runner, error) {
+func NewNest(val cue.Value) (flowctx.Runner, error) {
 	return &Nest{}, nil
 }
 
-func (T *Nest) Run(ctx *hofcontext.Context) (interface{}, error) {
+func (T *Nest) Run(ctx *flowctx.Context) (interface{}, error) {
 	val := ctx.Value
 
 	orig := ctx.FlowStack
 	ctx.FlowStack = append(orig, fmt.Sprint(val.Path()))
 
-	fmt.Println(ctx.FlowStack)
+	n, err := hof.ParseHof[flow.Flow](val)
+	if err != nil {
+		return nil, err
+	}
 
 	p, err := flow.OldFlow(ctx, val)
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println(p.Hof)
+	p.Node = n
 
 	err = p.Start()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("in nested task: %w", err)
 	}
 
 	ctx.FlowStack = orig

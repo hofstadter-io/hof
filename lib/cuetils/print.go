@@ -164,7 +164,7 @@ func CueErrorToString(err error) string {
 		// }
 	// }
 
-	return w.String()
+	return strings.TrimSpace(w.String())
 }
 
 func ExpandCueError(err error) error {

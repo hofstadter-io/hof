@@ -43,17 +43,26 @@ func OldFlow(ctx *flowctx.Context, val cue.Value) (*Flow, error) {
 
 // This is for the top-level flows
 func (P *Flow) Start() error {
-	return P.run()
+	err := P.run()
+	// fmt.Println("Start().Err", P.Orig.Path(), err)	
+	return err
 }
 
 func (P *Flow) run() error {
+	// fmt.Println("FLOW.run:", P.FlowCtx.RootValue.Path(), P.Root.Path())
 	// root := P.FlowCtx.RootValue
 	root := P.Root
 	// Setup the flow Config
 	cfg := &cueflow.Config{
-		InferTasks:     true,
-		IgnoreConcrete: true,
+		// InferTasks:      true,
+		IgnoreConcrete:  true,
+		FindHiddenTasks: true,
 		UpdateFunc: func(c *cueflow.Controller, t *cueflow.Task) error {
+			//if t != nil {
+			//  fmt.Println("Flow.Update()", t.Index(), t.Path())
+			//} else {
+			//  fmt.Println("Flow.Update()", "nil task")
+			//}
 			return nil
 		},
 	}
@@ -80,10 +89,12 @@ func (P *Flow) run() error {
 	P.Final = P.Ctrl.Value()
 	if err != nil {
 		s := cuetils.CueErrorToString(err)
-		fmt.Println(s)
-		fmt.Println(P)
-		return fmt.Errorf("Error in %s: %s", P.Hof.Metadata.Name, s)
+		// fmt.Println("Flow ERR in?", P.Orig.Path(), s)
+		
+		//fmt.Println(P)
+		return fmt.Errorf("Error in %s | %s: %s", P.Hof.Metadata.Name, P.Orig.Path(), s)
 	}
+	// fmt.Println("NOT HERE", P.Orig.Path())
 
 	return nil
 }

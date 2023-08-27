@@ -1,0 +1,57 @@
+exec hof flow in.cue
+
+-- in.cue --
+package concurrency
+
+import (
+	"encoding/json"
+	"list"
+)
+
+// demonstrates limiting a task to
+// at most N concurrent processors
+poolExample: this={
+	@flow(pool/exec)
+
+	max: int | *5 @tag(max,type=int)
+	ids: list.Range(0, max, 1)
+
+	init: {
+		@task(noop)
+
+		@pool(api,2) // pass a dynamic value by using #hof: flow: pool: { name: "api", number: 2 }
+	}
+
+	for i, _ in ids {
+		"task-\(i)": {
+			@task(api.Call)
+			@pool(api)
+			req: {
+				host:   "https://postman-echo.com"
+				method: "GET"
+				path:   "/get"
+				query: {
+					cow:  "moo"
+					task: "\(i)"
+				}
+			}
+			resp: _
+		}
+	}
+
+	final: {
+		@task(os.Stdout)
+		dep: [ for i, _ in ids {this["task-\(i)"].resp}]
+
+		_data: {
+			for i, _ in ids {
+				"task-\(i)": this["task-\(i)"].resp.body
+			}
+		}
+
+		text: "final: " + json.Indent(json.Marshal(_data), "", "  ") + "\n"
+	}
+
+}
+-- golden.stdout --
+tbd
