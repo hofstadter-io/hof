@@ -1,4 +1,4 @@
-# hof - the high code framework
+# hof - the higher order framework
 
 Hof is a tool that weaves together data models, code generation, and task engine with CUE.
 Automate repetitive setup, code, changes, and workflows using your tools. Hof is technology agnostic.
@@ -84,7 +84,7 @@ Interested in helping out or hanging out? The best ways to get started are
 ### hof
 
 ```
-hof - the high code framework
+hof - the higher order framework
 
   Learn more at https://docs.hofstadter.io
 
@@ -92,12 +92,17 @@ Usage:
   hof [flags] [command] [args]
 
 Main commands:
-  create                dynamic blueprints from any git repo
+  chat                  co-create with AI (alpha)
+  create                starter kits or blueprints from any git repo
   datamodel             manage, diff, and migrate your data models
-  gen                   modular and composable code gen: CUE & data + templates = _
-  flow                  run CUE pipelines with the hof/flow DAG engine
+  def                   print consolidated CUE definitions
+  eval                  evaluate and print CUE configuration
+  export                output data in a standard format
+  flow                  run workflows and tasks powered by CUE
   fmt                   format any code and manage the formatters
-  mod                   CUE dependency management based on Go mods
+  gen                   CUE powered code generation
+  mod                   CUE module dependency management
+  vet                   validate data with CUE
 
 Additional commands:
   help                  help about any command
@@ -107,14 +112,20 @@ Additional commands:
   feedback              open an issue or discussion on GitHub
 
 Flags:
-  -h, --help             help for hof
-      --inject-env       inject all ENV VARs as default tag vars
-  -p, --package string   the Cue package context to use during execution
-  -q, --quiet            turn off output and assume defaults at prompts
-  -t, --tags strings     @tags() to be injected into CUE code
-  -v, --verbosity int    set the verbosity of output
+  -E, --all-errors           print all available errors
+  -h, --help                 help for hof
+  -i, --ignore-errors        turn off output and assume defaults at prompts
+  -D, --include-data         auto include all data files found with cue files
+  -V, --inject-env           inject all ENV VARs as default tag vars
+  -p, --package string       the Cue package context to use during execution
+  -l, --path stringArray     CUE expression for single path component when placing data files
+  -q, --quiet                turn off output and assume defaults at prompts
+  -d, --schema stringArray   expression to select schema to apply to data files
+      --stats                print generator statistics
+  -t, --tags stringArray     @tags() to be injected into CUE code
+  -v, --verbosity int        set the verbosity of output
+      --with-context         add extra context for data files, usable in the -l/path flag
 
 Use "hof [command] --help / -h" for more information about a command.
-
 ```
 
