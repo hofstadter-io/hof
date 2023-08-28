@@ -7,6 +7,7 @@ type GenFlagpole struct {
 	Diff3       bool
 	NoFormat    bool
 	KeepDeleted bool
+	Exec        bool
 	Watch       bool
 	WatchFull   []string
 	WatchFast   []string

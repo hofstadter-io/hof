@@ -83,6 +83,7 @@ Available Commands:
 Flags:
       --as-module string       <github.com/username/<name>> like value for the generator module made from the given flags
   -3, --diff3                  enable diff3 support for custom code
+      --exec                   enable pre/post-exec support when generating code
   -G, --generator strings      generator tags to run, default is all, or none if -T is used
   -h, --help                   help for gen
       --keep-deleted           keep files that would be deleted after code generation

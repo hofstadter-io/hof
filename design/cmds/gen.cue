@@ -53,6 +53,12 @@ GenCommand: schema.Command & {
 		Help:    "keep files that would be deleted after code generation"
 		Long:    "keep-deleted"
 	}, {
+		Name:    "exec"
+		Type:    "bool"
+		Default: "false"
+		Help:    "enable pre/post-exec support when generating code"
+		Long:    "exec"
+	}, {
 		Name:    "watch"
 		Type:    "bool"
 		Default: "false"
