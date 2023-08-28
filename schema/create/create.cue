@@ -20,6 +20,14 @@ Creator: Create: {
 		After:  string
 	}
 
+	PreFlow:  _ // run hof flow beforehand
+	PostFlow: _ // run hof flow afterwards
+	// backwards compat
+	PreFlow:  PreExec
+	PreExec:  PreFlow
+	PostFlow: PostExec
+	PostExec: PostFlow
+
 	// todo / consider
 	// Check: _     // check for tools on host system
 	// PreFlow: _   // run hof flow beforehand

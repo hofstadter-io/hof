@@ -63,6 +63,9 @@ Generator: {
 		}
 	}
 
+	PreFlow:  _ // run hof flow beforehand
+	PostFlow: _ // run hof flow afterwards
+
 	// The final list of files for hof to generate
 	Out: [...File]
 

@@ -331,7 +331,7 @@ func runCreator(R *gencmd.Runtime, extra, inputs []string) (err error) {
 	// handle create input / prompt
 	for _, G := range R.Generators {
 		// update G locally
-		err = handleGeneratorCreate(G, R.Flags, extra, inputMap)
+		err = handleGeneratorCreate(G, R.Flags, R.GenFlags, extra, inputMap)
 		if err != nil {
 			return err
 		}
@@ -382,44 +382,48 @@ func runCreator(R *gencmd.Runtime, extra, inputs []string) (err error) {
 	for _, G := range R.Generators {
 
 		// maybe run post exec per creator
-		postExec := G.CueValue.LookupPath(cue.ParsePath("Create.PostExec"))
-		if postExec.Exists() {
+		postFlow := G.CueValue.LookupPath(cue.ParsePath("Create.PostFlow"))
+		if postFlow.Exists() {
 			if R.Flags.Verbosity > 0 {
-				fmt.Println("running post exec flow:", postExec)
+				fmt.Println("running post-flow:", postFlow)
 			}
-			ctx := flowcontext.New()
-			ctx.RootValue = postExec
-			ctx.Stdin = os.Stdin
-			ctx.Stdout = os.Stdout
-			ctx.Stderr = os.Stderr
-			ctx.Verbosity = R.Flags.Verbosity
+			if !R.GenFlags.Exec {
+				fmt.Println("skipping post-flow, use --exec to run")
+			} else {
+				ctx := flowcontext.New()
+				ctx.RootValue = postFlow
+				ctx.Stdin = os.Stdin
+				ctx.Stdout = os.Stdout
+				ctx.Stderr = os.Stderr
+				ctx.Verbosity = R.Flags.Verbosity
 
-			// how to inject tags into original value
-			// fill / return value
-			middleware.UseDefaults(ctx, R.Flags, flags.FlowPflags)
-			tasks.RegisterDefaults(ctx)
+				// how to inject tags into original value
+				// fill / return value
+				middleware.UseDefaults(ctx, R.Flags, flags.FlowPflags)
+				tasks.RegisterDefaults(ctx)
 
-			p, err := flow.OldFlow(ctx, postExec)
-			if err != nil {
-				return err
+				p, err := flow.OldFlow(ctx, postFlow)
+				if err != nil {
+					return err
+				}
+
+				err = p.Start()
+				if err != nil {
+					return err
+				}
+
+				G.CueValue = G.CueValue.FillPath(cue.ParsePath("Create.PostFlow"), postFlow)
+				if G.CueValue.Err() != nil {
+					return err
+				}
 			}
 
-			err = p.Start()
-			if err != nil {
-				return err
-			}
-
-			G.CueValue = G.CueValue.FillPath(cue.ParsePath("Create.PostExec"), postExec)
-			if G.CueValue.Err() != nil {
-				return err
-			}
-
-		} else if !postExec.Exists() {
+		} else if !postFlow.Exists() {
 			if G.Verbosity > 0 {
 				fmt.Println("post-exec not found")
 			}
-		} else if postExec.Err() != nil {
-			return postExec.Err()
+		} else if postFlow.Err() != nil {
+			return postFlow.Err()
 		}
 
 		// print final message to user
@@ -491,51 +495,56 @@ func loadCreateInputs(R *gencmd.Runtime, inputFlags []string) (input map[string]
 }
 
 
-func handleGeneratorCreate(G *gen.Generator, rflags flags.RootPflagpole, extraArgs []string, inputMap map[string]any) (err error) {
+func handleGeneratorCreate(G *gen.Generator, rflags flags.RootPflagpole, gflags flags.GenFlagpole, extraArgs []string, inputMap map[string]any) (err error) {
 
 	// fill any extra args into generator value
 	G.CueValue = G.CueValue.FillPath(cue.ParsePath("Create.Args"), extraArgs)
 
+
 	// maybe run the pre flow
-	preExec := G.CueValue.LookupPath(cue.ParsePath("Create.PreExec"))
-	if preExec.Exists() {
+	preFlow := G.CueValue.LookupPath(cue.ParsePath("Create.PreFlow"))
+	if preFlow.Exists() {
 		if G.Verbosity > 0 {
-			fmt.Println("running pre exec flow:", preExec)
+			fmt.Println("running pre-flow:", preFlow)
+		}
+		if !gflags.Exec {
+			fmt.Println("skipping pre-flow, use --exec to run")
+		} else {
+
+			ctx := flowcontext.New()
+			ctx.RootValue = preFlow
+			ctx.Stdin = os.Stdin
+			ctx.Stdout = os.Stdout
+			ctx.Stderr = os.Stderr
+			ctx.Verbosity = G.Verbosity
+
+			// how to inject tags into original value
+			// fill / return value
+			middleware.UseDefaults(ctx, rflags, flags.FlowPflags)
+			tasks.RegisterDefaults(ctx)
+
+			p, err := flow.OldFlow(ctx, preFlow)
+			if err != nil {
+				return err
+			}
+
+			err = p.Start()
+			if err != nil {
+				return err
+			}
+
+			G.CueValue = G.CueValue.FillPath(cue.ParsePath("Create.PreFlow"), preFlow)
+			if G.CueValue.Err() != nil {
+				return err
+			}
 		}
 
-		ctx := flowcontext.New()
-		ctx.RootValue = preExec
-		ctx.Stdin = os.Stdin
-		ctx.Stdout = os.Stdout
-		ctx.Stderr = os.Stderr
-		ctx.Verbosity = G.Verbosity
-
-		// how to inject tags into original value
-		// fill / return value
-		middleware.UseDefaults(ctx, rflags, flags.FlowPflags)
-		tasks.RegisterDefaults(ctx)
-
-		p, err := flow.OldFlow(ctx, preExec)
-		if err != nil {
-			return err
-		}
-
-		err = p.Start()
-		if err != nil {
-			return err
-		}
-
-		G.CueValue = G.CueValue.FillPath(cue.ParsePath("Create.PreExec"), preExec)
-		if G.CueValue.Err() != nil {
-			return err
-		}
-
-	} else if !preExec.Exists() {
+	} else if !preFlow.Exists() {
 		if G.Verbosity > 0 {
 			fmt.Println("no pre-exec...")
 		}
-	} else if preExec.Err() != nil {
-		return preExec.Err()
+	} else if preFlow.Err() != nil {
+		return preFlow.Err()
 	}
 
 	// make a local to gen value

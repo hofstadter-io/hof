@@ -107,6 +107,9 @@ type Generator struct {
 	UseDiff3 bool
 	NoFormat bool
 
+	// enable pre/post-flows
+	ExecFlows bool
+
 	//
 	// Hof internal usage
 	//

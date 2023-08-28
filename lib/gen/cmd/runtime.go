@@ -57,6 +57,8 @@ func prepRuntime(args []string, rflags flags.RootPflagpole, gflags flags.GenFlag
 		return R, fmt.Errorf("no generators found")
 	}
 
+	// run pre-flows here?
+
 	return R, nil
 }
 
