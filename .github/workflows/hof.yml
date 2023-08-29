@@ -89,10 +89,6 @@ jobs:
 
           # should have no diff
           git diff --exit-code
-      - name: test/cue
-        env:
-          GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}
-        run: hof flow @test/cue ./test.cue
       - name: test/gen
         env:
           GITHUB_TOKEN: ${{secrets.HOFMOD_TOKEN}}

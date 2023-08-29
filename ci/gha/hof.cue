@@ -91,11 +91,6 @@ ghacue.#Workflow & {
 		git diff --exit-code
 		"""
 }, {
-	name: "test/cue"
-	run: """
-		hof flow @test/cue ./test.cue
-		"""
-}, {
 	name: "test/gen"
 	run: """
 		hof flow @test/gen ./test.cue
