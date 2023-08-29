@@ -117,11 +117,16 @@ func (cm *CueMod) ParseModFile(data []byte) (err error) {
 	if err != nil {
 		return err
 	}
-	cm.CueVer, err = v.LookupPath(cue.ParsePath("cue")).String()
-	if err != nil {
-		return err
+	cver := v.LookupPath(cue.ParsePath("cue"))
+	if cver.Exists() {
+		if cver.Err() != nil {
+			return cver.Err()
+		}
+		cm.CueVer, err = cver.String()
+		if err != nil {
+			return err
+		}
 	}
-
 
 	// parse excludes
 	excludes := v.LookupPath(cue.ParsePath("exclude"))
@@ -231,6 +236,7 @@ func (cm *CueMod) ReadSumFile() error {
 }
 
 func (cm *CueMod) WriteModule() (err error) {
+	// fmt.Println("cm.WriteModule")
 	err = cm.WriteModFile()
 	if err != nil {
 		return err
@@ -239,6 +245,7 @@ func (cm *CueMod) WriteModule() (err error) {
 }
 
 func (cm *CueMod) WriteModFile() (err error) {
+	// fmt.Println("cm.WriteModFile")
 	var buf bytes.Buffer
 
 	// local helper for writing some sections
@@ -307,6 +314,7 @@ func (cm *CueMod) WriteModFile() (err error) {
 }
 
 func (cm *CueMod) WriteSumFile() (err error) {
+	// fmt.Println("cm.WriteSumFile")
 	// build up slice
 	var sorted []Dep
 	for ver, _ := range cm.Sums {

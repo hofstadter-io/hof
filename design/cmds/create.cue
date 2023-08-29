@@ -29,23 +29,27 @@ CreateCommand: schema.Command & {
 		Type:    "[]string"
 		Default: "nil"
 		Help:    "inputs to the create module"
-	},
-		{
-			Name:    "generator"
-			Type:    "[]string"
-			Default: "nil"
-			Help:    "generator tags to run, default is all"
-			Long:    "generator"
-			Short:   "G"
-		},
-		{
-			Name:    "Outdir"
-			Type:    "string"
-			Default: "\"\""
-			Help:    "base directory to write all output to"
-			Long:    "outdir"
-			Short:   "O"
-		}]
+	}, {
+		Name:    "generator"
+		Type:    "[]string"
+		Default: "nil"
+		Help:    "generator tags to run, default is all"
+		Long:    "generator"
+		Short:   "G"
+	}, {
+		Name:    "Outdir"
+		Type:    "string"
+		Default: "\"\""
+		Help:    "base directory to write all output to"
+		Long:    "outdir"
+		Short:   "O"
+	}, {
+		Name:    "exec"
+		Type:    "bool"
+		Default: "false"
+		Help:    "enable pre/post-exec support when generating code"
+		Long:    "exec"
+	}]
 }
 
 CreateRootHelp: #"""

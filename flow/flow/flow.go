@@ -49,6 +49,17 @@ func (P *Flow) Start() error {
 }
 
 func (P *Flow) run() error {
+	if P.Node == nil {
+		node, err := hof.ParseHof[Flow](P.Orig)
+		if err != nil {
+			return err
+		}
+		if node == nil {
+			return fmt.Errorf("Root flow value is not a flow, has nil #hof node")
+		}
+		P.Node = node
+	}
+
 	// fmt.Println("FLOW.run:", P.FlowCtx.RootValue.Path(), P.Root.Path())
 	// root := P.FlowCtx.RootValue
 	root := P.Root

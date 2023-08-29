@@ -81,6 +81,21 @@ test: gen.#Generator & {
 				]
 			}]
 		}]
+
+		PreFlow: {
+			@flow()
+			do: {
+				@task(os.Stdout)
+				text: "hello there!"
+			}
+		}
+		PostFlow: {
+			@flow()
+			do: {
+				@task(os.Exec)
+				cmd: ["ls", "-lh"]
+			}
+		}
 	}
 
 	In: {

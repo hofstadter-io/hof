@@ -21,6 +21,7 @@ func (cm *CueMod) SolveMVS(latest bool) error {
 
 	targets := []module.Version{}
 	for _, dep := range cm.Replace {
+		//fmt.Println("Replace:", dep)
 		d := module.Version{ Path: dep.Path, Version: dep.Version }
 		targets = append(targets, d)
 	}
@@ -29,17 +30,27 @@ func (cm *CueMod) SolveMVS(latest bool) error {
 		if _, ok := cm.Replace[path]; ok {
 			continue
 		}
+		//fmt.Println("Require:", path, ver)
 		// todo, we probably need to get the lastest of each target before starting MVS here
 		// but only when latest == true
 		dep := module.Version{ Path: path, Version: ver }
 		targets = append(targets, dep)
 	}
 
+	//fmt.Println("Targets:")
+	//for _, t := range targets {
+	//  fmt.Println(t.Path, t.Version)
+	//}
+
 	final, err := mvs.BuildList(targets, rr)
 	if err != nil {
 		return err
 	}
 
+	//fmt.Println("Final:")
+	//for _, t := range final {
+	//  fmt.Println(t.Path, t.Version)
+	//}
 	cm.BuildList = final
 
 	return nil

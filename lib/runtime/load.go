@@ -47,6 +47,13 @@ func (R *Runtime) Load() (err error) {
 		return err
 	}
 
+	if !R.Flags.IngoreErrors {
+		err = R.Value.Validate()
+		if err != nil {
+			return cuetils.ExpandCueError(err)
+		}
+	}
+
 	R.Nodes, err = hof.FindHofsOrig(R.Value)
 	if err != nil {
 		return err

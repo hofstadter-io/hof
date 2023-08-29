@@ -136,9 +136,12 @@ Steps: {
 		macAction: {
 			name: "Set up Docker"
 			uses: "crazy-max/ghaction-setup-docker@v1"
-			env: SIGN_QEMU_BINARY: "1"
 			with: {
 				version: "v" + Versions.docker
+			}
+			env: {
+				SIGN_QEMU_BINARY:  "1"
+				COLIMA_START_ARGS: "--cpu 3 --memory 10 --disk 12"
 			}
 			"if": "${{ startsWith( runner.os, 'macos') }}"
 		}

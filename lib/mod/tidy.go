@@ -2,6 +2,7 @@ package mod
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
@@ -47,7 +48,14 @@ func Tidy(rflags flags.RootPflagpole) (error) {
 }
 
 func (cm *CueMod) UpgradePseudoVersions() (err error) {
+	// fmt.Println("cm.UpgradePseudoVersions")
 	for path, dep := range cm.Replace {
+
+		// filesystem path?
+		if strings.HasPrefix(dep.Path, "/") || strings.HasPrefix(dep.Path, ".") {
+			continue
+		}
+
 		ver, err := cache.UpgradePseudoVersion(dep.Path, dep.Version)
 		if err != nil {
 			return err
@@ -131,7 +139,17 @@ func (cm *CueMod) CleanSums() error {
 			// fmt.Println("adding:", dep)
 			h1, err := cache.Checksum(path, ver)
 			if err != nil {
-				return err
+				// check if this is a local replace, and possible never fetched
+				// and change the version to indicate as such
+				if _, eok := err.(*os.PathError); eok {
+					if _, ok := cm.Replace[path]; ok {
+						h1 = "<never-fetched-only-replaced>"
+					} else {
+						return err
+					}
+				} else {
+					return err
+				}
 			}
 			keep[dep] = []string{h1}
 		}
@@ -143,6 +161,8 @@ func (cm *CueMod) CleanSums() error {
 			// fmt.Println("adding:", dep)
 			h1, err := cache.Checksum(path, ver)
 			if err != nil {
+				// we could check if this is a local replace, and possible never fetched
+				// but we probably wouldn't get an indirect dependency without having already fetched it
 				return err
 			}
 			keep[dep] = []string{h1}

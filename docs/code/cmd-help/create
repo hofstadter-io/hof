@@ -39,6 +39,7 @@ Usage:
   hof create <module path> [extra args] [flags]
 
 Flags:
+      --exec                enable pre/post-exec support when generating code
   -G, --generator strings   generator tags to run, default is all
   -h, --help                help for create
   -I, --input strings       inputs to the create module

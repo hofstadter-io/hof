@@ -6,8 +6,15 @@ import (
 	"sync"
 	"time"
 
+	"cuelang.org/go/cue"
 	"github.com/fatih/color"
 
+	flowcontext "github.com/hofstadter-io/hof/flow/context"
+	"github.com/hofstadter-io/hof/flow/middleware"
+	"github.com/hofstadter-io/hof/flow/tasks"
+	"github.com/hofstadter-io/hof/flow/flow"
+
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/gen"
 	"github.com/hofstadter-io/hof/lib/watch"
 )
@@ -135,42 +142,101 @@ func (R *Runtime) genOnce() error {
 		}
 	}
 
-	R.PrintMergeConflicts()
+	nc := R.PrintMergeConflicts()
+	if nc > 0 {
+		fmt.Printf("\n%d merge conflict(s) found\n", nc)
+	} else {
+		// run post-exec here
+		for _, G := range R.Generators {
+
+			// maybe run post-flow per generator
+			postFlow := G.CueValue.LookupPath(cue.ParsePath("PostFlow"))
+			if postFlow.Exists() {
+				if R.Flags.Verbosity > 0 {
+					fmt.Println("running post-flow:", postFlow)
+				}
+				if !R.GenFlags.Exec {
+					fmt.Println("skipping post-flow, use --exec to run")
+				} else {
+					ctx := flowcontext.New()
+					ctx.RootValue = postFlow
+					ctx.Stdin = os.Stdin
+					ctx.Stdout = os.Stdout
+					ctx.Stderr = os.Stderr
+					ctx.Verbosity = R.Flags.Verbosity
+
+					// how to inject tags into original value
+					// fill / return value
+					middleware.UseDefaults(ctx, R.Flags, flags.FlowPflags)
+					tasks.RegisterDefaults(ctx)
+
+					p, err := flow.OldFlow(ctx, postFlow)
+					if err != nil {
+						return err
+					}
+
+					err = p.Start()
+					if err != nil {
+						return err
+					}
+
+					// do we really want to fill anything in the value afterwards?
+					G.CueValue = G.CueValue.FillPath(cue.ParsePath("PostFlow"), postFlow)
+					if G.CueValue.Err() != nil {
+						return err
+					}
+				}
+
+			} else if !postFlow.Exists() {
+				if G.Verbosity > 0 {
+					fmt.Println("post-exec not found")
+				}
+			} else if postFlow.Err() != nil {
+				return postFlow.Err()
+			}
+		}
+
+	}
+
 
 	if R.Flags.Stats {
 		R.PrintStats()
 		fmt.Printf("\nTotal Elapsed Time: %s\n\n", elapsed)
 	}
 
+
 	if hasErr {
-		return fmt.Errorf("ERROR: while running geneators")
+		return fmt.Errorf("ERROR: while running generators")
 	}
 
 	return nil
 }
 
-func (R *Runtime) PrintMergeConflicts() {
+func (R *Runtime) PrintMergeConflicts() (numConflict int) {
 	for _, G := range R.Generators {
 		if G.Disabled {
 			continue
 		}
 
-		R.printGenMergeConflicts(G)
+		numConflict += R.printGenMergeConflicts(G)
 	}
+	return numConflict
 }
 
-func (R *Runtime) printGenMergeConflicts(G *gen.Generator) {
+func (R *Runtime) printGenMergeConflicts(G *gen.Generator) (numConflict int) {
 	for _, F := range G.Files {
 		if F.IsConflicted > 0 {
+			numConflict += 1
 			msg := fmt.Sprintf("MERGE CONFLICT in %s", F.Filepath)
 			color.Red(msg)
 		}
 	}
 
 	for _, SG := range G.Generators {
-		R.printGenMergeConflicts(SG)
+		numConflict += R.printGenMergeConflicts(SG)
 	}
 
+	return numConflict
 }
 
 func (R *Runtime) CleanupRemainingShadow() (errs []error) {
