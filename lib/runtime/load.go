@@ -50,7 +50,7 @@ func (R *Runtime) Load() (err error) {
 	if !R.Flags.IngoreErrors {
 		err = R.Value.Validate()
 		if err != nil {
-			return err
+			return cuetils.ExpandCueError(err)
 		}
 	}
 
