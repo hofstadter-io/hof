@@ -195,7 +195,7 @@ func Create(module string, extra []string, rootflags flags.RootPflagpole, cmdfla
 	}
 
 	// fmt.Println("pre-run-creator")
-	err = runCreator(R, extra, cmdflags.Input)
+	err = runCreator(R, cmdflags, extra)
 	// fmt.Println("post-run-creator")
 	return err
 }
@@ -303,7 +303,9 @@ func setupTmpdir(url, ver string) (tmpdir, subdir string, err error) {
 	return tmpdir, subdir, err
 }
 
-func runCreator(R *gencmd.Runtime, extra, inputs []string) (err error) {
+func runCreator(R *gencmd.Runtime, cflags flags.CreateFlagpole, extra []string) (err error) {
+
+	inputs := cflags.Input
 
 	if R.Flags.Verbosity > 0 {
 		fmt.Println("running creator with:", extra, inputs)
@@ -331,7 +333,7 @@ func runCreator(R *gencmd.Runtime, extra, inputs []string) (err error) {
 	// handle create input / prompt
 	for _, G := range R.Generators {
 		// update G locally
-		err = handleGeneratorCreate(G, R.Flags, R.GenFlags, extra, inputMap)
+		err = handleGeneratorCreate(G, R.Flags, cflags, extra, inputMap)
 		if err != nil {
 			return err
 		}
@@ -387,8 +389,10 @@ func runCreator(R *gencmd.Runtime, extra, inputs []string) (err error) {
 			if R.Flags.Verbosity > 0 {
 				fmt.Println("running post-flow:", postFlow)
 			}
-			if !R.GenFlags.Exec {
+			if !cflags.Exec {
 				fmt.Println("skipping post-flow, use --exec to run")
+				// TODO, add prompt here to allow, after printing it
+				// apply to all?
 			} else {
 				ctx := flowcontext.New()
 				ctx.RootValue = postFlow
@@ -495,7 +499,7 @@ func loadCreateInputs(R *gencmd.Runtime, inputFlags []string) (input map[string]
 }
 
 
-func handleGeneratorCreate(G *gen.Generator, rflags flags.RootPflagpole, gflags flags.GenFlagpole, extraArgs []string, inputMap map[string]any) (err error) {
+func handleGeneratorCreate(G *gen.Generator, rflags flags.RootPflagpole, cflags flags.CreateFlagpole, extraArgs []string, inputMap map[string]any) (err error) {
 
 	// fill any extra args into generator value
 	G.CueValue = G.CueValue.FillPath(cue.ParsePath("Create.Args"), extraArgs)
@@ -507,8 +511,9 @@ func handleGeneratorCreate(G *gen.Generator, rflags flags.RootPflagpole, gflags 
 		if G.Verbosity > 0 {
 			fmt.Println("running pre-flow:", preFlow)
 		}
-		if !gflags.Exec {
+		if !cflags.Exec {
 			fmt.Println("skipping pre-flow, use --exec to run")
+				// TODO, add prompt here to allow, after printing it
 		} else {
 
 			ctx := flowcontext.New()

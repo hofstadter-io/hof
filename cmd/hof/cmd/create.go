@@ -54,6 +54,7 @@ func init() {
 	CreateCmd.Flags().StringSliceVarP(&(flags.CreateFlags.Input), "input", "I", nil, "inputs to the create module")
 	CreateCmd.Flags().StringSliceVarP(&(flags.CreateFlags.Generator), "generator", "G", nil, "generator tags to run, default is all")
 	CreateCmd.Flags().StringVarP(&(flags.CreateFlags.Outdir), "outdir", "O", "", "base directory to write all output to")
+	CreateCmd.Flags().BoolVarP(&(flags.CreateFlags.Exec), "exec", "", false, "enable pre/post-exec support when generating code")
 }
 
 func CreateRun(module string, extra []string) (err error) {
