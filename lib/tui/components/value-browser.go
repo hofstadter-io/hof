@@ -158,7 +158,7 @@ func (VB *ValueBrowser) AddAt(target *tview.TreeNode, path string) {
 		iter = &i
 	}
 	if iter == nil {
-		VB.App.Logger(fmt.Sprintf("nil iter for: %s\n", path))
+		// VB.App.Logger(fmt.Sprintf("nil iter for: %s\n", path))
 		return
 	}
 
@@ -201,7 +201,8 @@ func (VB *ValueBrowser) AddAt(target *tview.TreeNode, path string) {
 
 		switch value.IncompleteKind() {
 		case cue.StructKind:
-			l := fmt.Sprintf("{ %s }:", sel)
+			// TODO, count fields here (even different types)
+			l := fmt.Sprintf("{ %s }", sel)
 			line := fmt.Sprintf("%-42s [goldenrod]%s", l, attr)
 			node = tview.NewTreeNode(line)
 			node.
@@ -209,7 +210,7 @@ func (VB *ValueBrowser) AddAt(target *tview.TreeNode, path string) {
 				SetSelectable(true)
 
 		case cue.ListKind:
-			l := fmt.Sprintf("[ %s ]:", sel)
+			l := fmt.Sprintf("[ %s (%d) ]", sel, value.Len())
 			node = tview.NewTreeNode(l)
 			node.
 				SetColor(tcell.ColorLime).
