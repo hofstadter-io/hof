@@ -1,14 +1,13 @@
 package components
 
 import (
-	"fmt"
 	"time"
 
 	"cuelang.org/go/cue"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 
-	"github.com/hofstadter-io/hof/lib/cuetils"
+	// "github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/tui/app"
 	"github.com/hofstadter-io/hof/lib/watch"
 )
@@ -67,14 +66,14 @@ func NewValueEvaluator(app *app.App) (*ValueEvaluator) {
 
 			v := ctx.CompileString(src, cue.Scope(val))
 
-			if v.Err() != nil {
-				s := cuetils.CueErrorToString(v.Err())		
-				root.App.Logger(s)
-			} else {
+			//if v.Err() != nil {
+			//  s := cuetils.CueErrorToString(v.Err())		
+			//  root.App.Logger(s)
+			//} else {
 				root.View.Value = v
 				root.View.Rebuild(v.Path().String())
 				// root.App.Logger("$")
-			}
+			//}
 			root.App.Draw()
 		})
 
@@ -85,7 +84,7 @@ func NewValueEvaluator(app *app.App) (*ValueEvaluator) {
 	// key handlers
 	root.Edit.SetInputCapture(func(ek *tcell.EventKey) *tcell.EventKey {
 
-		root.App.Logger(fmt.Sprintln("edit: ", ek.Key() == tcell.KeyCtrlSpace, (ek.Key() == tcell.KeyCR), ek.Modifiers() & tcell.ModCtrl))
+		// root.App.Logger(fmt.Sprintln("edit: ", ek.Key() == tcell.KeyCtrlSpace, (ek.Key() == tcell.KeyCR), ek.Modifiers() & tcell.ModCtrl))
 
 		// we aren't handling this
 		return ek

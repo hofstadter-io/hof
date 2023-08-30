@@ -3,17 +3,25 @@ package components
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"strings"
 
 	"cuelang.org/go/cue"
-	"github.com/rivo/tview"
+	"cuelang.org/go/cue/format"
+	"github.com/alecthomas/chroma/quick"
 	"github.com/gdamore/tcell/v2"
+	"github.com/rivo/tview"
 
+	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/tui/app"
 )
 
 type ValueBrowser struct {
-	*tview.TreeView
+	*tview.Frame
+	Tree *tview.TreeView
+	Code *tview.TextView
+	CodeW io.Writer
+	view string
 
 	OnFieldSelect func(string)
 
@@ -36,46 +44,76 @@ type ValueBrowser struct {
 }
 
 func NewValueBrowser(app *app.App, val cue.Value, OnFieldSelect func(path string)) *ValueBrowser {
-	FB := &ValueBrowser {
+	VB := &ValueBrowser {
+		view: "tree",
 		App: app,
 		Value: val,
 		OnFieldSelect: OnFieldSelect,
 	}
 
+	// code view
+	VB.Code = tview.NewTextView()
+	VB.CodeW = tview.ANSIWriter(VB.Code)
+	VB.Code.SetWordWrap(true).
+		SetDynamicColors(true)
+
 	// tree view
-	FB.TreeView = tview.NewTreeView()
-	FB.Root = tview.NewTreeNode("no results yet")
-	FB.Root.SetColor(tcell.ColorSilver)
+	VB.Tree = tview.NewTreeView()
+	VB.Root = tview.NewTreeNode("no results yet")
+	VB.Root.SetColor(tcell.ColorSilver)
 
-	FB.
-		SetRoot(FB.Root).
-		SetCurrentNode(FB.Root)
+	VB.Tree.
+		SetRoot(VB.Root).
+		SetCurrentNode(VB.Root)
 
-	// set our selected handler
-	FB.SetSelectedFunc(FB.OnSelect)
-	FB.SetBorder(true)
+	// set our selected handler for tree
+	VB.Tree.SetSelectedFunc(VB.OnSelect)
 
-	FB.SetupKeybinds()
 
-	return FB
+	VB.Frame = tview.NewFrame(VB.Tree)
+
+	VB.SetBorder(true)
+	VB.SetupKeybinds()
+
+	return VB
 }
 
-func (FB *ValueBrowser) Rebuild(path string) {
+func (VB *ValueBrowser) Rebuild(path string) {
 	if path == "" {
 		path = "<root>"
 	}
 
-	FB.Root = tview.NewTreeNode(path)
-	FB.Root.SetColor(tcell.ColorSilver)
-	FB.AddAt(FB.Root, path)
+	if VB.view == "code" {
 
-	FB.
-		SetRoot(FB.Root).
-		SetCurrentNode(FB.Root)
+		VB.Code.Clear()
+		syn := VB.Value.Syntax(VB.Options()...)
+
+		b, err := format.Node(syn)
+		if err != nil {
+			s := cuetils.CueErrorToString(err)
+			fmt.Fprintln(VB.CodeW, s)
+		}
+
+		err = quick.Highlight(VB.CodeW, string(b), "Go", "terminal256", "solarized-dark")
+		if err != nil {
+			VB.App.Logger("error: " + err.Error())
+		}
+
+		VB.SetPrimitive(VB.Code)
+
+	} else {
+		VB.Root = tview.NewTreeNode(path)
+		VB.Root.SetColor(tcell.ColorSilver)
+		VB.AddAt(VB.Root, path)
+		VB.Tree.
+			SetRoot(VB.Root).
+			SetCurrentNode(VB.Root)
+		VB.SetPrimitive(VB.Tree)
+	}
 
 }
 
-func (FB *ValueBrowser) OnSelect(node *tview.TreeNode) {
+func (VB *ValueBrowser) OnSelect(node *tview.TreeNode) {
 	reference := node.GetReference()
 	if reference == nil {
 		return // Selecting the root node does nothing.
@@ -85,7 +123,7 @@ func (FB *ValueBrowser) OnSelect(node *tview.TreeNode) {
 	if len(children) == 0 {
 		// Load and show files in this directory.
 		path := reference.(string)
-		FB.AddAt(node, path)
+		VB.AddAt(node, path)
 	} else {
 		// Collapse if visible, expand if collapsed.
 		node.SetExpanded(!node.IsExpanded())
@@ -93,8 +131,8 @@ func (FB *ValueBrowser) OnSelect(node *tview.TreeNode) {
 }
 
 
-func (FB *ValueBrowser) AddAt(target *tview.TreeNode, path string) {
-	// FB.App.Logger(fmt.Sprintf("FB.AddAt: %s\n", path))
+func (VB *ValueBrowser) AddAt(target *tview.TreeNode, path string) {
+	// VB.App.Logger(fmt.Sprintf("VB.AddAt: %s\n", path))
 
 	if strings.HasPrefix(path, "<root>") {
 		path = ""
@@ -102,11 +140,11 @@ func (FB *ValueBrowser) AddAt(target *tview.TreeNode, path string) {
 	if strings.HasPrefix(path, ".") {
 		path = path[1:]
 	}
-	val := FB.Value.LookupPath(cue.ParsePath(path))
-	// FB.App.Logger(fmt.Sprintf("#v\n", val))
+	val := VB.Value.LookupPath(cue.ParsePath(path))
+	// VB.App.Logger(fmt.Sprintf("#v\n", val))
 
 	if val.Err() != nil {
-		FB.App.Logger(fmt.Sprintf("Error: %s\n", val.Err()))
+		VB.App.Logger(fmt.Sprintf("Error: %s\n", val.Err()))
 		return
 	}
 
@@ -114,34 +152,13 @@ func (FB *ValueBrowser) AddAt(target *tview.TreeNode, path string) {
 	var iter *cue.Iterator
 	switch val.IncompleteKind() {
 	case cue.StructKind:
-		opts := []cue.Option{
-			cue.Docs(FB.docs),
-			cue.Attributes(FB.attrs),
-			cue.Definitions(FB.defs),
-			cue.Optional(FB.optional),
-			cue.InlineImports(FB.inline),
-			cue.ErrorsAsValues(FB.ignore),
-			cue.ResolveReferences(FB.resolve),
-		}
-		if FB.concrete {
-			opts = append(opts, cue.Concrete(true))
-		}
-		if FB.hidden {
-			opts = append(opts, cue.Hidden(true))
-		}
-
-		if FB.final {
-			// prepend final, so others still apply
-			opts = append([]cue.Option{cue.Final()}, opts...)
-		}
-
-		iter, _ = val.Fields(opts...)
+		iter, _ = val.Fields(VB.Options()...)
 	case cue.ListKind:
 		i, _ := val.List()
 		iter = &i
 	}
 	if iter == nil {
-		FB.App.Logger(fmt.Sprintf("nil iter for: %s\n", path))
+		VB.App.Logger(fmt.Sprintf("nil iter for: %s\n", path))
 		return
 	}
 
@@ -211,14 +228,43 @@ func (FB *ValueBrowser) AddAt(target *tview.TreeNode, path string) {
 	}
 }
 
+func (VB *ValueBrowser) Options() []cue.Option {
+		opts := []cue.Option{
+			cue.Docs(VB.docs),
+			cue.Attributes(VB.attrs),
+			cue.Definitions(VB.defs),
+			cue.Optional(VB.optional),
+			cue.InlineImports(VB.inline),
+			cue.ErrorsAsValues(VB.ignore),
+			cue.ResolveReferences(VB.resolve),
+		}
+		if VB.concrete {
+			opts = append(opts, cue.Concrete(true))
+		}
+		if VB.hidden {
+			opts = append(opts, cue.Hidden(true))
+		}
+
+		if VB.final {
+			// prepend final, so others still apply
+			opts = append([]cue.Option{cue.Final()}, opts...)
+		}
+
+	return opts
+}
+
 func (VB *ValueBrowser) SetupKeybinds() {
 
 	VB.SetInputCapture(func(evt *tcell.EventKey) *tcell.EventKey {
 
 		switch evt.Key() {
 
-		case tcell.KeyCtrlE:
-			VB.App.Logger("eval!\n")
+		case tcell.KeyCtrlW:
+			if VB.view == "code" {
+				VB.view = "tree"
+			} else {
+				VB.view = "code"
+			}
 
 		case tcell.KeyCtrlD:
 			VB.docs = !VB.docs
@@ -264,4 +310,8 @@ func (VB *ValueBrowser) SetupKeybinds() {
 		return nil
 	})
 
+}
+
+func (VB *ValueBrowser) Focus(delegate func(p tview.Primitive)) {
+	delegate(VB.Frame)
 }

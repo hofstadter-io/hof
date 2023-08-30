@@ -55,7 +55,7 @@ func NewApp() *App {
 
 	// setup keys
 	app.SetInputCapture(func(ek *tcell.EventKey) *tcell.EventKey {
-		app.Logger(fmt.Sprintf("app: %q %v %v\n", ek.Rune(), ek.Key(), ek.Modifiers()))
+		// app.Logger(fmt.Sprintf("app: %q %v %v\n", ek.Rune(), ek.Key(), ek.Modifiers()))
 
 		// enum keys
 		switch ek.Key() {

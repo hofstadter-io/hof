@@ -39,7 +39,6 @@ func NewTextEditor(app *app.App, onchange func()) *TextEditor {
 }
 
 func (ED *TextEditor) OpenFile(path string) {
-	ED.App.Logger("ED.OpenFile: " + path + "\n")
 
 	body, err := os.ReadFile(path)
 	if err != nil {
@@ -78,6 +77,5 @@ func (ED *TextEditor) OpenFile(path string) {
 }
 
 func (ED *TextEditor) Focus(delegate func(p tview.Primitive)) {
-	ED.App.Logger("ED.Focus\n")
 	delegate(ED.TextView)
 }
