@@ -81,7 +81,7 @@ func (FB *ValueBrowser) OnSelect(node *tview.TreeNode) {
 
 
 func (FB *ValueBrowser) AddAt(target *tview.TreeNode, path string) {
-	FB.App.Logger(fmt.Sprintf("FB.AddAt: %s\n", path))
+	// FB.App.Logger(fmt.Sprintf("FB.AddAt: %s\n", path))
 
 	if strings.HasPrefix(path, "<root>") {
 		path = ""

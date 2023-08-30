@@ -38,8 +38,6 @@ func NewEvalPage(app *app.App) *EvalPage {
 	n := app.Runtime.Value.Path().String()
 	page.View.Rebuild(n)
 
-
-
 	page.View.SetTitle(strings.Join(page.App.Runtime.Entrypoints, " "))
 
 	page.Eval = components.NewValueEvaluator(app)

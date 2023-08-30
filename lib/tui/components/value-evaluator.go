@@ -57,10 +57,10 @@ func NewValueEvaluator(app *app.App) (*ValueEvaluator) {
 	root.debouncer = watch.NewDebouncer(time.Millisecond * 500)
 	root.Edit.SetChangedFunc(func() {
 
-		root.App.Logger(".")
+		// root.App.Logger(".")
 
 		root.debouncer(func(){
-			root.App.Logger("!")
+			// root.App.Logger("!")
 			ctx := root.App.Runtime.CueContext
 			val := root.App.Runtime.Value
 			src := root.Edit.GetText()
@@ -73,7 +73,7 @@ func NewValueEvaluator(app *app.App) (*ValueEvaluator) {
 			} else {
 				root.View.Value = v
 				root.View.Rebuild(v.Path().String())
-				root.App.Logger("$")
+				// root.App.Logger("$")
 			}
 			root.App.Draw()
 		})
