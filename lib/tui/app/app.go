@@ -55,29 +55,33 @@ func NewApp() *App {
 
 	// setup keys
 	app.SetInputCapture(func(ek *tcell.EventKey) *tcell.EventKey {
-		// app.Logger(fmt.Sprintf("app: %q %v %v\n", ek.Rune(), ek.Key(), ek.Modifiers()))
+		// app.Logger(fmt.Sprintf("app: %q %v %v\n", string(ek.Rune()), ek.Key(), ek.Modifiers()))
 
-		// enum keys
-		switch ek.Key() {
-		case tcell.KeyEscape:
-			if app.helpShown {
-				app.Pages.HidePage("app-help")
-				app.helpShown = false
-				return nil
-			}
-			// we aren't handling this
-			return ek
+		//// enum keys
+		//switch ek.Key() {
+		//case tcell.KeyEscape:
+		//  if app.helpShown {
+		//    app.Pages.HidePage("app-help")
+		//    app.helpShown = false
+		//    return nil
+		//  }
+		//  // we aren't handling this
+		//  return ek
 
-		}
+		//}
 
-		// rune keys
-		switch ek.Rune() {
-		case '?':
-			app.helpShown = true
-			app.Pages.ShowPage("app-help")
-			app.Pages.SendToFront("app-help")
-			return nil
-		}
+		//// rune keys
+		//switch ek.Rune() {
+		//case '?':
+		//  app.Logger("app here\n")
+			
+		//  if app.Pages.HasFocus() {
+		//    //app.helpShown = true
+		//    //app.Pages.ShowPage("app-help")
+		//    //app.Pages.SendToFront("app-help")
+		//    //return nil
+		//  }
+		//}
 		// we aren't handling this
 		return ek
 	})

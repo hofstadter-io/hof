@@ -64,7 +64,7 @@ func NewValueEvaluator(app *app.App) (*ValueEvaluator) {
 			val := root.App.Runtime.Value
 			src := root.Edit.GetText()
 
-			v := ctx.CompileString(src, cue.Scope(val))
+			v := ctx.CompileString(src, cue.Scope(val), cue.InferBuiltins(true))
 
 			//if v.Err() != nil {
 			//  s := cuetils.CueErrorToString(v.Err())		
@@ -82,12 +82,21 @@ func NewValueEvaluator(app *app.App) (*ValueEvaluator) {
 
 
 	// key handlers
-	root.Edit.SetInputCapture(func(ek *tcell.EventKey) *tcell.EventKey {
+	root.Edit.SetInputCapture(func(evt *tcell.EventKey) *tcell.EventKey {
 
-		// root.App.Logger(fmt.Sprintln("edit: ", ek.Key() == tcell.KeyCtrlSpace, (ek.Key() == tcell.KeyCR), ek.Modifiers() & tcell.ModCtrl))
+		switch evt.Key() {
+		case tcell.KeyRune:
+			switch evt.Rune() {
+			default:
+				return evt
+			}
+		default:
+			return evt
+		}
 
-		// we aren't handling this
-		return ek
+		// VB.Rebuild("")
+
+		return nil
 	})
 
 	return root
