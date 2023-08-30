@@ -22,6 +22,17 @@ type ValueBrowser struct {
 	App *app.App
 
 	Value cue.Value
+
+	docs,
+	attrs,
+	defs,
+	optional,
+	ignore,
+	inline,
+	resolve,
+	concrete,
+	hidden,
+	final bool
 }
 
 func NewValueBrowser(app *app.App, val cue.Value, OnFieldSelect func(path string)) *ValueBrowser {
@@ -43,6 +54,8 @@ func NewValueBrowser(app *app.App, val cue.Value, OnFieldSelect func(path string
 	// set our selected handler
 	FB.SetSelectedFunc(FB.OnSelect)
 	FB.SetBorder(true)
+
+	FB.SetupKeybinds()
 
 	return FB
 }
@@ -101,7 +114,28 @@ func (FB *ValueBrowser) AddAt(target *tview.TreeNode, path string) {
 	var iter *cue.Iterator
 	switch val.IncompleteKind() {
 	case cue.StructKind:
-		iter, _ = val.Fields()
+		opts := []cue.Option{
+			cue.Docs(FB.docs),
+			cue.Attributes(FB.attrs),
+			cue.Definitions(FB.defs),
+			cue.Optional(FB.optional),
+			cue.InlineImports(FB.inline),
+			cue.ErrorsAsValues(FB.ignore),
+			cue.ResolveReferences(FB.resolve),
+		}
+		if FB.concrete {
+			opts = append(opts, cue.Concrete(true))
+		}
+		if FB.hidden {
+			opts = append(opts, cue.Hidden(true))
+		}
+
+		if FB.final {
+			// prepend final, so others still apply
+			opts = append([]cue.Option{cue.Final()}, opts...)
+		}
+
+		iter, _ = val.Fields(opts...)
 	case cue.ListKind:
 		i, _ := val.List()
 		iter = &i
@@ -175,4 +209,59 @@ func (FB *ValueBrowser) AddAt(target *tview.TreeNode, path string) {
 		node.SetReference(fullpath)
 		target.AddChild(node)
 	}
+}
+
+func (VB *ValueBrowser) SetupKeybinds() {
+
+	VB.SetInputCapture(func(evt *tcell.EventKey) *tcell.EventKey {
+
+		switch evt.Key() {
+
+		case tcell.KeyCtrlE:
+			VB.App.Logger("eval!\n")
+
+		case tcell.KeyCtrlD:
+			VB.docs = !VB.docs
+
+		case tcell.KeyCtrlA:
+			VB.attrs = !VB.attrs
+
+		case tcell.KeyCtrlO:
+			VB.optional = !VB.optional
+
+		case tcell.KeyCtrlJ:
+			VB.inline = !VB.inline
+
+		case tcell.KeyCtrlI:
+			VB.ignore = !VB.ignore
+
+		case tcell.KeyCtrlR:
+			VB.resolve = !VB.resolve
+
+		case tcell.KeyCtrlT:
+			VB.concrete = !VB.concrete
+
+		case tcell.KeyCtrlH:
+			VB.hidden = !VB.hidden
+
+		case tcell.KeyCtrlF:
+			VB.final = !VB.final
+
+		case tcell.KeyRune:
+			switch evt.Rune() {
+				case '#':
+					VB.defs = !VB.defs
+			default:
+				return evt
+			}
+
+		default:
+			return evt
+		}
+
+		VB.Rebuild("")
+
+		return nil
+	})
+
 }

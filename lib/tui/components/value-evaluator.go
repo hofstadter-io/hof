@@ -85,14 +85,7 @@ func NewValueEvaluator(app *app.App) (*ValueEvaluator) {
 	// key handlers
 	root.Edit.SetInputCapture(func(ek *tcell.EventKey) *tcell.EventKey {
 
-	root.App.Logger(fmt.Sprintln("edit: ", ek.Key() == tcell.KeyCtrlSpace, (ek.Key() == tcell.KeyCR), ek.Modifiers() & tcell.ModCtrl))
-
-		if (ek.Key() == tcell.KeyCR) && (ek.Modifiers() & tcell.ModCtrl == tcell.ModCtrl) {
-			
-			root.App.Logger("eval...\n")
-
-			return nil
-		}
+		root.App.Logger(fmt.Sprintln("edit: ", ek.Key() == tcell.KeyCtrlSpace, (ek.Key() == tcell.KeyCR), ek.Modifiers() & tcell.ModCtrl))
 
 		// we aren't handling this
 		return ek

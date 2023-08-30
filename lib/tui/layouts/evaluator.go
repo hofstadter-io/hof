@@ -31,7 +31,7 @@ func NewEvaluatorLayout(view, eval, repl tview.Primitive) *EvaluatorLayout {
 	layout.Flex = tview.NewFlex().SetDirection(tview.FlexRow)
 	layout.Flex.
 		AddItem(layout.Main, 0, 2, false).
-		AddItem(layout.Repl, 10, 1, false)
+		AddItem(layout.Repl, 16, 1, false)
 
 	return layout
 }
