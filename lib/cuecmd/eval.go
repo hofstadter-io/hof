@@ -83,21 +83,25 @@ func Eval(args []string, rflags flags.RootPflagpole, cflags flags.EvalFlagpole) 
 		pkg = bi.ID()
 	}
 
-	err = writeOutput(
-		val,
-		pkg,
-		opts,
-		fopts,
-		cflags.Out,
-		cflags.Outfile,
-		cflags.Expression,
-		rflags.Schema,
-		cflags.Escape,
-		cflags.Defaults,
-		wantErrorsInValue,
-	)
-	if err != nil {
-		return err
+	if cflags.Tui {
+		err = runTUI(R, cflags)
+	} else {
+		err = writeOutput(
+			val,
+			pkg,
+			opts,
+			fopts,
+			cflags.Out,
+			cflags.Outfile,
+			cflags.Expression,
+			rflags.Schema,
+			cflags.Escape,
+			cflags.Defaults,
+			wantErrorsInValue,
+		)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

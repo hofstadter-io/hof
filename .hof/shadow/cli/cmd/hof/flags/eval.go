@@ -18,6 +18,7 @@ type EvalFlagpole struct {
 	Resolve       bool
 	Defaults      bool
 	Final         bool
+	Tui           bool
 }
 
 var EvalFlags EvalFlagpole

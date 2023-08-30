@@ -32,6 +32,7 @@ func init() {
 	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.Resolve), "resolve", "", false, "resolve references in value")
 	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.Defaults), "defaults", "", false, "use default values if not set")
 	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.Final), "final", "", true, "finalize the value")
+	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.Tui), "tui", "", false, "open hof's TUI and browse your CUE")
 }
 
 func EvalRun(args []string) (err error) {

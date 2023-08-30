@@ -142,6 +142,7 @@ func RootInit() {
 	RootCmd.AddCommand(VetCmd)
 	RootCmd.AddCommand(ChatCmd)
 	RootCmd.AddCommand(RunCmd)
+	RootCmd.AddCommand(TuiCmd)
 	RootCmd.AddCommand(FeedbackCmd)
 
 }
