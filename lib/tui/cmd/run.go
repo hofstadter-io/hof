@@ -64,7 +64,7 @@ func Cmd(args []string, rflags flags.RootPflagpole) error {
 	path := "home"
 	if len(args) > 0 {
 		path = args[0]
-		args = args[1:]
+		args = os.Args[2:]
 	}
 
 	d := map[string]any{

@@ -285,16 +285,16 @@ func (VB *ValueBrowser) SetupKeybinds() {
 		case tcell.KeyCtrlO:
 			VB.optional = !VB.optional
 
-		case tcell.KeyCtrlJ:
+		case tcell.KeyCtrlI:
 			VB.inline = !VB.inline
 
-		case tcell.KeyCtrlI:
+		case tcell.KeyCtrlE:
 			VB.ignore = !VB.ignore
 
 		case tcell.KeyCtrlR:
 			VB.resolve = !VB.resolve
 
-		case tcell.KeyCtrlT:
+		case tcell.KeyCtrlX:
 			VB.concrete = !VB.concrete
 
 		case tcell.KeyCtrlH:

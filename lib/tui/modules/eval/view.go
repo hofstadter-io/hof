@@ -2,7 +2,6 @@ package eval
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/spf13/pflag"
 
@@ -131,19 +130,19 @@ func (P *EvalPage) Refresh(context map[string]interface{}) error {
 
 	P.Runtime = R
 	
-	// setup file browser
-	onNodeSelect := func(path string) {
-		// app.Logger("onNodeSelect: " + path)
-	}
+	//// setup file browser
+	//onNodeSelect := func(path string) {
+	//  // app.Logger("onNodeSelect: " + path)
+	//}
 
 	if P.View == nil {
-		P.View = components.NewValueBrowser(P.Runtime.Value, onNodeSelect)
+		P.View = components.NewValueBrowser(P.Runtime.Value, nil)
 		P.Eval = components.NewValueEvaluator(R)
 	} else {
 		P.View.Value = R.Value
 		P.Eval.Runtime = R
 	}
-	P.View.SetTitle(strings.Join(P.Runtime.Entrypoints, " "))
+	P.View.SetTitle(fmt.Sprint(_args))
 	P.View.Rebuild("")
 	P.Eval.Rebuild()
 
@@ -214,7 +213,6 @@ func (P *EvalPage) CommandCallback(args []string, context map[string]any) {
 	} else {
 		// need to navigate, mount will do the rest
 		context["path"] = "/eval"
-		tui.SendCustomEvent("/console/trace", fmt.Sprintf("eval navigate %v", context))
 		go tui.SendCustomEvent("/router/dispatch", context)
 	}
 }
