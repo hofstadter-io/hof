@@ -7,9 +7,10 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 
-	"github.com/hofstadter-io/hof/lib/tui"
+	"github.com/hofstadter-io/hof/lib/tui/cmd"
 )
 
 var tuiLong = `hidden command for tui experiments`
@@ -19,7 +20,7 @@ func TuiRun(args []string) (err error) {
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = tui.Cmd(args, flags.RootPflags)
+	err = cmd.Cmd(args, flags.RootPflags)
 
 	return err
 }

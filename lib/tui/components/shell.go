@@ -1,9 +1,8 @@
 package components
 
 import (
-	"github.com/rivo/tview"
-
 	"github.com/hofstadter-io/hof/lib/tui/app"
+	"github.com/hofstadter-io/hof/lib/tui/tview"
 )
 
 type Shell struct {

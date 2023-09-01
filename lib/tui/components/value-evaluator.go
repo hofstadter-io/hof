@@ -5,17 +5,18 @@ import (
 
 	"cuelang.org/go/cue"
 	"github.com/gdamore/tcell/v2"
-	"github.com/rivo/tview"
 
 	// "github.com/hofstadter-io/hof/lib/cuetils"
-	"github.com/hofstadter-io/hof/lib/tui/app"
+	"github.com/hofstadter-io/hof/lib/runtime"
+	"github.com/hofstadter-io/hof/lib/tui"
+	"github.com/hofstadter-io/hof/lib/tui/tview"
 	"github.com/hofstadter-io/hof/lib/watch"
 )
 
 type ValueEvaluator struct {
 	*tview.Flex
 
-	App *app.App
+	Runtime *runtime.Runtime
 
 	Edit *tview.TextArea
 	View *ValueBrowser
@@ -24,57 +25,61 @@ type ValueEvaluator struct {
 	debouncer func(func())
 }
 
-func NewValueEvaluator(app *app.App) (*ValueEvaluator) {
-	root := &ValueEvaluator{
-		App: app,
+func NewValueEvaluator(R *runtime.Runtime) (*ValueEvaluator) {
+
+	VE := &ValueEvaluator{
+		Flex: tview.NewFlex(),
+		Runtime: R,
+
 	}
 
-	root.Flex = tview.NewFlex().SetDirection(tview.FlexRow)
+	VE.Flex = tview.NewFlex().SetDirection(tview.FlexRow)
 	// with two panels
 
 	// TODO, options form
 
 	// editor
-	root.Edit = tview.NewTextArea()
-	root.Edit.
+	VE.Edit = tview.NewTextArea()
+	VE.Edit.
 		SetTitle("expression(s)").
 		SetBorder(true)
 
 	// results
-	root.View = NewValueBrowser(app, app.Runtime.Value, func(string){})
-	root.View.
+	VE.View = NewValueBrowser(VE.Runtime.Value, func(string){})
+	VE.View.
 		SetTitle("results").
 		SetBorder(true)
+	VE.View.SetMode("code")
 
 	// layout
-	root.Flex.
-		AddItem(root.Edit, 0, 1, true).
-		AddItem(root.View, 0, 2, false)
+	VE.Flex.
+		AddItem(VE.Edit, 0, 1, true).
+		AddItem(VE.View, 0, 2, false)
 
+
+	return VE
+}
+
+func (VE *ValueEvaluator) Mount(context map[string]any) error {
 
 	// change debouncer
-	root.debouncer = watch.NewDebouncer(time.Millisecond * 500)
-	root.Edit.SetChangedFunc(func() {
+	VE.debouncer = watch.NewDebouncer(time.Millisecond * 300)
+	VE.Edit.SetChangedFunc(func() {
+		tui.SendCustomEvent("/console/warn", "edit changed")
 
-		// root.App.Logger(".")
+		VE.debouncer(func(){
+			val := VE.Runtime.Value
+			ctx := val.Context()
 
-		root.debouncer(func(){
-			// root.App.Logger("!")
-			ctx := root.App.Runtime.CueContext
-			val := root.App.Runtime.Value
-			src := root.Edit.GetText()
+			src := VE.Edit.GetText()
 
 			v := ctx.CompileString(src, cue.Scope(val), cue.InferBuiltins(true))
 
-			//if v.Err() != nil {
-			//  s := cuetils.CueErrorToString(v.Err())		
-			//  root.App.Logger(s)
-			//} else {
-				root.View.Value = v
-				root.View.Rebuild(v.Path().String())
-				// root.App.Logger("$")
-			//}
-			root.App.Draw()
+			VE.View.Value = v
+			VE.View.Rebuild(v.Path().String())
+			tui.SendCustomEvent("/console/warn", "eval updated")
+
+			tui.Draw()
 		})
 
 	})
@@ -82,7 +87,8 @@ func NewValueEvaluator(app *app.App) (*ValueEvaluator) {
 
 
 	// key handlers
-	root.Edit.SetInputCapture(func(evt *tcell.EventKey) *tcell.EventKey {
+	VE.Edit.SetInputCapture(func(evt *tcell.EventKey) *tcell.EventKey {
+		tui.SendCustomEvent("/console/warn", "edit capture")
 
 		switch evt.Key() {
 		case tcell.KeyRune:
@@ -99,5 +105,5 @@ func NewValueEvaluator(app *app.App) (*ValueEvaluator) {
 		return nil
 	})
 
-	return root
+	return nil
 }

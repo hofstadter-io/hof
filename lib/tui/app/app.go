@@ -2,111 +2,115 @@ package app
 
 import (
 	"fmt"
+	"os"
+	"sync"
 
-	"github.com/gdamore/tcell/v2"
-	"github.com/rivo/tview"
-
-	"github.com/hofstadter-io/hof/lib/runtime"
+	"github.com/hofstadter-io/hof/lib/tui/events"
+	"github.com/hofstadter-io/hof/lib/tui/tview"
 )
 
 type App struct {
 	*tview.Application
+	appLock sync.RWMutex
 
-	loglevel string
+	rootView tview.Primitive
 
-	Logger func(string)
+	EventBus *events.EventBus
 
-	Runtime *runtime.Runtime
-
-	Pages *tview.Pages
-
-	helpShown bool
-	HelpModal tview.Primitive
+	// TODO core config, redux like data store?
 }
 
-func NewApp() *App {
+func NewApp() (*App, error) {
 	app := &App{
 		Application: tview.NewApplication(),
-		loglevel: "info",
+		EventBus:    new(events.EventBus),
+	}
+
+	err := app.EventBus.Init(app.Application)
+	if err != nil {
+		return app, err
 	}
 
 	app.EnableMouse(true)
 
+	// is this needed? or do we keep it for easy debug of event bus
+	// app.EventBus.AddGlobalHandler("/", func(e events.Event){})
 
-	text := tview.NewTextView()
-	text.
-		SetBorder(true).
-		SetTitle("   Help   ")
-	fmt.Fprint(text, helpMsg)	
-
-	width, height := 100, 30
-
-	app.HelpModal = tview.
-		NewFlex().
-		AddItem(nil, 0, 1, false).
-		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
-			AddItem(nil, 0, 1, false).
-			AddItem(text, height, 1, true).
-			AddItem(nil, 0, 1, false), width, 1, true).
-		AddItem(nil, 0, 1, false)
-
-	app.Pages = tview.NewPages().
-		AddPage("app-help", app.HelpModal, true, false)
-
-	// setup keys
-	app.SetInputCapture(func(ek *tcell.EventKey) *tcell.EventKey {
-		// app.Logger(fmt.Sprintf("app: %q %v %v\n", string(ek.Rune()), ek.Key(), ek.Modifiers()))
-
-		//// enum keys
-		//switch ek.Key() {
-		//case tcell.KeyEscape:
-		//  if app.helpShown {
-		//    app.Pages.HidePage("app-help")
-		//    app.helpShown = false
-		//    return nil
-		//  }
-		//  // we aren't handling this
-		//  return ek
-
-		//}
-
-		//// rune keys
-		//switch ek.Rune() {
-		//case '?':
-		//  app.Logger("app here\n")
-			
-		//  if app.Pages.HasFocus() {
-		//    //app.helpShown = true
-		//    //app.Pages.ShowPage("app-help")
-		//    //app.Pages.SendToFront("app-help")
-		//    //return nil
-		//  }
-		//}
-		// we aren't handling this
-		return ek
+	// common, so you can send a message to redraw
+	app.EventBus.AddGlobalHandler("/sys/redraw", func(e events.Event) {
+		app.Draw()
 	})
 
-	return app
+	return app, nil
 }
 
-const helpMsg = `
-Hof TUI help system
+func (app *App) GetRootView() (root tview.Primitive) {
+	return app.rootView
+}
 
-<space>, <enter>:         open / close a value
+func (app *App) SetRootView(root tview.Primitive) {
+	app.rootView = root
+}
 
-C - dive into a value    (make it the new root)
-u - back out of a value  (unwind the vals to root)
+//func (A *App) AddPage(name string, item tview.Primitive, resize, visible bool ) {
+//  A.Pages.AddPage(name, item, resize, visible)
+//}
 
-j, down arrow, right arrow: Move (the selection) down by one node.
-k, ⬆⇦: Move (the selection) up by one node.
-g, home: Move (the selection) to the top.
-G, end: Move (the selection) to the bottom.
+// blocking call
+func (app *App) Start() error {
 
-J:											Move (the selection) up one level
-K: 											Move (the selection) to the last node one level down
-Ctrl-F, page down:			Move (the selection) down by one page.
-Ctrl-B, page up:				Move (the selection) up by one page.
+	// catch panics, clean up, format error
+	defer func() {
+		e := recover()
+		if e != nil {
+			app.stop()
+			// Print a formatted panic output
+			fmt.Fprintf(os.Stderr, "Captured a panic(value=%v) lib.Start()... Exit vermui and clean terminal...\nPrint stack trace:\n\n", e)
+			//debug.PrintStack()
+			//gs, err := stack.ParseDump(bytes.NewReader(debug.Stack()), os.Stderr)
+			//if err != nil {
+			//  debug.PrintStack()
+			//  os.Exit(1)
+			//}
+			//p := &stack.Palette{}
+			//buckets := stack.SortBuckets(stack.Bucketize(gs, stack.AnyValue))
+			//srcLen, pkgLen := stack.CalcLengths(buckets, false)
+			//for _, bucket := range buckets {
+			//  io.WriteString(os.Stdout, p.BucketHeader(&bucket, false, len(buckets) > 1))
+			//  io.WriteString(os.Stdout, p.StackLines(&bucket.Signature, srcLen, pkgLen, false))
+			//}
+			panic(e)
+		}
+	}()
 
-? - this help
+	// start the event engine
+	go app.EventBus.Start()
 
-`
+	err := app.rootView.Mount(nil)
+	if err != nil {
+		panic(err)
+	}
+
+	// blocking
+	app.SetRoot(app.rootView, true)
+	return app.Run()
+}
+
+// Close finalizes vermui library,
+// should be called after successful initialization when vermui's functionality isn't required anymore.
+func (app *App) stop() error {
+	app.Stop()
+	err := app.EventBus.Stop()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (app *App) Clear() {
+	screen := app.Screen()
+	if screen != nil {
+		screen.Clear()
+		screen.Sync()
+	}
+}

@@ -5,10 +5,10 @@ import (
 	"path/filepath"
 	"sort"
 
-	"github.com/rivo/tview"
 	"github.com/gdamore/tcell/v2"
 
 	"github.com/hofstadter-io/hof/lib/tui/app"
+	"github.com/hofstadter-io/hof/lib/tui/tview"
 )
 
 type FileBrowser struct {

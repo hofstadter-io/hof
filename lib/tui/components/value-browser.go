@@ -10,10 +10,10 @@ import (
 	"cuelang.org/go/cue/format"
 	"github.com/alecthomas/chroma/quick"
 	"github.com/gdamore/tcell/v2"
-	"github.com/rivo/tview"
 
 	"github.com/hofstadter-io/hof/lib/cuetils"
-	"github.com/hofstadter-io/hof/lib/tui/app"
+	"github.com/hofstadter-io/hof/lib/tui"
+	"github.com/hofstadter-io/hof/lib/tui/tview"
 )
 
 type ValueBrowser struct {
@@ -26,8 +26,6 @@ type ValueBrowser struct {
 	OnFieldSelect func(string)
 
 	Root *tview.TreeNode
-
-	App *app.App
 
 	Value cue.Value
 
@@ -43,12 +41,10 @@ type ValueBrowser struct {
 	final bool
 }
 
-func NewValueBrowser(app *app.App, val cue.Value, OnFieldSelect func(path string)) *ValueBrowser {
+func NewValueBrowser(val cue.Value, OnFieldSelect func(path string)) *ValueBrowser {
 	VB := &ValueBrowser {
-		view: "tree",
-		App: app,
 		Value: val,
-		OnFieldSelect: OnFieldSelect,
+		view: "tree",
 	}
 
 	// code view
@@ -96,7 +92,8 @@ func (VB *ValueBrowser) Rebuild(path string) {
 
 		err = quick.Highlight(VB.CodeW, string(b), "Go", "terminal256", "solarized-dark")
 		if err != nil {
-			VB.App.Logger("error: " + err.Error())
+			go tui.SendCustomEvent("/console/error", fmt.Sprintf("error highlighing %v", err))
+			return
 		}
 
 		VB.SetPrimitive(VB.Code)
@@ -144,7 +141,7 @@ func (VB *ValueBrowser) AddAt(target *tview.TreeNode, path string) {
 	// VB.App.Logger(fmt.Sprintf("#v\n", val))
 
 	if val.Err() != nil {
-		VB.App.Logger(fmt.Sprintf("Error: %s\n", val.Err()))
+		tui.SendCustomEvent("/console/err", cuetils.CueErrorToString(val.Err()))
 		return
 	}
 
@@ -227,6 +224,14 @@ func (VB *ValueBrowser) AddAt(target *tview.TreeNode, path string) {
 		node.SetReference(fullpath)
 		target.AddChild(node)
 	}
+}
+
+func (VB *ValueBrowser) SetMode(mode string) {
+	VB.view = mode
+}
+
+func (VB *ValueBrowser) GetMode() string {
+	return VB.view
 }
 
 func (VB *ValueBrowser) Options() []cue.Option {
@@ -316,3 +321,10 @@ func (VB *ValueBrowser) SetupKeybinds() {
 func (VB *ValueBrowser) Focus(delegate func(p tview.Primitive)) {
 	delegate(VB.Frame)
 }
+
+func (VB *ValueBrowser) Mount(context map[string]any) error {
+
+
+	return nil
+}
+

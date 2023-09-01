@@ -8,25 +8,23 @@ import (
 	"github.com/alecthomas/chroma/lexers"
 	"github.com/alecthomas/chroma/quick"
 	"github.com/gdamore/tcell/v2"
-	"github.com/rivo/tview"
 
-	"github.com/hofstadter-io/hof/lib/tui/app"
+	"github.com/hofstadter-io/hof/lib/tui"
+	"github.com/hofstadter-io/hof/lib/tui/tview"
 )
 
 type TextEditor struct {
 	*tview.TextView
 
-	App *app.App
 	W io.Writer
 
 	OnChange func()
 }
 
-func NewTextEditor(app *app.App, onchange func()) *TextEditor {
+func NewTextEditor(onchange func()) *TextEditor {
 
 	te := &TextEditor{
 		TextView: tview.NewTextView(),
-		App: app,
 		OnChange: onchange,
 	}
 	te.SetWordWrap(true).
@@ -43,7 +41,7 @@ func (ED *TextEditor) OpenFile(path string) {
 
 	body, err := os.ReadFile(path)
 	if err != nil {
-		ED.App.Logger("error: " + err.Error())
+		tui.SendCustomEvent("/console/err", err.Error())
 	}
 
 	l := lexers.Match(path)
@@ -70,7 +68,7 @@ func (ED *TextEditor) OpenFile(path string) {
 
 	err = quick.Highlight(ED.W, string(body), lexer, "terminal256", "solarized-dark")
 	if err != nil {
-		ED.App.Logger("error: " + err.Error())
+		tui.SendCustomEvent("/console/err", err.Error())
 	}
 
 	ED.Focus(func(p tview.Primitive){})
@@ -82,7 +80,7 @@ func (ED *TextEditor) OpenFile(path string) {
 		case tcell.KeyRune:
 			switch evt.Rune() {
 				case '?':
-				ED.App.Logger("ed here\n")
+				tui.SendCustomEvent("/console/err", err.Error())
 				return nil
 			default:
 				return evt

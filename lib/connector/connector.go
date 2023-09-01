@@ -12,7 +12,7 @@ type Namer interface {
 
 // Itemizer - things which have Items()
 type Itemizer interface {
-	Items() []interface{}
+	Items() []any
 }
 
 // Connectable - things which consume Connectors
@@ -22,17 +22,17 @@ type Connectable interface {
 
 // Addable - things which can be Add()-ed to
 type Addable interface {
-	Add(...interface{})
+	Add(...any)
 }
 
 // Gettable - things which can be Get()-ed from, by type
 type Gettable interface {
-	Get(interface{}) []interface{}
+	Get(any) []any
 }
 
 // Deletable - things which can be Del()-ed from
 type Deletable interface {
-	Del(interface{})
+	Del(any)
 }
 
 // Clearable - things which are Clear()-able
@@ -50,17 +50,17 @@ type Stored interface {
 
 // Indexed - things that have something to Lookup(string)
 type Indexed interface {
-	Lookup(name string) interface{}
+	Lookup(name string) any
 }
 
 // Searchable - things that have something to Find(interface)
 type Searchable interface {
-	Find(interface{})
+	Find(any)
 }
 
-// Filterable - things that are Filter(func(interface{})bool)-able
+// Filterable - things that are Filter(func(any)bool)-able
 type Filterable interface {
-	Filter(func(interface{}) bool) []interface{}
+	Filter(func(any) bool) []any
 }
 
 // Connector is all the things, put together.
@@ -72,7 +72,7 @@ type Connector interface {
 	Connect(Connector)
 
 	// Extracts all the items which match a given type. Go Get()'em !!
-	Get(interface{}) []interface{}
+	Get(any) []any
 
 	// Named
 	// Namer
