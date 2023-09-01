@@ -17,7 +17,8 @@ var getLong = `add a new dependency to the current module`
 
 func init() {
 
-	GetCmd.Flags().BoolVarP(&(flags.Mod__GetFlags.Prerelease), "prerelease", "P", false, "include prerelease version when using @latest")
+	flags.SetupMod__GetFlags(GetCmd.Flags(), &(flags.Mod__GetFlags))
+
 }
 
 func GetRun(module string) (err error) {

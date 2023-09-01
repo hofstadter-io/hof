@@ -17,7 +17,8 @@ var infoLong = `print details for about generators`
 
 func init() {
 
-	InfoCmd.Flags().StringSliceVarP(&(flags.Gen__InfoFlags.Expression), "expr", "e", nil, "CUE paths to select outputs, depending on the command")
+	flags.SetupGen__InfoFlags(InfoCmd.Flags(), &(flags.Gen__InfoFlags))
+
 }
 
 func InfoRun(args []string) (err error) {

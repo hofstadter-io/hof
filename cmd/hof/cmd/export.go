@@ -16,13 +16,9 @@ import (
 var exportLong = `output data in a standard format`
 
 func init() {
-	ExportCmd.Flags().StringArrayVarP(&(flags.ExportFlags.Expression), "expression", "e", nil, "evaluate these expressions only")
-	ExportCmd.Flags().BoolVarP(&(flags.ExportFlags.List), "list", "", false, "concatenate multiple objects into a list")
-	ExportCmd.Flags().BoolVarP(&(flags.ExportFlags.Simplify), "simplify", "", false, "simplify CUE statements where possible")
-	ExportCmd.Flags().StringVarP(&(flags.ExportFlags.Out), "out", "", "", "output data format, when detection does not work")
-	ExportCmd.Flags().StringVarP(&(flags.ExportFlags.Outfile), "outfile", "o", "", "filename or - for stdout with optional file prefix")
-	ExportCmd.Flags().BoolVarP(&(flags.ExportFlags.Escape), "escape", "", false, "use HTLM escaping")
-	ExportCmd.Flags().BoolVarP(&(flags.ExportFlags.Comments), "comments", "C", false, "include comments in output")
+
+	flags.SetupExportFlags(ExportCmd.Flags(), &(flags.ExportFlags))
+
 }
 
 func ExportRun(args []string) (err error) {

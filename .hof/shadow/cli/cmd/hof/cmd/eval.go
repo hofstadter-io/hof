@@ -15,23 +15,8 @@ var evalLong = `evaluate and print CUE configuration`
 
 func init() {
 
-	EvalCmd.Flags().StringSliceVarP(&(flags.EvalFlags.Expression), "expression", "e", nil, "evaluate these expressions only")
-	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.List), "list", "", false, "concatenate multiple objects into a list")
-	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.Simplify), "simplify", "", false, "simplify CUE statements where possible")
-	EvalCmd.Flags().StringVarP(&(flags.EvalFlags.Out), "out", "", "", "output data format, when detection does not work")
-	EvalCmd.Flags().StringVarP(&(flags.EvalFlags.Outfile), "outfile", "o", "", "filename or - for stdout with optional file prefix")
-	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.InlineImports), "inline-imports", "", false, "expand references to non-core imports")
-	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.Comments), "comments", "C", false, "include comments in output")
-	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.All), "all", "a", false, "show optional and hidden fields")
-	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.Concrete), "concrete", "c", false, "require the evaluation to be concrete")
-	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.Escape), "escape", "", false, "use HTLM escaping")
-	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.Attributes), "attributes", "A", false, "display field attributes")
-	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.Definitions), "definitions", "S", true, "display defintions")
-	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.Hidden), "hidden", "H", false, "display hidden fields")
-	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.Optional), "optional", "O", false, "display optional fields")
-	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.Resolve), "resolve", "", false, "resolve references in value")
-	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.Defaults), "defaults", "", false, "use default values if not set")
-	EvalCmd.Flags().BoolVarP(&(flags.EvalFlags.Final), "final", "", true, "finalize the value")
+	flags.SetupEvalFlags(EvalCmd.Flags(), &(flags.EvalFlags))
+
 }
 
 func EvalRun(args []string) (err error) {

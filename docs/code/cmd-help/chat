@@ -55,18 +55,18 @@ Available Commands:
   with        chat with a plugin in the current module
 
 Flags:
-  -N, --choices int       param: choices or N (openai) (default 1)
-  -e, --example strings   string or path to an example pair for the LLM
-  -h, --help              help for chat
-      --max-tokens int    param: MaxTokens (default 256)
-  -m, --message strings   string or path to a message for the LLM
-  -M, --model string      LLM model to use [gpt-3.5-turbo,gpt-4,bard,chat-bison] (default "gpt-3.5-turbo")
-  -O, --outfile string    path to write the output to
-      --stop strings      param: Stop (openai)
-  -s, --system strings    string or path to the system prompt for the LLM, concatenated
-      --temp float        param: temperature (default 0.8)
-      --topk int          param: TopK (google) (default 40)
-      --topp float        param: TopP (default 0.42)
+  -N, --choices int           param: choices or N (openai) (default 1)
+  -e, --example stringArray   string or path to an example pair for the LLM
+  -h, --help                  help for chat
+      --max-tokens int        param: MaxTokens (default 256)
+  -m, --message stringArray   string or path to a message for the LLM
+  -M, --model string          LLM model to use [gpt-3.5-turbo,gpt-4,bard,chat-bison] (default "gpt-3.5-turbo")
+  -O, --outfile string        path to write the output to
+      --stop stringArray      param: Stop (openai)
+  -s, --system stringArray    string or path to the system prompt for the LLM, concatenated
+      --temp float            param: temperature (default 0.8)
+      --topk int              param: TopK (google) (default 40)
+      --topp float            param: TopP (default 0.42)
 
 Global Flags:
   -E, --all-errors           print all available errors

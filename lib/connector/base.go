@@ -7,19 +7,19 @@ import (
 // Base is the base implementation
 type Base struct {
 	name  string
-	items []interface{}
+	items []any
 }
 
 // New creates a new Base (i.e. Connector) with the given name.
 // Name must have a non-empty value.
 // It should also be unique, but that is not enforced.
-func New(name string, items ...interface{}) *Base {
+func New(name string, items ...any) *Base {
 	if name == "" {
 		return nil
 	}
 	B := &Base{
 		name:  name,
-		items: []interface{}{},
+		items: []any{},
 	}
 
 	if len(items) > 0 {
@@ -49,9 +49,9 @@ func (B *Base) Named() []Named {
 }
 
 // Items returns all Items
-func (B *Base) Items() []interface{} {
+func (B *Base) Items() []any {
 	// make a copy
-	all := []interface{}{}
+	all := []any{}
 	for _, item := range B.items {
 		all = append(all, item)
 	}
@@ -60,13 +60,13 @@ func (B *Base) Items() []interface{} {
 }
 
 // Add adds items to a Connector. Input may be a single object, slice, or any mix.
-func (B *Base) Add(in ...interface{}) {
+func (B *Base) Add(in ...any) {
 	B.add(in)
 }
 
-func (B *Base) add(in interface{}) {
+func (B *Base) add(in any) {
 	switch it := in.(type) {
-	case []interface{}:
+	case []any:
 		for _, i := range it {
 			B.add(i)
 		}
@@ -83,9 +83,9 @@ func (B *Base) add(in interface{}) {
 }
 
 // Del deletes an item or list of items from the connector.
-func (B *Base) Del(out interface{}) {
+func (B *Base) Del(out any) {
 	switch ot := out.(type) {
-	case []interface{}:
+	case []any:
 		for _, o := range ot {
 			B.Del(o)
 		}
@@ -98,7 +98,7 @@ func (B *Base) Del(out interface{}) {
 // Clear clears all items from this Connector.
 // Will not effect connectors which this had been added to.
 func (B *Base) Clear() {
-	B.items = []interface{}{}
+	B.items = []any{}
 }
 
 /*Get will return items which implement a given type or interface.
@@ -108,11 +108,11 @@ we will want to retrieve some subset of those.
 The Get() Function will return all items
 that match the given type
 */
-func (B *Base) Get(in interface{}) []interface{} {
+func (B *Base) Get(in any) []any {
 	typ := reflect.TypeOf(in).Elem()
 
 	// make a copy
-	all := []interface{}{}
+	all := []any{}
 	for _, item := range B.items {
 		it := reflect.TypeOf(item)
 		if it.Implements(typ) {

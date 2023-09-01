@@ -11,9 +11,15 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/runtime"
+	"github.com/hofstadter-io/hof/lib/tui/cmd"
 )
 
 func Eval(args []string, rflags flags.RootPflagpole, cflags flags.EvalFlagpole) error {
+
+	if cflags.Tui {
+		args = append([]string{"eval"}, args...)
+		return cmd.Cmd(args, rflags)
+	}
 
 	start := time.Now()
 	R, err := runtime.New(args, rflags)

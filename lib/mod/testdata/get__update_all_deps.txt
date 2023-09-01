@@ -27,6 +27,6 @@ require: {
 indirect: {
 	"github.com/hofstadter-io/cuelm":      "v0.2.0"
 	"github.com/hofstadter-io/ghacue":     "v0.2.0"
-	"github.com/hofstadter-io/hofmod-cli": "v0.8.9"
+	"github.com/hofstadter-io/hofmod-cli": "v0.9.0"
 	"github.com/hofstadter-io/supacode":   "v0.0.7"
 }

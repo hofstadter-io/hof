@@ -43,6 +43,7 @@ CLI: schema.Cli & {
 		// beta commands
 		cmds.ChatCommand,
 		cmds.RunCommand,
+		cmds.TuiCommand,
 
 		// additional commands
 		cmds.FeedbackCommand,

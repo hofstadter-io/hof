@@ -1,10 +1,5 @@
 # connector-go
 
-[![Build Status](https://travis-ci.org/hofstadter-io/connector-go.svg?branch=master)](https://travis-ci.org/hofstadter-io/connector-go)
-[![Doc Status](https://godoc.org/github.com/hofstadter-io/connector-go?status.png)](https://godoc.org/github.com/hofstadter-io/connector-go)
-[![Go Report Card](https://goreportcard.com/badge/github.com/hofstadter-io/connector-go)](https://goreportcard.com/report/github.com/hofstadter-io/connector-go)
-
-
 A Golang implementation of the __Connector__ concept.
 
 Examples:

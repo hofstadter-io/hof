@@ -106,9 +106,9 @@ Available Commands:
   tree        print datamodel structure as a tree
 
 Flags:
-  -e, --expr strings    CUE paths to select outputs, depending on the command
-  -h, --help            help for datamodel
-  -M, --model strings   specify one or more data models to operate on
+  -e, --expr stringArray    CUE paths to select outputs, depending on the command
+  -h, --help                help for datamodel
+  -M, --model stringArray   specify one or more data models to operate on
 
 Global Flags:
   -E, --all-errors           print all available errors

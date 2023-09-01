@@ -15,8 +15,8 @@ var logLong = `show the history for a datamodel`
 
 func init() {
 
-	LogCmd.Flags().BoolVarP(&(flags.Datamodel__LogFlags.ByValue), "by-value", "", false, "display snapshot log by value")
-	LogCmd.Flags().BoolVarP(&(flags.Datamodel__LogFlags.Details), "details", "", false, "print more when displaying the log")
+	flags.SetupDatamodel__LogFlags(LogCmd.Flags(), &(flags.Datamodel__LogFlags))
+
 }
 
 func LogRun(args []string) (err error) {

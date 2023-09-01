@@ -81,19 +81,19 @@ Available Commands:
   list        print available generators
 
 Flags:
-      --as-module string       <github.com/username/<name>> like value for the generator module made from the given flags
-  -3, --diff3                  enable diff3 support for custom code
-      --exec                   enable pre/post-exec support when generating code
-  -G, --generator strings      generator tags to run, default is all, or none if -T is used
-  -h, --help                   help for gen
-      --keep-deleted           keep files that would be deleted after code generation
-      --no-format              disable formatting during code gen (ad-hoc only)
-  -O, --outdir string          base directory to write all output u
-  -P, --partial strings        file globs to partial templates to register with the templates
-  -T, --template stringArray   template mapping to render, see help for format
-  -w, --watch                  run in watch mode, regenerating when files change, implied by -W/X
-  -X, --watch-fast strings     filepath globs to watch for changes and trigger fast regen
-  -W, --watch-globs strings    filepath globs to watch for changes and trigger full regen
+      --as-module string          <github.com/username/<name>> like value for the generator module made from the given flags
+  -3, --diff3                     enable diff3 support for custom code
+      --exec                      enable pre/post-exec support when generating code
+  -G, --generator stringArray     generator tags to run, default is all, or none if -T is used
+  -h, --help                      help for gen
+      --keep-deleted              keep files that would be deleted after code generation
+      --no-format                 disable formatting during code gen (ad-hoc only)
+  -O, --outdir string             base directory to write all output u
+  -P, --partial stringArray       file globs to partial templates to register with the templates
+  -T, --template stringArray      template mapping to render, see help for format
+  -w, --watch                     run in watch mode, regenerating when files change, implied by -W/X
+  -X, --watch-fast stringArray    filepath globs to watch for changes and trigger fast regen
+  -W, --watch-globs stringArray   filepath globs to watch for changes and trigger full regen
 
 Global Flags:
   -E, --all-errors           print all available errors

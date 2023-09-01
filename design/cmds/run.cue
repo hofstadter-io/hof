@@ -4,9 +4,7 @@ import (
 	"github.com/hofstadter-io/hofmod-cli/schema"
 )
 
-// TODO, JAMStack / HofKit
 RunCommand: schema.Command & {
-	TBD:   "β"
 	Name:  "run"
 	Usage: "run"
 	Aliases: ["r"]
