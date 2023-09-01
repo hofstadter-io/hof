@@ -1,6 +1,10 @@
 package ls
 
 import (
+	"os"
+	"path/filepath"
+	"strings"
+
 	"github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/components"
 	"github.com/hofstadter-io/hof/lib/tui/hoc/router"
@@ -40,16 +44,32 @@ func (P *LS) Mount(context map[string]any) error {
 }
 
 func (P *LS) Refresh(context map[string]any) error {
+	dir := ""
+	_args, _ := context["args"]
+	args, _ := _args.([]string)
+	if len(args) > 0 && args[0] == "ls" {
+		args = args[1:]
+	}
+
+	if len(args) > 0 {
+		dir = args[0]
+	} else {
+		dir, _ = os.Getwd()
+	}
+	dir, _ = filepath.Abs(dir)
+	go tui.SendCustomEvent("/console/info", "LS dir: " + dir)
 	
 	P.View = components.NewTextEditor(nil)
 
-	P.Tree = components.NewFileBrowser("",
+	P.Tree = components.NewFileBrowser(dir,
 		func(path string) {
 			P.View.OpenFile(path)
 		},
 		func(path string) {
+			wd, _ := os.Getwd()
+			rpath := strings.TrimPrefix(path, wd + "/")
 			context := make(map[string]any)
-			context["args"] = []string{path}
+			context["args"] = []string{rpath}
 			context["path"] = "/eval"
 			context["mode"] = "code"
 			go tui.SendCustomEvent("/router/dispatch", context)
@@ -62,6 +82,8 @@ func (P *LS) Refresh(context map[string]any) error {
 
 	P.Tree.Mount(context)
 	P.View.Mount(context)
+
+	P.Tree.Focus(nil)
 
 	return nil
 }

@@ -13,6 +13,8 @@ const (
 	treeParent
 	treeChild
 	treeScroll // Move without changing the selection, even when off screen.
+	nodeFirst
+	nodeLast
 )
 
 // TreeNode represents one node in a tree view.
@@ -596,13 +598,14 @@ func (t *TreeView) process(drawingAfter bool) {
 				selectedIndex = parentSelectedIndex
 			}
 		case treeChild:
+			// for index < len(t.nodes)-1 {
 			index := selectedIndex
-			for index < len(t.nodes)-1 {
-				index++
-				if t.nodes[index].selectable && t.nodes[index].parent == t.nodes[selectedIndex] {
-					selectedIndex = index
-				}
+			index++
+			if t.nodes[index].selectable && t.nodes[index].parent == t.nodes[selectedIndex] {
+				selectedIndex = index
 			}
+
+			// }
 		}
 		t.currentNode = t.nodes[selectedIndex]
 
@@ -664,8 +667,10 @@ func (t *TreeView) Draw(screen tcell.Screen) {
 	case treeMove, treeScroll:
 		t.offsetY += t.step
 	case treeHome:
+		t.currentNode = t.root.children[0]
 		t.offsetY = 0
 	case treeEnd:
+		t.currentNode = t.root.children[len(t.root.children)-1]
 		t.offsetY = len(t.nodes)
 	}
 	t.movement = treeNone
