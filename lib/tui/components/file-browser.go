@@ -7,34 +7,36 @@ import (
 
 	"github.com/gdamore/tcell/v2"
 
-	"github.com/hofstadter-io/hof/lib/tui/app"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 )
 
 type FileBrowser struct {
 	Dir string
 
-	OnOpen func(string)
+	OnOpen  func(string)
+	OnClick func(string)
 
 	*tview.TreeView
 
 	Root *tview.TreeNode
 	Node *tview.TreeNode
-
-	App *app.App
 }
 
 
-func NewFileBrowser(app *app.App, dir string, onopen func(path string)) *FileBrowser {
+func NewFileBrowser(dir string, onopen, onclick func(path string)) *FileBrowser {
+	if dir == "" {
+		dir, _ = os.Getwd()
+	}
+
 	fb := &FileBrowser {
-		App: app,
 		Dir: dir,
 		OnOpen: onopen,
+		OnClick: onclick,
 	}
 
 	// file browser
 	fb.Root = tview.NewTreeNode(dir)
-	fb.Root.SetColor(tcell.ColorRed)
+	fb.Root.SetColor(tcell.ColorAqua)
 	fb.AddAt(fb.Root, dir)
 
 	// tree view
@@ -46,9 +48,23 @@ func NewFileBrowser(app *app.App, dir string, onopen func(path string)) *FileBro
 
 	// set our selected handler
 	fb.SetSelectedFunc(fb.OnSelect)
-
+	fb.SetDoubleClickedFunc(fb.OnDoubleClick)
 
 	return fb
+}
+
+func (FB *FileBrowser) OnDoubleClick(node *tview.TreeNode) {
+	if FB.OnClick == nil {
+		return
+	}
+
+	reference := node.GetReference()
+	if reference == nil {
+		return // Selecting the root node does nothing.
+	}
+
+	path := reference.(string)
+	FB.OnClick(path)
 }
 
 func (FB *FileBrowser) OnSelect(node *tview.TreeNode) {

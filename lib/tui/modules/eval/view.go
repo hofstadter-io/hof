@@ -135,6 +135,7 @@ func (P *EvalPage) Refresh(context map[string]interface{}) error {
 	//  // app.Logger("onNodeSelect: " + path)
 	//}
 
+	// first time or reuse
 	if P.View == nil {
 		P.View = components.NewValueBrowser(P.Runtime.Value, nil)
 		P.Eval = components.NewValueEvaluator(R)
@@ -142,7 +143,15 @@ func (P *EvalPage) Refresh(context map[string]interface{}) error {
 		P.View.Value = R.Value
 		P.Eval.Runtime = R
 	}
+
+	// various settings
+	if m, ok := context["mode"]; ok {
+		mode := m.(string)
+		P.View.SetMode(mode)
+	}
 	P.View.SetTitle(fmt.Sprint(_args))
+
+	// rebuild the components
 	P.View.Rebuild("")
 	P.Eval.Rebuild()
 

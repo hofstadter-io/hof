@@ -41,6 +41,9 @@ type TreeNode struct {
 	// An optional function which is called when the user selects this node.
 	selected func()
 
+	// An optional function which is called when the user double clicks this node.
+	clicked func()
+
 	// The hierarchy level (0 for the root, 1 for its children, and so on). This
 	// is only up to date immediately after a call to process() (e.g. via
 	// Draw()).
@@ -154,6 +157,13 @@ func (n *TreeNode) SetSelectable(selectable bool) *TreeNode {
 // node by hitting Enter when it is selected.
 func (n *TreeNode) SetSelectedFunc(handler func()) *TreeNode {
 	n.selected = handler
+	return n
+}
+
+// SetSelectedFunc sets a function which is called when the user selects this
+// node by hitting Enter when it is selected.
+func (n *TreeNode) SetDoubleClickFunc(handler func()) *TreeNode {
+	n.clicked = handler
 	return n
 }
 
@@ -311,6 +321,9 @@ type TreeView struct {
 	// An optional function which is called when a tree item was selected.
 	selected func(node *TreeNode)
 
+	// An optional function which is called when a tree item was double clicked.
+	clicked func(node *TreeNode)
+
 	// An optional function which is called when the user moves away from this
 	// primitive.
 	done func(key tcell.Key)
@@ -418,6 +431,13 @@ func (t *TreeView) SetChangedFunc(handler func(node *TreeNode)) *TreeView {
 // node by pressing Enter on the current selection.
 func (t *TreeView) SetSelectedFunc(handler func(node *TreeNode)) *TreeView {
 	t.selected = handler
+	return t
+}
+
+// SetSelectedFunc sets the function which is called when the user selects a
+// node by pressing Enter on the current selection.
+func (t *TreeView) SetDoubleClickedFunc(handler func(node *TreeNode)) *TreeView {
+	t.clicked = handler
 	return t
 }
 
@@ -809,7 +829,7 @@ func (t *TreeView) MouseHandler() func(action MouseAction, event *tcell.EventMou
 		case MouseLeftDown:
 			setFocus(t)
 			consumed = true
-		case MouseLeftClick:
+		case MouseLeftDoubleClick, MouseLeftClick:
 			_, rectY, _, _ := t.GetInnerRect()
 			y += t.offsetY - rectY
 			if y >= 0 && y < len(t.nodes) {
@@ -820,11 +840,17 @@ func (t *TreeView) MouseHandler() func(action MouseAction, event *tcell.EventMou
 					if previousNode != node && t.changed != nil {
 						t.changed(node)
 					}
-					if t.selected != nil {
+					if action == MouseLeftClick && t.selected != nil {
 						t.selected(node)
 					}
-					if node.selected != nil {
+					if action == MouseLeftDoubleClick && t.clicked != nil {
+						t.clicked(node)
+					}
+					if action == MouseLeftClick && node.selected != nil {
 						node.selected()
+					}
+					if action == MouseLeftClick && node.clicked != nil {
+						node.clicked()
 					}
 				}
 			}

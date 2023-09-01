@@ -12,12 +12,12 @@ import (
 )
 
 type RoutePair struct {
-	Path  string
-	Thing interface{}
+	Path string
+	Data any
 }
 
 type Routable interface {
-	Routings() []RoutePair
+	Routes() []RoutePair
 }
 
 type Router struct {

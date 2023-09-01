@@ -47,7 +47,7 @@ func (M *MainPanel) Connect(C connector.Connector) {
 	for _, Rtbl := range rtbls {
 		rtbl := Rtbl.(Routables)
 		for _, pair := range rtbl.Routes() {
-			M.mainView.AddRoute(pair.Path, pair.Thing)
+			M.mainView.AddRoute(pair.Path, pair.Data)
 		}
 	}
 }

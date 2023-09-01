@@ -22,6 +22,7 @@ type ValueBrowser struct {
 	Code *tview.TextView
 	CodeW io.Writer
 	view string
+	expanded bool
 
 	OnFieldSelect func(string)
 
@@ -104,6 +105,25 @@ func (VB *ValueBrowser) Rebuild(path string) {
 		VB.AddAt(root, path)
 		tree.SetRoot(root).SetCurrentNode(root)
 		tree.SetSelectedFunc(VB.OnSelect)
+		tree.SetDoubleClickedFunc(func(node *tview.TreeNode) {
+			// double clicking a node impacts all children
+			if node.GetLevel() == 0 {
+				VB.expanded = !VB.expanded
+				if VB.expanded {
+					node.ExpandAll()
+				} else {
+					node.CollapseAll()
+					node.Expand()
+				}
+			}  else {
+				if node.IsExpanded() {
+					node.CollapseAll()
+				} else {
+					node.ExpandAll()
+				}
+			}
+
+		})
 
 		VB.SetPrimitive(tree)
 

@@ -12,7 +12,9 @@ import (
 
 	// core modules
 	"github.com/hofstadter-io/hof/lib/tui/modules/eval"
-	"github.com/hofstadter-io/hof/lib/tui/demo/modules/demos"
+
+	// extra modules
+	"github.com/hofstadter-io/hof/lib/tui/modules/ls"
 
 )
 
@@ -34,7 +36,9 @@ func Init() {
 
 		// core modules
 		eval.New(),
-		demos.New(),
+
+		// extra modules
+		ls.New(),
 	}
 
 	conn := connector.New("root")

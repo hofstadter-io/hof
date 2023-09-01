@@ -19,7 +19,7 @@ type Command interface {
 	CommandUsage() string
 	CommandHelp() string
 
-	CommandCallback(args []string, context map[string]interface{})
+	CommandCallback(args []string, context map[string]any)
 }
 
 type DefaultCommand struct {
