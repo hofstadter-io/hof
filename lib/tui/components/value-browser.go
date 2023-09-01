@@ -54,13 +54,11 @@ func NewValueBrowser(val cue.Value, OnFieldSelect func(path string)) *ValueBrows
 		SetDynamicColors(true)
 
 	// tree view
-	VB.Tree = tview.NewTreeView()
 	VB.Root = tview.NewTreeNode("no results yet")
 	VB.Root.SetColor(tcell.ColorSilver)
 
-	VB.Tree.
-		SetRoot(VB.Root).
-		SetCurrentNode(VB.Root)
+	VB.Tree = tview.NewTreeView()
+	VB.Tree. SetRoot(VB.Root).SetCurrentNode(VB.Root)
 
 	// set our selected handler for tree
 	VB.Tree.SetSelectedFunc(VB.OnSelect)
@@ -99,13 +97,19 @@ func (VB *ValueBrowser) Rebuild(path string) {
 		VB.SetPrimitive(VB.Code)
 
 	} else {
-		VB.Root = tview.NewTreeNode(path)
-		VB.Root.SetColor(tcell.ColorSilver)
-		VB.AddAt(VB.Root, path)
-		VB.Tree.
-			SetRoot(VB.Root).
-			SetCurrentNode(VB.Root)
-		VB.SetPrimitive(VB.Tree)
+		root := tview.NewTreeNode(path)
+		root.SetColor(tcell.ColorSilver)
+		tree := tview.NewTreeView()
+
+		VB.AddAt(root, path)
+		tree.SetRoot(root).SetCurrentNode(root)
+		tree.SetSelectedFunc(VB.OnSelect)
+
+		VB.SetPrimitive(tree)
+
+		// TODO, dual-walk old-new tree's too keep things open
+		VB.Tree = tree
+		VB.Root = root
 	}
 
 }

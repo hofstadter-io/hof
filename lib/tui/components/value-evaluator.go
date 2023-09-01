@@ -70,7 +70,6 @@ func (VE *ValueEvaluator) Rebuild() {
 
 	VE.View.Value = v
 	VE.View.Rebuild(v.Path().String())
-	tui.SendCustomEvent("/console/warn", "eval updated")
 
 	tui.Draw()
 }
@@ -80,7 +79,6 @@ func (VE *ValueEvaluator) Mount(context map[string]any) error {
 	// change debouncer
 	VE.debouncer = watch.NewDebouncer(time.Millisecond * 300)
 	VE.Edit.SetChangedFunc(func() {
-		tui.SendCustomEvent("/console/warn", "edit changed")
 
 		VE.debouncer(func(){
 			VE.Rebuild()
@@ -92,7 +90,6 @@ func (VE *ValueEvaluator) Mount(context map[string]any) error {
 
 	// key handlers
 	VE.Edit.SetInputCapture(func(evt *tcell.EventKey) *tcell.EventKey {
-		tui.SendCustomEvent("/console/warn", "edit capture")
 
 		switch evt.Key() {
 		case tcell.KeyRune:
