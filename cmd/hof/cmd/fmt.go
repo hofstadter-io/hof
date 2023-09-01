@@ -22,7 +22,8 @@ var fmtLong = `With hof fmt, you can
 
 func init() {
 
-	FmtCmd.Flags().BoolVarP(&(flags.FmtFlags.Data), "fmt-data", "", true, "include cue,yaml,json,toml,xml files, set to false to disable")
+	flags.SetupFmtFlags(FmtCmd.Flags(), &(flags.FmtFlags))
+
 }
 
 func FmtRun(files []string) (err error) {

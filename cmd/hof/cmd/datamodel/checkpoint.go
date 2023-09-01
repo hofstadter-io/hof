@@ -16,7 +16,8 @@ var checkpointLong = `create a snapshot of the data model`
 
 func init() {
 
-	CheckpointCmd.Flags().StringVarP(&(flags.Datamodel__CheckpointFlags.Message), "message", "m", "", "message describing the checkpoint")
+	flags.SetupDatamodel__CheckpointFlags(CheckpointCmd.Flags(), &(flags.Datamodel__CheckpointFlags))
+
 }
 
 func CheckpointRun(args []string) (err error) {

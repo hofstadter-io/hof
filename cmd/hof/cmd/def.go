@@ -16,14 +16,9 @@ import (
 var defLong = `print consolidated CUE definitions`
 
 func init() {
-	DefCmd.Flags().StringArrayVarP(&(flags.DefFlags.Expression), "expression", "e", nil, "evaluate these expressions only")
-	DefCmd.Flags().BoolVarP(&(flags.DefFlags.List), "list", "", false, "concatenate multiple objects into a list")
-	DefCmd.Flags().BoolVarP(&(flags.DefFlags.Simplify), "simplify", "", false, "simplify CUE statements where possible")
-	DefCmd.Flags().StringVarP(&(flags.DefFlags.Out), "out", "", "", "output data format, when detection does not work")
-	DefCmd.Flags().StringVarP(&(flags.DefFlags.Outfile), "outfile", "o", "", "filename or - for stdout with optional file prefix")
-	DefCmd.Flags().BoolVarP(&(flags.DefFlags.InlineImports), "inline-imports", "", false, "expand references to non-core imports")
-	DefCmd.Flags().BoolVarP(&(flags.DefFlags.Comments), "comments", "C", false, "include comments in output")
-	DefCmd.Flags().BoolVarP(&(flags.DefFlags.Attributes), "attributes", "a", false, "diplay field attributes")
+
+	flags.SetupDefFlags(DefCmd.Flags(), &(flags.DefFlags))
+
 }
 
 func DefRun(args []string) (err error) {

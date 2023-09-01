@@ -1,49 +1,12 @@
 package flags
 
 import (
-	"bytes"
-	"fmt"
-	"strings"
+	"github.com/spf13/pflag"
 )
 
-func PrintSubject(title, prefix, subject string, subjects map[string]string) bool {
-	// skip if null or empty
-	if subjects == nil || len(subjects) == 0 {
-		return false
-	}
+var _ *pflag.FlagSet
 
-	// print keys for list, so don't have a subject that name
-	if subject == "list" {
-		var S []string
-		for k, _ := range subjects {
-			S = append(S, k)
-		}
-		var b bytes.Buffer
-		fmt.Fprintln(&b, title)
-		for _, s := range S {
-			fmt.Fprintln(&b, prefix+s)
-		}
-
-		fmt.Println(b.String())
-		return true
-	}
-
-	// print pubject, indenting all lines
-	S, ok := subjects[subject]
-	if !ok {
-		return false
-	}
-	S = strings.Replace(S, "¡", "`", -1)
-
-	var b bytes.Buffer
-	fmt.Fprintln(&b, title)
-	for _, s := range strings.Split(S, "\n") {
-		fmt.Fprintln(&b, prefix+s)
-	}
-
-	fmt.Println(b.String())
-	return true
-}
+var RootFlagSet *pflag.FlagSet
 
 type RootPflagpole struct {
 	Package      string
@@ -60,4 +23,28 @@ type RootPflagpole struct {
 	Verbosity    int
 }
 
+func SetupRootPflags(fset *pflag.FlagSet, fpole *RootPflagpole) {
+	// pflags
+
+	fset.StringVarP(&(fpole.Package), "package", "p", "", "the Cue package context to use during execution")
+	fset.StringArrayVarP(&(fpole.Tags), "tags", "t", nil, "@tags() to be injected into CUE code")
+	fset.StringArrayVarP(&(fpole.Path), "path", "l", nil, "CUE expression for single path component when placing data files")
+	fset.StringArrayVarP(&(fpole.Schema), "schema", "d", nil, "expression to select schema to apply to data files")
+	fset.BoolVarP(&(fpole.IncludeData), "include-data", "D", false, "auto include all data files found with cue files")
+	fset.BoolVarP(&(fpole.WithContext), "with-context", "", false, "add extra context for data files, usable in the -l/path flag")
+	fset.BoolVarP(&(fpole.InjectEnv), "inject-env", "V", false, "inject all ENV VARs as default tag vars")
+	fset.BoolVarP(&(fpole.AllErrors), "all-errors", "E", false, "print all available errors")
+	fset.BoolVarP(&(fpole.IngoreErrors), "ignore-errors", "i", false, "turn off output and assume defaults at prompts")
+	fset.BoolVarP(&(fpole.Stats), "stats", "", false, "print generator statistics")
+	fset.BoolVarP(&(fpole.Quiet), "quiet", "q", false, "turn off output and assume defaults at prompts")
+	fset.IntVarP(&(fpole.Verbosity), "verbosity", "v", 0, "set the verbosity of output")
+}
+
 var RootPflags RootPflagpole
+
+func init() {
+	RootFlagSet = pflag.NewFlagSet("Root", pflag.ContinueOnError)
+
+	SetupRootPflags(RootFlagSet, &RootPflags)
+
+}

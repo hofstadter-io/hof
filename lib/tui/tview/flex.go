@@ -241,6 +241,7 @@ func (f *Flex) HasFocus() bool {
 }
 
 func (f *Flex) Mount(context map[string]interface{}) error {
+	f.Box.Mount(context)
 	for _, item := range f.items {
 		err := item.Item.Mount(context)
 		if err != nil {
@@ -263,6 +264,7 @@ func (f *Flex) Mount(context map[string]interface{}) error {
 //}
 
 func (f *Flex) Unmount() error {
+	f.Box.Unmount()
 	for _, item := range f.items {
 		err := item.Item.Unmount()
 		if err != nil {

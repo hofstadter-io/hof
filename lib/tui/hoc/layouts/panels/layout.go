@@ -12,7 +12,6 @@
 package panels
 
 import (
-	"fmt"
 	"sort"
 
 	"github.com/hofstadter-io/hof/lib/tui"
@@ -119,7 +118,7 @@ func (L *Layout) Mount(context map[string]interface{}) error {
 		if panel.FocusKey != "" {
 			localPanel := panel
 			tui.AddWidgetHandler(L, "/sys/key/"+localPanel.FocusKey, func(e events.Event) {
-				go tui.SendCustomEvent("/console/trace", "Focus: "+localPanel.Name)
+				// go tui.SendCustomEvent("/console/trace", "Focus: "+localPanel.Name)
 				tui.SetFocus(localPanel.Item)
 			})
 		}
@@ -127,7 +126,7 @@ func (L *Layout) Mount(context map[string]interface{}) error {
 			localPanel := panel
 			tui.AddWidgetHandler(L, "/sys/key/"+localPanel.HiddenKey, func(e events.Event) {
 				localPanel.Hidden = !localPanel.Hidden
-				go tui.SendCustomEvent("/console/trace", fmt.Sprintf("Hidden: %s (%v)", localPanel.Name, localPanel.Hidden))
+				// go tui.SendCustomEvent("/console/trace", fmt.Sprintf("Hidden: %s (%v)", localPanel.Name, localPanel.Hidden))
 				L.build()
 				if localPanel.Hidden {
 					tui.SetFocus(L.mPanel.Item)
@@ -143,7 +142,7 @@ func (L *Layout) Mount(context map[string]interface{}) error {
 		L.mPanel.Item.Mount(context)
 		localPanel := L.mPanel
 		tui.AddWidgetHandler(L, "/sys/key/"+localPanel.FocusKey, func(e events.Event) {
-			go tui.SendCustomEvent("/console/trace", "Focus: "+localPanel.Name)
+			// go tui.SendCustomEvent("/console/trace", "Focus: "+localPanel.Name)
 			tui.SetFocus(localPanel.Item)
 		})
 	}
@@ -152,7 +151,7 @@ func (L *Layout) Mount(context map[string]interface{}) error {
 		if panel.FocusKey != "" {
 			localPanel := panel
 			tui.AddWidgetHandler(L, "/sys/key/"+localPanel.FocusKey, func(e events.Event) {
-				go tui.SendCustomEvent("/console/trace", "Focus: "+localPanel.Name)
+				// go tui.SendCustomEvent("/console/trace", "Focus: "+localPanel.Name)
 				tui.SetFocus(localPanel.Item)
 			})
 		}
@@ -160,7 +159,7 @@ func (L *Layout) Mount(context map[string]interface{}) error {
 			localPanel := panel
 			tui.AddWidgetHandler(L, "/sys/key/"+localPanel.HiddenKey, func(e events.Event) {
 				localPanel.Hidden = !localPanel.Hidden
-				go tui.SendCustomEvent("/console/trace", fmt.Sprintf("Hidden: %s (%v)", localPanel.Name, localPanel.Hidden))
+				// go tui.SendCustomEvent("/console/trace", fmt.Sprintf("Hidden: %s (%v)", localPanel.Name, localPanel.Hidden))
 				L.build()
 				if localPanel.Hidden {
 					tui.SetFocus(L.mPanel.Item)

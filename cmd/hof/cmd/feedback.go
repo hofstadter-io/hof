@@ -17,8 +17,8 @@ var feedbackLong = `Opens an issue or discussion on GitHub with some fields pref
 
 func init() {
 
-	FeedbackCmd.PersistentFlags().BoolVarP(&(flags.FeedbackPflags.Issue), "issue", "I", false, "create an issue (discussion is default)")
-	FeedbackCmd.PersistentFlags().StringVarP(&(flags.FeedbackPflags.Labels), "labels", "L", "feedback", "labels,comma,separated")
+	flags.SetupFeedbackPflags(FeedbackCmd.PersistentFlags(), &(flags.FeedbackPflags))
+
 }
 
 func FeedbackRun(args []string) (err error) {

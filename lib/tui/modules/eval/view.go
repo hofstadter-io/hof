@@ -2,7 +2,6 @@ package eval
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/spf13/pflag"
@@ -57,11 +56,15 @@ func (P *EvalPage) Name() string {
 	return "Eval"
 }
 
-func (P *EvalPage) Mount(context map[string]interface{}) error {
+func (P *EvalPage) Mount(context map[string]any) error {
 	// this is where we can do some loading
-	tui.SendCustomEvent("/console/warn", "eval mount")
+	P.Flex.Mount(context)
 
-	P.Refresh(context)
+	err := P.Refresh(context)
+	if err != nil {
+		tui.SendCustomEvent("/console/error", err)
+		return err
+	}
 
 	P.View.Mount(context)
 	P.Eval.Mount(context)
@@ -70,37 +73,60 @@ func (P *EvalPage) Mount(context map[string]interface{}) error {
 	return nil
 }
 
-func (P *EvalPage) Refresh(context map[string]interface{}) error {
-	tui.SendCustomEvent("/console/warn", "eval refresh")
-	args := []string{"eval"}
+func (P *EvalPage) Unmount() error {
+	// this is where we can do some loading
+	//P.View.Unmount()
+	//P.Eval.Unmount()
+	P.Flex.Unmount()
 
-	if context != nil {
-		if a, ok := context["args"]; ok {
-			args = append(args, a.([]string)...)
-		}
+	return nil
+}
+
+func (P *EvalPage) Refresh(context map[string]interface{}) error {
+	tui.SendCustomEvent("/console/trace", fmt.Sprintf("eval refresh %#v", context))
+
+	_args, _ := context["args"]
+	args, _ := _args.([]string)
+	if len(args) > 0 && args[0] == "eval" {
+		args = args[1:]
 	}
 
+	var (
+		rflags flags.RootPflagpole
+		cflags flags.EvalFlagpole
+	)
+	fset := pflag.NewFlagSet("root", pflag.ContinueOnError)
+	flags.SetupRootPflags(fset, &rflags)
+	flags.SetupEvalFlags(fset, &cflags)
 
-	os.Args = args
-	pflag.Parse()
-	rflags := flags.RootPflags
-	// cflags := flags.EvalFlags
+	err := fset.Parse(args)
+	if err != nil {
+		P.ShowTextError(err)
+		return err
+	}
 
-	R, err := runtime.New(pflag.Args(), rflags)
+	args = fset.Args()
+
+	d := map[string]any{
+		"cmd": "eval",
+		"args": args,
+		"rflags": rflags,
+		"cflags": cflags,
+	}
+	tui.SendCustomEvent("/console/trace", fmt.Sprintf("eval refresh %#v", d))
+
+
+	R, err := runtime.New(args, rflags)
 	// write error to text area error?
 	if err != nil {
-		s := fmt.Sprintf("%v\n", cuetils.ExpandCueError(err))
-		fmt.Fprint(P.Text, s)
-		tui.SendCustomEvent("/console/error", s)
-		return nil
+		P.ShowTextError(err)
+		return err
 	}
 
 	err = R.Load()
 	if err != nil {
-		s := fmt.Sprintf("%v\n", cuetils.ExpandCueError(err))
-		fmt.Fprint(P.Text, s)
-		tui.SendCustomEvent("/console/error", s)
-		return nil
+		P.ShowTextError(err)
+		return err
 	}
 
 	P.Runtime = R
@@ -110,12 +136,16 @@ func (P *EvalPage) Refresh(context map[string]interface{}) error {
 		// app.Logger("onNodeSelect: " + path)
 	}
 
-	P.View = components.NewValueBrowser(P.Runtime.Value, onNodeSelect)
-	P.View.Rebuild("")
-
+	if P.View == nil {
+		P.View = components.NewValueBrowser(P.Runtime.Value, onNodeSelect)
+		P.Eval = components.NewValueEvaluator(R)
+	} else {
+		P.View.Value = R.Value
+		P.Eval.Runtime = R
+	}
 	P.View.SetTitle(strings.Join(P.Runtime.Entrypoints, " "))
-
-	P.Eval = components.NewValueEvaluator(R)
+	P.View.Rebuild("")
+	P.Eval.Rebuild()
 
 	// remove Flex Item
 	// add Items
@@ -129,7 +159,28 @@ func (P *EvalPage) Refresh(context map[string]interface{}) error {
 		AddItem(P.Eval, 0, 1, true)
 
 
+	tui.Draw()
+
+
 	return nil
+}
+
+func (P *EvalPage) ShowTextError(err error) {
+	s := fmt.Sprintf("%v\n", cuetils.ExpandCueError(err))
+	P.Text.Clear()
+	fmt.Fprint(P.Text, s)
+
+	P.Flex.Clear()
+	P.SetBorder(false)
+	P.Text.SetBorder(true).SetTitle("  ERROR  ")
+
+	// P.Flex.RemoveItem(P.Text)
+	P.Flex.AddItem(P.Text, 0, 1, false)
+	if P.Eval != nil {
+		P.Flex.AddItem(P.Eval, 0, 1, true)
+	}
+
+	tui.Draw()
 }
 
 func (P *EvalPage) Routes() []router.RoutePair {
@@ -155,17 +206,15 @@ func (P *EvalPage) CommandCallback(args []string, context map[string]any) {
 	if context == nil {
 		context = make(map[string]any)
 	}
+	context["args"] = args
 
 	if P.IsMounted() {
-		// should already be on page and visible (?)
-		context["args"] = args
-
+		// just refresh with new args
 		P.Refresh(context)
 	} else {
-		// just navigate, 
+		// need to navigate, mount will do the rest
 		context["path"] = "/eval"
-		context["args"] = args
-
+		tui.SendCustomEvent("/console/trace", fmt.Sprintf("eval navigate %v", context))
 		go tui.SendCustomEvent("/router/dispatch", context)
 	}
 }

@@ -18,13 +18,8 @@ can accept cue & flags or just a .hls file
 
 func init() {
 
-	RunCmd.Flags().BoolVarP(&(flags.RunFlags.List), "list", "", false, "list matching scripts that would run")
-	RunCmd.Flags().BoolVarP(&(flags.RunFlags.Info), "info", "", false, "view detailed info for matching scripts")
-	RunCmd.Flags().StringSliceVarP(&(flags.RunFlags.Suite), "suite", "", nil, "<name>: _ @run(suite)'s to run")
-	RunCmd.Flags().StringSliceVarP(&(flags.RunFlags.Runner), "runner", "", nil, "<name>: _ @run(script)'s to run")
-	RunCmd.Flags().StringSliceVarP(&(flags.RunFlags.Environment), "env", "", nil, "exrta environment variables for scripts")
-	RunCmd.Flags().StringSliceVarP(&(flags.RunFlags.Data), "data", "", nil, "exrta data to include in the scripts context")
-	RunCmd.Flags().StringVarP(&(flags.RunFlags.Workdir), "workdir", "", "", "working directory")
+	flags.SetupRunFlags(RunCmd.Flags(), &(flags.RunFlags))
+
 }
 
 func RunRun(args []string) (err error) {

@@ -47,7 +47,7 @@ func Cmd(args []string, rflags flags.RootPflagpole) error {
 	})
 
 	// Log Key presses (if you want to)
-	logKeys()
+	// logKeys()
 
 	// Run PProf (useful for catching hangs)
 	// go runPprofServer()
@@ -72,9 +72,11 @@ func Cmd(args []string, rflags flags.RootPflagpole) error {
 		"args": args,
 	}
 
+	fmt.Println(path, args)
+
 	go func() {
 		// some latent locksups occur randomly
-		time.Sleep(time.Millisecond * 10)
+		time.Sleep(time.Millisecond * 23)
 		tui.SendCustomEvent("/router/dispatch", d)
 		tui.SendCustomEvent("/status/message", "Welcome to [lime]VermUI[white]!!")
 	}()

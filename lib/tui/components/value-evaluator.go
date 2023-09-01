@@ -60,6 +60,21 @@ func NewValueEvaluator(R *runtime.Runtime) (*ValueEvaluator) {
 	return VE
 }
 
+func (VE *ValueEvaluator) Rebuild() {
+	val := VE.Runtime.Value
+	ctx := val.Context()
+
+	src := VE.Edit.GetText()
+
+	v := ctx.CompileString(src, cue.Scope(val), cue.InferBuiltins(true))
+
+	VE.View.Value = v
+	VE.View.Rebuild(v.Path().String())
+	tui.SendCustomEvent("/console/warn", "eval updated")
+
+	tui.Draw()
+}
+
 func (VE *ValueEvaluator) Mount(context map[string]any) error {
 
 	// change debouncer
@@ -68,18 +83,7 @@ func (VE *ValueEvaluator) Mount(context map[string]any) error {
 		tui.SendCustomEvent("/console/warn", "edit changed")
 
 		VE.debouncer(func(){
-			val := VE.Runtime.Value
-			ctx := val.Context()
-
-			src := VE.Edit.GetText()
-
-			v := ctx.CompileString(src, cue.Scope(val), cue.InferBuiltins(true))
-
-			VE.View.Value = v
-			VE.View.Rebuild(v.Path().String())
-			tui.SendCustomEvent("/console/warn", "eval updated")
-
-			tui.Draw()
+			VE.Rebuild()
 		})
 
 	})
