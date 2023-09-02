@@ -132,8 +132,11 @@ func (R *Runtime) load() (err error) {
 
 	bi := R.BuildInstances[0]
 
-	if bi.Err != nil || bi.Incomplete {
-		return err
+	if bi.Err != nil {
+		return bi.Err
+	}
+	if bi.Incomplete {
+		return fmt.Errorf("incomplete build instance, ask devs")
 	}
 
 	err = R.prepOrphanedFiles(bi)

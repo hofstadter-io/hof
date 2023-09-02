@@ -173,6 +173,10 @@ func (R *Runtime) CreateAdhocGenerator() error {
 			}
 			f.Filepath = string(bs)
 
+			if cfg.TrimPrefix != "" {
+				f.Filepath = strings.TrimPrefix(f.Filepath, cfg.TrimPrefix)	
+			}
+
 			/*
 			if cfg.DataFormat != "" {
 				fmt.Println(*f)

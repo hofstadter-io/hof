@@ -1,0 +1,14 @@
+exec hof gen in.cue -T _t/+* -O _o
+cmp _e/a.txt _o/a.txt
+cmp _e/b.txt _o/b.txt
+
+-- in.cue --
+name: "doug"
+-- _t/a.txt --
+a: {{ .name }}
+-- _t/b.txt --
+b: {{ .name }}
+-- _e/a.txt --
+a: doug
+-- _e/b.txt --
+b: doug
