@@ -109,10 +109,10 @@ func (R *Runtime) prepPlacedDatafiles() {
 }
 
 func (R *Runtime) load() (err error) {
-	start := time.Now()
+	beg := time.Now()
 	defer func() {
 		end := time.Now()
-		R.Stats.Add("gen/load", end.Sub(start))
+		R.Stats.Add("gen/load", end.Sub(beg))
 	}()
 
 	// XXX TODO XXX
@@ -425,11 +425,6 @@ func (R *Runtime) placeOrphanInAST(N ast.Node, C ast.Expr, mapping string) (*ast
 			// now update
 			S = s
 		}
-	}
-
-	// apply a schema to the values (here, or later)
-	if len(R.Flags.Schema) > 0 {
-
 	}
 
 	return S, nil

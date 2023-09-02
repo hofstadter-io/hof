@@ -277,7 +277,7 @@ func ParseTemplateFlag(tf string) (cfg AdhocTemplateConfig, err error) {
 		cfg.DataFormat = filepath.Ext(cfg.Outpath)[1:]  // trim '.' from ext
 	} else {
 		parts = strings.Split(tf, "+")
-		if len(parts) > 0 {
+		if len(parts) > 1 {
 			cfg.TrimPrefix = parts[0]
 			tf = parts[0] + parts[1]
 		}
