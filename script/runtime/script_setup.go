@@ -1,7 +1,6 @@
 package runtime
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -55,7 +54,6 @@ func (ts *Script) resetDirs() {
 // It returns the script content section of the txtar archive.
 func (ts *Script) setupRun() string {
 
-	fmt.Printf("ts: %#+v\n", ts)
 	ts.workdir = ts.params.WorkdirRoot
 
 	// expose external ENV here

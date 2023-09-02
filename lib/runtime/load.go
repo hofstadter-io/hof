@@ -152,6 +152,19 @@ func (R *Runtime) load() (err error) {
 	R.Value = R.CueContext.BuildInstance(bi)
 
 	// unify any -I inputs
+	for i, I := range R.Flags.InputData {
+		if strings.Contains(I, "=") {
+			parts := strings.Split(I, "=")
+			R.Value = R.Value.FillPath(cue.ParsePath(parts[0]),parts[1])
+		} else {
+			v := R.CueContext.CompileString(I)
+			if v.Err() != nil {
+				err := cuetils.ExpandCueError(v.Err())
+				return fmt.Errorf("in -I(%d) flag '%s': %w", i, I, err)
+			}
+			R.Value = R.Value.FillPath(cue.ParsePath(""), v)
+		}
+	}
 
 	return nil
 }

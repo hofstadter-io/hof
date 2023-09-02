@@ -99,7 +99,7 @@ func (ts *Script) doCmdCmp(args []string, env bool, trim bool) {
 	// this is a separate trim to remove space from ends of file
 	text1 = strings.TrimSpace(text1)
 	text2 = strings.TrimSpace(text2)
-	fmt.Println(text1)
+	// fmt.Println(text1)
 
 	if text1 == text2 {
 		return
