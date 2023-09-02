@@ -23,13 +23,6 @@ CreateCommand: schema.Command & {
 	}]
 
 	Flags: [...schema.Flag] & [ {
-		Name:    "input"
-		Long:    "input"
-		Short:   "I"
-		Type:    "[]string"
-		Default: "nil"
-		Help:    "inputs to the create module"
-	}, {
 		Name:    "generator"
 		Type:    "[]string"
 		Default: "nil"

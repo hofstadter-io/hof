@@ -51,7 +51,7 @@ func (ts *Script) doCmdCmp(args []string, env bool, trim bool) {
 	var text2 string
 	// first try file, otherwise assume string
 	absName2 := ts.MkAbs(args[1])
-	_, err := os.Stat(absName2)
+	_, err := os.Lstat(absName2)
 	if err != nil {
 		// file does not exist, assume it is a string
 		if _, ok := err.(*os.PathError); ok {
@@ -99,7 +99,7 @@ func (ts *Script) doCmdCmp(args []string, env bool, trim bool) {
 	// this is a separate trim to remove space from ends of file
 	text1 = strings.TrimSpace(text1)
 	text2 = strings.TrimSpace(text2)
-	fmt.Println(text1)
+	// fmt.Println(text1)
 
 	if text1 == text2 {
 		return

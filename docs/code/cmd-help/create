@@ -42,7 +42,6 @@ Flags:
       --exec                    enable pre/post-exec support when generating code
   -G, --generator stringArray   generator tags to run, default is all
   -h, --help                    help for create
-  -I, --input stringArray       inputs to the create module
   -O, --outdir string           base directory to write all output to
 
 Global Flags:
@@ -50,6 +49,7 @@ Global Flags:
   -i, --ignore-errors        turn off output and assume defaults at prompts
   -D, --include-data         auto include all data files found with cue files
   -V, --inject-env           inject all ENV VARs as default tag vars
+  -I, --input stringArray    extra data to unify into the root value
   -p, --package string       the Cue package context to use during execution
   -l, --path stringArray     CUE expression for single path component when placing data files
   -q, --quiet                turn off output and assume defaults at prompts

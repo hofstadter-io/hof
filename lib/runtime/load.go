@@ -109,13 +109,11 @@ func (R *Runtime) prepPlacedDatafiles() {
 }
 
 func (R *Runtime) load() (err error) {
-	start := time.Now()
+	beg := time.Now()
 	defer func() {
 		end := time.Now()
-		R.Stats.Add("gen/load", end.Sub(start))
+		R.Stats.Add("gen/load", end.Sub(beg))
 	}()
-
-	var errs []error
 
 	// XXX TODO XXX
 	//  add the second arg from our runtime when implemented?
@@ -128,44 +126,44 @@ func (R *Runtime) load() (err error) {
 	R.CueConfig.DataFiles = R.Flags.IncludeData
 	R.BuildInstances = load.Instances(R.Entrypoints, R.CueConfig)
 
-	for _, bi := range R.BuildInstances {
-		if bi.Err != nil || bi.Incomplete {
-			es := errors.Errors(bi.Err)
-			for _, e := range es {
-				errs = append(errs, e.(error))
-			}
-			continue
-		}
-
-		err = R.prepOrphanedFiles(bi)
-		if err != nil {
-			errs = append(errs, err)
-			// continue
-		}
-
-		// Build the Instance
-		V := R.CueContext.BuildInstance(bi)
-		// always set value, in case user wants to ignore or show all
-		R.Value = V
-		//if V.Err() != nil {
-		//  errs = append(errs, V.Validate())
-		//  continue
-		//}
-
-
+	if l := len(R.BuildInstances); l == 0 {
+		return fmt.Errorf("expected at least one build instance, got none", l)
+	} else if l >= 2 {
+		// this looks to always be empty when it is created, so we just ignore it
+		// fmt.Printf("warning, go more than one instance: %#v %#v\n", R.BuildInstances[0], R.BuildInstances[1])
 	}
 
-	if len(errs) > 0 {
-		R.CueErrors = errs
-		// s := fmt.Sprintf("Errors while loading Cue entrypoints: %s %v\n", R.WorkingDir, R.Entrypoints)
-		var s string
-		for _, E := range errs {
-			es := errors.Errors(E)
-			for _, e := range es {
-				s += cuetils.CueErrorToString(e)
+	// we always take the first build instance
+	bi := R.BuildInstances[0]
+
+	if bi.Err != nil {
+		return bi.Err
+	}
+	if bi.Incomplete {
+		return fmt.Errorf("incomplete build instance, ask devs")
+	}
+
+	err = R.prepOrphanedFiles(bi)
+	if err != nil {
+		return err
+	}
+
+	// Build the Instance
+	R.Value = R.CueContext.BuildInstance(bi)
+
+	// unify any -I inputs
+	for i, I := range R.Flags.InputData {
+		if strings.Contains(I, "=") {
+			parts := strings.Split(I, "=")
+			R.Value = R.Value.FillPath(cue.ParsePath(parts[0]),parts[1])
+		} else {
+			v := R.CueContext.CompileString(I)
+			if v.Err() != nil {
+				err := cuetils.ExpandCueError(v.Err())
+				return fmt.Errorf("in -I(%d) flag '%s': %w", i, I, err)
 			}
+			R.Value = R.Value.FillPath(cue.ParsePath(""), v)
 		}
-		return fmt.Errorf(s)
 	}
 
 	return nil
@@ -447,11 +445,6 @@ func (R *Runtime) placeOrphanInAST(N ast.Node, C ast.Expr, mapping string) (*ast
 			// now update
 			S = s
 		}
-	}
-
-	// apply a schema to the values (here, or later)
-	if len(R.Flags.Schema) > 0 {
-
 	}
 
 	return S, nil

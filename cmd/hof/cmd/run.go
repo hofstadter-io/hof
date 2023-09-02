@@ -12,10 +12,7 @@ import (
 	"github.com/hofstadter-io/hof/script"
 )
 
-var runLong = `HofLineScript (HLS) run polyglot command and scripts seamlessly across runtimes
-
-can accept cue & flags or just a .hls file
-`
+var runLong = `Extended implementation of Testsuite	`
 
 func init() {
 
@@ -28,7 +25,7 @@ func RunRun(args []string) (err error) {
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = script.RunRunFromArgs(args)
+	err = script.Run(args, flags.RootPflags, flags.RunFlags)
 
 	return err
 }

@@ -73,6 +73,7 @@ Global Flags:
   -i, --ignore-errors        turn off output and assume defaults at prompts
   -D, --include-data         auto include all data files found with cue files
   -V, --inject-env           inject all ENV VARs as default tag vars
+  -I, --input stringArray    extra data to unify into the root value
   -p, --package string       the Cue package context to use during execution
   -l, --path stringArray     CUE expression for single path component when placing data files
   -q, --quiet                turn off output and assume defaults at prompts

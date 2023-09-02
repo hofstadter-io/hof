@@ -10,6 +10,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/gen"
 	"github.com/hofstadter-io/hof/lib/hof"
 	"github.com/hofstadter-io/hof/lib/templates"
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 // parsed version of the --template flag
@@ -19,6 +20,9 @@ type AdhocTemplateConfig struct {
 	// Template filepath
 	Filepath string
 	
+	// TrimPrefix for the template filename when not setting output
+	TrimPrefix string
+
 	// CUE path to input value within global value
 	Cuepath  string
 
@@ -43,20 +47,45 @@ func (R *Runtime) CreateAdhocGenerator() error {
 		return nil
 	}
 
-	// parse template flags
+	// the complexity of the flag and code here is starting to get out of hand
+	// generally, the flag is probably close? but we could stand to refactor this code if we add anything more
+
+	// the latest addition was to support "hof gen data.cue -T _templates/+* -O output/
+
+	// we build up GEN configs and entrypoints for CUE here
 	tcfgs := []AdhocTemplateConfig{}
-	globs := make([]string,0)
+	files := make([]string,0)
+	add := func (c AdhocTemplateConfig) {
+		if c.Filepath != "" {
+			files = append(files, c.Filepath)
+		}
+		tcfgs = append(tcfgs, c)
+	}
+
+	// parse template flags
 	for _, tf := range R.GenFlags.Template {
 		cfg, err := ParseTemplateFlag(tf)
 		if err != nil {
 			return err
 		}
-		if R.Flags.Verbosity > 2 {
+		if R.Flags.Verbosity > 1 {
 			fmt.Printf("%s -> %#v\n", tf, cfg)
 		}
-		tcfgs = append(tcfgs, cfg)
-		if cfg.Filepath != "" {
-			globs = append(globs, cfg.Filepath)
+
+		// we need to manually deal with files in adhoc?
+		if strings.Contains(cfg.Filepath, "*") {
+			// de-glob here
+			files, err := yagu.FilesFromGlobs([]string{cfg.Filepath})
+			if err != nil {
+				return err
+			}
+			for _, file := range files {
+				cfg.Filepath = file
+				add(cfg)
+			}
+		} else {
+			// not a file, so we can append
+			add(cfg)
 		}
 	}
 
@@ -75,7 +104,7 @@ func (R *Runtime) CreateAdhocGenerator() error {
 	G.CwdToRoot = ""
 	G.Outdir = ""
 
-	G.Templates = []*gen.TemplateGlobs{ &gen.TemplateGlobs{Globs: globs} }
+	G.Templates = []*gen.TemplateGlobs{ &gen.TemplateGlobs{Globs: files} }
 	G.Partials  = []*gen.TemplateGlobs{ &gen.TemplateGlobs{Globs: R.GenFlags.Partial} }
 
 	Val := R.Value
@@ -144,6 +173,10 @@ func (R *Runtime) CreateAdhocGenerator() error {
 			}
 			f.Filepath = string(bs)
 
+			if cfg.TrimPrefix != "" {
+				f.Filepath = strings.TrimPrefix(f.Filepath, cfg.TrimPrefix)	
+			}
+
 			/*
 			if cfg.DataFormat != "" {
 				fmt.Println(*f)
@@ -205,27 +238,29 @@ func ParseTemplateFlag(tf string) (cfg AdhocTemplateConfig, err error) {
 	// We work our way from end to start of the string, 
 	orig := tf
 
-	// look for =
+	// look for =  |  outpath spec
 	parts := strings.Split(tf, "=")
 	if len(parts) > 1 {
 		tf = parts[0]
 		cfg.Outpath = parts[1]
 	}
 
-	// repeated template?
+	// repeated template | parse from outpath spec
 	if strings.HasPrefix(cfg.Outpath, "[]") {
 		cfg.Outpath = strings.TrimPrefix(cfg.Outpath, "[]")
 		cfg.Repeated = true
 	}
 
-	// look for @
+	// TODO, trim prefix for template dir?
+
+	// look for @  |  takes new last part to find schema (like -d flag)
 	parts = strings.Split(tf, "@")
 	if len(parts) > 1 {
 		tf = parts[0]
 		cfg.Schema = parts[1]
 	}
 
-	// look for :
+	// look for : \ takes new last part for value for in (like -e flag)
 	parts = strings.Split(tf, ":")
 	if len(parts) > 1 {
 		tf = parts[0]
@@ -245,6 +280,11 @@ func ParseTemplateFlag(tf string) (cfg AdhocTemplateConfig, err error) {
 		}
 		cfg.DataFormat = filepath.Ext(cfg.Outpath)[1:]  // trim '.' from ext
 	} else {
+		parts = strings.Split(tf, "+")
+		if len(parts) > 1 {
+			cfg.TrimPrefix = parts[0]
+			tf = parts[0] + parts[1]
+		}
 		cfg.Filepath = tf
 	}
 

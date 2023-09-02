@@ -12,6 +12,13 @@ CliPflags: [...schema.Flag] & [ {
 	Default: ""
 	Help:    "the Cue package context to use during execution"
 }, {
+	Name:    "InputData"
+	Long:    "input"
+	Short:   "I"
+	Type:    "[]string"
+	Default: "nil"
+	Help:    "extra data to unify into the root value"
+}, {
 	Name:    "tags"
 	Long:    "tags"
 	Short:   "t"

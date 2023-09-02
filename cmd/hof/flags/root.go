@@ -10,6 +10,7 @@ var RootFlagSet *pflag.FlagSet
 
 type RootPflagpole struct {
 	Package      string
+	InputData    []string
 	Tags         []string
 	Path         []string
 	Schema       []string
@@ -27,6 +28,7 @@ func SetupRootPflags(fset *pflag.FlagSet, fpole *RootPflagpole) {
 	// pflags
 
 	fset.StringVarP(&(fpole.Package), "package", "p", "", "the Cue package context to use during execution")
+	fset.StringArrayVarP(&(fpole.InputData), "input", "I", nil, "extra data to unify into the root value")
 	fset.StringArrayVarP(&(fpole.Tags), "tags", "t", nil, "@tags() to be injected into CUE code")
 	fset.StringArrayVarP(&(fpole.Path), "path", "l", nil, "CUE expression for single path component when placing data files")
 	fset.StringArrayVarP(&(fpole.Schema), "schema", "d", nil, "expression to select schema to apply to data files")
