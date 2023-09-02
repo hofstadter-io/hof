@@ -4,11 +4,10 @@ import (
 	"time"
 
 	"cuelang.org/go/cue"
-	"github.com/gdamore/tcell/v2"
 
-	// "github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/runtime"
 	"github.com/hofstadter-io/hof/lib/tui"
+	// "github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 	"github.com/hofstadter-io/hof/lib/watch"
 )
@@ -45,11 +44,10 @@ func NewValueEvaluator(R *runtime.Runtime) (*ValueEvaluator) {
 		SetBorder(true)
 
 	// results
-	VE.View = NewValueBrowser(VE.Runtime.Value, func(string){})
+	VE.View = NewValueBrowser(VE.Runtime.Value, "cue", func(string){})
 	VE.View.
 		SetTitle("results").
 		SetBorder(true)
-	VE.View.SetMode("code")
 
 	// layout
 	VE.Flex.
@@ -77,34 +75,26 @@ func (VE *ValueEvaluator) Rebuild() {
 func (VE *ValueEvaluator) Mount(context map[string]any) error {
 
 	// change debouncer
-	VE.debouncer = watch.NewDebouncer(time.Millisecond * 300)
+	VE.debouncer = watch.NewDebouncer(time.Millisecond * 500)
 	VE.Edit.SetChangedFunc(func() {
+		tui.Log("info", "VE debouncer.setup")
 
 		VE.debouncer(func(){
+			tui.Log("warn", "VE debouncer.run")
 			VE.Rebuild()
 		})
 
 	})
 
-
-
-	// key handlers
-	VE.Edit.SetInputCapture(func(evt *tcell.EventKey) *tcell.EventKey {
-
-		switch evt.Key() {
-		case tcell.KeyRune:
-			switch evt.Rune() {
-			default:
-				return evt
-			}
-		default:
-			return evt
-		}
-
-		// VB.Rebuild("")
-
-		return nil
-	})
-
 	return nil
+}
+
+func (C *ValueEvaluator) Focus(delegate func(p tview.Primitive)) {
+	if C.View.HasFocus() {
+		delegate(C.View)
+		return
+	}
+	// otherwise, assume we want to keep the view focus
+	delegate(C.Edit)
+	return
 }

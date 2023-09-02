@@ -69,6 +69,10 @@ func SendCustomEvent(path string, data any) {
 	globalApp.EventBus.SendCustomEvent(path, data)
 }
 
+func Log(level string, data any) {
+	globalApp.EventBus.SendCustomEvent("/console/" + level, data)
+}
+
 func AddGlobalHandler(path string, handler func(events.Event)) {
 	globalApp.EventBus.AddGlobalHandler(path, handler)
 }
