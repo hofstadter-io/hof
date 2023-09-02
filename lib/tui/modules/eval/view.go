@@ -81,7 +81,7 @@ func (P *EvalPage) Unmount() error {
 	return nil
 }
 
-func (P *EvalPage) Refresh(context map[string]interface{}) error {
+func (P *EvalPage) Refresh(context map[string]any) error {
 	tui.SendCustomEvent("/console/trace", fmt.Sprintf("eval refresh %#v", context))
 
 	_args, _ := context["args"]
@@ -137,7 +137,7 @@ func (P *EvalPage) Refresh(context map[string]interface{}) error {
 
 	// first time or reuse
 	if P.View == nil {
-		P.View = components.NewValueBrowser(P.Runtime.Value, nil)
+		P.View = components.NewValueBrowser(P.Runtime.Value, "cue", nil)
 		P.Eval = components.NewValueEvaluator(R)
 	} else {
 		P.View.Value = R.Value

@@ -10,12 +10,20 @@ _Hidden: {
 	#opt?: string
 }
 
+#somedef: {
+	foo:   "bar"
+	moo?:  _
+	#def:  "done"
+	#opt?: string
+}
+
 BashTest: {
 	@task(os.Exec)
 	script: string
 	cmd: ["bash", "-c", script]
 	_foo: "bar"
 	moo?: _
+	#def: string
 }
 
 GoTest: {
