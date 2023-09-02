@@ -1,6 +1,7 @@
 package runtime
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -42,8 +43,10 @@ func (ts *Script) setupTest() string {
 }
 
 func (ts *Script) resetDirs() {
-	ts.Check(os.RemoveAll(ts.workdir))
-	ts.Check(os.MkdirAll(ts.workdir, 0777))
+	if ts.params.Mode == "test" {
+		ts.Check(os.RemoveAll(ts.workdir))
+		ts.Check(os.MkdirAll(ts.workdir, 0777))
+	}
 	return
 }
 
@@ -52,12 +55,15 @@ func (ts *Script) resetDirs() {
 // It returns the script content section of the txtar archive.
 func (ts *Script) setupRun() string {
 
+	fmt.Printf("ts: %#+v\n", ts)
+	ts.workdir = ts.params.WorkdirRoot
+
 	// expose external ENV here
 	env := &Env{
 		Vars:    os.Environ(),
-		WorkDir: ts.workdir,
+		WorkDir: ts.params.WorkdirRoot,
 		Values:  make(map[interface{}]interface{}),
-		Cd:      ts.workdir,
+		Cd:      ts.params.WorkdirRoot,
 		ts:      ts,
 	}
 
@@ -94,18 +100,18 @@ func (ts *Script) setupFromEnv(env *Env) string {
 	return ts.orig
 }
 
-func (ts *Script) unpackArchiveOrig() {
-	// Unpack archive.
-	a, err := txtar.ParseFile(ts.file)
-	ts.Check(err)
-	ts.archive = a
-	for _, f := range a.Files {
-		name := ts.MkAbs(ts.expand(f.Name))
-		ts.scriptFiles[name] = f.Name
-		ts.Check(os.MkdirAll(filepath.Dir(name), 0777))
-		ts.Check(ioutil.WriteFile(name, f.Data, 0666))
-	}
-}
+//func (ts *Script) unpackArchiveOrig() {
+//  // Unpack archive.
+//  a, err := txtar.ParseFile(ts.file)
+//  ts.Check(err)
+//  ts.archive = a
+//  for _, f := range a.Files {
+//    name := ts.MkAbs(ts.expand(f.Name))
+//    ts.scriptFiles[name] = f.Name
+//    ts.Check(os.MkdirAll(filepath.Dir(name), 0777))
+//    ts.Check(ioutil.WriteFile(name, f.Data, 0666))
+//  }
+//}
 
 // Unpack archive.
 func (ts *Script) unpackArchive() {
@@ -143,6 +149,11 @@ func (ts *Script) unpackArchive() {
 				fmode = os.FileMode(fm)
 			}
 		}
+
+		// deal with mode/workdir
+		//if ts.params.Mode == "run" {
+		//  name = filepath.Join(ts.params.WorkdirRoot, name)
+		//}
 
 		// make the file
 		fname := ts.MkAbs(name)

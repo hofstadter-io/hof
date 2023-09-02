@@ -11,10 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var runLong = `HofLineScript (HLS) run polyglot command and scripts seamlessly across runtimes
-
-can accept cue & flags or just a .hls file
-`
+var runLong = `Extended implementation of Testsuite	`
 
 func init() {
 

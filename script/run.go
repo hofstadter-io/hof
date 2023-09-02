@@ -6,7 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	// "github.com/hofstadter-io/hof/cmd/hof/flags"
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
+	"github.com/hofstadter-io/hof/lib/yagu"
 	"github.com/hofstadter-io/hof/script/runtime"
 )
 
@@ -21,7 +22,7 @@ var (
 )
 */
 
-func RunRunFromArgs(args []string) error {
+func Run(args []string, rflags flags.RootPflagpole, cflags flags.RunFlagpole) error {
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -39,7 +40,7 @@ func RunRunFromArgs(args []string) error {
 	}
 
 	if len(hlsFiles) > 0 {
-		err := RunHLS(hlsFiles)
+		err := RunHLS(hlsFiles, rflags, cflags)
 		if err != nil {
 			return err
 		}
@@ -50,11 +51,11 @@ func RunRunFromArgs(args []string) error {
 }
 
 // runs each glob element in order, globs are lexigraphically sorted
-func RunHLS(globs []string) error {
+func RunHLS(globs []string, rflags flags.RootPflagpole, cflags flags.RunFlagpole) error {
 	// fmt.Printf("lib/ops.RunHLS: %v %# v\n", globs, flags.RunFlags)
 
 	for _, glob := range globs {
-		err := runHLS(glob)
+		err := runHLS(glob, rflags, cflags)
 		if err != nil {
 			return err
 		}
@@ -63,19 +64,30 @@ func RunHLS(globs []string) error {
 	return nil
 }
 
-func runHLS(glob string) error {
+func runHLS(glob string, rflags flags.RootPflagpole, cflags flags.RunFlagpole) error {
 	r := &runtime.Runner{
 		// LogLevel: flags.RootVerbosePflag,
 		// LogLevel: "",
 	}
 
+	keep := true
+	if cflags.Mode == "test" {
+		keep = cflags.KeepTestdir
+	}
+
 	p := runtime.Params{
-		Mode:        "run",
+		Mode:        cflags.Mode,
 		Setup:       envSetup,
 		Dir:         ".",
 		Glob:        glob,
-		WorkdirRoot: ".",
-		TestWork:    true,
+		WorkdirRoot: cflags.Workdir,
+		TestWork:    keep,
+	}
+
+	if cflags.Workdir != "" {
+		if err := yagu.Mkdir(cflags.Workdir); err != nil {
+			return err
+		}
 	}
 
 	runtime.RunT(r, p)
