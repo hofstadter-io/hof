@@ -26,7 +26,7 @@ func (ts *Script) setupTest() string {
 			"WORK=" + ts.workdir, // must be first for ts.abbrev
 			"PATH=" + os.Getenv("PATH"),
 			"USER=" + os.Getenv("USER"),
-			homeEnvName() + "=" + ts.workdir + "/home",
+			homeEnvName() + "=" + filepath.Join(ts.workdir, "home"),
 			tempEnvName() + "=" + filepath.Join(ts.workdir, "tmp"),
 			"devnull=" + os.DevNull,
 			"/=" + string(os.PathSeparator),

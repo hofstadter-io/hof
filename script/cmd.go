@@ -25,7 +25,7 @@ func RunRunFromArgs(args []string) error {
 
 	defer func() {
 		if r := recover(); r != nil {
-			// fmt.Println("Recovered in f", r)
+			fmt.Println("Recovered in f", r)
 		}
 	}()
 
@@ -33,7 +33,7 @@ func RunRunFromArgs(args []string) error {
 	for _, a := range args {
 		switch filepath.Ext(a) {
 
-		case ".hls", ".txt":
+		case ".hls", ".txt", "txtar":
 			hlsFiles = append(hlsFiles, a)
 		}
 	}
@@ -47,7 +47,6 @@ func RunRunFromArgs(args []string) error {
 	}
 
 	return fmt.Errorf("Please specify args of filepath glob(s) to .hls|.txt testscript files")
-	// return nil
 }
 
 // runs each glob element in order, globs are lexigraphically sorted

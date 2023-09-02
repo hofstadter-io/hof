@@ -305,7 +305,7 @@ func setupTmpdir(url, ver string) (tmpdir, subdir string, err error) {
 
 func runCreator(R *gencmd.Runtime, cflags flags.CreateFlagpole, extra []string) (err error) {
 
-	inputs := cflags.Input
+	inputs := R.Flags.InputData
 
 	if R.Flags.Verbosity > 0 {
 		fmt.Println("running creator with:", extra, inputs)

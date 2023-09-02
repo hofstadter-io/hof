@@ -28,8 +28,8 @@ func SetupRunFlags(fset *pflag.FlagSet, fpole *RunFlagpole) {
 	fset.StringArrayVarP(&(fpole.Suite), "suite", "", nil, "<name>: _ @run(suite)'s to run")
 	fset.StringArrayVarP(&(fpole.Runner), "runner", "", nil, "<name>: _ @run(script)'s to run")
 	fset.StringArrayVarP(&(fpole.Environment), "env", "", nil, "exrta environment variables for scripts")
-	fset.StringArrayVarP(&(fpole.Data), "data", "", nil, "exrta data to include in the scripts context")
-	fset.StringVarP(&(fpole.Workdir), "workdir", "", "", "working directory")
+	fset.StringArrayVarP(&(fpole.Data), "data", "", nil, "extra data to include in the scripts context")
+	fset.StringVarP(&(fpole.Workdir), "workdir", "w", "", "working directory")
 }
 
 func init() {

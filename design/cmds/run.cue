@@ -58,7 +58,7 @@ RunCommand: schema.Command & {
 			Name:    "data"
 			Type:    "[]string"
 			Default: "nil"
-			Help:    "exrta data to include in the scripts context"
+			Help:    "extra data to include in the scripts context"
 			Long:    "data"
 			...
 		},
@@ -68,6 +68,7 @@ RunCommand: schema.Command & {
 			Default: ""
 			Help:    "working directory"
 			Long:    "workdir"
+			Short:   "w"
 			...
 		},
 	]

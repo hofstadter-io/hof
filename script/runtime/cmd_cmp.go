@@ -51,7 +51,7 @@ func (ts *Script) doCmdCmp(args []string, env bool, trim bool) {
 	var text2 string
 	// first try file, otherwise assume string
 	absName2 := ts.MkAbs(args[1])
-	_, err := os.Stat(absName2)
+	_, err := os.Lstat(absName2)
 	if err != nil {
 		// file does not exist, assume it is a string
 		if _, ok := err.(*os.PathError); ok {

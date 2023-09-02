@@ -126,10 +126,14 @@ func (R *Runtime) load() (err error) {
 	R.CueConfig.DataFiles = R.Flags.IncludeData
 	R.BuildInstances = load.Instances(R.Entrypoints, R.CueConfig)
 
-	if l := len(R.BuildInstances); l != 1 {
-		return fmt.Errorf("expected only one build instance, got %d", l)
+	if l := len(R.BuildInstances); l == 0 {
+		return fmt.Errorf("expected at least one build instance, got none", l)
+	} else if l >= 2 {
+		// this looks to always be empty when it is created, so we just ignore it
+		// fmt.Printf("warning, go more than one instance: %#v %#v\n", R.BuildInstances[0], R.BuildInstances[1])
 	}
 
+	// we always take the first build instance
 	bi := R.BuildInstances[0]
 
 	if bi.Err != nil {
