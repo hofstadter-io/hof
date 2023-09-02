@@ -6,6 +6,7 @@ import (
 	"github.com/gdamore/tcell/v2"
 
 	"github.com/hofstadter-io/hof/lib/connector"
+
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 	"github.com/hofstadter-io/hof/lib/tui/hoc/cmdbox"
 	"github.com/hofstadter-io/hof/lib/tui/hoc/console"

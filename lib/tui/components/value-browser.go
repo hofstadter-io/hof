@@ -34,6 +34,7 @@ type ValueBrowser struct {
 	// mode mode [tree,cue,yaml,json]
 	mode string
 	nextMode string
+	refocus bool  // possibly refocus, if we rebuild the tree or switch views
 
 	// eval settings
 	docs,
@@ -149,14 +150,17 @@ func (VB *ValueBrowser) Rebuild(path string) {
 
 	}
 
-	if VB.nextMode != VB.mode {
-		VB.mode = VB.nextMode
+	if VB.refocus {
+		VB.refocus = false
+		if VB.nextMode != VB.mode {
+			VB.mode = VB.nextMode
+		}
 		VB.Focus(func(p tview.Primitive){
 			p.Focus(nil)
 		})
 	}
-	VB.nextMode = ""
 
+	VB.nextMode = ""
 	VB.Frame.SetTitle(VB.buildStatusString())
 
 }
@@ -175,9 +179,9 @@ func (VB *ValueBrowser) buildStatusString() string {
 	s += VB.mode + " ["
 
 	add(VB.mode == "tree", "T")
-	add(VB.mode == "cue", "C")
-	add(VB.mode == "yaml", "Y")
+	add(VB.mode == "cue",  "C")
 	add(VB.mode == "json", "J")
+	add(VB.mode == "yaml", "Y")
 
 	s += "] "
 
@@ -404,6 +408,7 @@ func (VB *ValueBrowser) SetupKeybinds() {
 				return evt
 			}
 
+			VB.refocus = true
 			VB.Rebuild("")
 
 			return nil
