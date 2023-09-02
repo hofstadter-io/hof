@@ -172,6 +172,11 @@ func Create(module string, extra []string, rootflags flags.RootPflagpole, cmdfla
 	*/
 	genflags.Outdir = outdir
 
+	// HACK, pull off InputData so that it is not part of Runtime.Load()
+	// The input flags are different for create right now, and go somewhere else
+	inputs := rootflags.InputData
+	rootflags.InputData = []string{}
+
 	// create our runtime now, maybe we want a new func for this
 	//   since we want to ignore any current CUE module context
 	//   everything is put into a temp dir and rendered to CWD
@@ -195,7 +200,7 @@ func Create(module string, extra []string, rootflags flags.RootPflagpole, cmdfla
 	}
 
 	// fmt.Println("pre-run-creator")
-	err = runCreator(R, cmdflags, extra)
+	err = runCreator(R, cmdflags, extra, inputs)
 	// fmt.Println("post-run-creator")
 	return err
 }
@@ -303,9 +308,7 @@ func setupTmpdir(url, ver string) (tmpdir, subdir string, err error) {
 	return tmpdir, subdir, err
 }
 
-func runCreator(R *gencmd.Runtime, cflags flags.CreateFlagpole, extra []string) (err error) {
-
-	inputs := R.Flags.InputData
+func runCreator(R *gencmd.Runtime, cflags flags.CreateFlagpole, extra, inputs []string) (err error) {
 
 	if R.Flags.Verbosity > 0 {
 		fmt.Println("running creator with:", extra, inputs)
