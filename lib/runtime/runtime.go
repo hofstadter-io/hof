@@ -45,7 +45,6 @@ type Runtime struct {
 	CueContext     *cue.Context
 	CueConfig      *load.Config
 	BuildInstances []*build.Instance
-	CueErrors      []error
 	FieldOpts      []cue.Option
 
 	// this is a bit hacky, but we use this with vet to validate data (and probably st as well)

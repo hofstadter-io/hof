@@ -115,8 +115,6 @@ func (R *Runtime) load() (err error) {
 		R.Stats.Add("gen/load", end.Sub(start))
 	}()
 
-	var errs []error
-
 	// XXX TODO XXX
 	//  add the second arg from our runtime when implemented?
 	//  is this to support multiple R's at oncce?
@@ -128,45 +126,25 @@ func (R *Runtime) load() (err error) {
 	R.CueConfig.DataFiles = R.Flags.IncludeData
 	R.BuildInstances = load.Instances(R.Entrypoints, R.CueConfig)
 
-	for _, bi := range R.BuildInstances {
-		if bi.Err != nil || bi.Incomplete {
-			es := errors.Errors(bi.Err)
-			for _, e := range es {
-				errs = append(errs, e.(error))
-			}
-			continue
-		}
-
-		err = R.prepOrphanedFiles(bi)
-		if err != nil {
-			errs = append(errs, err)
-			// continue
-		}
-
-		// Build the Instance
-		V := R.CueContext.BuildInstance(bi)
-		// always set value, in case user wants to ignore or show all
-		R.Value = V
-		//if V.Err() != nil {
-		//  errs = append(errs, V.Validate())
-		//  continue
-		//}
-
-
+	if l := len(R.BuildInstances); l != 1 {
+		return fmt.Errorf("expected only one build instance, got %d", l)
 	}
 
-	if len(errs) > 0 {
-		R.CueErrors = errs
-		// s := fmt.Sprintf("Errors while loading Cue entrypoints: %s %v\n", R.WorkingDir, R.Entrypoints)
-		var s string
-		for _, E := range errs {
-			es := errors.Errors(E)
-			for _, e := range es {
-				s += cuetils.CueErrorToString(e)
-			}
-		}
-		return fmt.Errorf(s)
+	bi := R.BuildInstances[0]
+
+	if bi.Err != nil || bi.Incomplete {
+		return err
 	}
+
+	err = R.prepOrphanedFiles(bi)
+	if err != nil {
+		return err
+	}
+
+	// Build the Instance
+	R.Value = R.CueContext.BuildInstance(bi)
+
+	// unify any -I inputs
 
 	return nil
 }
