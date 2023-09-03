@@ -262,6 +262,9 @@ func (M *Eval) Refresh(context map[string]any) error {
 		M.Flex.AddItem(M.creator(context), 0, 1, true)
 	}
 
+	// only set border when no elements
+	M.Flex.SetBorder(M.Flex.GetItemCount() == 0)
+
 	tui.Draw()
 
 	return nil

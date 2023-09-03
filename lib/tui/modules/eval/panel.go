@@ -103,13 +103,23 @@ func (P *Panel) Refresh(context map[string]any) error {
 		e.Rebuild(context)
 		t = e
 
+
 	default:
 		P.loadRuntime(args)
-		b := components.NewValueBrowser(P._Runtime.Value, "cue", func(string){})
-		b.SetTitle(fmt.Sprintf("  %v  ", args)).SetBorder(true)
-		b.Mount(context)
-		b.Rebuild("")
-		t = b
+
+		if mode == "play" {
+			e := components.NewValueEvaluator("", cue.Value{}, P._Runtime.Value)
+			e.SetScope(true)
+			e.Mount(context)
+			e.Rebuild(context)
+			t = e
+		} else {
+			b := components.NewValueBrowser(P._Runtime.Value, "cue", func(string){})
+			b.SetTitle(fmt.Sprintf("  %v  ", args)).SetBorder(true)
+			b.Mount(context)
+			b.Rebuild("")
+			t = b
+		}
 	}
 
 
