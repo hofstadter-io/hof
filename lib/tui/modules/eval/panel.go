@@ -21,6 +21,8 @@ import (
 type Panel struct {
 	*tview.Flex
 
+	creator func (context map[string]any) *Panel
+
 	_Runtime *runtime.Runtime
 	_Value   cue.Value
 	_content string
@@ -29,10 +31,25 @@ type Panel struct {
 func NewPanel() *Panel {
 	P := &Panel{
 		Flex: tview.NewFlex(),
+		creator: defaultCreator,
 	}
 
 	return P
 }
+
+func defaultCreator (context map[string]any) (*Panel) {
+	P := NewPanel()
+	if debug {
+		P.Flex.SetBorder(true).SetTitle(fmt.Sprintf("p:%02d", count))
+		setupInputHandler(P)
+		count++
+	} else {
+		P.Mount(context)
+	}
+
+	return P
+}
+
 
 func (P *Panel) Id() string {
 	return "panel"
@@ -200,11 +217,20 @@ func (P *Panel) loadHttpValue(mode, from string) error {
 
 	return nil
 }
+
+func NewItemText() *tview.TextView {
+	t := tview.NewTextView()
+	t.SetBorder(true)
+	fmt.Fprint(t, newItemText)
+	return t
+}
  
-const defaultContent = `
-hello: "there!"
-
-text: "default"
-
-ans: 42
+const newItemText = `
+Panel Controls:
+<esc>        unfocus
+alt-M        set mode
+alt-[HhlL]   horz panel inserts
+alt-[JjkK]   vert panel inserts
+ctrl-[HhlL]  horz panel move
+ctrl-[JjkK]  vert panel move
 `
