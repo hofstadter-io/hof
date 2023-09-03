@@ -73,6 +73,10 @@ func Log(level string, data any) {
 	globalApp.EventBus.SendCustomEvent("/console/" + level, data)
 }
 
+func Tell(level string, data any) {
+	globalApp.EventBus.SendCustomEvent("/user/" + level, data)
+}
+
 func AddGlobalHandler(path string, handler func(events.Event)) {
 	globalApp.EventBus.AddGlobalHandler(path, handler)
 }

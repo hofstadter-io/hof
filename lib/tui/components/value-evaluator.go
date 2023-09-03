@@ -4,9 +4,9 @@ import (
 	"time"
 
 	"cuelang.org/go/cue"
+	"cuelang.org/go/cue/cuecontext"
 	"github.com/gdamore/tcell/v2"
 
-	"github.com/hofstadter-io/hof/lib/runtime"
 	"github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 	"github.com/hofstadter-io/hof/lib/watch"
@@ -15,11 +15,16 @@ import (
 type ValueEvaluator struct {
 	*tview.Flex
 
-	Runtime *runtime.Runtime
-	Value cue.Value
+	Value  cue.Value
+	Scope  cue.Value
+
+	// TODO
+	ValueGetter func() cue.Value
+	ScopeGetter func() cue.Value
 
 	Edit *tview.TextArea
 	View *ValueBrowser
+	// TODO, make Views...
 
 	flexDir  int
 	useScope bool
@@ -28,13 +33,13 @@ type ValueEvaluator struct {
 	debouncer func(func())
 }
 
-func NewValueEvaluator(val cue.Value) (*ValueEvaluator) {
+func NewValueEvaluator(src string, val, scope cue.Value) (*ValueEvaluator) {
 
 	C := &ValueEvaluator{
 		Flex: tview.NewFlex(),
 		Value: val,
+		Scope: scope,
 		flexDir: tview.FlexRow,
-		useScope: true,
 	}
 
 	C.Flex = tview.NewFlex().SetDirection(C.flexDir)
@@ -47,6 +52,10 @@ func NewValueEvaluator(val cue.Value) (*ValueEvaluator) {
 	C.Edit.
 		SetTitle("expression(s)").
 		SetBorder(true)
+
+	if src != "" {
+		C.Edit.SetText(src, false)
+	}
 
 	// results
 	C.View = NewValueBrowser(C.Value, "cue", func(string){})
@@ -75,9 +84,15 @@ func NewValueEvaluator(val cue.Value) (*ValueEvaluator) {
 					C.Flex.SetDirection(C.flexDir)
 
 				case 's':
-					C.useScope = !C.useScope
-					C.View.UsingScope = C.useScope
-					C.Rebuild()
+					if !C.Scope.Exists() {
+						tui.Log("error", "no scope set to activate")
+						tui.Tell("error", "no scope set to activate")
+						return nil
+					} else {
+						C.useScope = !C.useScope
+						C.View.UsingScope = C.useScope
+						C.Rebuild(nil)
+					}
 
 				default: 
 					tui.Log("trace", "val-eval bypassing " + string(evt.Rune()))
@@ -105,21 +120,38 @@ func (C *ValueEvaluator) SetScope(visible bool) {
 	C.useScope = visible
 }
 
-func (C *ValueEvaluator) Rebuild() {
+func (C *ValueEvaluator) Rebuild(context map[string]any) {
 	val := C.Value
-	ctx := val.Context()
-
-	src := C.Edit.GetText()
-
-	var v cue.Value
-	if C.useScope {
-		v = ctx.CompileString(src, cue.InferBuiltins(true), cue.Scope(val))
+	var ctx *cue.Context
+	if val.Exists() {
+		ctx = val.Context()
 	} else {
-		v = ctx.CompileString(src, cue.InferBuiltins(true))
+		ctx = cuecontext.New()
 	}
 
-	C.View.Value = v
-	C.View.Rebuild(v.Path().String())
+	src := C.Edit.GetText()
+	if src == "" && val.Exists() {
+		C.View.Value = C.Value
+		// we really need everything here (like from Runtime.Value)
+		// C.Edit.SetText(fmt.Sprintf("%#v", C.Value), false)
+	} else {
+		var v cue.Value
+		if C.useScope {
+			s := C.Scope
+			if C.ScopeGetter != nil {
+				s = C.ScopeGetter()
+			}
+			v = ctx.CompileString(src, cue.InferBuiltins(true), cue.Scope(s))
+		} else {
+			v = ctx.CompileString(src, cue.InferBuiltins(true))
+		}
+
+		// only update view value, that way, if we erase everything, we still see the value
+		C.View.Value = v
+		// C.Value = v
+	}
+
+	C.View.Rebuild("")
 
 	tui.Draw()
 }
@@ -131,7 +163,7 @@ func (C *ValueEvaluator) Mount(context map[string]any) error {
 	// trigger rebuild on editor changes
 	C.Edit.SetChangedFunc(func() {
 		C.debouncer(func(){
-			C.Rebuild()
+			C.Rebuild(nil)
 		})
 	})
 

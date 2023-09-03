@@ -51,7 +51,8 @@ type ValueBrowser struct {
 	resolve,
 	concrete,
 	hidden,
-	final bool
+	final,
+	validate bool
 }
 
 func NewValueBrowser(val cue.Value, mode string, OnFieldSelect func(path string)) *ValueBrowser {
@@ -139,20 +140,32 @@ func (C *ValueBrowser) Rebuild(path string) {
 
 	} else {
 		C.Code.Clear()
-		syn := C.Value.Syntax(C.Options()...)
-
-		b, err := format.Node(syn)
-		if !C.ignore {
+		wrote := false
+		if C.validate {
+			err := C.Value.Validate(C.Options()...)
 			if err != nil {
-				s := cuetils.CueErrorToString(err)
-				fmt.Fprintln(C.CodeW, s)
+				fmt.Fprint(C.CodeW, cuetils.CueErrorToString(err))
+				wrote = true
 			}
 		}
 
-		err = quick.Highlight(C.CodeW, string(b), "Go", "terminal256", "solarized-dark")
-		if err != nil {
-			go tui.SendCustomEvent("/console/error", fmt.Sprintf("error highlighing %v", err))
-			return
+
+		if !wrote {
+			syn := C.Value.Syntax(C.Options()...)
+
+			b, err := format.Node(syn)
+			if !C.ignore {
+				if err != nil {
+					s := cuetils.CueErrorToString(err)
+					fmt.Fprintln(C.CodeW, s)
+				}
+			}
+
+			err = quick.Highlight(C.CodeW, string(b), "Go", "terminal256", "solarized-dark")
+			if err != nil {
+				go tui.SendCustomEvent("/console/error", fmt.Sprintf("error highlighing %v", err))
+				return
+			}
 		}
 
 		C.SetPrimitive(C.Code)
@@ -193,6 +206,7 @@ func (VB *ValueBrowser) buildStatusString() string {
 	add(VB.UsingScope, " S")
 	s += "] "
 
+	add(VB.validate, "v")
 	add(VB.concrete, "c")
 	add(VB.final, "f")
 	add(VB.resolve, "r")
@@ -371,6 +385,8 @@ func (VB *ValueBrowser) SetupKeybinds() {
 		if evt.Key() == tcell.KeyRune {
 			switch evt.Rune() {
 
+			case 'v':
+				VB.validate = !VB.validate
 			case 'c':
 				VB.concrete = !VB.concrete
 			case 'f':

@@ -8,7 +8,6 @@ import (
 	"github.com/gdamore/tcell/v2"
 
 	"github.com/hofstadter-io/hof/lib/tui"
-	"github.com/hofstadter-io/hof/lib/tui/components"
 	"github.com/hofstadter-io/hof/lib/tui/hoc/router"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 )
@@ -16,7 +15,7 @@ import (
 type Eval struct {
 	*tview.Flex
 
-	creator func (context map[string]any) tview.Primitive
+	creator func (context map[string]any) *Panel
 }
 
 func NewEval() *Eval {
@@ -68,6 +67,25 @@ func (M *Eval) CommandHelp() string {
 func (M *Eval) CommandCallback(args []string, context map[string]any) {
 	tui.Log("error", fmt.Sprintf("eval cmd: %v %v", args, context))
 	// strip of own command
+	args, context = processArgsAndContext(args, context)
+
+	if M.IsMounted() {
+		tui.Log("error", fmt.Sprintf("eval mounted->refresh: %v %v", args, context))
+		// just refresh with new args
+		// maybe we need to be more intelligent here, make a different function(s)
+		M.Refresh(context)
+	} else {
+		tui.Log("error", fmt.Sprintf("eval unmounted->router: %v %v", args, context))
+		// need to navigate, mount will do the rest
+		context["path"] = "/eval"
+		go tui.SendCustomEvent("/router/dispatch", context)
+	}
+}
+
+
+func processArgsAndContext(args []string, context map[string]any) ([]string, map[string]any) {
+	tui.Log("info", fmt.Sprintf("parse.args-n-ctx.BEG: %v %v", args, context))
+
 	if len(args) > 0 && args[0] == "eval" {
 		args = args[1:]
 	}
@@ -80,7 +98,6 @@ func (M *Eval) CommandCallback(args []string, context map[string]any) {
 	// find any modifiers
 	for len(args) > 0 {
 		tok := args[0]
-		tui.Log("info", fmt.Sprintf("eval args: %v %v", tok, len(args)))
 		switch tok {
 
 		case "i", "insert", "add":
@@ -108,7 +125,9 @@ func (M *Eval) CommandCallback(args []string, context map[string]any) {
 		case "J":
 			context["where"] = "bottom"
 
-		case "N", "new", "play":
+		case "P", "play":
+			context["mode"] = "play"
+		case "N", "new":
 			context["mode"] = "new"
 		case "T", "tree":
 			context["mode"] = "tree"
@@ -133,7 +152,7 @@ func (M *Eval) CommandCallback(args []string, context map[string]any) {
 			context["action"] = "scoped-connect"
 
 		case "sh", "bash":
-			context["from"] = tok
+			context["with"] = tok
 
 		case "--":
 			goto argsDone
@@ -152,27 +171,20 @@ argsDone:
 
 	// handle some special cases
 	if len(args) > 0 && strings.HasPrefix(args[0], "http") {
+		context["with"] = "http"
 		context["from"] = args[0]
 		args = args[1:]
 	}
 
-	// set actual args to component
+	// make sure we update the context args
 	context["args"] = args
 
-	if M.IsMounted() {
-		tui.Log("error", fmt.Sprintf("eval mounted->refresh: %v %v", args, context))
-		// just refresh with new args
-		// maybe we need to be more intelligent here, make a different function(s)
-		M.Refresh(context)
-	} else {
-		tui.Log("error", fmt.Sprintf("eval unmounted->router: %v %v", args, context))
-		// need to navigate, mount will do the rest
-		context["path"] = "/eval"
-		go tui.SendCustomEvent("/router/dispatch", context)
-	}
+	tui.Log("info", fmt.Sprintf("parse.args-n-ctx.END: %v %v", args, context))
+	return args, context
 }
 
 func (M *Eval) Mount(context map[string]any) error {
+	tui.Log("trace", fmt.Sprintf("Eval.Mount: %v", context))
 	// this is where we can do some loading
 	M.Flex.Mount(context)
 	M.setupKeybinds()
@@ -211,6 +223,7 @@ func (M *Eval) Refresh(context map[string]any) error {
 	args, _ := _args.([]string)
 	if len(args) > 0 && args[0] == "eval" {
 		args = args[1:]
+		context["args"] = args
 	}
 
 	_action, _ := context["action"]
@@ -244,13 +257,12 @@ func (M *Eval) Refresh(context map[string]any) error {
 			M.Flex.AddItem(M.creator(context), 0, 1, true)
 
 		}
+	} else {
+		// no action, probably coming to eval for the first time
+		M.Flex.AddItem(M.creator(context), 0, 1, true)
 	}
 
-	//if strings.HasPrefix(first, "http") {
-
-	//}
-	// this is where you update data and set in components
-	// then at the end call tui.Draw()
+	tui.Draw()
 
 	return nil
 }
@@ -341,30 +353,10 @@ func (M *Eval) setupKeybinds() {
 	})
 }
 
-func defaultCreator (context map[string]any) tview.Primitive {
+func defaultCreator (context map[string]any) *Panel {
 	tui.Log("trace", fmt.Sprintf("Eval.defaultCreator: %v", context))
+	p := NewPanel()
+	p.Mount(context)
 
-	// eval/load mode, unless they set it
-	mode := "eval"
-	if _mode, ok := context["mode"]; ok {
-		mode, _ = _mode.(string)
-	}
-
-	title := "  <default>  " // probably never used anymore, hopefully
-	if args, ok := context["args"]; ok {
-		title = fmt.Sprintf("  %s  ", strings.Join(args.([]string), " "))
-	}
-	// TODO, add index to the title or panel some how
-
-	switch mode {
-	case "new":
-		return components.NewTextEditor(nil)
-	case "tree", "cue":
-
-	case "play":
-
-	case "eval":
-	}
-
-	return tview.NewTextView().SetTitle(title).SetBorder(true)
+	return p
 }
