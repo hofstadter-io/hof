@@ -28,6 +28,9 @@ type ValueBrowser struct {
 
 	Value cue.Value
 
+	// if set, gets the value on refresh
+	ValueGetter func() cue.Value
+
 	// if root is expanded or not
 	expanded bool
 
@@ -35,6 +38,8 @@ type ValueBrowser struct {
 	mode string
 	nextMode string
 	refocus bool  // possibly refocus, if we rebuild the tree or switch views
+
+	UsingScope bool
 
 	// eval settings
 	docs,
@@ -50,63 +55,67 @@ type ValueBrowser struct {
 }
 
 func NewValueBrowser(val cue.Value, mode string, OnFieldSelect func(path string)) *ValueBrowser {
-	VB := &ValueBrowser {
+	C := &ValueBrowser {
 		Value: val,
 		mode: mode,
 	}
 
 	// code view
-	VB.Code = tview.NewTextView()
-	VB.CodeW = tview.ANSIWriter(VB.Code)
-	VB.Code.SetWordWrap(true).
+	C.Code = tview.NewTextView()
+	C.CodeW = tview.ANSIWriter(C.Code)
+	C.Code.SetWordWrap(true).
 		SetDynamicColors(true)
 
 	// tree view
-	VB.Root = tview.NewTreeNode("no results yet")
-	VB.Root.SetColor(tcell.ColorSilver)
+	C.Root = tview.NewTreeNode("no results yet")
+	C.Root.SetColor(tcell.ColorSilver)
 
-	VB.Tree = tview.NewTreeView()
-	VB.Tree. SetRoot(VB.Root).SetCurrentNode(VB.Root)
+	C.Tree = tview.NewTreeView()
+	C.Tree. SetRoot(C.Root).SetCurrentNode(C.Root)
 
 	// set our selected handler for tree
-	VB.Tree.SetSelectedFunc(VB.OnSelect)
+	C.Tree.SetSelectedFunc(C.OnSelect)
 
 
-	if VB.mode == "tree" {
-		VB.Frame = tview.NewFrame(VB.Tree)
+	if C.mode == "tree" {
+		C.Frame = tview.NewFrame(C.Tree)
 	} else {
-		VB.Frame = tview.NewFrame(VB.Code)
+		C.Frame = tview.NewFrame(C.Code)
 	}
 
-	VB.SetBorder(true)
-	VB.SetupKeybinds()
+	C.SetBorder(true)
+	C.SetupKeybinds()
 
-	return VB
+	return C
 }
 
-func (VB *ValueBrowser) Rebuild(path string) {
+func (C *ValueBrowser) Rebuild(path string) {
+	if C.ValueGetter != nil {
+		C.Value = C.ValueGetter()
+	}
+
 	if path == "" {
 		path = "<root>"
 	}
 
-	if VB.nextMode == "" {
-		VB.nextMode = VB.mode
+	if C.nextMode == "" {
+		C.nextMode = C.mode
 	}
 
-	if VB.nextMode == "tree" {
+	if C.nextMode == "tree" {
 
 		root := tview.NewTreeNode(path)
 		root.SetColor(tcell.ColorSilver)
 		tree := tview.NewTreeView()
 
-		VB.AddAt(root, path)
+		C.AddAt(root, path)
 		tree.SetRoot(root).SetCurrentNode(root)
-		tree.SetSelectedFunc(VB.OnSelect)
+		tree.SetSelectedFunc(C.OnSelect)
 		tree.SetDoubleClickedFunc(func(node *tview.TreeNode) {
 			// double clicking a node impacts all children
 			if node.GetLevel() == 0 {
-				VB.expanded = !VB.expanded
-				if VB.expanded {
+				C.expanded = !C.expanded
+				if C.expanded {
 					node.ExpandAll()
 				} else {
 					node.CollapseAll()
@@ -122,46 +131,46 @@ func (VB *ValueBrowser) Rebuild(path string) {
 
 		})
 
-		VB.SetPrimitive(tree)
+		C.SetPrimitive(tree)
 
 		// TODO, dual-walk old-new tree's too keep things open
-		VB.Tree = tree
-		VB.Root = root
+		C.Tree = tree
+		C.Root = root
 
 	} else {
-		VB.Code.Clear()
-		syn := VB.Value.Syntax(VB.Options()...)
+		C.Code.Clear()
+		syn := C.Value.Syntax(C.Options()...)
 
 		b, err := format.Node(syn)
-		if !VB.ignore {
+		if !C.ignore {
 			if err != nil {
 				s := cuetils.CueErrorToString(err)
-				fmt.Fprintln(VB.CodeW, s)
+				fmt.Fprintln(C.CodeW, s)
 			}
 		}
 
-		err = quick.Highlight(VB.CodeW, string(b), "Go", "terminal256", "solarized-dark")
+		err = quick.Highlight(C.CodeW, string(b), "Go", "terminal256", "solarized-dark")
 		if err != nil {
 			go tui.SendCustomEvent("/console/error", fmt.Sprintf("error highlighing %v", err))
 			return
 		}
 
-		VB.SetPrimitive(VB.Code)
+		C.SetPrimitive(C.Code)
 
 	}
 
-	if VB.refocus {
-		VB.refocus = false
-		if VB.nextMode != VB.mode {
-			VB.mode = VB.nextMode
+	if C.refocus {
+		C.refocus = false
+		if C.nextMode != C.mode {
+			C.mode = C.nextMode
 		}
-		VB.Focus(func(p tview.Primitive){
+		C.Focus(func(p tview.Primitive){
 			p.Focus(nil)
 		})
 	}
 
-	VB.nextMode = ""
-	VB.Frame.SetTitle(VB.buildStatusString())
+	C.nextMode = ""
+	C.Frame.SetTitle(C.buildStatusString())
 
 }
 func (VB *ValueBrowser) buildStatusString() string {
@@ -177,12 +186,11 @@ func (VB *ValueBrowser) buildStatusString() string {
 	}
 
 	s += VB.mode + " ["
-
 	add(VB.mode == "tree", "T")
 	add(VB.mode == "cue",  "C")
 	add(VB.mode == "json", "J")
 	add(VB.mode == "yaml", "Y")
-
+	add(VB.UsingScope, " S")
 	s += "] "
 
 	add(VB.concrete, "c")
@@ -190,21 +198,17 @@ func (VB *ValueBrowser) buildStatusString() string {
 	add(VB.resolve, "r")
 
 	s += " "
-
 	add(VB.ignore, "e")
 	add(VB.inline, "i")
 
 	s += " "
-
 	add(VB.defs, "d")
 	add(VB.optional, "o")
 	add(VB.hidden, "h")
 
 	s += " "
-
 	add(VB.docs, "D")
 	add(VB.attrs, "A")
-
 
 	// add some buffer
 	s = "  " + s + "  "

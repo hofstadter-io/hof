@@ -110,6 +110,13 @@ func (f *Flex) RemoveItem(p Primitive) *Flex {
 	return f
 }
 
+// RemoveItem removes all items for the given primitive from the container,
+// keeping the order of the remaining items intact.
+func (f *Flex) RemoveIndex(index int) *Flex {
+	f.items = append(f.items[:index], f.items[index+1:]...)
+	return f
+}
+
 // GetItemCount returns the number of items in this container.
 func (f *Flex) GetItemCount() int {
 	return len(f.items)
@@ -134,8 +141,19 @@ func (f *Flex) SetItem(idx int, item Primitive, fixedSize, proportion int, focus
 
 func (f *Flex) InsItem(idx int, item Primitive, fixedSize, proportion int, focus bool) {
 	itm := &FlexItem{Item: item, FixedSize: fixedSize, Proportion: proportion, Focus: focus}
-	f.items = append(f.items[:idx], itm)
-	f.items = append(f.items[:idx], f.items[idx+1:]...)
+
+	if idx >= len(f.items) {
+		// just add to the end
+		f.items = append(f.items, itm)
+	} else if idx == 0 {
+		f.items = append([]*FlexItem{itm}, f.items...)
+	} else {
+		// shift array one from starting index
+		f.items = append(f.items[:idx+1], f.items[idx:]...)
+		// add item at new gap
+		f.items = append(f.items[:idx+1], f.items[idx:]...)
+		f.items[idx] = itm
+	}
 }
 
 // Clear removes all items from the container.

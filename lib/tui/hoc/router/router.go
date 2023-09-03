@@ -53,7 +53,6 @@ func New() *Router {
 			path = context ["path"].(string)
 		}
 
-		go tui.SendCustomEvent("/console/info", fmt.Sprintf("router dispatching: %q %#v", path, context))
 		r.SetActive(path, context)
 	})
 
@@ -122,7 +121,6 @@ func (R *Router) SetActive(path string, context map[string]interface{}) {
 }
 
 func (R *Router) setActive(layout tview.Primitive, context map[string]interface{}) {
-	go tui.SendCustomEvent("/console/warn", fmt.Sprintf("setActive: %v", context))
 	R.Pages.SwitchToPage(layout.Id(), context)
 	tui.Draw()
 }

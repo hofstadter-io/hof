@@ -3,11 +3,10 @@ package eval
 import "github.com/hofstadter-io/hof/lib/connector"
 
 func New() connector.Connector {
-	items := []interface{}{
-		NewEvalPage(),
+	items := []any{
+		NewEval(),
 	}
-
-	m := connector.New("eval")
+	m := connector.New("Eval")
 	m.Add(items)
 
 	return m

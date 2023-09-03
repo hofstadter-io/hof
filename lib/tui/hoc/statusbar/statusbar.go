@@ -35,10 +35,10 @@ func New() *StatusBar {
 }
 
 func (S *StatusBar) Mount(context map[string]interface{}) error {
-	tui.AddWidgetHandler(S, "/sys/key/C-s", func(e events.Event) {
-		S.SetBorderColor(tcell.ColorFuchsia)
-		tui.SetFocus(S.TextView)
-	})
+	//tui.AddWidgetHandler(S, "/sys/key/C-s", func(e events.Event) {
+	//  S.SetBorderColor(tcell.ColorFuchsia)
+	//  tui.SetFocus(S.TextView)
+	//})
 	S.SetDoneFunc(func(key tcell.Key) {
 		S.SetBorderColor(tcell.ColorWhite)
 		tui.Unfocus()

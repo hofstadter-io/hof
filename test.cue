@@ -19,8 +19,8 @@ _Hidden: {
 
 BashTest: {
 	@task(os.Exec)
-	script: string
-	cmd: ["bash", "-c", script]
+	_script: string
+	cmd: ["bash", "-c", _script]
 	_foo: "bar"
 	moo?: _
 	#def: string
@@ -77,9 +77,9 @@ tests: {
 
 		run: {
 			@task(os.Exec)
-			cmd: ["bash", "-c", script]
-			"dir":  dir
-			script: """
+			cmd: ["bash", "-c", _script]
+			"dir":   dir
+			_script: """
       rm -rf .workdir
       go test -run \(test) . 
       """
@@ -105,7 +105,7 @@ tests: {
 		@flow(test/gen)
 		run: BashTest & {
 			dir: "test/templates"
-			script: """
+			_script: """
 				set -e
 				# deps & gen
 				hof mod vendor
@@ -123,7 +123,7 @@ tests: {
 		@flow(test/render)
 		run: GoTest & {
 			dir: "test/render"
-			script: """
+			_script: """
 				echo "no-op"
 				echo "now run in the dagger workflow"
 				"""
@@ -134,7 +134,7 @@ tests: {
 		@flow(test/create)
 		test: BashTest & {
 			dir: "test/create"
-			script: """
+			_script: """
 				cd test_01 && make test && cd ..
 				cd test_02 && make test && cd ..
 				"""
