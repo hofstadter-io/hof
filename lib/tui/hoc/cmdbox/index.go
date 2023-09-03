@@ -108,7 +108,7 @@ func (CB *CmdBoxWidget) Mount(context map[string]interface{}) error {
 		CB.Unlock()
 
 		CB.SetText("")
-		CB.SetFieldTextColor(tcell.ColorWhite)
+		CB.SetFieldTextColor(tcell.ColorIvory)
 		CB.SetBorderColor(tcell.Color69)
 
 		tui.SetFocus(CB.InputField)

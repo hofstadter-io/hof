@@ -78,9 +78,9 @@ func (V *RootView) Connect(C connector.Connector) {
 func (V *RootView) buildTopPanel() {
 	V.cbox = cmdbox.New()
 	V.cbox.
-		SetTitle("  _Hof  ").
+		SetTitle("  [gold]_[-]Hofstadter  ").
 		SetTitleAlign(tview.AlignLeft).
-		SetTitleColor(tcell.ColorLime).
+		SetTitleColor(tcell.ColorIvory).
 		SetBorder(true).
 		SetBorderColor(tcell.Color27)
 

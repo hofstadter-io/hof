@@ -6,6 +6,7 @@ import (
 	"cuelang.org/go/cue"
 	"github.com/gdamore/tcell/v2"
 
+	"github.com/hofstadter-io/hof/lib/runtime"
 	"github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 	"github.com/hofstadter-io/hof/lib/watch"
@@ -14,6 +15,7 @@ import (
 type ValueEvaluator struct {
 	*tview.Flex
 
+	Runtime *runtime.Runtime
 	Value cue.Value
 
 	Edit *tview.TextArea

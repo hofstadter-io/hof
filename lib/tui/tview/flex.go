@@ -148,11 +148,17 @@ func (f *Flex) InsItem(idx int, item Primitive, fixedSize, proportion int, focus
 	} else if idx == 0 {
 		f.items = append([]*FlexItem{itm}, f.items...)
 	} else {
-		// shift array one from starting index
-		f.items = append(f.items[:idx+1], f.items[idx:]...)
-		// add item at new gap
-		f.items = append(f.items[:idx+1], f.items[idx:]...)
-		f.items[idx] = itm
+		items := make([]*FlexItem, len(f.items)+1)
+		n := 0
+		for _, i := range f.items {
+			if n == idx {
+				items[n] = itm
+				n++
+			}
+			items[n] = i
+			n++
+		}
+		f.items = items
 	}
 }
 
@@ -256,6 +262,15 @@ func (f *Flex) HasFocus() bool {
 		}
 	}
 	return f.Box.HasFocus()
+}
+
+func (f *Flex) ChildFocus() int {
+	for i, item := range f.items {
+		if item.Item != nil && item.Item.HasFocus() {
+			return i
+		}
+	}
+	return -1
 }
 
 func (f *Flex) Mount(context map[string]interface{}) error {
