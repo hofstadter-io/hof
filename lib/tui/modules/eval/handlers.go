@@ -28,7 +28,7 @@ func setupEventHandlers(
 			return action, event
 		}
 		if action > 0 {
-			tui.Log("trace", fmt.Sprintf("Panel.mouseHandler %v %v %v %d", P.Id(), action, event.Buttons(), P.Flex.ChildFocus()))
+			// tui.Log("trace", fmt.Sprintf("Panel.mouseHandler %v %v %v %d", P.Id(), action, event.Buttons(), P.Flex.ChildFocus()))
 			// return action, nil
 		}
 
@@ -51,33 +51,33 @@ func setupEventHandlers(
 		//   2. we then unwind, running any user defined handlers, so most child element can override parent handlers (by returning nil)
 
 		// if a child has focus, let's pass it on to them
-		focus := P.Flex.HasFocus()
-		child := P.Flex.ChildFocus()
-		count := P.Flex.GetItemCount()
-		tui.Log("trace", fmt.Sprintf("Panel.inputHandler.1 at %d of %d | %v %v", child, count, focus, P.Id()))
+		//focus := P.Flex.HasFocus()
+		//child := P.Flex.ChildFocus()
+		//count := P.Flex.GetItemCount()
+		// tui.Log("trace", fmt.Sprintf("Panel.inputHandler.1 at %d of %d | %v %v", child, count, focus, P.Id()))
 
 		alt := event.Modifiers() & tcell.ModAlt == tcell.ModAlt
-		ctrl := event.Modifiers() & tcell.ModCtrl == tcell.ModCtrl
-		meta := event.Modifiers() & tcell.ModMeta == tcell.ModMeta
-		shift := event.Modifiers() & tcell.ModShift == tcell.ModShift
+		//ctrl := event.Modifiers() & tcell.ModCtrl == tcell.ModCtrl
+		//meta := event.Modifiers() & tcell.ModMeta == tcell.ModMeta
+		//shift := event.Modifiers() & tcell.ModShift == tcell.ModShift
 
 		ctx := make(map[string]any)
 
 		// we only care about ALT+... keys at this level
-		tui.Log("trace", fmt.Sprintf("Panel.inputHandler.2 %v %v %v %v %v %q %v", P.Id(), alt, ctrl, meta, shift, string(event.Rune()), event.Key()))
+		// tui.Log("trace", fmt.Sprintf("Panel.inputHandler.2 %v %v %v %v %v %q %v", P.Id(), alt, ctrl, meta, shift, string(event.Rune()), event.Key()))
 
 		switch event.Key() {
 
 		case tcell.KeyESC:
 			p := P.GetMostFocusedPanel()
-			child := p.ChildFocus()
-			count := p.GetItemCount()
-			pp := "-1"
+			//child := p.ChildFocus()
+			//count := p.GetItemCount()
+			//pp := "-1"
 			if p._parent != nil {
-				pp = p._parent.Id()
+				//pp = p._parent.Id()
 				tui.SetFocus(p._parent)
 			}
-			tui.Log("trace", fmt.Sprintf("Panel want's to blur at %d of %d | %v | %v", child, count, p.Id(), pp))
+			// tui.Log("trace", fmt.Sprintf("Panel want's to blur at %d of %d | %v | %v", child, count, p.Id(), pp))
 
 			//if child < 0 {
 			//  tui.SetFocus(P)
@@ -107,6 +107,7 @@ func setupEventHandlers(
 				case 'J':
 					ctx["action"] = "insert"
 					ctx["where"] = "prev"
+					ctx["with"] = "help"
 
 				// up, next
 				case 'k':
@@ -115,6 +116,7 @@ func setupEventHandlers(
 				case 'K':
 					ctx["action"] = "insert"
 					ctx["where"] = "next"
+					ctx["with"] = "help"
 
 				// up, right
 				case 'l':
@@ -138,6 +140,7 @@ func setupEventHandlers(
 					ctx["action"] = "split"
 					ctx["id"] = mid
 					ctx["panel"] = mostFocusedPanel
+					ctx["with"] = "help"
 
 				case 'D':
 					ctx["action"] = "delete" // DELETE

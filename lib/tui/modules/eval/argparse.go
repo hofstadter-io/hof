@@ -1,18 +1,15 @@
 package eval
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
-
-	"github.com/hofstadter-io/hof/lib/tui"
 )
 
 // this function helps parse args and context into richer information
 // so that we can handle different kinds of input coming from different places
 // and then have more consistent input to the components consuming the inputs
 func processArgsAndContext(args []string, context map[string]any) ([]string, map[string]any) {
-	tui.Log("info", fmt.Sprintf("parse.args-n-ctx.BEG: %v %v", args, context))
+	// tui.Log("info", fmt.Sprintf("parse.args-n-ctx.BEG: %v %v", args, context))
 
 	if len(args) > 0 && args[0] == "eval" {
 		args = args[1:]
@@ -70,6 +67,9 @@ func processArgsAndContext(args []string, context map[string]any) ([]string, map
 		case "eval":
 			context["mode"] = "eval"
 
+		case "help":
+			context["with"] = "help"
+
 		// UPDATE, these probably become ALT-... keys
 		// connect (start and end modes)
 		// set colors while in progress
@@ -115,7 +115,7 @@ argsDone:
 	// make sure we update the context args
 	context["args"] = args
 
-	tui.Log("info", fmt.Sprintf("parse.args-n-ctx.END: %v %v", args, context))
+	// tui.Log("info", fmt.Sprintf("parse.args-n-ctx.END: %v %v", args, context))
 
 	return args, context
 }

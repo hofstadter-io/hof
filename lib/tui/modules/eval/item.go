@@ -16,14 +16,15 @@ type Item struct {
 	_name string
 	_item tview.Primitive
 
-	// hm
-	_focus bool
+	_parent *Panel	
 }
 var text_count = 0
-func NewItem(item tview.Primitive) *Item {
+
+func NewItem(item tview.Primitive, parent *Panel) *Item {
 	t := &Item{
 		_item: item,
 		_id: text_count,
+		_parent: parent,
 	}
 	text_count++
 
@@ -48,5 +49,21 @@ func (t *Item) Name() string {
 
 func (t *Item) SetName(name string) {
 	t._name = name
+}
+ 
+func (t *Item) Item() tview.Primitive {
+	return t._item
+}
+
+func (t *Item) SetItem(item tview.Primitive) {
+	t._item = item
+}
+ 
+func (t *Item) Parent() *Panel {
+	return t._parent
+}
+
+func (t *Item) SetParent(parent *Panel) {
+	t._parent = parent
 }
  

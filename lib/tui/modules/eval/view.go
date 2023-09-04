@@ -35,7 +35,7 @@ func (M *Eval) Mount(context map[string]any) error {
 
 	// this will mount the core element and all children
 	M.Flex.Mount(context)
-	tui.Log("trace", "Eval.Mount")
+	// tui.Log("trace", "Eval.Mount")
 
 	// handle border display
 	tui.AddWidgetHandler(M.Panel, "/sys/key/A-P", func(e events.Event) {
@@ -81,7 +81,7 @@ func (M *Eval) Refresh(context map[string]any) error {
 	return refresh(M, context)
 }
 
-func refresh(M *Eval, context map[string]any) error {
+func refreshOld(M *Eval, context map[string]any) error {
 	flexDir := M.Flex.GetDirection()
 
 	//// strip off the command name
@@ -129,7 +129,7 @@ func refresh(M *Eval, context map[string]any) error {
 	// add the default text if not child elements
 	if M.Flex.GetItemCount() == 0 {
 		// an initial text element, will want to do better here
-		M.Flex.AddItem(M.creator(context), 0, 1, true)
+		M.Flex.AddItem(M.creator(context, M.Panel), 0, 1, true)
 	}
 
 	tui.Draw()
@@ -137,8 +137,54 @@ func refresh(M *Eval, context map[string]any) error {
 	return nil
 }
 
+func refresh(M *Eval, context map[string]any) error {
+	// tui.Log("trace", fmt.Sprintf("Eval.refresh: %v", context ))
+
+	curr := M.GetChildFocusItem()
+	item, _ := curr.(*Item)
+	//if !ok {
+	//  tui.Log("error", fmt.Sprintf("Eval.refresh error: %v %v", curr, item ))
+	//  return fmt.Errorf("focused primitive is not an *Item")
+	//}
+
+	// loading message
+	temp := tview.NewTextView()
+	fmt.Fprintf(temp, "loading...\ncontext: %# v\n", context)
+
+	// tui.Log("trace", fmt.Sprintf("Eval.refresh.2: %v", item == nil ))
+
+	// first time? (other special cases?)
+	if item == nil {
+		item = NewItem(temp, M.Panel)
+		M.Flex.AddItem(item, 0, 1, true)
+	} else {
+		item.SetItem(temp)
+	}
+
+	// draw loading text?
+	tui.Draw()
+
+
+	// make new item, potentially invoking CUE loader, hence loading screen
+	next := M.creator(context, M.Panel)
+
+	// tui.Log("trace", fmt.Sprintf("Eval.refresh.3: %v", next == nil ))
+
+	p := item.Parent()
+	p.ReplaceItem(item, next)
+
+	// update Item
+	// item.SetItem(next)
+
+	// draw
+	tui.Draw()
+
+	return nil
+}
+
+
 func (M *Eval) Focus(delegate func(p tview.Primitive)) {
-	tui.Log("warn", "Eval.Focus")
+	// tui.Log("warn", "Eval.Focus")
 	delegate(M.Panel)
 	// M.Panel.Focus(delegate)
 }

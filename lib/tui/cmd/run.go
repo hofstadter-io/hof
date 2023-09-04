@@ -73,6 +73,12 @@ func Cmd(args []string, rflags flags.RootPflagpole) error {
 		args = os.Args[2:]
 	}
 
+	// some special case for `hof tui eval` vs `hof eval --tui`
+	if len(args) == 1 && args[0] == "eval" {
+		// start on the help screen
+		args = append(args, "help")
+	}
+
 	d := map[string]any{
 		"path": path,
 		"args": args,

@@ -128,11 +128,26 @@ func (f *Flex) RemoveIndex(index int) *Flex {
 	f.items = append(f.items[:index], f.items[index+1:]...)
 	return f
 }
+
 func (f *Flex) SwapIndexes(i,j int) {
 	f.Box.mutex.Lock()
 	defer f.Box.mutex.Unlock()
 	f.items[i], f.items[j] = f.items[j], f.items[i]
 }
+
+// Replacetem removes all items for the given primitive from the container,
+// keeping the order of the remaining items intact.
+func (f *Flex) ReplaceItem(prev, next Primitive) *Flex {
+	f.Box.mutex.Lock()
+	defer f.Box.mutex.Unlock()
+	for index := len(f.items) - 1; index >= 0; index-- {
+		if f.items[index].Item == prev {
+			f.items[index].Item = next
+		}
+	}
+	return f
+}
+
 
 // GetItemCount returns the number of items in this container.
 func (f *Flex) GetItemCount() int {

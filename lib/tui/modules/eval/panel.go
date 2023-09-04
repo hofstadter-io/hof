@@ -16,7 +16,7 @@ type Panel struct {
 
 	_parent *Panel
 
-	creator func (context map[string]any) tview.Primitive
+	creator func (context map[string]any, parent *Panel) tview.Primitive
 
 	_Runtime *runtime.Runtime
 	_Value   cue.Value
@@ -47,7 +47,7 @@ func NewPanel(parent *Panel) *Panel {
 
 
 func (P *Panel) Focus(delegate func(p tview.Primitive)) {
-	tui.Log("warn", "Panel.Focus " + P.Id())
+	// tui.Log("warn", "Panel.Focus " + P.Id())
 	if P.GetItemCount() > 0 {
 		P.Flex.Focus(delegate)
 	}
@@ -55,7 +55,7 @@ func (P *Panel) Focus(delegate func(p tview.Primitive)) {
 }
 
 func (P *Panel) Mount(context map[string]any) error {
-	tui.Log("trace", fmt.Sprintf("Panel.Mount: %v", context))
+	// tui.Log("trace", fmt.Sprintf("Panel.Mount: %v", context))
 	// this is where we can do some loading
 	P.Flex.Mount(context)
 
@@ -102,9 +102,6 @@ func (P *Panel) Refresh(context map[string]any) error {
 	index, _ := _index.(int)
 	_where, _ := context["where"]
 	where, _ := _where.(string)
-	flexDir := P.Flex.GetDirection()
-
-	tui.Log("trace", fmt.Sprintf("Panel.Refresh: %v %v %v %v %v", P.Id(), action, where, index, flexDir))
 
 	// do things based on context info to build up a component
 	switch action {
@@ -127,7 +124,7 @@ func (P *Panel) Refresh(context map[string]any) error {
 	case "delete":
 		P.deletePanelItem(action, where, index, context)
 		if P.Flex.GetItemCount() == 0 {
-			P.AddItem(P.creator(context), 0, 1, true)
+			P.AddItem(P.creator(context, P), 0, 1, true)
 		}
 
 	default:
@@ -138,7 +135,7 @@ func (P *Panel) Refresh(context map[string]any) error {
 }
 
 func (P *Panel) insertPanelItem(action, where string, index int, context map[string]any) {
-	tui.Log("trace", fmt.Sprintf("Panel.insertPanelItem %v %v %v %v %v", action, where, index, P.Id(), P.GetItemCount()))
+	// tui.Log("trace", fmt.Sprintf("Panel.insertPanelItem %v %v %v %v %v", action, where, index, P.Id(), P.GetItemCount()))
 	if i := P.ChildFocus(); i >= 0 {
 		itm := P.GetItem(i)
 		switch itm := itm.(type) {
@@ -146,24 +143,24 @@ func (P *Panel) insertPanelItem(action, where string, index int, context map[str
 			itm.insertPanelItem(action, where, index, context)
 			return
 		default:
-			tui.Log("trace", fmt.Sprintf("Panel.childHorz %v %v %v %v %v", action, where, index, P.Id(), P.GetItemCount()))
+			// tui.Log("trace", fmt.Sprintf("Panel.childHorz %v %v %v %v %v", action, where, index, P.Id(), P.GetItemCount()))
 		}
 	}
 	
 	switch where {
 
 	case "prev":
-		t := P.creator(context)
+		t := P.creator(context, P)
 		P.Flex.InsItem(index, t, 0, 1, true)
 		tui.SetFocus(t)
 
 	case "next":
-		t := P.creator(context)
+		t := P.creator(context, P)
 		P.Flex.InsItem(index+1, t, 0, 1, true)
 		tui.SetFocus(t)
 
 	case "index":
-		t := P.creator(context)
+		t := P.creator(context, P)
 		P.Flex.InsItem(index, t, 0, 1, true)
 		tui.SetFocus(t)
 
@@ -179,13 +176,13 @@ func (P *Panel) movePanelItem(action, where string, index int, context map[strin
 	c := p.GetItemCount()
 	i := p.ChildFocus()
 
-	tui.Log(
-		"trace",
-		fmt.Sprintf(
-			"Panel.movePanelItem %v %v %v %v>%v %v/%v",
-			action, where, index, P.Id(),p.Id(), i,c, 
-		),
-	)
+	//tui.Log(
+	//  "trace",
+	//  fmt.Sprintf(
+	//    "Panel.movePanelItem %v %v %v %v>%v %v/%v",
+	//    action, where, index, P.Id(),p.Id(), i,c, 
+	//  ),
+	//)
 	if c < 2 {
 		return 
 	}
@@ -207,7 +204,7 @@ func (P *Panel) movePanelItem(action, where string, index int, context map[strin
 	}
 
 	// otherwise, we should be good to swap
-	tui.Log("trace", fmt.Sprintf("swapping %d & %d in %s", i,j,p.Id()))
+	// tui.Log("trace", fmt.Sprintf("swapping %d & %d in %s", i,j,p.Id()))
 	p.SwapIndexes(i,j)
 }
 
@@ -232,7 +229,7 @@ func (P *Panel) deletePanelItem(action, where string, index int, context map[str
 			p._parent.RemoveItem(p)
 		} else {
 			// add default item, we are the root
-			p.AddItem(p.creator(context), 0, 1, true)
+			p.AddItem(p.creator(context, p), 0, 1, true)
 		}
 	}
 
@@ -243,14 +240,14 @@ func (P *Panel) splitPanelItem(action, where string, index int, context map[stri
 	p := P.GetMostFocusedPanel()
 	i := p.ChildFocus()
 
-	tui.Log("error", fmt.Sprintf("Panel.split: %v %v", p.Id(), i))
+	// tui.Log("error", fmt.Sprintf("Panel.split: %v %v", p.Id(), i))
 
 	// there is a child that we are going to split
 	if i >= 0 {
 		// shortcut, just add if there aren't enough children
 		// they can hit it twice to get the next split
 		if p.GetItemCount() < 2 {
-			p.AddItem(p.creator(context), 0, 1, true)
+			p.AddItem(p.creator(context, p), 0, 1, true)
 		}
 
 		c := p.GetItem(i)
@@ -267,7 +264,7 @@ func (P *Panel) splitPanelItem(action, where string, index int, context map[stri
 			n := NewPanel(p)
 			n.Flex.SetDirection(d)
 			n.AddItem(c, 0, 1, true)
-			n.AddItem(n.creator(context), 0, 1, true)
+			n.AddItem(n.creator(context, p), 0, 1, true)
 			setupEventHandlers(n, nil, nil)
 
 			p.SetItem(i, n, 0, 1, true)
@@ -279,13 +276,13 @@ func (P *Panel) splitPanelItem(action, where string, index int, context map[stri
 		// pp := p._parent
 		// otherwise 0,1 children, so just add
 		// not sure we will get here...
-		p.AddItem(p.creator(context), 0, 1, true)
+		p.AddItem(p.creator(context, p), 0, 1, true)
 	}
 
 }
 
 func (P *Panel) splitPanelItemOld(action, where string, index int, context map[string]any) {
-	tui.Log("trace", fmt.Sprintf("Panel.split %v %v %v %v %v", action, where, index, P.Id(), P.GetItemCount()))
+	// tui.Log("trace", fmt.Sprintf("Panel.split %v %v %v %v %v", action, where, index, P.Id(), P.GetItemCount()))
 	var childItem tview.Primitive
 	itm := P.GetChildFocusItem()
 	switch itm := itm.(type) {
@@ -295,12 +292,12 @@ func (P *Panel) splitPanelItemOld(action, where string, index int, context map[s
 		return
 	default:
 		// there's a child with focus, it should be a leaf (though could be a complex component itself, there are no panels below)
-		tui.Log("trace", fmt.Sprintf("Panel.splitChild %v %v %v %v %v", action, where, index, P.Id(), P.GetItemCount()))
+		// tui.Log("trace", fmt.Sprintf("Panel.splitChild %v %v %v %v %v", action, where, index, P.Id(), P.GetItemCount()))
 		childItem = itm
 	}
 
 	if P.GetItemCount() < 2 {
-		P.AddItem(P.creator(context), 0, 1, true)
+		P.AddItem(P.creator(context, P), 0, 1, true)
 		return
 	}
 
@@ -322,7 +319,7 @@ func (P *Panel) splitPanelItemOld(action, where string, index int, context map[s
 
 	// opposite direction
 	p.AddItem(P.Flex.GetItem(index), 0, 1, true)
-	p.AddItem(P.creator(context), 0, 1, true)
+	p.AddItem(P.creator(context, p), 0, 1, true)
 	setupEventHandlers(p, nil, nil)
 
 	P.Flex.SetItem(index, p, 0, 1, true)

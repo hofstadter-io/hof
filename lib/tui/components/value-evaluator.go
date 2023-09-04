@@ -1,7 +1,6 @@
 package components
 
 import (
-	"fmt"
 	"time"
 
 	"cuelang.org/go/cue"
@@ -196,26 +195,26 @@ func (C *ValueEvaluator) setupKeybinds() {
 
 func (C *ValueEvaluator) setupMousebinds() {
 	// events (hotkeys)
-	handle := func (P tview.Primitive) (func(action tview.MouseAction, event *tcell.EventMouse) (tview.MouseAction, *tcell.EventMouse)) {
-		return func(action tview.MouseAction, event *tcell.EventMouse) (tview.MouseAction, *tcell.EventMouse) {
-			mx, my := event.Position()	
-			x,y,w,h := P.GetRect()
-			if action != tview.MouseMove {
-				tui.Log("trace", fmt.Sprintf("%v %d,%d %d,%d %d,%d", action, mx,my, x,y, x+h,y+w))
-			}
-			if action == tview.MouseLeftDoubleClick {
-				if my == y && (x <= mx && mx <= x+w) {
-					tui.Log("warn", fmt.Sprintf("bang! %d", h))
-					if h == 2 {
-						C.Flex.ResizeItem(P, 0, 1)
-					} else {
-						C.Flex.ResizeItem(P, 2, 0)
-					}
-				}
-			}
-			return action, event
-		}
-	}
-	C.Edit.SetMouseCapture(handle(C.Edit))	
-	C.View.SetMouseCapture(handle(C.View))	
+	//handle := func (P tview.Primitive) (func(action tview.MouseAction, event *tcell.EventMouse) (tview.MouseAction, *tcell.EventMouse)) {
+	//  return func(action tview.MouseAction, event *tcell.EventMouse) (tview.MouseAction, *tcell.EventMouse) {
+	//    mx, my := event.Position()	
+	//    x,y,w,h := P.GetRect()
+	//    // if action != tview.MouseMove {
+	//      // tui.Log("trace", fmt.Sprintf("%v %d,%d %d,%d %d,%d", action, mx,my, x,y, x+h,y+w))
+	//    // }
+	//    if action == tview.MouseLeftDoubleClick {
+	//      if my == y && (x <= mx && mx <= x+w) {
+	//        tui.Log("warn", fmt.Sprintf("bang! %d", h))
+	//        if h == 2 {
+	//          C.Flex.ResizeItem(P, 0, 1)
+	//        } else {
+	//          C.Flex.ResizeItem(P, 2, 0)
+	//        }
+	//      }
+	//    }
+	//    return action, event
+	//  }
+	//}
+	//C.Edit.SetMouseCapture(handle(C.Edit))	
+	//C.View.SetMouseCapture(handle(C.View))	
 }

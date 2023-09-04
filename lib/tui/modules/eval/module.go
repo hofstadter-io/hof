@@ -57,12 +57,12 @@ func (M *Eval) CommandCallback(args []string, context map[string]any) {
 	args, context = processArgsAndContext(args, context)
 
 	if M.IsMounted() {
-		tui.Log("error", fmt.Sprintf("eval mounted->refresh: %v %v", args, context))
+		// tui.Log("error", fmt.Sprintf("eval mounted->refresh: %v %v", args, context))
 		// just refresh with new args
 		// maybe we need to be more intelligent here, make a different function(s)
 		M.Refresh(context)
 	} else {
-		tui.Log("error", fmt.Sprintf("eval unmounted->router: %v %v", args, context))
+		// tui.Log("error", fmt.Sprintf("eval unmounted->router: %v %v", args, context))
 		// need to navigate, mount will do the rest
 		context["path"] = "/eval"
 		go tui.SendCustomEvent("/router/dispatch", context)
