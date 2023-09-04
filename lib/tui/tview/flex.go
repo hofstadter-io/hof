@@ -64,11 +64,15 @@ func NewFlex() *Flex {
 // these are the opposite of what you would expect coming from CSS. You may also
 // use FlexColumnCSS or FlexRowCSS, to remain in line with the CSS definition.
 func (f *Flex) SetDirection(direction int) *Flex {
+	f.Box.mutex.Lock()
+	defer f.Box.mutex.Unlock()
 	f.direction = direction
 	return f
 }
 
 func (f *Flex) GetDirection() int {
+	f.Box.mutex.RLock()
+	defer f.Box.mutex.RUnlock()
 	return f.direction
 }
 
@@ -76,6 +80,8 @@ func (f *Flex) GetDirection() int {
 // SetFullScreen sets the flag which, when true, causes the flex layout to use
 // the entire screen space instead of whatever size it is currently assigned to.
 func (f *Flex) SetFullScreen(fullScreen bool) *Flex {
+	f.Box.mutex.Lock()
+	defer f.Box.mutex.Unlock()
 	f.fullScreen = fullScreen
 	return f
 }
@@ -95,6 +101,8 @@ func (f *Flex) SetFullScreen(fullScreen bool) *Flex {
 // You can provide a nil value for the primitive. This will still consume screen
 // space but nothing will be drawn.
 func (f *Flex) AddItem(item Primitive, fixedSize, proportion int, focus bool) *Flex {
+	f.Box.mutex.Lock()
+	defer f.Box.mutex.Unlock()
 	f.items = append(f.items, &FlexItem{Item: item, FixedSize: fixedSize, Proportion: proportion, Focus: focus})
 	return f
 }
@@ -102,6 +110,8 @@ func (f *Flex) AddItem(item Primitive, fixedSize, proportion int, focus bool) *F
 // RemoveItem removes all items for the given primitive from the container,
 // keeping the order of the remaining items intact.
 func (f *Flex) RemoveItem(p Primitive) *Flex {
+	f.Box.mutex.Lock()
+	defer f.Box.mutex.Unlock()
 	for index := len(f.items) - 1; index >= 0; index-- {
 		if f.items[index].Item == p {
 			f.items = append(f.items[:index], f.items[index+1:]...)
@@ -110,12 +120,45 @@ func (f *Flex) RemoveItem(p Primitive) *Flex {
 	return f
 }
 
+// RemoveItem removes all items for the given primitive from the container,
+// keeping the order of the remaining items intact.
+func (f *Flex) RemoveIndex(index int) *Flex {
+	f.Box.mutex.Lock()
+	defer f.Box.mutex.Unlock()
+	f.items = append(f.items[:index], f.items[index+1:]...)
+	return f
+}
+
+func (f *Flex) SwapIndexes(i,j int) {
+	f.Box.mutex.Lock()
+	defer f.Box.mutex.Unlock()
+	f.items[i], f.items[j] = f.items[j], f.items[i]
+}
+
+// Replacetem removes all items for the given primitive from the container,
+// keeping the order of the remaining items intact.
+func (f *Flex) ReplaceItem(prev, next Primitive) *Flex {
+	f.Box.mutex.Lock()
+	defer f.Box.mutex.Unlock()
+	for index := len(f.items) - 1; index >= 0; index-- {
+		if f.items[index].Item == prev {
+			f.items[index].Item = next
+		}
+	}
+	return f
+}
+
+
 // GetItemCount returns the number of items in this container.
 func (f *Flex) GetItemCount() int {
+	f.Box.mutex.RLock()
+	defer f.Box.mutex.RUnlock()
 	return len(f.items)
 }
 
 func (f *Flex) GetItems() []*FlexItem {
+	f.Box.mutex.RLock()
+	defer f.Box.mutex.RUnlock()
 	return f.items
 }
 
@@ -124,22 +167,59 @@ func (f *Flex) GetItems() []*FlexItem {
 //
 // This function will panic for out of range indices.
 func (f *Flex) GetItem(index int) Primitive {
+	f.Box.mutex.RLock()
+	defer f.Box.mutex.RUnlock()
 	return f.items[index].Item
 }
 
 func (f *Flex) SetItem(idx int, item Primitive, fixedSize, proportion int, focus bool) {
+	f.Box.mutex.Lock()
+	defer f.Box.mutex.Unlock()
 	i := &FlexItem{Item: item, FixedSize: fixedSize, Proportion: proportion, Focus: focus}
 	f.items[idx] = i
 }
 
 func (f *Flex) InsItem(idx int, item Primitive, fixedSize, proportion int, focus bool) {
+	f.Box.mutex.Lock()
+	defer f.Box.mutex.Unlock()
 	itm := &FlexItem{Item: item, FixedSize: fixedSize, Proportion: proportion, Focus: focus}
-	f.items = append(f.items[:idx], itm)
-	f.items = append(f.items[:idx], f.items[idx+1:]...)
+
+	if idx >= len(f.items) {
+		// just add to the end
+		f.items = append(f.items, itm)
+	} else if idx <= 0 {
+		f.items = append([]*FlexItem{itm}, f.items...)
+		//items := make([]*FlexItem, len(f.items)+1)
+		//items[0] = itm
+		//for _, i := range f.items {
+		//  n := 1
+		//  if n == idx {
+		//    items[n] = itm
+		//    n++
+		//  }
+		//  items[n] = i
+		//  n++
+		//}
+		//f.items = items
+	} else {
+		items := make([]*FlexItem, len(f.items)+1)
+		n := 0
+		for _, i := range f.items {
+			if n == idx {
+				items[n] = itm
+				n++
+			}
+			items[n] = i
+			n++
+		}
+		f.items = items
+	}
 }
 
 // Clear removes all items from the container.
 func (f *Flex) Clear() *Flex {
+	f.Box.mutex.Lock()
+	defer f.Box.mutex.Unlock()
 	f.items = nil
 	return f
 }
@@ -148,6 +228,8 @@ func (f *Flex) Clear() *Flex {
 // are multiple Flex items with the same primitive, they will all receive the
 // same size. For details regarding the size parameters, see AddItem().
 func (f *Flex) ResizeItem(p Primitive, fixedSize, proportion int) *Flex {
+	f.Box.mutex.Lock()
+	defer f.Box.mutex.Unlock()
 	for _, item := range f.items {
 		if item.Item == p {
 			item.FixedSize = fixedSize
@@ -159,6 +241,8 @@ func (f *Flex) ResizeItem(p Primitive, fixedSize, proportion int) *Flex {
 
 // Draw draws this primitive onto the screen.
 func (f *Flex) Draw(screen tcell.Screen) {
+	f.Box.mutex.RLock()
+	defer f.Box.mutex.RUnlock()
 	f.Box.DrawForSubclass(screen, f)
 
 	// Calculate size and position of the items.
@@ -221,6 +305,8 @@ func (f *Flex) Draw(screen tcell.Screen) {
 
 // Focus is called when this primitive receives focus.
 func (f *Flex) Focus(delegate func(p Primitive)) {
+	f.Box.mutex.RLock()
+	defer f.Box.mutex.RUnlock()
 	for _, item := range f.items {
 		if item.Item != nil && item.Focus {
 			delegate(item.Item)
@@ -232,6 +318,8 @@ func (f *Flex) Focus(delegate func(p Primitive)) {
 
 // HasFocus returns whether or not this primitive has focus.
 func (f *Flex) HasFocus() bool {
+	f.Box.mutex.RLock()
+	defer f.Box.mutex.RUnlock()
 	for _, item := range f.items {
 		if item.Item != nil && item.Item.HasFocus() {
 			return true
@@ -240,9 +328,38 @@ func (f *Flex) HasFocus() bool {
 	return f.Box.HasFocus()
 }
 
-func (f *Flex) Mount(context map[string]interface{}) error {
-	f.Box.Mount(context)
+func (f *Flex) ChildFocus() int {
+	f.Box.mutex.RLock()
+	defer f.Box.mutex.RUnlock()
+	for i, item := range f.items {
+		if item.Item != nil && item.Item.HasFocus() {
+			return i
+		}
+	}
+	return -1
+}
+
+
+func (f *Flex) GetLeafFocus() Primitive {
+	return f.GetChildFocusItem()
+}
+
+func (f *Flex) GetChildFocusItem() Primitive {
+	f.Box.mutex.RLock()
+	defer f.Box.mutex.RUnlock()
 	for _, item := range f.items {
+		if item.Item != nil && item.Item.HasFocus() {
+			return item.Item
+		}
+	}
+	return nil
+}
+
+func (f *Flex) Mount(context map[string]interface{}) error {
+	f.Box.mutex.RLock()
+	defer f.Box.mutex.RUnlock()
+	f.Box.Mount(context)
+	for _, item := range f.items {	
 		err := item.Item.Mount(context)
 		if err != nil {
 			return err
@@ -264,6 +381,8 @@ func (f *Flex) Mount(context map[string]interface{}) error {
 //}
 
 func (f *Flex) Unmount() error {
+	f.Box.mutex.RLock()
+	defer f.Box.mutex.RUnlock()
 	f.Box.Unmount()
 	for _, item := range f.items {
 		err := item.Item.Unmount()
@@ -283,6 +402,9 @@ func (f *Flex) MouseHandler() func(action MouseAction, event *tcell.EventMouse, 
 		}
 
 		// Pass mouse events along to the first child item that takes it.
+		f.Box.mutex.RLock()
+		defer f.Box.mutex.RUnlock()
+
 		for _, item := range f.items {
 			if item.Item == nil {
 				continue
@@ -300,6 +422,8 @@ func (f *Flex) MouseHandler() func(action MouseAction, event *tcell.EventMouse, 
 // InputHandler returns the handler for this primitive.
 func (f *Flex) InputHandler() func(event *tcell.EventKey, setFocus func(p Primitive)) {
 	return f.WrapInputHandler(func(event *tcell.EventKey, setFocus func(p Primitive)) {
+		f.Box.mutex.RLock()
+		defer f.Box.mutex.RUnlock()
 		for _, item := range f.items {
 			if item.Item != nil && item.Item.HasFocus() {
 				if handler := item.Item.InputHandler(); handler != nil {

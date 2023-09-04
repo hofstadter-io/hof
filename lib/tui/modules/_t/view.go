@@ -28,7 +28,7 @@ func (M *{{ $Name }}) Id() string {
 
 func (M *{{ $Name }}) Routes() []router.RoutePair {
 	return []router.RoutePair{
-		router.RoutePair{"/{{ $name }}", P},
+		router.RoutePair{"/{{ $name }}", M},
 	}
 }
 

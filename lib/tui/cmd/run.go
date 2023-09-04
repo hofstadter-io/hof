@@ -6,6 +6,7 @@ import (
 	_ "net/http/pprof"
 	"os"
 	"runtime"
+	"strconv"
 	"time"
 
 	// "golang.org/x/crypto/ssh/terminal"
@@ -42,12 +43,17 @@ func Cmd(args []string, rflags flags.RootPflagpole) error {
 	App.SetRootView(root)
 
 	// Ctrl-c to quit program
-	tui.AddGlobalHandler("/sys/key/C-c", func(e events.Event) {
+	tui.AddGlobalHandler("/sys/key/C-A-c", func(e events.Event) {
 		App.Stop()
 	})
 
 	// Log Key presses (if you want to)
-	// logKeys()
+	if tkl := os.Getenv("HOF_TUI_KEYLOGGER"); tkl != "" {
+		tklb, _ := strconv.ParseBool(tkl)
+		if tklb {
+			logKeys()
+		}
+	}
 
 	// Run PProf (useful for catching hangs)
 	// go runPprofServer()
@@ -65,6 +71,12 @@ func Cmd(args []string, rflags flags.RootPflagpole) error {
 	if len(args) > 0 {
 		path = args[0]
 		args = os.Args[2:]
+	}
+
+	// some special case for `hof tui eval` vs `hof eval --tui`
+	if len(args) == 1 && args[0] == "eval" {
+		// start on the help screen
+		args = append(args, "help")
 	}
 
 	d := map[string]any{
@@ -89,6 +101,14 @@ func logKeys() {
 	tui.AddGlobalHandler("/sys/key", func(e events.Event) {
 		if k, ok := e.Data.(events.EventKey); ok {
 			go tui.SendCustomEvent("/console/info", "key: " + k.KeyStr)
+		}
+	})
+	tui.AddGlobalHandler("/sys/mouse", func(e events.Event) {
+		if k, ok := e.Data.(events.EventMouse); ok {
+			b := k.Buttons()
+			if 0 < b && b < 256 {
+				go tui.SendCustomEvent("/console/info", fmt.Sprintf("key: %d", k.Buttons()))
+			}
 		}
 	})
 }

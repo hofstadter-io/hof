@@ -3,225 +3,188 @@ package eval
 import (
 	"fmt"
 
-	"github.com/spf13/pflag"
+	"github.com/gdamore/tcell/v2"
 
-	"github.com/hofstadter-io/hof/cmd/hof/flags"
-	// "github.com/hofstadter-io/hof/lib/connector"
-	"github.com/hofstadter-io/hof/lib/cuetils"
-	"github.com/hofstadter-io/hof/lib/runtime"
 	"github.com/hofstadter-io/hof/lib/tui"
-	"github.com/hofstadter-io/hof/lib/tui/components"
-	"github.com/hofstadter-io/hof/lib/tui/hoc/router"
+	"github.com/hofstadter-io/hof/lib/tui/events"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 )
 
-// Both a Module and a Layout and a Switcher.SubLayout
-type EvalPage struct {
-	*tview.Flex
+type Eval struct {
+	*Panel
 
-	Runtime *runtime.Runtime
-
-	Text *tview.TextView
-	View *components.ValueBrowser
-	Eval *components.ValueEvaluator
-
+	// border display
+	showPanel, showOther bool
 }
 
-func NewEvalPage() *EvalPage {
-	page := &EvalPage{
-		Flex:	tview.NewFlex(),
-		Text:	tview.NewTextView(),
+func NewEval() *Eval {
+	M := &Eval{
+		Panel: NewPanel(nil),
+		showPanel: true,
+		showOther: true,
 	}
 
-	// temp filler
-	//page.View = tview.NewTextView()
-	//page.Eval = tview.NewTextView()
+	// do layout setup here
+	M.Flex.SetDirection(tview.FlexColumn)
+	M.Flex.SetBorder(true).SetTitle("  Eval (flex)  ")
 
-	// main layout
-	page.AddItem(page.Text, 0, 1, false)
-		//AddItem(page.View, 0, 1, false).
-		//AddItem(page.Eval, 0, 1, false)
-
-	page.SetBorder(true).SetTitle("  eval  ")
-
-	return page
+	return M
 }
 
-func (P *EvalPage) Id() string {
-	return "eval"
-}
+func (M *Eval) Mount(context map[string]any) error {
 
-func (P *EvalPage) Name() string {
-	return "Eval"
-}
+	// this will mount the core element and all children
+	M.Flex.Mount(context)
+	// tui.Log("trace", "Eval.Mount")
 
-func (P *EvalPage) Mount(context map[string]any) error {
-	// this is where we can do some loading
-	P.Flex.Mount(context)
+	// handle border display
+	tui.AddWidgetHandler(M.Panel, "/sys/key/A-P", func(e events.Event) {
+		M.showPanel = !M.showPanel
+		M.SetShowBordersR(M.showPanel, M.showOther)
+	})
 
-	err := P.Refresh(context)
+	tui.AddWidgetHandler(M.Panel, "/sys/key/A-O", func(e events.Event) {
+		M.showOther = !M.showOther
+		M.SetShowBordersR(M.showPanel, M.showOther)
+	})
+
+	// probably want to do some self mount first?
+	setupEventHandlers(
+		M.Panel,
+		nil,
+		nil,
+	)
+
+	// and then refresh?
+	err := M.Refresh(context)
 	if err != nil {
 		tui.SendCustomEvent("/console/error", err)
 		return err
 	}
 
-	P.View.Mount(context)
-	P.Eval.Mount(context)
+	return nil
+}
 
+func (M *Eval) Unmount() error {
+	// this is where we can do some unloading, depending on the application
+	M.Flex.Unmount()
+
+	// TODO, unmount all items, or will the above handle it for us?
+
+	// remove keybinds
+	M.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey { return event })
 
 	return nil
 }
 
-func (P *EvalPage) Unmount() error {
-	// this is where we can do some loading
-	//P.View.Unmount()
-	//P.Eval.Unmount()
-	P.Flex.Unmount()
-
-	return nil
+func (M *Eval) Refresh(context map[string]any) error {
+	return refresh(M, context)
 }
 
-func (P *EvalPage) Refresh(context map[string]any) error {
-	tui.SendCustomEvent("/console/trace", fmt.Sprintf("eval refresh %#v", context))
+func refreshOld(M *Eval, context map[string]any) error {
+	flexDir := M.Flex.GetDirection()
 
-	_args, _ := context["args"]
-	args, _ := _args.([]string)
-	if len(args) > 0 && args[0] == "eval" {
-		args = args[1:]
-	}
-
-	var (
-		rflags flags.RootPflagpole
-		cflags flags.EvalFlagpole
-	)
-	fset := pflag.NewFlagSet("root", pflag.ContinueOnError)
-	flags.SetupRootPflags(fset, &rflags)
-	flags.SetupEvalFlags(fset, &cflags)
-
-	err := fset.Parse(args)
-	if err != nil {
-		P.ShowTextError(err)
-		return err
-	}
-
-	args = fset.Args()
-
-	d := map[string]any{
-		"cmd": "eval",
-		"args": args,
-		"rflags": rflags,
-		"cflags": cflags,
-	}
-	tui.SendCustomEvent("/console/trace", fmt.Sprintf("eval refresh %#v", d))
-
-
-	R, err := runtime.New(args, rflags)
-	// write error to text area error?
-	if err != nil {
-		P.ShowTextError(err)
-		return err
-	}
-
-	err = R.Load()
-	if err != nil {
-		P.ShowTextError(err)
-		return err
-	}
-
-	P.Runtime = R
-	
-	//// setup file browser
-	//onNodeSelect := func(path string) {
-	//  // app.Logger("onNodeSelect: " + path)
+	//// strip off the command name
+	//_args, _ := context["args"]
+	//args, _ := _args.([]string)
+	//if len(args) > 0 && args[0] == "eval" {
+	//  args = args[1:]
+	//  context["args"] = args
 	//}
 
-	// first time or reuse
-	if P.View == nil {
-		P.View = components.NewValueBrowser(P.Runtime.Value, "cue", nil)
-		P.Eval = components.NewValueEvaluator(R)
-	} else {
-		P.View.Value = R.Value
-		P.Eval.Runtime = R
+	//_action, _ := context["action"]
+	//action, _ := _action.(string)
+	//_index, _ := context["index"]
+	//index, _ := _index.(int)
+	//_where, _ := context["where"]
+	//where, _ := _where.(string)
+
+	//switch action {
+	//case "delete":
+	//  M.Flex.RemoveIndex(index)
+	//case "split":
+	//  M.splitPanelItem(action, where, index, context)		
+
+	//case "insert", "scoped":
+	//  if flexDir == tview.FlexColumn {
+	//    M.insertHorz(action, where, index, context)		
+	//  } else {
+	//    M.insertVert(action, where, index, context)		
+	//  }
+
+	//default:
+	//  // no action, probably coming to eval for the first time
+	//  M.Flex.AddItem(M.creator(context), 0, 1, true)
+	//}
+
+	// only set border when no elements
+	// M.Flex.SetBorder(M.Flex.GetItemCount() == 0)
+	dir := "row"
+	if flexDir == tview.FlexColumn {
+		dir = "col"
 	}
 
-	// various settings
-	if m, ok := context["mode"]; ok {
-		mode := m.(string)
-		P.View.SetMode(mode)
+	M.Flex.SetBorder(true).SetTitle(fmt.Sprintf("  Eval (flex-%s) %s  ", dir, M.Panel.Id()))
+
+	// add the default text if not child elements
+	if M.Flex.GetItemCount() == 0 {
+		// an initial text element, will want to do better here
+		M.Flex.AddItem(M.creator(context, M.Panel), 0, 1, true)
 	}
-	P.View.SetTitle(fmt.Sprint(_args))
-
-	// rebuild the components
-	P.View.Rebuild("")
-	P.Eval.Rebuild()
-
-	// remove Flex Item
-	// add Items
-
-	P.Flex.Clear()
-	P.SetBorder(false)
-
-	// P.Flex.RemoveItem(P.Text)
-	P.Flex.
-		AddItem(P.View, 0, 1, false).
-		AddItem(P.Eval, 0, 1, true)
-
 
 	tui.Draw()
-
 
 	return nil
 }
 
-func (P *EvalPage) ShowTextError(err error) {
-	s := fmt.Sprintf("%v\n", cuetils.ExpandCueError(err))
-	P.Text.Clear()
-	fmt.Fprint(P.Text, s)
+func refresh(M *Eval, context map[string]any) error {
+	// tui.Log("trace", fmt.Sprintf("Eval.refresh: %v", context ))
 
-	P.Flex.Clear()
-	P.SetBorder(false)
-	P.Text.SetBorder(true).SetTitle("  ERROR  ")
+	curr := M.GetChildFocusItem()
+	item, _ := curr.(*Item)
+	//if !ok {
+	//  tui.Log("error", fmt.Sprintf("Eval.refresh error: %v %v", curr, item ))
+	//  return fmt.Errorf("focused primitive is not an *Item")
+	//}
 
-	// P.Flex.RemoveItem(P.Text)
-	P.Flex.AddItem(P.Text, 0, 1, false)
-	if P.Eval != nil {
-		P.Flex.AddItem(P.Eval, 0, 1, true)
-	}
+	// loading message
+	temp := tview.NewTextView()
+	fmt.Fprintf(temp, "loading...\ncontext: %# v\n", context)
 
-	tui.Draw()
-}
+	// tui.Log("trace", fmt.Sprintf("Eval.refresh.2: %v", item == nil ))
 
-func (P *EvalPage) Routes() []router.RoutePair {
-	return []router.RoutePair{
-		router.RoutePair{"/eval", P},
-	}
-}
-
-func (P *EvalPage) CommandName() string {
-	return "eval"
-}
-
-func (P *EvalPage) CommandUsage() string {
-	return "eval <args> [flags]"
-}
-
-func (P *EvalPage) CommandHelp() string {
-	return "explore cue values"
-}
-
-// this takes the args from the command bar and turns it into a router dispatch
-func (P *EvalPage) CommandCallback(args []string, context map[string]any) {
-	if context == nil {
-		context = make(map[string]any)
-	}
-	context["args"] = args
-
-	if P.IsMounted() {
-		// just refresh with new args
-		P.Refresh(context)
+	// first time? (other special cases?)
+	if item == nil {
+		item = NewItem(temp, M.Panel)
+		M.Flex.AddItem(item, 0, 1, true)
 	} else {
-		// need to navigate, mount will do the rest
-		context["path"] = "/eval"
-		go tui.SendCustomEvent("/router/dispatch", context)
+		item.SetItem(temp)
 	}
+
+	// draw loading text?
+	tui.Draw()
+
+
+	// make new item, potentially invoking CUE loader, hence loading screen
+	next := M.creator(context, M.Panel)
+
+	// tui.Log("trace", fmt.Sprintf("Eval.refresh.3: %v", next == nil ))
+
+	p := item.Parent()
+	p.ReplaceItem(item, next)
+
+	// update Item
+	// item.SetItem(next)
+
+	// draw
+	tui.Draw()
+
+	return nil
+}
+
+
+func (M *Eval) Focus(delegate func(p tview.Primitive)) {
+	// tui.Log("warn", "Eval.Focus")
+	delegate(M.Panel)
+	// M.Panel.Focus(delegate)
 }

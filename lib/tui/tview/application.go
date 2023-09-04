@@ -12,7 +12,7 @@ const (
 	queueSize = 100
 
 	// The minimum time between two consecutive redraws.
-	redrawPause = 50 * time.Millisecond
+	redrawPause = 20 * time.Millisecond
 )
 
 // DoubleClickInterval specifies the maximum time between clicks to register a

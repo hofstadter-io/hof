@@ -1,8 +1,10 @@
 package tview
 
 import (
+	"sync"
+
 	"github.com/gdamore/tcell/v2"
-	"github.com/google/uuid"
+	"github.com/lucsky/cuid"
 )
 
 // Box implements the Primitive interface with an empty background and optional
@@ -15,6 +17,8 @@ import (
 //
 // See https://github.com/rivo/tview/wiki/Box for an example.
 type Box struct {
+	mutex sync.RWMutex
+
 	// a (hopefully) unique id
 	id string
 
@@ -86,7 +90,7 @@ type Box struct {
 // NewBox returns a Box without a border.
 func NewBox() *Box {
 	b := &Box{
-		id:              uuid.New().String(),
+		id:              cuid.New(),
     props:           make(map[string]any),
     labels:          make(map[string]string),
 		width:           15,
@@ -331,6 +335,12 @@ func (b *Box) SetBackgroundColor(color tcell.Color) *Box {
 
 // SetBorder sets the flag indicating whether or not the box should have a
 // border.
+func (b *Box) GetBorder() (show bool){
+	return b.border
+}
+
+// SetBorder sets the flag indicating whether or not the box should have a
+// border.
 func (b *Box) SetBorder(show bool) *Box {
 	b.border = show
 	return b
@@ -515,6 +525,14 @@ func (b *Box) Blur() {
 		b.blur()
 	}
 	b.hasFocus = false
+}
+
+// HasFocus returns whether or not this primitive has focus.
+func (b *Box) GetLeafFocus() Primitive {
+	if b.hasFocus {
+		return b
+	}
+	return nil
 }
 
 // HasFocus returns whether or not this primitive has focus.

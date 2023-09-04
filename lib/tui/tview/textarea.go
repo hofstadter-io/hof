@@ -1943,24 +1943,24 @@ func (t *TextArea) InputHandler() func(event *tcell.EventKey, setFocus func(p Pr
 					t.rowOffset = 0
 				}
 			}
-		case tcell.KeyHome, tcell.KeyCtrlA: // Move to the start of the line.
+		case tcell.KeyHome: // Move to the start of the line.
 			t.moveCursor(t.cursor.row, 0)
 			if event.Modifiers()&tcell.ModShift == 0 {
 				t.selectionStart = t.cursor
 			}
-		case tcell.KeyEnd, tcell.KeyCtrlE: // Move to the end of the line.
+		case tcell.KeyEnd: // Move to the end of the line.
 			t.moveCursor(t.cursor.row, -1)
 			if event.Modifiers()&tcell.ModShift == 0 {
 				t.selectionStart = t.cursor
 			}
-		case tcell.KeyPgDn, tcell.KeyCtrlF: // Move one page down.
+		case tcell.KeyPgDn: // Move one page down.
 			column := t.cursor.column
 			t.moveCursor(t.cursor.row+t.lastHeight, t.cursor.column)
 			t.cursor.column = column
 			if event.Modifiers()&tcell.ModShift == 0 {
 				t.selectionStart = t.cursor
 			}
-		case tcell.KeyPgUp, tcell.KeyCtrlB: // Move one page up.
+		case tcell.KeyPgUp: // Move one page up.
 			column := t.cursor.column
 			t.moveCursor(t.cursor.row-t.lastHeight, t.cursor.column)
 			t.cursor.column = column
@@ -1975,6 +1975,7 @@ func (t *TextArea) InputHandler() func(event *tcell.EventKey, setFocus func(p Pr
 			t.findCursor(true, row)
 			t.selectionStart = t.cursor
 			newLastAction = taActionTypeSpace
+
 		case tcell.KeyTab: // Insert a tab character. It will be rendered as TabSize spaces.
 			// But forwarding takes precedence.
 			if t.finished != nil {
@@ -1994,37 +1995,40 @@ func (t *TextArea) InputHandler() func(event *tcell.EventKey, setFocus func(p Pr
 				t.finished(key)
 				return
 			}
+
 		case tcell.KeyRune:
-			if event.Modifiers()&tcell.ModAlt > 0 {
-				// We accept some Alt- key combinations.
-				switch event.Rune() {
-				case 'f':
-					if event.Modifiers()&tcell.ModShift == 0 {
-						t.moveWordRight(false, true)
-						t.selectionStart = t.cursor
-					} else {
-						t.moveWordRight(true, true)
-					}
-				case 'b':
-					t.moveWordLeft(true)
-					if event.Modifiers()&tcell.ModShift == 0 {
-						t.selectionStart = t.cursor
-					}
-				}
-			} else {
+			//if event.Modifiers()&tcell.ModAlt > 0 {
+			//  // We accept some Alt- key combinations.
+			//  switch event.Rune() {
+			//  case 'f':
+			//    if event.Modifiers()&tcell.ModShift == 0 {
+			//      t.moveWordRight(false, true)
+			//      t.selectionStart = t.cursor
+			//    } else {
+			//      t.moveWordRight(true, true)
+			//    }
+			//  case 'b':
+			//    t.moveWordLeft(true)
+			//    if event.Modifiers()&tcell.ModShift == 0 {
+			//      t.selectionStart = t.cursor
+			//    }
+			//  }
+			//} else {
+
 				// Other keys are simply accepted as regular characters.
-				r := event.Rune()
-				from, to, row := t.getSelection()
-				newLastAction = taActionTypeNonSpace
-				if unicode.IsSpace(r) {
-					newLastAction = taActionTypeSpace
-				}
-				t.cursor.pos = t.replace(from, to, string(r), newLastAction == t.lastAction || t.lastAction == taActionTypeNonSpace && newLastAction == taActionTypeSpace)
-				t.cursor.row = -1
-				t.truncateLines(row - 1)
-				t.findCursor(true, row)
-				t.selectionStart = t.cursor
+			r := event.Rune()
+			from, to, row := t.getSelection()
+			newLastAction = taActionTypeNonSpace
+			if unicode.IsSpace(r) {
+				newLastAction = taActionTypeSpace
 			}
+			t.cursor.pos = t.replace(from, to, string(r), newLastAction == t.lastAction || t.lastAction == taActionTypeNonSpace && newLastAction == taActionTypeSpace)
+			t.cursor.row = -1
+			t.truncateLines(row - 1)
+			t.findCursor(true, row)
+			t.selectionStart = t.cursor
+			//}
+
 		case tcell.KeyBackspace, tcell.KeyBackspace2: // Delete backwards. tcell.KeyBackspace is the same as tcell.CtrlH.
 			from, to, row := t.getSelection()
 			if from != to {
@@ -2064,7 +2068,8 @@ func (t *TextArea) InputHandler() func(event *tcell.EventKey, setFocus func(p Pr
 				t.findCursor(true, beforeCursor.row-1)
 			}
 			t.selectionStart = t.cursor
-		case tcell.KeyDelete, tcell.KeyCtrlD: // Delete forward.
+
+		case tcell.KeyDelete: // Delete forward.
 			from, to, row := t.getSelection()
 			if from != to {
 				// Simply delete the current selection.
@@ -2085,47 +2090,50 @@ func (t *TextArea) InputHandler() func(event *tcell.EventKey, setFocus func(p Pr
 				newLastAction = taActionDelete
 			}
 			t.selectionStart = t.cursor
-		case tcell.KeyCtrlK: // Delete everything under and to the right of the cursor until before the next newline character.
-			pos := t.cursor.pos
-			endPos := pos
-			var cluster, text string
-			for pos[0] != 1 {
-				var boundaries int
-				oldPos := pos
-				cluster, text, boundaries, _, pos, endPos = t.step(text, pos, endPos)
-				if boundaries&uniseg.MaskLine == uniseg.LineMustBreak {
-					if uniseg.HasTrailingLineBreakInString(cluster) {
-						pos = oldPos
-					}
-					break
-				}
-			}
-			t.cursor.pos = t.replace(t.cursor.pos, pos, "", false)
-			row := t.cursor.row
-			t.cursor.row = -1
-			t.truncateLines(row - 1)
-			t.findCursor(true, row)
-			t.selectionStart = t.cursor
-		case tcell.KeyCtrlW: // Delete from the start of the current word to the left of the cursor.
-			pos := t.cursor.pos
-			t.moveWordLeft(true)
-			t.cursor.pos = t.replace(t.cursor.pos, pos, "", false)
-			row := t.cursor.row - 1
-			t.cursor.row = -1
-			t.truncateLines(row)
-			t.findCursor(true, row)
-			t.selectionStart = t.cursor
-		case tcell.KeyCtrlU: // Delete the current line.
-			t.deleteLine()
-			t.selectionStart = t.cursor
-		case tcell.KeyCtrlL: // Select everything.
+
+		//case tcell.KeyCtrlK: // Delete everything under and to the right of the cursor until before the next newline character.
+			//pos := t.cursor.pos
+			//endPos := pos
+			//var cluster, text string
+			//for pos[0] != 1 {
+				//var boundaries int
+				//oldPos := pos
+				//cluster, text, boundaries, _, pos, endPos = t.step(text, pos, endPos)
+				//if boundaries&uniseg.MaskLine == uniseg.LineMustBreak {
+					//if uniseg.HasTrailingLineBreakInString(cluster) {
+						//pos = oldPos
+					//}
+					//break
+				//}
+			//}
+			//t.cursor.pos = t.replace(t.cursor.pos, pos, "", false)
+			//row := t.cursor.row
+			//t.cursor.row = -1
+			//t.truncateLines(row - 1)
+			//t.findCursor(true, row)
+			//t.selectionStart = t.cursor
+
+		//case tcell.KeyCtrlW: // Delete from the start of the current word to the left of the cursor.
+		//  pos := t.cursor.pos
+		//  t.moveWordLeft(true)
+		//  t.cursor.pos = t.replace(t.cursor.pos, pos, "", false)
+		//  row := t.cursor.row - 1
+		//  t.cursor.row = -1
+		//  t.truncateLines(row)
+		//  t.findCursor(true, row)
+		//  t.selectionStart = t.cursor
+		//case tcell.KeyCtrlU: // Delete the current line.
+		//  t.deleteLine()
+		//  t.selectionStart = t.cursor
+
+		case tcell.KeyCtrlA: // Select everything.
 			t.selectionStart.row, t.selectionStart.column, t.selectionStart.actualColumn = 0, 0, 0
 			t.selectionStart.pos = [3]int{t.spans[0].next, 0, -1}
 			row := t.cursor.row
 			t.cursor.row = -1
 			t.cursor.pos = [3]int{1, 0, -1}
 			t.findCursor(false, row)
-		case tcell.KeyCtrlQ: // Copy to clipboard.
+		case tcell.KeyCtrlC: // Copy to clipboard.
 			if t.cursor != t.selectionStart {
 				t.copyToClipboard(t.getSelectedText())
 				t.selectionStart = t.cursor
@@ -2147,6 +2155,7 @@ func (t *TextArea) InputHandler() func(event *tcell.EventKey, setFocus func(p Pr
 			t.truncateLines(row - 1)
 			t.findCursor(true, row)
 			t.selectionStart = t.cursor
+
 		case tcell.KeyCtrlZ: // Undo.
 			if t.nextUndo <= 0 {
 				break

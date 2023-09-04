@@ -124,7 +124,25 @@ func (R *Runtime) load() (err error) {
 	}
 	// fmt.Printf("%# v\n", pretty.Formatter(R.CueConfig))
 	R.CueConfig.DataFiles = R.Flags.IncludeData
+
+	// deal with empty stdin
+	//data, err := io.ReadAll(os.Stdin)
+	//if err != nil {
+	//  return err
+	//}
+
+	//if len(data) > 0 {
+	//  fmt.Println("data:", len(data))
+	//  R.CueConfig.Stdin = bytes.NewReader(data)
+	//}
+
+	//
+	//
+	// load instances from entrypoints and config, this is the main CUE loader step
+	//
 	R.BuildInstances = load.Instances(R.Entrypoints, R.CueConfig)
+	//
+	//
 
 	if l := len(R.BuildInstances); l == 0 {
 		return fmt.Errorf("expected at least one build instance, got none", l)

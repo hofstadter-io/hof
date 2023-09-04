@@ -1,4 +1,4 @@
-exec bash -c 'cat in.json | hof gen - -T template.txt'
+exec bash -c 'cat in.json | hof gen json: - -T template.txt'
 cmp stdout golden-json.stdout
 
 exec bash -c 'cat in.yaml | hof gen yaml: - -T template.txt'

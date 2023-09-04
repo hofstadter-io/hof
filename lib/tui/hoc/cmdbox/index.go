@@ -56,6 +56,8 @@ type CmdBoxWidget struct {
 	curr    string   // current input (potentially partial)
 	hIdx    int      // where we are in history
 	history []string // command history
+
+	lastFocus tview.Primitive
 }
 
 func New() *CmdBoxWidget {
@@ -108,9 +110,10 @@ func (CB *CmdBoxWidget) Mount(context map[string]interface{}) error {
 		CB.Unlock()
 
 		CB.SetText("")
-		CB.SetFieldTextColor(tcell.ColorWhite)
+		CB.SetFieldTextColor(tcell.ColorIvory)
 		CB.SetBorderColor(tcell.Color69)
 
+		CB.lastFocus = tui.GetFocus()
 		tui.SetFocus(CB.InputField)
 	})
 
@@ -124,14 +127,28 @@ func (CB *CmdBoxWidget) Mount(context map[string]interface{}) error {
 				CB.Submit(flds[0], flds[1:])
 				CB.SetText("")
 				CB.SetBorderColor(tcell.Color27)
-				tui.Unfocus()
+			
+				if CB.lastFocus != nil {
+					tui.SetFocus(CB.lastFocus)
+					CB.lastFocus = nil
+				} else {
+					tui.Unfocus()
+				}
 			}
 		case tcell.KeyEscape:
 			CB.SetText("")
 			CB.SetBorderColor(tcell.Color27)
-			tui.Unfocus()
+			if CB.lastFocus != nil {
+				tui.SetFocus(CB.lastFocus)
+				CB.lastFocus = nil
+			} else {
+				tui.Unfocus()
+			}
+
+		// reserved for autocomplete
 		case tcell.KeyTab:
 		case tcell.KeyBacktab:
+
 		default:
 			go tui.SendCustomEvent("/console/warn", fmt.Sprintf("cmdbox (fin-???-key): %v", key))
 

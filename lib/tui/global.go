@@ -37,6 +37,13 @@ func SetRootView(v tview.Primitive) {
 	globalApp.SetRootView(v)
 }
 
+func GetFocus() (p tview.Primitive) {
+	if globalApp == nil {
+		return nil
+	}
+	return globalApp.GetFocus()
+}
+
 func SetFocus(p tview.Primitive) {
 	//appLock.Lock()
 	//defer appLock.Unlock()
@@ -65,12 +72,27 @@ func Unfocus() {
 	Draw()
 }
 
+func QueueUpdate(f func()) {
+	globalApp.QueueUpdate(f)
+}
+
+func QueueUpdateDraw(f func()) {
+	globalApp.QueueUpdateDraw(f)
+}
+
 func SendCustomEvent(path string, data any) {
 	globalApp.EventBus.SendCustomEvent(path, data)
 }
 
 func Log(level string, data any) {
+	if level == "crit" {
+		globalApp.EventBus.SendCustomEvent("/user/error", data)
+	}
 	globalApp.EventBus.SendCustomEvent("/console/" + level, data)
+}
+
+func Tell(level string, data any) {
+	globalApp.EventBus.SendCustomEvent("/user/" + level, data)
 }
 
 func AddGlobalHandler(path string, handler func(events.Event)) {
