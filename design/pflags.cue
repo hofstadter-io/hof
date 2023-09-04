@@ -19,6 +19,13 @@ CliPflags: [...schema.Flag] & [ {
 	Default: "nil"
 	Help:    "extra data to unify into the root value"
 }, {
+	Name:    "StdinEmpty"
+	Long:    "stdin-empty"
+	Short:   "0"
+	Type:    "bool"
+	Default: "false"
+	Help:    "A flag that ensure stdin is zero and does not block"
+}, {
 	Name:    "tags"
 	Long:    "tags"
 	Short:   "t"

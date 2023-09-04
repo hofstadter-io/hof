@@ -125,16 +125,35 @@ func (R *Runtime) load() (err error) {
 	// fmt.Printf("%# v\n", pretty.Formatter(R.CueConfig))
 	R.CueConfig.DataFiles = R.Flags.IncludeData
 
+	//
 	// deal with empty stdin
-	//data, err := io.ReadAll(os.Stdin)
-	//if err != nil {
-	//  return err
+	//
+	if R.Flags.StdinEmpty {
+		R.CueConfig.Stdin = &bytes.Buffer{}
+		R.Entrypoints = append(R.Entrypoints, "-")
+	}
+
+	// fi, err := os.Stdin.Stat()
+
+	//if fi.Size() == 0 {
+	//  fmt.Println("stdin(0)...")
+	//  R.CueConfig.Stdin = &bytes.Buffer{}
+
+	//} else {
+	//  d, err := io.ReadAll(os.Stdin)
+	//  if err != nil {
+	//    return err
+	//  }
+	//  r := bytes.NewReader(d)
+	//  fmt.Println(len(d), r.Len(), r.Size(), fi.Size())
+	//  R.CueConfig.Stdin = r
+
+	//  //if .... {
+	//    //fmt.Println("no stdin...")
+	//  //}
+	//  // R.CueConfig.Stdin = os.Stdin
 	//}
 
-	//if len(data) > 0 {
-	//  fmt.Println("data:", len(data))
-	//  R.CueConfig.Stdin = bytes.NewReader(data)
-	//}
 
 	//
 	//
