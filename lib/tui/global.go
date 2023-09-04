@@ -37,6 +37,13 @@ func SetRootView(v tview.Primitive) {
 	globalApp.SetRootView(v)
 }
 
+func GetFocus() (p tview.Primitive) {
+	if globalApp == nil {
+		return nil
+	}
+	return globalApp.GetFocus()
+}
+
 func SetFocus(p tview.Primitive) {
 	//appLock.Lock()
 	//defer appLock.Unlock()

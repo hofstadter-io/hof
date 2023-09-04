@@ -58,6 +58,8 @@ type Primitive interface {
 	// true also if one of this primitive's child elements has focus.
 	HasFocus() bool
 
+	GetLeafFocus() Primitive
+
 	// Blur is called by the application when the primitive loses focus.
 	Blur()
 

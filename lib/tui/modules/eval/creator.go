@@ -36,21 +36,21 @@ func init() {
 // this function is responsable for creating the components that fill slots in the panel
 // these are the widgets that make up the application and should have their own operation
 func defaultCreator (context map[string]any) (tview.Primitive) {
+	tui.Log("trace", fmt.Sprintf("Panel.defaultCreator: %v", context ))
 
 	mode := ""
 	if _mode, ok := context["mode"]; ok {
 		mode = _mode.(string)
 	}
 
-	// with ? already known?
-	with := ""
-	if _with, ok := context["with"]; ok {
-		with = _with.(string)
-	}
+	//// with ? already known?
+	//with := ""
+	//if _with, ok := context["with"]; ok {
+	//  with = _with.(string)
+	//}
 
-	tui.Log("trace", fmt.Sprintf("Panel.defaultCreator: %v %v", mode, with))
 
-	if panel_debug {
+	if panel_debug || mode == "" {
 		t := tview.NewTextView()
 		fmt.Fprint(t, evalHelpText)
 		return NewItem(t)

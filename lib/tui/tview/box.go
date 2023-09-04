@@ -528,6 +528,14 @@ func (b *Box) Blur() {
 }
 
 // HasFocus returns whether or not this primitive has focus.
+func (b *Box) GetLeafFocus() Primitive {
+	if b.hasFocus {
+		return b
+	}
+	return nil
+}
+
+// HasFocus returns whether or not this primitive has focus.
 func (b *Box) HasFocus() bool {
 	return b.hasFocus
 }

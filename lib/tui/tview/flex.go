@@ -324,6 +324,11 @@ func (f *Flex) ChildFocus() int {
 	return -1
 }
 
+
+func (f *Flex) GetLeafFocus() Primitive {
+	return f.GetChildFocusItem()
+}
+
 func (f *Flex) GetChildFocusItem() Primitive {
 	f.Box.mutex.RLock()
 	defer f.Box.mutex.RUnlock()

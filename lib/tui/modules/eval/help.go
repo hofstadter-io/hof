@@ -4,36 +4,37 @@ const evalHelpText = `
 Hof Tui Controls:  (scroll for more)
 
 Legend:
-	A = ALT      mouse & click
-	C = CTRL     also supported
-	M = META
-	S = SHIFT    <esc> = unfocus
+  A = ALT      mouse & click
+  C = CTRL     also supported
+  M = META
+  S = SHIFT    <esc> = unfocus
 
 App:
-	C-<space>    focus the command bar
-	A-<space>    focus the main content
-	A-?          show / hide help for item 
-	A-/          show / hide the console
-	A-z          show / hide the error log
+  C-<space>    focus the command bar
+  A-<space>    focus the main content
+  A-?          show / hide help for item 
+  A-/          show / hide the console
+  A-z          show / hide the error log
 
 Panels:
-	// (TBD) navigating between panels & items
-	// (click on the panel you want for now)
-	A-[hjkl]     move left,down,up,right (vim)
-	C-<arrow>    same as previus
+  // navigating between panels & items
+	you can also click on a panel to focus
+  (planned) A-[hjkl] (vim style movement)
 
-	// adding & moving panels
-	A-[JK]       create item           [before/after]
-	A-[HL]       move item             [prev/next]
-	C-S-<arrow>  same as previus two
-	A-T          split item or panel, making new stuff
+  // adding & moving panels
+  A-[JK]       create item           [before/after]
+  A-[HL]       move item             [prev/next]
+  A-T          split item or panel, making new stuff
+  A-D          delete  the current item
 
-	// display options
-	A-[PO]       show borders on [panels/items]
-	A-F          flip panel flex direction
+  // display options
+  A-F          flip panel flex direction
+  A-P          show borders on panels
+  A-O          show borders on items
 
-Items: (WIP)
-	A-E          edit    the current item
-	A-D          delete  the current item
-	A-C          connect the current item
+Items:
+  A-w          change the current widget
+  A-e          edit the current settings
+  A-c          connect the current item
+  A-?          show / hide help for item 
 `
