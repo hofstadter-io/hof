@@ -126,13 +126,15 @@ func (R *Runtime) load() (err error) {
 	R.CueConfig.DataFiles = R.Flags.IncludeData
 
 	// deal with empty stdin
-	fi, err := os.Stdin.Stat()
-	if err != nil {
-		return err
-	}
-	if fi.Size() == 0 {
-		R.CueConfig.Stdin = bytes.NewReader(nil)
-	}
+	//data, err := io.ReadAll(os.Stdin)
+	//if err != nil {
+	//  return err
+	//}
+
+	//if len(data) > 0 {
+	//  fmt.Println("data:", len(data))
+	//  R.CueConfig.Stdin = bytes.NewReader(data)
+	//}
 
 	//
 	//
