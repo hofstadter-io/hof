@@ -1,6 +1,6 @@
 package eval
 
-const evalHelpText = `
+const EvalHelpText = `
 [gold]Hof Tui Controls:       [red](scroll for more)[-]
 
 [blue]Legend:[-]
@@ -14,6 +14,8 @@ const evalHelpText = `
   [lime]A-<space>[-]    focus the main content
   [lime]A-/[-]          show / hide the console
   [lime]A-z[-]          show / hide the error log
+
+[blue]Exit:[-]          [red]Ctrl-Alt-c[-]    close [gold]_[ivory]Hofstadter[-]
 
 [blue]Panels:[-]
   // navigating between panels & items

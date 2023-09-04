@@ -5,6 +5,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/atotto/clipboard"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/uniseg"
 )
@@ -828,12 +829,15 @@ func (t *TextArea) SetClipboard(copyToClipboard func(string), pasteFromClipboard
 	if t.copyToClipboard == nil {
 		t.copyToClipboard = func(text string) {
 			t.clipboard = text
+			clipboard.WriteAll(text)
+
 		}
 	}
 
 	t.pasteFromClipboard = pasteFromClipboard
 	if t.pasteFromClipboard == nil {
 		t.pasteFromClipboard = func() string {
+			t.clipboard, _ = clipboard.ReadAll()
 			return t.clipboard
 		}
 	}
@@ -2133,6 +2137,7 @@ func (t *TextArea) InputHandler() func(event *tcell.EventKey, setFocus func(p Pr
 			t.cursor.row = -1
 			t.cursor.pos = [3]int{1, 0, -1}
 			t.findCursor(false, row)
+
 		case tcell.KeyCtrlC: // Copy to clipboard.
 			if t.cursor != t.selectionStart {
 				t.copyToClipboard(t.getSelectedText())

@@ -82,9 +82,10 @@ func (V *RootView) buildTopPanel() {
 		SetTitleAlign(tview.AlignLeft).
 		SetTitleColor(tcell.ColorIvory).
 		SetBorder(true).
-		SetBorderColor(tcell.Color27)
+		SetBorderColor(tcell.ColorBlue)
 
 	V.sbar = statusbar.New()
+	V.sbar.SetBorderColor(tcell.ColorIvory)
 
 	// topBar is a Flex with 2 columns
 	topBar := tview.NewFlex().SetDirection(tview.FlexColumn)

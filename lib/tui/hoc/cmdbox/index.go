@@ -126,7 +126,7 @@ func (CB *CmdBoxWidget) Mount(context map[string]interface{}) error {
 				flds := strings.Fields(input)
 				CB.Submit(flds[0], flds[1:])
 				CB.SetText("")
-				CB.SetBorderColor(tcell.Color27)
+				CB.SetBorderColor(tcell.ColorBlue)
 			
 				if CB.lastFocus != nil {
 					tui.SetFocus(CB.lastFocus)
@@ -137,7 +137,7 @@ func (CB *CmdBoxWidget) Mount(context map[string]interface{}) error {
 			}
 		case tcell.KeyEscape:
 			CB.SetText("")
-			CB.SetBorderColor(tcell.Color27)
+			CB.SetBorderColor(tcell.ColorBlue)
 			if CB.lastFocus != nil {
 				tui.SetFocus(CB.lastFocus)
 				CB.lastFocus = nil

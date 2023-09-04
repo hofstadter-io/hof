@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hofstadter-io/hof/lib/tui"
+	"github.com/hofstadter-io/hof/lib/tui/modules/eval"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 	"github.com/hofstadter-io/hof/lib/tui/hoc/router"
 )
@@ -25,7 +26,7 @@ func NewHome() *Home {
 		SetDynamicColors(true).
 		SetRegions(true)
 
-	fmt.Fprintln(view, homeContent)
+	fmt.Fprintln(view, eval.EvalHelpText)
 
 	h := &Home{
 		TextView: view,
