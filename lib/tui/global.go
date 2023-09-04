@@ -65,11 +65,22 @@ func Unfocus() {
 	Draw()
 }
 
+func QueueUpdate(f func()) {
+	globalApp.QueueUpdate(f)
+}
+
+func QueueUpdateDraw(f func()) {
+	globalApp.QueueUpdateDraw(f)
+}
+
 func SendCustomEvent(path string, data any) {
 	globalApp.EventBus.SendCustomEvent(path, data)
 }
 
 func Log(level string, data any) {
+	if level == "crit" {
+		globalApp.EventBus.SendCustomEvent("/user/error", data)
+	}
 	globalApp.EventBus.SendCustomEvent("/console/" + level, data)
 }
 

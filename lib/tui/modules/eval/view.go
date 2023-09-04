@@ -6,16 +6,22 @@ import (
 	"github.com/gdamore/tcell/v2"
 
 	"github.com/hofstadter-io/hof/lib/tui"
+	"github.com/hofstadter-io/hof/lib/tui/events"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 )
 
 type Eval struct {
 	*Panel
+
+	// border display
+	showPanel, showOther bool
 }
 
 func NewEval() *Eval {
 	M := &Eval{
-		Panel: NewPanel(),
+		Panel: NewPanel(nil),
+		showPanel: true,
+		showOther: true,
 	}
 
 	// do layout setup here
@@ -25,14 +31,31 @@ func NewEval() *Eval {
 	return M
 }
 
-var count = 0
-var debug = true
-
 func (M *Eval) Mount(context map[string]any) error {
-	// this is where we can do some loading
-	M.Flex.Mount(context)
-	setupInputHandler(M.Panel)
 
+	// this will mount the core element and all children
+	M.Flex.Mount(context)
+	tui.Log("trace", "Eval.Mount")
+
+	// handle border display
+	tui.AddWidgetHandler(M.Panel, "/sys/key/A-P", func(e events.Event) {
+		M.showPanel = !M.showPanel
+		M.SetShowBordersR(M.showPanel, M.showOther)
+	})
+
+	tui.AddWidgetHandler(M.Panel, "/sys/key/A-O", func(e events.Event) {
+		M.showOther = !M.showOther
+		M.SetShowBordersR(M.showPanel, M.showOther)
+	})
+
+	// probably want to do some self mount first?
+	setupEventHandlers(
+		M.Panel,
+		nil,
+		nil,
+	)
+
+	// and then refresh?
 	err := M.Refresh(context)
 	if err != nil {
 		tui.SendCustomEvent("/console/error", err)
@@ -61,38 +84,38 @@ func (M *Eval) Refresh(context map[string]any) error {
 func refresh(M *Eval, context map[string]any) error {
 	flexDir := M.Flex.GetDirection()
 
-	// strip off the command name
-	_args, _ := context["args"]
-	args, _ := _args.([]string)
-	if len(args) > 0 && args[0] == "eval" {
-		args = args[1:]
-		context["args"] = args
-	}
+	//// strip off the command name
+	//_args, _ := context["args"]
+	//args, _ := _args.([]string)
+	//if len(args) > 0 && args[0] == "eval" {
+	//  args = args[1:]
+	//  context["args"] = args
+	//}
 
-	_action, _ := context["action"]
-	action, _ := _action.(string)
-	_index, _ := context["index"]
-	index, _ := _index.(int)
-	_where, _ := context["where"]
-	where, _ := _where.(string)
+	//_action, _ := context["action"]
+	//action, _ := _action.(string)
+	//_index, _ := context["index"]
+	//index, _ := _index.(int)
+	//_where, _ := context["where"]
+	//where, _ := _where.(string)
 
-	switch action {
-	case "delete":
-	  M.Flex.RemoveIndex(index)
-	case "split":
-		M.splitPanelItem(action, where, index, context)		
+	//switch action {
+	//case "delete":
+	//  M.Flex.RemoveIndex(index)
+	//case "split":
+	//  M.splitPanelItem(action, where, index, context)		
 
-	case "insert", "scoped":
-		if flexDir == tview.FlexColumn {
-			M.insertHorz(action, where, index, context)		
-		} else {
-			M.insertVert(action, where, index, context)		
-		}
+	//case "insert", "scoped":
+	//  if flexDir == tview.FlexColumn {
+	//    M.insertHorz(action, where, index, context)		
+	//  } else {
+	//    M.insertVert(action, where, index, context)		
+	//  }
 
-	default:
-		// no action, probably coming to eval for the first time
-		M.Flex.AddItem(M.creator(context), 0, 1, true)
-	}
+	//default:
+	//  // no action, probably coming to eval for the first time
+	//  M.Flex.AddItem(M.creator(context), 0, 1, true)
+	//}
 
 	// only set border when no elements
 	// M.Flex.SetBorder(M.Flex.GetItemCount() == 0)
@@ -101,65 +124,21 @@ func refresh(M *Eval, context map[string]any) error {
 		dir = "col"
 	}
 
-	M.Flex.SetBorder(true).SetTitle(fmt.Sprintf("  Eval (flex-%s)  ", dir))
+	M.Flex.SetBorder(true).SetTitle(fmt.Sprintf("  Eval (flex-%s) %s  ", dir, M.Panel.Id()))
+
+	// add the default text if not child elements
+	if M.Flex.GetItemCount() == 0 {
+		// an initial text element, will want to do better here
+		M.Flex.AddItem(M.creator(context), 0, 1, true)
+	}
+
 	tui.Draw()
 
 	return nil
 }
 
-func (P *Panel) insertVert(action, where string, index int, context map[string]any) {
-	switch where {
-	case "top":
-		P.Flex.InsItem(0, P.creator(context), 0, 1, true)
-
-	case "above":
-		P.Flex.InsItem(index, P.creator(context), 0, 1, true)
-
-	case "below":
-		P.Flex.InsItem(index+1, P.creator(context), 0, 1, true)
-
-	case "bottom":
-		P.Flex.AddItem(P.creator(context), 0, 1, true)
-
-	case "index":
-		P.Flex.InsItem(index, P.creator(context), 0, 1, true)
-	}
-}
-
-func (P *Panel) insertHorz(action, where string, index int, context map[string]any) {
-	switch where {
-	case "head":
-		P.Flex.InsItem(0, P.creator(context), 0, 1, true)
-
-	case "before":
-		P.Flex.InsItem(index, P.creator(context), 0, 1, true)
-
-	case "next":
-		P.Flex.InsItem(index+1, P.creator(context), 0, 1, true)
-
-	case "last":
-		P.Flex.AddItem(P.creator(context), 0, 1, true)
-
-	case "index":
-		P.Flex.InsItem(index, P.creator(context), 0, 1, true)
-	}
-}
-
-func (P *Panel) splitPanelItem(action, where string, index int, context map[string]any) {
-	tui.Log("trace", fmt.Sprint("Panel.slipt", action, where, index))
-	// action == "split"
-	d := P.Flex.GetDirection()
-	if d == tview.FlexColumn {
-		d = tview.FlexRow
-	} else {
-		d = tview.FlexColumn
-	}
-	// new panel
-	p := NewPanel()
-	// opposite direction
-	p.Flex.SetDirection(d)
-	p.Flex.SetBorder(true)
-	p.AddItem(P.Flex.GetItem(index), 0, 1, false)
-	P.Flex.SetItem(index, p, 0, 1, true)
-		// InsItem(index, P.creator(context), 0, 1, true)
+func (M *Eval) Focus(delegate func(p tview.Primitive)) {
+	tui.Log("warn", "Eval.Focus")
+	delegate(M.Panel)
+	// M.Panel.Focus(delegate)
 }

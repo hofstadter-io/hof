@@ -78,7 +78,7 @@ func (V *RootView) Connect(C connector.Connector) {
 func (V *RootView) buildTopPanel() {
 	V.cbox = cmdbox.New()
 	V.cbox.
-		SetTitle("  [gold]_[-]Hofstadter  ").
+		SetTitle("  [gold]_[ivory]Hofstadter[-]  ").
 		SetTitleAlign(tview.AlignLeft).
 		SetTitleColor(tcell.ColorIvory).
 		SetBorder(true).
@@ -96,14 +96,14 @@ func (V *RootView) buildTopPanel() {
 
 	// Top Panels
 	V.AddFirstPanel("top-bar", topBar, 3, 0, 0, "", false, "")
-	V.AddFirstPanel("err-console", V.errConsole, 0, 1, 0, "", true, "C-e")
+	V.AddFirstPanel("err-console", V.errConsole, 0, 1, 0, "", true, "A-z")
 
 }
 
 func (V *RootView) buildMainPanel() {
 	// A Horizontal Layout with a Router as the main element
 	V.mainPanel = NewMainPanel()
-	V.SetMainPanel("main-panel", V.mainPanel, 0, 1, 0, "C-a")
+	V.SetMainPanel("main-panel", V.mainPanel, 0, 1, 0, "A- ")
 }
 
 func (V *RootView) buildBotPanel() {
@@ -111,5 +111,5 @@ func (V *RootView) buildBotPanel() {
 	V.devConsole = console.NewDevConsoleWidget()
 
 	// Bottom Panels
-	V.AddLastPanel("dev-console", V.devConsole, 0, 1, 1, "", true, "C-l")
+	V.AddLastPanel("dev-console", V.devConsole, 0, 1, 1, "", true, "A-/")
 }
