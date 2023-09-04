@@ -26,6 +26,20 @@ func Cmd(args []string, rflags flags.RootPflagpole) error {
 	//  return err
 	//}
 	//defer terminal.Restore(0, oldState)
+	//sigc := make(chan os.Signal, 10)
+	//signal.Notify(sigc,
+	//    // syscall.SIGHUP,
+	//    // syscall.SIGTERM,
+	//    syscall.SIGINT,
+	//    syscall.SIGQUIT,
+	//    syscall.SIGURG,
+	//)
+	//go func() {
+	//  for {
+	//    s := <-sigc
+	//    fmt.Printf("got sig: %v, %d\n", s, s)
+	//  }
+	//}()
 
 	// setup new app 
 	App, err := app.NewApp()
@@ -90,7 +104,7 @@ func Cmd(args []string, rflags flags.RootPflagpole) error {
 		// some latent locksups occur randomly
 		time.Sleep(time.Millisecond * 23)
 		tui.SendCustomEvent("/router/dispatch", d)
-		tui.SendCustomEvent("/status/message", "Welcome to [lime]VermUI[white]!!")
+		tui.SendCustomEvent("/status/message", "Welcome to [gold]_[ivory]Hofstadter[-]!!")
 	}()
 
 	// Start the Main (Blocking) Loop

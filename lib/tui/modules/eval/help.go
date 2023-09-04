@@ -1,6 +1,6 @@
 package eval
 
-const evalHelpText = `
+const EvalHelpText = `
 [gold]Hof Tui Controls:       [red](scroll for more)[-]
 
 [blue]Legend:[-]
@@ -14,6 +14,8 @@ const evalHelpText = `
   [lime]A-<space>[-]    focus the main content
   [lime]A-/[-]          show / hide the console
   [lime]A-z[-]          show / hide the error log
+
+[blue]Exit:[-]          [red]Ctrl-Alt-c[-]    close [gold]_[ivory]Hofstadter[-]
 
 [blue]Panels:[-]
   // navigating between panels & items
@@ -39,9 +41,12 @@ const evalHelpText = `
   1. select an item and CTRL-<space> to get to the command box
   2. eval ....
     a. [hotpink]eval[-] [...cue eval args and flags as normal]
-    b. [hotpink]cue/play links[-]: https://cuelang.org/play/...
-    c. [hotpink]any http(s)://[-] ... that returns json or CUE
-    e. [hotpink]bash[-] [...any command the outputs json or CUE]
+        (opens value browser, you can edit the original value)
+    b. [hotpink]eval play[-] [...cue eval args and flags as normal]
+        (opens value playground, you can work with the value in scope)
+    c. [hotpink]cue/play links[-]: https://cuelang.org/play/...
+    d. [hotpink]any http(s)://[-] ... that returns json or CUE
+    d. [hotpink]bash[-] [...any command the outputs json or CUE]
     
 
   tbd...

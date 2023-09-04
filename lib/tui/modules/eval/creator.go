@@ -42,7 +42,7 @@ func defaultCreator (context map[string]any, parent *Panel) (tview.Primitive) {
 	if panel_debug {
 		t := tview.NewTextView()
 		t.SetDynamicColors(true)
-		fmt.Fprint(t, evalHelpText)
+		fmt.Fprint(t, EvalHelpText)
 		return NewItem(t, parent)
 	}
 
@@ -73,7 +73,7 @@ func defaultCreator (context map[string]any, parent *Panel) (tview.Primitive) {
 	case "help":
 		txt := tview.NewTextView()
 		txt.SetDynamicColors(true)
-		fmt.Fprint(txt, evalHelpText)
+		fmt.Fprint(txt, EvalHelpText)
 		t = txt
 
 	case "http":
@@ -123,7 +123,7 @@ func defaultCreator (context map[string]any, parent *Panel) (tview.Primitive) {
 		txt := tview.NewTextView()
 		txt.SetDynamicColors(true)
 		fmt.Fprintf(txt, "unable to create element from context:\n%# v\n\n", context)
-		fmt.Fprint(txt, evalHelpText)
+		fmt.Fprint(txt, EvalHelpText)
 		t = txt
 	}
 

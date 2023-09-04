@@ -162,7 +162,7 @@ func (C *ValueEvaluator) setupKeybinds() {
 					}
 					C.Flex.SetDirection(C.flexDir)
 
-				case 's':
+				case 'S':
 					if !C.Scope.Exists() {
 						tui.Log("error", "no scope set to activate")
 						tui.Tell("error", "no scope set to activate")

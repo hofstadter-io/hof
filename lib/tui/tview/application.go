@@ -355,7 +355,7 @@ EventLoop:
 
 				// Intercept keys.
 				var draw bool
-				originalEvent := event
+				// originalEvent := event
 				if inputCapture != nil {
 					event = inputCapture(event)
 					if event == nil {
@@ -366,10 +366,10 @@ EventLoop:
 				}
 
 				// Ctrl-C closes the application.
-				if event == originalEvent && event.Key() == tcell.KeyCtrlC {
-					a.Stop()
-					break
-				}
+				//if event == originalEvent && event.Key() == tcell.KeyCtrlC {
+				//  a.Stop()
+				//  break
+				//}
 
 				// Pass other key events to the root primitive.
 				if root != nil && root.HasFocus() {
