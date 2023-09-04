@@ -17,7 +17,8 @@ App:
 	A-z          show / hide the error log
 
 Panels:
-	// navigating between panels & items
+	// (TBD) navigating between panels & items
+	// (click on the panel you want for now)
 	A-[hjkl]     move left,down,up,right (vim)
 	C-<arrow>    same as previus
 

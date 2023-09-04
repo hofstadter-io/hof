@@ -50,12 +50,3 @@ func (t *Item) SetName(name string) {
 	t._name = name
 }
  
-const itemHelpText = `
-Panel Controls:
-<esc>        unfocus
-alt-M        set mode
-alt-[HhlL]   horz panel inserts
-alt-[JjkK]   vert panel inserts
-ctrl-[HhlL]  horz panel move
-ctrl-[JjkK]  vert panel move
-`
