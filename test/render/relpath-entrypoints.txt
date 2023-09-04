@@ -1,7 +1,7 @@
 cd work
 
 ## cat relative, w/o module
-exec bash -c 'cat ../rel/data.cue | hof gen - -T t.txt'
+exec bash -c 'cat ../rel/data.cue | hof gen cue: - -T t.txt'
 cmp stdout golden.output
 
 ## ep relative, w/o module
@@ -12,7 +12,7 @@ cmp stdout golden.output
 exec hof mod init hof.io/tmp
 
 ## cat relative, w/ module
-exec bash -c 'cat ../rel/data.cue | hof gen - -T t.txt'
+exec bash -c 'cat ../rel/data.cue | hof gen cue: - -T t.txt'
 cmp stdout golden.output
 
 ## ep relative, w/ module

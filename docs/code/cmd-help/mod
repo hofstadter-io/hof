@@ -116,6 +116,7 @@ Global Flags:
   -q, --quiet                turn off output and assume defaults at prompts
   -d, --schema stringArray   expression to select schema to apply to data files
       --stats                print generator statistics
+  -0, --stdin-empty          A flag that ensure stdin is zero and does not block
   -t, --tags stringArray     @tags() to be injected into CUE code
   -v, --verbosity int        set the verbosity of output
       --with-context         add extra context for data files, usable in the -l/path flag
