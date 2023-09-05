@@ -83,10 +83,16 @@ func (P *Panel) creator(context map[string]any, parent *Panel) (*Item, error) {
 
 	case "play":
 		tui.Log("debug", "Panel.creator: play")
-		I._runtimeArgs = args
-		_ = I.loadRuntime(args)
-		e := components.NewValueEvaluator("", cue.Value{}, I._runtime.Value)
-		e.SetScope(true)
+		var e *components.ValueEvaluator
+		if len(args) == 1 && args[0] == "new" {
+			e = components.NewValueEvaluator("", cue.Value{}, cue.Value{})
+			e.UseScope(false)
+		} else {
+			I._runtimeArgs = args
+			_ = I.loadRuntime(args, true)
+			e = components.NewValueEvaluator("", cue.Value{}, I._scopeR.Value)
+			e.UseScope(true)
+		}
 		e.Mount(context)
 		e.Rebuild(context)
 		I.SetWidget(e)
@@ -94,8 +100,8 @@ func (P *Panel) creator(context map[string]any, parent *Panel) (*Item, error) {
 	case "tree":
 		tui.Log("debug", "Panel.creator: tree")
 		I._runtimeArgs = args
-		_ = I.loadRuntime(args)
-		b := components.NewValueBrowser(I._runtime.Value, "cue", func(string){})
+		_ = I.loadRuntime(args, false)
+		b := components.NewValueBrowser(I._value, "cue", func(string){})
 		b.SetTitle(fmt.Sprintf("  %v  ", args)).SetBorder(true)
 		b.Mount(context)
 		b.Rebuild("")
@@ -156,7 +162,24 @@ func (I *Item) defaultWidget(context map[string]any, parent *Panel) (*Item, erro
 	return I, nil
 }
 
-func (I *Item) loadRuntime(args []string) error {
+func (I *Item) loadValue(args []string, forScope bool) error {
+
+	ctx := cuecontext.New()
+	b, err := os.ReadFile(args[0])
+	if err != nil {
+		return err
+	}
+	v := ctx.CompileBytes(b, cue.Filename(args[0]))
+
+	if forScope {
+		I._scopeV = v
+	} else {
+		I._value = v
+	}
+	return nil
+}
+
+func (I *Item) loadRuntime(args []string, forScope bool) error {
 	// tui.Log("trace", fmt.Sprintf("Panel.loadRuntime.inputs: %v", args))
 
 	// build eval args & flags from the input args
@@ -173,17 +196,23 @@ func (I *Item) loadRuntime(args []string) error {
 	// tui.Log("trace", fmt.Sprintf("Panel.loadRuntime.parsed: %v %v", args, rflags))
 
 	R, err := runtime.New(args, rflags)
-	I._runtime = R
 	if err != nil {
 		tui.Log("error", cuetils.ExpandCueError(err))
 		return err
 	}
 
 	err = R.Load()
-	I._value = I._runtime.Value
 	if err != nil {
 		tui.Log("error", cuetils.ExpandCueError(err))
 		return err
+	}
+
+	if forScope {
+		I._scopeR = R
+		I._scopeV = I._scopeR.Value
+	} else {
+		I._runtime = R
+		I._value = I._runtime.Value
 	}
 
 	return nil

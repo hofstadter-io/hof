@@ -108,6 +108,26 @@ func (M *Eval) LoadEval(filename string) (*Eval, error) {
 	return nil, nil
 }
 
+func (M *Eval) ShowEval(filename string) (*Eval, error) {
+	savename := evalSavePath(filename)
+
+	b, err := os.ReadFile(savename)
+	tui.Log("debug", fmt.Sprintf("Eval.LoadEval.1: %v %v %v", savename, len(b), err))
+	if err != nil {
+		return nil, err
+	}
+
+	// extra to display the save info
+	t := NewTextView()
+	t.SetDynamicColors(false)
+	fmt.Fprint(t, string(b))
+	I := NewItem(nil, M.Panel)
+	I.SetWidget(t)
+	M.AddItem(I, 0, 1, true)
+
+	return nil, nil
+}
+
 func (M *Eval) ListEval() (error) {
 	dir := evalSavePath("")
 	tui.Log("debug", fmt.Sprintf("Eval.ListEval.1: %v", dir))

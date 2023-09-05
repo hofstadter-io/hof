@@ -131,6 +131,21 @@ func (M *Eval) Refresh(context map[string]any) error {
 		}
 		return nil
 
+	case "show":
+		if len(args) < 1 {
+			err := fmt.Errorf("missing filename")
+			tui.Tell("error", err)
+			tui.Log("error", err)
+			return err
+		}
+		_, err := M.ShowEval(args[0])
+		if err != nil {
+			tui.Tell("error", err)
+			tui.Log("error", err)
+			return err
+		}
+		return nil
+
 	case "list":
 		err := M.ListEval()
 		if err != nil {

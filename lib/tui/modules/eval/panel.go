@@ -2,10 +2,12 @@ package eval
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/gdamore/tcell/v2"
 
 	"github.com/hofstadter-io/hof/lib/tui"
+	"github.com/hofstadter-io/hof/lib/tui/components"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 )
 
@@ -179,34 +181,71 @@ func (P *Panel) Refresh(context map[string]any) error {
 	if _action, ok := context["action"]; ok {
 		action = _action.(string)
 	}
+	args := []string{}
+	if _args, ok := context["args"]; ok {
+		args = _args.([]string)
+	}
+
+	cid := P.ChildFocus()
 
 	// do things based on context info to build up a component
 	switch action {
+	// panel / item layout related
 	case "insert":
 		P.insertPanelItem(context)	
-	case "update":
-		P.updatePanelItem(context)	
 	case "move":
 		P.movePanelItem(context)
-
-	case "nav":
-
-	case "conn":
-
-	case "edit":
-
-	case "mode":
-
 	case "split":
 		P.splitPanelItem(context)
-
 	case "delete":
 		P.deletePanelItem(context)
+
+	// item state related
+	case "update":
+		P.updatePanelItem(context)	
+
+	case "set.scope", "set.scope.runtime", "set.scope.value":
+		P.setItemScope(cid, action, args, context)	
+
+	case "set.value", "set.value.runtime", "set.value.value":
+		P.setItemValue(cid, action, args, context)	
+
+	case "set.text":
+		P.setItemText(cid, action, args, context)	
+
+	case "set.panel.name":
+		if len(args) < 1 {
+			return fmt.Errorf("%s requires an argument", action)
+		}
+		P.SetName(args[0])
+		P.SetTitle("  "+P.Name()+"  ")
+
+	case "set.name", "set.item.name":
+		if len(args) < 1 {
+			return fmt.Errorf("%s requires an argument", action)
+		}
+		if cid >= 0 {
+			i := P.GetItem(cid)
+			switch i := i.(type) {
+			case *Panel:
+				i.SetName(args[0])
+				i.SetTitle("  "+i.Name()+"  ")
+			case *Item:
+				i.SetName(args[0])
+				i.SetTitle("  "+i.Name()+"  ")
+			}
+		} else {
+			P.SetName(args[0])
+			P.SetTitle("  "+P.Name()+"  ")
+		}
+
+	case "conn":
+		P.makeItemConnection(args, context)		
+
 
 	default:
 	}
 
-	tui.Draw()
 	return nil
 }
 
@@ -257,6 +296,71 @@ func (P *Panel) insertPanelItem(context map[string]any) {
 		return
 
 	} // end: switch where
+}
+
+func (P *Panel) setItemScope(cid int, action string, args []string, context map[string]any) error {
+	i := P.GetItem(cid)
+	I := i.(*Item)
+
+	if action == "set.scope.value" {
+		if len(args) != 1 {
+			return fmt.Errorf("set.scope.value expects a single filepath argument")
+		}
+		return I.loadValue(args, true)
+	}
+
+	return I.loadRuntime(args, true)
+}
+
+func (P *Panel) setItemValue(cid int, action string, args []string, context map[string]any) error {
+	i := P.GetItem(cid)
+	I := i.(*Item)
+
+	switch action {
+	case "set.value", "set.value.value":
+		if len(args) != 1 {
+			return fmt.Errorf("%s expects a single filepath argument", action)
+		}
+		return I.loadValue(args, true)
+	}
+
+	return I.loadRuntime(args, true)
+}
+
+func (P *Panel) setItemText(cid int, action string, args []string, context map[string]any) error {
+	if len(args) < 1 {
+		return fmt.Errorf("set.text requires a filepath argument")
+	}
+	fp := args[0]
+
+	b, err := os.ReadFile(fp)
+	if err != nil {
+		return err
+	}
+
+	i := P.GetItem(cid)
+	I := i.(*Item)
+
+	I._text = string(b)
+	switch w := I.Widget().(type) {
+	case *components.ValueEvaluator:
+		w.SetText(I._text)
+	case *tview.TextArea:
+		w.SetText(I._text, false)
+	case *tview.TextView:
+		w.Clear()
+		fmt.Fprintln(w, I._text)
+	default:
+		return fmt.Errorf("setting text is not supported for current item")
+	}
+
+	return nil
+}
+
+func (P *Panel) makeItemConnection(args []string, context map[string]any) error {
+
+
+	return nil
 }
 
 func (P *Panel) updatePanelItem(context map[string]any) {
