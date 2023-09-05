@@ -43,12 +43,14 @@ func (C *DevConsoleWidget) Mount(context map[string]interface{}) error {
 		case *events.EventKey:
 			d = t.KeyStr
 		}
+
+		// consider using regions here, and coloring afterwards, so output doesn't get screwed by the stray [] from the log messages
 		line := fmt.Sprintf("[%s] %v", ev.When().Format("2006-01-02 15:04:05"), d)
 
 		level := strings.TrimPrefix(ev.Path, "/console/")
 		if len(level) > 6 && level[:6] == "color-" {
 			color := level[6:]
-			line = fmt.Sprintf("[%s]%.5s  %s[white]", color, color, line)
+			line = fmt.Sprintf("[%s]%.5s  %s[ivory]", color, color, line)
 		} else {
 			switch level {
 			case "crit":

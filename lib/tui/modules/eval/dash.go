@@ -20,18 +20,27 @@ type Eval struct {
 	// would it be better as a widget creator? (after refactor 1)
 	// or a function that can take a widget creator with a default ItemBase++
 	_creator ItemCreator
+
+	// metadata
+	_cnt  int
+	_name string
 }
+
+var eval_count int
 
 func NewEval() *Eval {
 	M := &Eval{
 		Panel: NewPanel(nil, nil),
 		showPanel: true,
 		showOther: true,
+		_cnt: eval_count,
+		_name: fmt.Sprintf("  Eval %v  ", eval_count),
 	}
+	eval_count++
 
 	// do layout setup here
 	M.Flex.SetDirection(tview.FlexColumn)
-	M.Flex.SetBorder(true).SetTitle(fmt.Sprintf("  Eval %s  ", M.Panel.Id()))
+	M.Flex.SetBorder(true).SetTitle(M._name)
 
 	return M
 }
@@ -90,6 +99,32 @@ func (M *Eval) Refresh(context map[string]any) error {
 	}
 
 	tui.Log("warn", fmt.Sprintf("Eval.Refresh %v %v", args, context))
+
+	// intercept our top-level commands first
+	if len(args) > 0 {
+		switch args[0] {
+		case "save":
+			if len(args) < 2 {
+				err := fmt.Errorf("missing filename")
+				tui.Tell("error", err)
+				tui.Log("error", err)
+			}
+			return M.Save(args[1])
+
+		case "load":
+			if len(args) < 2 {
+				err := fmt.Errorf("missing filename")
+				tui.Tell("error", err)
+				tui.Log("error", err)
+			}
+			_, err := LoadEval(args[1])
+			if err != nil {
+				tui.Tell("error", err)
+				tui.Log("error", err)
+			}
+
+		}
+	}
 
 	// this should go away and be handled in the panel
 	// we want Eval to be dumb as bricks
@@ -159,6 +194,11 @@ func (M *Eval) setupEventHandlers() {
 		tui.Log("warn", fmt.Sprintf("Eval.keyInput %v %v %v", alt, event.Key(), string(event.Rune())))
 
 		panel := M.GetMostFocusedPanel()
+		if panel != nil {
+			ctx["panel"] = panel 
+			ctx["panel-id"] = panel.Id()
+			ctx["child-focus-index"] = panel.ChildFocus()
+		}
 
 		switch event.Key() {
 
@@ -189,7 +229,7 @@ func (M *Eval) setupEventHandlers() {
 				case 'J':
 					ctx["action"] = "insert"
 					ctx["where"] = "prev"
-					ctx["with"] = "help"
+					ctx["item"] = "help"
 
 				// up, next
 				case 'k':
@@ -197,7 +237,7 @@ func (M *Eval) setupEventHandlers() {
 				case 'K':
 					ctx["action"] = "insert"
 					ctx["where"] = "next"
-					ctx["with"] = "help"
+					ctx["item"] = "help"
 
 				// up, right
 				case 'l':
@@ -218,14 +258,10 @@ func (M *Eval) setupEventHandlers() {
 
 				case 'T':
 					ctx["action"] = "split"
-					// ctx["id"] = mid
-					ctx["panel"] = panel 
-					ctx["with"] = "help"
+					ctx["item"] = "help"
 
 				case 'D':
 					ctx["action"] = "delete" // DELETE
-					// ctx["id"] = mid
-					ctx["panel"] = panel
 
 				// flip flex orientation
 				case 'F':
@@ -248,9 +284,10 @@ func (M *Eval) setupEventHandlers() {
 
 			if handled {
 				// ???
-				ctx["index"] = M.Flex.ChildFocus()
+				ctx["index"] = panel.ChildFocus()
 
-				M.Refresh(ctx)
+				// M.Refresh(ctx)
+				panel.Refresh(ctx)
 				return nil
 			}
 

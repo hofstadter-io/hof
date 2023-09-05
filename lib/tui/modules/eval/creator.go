@@ -16,7 +16,6 @@ import (
 	"github.com/hofstadter-io/hof/lib/runtime"
 	"github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/components"
-	"github.com/hofstadter-io/hof/lib/tui/tview"
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
@@ -44,9 +43,7 @@ func (P *Panel) creator(context map[string]any, parent *Panel) (*Item, error) {
 
 	// short-circuit for developer mode (first, before user custom)
 	if panel_debug {
-		t := tview.NewTextView()
-		t.SetDynamicColors(true)
-		fmt.Fprint(t, EvalHelpText)
+		t := NewTextView()
 		i := NewItem(context, parent)
 		i.SetWidget(t)
 		return i, nil
@@ -72,13 +69,13 @@ func (P *Panel) creator(context map[string]any, parent *Panel) (*Item, error) {
 	switch item {
 	case "help":
 		tui.Log("debug", "Panel.creator: help")
-		txt := tview.NewTextView()
-		txt.SetDynamicColors(true)
+		txt := NewTextView()
 		fmt.Fprint(txt, EvalHelpText)
 		I.SetWidget(txt)
 
 	case "play":
 		tui.Log("debug", "Panel.creator: play")
+		I._runtimeArgs = args
 		_ = I.loadRuntime(args)
 		e := components.NewValueEvaluator("", cue.Value{}, I._runtime.Value)
 		e.SetScope(true)
@@ -88,6 +85,7 @@ func (P *Panel) creator(context map[string]any, parent *Panel) (*Item, error) {
 
 	case "tree":
 		tui.Log("debug", "Panel.creator: tree")
+		I._runtimeArgs = args
 		_ = I.loadRuntime(args)
 		b := components.NewValueBrowser(I._runtime.Value, "cue", func(string){})
 		b.SetTitle(fmt.Sprintf("  %v  ", args)).SetBorder(true)
@@ -140,8 +138,7 @@ func (I *Item) defaultWidget(context map[string]any, parent *Panel) (*Item, erro
 		I.SetWidget(e)
 
 	default:
-		txt := tview.NewTextView()
-		txt.SetDynamicColors(true)
+		txt := NewTextView()
 		fmt.Fprint(txt, fmt.Sprintf("unhandled item create: \n%# v\n\n", context))
 		fmt.Fprint(txt, EvalHelpText)
 		I.SetWidget(txt)

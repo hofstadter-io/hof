@@ -30,6 +30,56 @@ type Panel struct {
 	_name string
 }
 
+func (P *Panel) EncodeMap() (map[string]any, error) {
+	m := make(map[string]any)
+
+	m["id"] = P._cnt
+	m["name"] = P._name
+	m["type"] = "panel"
+	m["direction"] = P.Flex.GetDirection()
+
+	items := []map[string]any{}
+
+	for _, item := range P.GetItems() {
+		var (
+			i map[string]any
+			err error
+		)
+
+		switch item := item.Item.(type) {
+		case *Panel:
+			i, err = item.EncodeMap()
+			if err != nil {
+				return m, err
+			}
+		case *Item:
+			i, err = item.EncodeMap()
+			if err != nil {
+				return m, err
+			}
+
+		default:
+			panic("unhandled item type in panel")	
+		}
+
+		items = append(items, i)
+	}
+
+	m["items"] = items
+
+	return m, nil
+}
+
+func PanelDecodeMap(data map[string]any, parent *Panel, creator ItemCreator) (*Panel, error) {
+	P := &Panel{
+		Flex: tview.NewFlex(),
+		_creator: creator,
+		_parent: parent,
+	}
+
+	return P, nil
+}
+
 func (P *Panel) Id() string {
 	return fmt.Sprintf("p:%d", P._cnt)
 }
@@ -185,16 +235,34 @@ func (P *Panel) insertPanelItem(context map[string]any) {
 }
 
 func (P *Panel) updatePanelItem(context map[string]any) {
-	i := P.ChildFocus()
+	panel := P
+	if _panel, ok := context["panel"]; ok {
+		panel = _panel.(*Panel)
+	}
+	cfi := -1
+	if _cfi, ok := context["child-focus-index"]; ok {
+		cfi = _cfi.(int)
+		tui.Log("trace", fmt.Sprintf("setting cfi.1 %d\n", cfi))
+	}
+
+	i := panel.ChildFocus()
 	if i == -1 {
 		tui.Log("warn", fmt.Sprintf("using 0 for nil child in Panel.updatePanelItem: %v %#v", P.Id(), context))
 		i = 0
+	} else {
+		cfi = i
+		tui.Log("trace", fmt.Sprintf("setting cfi.2 %d\n", cfi))
 	}
 	
-	t, _ := P.creator(context, P)
+	t, _ := panel.creator(context, panel)
 	tui.SetFocus(t)
 
-	P.Flex.SetItem(0, t, 0, 1, true)
+	if cfi < 0 {
+		tui.Log("error", fmt.Sprintf("negative cfi %# v\n", context))
+		return
+	}
+
+	panel.Flex.SetItem(cfi, t, 0, 1, true)
 }
 
 func (P *Panel) movePanelItem(context map[string]any) {
@@ -306,7 +374,7 @@ func (P *Panel) splitPanelItem(context map[string]any) {
 	} else {
 		// otherwise 0,1 children, so just add
 		// not sure we will get here...
-		context["action"] = "splitpanel.insert"
+		context["action"] = "insert"
 		context["item"] = "help"
 		t, _ := p.creator(context, p)
 		p.AddItem(t, 0, 1, true)

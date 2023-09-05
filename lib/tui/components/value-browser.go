@@ -55,6 +55,28 @@ type ValueBrowser struct {
 	validate bool
 }
 
+func (*ValueBrowser) TypeName() string {
+	return "ValueBrowser"
+}
+func (V *ValueBrowser) EncodeMap() (map[string]any, error) {
+	return map[string]any{
+		"type": V.TypeName(),
+		"mode": V.mode,
+		"useScope": V.UsingScope,
+		"docs": V.docs,
+		"attrs": V.attrs,
+		"defs": V.defs,
+		"optional": V.optional,
+		"ignore": V.ignore,
+		"inline": V.inline,
+		"resolve": V.resolve,
+		"concrete": V.concrete,
+		"hidden": V.hidden,
+		"final": V.final,
+		"validate": V.validate,
+	}, nil
+}
+
 func NewValueBrowser(val cue.Value, mode string, OnFieldSelect func(path string)) *ValueBrowser {
 	C := &ValueBrowser {
 		Value: val,

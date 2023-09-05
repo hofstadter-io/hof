@@ -33,6 +33,27 @@ type ValueEvaluator struct {
 	debouncer func(func())
 }
 
+func (*ValueEvaluator) TypeName() string {
+	return "ValueEvaluator"
+}
+
+func (V *ValueEvaluator) EncodeMap() (map[string]any, error) {
+	var err error
+	m := map[string]any{
+		"type": V.TypeName(),
+		"direction": V.flexDir,
+		"useScope": V.useScope,
+	}
+
+	m["view"], err = V.View.EncodeMap()
+	if err != nil {
+		return m, err
+	}
+
+	return m, nil
+}
+
+
 func NewValueEvaluator(src string, val, scope cue.Value) (*ValueEvaluator) {
 
 	C := &ValueEvaluator{
@@ -62,12 +83,17 @@ func NewValueEvaluator(src string, val, scope cue.Value) (*ValueEvaluator) {
 	C.View.
 		SetTitle("results").
 		SetBorder(true)
-	C.View.UsingScope = C.useScope
 
 	// layout
 	C.Flex.
 		AddItem(C.Edit, 0, 1, true).
 		AddItem(C.View, 0, 1, false)
+
+	// usingScope?
+	if scope.Exists() {
+		C.View.UsingScope = true
+		C.useScope = true
+	}
 
 	C.setupKeybinds()
 	C.setupMousebinds()

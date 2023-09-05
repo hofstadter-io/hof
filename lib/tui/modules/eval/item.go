@@ -26,12 +26,12 @@ type Item struct {
 	//
 
 	// meta
-	_id   int
+	_cnt   int
 	_name string
 
 	// tui
 	_parent *Panel	
-	_widget tview.Primitive  // Do we eventually build a iface & base type for this? Grafana for inspiration?
+	_widget Widget  // Do we eventually build a iface & base type for this? Grafana for inspiration?
 
 	// params++ this item was created with
 	_context map[string]any
@@ -57,6 +57,10 @@ type Item struct {
 	_value   cue.Value
 	_text    string
 
+	// args for en|decode (probably just one of them)
+	_runtimeArgs []string
+	_valueArgs []string
+
 	// final value
 	_final cue.Value
 
@@ -67,9 +71,10 @@ var item_count = 0
 
 func NewItem(context map[string]any, parent *Panel) *Item {
 	t := &Item{
-		_id: item_count,
+		_cnt: item_count,
 		_parent: parent,
-		_widget: tview.NewBox(),
+		_widget: NewBox(),
+		_context: context,
 	}
 	item_count++
 
@@ -84,31 +89,58 @@ func NewItem(context map[string]any, parent *Panel) *Item {
 	return t
 }
 
-func (t *Item) Id() string {
-	return fmt.Sprintf("t:%d", t._id)
+func (I *Item) Id() string {
+	return fmt.Sprintf("t:%d", I._cnt)
 }
 
-func (t *Item) Name() string {
-	return t._name
+func (I *Item) Name() string {
+	return I._name
 }
 
-func (t *Item) SetName(name string) {
-	t._name = name
+func (I *Item) SetName(name string) {
+	I._name = name
 }
  
-func (t *Item) Widget() tview.Primitive {
-	return t._widget
+func (I *Item) Widget() tview.Primitive {
+	return I._widget
 }
 
-func (t *Item) SetWidget(widget tview.Primitive) {
-	t._widget = widget
-	t.Frame.SetPrimitive(t._widget)
+func (I *Item) SetWidget(widget Widget) {
+	I._widget = widget
+	I.Frame.SetPrimitive(I._widget)
 }
  
-func (t *Item) Parent() *Panel {
-	return t._parent
+func (I *Item) Parent() *Panel {
+	return I._parent
 }
 
-func (t *Item) SetParent(parent *Panel) {
-	t._parent = parent
+func (I *Item) SetParent(parent *Panel) {
+	I._parent = parent
 } 
+
+func (I *Item) EncodeMap() (map[string]any, error) {
+	var err error
+	m := make(map[string]any)
+
+	m["id"] = I._cnt
+	m["name"] = I._name
+	m["type"] = "item"
+	m["context"] = I._context
+
+	m["widget"], err = I._widget.EncodeMap()
+	if err != nil {
+		return m, err
+	}
+
+	return m, nil
+}
+
+func ItemDecodeMap(data map[string]any, parent *Panel, creator ItemCreator) (*Panel, error) {
+	P := &Panel{
+		Flex: tview.NewFlex(),
+		_creator: creator,
+		_parent: parent,
+	}
+
+	return P, nil
+}
