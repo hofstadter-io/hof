@@ -200,7 +200,7 @@ func (C *ValueEvaluator) setupKeybinds() {
 					}
 
 				default: 
-					tui.Log("trace", "val-eval bypassing " + string(evt.Rune()))
+					// tui.Log("trace", "val-eval bypassing " + string(evt.Rune()))
 					return evt
 				}
 

@@ -56,7 +56,15 @@ func (P *Panel) creator(context map[string]any, parent *Panel) (*Item, error) {
 
 	args := []string{}
 	if _args, ok := context["args"]; ok {
-		args = _args.([]string)
+		// because in-mem vs decode-yaml...
+		switch _args := _args.(type) {
+		case []string:
+			args = _args
+		case []any:
+			for _, a := range _args {
+				args = append(args, a.(string))
+			}
+		}
 	}
 
 	item := ""

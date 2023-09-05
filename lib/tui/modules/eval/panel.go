@@ -75,7 +75,32 @@ func PanelDecodeMap(data map[string]any, parent *Panel, creator ItemCreator) (*P
 		Flex: tview.NewFlex(),
 		_creator: creator,
 		_parent: parent,
+		_cnt: data["id"].(int),
+		_name: data["name"].(string),
 	}
+
+	if items, ok := data["items"]; ok {
+		for _, idata := range items.([]any) {
+			imap := idata.(map[string]any)
+			I, err := ItemDecodeMap(imap, P)
+			if err != nil {
+				return P, err
+			}
+			P.AddItem(I, 0, 1, true)
+		}
+	} else {
+		txt := NewTextView()
+		fmt.Fprint(txt, fmt.Sprintf("unhandled panel decode: \n%# v\n\n", data))
+		fmt.Fprint(txt, EvalHelpText)
+		I := NewItem(nil, parent)
+		I.SetWidget(txt)
+		P.AddItem(I, 0, 1, true)
+
+	}
+
+	// do layout setup here, once some children have been instantiated
+	P.Flex.SetDirection(data["direction"].(int))
+	P.Flex.SetBorder(true).SetTitle(P.Name())
 
 	return P, nil
 }

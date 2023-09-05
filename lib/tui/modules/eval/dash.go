@@ -88,7 +88,7 @@ func (M *Eval) Unmount() error {
 // todo, add more functions so that we can separate new command messages from refresh?
 
 func (M *Eval) Refresh(context map[string]any) error {
-	// tui.Log("trace", fmt.Sprintf("Eval.refresh: %v", context ))
+	tui.Log("debug", fmt.Sprintf("Eval.refresh.1: %v", context ))
 
 	// reprocess args, all commands should enter the Eval page first
 	// needed for when we come in from the command line first time, or the command box later
@@ -97,33 +97,49 @@ func (M *Eval) Refresh(context map[string]any) error {
 	if _args, ok := context["args"]; ok {
 		args = _args.([]string)
 	}
+	tui.Log("debug", fmt.Sprintf("Eval.Refresh.2: %v %# v", args, context))
 
-	tui.Log("warn", fmt.Sprintf("Eval.Refresh %v %v", args, context))
+	// handle any top-leval eval commands
+	action := ""
+	if _action, ok := context["action"]; ok {
+		action = _action.(string)
+	}
 
 	// intercept our top-level commands first
-	if len(args) > 0 {
-		switch args[0] {
-		case "save":
-			if len(args) < 2 {
-				err := fmt.Errorf("missing filename")
-				tui.Tell("error", err)
-				tui.Log("error", err)
-			}
-			return M.Save(args[1])
-
-		case "load":
-			if len(args) < 2 {
-				err := fmt.Errorf("missing filename")
-				tui.Tell("error", err)
-				tui.Log("error", err)
-			}
-			_, err := LoadEval(args[1])
-			if err != nil {
-				tui.Tell("error", err)
-				tui.Log("error", err)
-			}
-
+	switch action {
+	case "save":
+		if len(args) < 1 {
+			err := fmt.Errorf("missing filename")
+			tui.Tell("error", err)
+			tui.Log("error", err)
+			return nil
 		}
+		return M.Save(args[0])
+
+	case "load":
+		if len(args) < 1 {
+			err := fmt.Errorf("missing filename")
+			tui.Tell("error", err)
+			tui.Log("error", err)
+			return err
+		}
+		_, err := M.LoadEval(args[0])
+		if err != nil {
+			tui.Tell("error", err)
+			tui.Log("error", err)
+			return err
+		}
+		return nil
+
+	case "list":
+		err := M.ListEval()
+		if err != nil {
+			tui.Tell("error", err)
+			tui.Log("error", err)
+			return err
+		}
+		return nil
+
 	}
 
 	// this should go away and be handled in the panel
@@ -190,8 +206,7 @@ func (M *Eval) setupEventHandlers() {
 
 		// we only care about ALT+... keys at this level
 		// tui.Log("trace", fmt.Sprintf("Panel.inputHandler.2 %v %v %v %v %v %q %v", P.Id(), alt, ctrl, meta, shift, string(event.Rune()), event.Key()))
-
-		tui.Log("warn", fmt.Sprintf("Eval.keyInput %v %v %v", alt, event.Key(), string(event.Rune())))
+		// tui.Log("warn", fmt.Sprintf("Eval.keyInput %v %v %v", alt, event.Key(), string(event.Rune())))
 
 		panel := M.GetMostFocusedPanel()
 		if panel != nil {

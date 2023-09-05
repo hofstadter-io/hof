@@ -135,12 +135,42 @@ func (I *Item) EncodeMap() (map[string]any, error) {
 	return m, nil
 }
 
-func ItemDecodeMap(data map[string]any, parent *Panel, creator ItemCreator) (*Panel, error) {
-	P := &Panel{
-		Flex: tview.NewFlex(),
-		_creator: creator,
+func ItemDecodeMap(data map[string]any, parent *Panel) (*Item, error) {
+	I := &Item{
 		_parent: parent,
+		_widget: NewBox(),
+		_cnt: data["id"].(int),
+		_name: data["name"].(string),
 	}
 
-	return P, nil
+	// setup frame with temp box
+	I.Frame = tview.NewFrame(I._widget)
+
+	// style fram
+	I.SetBorders(0,0,0,0,0,0) // just the one-line header
+	txt := fmt.Sprintf(" ☰  %s", I.Id())
+	I.AddText(txt, true, tview.AlignLeft, tcell.ColorLimeGreen)
+	I.SetBorder(true)
+
+	var context map[string]any
+
+	if c, ok := data["context"]; ok {
+		context = c.(map[string]any)
+	} else {
+		return I, fmt.Errorf("context config not found in item: %# v", data)
+	}
+
+	i, err := parent.creator(context, parent)
+	if err != nil {
+		return i, err
+	}
+
+	//var wdata map[string]any
+	//if w, ok := data["widget"]; ok {
+	//  wdata = w.(map[string]any)
+	//} else {
+	//  return I, fmt.Errorf("widget config not found in item: %# v", data)
+	//}
+
+	return i, nil
 }
