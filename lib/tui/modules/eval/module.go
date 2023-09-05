@@ -25,6 +25,8 @@ func (M *Eval) Id() string {
 func (M *Eval) Routes() []router.RoutePair {
 	return []router.RoutePair{
 		router.RoutePair{"/eval", M},
+		router.RoutePair{"/play", M},
+		router.RoutePair{"/save", M},
 	}
 }
 
@@ -53,7 +55,7 @@ func (M *Eval) CommandHelp() string {
 // return the object you want in Refresh
 func (M *Eval) CommandCallback(context map[string]any) {
 	// strip of own command
-	tui.Log("error", fmt.Sprintf("Eval.CmdCallback: %# v", context))
+	tui.Log("extra", fmt.Sprintf("Eval.CmdCallback: %# v", context))
 
 	if M.IsMounted() {
 		// tui.Log("error", fmt.Sprintf("eval mounted->refresh: %v %v", args, context))

@@ -14,6 +14,7 @@ type App struct {
 	appLock sync.RWMutex
 
 	rootView tview.Primitive
+	lastFocus tview.Primitive
 
 	EventBus *events.EventBus
 
@@ -50,6 +51,14 @@ func (app *App) GetRootView() (root tview.Primitive) {
 
 func (app *App) SetRootView(root tview.Primitive) {
 	app.rootView = root
+}
+
+func (app *App) GetLastFocus() (last tview.Primitive) {
+	return app.lastFocus
+}
+
+func (app *App) SetLastFocus(last tview.Primitive) {
+	app.lastFocus = last
 }
 
 //func (A *App) AddPage(name string, item tview.Primitive, resize, visible bool ) {

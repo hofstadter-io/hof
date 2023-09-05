@@ -13,10 +13,18 @@ import (
 // and then have more consistent input to the components consuming the inputs
 func enrichContext(context map[string]any) (map[string]any) {
 	tui.Log("trace", fmt.Sprintf("enrichContext.BEG: %# v", context))
+
+	// ensure non-nil context
+	if context == nil {
+		context = make(map[string]any)
+	}
+
+	// extract and record original args
 	args := []string{}
 	if _args, ok := context["args"]; ok {
 		args = _args.([]string)
 	}
+	context["orig-args"] = args
 
 	//// so we can special case create a default element for naked eval
 	// hadEval := false
@@ -25,15 +33,20 @@ func enrichContext(context map[string]any) (map[string]any) {
 		args = args[1:]
 	}
 
-	// setup context
-	if context == nil {
-		context = make(map[string]any)
-	}
-
 	// find any modifiers
 	for len(args) > 0 {
 		tok := args[0]
 		switch tok {
+
+		//
+		// top-level eval commands
+		//
+		case "save":
+			context["action"] = "save"
+		case "load":
+			context["action"] = "load"
+		case "list":
+			context["action"] = "list"
 
 		//
 		// actions

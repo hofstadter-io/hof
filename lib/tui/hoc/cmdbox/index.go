@@ -122,8 +122,6 @@ func (CB *CmdBoxWidget) Mount(context map[string]interface{}) error {
 			input = strings.TrimSpace(input)
 			if input != "" {
 				flds := strings.Fields(input)
-				CB.Submit(flds[0], flds[1:])
-				CB.SetText("")
 			
 				if CB.lastFocus != nil {
 					tui.SetFocus(CB.lastFocus)
@@ -131,6 +129,9 @@ func (CB *CmdBoxWidget) Mount(context map[string]interface{}) error {
 				} else {
 					tui.Unfocus()
 				}
+
+				CB.Submit(flds[0], flds[1:])
+				CB.SetText("")
 			}
 		case tcell.KeyEscape:
 			CB.SetText("")

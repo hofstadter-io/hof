@@ -26,12 +26,12 @@ type Item struct {
 	//
 
 	// meta
-	_id   int
+	_cnt   int
 	_name string
 
 	// tui
 	_parent *Panel	
-	_widget tview.Primitive  // Do we eventually build a iface & base type for this? Grafana for inspiration?
+	_widget Widget  // Do we eventually build a iface & base type for this? Grafana for inspiration?
 
 	// params++ this item was created with
 	_context map[string]any
@@ -57,6 +57,10 @@ type Item struct {
 	_value   cue.Value
 	_text    string
 
+	// args for en|decode (probably just one of them)
+	_runtimeArgs []string
+	_valueArgs []string
+
 	// final value
 	_final cue.Value
 
@@ -67,9 +71,10 @@ var item_count = 0
 
 func NewItem(context map[string]any, parent *Panel) *Item {
 	t := &Item{
-		_id: item_count,
+		_cnt: item_count,
 		_parent: parent,
-		_widget: tview.NewBox(),
+		_widget: NewBox(),
+		_context: context,
 	}
 	item_count++
 
@@ -84,31 +89,88 @@ func NewItem(context map[string]any, parent *Panel) *Item {
 	return t
 }
 
-func (t *Item) Id() string {
-	return fmt.Sprintf("t:%d", t._id)
+func (I *Item) Id() string {
+	return fmt.Sprintf("t:%d", I._cnt)
 }
 
-func (t *Item) Name() string {
-	return t._name
+func (I *Item) Name() string {
+	return I._name
 }
 
-func (t *Item) SetName(name string) {
-	t._name = name
+func (I *Item) SetName(name string) {
+	I._name = name
 }
  
-func (t *Item) Widget() tview.Primitive {
-	return t._widget
+func (I *Item) Widget() tview.Primitive {
+	return I._widget
 }
 
-func (t *Item) SetWidget(widget tview.Primitive) {
-	t._widget = widget
-	t.Frame.SetPrimitive(t._widget)
+func (I *Item) SetWidget(widget Widget) {
+	I._widget = widget
+	I.Frame.SetPrimitive(I._widget)
 }
  
-func (t *Item) Parent() *Panel {
-	return t._parent
+func (I *Item) Parent() *Panel {
+	return I._parent
 }
 
-func (t *Item) SetParent(parent *Panel) {
-	t._parent = parent
+func (I *Item) SetParent(parent *Panel) {
+	I._parent = parent
 } 
+
+func (I *Item) EncodeMap() (map[string]any, error) {
+	var err error
+	m := make(map[string]any)
+
+	m["id"] = I._cnt
+	m["name"] = I._name
+	m["type"] = "item"
+	m["context"] = I._context
+
+	m["widget"], err = I._widget.EncodeMap()
+	if err != nil {
+		return m, err
+	}
+
+	return m, nil
+}
+
+func ItemDecodeMap(data map[string]any, parent *Panel) (*Item, error) {
+	I := &Item{
+		_parent: parent,
+		_widget: NewBox(),
+		_cnt: data["id"].(int),
+		_name: data["name"].(string),
+	}
+
+	// setup frame with temp box
+	I.Frame = tview.NewFrame(I._widget)
+
+	// style fram
+	I.SetBorders(0,0,0,0,0,0) // just the one-line header
+	txt := fmt.Sprintf(" ☰  %s", I.Id())
+	I.AddText(txt, true, tview.AlignLeft, tcell.ColorLimeGreen)
+	I.SetBorder(true)
+
+	var context map[string]any
+
+	if c, ok := data["context"]; ok {
+		context = c.(map[string]any)
+	} else {
+		return I, fmt.Errorf("context config not found in item: %# v", data)
+	}
+
+	i, err := parent.creator(context, parent)
+	if err != nil {
+		return i, err
+	}
+
+	//var wdata map[string]any
+	//if w, ok := data["widget"]; ok {
+	//  wdata = w.(map[string]any)
+	//} else {
+	//  return I, fmt.Errorf("widget config not found in item: %# v", data)
+	//}
+
+	return i, nil
+}
