@@ -12,6 +12,8 @@ type Widget interface {
 	TypeName() string
 
 	EncodeMap() (map[string]any, error)
+
+	// UpdateValue()
 }
 
 type Base struct {

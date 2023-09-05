@@ -17,6 +17,7 @@ type ValueEvaluator struct {
 
 	Value  cue.Value
 	Scope  cue.Value
+	Text   string
 
 	// TODO
 	ValueGetter func() cue.Value
@@ -100,7 +101,15 @@ func NewValueEvaluator(src string, val, scope cue.Value) (*ValueEvaluator) {
 	return C
 }
 
-func (C *ValueEvaluator) SetScope(visible bool) {
+func (C *ValueEvaluator) SetText(s string) {
+	C.Edit.SetText(s, false)
+}
+
+func (C *ValueEvaluator) SetScope(s cue.Value) {
+	C.Scope = s
+}
+
+func (C *ValueEvaluator) UseScope(visible bool) {
 	C.useScope = visible
 }
 

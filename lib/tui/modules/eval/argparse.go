@@ -41,28 +41,54 @@ func enrichContext(context map[string]any) (map[string]any) {
 		//
 		// top-level eval commands
 		//
-		case "save":
-			context["action"] = "save"
-		case "load":
-			context["action"] = "load"
-		case "list":
-			context["action"] = "list"
+		case 
+			"save",
+			"list",
+			"show",
+			"load":
+			context["action"] = tok 
 
 		//
 		// actions
 		//
 		// let's start using some `cmd.sub` syntax for these
-		case "insert", "I", "ins", "i":
+		case
+			"insert",
+			"ins":
 			context["action"] = "insert"
-		case "update", "U", "u":
+		case
+			"delete",
+			"del":
+			context["action"] = "delete"
+
+
+		// item update
+		case
+			"reload",
+			"refresh":
+			context["action"] = "reload"
+		case
+			"update":
 			context["action"] = "update"  // probably the default?
-		case "value.set", "VS":
-			context["action"] = "value.set"
-		case "scope.set", "SS":
-			context["action"] = "scope.set"
-		case "text.set", "TS":
-			context["action"] = "text.set"
-		case "connect", "C", "conn":
+
+		// this should probably be the new default
+		case 
+			"set.runtime",
+			"set.value.runtime",
+			"set.value.value",
+			"set.value",
+			"set.scope",
+			"set.scope.value",
+			"set.scope.runtime",
+			"set.text",
+			"set.name",
+			"set.item.name",
+			"set.panel.name":
+			context["action"] = tok 
+
+		case
+			"connect",
+			"C", "conn":
 			context["action"] = "connect"
 
 		// not handled yet

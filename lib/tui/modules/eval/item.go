@@ -48,8 +48,10 @@ type Item struct {
 	//
 
 	// scope
-	//_scopeV cue.Value
-	//_scopeR *runtime.Runtime
+	_scopeR *runtime.Runtime
+	_scopeV cue.Value
+	_scopeArgsR []string
+	_scopeArgsV []string
 	// (note, cannot have 2 runtimes yet)
 
 	// current
