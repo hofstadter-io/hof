@@ -1,21 +1,27 @@
 package eval
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/hofstadter-io/hof/lib/tui"
 )
 
 // this function helps parse args and context into richer information
 // so that we can handle different kinds of input coming from different places
 // and then have more consistent input to the components consuming the inputs
 func enrichContext(context map[string]any) (map[string]any) {
-	// tui.Log("info", fmt.Sprintf("parse.args-n-ctx.BEG: %v %v", args, context))
+	tui.Log("trace", fmt.Sprintf("enrichContext.BEG: %# v", context))
 	args := []string{}
 	if _args, ok := context["args"]; ok {
 		args = _args.([]string)
 	}
 
+	//// so we can special case create a default element for naked eval
+	// hadEval := false
 	if len(args) > 0 && args[0] == "eval" {
+		// hadEval = true
 		args = args[1:]
 	}
 
@@ -33,9 +39,9 @@ func enrichContext(context map[string]any) (map[string]any) {
 		// actions
 		//
 		// let's start using some `cmd.sub` syntax for these
-		case "insert", "I", "add":
+		case "insert", "I", "ins", "i":
 			context["action"] = "insert"
-		case "update", "U":
+		case "update", "U", "u":
 			context["action"] = "update"  // probably the default?
 		case "value.set", "VS":
 			context["action"] = "value.set"
@@ -167,10 +173,13 @@ argsDone:
 		context["action"] = "update"
 	}
 
+	if _, ok := context["item"]; !ok {
+		context["item"] = "tree"
+	}
+
 	// make sure we update the context args
 	context["args"] = args
 
-	// tui.Log("info", fmt.Sprintf("parse.args-n-ctx.END: %v %v", args, context))
-
+	tui.Log("trace", fmt.Sprintf("enrichContext.END: %# v", context))
 	return context
 }

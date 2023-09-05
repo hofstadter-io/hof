@@ -105,51 +105,11 @@ func (M *Eval) Refresh(context map[string]any) error {
 	}
 
 	panel := M.GetMostFocusedPanel()
-
-	return panel.Refresh(context)
-
-	curr := M.GetChildFocusItem()
-	item, _ := curr.(*Item)
-
-	//if !ok {
-	//  tui.Log("error", fmt.Sprintf("Eval.refresh error: %v %v", curr, item ))
-	//  return fmt.Errorf("focused primitive is not an *Item")
-	//}
-
-	// loading message
-	temp := tview.NewTextView()
-	fmt.Fprintf(temp, "loading...\ncontext: %# v\n", context)
-
-	// tui.Log("trace", fmt.Sprintf("Eval.refresh.2: %v", item == nil ))
-
-	// first time? (other special cases?)
-	if item == nil {
-		item = NewItem(context, M.Panel)
-		item.SetWidget(temp)
-		M.Flex.AddItem(item, 0, 1, true)
-	} else {
-		item.SetWidget(temp)
+	if panel == nil {
+		panel = M.Panel
 	}
 
-	// draw loading text?
-	tui.Draw()
-
-
-	// make new item, potentially invoking CUE loader, hence loading screen
-	next, _ := M.creator(context, M.Panel)
-
-	// tui.Log("trace", fmt.Sprintf("Eval.refresh.3: %v", next == nil ))
-
-	p := item.Parent()
-	p.ReplaceItem(item, next)
-
-	// update Item
-	// item.SetItem(next)
-
-	// draw
-	tui.Draw()
-
-	return nil
+	return panel.Refresh(context)
 }
 
 
@@ -168,13 +128,17 @@ func (M *Eval) setupEventHandlers() {
 
 	// handle border display
 	tui.AddWidgetHandler(M.Panel, "/sys/key/A-P", func(e events.Event) {
-		M.showPanel = !M.showPanel
-		M.SetShowBordersR(M.showPanel, M.showOther)
+		if M.HasFocus() {
+			M.showPanel = !M.showPanel
+			M.SetShowBordersR(M.showPanel, M.showOther)
+		}
 	})
 
 	tui.AddWidgetHandler(M.Panel, "/sys/key/A-O", func(e events.Event) {
-		M.showOther = !M.showOther
-		M.SetShowBordersR(M.showPanel, M.showOther)
+		if M.HasFocus() {
+			M.showOther = !M.showOther
+			M.SetShowBordersR(M.showPanel, M.showOther)
+		}
 	})
 
 	//

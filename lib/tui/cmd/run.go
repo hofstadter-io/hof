@@ -26,20 +26,6 @@ func Cmd(args []string, rflags flags.RootPflagpole) error {
 	//  return err
 	//}
 	//defer terminal.Restore(0, oldState)
-	//sigc := make(chan os.Signal, 10)
-	//signal.Notify(sigc,
-	//    // syscall.SIGHUP,
-	//    // syscall.SIGTERM,
-	//    syscall.SIGINT,
-	//    syscall.SIGQUIT,
-	//    syscall.SIGURG,
-	//)
-	//go func() {
-	//  for {
-	//    s := <-sigc
-	//    fmt.Printf("got sig: %v, %d\n", s, s)
-	//  }
-	//}()
 
 	// setup new app 
 	App, err := app.NewApp()
@@ -47,6 +33,16 @@ func Cmd(args []string, rflags flags.RootPflagpole) error {
 		fmt.Println("Error:", err)
 		os.Exit(1)
 	}
+
+	// catch panics and exit
+	defer func() {
+		err := recover()
+		if err != nil {
+			App.Stop()
+			panic(err)
+		}
+	}()
+
 	tui.SetApp(App)
 
 	// initialize our modules
@@ -72,15 +68,7 @@ func Cmd(args []string, rflags flags.RootPflagpole) error {
 	// Run PProf (useful for catching hangs)
 	// go runPprofServer()
 
-	// catch panics and exit, vermui will catch, clean up, format error, print, and repanic
-	defer func() {
-		err := recover()
-		if err != nil {
-			App.Stop()
-			panic(err)
-		}
-	}()
-
+	tui.Log("trace", fmt.Sprintf("tui.Cmd args: %v", args))
 
 	// some special cases to deal with no-args startup
 	path := "eval"
@@ -97,17 +85,17 @@ func Cmd(args []string, rflags flags.RootPflagpole) error {
 		args = append(args, "help")
 	}
 
-	d := map[string]any{
+	context := map[string]any{
 		"path": path,
 		"args": args,
 	}
 
-	fmt.Println(path, args)
+	tui.Log("trace", fmt.Sprintf("tui.Cmd context: %# v", context))
 
 	go func() {
 		// some latent locksups occur randomly
 		time.Sleep(time.Millisecond * 23)
-		tui.SendCustomEvent("/router/dispatch", d)
+		tui.SendCustomEvent("/router/dispatch", context)
 		tui.SendCustomEvent("/status/message", "Welcome to [gold]_[ivory]Hofstadter[-]!!")
 	}()
 

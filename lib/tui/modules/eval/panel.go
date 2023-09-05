@@ -109,6 +109,8 @@ func (P *Panel) Refresh(context map[string]any) error {
 	switch action {
 	case "insert":
 		P.insertPanelItem(context)	
+	case "update":
+		P.updatePanelItem(context)	
 	case "move":
 		P.movePanelItem(context)
 
@@ -125,11 +127,6 @@ func (P *Panel) Refresh(context map[string]any) error {
 
 	case "delete":
 		P.deletePanelItem(context)
-		if P.Flex.GetItemCount() == 0 {
-			t, _ := P.creator(context, P)
-			P.AddItem(t, 0, 1, true)
-		}
-		tui.SetFocus(P.Flex)
 
 	default:
 	}
@@ -187,6 +184,19 @@ func (P *Panel) insertPanelItem(context map[string]any) {
 	} // end: switch where
 }
 
+func (P *Panel) updatePanelItem(context map[string]any) {
+	i := P.ChildFocus()
+	if i == -1 {
+		tui.Log("warn", fmt.Sprintf("using 0 for nil child in Panel.updatePanelItem: %v %#v", P.Id(), context))
+		i = 0
+	}
+	
+	t, _ := P.creator(context, P)
+	tui.SetFocus(t)
+
+	P.Flex.SetItem(0, t, 0, 1, true)
+}
+
 func (P *Panel) movePanelItem(context map[string]any) {
 
 	p := P.GetMostFocusedPanel()
@@ -240,10 +250,14 @@ func (P *Panel) deletePanelItem(context map[string]any) {
 		if p._parent != nil {
 			// remove ourself if parented
 			p._parent.RemoveItem(p)
+			tui.SetFocus(p._parent)
 		} else {
 			// add default item, we are the root
+			context["action"] = "insert"
+			context["item"] = "help"
 			t, _ := p.creator(context, p)
-			p.AddItem(t, 0, 1, true)
+			p.AddItem(t, 0, 1, true)	
+			tui.SetFocus(t)
 		}
 	}
 
@@ -280,22 +294,23 @@ func (P *Panel) splitPanelItem(context map[string]any) {
 			n.Flex.SetDirection(d)
 			n.AddItem(c, 0, 1, true)
 			context["action"] = "insert"
+			context["item"] = "help"
 			t, _ := n.creator(context, p)
 			n.AddItem(t, 0, 1, true)
 			// setupEventHandlers(n, nil, nil)
 
 			p.SetItem(i, n, 0, 1, true)
-
+			tui.SetFocus(n)
 		}
 
-
 	} else {
-		// pp := p._parent
 		// otherwise 0,1 children, so just add
 		// not sure we will get here...
-		context["action"] = "insert"
+		context["action"] = "splitpanel.insert"
+		context["item"] = "help"
 		t, _ := p.creator(context, p)
 		p.AddItem(t, 0, 1, true)
+		tui.SetFocus(t)
 	}
 
 }
