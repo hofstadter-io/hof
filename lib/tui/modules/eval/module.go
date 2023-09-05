@@ -51,10 +51,9 @@ func (M *Eval) CommandHelp() string {
 // CommandCallback is invoked when the user runs your module
 // your goal is to enrich the context with the args
 // return the object you want in Refresh
-func (M *Eval) CommandCallback(args []string, context map[string]any) {
-	tui.Log("error", fmt.Sprintf("eval cmd: %v %v", args, context))
+func (M *Eval) CommandCallback(context map[string]any) {
 	// strip of own command
-	args, context = processArgsAndContext(args, context)
+	tui.Log("error", fmt.Sprintf("Eval.CmdCallback: %# v", context))
 
 	if M.IsMounted() {
 		// tui.Log("error", fmt.Sprintf("eval mounted->refresh: %v %v", args, context))

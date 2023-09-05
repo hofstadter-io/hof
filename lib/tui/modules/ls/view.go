@@ -108,12 +108,7 @@ func (P *LS) CommandHelp() string {
 	return "show the path in the file browser"
 }
 
-func (P *LS) CommandCallback(args []string, context map[string]any) {
-	if context == nil {
-		context = make(map[string]any)
-	}
-	context["args"] = args
-
+func (P *LS) CommandCallback(context map[string]any) {
 	if P.IsMounted() {
 		// just refresh with new args
 		P.Refresh(context)

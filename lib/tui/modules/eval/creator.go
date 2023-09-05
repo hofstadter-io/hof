@@ -32,105 +32,126 @@ func init() {
 	}
 }
 
+// we need this to be able to handle both making new AND updating existing components
+
+// this is going to take a bit more time...
+
 
 // this function is responsable for creating the components that fill slots in the panel
 // these are the widgets that make up the application and should have their own operation
-func defaultCreator (context map[string]any, parent *Panel) (tview.Primitive) {
-	tui.Log("trace", fmt.Sprintf("Panel.defaultCreator: %v", context ))
+func (P *Panel) creator(context map[string]any, parent *Panel) (*Item, error) {
+	tui.Log("extra", fmt.Sprintf("Panel.creator: %v", context ))
 
-	// short-circuit for develop mode
+	// short-circuit for developer mode (first, before user custom)
 	if panel_debug {
 		t := tview.NewTextView()
 		t.SetDynamicColors(true)
 		fmt.Fprint(t, EvalHelpText)
-		return NewItem(t, parent, context)
+		i := NewItem(context, parent)
+		i.SetWidget(t)
+		return i, nil
 	}
 
-	// get infromation from context
+	// run a user custome panel, if provided
+	if P._creator != nil {
+		return P._creator(context, parent)
+	}
+
 	args := []string{}
 	if _args, ok := context["args"]; ok {
 		args = _args.([]string)
 	}
 
-	// needed for when we come in from the command line first time
-	args, context = processArgsAndContext(args, context)
-
-	mode := ""
-	if _mode, ok := context["mode"]; ok {
-		mode = _mode.(string)
+	item := ""
+	if _item, ok := context["item"]; ok {
+		item = _item.(string)
 	}
 
-	// with ? already known?
-	with := ""
-	if _with, ok := context["with"]; ok {
-		with = _with.(string)
-	}
+	I := NewItem(context, parent)
 
-	var t tview.Primitive
-
-	// decide what to build
-	switch with {
+	switch item {
 	case "help":
+		tui.Log("debug", "Panel.creator: help")
 		txt := tview.NewTextView()
 		txt.SetDynamicColors(true)
 		fmt.Fprint(txt, EvalHelpText)
-		t = txt
+		I.SetWidget(txt)
+
+	case "play":
+		tui.Log("debug", "Panel.creator: play")
+		_ = I.loadRuntime(args)
+		e := components.NewValueEvaluator("", cue.Value{}, I._runtime.Value)
+		e.SetScope(true)
+		e.Mount(context)
+		e.Rebuild(context)
+		I.SetWidget(e)
+
+	case "tree":
+		tui.Log("debug", "Panel.creator: tree")
+		_ = I.loadRuntime(args)
+		b := components.NewValueBrowser(I._runtime.Value, "cue", func(string){})
+		b.SetTitle(fmt.Sprintf("  %v  ", args)).SetBorder(true)
+		b.Mount(context)
+		b.Rebuild("")
+		I.SetWidget(b)
+
+	default:
+		return I.defaultWidget(context, parent)
+
+	}
+
+	return I, nil
+}
+
+func (I *Item) defaultWidget(context map[string]any, parent *Panel) (*Item, error) {
+	tui.Log("debug", fmt.Sprintf("Panel.defaultWidget: %v", context ))
+
+	// with ? already known?
+	source := ""
+	if _src, ok := context["source"]; ok {
+		source = _src.(string)
+	}
+
+	// decide what to build
+	switch source {
 
 	case "http":
 		var from string
 		if _from, ok := context["from"]; ok {
 			from = _from.(string)
 		}
-		parent.loadHttpValue(mode, from)
-		e := components.NewValueEvaluator(parent._content, parent._Value, cue.Value{})
+
+		I.loadHttpValue(from)
+		e := components.NewValueEvaluator(I._text, I._value, cue.Value{})
 		e.Mount(context)
 		e.Rebuild(context)
-		t = e
+		I.SetWidget(e)
 
 	case "bash":
-		var from string
-		if _from, ok := context["from"]; ok {
-			from = _from.(string)
+		args := []string{}
+		if _args, ok := context["args"]; ok {
+			args = _args.([]string)
 		}
-		parent.loadBashValue(mode, from, args)
-		e := components.NewValueEvaluator(parent._content, parent._Value, cue.Value{})
+
+		I.loadBashValue(args)
+		e := components.NewValueEvaluator(I._text, I._value, cue.Value{})
 		e.Mount(context)
 		e.Rebuild(context)
-		t = e
+		I.SetWidget(e)
 
 	default:
-		// intentionally ignore, it should show up in the component below
-		_ = parent.loadRuntime(args)
-
-		if mode == "play" {
-			e := components.NewValueEvaluator("", cue.Value{}, parent._Runtime.Value)
-			e.SetScope(true)
-			e.Mount(context)
-			e.Rebuild(context)
-			t = e
-		} else {
-			tui.Log("trace", fmt.Sprintf("defaultCreator.Runtime: %v %v", parent == nil, parent._Runtime == nil ))
-			b := components.NewValueBrowser(parent._Runtime.Value, "cue", func(string){})
-			b.SetTitle(fmt.Sprintf("  %v  ", args)).SetBorder(true)
-			b.Mount(context)
-			b.Rebuild("")
-			t = b
-		}
-	}
-
-	// set fallback error message
-	if t == nil {
 		txt := tview.NewTextView()
 		txt.SetDynamicColors(true)
-		fmt.Fprintf(txt, "unable to create element from context:\n%# v\n\n", context)
+		fmt.Fprint(txt, fmt.Sprintf("unhandled item create: \n%# v\n\n", context))
 		fmt.Fprint(txt, EvalHelpText)
-		t = txt
+		I.SetWidget(txt)
+
 	}
 
-	return NewItem(t, parent, context)
+	return I, nil
 }
 
-func (P *Panel) loadRuntime(args []string) error {
+func (I *Item) loadRuntime(args []string) error {
 	// tui.Log("trace", fmt.Sprintf("Panel.loadRuntime.inputs: %v", args))
 
 	// build eval args & flags from the input args
@@ -147,14 +168,14 @@ func (P *Panel) loadRuntime(args []string) error {
 	// tui.Log("trace", fmt.Sprintf("Panel.loadRuntime.parsed: %v %v", args, rflags))
 
 	R, err := runtime.New(args, rflags)
-	P._Runtime = R
+	I._runtime = R
 	if err != nil {
 		tui.Log("error", cuetils.ExpandCueError(err))
 		return err
 	}
 
 	err = R.Load()
-	P._Value = P._Runtime.Value
+	I._value = I._runtime.Value
 	if err != nil {
 		tui.Log("error", cuetils.ExpandCueError(err))
 		return err
@@ -163,7 +184,7 @@ func (P *Panel) loadRuntime(args []string) error {
 	return nil
 }
 
-func (P *Panel) loadHttpValue(mode, from string) error {
+func (I *Item) loadHttpValue(from string) error {
 	// tui.Log("trace", fmt.Sprintf("Panel.loadHttpValue: %s %s", mode, from))
 
 	// rework any cue/play links
@@ -182,21 +203,21 @@ func (P *Panel) loadHttpValue(mode, from string) error {
 	content, err := yagu.SimpleGet(f)
 	if err != nil {
 		tui.Log("error", err)
-		P._content = err.Error()
+		I._text = err.Error()
 		return err
 	}
 
 	// rebuild, TODO, if scope, use that value and scope.Context() here
 	ctx := cuecontext.New()
-	P._Value = ctx.CompileString(content, cue.InferBuiltins(true))
+	I._value = ctx.CompileString(content, cue.InferBuiltins(true))
 
 	content = "// from: " + from + "\n\n" + content
-	P._content = content
+	I._text = content
 
 	return nil
 }
 
-func (P *Panel) loadBashValue(mode, from string, args []string) error {
+func (I *Item) loadBashValue(args []string) error {
 
 	wd, err := os.Getwd()
 	if err != nil {
@@ -213,11 +234,10 @@ func (P *Panel) loadBashValue(mode, from string, args []string) error {
 
 	// rebuild, TODO, if scope, use that value and scope.Context() here
 	ctx := cuecontext.New()
-	P._Value = ctx.CompileString(out, cue.InferBuiltins(true))
+	I._value = ctx.CompileString(out, cue.InferBuiltins(true))
 
-	script = "// from: " + from + " " + script
-	P._content = script + "\n\n" + out
-
+	script = "// bash: " + " " + script
+	I._text = script + "\n\n" + out
 
 	return nil
 }

@@ -65,8 +65,13 @@ func (H *Help) CommandUsage() string {
 func (H *Help) CommandHelp() string {
 	return "displays the home view"
 }
-func (H *Help) CommandCallback(args []string, context map[string]interface{}) {
+func (H *Help) CommandCallback(context map[string]interface{}) {
 	helpPath := "/help"
+
+	args := []string{}
+	if a, ok := context["args"]; ok {
+		args, _ = a.([]string)
+	}
 
 	if len(args) > 0 {
 		H.Clear()
