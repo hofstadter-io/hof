@@ -50,7 +50,7 @@ func New() *Router {
 		// a context with the path set
 		case map[string]any:
 			context = d
-			path = context ["path"].(string)
+			path = context["path"].(string)
 		}
 
 		r.SetActive(path, context)

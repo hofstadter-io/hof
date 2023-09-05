@@ -1,17 +1,27 @@
 package eval
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/hofstadter-io/hof/lib/tui"
 )
 
 // this function helps parse args and context into richer information
 // so that we can handle different kinds of input coming from different places
 // and then have more consistent input to the components consuming the inputs
-func processArgsAndContext(args []string, context map[string]any) ([]string, map[string]any) {
-	// tui.Log("info", fmt.Sprintf("parse.args-n-ctx.BEG: %v %v", args, context))
+func enrichContext(context map[string]any) (map[string]any) {
+	tui.Log("trace", fmt.Sprintf("enrichContext.BEG: %# v", context))
+	args := []string{}
+	if _args, ok := context["args"]; ok {
+		args = _args.([]string)
+	}
 
+	//// so we can special case create a default element for naked eval
+	// hadEval := false
 	if len(args) > 0 && args[0] == "eval" {
+		// hadEval = true
 		args = args[1:]
 	}
 
@@ -25,16 +35,77 @@ func processArgsAndContext(args []string, context map[string]any) ([]string, map
 		tok := args[0]
 		switch tok {
 
-		case "i", "insert", "add":
+		//
+		// actions
+		//
+		// let's start using some `cmd.sub` syntax for these
+		case "insert", "I", "ins", "i":
 			context["action"] = "insert"
-		//case "s", "scoped":
-		//  context["action"] = "scoped"
+		case "update", "U", "u":
+			context["action"] = "update"  // probably the default?
+		case "value.set", "VS":
+			context["action"] = "value.set"
+		case "scope.set", "SS":
+			context["action"] = "scope.set"
+		case "text.set", "TS":
+			context["action"] = "text.set"
+		case "connect", "C", "conn":
+			context["action"] = "connect"
 
+		// not handled yet
+		case "nav.left", "nl":
+			context["action"] = "nav.left"
+		case "nav.up", "nu":
+			context["action"] = "nav.up"
+		case "nav.down", "nd":
+			context["action"] = "nav.down"
+		case "nav.right", "nr":
+			context["action"] = "nav.right"
+
+		//
+		// items / widgets / pane
+		//
+
+		// default when nothing
+		case "H", "help":
+			context["item"] = "help"
+		// dual-pane eval'r (default when doing eval things)
+		case "P", "play":
+			context["item"] = "play"
+		// tree browser
+		case "T", "tree":
+			context["item"] = "tree"
+		// text editor
+		case "E", "edit", "editor":
+			context["item"] = "editor"
+		// flow panel
+		//case "flow":
+		//  context["item"] = "flow"
+
+
+
+		// should this be handled lower too?
+		// we might want a more general 
+		// sources?
+		case "sh", "bash":
+			context["source"] = "bash"
+
+		//
+		// what's acted upon, location within
+		//
+		
+		// default, the current focused item
+		case "s", "self":
+			context["where"] = "self"
+
+		// eventually, which dashboard
+		// here, there, new, extend
+
+		// panel relative
 		case "h", "head", "f", "first":
 			context["where"] = "head"
 		case "l", "last", "t", "tail", "e", "end":
 			context["where"] = "last"
-
 		case "b", "before", "p", "prev":
 			context["where"] = "before"
 		case "a", "after", "n", "next":
@@ -50,38 +121,23 @@ func processArgsAndContext(args []string, context map[string]any) ([]string, map
 		case "J":
 			context["where"] = "bottom"
 
-		case "P", "play":
-			context["mode"] = "play"
-		case "N", "new":
-			context["mode"] = "new"
-		case "T", "tree":
-			context["mode"] = "tree"
-		case "C", "cue":
-			context["mode"] = "cue"
-		case "yaml":
-			context["mode"] = "yaml"
-		case "json":
-			context["mode"] = "json"
-		case "flow":
-			context["mode"] = "flow"
-		case "eval":
-			context["mode"] = "eval"
+		// default is the browser
+		// setup the play with the eval as scope
 
-		case "help":
-			context["with"] = "help"
+		// these are more options, should be handled lower down, with item local parser
+		//case "C", "cue":
+		//  context["mode"] = "cue"
+		//case "yaml":
+		//  context["mode"] = "yaml"
+		//case "json":
+		//  context["mode"] = "json"
+
 
 		// UPDATE, these probably become ALT-... keys
 		// connect (start and end modes)
 		// set colors while in progress
 		// or also support passing all at once
 		// also support mouse clicking
-		//case "x", "conn", "connect":
-		//  context["action"] = "connect"
-		//case "X", "sconn", "scoped-connect":
-		//  context["action"] = "scoped-connect"
-
-		case "sh", "bash":
-			context["with"] = tok
 
 		// user intention, end of args
 		case "--":
@@ -107,15 +163,23 @@ argsDone:
 
 	// handle some special cases
 	if len(args) > 0 && strings.HasPrefix(args[0], "http") {
-		context["with"] = "http"
+		context["source"] = "http"
 		context["from"] = args[0]
 		args = args[1:]
+	}
+
+	// update the current focused item by default
+	if _, ok := context["action"]; !ok {
+		context["action"] = "update"
+	}
+
+	if _, ok := context["item"]; !ok {
+		context["item"] = "tree"
 	}
 
 	// make sure we update the context args
 	context["args"] = args
 
-	// tui.Log("info", fmt.Sprintf("parse.args-n-ctx.END: %v %v", args, context))
-
-	return args, context
+	tui.Log("trace", fmt.Sprintf("enrichContext.END: %# v", context))
+	return context
 }

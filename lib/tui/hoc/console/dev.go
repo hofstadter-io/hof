@@ -32,6 +32,9 @@ func NewDevConsoleWidget() *DevConsoleWidget {
 }
 
 func (C *DevConsoleWidget) Mount(context map[string]interface{}) error {
+	tui.AddWidgetHandler(C, "/sys/key/A-x", func (e events.Event) {
+		C.Clear()
+	})
 	tui.AddGlobalHandler("/console", func(ev events.Event) {
 		d := ev.Data
 		switch t := ev.Data.(type) {
@@ -49,17 +52,19 @@ func (C *DevConsoleWidget) Mount(context map[string]interface{}) error {
 		} else {
 			switch level {
 			case "crit":
-				line = fmt.Sprintf("[red]CRIT   %s[white]", line)
+				line = fmt.Sprintf("[#FF00FF]CRIT   %s[ivory]", line)
 			case "error":
-				line = fmt.Sprintf("[orange]ERROR  %s[white]", line)
+				line = fmt.Sprintf("[red]ERROR  %s[ivory]", line)
 			case "warn":
-				line = fmt.Sprintf("[yellow]WARN   %s[white]", line)
+				line = fmt.Sprintf("[gold]WARN   %s[ivory]", line)
 			case "info":
-				line = fmt.Sprintf("INFO  %s", line)
+				line = fmt.Sprintf("[ivory]INFO   %s[ivory]", line)
+			case "extra":
+				line = fmt.Sprintf("[lightskyblue]EXTRA  %s[ivory]", line)
 			case "debug":
-				line = fmt.Sprintf("[green]DEBUG  %s[white]", line)
+				line = fmt.Sprintf("[deepskyblue]DEBUG  %s[ivory]", line)
 			case "trace":
-				line = fmt.Sprintf("[aqua]TRACE  %s[white]", line)
+				line = fmt.Sprintf("[lawngreen]TRACE  %s[ivory]", line)
 			}
 		}
 

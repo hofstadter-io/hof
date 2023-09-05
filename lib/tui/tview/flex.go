@@ -321,6 +321,9 @@ func (f *Flex) HasFocus() bool {
 	f.Box.mutex.RLock()
 	defer f.Box.mutex.RUnlock()
 	for _, item := range f.items {
+		if item == nil {
+			panic("nil item")
+		}
 		if item.Item != nil && item.Item.HasFocus() {
 			return true
 		}

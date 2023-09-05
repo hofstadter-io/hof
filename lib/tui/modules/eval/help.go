@@ -13,6 +13,7 @@ const EvalHelpText = `
   [lime]C-<space>[-]    focus the command bar
   [lime]A-<space>[-]    focus the main content
   [lime]A-/[-]          show / hide the console
+  [lime]A-x[-]          clear the console logs
   [lime]A-z[-]          show / hide the error log
 
 [blue]Exit:[-]          [red]Ctrl-Alt-c[-]    close [gold]_[ivory]Hofstadter[-]
@@ -81,6 +82,11 @@ const EvalHelpText = `
     (hof tui ls  or   C-<space> ... ls<enter>)
   double clicking a file CUE understands will open
   it back in the evaluator, which is preserved
+
+
+[blue]Command Examples:[-]
+
+... tbd
 
 `
 

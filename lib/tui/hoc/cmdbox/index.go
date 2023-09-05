@@ -19,7 +19,7 @@ type Command interface {
 	CommandUsage() string
 	CommandHelp() string
 
-	CommandCallback(args []string, context map[string]any)
+	CommandCallback(context map[string]any)
 }
 
 type DefaultCommand struct {
@@ -27,7 +27,7 @@ type DefaultCommand struct {
 	Usage string
 	Help  string
 
-	Callback func(args []string, context map[string]interface{})
+	Callback func(context map[string]interface{})
 }
 
 func (DC *DefaultCommand) CommandName() string {
@@ -42,8 +42,8 @@ func (DC *DefaultCommand) CommandUsage() string {
 	return DC.Usage
 }
 
-func (DC *DefaultCommand) CommandCallback(args []string, context map[string]interface{}) {
-	DC.Callback(args, context)
+func (DC *DefaultCommand) CommandCallback(context map[string]interface{}) {
+	DC.Callback(context)
 }
 
 type CmdBoxWidget struct {
@@ -78,7 +78,7 @@ func (CB *CmdBoxWidget) Id() string {
 	return CB.InputField.Id()
 }
 
-func (CB *CmdBoxWidget) AddCommandCallback(command string, callback func([]string, map[string]interface{})) Command {
+func (CB *CmdBoxWidget) AddCommandCallback(command string, callback func(map[string]interface{})) Command {
 	CB.Lock()
 	defer CB.Unlock()
 	c := &DefaultCommand{
@@ -110,8 +110,6 @@ func (CB *CmdBoxWidget) Mount(context map[string]interface{}) error {
 		CB.Unlock()
 
 		CB.SetText("")
-		CB.SetFieldTextColor(tcell.ColorIvory)
-		CB.SetBorderColor(tcell.Color69)
 
 		CB.lastFocus = tui.GetFocus()
 		tui.SetFocus(CB.InputField)
@@ -126,7 +124,6 @@ func (CB *CmdBoxWidget) Mount(context map[string]interface{}) error {
 				flds := strings.Fields(input)
 				CB.Submit(flds[0], flds[1:])
 				CB.SetText("")
-				CB.SetBorderColor(tcell.ColorBlue)
 			
 				if CB.lastFocus != nil {
 					tui.SetFocus(CB.lastFocus)
@@ -137,7 +134,6 @@ func (CB *CmdBoxWidget) Mount(context map[string]interface{}) error {
 			}
 		case tcell.KeyEscape:
 			CB.SetText("")
-			CB.SetBorderColor(tcell.ColorBlue)
 			if CB.lastFocus != nil {
 				tui.SetFocus(CB.lastFocus)
 				CB.lastFocus = nil
@@ -194,7 +190,8 @@ func (CB *CmdBoxWidget) Submit(command string, args []string) {
 		return
 	}
 
-	go cmd.CommandCallback(args, nil)
+	ctx := map[string]any{ "args": args }
+	go cmd.CommandCallback(ctx)
 }
 
 // InputHandler returns the handler for this primitive.

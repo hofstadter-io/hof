@@ -17,11 +17,12 @@ import (
 type Commandables interface {
 	Commands() []Command
 }
+
 type Command interface {
 	CommandName() string
 	CommandUsage() string
 	CommandHelp() string
-	CommandCallback(args []string, context map[string]interface{})
+	CommandCallback(context map[string]interface{})
 }
 
 type RootView struct {
@@ -82,7 +83,8 @@ func (V *RootView) buildTopPanel() {
 		SetTitleAlign(tview.AlignLeft).
 		SetTitleColor(tcell.ColorIvory).
 		SetBorder(true).
-		SetBorderColor(tcell.ColorBlue)
+		SetBorderColor(tcell.ColorDodgerBlue)
+	V.cbox.SetFieldTextColor(tcell.ColorIvory)
 
 	V.sbar = statusbar.New()
 	V.sbar.SetBorderColor(tcell.ColorIvory)
