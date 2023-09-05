@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/hofstadter-io/hof/lib/tui"
+	"github.com/hofstadter-io/hof/lib/tui/modules/eval"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 	"github.com/hofstadter-io/hof/lib/tui/hoc/router"
 )
@@ -26,7 +27,7 @@ func NewHelp() *Help {
 		SetDynamicColors(true).
 		SetRegions(true)
 
-	fmt.Fprintln(view, helpContent)
+	fmt.Fprintln(view, eval.EvalHelpText)
 
 	h := &Help{
 		TextView: view,

@@ -155,7 +155,7 @@ func refresh(M *Eval, context map[string]any) error {
 
 	// first time? (other special cases?)
 	if item == nil {
-		item = NewItem(temp, M.Panel)
+		item = NewItem(temp, M.Panel, context)
 		M.Flex.AddItem(item, 0, 1, true)
 	} else {
 		item.SetItem(temp)

@@ -3,6 +3,7 @@ package eval
 import (
 	"fmt"
 
+	"cuelang.org/go/cue"
 	"github.com/gdamore/tcell/v2"
 
 	"github.com/hofstadter-io/hof/lib/tui/tview"
@@ -12,15 +13,30 @@ import (
 type Item struct {
 	*tview.Frame
 
+	// meta
 	_id   int
 	_name string
-	_item tview.Primitive
 
+	// tui
+	_item tview.Primitive
 	_parent *Panel	
+
+	// params++ this item was created with
+	_context map[string]any
+
+	// cue
+	_scope cue.Value
+	_value cue.Value
+	_final cue.Value
+	_text  string
+
+	// i/o connection (format tbd)
+	_iconns map[string]any
+	_oconns map[string]any
 }
 var text_count = 0
 
-func NewItem(item tview.Primitive, parent *Panel) *Item {
+func NewItem(item tview.Primitive, parent *Panel, context map[string]any) *Item {
 	t := &Item{
 		_item: item,
 		_id: text_count,

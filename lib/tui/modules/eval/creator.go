@@ -43,7 +43,7 @@ func defaultCreator (context map[string]any, parent *Panel) (tview.Primitive) {
 		t := tview.NewTextView()
 		t.SetDynamicColors(true)
 		fmt.Fprint(t, EvalHelpText)
-		return NewItem(t, parent)
+		return NewItem(t, parent, context)
 	}
 
 	// get infromation from context
@@ -127,7 +127,7 @@ func defaultCreator (context map[string]any, parent *Panel) (tview.Primitive) {
 		t = txt
 	}
 
-	return NewItem(t, parent)
+	return NewItem(t, parent, context)
 }
 
 func (P *Panel) loadRuntime(args []string) error {

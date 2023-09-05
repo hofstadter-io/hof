@@ -7,7 +7,6 @@ import (
 
 	// base modules
 	"github.com/hofstadter-io/hof/lib/tui/modules/root"
-	"github.com/hofstadter-io/hof/lib/tui/modules/home"
 	"github.com/hofstadter-io/hof/lib/tui/modules/help"
 
 	// core modules
@@ -31,7 +30,6 @@ func Init() {
 		rootView,
 
 		// base modules
-		home.New(),
 		help.New(),
 
 		// core modules

@@ -81,10 +81,14 @@ func Cmd(args []string, rflags flags.RootPflagpole) error {
 		}
 	}()
 
-	path := "home"
+
+	// some special cases to deal with no-args startup
+	path := "eval"
 	if len(args) > 0 {
 		path = args[0]
 		args = os.Args[2:]
+	} else {
+		args = []string{"eval"}
 	}
 
 	// some special case for `hof tui eval` vs `hof eval --tui`
