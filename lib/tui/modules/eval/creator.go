@@ -72,7 +72,31 @@ func (P *Panel) creator(context map[string]any, parent *Panel) (*Item, error) {
 		item = _item.(string)
 	}
 
+	source := ""
+	if _source, ok := context["source"]; ok {
+		source = _source.(string)
+	}
+
 	I := NewItem(context, parent)
+
+	if source != "" {
+		switch source {
+		case "http":
+			from := ""
+			if _from, ok := context["from"]; ok {
+				from = _from.(string)
+			}
+			I.loadHttpValue(from)
+		case "bash":
+			I.loadBashValue(args)
+		default:
+			return I, fmt.Errorf("unknown data source %q", source)
+		}
+	} else {
+		// TODO, how to support value vs scope desire
+		I._runtimeArgs = args
+		_ = I.loadRuntime(args, true)
+	}
 
 	switch item {
 	case "help":
@@ -87,9 +111,13 @@ func (P *Panel) creator(context map[string]any, parent *Panel) (*Item, error) {
 		if len(args) == 1 && args[0] == "new" {
 			e = components.NewValueEvaluator("", cue.Value{}, cue.Value{})
 			e.UseScope(false)
+		} else if source != "" {
+			// TODO, how to support value vs scope desire
+			e = components.NewValueEvaluator("", I._value, cue.Value{})
+			e.SetText(I._text)
+			e.UseScope(false)
 		} else {
-			I._runtimeArgs = args
-			_ = I.loadRuntime(args, true)
+			// TODO, how to support value vs scope desire
 			e = components.NewValueEvaluator("", cue.Value{}, I._scopeR.Value)
 			e.UseScope(true)
 		}
@@ -99,8 +127,6 @@ func (P *Panel) creator(context map[string]any, parent *Panel) (*Item, error) {
 
 	case "tree":
 		tui.Log("debug", "Panel.creator: tree")
-		I._runtimeArgs = args
-		_ = I.loadRuntime(args, false)
 		b := components.NewValueBrowser(I._value, "cue", func(string){})
 		b.SetTitle(fmt.Sprintf("  %v  ", args)).SetBorder(true)
 		b.Mount(context)
@@ -218,13 +244,13 @@ func (I *Item) loadRuntime(args []string, forScope bool) error {
 	return nil
 }
 
-func (I *Item) loadHttpValue(from string) error {
+func (I *Item) loadHttpValue(source string) error {
 	// tui.Log("trace", fmt.Sprintf("Panel.loadHttpValue: %s %s", mode, from))
 
 	// rework any cue/play links
-	f := from
-	if strings.Contains(from, "cuelang.org/play") {
-		u, err := url.Parse(from)
+	f := source
+	if strings.Contains(source, "cuelang.org/play") {
+		u, err := url.Parse(source)
 		if err != nil {
 			tui.Log("error", err)
 			return err
@@ -245,7 +271,7 @@ func (I *Item) loadHttpValue(from string) error {
 	ctx := cuecontext.New()
 	I._value = ctx.CompileString(content, cue.InferBuiltins(true))
 
-	content = "// from: " + from + "\n\n" + content
+	content = "// from: " + source + "\n\n" + content
 	I._text = content
 
 	return nil
