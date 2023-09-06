@@ -207,13 +207,14 @@ argsDone:
 		args = args[1:]
 	}
 
+	// I don't think we want defaults here
 	// update the current focused item by default
 	if _, ok := context["action"]; !ok {
 		context["action"] = "update"
 	}
 
 	if _, ok := context["item"]; !ok {
-		context["item"] = "tree"
+		context["item"] = "play"
 	}
 
 	// make sure we update the context args

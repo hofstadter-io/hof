@@ -386,11 +386,17 @@ func (P *Panel) updatePanelItem(context map[string]any) {
 	t, _ := panel.creator(context, panel)
 	tui.SetFocus(t)
 
+	// just insert, this happens on first load and such
+	if P.GetItemCount() == 0 {
+		panel.Flex.AddItem(t, 0, 1, true)
+	}
+
 	if cfi < 0 {
 		tui.Log("error", fmt.Sprintf("negative cfi %# v\n", context))
 		return
 	}
 
+	// update a position
 	panel.Flex.SetItem(cfi, t, 0, 1, true)
 }
 

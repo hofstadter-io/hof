@@ -35,6 +35,11 @@ func init() {
 
 // this is going to take a bit more time...
 
+//
+// TODO, this creator should really be on the items, Panel should not know about CUE
+//       we might want to think about using a router or cobra like thing here
+//
+
 
 // this function is responsable for creating the components that fill slots in the panel
 // these are the widgets that make up the application and should have their own operation
@@ -67,7 +72,8 @@ func (P *Panel) creator(context map[string]any, parent *Panel) (*Item, error) {
 		}
 	}
 
-	item := ""
+	// decide default item here
+	item := "play"
 	if _item, ok := context["item"]; ok {
 		item = _item.(string)
 	}
@@ -79,44 +85,61 @@ func (P *Panel) creator(context map[string]any, parent *Panel) (*Item, error) {
 
 	I := NewItem(context, parent)
 
+	// special case loading of a single value
 	if source != "" {
+		var err error
 		switch source {
 		case "http":
 			from := ""
 			if _from, ok := context["from"]; ok {
 				from = _from.(string)
 			}
-			I.loadHttpValue(from)
+			err = I.loadHttpValue(from)
 		case "bash":
 			I.loadBashValue(args)
 		default:
 			return I, fmt.Errorf("unknown data source %q", source)
 		}
-	} else {
-		// TODO, how to support value vs scope desire
-		I._runtimeArgs = args
-		_ = I.loadRuntime(args, true)
+
+		// value load
+		if err != nil {
+			txt := NewTextView()
+			fmt.Fprint(txt, err)
+			I.SetWidget(txt)
+			return I, err
+		}
 	}
 
 	switch item {
 	case "help":
-		tui.Log("debug", "Panel.creator: help")
+		// no value needed
 		txt := NewTextView()
 		fmt.Fprint(txt, EvalHelpText)
 		I.SetWidget(txt)
 
 	case "play":
-		tui.Log("debug", "Panel.creator: play")
 		var e *components.ValueEvaluator
+
 		if len(args) == 1 && args[0] == "new" {
 			e = components.NewValueEvaluator("", cue.Value{}, cue.Value{})
 			e.UseScope(false)
 		} else if source != "" {
+
+			// (value already loaded, but what if the user wanted it as a scope?
 			// TODO, how to support value vs scope desire
 			e = components.NewValueEvaluator("", I._value, cue.Value{})
 			e.SetText(I._text)
 			e.UseScope(false)
 		} else {
+			// scoped load
+			I._runtimeArgs = args
+			err := I.loadRuntime(args, true)
+			if err != nil {
+				txt := NewTextView()
+				fmt.Fprint(txt, err)
+				I.SetWidget(txt)
+				return I, err
+			}
 			// TODO, how to support value vs scope desire
 			e = components.NewValueEvaluator("", cue.Value{}, I._scopeR.Value)
 			e.UseScope(true)
@@ -126,7 +149,17 @@ func (P *Panel) creator(context map[string]any, parent *Panel) (*Item, error) {
 		I.SetWidget(e)
 
 	case "tree":
-		tui.Log("debug", "Panel.creator: tree")
+		// we are loading CUE, always as the value for a tree
+		if source == "" {
+			I._runtimeArgs = args
+			err := I.loadRuntime(args, false)
+			if err != nil {
+				txt := NewTextView()
+				fmt.Fprint(txt, err)
+				I.SetWidget(txt)
+				return I, err
+			}
+		}
 		b := components.NewValueBrowser(I._value, "cue", func(string){})
 		b.SetTitle(fmt.Sprintf("  %v  ", args)).SetBorder(true)
 		b.Mount(context)
@@ -134,50 +167,7 @@ func (P *Panel) creator(context map[string]any, parent *Panel) (*Item, error) {
 		I.SetWidget(b)
 
 	default:
-		return I.defaultWidget(context, parent)
-
-	}
-
-	return I, nil
-}
-
-func (I *Item) defaultWidget(context map[string]any, parent *Panel) (*Item, error) {
-	tui.Log("debug", fmt.Sprintf("Panel.defaultWidget: %v", context ))
-
-	// with ? already known?
-	source := ""
-	if _src, ok := context["source"]; ok {
-		source = _src.(string)
-	}
-
-	// decide what to build
-	switch source {
-
-	case "http":
-		var from string
-		if _from, ok := context["from"]; ok {
-			from = _from.(string)
-		}
-
-		I.loadHttpValue(from)
-		e := components.NewValueEvaluator(I._text, I._value, cue.Value{})
-		e.Mount(context)
-		e.Rebuild(context)
-		I.SetWidget(e)
-
-	case "bash":
-		args := []string{}
-		if _args, ok := context["args"]; ok {
-			args = _args.([]string)
-		}
-
-		I.loadBashValue(args)
-		e := components.NewValueEvaluator(I._text, I._value, cue.Value{})
-		e.Mount(context)
-		e.Rebuild(context)
-		I.SetWidget(e)
-
-	default:
+		// what is the default here
 		txt := NewTextView()
 		fmt.Fprint(txt, fmt.Sprintf("unhandled item create: \n%# v\n\n", context))
 		fmt.Fprint(txt, EvalHelpText)
