@@ -87,6 +87,7 @@ func (M *Eval) Unmount() error {
 
 // todo, add more functions so that we can separate new command messages from refresh?
 
+// this is basically the entryp point
 func (M *Eval) Refresh(context map[string]any) error {
 	tui.Log("debug", fmt.Sprintf("Eval.refresh.1: %v", context ))
 
@@ -159,16 +160,16 @@ func (M *Eval) Refresh(context map[string]any) error {
 
 	// this should go away and be handled in the panel
 	// we want Eval to be dumb as bricks
-	if M.GetItemCount() == 0 {
-		I, err := M.Panel.creator(context, M.Panel)
-		if err != nil {
-			tui.Log("error", err)	
-			return err
-		}
-		M.AddItem(I, 0, 1, true)
-		tui.Draw()
-		return nil
-	}
+	//if M.GetItemCount() == 0 {
+	//  I, err := M.Panel.creator(context, M.Panel)
+	//  if err != nil {
+	//    tui.Log("error", err)	
+	//    return err
+	//  }
+	//  M.AddItem(I, 0, 1, true)
+	//  tui.Draw()
+	//  return nil
+	//}
 
 	panel := M.GetMostFocusedPanel()
 	if panel == nil {

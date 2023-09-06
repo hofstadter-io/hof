@@ -68,21 +68,25 @@ func Cmd(args []string, rflags flags.RootPflagpole) error {
 	// Run PProf (useful for catching hangs)
 	// go runPprofServer()
 
+	fmt.Printf("tui.Cmd args: %v\n", args)
 	tui.Log("trace", fmt.Sprintf("tui.Cmd args: %v", args))
 
-	// some special cases to deal with no-args startup
-	path := "eval"
-	if len(args) > 0 {
-		path = args[0]
-		args = os.Args[2:]
-	} else {
-		args = []string{"eval"}
-	}
 
-	// some special case for `hof tui eval` vs `hof eval --tui`
-	if len(args) == 1 && args[0] == "eval" {
-		// start on the help screen
-		args = append(args, "help")
+	// some special cases to deal with CLI base startup
+	path := "eval"
+	if len(args) == 0 {
+		args = []string{"eval", "help"}
+	} else {
+		switch args[0] {
+		case "eval":
+			if len(args) == 1 {
+				args = []string{"eval", "tree"}
+			}
+		case "play":
+			if len(args) == 1 {
+				args = []string{"eval", "play", "new"}
+			}
+		}
 	}
 
 	context := map[string]any{
