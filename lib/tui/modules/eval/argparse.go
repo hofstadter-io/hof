@@ -33,6 +33,10 @@ func enrichContext(context map[string]any) (map[string]any) {
 		args = args[1:]
 	}
 
+	// TODO, look to see if there is a ' -- '
+	// and if exists, always parse here until it is reached
+	// this will allow a user to be more exact and get better error messages
+
 	// find any modifiers
 	for len(args) > 0 {
 		tok := args[0]

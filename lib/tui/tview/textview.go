@@ -1366,10 +1366,10 @@ func (t *TextView) MouseHandler() func(action MouseAction, event *tcell.EventMou
 			consumed = true
 		case MouseScrollUp:
 			t.trackEnd = false
-			t.lineOffset -= 3
+			t.lineOffset -= 6
 			consumed = true
 		case MouseScrollDown:
-			t.lineOffset += 3
+			t.lineOffset += 6
 			consumed = true
 		}
 

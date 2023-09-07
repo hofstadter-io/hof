@@ -141,7 +141,7 @@ func (P *Panel) Focus(delegate func(p tview.Primitive)) {
 	if P.GetItemCount() > 0 {
 		P.Flex.Focus(delegate)
 	}
-	tui.SetFocus(P.Flex)
+	// tui.SetFocus(P)
 }
 
 func (P *Panel) Mount(context map[string]any) error {
@@ -402,9 +402,18 @@ func (P *Panel) updatePanelItem(context map[string]any) {
 
 func (P *Panel) movePanelItem(context map[string]any) {
 
-	p := P.GetMostFocusedPanel()
-	c := p.GetItemCount()
-	i := p.ChildFocus()
+	panel := P
+	if _panel, ok := context["panel"]; ok {
+		panel = _panel.(*Panel)
+	}
+	cfi := -1
+	if _cfi, ok := context["child-focus-index"]; ok {
+		cfi = _cfi.(int)
+		tui.Log("trace", fmt.Sprintf("setting cfi.1 %d\n", cfi))
+	}
+
+	c := panel.GetItemCount()
+	i := cfi
 
 	if c < 2 {
 		return 
@@ -431,59 +440,80 @@ func (P *Panel) movePanelItem(context map[string]any) {
 
 	// otherwise, we should be good to swap
 	// tui.Log("trace", fmt.Sprintf("swapping %d & %d in %s", i,j,p.Id()))
-	p.SwapIndexes(i,j)
+	panel.SwapIndexes(i,j)
 }
 
 func (P *Panel) deletePanelItem(context map[string]any) {
 
-	p := P.GetMostFocusedPanel()
-	i := p.ChildFocus()
+	panel := P
+	if _panel, ok := context["panel"]; ok {
+		panel = _panel.(*Panel)
+	}
+	cfi := -1
+	if _cfi, ok := context["child-focus-index"]; ok {
+		cfi = _cfi.(int)
+		tui.Log("trace", fmt.Sprintf("setting cfi.1 %d\n", cfi))
+	}
 
 	// do the removal
-	if i >= 0 {
-		p.RemoveIndex(i)
+	if cfi >= 0 {
+		panel.RemoveIndex(cfi)
 	} else {
-		pp := p._parent
-		pp.RemoveItem(p)
-		p = pp
+		pp := panel._parent
+		pp.RemoveItem(panel)
+		panel = pp
 	}
 
 	// do some cleanup
-	if p.GetItemCount() == 0 {
-		if p._parent != nil {
-			// remove ourself if parented
-			p._parent.RemoveItem(p)
-			tui.SetFocus(p._parent)
-		} else {
+	if panel.GetItemCount() == 0 {
+		addHelp := func() {
 			// add default item, we are the root
 			context["action"] = "insert"
 			context["item"] = "help"
-			t, _ := p.creator(context, p)
-			p.AddItem(t, 0, 1, true)	
-			tui.SetFocus(t)
+			t, _ := panel.creator(context, panel)
+			panel.AddItem(t, 0, 1, true)	
+		}
+		if panel._parent != nil {
+			// remove ourself if parented
+			panel._parent.RemoveItem(panel)
+			panel = panel._parent
+			if panel.GetItemCount() == 0 {
+				addHelp()	
+			}
+		} else {
+			addHelp()	
 		}
 	}
 
+	tui.SetFocus(panel)
 }
 
 func (P *Panel) splitPanelItem(context map[string]any) {
 
-	p := P.GetMostFocusedPanel()
-	i := p.ChildFocus()
+	panel := P
+	if _panel, ok := context["panel"]; ok {
+		panel = _panel.(*Panel)
+	}
+	cfi := -1
+	if _cfi, ok := context["child-focus-index"]; ok {
+		cfi = _cfi.(int)
+		tui.Log("trace", fmt.Sprintf("setting cfi.1 %d\n", cfi))
+	}
 
 	// tui.Log("error", fmt.Sprintf("Panel.split: %v %v", p.Id(), i))
 
 	// there is a child that we are going to split
-	if i >= 0 {
+	if cfi >= 0 {
 		// shortcut, just add if there aren't enough children
 		// they can hit it twice to get the next split
-		if p.GetItemCount() < 2 {
-			t, _ := p.creator(context, p)
-			p.AddItem(t, 0, 1, true)
+		if panel.GetItemCount() < 2 {
+			t, _ := panel.creator(context, panel)
+			panel.AddItem(t, 0, 1, true)
+			return
 		}
 
-		c := p.GetItem(i)
-		d := p.GetDirection()
+		c := panel.GetItem(cfi)
+		d := panel.GetDirection()
 		if d == tview.FlexColumn {
 			d = tview.FlexRow
 		} else {
@@ -493,16 +523,16 @@ func (P *Panel) splitPanelItem(context map[string]any) {
 		switch c.(type) {
 		case *Item:
 			// make a new panel, opposite dir
-			n := NewPanel(p, nil)
+			n := NewPanel(panel, nil)
 			n.Flex.SetDirection(d)
 			n.AddItem(c, 0, 1, true)
 			context["action"] = "insert"
 			context["item"] = "help"
-			t, _ := n.creator(context, p)
+			t, _ := n.creator(context, panel)
 			n.AddItem(t, 0, 1, true)
 			// setupEventHandlers(n, nil, nil)
 
-			p.SetItem(i, n, 0, 1, true)
+			panel.SetItem(cfi, n, 0, 1, true)
 			tui.SetFocus(n)
 		}
 
@@ -511,8 +541,8 @@ func (P *Panel) splitPanelItem(context map[string]any) {
 		// not sure we will get here...
 		context["action"] = "insert"
 		context["item"] = "help"
-		t, _ := p.creator(context, p)
-		p.AddItem(t, 0, 1, true)
+		t, _ := panel.creator(context, panel)
+		panel.AddItem(t, 0, 1, true)
 		tui.SetFocus(t)
 	}
 
@@ -588,4 +618,12 @@ func (P *Panel) FlipFlexDirection() {
 		flexDir = tview.FlexRow
 	}
 	P.Flex.SetDirection(flexDir)
+
+	for _, i := range P.GetItems() {
+		switch t := i.Item.(type) {
+		case *Panel:
+			t.FlipFlexDirection()
+		}
+	}
+
 }

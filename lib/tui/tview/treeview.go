@@ -9,12 +9,14 @@ const (
 	treeNone int = iota
 	treeHome
 	treeEnd
-	treeMove
+	treeUp
+	treeDown
+	treePageUp
+	treePageDown
 	treeParent
 	treeChild
-	treeScroll // Move without changing the selection, even when off screen.
-	nodeFirst
-	nodeLast
+	treeScrollUp // Move up without changing the selection, even when off screen.
+	treeScrollDown
 )
 
 // TreeNode represents one node in a tree view.
@@ -42,9 +44,6 @@ type TreeNode struct {
 
 	// An optional function which is called when the user selects this node.
 	selected func()
-
-	// An optional function which is called when the user double clicks this node.
-	clicked func()
 
 	// The hierarchy level (0 for the root, 1 for its children, and so on). This
 	// is only up to date immediately after a call to process() (e.g. via
@@ -87,6 +86,9 @@ func (n *TreeNode) Walk(callback func(node, parent *TreeNode) bool) *TreeNode {
 
 		// Add children in reverse order.
 		for index := len(node.children) - 1; index >= 0; index-- {
+      if node.children[index] == nil {
+        continue
+      }
 			node.children[index].parent = node
 			nodes = append(nodes, node.children[index])
 		}
@@ -162,13 +164,6 @@ func (n *TreeNode) SetSelectedFunc(handler func()) *TreeNode {
 	return n
 }
 
-// SetSelectedFunc sets a function which is called when the user selects this
-// node by hitting Enter when it is selected.
-func (n *TreeNode) SetDoubleClickFunc(handler func()) *TreeNode {
-	n.clicked = handler
-	return n
-}
-
 // SetExpanded sets whether or not this node's child nodes should be displayed.
 func (n *TreeNode) SetExpanded(expanded bool) *TreeNode {
 	n.expanded = expanded
@@ -199,7 +194,7 @@ func (n *TreeNode) ExpandAll() *TreeNode {
 // CollapseAll collapses this node and all descendent nodes.
 func (n *TreeNode) CollapseAll() *TreeNode {
 	n.Walk(func(node, parent *TreeNode) bool {
-		node.expanded = false
+		n.expanded = false
 		return true
 	})
 	return n
@@ -259,8 +254,8 @@ func (n *TreeNode) GetLevel() int {
 //   - k, up arrow, left arrow: Move (the selection) up by one node.
 //   - g, home: Move (the selection) to the top.
 //   - G, end: Move (the selection) to the bottom.
-//   - J: Move (the selection) up one level (if that node is selectable).
-//   - K: Move (the selection) to the last node one level down (if any).
+//   - J: Move (the selection) up one level.
+//   - K: Move (the selection) down one level (if it is shown).
 //   - Ctrl-F, page down: Move (the selection) down by one page.
 //   - Ctrl-B, page up: Move (the selection) up by one page.
 //
@@ -286,17 +281,9 @@ type TreeView struct {
 	// The currently selected node or nil if no node is selected.
 	currentNode *TreeNode
 
-	// The last note that was selected or nil of there is no such node.
-	lastNode *TreeNode
-
 	// The movement to be performed during the call to Draw(), one of the
 	// constants defined above.
 	movement int
-
-	// The number of nodes to move down or up, when movement is treeMove,
-	// excluding non-selectable nodes for selection movement, including them for
-	// scrolling.
-	step int
 
 	// The top hierarchical level shown. (0 corresponds to the root level.)
 	topLevel int
@@ -323,19 +310,12 @@ type TreeView struct {
 	// An optional function which is called when a tree item was selected.
 	selected func(node *TreeNode)
 
-	// An optional function which is called when a tree item was double clicked.
-	clicked func(node *TreeNode)
-
 	// An optional function which is called when the user moves away from this
 	// primitive.
 	done func(key tcell.Key)
 
 	// The visible nodes, top-down, as set by process().
 	nodes []*TreeNode
-
-	// Temporarily set to true while we know that the tree has not changed and
-	// therefore does not need to be reprocessed.
-	stableNodes bool
 }
 
 // NewTreeView returns a new tree view.
@@ -363,9 +343,7 @@ func (t *TreeView) GetRoot() *TreeNode {
 // selections. Selected nodes must be visible and selectable, or else the
 // selection will be changed to the top-most selectable and visible node.
 //
-// This function does NOT trigger the "changed" callback because the actual node
-// that will be selected is not known until the tree is drawn. Triggering the
-// "changed" callback is thus deferred until the next call to [TreeView.Draw].
+// This function does NOT trigger the "changed" callback.
 func (t *TreeView) SetCurrentNode(node *TreeNode) *TreeView {
 	t.currentNode = node
 	return t
@@ -392,10 +370,8 @@ func (t *TreeView) SetTopLevel(topLevel int) *TreeView {
 //
 // For example, to display a hierarchical list with bullet points:
 //
-//	treeView.SetGraphics(false).
-//	  SetPrefixes([]string{"* ", "- ", "x "})
-//
-// Deeper levels will cycle through the prefixes.
+//   treeView.SetGraphics(false).
+//     SetPrefixes([]string{"* ", "- ", "x "})
 func (t *TreeView) SetPrefixes(prefixes []string) *TreeView {
 	t.prefixes = prefixes
 	return t
@@ -422,8 +398,8 @@ func (t *TreeView) SetGraphicsColor(color tcell.Color) *TreeView {
 	return t
 }
 
-// SetChangedFunc sets the function which is called when the currently selected
-// node changes, for example when the user navigates to a new tree node.
+// SetChangedFunc sets the function which is called when the user navigates to
+// a new tree node.
 func (t *TreeView) SetChangedFunc(handler func(node *TreeNode)) *TreeView {
 	t.changed = handler
 	return t
@@ -433,13 +409,6 @@ func (t *TreeView) SetChangedFunc(handler func(node *TreeNode)) *TreeView {
 // node by pressing Enter on the current selection.
 func (t *TreeView) SetSelectedFunc(handler func(node *TreeNode)) *TreeView {
 	t.selected = handler
-	return t
-}
-
-// SetSelectedFunc sets the function which is called when the user selects a
-// node by pressing Enter on the current selection.
-func (t *TreeView) SetDoubleClickedFunc(handler func(node *TreeNode)) *TreeView {
-	t.clicked = handler
 	return t
 }
 
@@ -465,38 +434,19 @@ func (t *TreeView) GetRowCount() int {
 	return len(t.nodes)
 }
 
-// Move moves the selection (if a node is currently selected) or scrolls the
-// tree view (if there is no selection), by the given offset (positive values to
-// move/scroll down, negative values to move/scroll up). For selection changes,
-// the offset refers to the number selectable, visible nodes. For scrolling, the
-// offset refers to the number of visible nodes.
-//
-// If the offset is 0, nothing happens.
-func (t *TreeView) Move(offset int) *TreeView {
-	if offset == 0 {
-		return t
-	}
-	t.movement = treeMove
-	t.step = offset
-	t.process(false)
-	return t
-}
-
 // process builds the visible tree, populates the "nodes" slice, and processes
-// pending movement actions. Set "drawingAfter" to true if you know that
-// [TreeView.Draw] will be called immediately after this function (to avoid
-// having [TreeView.Draw] call it again).
-func (t *TreeView) process(drawingAfter bool) {
-	t.stableNodes = drawingAfter
+// pending selection actions.
+func (t *TreeView) Process() {
 	_, _, _, height := t.GetInnerRect()
 
 	// Determine visible nodes and their placement.
+	var graphicsOffset, maxTextX, parentSelectedIndex int
 	t.nodes = nil
 	if t.root == nil {
 		return
 	}
-	parentSelectedIndex, selectedIndex, topLevelGraphicsX := -1, -1, -1
-	var graphicsOffset, maxTextX int
+	selectedIndex := -1
+	topLevelGraphicsX := -1
 	if t.graphics {
 		graphicsOffset = 1
 	}
@@ -530,14 +480,6 @@ func (t *TreeView) process(drawingAfter bool) {
 			}
 			if node == t.currentNode && node.selectable {
 				selectedIndex = len(t.nodes)
-
-				// Also find parent node.
-				for index := len(t.nodes) - 1; index >= 0; index-- {
-					if t.nodes[index] == parent && t.nodes[index].selectable {
-						parentSelectedIndex = index
-						break
-					}
-				}
 			}
 
 			// Maybe we want to skip this level.
@@ -546,6 +488,11 @@ func (t *TreeView) process(drawingAfter bool) {
 			}
 
 			t.nodes = append(t.nodes, node)
+		}
+
+		// Keep track of the parent of the selected node.
+		if selectedIndex < 0 && node.selectable && len(node.children) > 0 && node.expanded {
+			parentSelectedIndex = len(t.nodes) - 1
 		}
 
 		// Recurse if desired.
@@ -569,58 +516,90 @@ func (t *TreeView) process(drawingAfter bool) {
 	// Process selection. (Also trigger events if necessary.)
 	if selectedIndex >= 0 {
 		// Move the selection.
+		newSelectedIndex := selectedIndex
+	MovementSwitch:
 		switch t.movement {
-		case treeMove:
-			for t.step < 0 { // Going up.
-				index := selectedIndex
-				for index > 0 {
-					index--
-					if t.nodes[index].selectable {
-						selectedIndex = index
-						break
-					}
+		case treeUp:
+			for newSelectedIndex > 0 {
+				newSelectedIndex--
+				if t.nodes[newSelectedIndex].selectable {
+					break MovementSwitch
 				}
-				t.step++
 			}
-			for t.step > 0 { // Going down.
-				index := selectedIndex
-				for index < len(t.nodes)-1 {
-					index++
-					if t.nodes[index].selectable {
-						selectedIndex = index
-						break
-					}
+			newSelectedIndex = selectedIndex
+		case treeDown:
+			for newSelectedIndex < len(t.nodes)-1 {
+				newSelectedIndex++
+				if t.nodes[newSelectedIndex].selectable {
+					break MovementSwitch
 				}
-				t.step--
 			}
+			newSelectedIndex = selectedIndex
+		case treeHome:
+			for newSelectedIndex = 0; newSelectedIndex < len(t.nodes); newSelectedIndex++ {
+				if t.nodes[newSelectedIndex].selectable {
+					break MovementSwitch
+				}
+			}
+			newSelectedIndex = selectedIndex
+		case treeEnd:
+			for newSelectedIndex = len(t.nodes) - 1; newSelectedIndex >= 0; newSelectedIndex-- {
+				if t.nodes[newSelectedIndex].selectable {
+					break MovementSwitch
+				}
+			}
+			newSelectedIndex = selectedIndex
+		case treePageDown:
+			if newSelectedIndex+height < len(t.nodes) {
+				newSelectedIndex += height
+			} else {
+				newSelectedIndex = len(t.nodes) - 1
+			}
+			for ; newSelectedIndex < len(t.nodes); newSelectedIndex++ {
+				if t.nodes[newSelectedIndex].selectable {
+					break MovementSwitch
+				}
+			}
+			newSelectedIndex = selectedIndex
+		case treePageUp:
+			if newSelectedIndex >= height {
+				newSelectedIndex -= height
+			} else {
+				newSelectedIndex = 0
+			}
+			for ; newSelectedIndex >= 0; newSelectedIndex-- {
+				if t.nodes[newSelectedIndex].selectable {
+					break MovementSwitch
+				}
+			}
+			newSelectedIndex = selectedIndex
 		case treeParent:
-			if parentSelectedIndex >= 0 {
-				selectedIndex = parentSelectedIndex
-			}
+			newSelectedIndex = parentSelectedIndex
 		case treeChild:
-			// for index < len(t.nodes)-1 {
-			index := selectedIndex
-			index++
-			if t.nodes[index].selectable && t.nodes[index].parent == t.nodes[selectedIndex] {
-				selectedIndex = index
+			for newSelectedIndex < len(t.nodes)-1 {
+				newSelectedIndex++
+				if t.nodes[newSelectedIndex].selectable && t.nodes[newSelectedIndex].parent == t.nodes[selectedIndex] {
+					break MovementSwitch
+				}
 			}
-
-			// }
+			newSelectedIndex = selectedIndex
 		}
-		t.currentNode = t.nodes[selectedIndex]
+		t.currentNode = t.nodes[newSelectedIndex]
+		if newSelectedIndex != selectedIndex {
+			t.movement = treeNone
+			if t.changed != nil {
+				t.changed(t.currentNode)
+			}
+		}
+		selectedIndex = newSelectedIndex
 
 		// Move selection into viewport.
-		if t.movement != treeScroll {
+		if t.movement != treeScrollDown && t.movement != treeScrollUp {
 			if selectedIndex-t.offsetY >= height {
 				t.offsetY = selectedIndex - height + 1
 			}
 			if selectedIndex < t.offsetY {
 				t.offsetY = selectedIndex
-			}
-			if t.movement != treeHome && t.movement != treeEnd {
-				// treeScroll, treeHome, and treeEnd are handled by Draw().
-				t.movement = treeNone
-				t.step = 0
 			}
 		}
 	} else {
@@ -638,12 +617,6 @@ func (t *TreeView) process(drawingAfter bool) {
 			t.currentNode = nil
 		}
 	}
-
-	// Trigger "changed" callback.
-	if t.changed != nil && t.currentNode != nil && t.currentNode != t.lastNode {
-		t.changed(t.currentNode)
-	}
-	t.lastNode = t.currentNode
 }
 
 // Draw draws this primitive onto the screen.
@@ -654,24 +627,27 @@ func (t *TreeView) Draw(screen tcell.Screen) {
 	}
 	_, totalHeight := screen.Size()
 
-	if !t.stableNodes {
-		t.process(false)
-	} else {
-		t.stableNodes = false
-	}
+	t.Process()
 
-	// Scroll the tree, t.movement is treeNone after process() when there is a
-	// selection, except for treeScroll, treeHome, and treeEnd.
+	// Scroll the tree.
 	x, y, width, height := t.GetInnerRect()
 	switch t.movement {
-	case treeMove, treeScroll:
-		t.offsetY += t.step
+	case treeUp:
+		t.offsetY--
+	case treeScrollUp:
+		t.offsetY -= 6
+	case treeDown:
+		t.offsetY++
+	case treeScrollDown:
+		t.offsetY += 6
 	case treeHome:
-		t.currentNode = t.root.children[0]
 		t.offsetY = 0
 	case treeEnd:
-		t.currentNode = t.root.children[len(t.root.children)-1]
 		t.offsetY = len(t.nodes)
+	case treePageUp:
+		t.offsetY -= height
+	case treePageDown:
+		t.offsetY += height
 	}
 	t.movement = treeNone
 
@@ -753,6 +729,8 @@ func (t *TreeView) Draw(screen tcell.Screen) {
 		// Advance.
 		posY++
 	}
+	// t.DrawOverflow(screen, t.offsetY != 0, (t.offsetY != len(t.nodes)-t.innerHeight) && len(t.nodes) > t.innerHeight)
+
 }
 
 // InputHandler returns the handler for this primitive.
@@ -778,23 +756,17 @@ func (t *TreeView) InputHandler() func(event *tcell.EventKey, setFocus func(p Pr
 				t.done(key)
 			}
 		case tcell.KeyDown, tcell.KeyRight:
-			t.movement = treeMove
-			t.step = 1
+			t.movement = treeDown
 		case tcell.KeyUp, tcell.KeyLeft:
-			t.movement = treeMove
-			t.step = -1
+			t.movement = treeUp
 		case tcell.KeyHome:
 			t.movement = treeHome
 		case tcell.KeyEnd:
 			t.movement = treeEnd
 		case tcell.KeyPgDn, tcell.KeyCtrlF:
-			_, _, _, height := t.GetInnerRect()
-			t.movement = treeMove
-			t.step = height
+			t.movement = treePageDown
 		case tcell.KeyPgUp, tcell.KeyCtrlB:
-			_, _, _, height := t.GetInnerRect()
-			t.movement = treeMove
-			t.step = -height
+			t.movement = treePageUp
 		case tcell.KeyRune:
 			switch event.Rune() {
 			case 'g':
@@ -802,13 +774,11 @@ func (t *TreeView) InputHandler() func(event *tcell.EventKey, setFocus func(p Pr
 			case 'G':
 				t.movement = treeEnd
 			case 'j':
-				t.movement = treeMove
-				t.step = 1
+				t.movement = treeDown
 			case 'J':
 				t.movement = treeChild
 			case 'k':
-				t.movement = treeMove
-				t.step = -1
+				t.movement = treeUp
 			case 'K':
 				t.movement = treeParent
 			case ' ':
@@ -818,7 +788,7 @@ func (t *TreeView) InputHandler() func(event *tcell.EventKey, setFocus func(p Pr
 			selectNode()
 		}
 
-		t.process(true)
+		t.Process()
 	})
 }
 
@@ -831,10 +801,8 @@ func (t *TreeView) MouseHandler() func(action MouseAction, event *tcell.EventMou
 		}
 
 		switch action {
-		case MouseLeftDown:
+		case MouseLeftClick:
 			setFocus(t)
-			consumed = true
-		case MouseLeftDoubleClick, MouseLeftClick:
 			_, rectY, _, _ := t.GetInnerRect()
 			y += t.offsetY - rectY
 			if y >= 0 && y < len(t.nodes) {
@@ -845,28 +813,20 @@ func (t *TreeView) MouseHandler() func(action MouseAction, event *tcell.EventMou
 					if previousNode != node && t.changed != nil {
 						t.changed(node)
 					}
-					if action == MouseLeftClick && t.selected != nil {
+					if t.selected != nil {
 						t.selected(node)
 					}
-					if action == MouseLeftDoubleClick && t.clicked != nil {
-						t.clicked(node)
-					}
-					if action == MouseLeftClick && node.selected != nil {
+					if node.selected != nil {
 						node.selected()
-					}
-					if action == MouseLeftClick && node.clicked != nil {
-						node.clicked()
 					}
 				}
 			}
 			consumed = true
 		case MouseScrollUp:
-			t.movement = treeScroll
-			t.step = -1
+			t.movement = treeScrollUp
 			consumed = true
 		case MouseScrollDown:
-			t.movement = treeScroll
-			t.step = 1
+			t.movement = treeScrollDown
 			consumed = true
 		}
 
