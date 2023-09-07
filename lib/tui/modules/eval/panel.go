@@ -259,37 +259,46 @@ func (P *Panel) insertPanelItem(context map[string]any) {
 		}	
 	}
 
-	i := P.ChildFocus()
-	if i == -1 {
-		tui.Log("error", fmt.Sprintf("nil child in Panel.insertPanelItem: %v %#v", P.Id(), context))
+	panel := P
+	if _panel, ok := context["panel"]; ok {
+		panel = _panel.(*Panel)
+	}
+	cfi := -1
+	if _cfi, ok := context["child-focus-index"]; ok {
+		cfi = _cfi.(int)
+		tui.Log("trace", fmt.Sprintf("setting cfi.1 %d\n", cfi))
+	}
+
+	if cfi == -1 {
+		tui.Log("error", fmt.Sprintf("nil child in Panel.insertPanelItem: %v %#v", panel.Id(), context))
 		where = "tail"
 	}
 	
 	switch where {
 
 	case "head":
-		t, _ := P.creator(context, P)
-		P.Flex.InsItem(0, t, 0, 1, true)
+		t, _ := panel.creator(context, panel)
+		panel.Flex.InsItem(0, t, 0, 1, true)
 		tui.SetFocus(t)
 
 	case "prev":
-		t, _ := P.creator(context, P)
-		P.Flex.InsItem(i, t, 0, 1, true)
+		t, _ := panel.creator(context, panel)
+		panel.Flex.InsItem(cfi, t, 0, 1, true)
 		tui.SetFocus(t)
 
 	case "next":
-		t, _ := P.creator(context, P)
-		P.Flex.InsItem(i+1, t, 0, 1, true)
+		t, _ := panel.creator(context, panel)
+		panel.Flex.InsItem(cfi+1, t, 0, 1, true)
 		tui.SetFocus(t)
 
 	case "tail":
-		t, _ := P.creator(context, P)
-		P.Flex.AddItem(t, 0, 1, true)
+		t, _ := panel.creator(context, panel)
+		panel.Flex.AddItem(t, 0, 1, true)
 		tui.SetFocus(t)
 
 	case "index":
-		t, _ := P.creator(context, P)
-		P.Flex.InsItem(i, t, 0, 1, true)
+		t, _ := panel.creator(context, panel)
+		panel.Flex.InsItem(cfi, t, 0, 1, true)
 		tui.SetFocus(t)
 
 	default:
@@ -466,22 +475,27 @@ func (P *Panel) deletePanelItem(context map[string]any) {
 
 	// do some cleanup
 	if panel.GetItemCount() == 0 {
-		addHelp := func() {
-			// add default item, we are the root
+
+		for panel.GetItemCount() == 0 {
+			panel._parent.RemoveItem(panel)
+			// at the root?
+			if panel._parent == nil {
+				break
+			}
+			panel = panel._parent
+		}
+
+		// TODO, handle the case where we delete an item in a panel...
+		// which also has only a single panel left
+		// there are some similar related bugs to this, around panel deletion edge cases
+		// so maybe we can just walk the whole tree after, cleaning up from top down?
+
+		// add default item, we are in an empty root panel
+		if panel._parent == nil {
 			context["action"] = "insert"
 			context["item"] = "help"
 			t, _ := panel.creator(context, panel)
 			panel.AddItem(t, 0, 1, true)	
-		}
-		if panel._parent != nil {
-			// remove ourself if parented
-			panel._parent.RemoveItem(panel)
-			panel = panel._parent
-			if panel.GetItemCount() == 0 {
-				addHelp()	
-			}
-		} else {
-			addHelp()	
 		}
 	}
 
