@@ -214,7 +214,7 @@ func (M *Eval) setupEventHandlers() {
 	M.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 
 		alt := event.Modifiers() & tcell.ModAlt == tcell.ModAlt
-		//ctrl := event.Modifiers() & tcell.ModCtrl == tcell.ModCtrl
+		ctrl := event.Modifiers() & tcell.ModCtrl == tcell.ModCtrl
 		//meta := event.Modifiers() & tcell.ModMeta == tcell.ModMeta
 		//shift := event.Modifiers() & tcell.ModShift == tcell.ModShift
 
@@ -231,16 +231,45 @@ func (M *Eval) setupEventHandlers() {
 			ctx["child-focus-index"] = panel.ChildFocus()
 		}
 
+		handled := false
 		switch event.Key() {
 
 		// give up focus to parent (this is meh, as it doesn't cross panel bounderies (but maybe easier after refactor?)
 		case tcell.KeyESC:
-			if panel._parent != nil {
-				tui.SetFocus(panel._parent)
+			// TODO, re-enable this when we deal with panel/widget movements
+			if panel != nil {
+				if panel.ChildFocus() >= 0 {
+						tui.SetFocus(panel)
+				} else {
+					if panel._parent != nil {
+						tui.SetFocus(panel._parent)
+					}
+				}
+			}
+			// all escape handled here, but need to think about items & widgets that have multiple things
+			handled = true
+
+		// same comment about items & widgets with multiple things (also applies to the nav.* options under Alt-<rune>
+		case tcell.KeyUp:
+			if ctrl {
+				ctx["action"] = "nav.up"
+			}
+			handled = true
+		case tcell.KeyDown:
+			if ctrl {
+				ctx["action"] = "nav.down"
+			}
+		case tcell.KeyLeft:
+			if ctrl {
+				ctx["action"] = "nav.left"
+			}
+		case tcell.KeyRight:
+			if ctrl {
+				ctx["action"] = "nav.right"
 			}
 
+
 		case tcell.KeyRune:
-			handled := false
 			if alt {
 				handled = true
 				switch event.Rune() {
@@ -314,9 +343,6 @@ func (M *Eval) setupEventHandlers() {
 			}
 
 			if handled {
-				// ???
-				ctx["index"] = panel.ChildFocus()
-
 				// M.Refresh(ctx)
 				panel.Refresh(ctx)
 				return nil

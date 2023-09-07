@@ -134,25 +134,25 @@ func (C *ValueBrowser) Rebuild(path string) {
 		C.AddAt(root, path)
 		tree.SetRoot(root).SetCurrentNode(root)
 		tree.SetSelectedFunc(C.OnSelect)
-		tree.SetDoubleClickedFunc(func(node *tview.TreeNode) {
-			// double clicking a node impacts all children
-			if node.GetLevel() == 0 {
-				C.expanded = !C.expanded
-				if C.expanded {
-					node.ExpandAll()
-				} else {
-					node.CollapseAll()
-					node.Expand()
-				}
-			}  else {
-				if node.IsExpanded() {
-					node.CollapseAll()
-				} else {
-					node.ExpandAll()
-				}
-			}
+		//tree.SetDoubleClickedFunc(func(node *tview.TreeNode) {
+		//  // double clicking a node impacts all children
+		//  if node.GetLevel() == 0 {
+		//    C.expanded = !C.expanded
+		//    if C.expanded {
+		//      node.ExpandAll()
+		//    } else {
+		//      node.CollapseAll()
+		//      node.Expand()
+		//    }
+		//  }  else {
+		//    if node.IsExpanded() {
+		//      node.CollapseAll()
+		//    } else {
+		//      node.ExpandAll()
+		//    }
+		//  }
 
-		})
+		//})
 
 		C.SetPrimitive(tree)
 
@@ -260,8 +260,8 @@ func (VB *ValueBrowser) OnSelect(node *tview.TreeNode) {
 	children := node.GetChildren()
 	if len(children) == 0 {
 		// Load and show files in this directory.
-		path := reference.(string)
-		VB.AddAt(node, path)
+		//path := reference.(string)
+		//VB.AddAt(node, path)
 	} else {
 		// Collapse if visible, expand if collapsed.
 		node.SetExpanded(!node.IsExpanded())

@@ -25,8 +25,6 @@ func (M *Eval) Id() string {
 func (M *Eval) Routes() []router.RoutePair {
 	return []router.RoutePair{
 		router.RoutePair{"/eval", M},
-		router.RoutePair{"/play", M},
-		router.RoutePair{"/save", M},
 	}
 }
 

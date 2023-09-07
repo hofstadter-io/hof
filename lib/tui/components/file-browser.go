@@ -48,7 +48,7 @@ func NewFileBrowser(dir string, onopen, onclick func(path string)) *FileBrowser 
 
 	// set our selected handler
 	fb.SetSelectedFunc(fb.OnSelect)
-	fb.SetDoubleClickedFunc(fb.OnDoubleClick)
+	// fb.SetDoubleClickedFunc(fb.OnDoubleClick)
 
 	return fb
 }

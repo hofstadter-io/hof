@@ -2274,12 +2274,13 @@ func (t *TextArea) MouseHandler() func(action MouseAction, event *tcell.EventMou
 			t.moveWordRight(true, false)
 			consumed = true
 		case MouseScrollUp:
-			if t.rowOffset > 0 {
-				t.rowOffset--
+			t.rowOffset -= 6
+			if t.rowOffset < 0 {
+				t.rowOffset = 0
 			}
 			consumed = true
 		case MouseScrollDown:
-			t.rowOffset++
+			t.rowOffset += 6
 			if t.rowOffset >= len(t.lineStarts) {
 				t.rowOffset = len(t.lineStarts) - 1
 				if t.rowOffset < 0 {
