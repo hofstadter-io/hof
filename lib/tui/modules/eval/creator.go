@@ -252,8 +252,9 @@ func (I *Item) loadHttpValue(source string) error {
 	// fetch content
 	content, err := yagu.SimpleGet(f)
 	if err != nil {
-		tui.Log("error", err)
-		I._text = err.Error()
+		emsg := content + "\n" + err.Error()
+		tui.Log("error", emsg)
+		I._text = emsg
 		return err
 	}
 
@@ -278,7 +279,9 @@ func (I *Item) loadBashValue(args []string) error {
 	script := strings.Join(args, " ")
 	out, err := yagu.Bash(script, wd)
 	if err != nil {
-		tui.Log("error", err)
+		emsg := out + "\n" + err.Error()
+		tui.Log("error", emsg)
+		I._text = emsg
 		return err
 	}
 
