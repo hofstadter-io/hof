@@ -53,11 +53,13 @@ func (P *Panel) EncodeMap() (map[string]any, error) {
 
 		switch item := item.Item.(type) {
 		case *Panel:
+			// recursion, within the current panel stack
 			i, err = item.EncodeMap()
 			if err != nil {
 				return m, err
 			}
 		case *Item:
+			// leaf, but may also recurse if a widget uses panels
 			i, err = item.EncodeMap()
 			if err != nil {
 				return m, err
@@ -67,6 +69,7 @@ func (P *Panel) EncodeMap() (map[string]any, error) {
 			panic("unhandled item type in panel")	
 		}
 
+		// add the item to output
 		items = append(items, i)
 	}
 
