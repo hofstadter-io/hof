@@ -68,9 +68,8 @@ func Cmd(args []string, rflags flags.RootPflagpole) error {
 	// Run PProf (useful for catching hangs)
 	// go runPprofServer()
 
-	fmt.Printf("tui.Cmd args: %v\n", args)
+	// fmt.Printf("tui.Cmd args: %v\n", args)
 	tui.Log("trace", fmt.Sprintf("tui.Cmd args: %v", args))
-
 
 	// some special cases to deal with CLI base startup
 	path := "eval"

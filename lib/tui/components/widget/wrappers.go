@@ -1,20 +1,10 @@
-package eval
+package widget
 
 import (
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 )
 
 // base and wrapped tview widgets, temporarily here
-
-type Widget interface {
-	tview.Primitive
-
-	TypeName() string
-
-	EncodeMap() (map[string]any, error)
-
-	// UpdateValue()
-}
 
 type Base struct {
 	_typename string
@@ -38,7 +28,7 @@ func NewBox() *Box {
 	}
 }
 
-func (*Box) EncodeMap() (map[string]any, error) {
+func (*Box) Encode() (map[string]any, error) {
 	return map[string]any{
 		"type": "Box",
 	}, nil
@@ -50,9 +40,10 @@ type TextView struct {
 	Base
 }
 
-func (*TextView) EncodeMap() (map[string]any, error) {
+func (T *TextView) Encode() (map[string]any, error) {
 	return map[string]any{
 		"type": "TextView",
+		"text": T.GetText(false),
 	}, nil
 }
 
@@ -75,3 +66,4 @@ func WidgetDecodeMap(data map[string]any) (Widget, error) {
 
 	return nil, nil
 }
+

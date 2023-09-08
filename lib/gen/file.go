@@ -296,7 +296,7 @@ func (F *File) diff2() (write bool, err error) {
 }
 
 func (F *File) RenderData() (err error) {
-	F.RenderContent, err = F.formatData(F.Value, F.DatafileFormat)
+	F.RenderContent, err = F.FormatData(F.Value, F.DatafileFormat)
 	if err != nil {
 		F.Errors = append(F.Errors, err)
 		return err

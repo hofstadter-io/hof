@@ -31,12 +31,21 @@ type MainPanel struct {
 
 }
 
-func NewMainPanel() *MainPanel {
+func NewMainPanel(getLastCmd func()string, setLastCmd func(string)) *MainPanel {
 	M := &MainPanel{
 		Layout: panels.New(),
 	}
 
-	M.setupRouter()
+	// Set a NotFound View (aka 404 w/o the internet)
+	nfv := tview.NewTextView().SetTextAlign(tview.AlignCenter)
+	nfv.SetTitle("  Not Found  ").SetBorder(true)
+	fmt.Fprint(nfv, "\n\nThe requested path or view does not exist.\n\n")
+
+	M.mainView = router.New(getLastCmd, setLastCmd)
+	M.mainView.SetNotFound(nfv)
+
+	M.SetMainPanel("main-content", M.mainView, 0, 1, 1, "C-m")
+
 
 	return M
 }
@@ -50,18 +59,4 @@ func (M *MainPanel) Connect(C connector.Connector) {
 			M.mainView.AddRoute(pair.Path, pair.Data)
 		}
 	}
-}
-
-func (M *MainPanel) setupRouter() {
-
-	// Set a NotFound View (aka 404 w/o the internet)
-	nfv := tview.NewTextView().SetTextAlign(tview.AlignCenter)
-	nfv.SetTitle("  Not Found  ").SetBorder(true)
-	fmt.Fprint(nfv, "\n\nThe requested path or view does not exist.\n\n")
-
-	M.mainView = router.New()
-	M.mainView.SetNotFound(nfv)
-
-	M.SetMainPanel("main-content", M.mainView, 0, 1, 1, "C-m")
-
 }
