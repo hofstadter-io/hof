@@ -12,6 +12,9 @@ import (
 )
 
 type Panel struct {
+	// TODO, this is going to be the best practice, we also hope it will allow use to focus a panel without the item in the flex
+	// *tview.Frame
+
 	*tview.Flex
 
 	_parent *Panel
