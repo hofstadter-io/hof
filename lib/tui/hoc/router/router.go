@@ -25,12 +25,17 @@ type Router struct {
 
 	// internal router
 	iRouter *mux.Router
+
+	getLastCmd func() string
+	setLastCmd func(string)
 }
 
-func New() *Router {
+func New(getLastCmd func()string, setLastCmd func(string)) *Router {
 	r := &Router{
 		Pages:   tview.NewPages(),
 		iRouter: mux.NewRouter(),
+		getLastCmd: getLastCmd,
+		setLastCmd: setLastCmd,
 	}
 
 	tui.AddWidgetHandler(r.Pages, "/router/dispatch", func(ev events.Event) {
@@ -109,11 +114,18 @@ func (R *Router) AddRouteHandler(path string, handler mux.Handler) error {
 }
 
 func (R *Router) SetActive(path string, context map[string]interface{}) {
+	tui.Log("trace", fmt.Sprintf("Router.SetActive %q %v", path, context))
 	layout, _, err := R.iRouter.Dispatch(path, context)
 	if err != nil {
 		go tui.SendCustomEvent("/console/error", fmt.Errorf("in dispatch handler: %w", err))
 	}
 	if layout != nil {
+		if path[:1] == "/" {
+			path = path[1:]
+		}
+		if R.setLastCmd != nil {
+			R.setLastCmd(path)
+		}
 		R.setActive(layout, context)
 	} else {
 		go tui.SendCustomEvent("/console/error", "nil layout in dispatch handler")

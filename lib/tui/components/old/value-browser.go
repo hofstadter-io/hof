@@ -22,8 +22,6 @@ type ValueBrowser struct {
 	Code *tview.TextView
 	CodeW io.Writer
 
-	OnFieldSelect func(string)
-
 	Root *tview.TreeNode
 
 	Value cue.Value
@@ -77,7 +75,7 @@ func (V *ValueBrowser) EncodeMap() (map[string]any, error) {
 	}, nil
 }
 
-func NewValueBrowser(val cue.Value, mode string, OnFieldSelect func(path string)) *ValueBrowser {
+func NewValueBrowser(val cue.Value, mode string) *ValueBrowser {
 	C := &ValueBrowser {
 		Value: val,
 		mode: mode,

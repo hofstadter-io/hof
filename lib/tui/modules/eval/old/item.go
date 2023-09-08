@@ -37,31 +37,18 @@ type Item struct {
 	_context map[string]any
 
 	//
-	// unsure where these go yet, Item or Widget
-	//
-
-	// i/o connection (format & type tbd)
-	_conns map[string]any
-
-	//
-	// cue  (eventually own component)
+	// cue  (eventually own component) (these are more like temp holders during processing of inputs
 	//
 
 	// scope
 	_scopeR *runtime.Runtime
 	_scopeV cue.Value
-	_scopeArgsR []string
-	_scopeArgsV []string
 	// (note, cannot have 2 runtimes yet)
 
 	// current
 	_runtime *runtime.Runtime
 	_value   cue.Value
 	_text    string
-
-	// args for en|decode (probably just one of them)
-	_runtimeArgs []string
-	_valueArgs []string
 
 	// final value
 	_final cue.Value
@@ -127,6 +114,8 @@ func (I *Item) EncodeMap() (map[string]any, error) {
 	m["id"] = I._cnt
 	m["name"] = I._name
 	m["type"] = "item"
+
+	// this needs to move down into the widget
 	m["context"] = I._context
 
 	m["widget"], err = I._widget.EncodeMap()
@@ -150,7 +139,7 @@ func ItemDecodeMap(data map[string]any, parent *Panel) (*Item, error) {
 
 	// style fram
 	I.SetBorders(0,0,0,0,0,0) // just the one-line header
-	txt := fmt.Sprintf(" ☰  %s", I.Id())
+	txt := fmt.Sprintf(" %s ", I.Id())
 	I.AddText(txt, true, tview.AlignLeft, tcell.ColorLimeGreen)
 	I.SetBorder(true)
 

@@ -8,6 +8,8 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/hofstadter-io/hof/lib/tui"
+	"github.com/hofstadter-io/hof/lib/tui/components/panel"
+	"github.com/hofstadter-io/hof/lib/tui/components/widget"
 )
 
 
@@ -93,7 +95,6 @@ func (M *Eval) LoadEval(filename string) (*Eval, error) {
 	M.Panel = e.Panel
 	M.showPanel = e.showPanel
 	M.showOther = e.showOther
-	M._cnt = e._cnt
 	M._name = e._name
 
 
@@ -112,16 +113,15 @@ func (M *Eval) ShowEval(filename string) (*Eval, error) {
 	savename := evalSavePath(filename)
 
 	b, err := os.ReadFile(savename)
-	tui.Log("debug", fmt.Sprintf("Eval.LoadEval.1: %v %v %v", savename, len(b), err))
 	if err != nil {
 		return nil, err
 	}
 
 	// extra to display the save info
-	t := NewTextView()
+	t := widget.NewTextView()
 	t.SetDynamicColors(false)
 	fmt.Fprint(t, string(b))
-	I := NewItem(nil, M.Panel)
+	I := panel.NewBaseItem(nil, M.Panel)
 	I.SetWidget(t)
 	M.AddItem(I, 0, 1, true)
 
@@ -130,16 +130,14 @@ func (M *Eval) ShowEval(filename string) (*Eval, error) {
 
 func (M *Eval) ListEval() (error) {
 	dir := evalSavePath("")
-	tui.Log("debug", fmt.Sprintf("Eval.ListEval.1: %v", dir))
 
 	infos, err := os.ReadDir(dir)
-	tui.Log("debug", fmt.Sprintf("Eval.ListEval.2: %v %v", len(infos), err))
 	if err != nil {
 		return err
 	}
 
 	// start our new text view
-	t := NewTextView()
+	t := widget.NewTextView()
 	t.SetDynamicColors(false)
 
 	// write listing
@@ -148,7 +146,7 @@ func (M *Eval) ListEval() (error) {
 	}
 
 	// display the file list to the user
-	I := NewItem(nil, M.Panel)
+	I := panel.NewBaseItem(nil, M.Panel)
 	I.SetWidget(t)
 	M.AddItem(I, 0, 1, true)
 
@@ -160,7 +158,6 @@ func (M *Eval) EncodeMap() (map[string]any, error) {
 	m := make(map[string]any)
 
 	// metadata
-	m["id"] = M._cnt
 	m["name"] = M._name
 	m["type"] = "eval"
 
@@ -170,7 +167,7 @@ func (M *Eval) EncodeMap() (map[string]any, error) {
 	m["showOther"] = M.showOther
 	
 	// panel
-	m["panel"], err = M.Panel.EncodeMap()
+	m["panel"], err = M.Panel.Encode()
 	if err != nil {
 		return m, err
 	}
@@ -179,21 +176,20 @@ func (M *Eval) EncodeMap() (map[string]any, error) {
 }
 
 func EvalDecodeMap(data map[string]any) (*Eval, error) {
-	var err error
+	// var err error
 	M := &Eval{
 		showPanel: data["showPanel"].(bool),
 		showOther: data["showOther"].(bool),
-		_cnt: data["id"].(int),
 		_name: data["name"].(string),
 	}
 
-	if pmap, ok := data["panel"]; ok {
-		M.Panel, err = PanelDecodeMap(pmap.(map[string]any), nil, nil)
-		if err != nil {
-			return M, err
-		}
+	if _, ok := data["panel"]; ok {
+		//M.Panel, err = PanelDecodeMap(pmap.(map[string]any), nil, nil)
+		//if err != nil {
+		//  return M, err
+		//}
 	} else {
-		M.Panel = NewPanel(nil, nil)
+		M.Panel = panel.New(nil, nil)
 	}
 
 	// do layout setup here, once some children have been instantiated

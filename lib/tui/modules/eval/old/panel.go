@@ -7,7 +7,7 @@ import (
 	"github.com/gdamore/tcell/v2"
 
 	"github.com/hofstadter-io/hof/lib/tui"
-	"github.com/hofstadter-io/hof/lib/tui/components"
+	"github.com/hofstadter-io/hof/lib/tui/components/cue/browser"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 )
 
@@ -314,32 +314,34 @@ func (P *Panel) insertPanelItem(context map[string]any) {
 }
 
 func (P *Panel) setItemScope(cid int, action string, args []string, context map[string]any) error {
-	i := P.GetItem(cid)
-	I := i.(*Item)
+	// i := P.GetItem(cid)
+	// I := i.(*Item)
 
 	if action == "set.scope.value" {
 		if len(args) != 1 {
 			return fmt.Errorf("set.scope.value expects a single filepath argument")
 		}
-		return I.loadValue(args, true)
+		// return I.loadValue(args, true)
 	}
 
-	return I.loadRuntime(args, true)
+	// return I.loadRuntime(args, true)
+	return nil
 }
 
 func (P *Panel) setItemValue(cid int, action string, args []string, context map[string]any) error {
-	i := P.GetItem(cid)
-	I := i.(*Item)
+	//i := P.GetItem(cid)
+	//I := i.(*Item)
 
 	switch action {
 	case "set.value", "set.value.value":
 		if len(args) != 1 {
 			return fmt.Errorf("%s expects a single filepath argument", action)
 		}
-		return I.loadValue(args, false)
+		// return I.loadValue(args, false)
 	}
 
-	return I.loadRuntime(args, false)
+	// return I.loadRuntime(args, false)
+	return nil
 }
 
 func (P *Panel) setItemText(cid int, action string, args []string, context map[string]any) error {
@@ -358,8 +360,8 @@ func (P *Panel) setItemText(cid int, action string, args []string, context map[s
 
 	I._text = string(b)
 	switch w := I.Widget().(type) {
-	case *components.ValueEvaluator:
-		w.SetText(I._text)
+	case *browser.Browser:
+		// w.SetText(I._text)
 	case *tview.TextArea:
 		w.SetText(I._text, false)
 	case *tview.TextView:

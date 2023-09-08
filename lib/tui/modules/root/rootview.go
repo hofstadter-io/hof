@@ -7,23 +7,13 @@ import (
 
 	"github.com/hofstadter-io/hof/lib/connector"
 
+	"github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 	"github.com/hofstadter-io/hof/lib/tui/hoc/cmdbox"
 	"github.com/hofstadter-io/hof/lib/tui/hoc/console"
 	"github.com/hofstadter-io/hof/lib/tui/hoc/layouts/panels"
 	"github.com/hofstadter-io/hof/lib/tui/hoc/statusbar"
 )
-
-type Commandables interface {
-	Commands() []Command
-}
-
-type Command interface {
-	CommandName() string
-	CommandUsage() string
-	CommandHelp() string
-	CommandCallback(context map[string]interface{})
-}
 
 type RootView struct {
 	*panels.Layout
@@ -41,6 +31,7 @@ type RootView struct {
 	// Main Panel element
 	//
 	mainPanel *MainPanel
+	lastCmd string
 
 	//
 	// Bottom Panel elements
@@ -66,9 +57,9 @@ func New() *RootView {
 }
 
 func (V *RootView) Connect(C connector.Connector) {
-	cmds := C.Get((*Command)(nil))
+	cmds := C.Get((*cmdbox.Command)(nil))
 	for _, Cmd := range cmds {
-		cmd := Cmd.(Command)
+		cmd := Cmd.(cmdbox.Command)
 		fmt.Println("Command: ", cmd.CommandName())
 		V.cbox.AddCommand(cmd)
 	}
@@ -76,8 +67,18 @@ func (V *RootView) Connect(C connector.Connector) {
 	V.mainPanel.Connect(C)
 }
 
+func (V *RootView) getLastCommand() (cmd string) {
+	tui.Log("trace", "GET LAST CMD: " + V.lastCmd)
+	return V.lastCmd
+}
+
+func (V *RootView) setLastCommand(cmd string) {
+	tui.Log("trace", "SET LAST CMD: " + cmd)
+	V.lastCmd = cmd
+}
+
 func (V *RootView) buildTopPanel() {
-	V.cbox = cmdbox.New()
+	V.cbox = cmdbox.New(V.getLastCommand, V.setLastCommand)
 	V.cbox.
 		SetTitle("  [gold]_[ivory]Hofstadter[-]  ").
 		SetTitleAlign(tview.AlignLeft).
@@ -105,7 +106,7 @@ func (V *RootView) buildTopPanel() {
 
 func (V *RootView) buildMainPanel() {
 	// A Horizontal Layout with a Router as the main element
-	V.mainPanel = NewMainPanel()
+	V.mainPanel = NewMainPanel(V.getLastCommand, V.setLastCommand)
 	V.SetMainPanel("main-panel", V.mainPanel, 0, 1, 0, "A- ")
 }
 

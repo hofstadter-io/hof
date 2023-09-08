@@ -15,10 +15,12 @@ import (
 type ValueEvaluator struct {
 	*tview.Flex
 
-	Scope  cue.Value // scope used during parsing / evaluation
+	// scope used during parsing / evaluation
+	useScope bool    // whether scope should be part of the process
+	Scope  cue.Value
+
 	Text   string    // text entered by the user to make the final value
 	Value  cue.Value // the final value (text or text+scope)
-	useScope bool    // whether scope should be part of the process
 
 	// these are building blocks for connecting CUE widgets
 	// they probably work here, but we haven't tested them
@@ -44,7 +46,7 @@ func (V *ValueEvaluator) EncodeMap() (map[string]any, error) {
 	var err error
 	m := map[string]any{
 		"type": V.TypeName(),
-		"direction": V.flexDir,
+		"flexDir": V.flexDir,
 		"useScope": V.useScope,
 	}
 
@@ -84,7 +86,7 @@ func NewValueEvaluator(src string, val, scope cue.Value) (*ValueEvaluator) {
 	}
 
 	// results
-	C.View = NewValueBrowser(C.Value, "cue", func(string){})
+	C.View = NewValueBrowser(C.Value, "cue")
 	C.View.SetName("result")
 	C.View.SetBorder(true)
 
@@ -93,7 +95,7 @@ func NewValueEvaluator(src string, val, scope cue.Value) (*ValueEvaluator) {
 		C.View.UsingScope = true
 		C.useScope = true
 
-		C.Preview = NewValueBrowser(C.Scope, "cue", func(string){})
+		C.Preview = NewValueBrowser(C.Scope, "cue")
 		C.Preview.SetName("scope")
 		C.Preview.SetBorder(true)
 		C.Flex.AddItem(C.Preview, 0, 1, true)

@@ -1,4 +1,4 @@
-package eval
+package dash
 
 import (
 	"fmt"
@@ -6,14 +6,12 @@ import (
 	"github.com/gdamore/tcell/v2"
 
 	"github.com/hofstadter-io/hof/lib/tui"
-	"github.com/hofstadter-io/hof/lib/tui/components/panel"
-	"github.com/hofstadter-io/hof/lib/tui/components/widget"
 	"github.com/hofstadter-io/hof/lib/tui/events"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 )
 
 type Eval struct {
-	*panel.Panel
+	*Panel
 
 	// border display
 	showPanel, showOther bool
@@ -21,7 +19,7 @@ type Eval struct {
 	// default overide to all panels
 	// would it be better as a widget creator? (after refactor 1)
 	// or a function that can take a widget creator with a default ItemBase++
-	_creator panel.ItemCreator
+	_creator ItemCreator
 
 	// metadata
 	_name string
@@ -29,14 +27,11 @@ type Eval struct {
 
 func NewEval() *Eval {
 	M := &Eval{
+		Panel: NewPanel(nil, nil),
 		showPanel: true,
 		showOther: true,
 		_name: fmt.Sprintf("  Eval  "),
 	}
-	M.Panel = panel.New(nil, M.creator)
-
-	item, _ := helpItem(nil, M.Panel)
-	M.Panel.AddItem(item, 0, 1, true)
 
 	// do layout setup here
 	M.Flex.SetDirection(tview.FlexColumn)
@@ -149,34 +144,28 @@ func (M *Eval) Refresh(context map[string]any) error {
 		}
 		return nil
 
-
 	}
 
-	p := M.GetMostFocusedPanel()
-	if p == nil {
-		p = M.Panel
+	// this should go away and be handled in the panel
+	// we want Eval to be dumb as bricks
+	//if M.GetItemCount() == 0 {
+	//  I, err := M.Panel.creator(context, M.Panel)
+	//  if err != nil {
+	//    tui.Log("error", err)	
+	//    return err
+	//  }
+	//  M.AddItem(I, 0, 1, true)
+	//  tui.Draw()
+	//  return nil
+	//}
+
+	panel := M.GetMostFocusedPanel()
+	if panel == nil {
+		panel = M.Panel
 	}
 
-	err := p.Refresh(context)
-	if err != nil {
-		return M.showError(err)	
-	}
-
-	return nil
+	return panel.Refresh(context)
 }
-
-func (M *Eval) showError(err error) error {
-	txt := widget.NewTextView()
-	fmt.Fprint(txt, err)
-
-	I := panel.NewBaseItem(nil, M.Panel)
-	I.SetWidget(txt)
-
-	M.Panel.AddItem(I, 0, 1, true)
-
-	return err
-}
-
 
 
 func (M *Eval) Focus(delegate func(p tview.Primitive)) {
@@ -240,8 +229,8 @@ func (M *Eval) setupEventHandlers() {
 				if panel.ChildFocus() >= 0 {
 						tui.SetFocus(panel)
 				} else {
-					if panel.GetParent() != nil {
-						tui.SetFocus(panel.GetParent())
+					if panel._parent != nil {
+						tui.SetFocus(panel._parent)
 					}
 				}
 			}
@@ -352,3 +341,4 @@ func (M *Eval) setupEventHandlers() {
 		return event
 	})
 }
+

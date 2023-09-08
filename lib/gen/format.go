@@ -58,7 +58,7 @@ func (F *File) FormatRendered() (err error) {
 	return nil
 }
 
-func (F *File) formatData(val cue.Value, format string) ([]byte, error) {
+func (F *File) FormatData(val cue.Value, format string) ([]byte, error) {
 	switch format {
 	case "cue":
 		return F.formatCue(val)

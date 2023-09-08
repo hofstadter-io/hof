@@ -58,13 +58,18 @@ type CmdBoxWidget struct {
 	history []string // command history
 
 	lastFocus tview.Primitive
+
+	getLastCmd func() string
+	setLastCmd func(string)
 }
 
-func New() *CmdBoxWidget {
+func New(getLastCmd func() string, setLastCmd func(string)) *CmdBoxWidget {
 	cb := &CmdBoxWidget{
 		InputField: tview.NewInputField(),
 		commands:   make(map[string]Command),
 		history:    []string{},
+		getLastCmd: getLastCmd,
+		setLastCmd: setLastCmd,
 	}
 
 	cb.InputField.
@@ -175,12 +180,30 @@ func (CB *CmdBoxWidget) Submit(command string, args []string) {
 	CB.Unlock()
 
 	command = strings.ToLower(command)
+	// exact route?
 	if command[:1] == "/" {
 		go tui.SendCustomEvent("/router/dispatch", command)
 		return
 	}
+
+	var cmd Command
+
+	if command[:1] == ":" {
+		// global command
+		command = command[1:]
+	}	else {
+		// local command
+		// move command to head of args
+		args = append([]string{command}, args...)
+		// set the actual command to the last one
+		command = CB.getLastCmd()
+	}
+
+	tui.Log("debug", fmt.Sprintf("CB.Submit %q %v", command, args))
+
 	CB.Lock()
-	cmd, ok := CB.commands[command]
+	var ok bool
+	cmd, ok = CB.commands[command]
 	CB.Unlock()
 	if !ok {
 		tui.Unfocus()
@@ -192,6 +215,7 @@ func (CB *CmdBoxWidget) Submit(command string, args []string) {
 	}
 
 	ctx := map[string]any{ "args": args }
+	CB.setLastCmd(command)
 	go cmd.CommandCallback(ctx)
 }
 
