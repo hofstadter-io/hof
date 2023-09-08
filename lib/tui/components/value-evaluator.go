@@ -15,20 +15,22 @@ import (
 type ValueEvaluator struct {
 	*tview.Flex
 
-	Value  cue.Value
-	Scope  cue.Value
-	Text   string
+	Scope  cue.Value // scope used during parsing / evaluation
+	Text   string    // text entered by the user to make the final value
+	Value  cue.Value // the final value (text or text+scope)
+	useScope bool    // whether scope should be part of the process
 
-	// TODO
+	// these are building blocks for connecting CUE widgets
+	// they probably work here, but we haven't tested them
 	ValueGetter func() cue.Value
 	ScopeGetter func() cue.Value
 
-	Edit *tview.TextArea
-	View *ValueBrowser
-	// TODO, make Views...
+	// widgets for the values & text
+	Preview *ValueBrowser // scope
+	Edit *tview.TextArea  // text
+	View *ValueBrowser    // value
 
 	flexDir  int
-	useScope bool
 
 	// that's funky!
 	debouncer func(func())
@@ -51,6 +53,8 @@ func (V *ValueEvaluator) EncodeMap() (map[string]any, error) {
 		return m, err
 	}
 
+	m["text"] = V.Text
+
 	return m, nil
 }
 
@@ -61,18 +65,18 @@ func NewValueEvaluator(src string, val, scope cue.Value) (*ValueEvaluator) {
 		Flex: tview.NewFlex(),
 		Value: val,
 		Scope: scope,
-		flexDir: tview.FlexRow,
+		flexDir: tview.FlexColumn,
 	}
 
+	// our wrapper around the CUE widgets
 	C.Flex = tview.NewFlex().SetDirection(C.flexDir)
-	// with two panels
 
 	// TODO, options form
 
 	// editor
 	C.Edit = tview.NewTextArea()
 	C.Edit.
-		SetTitle("expression(s)").
+		SetTitle("  expression(s)  ").
 		SetBorder(true)
 
 	if src != "" {
@@ -81,20 +85,24 @@ func NewValueEvaluator(src string, val, scope cue.Value) (*ValueEvaluator) {
 
 	// results
 	C.View = NewValueBrowser(C.Value, "cue", func(string){})
-	C.View.
-		SetTitle("results").
-		SetBorder(true)
+	C.View.SetName("result")
+	C.View.SetBorder(true)
+
+	// usingScope?
+	if C.Scope.Exists() {
+		C.View.UsingScope = true
+		C.useScope = true
+
+		C.Preview = NewValueBrowser(C.Scope, "cue", func(string){})
+		C.Preview.SetName("scope")
+		C.Preview.SetBorder(true)
+		C.Flex.AddItem(C.Preview, 0, 1, true)
+	}
 
 	// layout
 	C.Flex.
 		AddItem(C.Edit, 0, 1, true).
-		AddItem(C.View, 0, 1, false)
-
-	// usingScope?
-	if scope.Exists() {
-		C.View.UsingScope = true
-		C.useScope = true
-	}
+		AddItem(C.View, 0, 1, true)
 
 	C.setupKeybinds()
 	C.setupMousebinds()
@@ -113,6 +121,9 @@ func (C *ValueEvaluator) UseScope(visible bool) {
 	C.useScope = visible
 }
 
+func (C *ValueEvaluator) SetFlexDirection(dir int) {
+	C.flexDir = dir
+}
 func (C *ValueEvaluator) Rebuild(context map[string]any) {
 	val := C.Value
 	var ctx *cue.Context
@@ -139,6 +150,9 @@ func (C *ValueEvaluator) Rebuild(context map[string]any) {
 				if C.ScopeGetter != nil {
 					s = C.ScopeGetter()
 				}
+
+				C.Preview.Value = C.Scope
+				C.Preview.Rebuild("")
 				// tui.Log("warn", fmt.Sprintf("%#v", s))
 				ctx := s.Context()
 				v = ctx.CompileString(src, cue.InferBuiltins(true), cue.Scope(s))

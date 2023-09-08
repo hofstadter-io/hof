@@ -330,10 +330,10 @@ func (P *Panel) setItemValue(cid int, action string, args []string, context map[
 		if len(args) != 1 {
 			return fmt.Errorf("%s expects a single filepath argument", action)
 		}
-		return I.loadValue(args, true)
+		return I.loadValue(args, false)
 	}
 
-	return I.loadRuntime(args, true)
+	return I.loadRuntime(args, false)
 }
 
 func (P *Panel) setItemText(cid int, action string, args []string, context map[string]any) error {

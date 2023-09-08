@@ -212,6 +212,10 @@ func (VB *ValueBrowser) buildStatusString() string {
 
 	var s string
 
+	if n := VB.Name(); len(n) > 0 {
+		s += n + " -  "
+	}
+
 	add := func(on bool, char string) {
 		if on {
 			s += "[lime]" + char + "[-]"
@@ -246,7 +250,7 @@ func (VB *ValueBrowser) buildStatusString() string {
 	add(VB.docs, "D")
 	add(VB.attrs, "A")
 
-	// add some buffer
+	// add some space around the final result
 	s = "  " + s + "  "
 	return s
 }
