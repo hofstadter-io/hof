@@ -476,22 +476,21 @@ func (P *Panel) deletePanelItem(context map[string]any) {
 	// do some cleanup
 	if panel.GetItemCount() == 0 {
 
-		for panel.GetItemCount() == 0 {
+		// unwind towards the root, deleting nested panels with only a single child panel
+		// this works by first removing ourself, since we have no children, and then
+		// checking after to see if the panel we removed ourself from has no children afterwards
+		// we also need to stop when we reach the root
+		for panel.GetItemCount() == 0 && panel._parent != nil {
 			panel._parent.RemoveItem(panel)
-			// at the root?
-			if panel._parent == nil {
-				break
-			}
 			panel = panel._parent
 		}
 
-		// TODO, handle the case where we delete an item in a panel...
-		// which also has only a single panel left
-		// there are some similar related bugs to this, around panel deletion edge cases
-		// so maybe we can just walk the whole tree after, cleaning up from top down?
-
-		// add default item, we are in an empty root panel
-		if panel._parent == nil {
+		// add default item, if we are in an empty panel
+		// (which should only be the root at this point)
+		if panel.GetItemCount() == 0 {
+			// if panel._parent == nil { // old check, new one probably equivalent
+			// we don't want to be here if the deletion process landed us in a panel with other elements
+			// this code should only add back the default help text when there are no other widgets left
 			context["action"] = "insert"
 			context["item"] = "help"
 			t, _ := panel.creator(context, panel)
