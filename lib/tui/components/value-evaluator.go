@@ -97,6 +97,9 @@ func NewValueEvaluator(src string, val, scope cue.Value) (*ValueEvaluator) {
 		C.Preview.SetName("scope")
 		C.Preview.SetBorder(true)
 		C.Flex.AddItem(C.Preview, 0, 1, true)
+	} else {
+		// add empty scope box
+		C.Flex.AddItem(nil, 0, 0, false)
 	}
 
 	// layout
@@ -133,40 +136,43 @@ func (C *ValueEvaluator) Rebuild(context map[string]any) {
 		ctx = cuecontext.New()
 	}
 
+	// compile value
 	src := C.Edit.GetText()
-	if src == "" && val.Exists() {
-		C.View.Value = C.Value
-		// we really need everything here (like from Runtime.Value)
-		// C.Edit.SetText(fmt.Sprintf("%#v", C.Value), false)
-	} else {
-		var v cue.Value
-		if C.useScope {
-			if !C.Scope.Exists() {
-				tui.Log("error", "no scope set to activate")
-				tui.Tell("error", "no scope set to activate")
-				return
-			} else {
-				s := C.Scope
-				if C.ScopeGetter != nil {
-					s = C.ScopeGetter()
-				}
-
-				C.Preview.Value = C.Scope
-				C.Preview.Rebuild("")
-				// tui.Log("warn", fmt.Sprintf("%#v", s))
-				ctx := s.Context()
-				v = ctx.CompileString(src, cue.InferBuiltins(true), cue.Scope(s))
-			}
+	var v cue.Value
+	if C.useScope {
+		if !C.Scope.Exists() {
+			tui.Log("error", "no scope set to activate")
+			tui.Tell("error", "no scope set to activate")
+			return
 		} else {
-			v = ctx.CompileString(src, cue.InferBuiltins(true))
-		}
+			s := C.Scope
+			if C.ScopeGetter != nil {
+				s = C.ScopeGetter()
+			}
 
-		// only update view value, that way, if we erase everything, we still see the value
-		C.View.Value = v
-		// C.Value = v
+			C.Preview.Value = C.Scope
+			C.Preview.Rebuild("")
+			// tui.Log("warn", fmt.Sprintf("%#v", s))
+			ctx := s.Context()
+			v = ctx.CompileString(src, cue.InferBuiltins(true), cue.Scope(s))
+		}
+	} else {
+		v = ctx.CompileString(src, cue.InferBuiltins(true))
 	}
 
+	// only update view value, that way, if we erase everything, we still see the value
+	C.View.Value = v
+	// C.Value = v
+
 	C.View.Rebuild("")
+
+	// show/hide scope as needed
+	if C.useScope {
+		C.SetItem(0, C.Preview, 0, 1, true)
+	} else {
+		C.SetItem(0, nil, 0, 0, false)
+	}
+
 
 	tui.Draw()
 }
