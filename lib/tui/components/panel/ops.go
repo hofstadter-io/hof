@@ -94,6 +94,15 @@ func (P *Panel) updatePanelItem(context map[string]any) {
 
 	if cfi < 0 {
 		tui.Log("error", fmt.Sprintf("negative cfi %# v\n", context))
+
+		// a bit of hackery, seems this happens on startup, because there is no focus yet
+		// we should probably solve this by setting a focus / initial component correctly
+		cnt := panel.GetItemCount()
+		if cnt == 0 {
+			panel.Flex.AddItem(t, 0, 1, true)
+		} else if cnt == 1 {
+			panel.Flex.SetItem(0, t, 0, 1, true)
+		}
 		return
 	}
 
