@@ -48,27 +48,27 @@ func LoadRuntime(args []string) (*runtime.Runtime, error) {
 	return R, nil
 }
 
-func LoadValueFromText(content string) (cue.Value, error) {
+func LoadFromText(content string) (string, cue.Value, error) {
 
 	ctx := cuecontext.New()
 	v := ctx.CompileString(content, cue.Filename("SourceConfig.Text"))
 
-	return v, nil
+	return content, v, nil
 }
 
-func LoadValueFromFile(filename string) (cue.Value, error) {
+func LoadFromFile(filename string) (string, cue.Value, error) {
 
 	ctx := cuecontext.New()
 	b, err := os.ReadFile(filename)
 	if err != nil {
-		return cue.Value{}, err
+		return string(b), cue.Value{}, err
 	}
 	v := ctx.CompileBytes(b, cue.Filename(filename))
 
-	return v, nil
+	return string(b), v, nil
 }
 
-func LoadValueFromHttp(fullurl string) (cue.Value, error) {
+func LoadFromHttp(fullurl string) (string, cue.Value, error) {
 	// tui.Log("trace", fmt.Sprintf("Panel.loadHttpValue: %s %s", mode, from))
 
 	// rework any cue/play links
@@ -77,58 +77,55 @@ func LoadValueFromHttp(fullurl string) (cue.Value, error) {
 		u, err := url.Parse(fullurl)
 		if err != nil {
 			tui.Log("error", err)
-			return cue.Value{}, err
+			return "", cue.Value{}, err
 		}
 		q, err := url.ParseQuery(u.RawQuery)
 		if err != nil {
 			tui.Log("error", err)
-			return cue.Value{}, err
+			return "", cue.Value{}, err
 		}
 		id := q["id"][0]
 		f = fmt.Sprintf("https://%s/.netlify/functions/snippets?id=%s", u.Host, id)
 	}
-	tui.Log("trace", "getting: " + f)
 
 	// fetch content
 	header := "// from: " + fullurl + "\n\n"
 	content, err := yagu.SimpleGet(f)
+	content = header + content
+
 	if err != nil {
-		return cue.Value{}, fmt.Errorf("%s -- %w", header, err)
+		return content, cue.Value{}, fmt.Errorf("%s -- %w", header, err)
 	}
 
-	content = header + content
-	tui.Log("trace", content)
 
 	// rebuild, TODO, if scope, use that value and scope.Context() here
 	ctx := cuecontext.New()
 	v := ctx.CompileString(content, cue.InferBuiltins(true))
 
-	return v, nil
+	return content, v, nil
 }
 
-func LoadValueFromBash(args []string) (cue.Value, error) {
+func LoadFromBash(args []string) (string, cue.Value, error) {
 
 	wd, err := os.Getwd()
 	if err != nil {
-		return cue.Value{}, err
+		return "", cue.Value{}, err
 	}
 
 	script := strings.Join(args, " ")
 	out, err := yagu.Bash(script, wd)
 	if err != nil {
-		return cue.Value{}, err
+		return "", cue.Value{}, err
 	}
+
 	// TODO, infer output type, support yaml too
 
 	header := "// bash " + strings.Join(args, " ") + "\n\n"
 	out = header + out 
 
-	tui.Log("trace", out)
-
-
 	// compile CUE (json, but all json is CUE, which is why we can add a comment)
 	ctx := cuecontext.New()
 	v := ctx.CompileString(out, cue.InferBuiltins(true))
 
-	return v, nil
+	return out, v, nil
 }

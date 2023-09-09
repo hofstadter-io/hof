@@ -24,7 +24,7 @@ func (P *Panel) insertPanelItem(context map[string]any) {
 	cfi := -1
 	if _cfi, ok := context["child-focus-index"]; ok {
 		cfi = _cfi.(int)
-		tui.Log("trace", fmt.Sprintf("setting cfi.1 %d\n", cfi))
+		// tui.Log("trace", fmt.Sprintf("setting cfi.1 %d\n", cfi))
 	}
 
 	if cfi == -1 {
@@ -73,16 +73,16 @@ func (P *Panel) updatePanelItem(context map[string]any) {
 	cfi := -1
 	if _cfi, ok := context["child-focus-index"]; ok {
 		cfi = _cfi.(int)
-		tui.Log("trace", fmt.Sprintf("setting cfi.1 %d\n", cfi))
+		// tui.Log("trace", fmt.Sprintf("setting cfi.1 %d\n", cfi))
 	}
 
 	i := panel.ChildFocus()
 	if i == -1 {
-		tui.Log("warn", fmt.Sprintf("using 0 for nil child in Panel.updatePanelItem: %v %#v", P.Id(), context))
+		// tui.Log("warn", fmt.Sprintf("using 0 for nil child in Panel.updatePanelItem: %v %#v", P.Id(), context))
 		i = 0
 	} else {
 		cfi = i
-		tui.Log("trace", fmt.Sprintf("setting cfi.2 %d\n", cfi))
+		// tui.Log("trace", fmt.Sprintf("setting cfi.2 %d\n", cfi))
 	}
 	
 	t, _ := panel._creator(context, panel)
@@ -93,7 +93,7 @@ func (P *Panel) updatePanelItem(context map[string]any) {
 	}
 
 	if cfi < 0 {
-		tui.Log("error", fmt.Sprintf("negative cfi %# v\n", context))
+		// tui.Log("error", fmt.Sprintf("negative cfi %# v\n", context))
 
 		// a bit of hackery, seems this happens on startup, because there is no focus yet
 		// we should probably solve this by setting a focus / initial component correctly
@@ -121,7 +121,7 @@ func (P *Panel) movePanelItem(context map[string]any) {
 	cfi := -1
 	if _cfi, ok := context["child-focus-index"]; ok {
 		cfi = _cfi.(int)
-		tui.Log("trace", fmt.Sprintf("setting cfi.1 %d\n", cfi))
+		// tui.Log("trace", fmt.Sprintf("setting cfi.1 %d\n", cfi))
 	}
 
 	c := panel.GetItemCount()
@@ -164,7 +164,7 @@ func (P *Panel) deletePanelItem(context map[string]any) {
 	cfi := -1
 	if _cfi, ok := context["child-focus-index"]; ok {
 		cfi = _cfi.(int)
-		tui.Log("trace", fmt.Sprintf("setting cfi.1 %d\n", cfi))
+		// tui.Log("trace", fmt.Sprintf("setting cfi.1 %d\n", cfi))
 	}
 
 	// do the removal
@@ -212,7 +212,7 @@ func (P *Panel) splitPanelItem(context map[string]any) {
 	cfi := -1
 	if _cfi, ok := context["child-focus-index"]; ok {
 		cfi = _cfi.(int)
-		tui.Log("trace", fmt.Sprintf("setting cfi.1 %d\n", cfi))
+		// tui.Log("trace", fmt.Sprintf("setting cfi.1 %d\n", cfi))
 	}
 
 	// tui.Log("error", fmt.Sprintf("Panel.split: %v %v", p.Id(), i))

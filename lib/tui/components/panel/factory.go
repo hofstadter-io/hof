@@ -2,8 +2,6 @@ package panel
 
 import (
 	"fmt"
-
-	"github.com/hofstadter-io/hof/lib/tui"
 )
 
 // I hope this doesn't trigger you :]
@@ -26,7 +24,7 @@ func (F *Factory) Register(itemKey string, creator ItemCreator) {
 }
 
 func (F *Factory) Creator(context ItemContext, parent *Panel) (PanelItem, error) {
-	tui.Log("debug", context)
+	// tui.Log("debug", context)
 
 	// cleanup args, loading json can create []any when restoring a panel or item
 	args := []string{}
