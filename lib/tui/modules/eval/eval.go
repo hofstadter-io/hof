@@ -2,12 +2,15 @@ package eval
 
 import (
 	"fmt"
+	"reflect"
 
+	"github.com/atotto/clipboard"
 	"github.com/gdamore/tcell/v2"
 
 	"github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/components/panel"
 	"github.com/hofstadter-io/hof/lib/tui/components/widget"
+	"github.com/hofstadter-io/hof/lib/tui/components/cue/playground"
 	"github.com/hofstadter-io/hof/lib/tui/events"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 )
@@ -147,13 +150,44 @@ func (M *Eval) Refresh(context map[string]any) error {
 			return err
 		}
 		return nil
-
-
 	}
 
 	p := M.GetMostFocusedPanel()
 	if p == nil {
 		p = M.Panel
+	}
+
+	if action == "push" {
+
+		tui.Log("debug", fmt.Sprintf("push cmd: %# v", context))
+		cfi := p.ChildFocus()
+
+		itm := p.GetItem(cfi).(*panel.BaseItem)
+		w := itm.Widget()
+		switch play := w.(type) {
+		case *playground.Playground:
+			id, err := play.PushToPlayground()
+			if err != nil {
+				tui.Tell("error", err)
+				tui.Log("error", err)
+				return err
+			}
+
+			msg := fmt.Sprintf("snippet id: %s  (link copied!)", id)
+
+			url := fmt.Sprintf("https://cuelang.org/play?id=%s", id)
+			clipboard.WriteAll(url)
+
+			tui.Tell("error", msg)
+			tui.Log("trace", msg)
+			return nil
+
+		default:
+			err := fmt.Errorf("unable to push this item %v", reflect.TypeOf(w))
+			tui.Tell("error", err)
+			tui.Log("error", err)
+			return err
+		}
 	}
 
 	err := p.Refresh(context)

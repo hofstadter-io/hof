@@ -65,7 +65,6 @@ func enrichContext(context map[string]any) (map[string]any) {
 			"del":
 			context["action"] = "delete"
 
-
 		// item update
 		case
 			"reload",
@@ -77,6 +76,7 @@ func enrichContext(context map[string]any) (map[string]any) {
 
 		// this should probably be the new default
 		case 
+			"push",
 			"set.runtime",
 			"set.value.runtime",
 			"set.value.value",
@@ -128,6 +128,7 @@ func enrichContext(context map[string]any) (map[string]any) {
 		//case "flow":
 		//  context["item"] = "flow"
 
+			
 
 
 		// should this be handled lower too?
