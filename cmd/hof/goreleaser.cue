@@ -55,6 +55,12 @@ archives: [{
 	files: ["thisfiledoesnotexist*"]
 	format:        "binary"
 	name_template: "{{ .ProjectName }}_{{ .Tag }}_{{ .Os }}_{{ .Arch }}"
+	//replacements: {
+	//  amd64:   "x86_64"
+	//  darwin:  "Darwin"
+	//  linux:   "Linux"
+	//  windows: "Windows"
+	//}
 }]
 
 brews: [{
@@ -63,6 +69,8 @@ brews: [{
 	homepage:    "https://github.com/hofstadter-io/hof"
 	description: "CUE powered schemas, code gen, data modeling, dag engine, and tui."
 	license:     "Apache-2"
+
+	ids: ["hof"]
 
 	dependencies: [
 		"docker",
@@ -78,6 +86,8 @@ brews: [{
 	}
 
 	commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
+
+	skip_upload: false
 
 	repository: {
 		owner:  "hofstadter-io"

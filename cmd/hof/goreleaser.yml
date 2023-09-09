@@ -64,6 +64,8 @@ brews:
     homepage: https://github.com/hofstadter-io/hof
     description: CUE powered schemas, code gen, data modeling, dag engine, and tui.
     license: Apache-2
+    ids:
+      - hof
     dependencies:
       - docker
     extra_install: generate_completions_from_executable(bin / "hof", "completion")
@@ -71,6 +73,7 @@ brews:
       name: dougbot
       email: bot@hofstadter.io
     commit_msg_template: Brew formula update for {{ .ProjectName }} version {{ .Tag }}
+    skip_upload: false
     repository:
       owner: hofstadter-io
       name: homebrew-tap
