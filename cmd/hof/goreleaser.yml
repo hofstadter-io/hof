@@ -59,8 +59,21 @@ archives:
       - thisfiledoesnotexist*
     format: binary
     name_template: '{{ .ProjectName }}_{{ .Tag }}_{{ .Os }}_{{ .Arch }}'
-    replacements:
-      amd64: x86_64
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
+brews:
+  - name: hof
+    homepage: https://github.com/hofstadter-io/hof
+    description: CUE powered schemas, code gen, data modeling, dag engine, and tui.
+    license: Apache-2
+    dependencies:
+      - docker
+    extra_install: generate_completions_from_executable(bin / "hof", "completion")
+    commit_author:
+      name: dougbot
+      email: bot@hofstadter.io
+    commit_msg_template: Brew formula update for {{ .ProjectName }} version {{ .Tag }}
+    repository:
+      owner: hofstadter-io
+      name: homebrew-tap
+      branch: master
+      pull_request:
+        enabled: true

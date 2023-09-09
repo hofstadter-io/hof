@@ -30,7 +30,7 @@ builds: [{
 		"BuildArch={{ .Arch }}",
 		"BuildArm={{ .Arm }}",
 	]
-	ldflags: [ "-s -w", for f in _flags { "-X github.com/hofstadter-io/hof/cmd/hof/verinfo.\(f)" } ]
+	ldflags: [ "-s -w", for f in _flags {"-X github.com/hofstadter-io/hof/cmd/hof/verinfo.\(f)"}]
 	main: "main.go"
 }]
 
@@ -39,27 +39,52 @@ dockers: [...{
 }] & [
 	// hof images
 	for cfg in [
-		{base: "debian", suf: "" },
-		{base: "debian", suf: "debian-" },
-		{base: "alpine", suf: "alpine-" },
+		{base: "debian", suf: ""},
+		{base: "debian", suf: "debian-"},
+		{base: "alpine", suf: "alpine-"},
 	] {
 		dockerfile: "../../ci/hof/docker/Dockerfile.\(cfg.base)"
 		image_templates: [ for suf in ["{{.Tag}}", "{{ .ShortCommit }}", "latest"] {
-			"ghcr.io/hofstadter-io/hof:\(cfg.suf)\(suf)",
+			"ghcr.io/hofstadter-io/hof:\(cfg.suf)\(suf)"
 		}]
-	}
+	},
 ]
 
 archives: [{
 	// this makes it so a binary only is uploaded, rather than a tar file
 	files: ["thisfiledoesnotexist*"]
-	format: "binary"
+	format:        "binary"
 	name_template: "{{ .ProjectName }}_{{ .Tag }}_{{ .Os }}_{{ .Arch }}"
-	replacements: {
-		amd64:   "x86_64"
-		darwin:  "Darwin"
-		linux:   "Linux"
-		windows: "Windows"
-	}
 }]
 
+brews: [{
+	name: "hof"
+
+	homepage:    "https://github.com/hofstadter-io/hof"
+	description: "CUE powered schemas, code gen, data modeling, dag engine, and tui."
+	license:     "Apache-2"
+
+	dependencies: [
+		"docker",
+	]
+
+	extra_install: #"""
+		generate_completions_from_executable(bin / "hof", "completion")
+		"""#
+
+	commit_author: {
+		name:  "dougbot"
+		email: "bot@hofstadter.io"
+	}
+
+	commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
+
+	repository: {
+		owner:  "hofstadter-io"
+		name:   "homebrew-tap"
+		branch: "master"
+		pull_request: {
+			enabled: true
+		}
+	}
+}]
