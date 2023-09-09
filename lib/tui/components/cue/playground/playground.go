@@ -2,11 +2,13 @@ package playground
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/cuecontext"
 	"github.com/gdamore/tcell/v2"
+	"github.com/parnurzeal/gorequest"
 
 	"github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/browser"
@@ -148,6 +150,36 @@ func (C *Playground) UseScope(visible bool) {
 
 func (C *Playground) SetFlexDirection(dir int) {
 	C.SetDirection(dir)
+}
+
+
+const HTTP2_GOAWAY_CHECK = "http2: server sent GOAWAY and closed the connection"
+
+func (C *Playground) PushToPlayground() (string, error) {
+	src := C.edit.GetText()
+
+	url := "https://cuelang.org/.netlify/functions/snippets"
+	req := gorequest.New().Post(url)
+	req.Set("Content-Type", "text/plain")
+	req.Send(src)
+
+	resp, body, errs := req.End()
+
+	if len(errs) != 0 && !strings.Contains(errs[0].Error(), HTTP2_GOAWAY_CHECK) {
+		fmt.Println("errs:", errs)
+		fmt.Println("resp:", resp)
+		fmt.Println("body:", body)
+		return body, errs[0]
+	}
+
+	if len(errs) != 0 || resp.StatusCode >= 500 {
+		return body, fmt.Errorf("Internal Error: " + body)
+	}
+	if resp.StatusCode >= 400 {
+		return body, fmt.Errorf("Bad Request: " + body)
+	}
+
+	return body, nil
 }
 
 func (C *Playground) Rebuild(rebuildScope bool) error {
