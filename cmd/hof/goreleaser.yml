@@ -64,8 +64,6 @@ brews:
     homepage: https://github.com/hofstadter-io/hof
     description: CUE powered schemas, code gen, data modeling, dag engine, and tui.
     license: Apache-2
-    ids:
-      - hof
     dependencies:
       - docker
     download_strategy: CurlDownloadStrategy

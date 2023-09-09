@@ -70,8 +70,6 @@ brews: [{
 	description: "CUE powered schemas, code gen, data modeling, dag engine, and tui."
 	license:     "Apache-2"
 
-	ids: ["hof"]
-
 	dependencies: [
 		"docker",
 	]
