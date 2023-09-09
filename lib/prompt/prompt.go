@@ -1,4 +1,4 @@
-package create
+package prompt
 
 import (
 	"fmt"
@@ -27,33 +27,72 @@ func init() {
 	}
 }
 
-func runPrompt(genVal cue.Value) (result cue.Value, err error) {
+// this is for backwards compat, create wants things a little differently
+func RunCreatePrompt(genVal cue.Value) (result cue.Value, err error) {
+	create := genVal.LookupPath(cue.ParsePath("Create"))
+	if create.Err() != nil {
+		return genVal, create.Err()
+	}
+
+	questions := genVal.LookupPath(cue.ParsePath("Create.Questions"))
+	if !questions.IsConcrete() || !questions.Exists() {
+		// handle old create.Prompt
+		prompt := genVal.LookupPath(cue.ParsePath("Create.Prompt"))
+		if !prompt.IsConcrete() || !prompt.Exists() {
+			// if no questions, just return the original
+			return genVal, nil
+		}
+		// fill in Questions with Prompt if we get here
+		create = create.FillPath(cue.ParsePath("Questions"), prompt)
+	}
+
+	r, err := RunPrompt(create)
+
+	// fill the input back in with the output
+	// TODO, change create to use Output
+	genVal = genVal.FillPath(cue.ParsePath("Create"), r)
+	outputVal := genVal.LookupPath(cue.ParsePath("Create.Output"))
+	genVal = genVal.FillPath(cue.ParsePath("Create.Input"), outputVal)
+
+	// finally return genVal and the prompt error if any
+	return genVal, err
+}
+
+func RunPrompt(genVal cue.Value) (result cue.Value, err error) {
 	// run while there are unanswered questions
 	// we run in an extra loop to fill back answers
 	// and recalculate the prompt questions each iteration
+
+	// first, fill Output with Input
+	inputVal := genVal.LookupPath(cue.ParsePath("Input"))
+	if inputVal.Err() != nil {
+		return genVal, inputVal.Err()
+	}
+	genVal = genVal.FillPath(cue.ParsePath("Output"), inputVal)
+
 	done := false
 
 	for !done {
 		done = true
 
-		inputVal := genVal.LookupPath(cue.ParsePath("Create.Input"))
-		if inputVal.Err() != nil {
-			return genVal, inputVal.Err()
-		}
 
+		outputVal := genVal.LookupPath(cue.ParsePath("Output"))
+		if outputVal.Err() != nil {
+			return genVal, outputVal.Err()
+		}
 		// fmt.Printf("outer loop input: %#v\n", inputVal)
 
-		prompt := genVal.LookupPath(cue.ParsePath("Create.Prompt"))
-		if prompt.Err() != nil {
-			return genVal, prompt.Err()
+		questions := genVal.LookupPath(cue.ParsePath("Questions"))
+		if questions.Err() != nil {
+			return genVal, questions.Err()
 		}
-		if !prompt.IsConcrete() || !prompt.Exists() {
+		if !questions.IsConcrete() || !questions.Exists() {
 			// to have a promptless generator, set it to the empty list
-			return genVal, fmt.Errorf("Generator is missing Create.Prompt, set to empty list for promptless")
+			return genVal, fmt.Errorf("missing Questions field")
 		}
 
 		// prompt should be an ordered list of questions
-		iter, err := prompt.List()
+		iter, err := questions.List()
 		if err != nil {
 			return genVal, err
 		}
@@ -75,7 +114,7 @@ func runPrompt(genVal cue.Value) (result cue.Value, err error) {
 			namePath := cue.ParsePath(name)
 
 			// check if done already by inspececting in input
-			i := inputVal.LookupPath(namePath)
+			i := outputVal.LookupPath(namePath)
 			if i.Err() != nil {
 				if i.Exists() {
 					return genVal, i.Err()
@@ -101,8 +140,8 @@ func runPrompt(genVal cue.Value) (result cue.Value, err error) {
 			}
 
 			// update input val
-			inputVal = inputVal.FillPath(namePath, A)
-			genVal = genVal.FillPath(cue.ParsePath("Create.Input"), inputVal)
+			outputVal = outputVal.FillPath(namePath, A)
+			genVal = genVal.FillPath(cue.ParsePath("Output"), outputVal)
 
 			// restart the prompt loop
 			break
@@ -305,4 +344,3 @@ func handleSubgroup(Q map[string]any) (A any, err error) {
 
 	return a, err
 }
-

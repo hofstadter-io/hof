@@ -25,6 +25,7 @@ import (
 	gencmd "github.com/hofstadter-io/hof/lib/gen/cmd"
 	"github.com/hofstadter-io/hof/lib/repos/cache"
 	"github.com/hofstadter-io/hof/lib/mod"
+	"github.com/hofstadter-io/hof/lib/prompt"
 	"github.com/hofstadter-io/hof/lib/repos/remote"
 	"github.com/hofstadter-io/hof/lib/runtime"
 	"github.com/hofstadter-io/hof/lib/yagu"
@@ -638,7 +639,7 @@ func handleGeneratorCreate(G *gen.Generator, rflags flags.RootPflagpole, cflags 
 		G.CueValue = G.CueValue.FillPath(cue.ParsePath("Create.Input"), newMap)
 	}
 
-	G.CueValue, err = runPrompt(G.CueValue)
+	G.CueValue, err = prompt.RunCreatePrompt(G.CueValue)
 	if err != nil {
 		return err
 	}
