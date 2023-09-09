@@ -79,17 +79,25 @@ func LoadValueFromHttp(fullurl string) (cue.Value, error) {
 			tui.Log("error", err)
 			return cue.Value{}, err
 		}
-		id := u.Query().Get("id")
+		q, err := url.ParseQuery(u.RawQuery)
+		if err != nil {
+			tui.Log("error", err)
+			return cue.Value{}, err
+		}
+		id := q["id"][0]
 		f = fmt.Sprintf("https://%s/.netlify/functions/snippets?id=%s", u.Host, id)
 	}
+	tui.Log("trace", "getting: " + f)
 
 	// fetch content
+	header := "// from: " + fullurl + "\n\n"
 	content, err := yagu.SimpleGet(f)
 	if err != nil {
-		return cue.Value{}, err
+		return cue.Value{}, fmt.Errorf("%s -- %w", header, err)
 	}
-	// add the source
-	content = "// from: " + fullurl + "\n\n" + content
+
+	content = header + content
+	tui.Log("trace", content)
 
 	// rebuild, TODO, if scope, use that value and scope.Context() here
 	ctx := cuecontext.New()
@@ -110,7 +118,13 @@ func LoadValueFromBash(args []string) (cue.Value, error) {
 	if err != nil {
 		return cue.Value{}, err
 	}
-	out = "// bash: " + " " + out 
+	// TODO, infer output type, support yaml too
+
+	header := "// bash " + strings.Join(args, " ") + "\n\n"
+	out = header + out 
+
+	tui.Log("trace", out)
+
 
 	// compile CUE (json, but all json is CUE, which is why we can add a comment)
 	ctx := cuecontext.New()
@@ -118,4 +132,3 @@ func LoadValueFromBash(args []string) (cue.Value, error) {
 
 	return v, nil
 }
-

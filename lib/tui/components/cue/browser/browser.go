@@ -171,6 +171,8 @@ func (VB *Browser) SetupKeybinds() {
 				VB.nextMode = "cue"
 			case 'T':
 				VB.nextMode = "tree"
+			case 't':
+				VB.nextMode = "text"
 
 			// todo, dive values, and walk back up
 			case 'I': // in

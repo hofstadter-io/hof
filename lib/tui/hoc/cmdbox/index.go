@@ -179,7 +179,7 @@ func (CB *CmdBoxWidget) Submit(command string, args []string) {
 	}
 	CB.Unlock()
 
-	command = strings.ToLower(command)
+	// command = strings.ToLower(command)
 	// exact route?
 	if command[:1] == "/" {
 		go tui.SendCustomEvent("/router/dispatch", command)

@@ -15,6 +15,7 @@ import (
 
 
 func (C *Browser) Rebuild() {
+	var err error
 
 	path := "<root>"
 
@@ -22,7 +23,17 @@ func (C *Browser) Rebuild() {
 		C.nextMode = C.mode
 	}
 
-	C.value, _ = C.source.GetValue()
+	writeErr := func(err error) {
+		C.code.Clear()
+		fmt.Fprint(C.codeW, cuetils.CueErrorToString(err))
+		C.SetPrimitive(C.code)
+	}
+
+	C.value, err = C.source.GetValue()
+	if err != nil {
+		writeErr(err)
+		return
+	}
 
 	// todo, rebuild value from source config
 	// for now, we are still doing this outside
@@ -54,7 +65,7 @@ func (C *Browser) Rebuild() {
 		if C.validate || C.nextMode == "json" || C.nextMode == "yaml" {
 			err := C.value.Validate(C.Options()...)
 			if err != nil {
-				fmt.Fprint(C.codeW, cuetils.CueErrorToString(err))
+				writeErr(err)
 				wrote = true
 			}
 		}
@@ -71,8 +82,7 @@ func (C *Browser) Rebuild() {
 				b, err = format.Node(syn)
 				if !C.ignore {
 					if err != nil {
-						s := cuetils.CueErrorToString(err)
-						fmt.Fprintln(C.codeW, s)
+						writeErr(err)
 					}
 				}
 
@@ -80,16 +90,14 @@ func (C *Browser) Rebuild() {
 				f := &gen.File{}
 				b, err = f.FormatData(C.value, "json")
 				if err != nil {
-					s := cuetils.CueErrorToString(err)
-					fmt.Fprintln(C.codeW, s)
+					writeErr(err)
 				}
 
 			case "yaml":
 				f := &gen.File{}
 				b, err = f.FormatData(C.value, "yaml")
 				if err != nil {
-					s := cuetils.CueErrorToString(err)
-					fmt.Fprintln(C.codeW, s)
+					writeErr(err)
 				}
 
 			}
@@ -97,6 +105,7 @@ func (C *Browser) Rebuild() {
 			if err == nil {
 				err = quick.Highlight(C.codeW, string(b), "Go", "terminal256", "solarized-dark")
 				if err != nil {
+					writeErr(err)
 					go tui.Log("crit", fmt.Sprintf("error highlighing %v", err))
 					return
 				}
@@ -142,6 +151,7 @@ func (VB *Browser) buildStatusString() string {
 	add(VB.mode == "cue",  "C")
 	add(VB.mode == "json", "J")
 	add(VB.mode == "yaml", "Y")
+	add(VB.mode == "text", "t")
 	add(VB.usingScope, " S")
 	s += "] "
 

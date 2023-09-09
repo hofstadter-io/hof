@@ -56,7 +56,7 @@ func enrichContext(context map[string]any) (map[string]any) {
 		// actions
 		//
 		// let's start using some `cmd.sub` syntax for these
-		case
+	 	case
 			"insert",
 			"ins":
 			context["action"] = "insert"
@@ -207,8 +207,8 @@ argsDone:
 	// handle some special cases
 	if len(args) > 0 && strings.HasPrefix(args[0], "http") {
 		context["source"] = "http"
-		context["from"] = args[0]
-		args = args[1:]
+		//context["from"] = args[0]
+		//args = args[1:]
 	}
 
 	// I don't think we want defaults here
