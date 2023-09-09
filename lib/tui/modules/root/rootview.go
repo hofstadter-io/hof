@@ -5,6 +5,7 @@ import (
 
 	"github.com/hofstadter-io/hof/lib/connector"
 
+	"github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 	"github.com/hofstadter-io/hof/lib/tui/hoc/cmdbox"
 	"github.com/hofstadter-io/hof/lib/tui/hoc/console"
@@ -60,6 +61,15 @@ func (V *RootView) Connect(C connector.Connector) {
 		// fmt.Println("Command: ", cmd.CommandName())
 		V.cbox.AddCommand(cmd)
 	}
+
+	V.cbox.AddCommand(&cmdbox.DefaultCommand{
+		Name: "q",
+		Usage: "q",
+		Help: "quit hof",
+		Callback: func(context map[string]any) {
+			go tui.Stop()
+		},
+	})
 
 	V.mainPanel.Connect(C)
 }
