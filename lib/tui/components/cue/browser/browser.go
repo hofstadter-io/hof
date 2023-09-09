@@ -175,8 +175,11 @@ func (VB *Browser) SetupKeybinds() {
 				VB.nextMode = "text"
 
 			// todo, dive values, and walk back up
-			case 'I': // in
-			case 'U': // up
+			//case 'I': // in
+			//case 'U': // up
+
+			case 'R':
+				// this should just trigger a refresh by nature of being here
 
 			default:
 				return evt

@@ -284,6 +284,9 @@ func (C *Playground) setupKeybinds() {
 					C.useScope = !C.useScope
 					C.Rebuild(false)
 
+				case 'R':
+					C.Rebuild(true)
+
 				default: 
 					return evt
 				}
