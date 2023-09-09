@@ -5,7 +5,7 @@ import (
 	"github.com/hofstadter-io/hof/schema/gen"
 )
 
-test: gen.#Generator & {
+test: gen.Generator & {
 	@gen(test)
 
 	Outdir: "./out"
@@ -113,6 +113,8 @@ test: gen.#Generator & {
 		TemplatePath: "gen.cue"
 		Filepath:     "gen.cue"
 	}]
+
+	Partials: []
 
 	EmbeddedTemplates: {
 		debug: {

@@ -12,6 +12,7 @@ import (
 	"github.com/hofstadter-io/hof/flow/tasks/kv"
 	"github.com/hofstadter-io/hof/flow/tasks/msg"
 	"github.com/hofstadter-io/hof/flow/tasks/os"
+	"github.com/hofstadter-io/hof/flow/tasks/prompt"
 	"github.com/hofstadter-io/hof/flow/tasks/st"
 )
 
@@ -59,6 +60,8 @@ func RegisterDefaults(context *hofcontext.Context) {
 	context.Register("os.Stdout", os.NewStdout)
 	context.Register("os.Watch", os.NewWatch)
 	context.Register("os.WriteFile", os.NewWriteFile)
+
+	context.Register("prompt.Prompt", prompt.NewPrompt)
 
 	context.Register("st.Diff", st.NewDiff)
 	context.Register("st.Insert", st.NewInsert)

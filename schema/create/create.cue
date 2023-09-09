@@ -1,5 +1,9 @@
 package create
 
+import (
+	"github.com/hofstadter-io/hof/schema/prompt"
+)
+
 Creator: Create: {
 	// schema and filled value for the create inputs
 	// all inputs will be unified with this (files, flags, prompt)
@@ -12,7 +16,9 @@ Creator: Create: {
 
 	// Init time inputs and prompts
 	// if an entry will is already set by flags, it will be skipped
-	Prompt: [...Question]
+	Questions: [...prompt.Question]
+	Questions: Prompt
+	Prompt:    Questions
 
 	// (todo) Messages to print at start and end
 	Message?: {
@@ -29,19 +35,9 @@ Creator: Create: {
 	// PostFlow: _  // run hof flow afterwards
 }
 
-Question: {
-	Name:   string
-	Type:   "input" | "multiline" | "password" | "confirm" | "select" | "multiselect" | "subgroup"
-	Prompt: string
-	// for (multi)select
-	Options?: [...string]
-	Default?:    _
-	Required:    bool | *false
-	Validation?: _
-
-	Questions?: [...Question]
-}
-
 // deprecated
-#Creator:  Creator
-#Question: Question
+#Creator:   Creator
+#Question:  Question
+Question:   prompt.Question
+NamePrompt: prompt.NamePrompt
+RepoPrompt: prompt.RepoPrompt
