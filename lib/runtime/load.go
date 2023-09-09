@@ -455,19 +455,29 @@ func (R *Runtime) placeOrphanInAST(N ast.Node, C ast.Expr, mapping string) (*ast
 			// build our label from the mapping path
 			p := ps[i]
 
-			pv := ctx.CompileString(
-				p, 
-				cue.Filename(p),
-				cue.InferBuiltins(true),
-				cue.Scope(v),
+			var (
+				str string
+				err error
 			)
-			if pv.Err() != nil {
-				return nil, pv.Err()
-			}
 
-			str, err := pv.String()
-			if err != nil {
-				return nil, err
+			// name: vs expression
+			if strings.HasSuffix(p, ":") {
+				str = strings.TrimSuffix(p, ":")
+			} else {
+				pv := ctx.CompileString(
+					p, 
+					cue.Filename(p),
+					cue.InferBuiltins(true),
+					cue.Scope(v),
+				)
+				if pv.Err() != nil {
+					return nil, pv.Err()
+				}
+
+				str, err = pv.String()
+				if err != nil {
+					return nil, err
+				}
 			}
 
 			ident := ast.NewIdent(str)
