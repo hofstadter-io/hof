@@ -1,6 +1,7 @@
 package playground
 
 import (
+	"fmt"
 	"time"
 
 	"cuelang.org/go/cue"
@@ -71,13 +72,13 @@ func (V *Playground) Encode() (map[string]any, error) {
 }
 
 
-func New(initialText string, sourceConfig helpers.SourceConfig) (*Playground) {
+func New(initialText string, scopeSourceConfig helpers.SourceConfig) (*Playground) {
 
 	C := &Playground{
 		Flex: tview.NewFlex(),
 		text: initialText,
 		scope: &valPack{
-			config: sourceConfig,
+			config: scopeSourceConfig,
 		},
 		final: &valPack{},
 	}
@@ -86,7 +87,12 @@ func New(initialText string, sourceConfig helpers.SourceConfig) (*Playground) {
 
 	// TODO, options form
 
-	// editor
+	// scope viewer
+	C.scope.viewer = browser.New(C.scope.config, "cue")
+	C.scope.viewer.SetName("scope")
+	C.scope.viewer.SetBorder(true)
+
+	// curr editor
 	C.edit = tview.NewTextArea()
 	C.edit.
 		SetTitle("  expression(s)  ").
@@ -94,27 +100,24 @@ func New(initialText string, sourceConfig helpers.SourceConfig) (*Playground) {
 
 	C.edit.SetText(C.text, false)
 
-	// results
+	// results viewer
 	C.final.viewer = browser.New(helpers.SourceConfig{}, "cue")
 	C.final.viewer.SetName("result")
 	C.final.viewer.SetBorder(true)
 
 	// usingScope?
-	if sourceConfig.Source != helpers.EvalNone {
-		C.final.viewer.SetUsingScope(true)
-		C.useScope = true
+	C.final.viewer.SetUsingScope(true)
+	C.useScope = true
+	//if sourceConfig.Source != helpers.EvalNone {
 
-		C.scope.viewer = browser.New(C.scope.config, "cue")
-		C.scope.viewer.SetName("scope")
-		C.scope.viewer.SetBorder(true)
-		C.Flex.AddItem(C.scope.viewer, 0, 1, true)
-	} else {
-		// add empty scope box
-		C.Flex.AddItem(nil, 0, 0, false)
-	}
+	//} else {
+	//  // add empty scope box
+	//  C.Flex.AddItem(nil, 0, 0, false)
+	//}
 
 	// layout
 	C.Flex.
+		AddItem(C.scope.viewer, 0, 1, true).
 		AddItem(C.edit, 0, 1, true).
 		AddItem(C.final.viewer, 0, 1, true)
 
@@ -148,6 +151,7 @@ func (C *Playground) SetFlexDirection(dir int) {
 }
 
 func (C *Playground) Rebuild(rebuildScope bool) error {
+	// tui.Log("info", fmt.Sprintf("Play.rebuildScope %v %v %v", rebuildScope, C.useScope, C.scope.config))
 	var (
 		v cue.Value
 		err error
@@ -167,7 +171,17 @@ func (C *Playground) Rebuild(rebuildScope bool) error {
 		sv, serr := C.scope.config.GetValue()
 		err = serr
 
-		if err == nil {
+		if err != nil {
+			tui.Log("error", err)
+		}
+		// we shouldn't have to worry about this, but we aren't catching all the ways
+		// that we get into this code, in particular, hotkey can set scope to true when none exists
+		if !sv.Exists() {
+			tui.Log("error", "scope value does not exist")
+			err = fmt.Errorf("scope value does not exist")
+		}
+
+		if err == nil && sv.Exists() {
 			if rebuildScope {
 				// C.scope.config.Rebuild()
 				cfg := helpers.SourceConfig{Value: sv}
@@ -175,6 +189,7 @@ func (C *Playground) Rebuild(rebuildScope bool) error {
 				C.scope.viewer.Rebuild()
 			}
 
+			// tui.Log("warn", fmt.Sprintf("recompile with scope: %v", rebuildScope))
 			ctx := sv.Context()
 			v = ctx.CompileString(src, cue.InferBuiltins(true), cue.Scope(sv))
 		}
@@ -186,6 +201,7 @@ func (C *Playground) Rebuild(rebuildScope bool) error {
 		cfg = helpers.SourceConfig{Text: err.Error()}
 	}
 	// only update view value, that way, if we erase everything, we still see the value
+	C.final.viewer.SetUsingScope(C.useScope)
 	C.final.viewer.SetSourceConfig(cfg)
 	C.final.viewer.Rebuild()
 

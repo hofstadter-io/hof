@@ -82,7 +82,6 @@ func (M *Eval) Unmount() error {
 
 // this is basically the entryp point
 func (M *Eval) Refresh(context map[string]any) error {
-	tui.Log("debug", fmt.Sprintf("Eval.refresh.1: %v", context ))
 
 	// reprocess args, all commands should enter the Eval page first
 	// needed for when we come in from the command line first time, or the command box later
@@ -91,7 +90,7 @@ func (M *Eval) Refresh(context map[string]any) error {
 	if _args, ok := context["args"]; ok {
 		args = _args.([]string)
 	}
-	tui.Log("debug", fmt.Sprintf("Eval.Refresh.2: %v %# v", args, context))
+	tui.Log("debug", fmt.Sprintf("Eval.Refresh: %v %# v", args, context))
 
 	// handle any top-leval eval commands
 	action := ""

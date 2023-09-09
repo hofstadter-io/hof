@@ -12,7 +12,7 @@ import (
 // so that we can handle different kinds of input coming from different places
 // and then have more consistent input to the components consuming the inputs
 func enrichContext(context map[string]any) (map[string]any) {
-	tui.Log("trace", fmt.Sprintf("enrichContext.BEG: %# v", context))
+	// tui.Log("trace", fmt.Sprintf("enrichContext.BEG: %# v", context))
 
 	// ensure non-nil context
 	if context == nil {
@@ -110,17 +110,20 @@ func enrichContext(context map[string]any) (map[string]any) {
 		//
 
 		// default when nothing
-		case "H", "help":
+		case "help":
 			context["item"] = "help"
 		// dual-pane eval'r (default when doing eval things)
-		case "P", "play":
+		case "play":
 			context["item"] = "play"
 		// tree browser
-		case "T", "tree":
+		case "tree":
 			context["item"] = "tree"
 		// text editor
-		case "E", "edit", "editor":
+		case "edit", "editor":
 			context["item"] = "editor"
+		case "text":
+			context["item"] = "text"
+
 		// flow panel
 		//case "flow":
 		//  context["item"] = "flow"
@@ -137,6 +140,12 @@ func enrichContext(context map[string]any) (map[string]any) {
 		// what's acted upon, location within
 		//
 		
+		// cue item action targets
+		case "scope":
+			context["target"] = "scope"
+		case "value":
+			context["target"] = "value"
+
 		// default, the current focused item
 		case "s", "self":
 			context["where"] = "self"

@@ -1,13 +1,10 @@
 package root
 
 import (
-	"fmt"
-
 	"github.com/gdamore/tcell/v2"
 
 	"github.com/hofstadter-io/hof/lib/connector"
 
-	"github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 	"github.com/hofstadter-io/hof/lib/tui/hoc/cmdbox"
 	"github.com/hofstadter-io/hof/lib/tui/hoc/console"
@@ -60,7 +57,7 @@ func (V *RootView) Connect(C connector.Connector) {
 	cmds := C.Get((*cmdbox.Command)(nil))
 	for _, Cmd := range cmds {
 		cmd := Cmd.(cmdbox.Command)
-		fmt.Println("Command: ", cmd.CommandName())
+		// fmt.Println("Command: ", cmd.CommandName())
 		V.cbox.AddCommand(cmd)
 	}
 
@@ -68,12 +65,12 @@ func (V *RootView) Connect(C connector.Connector) {
 }
 
 func (V *RootView) getLastCommand() (cmd string) {
-	tui.Log("trace", "GET LAST CMD: " + V.lastCmd)
+	// tui.Log("trace", "GET LAST CMD: " + V.lastCmd)
 	return V.lastCmd
 }
 
 func (V *RootView) setLastCommand(cmd string) {
-	tui.Log("trace", "SET LAST CMD: " + cmd)
+	// tui.Log("trace", "SET LAST CMD: " + cmd)
 	V.lastCmd = cmd
 }
 
