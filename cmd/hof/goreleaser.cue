@@ -76,6 +76,10 @@ brews: [{
 		"docker",
 	]
 
+	download_strategy: "CurlDownloadStrategy"
+	url_template:      "https://github.com/observIQ/observiq-otel-collector/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+	folder:            "Formula"
+
 	extra_install: #"""
 		generate_completions_from_executable(bin / "hof", "completion")
 		"""#
