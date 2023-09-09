@@ -74,7 +74,8 @@ Steps: {
 				args:         "release --clean -f goreleaser.yml -p 1"
 			}
 			env: {
-				GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+				GITHUB_TOKEN:     "${{ secrets.GITHUB_TOKEN }}"
+				HOF_HOMEBREW_PAT: "${{ secrets.HOF_HOMEBREW_PAT }}"
 			}
 		}
 	}

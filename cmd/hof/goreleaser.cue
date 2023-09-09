@@ -83,6 +83,7 @@ brews: [{
 		owner:  "hofstadter-io"
 		name:   "homebrew-tap"
 		branch: "master"
+		token:  "{{ .Env.HOF_HOMEBREW_PAT }}"
 		pull_request: {
 			enabled: true
 		}
