@@ -29,6 +29,10 @@ func Clear() {
 	globalApp.Clear()
 }
 
+func Stop() {
+	globalApp.Stop()
+}
+
 func GetRootView() tview.Primitive {
 	return globalApp.GetRootView()
 }
