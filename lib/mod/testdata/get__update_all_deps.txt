@@ -1,32 +1,31 @@
 exec hof mod get all@latest
 cmp cue.mod/module.cue match/cue.mod/module-get.cue
 
-# we really need a different set of purposefully set public repos to test this with
-# every time we update hof, this breaks
-
 -- cue.mod/module.cue --
 module: "github.com/hof/test"
 cue: "0.6.0"
 
 require: {
-	"github.com/hofstadter-io/hof": "v0.6.8-rc.6"
+	"github.com/hofstadter-io/test-hof-mod-public-a": "v0.0.1"
 }
 
 indirect: {
-	"github.com/hofstadter-io/ghacue": "v0.2.0"
-	"github.com/hofstadter-io/hofmod-cli": "v0.8.0"
+	"github.com/hofstadter-io/test-hof-mod-public-b": "v0.0.1"
+	"github.com/hofstadter-io/test-hof-mod-public-c": "v0.0.1"
+	"github.com/hofstadter-io/test-hof-mod-public-d": "v0.0.1"
+	"github.com/hofstadter-io/test-hof-mod-public-e": "v0.0.1"
 }
 -- match/cue.mod/module-get.cue --
 module: "github.com/hof/test"
 cue:    "0.6.0"
 
 require: {
-	"github.com/hofstadter-io/hof": "v0.6.8"
+	"github.com/hofstadter-io/test-hof-mod-public-a": "v0.0.2"
 }
 
 indirect: {
-	"github.com/hofstadter-io/cuelm":      "v0.2.0"
-	"github.com/hofstadter-io/ghacue":     "v0.2.0"
-	"github.com/hofstadter-io/hofmod-cli": "v0.9.0"
-	"github.com/hofstadter-io/supacode":   "v0.0.7"
+	"github.com/hofstadter-io/test-hof-mod-public-b": "v0.0.2"
+	"github.com/hofstadter-io/test-hof-mod-public-c": "v0.0.3"
+	"github.com/hofstadter-io/test-hof-mod-public-d": "v0.0.4"
+	"github.com/hofstadter-io/test-hof-mod-public-e": "v0.0.3"
 }
