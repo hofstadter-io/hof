@@ -7,6 +7,7 @@ import (
 	"cuelang.org/go/cue/cuecontext"
 	"github.com/gdamore/tcell/v2"
 
+	"github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/browser"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/helpers"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
@@ -166,19 +167,22 @@ func (C *Playground) Rebuild(rebuildScope bool) error {
 		sv, serr := C.scope.config.GetValue()
 		err = serr
 
-		if rebuildScope {
-			// C.scope.config.Rebuild()
-			cfg := helpers.SourceConfig{Value: sv}
-			C.scope.viewer.SetSourceConfig(cfg)
-			C.scope.viewer.Rebuild()
-		}
+		if err == nil {
+			if rebuildScope {
+				// C.scope.config.Rebuild()
+				cfg := helpers.SourceConfig{Value: sv}
+				C.scope.viewer.SetSourceConfig(cfg)
+				C.scope.viewer.Rebuild()
+			}
 
-		ctx := sv.Context()
-		v = ctx.CompileString(src, cue.InferBuiltins(true), cue.Scope(sv))
+			ctx := sv.Context()
+			v = ctx.CompileString(src, cue.InferBuiltins(true), cue.Scope(sv))
+		}
 	}
 
 	cfg := helpers.SourceConfig{Value: v}
 	if err != nil {
+		tui.Log("error", err)
 		cfg = helpers.SourceConfig{Text: err.Error()}
 	}
 	// only update view value, that way, if we erase everything, we still see the value
