@@ -1,23 +1,26 @@
 package eval
 
-const EvalHelpText = `[blue::b]Welcome[-] to [gold]_[ivory]Hofstadter[-::-]
+const EvalHelpText = `
+[dodgerblue::b]Welcome to[-] [gold::bi]_[ivory]Hofstadter[-::-]
 
-  The Hof TUI gives you access to hof's features.
-  The main area is a dashboard where you can add
-  items or widgets, organize them as you wish,
-  and save/load them and their sources. 
-  There are commands and hotkeys for most actions.
+  The Hof TUI gives you access to hof's features in a
+  space where you can dynamically explore and use them.
+  Build dashboards of views, playgrounds, and workflows.
+  Organize them as you see fit and save|load|share them.
+
+  Right now, we have support for [violet]hof eval[-].
+  New releases will expand support for other
+  features, [violet]hof flow[-] and [violet]hof gen[-] are next.
 
   [darkgray](scroll for more details)[-]
 
-[blue::b]Legend:[-::-]
+[dodgerblue::bu]Legend:[-::-]
   [lime]A[-] = ALT
   [lime]C[-] = CTRL
   [lime]M[-] = META
   [lime]S[-] = SHIFT
-  [lime]click[-] to focus a box
 
-[blue::b]App Controls:[-::-]
+[dodgerblue::bu]App Controls:[-::-]
   [lime]C-<space>[-]    focus the command box
   [lime]A-<space>[-]    focus the main content
   [lime]A-/[-]          show / hide the console
@@ -25,7 +28,7 @@ const EvalHelpText = `[blue::b]Welcome[-] to [gold]_[ivory]Hofstadter[-::-]
   [red]Ctrl-Alt-c[-]   close [gold]_[ivory]Hofstadter[-]
   [red]:q[-]           (from the command box)
 
-[blue::b]Panel Management:[-::-]
+[dodgerblue::bu]Panel Management:[-::-]
   [lime]A-J[-]          new item before
   [lime]A-K[-]          new item after
   [lime]A-H[-]          move item before
@@ -36,19 +39,21 @@ const EvalHelpText = `[blue::b]Welcome[-] to [gold]_[ivory]Hofstadter[-::-]
   [lime]A-P[-]          show borders on panels
   [lime]A-O[-]          show borders on items
 
-[blue::b]Navigation:[-::-]
-  (vim style)
-  [lime]A-h[-]          focus item left
-  [lime]A-j[-]          focus item down
-  [lime]A-k[-]          focus item up
-  [lime]A-l[-]          focus item right
+[dodgerblue::bu]Navigation:[-::-]
+  (with mouse)
+  [lime]click[-] to focus any box
   (with arrows)
   [lime]C-<left>[-]     focus item left
   [lime]C-<down>[-]     focus item down
   [lime]C-<up>[-]       focus item up
   [lime]C-<right>[-]    focus item right
+  (vim style)
+  [lime]A-h[-]          focus item left
+  [lime]A-j[-]          focus item down
+  [lime]A-k[-]          focus item up
+  [lime]A-l[-]          focus item right
 
-[blue::b]Items and Commands:[-::-]
+[dodgerblue::bu]Items and Commands:[-::-]
   Panels contain items or other panels for layout.
   Items contain widgets and data sources, and are
   controlled through the command box ([lime]C-<space>[-]).
@@ -65,7 +70,7 @@ const EvalHelpText = `[blue::b]Welcome[-] to [gold]_[ivory]Hofstadter[-::-]
   [violet]view (args)[-]  open a [gold]Value View[-] with data
   [violet]help[-]         open these help contents
 
-[blue::b]Items:[-::-]
+[dodgerblue::bu]Items:[-::-]
 
   [gold]Value View[-] allows you to explore CUE with control of options.
   You will see many options at the top-middle, green is enabled
@@ -82,9 +87,9 @@ const EvalHelpText = `[blue::b]Welcome[-] to [gold]_[ivory]Hofstadter[-::-]
   [gold]Playground[-] is a multi-widget Item for working with CUE.
   You can edit CUE and see the results in real-time, with optional scope.
   The widgets in the playground are:
-    1. the scope (if available)
-    2. a value editor
-    3. a browswer for the result
+    1. a browser for the scope (if available)
+    2. an editor for the main value
+    3. a browser for the final value
 
   [lime]A-f[-]          Rotate this item  (lowercase of Panel hotkey)
   [lime]A-R[-]          Reload data source and refresh
@@ -97,49 +102,51 @@ const EvalHelpText = `[blue::b]Welcome[-] to [gold]_[ivory]Hofstadter[-::-]
   building CUE that will transform or collect larger values
   into smaller or new values. You have full access to CUE.
 
-[blue::b]Commands:[-::-]
+[dodgerblue::bu]Commands:[-::-]
 
   Items and widgets are controlled through the command box ([lime]C-<space>[-]).
   First, make sure the item you want to change is focused (by [lime]clicking[-] on it).
   The general format for commands is as follows.
 
-  [violet]<item> <modifiers>[-] <data source>
+  [violet]<command> <args> [lightseagreen]<data source>[-]
 
-  [violet]<item>[-]       <data>    same as [violet]<item> value[-]
-  [violet]<item> value[-] <data>    set the main value
-  [violet]<item> scope[-] <data>    set the scope value
+  [gold]Item Commands[-]
+  [violet]<item>[-]       [lightseagreen]<data>[-]   same as [violet]<item> value[-]
+  [violet]<item> value[-] [lightseagreen]<data>[-]   set the main value
+  [violet]<item> scope[-] [lightseagreen]<data>[-]   set the scope value
 
-  [gold]<data sources>[-]
+  [gold]Data Sources[-]
+  [violet]<command> [lightseagreen]<eval args and flags>  (same as cue and hof)[-]
+  [violet]<command> [lightseagreen]https://...            (any http json response)[-]
+  [violet]<command> [lightseagreen]bash <args...>         (any bash json output)[-]
 
-  <command>  [aqua]eval args and flags[-]
-  <command>  [aqua]https://... (any http json response)[-]
-  <command>  [aqua]bash <args...>(any bash json output)[-]
+  [gold]Other Commands[-]
+  [violet]push[-]            playground editor text to cuelang.org/play
+  [violet]write  <file>[-]   playground editor text to file
+  [violet]export <file>[-]   playground final value to file
 
-  [gold]<other commands>[-]
-  [violet]push[-]          playground, push text value to CUE playground
-                playground links load like any https://...
-
-[blue::b]Dashboards:[-::-]
+[dodgerblue::bu]Dashboards:[-::-]
   As you layout panels and items, set their data,
   it is likely you will want to save, load, and share these.
 
   [violet]list[-]          list available dashboards
-  [violet]save[-] <name>   save the current view 
-  [violet]show[-] <name>   show the save file
-  [violet]load[-] <name>   load and replace current
+  [violet]save <name>[-]   save the current view 
+  [violet]show <name>[-]   show the save file
+  [violet]load <name>[-]   load and replace current
 
   You can also set panel & item names
 
-  [violet]set.item.name[-] <name>
-  [violet]set.panel.name[-] <name>
+  [violet]set.panel.name <name>[-]
+  [violet]set.item.name  <name>[-]
 
-[blue::b]Getting help:[-::-]
+[dodgerblue::bu]Getting Help:[-::-]
 
   [violet]help[-]          (open this help content in an item)
   [violet]hof feedback[-]  (run this to start a new GitHub issue)
 
-  Docs:     [dogerblue]https://docs.hofstadter.io[-]
-  GitHub:   [dogerblue]https://github.com/hofstadter-io/hof[-]
-  Slack:    [dogerblue]https://join.slack.com/t/hofstadter-io/shared_invite/zt-e5f90lmq-u695eJur0zE~AG~njNlT1A[-]
-  Discord:  [dogerblue]https://discord.gg/6vgbKvPs[-]
+  [gold]Docs:      [deepskyblue]https://docs.hofstadter.io[-]
+  [gold]GitHub:    [deepskyblue]https://github.com/hofstadter-io/hof[-]
+  [gold]Slack:     [deepskyblue]https://join.slack.com/t/hofstadter-io/shared_invite/zt-e5f90lmq-u695eJur0zE~AG~njNlT1A[-]
+  [gold]Discord:   [deepskyblue]https://discord.gg/6vgbKvPs[-]
+
 `

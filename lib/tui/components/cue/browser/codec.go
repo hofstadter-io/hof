@@ -1,5 +1,13 @@
 package browser
 
+import (
+	"fmt"
+
+	"cuelang.org/go/cue/format"
+
+	"github.com/hofstadter-io/hof/lib/gen"
+)
+
 func (V *Browser) Encode() (map[string]any, error) {
 	m := map[string]any{
 		"type": V.TypeName(),
@@ -24,3 +32,40 @@ func (V *Browser) Encode() (map[string]any, error) {
 }
 
 
+func (C *Browser) GetValueText(mode string) (string, error) {
+	var (
+		b []byte
+		err error
+	)
+	switch mode {
+	case "cue":
+		syn := C.value.Syntax(C.Options()...)
+
+		b, err = format.Node(syn)
+		if !C.ignore {
+			if err != nil {
+				return "", err
+			}
+		}
+
+	case "json":
+		f := &gen.File{}
+		b, err = f.FormatData(C.value, "json")
+		if err != nil {
+			return "", err
+		}
+
+	case "yaml":
+		f := &gen.File{}
+		b, err = f.FormatData(C.value, "yaml")
+		if err != nil {
+			return "", err
+		}
+
+	default:
+		return "", fmt.Errorf("unknown file type %q", mode)
+
+	}
+
+	return string(b), err
+}

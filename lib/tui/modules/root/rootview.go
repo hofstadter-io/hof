@@ -87,7 +87,7 @@ func (V *RootView) setLastCommand(cmd string) {
 func (V *RootView) buildTopPanel() {
 	V.cbox = cmdbox.New(V.getLastCommand, V.setLastCommand)
 	V.cbox.
-		SetTitle("  [gold]_[ivory]Hofstadter[-]  ").
+		SetTitle("  [gold::bi]_[ivory]Hofstadter[-::-]  ").
 		SetTitleAlign(tview.AlignLeft).
 		SetTitleColor(tcell.ColorIvory).
 		SetBorder(true).

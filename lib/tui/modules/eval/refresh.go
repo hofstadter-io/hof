@@ -29,6 +29,13 @@ func (M *Eval) Refresh(context map[string]any) error {
 	if _action, ok := context["action"]; ok {
 		action = _action.(string)
 	}
+	// default action to update if item is set
+	if action == "" {
+		// default action to update if item is set
+		if _, ok := context["item"]; ok {
+			context["action"] = "update"
+		}
+	}
 
 	// intercept our top-level commands first
 	switch action {
@@ -120,6 +127,80 @@ func (M *Eval) Refresh(context map[string]any) error {
 			return err
 		}
 
+	case "write":
+		tui.Log("debug", fmt.Sprintf("write cmd: %# v", context))
+		cfi := p.ChildFocus()
+
+		if len(args) != 1 {
+			err := fmt.Errorf("write requires a filename")
+			tui.Tell("error", err)
+			tui.Log("error", err)
+			return err
+		}
+
+		filename := args[0]
+
+		itm := p.GetItem(cfi).(*panel.BaseItem)
+		w := itm.Widget()
+		switch play := w.(type) {
+		case *playground.Playground:
+			err := play.WriteEditToFile(filename)
+			if err != nil {
+				tui.Tell("error", err)
+				tui.Log("error", err)
+				return err
+			}
+
+			msg := fmt.Sprintf("editor text saved to %s", filename)
+
+			tui.Tell("error", msg)
+			tui.Log("trace", msg)
+			return nil
+
+		default:
+			err := fmt.Errorf("unable to write this item %v", reflect.TypeOf(w))
+			tui.Tell("error", err)
+			tui.Log("error", err)
+			return err
+		}
+
+	case "export":
+		tui.Log("debug", fmt.Sprintf("export cmd: %# v", context))
+		cfi := p.ChildFocus()
+
+		if len(args) != 1 {
+			err := fmt.Errorf("export requires a filename")
+			tui.Tell("error", err)
+			tui.Log("error", err)
+			return err
+		}
+
+		filename := args[0]
+
+		itm := p.GetItem(cfi).(*panel.BaseItem)
+		w := itm.Widget()
+		switch play := w.(type) {
+		case *playground.Playground:
+			err := play.ExportFinalToFile(filename)
+			if err != nil {
+				tui.Tell("error", err)
+				tui.Log("error", err)
+				return err
+			}
+
+			msg := fmt.Sprintf("value exported to %s", filename)
+
+			tui.Tell("error", msg)
+			tui.Log("trace", msg)
+			return nil
+
+		default:
+			err := fmt.Errorf("unable to export this item %v", reflect.TypeOf(w))
+			tui.Tell("error", err)
+			tui.Log("error", err)
+			return err
+		}
+
 	case 
 		"nav.left",	
 		"nav.right",
@@ -127,6 +208,15 @@ func (M *Eval) Refresh(context map[string]any) error {
 		"nav.down":
 
 		M.doNav(p, action)
+
+	case "":
+		// the empty string should only happen on startup
+
+	default:
+		err := fmt.Errorf("unknown command %q", action)
+		tui.Tell("error", err)
+		tui.Log("error", err)
+		return err
 	}
 
 	err := p.Refresh(context)

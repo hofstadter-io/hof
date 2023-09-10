@@ -1,22 +1,15 @@
 package playground
 
 import (
-	"fmt"
-	"strings"
 	"time"
 
 	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/cuecontext"
-	"github.com/gdamore/tcell/v2"
-	"github.com/parnurzeal/gorequest"
 
-	"github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/browser"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/helpers"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 	"github.com/hofstadter-io/hof/lib/watch"
 )
-
 
 type valPack struct {
 	config  helpers.SourceConfig
@@ -153,102 +146,6 @@ func (C *Playground) SetFlexDirection(dir int) {
 }
 
 
-const HTTP2_GOAWAY_CHECK = "http2: server sent GOAWAY and closed the connection"
-
-func (C *Playground) PushToPlayground() (string, error) {
-	src := C.edit.GetText()
-
-	url := "https://cuelang.org/.netlify/functions/snippets"
-	req := gorequest.New().Post(url)
-	req.Set("Content-Type", "text/plain")
-	req.Send(src)
-
-	resp, body, errs := req.End()
-
-	if len(errs) != 0 && !strings.Contains(errs[0].Error(), HTTP2_GOAWAY_CHECK) {
-		fmt.Println("errs:", errs)
-		fmt.Println("resp:", resp)
-		fmt.Println("body:", body)
-		return body, errs[0]
-	}
-
-	if len(errs) != 0 || resp.StatusCode >= 500 {
-		return body, fmt.Errorf("Internal Error: " + body)
-	}
-	if resp.StatusCode >= 400 {
-		return body, fmt.Errorf("Bad Request: " + body)
-	}
-
-	return body, nil
-}
-
-func (C *Playground) Rebuild(rebuildScope bool) error {
-	// tui.Log("info", fmt.Sprintf("Play.rebuildScope %v %v %v", rebuildScope, C.useScope, C.scope.config))
-	var (
-		v cue.Value
-		err error
-	)
-
-	ctx := cuecontext.New()
-	src := C.edit.GetText()
-
-	// compile a value
-	if !C.useScope {
-		// just compile the text
-		v = ctx.CompileString(src, cue.InferBuiltins(true))
-	} else {
-		// compile the text with a scope
-
-		// tui.Log("warn", fmt.Sprintf("%#v", s))
-		sv, serr := C.scope.config.GetValue()
-		err = serr
-
-		if err != nil {
-			tui.Log("error", err)
-		}
-		// we shouldn't have to worry about this, but we aren't catching all the ways
-		// that we get into this code, in particular, hotkey can set scope to true when none exists
-		if !sv.Exists() {
-			tui.Log("error", "scope value does not exist")
-			err = fmt.Errorf("scope value does not exist")
-		}
-
-		if err == nil && sv.Exists() {
-			if rebuildScope {
-				// C.scope.config.Rebuild()
-				cfg := helpers.SourceConfig{Value: sv}
-				C.scope.viewer.SetSourceConfig(cfg)
-				C.scope.viewer.Rebuild()
-			}
-
-			// tui.Log("warn", fmt.Sprintf("recompile with scope: %v", rebuildScope))
-			ctx := sv.Context()
-			v = ctx.CompileString(src, cue.InferBuiltins(true), cue.Scope(sv))
-		}
-	}
-
-	cfg := helpers.SourceConfig{Value: v}
-	if err != nil {
-		tui.Log("error", err)
-		cfg = helpers.SourceConfig{Text: err.Error()}
-	}
-	// only update view value, that way, if we erase everything, we still see the value
-	C.final.viewer.SetUsingScope(C.useScope)
-	C.final.viewer.SetSourceConfig(cfg)
-	C.final.viewer.Rebuild()
-
-	// show/hide scope as needed
-	if C.useScope {
-		C.SetItem(0, C.scope.viewer, 0, 1, true)
-	} else {
-		C.SetItem(0, nil, 0, 0, false)
-	}
-
-
-	// tui.Draw()
-	return nil
-}
-
 func (C *Playground) Mount(context map[string]any) error {
 
 	return nil
@@ -265,39 +162,3 @@ func (C *Playground) Focus(delegate func(p tview.Primitive)) {
 }
 
 
-func (C *Playground) setupKeybinds() {
-	// events (hotkeys)
-	C.SetInputCapture(func(evt *tcell.EventKey) *tcell.EventKey {
-		switch evt.Key() {
-		case tcell.KeyRune:
-			if (evt.Modifiers() & tcell.ModAlt) == tcell.ModAlt {
-				switch evt.Rune() {
-				case 'f':
-					flexDir := C.GetDirection()
-					if flexDir == tview.FlexRow {
-						C.SetDirection(tview.FlexColumn)
-					} else {
-						C.SetDirection(tview.FlexRow)
-					}
-
-				case 'S':
-					C.useScope = !C.useScope
-					C.Rebuild(false)
-
-				case 'R':
-					C.Rebuild(true)
-
-				default: 
-					return evt
-				}
-
-				return nil
-			}
-
-			return evt
-
-		default:
-			return evt
-		}
-	})	
-}
