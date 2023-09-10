@@ -5,10 +5,68 @@ import (
 
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/cuecontext"
+	"github.com/atotto/clipboard"
 
 	"github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/helpers"
 )
+
+func (C *Playground) HandleAction(action string, args []string, context map[string]any) (bool, error) {
+	tui.Log("warn", fmt.Sprintf("Playground.HandleAction: %v %v", action, args))
+	var err error
+	handled := true
+
+	// item actions
+	switch action {
+	case "push":
+		id, err := C.PushToPlayground()
+		// if ok...
+		if err == nil {
+			msg := fmt.Sprintf("snippet id: %s  (link copied!)", id)
+
+			url := fmt.Sprintf("https://cuelang.org/play?id=%s", id)
+			clipboard.WriteAll(url)
+
+			tui.Tell("error", msg)
+			tui.Log("trace", msg)
+		}
+
+
+	case "write":
+		if len(args) != 1 {
+			err = fmt.Errorf("write requires a filename")
+		} else {
+			filename := args[0]
+			err = C.WriteEditToFile(filename)
+			// if ok...
+			if err == nil {
+				msg := fmt.Sprintf("editor text saved to %s", filename)
+				tui.Tell("error", msg)
+				tui.Log("trace", msg)
+			}
+		}
+
+	case "export":
+		if len(args) != 1 {
+			err = fmt.Errorf("export requires a filename")
+		} else {
+			filename := args[0]
+			err := C.ExportFinalToFile(filename)
+			// if ok...
+			if err == nil {
+				msg := fmt.Sprintf("value exported to %s", filename)
+				tui.Tell("error", msg)
+				tui.Log("trace", msg)
+			}
+		}
+
+
+	default:
+		err = fmt.Errorf("unknown command %q", action)
+	}
+
+	return handled, err
+}
 
 func (C *Playground) Rebuild(rebuildScope bool) error {
 	// tui.Log("info", fmt.Sprintf("Play.rebuildScope %v %v %v", rebuildScope, C.useScope, C.scope.config))

@@ -29,15 +29,15 @@ const EvalHelpText = `
   [red]:q[-]           (from the command box)
 
 [dodgerblue::bu]Panel Management:[-::-]
-  [lime]A-J[-]          new item before
-  [lime]A-K[-]          new item after
+  [lime]A-J[-]          create item before
+  [lime]A-K[-]          create item after
   [lime]A-H[-]          move item before
   [lime]A-L[-]          move item after
-  [lime]A-T[-]          split panel into two
+  [lime]A-T[-]          split current item
   [lime]A-D[-]          delete current item
-  [lime]A-F[-]          flip panel flex direction
-  [lime]A-P[-]          show borders on panels
-  [lime]A-O[-]          show borders on items
+  [lime]A-F[-]          toggle flex direction
+  [lime]A-P[-]          toggle panel borders
+  [lime]A-O[-]          toggle item borders
 
 [dodgerblue::bu]Navigation:[-::-]
   (with mouse)

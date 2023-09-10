@@ -78,6 +78,7 @@ func enrichContext(context map[string]any) (map[string]any) {
 		case 
 			"push",
 			"export",
+			"write",
 			"set.runtime",
 			"set.value.runtime",
 			"set.value.value",
@@ -113,12 +114,15 @@ func enrichContext(context map[string]any) (map[string]any) {
 		// default when nothing
 		case "help":
 			context["item"] = "help"
+			// context["action"] = "insert"  // probably the default?
 		// dual-pane eval'r (default when doing eval things)
 		case "play":
 			context["item"] = "play"
+			context["action"] = "update"  // probably the default?
 		// value viewer
 		case "view":
 			context["item"] = "view"
+			context["action"] = "update"  // probably the default?
 
 		// should this be handled lower too?
 		// we might want a more general 
@@ -131,9 +135,9 @@ func enrichContext(context map[string]any) (map[string]any) {
 		//
 		
 		// cue item action targets
-		case "scope":
+		case "S", "scope":
 			context["target"] = "scope"
-		case "value":
+		case "V", "value":
 			context["target"] = "value"
 
 		// default, the current focused item
@@ -208,14 +212,6 @@ argsDone:
 		context["source"] = "http"
 		//context["from"] = args[0]
 		//args = args[1:]
-	}
-
-	// set action to first arg if available
-	if _, ok := context["action"]; !ok {
-		if len(args) > 0 {
-			context["action"] = args[0]
-			args = args[1:]
-		}
 	}
 
 	// make sure we update the context args
