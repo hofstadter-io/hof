@@ -108,7 +108,7 @@ func (CB *CmdBoxWidget) RemoveCommand(command Command) {
 }
 
 func (CB *CmdBoxWidget) Mount(context map[string]interface{}) error {
-	tui.AddWidgetHandler(CB, "/sys/key/C-<space>", func(e events.Event) {
+	focuser := func(e events.Event) {
 		CB.Lock()
 		CB.curr = ""
 		CB.hIdx = len(CB.history)
@@ -118,7 +118,7 @@ func (CB *CmdBoxWidget) Mount(context map[string]interface{}) error {
 
 		CB.lastFocus = tui.GetFocus()
 		tui.SetFocus(CB.InputField)
-	})
+	}
 
 	CB.SetFinishedFunc(func(key tcell.Key) {
 		switch key {
@@ -158,11 +158,16 @@ func (CB *CmdBoxWidget) Mount(context map[string]interface{}) error {
 
 	})
 
+	tui.AddWidgetHandler(CB, "/sys/key/C-<space>", focuser)
+	tui.AddWidgetHandler(CB, "/sys/key/C-P", focuser)
+	tui.AddWidgetHandler(CB, "/sys/key/<esc>", focuser)
+
 	return nil
 }
 func (CB *CmdBoxWidget) Unmount() error {
 	tui.RemoveWidgetHandler(CB, "/sys/key/C-<space>")
-
+	tui.RemoveWidgetHandler(CB, "/sys/key/C-P")
+	tui.RemoveWidgetHandler(CB, "/sys/key/<esc>")
 	return nil
 }
 
