@@ -12,6 +12,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/tui/components/widget"
 )
 
+var persist_debug = true
 
 const evalSaveDirSubdir = "tui/saves/eval"
 
@@ -60,13 +61,14 @@ func (M *Eval) Save(filename string) error {
 	tui.Log("info", info)
 
 	// extra to display the save info
-	//t := NewTextView()
-	//t.SetDynamicColors(false)
-	//fmt.Fprint(t, string(b))
-	//I := NewItem(nil, M.Panel)
-	//I.SetWidget(t)
-
-	//M.Panel.AddItem(I, 0, 1, true)
+	if persist_debug {
+		t := widget.NewTextView()
+		t.SetDynamicColors(false)
+		fmt.Fprint(t, string(b))
+		I := panel.NewBaseItem(nil, M.Panel)
+		I.SetWidget(t)
+		M.AddItem(I, 0, 1, true)
+	}
 
 	return nil
 }

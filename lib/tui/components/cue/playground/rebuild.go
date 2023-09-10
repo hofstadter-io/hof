@@ -12,7 +12,7 @@ import (
 )
 
 func (C *Playground) HandleAction(action string, args []string, context map[string]any) (bool, error) {
-	tui.Log("warn", fmt.Sprintf("Playground.HandleAction: %v %v", action, args))
+	tui.Log("warn", fmt.Sprintf("Playground.HandleAction: %v %v %v", action, args, context))
 	var err error
 	handled := true
 
@@ -60,6 +60,8 @@ func (C *Playground) HandleAction(action string, args []string, context map[stri
 			}
 		}
 
+	case "update":
+		err = C.updateFromArgsAndContext(args, context)
 
 	default:
 		err = fmt.Errorf("unknown command %q", action)
@@ -68,8 +70,73 @@ func (C *Playground) HandleAction(action string, args []string, context map[stri
 	return handled, err
 }
 
+func (C *Playground) updateFromArgsAndContext(args[] string, context map[string]any) error {
+	// get source, defaults to empty, new runtime?
+	source := ""
+	if _source, ok := context["source"]; ok {
+		source = _source.(string)
+	}
+
+	target := "value"
+	if _target, ok := context["target"]; ok {
+		target = _target.(string)
+	}
+
+	// setup our source config
+	srcCfg := helpers.SourceConfig{
+		Args: args,
+	}
+
+	// special case, source will be empty when the args are all cue entrypoints
+	// we want to...
+	//   (1) catch special empty case for new play
+	//   (2) we want different defaults for empty when there are args, based on the target
+	//   for (1), we need temporary <new-play> to know we are in new play mode
+	if len(args) == 0 || (len(args) == 1 && args[0] == "new") {
+		source = "<new-play>" // very temporary setting
+		target = "value"
+	}
+
+	rebuildScope := false
+	switch target {
+	case "value":
+		// local source default, assume it was a filename
+		if source == "" {
+			source = "file"
+		} else if source == "<new-play>" {
+			source = ""
+		}
+		srcCfg.Source = helpers.EvalSource(source)
+
+		// tui.Log("extra", fmt.Sprintf("Eval.playItem.value: %v", srcCfg ))
+		C.UseScope(false)
+		// need to get the text once at startup
+		txt, err := srcCfg.GetText()
+		if err != nil {
+			tui.Log("error", err)
+			return err
+		}
+		// tui.Log("extra", fmt.Sprintf("Eval.playItem.value.text: %v", txt ))
+		C.SetText(txt)
+
+	case "scope":
+		if source == "" {
+			source = "runtime"
+		}
+		srcCfg.Source = helpers.EvalSource(source)
+
+		C.SetScopeConfig(srcCfg)
+
+		rebuildScope = true
+		C.UseScope(true)
+	}
+
+	return C.Rebuild(rebuildScope)
+}
+
+
 func (C *Playground) Rebuild(rebuildScope bool) error {
-	// tui.Log("info", fmt.Sprintf("Play.rebuildScope %v %v %v", rebuildScope, C.useScope, C.scope.config))
+	tui.Log("info", fmt.Sprintf("Play.rebuildScope %v %v %v", rebuildScope, C.useScope, C.scope.config))
 	var (
 		v cue.Value
 		err error
@@ -129,7 +196,6 @@ func (C *Playground) Rebuild(rebuildScope bool) error {
 	} else {
 		C.SetItem(0, nil, 0, 0, false)
 	}
-
 
 	// tui.Draw()
 	return nil

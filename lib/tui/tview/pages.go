@@ -139,6 +139,15 @@ func (p *Pages) HasPage(name string) bool {
 	return false
 }
 
+func (p *Pages) GetPage(name string) *Page {
+	for _, page := range p.pages {
+		if page.Name == name {
+			return page
+		}
+	}
+	return nil
+}
+
 // ShowPage sets a page's visibility to "true" (in addition to any other pages
 // which are already visible).
 func (p *Pages) ShowPage(name string) *Pages {

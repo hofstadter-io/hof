@@ -67,14 +67,12 @@ func (V *Playground) Encode() (map[string]any, error) {
 }
 
 
-func New(initialText string, scopeSourceConfig helpers.SourceConfig) (*Playground) {
+func New(initialText string) (*Playground) {
 
 	C := &Playground{
 		Flex: tview.NewFlex(),
 		text: initialText,
-		scope: &valPack{
-			config: scopeSourceConfig,
-		},
+		scope: &valPack{},
 		final: &valPack{},
 	}
 	// our wrapper around the CUE widgets
@@ -83,7 +81,7 @@ func New(initialText string, scopeSourceConfig helpers.SourceConfig) (*Playgroun
 	// TODO, options form
 
 	// scope viewer
-	C.scope.viewer = browser.New(C.scope.config, "cue")
+	C.scope.viewer = browser.New(helpers.SourceConfig{}, "cue")
 	C.scope.viewer.SetName("scope")
 	C.scope.viewer.SetBorder(true)
 
@@ -101,14 +99,8 @@ func New(initialText string, scopeSourceConfig helpers.SourceConfig) (*Playgroun
 	C.final.viewer.SetBorder(true)
 
 	// usingScope?
-	C.final.viewer.SetUsingScope(true)
-	C.useScope = true
-	//if sourceConfig.Source != helpers.EvalNone {
-
-	//} else {
-	//  // add empty scope box
-	//  C.Flex.AddItem(nil, 0, 0, false)
-	//}
+	C.final.viewer.SetUsingScope(false)
+	C.useScope = false
 
 	// layout
 	C.Flex.

@@ -7,7 +7,6 @@ import (
 
 	"github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/components"
-	"github.com/hofstadter-io/hof/lib/tui/hoc/router"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 )
 
@@ -29,12 +28,6 @@ func NewLS() *LS {
 
 func (P *LS) Id() string {
 	return "ls"
-}
-
-func (P *LS) Routes() []router.RoutePair {
-	return []router.RoutePair{
-		{ Path: "/ls", Data: P },
-	}
 }
 
 func (P *LS) Mount(context map[string]any) error {

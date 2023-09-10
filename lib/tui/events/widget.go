@@ -18,6 +18,7 @@ type WgtInfo struct {
 	Handlers map[string]func(Event)
 	WgtRef   tview.Primitive
 	Id       string
+	Lock     *sync.RWMutex
 }
 
 func NewWgtInfo(wgt tview.Primitive) WgtInfo {
@@ -25,6 +26,7 @@ func NewWgtInfo(wgt tview.Primitive) WgtInfo {
 		Handlers: make(map[string]func(Event)),
 		WgtRef:   wgt,
 		Id:       wgt.Id(),
+		Lock:     new(sync.RWMutex),
 	}
 }
 
@@ -80,6 +82,8 @@ func GenId() string {
 func (wm WgtMgr) WgtHandlersHook() func(Event) {
 	return func(e Event) {
 		for _, v := range wm {
+			v.Lock.RLock()
+			defer v.Lock.RUnlock()
 			if k := findMatch(v.Handlers, e.Path); k != "" {
 				// v.WgtRef.Lock()
 				v.Handlers[k](e)

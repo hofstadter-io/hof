@@ -218,7 +218,7 @@ func eventMods(mods tcell.ModMask) string {
 }
 
 type EventStream struct {
-	sync.RWMutex
+	mutex       sync.RWMutex
 	srcMap      map[string]chan Event
 	stream      chan Event
 	wg          sync.WaitGroup
@@ -245,11 +245,12 @@ func (es *EventStream) Init() {
 }
 
 func (es *EventStream) Merge(name string, ec chan Event) {
-	es.Lock()
-	defer es.Unlock()
 
 	es.wg.Add(1)
+
+	es.mutex.Lock()
 	es.srcMap[name] = ec
+	es.mutex.Unlock()
 
 	go func(a chan Event) {
 		for n := range a {
@@ -261,15 +262,21 @@ func (es *EventStream) Merge(name string, ec chan Event) {
 }
 
 func (es *EventStream) Handle(path string, handler func(Event)) {
+	es.mutex.Lock()
+	defer es.mutex.Unlock()
 	es.Handlers[cleanPath(path)] = handler
 }
 
 func (es *EventStream) RemoveHandle(path string) {
+	es.mutex.Lock()
+	defer es.mutex.Unlock()
 	delete(es.Handlers, cleanPath(path))
 }
 
 // Remove all existing defined Handlers from the map
 func (es *EventStream) ResetHandlers() {
+	es.mutex.Lock()
+	defer es.mutex.Unlock()
 	for Path := range es.Handlers {
 		delete(es.Handlers, Path)
 	}
@@ -277,6 +284,8 @@ func (es *EventStream) ResetHandlers() {
 }
 
 func (es *EventStream) match(path string) string {
+	es.mutex.RLock()
+	defer es.mutex.RUnlock()
 	return findMatch(es.Handlers, path)
 }
 
@@ -291,8 +300,8 @@ func (es *EventStream) Loop() {
 			return
 		}
 		func(a Event) {
-			es.RLock()
-			defer es.RUnlock()
+			es.mutex.RLock()
+			defer es.mutex.RUnlock()
 			if pattern := es.match(a.Path); pattern != "" {
 				es.Handlers[pattern](a)
 			}

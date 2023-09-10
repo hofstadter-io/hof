@@ -5,8 +5,6 @@ import (
 	"time"
 
 	"cuelang.org/go/cue"
-
-	"github.com/hofstadter-io/hof/lib/tui"
 )
 
 type EvalSource string
@@ -45,7 +43,7 @@ func (sc SourceConfig) Encode() (map[string]any, error) {
 
 
 func (sc SourceConfig) GetValue() (cue.Value, error) {
-	tui.Log("debug", fmt.Sprintf("SCFG.GetValue %# v", sc))
+	// tui.Log("debug", fmt.Sprintf("SCFG.GetValue %# v", sc))
 
 	switch sc.Source {
 	case EvalNone:
@@ -85,7 +83,7 @@ func (sc SourceConfig) GetValue() (cue.Value, error) {
 }
 
 func (sc SourceConfig) GetText() (string, error) {
-	tui.Log("debug", fmt.Sprintf("SCFG.GetText %# v", sc))
+	// tui.Log("debug", fmt.Sprintf("SCFG.GetText %# v", sc))
 	switch sc.Source {
 	case EvalNone:
 		return sc.Text, nil

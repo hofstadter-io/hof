@@ -2,12 +2,9 @@ package help
 
 import (
 	"fmt"
-	"strings"
 
-	"github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/modules/eval"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
-	"github.com/hofstadter-io/hof/lib/tui/hoc/router"
 )
 
 // Both a Module and a Layout and a Switcher.SubLayout
@@ -44,16 +41,6 @@ func (H *Help) Name() string {
 	return "Help"
 }
 
-func (H *Help) Routes() []router.RoutePair {
-	return []router.RoutePair{
-		router.RoutePair{"/help", H},
-		router.RoutePair{"/help/{topic}", H},
-		router.RoutePair{"/help/{topic}/{subTopic}", H},
-		router.RoutePair{"/help/{topic}/{subTopic}/{subSubTopic}", H},
-		router.RoutePair{"/help/{topic}/{subTopic}/{subSubTopic}/{section}", H},
-	}
-}
-
 func (H *Help) CommandName() string {
 	return "help"
 }
@@ -66,21 +53,19 @@ func (H *Help) CommandHelp() string {
 	return "displays the home view"
 }
 func (H *Help) CommandCallback(context map[string]interface{}) {
-	helpPath := "/help"
+	//helpPath := "/help"
 
-	args := []string{}
-	if a, ok := context["args"]; ok {
-		args, _ = a.([]string)
-	}
+	//args := []string{}
+	//if a, ok := context["args"]; ok {
+	//  args, _ = a.([]string)
+	//}
 
-	if len(args) > 0 {
-		H.Clear()
-		fmt.Fprintln(H, "Help -", args, "\n\n")
-		helpPath += "/" + strings.Join(args, "/")
-	} else {
-		H.Clear()
-		fmt.Fprintln(H, "Help - Main\n\n", helpContent)
-	}
-
-	go tui.SendCustomEvent("/router/dispatch", helpPath)
+	//if len(args) > 0 {
+	//  H.Clear()
+	//  fmt.Fprintln(H, "Help -", args, "\n\n")
+	//  helpPath += "/" + strings.Join(args, "/")
+	//} else {
+	//  H.Clear()
+	//  fmt.Fprintln(H, "Help - Main\n\n", helpContent)
+	//}
 }
