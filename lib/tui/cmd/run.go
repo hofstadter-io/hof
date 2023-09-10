@@ -99,7 +99,7 @@ func Cmd(args []string, rflags flags.RootPflagpole) error {
 		// some latent locksups occur randomly
 		time.Sleep(time.Millisecond * 23)
 		tui.SendCustomEvent("/router/dispatch", context)
-		tui.SendCustomEvent("/status/message", "[blue::b]Welcome to [gold::bi]_[ivory]Hofstadter[-::-]")
+		tui.SendCustomEvent("/status/message", "[dodgerblue::b]Welcome to [gold::bi]_[ivory]Hofstadter[-::-]")
 	}()
 
 	// Start the Main (Blocking) Loop

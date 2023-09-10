@@ -70,6 +70,11 @@ func Print(screen tcell.Screen, text string, x, y, maxWidth, align int, color tc
 	return end - start, width
 }
 
+func PrintSkip(screen tcell.Screen, text string, x, y, skipWidth, maxWidth, align int, color tcell.Color) (int, int) {
+	start, end, width := printWithStyle(screen, text, x, y, skipWidth, maxWidth, align, tcell.StyleDefault.Foreground(color), true)
+	return end - start, width
+}
+
 // printWithStyle works like Print() but it takes a style instead of just a
 // foreground color. The skipWidth parameter specifies the number of cells
 // skipped at the beginning of the text. It returns the start index, end index

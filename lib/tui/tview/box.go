@@ -59,6 +59,9 @@ type Box struct {
 	// The alignment of the title.
 	titleAlign int
 
+	// The horizontal padding of the title.
+	titlePadding int
+
 	// Whether or not this box has focus. This is typically ignored for
 	// container primitives (e.g. Flex, Grid, Pages), as they will delegate
 	// focus to their children.
@@ -468,11 +471,16 @@ func (b *Box) DrawForSubclass(screen tcell.Screen, p Primitive) {
 
 		// Draw title.
 		if b.title != "" && b.width >= 4 {
-			printed, _ := Print(screen, b.title, b.x+1, b.y, b.width-2, b.titleAlign, b.titleColor)
+			pad := 1
+			if b.titleAlign == AlignLeft {
+				pad = 2
+				// 
+			}
+			printed, _ := Print(screen, b.title, b.x+pad, b.y, b.width-(pad+1), b.titleAlign, b.titleColor)
 			if len(b.title)-printed > 0 && printed > 0 {
-				xEllipsis := b.x + b.width - 2
+				xEllipsis := b.x + b.width - pad
 				if b.titleAlign == AlignRight {
-					xEllipsis = b.x + 1
+					xEllipsis = b.x + pad
 				}
 				_, _, style, _ := screen.GetContent(xEllipsis, b.y)
 				fg, _, _ := style.Decompose()

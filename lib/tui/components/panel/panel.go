@@ -139,15 +139,6 @@ func (P *Panel) Refresh(context map[string]any) error {
 	case "update":
 		P.updatePanelItem(context)	
 
-	//case "set.scope", "set.scope.runtime", "set.scope.value":
-	//  P.setItemScope(cid, action, args, context)	
-
-	//case "set.value", "set.value.runtime", "set.value.value":
-	//  P.setItemValue(cid, action, args, context)	
-
-	//case "set.text":
-	//  P.setItemText(cid, action, args, context)	
-
 	case "set.panel.name":
 		if len(args) < 1 {
 			return fmt.Errorf("%s requires an argument", action)
