@@ -22,10 +22,12 @@ const EvalHelpText = `
 
 [dodgerblue::bu]App Controls:[-::-]
   [lime]C-<space>[-]    focus the command box
+  [lime]C-P[-]            (vs code like)
+  [lime]<esc>[-]          (vim like)
   [lime]A-<space>[-]    focus the main content
   [lime]A-/[-]          show / hide the console
   [lime]A-x[-]          clear the console logs
-  [red]Ctrl-Alt-c[-]   close [gold]_[ivory]Hofstadter[-]
+  [red]Ctrl-Alt-c[-]   close [gold::bi]_[ivory]Hofstadter[-::-] :[
   [red]:q[-]           (from the command box)
 
 [dodgerblue::bu]Panel Management:[-::-]

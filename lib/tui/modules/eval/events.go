@@ -58,21 +58,6 @@ func (M *Eval) setupEventHandlers() {
 		eRefresh := false
 		switch event.Key() {
 
-		// give up focus to parent (this is meh, as it doesn't cross panel bounderies (but maybe easier after refactor?)
-		case tcell.KeyESC:
-			// TODO, re-enable this when we deal with panel/widget movements
-			if panel != nil {
-				if panel.ChildFocus() >= 0 {
-						tui.SetFocus(panel)
-				} else {
-					if panel.GetParent() != nil {
-						tui.SetFocus(panel.GetParent())
-					}
-				}
-			}
-			// all escape handled here, but need to think about items & widgets that have multiple things
-			handled = true
-
 		// same comment about items & widgets with multiple things (also applies to the nav.* options under Alt-<rune>
 		case tcell.KeyUp:
 			if ctrl {
