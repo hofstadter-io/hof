@@ -22,7 +22,6 @@ ghacue.#Workflow & {
 
 			steps: [
 				common.Steps.go.setup & {#ver: "1.21.x"},
-				common.Steps.go.cache,
 				common.Steps.checkout,
 				common.Steps.vars,
 				common.Steps.go.deps,
@@ -49,7 +48,7 @@ ghacue.#Workflow & {
 
 			steps: [
 				common.Steps.go.setup,
-				common.Steps.go.cache,
+				common.Steps.dagger.cache,
 				common.Steps.checkout,
 				common.Steps.vars,
 				common.Steps.go.deps,

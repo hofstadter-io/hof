@@ -23,7 +23,6 @@ ghacue.#Workflow & {
 				// general setup
 				common.Steps.cue.install,
 				common.Steps.go.setup,
-				common.Steps.go.cache,
 				common.Steps.checkout,
 				common.Steps.vars,
 				common.Steps.go.deps,
