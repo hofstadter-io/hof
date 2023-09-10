@@ -107,10 +107,6 @@ func RemoveGlobalHandler(path string) {
 	globalApp.EventBus.RemoveGlobalHandler(path)
 }
 
-func ClearGlobalHandlers() {
-	globalApp.EventBus.ClearGlobalHandlers()
-}
-
 func AddWidgetHandler(widget tview.Primitive, path string, handler func(events.Event)) {
 	globalApp.EventBus.AddWidgetHandler(widget, path, handler)
 }
