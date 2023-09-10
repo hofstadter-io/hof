@@ -115,9 +115,9 @@ func enrichContext(context map[string]any) (map[string]any) {
 		// dual-pane eval'r (default when doing eval things)
 		case "play":
 			context["item"] = "play"
-		// tree browser
-		case "tree":
-			context["item"] = "tree"
+		// value viewer
+		case "view":
+			context["item"] = "view"
 		// text editor
 		case "edit", "editor":
 			context["item"] = "editor"

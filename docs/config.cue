@@ -29,6 +29,7 @@ params: {
 	cuever:              "v0.6.0"
 	cuedocBase:          "https://pkg.go.dev/cuelang.org/go@\(cuever)"
 	slackLink:           "https://join.slack.com/t/hofstadter-io/shared_invite/zt-e5f90lmq-u695eJur0zE~AG~njNlT1A"
+	discordLink:         "https://discord.gg/6vgbKvPs"
 
 	keywords: ["hof", "hofstadter", "documentation", "docs"]
 
@@ -62,7 +63,11 @@ menu: shortcuts: [{
 	url:    "\(params.slackLink)"
 	weight: 2
 }, {
+	name:   "<i class='fas fa-comments'></i> Discord"
+	url:    "\(params.discordLink)"
+	weight: 3
+}, {
 	name:   "<i class='fas fa-home'></i> hof.io"
 	url:    "https://hofstadter.io"
-	weight: 3
+	weight: 4
 }]
