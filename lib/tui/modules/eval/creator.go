@@ -37,7 +37,7 @@ func setupCreator() {
 	f.Register("default", helpItem)
 	f.Register("help", helpItem)
 	f.Register("play", playItem)
-	f.Register("tree", treeItem)
+	f.Register("view", viewItem)
 
 	itemCreator = f
 }
@@ -155,8 +155,8 @@ func playItem(context panel.ItemContext, parent *panel.Panel) (panel.PanelItem, 
 	return I, nil
 }
 
-func treeItem(context panel.ItemContext, parent *panel.Panel) (panel.PanelItem, error) {
-	// tui.Log("extra", fmt.Sprintf("new treeItem %v", context ))
+func viewItem(context panel.ItemContext, parent *panel.Panel) (panel.PanelItem, error) {
+	// tui.Log("extra", fmt.Sprintf("new viewItem %v", context ))
 
 	args := []string{}
 	if _args, ok := context["args"]; ok {
