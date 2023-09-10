@@ -1,11 +1,15 @@
 package root
 
 import (
+	"fmt"
+	"reflect"
+
 	"github.com/gdamore/tcell/v2"
 
 	"github.com/hofstadter-io/hof/lib/connector"
 
 	"github.com/hofstadter-io/hof/lib/tui"
+	"github.com/hofstadter-io/hof/lib/tui/events"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 	"github.com/hofstadter-io/hof/lib/tui/hoc/cmdbox"
 	"github.com/hofstadter-io/hof/lib/tui/hoc/console"
@@ -28,7 +32,10 @@ type RootView struct {
 	//
 	// Main Panel element
 	//
-	mainPanel *MainPanel
+	pages *tview.Pages
+	currPage string
+
+	// hmm...
 	lastCmd string
 
 	//
@@ -41,6 +48,7 @@ func New() *RootView {
 
 	V := &RootView{
 		Layout: panels.New(),
+		pages: tview.NewPages(),
 	}
 
 	V.SetDirection(tview.FlexRow)
@@ -71,7 +79,16 @@ func (V *RootView) Connect(C connector.Connector) {
 		},
 	})
 
-	V.mainPanel.Connect(C)
+	cs := C.Get((*Commander)(nil))
+	for _, c := range cs {
+		cc := c.(Commander)
+		V.pages.AddPage(cc.CommandName(), cc, true, false)
+	}
+}
+
+type Commander interface {
+	tview.Primitive
+	CommandName() string
 }
 
 func (V *RootView) getLastCommand() (cmd string) {
@@ -82,6 +99,73 @@ func (V *RootView) getLastCommand() (cmd string) {
 func (V *RootView) setLastCommand(cmd string) {
 	// tui.Log("trace", "SET LAST CMD: " + cmd)
 	V.lastCmd = cmd
+}
+
+func (V *RootView) Mount(context map[string]any) error {
+	tui.Log("debug", fmt.Sprintf("RootView.Mount %v", context))
+
+	// set first page on mount
+	_ = V.tryPageChange(context)
+
+	// mount sub components
+	V.Layout.Mount(context)
+	// V.cbox.Mount(context)
+	// V.pages.Mount(context)
+
+	tui.AddGlobalHandler("/cmdbox/:cmd", func(e events.Event) {
+		// this is wonky, why nested events
+		ev, ok := e.Data.(*events.EventCustom)
+		ctx, cok := ev.Data().(map[string]any)
+		tui.Log("alert", fmt.Sprintf("RootView.CmdHandle %v %v %v %v %v", reflect.TypeOf(e.Data), e.Data, ok, cok, ctx))
+		if ok {
+			_ = V.tryPageChange(ctx)
+		}
+	})
+
+	return nil
+}
+
+func (V *RootView) tryPageChange(context map[string]any) error {
+	page := V.currPage
+	if p, ok := context["page"]; ok {
+		s := p.(string)
+		page = s
+	}
+
+	// shouldn't happen, throw error
+	if page == "" {
+		return fmt.Errorf("missing page parameter in: %v", context)
+	}
+
+	// don't need to navigate
+	if page == V.currPage {
+		return nil
+	}
+
+	unmount := func() {
+		cp := V.pages.GetPage(V.currPage)
+		if cp != nil {
+			V.pages.HidePage(V.currPage)
+			cp.Item.Unmount()
+		}
+	}
+
+	if p := V.pages.GetPage(page); p != nil {
+		unmount()
+		// probably a better function for switching pages
+		V.currPage = page
+		V.lastCmd = page
+		V.pages.ShowPage(page)
+		p.Item.Mount(context)
+	} else {
+		unmount()
+		V.currPage = "not found"
+		V.lastCmd = ""
+		V.pages.ShowPage("not found")
+		return fmt.Errorf("unknown page: %s", page)
+	}
+
+	return nil
 }
 
 func (V *RootView) buildTopPanel() {
@@ -113,8 +197,7 @@ func (V *RootView) buildTopPanel() {
 
 func (V *RootView) buildMainPanel() {
 	// A Horizontal Layout with a Router as the main element
-	V.mainPanel = NewMainPanel(V.getLastCommand, V.setLastCommand)
-	V.SetMainPanel("main-panel", V.mainPanel, 0, 1, 0, "A- ")
+	V.SetMainPanel("main-panel", V.pages, 0, 1, 0, "A- ")
 }
 
 func (V *RootView) buildBotPanel() {

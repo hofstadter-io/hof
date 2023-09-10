@@ -5,7 +5,6 @@ import (
 
 	"github.com/hofstadter-io/hof/lib/connector"
 	"github.com/hofstadter-io/hof/lib/tui"
-	"github.com/hofstadter-io/hof/lib/tui/hoc/router"
 )
 
 func New() connector.Connector {
@@ -20,12 +19,6 @@ func New() connector.Connector {
 
 func (M *Eval) Id() string {
 	return "eval"
-}
-
-func (M *Eval) Routes() []router.RoutePair {
-	return []router.RoutePair{
-		router.RoutePair{"/eval", M},
-	}
 }
 
 func (M *Eval) Name() string {
@@ -63,7 +56,7 @@ func (M *Eval) CommandCallback(context map[string]any) {
 	} else {
 		// tui.Log("error", fmt.Sprintf("eval unmounted->router: %v %v", args, context))
 		// need to navigate, mount will do the rest
-		context["path"] = "/eval"
+		context["page"] = "eval"
 		go tui.SendCustomEvent("/router/dispatch", context)
 	}
 }

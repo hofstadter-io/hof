@@ -9,8 +9,6 @@ import (
 	"strconv"
 	"time"
 
-	// "golang.org/x/crypto/ssh/terminal"
-
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/app"
@@ -20,12 +18,6 @@ import (
 )
 
 func Cmd(args []string, rflags flags.RootPflagpole) error {
-	// stuff to ensure we don't mess up the user's terminal
-	//oldState, err := terminal.MakeRaw(0)
-	//if err != nil {
-	//  return err
-	//}
-	//defer terminal.Restore(0, oldState)
 
 	// setup new app 
 	App, err := app.NewApp()
@@ -89,7 +81,7 @@ func Cmd(args []string, rflags flags.RootPflagpole) error {
 	}
 
 	context := map[string]any{
-		"path": path,
+		"page": path,
 		"args": args,
 	}
 
@@ -98,12 +90,11 @@ func Cmd(args []string, rflags flags.RootPflagpole) error {
 	go func() {
 		// some latent locksups occur randomly
 		time.Sleep(time.Millisecond * 23)
-		tui.SendCustomEvent("/router/dispatch", context)
 		tui.SendCustomEvent("/status/message", "[dodgerblue::b]Welcome to [gold::bi]_[ivory]Hofstadter[-::-]")
 	}()
 
 	// Start the Main (Blocking) Loop
-	return App.Start()
+	return App.Start(context)
 }
 
 func logKeys() {

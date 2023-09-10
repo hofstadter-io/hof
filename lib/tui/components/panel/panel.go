@@ -165,10 +165,6 @@ func (P *Panel) Refresh(context map[string]any) error {
 			P.SetTitle("  "+P.Name()+"  ")
 		}
 
-	//case "conn":
-	//  P.makeItemConnection(args, context)		
-
-
 	default:
 	}
 

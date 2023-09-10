@@ -184,34 +184,24 @@ func (CB *CmdBoxWidget) Submit(command string, args []string) {
 	}
 	CB.Unlock()
 
-	// command = strings.ToLower(command)
-	// exact route?
-	if command[:1] == "/" {
-		go tui.SendCustomEvent("/router/dispatch", command)
-		return
-	}
+	// last command
+	last := CB.getLastCmd()
 
-	var cmd Command
-
+	// global command (page navigation or similar)
 	if command[:1] == ":" {
-		// global command
 		command = command[1:]
-	}	else {
-		// local command
-		// move command to head of args
+	} else {
+		// staying in current context (no :<cmd>)
+		// prefix args and set to last command
 		args = append([]string{command}, args...)
-		// set the actual command to the last one
-		command = CB.getLastCmd()
+		command = last
 	}
 
-	tui.Log("debug", fmt.Sprintf("CB.Submit %q %v", command, args))
-
+	// look up the command
 	CB.Lock()
-	var ok bool
-	cmd, ok = CB.commands[command]
+	cmd, ok := CB.commands[command]
 	CB.Unlock()
 	if !ok {
-		tui.Unfocus()
 		// render for the user
 		go tui.SendCustomEvent("/user/error", fmt.Sprintf("unknown command %q", command))
 		// log to console
@@ -219,9 +209,18 @@ func (CB *CmdBoxWidget) Submit(command string, args []string) {
 		return
 	}
 
-	ctx := map[string]any{ "args": args }
-	CB.setLastCmd(command)
-	go cmd.CommandCallback(ctx)
+	// create our context
+	ctx := map[string]any{ 
+		"page": command,
+		"args": args,
+	}
+
+	if command == last {
+		go cmd.CommandCallback(ctx)
+	} else {
+		CB.setLastCmd(command)
+		go tui.SendCustomEvent("/cmdbox/:cmd", ctx)
+	}
 }
 
 // InputHandler returns the handler for this primitive.

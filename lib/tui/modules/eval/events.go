@@ -38,13 +38,13 @@ func (M *Eval) setupEventHandlers() {
 
 		alt := event.Modifiers() & tcell.ModAlt == tcell.ModAlt
 		ctrl := event.Modifiers() & tcell.ModCtrl == tcell.ModCtrl
-		meta := event.Modifiers() & tcell.ModMeta == tcell.ModMeta
-		shift := event.Modifiers() & tcell.ModShift == tcell.ModShift
+		//meta := event.Modifiers() & tcell.ModMeta == tcell.ModMeta
+		//shift := event.Modifiers() & tcell.ModShift == tcell.ModShift
 
 		ctx := make(map[string]any)
 
 		// we only care about ALT+... keys at this level
-		tui.Log("trace", fmt.Sprintf("Eval.inputHandler %v %v %v %v %q %v", alt, ctrl, meta, shift, string(event.Rune()), event.Key()))
+		// tui.Log("trace", fmt.Sprintf("Eval.inputHandler %v %v %v %v %q %v", alt, ctrl, meta, shift, string(event.Rune()), event.Key()))
 		// tui.Log("warn", fmt.Sprintf("Eval.keyInput %v %v %v", alt, event.Key(), string(event.Rune())))
 
 		panel := M.GetMostFocusedPanel()

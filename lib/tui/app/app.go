@@ -5,6 +5,8 @@ import (
 	"os"
 	"sync"
 
+	"golang.org/x/crypto/ssh/terminal"
+
 	"github.com/hofstadter-io/hof/lib/tui/events"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 )
@@ -61,20 +63,16 @@ func (app *App) SetLastFocus(last tview.Primitive) {
 	app.lastFocus = last
 }
 
-//func (A *App) AddPage(name string, item tview.Primitive, resize, visible bool ) {
-//  A.Pages.AddPage(name, item, resize, visible)
-//}
-
 // blocking call
-func (app *App) Start() error {
-
+func (app *App) Start(context map[string]any) error {
+	// stuff to ensure we don't mess up the user's terminal
 	// catch panics, clean up, format error
 	defer func() {
 		e := recover()
 		if e != nil {
 			app.stop()
 			// Print a formatted panic output
-			fmt.Fprintf(os.Stderr, "Captured a panic(value=%v) lib.Start()... Exit vermui and clean terminal...\nPrint stack trace:\n\n", e)
+			fmt.Fprintf(os.Stderr, "Captured a panic(value=%v) lib.Start()... Exiting and cleaning terminal...\nPrint stack trace:\n\n", e)
 			//debug.PrintStack()
 			//gs, err := stack.ParseDump(bytes.NewReader(debug.Stack()), os.Stderr)
 			//if err != nil {
@@ -92,16 +90,24 @@ func (app *App) Start() error {
 		}
 	}()
 
+	oldState, err := terminal.MakeRaw(0)
+	if err != nil {
+		return err
+	}
+	defer terminal.Restore(0, oldState)
+
 	// start the event engine
 	go app.EventBus.Start()
 
-	err := app.rootView.Mount(nil)
+	// set the initial view
+	err = app.rootView.Mount(context)
 	if err != nil {
 		panic(err)
 	}
 
-	// blocking
 	app.SetRoot(app.rootView, true)
+
+	// blocking
 	return app.Run()
 }
 
