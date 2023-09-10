@@ -36,6 +36,18 @@ const EvalHelpText = `[blue::b]Welcome[-] to [gold]_[ivory]Hofstadter[-::-]
   [lime]A-P[-]          show borders on panels
   [lime]A-O[-]          show borders on items
 
+[blue::b]Navigation:[-::-]
+  (vim style)
+  [lime]A-h[-]          focus item left
+  [lime]A-j[-]          focus item down
+  [lime]A-k[-]          focus item up
+  [lime]A-l[-]          focus item right
+  (with arrows)
+  [lime]C-<left>[-]     focus item left
+  [lime]C-<down>[-]     focus item down
+  [lime]C-<up>[-]       focus item up
+  [lime]C-<right>[-]    focus item right
+
 [blue::b]Items and Commands:[-::-]
   Panels contain items or other panels for layout.
   Items contain widgets and data sources, and are
