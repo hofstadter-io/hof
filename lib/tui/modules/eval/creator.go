@@ -69,6 +69,7 @@ func helpItem(context panel.ItemContext, parent *panel.Panel) (panel.PanelItem, 
 	I := panel.NewBaseItem(context, parent)
 
 	txt := widget.NewTextView()
+	txt.SetBorderPadding(0,0,1,1)	
 	fmt.Fprint(txt, EvalHelpText)
 
 	I.SetWidget(txt)

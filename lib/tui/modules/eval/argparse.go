@@ -77,6 +77,7 @@ func enrichContext(context map[string]any) (map[string]any) {
 		// this should probably be the new default
 		case 
 			"push",
+			"export",
 			"set.runtime",
 			"set.value.runtime",
 			"set.value.value",
@@ -118,18 +119,6 @@ func enrichContext(context map[string]any) (map[string]any) {
 		// value viewer
 		case "view":
 			context["item"] = "view"
-		// text editor
-		case "edit", "editor":
-			context["item"] = "editor"
-		case "text":
-			context["item"] = "text"
-
-		// flow panel
-		//case "flow":
-		//  context["item"] = "flow"
-
-			
-
 
 		// should this be handled lower too?
 		// we might want a more general 
@@ -221,14 +210,12 @@ argsDone:
 		//args = args[1:]
 	}
 
-	// I don't think we want defaults here
-	// update the current focused item by default
+	// set action to first arg if available
 	if _, ok := context["action"]; !ok {
-		context["action"] = "update"
-	}
-
-	if _, ok := context["item"]; !ok {
-		context["item"] = "play"
+		if len(args) > 0 {
+			context["action"] = args[0]
+			args = args[1:]
+		}
 	}
 
 	// make sure we update the context args
