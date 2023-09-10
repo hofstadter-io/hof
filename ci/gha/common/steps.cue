@@ -55,8 +55,8 @@ Steps: {
 					~/Library/Caches/go-build
 					~\AppData\Local\go-build
 					"""#
-				key:            "${{ runner.os }}-go-${{ matrix.go-version }}-${{ hashFiles('**/go.sum') }}"
-				"restore-keys": "${{ runner.os }}-go-${{ matrix.go-version }}-"
+				key:            "${{ runner.os }}-go-${{ matrix.go }}-${{ hashFiles('**/go.sum') }}"
+				"restore-keys": "${{ runner.os }}-go-${{ matrix.go }}-"
 			}
 		}
 		deps: {
@@ -210,6 +210,22 @@ Steps: {
 				docker context ls
 				go run test/docker/main.go
 				"""
+		}
+	}
+
+	dagger: {
+		cache: {
+			uses: "actions/cache@v3"
+			with: {
+				path: #"""
+					~/go/pkg/mod
+					~/.cache/go-build
+					~/Library/Caches/go-build
+					~\AppData\Local\go-build
+					"""#
+				key:            "${{ runner.os }}-dagger-${{ hashFiles('**/go.sum') }}"
+				"restore-keys": "${{ runner.os }}-dagger-"
+			}
 		}
 	}
 
