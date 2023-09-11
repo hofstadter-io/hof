@@ -13,9 +13,22 @@ import (
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 )
 
+func (C *Browser) setThinking(thinking bool) {
+	c := tcell.ColorWhite
+	if thinking {
+		c = tcell.ColorViolet
+	}
+
+	C.tree.SetBorderColor(c)
+	C.code.SetBorderColor(c)
+	go tui.Draw()
+}
 
 func (C *Browser) Rebuild() {
 	var err error
+
+	C.setThinking(true)
+	defer C.setThinking(false)
 
 	path := "<root>"
 

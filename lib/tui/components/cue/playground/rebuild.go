@@ -6,6 +6,7 @@ import (
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/cuecontext"
 	"github.com/atotto/clipboard"
+	"github.com/gdamore/tcell/v2"
 
 	"github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/helpers"
@@ -63,14 +64,27 @@ func (C *Playground) HandleAction(action string, args []string, context map[stri
 	case "update":
 		err = C.updateFromArgsAndContext(args, context)
 
+	case "set.value":
+		C.setThinking(true, "final")
+		defer C.setThinking(false, "final")
+		context["target"] = "value"
+		err = C.updateFromArgsAndContext(args, context)
+	case "set.scope":
+		C.setThinking(true, "scope")
+		defer C.setThinking(false, "scope")
+		context["target"] = "scope"
+		err = C.updateFromArgsAndContext(args, context)
+
 	default:
-		err = fmt.Errorf("unknown command %q", action)
+		handled = false
+		// err = fmt.Errorf("unknown command %q", action)
 	}
 
 	return handled, err
 }
 
 func (C *Playground) updateFromArgsAndContext(args[] string, context map[string]any) error {
+	tui.Log("warn", fmt.Sprintf("Playground.updateHandler.1: %v %v", args, context))
 	// get source, defaults to empty, new runtime?
 	source := ""
 	if _source, ok := context["source"]; ok {
@@ -97,6 +111,8 @@ func (C *Playground) updateFromArgsAndContext(args[] string, context map[string]
 		target = "value"
 	}
 
+	tui.Log("warn", fmt.Sprintf("Playground.updateHandler.2: %v %v %v", source, target, srcCfg))
+
 	rebuildScope := false
 	switch target {
 	case "value":
@@ -108,8 +124,9 @@ func (C *Playground) updateFromArgsAndContext(args[] string, context map[string]
 		}
 		srcCfg.Source = helpers.EvalSource(source)
 
+		tui.Log("warn", fmt.Sprintf("Playground.updateHandler.3.V: %v", srcCfg))
 		// tui.Log("extra", fmt.Sprintf("Eval.playItem.value: %v", srcCfg ))
-		C.UseScope(false)
+		// C.UseScope(false)
 		// need to get the text once at startup
 		txt, err := srcCfg.GetText()
 		if err != nil {
@@ -125,6 +142,7 @@ func (C *Playground) updateFromArgsAndContext(args[] string, context map[string]
 		}
 		srcCfg.Source = helpers.EvalSource(source)
 
+		tui.Log("warn", fmt.Sprintf("Playground.updateHandler.3.S: %v", srcCfg))
 		C.SetScopeConfig(srcCfg)
 
 		rebuildScope = true
@@ -132,6 +150,27 @@ func (C *Playground) updateFromArgsAndContext(args[] string, context map[string]
 	}
 
 	return C.Rebuild(rebuildScope)
+}
+
+func (C *Playground) setThinking(thinking bool, which string) {
+	c := tcell.ColorWhite
+	if thinking {
+		c = tcell.ColorViolet
+	}
+
+	switch which {
+	case "scope":
+		C.scope.viewer.SetBorderColor(c)
+
+	case "final":
+		C.final.viewer.SetBorderColor(c)
+
+	default:
+		C.scope.viewer.SetBorderColor(c)
+		C.edit.SetBorderColor(c)
+		C.final.viewer.SetBorderColor(c)
+	}
+	go tui.Draw()
 }
 
 
@@ -144,6 +183,9 @@ func (C *Playground) Rebuild(rebuildScope bool) error {
 
 	ctx := cuecontext.New()
 	src := C.edit.GetText()
+
+	C.setThinking(true, "final")
+	defer C.setThinking(false, "final")
 
 	// compile a value
 	if !C.useScope {
