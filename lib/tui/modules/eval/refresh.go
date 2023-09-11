@@ -2,8 +2,10 @@ package eval
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/hofstadter-io/hof/lib/tui"
+	"github.com/hofstadter-io/hof/lib/tui/components/cue/browser"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/playground"
 	"github.com/hofstadter-io/hof/lib/tui/components/panel"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
@@ -36,8 +38,14 @@ func (M *Eval) Refresh(context map[string]any) error {
 		}	
 	}
 
+	// get the current focused panel
+	p := M.GetMostFocusedPanel()
+	if p == nil {
+		p = M.Panel
+	}
+
 	// handle dashboard (panel collection), CRUD actions
-	handled, err := M.handleDashActions(action, args, context)
+	handled, err := M.handleDashActions(p, action, args, context)
 	if err != nil {
 		tui.Tell("error", err)
 		tui.Log("error", err)
@@ -48,12 +56,7 @@ func (M *Eval) Refresh(context map[string]any) error {
 		return nil
 	}
 
-	// get the current focused panel
-	p := M.GetMostFocusedPanel()
-	if p == nil {
-		p = M.Panel
-	}
-
+	// panel actions (that need to happen at the eval level)
 	handled, err = M.handlePanelActions(p, action, args, context)
 	if handled {
 		tui.Log("warn", fmt.Sprintf("Eval.handlePanelActions: %v %v", action, args))
@@ -61,6 +64,7 @@ func (M *Eval) Refresh(context map[string]any) error {
 		return nil
 	}
 
+	// item actions (passed down to current item)
 	handled, err = M.handleItemActions(p, action, args, context)
 	if handled {
 		tui.Log("warn", fmt.Sprintf("Eval.handleItemActions: %v %v", action, args))
@@ -80,7 +84,7 @@ func (M *Eval) Refresh(context map[string]any) error {
 	return err
 }
 
-func (M *Eval) handleDashActions(action string, args []string, context map[string]any) (bool, error) {
+func (M *Eval) handleDashActions(p *panel.Panel, action string, args []string, context map[string]any) (bool, error) {
 	var err error
 	handled := true
 
@@ -108,9 +112,64 @@ func (M *Eval) handleDashActions(action string, args []string, context map[strin
 
 	case "list":
 		err = M.ListEval()
+
+	case "connect":
+		return M.handleConnectAction(p, args, context)
+
 	default:
 	  handled = false
 	}
+
+	return handled, err
+}
+
+func (M *Eval) handleConnectAction(p *panel.Panel, args []string, context map[string]any) (bool, error) {
+	var (
+		err error
+		handled bool
+	)
+
+	if len(args) < 1 {
+		return false, fmt.Errorf("missing connect path")
+	}
+
+	var dstPlay *playground.Playground
+	dstPrim := p.GetChildFocusItem().(panel.PanelItem).Widget()
+	switch t := dstPrim.(type) {
+	case *playground.Playground:
+		dstPlay = t
+	default:
+		return true, fmt.Errorf("connection destination must be a playground, got %v", reflect.TypeOf(dstPrim))
+	}
+
+	path := args[0]
+	srcItem, err := M.getItemByPath(path)
+	if err != nil {
+		return true, err
+	}
+
+	var expr string
+	if len(args) == 2 {
+		expr = args[1]
+	}
+
+	tui.Log("trace", fmt.Sprintf("setting connection for %s -> %s", srcItem.Id(), dstPlay.Id()))
+	handled = true
+	switch t := srcItem.Widget().(type) {
+	case *playground.Playground:
+		if expr == "" {
+			dstPlay.SetConnection(args, t.GetConnValue)
+		} else {
+			dstPlay.SetConnection(args, t.GetConnValueExpr(expr))
+		}
+	case *browser.Browser:
+		if expr == "" {
+			dstPlay.SetConnection(args, t.GetConnValue)
+		} else {
+			dstPlay.SetConnection(args, t.GetConnValueExpr(expr))
+		}
+	}
+
 
 	return handled, err
 }

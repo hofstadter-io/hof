@@ -1,11 +1,13 @@
 package browser
 
 import (
+	"fmt"
 	"io"
 
 	"cuelang.org/go/cue"
 	"github.com/gdamore/tcell/v2"
 
+	"github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/helpers"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 )
@@ -29,7 +31,7 @@ type Browser struct {
 	codeW io.Writer
 
 	// source config & value
-	source helpers.SourceConfig
+	source *helpers.SourceConfig
 	value cue.Value
 
 	// eval settings
@@ -50,7 +52,7 @@ func (*Browser) TypeName() string {
 	return "cue/browser"
 }
 
-func New(source helpers.SourceConfig, mode string) *Browser {
+func New(source *helpers.SourceConfig, mode string) *Browser {
 	C := &Browser {
 		source: source,
 		mode: mode,
@@ -97,12 +99,27 @@ func (VB *Browser) SetUsingScope(usingScope bool) {
 	VB.usingScope = usingScope
 }
 
-func (B *Browser) SetSourceConfig(source helpers.SourceConfig) {
+func (B *Browser) SetSourceConfig(source *helpers.SourceConfig) {
 	B.source = source
 }
 
 func (VB *Browser) GetUsingScope() bool {
 	return VB.usingScope
+}
+
+func (VB *Browser) GetConnValue() cue.Value {
+	tui.Log("trace", fmt.Sprintf("View.GetConnValue from: %s/%s", VB.Id(), VB.Name()))
+	return VB.value
+}
+
+func (VB *Browser) GetConnValueExpr(expr string) func () cue.Value {
+	tui.Log("trace", fmt.Sprintf("View.GetConnValueExpr from: %s/%s %s", VB.Id(), VB.Name(), expr))
+	p := cue.ParsePath(expr)
+
+	return func() cue.Value {
+		return VB.GetConnValue().LookupPath(p)
+	}
+
 }
 
 func (VB *Browser) Options() []cue.Option {

@@ -79,14 +79,10 @@ func enrichContext(context map[string]any) (map[string]any) {
 			"push",
 			"export",
 			"write",
-			"set.runtime",
-			"set.value.runtime",
-			"set.value.value",
 			"set.value",
 			"set.scope",
-			"set.scope.value",
-			"set.scope.runtime",
-			"set.text",
+			// "set.text",
+
 			"set.name",
 			"set.item.name",
 			"set.panel.name":

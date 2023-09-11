@@ -26,7 +26,7 @@ type Panel struct {
 }
 
 func (P *Panel) Id() string {
-	return fmt.Sprintf("p:%d", P._cnt)
+	return fmt.Sprintf("p%d", P._cnt)
 }
 
 func (P *Panel) Name() string {
@@ -43,6 +43,42 @@ func (P *Panel) GetParent() *Panel {
 
 func (P *Panel) SetParent(parent *Panel) {
 	P._parent = parent
+}
+
+func (P *Panel) GetItemById(id string) tview.Primitive {
+	items := P.GetItems()
+	for _, itm := range items {
+		switch i := itm.Item.(type) {
+		case *Panel:
+			if i.Id() == id {
+				return i
+			}
+		case PanelItem:
+			if i.Id() == id {
+				return i
+			}
+		}
+	}
+
+	return nil
+}
+
+func (P *Panel) GetItemByName(name string) tview.Primitive {
+	items := P.GetItems()
+	for _, itm := range items {
+		switch i := itm.Item.(type) {
+		case *Panel:
+			if i.Name() == name {
+				return i
+			}
+		case PanelItem:
+			if i.Name() == name {
+				return i
+			}
+		}
+	}
+
+	return nil
 }
 
 var panel_count = 0

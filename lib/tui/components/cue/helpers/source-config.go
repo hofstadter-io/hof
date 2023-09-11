@@ -16,6 +16,7 @@ const (
 	EvalFile = "file"
 	EvalBash = "bash"
 	EvalHttp = "http"
+	EvalConn = "conn"
 )
 
 type SourceConfig struct {
@@ -29,6 +30,7 @@ type SourceConfig struct {
 	Watch bool
 	Refresh time.Duration
 
+	ConnGetter func() cue.Value
 	// source format here?
 }
 
@@ -77,6 +79,10 @@ func (sc SourceConfig) GetValue() (cue.Value, error) {
 	case EvalBash:
 		_, v, e := LoadFromBash(sc.Args)	
 		return v, e
+
+	case EvalConn:
+		v := sc.ConnGetter()
+		return v, nil
 	}
 
 	return cue.Value{}, fmt.Errorf("unhandled SourceConfig.Source: %q", sc.Source)

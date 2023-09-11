@@ -122,7 +122,7 @@ func viewItem(context panel.ItemContext, parent *panel.Panel) (panel.PanelItem, 
 		source = _source.(string)
 	}
 
-	srcCfg := helpers.SourceConfig{
+	srcCfg := &helpers.SourceConfig{
 		Source: helpers.EvalSource(source),
 		Args: args,
 	}
