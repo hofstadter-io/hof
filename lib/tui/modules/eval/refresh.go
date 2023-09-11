@@ -70,7 +70,7 @@ func (M *Eval) Refresh(context map[string]any) error {
 
 	p.Refresh(context)
 
-	tui.SetFocus(p)
+	// tui.SetFocus(p)
 	// tui.Draw()
 
 	//err = fmt.Errorf("unhandled inputs: %v %v %v", action, args, context)
