@@ -22,8 +22,8 @@ const EvalHelpText = `
 
 [dodgerblue::bu]App Controls:[-::-]
   [lime]C-<space>[-]    focus the command box
-  [lime]C-P[-]            (vs code like)
-  [lime]<esc>[-]          (vim like)
+  [lime]C-P[-]            [darkgray](vs code like)[-]
+  [lime]<esc>[-]          [darkgray](vim like)[-]
   [lime]A-<space>[-]    focus the main content
   [lime]A-/[-]          show / hide the console
   [lime]A-x[-]          clear the console logs
@@ -112,15 +112,21 @@ const EvalHelpText = `
 
   [violet]<command> <args> [lightseagreen]<data source>[-]
 
-  [gold]Item Commands[-]
+  [gold]Data Sources[-]
+  [violet]<command> [lightseagreen]<eval args and flags>  [-](same as cue and hof)
+  [violet]<command> [lightseagreen]https://...            [-](any http json response)
+  [violet]<command> [lightseagreen]bash <args...>         [-](any bash json output)
+  [violet]<command> [lightseagreen]item <panel.to.item>   [-](dot path to item)
+
+  [gold]Item Commands[-]         [darkgray](these create new widgets)[-]
   [violet]<item>[-]       [lightseagreen]<data>[-]   same as [violet]<item> value[-]
   [violet]<item> value[-] [lightseagreen]<data>[-]   set the main value
   [violet]<item> scope[-] [lightseagreen]<data>[-]   set the scope value
+  [gold]items: [violet]play,view,help[-]
 
-  [gold]Data Sources[-]
-  [violet]<command> [lightseagreen]<eval args and flags>  (same as cue and hof)[-]
-  [violet]<command> [lightseagreen]https://...            (any http json response)[-]
-  [violet]<command> [lightseagreen]bash <args...>         (any bash json output)[-]
+  [gold]Update Commands[-]       [darkgray](these modify the widget)[-]
+  [violet]set.scope [lightseagreen]<data>[-]      set the scope for the current widget
+  [violet]set.value [lightseagreen]<data>[-]      set the value for the current widget
 
   [gold]Other Commands[-]
   [violet]push[-]            playground editor text to cuelang.org/play
