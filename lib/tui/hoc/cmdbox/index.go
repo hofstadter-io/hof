@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/gdamore/tcell/v2"
 
@@ -58,6 +59,7 @@ type CmdBoxWidget struct {
 	history []string // command history
 
 	lastFocus tview.Primitive
+	nextTime  time.Time // tracks last time focus changed
 
 	getLastCmd func() string
 	setLastCmd func(string)
@@ -108,18 +110,6 @@ func (CB *CmdBoxWidget) RemoveCommand(command Command) {
 }
 
 func (CB *CmdBoxWidget) Mount(context map[string]interface{}) error {
-	focuser := func(e events.Event) {
-		CB.Lock()
-		CB.curr = ""
-		CB.hIdx = len(CB.history)
-		CB.Unlock()
-
-		CB.SetText("")
-
-		CB.lastFocus = tui.GetFocus()
-		tui.SetFocus(CB.InputField)
-	}
-
 	CB.SetFinishedFunc(func(key tcell.Key) {
 		switch key {
 		case tcell.KeyEnter:
@@ -139,12 +129,24 @@ func (CB *CmdBoxWidget) Mount(context map[string]interface{}) error {
 				CB.SetText("")
 			}
 		case tcell.KeyEscape:
-			CB.SetText("")
-			if CB.lastFocus != nil {
-				tui.SetFocus(CB.lastFocus)
-				CB.lastFocus = nil
-			} else {
-				tui.Unfocus()
+			now := time.Now()
+
+			if CB.HasFocus() && now.After(CB.nextTime) {
+				tui.Log("trace", "cmdbox - GIVE")
+				CB.nextTime = now.Add(42*time.Millisecond)
+				// tui.Unfocus()
+				if CB.lastFocus != nil {
+					tui.SetFocus(CB.lastFocus)
+					CB.lastFocus = nil
+				} else {
+					tui.Unfocus()
+				}
+			//} else {
+			//  CB.SetText("")
+			//  if CB.lastFocus != nil {
+			//    tui.SetFocus(CB.lastFocus)
+			//    CB.lastFocus = nil
+			//  }
 			}
 
 		// reserved for autocomplete
@@ -157,6 +159,23 @@ func (CB *CmdBoxWidget) Mount(context map[string]interface{}) error {
 		}
 
 	})
+
+	focuser := func(e events.Event) {
+		CB.Lock()
+		CB.curr = ""
+		CB.hIdx = len(CB.history)
+		CB.Unlock()
+
+		now := time.Now()
+
+		if !CB.HasFocus() && now.After(CB.nextTime) {
+			tui.Log("trace", "cmdbox - TAKE")
+			CB.SetText("")
+			CB.lastFocus = tui.GetFocus()
+			CB.nextTime = now.Add(42*time.Millisecond)
+			tui.SetFocus(CB.InputField)
+		}
+	}
 
 	tui.AddWidgetHandler(CB, "/sys/key/C-<space>", focuser)
 	tui.AddWidgetHandler(CB, "/sys/key/C-P", focuser)
