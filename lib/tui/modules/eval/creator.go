@@ -5,6 +5,8 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/gdamore/tcell/v2"
+
 	"github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/components/panel"
 	"github.com/hofstadter-io/hof/lib/tui/components/widget"
@@ -42,11 +44,23 @@ func setupCreator() {
 	itemCreator = f
 }
 
+func (E *Eval) setThinking(thinking bool) {
+	c := tcell.Color42
+	if thinking {
+		c = tcell.ColorViolet
+	}
+
+	E.SetBorderColor(c)
+	go tui.Draw()
+}
 
 // this function is responsable for creating the components that fill slots in the panel
 // these are the widgets that make up the application and should have their own operation
 func (E *Eval) creator(context panel.ItemContext, parent *panel.Panel) (panel.PanelItem, error) {
 	tui.Log("extra", fmt.Sprintf("Eval.creator: %v", context ))
+
+	E.setThinking(true)
+	defer E.setThinking(false)
 
 	// short-circuit for developer mode (first, before user custom)
 	if panel_debug {
