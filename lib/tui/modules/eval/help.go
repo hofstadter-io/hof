@@ -42,14 +42,14 @@ const EvalHelpText = `
   [lime]A-O[-]          toggle item borders
 
 [dodgerblue::bu]Navigation:[-::-]
-  (with mouse)
+  [darkgray](with mouse)[-]
   [lime]click[-] to focus any box
-  (with arrows)
+  [darkgray](with arrows)[-]
   [lime]C-<left>[-]     focus item left
   [lime]C-<down>[-]     focus item down
   [lime]C-<up>[-]       focus item up
   [lime]C-<right>[-]    focus item right
-  (vim style)
+  [darkgray](vim style)[-]
   [lime]A-h[-]          focus item left
   [lime]A-j[-]          focus item down
   [lime]A-k[-]          focus item up
@@ -59,6 +59,8 @@ const EvalHelpText = `
   Panels contain items or other panels for layout.
   Items contain widgets and data sources, and are
   controlled through the command box ([lime]C-<space>[-]).
+
+  [darkgray]The [dodgerblue]Command Box[darkgray] will modify the [gold]Item[darkgray] currently or last focused.[-]
 
   Currently, the following items are available, many more to come.
 
@@ -70,6 +72,7 @@ const EvalHelpText = `
   [violet]play[-]         open a fresh [gold]Playground[-]
   [violet]play (args)[-]  open a [gold]Playground[-] with data
   [violet]view (args)[-]  open a [gold]Value View[-] with data
+  [violet]conn (args)[-]  connect [gold]CUE Widget[-] values
   [violet]help[-]         open these help contents
 
 [dodgerblue::bu]Items:[-::-]
@@ -89,24 +92,22 @@ const EvalHelpText = `
   [gold]Playground[-] is a multi-widget Item for working with CUE.
   You can edit CUE and see the results in real-time, with optional scope.
   The widgets in the playground are:
-    1. a browser for the scope (if available)
-    2. an editor for the main value
-    3. a browser for the final value
+    [darkgray]1. [gold]viewer[-] for the [lightseagreen]scope[-] (if available)
+    [darkgray]2. [gold]editor[-] for the [lightseagreen]main[-] value
+    [darkgray]3. [gold]viewer[-] for the [lightseagreen]final[-] value
 
-  [lime]A-f[-]          Rotate this item  (lowercase of Panel hotkey)
-  [lime]A-R[-]          Reload data source and refresh
-  [lime]A-S[-]          Toggle scope usage
+  [lime]A-f[-]          [lightseagreen]Rotate[-] this item  (lowercase of Panel rotate hotkey)
+  [lime]A-R[-]          [lightseagreen]Reload[-] data source and refresh
+  [lime]A-S[-]          [lightseagreen]Toggle[-] scope usage and hide viewer
 
   [gold]Scope[-] is extra CUE and/or data that your edited CUE value
-  will be evaluated with, as the scope or context. This is
-  often used to load your CUE and data, and then explore or
-  modify it with more CUE. This is especially helpful for
-  building CUE that will transform or collect larger values
-  into smaller or new values. You have full access to CUE.
+  will be evaluated with, as the scope or context. This is used to
+  load CUE and data, and then explore or modify it with more CUE.
+  The scope can come from any of the sources, including other widgets.
 
 [dodgerblue::bu]Commands:[-::-]
 
-  Items and widgets are controlled through the command box ([lime]C-<space>[-]).
+  Items and widgets are controlled through the [dodgerblue]Command Box[-] ([lime]C-<space>[-]).
   First, make sure the item you want to change is focused (by [lime]clicking[-] on it).
   The general format for commands is as follows.
 
@@ -116,7 +117,7 @@ const EvalHelpText = `
   [violet]<command> [lightseagreen]<eval args and flags>  [-](same as cue and hof)
   [violet]<command> [lightseagreen]https://...            [-](any http json response)
   [violet]<command> [lightseagreen]bash <args...>         [-](any bash json output)
-  [violet]<command> [lightseagreen]item <panel.to.item>   [-](dot path to item)
+  [violet]<command> [lightseagreen]conn <path> <expr>     [-](dot path to item, optional expr)
 
   [gold]Item Commands[-]         [darkgray](these create new widgets)[-]
   [violet]<item>[-]       [lightseagreen]<data>[-]   same as [violet]<item> value[-]
