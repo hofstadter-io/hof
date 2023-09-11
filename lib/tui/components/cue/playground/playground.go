@@ -12,7 +12,7 @@ import (
 )
 
 type valPack struct {
-	config  helpers.SourceConfig
+	config  *helpers.SourceConfig
 	value   cue.Value
 	viewer  *browser.Browser // scope
 }
@@ -81,7 +81,8 @@ func New(initialText string) (*Playground) {
 	// TODO, options form
 
 	// scope viewer
-	C.scope.viewer = browser.New(helpers.SourceConfig{}, "cue")
+	C.scope.config = &helpers.SourceConfig{}
+	C.scope.viewer = browser.New(C.scope.config, "cue")
 	C.scope.viewer.SetName("scope")
 	C.scope.viewer.SetBorder(true)
 
@@ -94,7 +95,8 @@ func New(initialText string) (*Playground) {
 	C.edit.SetText(C.text, false)
 
 	// results viewer
-	C.final.viewer = browser.New(helpers.SourceConfig{}, "cue")
+	C.final.config = &helpers.SourceConfig{}
+	C.final.viewer = browser.New(C.final.config, "cue")
 	C.final.viewer.SetName("result")
 	C.final.viewer.SetBorder(true)
 
@@ -125,8 +127,9 @@ func (C *Playground) SetText(s string) {
 	C.edit.SetText(s, false)
 }
 
-func (C *Playground) SetScopeConfig(sc helpers.SourceConfig) {
+func (C *Playground) SetScopeConfig(sc *helpers.SourceConfig) {
 	C.scope.config = sc
+	C.scope.viewer.SetSourceConfig(sc)
 }
 
 func (C *Playground) UseScope(visible bool) {

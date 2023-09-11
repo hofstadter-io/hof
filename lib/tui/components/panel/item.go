@@ -20,7 +20,6 @@ type PanelItem interface {
 	SetBorder(show bool) *tview.Box
 	SetTitle(title string) *tview.Box
 
-
 	// some metadata
 	Name() string
 	SetName(string)
@@ -96,7 +95,7 @@ func NewBaseItem(context map[string]any, parent *Panel) *BaseItem {
 }
 
 func (I *BaseItem) Id() string {
-	return fmt.Sprintf("b:%d", I._cnt)
+	return fmt.Sprintf("b%d", I._cnt)
 }
 
 func (I *BaseItem) Name() string {

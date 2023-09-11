@@ -224,6 +224,7 @@ func (P *Panel) splitPanelItem(context map[string]any) {
 		if panel.GetItemCount() < 2 {
 			t, _ := panel._creator(context, panel)
 			panel.AddItem(t, 0, 1, true)
+			tui.SetFocus(t)
 			return
 		}
 

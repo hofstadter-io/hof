@@ -97,7 +97,7 @@ func (C *Playground) updateFromArgsAndContext(args[] string, context map[string]
 	}
 
 	// setup our source config
-	srcCfg := helpers.SourceConfig{
+	srcCfg := &helpers.SourceConfig{
 		Args: args,
 	}
 
@@ -144,6 +144,8 @@ func (C *Playground) updateFromArgsAndContext(args[] string, context map[string]
 
 		tui.Log("warn", fmt.Sprintf("Playground.updateHandler.3.S: %v", srcCfg))
 		C.SetScopeConfig(srcCfg)
+
+		C.scope.viewer.SetSourceConfig(srcCfg)
 
 		rebuildScope = true
 		C.UseScope(true)
@@ -194,9 +196,9 @@ func (C *Playground) Rebuild(rebuildScope bool) error {
 	} else {
 		// compile the text with a scope
 
-		// tui.Log("warn", fmt.Sprintf("%#v", s))
 		sv, serr := C.scope.config.GetValue()
 		err = serr
+		// tui.Log("warn", fmt.Sprintf("%#v", sv))
 
 		if err != nil {
 			tui.Log("error", err)
@@ -211,8 +213,8 @@ func (C *Playground) Rebuild(rebuildScope bool) error {
 		if err == nil && sv.Exists() {
 			if rebuildScope {
 				// C.scope.config.Rebuild()
-				cfg := helpers.SourceConfig{Value: sv}
-				C.scope.viewer.SetSourceConfig(cfg)
+				// cfg := &helpers.SourceConfig{Value: sv}
+				// C.scope.viewer.SetSourceConfig(cfg)
 				C.scope.viewer.Rebuild()
 			}
 
@@ -222,10 +224,10 @@ func (C *Playground) Rebuild(rebuildScope bool) error {
 		}
 	}
 
-	cfg := helpers.SourceConfig{Value: v}
+	cfg := &helpers.SourceConfig{Value: v}
 	if err != nil {
 		tui.Log("error", err)
-		cfg = helpers.SourceConfig{Text: err.Error()}
+		cfg = &helpers.SourceConfig{Text: err.Error()}
 	}
 	// only update view value, that way, if we erase everything, we still see the value
 	C.final.viewer.SetUsingScope(C.useScope)

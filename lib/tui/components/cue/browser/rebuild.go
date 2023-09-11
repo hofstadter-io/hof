@@ -2,6 +2,7 @@ package browser
 
 import (
 	"fmt"
+	"strings"
 
 	"cuelang.org/go/cue/format"
 	"github.com/alecthomas/chroma/quick"
@@ -139,16 +140,19 @@ func (C *Browser) Rebuild() {
 	}
 
 	C.nextMode = ""
-	C.Frame.SetTitle(C.buildStatusString())
+	C.Frame.SetTitle(C.BuildStatusString())
 	tui.Draw()
 }
 
-func (VB *Browser) buildStatusString() string {
+func (VB *Browser) BuildStatusString() string {
 
 	var s string
 
 	if n := VB.Name(); len(n) > 0 {
-		s += n + " -  "
+		s += n + ": "
+	}
+	if len(VB.source.Args) > 0 {
+		s += "[violet](" + strings.Join(VB.source.Args, " ") + ")[-] "
 	}
 
 	add := func(on bool, char string) {

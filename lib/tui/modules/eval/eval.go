@@ -2,6 +2,7 @@ package eval
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/gdamore/tcell/v2"
 
@@ -99,3 +100,27 @@ func (M *Eval) Focus(delegate func(p tview.Primitive)) {
 	// M.Panel.Focus(delegate)
 }
 
+func (M *Eval) getItemByPath(path string) (panel.PanelItem, error) {
+	parts := strings.Split(path, ".")
+
+	// set at our panel
+	curr := M.Panel
+
+	for _, part := range parts {
+		p := curr.GetItemByName(part)
+		if p == nil {
+			p = curr.GetItemById(part)
+			if p == nil {
+				return nil, fmt.Errorf("unable to find node %q in %q", part, path)
+			}
+		}
+		switch t := p.(type) {
+		case *panel.Panel:
+			curr = t	
+		case panel.PanelItem:
+			return t, nil
+		}
+	}
+
+	return nil, fmt.Errorf("did not find item at path %q", path)
+}
