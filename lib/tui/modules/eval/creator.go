@@ -75,7 +75,9 @@ func (E *Eval) creator(context panel.ItemContext, parent *panel.Panel) (panel.Pa
 		context["item"] = "help"
 	}
 
-	return itemCreator.Creator(context, parent)
+	i, e := itemCreator.Creator(context, parent)
+	i.SetBorder(E.showOther)
+	return i, e
 }
 
 func helpItem(context panel.ItemContext, parent *panel.Panel) (panel.PanelItem, error) {
