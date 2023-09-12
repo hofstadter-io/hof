@@ -30,7 +30,7 @@ func Clear() {
 }
 
 func Stop() {
-	globalApp.Stop()
+	globalApp.DoStop()
 }
 
 func GetRootView() tview.Primitive {
@@ -63,8 +63,6 @@ func SetFocus(p tview.Primitive) {
 }
 
 func Unfocus() {
-	//appLock.Lock()
-	//defer appLock.Unlock()
 
 	if globalApp == nil {
 		// really shouldn't get here, but the event stream is still running

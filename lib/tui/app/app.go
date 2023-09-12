@@ -5,7 +5,7 @@ import (
 	"os"
 	"sync"
 
-	"golang.org/x/crypto/ssh/terminal"
+	// "golang.org/x/crypto/ssh/terminal"
 
 	"github.com/hofstadter-io/hof/lib/tui/events"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
@@ -90,19 +90,19 @@ func (app *App) Start(context map[string]any) error {
 		}
 	}()
 
-	oldState, err := terminal.MakeRaw(0)
-	if err != nil {
-		return err
-	}
-	defer terminal.Restore(0, oldState)
+	//oldState, err := terminal.MakeRaw(0)
+	//if err != nil {
+	//  return err
+	//}
+	//defer terminal.Restore(0, oldState)
 
 	// start the event engine
 	go app.EventBus.Start()
 
 	// set the initial view
-	err = app.rootView.Mount(context)
+	err := app.rootView.Mount(context)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	app.SetRoot(app.rootView, true)
@@ -120,6 +120,10 @@ func (app *App) stop() error {
 		return err
 	}
 	return nil
+}
+
+func (app *App) DoStop() {
+	app.stop()
 }
 
 func (app *App) Clear() {

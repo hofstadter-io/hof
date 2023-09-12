@@ -3,6 +3,7 @@ package eval
 import (
 	"fmt"
 	"reflect"
+	"strings"
 
 	"github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/browser"
@@ -34,6 +35,9 @@ func (M *Eval) Refresh(context map[string]any) error {
 		if _, ok := context["item"]; ok {
 			context["action"] = "update"
 		} else {
+			err := fmt.Errorf("unknown command: %q {%s}", action, strings.Join(args, ","))
+			tui.Tell("error", err)
+			tui.Log("error", err)
 			return nil
 		}	
 	}
@@ -72,13 +76,17 @@ func (M *Eval) Refresh(context map[string]any) error {
 		return nil
 	}
 
+	if !handled {
+		err = fmt.Errorf("unhandled inputs: %v %v", action, args)
+		tui.Tell("crit", err)
+		tui.Log("error", err)
+	}
+
 	p.Refresh(context)
 
 	// tui.SetFocus(p)
 	// tui.Draw()
 
-	//err = fmt.Errorf("unhandled inputs: %v %v %v", action, args, context)
-	//tui.Log("warn", err)
 	return nil
 
 	return err
@@ -89,23 +97,30 @@ func (M *Eval) handleDashActions(p *panel.Panel, action string, args []string, c
 	handled := true
 
 	switch action {
+	case "preview":
+		if len(args) < 1 {
+			err = fmt.Errorf("missing argument to preview")
+		} else {
+			err = M.Save(args[0], true)
+		}
+
 	case "save":
 		if len(args) < 1 {
-			err = fmt.Errorf("missing filename")
+			err = fmt.Errorf("missing argument to save")
 		} else {
-			err = M.Save(args[0])
+			err = M.Save(args[0], false)
 		}
 
 	case "load":
 		if len(args) < 1 {
-			err = fmt.Errorf("missing filename")
+			err = fmt.Errorf("missing argument to load")
 		} else {
 			_, err = M.LoadEval(args[0])
 		}
 
 	case "show":
 		if len(args) < 1 {
-			err = fmt.Errorf("missing filename")
+			err = fmt.Errorf("missing argument to show")
 		} else {
 			_, err = M.ShowEval(args[0])
 		}

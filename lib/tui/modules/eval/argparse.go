@@ -46,6 +46,7 @@ func enrichContext(context map[string]any) (map[string]any) {
 		// top-level eval commands
 		//
 		case 
+			"preview",
 			"save",
 			"list",
 			"show",

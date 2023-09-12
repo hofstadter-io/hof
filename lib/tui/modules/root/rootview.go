@@ -75,7 +75,8 @@ func (V *RootView) Connect(C connector.Connector) {
 		Usage: "q",
 		Help: "quit hof",
 		Callback: func(context map[string]any) {
-			go tui.Stop()
+			tui.Log("trace", "got here") // turns out we don't, so we have a havk below and tech debt to figure out here
+			tui.Stop()
 		},
 	})
 
@@ -135,6 +136,11 @@ func (V *RootView) tryPageChange(context map[string]any) error {
 	// shouldn't happen, throw error
 	if page == "" {
 		return fmt.Errorf("missing page parameter in: %v", context)
+	}
+
+	if page == "q" {
+		tui.Stop()
+		return nil
 	}
 
 	// don't need to navigate
