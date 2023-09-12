@@ -2,27 +2,46 @@ package eval
 
 import (
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/cuecontext"
 	"cuelang.org/go/cue/format"
 	"github.com/gdamore/tcell/v2"
+	"github.com/parnurzeal/gorequest"
 
+	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/browser"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/helpers"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/playground"
 	"github.com/hofstadter-io/hof/lib/tui/components/panel"
 	"github.com/hofstadter-io/hof/lib/tui/components/widget"
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 const evalSaveDirSubdir = "tui/saves/eval"
 
-func evalSavePath(filename string) string {
-	configDir, _ := os.UserConfigDir()
-	return filepath.Join(configDir,"hof",evalSaveDirSubdir, filename)
+func evalFilepath(filename string) string {
+	// where do we save the file
+	if strings.HasPrefix(filename, ".") || strings.HasPrefix(filename, "/") {
+		// specific path
+		f, _ := filepath.Abs(filename)
+		return f
+	} else if strings.HasPrefix(filename, "@") {
+		// "global" (to user)
+		filename = filename[1:]
+		configDir, _ := os.UserConfigDir()
+		return filepath.Join(configDir,"hof",evalSaveDirSubdir, filename)
+	} else if dir, _ := cuetils.FindModuleAbsPath(filepath.Dir(filename)); dir != "" {
+		// local to project
+		return filepath.Join(dir, ".hof", evalSaveDirSubdir, filename)
+	} else {
+		return filename	
+	}
 }
 
 func (M *Eval) Save(destination string, preview bool) error {
@@ -59,8 +78,6 @@ func (M *Eval) Save(destination string, preview bool) error {
 		M.AddItem(I, 0, 1, true)
 
 	} else {
-		// save location
-		savename := evalSavePath(destination)
 
 		opts := []cue.Option{
 			cue.Final(),
@@ -72,43 +89,102 @@ func (M *Eval) Save(destination string, preview bool) error {
 			return err
 		}	
 
-		// ensure the dir exists
-		dir := filepath.Dir(savename)
-		err = os.MkdirAll(dir, 0755)
-		if err != nil {
-			return err
+		if strings.HasPrefix(destination, "http") {
+			// simple push (should return an id to retieve using id=??? using GET at the same host/path
+
+			url := destination
+			if url == "https://cuelang.org/play" {
+				url = "https://cuelang.org/.netlify/functions/snippets"
+			}
+			req := gorequest.New().Post(url)
+			req.Set("Content-Type", "text/plain")
+			req.Send(string(b))
+			resp, body, errs := req.End()
+
+			if len(errs) != 0{
+				fmt.Println("errs:", errs)
+				fmt.Println("resp:", resp)
+				fmt.Println("body:", body)
+				return errs[0]
+			}
+
+			if len(errs) != 0 || resp.StatusCode >= 500 {
+				return fmt.Errorf("Internal Error: " + body)
+			}
+			if resp.StatusCode >= 400 {
+				return fmt.Errorf("Bad Request: " + body)
+			}
+
+			//
+			// alert the user in several ways
+			//
+
+			info := fmt.Sprintf("%s saved to ... %s with id: %s", M.Name(), destination, body)
+			tui.Tell("info", info)
+			tui.Log("info", info)
+		} else {
+
+			// save location
+			savename := evalFilepath(destination)
+
+
+			// ensure the dir exists
+			dir := filepath.Dir(savename)
+			err = os.MkdirAll(dir, 0755)
+			if err != nil {
+				return err
+			}
+
+			// write our dashboard out
+			err = os.WriteFile(savename, b, 0644)
+			if err != nil {
+				return err
+			}
+			//
+			// alert the user in several ways
+			//
+
+			info := fmt.Sprintf("%s saved to ... %s", M.Name(), savename)
+			tui.Tell("info", info)
+			tui.Log("info", info)
 		}
 
-		// write our dashboard out
-		err = os.WriteFile(savename, b, 0644)
-		if err != nil {
-			return err
-		}
-
-		//
-		// alert the user in several ways
-		//
-
-		info := fmt.Sprintf("%s saved to ... %s", M.Name(), savename)
-		tui.Tell("info", info)
-		tui.Log("info", info)
 	}
 
 	return nil
 }
 
-func (M *Eval) LoadEval(filename string) (*Eval, error) {
-	tui.Log("debug", fmt.Sprintf("Eval.LoadEval.0: %v", filename))
-	savename := evalSavePath(filename)
+func (M *Eval) LoadEval(source string) (*Eval, error) {
+	tui.Log("debug", fmt.Sprintf("Eval.LoadEval.0: %v", source))
 
-	b, err := os.ReadFile(savename)
-	tui.Log("debug", fmt.Sprintf("Eval.LoadEval.1: %v %v %v", savename, len(b), err))
+	var (
+		b []byte
+		err error
+	)
+
+	if strings.HasPrefix(source, "http") {
+		var s string
+		s, err = yagu.SimpleGet(source)
+		ds, err := url.QueryUnescape(s)
+		if err != nil {
+			tui.Log("error", err)
+			return nil, err
+		}
+		ds = strings.TrimSuffix(ds, "=")
+		b = []byte(ds)
+	} else {
+
+		savename := evalFilepath(source)
+
+		b, err = os.ReadFile(savename)
+		tui.Log("debug", fmt.Sprintf("Eval.LoadEval.1: %v %v %v", savename, len(b), err))
+	}
 	if err != nil {
 		return nil, err
 	}
 
 	ctx := cuecontext.New()
-	val := ctx.CompileBytes(b, cue.Filename(filename))
+	val := ctx.CompileBytes(b, cue.Filename(source))
 
 	data := make(map[string]any)
 	err = val.Decode(&data)
@@ -144,7 +220,7 @@ func (M *Eval) LoadEval(filename string) (*Eval, error) {
 }
 
 func (M *Eval) ShowEval(filename string) (*Eval, error) {
-	savename := evalSavePath(filename)
+	savename := evalFilepath(filename)
 
 	b, err := os.ReadFile(savename)
 	if err != nil {
@@ -163,7 +239,7 @@ func (M *Eval) ShowEval(filename string) (*Eval, error) {
 }
 
 func (M *Eval) ListEval() (error) {
-	dir := evalSavePath("")
+	dir := evalFilepath("")
 
 	infos, err := os.ReadDir(dir)
 	if err != nil {
