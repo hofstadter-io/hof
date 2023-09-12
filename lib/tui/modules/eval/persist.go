@@ -13,6 +13,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/browser"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/helpers"
+	"github.com/hofstadter-io/hof/lib/tui/components/cue/playground"
 	"github.com/hofstadter-io/hof/lib/tui/components/panel"
 	"github.com/hofstadter-io/hof/lib/tui/components/widget"
 )
@@ -244,5 +245,52 @@ func EvalDecodeMap(input map[string]any) (*Eval, error) {
 
 	// tui.Draw()
 
-	return M, nil
+	err = M.reconnectItems()
+
+	return M, err
+}
+
+func (M *Eval) reconnectItems() error {
+
+	reconnect := func (p panel.PanelItem) {
+		switch t := p.Widget().(type) {
+		case *playground.Playground:
+			dstPlay := t
+			sc := dstPlay.GetScopeConfig()
+			if sc.Source == helpers.EvalConn {
+				args := sc.Args
+
+				path := args[0]
+				srcItem, err := M.getItemByPath(path)
+				if err != nil {
+					tui.Log("error", err)
+					return
+				}
+
+				var expr string
+				if len(args) == 2 {
+					expr = args[1]
+				}
+
+				switch t := srcItem.Widget().(type) {
+				case *playground.Playground:
+					if expr == "" {
+						dstPlay.SetConnection(args, t.GetConnValue)
+					} else {
+						dstPlay.SetConnection(args, t.GetConnValueExpr(expr))
+					}
+				case *browser.Browser:
+					if expr == "" {
+						dstPlay.SetConnection(args, t.GetConnValue)
+					} else {
+						dstPlay.SetConnection(args, t.GetConnValueExpr(expr))
+					}
+				}
+			}
+		}
+	}
+
+	M.Panel.RangeItems(reconnect)
+
+	return nil
 }
