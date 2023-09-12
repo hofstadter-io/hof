@@ -31,38 +31,32 @@ func (P *Panel) insertPanelItem(context map[string]any) {
 		tui.Log("error", fmt.Sprintf("nil child in Panel.insertPanelItem: %v %#v", panel.Id(), context))
 		where = "tail"
 	}
+
+	t, _ := panel._creator(context, panel)
 	
 	switch where {
 
 	case "head":
-		t, _ := panel._creator(context, panel)
 		panel.Flex.InsItem(0, t, 0, 1, true)
-		tui.SetFocus(t)
 
 	case "prev":
-		t, _ := panel._creator(context, panel)
 		panel.Flex.InsItem(cfi, t, 0, 1, true)
-		tui.SetFocus(t)
 
 	case "next":
-		t, _ := panel._creator(context, panel)
 		panel.Flex.InsItem(cfi+1, t, 0, 1, true)
-		tui.SetFocus(t)
 
 	case "tail":
-		t, _ := panel._creator(context, panel)
 		panel.Flex.AddItem(t, 0, 1, true)
-		tui.SetFocus(t)
 
 	case "index":
-		t, _ := panel._creator(context, panel)
 		panel.Flex.InsItem(cfi, t, 0, 1, true)
-		tui.SetFocus(t)
 
 	default:
 		return
 
 	} // end: switch where
+
+	tui.SetFocus(t)
 }
 
 func (P *Panel) updatePanelItem(context map[string]any) {
@@ -241,6 +235,7 @@ func (P *Panel) splitPanelItem(context map[string]any) {
 			// make a new panel, opposite dir
 			n := New(panel, nil)
 			n.Flex.SetDirection(d)
+			n.SetBorder(panel.GetBorder())
 			n.AddItem(c, 0, 1, true)
 			context["item"] = "default"
 			t, _ := n._creator(context, panel)
