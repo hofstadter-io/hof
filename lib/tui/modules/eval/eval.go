@@ -22,25 +22,23 @@ type Eval struct {
 	// would it be better as a widget creator? (after refactor 1)
 	// or a function that can take a widget creator with a default ItemBase++
 	_creator panel.ItemCreator
-
-	// metadata
-	_name string
 }
 
 func NewEval() *Eval {
 	M := &Eval{
 		showPanel: true,
 		showOther: true,
-		_name: fmt.Sprintf("  Eval  "),
 	}
 	M.Panel = panel.New(nil, M.creator)
 
 	item, _ := helpItem(nil, M.Panel)
-	M.Panel.AddItem(item, 0, 1, true)
+	M.AddItem(item, 0, 1, true)
+
 
 	// do layout setup here
-	M.Flex.SetDirection(tview.FlexColumn)
-	M.Flex.SetBorder(true).SetTitle(M._name)
+	M.SetName("eval")
+	M.SetBorder(true)
+	M.SetDirection(tview.FlexColumn)
 
 	return M
 }

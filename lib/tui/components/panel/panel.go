@@ -99,10 +99,33 @@ func New(parent *Panel, creator ItemCreator) *Panel {
 		P._creator = P._parent._creator
 	}
 
-	P.Flex.SetBorderColor(tcell.Color42)
-	P.SetBorder(true).SetTitle(fmt.Sprintf("  %s ", P.Id()))
+	P.Flex.SetBorderColor(tcell.Color42).SetBorder(true)
+	P.SetDirection(P.Flex.GetDirection())
 
 	return P
+}
+
+func (P *Panel) SetDirection(d int) {
+	P.Flex.SetDirection(d)
+	P.SetTitle(P.TitleString())
+}
+
+func (P *Panel) TitleString() string {
+	// glyphs to show flex direction
+	dir := ""
+	if P.GetDirection() == tview.FlexRow {
+		dir = "🡙 "
+	}	else {
+		dir = "🡘 "
+	}
+
+	// name (with space if set)
+	n := ""
+	if _n := P.Name(); _n != "" {
+		n = _n + " "
+	}
+
+	return fmt.Sprintf("  %s(%s) %s ", n, P.Id(), dir)
 }
 
 
@@ -180,7 +203,7 @@ func (P *Panel) Refresh(context map[string]any) error {
 			return fmt.Errorf("%s requires an argument", action)
 		}
 		P.SetName(args[0])
-		P.SetTitle("  "+P.Name()+"  ")
+		P.SetTitle(P.TitleString())
 
 	case "set.name", "set.item.name":
 		if len(args) < 1 {
@@ -276,7 +299,7 @@ func (P *Panel) FlipFlexDirection() {
 	} else {
 		flexDir = tview.FlexRow
 	}
-	P.Flex.SetDirection(flexDir)
+	P.SetDirection(flexDir)
 
 	for _, i := range P.GetItems() {
 		switch t := i.Item.(type) {

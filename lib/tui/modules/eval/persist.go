@@ -120,7 +120,6 @@ func (M *Eval) LoadEval(filename string) (*Eval, error) {
 	M.Panel = e.Panel
 	M.showPanel = e.showPanel
 	M.showOther = e.showOther
-	M._name = e._name
 
 
 	// extra to display the save info
@@ -183,7 +182,7 @@ func (M *Eval) EncodeMap() (map[string]any, error) {
 	m := make(map[string]any)
 
 	// metadata
-	m["name"] = M._name
+	m["name"] = M.Name()
 	m["type"] = "eval"
 
 	// visual settings
@@ -205,8 +204,8 @@ func EvalDecodeMap(data map[string]any) (*Eval, error) {
 	M := &Eval{
 		showPanel: data["showPanel"].(bool),
 		showOther: data["showOther"].(bool),
-		_name: data["name"].(string),
 	}
+	M.SetName(data["name"].(string))
 
 	if _, ok := data["panel"]; ok {
 		//M.Panel, err = PanelDecodeMap(pmap.(map[string]any), nil, nil)
@@ -214,12 +213,12 @@ func EvalDecodeMap(data map[string]any) (*Eval, error) {
 		//  return M, err
 		//}
 	} else {
-		M.Panel = panel.New(nil, nil)
+		M.Panel = panel.New(nil, M.creator)
 	}
 
 	// do layout setup here, once some children have been instantiated
-	M.Flex.SetDirection(data["direction"].(int))
-	M.Flex.SetBorder(true).SetTitle(M.Name())
+	M.SetBorder(true)
+	M.SetDirection(data["direction"].(int))
 
 	return M, nil
 }
