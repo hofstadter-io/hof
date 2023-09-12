@@ -3,6 +3,10 @@ package panel
 import (
 	"fmt"
 
+	// "github.com/gdamore/tcell/v2"
+
+	"github.com/hofstadter-io/hof/lib/tui/components"
+	"github.com/hofstadter-io/hof/lib/tui/components/cue/browser"
 	"github.com/hofstadter-io/hof/lib/tui/components/widget"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 )
@@ -43,7 +47,7 @@ type PanelItem interface {
 	Encode() (ItemContext, error)
 
 	// Decode should create a PanelItem from an ItemContext
-	Decode(context ItemContext, creator ItemCreator, parent *Panel) (PanelItem, error)
+	// Decode(data ItemContext, parent *Panel) (PanelItem, error)
 }
 
 // This is a function that builds a new PanelItem from an ItemContext
@@ -74,7 +78,7 @@ type BaseItem struct {
 // need a better way to do this, but uuid/cuid is a bit much
 var item_count = 0
 
-func NewBaseItem(context map[string]any, parent *Panel) *BaseItem {
+func NewBaseItem(parent *Panel) *BaseItem {
 	t := &BaseItem{
 		_cnt: item_count,
 		_parent: parent,
@@ -140,7 +144,7 @@ func (I *BaseItem) Encode() (ItemContext, error) {
 
 	m["id"] = I._cnt
 	m["name"] = I._name
-	m["type"] = "item"
+	m["typename"] = "baseitem"
 
 	m["widget"], err = I._widget.Encode()
 	if err != nil {
@@ -150,41 +154,53 @@ func (I *BaseItem) Encode() (ItemContext, error) {
 	return m, nil
 }
 
-func (I *BaseItem) Decode(context ItemContext, creator ItemCreator, parent *Panel) (PanelItem, error) {
-	//I := &BaseItem{
-	//  _widget: widget.NewBox(),
-	//  _cnt: data["id"].(int),
-	//  _name: data["name"].(string),
-	//}
-
-	//// setup frame with temp box
-	//I.Frame = tview.NewFrame(I._widget)
-
-	//// style fram
-	//I.SetBorders(0,0,0,0,0,0) // just the one-line header
-	//txt := fmt.Sprintf(" %s ", I.Id())
-	//I.AddText(txt, true, tview.AlignLeft, tcell.ColorLimeGreen)
-	//I.SetBorder(true)
-
-	//var context map[string]any
-
-	//if c, ok := data["widget"]; ok {
-	//  context = c.(map[string]any)
-	//} else {
-	//  return I, fmt.Errorf("context config not found in item: %# v", data)
-	//}
-
-	//i, err := creator(context)
-	//if err != nil {
-	//  return i, err
-	//}
-
-	////var wdata map[string]any
-	////if w, ok := data["widget"]; ok {
-	////  wdata = w.(map[string]any)
-	////} else {
-	////  return I, fmt.Errorf("widget config not found in item: %# v", data)
-	////}
-
+// dummy
+func (I *BaseItem) Decode(map[string]any) (widget.Widget, error) {
 	return nil, nil
+}
+
+func ItemDecodeMap(data map[string]any, parent *Panel, creator ItemCreator) (PanelItem, error) {
+	var err error
+	id, _ := data["id"].(int)
+	name, _ := data["name"].(string)
+	wmap, _ := data["widget"].(map[string]any)
+
+	// typename should always be 'baseitem' for now
+	typename, _ := data["typename"].(string)
+	var w widget.Widget
+
+	switch typename {
+	case "baseitem":
+		w, err = components.DecodeWidget(wmap)
+		switch t := w.(type) {
+		case *browser.Browser:
+			t.Rebuild()
+		}
+	case "panel":
+		w, err = PanelDecodeMap(wmap, parent, creator)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	// todo, handle PanelItem here, probably need a registry here?
+	// for now, just create a BaseItem
+
+	I := &BaseItem{
+		_widget: w,
+		_cnt: id,
+		_name: name,
+	}
+
+	// setup frame with temp box
+	I.Frame = tview.NewFrame(I._widget)
+
+	// style fram
+	I.SetBorders(0,0,0,0,0,0) // just the one-line header
+	txt := fmt.Sprintf(" %s ", I.Id())
+	I.SetTitle(txt).SetTitleAlign(tview.AlignLeft)
+	// t.AddText(txt, true, tview.AlignLeft, tcell.ColorLimeGreen)
+	I.SetBorder(true)
+
+	return I, nil
 }

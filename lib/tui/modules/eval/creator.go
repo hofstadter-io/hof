@@ -65,7 +65,7 @@ func (E *Eval) creator(context panel.ItemContext, parent *panel.Panel) (panel.Pa
 	// short-circuit for developer mode (first, before user custom)
 	if panel_debug {
 		t := widget.NewTextView()
-		i := panel.NewBaseItem(context, parent)
+		i := panel.NewBaseItem(parent)
 		i.SetWidget(t)
 		return i, nil
 	}
@@ -82,7 +82,7 @@ func (E *Eval) creator(context panel.ItemContext, parent *panel.Panel) (panel.Pa
 
 func helpItem(context panel.ItemContext, parent *panel.Panel) (panel.PanelItem, error) {
 	// tui.Log("extra", fmt.Sprintf("new helpItem %v", context ))
-	I := panel.NewBaseItem(context, parent)
+	I := panel.NewBaseItem(parent)
 
 	txt := widget.NewTextView()
 	txt.SetBorderPadding(0,0,1,1)	
@@ -104,7 +104,7 @@ func playItem(context panel.ItemContext, parent *panel.Panel) (panel.PanelItem, 
 	play := playground.New("")
 	play.HandleAction("update", args, context)
 
-	I := panel.NewBaseItem(context, parent)
+	I := panel.NewBaseItem(parent)
 	I.SetWidget(play)
 
 	return I, nil
@@ -136,7 +136,7 @@ func viewItem(context panel.ItemContext, parent *panel.Panel) (panel.PanelItem, 
 	b.SetTitle(fmt.Sprintf("  %v  ", args)).SetBorder(true)
 	b.Rebuild()
 
-	I := panel.NewBaseItem(context, parent)
+	I := panel.NewBaseItem(parent)
 	I.SetWidget(b)
 
 	return I, nil

@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/hofstadter-io/hof/lib/tui"
-	"github.com/hofstadter-io/hof/lib/tui/components"
+	"github.com/hofstadter-io/hof/lib/tui/components/common"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 )
 
@@ -14,8 +14,8 @@ import (
 type LS struct {
 	*tview.Flex
 
-	Tree *components.FileBrowser
-	View *components.TextEditor
+	Tree *common.FileBrowser
+	View *common.TextEditor
 }
 
 func NewLS() *LS {
@@ -52,9 +52,9 @@ func (P *LS) Refresh(context map[string]any) error {
 	dir, _ = filepath.Abs(dir)
 	go tui.SendCustomEvent("/console/info", "LS dir: " + dir)
 	
-	P.View = components.NewTextEditor(nil)
+	P.View = common.NewTextEditor(nil)
 
-	P.Tree = components.NewFileBrowser(dir,
+	P.Tree = common.NewFileBrowser(dir,
 		func(path string) {
 			P.View.OpenFile(path)
 		},

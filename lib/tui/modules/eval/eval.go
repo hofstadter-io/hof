@@ -30,6 +30,7 @@ func NewEval() *Eval {
 		showOther: true,
 	}
 	M.Panel = panel.New(nil, M.creator)
+	M.Panel.SetBorderColor(tcell.Color42).SetBorder(true)
 
 	item, _ := helpItem(nil, M.Panel)
 	M.AddItem(item, 0, 1, true)
@@ -82,7 +83,7 @@ func (M *Eval) showError(err error) error {
 	txt := widget.NewTextView()
 	fmt.Fprint(txt, err)
 
-	I := panel.NewBaseItem(nil, M.Panel)
+	I := panel.NewBaseItem(M.Panel)
 	I.SetWidget(txt)
 
 	M.Panel.AddItem(I, 0, 1, true)

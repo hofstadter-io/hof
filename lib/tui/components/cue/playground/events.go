@@ -21,8 +21,8 @@ func (C *Playground) setupKeybinds() {
 					}
 
 				case 'S':
-					C.useScope = !C.useScope
-					C.Rebuild(false)
+					C.UseScope(!C.useScope)
+					C.Rebuild(C.useScope)
 
 				case 'R':
 					C.Rebuild(true)

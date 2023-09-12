@@ -1,4 +1,4 @@
-package components
+package common
 
 import (
 	"github.com/hofstadter-io/hof/lib/tui/app"

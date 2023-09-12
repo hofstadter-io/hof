@@ -1,6 +1,8 @@
 package widget
 
 import (
+	"fmt"
+
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 )
 
@@ -23,35 +25,40 @@ func NewBox() *Box {
 	return &Box{
 		Box: tview.NewBox(),
 		Base: Base{
-			_typename: "Box",
+			_typename: "widget/Box",
 		},
 	}
 }
 
-func (*Box) Encode() (map[string]any, error) {
+func (W *Box) Encode() (map[string]any, error) {
 	return map[string]any{
-		"type": "Box",
+		"typename": W.TypeName(),
 	}, nil
 }
 
+func (W *Box)	Decode(input map[string]any) (Widget, error) {
+	tn, ok := input["typename"]
+	if !ok {
+		return nil, fmt.Errorf("'typename' missing when calling widget.Box.Decode: %#v", input)
+	}
+
+	if tn != W.TypeName() {
+		return nil, fmt.Errorf("'typename' mismatch when calling widget.Box.Decode: expected %s, got %s", W.TypeName(), tn)
+	}
+
+	return NewBox(), nil
+}
 
 type TextView struct {
 	*tview.TextView
 	Base
 }
 
-func (T *TextView) Encode() (map[string]any, error) {
-	return map[string]any{
-		"type": "TextView",
-		"text": T.GetText(false),
-	}, nil
-}
-
 func NewTextView() *TextView {
 	t := &TextView{
 		TextView: tview.NewTextView(),
 		Base: Base{
-			_typename: "TextView",
+			_typename: "widget/TextView",
 		},
 	}
 
@@ -61,9 +68,30 @@ func NewTextView() *TextView {
 	return t
 }
 
-func WidgetDecodeMap(data map[string]any) (Widget, error) {
-
-
-	return nil, nil
+func (W *TextView) Encode() (map[string]any, error) {
+	return map[string]any{
+		"typename": W.TypeName(),
+		"text": W.GetText(false),
+	}, nil
 }
 
+func (W *TextView)	Decode(input map[string]any) (Widget, error) {
+	tn, ok := input["typename"]
+	if !ok {
+		return nil, fmt.Errorf("'typename' missing when calling widget.Box.Decode: %#v", input)
+	}
+
+	if tn != W.TypeName() {
+		return nil, fmt.Errorf("'typename' mismatch when calling widget.Box.Decode: expected %s, got %s", W.TypeName(), tn)
+	}
+
+	text := ""
+	if _text, ok := input["text"]; ok {
+		text = _text.(string)
+	}
+
+	w := NewTextView()
+	w.SetText(text)
+
+	return w, nil
+}

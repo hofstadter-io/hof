@@ -49,6 +49,8 @@ func (C *Browser) Rebuild() {
 		return
 	}
 
+	// tui.Log("info", fmt.Sprintf("View.Rebuild %v %v", C.usingScope, C.nextMode))
+	// tui.Log("info", fmt.Sprintf("View.Rebuild %v %v %v", C.usingScope, C.nextMode, C.value))
 	// todo, rebuild value from source config
 	// for now, we are still doing this outside
 
@@ -118,9 +120,10 @@ func (C *Browser) Rebuild() {
 
 			if err == nil {
 				err = quick.Highlight(C.codeW, string(b), "Go", "terminal256", "solarized-dark")
+				// tui.Log("info", fmt.Sprintf("View.Rebuild writing..."))
 				if err != nil {
 					writeErr(err)
-					go tui.Log("crit", fmt.Sprintf("error highlighing %v", err))
+					tui.Log("crit", fmt.Sprintf("error highlighing %v", err))
 					return
 				}
 			}
@@ -141,7 +144,7 @@ func (C *Browser) Rebuild() {
 
 	C.nextMode = ""
 	C.Frame.SetTitle(C.BuildStatusString())
-	tui.Draw()
+	// tui.Draw()
 }
 
 func (VB *Browser) BuildStatusString() string {
