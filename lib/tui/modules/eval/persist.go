@@ -5,14 +5,17 @@ import (
 	"os"
 	"path/filepath"
 
+	"cuelang.org/go/cue"
+	"cuelang.org/go/cue/cuecontext"
+	"cuelang.org/go/cue/format"
 	"gopkg.in/yaml.v3"
 
 	"github.com/hofstadter-io/hof/lib/tui"
+	"github.com/hofstadter-io/hof/lib/tui/components/cue/browser"
+	"github.com/hofstadter-io/hof/lib/tui/components/cue/helpers"
 	"github.com/hofstadter-io/hof/lib/tui/components/panel"
 	"github.com/hofstadter-io/hof/lib/tui/components/widget"
 )
-
-var persist_debug = true
 
 const evalSaveDirSubdir = "tui/saves/eval"
 
@@ -21,7 +24,7 @@ func evalSavePath(filename string) string {
 	return filepath.Join(configDir,"hof",evalSaveDirSubdir, filename)
 }
 
-func (M *Eval) Save(filename string) error {
+func (M *Eval) Save(destination string, preview bool) error {
 
 	//
 	// encode and marshal the dashboard
@@ -31,43 +34,63 @@ func (M *Eval) Save(filename string) error {
 		return err
 	}
 
-	b, err := yaml.Marshal(m)
-	if err != nil {
-		return err
-	}
+	ctx := cuecontext.New()
+	v := ctx.CompileString("{}")
+	v = v.FillPath(cue.ParsePath(""), m)
 
-	// save location
-	savename := evalSavePath(filename)
+	//b, err := yaml.Marshal(m)
+	//if err != nil {
+	//  return err
+	//}
 
-	// ensure the dir exists
-	dir := filepath.Dir(savename)
-	err = os.MkdirAll(dir, 0755)
-	if err != nil {
-		return err
-	}
 
-	// write our dashboard out
-	err = os.WriteFile(savename, b, 0644)
-	if err != nil {
-		return err
-	}
+	if preview {
 
-	//
-	// alert the user in several ways
-	//
+		cfg := &helpers.SourceConfig{Value: v, Source: helpers.EvalNone}
+		t := browser.New(cfg, "cue")
+		t.Rebuild()
 
-	info := fmt.Sprintf("%s saved to ... %s", M.Name(), savename)
-	tui.Tell("info", info)
-	tui.Log("info", info)
-
-	// extra to display the save info
-	if persist_debug {
-		t := widget.NewTextView()
-		t.SetDynamicColors(false)
-		fmt.Fprint(t, string(b))
+		//t := widget.NewTextView()
+		//t.SetDynamicColors(false)
+		//fmt.Fprint(t, string(b))
 		I := panel.NewBaseItem(nil, M.Panel)
 		I.SetWidget(t)
 		M.AddItem(I, 0, 1, true)
+
+	} else {
+		// save location
+		savename := evalSavePath(destination)
+
+		opts := []cue.Option{
+			cue.Final(),
+		}
+		syn := v.Syntax(opts...)
+
+		b, err := format.Node(syn)
+		if err != nil {
+			return err
+		}	
+
+		// ensure the dir exists
+		dir := filepath.Dir(savename)
+		err = os.MkdirAll(dir, 0755)
+		if err != nil {
+			return err
+		}
+
+		// write our dashboard out
+		err = os.WriteFile(savename, b, 0644)
+		if err != nil {
+			return err
+		}
+
+		//
+		// alert the user in several ways
+		//
+
+		info := fmt.Sprintf("%s saved to ... %s", M.Name(), savename)
+		tui.Tell("info", info)
+		tui.Log("info", info)
 	}
 
 	return nil
