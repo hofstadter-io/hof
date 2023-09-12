@@ -48,6 +48,7 @@ func (M *Eval) Refresh(context map[string]any) error {
 		p = M.Panel
 	}
 
+	// tui.Log("warn", fmt.Sprintf("Eval.handleDashActions.BEFORE: %v %v", action, args))
 	// handle dashboard (panel collection), CRUD actions
 	handled, err := M.handleDashActions(p, action, args, context)
 	if err != nil {
@@ -56,7 +57,7 @@ func (M *Eval) Refresh(context map[string]any) error {
 		return err
 	}
 	if handled {
-		tui.Log("warn", fmt.Sprintf("Eval.handleDashActions: %v %v", action, args))
+		tui.Log("warn", fmt.Sprintf("Eval.handleDashActions: %v %v %v", handled, action, args))
 		return nil
 	}
 
@@ -84,12 +85,7 @@ func (M *Eval) Refresh(context map[string]any) error {
 
 	p.Refresh(context)
 
-	// tui.SetFocus(p)
-	// tui.Draw()
-
 	return nil
-
-	return err
 }
 
 func (M *Eval) handleDashActions(p *panel.Panel, action string, args []string, context map[string]any) (bool, error) {

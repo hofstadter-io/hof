@@ -132,7 +132,7 @@ func (CB *CmdBoxWidget) Mount(context map[string]interface{}) error {
 			now := time.Now()
 
 			if CB.HasFocus() && now.After(CB.nextTime) {
-				tui.Log("trace", "cmdbox - GIVE")
+				// tui.Log("trace", "cmdbox - GIVE")
 				CB.nextTime = now.Add(42*time.Millisecond)
 				// tui.Unfocus()
 				if CB.lastFocus != nil {
@@ -169,7 +169,7 @@ func (CB *CmdBoxWidget) Mount(context map[string]interface{}) error {
 		now := time.Now()
 
 		if !CB.HasFocus() && now.After(CB.nextTime) {
-			tui.Log("trace", "cmdbox - TAKE")
+			// tui.Log("trace", "cmdbox - TAKE")
 			CB.SetText("")
 			CB.lastFocus = tui.GetFocus()
 			CB.nextTime = now.Add(42*time.Millisecond)

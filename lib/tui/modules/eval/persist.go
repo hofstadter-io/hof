@@ -8,7 +8,7 @@ import (
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/cuecontext"
 	"cuelang.org/go/cue/format"
-	"gopkg.in/yaml.v3"
+	"github.com/gdamore/tcell/v2"
 
 	"github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/browser"
@@ -53,7 +53,7 @@ func (M *Eval) Save(destination string, preview bool) error {
 		//t := widget.NewTextView()
 		//t.SetDynamicColors(false)
 		//fmt.Fprint(t, string(b))
-		I := panel.NewBaseItem(nil, M.Panel)
+		I := panel.NewBaseItem(M.Panel)
 		I.SetWidget(t)
 		M.AddItem(I, 0, 1, true)
 
@@ -97,6 +97,7 @@ func (M *Eval) Save(destination string, preview bool) error {
 }
 
 func (M *Eval) LoadEval(filename string) (*Eval, error) {
+	tui.Log("debug", fmt.Sprintf("Eval.LoadEval.0: %v", filename))
 	savename := evalSavePath(filename)
 
 	b, err := os.ReadFile(savename)
@@ -105,8 +106,11 @@ func (M *Eval) LoadEval(filename string) (*Eval, error) {
 		return nil, err
 	}
 
+	ctx := cuecontext.New()
+	val := ctx.CompileBytes(b, cue.Filename(filename))
+
 	data := make(map[string]any)
-	err = yaml.Unmarshal(b, &data)
+	err = val.Decode(&data)
 	if err != nil {
 		return nil, err
 	}
@@ -120,6 +124,11 @@ func (M *Eval) LoadEval(filename string) (*Eval, error) {
 	M.Panel = e.Panel
 	M.showPanel = e.showPanel
 	M.showOther = e.showOther
+	M.Panel.SetTitle(M.Panel.TitleString())
+
+	tui.SetFocus(M.Panel)
+
+	// M.Mount(make(map[string]any))
 
 
 	// extra to display the save info
@@ -145,7 +154,7 @@ func (M *Eval) ShowEval(filename string) (*Eval, error) {
 	t := widget.NewTextView()
 	t.SetDynamicColors(false)
 	fmt.Fprint(t, string(b))
-	I := panel.NewBaseItem(nil, M.Panel)
+	I := panel.NewBaseItem(M.Panel)
 	I.SetWidget(t)
 	M.AddItem(I, 0, 1, true)
 
@@ -170,7 +179,7 @@ func (M *Eval) ListEval() (error) {
 	}
 
 	// display the file list to the user
-	I := panel.NewBaseItem(nil, M.Panel)
+	I := panel.NewBaseItem(M.Panel)
 	I.SetWidget(t)
 	M.AddItem(I, 0, 1, true)
 
@@ -199,26 +208,41 @@ func (M *Eval) EncodeMap() (map[string]any, error) {
 	return m, nil
 }
 
-func EvalDecodeMap(data map[string]any) (*Eval, error) {
-	// var err error
-	M := &Eval{
-		showPanel: data["showPanel"].(bool),
-		showOther: data["showOther"].(bool),
-	}
-	M.SetName(data["name"].(string))
+func EvalDecodeMap(input map[string]any) (*Eval, error) {
+	// tui.Log("extra", fmt.Sprintf("Eval.Decode: %# v", input))
+	var err error
 
-	if _, ok := data["panel"]; ok {
-		//M.Panel, err = PanelDecodeMap(pmap.(map[string]any), nil, nil)
-		//if err != nil {
-		//  return M, err
-		//}
+	M := &Eval{
+		showPanel: input["showPanel"].(bool),
+		showOther: input["showOther"].(bool),
+	}
+	pmap, ok := input["panel"]
+	if !ok {
+		return nil, fmt.Errorf("panel missing from eval decode input: %#v", input)
 	} else {
 		M.Panel = panel.New(nil, M.creator)
 	}
 
+
+
+	// decode the main panel, everything else should happen through recursion and widget registry
+	M.Panel, err = panel.PanelDecodeMap(pmap.(map[string]any), nil, M.creator)
+	if err != nil {
+		return M, err
+	}
+
+	M.Panel.SetTitle(M.Panel.TitleString())
+
 	// do layout setup here, once some children have been instantiated
+	M.SetName(input["name"].(string))
+	M.SetDirection(input["direction"].(int))
+	M.SetBorderColor(tcell.Color42).SetBorder(true)
 	M.SetBorder(true)
-	M.SetDirection(data["direction"].(int))
+	M.setupEventHandlers()
+
+	// M.Refresh(make(map[string]any))
+
+	// tui.Draw()
 
 	return M, nil
 }

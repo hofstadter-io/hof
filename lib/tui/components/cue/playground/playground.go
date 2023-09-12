@@ -26,7 +26,6 @@ type Playground struct {
 	scope    *valPack
 
 	// the editor box
-	text   string    // text entered by the user to make the final value
 	edit *tview.TextArea  // text
 
 	// the final value
@@ -40,38 +39,10 @@ func (*Playground) TypeName() string {
 	return "cue/playground"
 }
 
-func (V *Playground) Encode() (map[string]any, error) {
-	var err error
-	m := map[string]any{
-		"type": V.TypeName(),
-		"useScope": V.useScope,
-		"text": V.text,
-	}
-
-	m["scope.config"], err = V.scope.config.Encode()
-	if err != nil {
-		return m, err
-	}
-
-	m["scope.viewer"], err = V.scope.viewer.Encode()
-	if err != nil {
-		return m, err
-	}
-
-	m["final.viewer"], err = V.final.viewer.Encode()
-	if err != nil {
-		return m, err
-	}
-
-	return m, nil
-}
-
-
 func New(initialText string) (*Playground) {
 
 	C := &Playground{
 		Flex: tview.NewFlex(),
-		text: initialText,
 		scope: &valPack{},
 		final: &valPack{},
 	}
@@ -92,7 +63,7 @@ func New(initialText string) (*Playground) {
 		SetTitle("  expression(s)  ").
 		SetBorder(true)
 
-	C.edit.SetText(C.text, false)
+	C.edit.SetText(initialText, false)
 
 	// results viewer
 	C.final.config = &helpers.SourceConfig{}
@@ -134,6 +105,7 @@ func (C *Playground) SetScopeConfig(sc *helpers.SourceConfig) {
 
 func (C *Playground) UseScope(visible bool) {
 	C.useScope = visible
+	C.final.viewer.SetUsingScope(visible)
 }
 
 func (C *Playground) SetFlexDirection(dir int) {

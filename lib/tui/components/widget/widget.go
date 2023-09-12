@@ -13,7 +13,7 @@ type Widget interface {
 	TypeName() string
 
 	Encode() (map[string]any, error)
-	// Decode(map[string]any) (error)
+	Decode(map[string]any) (Widget, error)
 
 	// UpdateValue()
 }

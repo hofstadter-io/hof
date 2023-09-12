@@ -84,7 +84,7 @@ func (C *Playground) HandleAction(action string, args []string, context map[stri
 }
 
 func (C *Playground) updateFromArgsAndContext(args[] string, context map[string]any) error {
-	tui.Log("warn", fmt.Sprintf("Playground.updateHandler.1: %v %v", args, context))
+	// tui.Log("warn", fmt.Sprintf("Playground.updateHandler.1: %v %v", args, context))
 	// get source, defaults to empty, new runtime?
 	source := ""
 	if _source, ok := context["source"]; ok {
@@ -124,7 +124,7 @@ func (C *Playground) updateFromArgsAndContext(args[] string, context map[string]
 		}
 		srcCfg.Source = helpers.EvalSource(source)
 
-		tui.Log("warn", fmt.Sprintf("Playground.updateHandler.3.V: %v", srcCfg))
+		// tui.Log("warn", fmt.Sprintf("Playground.updateHandler.3.V: %v", srcCfg))
 		// tui.Log("extra", fmt.Sprintf("Eval.playItem.value: %v", srcCfg ))
 		// C.UseScope(false)
 		// need to get the text once at startup
@@ -142,7 +142,7 @@ func (C *Playground) updateFromArgsAndContext(args[] string, context map[string]
 		}
 		srcCfg.Source = helpers.EvalSource(source)
 
-		tui.Log("warn", fmt.Sprintf("Playground.updateHandler.3.S: %v", srcCfg))
+		// tui.Log("warn", fmt.Sprintf("Playground.updateHandler.3.S: %v", srcCfg))
 		C.SetScopeConfig(srcCfg)
 
 		C.scope.viewer.SetSourceConfig(srcCfg)
@@ -177,11 +177,14 @@ func (C *Playground) setThinking(thinking bool, which string) {
 
 
 func (C *Playground) Rebuild(rebuildScope bool) error {
-	tui.Log("info", fmt.Sprintf("Play.rebuildScope %v %v %v", rebuildScope, C.useScope, C.scope.config))
+	// tui.Log("info", fmt.Sprintf("Play.rebuildScope %v %v %v", rebuildScope, C.useScope, C.scope.config))
 	var (
 		v cue.Value
 		err error
 	)
+
+	// just to be sure any children get updated
+	C.UseScope(C.useScope)
 
 	ctx := cuecontext.New()
 	src := C.edit.GetText()
@@ -198,7 +201,6 @@ func (C *Playground) Rebuild(rebuildScope bool) error {
 
 		sv, serr := C.scope.config.GetValue()
 		err = serr
-		// tui.Log("warn", fmt.Sprintf("%#v", sv))
 
 		if err != nil {
 			tui.Log("error", err)
@@ -212,9 +214,6 @@ func (C *Playground) Rebuild(rebuildScope bool) error {
 
 		if err == nil && sv.Exists() {
 			if rebuildScope {
-				// C.scope.config.Rebuild()
-				// cfg := &helpers.SourceConfig{Value: sv}
-				// C.scope.viewer.SetSourceConfig(cfg)
 				C.scope.viewer.Rebuild()
 			}
 
@@ -224,14 +223,17 @@ func (C *Playground) Rebuild(rebuildScope bool) error {
 		}
 	}
 
+
 	cfg := &helpers.SourceConfig{Value: v}
 	if err != nil {
 		tui.Log("error", err)
 		cfg = &helpers.SourceConfig{Text: err.Error()}
 	}
+
 	// only update view value, that way, if we erase everything, we still see the value
-	C.final.viewer.SetUsingScope(C.useScope)
+	C.final.config = cfg
 	C.final.viewer.SetSourceConfig(cfg)
+	C.final.viewer.SetUsingScope(C.useScope)
 	C.final.viewer.Rebuild()
 
 	// show/hide scope as needed

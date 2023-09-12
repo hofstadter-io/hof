@@ -1,13 +1,11 @@
 package browser
 
 import (
-	"fmt"
 	"io"
 
 	"cuelang.org/go/cue"
 	"github.com/gdamore/tcell/v2"
 
-	"github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/helpers"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 )
@@ -84,6 +82,7 @@ func New(source *helpers.SourceConfig, mode string) *Browser {
 	C.SetBorder(true)
 	C.SetupKeybinds()
 
+	C.Frame.SetTitle(C.BuildStatusString())
 	return C
 }
 
@@ -93,6 +92,10 @@ func (VB *Browser) SetMode(mode string) {
 
 func (VB *Browser) GetMode() string {
 	return VB.mode
+}
+
+func (VB *Browser) GetText() string {
+	return VB.code.GetText(true)
 }
 
 func (VB *Browser) SetUsingScope(usingScope bool) {
@@ -108,12 +111,12 @@ func (VB *Browser) GetUsingScope() bool {
 }
 
 func (VB *Browser) GetConnValue() cue.Value {
-	tui.Log("trace", fmt.Sprintf("View.GetConnValue from: %s/%s", VB.Id(), VB.Name()))
+	// tui.Log("trace", fmt.Sprintf("View.GetConnValue from: %s/%s", VB.Id(), VB.Name()))
 	return VB.value
 }
 
 func (VB *Browser) GetConnValueExpr(expr string) func () cue.Value {
-	tui.Log("trace", fmt.Sprintf("View.GetConnValueExpr from: %s/%s %s", VB.Id(), VB.Name(), expr))
+	// tui.Log("trace", fmt.Sprintf("View.GetConnValueExpr from: %s/%s %s", VB.Id(), VB.Name(), expr))
 	p := cue.ParsePath(expr)
 
 	return func() cue.Value {

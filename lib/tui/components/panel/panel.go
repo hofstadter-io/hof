@@ -33,6 +33,10 @@ func (P *Panel) Name() string {
 	return P._name
 }
 
+func (P *Panel) TypeName() string {
+	return "panel"
+}
+
 func (P *Panel) SetName(name string) {
 	P._name = name
 }

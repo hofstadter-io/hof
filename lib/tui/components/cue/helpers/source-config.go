@@ -2,7 +2,6 @@ package helpers
 
 import (
 	"fmt"
-	"time"
 
 	"cuelang.org/go/cue"
 )
@@ -27,24 +26,32 @@ type SourceConfig struct {
 	// or how to get the value
 	Source EvalSource
 	Args []string
-	Watch bool
-	Refresh time.Duration
 
 	ConnGetter func() cue.Value
 	// source format here?
 }
 
-func (sc SourceConfig) Encode() (map[string]any, error) {
+func (sc *SourceConfig) Encode() (map[string]any, error) {
 	return map[string]any{
 		"source": sc.Source,
 		"args": sc.Args,
-		"watch": sc.Watch,
-		"refresh": sc.Refresh.String(),
+	}, nil
+}
+
+func (sc *SourceConfig) Decode(input map[string]any) (*SourceConfig, error) {
+	aargs := input["args"].([]any)
+	args := make([]string, len(aargs))
+	for i, a := range aargs {
+		args[i] = a.(string)
+	}
+	return &SourceConfig{
+		Source: EvalSource(input["source"].(string)),
+		Args: args,
 	}, nil
 }
 
 
-func (sc SourceConfig) GetValue() (cue.Value, error) {
+func (sc *SourceConfig) GetValue() (cue.Value, error) {
 	// tui.Log("debug", fmt.Sprintf("SCFG.GetValue %# v", sc))
 
 	switch sc.Source {
@@ -88,7 +95,7 @@ func (sc SourceConfig) GetValue() (cue.Value, error) {
 	return cue.Value{}, fmt.Errorf("unhandled SourceConfig.Source: %q", sc.Source)
 }
 
-func (sc SourceConfig) GetText() (string, error) {
+func (sc *SourceConfig) GetText() (string, error) {
 	// tui.Log("debug", fmt.Sprintf("SCFG.GetText %# v", sc))
 	switch sc.Source {
 	case EvalNone:
