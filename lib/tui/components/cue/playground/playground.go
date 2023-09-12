@@ -103,6 +103,10 @@ func (C *Playground) SetScopeConfig(sc *helpers.SourceConfig) {
 	C.scope.viewer.SetSourceConfig(sc)
 }
 
+func (C *Playground) GetScopeConfig() *helpers.SourceConfig {
+	return C.scope.config
+}
+
 func (C *Playground) UseScope(visible bool) {
 	C.useScope = visible
 	C.final.viewer.SetUsingScope(visible)

@@ -95,7 +95,9 @@ func (W *Playground)	Decode(input map[string]any) (widget.Widget, error) {
 
 	w.SetDirection(input["direction"].(int))
 
-	w.Rebuild(true)
+	if w.scope.config.Source != helpers.EvalConn {
+		w.Rebuild(true)
+	}
 
 	return w, nil
 }
