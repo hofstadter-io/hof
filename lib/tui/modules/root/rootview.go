@@ -193,11 +193,11 @@ func (V *RootView) buildTopPanel() {
 	topBar.AddItem(V.sbar, 0, 1, true)
 
 	// error console
-	V.errConsole = console.NewErrConsoleWidget()
+	// V.errConsole = console.NewErrConsoleWidget()
 
 	// Top Panels
 	V.AddFirstPanel("top-bar", topBar, 3, 0, 0, "", false, "")
-	V.AddFirstPanel("err-console", V.errConsole, 0, 1, 0, "", true, "A-z")
+	// V.AddFirstPanel("err-console", V.errConsole, 0, 1, 0, "", true, "A-z")
 
 }
 

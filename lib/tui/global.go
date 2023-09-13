@@ -93,6 +93,10 @@ func Log(level string, data any) {
 	globalApp.EventBus.SendCustomEvent("/console/" + level, data)
 }
 
+func StatusMessage(data any) {
+	globalApp.EventBus.SendCustomEvent("/status/message", data)
+}
+
 func Tell(level string, data any) {
 	globalApp.EventBus.SendCustomEvent("/user/" + level, data)
 }

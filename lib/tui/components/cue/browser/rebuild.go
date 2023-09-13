@@ -171,7 +171,6 @@ func (VB *Browser) BuildStatusString() string {
 	add(VB.mode == "cue",  "C")
 	add(VB.mode == "json", "J")
 	add(VB.mode == "yaml", "Y")
-	add(VB.mode == "text", "t")
 	add(VB.usingScope, " S")
 	s += "] "
 

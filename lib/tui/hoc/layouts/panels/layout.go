@@ -174,6 +174,7 @@ func (L *Layout) Mount(context map[string]interface{}) error {
 	return nil
 }
 
+// puke.... we call this far too often, probably the source of the ordering issue
 func (L *Layout) build() error {
 	// get and order the fPanels
 	fPs := []*Panel{}
