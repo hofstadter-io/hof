@@ -148,6 +148,7 @@ func (C *Playground) updateFromArgsAndContext(args[] string, context map[string]
 		C.scope.viewer.SetSourceConfig(srcCfg)
 
 		rebuildScope = true
+		C.seeScope = true
 		C.UseScope(true)
 	}
 
@@ -237,7 +238,7 @@ func (C *Playground) Rebuild(rebuildScope bool) error {
 	C.final.viewer.Rebuild()
 
 	// show/hide scope as needed
-	if C.useScope {
+	if C.seeScope {
 		C.SetItem(0, C.scope.viewer, 0, 1, true)
 	} else {
 		C.SetItem(0, nil, 0, 0, false)

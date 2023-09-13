@@ -1,6 +1,8 @@
 package playground
 
 import (
+	"fmt"
+	"strings"
 	"time"
 
 	"cuelang.org/go/cue"
@@ -22,6 +24,7 @@ type Playground struct {
 	*tview.Flex
 
 	// scope used during parsing / evaluation
+	seeScope bool
 	useScope bool
 	scope    *valPack
 
@@ -107,9 +110,22 @@ func (C *Playground) GetScopeConfig() *helpers.SourceConfig {
 	return C.scope.config
 }
 
-func (C *Playground) UseScope(visible bool) {
-	C.useScope = visible
-	C.final.viewer.SetUsingScope(visible)
+func (C *Playground) UseScope(use bool) {
+	C.useScope = use
+	C.final.viewer.SetUsingScope(use)
+}
+
+func (C *Playground) ToggleShowScope() {
+	C.seeScope = !C.seeScope
+	// when not showing scope and has scope
+	// display in editory text
+	s := ""
+	if !C.seeScope {
+		if len(C.scope.config.Args) > 0 {
+			s += "[violet](" + strings.Join(C.scope.config.Args, " ") + ")[-] "
+		}
+	}
+	C.edit.SetTitle(fmt.Sprintf("  %sexpression(s)  ", s))
 }
 
 func (C *Playground) SetFlexDirection(dir int) {

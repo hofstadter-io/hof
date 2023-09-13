@@ -98,8 +98,8 @@ func (VB *Browser) GetText() string {
 	return VB.code.GetText(true)
 }
 
-func (VB *Browser) SetUsingScope(usingScope bool) {
-	VB.usingScope = usingScope
+func (B *Browser) GetSourceConfig() (source *helpers.SourceConfig) {
+	return B.source
 }
 
 func (B *Browser) SetSourceConfig(source *helpers.SourceConfig) {
@@ -108,6 +108,10 @@ func (B *Browser) SetSourceConfig(source *helpers.SourceConfig) {
 
 func (VB *Browser) GetUsingScope() bool {
 	return VB.usingScope
+}
+
+func (VB *Browser) SetUsingScope(usingScope bool) {
+	VB.usingScope = usingScope
 }
 
 func (VB *Browser) GetConnValue() cue.Value {
@@ -191,8 +195,6 @@ func (VB *Browser) SetupKeybinds() {
 				VB.nextMode = "cue"
 			case 'T':
 				VB.nextMode = "tree"
-			case 't':
-				VB.nextMode = "text"
 
 			// todo, dive values, and walk back up
 			//case 'I': // in

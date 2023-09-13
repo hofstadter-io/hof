@@ -2,7 +2,11 @@ package console
 
 import (
 	"fmt"
+	"os"
 	"strings"
+	"time"
+
+	"github.com/atotto/clipboard"
 
 	"github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/events"
@@ -33,7 +37,30 @@ func NewDevConsoleWidget() *DevConsoleWidget {
 
 func (C *DevConsoleWidget) Mount(context map[string]interface{}) error {
 	tui.AddWidgetHandler(C, "/sys/key/A-x", func (e events.Event) {
+		if !C.HasFocus() {
+			return
+		}
 		C.Clear()
+	})
+	tui.AddWidgetHandler(C, "/sys/key/A-c", func (e events.Event) {
+		if !C.HasFocus() {
+			return
+		}
+		txt := C.GetText(true)
+		clipboard.WriteAll(txt)
+		tui.StatusMessage("[violet]logs copied to clipboard![-]")
+	})
+	tui.AddWidgetHandler(C, "/sys/key/A-s", func (e events.Event) {
+		if !C.HasFocus() {
+			return
+		}
+		t := time.Now().Format("20060102-150405")
+		fn := fmt.Sprintf("hof-tui-console-logs-%s.txt", t)
+		txt := C.GetText(true)
+
+		os.WriteFile(fn, []byte(txt), 0644)
+
+		tui.StatusMessage(fmt.Sprintf("[violet]logs saved to %s[-]", fn))
 	})
 	tui.AddGlobalHandler("/console", func(ev events.Event) {
 		d := ev.Data

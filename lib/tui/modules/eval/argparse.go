@@ -37,6 +37,24 @@ func enrichContext(context map[string]any) (map[string]any) {
 	// and if exists, always parse here until it is reached
 	// this will allow a user to be more exact and get better error messages
 
+	// this is meant to be called in the switch in the middle of the loop
+	// to consume an extra token when an @target.path is found
+	maybeActionTarget := func() {
+		if len(args) > 1 && strings.HasPrefix(args[1], "@") {
+			context["target-panel"] = args[1][1:]  // also remove @
+			// consume an extra arg, technically this is the action
+			// but the target will be consumed right after anyway (just after the swith his is used in
+			args = args[1:]
+		}
+		if len(args) > 1 && strings.HasPrefix(args[1], "#") {
+			context["target-index"] = args[1][1:]  // also remove @
+			// consume an extra arg, technically this is the action
+			// but the target will be consumed right after anyway (just after the swith his is used in
+			args = args[1:]
+		}
+
+	}
+
 	// find any modifiers
 	for len(args) > 0 {
 		tok := args[0]
@@ -61,19 +79,29 @@ func enrichContext(context map[string]any) (map[string]any) {
 			"insert",
 			"ins":
 			context["action"] = "insert"
+			maybeActionTarget()
+
+	 	case "move":
+			context["action"] = "move"
+			maybeActionTarget()
+
 		case
 			"delete",
 			"del":
 			context["action"] = "delete"
+			maybeActionTarget()
 
 		// item update
 		case
 			"reload",
 			"refresh":
 			context["action"] = "reload"
+			maybeActionTarget()
+
 		case
 			"update":
 			context["action"] = "update"  // probably the default?
+			maybeActionTarget()
 
 		// this should probably be the new default
 		case 
@@ -88,11 +116,13 @@ func enrichContext(context map[string]any) (map[string]any) {
 			"set.item.name",
 			"set.panel.name":
 			context["action"] = tok 
+			maybeActionTarget()
 
 		case
 			"connect",
 			"C", "conn":
 			context["action"] = "connect"
+			maybeActionTarget()
 
 		// not handled yet
 		case "nav.left", "nl":
@@ -137,22 +167,25 @@ func enrichContext(context map[string]any) (map[string]any) {
 		case "V", "value":
 			context["target"] = "value"
 
-		// default, the current focused item
-		case "s", "self":
-			context["where"] = "self"
-
 		// eventually, which dashboard
 		// here, there, new, extend
 
 		// panel relative
 		case "h", "head", "f", "first":
 			context["where"] = "head"
+
 		case "l", "last", "t", "tail", "e", "end":
-			context["where"] = "last"
+			context["where"] = "tail"
+
 		case "b", "before", "p", "prev":
-			context["where"] = "before"
+			context["where"] = "prev"
+
 		case "a", "after", "n", "next":
 			context["where"] = "next"
+
+		case "index", "i", "pos":
+			context["where"] = "index"
+			maybeActionTarget()
 
 		// for within, to be passed down to current panel
 		case "K":
@@ -205,10 +238,11 @@ func enrichContext(context map[string]any) (map[string]any) {
 argsDone:
 
 	// handle some special cases
-	if len(args) > 0 && strings.HasPrefix(args[0], "http") {
-		context["source"] = "http"
-		//context["from"] = args[0]
-		//args = args[1:]
+	if len(args) > 0 {
+		first := args[0]
+		if strings.HasPrefix(first, "http") {
+			context["source"] = "http"
+		}
 	}
 
 	// make sure we update the context args

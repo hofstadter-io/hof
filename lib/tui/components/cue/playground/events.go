@@ -20,6 +20,10 @@ func (C *Playground) setupKeybinds() {
 						C.SetDirection(tview.FlexRow)
 					}
 
+				case 's':
+					C.ToggleShowScope()
+					C.Rebuild(false)
+
 				case 'S':
 					C.UseScope(!C.useScope)
 					C.Rebuild(C.useScope)

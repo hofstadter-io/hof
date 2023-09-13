@@ -3,6 +3,7 @@ package panel
 import (
 	"fmt"
 
+	"cuelang.org/go/pkg/strconv"
 	"github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 )
@@ -25,11 +26,12 @@ func (P *Panel) insertPanelItem(context map[string]any) {
 	if _cfi, ok := context["child-focus-index"]; ok {
 		cfi = _cfi.(int)
 		// tui.Log("trace", fmt.Sprintf("setting cfi.1 %d\n", cfi))
+	} else {
+		cfi = P.ChildFocus()
 	}
 
 	if cfi == -1 {
 		tui.Log("error", fmt.Sprintf("nil child in Panel.insertPanelItem: %v %#v", panel.Id(), context))
-		where = "tail"
 	}
 
 	t, _ := panel._creator(context, panel)
@@ -49,7 +51,23 @@ func (P *Panel) insertPanelItem(context map[string]any) {
 		panel.Flex.AddItem(t, 0, 1, true)
 
 	case "index":
-		panel.Flex.InsItem(cfi, t, 0, 1, true)
+		// this should be a specific index
+		// where does that value come from
+		if _i, ok := context["target-index"]; ok {
+			s := _i.(string)
+			p, err := strconv.Atoi(s)
+			if err != nil {
+				tui.Log("error", err)
+				return
+			}
+			if p < 0 {
+				tui.Log("error", "index must be >0")
+			}
+			if p > panel.Flex.GetItemCount() {
+				tui.Log("error", "index must be <len")
+			}
+			panel.Flex.InsItem(p, t, 0, 1, true)
+		}
 
 	default:
 		return
@@ -134,6 +152,24 @@ func (P *Panel) movePanelItem(context map[string]any) {
 		j--
 	case "next":
 		j++	
+	case "index":
+		// this should be a specific index
+		// where does that value come from
+		if _i, ok := context["target-index"]; ok {
+			s := _i.(string)
+			p, err := strconv.Atoi(s)
+			if err != nil {
+				tui.Log("error", err)
+				return
+			}
+			if p < 0 {
+				tui.Log("error", "index must be >0")
+			}
+			if p > panel.Flex.GetItemCount() {
+				tui.Log("error", "index must be <len")
+			}
+			j = p
+		}
 	default:
 		tui.Log("error", "unknown movePanel where: " + where)
 		return

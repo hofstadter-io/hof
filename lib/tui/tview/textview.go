@@ -1348,8 +1348,8 @@ func (t *TextView) MouseHandler() func(action MouseAction, event *tcell.EventMou
 				x -= rectX
 				y -= rectY
 				var highlightedID string
-				if y+t.lineOffset < len(t.lineIndex) {
-					line := t.lineIndex[y+t.lineOffset]
+				if yt := y+t.lineOffset; yt < len(t.lineIndex) {
+					line := t.lineIndex[yt]
 					for regionID, fromTo := range line.regions {
 						if x >= fromTo[0] && x < fromTo[1] {
 							highlightedID = regionID

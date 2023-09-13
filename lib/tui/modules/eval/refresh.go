@@ -42,10 +42,26 @@ func (M *Eval) Refresh(context map[string]any) error {
 		}	
 	}
 
-	// get the current focused panel
-	p := M.GetMostFocusedPanel()
-	if p == nil {
-		p = M.Panel
+	var p *panel.Panel
+
+	// was a specific panel target set?
+	if _path, ok := context["target-panel"]; ok {
+		path := _path.(string)
+		srcItem, err := M.getPanelByPath(path)
+		if err != nil {
+			return err
+		}
+		if srcItem != nil {
+			p = srcItem
+		} else {
+		  return fmt.Errorf("target %q is not a panel", path)
+		}
+	} else {
+		// get the current focused panel
+		p = M.GetMostFocusedPanel()
+		if p == nil {
+			p = M.Panel
+		}
 	}
 
 	// tui.Log("warn", fmt.Sprintf("Eval.handleDashActions.BEFORE: %v %v", action, args))
@@ -197,6 +213,10 @@ func (M *Eval) handlePanelActions(p *panel.Panel, action string, args []string, 
 
 		M.doNav(p, action)
 		return true, nil
+
+	case "insert":
+		// intentionally do nothing?
+		return true, nil
 	}
 
 	return false, nil
@@ -213,7 +233,11 @@ func (M *Eval) handleItemActions(p *panel.Panel, action string, args []string, c
 		cfi = 0
 		// return false, nil
 	}
-	itm := p.GetItem(cfi).(*panel.BaseItem)
+	itm, ok := p.GetItem(cfi).(*panel.BaseItem)
+	if !ok {
+		// not a type we care about (probably another panel)
+		return false, nil
+	}
 	w := itm.Widget()
 	switch t := w.(type) {
 	case *playground.Playground:
