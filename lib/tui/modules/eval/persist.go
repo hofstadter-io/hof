@@ -40,7 +40,9 @@ func evalFilepath(filename string) string {
 		// local to project
 		return filepath.Join(dir, ".hof", evalSaveDirSubdir, filename)
 	} else {
-		return filename	
+		// if none, assume global?
+		configDir, _ := os.UserConfigDir()
+		return filepath.Join(configDir,"hof",evalSaveDirSubdir, filename)
 	}
 }
 
@@ -239,20 +241,26 @@ func (M *Eval) ShowEval(filename string) (*Eval, error) {
 }
 
 func (M *Eval) ListEval() (error) {
-	dir := evalFilepath("")
+	mdir := evalFilepath("")
+	gdir := evalFilepath("@")
 
-	infos, err := os.ReadDir(dir)
-	if err != nil {
-		return err
-	}
+	// skip if dir is not found (err)
+	minfos, _ := os.ReadDir(mdir)
+	ginfos, _ := os.ReadDir(gdir)
 
 	// start our new text view
 	t := widget.NewTextView()
 	t.SetDynamicColors(false)
 
 	// write listing
-	for _, info := range infos {
-		fmt.Fprintln(t.TextView, info.Name())
+	fmt.Fprintln(t.TextView, "Module Dashboards")
+	for _, info := range minfos {
+		fmt.Fprintln(t.TextView, "  " + info.Name())
+	}
+	fmt.Fprintln(t.TextView, "\n")
+	fmt.Fprintln(t.TextView, "Global Dashboards")
+	for _, info := range ginfos {
+		fmt.Fprintln(t.TextView, "  @" + info.Name())
 	}
 
 	// display the file list to the user

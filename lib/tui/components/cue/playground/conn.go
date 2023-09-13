@@ -38,6 +38,7 @@ func (C *Playground) SetConnection(args []string, valueGetter func() cue.Value) 
 
 
 	C.useScope = true
+	C.seeScope = true
 
 	C.Rebuild(true)
 }
