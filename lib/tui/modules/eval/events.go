@@ -165,7 +165,7 @@ func (M *Eval) setupEventHandlers() {
 
 		if handled {
 			if eRefresh {
-				M.Refresh(ctx)
+				M.CommandCallback(ctx)
 			} else {
 				panel.Refresh(ctx)
 			}

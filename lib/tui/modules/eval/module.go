@@ -8,6 +8,7 @@ func New() connector.Connector {
 	items := []any{
 		NewEval(),
 	}
+
 	m := connector.New("Eval")
 	m.Add(items)
 
@@ -43,6 +44,19 @@ func (M *Eval) CommandHelp() string {
 // return the object you want in Refresh
 func (M *Eval) CommandCallback(context map[string]any) {
 	// tui.Log("extra", fmt.Sprintf("Eval.CmdCallback: %# v", context))
-	M.Refresh(context)
+	context = enrichContext(context)
+	args := []string{}
+	if _args, ok := context["args"]; ok {
+		args = _args.([]string)
+	}
+
+	// handle any top-leval eval commands
+	action := ""
+	if _action, ok := context["action"]; ok {
+		action = _action.(string)
+	}
+
+	M.HandleAction(action, args, context)
+
 	return
 }

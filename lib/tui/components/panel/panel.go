@@ -2,6 +2,8 @@ package panel
 
 import (
 	"fmt"
+	"strconv"
+	"sync/atomic"
 
 	"github.com/gdamore/tcell/v2"
 
@@ -85,18 +87,18 @@ func (P *Panel) GetItemByName(name string) tview.Primitive {
 	return nil
 }
 
-var panel_count = 0
+var panel_count *atomic.Int64
+func init() {
+	panel_count = new(atomic.Int64)
+}
 
 func New(parent *Panel, creator ItemCreator) *Panel {
 	P := &Panel{
 		Flex: tview.NewFlex(),
 		_creator: creator,
-		_cnt: panel_count,
+		_cnt: int(panel_count.Add(1)),
 		_parent: parent,
 	}
-
-	// update our "unique id"
-	panel_count++
 
 	// fallback if needed & possible
 	if P._creator == nil && P._parent != nil {
@@ -188,7 +190,8 @@ func (P *Panel) Refresh(context map[string]any) error {
 
 	// do things based on context info to build up a component
 	switch action {
-	// panel / item layout related
+	case "create":
+		P.createPanelItem(context)	
 	case "insert":
 		P.insertPanelItem(context)	
 	case "move":
@@ -197,11 +200,6 @@ func (P *Panel) Refresh(context map[string]any) error {
 		P.splitPanelItem(context)
 	case "delete":
 		P.deletePanelItem(context)
-
-	// item state related
-	case "update":
-		P.updatePanelItem(context)	
-
 	case "set.panel.name":
 		if len(args) < 1 {
 			return fmt.Errorf("%s requires an argument", action)
@@ -227,6 +225,31 @@ func (P *Panel) Refresh(context map[string]any) error {
 			P.SetName(args[0])
 			P.SetTitle("  "+P.Name()+"  ")
 		}
+	case "set.size":
+		tui.Log("alert", fmt.Sprintf("setting fixed size %v %v", cid, args))
+		if len(args) < 1 {
+			return fmt.Errorf("%s requires an int argument", action)
+		}
+		if cid >= 0 {
+			i, err := strconv.Atoi(args[0])
+			if err != nil {
+				return err
+			}
+			P.Flex.SetItemFixedSize(cid, i)
+		}
+
+	case "set.ratio":
+		if len(args) < 1 {
+			return fmt.Errorf("%s requires an int argument", action)
+		}
+		if cid >= 0 {
+			i, err := strconv.Atoi(args[0])
+			if err != nil {
+				return err
+			}
+			P.Flex.SetItemProportion(cid, i)
+		}
+
 
 	default:
 	}
@@ -251,7 +274,7 @@ func (P *Panel) SetShowBordersR(showPanel, showOther bool) {
 }
 
 func (P *Panel) GetMostFocusedPanel() *Panel {
-
+	// look for item with focus
 	for _, i := range P.GetItems() {
 		switch t := i.Item.(type) {
 		case *Panel:
@@ -259,17 +282,10 @@ func (P *Panel) GetMostFocusedPanel() *Panel {
 			if p != nil {
 				return p
 			}
-		//case *Item:
-		//  // we have a non-panel item that is focused
-		//  // so it is us
-		//  if t.HasFocus() {
-		//    return P
-		//  }
 		}
 	}
 
-	// in theory, we could get here if
-	// a panel could have focus without items having focus, not sure this is possible
+	// otherwise, if we have focus, it is us
 	if P.HasFocus() {
 		return P
 	}

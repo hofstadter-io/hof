@@ -11,6 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/tui/components/panel"
 	"github.com/hofstadter-io/hof/lib/tui/components/widget"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/browser"
+	// "github.com/hofstadter-io/hof/lib/tui/components/cue/flower"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/helpers"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/playground"
 )
@@ -40,6 +41,7 @@ func setupCreator() {
 	f.Register("help", helpItem)
 	f.Register("play", playItem)
 	f.Register("view", viewItem)
+	// f.Register("flow", flowItem)
 
 	itemCreator = f
 }
@@ -102,7 +104,7 @@ func playItem(context panel.ItemContext, parent *panel.Panel) (panel.PanelItem, 
 	}
 
 	play := playground.New("")
-	play.HandleAction("update", args, context)
+	play.HandleAction("create", args, context)
 
 	I := panel.NewBaseItem(parent)
 	I.SetWidget(play)
@@ -124,13 +126,15 @@ func viewItem(context panel.ItemContext, parent *panel.Panel) (panel.PanelItem, 
 		source = _source.(string)
 	}
 
-	srcCfg := &helpers.SourceConfig{
+	cfg := &helpers.SourceConfig{
 		Source: helpers.EvalSource(source),
 		Args: args,
 	}
 
-	b := browser.New(srcCfg, "cue")
+	b := browser.New()
+	b.AddSourceConfig(cfg)
 	b.SetTitle(fmt.Sprintf("  %v  ", args)).SetBorder(true)
+	b.RebuildValue()
 	b.Rebuild()
 
 	I := panel.NewBaseItem(parent)
@@ -138,3 +142,22 @@ func viewItem(context panel.ItemContext, parent *panel.Panel) (panel.PanelItem, 
 
 	return I, nil
 }
+
+
+//func flowItem(context panel.ItemContext, parent *panel.Panel) (panel.PanelItem, error) {
+//  tui.Log("extra", fmt.Sprintf("Eval.flowItem.context: %v", context ))
+
+//  args := []string{}
+//  if _args, ok := context["args"]; ok {
+//    args = _args.([]string)
+//  }
+
+//  flow := flower.New()
+//  flow.HandleAction("update", args, context)
+//  flow.Rebuild()
+
+//  I := panel.NewBaseItem(parent)
+//  I.SetWidget(flow)
+
+//  return I, nil
+//}

@@ -2,6 +2,7 @@ package panel
 
 import (
 	"fmt"
+	"sync/atomic"
 
 	// "github.com/gdamore/tcell/v2"
 
@@ -76,18 +77,21 @@ type BaseItem struct {
 }
 
 // need a better way to do this, but uuid/cuid is a bit much
-var item_count = 0
+// there are issues on reload potentially, and creating new elements after
+var item_count *atomic.Int64
+func init() {
+	item_count = new(atomic.Int64)
+}
 
 func NewBaseItem(parent *Panel) *BaseItem {
 	t := &BaseItem{
-		_cnt: item_count,
+		Frame: tview.NewFrame(),
+		_cnt: int(item_count.Add(1)),
 		_parent: parent,
-		_widget: widget.NewBox(),
 	}
-	item_count++
 
 	// setup frame with temp box
-	t.Frame = tview.NewFrame(t._widget)
+	t.Frame.SetPrimitive(widget.NewBox())
 
 	// style fram
 	t.SetBorders(0,0,0,0,0,0) // just the one-line header
@@ -174,6 +178,7 @@ func ItemDecodeMap(data map[string]any, parent *Panel, creator ItemCreator) (Pan
 		w, err = components.DecodeWidget(wmap)
 		switch t := w.(type) {
 		case *browser.Browser:
+			t.RebuildValue()
 			t.Rebuild()
 		}
 	case "panel":
@@ -187,15 +192,16 @@ func ItemDecodeMap(data map[string]any, parent *Panel, creator ItemCreator) (Pan
 	// for now, just create a BaseItem
 
 	I := &BaseItem{
+		Frame: tview.NewFrame(),
 		_widget: w,
 		_cnt: id,
 		_name: name,
 	}
 
 	// setup frame with temp box
-	I.Frame = tview.NewFrame(I._widget)
+	I.Frame.SetPrimitive(I._widget)
 
-	// style fram
+	// style frame
 	I.SetBorders(0,0,0,0,0,0) // just the one-line header
 	txt := fmt.Sprintf(" %s ", I.Id())
 	I.SetTitle(txt).SetTitleAlign(tview.AlignLeft)

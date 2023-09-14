@@ -1,11 +1,13 @@
 package browser
 
 import (
+	"fmt"
 	"io"
 
 	"cuelang.org/go/cue"
 	"github.com/gdamore/tcell/v2"
 
+	"github.com/hofstadter-io/hof/lib/singletons"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/helpers"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 )
@@ -28,8 +30,10 @@ type Browser struct {
 	code *tview.TextView
 	codeW io.Writer
 
-	// source config & value
-	source *helpers.SourceConfig
+	// source configs
+	sources []*helpers.SourceConfig
+
+	// value from filled sources
 	value cue.Value
 
 	// eval settings
@@ -50,10 +54,17 @@ func (*Browser) TypeName() string {
 	return "cue/browser"
 }
 
-func New(source *helpers.SourceConfig, mode string) *Browser {
+func New() *Browser {
 	C := &Browser {
-		source: source,
-		mode: mode,
+		Frame: tview.NewFrame(),
+		sources: make([]*helpers.SourceConfig,0),
+
+		value: singletons.EmptyValue(),
+
+		// some sane defaults
+		mode: "cue",
+		ignore: true,
+		resolve: true,
 	}
 
 	// code view
@@ -74,9 +85,9 @@ func New(source *helpers.SourceConfig, mode string) *Browser {
 
 
 	if C.mode == "tree" {
-		C.Frame = tview.NewFrame(C.tree)
+		C.Frame.SetPrimitive(C.tree)
 	} else {
-		C.Frame = tview.NewFrame(C.code)
+		C.Frame.SetPrimitive(C.code)
 	}
 
 	C.SetBorder(true)
@@ -98,12 +109,26 @@ func (VB *Browser) GetText() string {
 	return VB.code.GetText(true)
 }
 
-func (B *Browser) GetSourceConfig() (source *helpers.SourceConfig) {
-	return B.source
+func (B *Browser) GetSourceConfigs() (sources []*helpers.SourceConfig) {
+	return B.sources
 }
 
-func (B *Browser) SetSourceConfig(source *helpers.SourceConfig) {
-	B.source = source
+func (B *Browser) AddSourceConfig(source *helpers.SourceConfig) {
+	source.Name = fmt.Sprintf("%s-src.%d", B.Name(), len(B.sources))
+	B.sources = append(B.sources, source)
+}
+
+func (B *Browser) SetSourceConfig(index int, source *helpers.SourceConfig) {
+	source.Name = fmt.Sprintf("%s-src.%d", B.Name(), index)
+	B.sources[index] = source
+}
+
+func (B *Browser) RemoveSourceConfig(index int) {
+	B.sources = append(B.sources[:index], B.sources[index+1:]...)
+}
+
+func (B *Browser) ClearSourceConfigs() {
+	B.sources = make([]*helpers.SourceConfig,0)
 }
 
 func (VB *Browser) GetUsingScope() bool {
@@ -114,17 +139,22 @@ func (VB *Browser) SetUsingScope(usingScope bool) {
 	VB.usingScope = usingScope
 }
 
-func (VB *Browser) GetConnValue() cue.Value {
-	// tui.Log("trace", fmt.Sprintf("View.GetConnValue from: %s/%s", VB.Id(), VB.Name()))
-	return VB.value
+func (C *Browser) SetWatchCallback(callback func()) {
+	for _, s := range C.sources {
+		s.WatchFunc = callback
+	}
 }
 
-func (VB *Browser) GetConnValueExpr(expr string) func () cue.Value {
+func (C *Browser) GetValue() cue.Value {
+	return C.value
+}
+
+func (VB *Browser) GetValueExpr(expr string) func () cue.Value {
 	// tui.Log("trace", fmt.Sprintf("View.GetConnValueExpr from: %s/%s %s", VB.Id(), VB.Name(), expr))
 	p := cue.ParsePath(expr)
 
 	return func() cue.Value {
-		return VB.GetConnValue().LookupPath(p)
+		return VB.GetValue().LookupPath(p)
 	}
 
 }
@@ -196,12 +226,20 @@ func (VB *Browser) SetupKeybinds() {
 			case 'T':
 				VB.nextMode = "tree"
 
+			// info about CUE value? (stats)
+			//case 'I':
+			//  VB.nextMode = "info"
+
+			// show settings, hidden?
+
+				VB.nextMode = "settings"
+
 			// todo, dive values, and walk back up
 			//case 'I': // in
 			//case 'U': // up
 
 			case 'R':
-				// this should just trigger a refresh by nature of being here
+				VB.RebuildValue()
 
 			default:
 				return evt

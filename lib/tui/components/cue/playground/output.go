@@ -6,7 +6,11 @@ import (
 	"path/filepath"
 	"strings"
 
+	"cuelang.org/go/cue"
 	"github.com/parnurzeal/gorequest"
+
+	"github.com/hofstadter-io/hof/lib/tui"
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 const HTTP2_GOAWAY_CHECK = "http2: server sent GOAWAY and closed the connection"
@@ -47,10 +51,32 @@ func (C *Playground) WriteEditToFile(filename string) (error) {
 func (C *Playground) ExportFinalToFile(filename string) (error) {
 	ext := filepath.Ext(filename)
 	ext = strings.TrimPrefix(ext, ".")
-	src, err := C.final.viewer.GetValueText(ext)
+	src, err := C.final.GetValueText(ext)
+	if err != nil {
+		return err
+	}
+
+	dir := filepath.Dir(filename)
+	err = yagu.Mkdir(dir)
 	if err != nil {
 		return err
 	}
 
 	return os.WriteFile(filename, []byte(src), 0644)
 }
+
+func (C *Playground) GetValue() cue.Value {
+	tui.Log("trace", fmt.Sprintf("Play.GetConnValue from: %s/%s", C.Id(), C.Name()))
+
+	return C.final.GetValue()
+}
+
+func (C *Playground) GetValueExpr(expr string) func () cue.Value {
+	tui.Log("trace", fmt.Sprintf("Play.GetConnValueExpr from: %s/%s %s", C.Id(), C.Name(), expr))
+	p := cue.ParsePath(expr)
+
+	return func() cue.Value {
+		return C.final.GetValue().LookupPath(p)
+	}
+}
+

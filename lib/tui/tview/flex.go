@@ -172,6 +172,18 @@ func (f *Flex) GetItem(index int) Primitive {
 	return f.items[index].Item
 }
 
+func (f *Flex) SetItemFixedSize(idx, fixedSize int) {
+	f.Box.mutex.Lock()
+	defer f.Box.mutex.Unlock()
+	f.items[idx].FixedSize = fixedSize
+}
+
+func (f *Flex) SetItemProportion(idx, proportion int) {
+	f.Box.mutex.Lock()
+	defer f.Box.mutex.Unlock()
+	f.items[idx].Proportion = proportion
+}
+
 func (f *Flex) SetItem(idx int, item Primitive, fixedSize, proportion int, focus bool) {
 	f.Box.mutex.Lock()
 	defer f.Box.mutex.Unlock()

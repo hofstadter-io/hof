@@ -5,7 +5,7 @@ import (
 	"os"
 	"sync"
 
-	// "golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/crypto/ssh/terminal"
 
 	"github.com/hofstadter-io/hof/lib/tui/events"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
@@ -65,42 +65,29 @@ func (app *App) SetLastFocus(last tview.Primitive) {
 
 // blocking call
 func (app *App) Start(context map[string]any) error {
+	oldState, err := terminal.MakeRaw(0)
+	if err != nil {
+		return err
+	}
+	defer terminal.Restore(0, oldState)
+
 	// stuff to ensure we don't mess up the user's terminal
 	// catch panics, clean up, format error
 	defer func() {
 		e := recover()
 		if e != nil {
 			app.stop()
-			// Print a formatted panic output
+			terminal.Restore(0, oldState)
 			fmt.Fprintf(os.Stderr, "Captured a panic(value=%v) lib.Start()... Exiting and cleaning terminal...\nPrint stack trace:\n\n", e)
-			//debug.PrintStack()
-			//gs, err := stack.ParseDump(bytes.NewReader(debug.Stack()), os.Stderr)
-			//if err != nil {
-			//  debug.PrintStack()
-			//  os.Exit(1)
-			//}
-			//p := &stack.Palette{}
-			//buckets := stack.SortBuckets(stack.Bucketize(gs, stack.AnyValue))
-			//srcLen, pkgLen := stack.CalcLengths(buckets, false)
-			//for _, bucket := range buckets {
-			//  io.WriteString(os.Stdout, p.BucketHeader(&bucket, false, len(buckets) > 1))
-			//  io.WriteString(os.Stdout, p.StackLines(&bucket.Signature, srcLen, pkgLen, false))
-			//}
 			panic(e)
 		}
 	}()
-
-	//oldState, err := terminal.MakeRaw(0)
-	//if err != nil {
-	//  return err
-	//}
-	//defer terminal.Restore(0, oldState)
 
 	// start the event engine
 	go app.EventBus.Start()
 
 	// set the initial view
-	err := app.rootView.Mount(context)
+	err = app.rootView.Mount(context)
 	if err != nil {
 		return err
 	}

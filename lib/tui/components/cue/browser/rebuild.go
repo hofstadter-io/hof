@@ -3,17 +3,39 @@ package browser
 import (
 	"fmt"
 	"strings"
-	"time"
 
+	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/format"
 	"github.com/alecthomas/chroma/quick"
 	"github.com/gdamore/tcell/v2"
+	"github.com/kr/pretty"
 
 	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/gen"
+	"github.com/hofstadter-io/hof/lib/singletons"
 	"github.com/hofstadter-io/hof/lib/tui"
+	"github.com/hofstadter-io/hof/lib/tui/components/cue/helpers"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 )
+
+func (C *Browser) RebuildValue() {
+	C.setThinking(true)
+	defer C.setThinking(false)
+
+	if len(C.sources) > 0 {
+		// start with an empty value
+		val := singletons.EmptyValue()
+
+		// fill all the sources into one
+		for _, S := range C.sources {
+			v, _ := S.GetValue()
+			val = val.FillPath(cue.ParsePath(S.Path), v)
+		}
+
+		// cache in the browser...?
+		C.value = val
+	}
+}
 
 func (C *Browser) setThinking(thinking bool) {
 	c := tcell.ColorWhite
@@ -45,19 +67,14 @@ func (C *Browser) Rebuild() {
 		C.SetPrimitive(C.code)
 	}
 
-	C.value, err = C.source.GetValue()
-	//if C.value.Err() == nil && err != nil {
-	//  writeErr(err)
-	//  return
-	//}
+	if C.nextMode == "settings" {
+		C.code.Clear()
+		C.SetPrimitive(C.code)
 
-	// tui.Log("info", fmt.Sprintf("View.Rebuild %v %v", C.usingScope, C.nextMode))
-	// tui.Log("info", fmt.Sprintf("View.Rebuild %v %v %v", C.usingScope, C.nextMode, C.value))
-	// todo, rebuild value from source config
-	// for now, we are still doing this outside
-
-	// special case tree first
-	if C.nextMode == "tree" {
+		for _, s := range C.sources {
+			fmt.Fprintf(C.codeW, "%# v\n\n", pretty.Formatter(*s))
+		}
+	} else if C.nextMode == "tree" {
 		root := tview.NewTreeNode(path)
 		root.SetColor(tcell.ColorSilver)
 		tree := tview.NewTreeView()
@@ -166,8 +183,23 @@ func (VB *Browser) BuildStatusString() string {
 	if n := VB.Name(); len(n) > 0 {
 		s += n + ": "
 	}
-	if len(VB.source.Args) > 0 {
-		s += "[violet](" + strings.Join(VB.source.Args, " ") + ")[-] "
+
+	// todo, show sources with a Frame and a hotkey?
+	if len(VB.sources) > 0 {
+		for _, src := range VB.sources {
+			if src.Source != helpers.EvalNone && len(src.Args) > 0 {
+				s += "[violet](" + strings.Join(src.Args, " ") + ")[-] "
+			}
+			if src.Source == helpers.EvalNone && VB.usingScope {
+				s += "[blue]<S>[-] "
+			}
+		}
+	} else {
+		if VB.usingScope {
+			s += "[blue]<S>[-] "
+		} else {
+			s += "[darkgray]<empty>[-] "
+		}
 	}
 
 	add := func(on bool, char string) {
@@ -183,7 +215,6 @@ func (VB *Browser) BuildStatusString() string {
 	add(VB.mode == "cue",  "C")
 	add(VB.mode == "json", "J")
 	add(VB.mode == "yaml", "Y")
-	add(VB.usingScope, " S")
 	s += "] "
 
 	add(VB.validate, "v")
@@ -209,55 +240,3 @@ func (VB *Browser) BuildStatusString() string {
 	return s
 }
 
-func (B *Browser) HandleAction(action string, args []string, context map[string]any) (bool, error) {
-	tui.Log("warn", fmt.Sprintf("Playground.HandleAction: %v %v %v", action, args, context))
-	var err error
-	handled := true
-
-	// item actions
-	switch action {
-	case "watchGlobs", "set.scope.watchGlobs", "set.value.watchGlobs":
-		B.source.WatchGlobs = args
-
-	case "watch", "set.scope.watch", "set.value.watch":
-		d := time.Duration(42*time.Millisecond)
-		if len(args) < 1 {
-			//aerr := fmt.Errorf("watch requires a duration like 1s or 300ms")
-			//tui.Log("warn", aerr)
-			tui.Log("warn", fmt.Sprintf("no watch duration given, setting to %s", d))
-			tui.StatusMessage(fmt.Sprintf("no watch duration given, setting to %s", d))
-		} else {
-			d, err = time.ParseDuration(args[0])
-		}
-
-		if err != nil {
-			tui.Tell("error", err)
-		} else {
-
-			// some local vars & setup
-			cfg := B.source
-			cfg.WatchTime = d
-			if d.Nanoseconds() > 0 {
-				// startup new watch
-				tui.StatusMessage(fmt.Sprintf("start %sing...", strings.TrimPrefix(action, "set.")))
-
-				callback := func() {
-					B.setThinking(true)
-					tui.Draw()
-					defer B.setThinking(false)
-					B.Rebuild()
-				}
-				err = cfg.Watch(B.Name(), callback, d)
-			} else {
-				// or stop any watches
-				tui.StatusMessage("stopping watch on: " + B.Id())
-				cfg.StopWatch()
-			}
-		}
-	default:
-		handled = false
-		// err = fmt.Errorf("unknown command %q", action)
-	}
-
-	return handled, err
-}

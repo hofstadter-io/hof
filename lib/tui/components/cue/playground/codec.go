@@ -14,26 +14,22 @@ func (C *Playground) Encode() (map[string]any, error) {
 	m := map[string]any{
 		"typename": C.TypeName(),
 		"useScope": C.useScope,
+		"seeScope": C.seeScope,
 		"text": C.edit.GetText(),
 		"direction": C.GetDirection(),
 	}
 
-	m["edit.config"], err = C.editCfg.Encode()
+	m["scope"], err = C.scope.Encode()
 	if err != nil {
 		return nil, err
 	}
 
-	m["scope.config"], err = C.scope.config.Encode()
+	m["edit"], err = C.editCfg.Encode()
 	if err != nil {
 		return nil, err
 	}
 
-	m["scope.viewer"], err = C.scope.viewer.Encode()
-	if err != nil {
-		return nil, err
-	}
-
-	m["final.viewer"], err = C.final.viewer.Encode()
+	m["final"], err = C.final.Encode()
 	if err != nil {
 		return nil, err
 	}
@@ -47,11 +43,11 @@ func (C *Playground)	Decode(input map[string]any) (widget.Widget, error) {
 
 	tn, ok := input["typename"]
 	if !ok {
-		return nil, fmt.Errorf("'typename' missing when calling widget.Box.Decode: %#v", input)
+		return nil, fmt.Errorf("'typename' missing when calling playground.Decode: %#v", input)
 	}
 
 	if tn != C.TypeName() {
-		return nil, fmt.Errorf("'typename' mismatch when calling widget.Box.Decode: expected %s, got %s", C.TypeName(), tn)
+		return nil, fmt.Errorf("'typename' mismatch when calling playground.Decode: expected %s, got %s", C.TypeName(), tn)
 	}
 
 	text := ""
@@ -61,7 +57,7 @@ func (C *Playground)	Decode(input map[string]any) (widget.Widget, error) {
 
 	w := New(text)
 
-	ec, ok := input["edit.config"]
+	ec, ok := input["edit"]
 	if !ok {
 		return nil, fmt.Errorf("scope.config not found in input to Playground.Decode: %#v", input)
 	}
@@ -71,27 +67,18 @@ func (C *Playground)	Decode(input map[string]any) (widget.Widget, error) {
 	}
 	w.editCfg = ecfg
 
-	sc, ok := input["scope.config"]
+	sv, ok := input["scope"]
 	if !ok {
-		return nil, fmt.Errorf("scope.config not found in input to Playground.Decode: %#v", input)
-	}
-	scfg, err := (&helpers.SourceConfig{}).Decode(sc.(map[string]any))
-	if err != nil {
-		return nil, err
-	}
-	w.SetScopeConfig(scfg)
-
-	sv, ok := input["scope.viewer"]
-	if !ok {
-		return nil, fmt.Errorf("scope.viewer not found in input to Playground.Decode: %#v", input)
+		return nil, fmt.Errorf("scope not found in input to Playground.Decode: %#v", input)
 	}
 	b, err := (&browser.Browser{}).Decode(sv.(map[string]any))
 	if err != nil {
 		return nil, err
 	}
-	w.scope.viewer = b.(*browser.Browser)
+	// todo, setter so we can setup to share scope.config with viewer.config automatically
+	w.scope = b.(*browser.Browser)
 
-	fv, ok := input["final.viewer"]
+	fv, ok := input["final"]
 	if !ok {
 		return nil, fmt.Errorf("final.viewer not found in input to Playground.Decode: %#v", input)
 	}
@@ -99,42 +86,29 @@ func (C *Playground)	Decode(input map[string]any) (widget.Widget, error) {
 	if err != nil {
 		return nil, err
 	}
-	w.final.viewer = b.(*browser.Browser)
-	w.SetItem(2, w.final.viewer, 0, 1, true)
+	w.final = b.(*browser.Browser)
+	w.SetItem(2, w.final, 0, 1, true)
 
 	s, ok := input["useScope"]
 	if !ok {
-		return nil, fmt.Errorf("'typename' missing when calling widget.Box.Decode: %#v", input)
+		return nil, fmt.Errorf("'useScope' missing when calling playground.Decode: %#v", input)
 	}
 	useScope := s.(bool)
 	w.UseScope(useScope)
-	w.seeScope = useScope
+
+	s, ok = input["seeScope"]
+	if !ok {
+		return nil, fmt.Errorf("'seeScope' missing when calling playground.Decode: %#v", input)
+	}
+	w.seeScope = s.(bool)
 
 	w.SetDirection(input["direction"].(int))
 
-	if w.scope.config.Source != helpers.EvalConn {
-		w.UseScope(true)
-		w.Rebuild(true)
+	if useScope {
+		w.scope.RebuildValue()
+		w.scope.Rebuild()
 	}
+	w.Rebuild()
 
-	// hack, first time after loading edge cases
-	//if w.scope.config.WatchTime > 0 && w.scope.config.WatchQuit == nil {
-		//callback := func() {
-			//w.Rebuild(true)
-		//}
-		//err = w.scope.config.Watch(w.Name(), callback, w.scope.config.WatchTime)
-	//}
-	//if w.editCfg.WatchTime > 0 && w.editCfg.WatchQuit == nil {
-		//callback := func() {
-			//txt, err := w.editCfg.GetText()
-			//// tui.Log("crit", "got here again:\n"+txt)
-			//if err != nil {
-				//tui.Log("error", err)
-			//}
-			//w.SetText(txt)
-			//w.Rebuild(false)
-		//}
-		//err = w.editCfg.Watch(w.Name(), callback, w.editCfg.WatchTime)
-	//}
 	return w, nil
 }

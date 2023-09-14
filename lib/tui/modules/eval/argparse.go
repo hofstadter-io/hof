@@ -2,7 +2,6 @@ package eval
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/hofstadter-io/hof/lib/tui"
@@ -61,7 +60,7 @@ func enrichContext(context map[string]any) (map[string]any) {
 		switch tok {
 
 		//
-		// top-level eval commands
+		// top-level eval (dash) commands
 		//
 		case 
 			"preview",
@@ -74,57 +73,25 @@ func enrichContext(context map[string]any) (map[string]any) {
 		//
 		// actions
 		//
-		// let's start using some `cmd.sub` syntax for these
+
+		// panel actions
 	 	case
+			"create",
 			"insert",
-			"ins":
-			context["action"] = "insert"
-			maybeActionTarget()
-
-	 	case "move":
-			context["action"] = "move"
-			maybeActionTarget()
-
-		case
+			"move",
+			"split",
 			"delete",
-			"del":
-			context["action"] = "delete"
-			maybeActionTarget()
-
-		// item update
-		case "reload":
-			context["action"] = "reload"
-			maybeActionTarget()
-
-		case
+			"reload",
+			"set.panel.name",
+			"set.item.name",
+			"set.name",
+			"set.size",
+			"set.ratio",
 			"update":
-			context["action"] = "update"  // probably the default?
+			context["action"] = tok
 			maybeActionTarget()
 
-		// this should probably be the new default
-		case 
-			"push",
-			"export",
-			"write",
-			"set.value",
-			"set.scope",
-			// "set.text",
-
-			"set.item.name", "set.panel.name",
-			"refresh", "watch", "watchGlobs",
-			"get.refresh", "get.scope.watch", "get.value.watch",
-			"set.refresh", "set.scope.watch", "set.value.watch",
-			"set.scope.watchGlobs", "set.value.watchGlobs":
-			context["action"] = tok 
-			maybeActionTarget()
-
-		case
-			"connect",
-			"C", "conn":
-			context["action"] = "connect"
-			maybeActionTarget()
-
-		// not handled yet
+		// navigation between items & panels
 		case "nav.left", "nl":
 			context["action"] = "nav.left"
 		case "nav.up", "nu":
@@ -134,6 +101,33 @@ func enrichContext(context map[string]any) (map[string]any) {
 		case "nav.right", "nr":
 			context["action"] = "nav.right"
 
+		// in-item commands (these are for scope, but could be more)
+		case 
+			"add",
+			"set":
+			context["action"] = tok
+			maybeActionTarget()
+
+		// playground & (some)viewer commands
+		case 
+			"push",
+			"export",
+			"write",
+			"set.value",
+			"set.scope",
+			// "set.text",
+
+			"refresh", "watch", "watchGlobs",
+			"get.refresh", "get.scope.watch", "get.value.watch",
+			"set.refresh", "set.scope.watch", "set.value.watch",
+			"set.scope.watchGlobs", "set.value.watchGlobs":
+			context["action"] = tok 
+			maybeActionTarget()
+
+		case "connect", "conn":
+			context["action"] = "conn"
+			maybeActionTarget()
+
 		//
 		// items / widgets / pane
 		//
@@ -141,15 +135,21 @@ func enrichContext(context map[string]any) (map[string]any) {
 		// default when nothing
 		case "help":
 			context["item"] = "help"
-			// context["action"] = "insert"  // probably the default?
+			context["action"] = "create"  // probably the default?
+
 		// dual-pane eval'r (default when doing eval things)
 		case "play":
 			context["item"] = "play"
-			context["action"] = "update"  // probably the default?
+			context["action"] = "create"  // probably the default?
+
 		// value viewer
 		case "view":
 			context["item"] = "view"
-			context["action"] = "update"  // probably the default?
+			context["action"] = "create"  // probably the default?
+
+		case "flow":
+			context["item"] = "flow"
+			context["action"] = "create"  // probably the default?
 
 		// should this be handled lower too?
 		// we might want a more general 
@@ -220,18 +220,8 @@ func enrichContext(context map[string]any) (map[string]any) {
 			goto argsDone
 
 		default:
-			// is it an int?
-			if i, err := strconv.Atoi(tok); err == nil {
-				context["where"] = "index"
-				// maybe make this a list, to support x,y row,col or more indexes
-				// or maybe make them CSV each, like pos ~ 1,2
-				// but maybe easier as a slice of ints that the function can interpret as it wishes, ordered like
-				// we'd have a hard time assigning them to different keys here
-				context["index"] = i
-			} else {
-				// break doens't break here, but we want to stop processing args here
-				goto argsDone
-			}
+			// break doens't break here, but we want to stop processing args here
+			goto argsDone
 		}
 		args = args[1:]
 	}

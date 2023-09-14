@@ -77,7 +77,7 @@ func (P *Panel) insertPanelItem(context map[string]any) {
 	tui.SetFocus(t)
 }
 
-func (P *Panel) updatePanelItem(context map[string]any) {
+func (P *Panel) createPanelItem(context map[string]any) {
 	panel := P
 	if _panel, ok := context["panel"]; ok {
 		panel = _panel.(*Panel)

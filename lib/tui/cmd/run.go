@@ -22,8 +22,7 @@ func Cmd(args []string, rflags flags.RootPflagpole) error {
 	// setup new app 
 	App, err := app.NewApp()
 	if err != nil {
-		fmt.Println("Error:", err)
-		os.Exit(1)
+		return err
 	}
 
 	// catch panics and exit
@@ -31,6 +30,8 @@ func Cmd(args []string, rflags flags.RootPflagpole) error {
 		err := recover()
 		if err != nil {
 			App.Stop()
+			time.Sleep(time.Second)
+			fmt.Println("PANIC'D HERE.tui.Cmd")
 			panic(err)
 		}
 	}()
