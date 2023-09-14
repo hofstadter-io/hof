@@ -242,6 +242,8 @@ func (M *Eval) handleItemActions(p *panel.Panel, action string, args []string, c
 	switch t := w.(type) {
 	case *playground.Playground:
 		handled, err = t.HandleAction(action, args, context)
+	case *browser.Browser:
+		handled, err = t.HandleAction(action, args, context)
 	}
 
 	return handled, err

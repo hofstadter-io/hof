@@ -10,7 +10,7 @@ import (
 
 type Runner func() error
 
-func Watch(Run Runner, files []string, label string, wait time.Duration, quit chan bool) (error) {
+func Watch(Run Runner, files []string, label string, wait time.Duration, quit chan bool, verbose bool) (error) {
 	// now loop
 	debounce := NewDebouncer(wait)
 
@@ -27,48 +27,57 @@ func Watch(Run Runner, files []string, label string, wait time.Duration, quit ch
 		defer wg.Done()
 
 		// this is to prevent more than one running at a time
-		var tellDone chan bool
+		//var tellDone chan bool
+		//tellDone = make(chan bool)
 
 		// watching loop
 		for {
 			select {
 			case event, ok := <-watcher.Events:
 				if !ok {
-					fmt.Println("event not ok", event)
+					if verbose {
+						fmt.Println("event not ok", event)
+					}
 					break
 				}
 
 				if event.Op&fsnotify.Write == fsnotify.Write {
 					// I think this is so we don't start a new
 					// debounce while we are waiting for a code gen to run
-					if tellDone != nil {
-						tellDone <- true
-					}
+					// (later) because CUE does not have a way to cancel yet
+					//if tellDone != nil {
+					//  tellDone <- true
+					//}
 
 					debounce(func() {
 						// kill previous sub-spawn (xcue)
-						fmt.Printf("regen (%s)\n", label)
+						if verbose {
+							fmt.Printf("regen (%s)\n", label)
+						}
 						start := time.Now()
 
 						// CORE OPERATION
-						tellDone = make(chan bool)
 						err = Run()
 
 						end := time.Now()
 
 						elapsed := end.Sub(start).Round(time.Millisecond)
-						fmt.Printf(" done (%s) %v\n", label, elapsed)
+						if verbose {
+							fmt.Printf(" done (%s) %v\n", label, elapsed)
+						}
 
-						if err != nil {
+						if verbose && err != nil {
 							fmt.Println("error:", err)
 						}
 
-						tellDone <- true
+						//tellDone <- true
 					})
 				}
 
 			case err, ok := <-watcher.Errors:
-				fmt.Println("error:", err)
+				if verbose {
+					fmt.Println("error:", err)
+				}
 				if !ok {
 					break
 				}

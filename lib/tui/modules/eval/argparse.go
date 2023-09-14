@@ -92,9 +92,7 @@ func enrichContext(context map[string]any) (map[string]any) {
 			maybeActionTarget()
 
 		// item update
-		case
-			"reload",
-			"refresh":
+		case "reload":
 			context["action"] = "reload"
 			maybeActionTarget()
 
@@ -112,9 +110,11 @@ func enrichContext(context map[string]any) (map[string]any) {
 			"set.scope",
 			// "set.text",
 
-			"set.name",
-			"set.item.name",
-			"set.panel.name":
+			"set.item.name", "set.panel.name",
+			"refresh", "watch", "watchGlobs",
+			"get.refresh", "get.scope.watch", "get.value.watch",
+			"set.refresh", "set.scope.watch", "set.value.watch",
+			"set.scope.watchGlobs", "set.value.watchGlobs":
 			context["action"] = tok 
 			maybeActionTarget()
 
