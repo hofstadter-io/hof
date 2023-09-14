@@ -3,31 +3,37 @@ package playground
 import (
 	"fmt"
 
+	// "github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/browser"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/helpers"
 	"github.com/hofstadter-io/hof/lib/tui/components/widget"
 )
 
-func (W *Playground) Encode() (map[string]any, error) {
+func (C *Playground) Encode() (map[string]any, error) {
 	var err error
 	m := map[string]any{
-		"typename": W.TypeName(),
-		"useScope": W.useScope,
-		"text": W.edit.GetText(),
-		"direction": W.GetDirection(),
+		"typename": C.TypeName(),
+		"useScope": C.useScope,
+		"text": C.edit.GetText(),
+		"direction": C.GetDirection(),
 	}
 
-	m["scope.config"], err = W.scope.config.Encode()
+	m["edit.config"], err = C.editCfg.Encode()
 	if err != nil {
 		return nil, err
 	}
 
-	m["scope.viewer"], err = W.scope.viewer.Encode()
+	m["scope.config"], err = C.scope.config.Encode()
 	if err != nil {
 		return nil, err
 	}
 
-	m["final.viewer"], err = W.final.viewer.Encode()
+	m["scope.viewer"], err = C.scope.viewer.Encode()
+	if err != nil {
+		return nil, err
+	}
+
+	m["final.viewer"], err = C.final.viewer.Encode()
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +41,7 @@ func (W *Playground) Encode() (map[string]any, error) {
 	return m, nil
 }
 
-func (W *Playground)	Decode(input map[string]any) (widget.Widget, error) {
+func (C *Playground)	Decode(input map[string]any) (widget.Widget, error) {
 	// tui.Log("extra", fmt.Sprintf("Play.Decode: %# v", input))
 	var err error
 
@@ -44,8 +50,8 @@ func (W *Playground)	Decode(input map[string]any) (widget.Widget, error) {
 		return nil, fmt.Errorf("'typename' missing when calling widget.Box.Decode: %#v", input)
 	}
 
-	if tn != W.TypeName() {
-		return nil, fmt.Errorf("'typename' mismatch when calling widget.Box.Decode: expected %s, got %s", W.TypeName(), tn)
+	if tn != C.TypeName() {
+		return nil, fmt.Errorf("'typename' mismatch when calling widget.Box.Decode: expected %s, got %s", C.TypeName(), tn)
 	}
 
 	text := ""
@@ -54,6 +60,16 @@ func (W *Playground)	Decode(input map[string]any) (widget.Widget, error) {
 	}
 
 	w := New(text)
+
+	ec, ok := input["edit.config"]
+	if !ok {
+		return nil, fmt.Errorf("scope.config not found in input to Playground.Decode: %#v", input)
+	}
+	ecfg, err := (&helpers.SourceConfig{}).Decode(ec.(map[string]any))
+	if err != nil {
+		return nil, err
+	}
+	w.editCfg = ecfg
 
 	sc, ok := input["scope.config"]
 	if !ok {
@@ -92,12 +108,33 @@ func (W *Playground)	Decode(input map[string]any) (widget.Widget, error) {
 	}
 	useScope := s.(bool)
 	w.UseScope(useScope)
+	w.seeScope = useScope
 
 	w.SetDirection(input["direction"].(int))
 
 	if w.scope.config.Source != helpers.EvalConn {
+		w.UseScope(true)
 		w.Rebuild(true)
 	}
 
+	// hack, first time after loading edge cases
+	//if w.scope.config.WatchTime > 0 && w.scope.config.WatchQuit == nil {
+		//callback := func() {
+			//w.Rebuild(true)
+		//}
+		//err = w.scope.config.Watch(w.Name(), callback, w.scope.config.WatchTime)
+	//}
+	//if w.editCfg.WatchTime > 0 && w.editCfg.WatchQuit == nil {
+		//callback := func() {
+			//txt, err := w.editCfg.GetText()
+			//// tui.Log("crit", "got here again:\n"+txt)
+			//if err != nil {
+				//tui.Log("error", err)
+			//}
+			//w.SetText(txt)
+			//w.Rebuild(false)
+		//}
+		//err = w.editCfg.Watch(w.Name(), callback, w.editCfg.WatchTime)
+	//}
 	return w, nil
 }

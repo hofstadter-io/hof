@@ -329,32 +329,54 @@ func EvalDecodeMap(input map[string]any) (*Eval, error) {
 
 	// tui.Draw()
 
-	err = M.reconnectItems()
+	err = M.restoreItems()
 
 	return M, err
 }
 
-func (M *Eval) reconnectItems() error {
+func (M *Eval) restoreItems() error {
 
 	reconnect := func (p panel.PanelItem) {
+
+		// restore watches
+		switch t := p.Widget().(type) {
+		case *playground.Playground:
+			c := t.GetScopeConfig()
+			if c.WatchTime > 0 {
+				t.HandleAction("set.scope.watch", []string{c.WatchTime.String()}, nil)
+			}
+			c = t.GetEditConfig()
+			if c.WatchTime > 0 {
+				t.HandleAction("set.value.watch", []string{c.WatchTime.String()}, nil)
+			}
+		case *browser.Browser:
+			c := t.GetSourceConfig()
+			if c.WatchTime > 0 {
+				t.HandleAction("watch", []string{c.WatchTime.String()}, nil)
+			}
+		}
+
+		// restore connections
 		switch t := p.Widget().(type) {
 		case *playground.Playground:
 			dstPlay := t
 			sc := dstPlay.GetScopeConfig()
+
+			args := sc.Args
+
+			path := args[0]
+			srcItem, err := M.getItemByPath(path)
+			if err != nil {
+				tui.Log("error", err)
+				return
+			}
+
+			var expr string
+			if len(args) == 2 {
+				expr = args[1]
+			}
+
 			if sc.Source == helpers.EvalConn {
-				args := sc.Args
-
-				path := args[0]
-				srcItem, err := M.getItemByPath(path)
-				if err != nil {
-					tui.Log("error", err)
-					return
-				}
-
-				var expr string
-				if len(args) == 2 {
-					expr = args[1]
-				}
 
 				switch t := srcItem.Widget().(type) {
 				case *playground.Playground:
@@ -371,6 +393,7 @@ func (M *Eval) reconnectItems() error {
 					}
 				}
 			}
+
 		}
 	}
 

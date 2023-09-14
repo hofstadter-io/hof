@@ -87,6 +87,7 @@ func SendCustomEvent(path string, data any) {
 }
 
 func Log(level string, data any) {
+	// if level == "crit" || level == "error" {
 	if level == "crit" {
 		globalApp.EventBus.SendCustomEvent("/user/error", data)
 	}
@@ -95,6 +96,7 @@ func Log(level string, data any) {
 
 func StatusMessage(data any) {
 	globalApp.EventBus.SendCustomEvent("/status/message", data)
+	globalApp.EventBus.SendCustomEvent("/console/info", data)
 }
 
 func Tell(level string, data any) {
