@@ -1,3 +1,10 @@
+// Basically the Singleton pattern
+//
+// this is where we handle a few global things
+// eventually this needs to be refactored...
+// but for now, we only support one app, which needs to be set
+// but at least you can have a few and swap them out
+
 package tui
 
 import (
@@ -5,11 +12,6 @@ import (
 	"github.com/hofstadter-io/hof/lib/tui/events"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 )
-
-// this is where we handle a few global things
-// eventually this needs to be refactored...
-// but for now, we only support one app, which needs to be set
-// but at least you can have a few and swap them out
 
 var globalApp *app.App
 
