@@ -128,9 +128,6 @@ func viewItem(context panel.ItemContext, parent *panel.Panel) (panel.PanelItem, 
 		Source: helpers.EvalSource(source),
 		Args: args,
 	}
-	if len(args) == 1 && args[0] == "new" {
-		srcCfg.Source = helpers.EvalNone
-	}
 
 	b := browser.New(srcCfg, "cue")
 	b.SetTitle(fmt.Sprintf("  %v  ", args)).SetBorder(true)

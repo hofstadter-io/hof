@@ -3,6 +3,7 @@ package browser
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"cuelang.org/go/cue/format"
 	"github.com/alecthomas/chroma/quick"
@@ -20,6 +21,7 @@ func (C *Browser) setThinking(thinking bool) {
 		c = tcell.ColorViolet
 	}
 
+	C.SetBorderColor(c)
 	C.tree.SetBorderColor(c)
 	C.code.SetBorderColor(c)
 	go tui.Draw()
@@ -44,10 +46,10 @@ func (C *Browser) Rebuild() {
 	}
 
 	C.value, err = C.source.GetValue()
-	if err != nil {
-		writeErr(err)
-		return
-	}
+	//if C.value.Err() == nil && err != nil {
+	//  writeErr(err)
+	//  return
+	//}
 
 	// tui.Log("info", fmt.Sprintf("View.Rebuild %v %v", C.usingScope, C.nextMode))
 	// tui.Log("info", fmt.Sprintf("View.Rebuild %v %v %v", C.usingScope, C.nextMode, C.value))
@@ -76,13 +78,23 @@ func (C *Browser) Rebuild() {
 		C.code.Clear()
 		C.SetPrimitive(C.code)
 
-		// first, possibly validate and possibly write an error
+		// possible load error
 		wrote := false
-		if C.validate || C.nextMode == "json" || C.nextMode == "yaml" {
-			err := C.value.Validate(C.Options()...)
+		if err != nil {
 			if err != nil {
 				writeErr(err)
 				wrote = true
+			}
+		}
+
+		if !wrote {
+			// first, possibly validate and possibly write an error
+			if C.validate || C.nextMode == "json" || C.nextMode == "yaml" {
+				err := C.value.Validate(C.Options()...)
+				if err != nil {
+					writeErr(err)
+					wrote = true
+				}
 			}
 		}
 
@@ -124,7 +136,7 @@ func (C *Browser) Rebuild() {
 				if err != nil {
 					writeErr(err)
 					tui.Log("crit", fmt.Sprintf("error highlighing %v", err))
-					return
+					// return
 				}
 			}
 		}
@@ -197,3 +209,55 @@ func (VB *Browser) BuildStatusString() string {
 	return s
 }
 
+func (B *Browser) HandleAction(action string, args []string, context map[string]any) (bool, error) {
+	tui.Log("warn", fmt.Sprintf("Playground.HandleAction: %v %v %v", action, args, context))
+	var err error
+	handled := true
+
+	// item actions
+	switch action {
+	case "watchGlobs", "set.scope.watchGlobs", "set.value.watchGlobs":
+		B.source.WatchGlobs = args
+
+	case "watch", "set.scope.watch", "set.value.watch":
+		d := time.Duration(42*time.Millisecond)
+		if len(args) < 1 {
+			//aerr := fmt.Errorf("watch requires a duration like 1s or 300ms")
+			//tui.Log("warn", aerr)
+			tui.Log("warn", fmt.Sprintf("no watch duration given, setting to %s", d))
+			tui.StatusMessage(fmt.Sprintf("no watch duration given, setting to %s", d))
+		} else {
+			d, err = time.ParseDuration(args[0])
+		}
+
+		if err != nil {
+			tui.Tell("error", err)
+		} else {
+
+			// some local vars & setup
+			cfg := B.source
+			cfg.WatchTime = d
+			if d.Nanoseconds() > 0 {
+				// startup new watch
+				tui.StatusMessage(fmt.Sprintf("start %sing...", strings.TrimPrefix(action, "set.")))
+
+				callback := func() {
+					B.setThinking(true)
+					tui.Draw()
+					defer B.setThinking(false)
+					B.Rebuild()
+				}
+				err = cfg.Watch(B.Name(), callback, d)
+			} else {
+				// or stop any watches
+				tui.StatusMessage("stopping watch on: " + B.Id())
+				cfg.StopWatch()
+			}
+		}
+	default:
+		handled = false
+		// err = fmt.Errorf("unknown command %q", action)
+	}
+
+	return handled, err
+}

@@ -17,6 +17,7 @@ type valPack struct {
 	config  *helpers.SourceConfig
 	value   cue.Value
 	viewer  *browser.Browser // scope
+
 }
 
 type Playground struct {
@@ -30,12 +31,14 @@ type Playground struct {
 
 	// the editor box
 	edit *tview.TextArea  // text
+	editCfg *helpers.SourceConfig
 
 	// the final value
 	final    *valPack
 
-	// that's funky!
-	debouncer func(func())
+	// for handling TUI inputs
+	debouncer func(func()) // that's funky!
+	debounceTime time.Duration
 }
 
 func (*Playground) TypeName() string {
@@ -48,6 +51,8 @@ func New(initialText string) (*Playground) {
 		Flex: tview.NewFlex(),
 		scope: &valPack{},
 		final: &valPack{},
+
+		debounceTime: time.Millisecond * 500,
 	}
 	// our wrapper around the CUE widgets
 	C.Flex = tview.NewFlex().SetDirection(tview.FlexColumn)
@@ -61,6 +66,7 @@ func New(initialText string) (*Playground) {
 	C.scope.viewer.SetBorder(true)
 
 	// curr editor
+	C.editCfg = &helpers.SourceConfig{}
 	C.edit = tview.NewTextArea()
 	C.edit.
 		SetTitle("  expression(s)  ").
@@ -88,7 +94,7 @@ func New(initialText string) (*Playground) {
 
 	// setup change response with douncer
 	// to trigger rebuild on editor changes
-	C.debouncer = watch.NewDebouncer(time.Millisecond * 333)
+	C.debouncer = watch.NewDebouncer(C.debounceTime)
 	C.edit.SetChangedFunc(func() {
 		C.debouncer(func(){
 			C.Rebuild(false)
@@ -108,6 +114,10 @@ func (C *Playground) SetScopeConfig(sc *helpers.SourceConfig) {
 
 func (C *Playground) GetScopeConfig() *helpers.SourceConfig {
 	return C.scope.config
+}
+
+func (C *Playground) GetEditConfig() *helpers.SourceConfig {
+	return C.editCfg
 }
 
 func (C *Playground) UseScope(use bool) {

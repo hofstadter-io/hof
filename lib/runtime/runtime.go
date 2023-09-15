@@ -56,6 +56,9 @@ type Runtime struct {
 	// when a user supplies an data.json@path.to.field
 	dataMappings    map[string]string
 
+	// internal bookkeeping
+	loadedFiles []string
+
 	// The CUE value after all loading
 	Value    cue.Value
 
@@ -141,4 +144,19 @@ func (R *Runtime) OutputDir(dir string) string {
 		return dir
 	}
 	return filepath.Join(R.CueModuleRoot, R.RootToCwd, dir)
+}
+
+func (R *Runtime) GetLoadedFiles() []string {
+	var files []string
+	bi := R.BuildInstances[0]
+
+	// these two should cover us, though we might need to process imports?
+	for _, f := range bi.BuildFiles {
+		files = append(files, f.Filename)
+	}
+	for _, f := range bi.OrphanedFiles {
+		files = append(files, f.Filename)
+	}
+
+	return files
 }

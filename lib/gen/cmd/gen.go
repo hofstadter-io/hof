@@ -83,8 +83,8 @@ func (R *Runtime) runGen() (err error) {
 	// start up our watchers
 	quit := make(chan bool, 3)
 	wait := time.Millisecond * 50
-	watch.Watch(genRunner(false), wfiles, "runGen.wGen(full)", wait, quit)
-	watch.Watch(genRunner(true),  xfiles, "runGen.xGen(fast)", wait, quit)
+	watch.Watch(genRunner(false), wfiles, "runGen.wGen(full)", wait, quit, true)
+	watch.Watch(genRunner(true),  xfiles, "runGen.xGen(fast)", wait, quit, true)
 
 	fmt.Println("watching for changes...")
 
