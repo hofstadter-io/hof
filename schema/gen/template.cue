@@ -60,7 +60,7 @@ Template: {
 }
 
 // #Templates is used for templates or partials loaded from a filesystem
-#Templates: Template
+#Templates: Templates
 Templates: {
 	Globs: [...string]
 	TrimPrefix?: string
