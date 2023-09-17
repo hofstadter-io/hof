@@ -67,3 +67,4 @@ func FilesFromGlobs(patterns []string) ([]string, error) {
 	sort.Strings(unique)
 	return unique, nil
 }
+

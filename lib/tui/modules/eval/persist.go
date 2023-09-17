@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"cuelang.org/go/cue"
@@ -15,6 +16,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/singletons"
 	"github.com/hofstadter-io/hof/lib/tui"
+	"github.com/hofstadter-io/hof/lib/tui/components/common"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/browser"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/helpers"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/playground"
@@ -241,26 +243,81 @@ func (M *Eval) ShowEval(filename string) (*Eval, error) {
 }
 
 func (M *Eval) ListEval() (error) {
-	mdir := evalFilepath("")
-	gdir := evalFilepath("@")
 
-	// skip if dir is not found (err)
-	minfos, _ := os.ReadDir(mdir)
-	ginfos, _ := os.ReadDir(gdir)
+	var addNode func (path []string, dir bool, data map[string]any) map[string]any
+
+	addNode = func (path []string, dir bool, data map[string]any) map[string]any{
+
+		p := path[0]
+		path = path[1:]
+
+		d, ok := data[p]
+
+		if len(path) == 0 {
+			if dir && !ok {
+				// just a dir
+				data[p] = make(map[string]any)
+			} else {
+				data[p] = nil
+			}
+		} else {
+			if !ok {
+				d = make(map[string]any)
+			}
+			data[p] = addNode(path, dir, d.(map[string]any))
+		}
+
+		return data
+	}
+
+	makeTree := func (dir string, files []string) map[string]any {
+		data := make(map[string]any)
+		sort.Strings(files)
+		for _, file := range files {
+			info, _ := os.Lstat(file)
+			short := strings.TrimPrefix(file, dir)
+			// path := filepath.SplitList(short)
+			path := strings.Split(short, "/")
+
+			tui.Log("trace", fmt.Sprintf("makeTree: %s %v %v", short, path, info.IsDir()))
+			data = addNode(path, info.IsDir(), data)
+		}
+
+		return data
+	}
+
+	// module dashboards
+	mdir := evalFilepath("") + "/"
+	mfiles, _ := yagu.FilesFromGlobs([]string{mdir + "**/*"})
+	mdata := makeTree(mdir, mfiles)
+
+	// global dashboards
+	gdir := evalFilepath("@") + "/"
+	gfiles, _ := yagu.FilesFromGlobs([]string{gdir + "**/*"})
+	gdata := makeTree(gdir, gfiles)
+
+	// build our final map for the map browser
+	data := map[string]any{
+		"Module": mdata,
+		"Global": gdata,
+	}
+
+	dash := map[string]any{
+		"Dashboards": data,
+	}
 
 	// start our new text view
-	t := widget.NewTextView()
-	t.SetDynamicColors(false)
+	t := common.NewMapBrowser("Dashboards", dash, nil, nil)
 
-	// write listing
-	fmt.Fprintln(t.TextView, "Module Dashboards")
-	for _, info := range minfos {
-		fmt.Fprintln(t.TextView, "  " + info.Name())
-	}
-	fmt.Fprintln(t.TextView, "\n")
-	fmt.Fprintln(t.TextView, "Global Dashboards")
-	for _, info := range ginfos {
-		fmt.Fprintln(t.TextView, "  @" + info.Name())
+	t.LeafClick = func(path string) {
+		tui.Log("trace", "load: " + path)
+		path = strings.TrimPrefix(path, "Dashboards.")
+		if strings.HasPrefix(path, "Global.") {
+			path = "@" + strings.TrimPrefix(path, "Global.")
+		} else {
+			path = strings.TrimPrefix(path, "Module.")
+		}
+		M.LoadEval(path)
 	}
 
 	// display the file list to the user
