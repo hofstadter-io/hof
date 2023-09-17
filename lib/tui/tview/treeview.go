@@ -45,6 +45,8 @@ type TreeNode struct {
 	// An optional function which is called when the user selects this node.
 	selected func()
 
+	doubleclick func()
+
 	// The hierarchy level (0 for the root, 1 for its children, and so on). This
 	// is only up to date immediately after a call to process() (e.g. via
 	// Draw()).
@@ -161,6 +163,11 @@ func (n *TreeNode) SetSelectable(selectable bool) *TreeNode {
 // node by hitting Enter when it is selected.
 func (n *TreeNode) SetSelectedFunc(handler func()) *TreeNode {
 	n.selected = handler
+	return n
+}
+
+func (n *TreeNode) SetDoubleClickFunc(handler func()) *TreeNode {
+	n.doubleclick = handler
 	return n
 }
 
@@ -310,6 +317,8 @@ type TreeView struct {
 	// An optional function which is called when a tree item was selected.
 	selected func(node *TreeNode)
 
+	doubleclick func(node *TreeNode)
+
 	// An optional function which is called when the user moves away from this
 	// primitive.
 	done func(key tcell.Key)
@@ -409,6 +418,11 @@ func (t *TreeView) SetChangedFunc(handler func(node *TreeNode)) *TreeView {
 // node by pressing Enter on the current selection.
 func (t *TreeView) SetSelectedFunc(handler func(node *TreeNode)) *TreeView {
 	t.selected = handler
+	return t
+}
+
+func (t *TreeView) SetDoubleClickFunc(handler func(node *TreeNode)) *TreeView {
+	t.doubleclick = handler
 	return t
 }
 
@@ -635,11 +649,11 @@ func (t *TreeView) Draw(screen tcell.Screen) {
 	case treeUp:
 		t.offsetY--
 	case treeScrollUp:
-		t.offsetY -= 6
+		t.offsetY -= 3
 	case treeDown:
 		t.offsetY++
 	case treeScrollDown:
-		t.offsetY += 6
+		t.offsetY += 3
 	case treeHome:
 		t.offsetY = 0
 	case treeEnd:
@@ -801,6 +815,22 @@ func (t *TreeView) MouseHandler() func(action MouseAction, event *tcell.EventMou
 		}
 
 		switch action {
+		case MouseLeftDoubleClick:
+			setFocus(t)
+			_, rectY, _, _ := t.GetInnerRect()
+			y += t.offsetY - rectY
+			if y >= 0 && y < len(t.nodes) {
+				node := t.nodes[y]
+				if node.selectable {
+					if t.doubleclick != nil {
+						t.doubleclick(node)
+					}
+					if node.selected != nil {
+						node.doubleclick()
+					}
+				}
+			}
+			consumed = true
 		case MouseLeftClick:
 			setFocus(t)
 			_, rectY, _, _ := t.GetInnerRect()

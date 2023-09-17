@@ -81,7 +81,9 @@ func (FB *FileBrowser) OnSelect(node *tview.TreeNode) {
 		if info.IsDir() {
 			FB.AddAt(node, path)
 		} else {
-			FB.OnOpen(path)
+			if FB.OnOpen != nil {
+				FB.OnOpen(path)
+			}
 		}
 	} else {
 		// Collapse if visible, expand if collapsed.
