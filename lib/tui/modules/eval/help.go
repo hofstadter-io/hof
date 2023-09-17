@@ -223,7 +223,7 @@ const EvalHelpText = `
 
   [gold]Docs:      [deepskyblue]https://docs.hofstadter.io[-]
   [gold]GitHub:    [deepskyblue]https://github.com/hofstadter-io/hof[-]
-  [gold]Discord:   [deepskyblue]https://discord.gg/6vgbKvPs[-]
+  [gold]Discord:   [deepskyblue]https://discord.gg/BXwX7n6B8w[-]
   [gold]Slack:     [deepskyblue]https://join.slack.com/t/hofstadter-io/shared_invite/zt-e5f90lmq-u695eJur0zE~AG~njNlT1A[-]
 
 `
