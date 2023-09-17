@@ -45,7 +45,8 @@ func NewModal() *Modal {
 			m.done(-1, "")
 		}
 	})
-	m.frame = NewFrame(m.form).SetBorders(0, 0, 1, 0, 0, 0)
+	m.frame = NewFrame().SetBorders(0, 0, 1, 0, 0, 0)
+	m.frame.SetPrimitive(m.form)
 	m.frame.SetBorder(true).
 		SetBackgroundColor(Styles.ContrastBackgroundColor).
 		SetBorderPadding(1, 1, 1, 1)

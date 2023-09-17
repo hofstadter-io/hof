@@ -32,8 +32,8 @@ func NewEval() *Eval {
 	M.Panel = panel.New(nil, M.creator)
 	M.Panel.SetBorderColor(tcell.Color42).SetBorder(true)
 
-	item, _ := helpItem(nil, M.Panel)
-	M.AddItem(item, 0, 1, true)
+	// add dummy primitive
+	M.AddItem(tview.NewBox(), 0, 1, true)
 
 
 	// do layout setup here
@@ -54,11 +54,8 @@ func (M *Eval) Mount(context map[string]any) error {
 	M.setupEventHandlers()
 
 	// and then refresh?
-	err := M.Refresh(context)
-	if err != nil {
-		tui.SendCustomEvent("/console/error", err)
-		return err
-	}
+	// should this even happen, or just a rebuild
+	M.CommandCallback(context)
 
 	return nil
 }

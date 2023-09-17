@@ -3,8 +3,11 @@ package playground
 import (
 	"github.com/gdamore/tcell/v2"
 
+	"github.com/hofstadter-io/hof/lib/tui"
+	"github.com/hofstadter-io/hof/lib/tui/components/cue/helpers"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 )
+
 func (C *Playground) setupKeybinds() {
 	// events (hotkeys)
 	C.SetInputCapture(func(evt *tcell.EventKey) *tcell.EventKey {
@@ -22,14 +25,29 @@ func (C *Playground) setupKeybinds() {
 
 				case 's':
 					C.ToggleShowScope()
-					C.Rebuild(false)
+					C.Rebuild()
 
 				case 'S':
 					C.UseScope(!C.useScope)
-					C.Rebuild(C.useScope)
+					if C.useScope {
+						C.scope.Rebuild()
+					}
+					C.Rebuild()
 
 				case 'R':
-					C.Rebuild(true)
+					C.scope.Rebuild()
+
+					switch C.editCfg.Source {
+					case helpers.EvalText, helpers.EvalFile, helpers.EvalHttp, helpers.EvalBash:
+						txt, err := C.editCfg.GetText()
+						if err != nil {
+							tui.Log("error", err)
+							txt = err.Error()
+						}
+						C.edit.SetText(txt, false)
+					}
+					C.Rebuild()
+					tui.SetFocus(C)
 
 				default: 
 					return evt

@@ -8,12 +8,12 @@ import (
 	"strings"
 
 	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/cuecontext"
 	"cuelang.org/go/cue/format"
 	"github.com/gdamore/tcell/v2"
 	"github.com/parnurzeal/gorequest"
 
 	"github.com/hofstadter-io/hof/lib/cuetils"
+	"github.com/hofstadter-io/hof/lib/singletons"
 	"github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/browser"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/helpers"
@@ -56,8 +56,7 @@ func (M *Eval) Save(destination string, preview bool) error {
 		return err
 	}
 
-	ctx := cuecontext.New()
-	v := ctx.CompileString("{}")
+	v := singletons.EmptyValue()
 	v = v.FillPath(cue.ParsePath(""), m)
 
 	//b, err := yaml.Marshal(m)
@@ -69,7 +68,8 @@ func (M *Eval) Save(destination string, preview bool) error {
 	if preview {
 
 		cfg := &helpers.SourceConfig{Value: v, Source: helpers.EvalNone}
-		t := browser.New(cfg, "cue")
+		t := browser.New()
+		t.AddSourceConfig(cfg)
 		t.Rebuild()
 
 		//t := widget.NewTextView()
@@ -185,7 +185,7 @@ func (M *Eval) LoadEval(source string) (*Eval, error) {
 		return nil, err
 	}
 
-	ctx := cuecontext.New()
+	ctx := singletons.CueContext()
 	val := ctx.CompileBytes(b, cue.Filename(source))
 
 	data := make(map[string]any)
@@ -325,10 +325,6 @@ func EvalDecodeMap(input map[string]any) (*Eval, error) {
 	M.SetBorder(true)
 	M.setupEventHandlers()
 
-	// M.Refresh(make(map[string]any))
-
-	// tui.Draw()
-
 	err = M.restoreItems()
 
 	return M, err
@@ -341,18 +337,16 @@ func (M *Eval) restoreItems() error {
 		// restore watches
 		switch t := p.Widget().(type) {
 		case *playground.Playground:
-			c := t.GetScopeConfig()
-			if c.WatchTime > 0 {
-				t.HandleAction("set.scope.watch", []string{c.WatchTime.String()}, nil)
-			}
-			c = t.GetEditConfig()
-			if c.WatchTime > 0 {
-				t.HandleAction("set.value.watch", []string{c.WatchTime.String()}, nil)
+			for _, c := range t.GetSourceConfigs() {
+				if c.WatchTime > 0 {
+					t.HandleAction("watch", []string{c.WatchTime.String()}, nil)
+				}
 			}
 		case *browser.Browser:
-			c := t.GetSourceConfig()
-			if c.WatchTime > 0 {
-				t.HandleAction("watch", []string{c.WatchTime.String()}, nil)
+			for _, c := range t.GetSourceConfigs() {
+				if c.WatchTime > 0 {
+					t.HandleAction("watch", []string{c.WatchTime.String()}, nil)
+				}
 			}
 		}
 
@@ -360,40 +354,34 @@ func (M *Eval) restoreItems() error {
 		switch t := p.Widget().(type) {
 		case *playground.Playground:
 			dstPlay := t
-			sc := dstPlay.GetScopeConfig()
+			scfgs := dstPlay.GetSourceConfigs()
 
-			args := sc.Args
-
-			path := args[0]
-			srcItem, err := M.getItemByPath(path)
-			if err != nil {
-				tui.Log("error", err)
-				return
-			}
-
-			var expr string
-			if len(args) == 2 {
-				expr = args[1]
-			}
-
-			if sc.Source == helpers.EvalConn {
-
-				switch t := srcItem.Widget().(type) {
-				case *playground.Playground:
-					if expr == "" {
-						dstPlay.SetConnection(args, t.GetConnValue)
-					} else {
-						dstPlay.SetConnection(args, t.GetConnValueExpr(expr))
+			for _, sc := range scfgs {
+				if sc.Source == helpers.EvalConn {
+					args := sc.Args
+					path := args[0]
+					srcItem, err := M.getItemByPath(path)
+					if err != nil {
+						tui.Log("error", err)
+						return
 					}
-				case *browser.Browser:
-					if expr == "" {
-						dstPlay.SetConnection(args, t.GetConnValue)
-					} else {
-						dstPlay.SetConnection(args, t.GetConnValueExpr(expr))
+					var expr string
+					if len(args) == 2 {
+						expr = args[1]
 					}
+					switch t := srcItem.Widget().(type) {
+					case widget.ValueProducer:
+						fn := t.GetValue
+						if expr != "" {
+							fn = t.GetValueExpr(expr)
+						}
+						sc.ConnGetter = fn
+					}
+
 				}
 			}
-
+		
+			t.HandleAction("rebuild.scope", nil, nil)
 		}
 	}
 

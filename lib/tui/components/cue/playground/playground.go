@@ -2,7 +2,6 @@ package playground
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"cuelang.org/go/cue"
@@ -16,7 +15,6 @@ import (
 type valPack struct {
 	config  *helpers.SourceConfig
 	value   cue.Value
-	viewer  *browser.Browser // scope
 
 }
 
@@ -27,14 +25,14 @@ type Playground struct {
 	// scope used during parsing / evaluation
 	seeScope bool
 	useScope bool
-	scope    *valPack
+	scope    *browser.Browser
 
 	// the editor box
 	edit *tview.TextArea  // text
 	editCfg *helpers.SourceConfig
 
 	// the final value
-	final    *valPack
+	final *browser.Browser // scope
 
 	// for handling TUI inputs
 	debouncer func(func()) // that's funky!
@@ -49,21 +47,18 @@ func New(initialText string) (*Playground) {
 
 	C := &Playground{
 		Flex: tview.NewFlex(),
-		scope: &valPack{},
-		final: &valPack{},
-
 		debounceTime: time.Millisecond * 500,
 	}
+
 	// our wrapper around the CUE widgets
 	C.Flex = tview.NewFlex().SetDirection(tview.FlexColumn)
 
 	// TODO, options form
 
 	// scope viewer
-	C.scope.config = &helpers.SourceConfig{}
-	C.scope.viewer = browser.New(C.scope.config, "cue")
-	C.scope.viewer.SetName("scope")
-	C.scope.viewer.SetBorder(true)
+	C.scope = browser.New()
+	C.scope.SetName("scope")
+	C.scope.SetBorder(true)
 
 	// curr editor
 	C.editCfg = &helpers.SourceConfig{}
@@ -75,20 +70,19 @@ func New(initialText string) (*Playground) {
 	C.edit.SetText(initialText, false)
 
 	// results viewer
-	C.final.config = &helpers.SourceConfig{}
-	C.final.viewer = browser.New(C.final.config, "cue")
-	C.final.viewer.SetName("result")
-	C.final.viewer.SetBorder(true)
+	C.final = browser.New()
+	C.final.SetName("result")
+	C.final.SetBorder(true)
 
 	// usingScope?
-	C.final.viewer.SetUsingScope(false)
+	C.final.SetUsingScope(false)
 	C.useScope = false
 
 	// layout
 	C.Flex.
-		AddItem(C.scope.viewer, 0, 1, true).
+		AddItem(C.scope, 0, 1, true).
 		AddItem(C.edit, 0, 1, true).
-		AddItem(C.final.viewer, 0, 1, true)
+		AddItem(C.final, 0, 1, true)
 
 	C.setupKeybinds()
 
@@ -97,32 +91,15 @@ func New(initialText string) (*Playground) {
 	C.debouncer = watch.NewDebouncer(C.debounceTime)
 	C.edit.SetChangedFunc(func() {
 		C.debouncer(func(){
-			C.Rebuild(false)
+			C.Rebuild()
 		})
 	})
 	return C
 }
 
-func (C *Playground) SetText(s string) {
-	C.edit.SetText(s, false)
-}
-
-func (C *Playground) SetScopeConfig(sc *helpers.SourceConfig) {
-	C.scope.config = sc
-	C.scope.viewer.SetSourceConfig(sc)
-}
-
-func (C *Playground) GetScopeConfig() *helpers.SourceConfig {
-	return C.scope.config
-}
-
-func (C *Playground) GetEditConfig() *helpers.SourceConfig {
-	return C.editCfg
-}
-
 func (C *Playground) UseScope(use bool) {
 	C.useScope = use
-	C.final.viewer.SetUsingScope(use)
+	C.final.SetUsingScope(use)
 }
 
 func (C *Playground) ToggleShowScope() {
@@ -131,8 +108,8 @@ func (C *Playground) ToggleShowScope() {
 	// display in editory text
 	s := ""
 	if !C.seeScope {
-		if len(C.scope.config.Args) > 0 {
-			s += "[violet](" + strings.Join(C.scope.config.Args, " ") + ")[-] "
+		if l := len(C.scope.GetSourceConfigs()); l > 0 {
+			s += fmt.Sprintf("[violet](srcs:%d)[-] ", l)
 		}
 	}
 	C.edit.SetTitle(fmt.Sprintf("  %sexpression(s)  ", s))
@@ -149,8 +126,12 @@ func (C *Playground) Mount(context map[string]any) error {
 }
 
 func (C *Playground) Focus(delegate func(p tview.Primitive)) {
-	if C.final.viewer.HasFocus() {
-		delegate(C.final.viewer)
+	if C.scope.HasFocus() {
+		delegate(C.scope)
+		return
+	}
+	if C.final.HasFocus() {
+		delegate(C.final)
 		return
 	}
 	// otherwise, assume we want to keep the view focus
@@ -158,4 +139,10 @@ func (C *Playground) Focus(delegate func(p tview.Primitive)) {
 	return
 }
 
+func (C *Playground) GetSourceConfigs() []*helpers.SourceConfig {
+	return C.scope.GetSourceConfigs()
+}
 
+func (C *Playground) GetEditConfig() *helpers.SourceConfig {
+	return C.editCfg
+}

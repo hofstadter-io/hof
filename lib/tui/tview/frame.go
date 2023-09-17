@@ -35,12 +35,10 @@ type Frame struct {
 // NewFrame returns a new frame around the given primitive. The primitive's
 // size will be changed to fit within this frame. The primitive may be nil, in
 // which case no other primitive is embedded in the frame.
-func NewFrame(primitive Primitive) *Frame {
-	box := NewBox()
-
+func NewFrame() *Frame {
 	f := &Frame{
-		Box:       box,
-		primitive: primitive,
+		Box:       NewBox(),
+		primitive: NewBox(),
 		top:       1,
 		bottom:    1,
 		header:    1,

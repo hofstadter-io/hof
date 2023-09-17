@@ -29,21 +29,38 @@ func (W *Browser) Encode() (map[string]any, error) {
 	}
 
 	var err error
-	m["source"], err = W.source.Encode()
+	sources := make([]any, 0, len(W.sources))
+	for _, S := range W.sources {
+		s, err := S.Encode()
+		if err != nil {
+			return nil, err
+		}
+		sources = append(sources, s)	
+	}
+	m["sources"] = sources
+
 	return m, err
 }
 
 func (W *Browser)	Decode(input map[string]any) (widget.Widget, error) {
-	s, ok := input["source"]
-	if !ok {
-		return nil, fmt.Errorf("source not found in input to Browser.Decode: %#v", input)
-	}
-	sc, err := (&helpers.SourceConfig{}).Decode(s.(map[string]any))
-	if err != nil {
-		return nil, err
+
+	w := New()
+
+	// inputs
+	sources, ok := input["sources"]
+	if ok {
+		w.sources = make([]*helpers.SourceConfig,0)
+		for _, s := range sources.([]any) {
+			sm := s.(map[string]any)
+			sc, err := (&helpers.SourceConfig{}).Decode(sm)
+			if err != nil {
+				return nil, err
+			}
+			w.sources = append(w.sources, sc)
+		}
 	}
 
-	w := New(sc, "cue")
+
 	w.mode = input["mode"].(string)
 	w.usingScope = input["usingScope"].(bool)
 	w.docs = input["docs"].(bool)

@@ -14,7 +14,6 @@ import (
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/ast"
 	"cuelang.org/go/cue/build"
-	"cuelang.org/go/cue/cuecontext"
 	"cuelang.org/go/cue/errors"
 	"cuelang.org/go/cue/load"
 	"cuelang.org/go/cue/token"
@@ -25,6 +24,7 @@ import (
 
 	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/hof"
+	"github.com/hofstadter-io/hof/lib/singletons"
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
@@ -120,7 +120,7 @@ func (R *Runtime) load() (err error) {
 	//  is this to support multiple R's at oncce?
 	//  or do we just wait for CUE to be better?
 	if R.CueContext == nil {
-		R.CueContext = cuecontext.New()
+		R.CueContext = singletons.CueContext()
 	}
 	// fmt.Printf("%# v\n", pretty.Formatter(R.CueConfig))
 	R.CueConfig.DataFiles = R.Flags.IncludeData

@@ -7,12 +7,12 @@ import (
 	"strings"
 
 	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/cuecontext"
 	"github.com/spf13/pflag"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/runtime"
+	"github.com/hofstadter-io/hof/lib/singletons"
 	"github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
@@ -50,7 +50,7 @@ func LoadRuntime(args []string) (*runtime.Runtime, error) {
 
 func LoadFromText(content string) (string, cue.Value, error) {
 
-	ctx := cuecontext.New()
+	ctx := singletons.CueContext()
 	v := ctx.CompileString(content, cue.Filename("SourceConfig.Text"))
 
 	return content, v, nil
@@ -58,10 +58,10 @@ func LoadFromText(content string) (string, cue.Value, error) {
 
 func LoadFromFile(filename string) (string, cue.Value, error) {
 
-	ctx := cuecontext.New()
+	ctx := singletons.CueContext()
 	b, err := os.ReadFile(filename)
 	if err != nil {
-		return string(b), cue.Value{}, err
+		return string(b), singletons.EmptyValue(), err
 	}
 	v := ctx.CompileBytes(b, cue.Filename(filename))
 
@@ -77,12 +77,12 @@ func LoadFromHttp(fullurl string) (string, cue.Value, error) {
 		u, err := url.Parse(fullurl)
 		if err != nil {
 			tui.Log("error", err)
-			return "", cue.Value{}, err
+			return "", singletons.EmptyValue(), err
 		}
 		q, err := url.ParseQuery(u.RawQuery)
 		if err != nil {
 			tui.Log("error", err)
-			return "", cue.Value{}, err
+			return "", singletons.EmptyValue(), err
 		}
 		id := q["id"][0]
 		f = fmt.Sprintf("https://%s/.netlify/functions/snippets?id=%s", u.Host, id)
@@ -94,12 +94,12 @@ func LoadFromHttp(fullurl string) (string, cue.Value, error) {
 	content = header + content
 
 	if err != nil {
-		return content, cue.Value{}, fmt.Errorf("%s -- %w", header, err)
+		return content, singletons.EmptyValue(), fmt.Errorf("%s -- %w", header, err)
 	}
 
 
 	// rebuild, TODO, if scope, use that value and scope.Context() here
-	ctx := cuecontext.New()
+	ctx := singletons.CueContext()
 	v := ctx.CompileString(content, cue.InferBuiltins(true))
 
 	return content, v, nil
@@ -109,13 +109,13 @@ func LoadFromBash(args []string) (string, cue.Value, error) {
 
 	wd, err := os.Getwd()
 	if err != nil {
-		return "", cue.Value{}, err
+		return "", singletons.EmptyValue(), err
 	}
 
 	script := strings.Join(args, " ")
 	out, err := yagu.Bash(script, wd)
 	if err != nil {
-		return "", cue.Value{}, err
+		return "", singletons.EmptyValue(), err
 	}
 
 	// TODO, infer output type, support yaml too
@@ -124,7 +124,7 @@ func LoadFromBash(args []string) (string, cue.Value, error) {
 	out = header + out 
 
 	// compile CUE (json, but all json is CUE, which is why we can add a comment)
-	ctx := cuecontext.New()
+	ctx := singletons.CueContext()
 	v := ctx.CompileString(out, cue.InferBuiltins(true))
 
 	return out, v, nil

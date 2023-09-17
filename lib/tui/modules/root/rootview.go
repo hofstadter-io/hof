@@ -105,14 +105,6 @@ func (V *RootView) setLastCommand(cmd string) {
 func (V *RootView) Mount(context map[string]any) error {
 	tui.Log("debug", fmt.Sprintf("RootView.Mount %v", context))
 
-	// set first page on mount
-	_ = V.tryPageChange(context)
-
-	// mount sub components
-	V.Layout.Mount(context)
-	// V.cbox.Mount(context)
-	// V.pages.Mount(context)
-
 	tui.AddGlobalHandler("/cmdbox/:cmd", func(e events.Event) {
 		// this is wonky, why nested events
 		ev, ok := e.Data.(*events.EventCustom)
@@ -122,6 +114,14 @@ func (V *RootView) Mount(context map[string]any) error {
 			_ = V.tryPageChange(ctx)
 		}
 	})
+
+	// set first page on mount
+	_ = V.tryPageChange(context)
+
+	// mount sub components
+	V.Layout.Mount(context)
+	// V.cbox.Mount(context)
+	// V.pages.Mount(context)
 
 	return nil
 }

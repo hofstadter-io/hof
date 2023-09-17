@@ -7,6 +7,7 @@ import (
 
 	// cue widgets
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/browser"
+	// "github.com/hofstadter-io/hof/lib/tui/components/cue/flower"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/playground"
 )
 
@@ -17,6 +18,7 @@ var _registry = map[string]func (input map[string]any) (widget.Widget, error){
 
 	// cue widgets
 	"cue/browser": (&browser.Browser{}).Decode,
+	// "cue/flower": (&flower.Flower{}).Decode,
 	"cue/playground": (&playground.Playground{}).Decode,
 }
 

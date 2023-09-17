@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/cuecontext"
 	"github.com/gdamore/tcell/v2"
 
+	"github.com/hofstadter-io/hof/lib/singletons"
 	"github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/helpers"
 )
@@ -19,23 +19,26 @@ func (C *Playground) setThinking(thinking bool, which string) {
 
 	switch which {
 	case "scope":
-		C.scope.viewer.SetBorderColor(c)
+		C.scope.SetBorderColor(c)
+
+	case "edit":
+		C.edit.SetBorderColor(c)
 
 	case "final":
-		C.final.viewer.SetBorderColor(c)
+		C.final.SetBorderColor(c)
 
 	default:
-		C.scope.viewer.SetBorderColor(c)
+		C.scope.SetBorderColor(c)
 		C.edit.SetBorderColor(c)
-		C.final.viewer.SetBorderColor(c)
+		C.final.SetBorderColor(c)
 	}
 	go tui.Draw()
 }
 
 
-func (C *Playground) Rebuild(rebuildScope bool) error {
-	tui.Log("info", fmt.Sprintf("Play.rebuildScope %v %v %v", rebuildScope, C.useScope, C.scope.config))
-	// fmt.Println("got here")
+func (C *Playground) Rebuild() error {
+	tui.Log("info", fmt.Sprintf("Play.Rebuild %v %v", C.useScope, C.scope.GetSourceConfigs()))
+
 	var (
 		v cue.Value
 		err error
@@ -43,45 +46,32 @@ func (C *Playground) Rebuild(rebuildScope bool) error {
 
 	// just to be sure any children get updated
 	C.UseScope(C.useScope)
+	// show/hide scope as needed
+	if C.seeScope {
+		C.SetItem(0, C.scope, 0, 1, true)
+	} else {
+		C.SetItem(0, nil, 0, 0, false)
+	}
 
-	ctx := cuecontext.New()
+
+	// user code that will be evaluated
 	src := C.edit.GetText()
 
 	C.setThinking(true, "final")
 	defer C.setThinking(false, "final")
 
 	// compile a value
-	if !C.useScope {
-		// just compile the text
-		v = ctx.CompileString(src, cue.InferBuiltins(true))
+	sv := C.scope.GetValue()
+	if C.useScope && sv.Exists() {
+		ctx := sv.Context()
+		v = ctx.CompileString(src, cue.InferBuiltins(true), cue.Scope(sv))
 	} else {
-		// compile the text with a scope
-
-		sv, serr := C.scope.config.GetValue()
-		err = serr
-
-		if err != nil {
-			tui.Log("error", err)
-		}
-		// we shouldn't have to worry about this, but we aren't catching all the ways
-		// that we get into this code, in particular, hotkey can set scope to true when none exists
-		if !sv.Exists() {
-			tui.Log("error", "scope value does not exist")
-			err = fmt.Errorf("scope value does not exist")
-		}
-
-		if err == nil && sv.Exists() {
-			if rebuildScope {
-				C.scope.viewer.Rebuild()
-			}
-
-			// tui.Log("warn", fmt.Sprintf("recompile with scope: %v", rebuildScope))
-			ctx := sv.Context()
-			v = ctx.CompileString(src, cue.InferBuiltins(true), cue.Scope(sv))
-		}
+		// just compile the text
+		ctx := singletons.CueContext()
+		v = ctx.CompileString(src, cue.InferBuiltins(true))
 	}
 
-
+	// make a new config with the latest value for the output
 	cfg := &helpers.SourceConfig{Value: v}
 	if err != nil {
 		tui.Log("error", err)
@@ -89,19 +79,14 @@ func (C *Playground) Rebuild(rebuildScope bool) error {
 	}
 
 	// only update view value, that way, if we erase everything, we still see the value
-	C.final.config = cfg
-	C.final.viewer.SetSourceConfig(cfg)
-	C.final.viewer.SetUsingScope(C.useScope)
-	C.final.viewer.Rebuild()
+	C.final.ClearSourceConfigs()
+	C.final.AddSourceConfig(cfg)
+	C.final.SetUsingScope(C.useScope)
+	C.final.RebuildValue()
+	C.final.Rebuild()
+	
+	tui.Draw()
 
-	// show/hide scope as needed
-	if C.seeScope {
-		C.SetItem(0, C.scope.viewer, 0, 1, true)
-	} else {
-		C.SetItem(0, nil, 0, 0, false)
-	}
-
-	// tui.Draw()
 	return nil
 }
 

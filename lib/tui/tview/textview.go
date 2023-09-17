@@ -246,7 +246,7 @@ func NewTextView() *TextView {
 		lineOffset: -1,
 		scrollable: true,
 		align:      AlignLeft,
-		wrap:       true,
+		wrap:       false,
 		textStyle:  tcell.StyleDefault.Background(Styles.PrimitiveBackgroundColor).Foreground(Styles.PrimaryTextColor),
 		regionTags: false,
 		styleTags:  false,

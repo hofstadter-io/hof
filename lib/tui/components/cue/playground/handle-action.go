@@ -2,13 +2,11 @@ package playground
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/atotto/clipboard"
 
 	"github.com/hofstadter-io/hof/lib/tui"
-	"github.com/hofstadter-io/hof/lib/tui/components/cue/helpers"
 	"github.com/hofstadter-io/hof/lib/watch"
 )
 
@@ -61,6 +59,9 @@ func (C *Playground) HandleAction(action string, args []string, context map[stri
 			}
 		}
 
+	case "create":
+		err = C.updateFromArgsAndContext(args, context)
+
 	case "update":
 		err = C.updateFromArgsAndContext(args, context)
 
@@ -69,120 +70,64 @@ func (C *Playground) HandleAction(action string, args []string, context map[stri
 		defer C.setThinking(false, "final")
 		context["target"] = "value"
 		err = C.updateFromArgsAndContext(args, context)
-	case "set.scope":
-		C.setThinking(true, "scope")
-		defer C.setThinking(false, "scope")
-		context["target"] = "scope"
-		err = C.updateFromArgsAndContext(args, context)
 
-	case "get.refresh":
-	  tui.StatusMessage(fmt.Sprintf("refresh debounce time is %s", C.debounceTime))
-	case "refresh", "set.refresh":
-		if len(args) != 1 {
-			err = fmt.Errorf("refresh requires a duration like 1s or 300ms")
-			tui.Tell("error", err)
-		} else {
-			d, derr := time.ParseDuration(args[0])
-			if derr != nil {
-				err = derr
-				tui.Tell("error", err)
-			} else {
-				C.debounceTime = d
-				if d.Nanoseconds() <= 0 {
-					// disabled
-					C.edit.SetChangedFunc(nil)
-				} else {
-					C.debouncer = watch.NewDebouncer(C.debounceTime)
-					// enabled
-					C.edit.SetChangedFunc(func() {
-						C.debouncer(func(){
-							C.Rebuild(false)
-						})
-					})
-				}
-			}
-		}
-
-	case "get.scope.watch":
-	  tui.StatusMessage(fmt.Sprintf("watch debounce time is %s", C.scope.config.WatchTime))
-	case "get.value.watch":
-	  tui.StatusMessage(fmt.Sprintf("watch debounce time is %s", C.editCfg.WatchTime))
-	case "set.scope.watchGlobs", "watchGlobs":
-		C.scope.config.WatchGlobs = args
-	case "set.value.watchGlobs":
-		C.editCfg.WatchGlobs = args
-	case "watch", "set.scope.watch", "set.value.watch":
-		d := time.Duration(42*time.Millisecond)
+	case "refresh":
 		if len(args) < 1 {
-			//aerr := fmt.Errorf("watch requires a duration like 1s or 300ms")
-			//tui.Log("warn", aerr)
-			tui.Log("warn", fmt.Sprintf("no watch duration given, setting to %s", d))
-			tui.StatusMessage(fmt.Sprintf("no watch duration given, setting to %s", d))
+			tui.StatusMessage(fmt.Sprintf("refresh debounce time is %s", C.debounceTime))
 		} else {
-			d, err = time.ParseDuration(args[0])
+			C.SetDebounceTime(args, context)
 		}
+	case "watch":
+		C.startScopeWatch(args, context)
 
-		if err != nil {
-			tui.Tell("error", err)
-		} else {
-
-			do := func(cfg *helpers.SourceConfig, callback func()) {
-				// tui.Log("trace", fmt.Sprintf("DOOOOOO: %v", cfg))
-				cfg.WatchTime = d
-				// tui.Log("trace", fmt.Sprintf("watch config: %v", cfg))
-
-				if d.Nanoseconds() > 0 {
-					// startup new watch
-					tui.StatusMessage(fmt.Sprintf("start %sing... %v", strings.TrimPrefix(action, "set."), cfg))
-					err = cfg.Watch(C.Name(), callback, d)
-					// tui.Log("crit", fmt.Sprintf("watch err: %v", err))
-				} else {
-					// or stop any watches
-					cfg.StopWatch()
-				}
-			}
-
-			// set scope watch
-			if action == "set.scope.watch" || action == "watch" {
-				// tui.Log("crit", fmt.Sprintf("got over here.0"))
-				cfg := C.scope.config
-				C.scope.viewer.SetSourceConfig(cfg)
-				// tui.Log("crit", fmt.Sprintf("got over here: %v", cfg))
-				go do(cfg, func() {
-					// tui.Log("crit", fmt.Sprintf("got over here again: %v", cfg))
-					C.Rebuild(true)
-				})
-			}
-
-			// set value watch
-			if action == "set.value.watch" || action == "watch" {
-				cfg := C.editCfg
-				go do(cfg, func() {
-					txt, err := cfg.GetText()
-					if err != nil {
-						tui.Log("error", err)
-					}
-					C.SetText(txt)
-					// when action, we only want the scope full rebuild to happen
-					if action != "watch" && C.scope.config.WatchQuit != nil {
-						// tui.Log("crit", fmt.Sprintf("got here again.2: %v", C.scope.config))
-						C.Rebuild(false)
-					}
-				})
-			} 
-
-		}
+	case "rebuild.scope":
+		C.scope.RebuildValue()
+		C.scope.Rebuild()
+		C.Rebuild()
 
 	default:
 		handled = false
 		// err = fmt.Errorf("unknown command %q", action)
 	}
 
+	if !handled {
+		// try handling in the scope browser
+		handled, err = C.scope.HandleAction(action, args, context)
+
+		// hmm, there are cases where it would be nice to set or see scope
+		// let's just do it by default for now?
+		C.UseScope(true)
+		C.Rebuild()
+	}
+
 	return handled, err
 }
 
+func (C *Playground) startScopeWatch(args []string, context map[string]any) {
+	C.scope.SetWatchCallback(func() {
+		C.scope.RebuildValue()
+		C.scope.Rebuild()
+		C.Rebuild()
+	})
+	C.scope.HandleAction("watch", args, context)
+}
+
+func (C *Playground) startValueWatch(args []string, context map[string]any) {
+	cfg := C.editCfg
+	cfg.WatchFunc = func() {
+		txt, err := cfg.GetText()
+		if err != nil {
+			tui.Log("error", err)
+			txt = err.Error()
+		}
+		C.edit.SetText(txt, false)
+		C.Rebuild()
+	}
+	go cfg.Watch()
+}
+
 func (C *Playground) updateFromArgsAndContext(args[] string, context map[string]any) error {
-	// tui.Log("warn", fmt.Sprintf("Playground.updateHandler.1: %v %v", args, context))
+	tui.Log("warn", fmt.Sprintf("Playground.updateHandler.1: %v %v", args, context))
 	// get source, defaults to empty, new runtime?
 	source := ""
 	if _source, ok := context["source"]; ok {
@@ -206,44 +151,66 @@ func (C *Playground) updateFromArgsAndContext(args[] string, context map[string]
 
 	// tui.Log("warn", fmt.Sprintf("Playground.updateHandler.2: %v %v %v", source, target, srcCfg))
 
-	rebuildScope := false
 	switch target {
 	case "value":
 		// local source default, assume it was a filename
 		if source == "" {
-			source = "file"
+			context["source"] = "file"
 		} else if source == "<new-play>" {
-			source = ""
+			context["source"] = ""
 		}
-		C.editCfg.Source = helpers.EvalSource(source)
-		C.editCfg.Args = args
+		C.editCfg.UpdateFrom("set", args, context)
 
 		// tui.Log("warn", fmt.Sprintf("Playground.updateHandler.3.cfg: %v", C.editCfg))
+		{
+			C.setThinking(true, "edit")
+			defer C.setThinking(false, "edit")
 
-		txt, err := C.editCfg.GetText()
-		if err != nil {
-			tui.Log("error", err)
-			return err
+			txt, err := C.editCfg.GetText()
+			if err != nil {
+				tui.Log("error", err)
+				return err
+			}
+
+			// tui.Log("extra", fmt.Sprintf("Playground.updateHandler.4.text: %v", txt ))
+			C.edit.SetText(txt, false)
 		}
-		// tui.Log("extra", fmt.Sprintf("Playground.updateHandler.4.text: %v", txt ))
-		C.SetText(txt)
 
 	case "scope":
 		if source == "" {
-			source = "runtime"
+			context["source"] = "runtime"
 		}
-		srcCfg := C.scope.config
-		srcCfg.Source = helpers.EvalSource(source)
-		srcCfg.Args = args
-
-		// tui.Log("warn", fmt.Sprintf("Playground.updateHandler.3.S: %v", srcCfg))
-		C.SetScopeConfig(srcCfg)
-
-		rebuildScope = true
+		C.scope.HandleAction("create", args, context)
 		C.seeScope = true
 		C.UseScope(true)
+
+		C.scope.RebuildValue()
+		C.scope.Rebuild()
 	}
 
-	return C.Rebuild(rebuildScope)
+	return C.Rebuild()
 }
 
+
+func (C *Playground) SetDebounceTime(args []string, context map[string]any) error {
+	d, err := time.ParseDuration(args[0])
+	if err != nil {
+		return err
+	}
+	C.debounceTime = d
+
+	if d.Nanoseconds() <= 0 {
+		// disabled
+		C.edit.SetChangedFunc(nil)
+	} else {
+		C.debouncer = watch.NewDebouncer(C.debounceTime)
+		// enabled
+		C.edit.SetChangedFunc(func() {
+			C.debouncer(func(){
+				C.Rebuild()
+			})
+		})
+	}
+
+	return nil
+}
