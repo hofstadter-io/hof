@@ -104,7 +104,8 @@ func enrichContext(context map[string]any) (map[string]any) {
 		// in-item commands (these are for scope, but could be more)
 		case 
 			"add",
-			"set":
+			"set",
+			"clear":
 			context["action"] = tok
 			maybeActionTarget()
 

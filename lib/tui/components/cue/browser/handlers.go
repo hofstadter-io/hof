@@ -1,12 +1,26 @@
 package browser
 
 import (
-	"fmt"
 	"strconv"
 
-	"github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/helpers"
 )
+
+func handleClear(B *Browser, action string, args []string, context map[string]any) (bool, error) {
+
+	for _, cfg := range B.sources {
+		if cfg.WatchTime > 0 {
+			cfg.WatchTime = 0
+			cfg.StopWatch()
+		}
+	}
+
+	B.sources = []*helpers.SourceConfig{}
+	B.RebuildValue()
+	B.Rebuild()
+
+	return true, nil
+}
 
 func handleSet(B *Browser, action string, args []string, context map[string]any) (bool, error) {
 	sc, err := helpers.CreateFrom(args, context)
@@ -15,8 +29,8 @@ func handleSet(B *Browser, action string, args []string, context map[string]any)
 	}
 	B.sources = []*helpers.SourceConfig{sc}
 
-	B.setThinking(true)
-	defer B.setThinking(false)
+	B.SetThinking(true)
+	defer B.SetThinking(false)
 	B.RebuildValue()
 	B.Rebuild()
 
@@ -26,13 +40,12 @@ func handleSet(B *Browser, action string, args []string, context map[string]any)
 func handleAdd(B *Browser, action string, args []string, context map[string]any) (bool, error) {
 	sc, err := helpers.CreateFrom(args, context)
 	if err != nil {
-		tui.Log("alert", fmt.Sprint("GOT HERE: ", err))
 		return true, err
 	}
 	B.sources = append(B.sources, sc)
 
-	B.setThinking(true)
-	defer B.setThinking(false)
+	B.SetThinking(true)
+	defer B.SetThinking(false)
 	B.RebuildValue()
 	B.Rebuild()
 
@@ -47,8 +60,8 @@ func handleWatchConfig(B *Browser, action string, args []string, context map[str
 			return h, err
 		}
 		cfg.WatchFunc = func() {
-			B.setThinking(true)
-			defer B.setThinking(false)
+			B.SetThinking(true)
+			defer B.SetThinking(false)
 			B.RebuildValue()
 			B.Rebuild()
 		}

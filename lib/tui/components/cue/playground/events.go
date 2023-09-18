@@ -34,6 +34,13 @@ func (C *Playground) setupKeybinds() {
 					}
 					C.Rebuild()
 
+				case 'E':
+					C.mode = ModeEval
+					C.Rebuild()
+				case 'W':
+					C.mode = ModeFlow
+					C.Rebuild()
+
 				case 'R':
 					C.scope.Rebuild()
 

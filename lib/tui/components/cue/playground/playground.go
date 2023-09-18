@@ -4,19 +4,18 @@ import (
 	"fmt"
 	"time"
 
-	"cuelang.org/go/cue"
-
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/browser"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/helpers"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 	"github.com/hofstadter-io/hof/lib/watch"
 )
 
-type valPack struct {
-	config  *helpers.SourceConfig
-	value   cue.Value
+type PlayMode string
 
-}
+const (
+	ModeEval PlayMode = "eval"
+	ModeFlow PlayMode = "flow"
+)
 
 type Playground struct {
 	// *tview.Frame eventually?
@@ -30,6 +29,8 @@ type Playground struct {
 	// the editor box
 	edit *tview.TextArea  // text
 	editCfg *helpers.SourceConfig
+
+	mode PlayMode
 
 	// the final value
 	final *browser.Browser // scope
@@ -48,6 +49,7 @@ func New(initialText string) (*Playground) {
 	C := &Playground{
 		Flex: tview.NewFlex(),
 		debounceTime: time.Millisecond * 500,
+		mode: ModeEval,
 	}
 
 	// our wrapper around the CUE widgets
@@ -104,6 +106,9 @@ func (C *Playground) UseScope(use bool) {
 
 func (C *Playground) ToggleShowScope() {
 	C.seeScope = !C.seeScope
+}
+
+func (C *Playground) RebuildEditTitle() {
 	// when not showing scope and has scope
 	// display in editory text
 	s := ""
@@ -112,7 +117,7 @@ func (C *Playground) ToggleShowScope() {
 			s += fmt.Sprintf("[violet](srcs:%d)[-] ", l)
 		}
 	}
-	C.edit.SetTitle(fmt.Sprintf("  %sexpression(s)  ", s))
+	C.edit.SetTitle(fmt.Sprintf("  [gold]%s[-] %sexpr(s)  ", C.mode, s))
 }
 
 func (C *Playground) SetFlexDirection(dir int) {

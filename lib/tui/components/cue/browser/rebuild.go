@@ -19,25 +19,21 @@ import (
 )
 
 func (C *Browser) RebuildValue() {
-	C.setThinking(true)
-	defer C.setThinking(false)
+	C.SetThinking(true)
+	defer C.SetThinking(false)
 
-	if len(C.sources) > 0 {
-		// start with an empty value
-		val := singletons.EmptyValue()
-
-		// fill all the sources into one
-		for _, S := range C.sources {
-			v, _ := S.GetValue()
+	val := singletons.EmptyValue()
+	// fill all the sources into one
+	for _, S := range C.sources {
+		v, _ := S.GetValue()
+		if v.Exists() {
 			val = val.FillPath(cue.ParsePath(S.Path), v)
 		}
-
-		// cache in the browser...?
-		C.value = val
 	}
+	C.value = val
 }
 
-func (C *Browser) setThinking(thinking bool) {
+func (C *Browser) SetThinking(thinking bool) {
 	c := tcell.ColorWhite
 	if thinking {
 		c = tcell.ColorViolet
@@ -52,8 +48,8 @@ func (C *Browser) setThinking(thinking bool) {
 func (C *Browser) Rebuild() {
 	var err error
 
-	C.setThinking(true)
-	defer C.setThinking(false)
+	C.SetThinking(true)
+	defer C.SetThinking(false)
 
 	path := "<root>"
 
@@ -73,6 +69,14 @@ func (C *Browser) Rebuild() {
 
 		for _, s := range C.sources {
 			fmt.Fprintf(C.codeW, "%# v\n\n", pretty.Formatter(*s))
+		}
+	} else if C.nextMode == "text" {
+		C.code.Clear()
+		C.SetPrimitive(C.code)
+
+		for _, s := range C.sources {
+			txt, _ := s.GetText()
+			fmt.Fprintln(C.codeW, txt)
 		}
 	} else if C.nextMode == "tree" {
 		root := tview.NewTreeNode(path)
@@ -144,7 +148,6 @@ func (C *Browser) Rebuild() {
 				if err != nil {
 					writeErr(err)
 				}
-
 			}
 
 			if err == nil {

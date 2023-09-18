@@ -1341,29 +1341,29 @@ func (t *TextView) MouseHandler() func(action MouseAction, event *tcell.EventMou
 		case MouseLeftDown:
 			setFocus(t)
 			consumed = true
-		case MouseLeftClick:
-			if t.regionTags {
-				// Find a region to highlight.
-				rectX, rectY, _, _ := t.GetInnerRect()
-				x -= rectX
-				y -= rectY
-				var highlightedID string
-				if yt := y+t.lineOffset; yt < len(t.lineIndex) {
-					line := t.lineIndex[yt]
-					for regionID, fromTo := range line.regions {
-						if x >= fromTo[0] && x < fromTo[1] {
-							highlightedID = regionID
-							break
-						}
-					}
-				}
-				if highlightedID != "" {
-					t.Highlight(highlightedID)
-				} else if !t.toggleHighlights {
-					t.Highlight()
-				}
-			}
-			consumed = true
+		//case MouseLeftClick:
+		//  if t.regionTags {
+		//    // Find a region to highlight.
+		//    rectX, rectY, _, _ := t.GetInnerRect()
+		//    x -= rectX
+		//    y -= rectY
+		//    var highlightedID string
+		//    if yt := y+t.lineOffset; yt < len(t.lineIndex) {
+		//      line := t.lineIndex[yt]
+		//      for regionID, fromTo := range line.regions {
+		//        if x >= fromTo[0] && x < fromTo[1] {
+		//          highlightedID = regionID
+		//          break
+		//        }
+		//      }
+		//    }
+		//    if highlightedID != "" {
+		//      t.Highlight(highlightedID)
+		//    } else if !t.toggleHighlights {
+		//      t.Highlight()
+		//    }
+		//  }
+		//  consumed = true
 		case MouseScrollUp:
 			t.trackEnd = false
 			t.lineOffset -= 6
