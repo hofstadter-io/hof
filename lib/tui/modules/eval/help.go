@@ -12,9 +12,9 @@ const EvalHelpText = `
   Create dashboards of these views, playgrounds, and chains
   and then save, load, or share them with others.
 
-  Currently there is support for [violet]eval[-] and [violet]flow[-](basic).
+  Currently there is support for [blue]hof/eval[-] and [blue]hof/flow[-].
   New releases will expand core feature support in this tui,
-  notably [violet]datamodel[-], [violet]gen[-], and [violet]vet[-] are upcoming.
+  notably [blue]datamodel[-], [blue]gen[-], and [blue]vet[-] are upcoming.
 
 
 [dodgerblue::bu]Contents:[darkgray::-]
@@ -86,16 +86,20 @@ const EvalHelpText = `
 
   [gold::b]Playground[-::-] is a multi-widget Item for working with CUE.
   You can edit CUE and see the results in real-time, with optional scope.
+  There are also two modes: [blue]hof/eval[-] (default) and [blue]hof/flow[-].
+
   The widgets in the playground are:
-    [darkgray]1. [gold]viewer[-] for the [lightseagreen]scope[-] (if available)
-    [darkgray]2. [gold]editor[-] for the [lightseagreen]main[-] value
-    [darkgray]3. [gold]viewer[-] for the [lightseagreen]final[-] value
+    [darkgray]1. [gold]viewer[-] for the [lightseagreen]scope[-]
+    [darkgray]2. [gold]editor[-] for the [lightseagreen]main[-]
+    [darkgray]3. [gold]viewer[-] for the [lightseagreen]final[-]
 
     [blue::bu]Hotkeys[-::-]
     [lime]Alt-f[-]        [lightseagreen]Rotate[-] this item  (lowercase of Panel rotate hotkey)
     [lime]Alt-R[-]        [lightseagreen]Reload[-] data source and refresh
     [lime]Alt-s[-]        [lightseagreen]Toggle[-] toggle the scope viewer
     [lime]Alt-S[-]        [lightseagreen]Toggle[-] toggle the scope usage
+    [lime]Alt-E[-]        [lightseagreen]Toggle[-] set to eval mode ([blue]hof/eval[-],default)
+    [lime]Alt-W[-]        [lightseagreen]Toggle[-] set to flow mode ([blue]hof/flow[-])
 
     [blue::bu]Commands[-::-]
     [violet]play [lightseagreen]                              [-]create a new, empty playground
@@ -105,7 +109,7 @@ const EvalHelpText = `
     [violet]push [lightseagreen]                              [-]push the current edit text to cue/play, link returned
     [violet]play scope [lightseagreen]test.cue                [-]create new play with scope from file
     [violet]play scope [lightseagreen]./                      [-]create new play with scope from dir
-    [violet]play scope [lightseagreen]<eval args & flags>     [-]create new play with scope from eval args & flags
+    [violet]play scope [lightseagreen]bash or https://...     [-]create new play with any of the data sources
     [violet]play scope [lightseagreen]<eval args & flags>     [-]create new play with scope from eval args & flags
 
   There are many more commands for working with widgets, primarily [gold]play[-].

@@ -13,13 +13,13 @@ import (
 type EvalSource string
 
 const (
-	EvalNone = ""
-	EvalRuntime = "runtime"
-	EvalText = "text"
-	EvalFile = "file"
-	EvalBash = "bash"
-	EvalHttp = "http"
-	EvalConn = "conn"
+	EvalNone EvalSource = ""
+	EvalRuntime EvalSource = "runtime"
+	EvalText EvalSource = "text"
+	EvalFile EvalSource = "file"
+	EvalBash EvalSource = "bash"
+	EvalHttp EvalSource = "http"
+	EvalConn EvalSource = "conn"
 )
 
 type SourceConfig struct {

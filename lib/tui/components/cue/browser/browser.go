@@ -149,6 +149,10 @@ func (C *Browser) GetValue() cue.Value {
 	return C.value
 }
 
+func (C *Browser) SetValue(v cue.Value) {
+	C.value = v
+}
+
 func (VB *Browser) GetValueExpr(expr string) func () cue.Value {
 	// tui.Log("trace", fmt.Sprintf("View.GetConnValueExpr from: %s/%s %s", VB.Id(), VB.Name(), expr))
 	p := cue.ParsePath(expr)
@@ -225,13 +229,15 @@ func (VB *Browser) SetupKeybinds() {
 				VB.nextMode = "cue"
 			case 'T':
 				VB.nextMode = "tree"
+			case 't':
+				VB.nextMode = "text"
 
 			// info about CUE value? (stats)
 			//case 'I':
 			//  VB.nextMode = "info"
 
 			// show settings, hidden?
-
+			case 'X':
 				VB.nextMode = "settings"
 
 			// todo, dive values, and walk back up

@@ -15,6 +15,7 @@ func (C *Playground) Encode() (map[string]any, error) {
 		"typename": C.TypeName(),
 		"useScope": C.useScope,
 		"seeScope": C.seeScope,
+		"mode": C.mode,
 		"text": C.edit.GetText(),
 		"direction": C.GetDirection(),
 	}
@@ -101,6 +102,12 @@ func (C *Playground)	Decode(input map[string]any) (widget.Widget, error) {
 		return nil, fmt.Errorf("'seeScope' missing when calling playground.Decode: %#v", input)
 	}
 	w.seeScope = s.(bool)
+
+	s, ok = input["mode"]
+	if !ok {
+		return nil, fmt.Errorf("'mode' missing when calling playground.Decode: %#v", input)
+	}
+	w.mode = PlayMode(s.(string))
 
 	w.SetDirection(input["direction"].(int))
 

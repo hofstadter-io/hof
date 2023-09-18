@@ -11,6 +11,7 @@ type HandlerFunc func (B *Browser, action string, args []string, context map[str
 
 // action registry
 var actions = map[string]HandlerFunc{
+	"clear":  handleClear,
 	"create": handleSet,
 	"set":    handleSet,
 	"add":    handleAdd,

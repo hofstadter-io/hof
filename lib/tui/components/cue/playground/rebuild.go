@@ -56,35 +56,62 @@ func (C *Playground) Rebuild() error {
 
 	// user code that will be evaluated
 	src := C.edit.GetText()
-
 	C.setThinking(true, "final")
-	defer C.setThinking(false, "final")
 
-	// compile a value
-	sv := C.scope.GetValue()
-	if C.useScope && sv.Exists() {
-		ctx := sv.Context()
-		v = ctx.CompileString(src, cue.InferBuiltins(true), cue.Scope(sv))
-	} else {
-		// just compile the text
-		ctx := singletons.CueContext()
-		v = ctx.CompileString(src, cue.InferBuiltins(true))
-	}
+	go func() {
 
-	// make a new config with the latest value for the output
-	cfg := &helpers.SourceConfig{Value: v}
-	if err != nil {
-		tui.Log("error", err)
-		cfg = &helpers.SourceConfig{Text: err.Error()}
-	}
+		defer C.setThinking(false, "final")
 
-	// only update view value, that way, if we erase everything, we still see the value
-	C.final.ClearSourceConfigs()
-	C.final.AddSourceConfig(cfg)
-	C.final.SetUsingScope(C.useScope)
-	C.final.RebuildValue()
-	C.final.Rebuild()
-	
+		// compile a value
+		sv := C.scope.GetValue()
+		if C.useScope && sv.Exists() {
+			ctx := sv.Context()
+			v = ctx.CompileString(src, cue.InferBuiltins(true), cue.Scope(sv))
+		} else {
+			// just compile the text
+			ctx := singletons.CueContext()
+			v = ctx.CompileString(src, cue.InferBuiltins(true))
+		}
+
+		var cfg *helpers.SourceConfig
+		// make a new config with the latest value for the output
+		cfg = &helpers.SourceConfig{Value: v}
+		// only update view value, that way, if we erase everything, we still see the value
+
+
+		if C.mode == ModeFlow {
+			// first has to pass basic CUE checks so that errors look the same
+			err = v.Validate()
+			if err == nil {
+				tui.Log("trace", "got here")
+				// then we try to run the flow
+				// we need a special way to deal with errors here
+				v, err = C.runFlow(v)
+				if err != nil {
+					tui.Log("error", err)
+					cfg = &helpers.SourceConfig{Text: err.Error()}
+					C.final.SetMode("text")
+				} else {
+					cfg.Value = v
+				}
+			}
+
+		}
+
+		if err == nil && C.final.GetMode() == "text" {
+			C.final.SetMode("cue")
+		}
+
+		C.final.ClearSourceConfigs()
+		C.final.AddSourceConfig(cfg)
+		C.final.RebuildValue()
+		C.final.Rebuild()
+
+		C.RebuildEditTitle()
+
+		tui.Draw()
+	}()
+		
 	tui.Draw()
 
 	return nil

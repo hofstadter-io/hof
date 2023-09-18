@@ -85,6 +85,13 @@ func (C *Playground) HandleAction(action string, args []string, context map[stri
 		C.scope.Rebuild()
 		C.Rebuild()
 
+	case "flow.clear":
+		C.mode = ModeEval
+		C.Rebuild()
+	case "flow.run":
+		C.mode = ModeFlow
+		C.Rebuild()
+
 	default:
 		handled = false
 		// err = fmt.Errorf("unknown command %q", action)
