@@ -29,7 +29,7 @@ params: {
 	cuever:              "v0.6.0"
 	cuedocBase:          "https://pkg.go.dev/cuelang.org/go@\(cuever)"
 	slackLink:           "https://join.slack.com/t/hofstadter-io/shared_invite/zt-e5f90lmq-u695eJur0zE~AG~njNlT1A"
-	discordLink:         "https://discord.gg/6vgbKvPs"
+	discordLink:         "https://discord.gg/BXwX7n6B8w"
 
 	keywords: ["hof", "hofstadter", "documentation", "docs"]
 

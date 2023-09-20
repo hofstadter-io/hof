@@ -16,7 +16,7 @@ __`hof` is a CLI tool you *add* to your workflow.__
 | __code generation__    | Data + templates = _ (anything), technology agnostic |
 | __data model__         | Define and manage data models, life-cycle features |
 | __task engine__        | Extensible task and DAG workflow engine |
-| __core cue cmds__      | The def, eval, export, and vet commands |
+| __CUE cmds__           | Core def, eval, export, and vet commands |
 | __creators__           | bootstraping and starter kits from any repo |
 | __modules__            | CUE module dependency management |
 | __tui__                | A terminal interface to Hof and CUE |
