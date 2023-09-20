@@ -13,7 +13,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/tui/cmd"
 )
 
-var tuiLong = `hidden command for tui experiments`
+var tuiLong = `a terminal interface to Hof and CUE`
 
 func TuiRun(args []string) (err error) {
 
@@ -29,9 +29,7 @@ var TuiCmd = &cobra.Command{
 
 	Use: "tui",
 
-	Hidden: true,
-
-	Short: "hidden command for tui experiments",
+	Short: "a terminal interface to Hof and CUE",
 
 	Long: tuiLong,
 

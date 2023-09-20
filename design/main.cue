@@ -13,7 +13,7 @@ CLI: schema.Cli & {
 	Module: "github.com/hofstadter-io/hof"
 
 	Usage:      "hof"
-	Short:      "The High Code Framework"
+	Short:      "The Higher Order Framework"
 	Long:       Short
 	CustomHelp: RootCustomHelp
 
@@ -59,7 +59,7 @@ CLI: schema.Cli & {
 }
 
 RootCustomHelp: """
-hof - the high code framework
+hof - the higher order framework
 
   Learn more at https://docs.hofstadter.io
 
@@ -77,6 +77,7 @@ Main commands:
   \(cmds.FmtCommand.Help)
   \(cmds.GenCommand.Help)
   \(cmds.ModCommand.Help)
+  \(cmds.TuiCommand.Help)
   \(cmds.VetCommand.Help)
 
 Additional commands:

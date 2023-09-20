@@ -260,7 +260,7 @@ func InstallUpdate() (err error) {
 
 		switch verinfo.BuildArch {
 		case "amd64":
-			if strings.Contains(u, "x86_64") {
+			if strings.Contains(u, "amd64") {
 				archOk = true
 			}
 		case "arm64":

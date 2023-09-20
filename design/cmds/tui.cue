@@ -5,9 +5,9 @@ import (
 )
 
 TuiCommand: schema.Command & {
-	Name:   "tui"
-	Usage:  "tui"
-	Short:  "hidden command for tui experiments"
-	Long:   Short
-	Hidden: true
+	Name:  "tui"
+	Usage: "tui"
+	Short: "a terminal interface to Hof and CUE"
+	Long:  Short
+	// Hidden: true
 }

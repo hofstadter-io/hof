@@ -1,4 +1,4 @@
-hof - the high code framework
+hof - the higher order framework
 
   Learn more at https://docs.hofstadter.io
 
@@ -16,6 +16,7 @@ Main commands:
   fmt                   format any code and manage the formatters
   gen                   CUE powered code generation
   mod                   CUE module dependency management
+  tui                   a terminal interface to Hof and CUE
   vet                   validate data with CUE
 
 Additional commands:

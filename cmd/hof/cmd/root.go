@@ -16,7 +16,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var hofLong = `The High Code Framework`
+var hofLong = `The Higher Order Framework`
 
 func init() {
 
@@ -40,7 +40,7 @@ var RootCmd = &cobra.Command{
 
 	Use: "hof",
 
-	Short: "The High Code Framework",
+	Short: "The Higher Order Framework",
 
 	Long: hofLong,
 
@@ -174,7 +174,7 @@ func RunErr() error {
 	return RootCmd.Execute()
 }
 
-const RootCustomHelp = `hof - the high code framework
+const RootCustomHelp = `hof - the higher order framework
 
   Learn more at https://docs.hofstadter.io
 
@@ -192,6 +192,7 @@ Main commands:
   fmt                   format any code and manage the formatters
   gen                   CUE powered code generation
   mod                   CUE module dependency management
+  tui                   a terminal interface to Hof and CUE
   vet                   validate data with CUE
 
 Additional commands:

@@ -13,34 +13,15 @@ weight: 3
 __hof__ is available for all major operating systems and architectures.
 {{</lead>}}
 
-Git & Docker should be available but are also optional.
+Git & (Docker,Podman,Nerdctl) should be available but are also optional.
 
 ## Installation
 
 <br>
 
-Current version: <b>{{<hof-rel-link>}}</b>
-
-{{< alert style="warning" >}}
-We recommend the latest beta over v0.6.7 as
-the core features have seen many improvements.
-You can expect it to be more stable and correct.
-{{</alert>}}
+Recommended version: <b>{{<hof-rel-link>}}</b>
 
 <br>
-
-{{<codeInner title="as a binary" lang="text">}}
-{{<hof-curl>}}
-{{</codeInner>}}
-
-{{<codeInner title="from source" lang="text">}}
-go install github.com/hofstadter-io/hof/cmd/hof@latest
-{{</codeInner>}}
-
-{{<codeInner title="with Homebrew" lang="text">}}
-brew install hofstadter-io/tap/hof
-{{</codeInner>}}
-
 
 #### Binary downloads, rename the file to `hof` and place it in your PATH.
 
@@ -53,6 +34,34 @@ These are the same links for the curl.
 [All Releases](https://github.com/hofstadter-io/hof/releases)
 
 [Container Images](https://github.com/orgs/hofstadter-io/packages?repo_name=hof)
+
+<br>
+
+#### Homebrew
+
+<br>
+
+{{<codeInner title="with Homebrew" lang="text">}}
+brew install hofstadter-io/tap/hof
+{{</codeInner>}}
+
+<br>
+
+
+#### Source 
+
+<br>
+
+{{<codeInner title="from source" lang="text">}}
+git clone https://github.com/hofstadter-io/hof && cd hof
+git checkout {{<hof-version>}}
+make hof
+{{</codeInner>}}
+
+<br>
+
+
+
 
 
 
@@ -96,3 +105,22 @@ Run `hof help` in your terminal.
 
 
 
+## Opting out of telemetry
+
+We collect a few metrics to help us understand basic usage.
+
+1. Which command is run, never the arguments or flags
+2. OS & arch
+3. the `hof` version
+
+[link to code](https://github.com/hofstadter-io/hof/blob/_dev/cmd/hof/ga/ga.go#L153)
+
+To opt out of telemetry, set `HOF_TELEMETRY_DISABLED=1`
+
+Long term, we would like to move to the Go strategy, which
+uses a probability based method for reducing metrics even further,
+i.e to collect enough for statistical 
+significance and much more focused to the questions at hand.
+
+If you'd like to learn more about Go's telemetry proposal, see
+https://github.com/golang/go/discussions/58409
