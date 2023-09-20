@@ -1,73 +1,72 @@
 # hof - the higher order framework
 
-Hof is a tool that weaves together data models, code generation, and task engine with CUE.
-Automate repetitive setup, code, changes, and workflows using your tools. Hof is technology agnostic.
+A tool that unifies data models, schemas, code generation, and a task engine.
 
-<!-- something about osurce of thuth, unified abstraction later, interoperablility... -->
+__`hof` is a CLI tool you *add* to your workflow.__
+
+- Augment data, config, and schemas with CUE to improve consistency, gain confidence, and unlock new possibilities
+- Generate multiple Yaml and JSON files in one-shot, from a CUE based source of truth
+- Generate much of the application code, work directly in the output, regenerate without loss
+- Explore data or config with the TUI, work with it using CUE in live-reload mode
+- Run workflows with automatic task dependency inference, the right tasks are run in the right order
+
 
 | Core Features | |
 |:---                    |:-- |
-| __code generation__    | data + template = _ (anything) ...any file, technology agnostic |
-| __app blueprints__     | consistently bootstrap apps, code, config, and other files |
-| __data model__         | define and manage data models, evolve code with them |
-| __task engine__        | extensible task and workflow DAG engine |
-| __modules__            | composable dependencies for blueprints, models, and generators |
+| __code generation__    | Data + templates = _ (anything), technology agnostic |
+| __data model__         | Define and manage data models, life-cycle features |
+| __task engine__        | Extensible task and DAG workflow engine |
+| __core cue cmds__      | The def, eval, export, and vet commands |
+| __creators__           | bootstraping and starter kits from any repo |
+| __modules__            | CUE module dependency management |
+| __tui__                | A terminal interface to Hof and CUE |
+| __chat__               | Combine LLM and Hof code gen for better, scalable results |
 
+<br>
 
-<img src="./images/how-hof-works.svg" alt="how hof works" width="100%" height="auto" style="max-width:600px">
+`hof` uses [CUE](https://cuelang.org) to power the DX and implementation.
+We believe CUE is a great language for specifying schemas, configuration, and generally
+for writing anything declarative or this is a source of truth.
+It has good theory and comes from the same people that brought us containers, Go, and Kubernetes.
 
-__`hof` is a CLI tool you will add to your workflows.__
-It is technology agnostic, captures common patterns and boilerplate,
-has modules that span technologies, and continues to work as your application evolves.
-
-- data model management so you can checkpoint, diff, and calculate migrations
-- code generation to scaffold consistent code and boilerplate across the stack
-- diff3 to support custom code, data model updates, and code regeneration
-- modular and composable code generators with dependency management
-
-`hof` uses [CUE](https://cuelang.org) extensively to power the DX and implementation.
+<!-- something about osurce of thuth, unified abstraction later, interoperablility... -->
 
 Learn more about CUE: [cuelang.org](https://cuelang.org) | [cuetorials.com](https://cuetorials.com)
 
 
-## [Documentation](https://docs.hofstadter.io)
+## Documentation
 
 Please see __[docs.hofstadter.io](https://docs.hofstadter.io)__ to learn more.
 
 The [getting-started](https://docs.hofstadter.io/getting-started/) section will take you on a tour of hof.
 The [first-example](https://docs.hofstadter.io/first-example/) section shows you how to build and use a generator.
 
-Join us on Slack! [https://hofstadter-io.slack.com](https://join.slack.com/t/hofstadter-io/shared_invite/zt-e5f90lmq-u695eJur0zE~AG~njNlT1A)
-We are more than happy to answer your questions.
+Join us or ask questions on
+
+- Slack: [https://hofstadter-io.slack.com](https://join.slack.com/t/hofstadter-io/shared_invite/zt-e5f90lmq-u695eJur0zE~AG~njNlT1A)
+- Discord: https://discord.com/invite/BXwX7n6B8w
+
+We also use GitHub issues and discussions. Use which every is easiest for you!
 
 
-## Install or [try hof on github](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=604970115)
+## Installation
 
+You can find [the latest downloads on our GitHub releases page](https://github.com/hofstadter-io/hof/releases).
+This is the preferred method.
 
-Download `hof` just once.
-After that `hof` will prompt you to update and
-install new releases as they become available.
-
-You can always find the latest version on our
-[GitHub releases page](https://github.com/hofstadter-io/hof/releases)
-or use `hof` to install a specific version of itself with `hof update --version vX.Y.Z`.
+If you already have hof, install a specific version with `hof update --version vX.Y.Z`.
 
 ```shell
 # Homebrew
 brew install hofstadter-io/tap/hof
 
-# Latest Release
-go install github.com/hofstadter-io/hof/cmd/hof@latest
-
-# Latest Commit
-go install github.com/hofstadter-io/hof/cmd/hof@_dev
-
 # Shell Completions (bash, zsh, fish, power-shell)
 echo ". <(hof completion bash)" >> $HOME/.profile
 source $HOME/.profile
 
-# Show the help text
+# Show the help text or version info to verify installation
 hof --help
+hof version
 ```
 
 
@@ -75,13 +74,20 @@ hof --help
 
 Interested in helping out or hanging out? The best ways to get started are
 
+1. [Joining the Community](https://docs.hofstadter.io/help-and-support/#community/)
 1. [The Contributing Guild](https://docs.hofstadter.io/contributing/)
-2. [Joining the Community](https://docs.hofstadter.io/help-and-support/#community/)
 
 
-## Main Commands
+## Interfaces 
 
-### hof
+There are two interfaces to `hof`
+
+1. a CLI - great for scripting and automation
+2. a TUI - great for exploring and designing
+
+A desktop version is in the works, reach out if you would like early access.
+
+### cli
 
 ```
 hof - the higher order framework
@@ -102,6 +108,7 @@ Main commands:
   fmt                   format any code and manage the formatters
   gen                   CUE powered code generation
   mod                   CUE module dependency management
+  tui                   a terminal interface to Hof and CUE
   vet                   validate data with CUE
 
 Additional commands:
@@ -117,15 +124,26 @@ Flags:
   -i, --ignore-errors        turn off output and assume defaults at prompts
   -D, --include-data         auto include all data files found with cue files
   -V, --inject-env           inject all ENV VARs as default tag vars
+  -I, --input stringArray    extra data to unify into the root value
   -p, --package string       the Cue package context to use during execution
   -l, --path stringArray     CUE expression for single path component when placing data files
   -q, --quiet                turn off output and assume defaults at prompts
   -d, --schema stringArray   expression to select schema to apply to data files
       --stats                print generator statistics
+  -0, --stdin-empty          A flag that ensure stdin is zero and does not block
   -t, --tags stringArray     @tags() to be injected into CUE code
   -v, --verbosity int        set the verbosity of output
       --with-context         add extra context for data files, usable in the -l/path flag
 
 Use "hof [command] --help / -h" for more information about a command.
 ```
+
+### tui
+
+The `hof tui` is a terminal based interface to Hof's features.
+It has a built in help system and documentation.
+The following YouTube video provides a tour.
+
+
+[![Tour Hof's TUI](http://img.youtube.com/vi/XNBqBWO4y08/0.jpg)](http://www.youtube.com/watch?v=XNBqBWO4y08 "Hof TUI Overview")
 

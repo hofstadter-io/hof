@@ -20,12 +20,13 @@ Commit:      %s
 BuildDate:   %s
 GoVersion:   %s
 CueVersion:  %s
-OS / Arch:   %s %s
+OS_Arch:     %s_%s
 ConfigDir:   %s
 CacheDir:    %s
 Containers:  %s
 
 Author:      Hofstadter, Inc
+License:     Apache-2.0
 Homepage:    https://hofstadter.io
 GitHub:      https://github.com/hofstadter-io/hof
 `

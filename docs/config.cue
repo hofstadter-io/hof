@@ -25,7 +25,7 @@ params: {
 	github_project_repo: "https://github.com/hofstadter-io/hof"
 	github_repo:         "https://github.com/hofstadter-io/hof"
 	time_format_default: "January 2, 2006"
-	hofver:              "v0.6.8"
+	hofver:              "v0.6.9-beta.1"
 	cuever:              "v0.6.0"
 	cuedocBase:          "https://pkg.go.dev/cuelang.org/go@\(cuever)"
 	slackLink:           "https://join.slack.com/t/hofstadter-io/shared_invite/zt-e5f90lmq-u695eJur0zE~AG~njNlT1A"
@@ -33,15 +33,15 @@ params: {
 
 	keywords: ["hof", "hofstadter", "documentation", "docs"]
 
-	beta: """
-	The `hof gen` ad-hoc feature (`-T`) is only available in the next beta.
+	//beta: """
+	//The `hof gen` ad-hoc feature (`-T`) is only available in the next beta.
 
-	```
-	go install github.com/hofstadter-io/hof/cmd/hof@\(hofver)
-	```
+	//```
+	//go install github.com/hofstadter-io/hof/cmd/hof@\(hofver)
+	//```
 
-	[Download binaries on GitHub](https://github.com/hofstadter-io/hof/releases/tag/\(hofver))
-	"""
+	//[Download binaries on GitHub](https://github.com/hofstadter-io/hof/releases/tag/\(hofver))
+	//"""
 }
 
 markup: goldmark: renderer: unsafe: true

@@ -98,8 +98,8 @@ const EvalHelpText = `
     [lime]Alt-R[-]        [lightseagreen]Reload[-] data source and refresh
     [lime]Alt-s[-]        [lightseagreen]Toggle[-] toggle the scope viewer
     [lime]Alt-S[-]        [lightseagreen]Toggle[-] toggle the scope usage
-    [lime]Alt-E[-]        [lightseagreen]Toggle[-] set to eval mode ([blue]hof/eval[-],default)
-    [lime]Alt-W[-]        [lightseagreen]Toggle[-] set to flow mode ([blue]hof/flow[-])
+    [lime]Alt-E[-]        [lightseagreen]Set mode[-] to eval mode ([blue]hof/eval[-],default)
+    [lime]Alt-W[-]        [lightseagreen]Set mode[-] to flow mode ([blue]hof/flow[-])
 
     [blue::bu]Commands[-::-]
     [violet]play [lightseagreen]                              [-]create a new, empty playground
@@ -188,7 +188,7 @@ const EvalHelpText = `
   [violet]<cmd> @<path> <args>[-]     most panel & item commands support @<path>
         @<path>            use this to target a specific panel or item
                            by id/name dotpaths, it must be before args
-                           ex: [darkgray]set.size @p0.b2.name 42[-] 
+                           ex: [darkgray]set.size @p0.b2 42[-] 
 
 
   [blue::bu]Navigation[-::-]
