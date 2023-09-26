@@ -2,8 +2,7 @@ package script
 
 import (
 	"fmt"
-	"io/ioutil"
-	"path/filepath"
+	"os"
 	"strings"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
@@ -30,24 +29,15 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.RunFlagpole) er
 		}
 	}()
 
-	var hlsFiles []string
-	for _, a := range args {
-		switch filepath.Ext(a) {
-
-		case ".hls", ".txt", "txtar":
-			hlsFiles = append(hlsFiles, a)
-		}
-	}
-
-	if len(hlsFiles) > 0 {
-		err := RunHLS(hlsFiles, rflags, cflags)
+	if len(args) > 0 {
+		err := RunHLS(args, rflags, cflags)
 		if err != nil {
 			return err
 		}
 		return nil
 	}
 
-	return fmt.Errorf("Please specify args of filepath glob(s) to .hls|.txt testscript files")
+	return fmt.Errorf("Please specify filepaths or glob(s) to testscript files")
 }
 
 // runs each glob element in order, globs are lexigraphically sorted
@@ -104,7 +94,7 @@ func runHLS(glob string, rflags flags.RootPflagpole, cflags flags.RunFlagpole) e
 func envSetup(env *runtime.Env) error {
 
 	// .env can contain lines of ENV=VAR
-	content, err := ioutil.ReadFile(".env")
+	content, err := os.ReadFile(".env")
 	if err != nil {
 		// ignore errors, as the file likely doesn't exist
 		return nil
