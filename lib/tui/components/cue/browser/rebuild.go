@@ -6,7 +6,7 @@ import (
 
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/format"
-	"github.com/alecthomas/chroma/quick"
+	"github.com/alecthomas/chroma/v2/quick"
 	"github.com/gdamore/tcell/v2"
 	"github.com/kr/pretty"
 
@@ -151,7 +151,7 @@ func (C *Browser) Rebuild() {
 			}
 
 			if err == nil {
-				err = quick.Highlight(C.codeW, string(b), "Go", "terminal256", "solarized-dark")
+				err = quick.Highlight(C.codeW, string(b), "cue", "terminal256", "solarized-dark")
 				// tui.Log("info", fmt.Sprintf("View.Rebuild writing..."))
 				if err != nil {
 					writeErr(err)
