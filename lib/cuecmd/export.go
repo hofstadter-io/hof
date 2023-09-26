@@ -31,7 +31,7 @@ func Export(args []string, rflags flags.RootPflagpole, cflags flags.ExportFlagpo
 
 	err = R.Load()
 	if err != nil {
-		return err
+		return cuetils.ExpandCueError(err)
 	}
 
 	val := R.Value
