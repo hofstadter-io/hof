@@ -83,7 +83,7 @@ func writeOutput(
 	// setup output writer
 	out := os.Stdout
 	if outfile != "" && outfile != "-" {
-		out, err = os.OpenFile(outfile, os.O_RDWR|os.O_CREATE, 0644)
+		out, err = os.OpenFile(outfile, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
 		if err != nil {
 			return err
 		}

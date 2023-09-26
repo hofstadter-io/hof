@@ -8,6 +8,7 @@ import (
 	"cuelang.org/go/cue/format"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/runtime"
 )
 
@@ -30,7 +31,7 @@ func Def(args []string, rflags flags.RootPflagpole, cflags flags.DefFlagpole) er
 
 	err = R.Load()
 	if err != nil {
-		return err
+		return cuetils.ExpandCueError(err)
 	}
 
 	// build options

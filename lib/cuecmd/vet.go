@@ -35,7 +35,7 @@ func Vet(args []string, rflags flags.RootPflagpole, cflags flags.VetFlagpole) er
 	R.DontPlaceOrphanedFiles = true
 	err = R.Load()
 	if err != nil {
-		return err
+		return cuetils.ExpandCueError(err)
 	}
 
 	// build options
