@@ -1,0 +1,14 @@
+{
+  "name": "Getting Started",
+  "href": "/getting-started",
+  "children": [
+    {
+      "name": "Installation",
+      "href": "/getting-started/installation"
+    },
+    {
+      "name": "CUE",
+      "href": "/getting-started/cue"
+    }
+  ]
+}

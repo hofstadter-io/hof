@@ -127,26 +127,26 @@ _registry: "us-central1-docker.pkg.dev/hof-io--develop/testing"
 							containerPort: _Values.port.server
 							protocol:      "TCP"
 						}]
-						envFrom: [{
-							secretRef: name: "studios"
-						}]
+						//envFrom: [{
+						//  secretRef: name: "studios"
+						//}]
 						resources: _Values.resources
 						_Probes & {_port: _Values.port.server}
-					}, {
-						name:            "postgres"
-						image:           "postgres:14"
-						imagePullPolicy: "Always"
-						ports: [{
-							containerPort: _Values.port.postgres
-							protocol:      "TCP"
-						}]
-						env: [
-							{name: "POSTGRES_USER", value:     "supacode"},
-							{name: "POSTGRES_PASSWORD", value: "supacode"},
-							{name: "POSTGRES_DB", value:       "supacode"},
-						]
-						resources: _Values.resources
-						// _Probes & {_port: _Values.port.postgres}
+						//}, {
+						//  name:            "postgres"
+						//  image:           "postgres:14"
+						//  imagePullPolicy: "Always"
+						//  ports: [{
+						//    containerPort: _Values.port.postgres
+						//    protocol:      "TCP"
+						//  }]
+						//  env: [
+						//    {name: "POSTGRES_USER", value:     "supacode"},
+						//    {name: "POSTGRES_PASSWORD", value: "supacode"},
+						//    {name: "POSTGRES_DB", value:       "supacode"},
+						//  ]
+						//  resources: _Values.resources
+						//  // _Probes & {_port: _Values.port.postgres}
 					}]
 
 					volumes: [{

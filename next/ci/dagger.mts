@@ -147,15 +147,16 @@ async function cuelm(client: Client, source: Directory, what: string) {
 	var gcloud = await gcloudImage(client)
 	gcloud = gcloud
 		.withWorkdir("/work")
+		.withEnvVariable("CACHEBUST", Date.now().toString())
 		.withFile("/work/cuelm.cue", cuelm)
 		.withExec(["hof", "mod", "init", "hof.io/deploy"])
+		.withExec(["hof", "mod", "get", "github.com/hofstadter-io/cuelm@v0.1.1"])
 		.withExec(["hof", "mod", "tidy"])
 		.withExec(cuecmd)
 		.withExec(["cat", "cuelm.yaml"])
 
 	if (!opts.dryRun) {
 		gcloud = gcloud
-			.withEnvVariable("CACHEBUST", Date.now().toString())
 			.withExec(["gcloud", "container", "clusters", "get-credentials", opts.cluster, "--zone", opts.zone])
 			.withExec(["kubectl", "apply", "-f", "cuelm.yaml"])
 	}

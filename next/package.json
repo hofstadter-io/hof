@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+		"dagger": "dagger run node --loader ts-node/esm ci/dagger.mts",
     "lint": "next lint"
   },
   "dependencies": {

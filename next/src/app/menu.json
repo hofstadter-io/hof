@@ -1,0 +1,48 @@
+[
+  {
+    "name": "Home",
+    "href": "/"
+  },
+  {
+    "name": "Getting Started",
+    "href": "/getting-started",
+    "children": [
+      {
+        "name": "Installation",
+        "href": "/getting-started/installation"
+      },
+      {
+        "name": "CUE",
+        "href": "/getting-started/cue"
+      }
+    ]
+  },
+  {
+    "name": "Code Generation",
+    "href": "/code-gen"
+  },
+  {
+    "name": "Data Modeling",
+    "href": "/data-modeling"
+  },
+  {
+    "name": "Task Engine",
+    "href": "/task-engine"
+  },
+  {
+    "name": "Modules",
+    "href": "/modules"
+  },
+  {
+    "name": "Contributing",
+    "href": "/contributing"
+  },
+  {
+    "name": "Changelogs",
+    "href": "/changelogs"
+  },
+  {
+    "name": "Help & Support",
+    "href": "/support"
+  }
+]

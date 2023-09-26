@@ -1,0 +1,172 @@
+export const meta = {
+	title: "Installation",
+	description: "Download and install the hof CLI tool.",
+	brief: "Download and install the hof CLI tool.",
+	keywords: [
+		"homebrew",
+		"downloads",
+		"update",
+	],
+	weight: 3
+}
+
+import Link from '@/src/components/link'
+import config from '@/config.json';
+
+# Installation
+
+__hof__ is available for all major operating systems and architectures.
+
+Recommended version: <b>{config.version}</b>
+
+<b>Git and oneOf( Docker, Podman, Nerdctl )</b> are also recommended.
+
+
+### Binary downloads
+
+These are the same links for the curl.
+Rename the file to `hof` and place it in your `PATH`.
+
+<ul>
+	{ config.downloads.map( dl => {
+		return <li><Link key={dl.key} href={dl.url}>{dl.title}</Link></li>
+	})}
+</ul>
+
+
+[All Releases](https://github.com/hofstadter-io/hof/releases)
+
+[Container Images](https://github.com/orgs/hofstadter-io/packages?repo_name=hof)
+
+
+### Homebrew
+
+<CH.Code className="w-4/5">
+```sh
+brew install hofstadter-io/tap/hof
+```
+</CH.Code>
+
+
+### Source 
+
+<CH.Code className="w-4/5">
+```sh
+git clone https://github.com/hofstadter-io/hof && cd hof
+# git checkout vX.Y.Z  (optionally, pick a tag)
+make hof
+```
+</CH.Code>
+
+
+
+
+
+
+
+## Updating __hof__
+
+
+You can use the built-in update command to check and install any version.
+
+```sh
+# Check for an update
+hof update --check
+
+# Update to the latest version
+hof update
+
+# Install a specific version
+hof update --version vX.Y.Z
+```
+
+with Homebrew
+
+```sh
+# Check for an update in brew
+brew outdated hofstadter-io/tap/hof
+
+# Update to the latest version in brew
+brew upgrade hofstadter-io/tap/hof
+
+# To get more info regarding hof package
+brew info hofstadter-io/tap/hof
+```
+
+
+
+## Testing __hof__
+
+Run `hof help` in your terminal.
+
+```text output
+hof - the higher order framework
+
+  Learn more at https://docs.hofstadter.io
+
+Usage:
+  hof [flags] [command] [args]
+
+Main commands:
+  chat                  co-create with AI (alpha)
+  create                starter kits or blueprints from any git repo
+  datamodel             manage, diff, and migrate your data models
+  def                   print consolidated CUE definitions
+  eval                  evaluate and print CUE configuration
+  export                output data in a standard format
+  flow                  run workflows and tasks powered by CUE
+  fmt                   format any code and manage the formatters
+  gen                   CUE powered code generation
+  mod                   CUE module dependency management
+  tui                   a terminal interface to Hof and CUE
+  vet                   validate data with CUE
+
+Additional commands:
+  help                  help about any command
+  update                check for new versions and run self-updates
+  version               print detailed version information
+  completion            generate completion helpers for your terminal
+  feedback              open an issue or discussion on GitHub
+
+Flags:
+  -E, --all-errors           print all available errors
+  -h, --help                 help for hof
+  -i, --ignore-errors        turn off output and assume defaults at prompts
+  -D, --include-data         auto include all data files found with cue files
+  -V, --inject-env           inject all ENV VARs as default tag vars
+  -I, --input stringArray    extra data to unify into the root value
+  -p, --package string       the Cue package context to use during execution
+  -l, --path stringArray     CUE expression for single path component when placing data files
+  -q, --quiet                turn off output and assume defaults at prompts
+  -d, --schema stringArray   expression to select schema to apply to data files
+      --stats                print generator statistics
+  -0, --stdin-empty          A flag that ensure stdin is zero and does not block
+  -t, --tags stringArray     @tags() to be injected into CUE code
+  -v, --verbosity int        set the verbosity of output
+      --with-context         add extra context for data files, usable in the -l/path flag
+
+Use "hof [command] --help / -h" for more information about a command.
+```
+
+
+## Opting out of telemetry
+
+We collect a few metrics to help us understand basic usage.
+
+1. Which command is run, never the arguments or flags
+2. OS & arch
+3. the `hof` version
+
+[link to code](https://github.com/hofstadter-io/hof/blob/_dev/cmd/hof/ga/ga.go#L153)
+
+To opt out of telemetry, set `HOF_TELEMETRY_DISABLED=1`
+
+Long term, we will move to the Go strategy, which
+uses a probability based method for reducing metrics even further,
+i.e to collect enough for statistical 
+significance and much more focused to the questions at hand.
+
+If you'd like to learn more about Go's telemetry proposal, see
+[https://github.com/golang/go/discussions/58409](https://github.com/golang/go/discussions/58409)
+
+<br />

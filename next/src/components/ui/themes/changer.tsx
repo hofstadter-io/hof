@@ -14,11 +14,13 @@ export default function ThemeChanger () {
 	}
 
   return (
-		<span
+		<input
+			key="themeToggle"
+			type="checkbox"
+			className="toggle"
+			checked={ resolvedTheme === "dark" }
 			aria-label="Toggle dark mode"
 			onClick={ () => handle() }
-		>
-			Toggle dark mode
-		</span>
+		/>
   )
 }
