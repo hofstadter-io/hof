@@ -5,8 +5,8 @@ import (
 	"os"
 	"io"
 
-	"github.com/alecthomas/chroma/lexers"
-	"github.com/alecthomas/chroma/quick"
+	"github.com/alecthomas/chroma/v2/lexers"
+	"github.com/alecthomas/chroma/v2/quick"
 	"github.com/gdamore/tcell/v2"
 
 	"github.com/hofstadter-io/hof/lib/tui"
