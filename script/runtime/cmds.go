@@ -2,8 +2,6 @@ package runtime
 
 // scriptCmds are the script command implementations.
 var scriptCmds = map[string]func(*Script, int, []string){
-	// cmd_billy.go
-	"billy": (*Script).CmdBilly,
 
 	// cmd_call.go
 	"call": (*Script).CmdCall,
