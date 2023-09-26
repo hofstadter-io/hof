@@ -7,32 +7,29 @@ description: "Hofstadter Documentation"
 Welcome to the documentation site.
 {{</lead>}}
 
-# `hof` is a code generation framework
+# `hof` is CUE powered tools and capabilities
 
-`hof` combines CUE, data, and templates to generate any file.
-Reusable and modular generators can be created
-to help you write and maintain large amounts of code.
-The data layer helps you manage configuration and models so
-you create code which is resilent to version skew.
-Creators enable you to provide one-line commands to your users,
-and they will get an interactive prompt for getting started with your projects.
-The module system will help you manage dependencies
-and make your hof projects easily available to others.
+`hof` helps you use CUE to enhance your work with
+data models, schemas, code generation, task workflows, and more.
 
-| Core Features | |
+__`hof` is a CLI tool you *add* to your workflow.__
+
+- Augment data, config, and schemas with CUE to improve consistency, gain confidence, and unlock new possibilities
+- Generate multiple Yaml and JSON files in one-shot, from a CUE based source of truth
+- Generate much of the application code, work directly in the output, regenerate without loss
+- Explore data or config with the TUI, work with it using CUE in live-reload mode
+- Run workflows with automatic task dependency inference, the right tasks are run in the right order
+
+|  | |
 |:---                    |:-- |
-| __code generation__    | data + template = _ (anything) ...any file, technology agnostic |
-| __app blueprints__     | consistently bootstrap apps, code, config, and other files |
-| __data model__         | define and manage data models, evolve code with them |
-| __task engine__        | extensible task and workflow DAG engine |
-| __modules__            | composable dependencies for blueprints, models, and generators |
-
-
-<br>
-<br>
-
-<img src="/diagrams/how-hof-works.svg" alt="how hof works"
- width="100%" height="auto" style="max-width:600px">
+| __code generation__    | Data + templates = _ (anything), technology agnostic |
+| __data model__         | Define and manage data models, life-cycle features |
+| __task engine__        | Extensible task and DAG workflow engine |
+| __CUE cmds__           | Core def, eval, export, and vet commands |
+| __creators__           | bootstraping and starter kits from any repo |
+| __modules__            | CUE module dependency management |
+| __tui__                | A terminal interface to Hof and CUE |
+| __chat__               | Combine LLM and Hof code gen for better, scalable results |
 
 <br>
 
