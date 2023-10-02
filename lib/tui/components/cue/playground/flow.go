@@ -32,6 +32,8 @@ func (C *Playground) runFlow(val cue.Value) (cue.Value, error) {
 		return val, err
 	}
 
+	C.flow = f
+
 	err = f.Start()
 
 	return f.Final, err

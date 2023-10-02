@@ -72,7 +72,7 @@ const EvalHelpText = `
   ** [::i]They toggle by using the letter without modifiers[-::-] **
 
     [blue::bu]Hotkeys[-::-]
-    [lime]TCJY[-]         Tree, Cue, Json, Yaml
+    [lime]TCJYF[-]        Tree, Cue, Json, Yaml, Flow (play flow mode)
     [lime]vcfr[-]         Validate, Concrete, Final, ResolveReferences
     [lime]ei[-]           Ignore Errors, Inline Output
     [lime]doh[-]          Definitions, Optional, Hidden
@@ -121,6 +121,12 @@ const EvalHelpText = `
   The scope can come from any of the sources, including other widgets.
   The concept is tied to the CUE compiler and sets the lexical context for
   the CUE currently being processed. See https://pkg.go.dev/cuelang.org/go@v0.6.0/cue#Scope
+
+  [gold]Flow mode[-] is a special mode for the playground which will
+  run a [blue]hof/flow[-] and save the final results for inspection.
+  Use [lime]Alt-W[-] to enable flow mode and run the flow. You may wish
+  to set [violet]refresh [lightseagreen]0[-] and manually run with [lime]Alt-R[-]. You can inspect
+  with the [lightseagreen]final [gold]browser[-] normally, or use [lime]F[-] to view the [blue]hof/flow[-] tasks with extra details.
 
 
 [dodgerblue::bu]Commands:[-::-]

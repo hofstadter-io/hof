@@ -66,7 +66,7 @@ func (ED *TextEditor) OpenFile(path string) {
 
 	ED.Clear()
 
-	err = quick.Highlight(ED.W, string(body), lexer, "terminal256", "solarized-dark")
+	err = quick.Highlight(ED.W, string(body), lexer, "terminal256", "github-dark")
 	if err != nil {
 		tui.SendCustomEvent("/console/err", err.Error())
 	}
