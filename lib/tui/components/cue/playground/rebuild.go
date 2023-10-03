@@ -35,12 +35,11 @@ func (C *Playground) setThinking(thinking bool, which string) {
 	go tui.Draw()
 }
 
-
 func (C *Playground) Rebuild() error {
 	tui.Log("info", fmt.Sprintf("Play.Rebuild %v %v", C.useScope, C.scope.GetSourceConfigs()))
 
 	var (
-		v cue.Value
+		v   cue.Value
 		err error
 	)
 
@@ -52,7 +51,6 @@ func (C *Playground) Rebuild() error {
 	} else {
 		C.SetItem(0, nil, 0, 0, false)
 	}
-
 
 	// user code that will be evaluated
 	src := C.edit.GetText()
@@ -78,12 +76,11 @@ func (C *Playground) Rebuild() error {
 		cfg = &helpers.SourceConfig{Value: v}
 		// only update view value, that way, if we erase everything, we still see the value
 
-
 		if C.mode == ModeFlow {
 			// first has to pass basic CUE checks so that errors look the same
 			err = v.Validate()
 			if err == nil {
-				tui.Log("trace", "got here")
+				// tui.Log("trace", fmt.Sprintf("flow got here: %v", C.flow))
 				// then we try to run the flow
 				// we need a special way to deal with errors here
 				v, err = C.runFlow(v)
@@ -94,6 +91,7 @@ func (C *Playground) Rebuild() error {
 				} else {
 					cfg.Value = v
 				}
+				C.final.SetFlow(C.flow)
 			}
 
 		}
@@ -111,9 +109,8 @@ func (C *Playground) Rebuild() error {
 
 		tui.Draw()
 	}()
-		
+
 	tui.Draw()
 
 	return nil
 }
-

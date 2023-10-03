@@ -7,6 +7,7 @@ import (
 	"cuelang.org/go/cue"
 	"github.com/gdamore/tcell/v2"
 
+	"github.com/hofstadter-io/hof/flow/flow"
 	"github.com/hofstadter-io/hof/lib/singletons"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/helpers"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
@@ -35,6 +36,9 @@ type Browser struct {
 
 	// value from filled sources
 	value cue.Value
+
+	// flow related
+	flow *flow.Flow
 
 	// eval settings
 	docs,
@@ -103,6 +107,14 @@ func (VB *Browser) SetMode(mode string) {
 
 func (VB *Browser) GetMode() string {
 	return VB.mode
+}
+
+func (VB *Browser) SetFlow(flow *flow.Flow) {
+	VB.flow = flow
+}
+
+func (VB *Browser) GetFlow() *flow.Flow {
+	return VB.flow
 }
 
 func (VB *Browser) GetText() string {
@@ -229,8 +241,8 @@ func (VB *Browser) SetupKeybinds() {
 				VB.nextMode = "cue"
 			case 'T':
 				VB.nextMode = "tree"
-			case 't':
-				VB.nextMode = "text"
+			case 'F':
+				VB.nextMode = "flow"
 
 			// info about CUE value? (stats)
 			//case 'I':

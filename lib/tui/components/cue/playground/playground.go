@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/hofstadter-io/hof/flow/flow"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/browser"
 	"github.com/hofstadter-io/hof/lib/tui/components/cue/helpers"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
@@ -31,6 +32,8 @@ type Playground struct {
 	editCfg *helpers.SourceConfig
 
 	mode PlayMode
+
+	flow *flow.Flow
 
 	// the final value
 	final *browser.Browser // scope

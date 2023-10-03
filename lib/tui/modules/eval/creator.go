@@ -78,7 +78,10 @@ func (E *Eval) creator(context panel.ItemContext, parent *panel.Panel) (panel.Pa
 	}
 
 	i, e := itemCreator.Creator(context, parent)
-	i.SetBorder(E.showOther)
+	// todo, better error handling
+	if e == nil {
+		i.SetBorder(E.showOther)
+	}
 	return i, e
 }
 

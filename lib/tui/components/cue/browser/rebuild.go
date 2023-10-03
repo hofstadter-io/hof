@@ -63,14 +63,17 @@ func (C *Browser) Rebuild() {
 		C.SetPrimitive(C.code)
 	}
 
-	if C.nextMode == "settings" {
+	switch C.nextMode {
+
+	case "settings": 
 		C.code.Clear()
 		C.SetPrimitive(C.code)
 
 		for _, s := range C.sources {
 			fmt.Fprintf(C.codeW, "%# v\n\n", pretty.Formatter(*s))
 		}
-	} else if C.nextMode == "text" {
+
+	case "text":
 		C.code.Clear()
 		C.SetPrimitive(C.code)
 
@@ -78,7 +81,8 @@ func (C *Browser) Rebuild() {
 			txt, _ := s.GetText()
 			fmt.Fprintln(C.codeW, txt)
 		}
-	} else if C.nextMode == "tree" {
+		
+	case "tree":
 		root := tview.NewTreeNode(path)
 		root.SetColor(tcell.ColorSilver)
 		tree := tview.NewTreeView()
@@ -93,7 +97,22 @@ func (C *Browser) Rebuild() {
 		C.tree = tree
 		C.root = root
 
-	} else {
+	case "flow":
+		root := tview.NewTreeNode(path)
+		root.SetColor(tcell.ColorSilver)
+		tree := tview.NewTreeView()
+
+		C.FlowAddAt(root, path)
+		tree.SetRoot(root).SetCurrentNode(root)
+		tree.SetSelectedFunc(C.onFlowSelect)
+
+		C.SetPrimitive(tree)
+
+		// TODO, dual-walk old-new tree's too keep things open
+		C.tree = tree
+		C.root = root
+
+	default:
 
 		// otherwise, we need to turn the value into a string for code browsing
 		C.code.Clear()
@@ -151,7 +170,7 @@ func (C *Browser) Rebuild() {
 			}
 
 			if err == nil {
-				err = quick.Highlight(C.codeW, string(b), "cue", "terminal256", "solarized-dark")
+				err = quick.Highlight(C.codeW, string(b), "cue", "terminal256", "github-dark")
 				// tui.Log("info", fmt.Sprintf("View.Rebuild writing..."))
 				if err != nil {
 					writeErr(err)
@@ -160,8 +179,6 @@ func (C *Browser) Rebuild() {
 				}
 			}
 		}
-
-
 	}
 
 	if C.refocus {
@@ -218,6 +235,7 @@ func (VB *Browser) BuildStatusString() string {
 	add(VB.mode == "cue",  "C")
 	add(VB.mode == "json", "J")
 	add(VB.mode == "yaml", "Y")
+	add(VB.mode == "flow", "F")
 	s += "] "
 
 	add(VB.validate, "v")
