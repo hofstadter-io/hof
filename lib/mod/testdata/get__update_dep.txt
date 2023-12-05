@@ -9,10 +9,10 @@ cmp cue.mod/module.cue match/cue.mod/module-update.cue
 
 -- match/cue.mod/module-init.cue --
 module: "hof.io/test"
-cue: "0.6.0"
+cue: "0.7.0"
 -- match/cue.mod/module-get.cue --
 module: "hof.io/test"
-cue:    "0.6.0"
+cue:    "0.7.0"
 
 require: {
 	"github.com/hofstadter-io/test-hof-mod-public-e": "v0.0.1"
@@ -20,7 +20,7 @@ require: {
 
 -- match/cue.mod/module-update.cue --
 module: "hof.io/test"
-cue:    "0.6.0"
+cue:    "0.7.0"
 
 require: {
 	"github.com/hofstadter-io/test-hof-mod-public-e": "v0.0.3"

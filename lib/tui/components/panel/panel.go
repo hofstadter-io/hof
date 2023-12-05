@@ -120,9 +120,9 @@ func (P *Panel) TitleString() string {
 	// glyphs to show flex direction
 	dir := ""
 	if P.GetDirection() == tview.FlexRow {
-		dir = "🡙 "
+		dir = "="
 	}	else {
-		dir = "🡘 "
+		dir = "|"
 	}
 
 	// name (with space if set)

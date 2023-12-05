@@ -15,7 +15,7 @@ var (
 	BuildArch = "Unknown"
 
 	// todo, look this up from deps
-	CueVersion = "0.6.0"
+	CueVersion = "0.7.0"
 
 	// this is a version we can fetch with hof mod
 	// the value gets injected into templates in various places
