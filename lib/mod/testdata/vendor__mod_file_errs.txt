@@ -7,7 +7,7 @@ stdout 'Dependency "github.com/hofstadter-io/hof" required twice in ""'
 
 -- cue.mod/module.cue --
 module: "github.com/test/2x-req"
-cue "0.6.0"
+cue "0.7.0"
 
 require: {
     "github.com/hofstadter-io/hof": "v0.0.0"

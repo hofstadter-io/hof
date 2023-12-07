@@ -5,7 +5,7 @@ env GITHUB_TOKEN=thistokendoesnotexist
 
 -- cue.mod/module.cue --
 module: "github.com/test/priv-github"
-cue: "0.6.0"
+cue: "0.7.0"
 
 require: {
 	"github.com/hofstadter-io/hofmod-test-priv-github": "v0.0.2"
