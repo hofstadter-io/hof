@@ -21,7 +21,7 @@ You will need Docker available to use this feature.
 Hof will pull and run containers in the background.
 You can disable this by setting an environment variable.
 
-> `HOF_FORMAT_DISABLED=1`
+> `HOF_FMT_DISABLED=1`
 
 
 {{<codePane file="code/cmd-help/fmt" title="$ hof help fmt" lang="text">}}
