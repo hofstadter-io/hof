@@ -64,7 +64,7 @@ func init() {
 
 	val := os.Getenv("HOF_FMT_DISABLED")
 	if val != "" {
-		dv, err := strconv.ParseBool(ds)
+		dv, err := strconv.ParseBool(val)
 		if err != nil {
 			fmt.Println("Error parsing HOF_FMT_DISABLED:", err)
 		} else {
