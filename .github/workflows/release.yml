@@ -97,7 +97,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build Image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: formatters/tools/${{ matrix.formatter }}
           file: formatters/tools/${{ matrix.formatter }}/Dockerfile.debian

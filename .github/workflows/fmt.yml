@@ -38,7 +38,7 @@ jobs:
       - name: Set up Docker BuildX
         uses: docker/setup-buildx-action@v3
       - name: Build Image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: formatters/tools/${{ matrix.formatter }}
           file: formatters/tools/${{ matrix.formatter }}/Dockerfile.debian

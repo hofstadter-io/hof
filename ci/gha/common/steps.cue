@@ -117,7 +117,7 @@ Steps: {
 
 		formatters: {
 			name: "Build Image"
-			uses: "docker/build-push-action@v3"
+			uses: "docker/build-push-action@v5"
 			with: {
 				context:   "formatters/tools/${{ matrix.formatter }}"
 				file:      "\(context)/Dockerfile.debian"
@@ -142,7 +142,7 @@ Steps: {
 			}
 			env: {
 				SIGN_QEMU_BINARY:  "1"
-				LIMA_START_ARGS: "--cpu 3 --memory 10 --disk 12"
+				LIMA_START_ARGS: "--cpus 3 --memory 10 --disk 12"
 			}
 			"if": "${{ startsWith( runner.os, 'macos') }}"
 		}
