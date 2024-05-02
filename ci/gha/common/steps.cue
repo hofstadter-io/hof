@@ -65,11 +65,11 @@ Steps: {
 		}
 		releaser: {
 			name: "Run GoReleaser"
-			uses: "goreleaser/goreleaser-action@v4"
+			uses: "goreleaser/goreleaser-action@v5"
 			with: {
 				// either 'goreleaser' (default) or 'goreleaser-pro'
 				distribution: "goreleaser"
-				version:      "1.19.2"
+				version:      "1.21.9"
 				workdir:      "cmd/hof"
 				args:         "release --clean -f goreleaser.yml -p 1"
 			}
@@ -108,7 +108,7 @@ Steps: {
 
 		login: {
 			name: "Login to Docker Hub"
-			uses: "docker/login-action@v2"
+			uses: "docker/login-action@v3"
 			with: {
 				username: "${{ secrets.HOF_DOCKER_USER }}"
 				password: "${{ secrets.HOF_DOCKER_TOKEN }}"
@@ -142,44 +142,44 @@ Steps: {
 			}
 			env: {
 				SIGN_QEMU_BINARY:  "1"
-				COLIMA_START_ARGS: "--cpu 3 --memory 10 --disk 12"
+				LIMA_START_ARGS: "--cpu 3 --memory 10 --disk 12"
 			}
 			"if": "${{ startsWith( runner.os, 'macos') }}"
 		}
-		macSetup: {
-			name: "Setup Docker on MacOS"
-			run: """
-				brew install docker
-				"""
-			_runB: """
-				brew install docker
-				brew reinstall -f --force-bottle qemu lima colima 
+		// macSetup: {
+		// 	name: "Setup Docker on MacOS"
+		// 	run: """
+		// 		brew install docker
+		// 		"""
+		// 	_runB: """
+		// 		brew install docker
+		// 		brew reinstall -f --force-bottle qemu lima colima 
 
-				# hack to codesign for entitlement
-				cat >entitlements.xml <<EOF
-				<?xml version="1.0" encoding="UTF-8"?>
-				<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-				<plist version="1.0">
-				<dict>
-						<key>com.apple.security.hypervisor</key>
-						<true/>
-				</dict>
-				</plist>
-				EOF
-				codesign --sign - --entitlements entitlements.xml --force /usr/local/bin/qemu-system-x86_64
+		// 		# hack to codesign for entitlement
+		// 		cat >entitlements.xml <<EOF
+		// 		<?xml version="1.0" encoding="UTF-8"?>
+		// 		<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+		// 		<plist version="1.0">
+		// 		<dict>
+		// 				<key>com.apple.security.hypervisor</key>
+		// 				<true/>
+		// 		</dict>
+		// 		</plist>
+		// 		EOF
+		// 		codesign --sign - --entitlements entitlements.xml --force /usr/local/bin/qemu-system-x86_64
 
-				colima start --cpu 3 --memory 10 --disk 12
-				"""
+		// 		colima start --cpu 3 --memory 10 --disk 12
+		// 		"""
 
-			_run: """
-				# extra hack stuff
-				brew uninstall qemu lima colima
-				curl -OSL https://raw.githubusercontent.com/Homebrew/homebrew-core/dc0669eca9479e9eeb495397ba3a7480aaa45c2e/Formula/qemu.rb
-				brew install ./qemu.rb
-				brew install --ignore-dependencies lima colima
-				"""
-			"if": "${{ startsWith( runner.os, 'macos') }}"
-		}
+		// 	_run: """
+		// 		# extra hack stuff
+		// 		brew uninstall qemu lima colima
+		// 		curl -OSL https://raw.githubusercontent.com/Homebrew/homebrew-core/dc0669eca9479e9eeb495397ba3a7480aaa45c2e/Formula/qemu.rb
+		// 		brew install ./qemu.rb
+		// 		brew install --ignore-dependencies lima colima
+		// 		"""
+		// 	"if": "${{ startsWith( runner.os, 'macos') }}"
+		// }
 
 		macSocket: {
 			name: "Setup MacOS docker socket"
@@ -194,7 +194,7 @@ Steps: {
 
 		login: {
 			name: "Login to Docker Hub"
-			uses: "docker/login-action@v2"
+			uses: "docker/login-action@v3"
 			with: {
 				registry: "ghcr.io"
 				username: "${{ github.actor }}"
@@ -215,7 +215,7 @@ Steps: {
 
 	dagger: {
 		cache: {
-			uses: "actions/cache@v3"
+			uses: "actions/cache@v4"
 			with: {
 				path: #"""
 					~/go/pkg/mod
