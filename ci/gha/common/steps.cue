@@ -6,7 +6,7 @@ Steps: {
 
 	checkout: {
 		name: "Checkout code"
-		uses: "actions/checkout@v3"
+		uses: "actions/checkout@v4"
 	}
 
 	vars: {
@@ -26,7 +26,7 @@ Steps: {
 
 	cue: {
 		install: {
-			#ver: string | *"v0.6.0"
+			#ver: string | *"v0.8.2"
 			run:  """
 			mkdir tmp
 			cd tmp
@@ -43,11 +43,11 @@ Steps: {
 		setup: {
 			#ver: string | *(string & Versions.go)
 			name: "Install Go"
-			uses: "actions/setup-go@v3"
+			uses: "actions/setup-go@v5"
 			with: "go-version": #ver
 		}
 		cache: {
-			uses: "actions/cache@v3"
+			uses: "actions/cache@v4"
 			with: {
 				path: #"""
 					~/go/pkg/mod
@@ -136,7 +136,7 @@ Steps: {
 	docker: {
 		macAction: {
 			name: "Set up Docker"
-			uses: "crazy-max/ghaction-setup-docker@v1"
+			uses: "crazy-max/ghaction-setup-docker@v3"
 			with: {
 				version: "v" + Versions.docker
 			}
