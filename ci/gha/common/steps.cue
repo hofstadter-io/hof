@@ -83,7 +83,7 @@ Steps: {
 	buildx: {
 		qemu: {
 			name: "Set up QEMU"
-			uses: "docker/setup-qemu-action@v2"
+			uses: "docker/setup-qemu-action@v3"
 			with: {
 				platforms: "arm64"
 			}
@@ -92,7 +92,7 @@ Steps: {
 		setup: {
 			linux: {
 				name: "Set up Docker BuildX"
-				uses: "docker/setup-buildx-action@v2"
+				uses: "docker/setup-buildx-action@v3"
 			}
 			macos: {
 				name: "Set up Docker Colima"
