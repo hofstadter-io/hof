@@ -26,7 +26,7 @@ hack:
 
 .PHONY: hof
 hof:
-	CGO_ENABLED=0 go install ./cmd/hof
+	go install ./cmd/hof
 
 .PHONY: race
 race:
@@ -34,7 +34,7 @@ race:
 
 .PHONY: hof.build
 hof.build:
-	CGO_ENABLED=0 go build -o hof ./cmd/hof
+	go build -o hof ./cmd/hof
 
 .PHONY: deps.check deps.update
 deps.check:
