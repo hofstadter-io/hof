@@ -142,7 +142,7 @@ Steps: {
 			}
 			env: {
 				SIGN_QEMU_BINARY:  "1"
-				LIMA_START_ARGS: "--cpus 3 --memory 10 --disk 12"
+				COLIMA_START_ARGS: "--cpus 3 --memory 10 --disk 12"
 			}
 			"if": "${{ startsWith( runner.os, 'macos') }}"
 		}
