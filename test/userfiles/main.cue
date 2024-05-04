@@ -2,4 +2,6 @@ package main
 
 hello: "world"
 
-files: {}
+files: {
+  @userfiles(content,trim=content)
+}

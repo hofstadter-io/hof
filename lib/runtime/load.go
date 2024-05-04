@@ -200,7 +200,10 @@ func (R *Runtime) prepPlacedUserfiles() error {
 			if len(parts) != 2 {
 				return fmt.Errorf("-U/--user-files only supports one % to trim prefix")
 			}
-			trimPath = parts[0] + "/"
+			trimPath = parts[0]
+			if !strings.HasSuffix(trimPath, "/") {
+				trimPath += "/"
+			}
 			filePath = strings.Replace(filePath, "%", "/", 1)
 		}
 
@@ -211,6 +214,40 @@ func (R *Runtime) prepPlacedUserfiles() error {
 	}
 
 	// look for @userfiles attributes and do similar
+	kvals, err := cuetils.GetByAttrKeys(R.Value, "userfiles", nil, nil)
+	if err != nil {
+		return err
+	}
+	for _, kval := range kvals {
+		cuePath := kval.Key
+		trimPath := ""
+		filePath := ""
+		attrs := kval.Val.Attributes(cue.ValueAttr)
+		for _, A := range attrs {
+			if A.Name() == "userfiles" {
+				for i := 0; i < A.NumArgs(); i++ {
+					k,v := A.Arg(i)
+					if k == "trim" {
+						trimPath = v
+						if !strings.HasSuffix(trimPath, "/") {
+							trimPath += "/"
+						}
+					}
+					if v == "" {
+						filePath = k
+					}
+				}
+
+				// fmt.Println(cuePath, trimPath, filePath)
+				err := embedFiles(cuePath, trimPath, filePath)
+				if err != nil {
+					return err
+				}
+
+				break
+			}
+		}
+	}
 
 	if R.Flags.Verbosity > 1 {
 		fmt.Println("user files:", R.userFiles)
