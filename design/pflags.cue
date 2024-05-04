@@ -73,7 +73,7 @@ CliPflags: [...schema.Flag] & [ {
 	Short:   "U"
 	Type:    "[]string"
 	Default: "nil"
-	Help:    "file globs to embed into the root value"
+	Help:    "file globs to embed into the root value (<cue-path>=<file-glob>), use % as slash to trim before"
 }, {
 	Name:    "AllErrors"
 	Long:    "all-errors"

@@ -38,7 +38,7 @@ func SetupRootPflags(fset *pflag.FlagSet, fpole *RootPflagpole) {
 	fset.BoolVarP(&(fpole.IncludeData), "include-data", "D", false, "auto include all data files found with cue files")
 	fset.BoolVarP(&(fpole.WithContext), "with-context", "", false, "add extra context for data files, usable in the -l/path flag")
 	fset.BoolVarP(&(fpole.InjectEnv), "inject-env", "V", false, "inject all ENV VARs as default tag vars")
-	fset.StringArrayVarP(&(fpole.UserFiles), "user-files", "U", nil, "file globs to embed into the root value")
+	fset.StringArrayVarP(&(fpole.UserFiles), "user-files", "U", nil, "file globs to embed into the root value (<cue-path>=<file-glob>), use % as slash to trim before")
 	fset.BoolVarP(&(fpole.AllErrors), "all-errors", "E", false, "print all available errors")
 	fset.BoolVarP(&(fpole.IngoreErrors), "ignore-errors", "i", false, "turn off output and assume defaults at prompts")
 	fset.BoolVarP(&(fpole.Stats), "stats", "", false, "print generator statistics")
