@@ -244,7 +244,7 @@ func (R *Runtime) prepPlacedUserfiles() error {
 					return err
 				}
 
-				break
+				// break
 			}
 		}
 	}
