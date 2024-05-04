@@ -47,6 +47,11 @@ func (R *Runtime) Load() (err error) {
 		return err
 	}
 
+	err = R.prepPlacedUserfiles()
+	if err != nil {
+		return err
+	}
+
 	if !R.Flags.IngoreErrors {
 		err = R.Value.Validate()
 		if err != nil {
@@ -93,7 +98,7 @@ func (R *Runtime) prepPlacedDatafiles() {
 				fname, fpath := parts[0], parts[1]
 				R.dataMappings[fname] = fpath
 				entries = append(entries, fname)
-			continue
+				continue
 			}
 		}
 
@@ -106,6 +111,113 @@ func (R *Runtime) prepPlacedDatafiles() {
 	}
 
 	R.Entrypoints = entries
+}
+
+func (R *Runtime) prepPlacedUserfiles() error {
+	start := time.Now()
+	defer func() {
+		end := time.Now()
+		R.Stats.Add("files/load", end.Sub(start))
+	}()
+
+	buildFile := func (trimPath, filePath string) (*ast.Field, error) {
+		// prep inputs
+		d, err := os.ReadFile(filePath)
+		if err != nil {
+			return nil, fmt.Errorf("while loading user file: %w", err)
+		}
+		s := string(d)
+		l := strings.TrimPrefix(filePath, trimPath)
+
+		// build file field
+		ff := new(ast.Field)
+		ff.Constraint = token.STRING
+		ff.Label = ast.NewIdent(l)
+		ff.Value = ast.NewString(s)
+
+		return ff, nil
+	}
+
+	embedFiles := func (cuePath, trimPath, filePath string) error {
+		files := []string{filePath}
+		// expand globs
+		if strings.Contains(filePath, "*") {
+			fs, err := yagu.FilesFromGlobs([]string{filePath})
+			if err != nil {
+				return fmt.Errorf("warning: error while globing %q: %v", filePath, err)
+			}
+
+			files = fs
+		} else {
+			// maybe handle directory
+			stat, err := os.Stat(filePath)
+			if err != nil {
+				return err
+			}
+
+			if stat.IsDir() {
+				fs, err := yagu.FilesFromGlobs([]string{filePath + "/*"})
+				if err != nil {
+					return fmt.Errorf("warning: error while loading dir %q: %v", filePath, err)
+				}
+
+				files = fs
+			}
+		}
+
+		fields := []interface{}{}
+		for _, file := range files {
+			fld, err := buildFile(trimPath, file)
+			if err != nil {
+				return err
+			}
+			fields = append(fields, fld)
+		}
+
+		// build CUE struct
+		st := ast.NewStruct(fields...)
+		// fmt.Sprintf("%+v\n", st)
+
+		cp := cue.ParsePath(cuePath)
+		R.Value = R.Value.FillPath(cp, st)
+
+		return nil
+	}
+
+	// handle the flag for placing user files
+	for _, U := range R.Flags.UserFiles {
+		// fmt.Println(U)
+		parts := strings.Split(U, "=")
+		if len(parts) != 2 {
+			return fmt.Errorf("-U/--user-files flag should have format <cue-path>=<glob>")
+		}
+
+		cuePath, filePath := parts[0], parts[1]
+
+		trimPath := ""
+		if strings.Contains(filePath, "%") {
+			parts := strings.Split(filePath, "%")
+			if len(parts) != 2 {
+				return fmt.Errorf("-U/--user-files only supports one % to trim prefix")
+			}
+			trimPath = parts[0] + "/"
+			filePath = strings.Replace(filePath, "%", "/", 1)
+		}
+
+		err := embedFiles(cuePath, trimPath, filePath)
+		if err != nil {
+			return err
+		}
+	}
+
+	// look for @userfiles attributes and do similar
+
+	if R.Flags.Verbosity > 1 {
+		fmt.Println("user files:", R.userFiles)
+		fmt.Println("mod files: ", R.modFiles)
+	}
+
+	return nil
 }
 
 func (R *Runtime) load() (err error) {
@@ -132,28 +244,6 @@ func (R *Runtime) load() (err error) {
 		R.CueConfig.Stdin = &bytes.Buffer{}
 		R.Entrypoints = append(R.Entrypoints, "-")
 	}
-
-	// fi, err := os.Stdin.Stat()
-
-	//if fi.Size() == 0 {
-	//  fmt.Println("stdin(0)...")
-	//  R.CueConfig.Stdin = &bytes.Buffer{}
-
-	//} else {
-	//  d, err := io.ReadAll(os.Stdin)
-	//  if err != nil {
-	//    return err
-	//  }
-	//  r := bytes.NewReader(d)
-	//  fmt.Println(len(d), r.Len(), r.Size(), fi.Size())
-	//  R.CueConfig.Stdin = r
-
-	//  //if .... {
-	//    //fmt.Println("no stdin...")
-	//  //}
-	//  // R.CueConfig.Stdin = os.Stdin
-	//}
-
 
 	//
 	//

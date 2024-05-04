@@ -57,7 +57,11 @@ type Runtime struct {
 	dataMappings    map[string]string
 
 	// internal bookkeeping
-	loadedFiles []string
+	loadedFiles []string  // cue+data (?)
+
+	// non-data files loaded <cue-path> => <file-path>
+	userFiles   map[string]string  // non-data files loaded by user
+	modFiles    map[string]string  // non-data files loaded by modules
 
 	// The CUE value after all loading
 	Value    cue.Value
@@ -112,6 +116,8 @@ func New(entrypoints []string, rflags flags.RootPflagpole) (*Runtime, error) {
 		origEntrypoints: entrypoints,
 		CueConfig:   cfg,
 		dataMappings: make(map[string]string),
+		userFiles: make(map[string]string),
+		modFiles: make(map[string]string),
 		Stats: make(RuntimeStats),
 	}
 

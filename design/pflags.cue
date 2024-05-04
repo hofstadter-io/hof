@@ -68,6 +68,13 @@ CliPflags: [...schema.Flag] & [ {
 	Default: ""
 	Help:    "inject all ENV VARs as default tag vars"
 }, {
+	Name:    "UserFiles"
+	Long:    "user-files"
+	Short:   "U"
+	Type:    "[]string"
+	Default: "nil"
+	Help:    "file globs to embed into the root value"
+}, {
 	Name:    "AllErrors"
 	Long:    "all-errors"
 	Short:   "E"
