@@ -15,4 +15,5 @@ cmdhelp:
 	@hof fmt     -h > code/cmd-help/fmt
 	@hof create  -h > code/cmd-help/create
 	@hof chat    -h > code/cmd-help/chat
+	@hof tui     -h > code/cmd-help/tui
 

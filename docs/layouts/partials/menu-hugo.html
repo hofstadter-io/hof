@@ -32,7 +32,7 @@
         {{- if $hasChildren }}
         <span
           onclick="toggleMenuItem()"
-          class="d-flex flex-fill justify-content-end align-items-center"
+          class="d-flex flex-fill justify-content-end align-items-center "
         >
         <i
           class="me-1 py-0 fas fa-lg {{ if (or $isCurrent $isAncestor)}}fa-caret-down{{ else }}fa-caret-right{{ end }}"
@@ -61,7 +61,7 @@
     {{- if not .Params.Hidden }}
         <li data-nav-id="{{.RelPermalink}}" class="nav-item my-1 {{- if eq .RelPermalink $currentNode.RelPermalink}} current{{end -}} "> 
                 <!-- I'm the params hidden -->
-                 <a href="{{.RelPermalink}}" class="nav-link py-0 px-2 {{- if eq .RelPermalink $currentNode.RelPermalink}} current{{end -}} {{- if .Draft }}bg-warning {{ end -}}">
+                 <a href="{{.RelPermalink}}" class="nav-link py-0 px-2 {{- if eq .RelPermalink $currentNode.RelPermalink}} current{{end -}} {{- if .Draft }} bg-warning {{ end -}}">
                     {{safeHTML .Params.Pre}}{{.LinkTitle}}{{safeHTML .Params.Post}}
                 </a>
         </li>

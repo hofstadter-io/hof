@@ -1,6 +1,6 @@
 ---
 title: Data Modeling
-
+draft: true
 weight: 40
 ---
 

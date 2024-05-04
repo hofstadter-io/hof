@@ -10,4 +10,4 @@ Use it to initialize a new module, set versioned dependencies,
 and fetch them with a single command.
 {{</lead>}}
 
-{{<codePane file="code/cmd-help/mod" title="$ hof help fmt" lang="text">}}
+{{<codePane file="code/cmd-help/mod" title="$ hof help mod" lang="text">}}
