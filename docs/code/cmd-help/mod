@@ -118,7 +118,7 @@ Global Flags:
       --stats                    print generator statistics
   -0, --stdin-empty              A flag that ensure stdin is zero and does not block
   -t, --tags stringArray         @tags() to be injected into CUE code
-  -U, --user-files stringArray   file globs to embed into the root value
+  -U, --user-files stringArray   file globs to embed into the root value (<cue-path>=<file-glob>), use % as slash to trim before
   -v, --verbosity int            set the verbosity of output
       --with-context             add extra context for data files, usable in the -l/path flag
 
