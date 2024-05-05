@@ -58,10 +58,10 @@ menu: shortcuts: [{
 	name:   "<i class='fab fa-github'></i> GitHub"
 	url:    "https://github.com/hofstadter-io/hof"
 	weight: 1
-}, {
-	name:   "<i class='fas fa-comments'></i> Slack"
-	url:    "\(params.slackLink)"
-	weight: 2
+// }, {
+// 	name:   "<i class='fas fa-comments'></i> Slack"
+// 	url:    "\(params.slackLink)"
+// 	weight: 2
 }, {
 	name:   "<i class='fas fa-comments'></i> Discord"
 	url:    "\(params.discordLink)"
