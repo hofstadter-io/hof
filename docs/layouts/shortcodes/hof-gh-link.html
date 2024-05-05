@@ -1,0 +1,3 @@
+{{ $path := .Get "path" }}
+{{ $ver := .Site.Params.hofver }}
+<a class="bold" href="https://github.com/hofstadter-io/hof/blob/{{ $ver }}/{{$path}}" target="_blank">{{ $path }}</a>

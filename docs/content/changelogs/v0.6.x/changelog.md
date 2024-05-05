@@ -3,20 +3,23 @@ title: Changes by patch
 weight: 10
 ---
 
-## v0.6.9 (alpha.1)
+## v0.6.9
 
-This release brings more consistency to hof.
+This release brings more consistency and long-term stability to hof.
+There are also new features like the CUE commands and the hof TUI.
 
-Changes:
 
-- many flags changed to bring consistency with CUE and internally
-- upgrade flow to new runtime, this marks the point all subsystems have migrated
-- a few improvements, we still want to do a flow refactor in a future release
-- add support for bulk processing with parallelism
-- support for CUE style data placement
-- add CUE commands [def,eval,export,vet]
+### main changes
 
-Other:
+- Added the CUE commands [def,eval,export,vet]
+- Adjusted flags for consistency with CUE and internally across commands
+- Added `hof tui` for real-time CUE manipulation and exploration
+- Upgradee hof/flow to new runtime, this marks the point all subsystems have migrated
+- Added support for bulk processing with parallelism
+- Support for CUE style data placement with hof extensions
+- Support for embedding user files into CUE values as strings
+
+### other changes
 
 - several bug fixes in mod, containers, #hof
 - deal with macos woes on GHA

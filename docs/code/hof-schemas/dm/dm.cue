@@ -26,7 +26,7 @@ Value: {
 // It can be expanded and enriched to cover more
 // Useful for SQL, APIs, forms, and similar
 Datamodel: {
-	schema.DHof// needed for reFerences
+	schema.DHof  // needed for references
 	#hof: datamodel: root: true
 }
 
@@ -35,7 +35,7 @@ Snapshot: {
 	Timestamp: string | *""
 }
 
-// embedable history type
+// convenience type for embedding history
 History: [...Snapshot]
 
 TrackHistory: {
