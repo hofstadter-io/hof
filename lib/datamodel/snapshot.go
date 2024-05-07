@@ -89,9 +89,10 @@ func loadSnapshot(dir, fpath string, ctx *cue.Context) (*Snapshot, error) {
 
 // we probably want this to be closer to `cue def`
 // with imports, schemas, and such... indep eval'able
-func writeSnapshot(dir, fname, message, pkgId string, V cue.Value) error {
-	ver := fmt.Sprintf("ver_%s", fname)
-	msg := fmt.Sprintf("msg_%s", fname)
+func writeSnapshot(dir, fname, suffix, message, pkgId string, V cue.Value) error {
+	sname := fmt.Sprintf("%s_%s", fname, suffix)
+	ver := fmt.Sprintf("ver_%s", sname)
+	msg := fmt.Sprintf("msg_%s", sname)
 
 	err := V.Validate(cue.Concrete(true))
 	if err != nil {
@@ -142,7 +143,7 @@ func writeSnapshot(dir, fname, message, pkgId string, V cue.Value) error {
 
 	// write file
 	str := string(bytes)
-	fn := filepath.Join(dir, fmt.Sprintf("%s.cue", fname))
+	fn := filepath.Join(dir, fmt.Sprintf("%s.cue", sname))
 	err = os.WriteFile(fn, []byte(str), 0666)
 	if err != nil {
 		return err
@@ -153,7 +154,7 @@ func writeSnapshot(dir, fname, message, pkgId string, V cue.Value) error {
 
 // MakeSnapshot creates a new snapshot for each history annotation in the Datamodel tree
 func (dm *Datamodel) MakeSnapshot(timestamp string, dflags flags.DatamodelPflagpole, cflags flags.Datamodel__CheckpointFlagpole) error {
-	err := dm.T.makeSnapshotR(timestamp, cflags.Message)
+	err := dm.T.makeSnapshotR(timestamp, cflags.Suffix, cflags.Message)
 	if err != nil {
 		return err
 	}
@@ -161,11 +162,11 @@ func (dm *Datamodel) MakeSnapshot(timestamp string, dflags flags.DatamodelPflagp
 	return nil
 }
 
-func (V *Value) makeSnapshotR(timestamp, message string) error {
+func (V *Value) makeSnapshotR(timestamp, suffix, message string) error {
 
 	// load own history
 	if V.Hof.Datamodel.History {
-		err := V.makeSnapshot(timestamp, message)
+		err := V.makeSnapshot(timestamp, suffix, message)
 		if err != nil {
 			return err
 		}
@@ -173,7 +174,7 @@ func (V *Value) makeSnapshotR(timestamp, message string) error {
 
 	// recurse if children to load any nested histories
 	for _, c := range V.Children {
-		err := c.T.makeSnapshotR(timestamp, message)
+		err := c.T.makeSnapshotR(timestamp, suffix, message)
 		if err != nil {
 			return err
 		}
@@ -182,7 +183,7 @@ func (V *Value) makeSnapshotR(timestamp, message string) error {
 	return nil
 }
 
-func (V *Value) makeSnapshot(timestamp, message string) error {
+func (V *Value) makeSnapshot(timestamp, suffix, message string) error {
 
 	// if no diff, no snapshot
 	if len(V.history) > 0 && !V.hasDiff() {
@@ -205,7 +206,7 @@ func (V *Value) makeSnapshot(timestamp, message string) error {
 		pkg = V.Hof.Metadata.Name
 	}
 	pkg = strings.Replace(pkg, "-", "_", -1)
-	err = writeSnapshot(dir, timestamp, message, pkg, val)
+	err = writeSnapshot(dir, timestamp, suffix, message, pkg, val)
 	if err != nil {
 		return err
 	}

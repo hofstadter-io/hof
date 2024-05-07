@@ -9,6 +9,7 @@ var _ *pflag.FlagSet
 var Datamodel__CheckpointFlagSet *pflag.FlagSet
 
 type Datamodel__CheckpointFlagpole struct {
+	Suffix  string
 	Message string
 }
 
@@ -17,6 +18,7 @@ var Datamodel__CheckpointFlags Datamodel__CheckpointFlagpole
 func SetupDatamodel__CheckpointFlags(fset *pflag.FlagSet, fpole *Datamodel__CheckpointFlagpole) {
 	// flags
 
+	fset.StringVarP(&(fpole.Suffix), "suffix", "s", "", "human readable suffix for the checkpoint identifier")
 	fset.StringVarP(&(fpole.Message), "message", "m", "", "message describing the checkpoint")
 }
 

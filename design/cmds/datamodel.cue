@@ -71,7 +71,14 @@ DatamodelCommand: schema.Command & {
 			//Type:    "string"
 			//Default: "\"patch\""
 			//Help:    "type of version bump in [major,minor,patch,<semver>]"
-			//}, {
+		// }, {
+			Name:    "suffix"
+			Long:    "suffix"
+			Short:   "s"
+			Type:    "string"
+			Default: "\"\""
+			Help:    "human readable suffix for the checkpoint identifier"
+		}, {
 			Name:    "message"
 			Long:    "message"
 			Short:   "m"
