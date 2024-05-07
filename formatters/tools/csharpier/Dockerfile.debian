@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:7.0-bookworm-slim AS build-env
+FROM mcr.microsoft.com/dotnet/sdk:8.0-bookworm-slim AS build-env
 WORKDIR /App
 
 # https://github.com/dotnet/sdk/issues/28971#issuecomment-1308881150
