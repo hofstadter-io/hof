@@ -1,7 +1,7 @@
 ---
 title: Hof TUI
-description: "Combining LLMs, Bard, ChatGPT, and Hof."
-brief: "Combining LLMs, ChatGPT, and hof."
+description: "Explore and develop CUE interactively"
+brief: "Explore and develop CUE interactively"
 
 keywords:
 - TUI

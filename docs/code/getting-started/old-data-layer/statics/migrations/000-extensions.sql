@@ -1,3 +1,1 @@
-/* default postgres plugins */
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
+/* default postgres plugins */ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";

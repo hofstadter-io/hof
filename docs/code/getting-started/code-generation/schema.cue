@@ -7,7 +7,7 @@ Input: #Input
 // This is your input schema
 #Input: {
 	// this is a CUE pattern to apply #Type to every key
-	[key=string]: #Type & { 
+	[key=string]: #Type & {
 		// here we are enriching the input, mapping key -> Name
 		Name: key
 	}
@@ -20,7 +20,7 @@ Input: #Input
 
 	// This is a CUE pattern for a struct of structs
 	// you can set nested fields based on the key name in [key=string]
-	Fields: [field=string]: #Field & { Name: field }
+	Fields: [field=string]: #Field & {Name: field}
 
 	// Enum of relation types with the key being the Name of the other side
 	Relations: [other=string]: "BelongsTo" | "HasOne" | "HasMany" | "ManyToMany"

@@ -4,7 +4,6 @@ title: Data Layer
 brief: Define, validate, version, and migrate models across technologies
 
 weight: 40
-draft: true
 ---
 
 {{<lead>}}
@@ -106,50 +105,148 @@ Available Commands:
 
 We'll use a relational datamodel, typical of a database, for our example.
 
-{{<codeInner lang="cue" title="datamodel.cue">}}
-package datamodel
+To create a datamodel, simply write some CUE. 
+To see your datamodel in hof, run the following commands
 
-import (
-  "github.com/hofstadter-io/hof/schema/dm/sql"
-  "github.com/hofstadter-io/hof/schema/dm/fields"
-)
+```text
+hof dm list
+hof eval datamodel.cue
+hof tui view datamodel.cue
+```
 
-// Traditional database model which maps onto tables & columns
-Datamodel: sql.Datamodel & {
-  // implied through definition, duplicated here for example clarity
-  $hof: metadata: {
-    id:   "datamodel-abc123"
-    name: "MyDatamodel"
-  }
+<details>
+<summary>
+hof dm list
+</summary>
+{{<codeInner>}}
+NAME       TYPE       VERSION  STATUS      ID        
+Datamodel  datamodel  -        no-history  Datamodel
+{{</codeInner>}}
+</details>
 
-  Models: {
-    User: {
-      Fields: {
-        ID:        fields.UUID
-        CreatedAt: fields.Datetime
-        UpdatedAt: fields.Datetime
-        DeletedAt: fields.Datetime
+<details>
+<summary>
+hof eval datamodel.cue
+</summary>
+{{<codePane file="code/getting-started/data-layer/create/hof-eval.html" >}}
+</details>
+<br>
 
-        email:    fields.Email
-        username: fields.String
-        password: fields.Password
-        verified: fields.Bool
-        active:   fields.Bool
+{{<codePane title="datamodel.cue" file="code/getting-started/data-layer/create/datamodel.html" >}}
 
-        persona: fields.Enum & {
-          Vals: ["guest", "user", "admin", "owner"]
-          Default: "user"
-        }
-      }
-    }
-  }
-}
+
+### Checkpoints and History
+
+Like a database and SQL migration files, you can checkpoint the history of your datamodels.
+This is an optional feature, but will allow you to automatically generate database migrations
+and code that can upgrade requests or downgrade responses, allowing for client/server version skew.
+
+To checkpoint a datamodel, run `hof dm checkpoint -s ... -m "..."`
+
+
+{{<codeInner>}}
+> hof dm checkpoint --suffix initial_user_model --message "initial user model for the application"
+creating checkpoint: 20240507010604_initial_user_model "initial user model for the application"
 {{</codeInner>}}
 
-### Checkpoint a Datamodel
+At the root of your CUE module, you should now find a `.hof/dm/...` directory
+
+{{<codeInner>}}
+> tree .hof 
+.hof
+└── dm
+    └── Datamodel
+        ├── 20240507010604_initial_user_model.cue
+        └── Models
+            └── User
+                └── 20240507010604_initial_user_model.cue
+
+5 directories, 2 files
+{{</codeInner>}}
+
+The `hof` SQL datamodel tracks both the full datamodel and the individual models.
+This is done to ease the authoring of code generation templates that create
+database migrations and version skew functions.
+Generally, `hof` supports user defined datamodel hierarchy and history tracking.
 
 
 ### Update a Datamodel
 
+Next, we will add a UserProfile to the model.
+
+<details>
+<summary>
+hof eval datamodel.cue
+</summary>
+{{<codePane file="code/getting-started/data-layer/update/hof-eval.html" >}}
+</details>
+<br>
+
+{{<codePane title="datamodel.cue" file="code/getting-started/data-layer/update/datamodel.html" >}}
 
 ### View a Datamodel
+
+With our modified datamodel, we can explore some `hof dm` commands for inspecting it.
+
+We can see that it has changes with `hof dm list`, note the `dirty` status.
+
+{{<codeInner title="hof dm list">}}
+NAME       TYPE       VERSION  STATUS  ID        
+Datamodel  datamodel  -        dirty   Datamodel
+{{</codeInner>}}
+
+We can also see the diff of those changes.
+`hof` uses a structural diff on the CUE value
+which allows for the hierarchical history.
+
+<details>
+<summary>
+hof dm diff
+</summary>
+{{<codePane file="code/getting-started/data-layer/update/hof-diff.html" >}}
+</details>
+<br>
+
+With a new checkpoint...
+
+{{<codeInner title="hof dm checkpoint...">}}
+> hof dm checkpoint -s add_user_profile -m "add a user profile and give ownership to the user"
+creating checkpoint: 20240507014051 "add a user profile and give ownership to the user"
+{{</codeInner>}}
+
+we can also view the history log
+
+{{<codeInner>}}
+> hof dm log
+20240507014051_add_user_profile: "add a user profile and give ownership to the user"
+  Datamodel         ~ has changes
+    Models
+      User          ~ has changes
+      UserProfile   + new value
+
+20240507010604_initial_user_model: "initial user model"
+  Datamodel         + new value
+    Models
+      User          + new value
+{{</codeInner>}}
+
+
+If we inspect the `.hof/dm` directory, we will see there are three new files.
+One for the datamodel change, and one for each model that was changed.
+
+{{<codeInner>}}
+> tree .hof
+.hof
+└── dm
+    └── Datamodel
+        ├── 20240507010604_initial_user_model.cue
+        ├── 20240507014051_add_user_profile.cue
+        └── Models
+            ├── User
+            │   ├── 20240507010604_initial_user_model.cue
+            │   └── 20240507014051_add_user_profile.cue
+            └── UserProfile
+                └── 20240507014051_add_user_profile.cue
+
+6 directories, 5 files
+{{</codeInner>}}

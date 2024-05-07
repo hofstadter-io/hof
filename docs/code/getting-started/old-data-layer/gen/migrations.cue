@@ -51,7 +51,7 @@ Migrations: gen.#Generator & {
 
 	// Files that are generated once per server
 	_OnceFiles: [...gen.#File] & [
-			{
+		{
 			TemplatePath: "Makefile"
 			Filepath:     "Makefile"
 		},
@@ -65,7 +65,7 @@ Migrations: gen.#Generator & {
 		},
 	]
 
-	_MigrationFiles: [...gen.#File] & [ for _, S in Datamodel.History {
+	_MigrationFiles: [...gen.#File] & [for _, S in Datamodel.History {
 		In: {
 			Snapshot: S
 		}

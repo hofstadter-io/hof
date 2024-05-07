@@ -69,8 +69,8 @@ Datamodel: sql.Datamodel & {
 			Fields: {
 				sql.CommonFields
 
-				Title:   sql.Varchar
-				Format:  sql.Varchar
+				Title:                          sql.Varchar
+				Format:                         sql.Varchar
 				Content: sql.Varchar & {Length: 2048}
 
 				Owner: fields.UUID
