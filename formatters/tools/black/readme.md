@@ -8,3 +8,5 @@ There seem to be issues with pipenv arm64 images that can be used on M1/2 and ot
 
 
 ## updating deps
+
+Delete `Pipfile.lock` and run `pipenv lock`
