@@ -43,7 +43,7 @@ WORKDIR /app
 # install server deps
 COPY package.json yarn.lock /app/
 RUN for i in $(seq 1 5); do \
-	yarn install \
+	yarn install --ignore-engines \
 	&& s=0 && break || s=$? && echo "RETRY $i" && sleep $i; done; (exit $s)
 
 # our server code
