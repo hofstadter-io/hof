@@ -7,7 +7,7 @@ exec hof datamodel list dm-v0.cue
 cmp stdout golden-v0d.stdout -trim-space
 
 # create checkpoint
-exec hof datamodel checkpoint dm-v0.cue
+exec hof datamodel checkpoint dm-v0.cue -s init
 
 # check v0 clean
 exec hof datamodel list dm-v0.cue
