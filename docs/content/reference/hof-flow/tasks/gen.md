@@ -10,7 +10,7 @@ Random generators
 
 ### Schema
 
-{{<codePane title="github.com/hofstadter.io/hof/flow/tasks/gen" file="code/flow/schemas/tasks/gen/schema.html">}}
+{{<codePane title="github.com/hofstadter.io/hof/flow/tasks/gen" file="code/hof-schemas/flow/tasks/gen/schema.html">}}
 
 ### Example
 

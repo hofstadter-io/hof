@@ -8,7 +8,7 @@ Structural helpers
 
 ### Schema 
 
-{{<codePane title="github.com/hofstadter.io/hof/flow/tasks/st" file="code/flow/schemas/tasks/st/schema.html">}}
+{{<codePane title="github.com/hofstadter.io/hof/flow/tasks/st" file="code/hof-schemas/flow/tasks/st/schema.html">}}
 
 ### Example
 

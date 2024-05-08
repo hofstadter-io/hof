@@ -8,16 +8,21 @@ weight: 40
 
 {{<lead>}}
 The data layer is a combination of schemas, config, and annotations
-that are specially treated by `hof`. The two primary goals are
+that `hof` understands and operates on. The primary goals are:
 
-1. Provide consistent data models for downstream consumers
-2. Enable history, diff, and migration features for version flexibility
+- Support git-style checkpointing, history, and diff features, flexible to your datamodel schema
+- Provide consistent data models for downstream consumers
+- Enable downstream features like automatic database migrations, client/server version skew, and change detection for infrastructure as code
 
-The `hof datamodel` command and `schema/dm` are central to this, but are designed
-in a way that allows you to customize and extend the built-in base.
+The `hof datamodel` command and `schema/dm` schema form the foundations and 
+are designed so you can customize, extend, or replace as needed.
+
+- the built-in base models, fields, and enrichers
+- the shape and hierarchy for diff and history tracking
+
 {{</lead>}}
 
-_Note, `hof dm` is shorthand for `hof datamodel`.
+_Note, `hof dm` is shorthand for `hof datamodel`_.
 
 ## Schemas
 

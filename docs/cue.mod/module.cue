@@ -3,7 +3,7 @@ cue:    "v0.8.2"
 
 require: {
 	"github.com/hofstadter-io/cuelm": "v0.1.1"
-	"github.com/hofstadter-io/hof":   "v0.6.9-rc.1"
+	"github.com/hofstadter-io/hof":   "v0.6.9-rc.2"
 }
 
 indirect: {

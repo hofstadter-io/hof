@@ -8,7 +8,7 @@ Call an API or run a REST server
 
 ### Schema 
 
-{{<codePane title="Schema" file="code/flow/schemas/tasks/api/schema.html">}}
+{{<codePane title="Schema" file="code/hof-schemas/flow/tasks/api/schema.html">}}
 
 ### Example: api.Call
 

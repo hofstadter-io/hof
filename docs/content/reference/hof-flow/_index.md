@@ -11,6 +11,12 @@ powered by `cue/flow`.
 It has more task types and capabilities.
 {{</lead>}}
 
+{{< childpages >}}
+
+### Command Help
+
+<details>
+<summary>hof flow -h</summary>
 {{<codeInner title="hof flow -h" >}}
 run file(s) through the hof/flow DAG engine
 
@@ -78,9 +84,10 @@ Global Flags:
   -q, --quiet            turn off output and assume defaults at prompts
   -v, --verbose int      set the verbosity of output
 {{< /codeInner >}}
+</details>
 
 
-## args & flags
+### args & flags
 
 `hof/flow` accepts CUE entrypoints like the other commands.
 There is CLI sugar for
@@ -97,7 +104,3 @@ Flags:
 - `--progress` will print task progress for the events found, pre, & post
 - `--stats` will print task times and dependencies at completion 
 
-
----
-
-{{< childpages >}}

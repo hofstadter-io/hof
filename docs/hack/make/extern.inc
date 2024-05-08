@@ -4,6 +4,7 @@ extern: cmdhelp schemas
 schemas:
 	# todo, get from github @ version
 	rsync -ra ../schema/* code/hof-schemas
+	rsync -a --include='*.cue' --include='*/' --exclude='*' ../flow/tasks/* code/hof-schemas/flow/tasks
 
 .PHONY: cmdhelp
 cmdhelp:
