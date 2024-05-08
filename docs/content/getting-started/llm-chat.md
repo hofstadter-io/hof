@@ -1,12 +1,11 @@
 ---
 title: LLM Chat
-description: "Combining LLMs, Bard, ChatGPT, and Hof."
-brief: "Combining LLMs, ChatGPT, and hof."
-draft: true
+description: "Combining LLMs and Hof."
+brief: "Combining LLMs and hof."
 
 keywords:
 - LLM
-- Bard 
+- Gemini
 - ChatGPT
 - code gen
 
@@ -15,15 +14,9 @@ weight: 50
 
 {{<lead>}}
 Large Language Models (LLM) are an inflection point in computing.
-The represent significant advancements and automation for tasks.
-Generating code is among them and there are many interesting topics
-at the intersection of LLMs and Hof.
+`hof chat` is an experiment in combining LLMs with hof's features
+to find where and how they can be used together for the best effect.
 {{</lead>}}
-
-{{<alert style="info">}}
-We are only at the beginnings of our merging Hof with LLMs.
-This page descibes the current state and where we are headed.
-{{</alert>}}
 
 
 ## hof chat
@@ -32,7 +25,11 @@ The `hof chat` command is and early preview for interacting with hof using natur
 You can already use this to:
 
 1. Talk with ChatGPT from the command line or vim
-2. Talk with Hof data models (full demo coming soon :)
+1. Talk with Hof data models (full demo coming soon :)
+
+_note, you can also call any LLM apis via hof/flow to build complex workflows_
+
+<br>
 
 {{<codePane file="code/cmd-help/chat" title="$ hof help chat" lang="text">}}
 
