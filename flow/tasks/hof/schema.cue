@@ -2,7 +2,6 @@ package hof
 
 Tempate: {
 	@task(hof.Template)
-	$task: "hof.Template"
 
 	name: string | *""
 	data: _

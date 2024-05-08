@@ -9,7 +9,6 @@ package db
 // Call a database
 Call: {
 	@task(db.Call)
-	$task: "db.Call"
 
 	// db connection
 	conn: {

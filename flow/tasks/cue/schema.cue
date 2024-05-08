@@ -2,7 +2,6 @@ package hof
 
 Format: {
 	@task(cue.Format)
-	$task: "cue.Format"
 
 	value: _
 

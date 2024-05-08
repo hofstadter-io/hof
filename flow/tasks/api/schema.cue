@@ -4,7 +4,6 @@ Method: *"GET" | "POST" | "PUT" | "DELETE" | "OPTIONS" | "HEAD" | "CONNECT" | "T
 
 Call: {
 	@task(api.Call)
-	$task: "api.Call"
 
 	req: {
 		method: Method
@@ -38,7 +37,6 @@ Call: {
 
 Serve: {
 	@task(api.Serve)
-	$task: "api.Serve"
 
 	port:        string
 	quitMailbox: string

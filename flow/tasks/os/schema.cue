@@ -2,7 +2,6 @@ package os
 
 Exec: {
 	@task(os.Exec)
-	$task: "os.Exec"
 
 	cmd: string | [string, ...string]
 
@@ -47,7 +46,6 @@ Exec: {
 // Get a filelock
 FileLock: {
 	@task(os.FileLock)
-	$task: "os.FileLock"
 
 	// lockfile name
 	filename: string
@@ -62,7 +60,6 @@ FileLock: {
 // release a filelock
 FileUnlock: {
 	@task(os.FileUnlock)
-	$task: "os.FileUnlock"
 
 	// lockfile name
 	filename: string
@@ -78,7 +75,6 @@ Name: !="" & !~"^[$]"
 // Getenv gets and parses the specific command line variables.
 Getenv: {
 	@task(os.Getenv)
-	$task: "os.Getenv"
 
 	// if empty, get all
 	{[Name]: Value}
@@ -86,7 +82,6 @@ Getenv: {
 
 Glob: {
 	@task(os.Glob)
-	$task: "os.Glob"
 
 	// glob patterns to match
 	globs: [...string]
@@ -98,14 +93,12 @@ Glob: {
 // acts like 'mkdir -p' 
 Mkdir: {
 	@task(os.Mkdir)
-	$task: "os.Mkdir"
 
 	dir: string
 }
 
 ReadFile: {
 	@task(os.ReadFile)
-	$task: "os.ReadFile"
 
 	// filename to read
 	filename: string
@@ -116,7 +109,6 @@ ReadFile: {
 
 Sleep: {
 	@task(os.Sleep)
-	$task: "os.Sleep"
 
 	// time.Duration to sleep for
 	duration: string
@@ -125,7 +117,6 @@ Sleep: {
 // read from stdin
 Stdin: {
 	@task(os.Stdout)
-	$task: "os.Stdout"
 
 	// optional message to user before reading input
 	prompt?: string
@@ -136,15 +127,13 @@ Stdin: {
 // print to stdout
 Stdout: {
 	@task(os.Stdout)
-	$task: "os.Stdout"
 
 	// text to write
 	text: string
 }
 
 Watch: {
-	@task(fs.Watch)
-	$task: "fs.Watch"
+	@task(os.Watch)
 
 	// glob patterns to watch for events 
 	globs: [...string]
@@ -161,7 +150,6 @@ Watch: {
 
 WriteFile: {
 	@task(os.WriteFile)
-	$task: "os.WriteFile"
 
 	filename: string
 	contents: string | bytes

@@ -7,7 +7,6 @@ package csp
 // Chan is a named mailbox
 Chan: {
 	@task(csp.Chan)
-	$task: "csp.Chan"
 
 	// the name of the channel
 	mailbox: string
@@ -20,7 +19,6 @@ Chan: {
 // Send a message to a mailbox
 Send: {
 	@task(csp.Send)
-	$task: "csp.Send"
 
 	// the name of the channel
 	mailbox: string
@@ -35,7 +33,6 @@ Send: {
 // Recv is a coroutine which runs indefinitely
 Recv: {
 	@task(csp.Recv)
-	$task: "csp.Recv"
 
 	// the name of the channel
 	mailbox: string
