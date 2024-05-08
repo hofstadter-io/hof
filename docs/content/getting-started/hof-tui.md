@@ -6,7 +6,7 @@ brief: "Explore and develop CUE interactively"
 keywords:
 - TUI
 
-weight: 45
+weight: 60
 
 ---
 

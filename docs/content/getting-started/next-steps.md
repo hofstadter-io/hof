@@ -3,6 +3,7 @@ title: "Next Steps"
 description: "Next steps to learning and using hof"
 brief: "To learning and using hof"
 weight: 100
+draft: true
 ---
 
 {{<lead>}}
