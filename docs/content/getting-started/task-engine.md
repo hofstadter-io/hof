@@ -55,7 +55,7 @@ Global Flags:
 ### Tasks & Schemas
 
 You can find the schema and example for all tasks in
-[the hof/flow reference section](/reference/hof-flow/schemas/)
+[the hof/flow reference section](/reference/hof-flow/tasks/)
 
 - `api`
   - Call
@@ -109,7 +109,7 @@ You can find the schema and example for all tasks in
 
 You can find many examples through hof's codebase and other projects
 
-- [the hof/flow reference section](/reference/hof-flow/schemas/)
+- [the hof/flow reference section](/reference/hof-flow/tasks/)
 - [the hof/flow test directory](https://github.com/hofstadter-io/hof/tree/_dev/flow/testdata)
 - [LLM chat examples](https://github.com/hofstadter-io/hof/tree/_dev/flow/chat)
 - [event and server based processing](https://github.com/verdverm/streamer-tools)
