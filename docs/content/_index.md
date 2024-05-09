@@ -35,17 +35,17 @@ __`hof` is a CLI tool you *add* to your workflow.__
 
 #### There are two modes to use `hof`
 
-1. creating applications (green boxes)
-1. building reusable modules (blue boxes)
+1. building reusable modules
+1. creating applications
 
 Like most languages and frameworks, there are two types of users.
 Most users will build applications for some purpose, using libraries written by others.
 A smaller number will build reusable modules, like the packages and libraries you use today.
-`hof` has the same for same relationship for code generators modules.
-All modules exist outside of the `hof` tool and just need to be a git repository.
+`hof` has the same relationship for its features, when packaged as modules.
 
 
-## Designed to augment your workflows
+### Augment your workflows
+<br>
 
 __`hof` is a CLI tool you will add to your workflows.__
 We know developers have their own preferences
@@ -77,13 +77,6 @@ you can update your designs or data model and regenerate code.
 Think of code generated with `hof` as living boilerplate or scaffolding.
 You can also add custom code directly in the output
 and `hof` will ensure it stays as you regenerate your application.
-
-
-# We call this High Code development.
-
-{{<lead>}}
-Creating code with higher levels of design, reuse, and implementation
-{{</lead>}}
 
 
 
