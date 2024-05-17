@@ -113,9 +113,9 @@ func main() {
 	tests["dm"] = func() error {
 		return R.TestDatamodel(tester, source)
 	}
-	// tests["mod"] = func() error {
-	// 	return  R.TestMod(tester, source)
-	// }
+	tests["mod"] = func() error {
+		return  R.TestMod(tester, source)
+	}
 	tests["fmt"] = func() error {
 		return R.TestCommandFmt(tester, source)
 	}
@@ -134,7 +134,7 @@ func main() {
 		"st",
 		"dm",
 		"flow",
-		"mod",
+		// "mod",
 		"fmt",
 		"cue",
 	}
