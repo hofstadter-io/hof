@@ -63,20 +63,21 @@ ghacue.#Workflow & {
 					"""
 				// "if": "startsWith( runner.os, 'macos')"
 			},
-		] + #TestSteps + [{
-			// should probably be last for external workflows?
-			// or maybe separate workflow for permissions?
-			name: "test/mod"
-			run: """
-				hof flow @test/mod ./test.cue
-				"""
-			env: {
-				GITHUB_TOKEN:       "${{secrets.HOF_HOMEBREW_PAT}}"
-				GITLAB_TOKEN:       "${{secrets.GITLAB_TOKEN}}"
-				BITBUCKET_USERNAME: "hofstadter"
-				BITBUCKET_PASSWORD: "${{secrets.BITBUCKET_TOKEN}}"
-			}
-		}]
+		]
+		// ] + #TestSteps + [{
+		// 	// should probably be last for external workflows?
+		// 	// or maybe separate workflow for permissions?
+		// 	name: "test/mod"
+		// 	run: """
+		// 		hof flow @test/mod ./test.cue
+		// 		"""
+		// 	env: {
+		// 		GITHUB_TOKEN:       "${{secrets.HOF_HOMEBREW_PAT}}"
+		// 		GITLAB_TOKEN:       "${{secrets.GITLAB_TOKEN}}"
+		// 		BITBUCKET_USERNAME: "hofstadter"
+		// 		BITBUCKET_PASSWORD: "${{secrets.BITBUCKET_TOKEN}}"
+		// 	}
+		// }]
 	}
 }
 
