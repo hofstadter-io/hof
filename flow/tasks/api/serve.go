@@ -18,6 +18,7 @@ import (
 	hofcontext "github.com/hofstadter-io/hof/flow/context"
 	"github.com/hofstadter-io/hof/flow/flow"
 	"github.com/hofstadter-io/hof/flow/tasks/csp"
+	"github.com/hofstadter-io/hof/lib/cuetils"
 )
 
 type Serve struct {
@@ -262,8 +263,9 @@ func (T *Serve) routeFromValue(path string, route cue.Value, e *echo.Echo, ctx *
 
 		resp := tmp.LookupPath(cue.ParsePath("resp"))
 		if resp.Err() != nil {
-			fmt.Println("handler resp error:", resp.Err())
-			return resp.Err()
+			e := cuetils.ExpandCueError(resp.Err())
+			fmt.Println("handler resp error:", e, tmp)
+			return e
 		}
 
 		err = T.fillRespFromValue(resp, c)
@@ -320,9 +322,29 @@ func (T *Serve) buildReqValue(c echo.Context) (map[string]interface{}, error) {
 	R := c.Request()
 
 	req["method"] = R.Method
-	req["header"] = R.Header
 	req["url"] = R.URL
-	req["query"] = c.QueryParams()
+
+	// flatten any headers of len 1
+	hm := map[string]any{}
+	for k,v := range R.Header {
+		if len(v) == 1 {
+			hm[k] = v[0]
+		} else {
+			hm[k] = v
+		}
+	}
+	req["header"] = hm
+
+	// flatten any query params of len 1
+	qm := map[string]any{}
+	for k,v := range c.QueryParams() {
+		if len(v) == 1 {
+			qm[k] = v[0]
+		} else {
+			qm[k] = v
+		}
+	}
+	req["query"] = qm
 
 	b, err := io.ReadAll(R.Body)
 	if err != nil {
