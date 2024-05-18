@@ -9,10 +9,11 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/datamodel"
 	"github.com/hofstadter-io/hof/lib/runtime"
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 func list(R *runtime.Runtime, dflags flags.DatamodelPflagpole) error {
-	return printAsTable(
+	return yagu.PrintAsTable(
 		[]string{"Name", "Type", "Version", "Status", "ID"},
 		func(table *tablewriter.Table) ([][]string, error) {
 			var rows = make([][]string, 0, len(R.Datamodels))
