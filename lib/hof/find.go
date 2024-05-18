@@ -42,6 +42,10 @@ func upgradeAttrs[T any](node *Node[T], label string) bool {
 		case "gen":
 			node.Hof.Gen.Root = true
 			node.Hof.Gen.Name = ac
+			c := val.LookupPath(cue.ParsePath("Create"))
+			if c.Exists() {
+				node.Hof.Gen.Creator = true
+			}
 
 		// this doesnt handle empty @flow()
 		case "flow":
