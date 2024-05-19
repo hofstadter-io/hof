@@ -55,18 +55,18 @@ Global Flags:
 ### Tasks & Schemas
 
 You can find the schema and example for all tasks in
-[the hof/flow reference section](/reference/hof-flow/tasks/)
+[the hof/flow reference section](/task-engine/tasks/)
 
-- `api`
+- [api](/task-engine/tasks/api/)
   - Call
   - Serve
-- `csp` (communicating sequential processes)
+- [`csp`](/task-engine/tasks/csp/) (communicating sequential processes)
   - Chan
   - Send
   - Recv
-- `cue`
+- [`cue`](/task-engine/tasks/cue/)
   - Format (print incomplete to concrete CUE values)
-- `gen` (generate random values)
+- [`gen`](/task-engine/tasks/gen/) (generate random values)
   - Seed
   - Now
   - Str
@@ -76,11 +76,11 @@ You can find the schema and example for all tasks in
   - UUID
   - CUID
   - Slug
-- `hof`
+- [`hof`](/task-engine/tasks/hof/)
   - Template (render a hof text/template)
-- `kv`
+- [`kv`](/task-engine/tasks/kv/)
   - Mem (in-memory cache)
-- `os`
+- [`os`](/task-engine/tasks/os/)
   - Exec
   - FileLock
   - FileUnlock
@@ -94,9 +94,9 @@ You can find the schema and example for all tasks in
   - Stdout
   - Watch
   - WriteFile
-- `prompt`
+- [`prompt`](/task-engine/tasks/prompt/)
   - Prompt (interactive user prompts, like creators)
-- `st` (structural)
+- [`st`](/task-engine/tasks/st/) (structural)
   - Mask
   - Pick
   - Insert
