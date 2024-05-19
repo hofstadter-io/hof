@@ -3,6 +3,7 @@ title: "Concepts"
 description: "Overview of the main concepts in Hofstadter around code generation, source-of-truth, reusability."
 brief: "in Hofstadter, a quick overview"
 
+draft: true
 weight: 90
 ---
 

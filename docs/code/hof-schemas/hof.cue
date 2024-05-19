@@ -15,7 +15,6 @@ Hof: {
 
 		// hof/datamodel
 		datamodel?: {
-
 			// define the root of a datamodel
 			root: bool | *false
 
@@ -37,18 +36,16 @@ Hof: {
 
 		// hof/gen
 		gen?: {
+			// define the root of a generator
 			root: bool | *false
 
 			// name of the generator
 			name: string | *""
-
-			// TODO, do we need this? aren't we...
-			// determining based on the existence of Create: {}
-			creator: bool | *false
 		}
 
 		// hof/flow, used for both flows & tasks
 		flow?: {
+			// define the root of a workflow
 			root: bool | *false
 
 			// name of the flow or task
@@ -56,14 +53,7 @@ Hof: {
 
 			// if op is empty, it is a flow value
 			// if op is not empty, it is a task value
-			// TODO, maybe we make this "flow" for flows?
-			op: string | *"flow"
-		}
-
-		chat?: {
-			root:  bool | *false
-			name:  string | *""
-			extra: string | *""
+			op: string | *""
 		}
 	}
 }
