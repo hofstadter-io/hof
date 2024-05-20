@@ -1,8 +1,6 @@
 ---
 title: Task Engine
 weight: 50
-
-draft: true
 ---
 
 {{<lead>}}
@@ -17,19 +15,6 @@ as they are ready or needed.
 
 
 
----
-
-{{< childpages >}}
-
-
----
-
-{{<lead>}}
-`hof/flow` is a data and task engine
-with automatic dependency detection
-powered by `cue/flow`.
-It has more task types and capabilities.
-{{</lead>}}
 
 {{< childpages >}}
 

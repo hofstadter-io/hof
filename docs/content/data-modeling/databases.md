@@ -1,6 +1,7 @@
 ---
 title: For Databases
 
+draft: true
 weight: 40
 ---
 
