@@ -179,7 +179,6 @@ See the following to learn more
 - `hof gen -h`
 - [getting-started/code-generation](/getting-started/code-generation/)
 - [code-generation/adhoc](/code-generation/adhoc/)
-- [reference/hof-gen/adhoc-file-gen](/reference/hof-gen/adhoc-file-gen/)
 
 ### other changes
 
@@ -204,7 +203,7 @@ See the following to learn more:
 - `hof flow -h`
 - [getting-started](/getting-started/task-engine/)
 - [task-engine](/task-engine/)
-- [reference](/reference/hof-flow/)
+- [task reference](/task-engine/tasks/)
 
 ### other changes
 
@@ -227,7 +226,7 @@ See the following to learn more:
 
 - `hof datamodel -h`
 - [getting-started/data-layer](/getting-started/data-layer/)
-- [reference/hof-datamodel](/reference/hof-datamodel/)
+- [data modeling section](/data-modeling/)
 
 ### other changes
 

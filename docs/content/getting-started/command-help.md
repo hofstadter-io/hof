@@ -24,7 +24,7 @@ Top level commands and help message
 
 Used for data model management (dm for short)
 
-See the [Data Modeling section](/reference/hof-datamodel/) for details.
+See the [data modeling section](/data-modeling/) for details.
 
 <details>
 <summary>hof help datamodel</summary>
@@ -36,7 +36,7 @@ See the [Data Modeling section](/reference/hof-datamodel/) for details.
 Create one-liners to generate files with data, CUE, and templates
 or use composable generators to build out advanced applications.
 
-See [the code gen docs](/reference/hof-gen/) to learn more
+See [the code generation section](/code-generation/) to learn more
 
 <details>
 <summary>hof help flow</summary>
@@ -47,7 +47,7 @@ See [the code gen docs](/reference/hof-gen/) to learn more
 
 Build workflows and scripts with CUE and a DAG engine
 
-See [the flow docs](/reference/hof-flow/) to learn more
+See [the task engine section](/task-engine/) to learn more
 
 <details>
 <summary>hof help flow</summary>

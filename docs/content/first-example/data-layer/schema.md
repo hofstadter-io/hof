@@ -22,7 +22,7 @@ The following as the core of the `#Datamodel` schema.
 
 {{< codePane title="Core of #Datamodel" file="code/first-example/data-layer/content/schema/hof-dm.html">}}
 
-See [hof datamodel schemas](/reference/hof-datamodel/schemas/) for the full schema.
+See [hof datamodel schemas](/data-modeling/schemas/) for the full schema.
 
 ### example/schema.#Datamodel
 

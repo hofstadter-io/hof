@@ -49,6 +49,20 @@ To further your CUE knowledge, be sure to check out these resources:
 - [Cuetorials](https://cuetorials.com) (by Hofstadter)
 
 
+### Hof's CUE commands
+
+Hof embeds CUE's `vet, def, eval, export` commands for your convenience.
+The are mostly drop in alternatives, some codecs are not available and
+several enhancements have been added.
+
+The enhancements are:
+
+- additional methods for data placement
+- increased flexibility for environment variables 
+- @userfiles() to include any file
+- `--tui` flag to open hof's TUI for the commands
+
+
 ### Hof & CUE Modules
 
 __hof__ has a preview version for __CUE modules__.

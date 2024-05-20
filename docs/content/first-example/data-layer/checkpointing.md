@@ -21,7 +21,7 @@ Available Commands:
 {{</codeInner>}}
 
 Run `hof dm -h` for the full listing.
-The top-level [data-modeling](/reference/hof-datamodel/) goes deeper into
+The top-level [data-modeling](/data-modeling/) goes deeper into
 the command and many related topics.
 
 ### Checkpointing
