@@ -26,7 +26,6 @@ type EvalFlagpole struct {
 	Resolve       bool
 	Defaults      bool
 	Final         bool
-	Tui           bool
 }
 
 var EvalFlags EvalFlagpole
@@ -51,7 +50,6 @@ func SetupEvalFlags(fset *pflag.FlagSet, fpole *EvalFlagpole) {
 	fset.BoolVarP(&(fpole.Resolve), "resolve", "", false, "resolve references in value")
 	fset.BoolVarP(&(fpole.Defaults), "defaults", "", false, "use default values if not set")
 	fset.BoolVarP(&(fpole.Final), "final", "", true, "finalize the value")
-	fset.BoolVarP(&(fpole.Tui), "tui", "", false, "open hof's TUI and browse your CUE")
 }
 
 func init() {

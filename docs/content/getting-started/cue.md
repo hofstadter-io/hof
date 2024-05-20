@@ -59,8 +59,7 @@ The enhancements are:
 
 - additional methods for data placement
 - increased flexibility for environment variables 
-- @userfiles() to include any file
-- `--tui` flag to open hof's TUI for the commands
+- `@userfiles()/--user-files` to include any file
 
 
 ### Hof & CUE Modules

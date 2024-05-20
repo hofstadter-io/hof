@@ -165,13 +165,6 @@ EvalCommand: schema.Command & {
 		Type:    "bool"
 		Default: "true"
 		Help:    "finalize the value"
-	}, {
-		Name:    "tui"
-		Long:    "tui"
-		Short:   ""
-		Type:    "bool"
-		Default: "false"
-		Help:    "open hof's TUI and browse your CUE"
 	}]
 }
 
