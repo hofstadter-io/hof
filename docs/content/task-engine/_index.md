@@ -14,9 +14,18 @@ as they are ready or needed.
 {{</lead>}}
 
 
-
-
 {{< childpages >}}
+
+
+### Attributes
+
+`@flow()`: useful for a single, unnamed workflow
+
+`@flow(<name>)`: write and call one or more flows by name
+
+`@task(<pkg.Func>)`: a workflow step of type `<pkg.Func>`
+
+`@print(<cue.path>)`: output values to log for debugging
 
 ### Command Help
 

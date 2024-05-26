@@ -1,0 +1,32 @@
+print consolidated CUE definitions
+
+Usage:
+  hof def [flags]
+
+Flags:
+  -a, --attributes               diplay field attributes
+  -C, --comments                 include comments in output
+  -e, --expression stringArray   evaluate these expressions only
+  -h, --help                     help for def
+      --inline-imports           expand references to non-core imports
+      --list                     concatenate multiple objects into a list
+      --out string               output data format, when detection does not work
+  -o, --outfile string           filename or - for stdout with optional file prefix
+      --simplify                 simplify CUE statements where possible
+
+Global Flags:
+  -E, --all-errors               print all available errors
+  -i, --ignore-errors            turn off output and assume defaults at prompts
+  -D, --include-data             auto include all data files found with cue files
+  -V, --inject-env               inject all ENV VARs as default tag vars
+  -I, --input stringArray        extra data to unify into the root value
+  -p, --package string           the Cue package context to use during execution
+  -l, --path stringArray         CUE expression for single path component when placing data files
+  -q, --quiet                    turn off output and assume defaults at prompts
+  -d, --schema stringArray       expression to select schema to apply to data files
+      --stats                    print generator statistics
+  -0, --stdin-empty              A flag that ensure stdin is zero and does not block
+  -t, --tags stringArray         @tags() to be injected into CUE code
+  -U, --user-files stringArray   file globs to embed into the root value (<cue-path>=<file-glob>), use % as slash to trim before
+  -v, --verbosity int            set the verbosity of output
+      --with-context             add extra context for data files, usable in the -l/path flag

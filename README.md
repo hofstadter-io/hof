@@ -14,7 +14,7 @@ __`hof` is a CLI tool you *add* to your workflow.__
 | Core Features | |
 |:---                    |:-- |
 | __code generation__    | Data + templates = _ (anything), technology agnostic |
-| __data model__         | Define and manage data models, life-cycle features |
+| __data modeling__      | Define, checkpoint, and diff data models |
 | __task engine__        | Extensible task and DAG workflow engine |
 | __CUE cmds__           | Core def, eval, export, and vet commands |
 | __creators__           | bootstraping and starter kits from any repo |

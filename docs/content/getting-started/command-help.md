@@ -1,7 +1,7 @@
 ---
 title: "Command Help"
 description: "Help text for hof's main commands"
-brief: "of the hof CLI"
+brief: "Help text for hof's main commands"
 
 weight: 100
 ---
@@ -20,21 +20,10 @@ Top level commands and help message
 </details>
 
 
-### hof / datamodel
-
-Used for data model management (dm for short)
-
-See the [data modeling section](/data-modeling/) for details.
-
-<details>
-<summary>hof help datamodel</summary>
-{{<codePane file="code/cmd-help/dm" title="$ hof help datamodel" lang="text">}}
-</details>
-
 ### hof / gen
 
-Create one-liners to generate files with data, CUE, and templates
-or use composable generators to build out advanced applications.
+Declarative code generation for directories and files from data, CUE, and templates.
+Build with adhoc one-liners or use composable generators to create reusable blueprints.
 
 See [the code generation section](/code-generation/) to learn more
 
@@ -42,6 +31,19 @@ See [the code generation section](/code-generation/) to learn more
 <summary>hof help flow</summary>
 {{<codePane file="code/cmd-help/gen" title="$ hof help gen" lang="text">}}
 </details>
+
+
+### hof / create
+
+Generate boilerplate from any git repository using hof.
+
+See [the creators section](/code-generation/creators/) to learn more
+
+<details>
+<summary>hof help flow</summary>
+{{<codePane file="code/cmd-help/gen" title="$ hof help gen" lang="text">}}
+</details>
+
 
 ### hof / flow
 
@@ -52,6 +54,18 @@ See [the task engine section](/task-engine/) to learn more
 <details>
 <summary>hof help flow</summary>
 {{<codePane file="code/cmd-help/flow" title="$ hof help flow" lang="text">}}
+</details>
+
+
+### hof / datamodel
+
+Used for data model management (dm for short)
+
+See the [data modeling section](/data-modeling/) for details.
+
+<details>
+<summary>hof help datamodel</summary>
+{{<codePane file="code/cmd-help/dm" title="$ hof help datamodel" lang="text">}}
 </details>
 
 
@@ -75,3 +89,44 @@ hof mod vendor cue
 {{<codePane file="code/cmd-help/mod" title="$ hof help mod" lang="text">}}
 </details>
 
+
+### hof / fmt
+
+Format many languages at once with good defaults.
+
+See the [formatting](/code-generation/formatting) for details.
+
+<details>
+<summary>hof help fmt</summary>
+{{<codePane file="code/cmd-help/fmt" title="$ hof help fmt" lang="text">}}
+</details>
+
+
+### hof / eval
+
+CUE eval embedded in hof.
+
+<details>
+<summary>hof help eval</summary>
+{{<codePane file="code/cmd-help/eval" title="$ hof help eval" lang="text">}}
+</details>
+
+
+### hof / export
+
+CUE export embedded in hof.
+
+<details>
+<summary>hof help export</summary>
+{{<codePane file="code/cmd-help/export" title="$ hof help export" lang="text">}}
+</details>
+
+
+### hof / vet
+
+CUE vet embedded in hof.
+
+<details>
+<summary>hof help vet</summary>
+{{<codePane file="code/cmd-help/vet" title="$ hof help vet" lang="text">}}
+</details>

@@ -1,5 +1,6 @@
 ---
 title: "#hof & @attributes"
+brief: "Special annotations for hof."
 
 weight: 70
 ---
@@ -17,10 +18,10 @@ Hof turns these CUE attributes into `#hof` configuration.
 
 - `@gen(<name>)` - the root of a generator
 - `@datamodel(<name>)` - the root of a datamodel
-- `@flow(<task>)` - the root of a workflow or a task type
+- `@flow(<name>)` - the root of a workflow
 
 Datamodels and workflows have a few more attributes
-that can be specified under their root.
+that can be used under their root.
 They are covered in the respective sections on each.
 
 ### Schema

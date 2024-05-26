@@ -17,4 +17,8 @@ cmdhelp:
 	@hof create  -h > code/cmd-help/create
 	@hof chat    -h > code/cmd-help/chat
 	@hof tui     -h > code/cmd-help/tui
+	@hof eval    -h > code/cmd-help/eval
+	@hof export  -h > code/cmd-help/export
+	@hof vet     -h > code/cmd-help/vet
+	@hof def     -h > code/cmd-help/def
 

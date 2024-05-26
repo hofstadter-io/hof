@@ -23,7 +23,10 @@ Hof's task engine is an extension of cue/flow with
 {{</lead>}}
 
 
-## Overview
+### Example
+
+
+{{<codePane title="hof flow example.cue" file="code/getting-started/task-engine/vertex.html" >}}
 
 
 ### Command
