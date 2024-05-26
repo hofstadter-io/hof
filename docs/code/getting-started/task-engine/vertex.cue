@@ -2,6 +2,13 @@ package examples
 
 import "strings"
 
+// inputs supplied via tags
+inputs: {
+  model: string @tag(model)
+  prompt: string @tag(prompt)
+  msg: string @tag(msg)
+}
+
 vertex_chat: {
   @flow() // define a flow
 
@@ -19,7 +26,9 @@ vertex_chat: {
     call: _gemini & {
       apikey: gcp.key
 
-      msg: "What is the CUE language?"
+      model: inputs.model
+      prompt: inputs.prompt
+      msg: inputs.msg
 
       resp: body: _
     }
@@ -37,11 +46,10 @@ vertex_chat: {
 _gemini: {
   @task(api.Call)
 
-  model: string | *"gemini-1.0-pro-002:generateContent"
-
-  msg: string
   apikey: string
-  prompt: string | *"You are a model which is direct and concise when responding."
+  model: string | *"gemini-1.0-pro-002:generateContent"
+  prompt: string | *"You are an assistant who is very concise when responding."
+  msg: string
 
   req: {
     host: "https://us-central1-aiplatform.googleapis.com"
@@ -71,6 +79,7 @@ _gemini: {
   resp: {
     body: _
   }
+  @print(resp.body)
 
   // task-local ETL
   final: {
