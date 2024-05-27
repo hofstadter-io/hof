@@ -10,7 +10,7 @@ defaultContentLanguageInSubdir: false
 enableMissingTranslationPlaceholders: false
 params:
   ordersectionsby: weight
-  disableSearch: false
+  disableSearch: true
   disableReadmoreNav: false
   highlightClientSide: false
   menushortcutsnewtab: true

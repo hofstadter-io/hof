@@ -20,6 +20,8 @@
     {{- $isAncestor := .IsAncestor $currentNode -}}
     {{- $isCurrent := (eq .RelPermalink $currentNode.RelPermalink) -}}
     {{- safeHTML .Params.head -}}
+
+    {{ if .Params.separator }}<hr>{{ end }}
     <li data-nav-id="{{.RelPermalink}}" class="nav-item my-1
         {{- if $isCurrent }} current{{ end }}
         {{- if .Params.alwaysopen}} alwaysopen{{end -}}
@@ -38,6 +40,7 @@
           class="me-1 py-0 fas fa-lg {{ if (or $isCurrent $isAncestor)}}fa-caret-down{{ else }}fa-caret-right{{ end }}"
         ></i>
         </span>
+
         {{ end }}
         </span>
         {{- if $hasChildren }}

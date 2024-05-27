@@ -2,6 +2,7 @@
 title: "Getting Started"
 linkTitle: "Getting Started"
 # brief: "with hof and code generation."
+separator: true
 weight: 5
 description: >
   These sections will get you up and running and then take you on a tour of __hof__

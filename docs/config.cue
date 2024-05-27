@@ -17,7 +17,7 @@ enableMissingTranslationPlaceholders: false
 
 params: {
 	ordersectionsby:     "weight"
-	disableSearch:       false
+	disableSearch:       true
 	disableReadmoreNav:  false // set true to hide prev/next navigation, default is false
 	highlightClientSide: false // set true to use highlight.pack.js instead of the default hugo chroma highlighter
 	menushortcutsnewtab: true  // set true to open shortcuts links to a new tab/window

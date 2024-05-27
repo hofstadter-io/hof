@@ -1,5 +1,6 @@
 ---
 title: Code Generation
+separator: true
 weight: 30
 ---
 
