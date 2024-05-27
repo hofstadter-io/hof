@@ -10,9 +10,13 @@ foo: gen.#Generator: {
 	// input data
 	In: _
 
-	Out: [
-		// list of files to generate
-	]
+	// normally when writing generators as code
+	// you add the CUE to turn In -> Out
+	// - provide project specific config and flags
+	// - dynamically decide what files to generate
 
-	// other fields filled by hof
+	// list of files to generate
+	Out: [...]
+
+	// other fields filled by hof when you turn adhoc -> reusable
 }
