@@ -4,7 +4,7 @@ import (
 	"github.com/hofstadter-io/hof/schema/gen"
 }
 
-foo: gen.Generator: {
+foo: gen.Generator & {
 	@gen(foo)
 
 	// input data
