@@ -20,4 +20,4 @@ code/%.html: code/%.cue
 
 .PHONY: examples
 examples:
-	make -C code/first-example gen
+	make -C code/the-walkthrough gen

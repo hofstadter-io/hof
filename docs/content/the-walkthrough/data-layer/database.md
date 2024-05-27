@@ -26,6 +26,6 @@ We will be using [GORM](https://gorm.io/docs/) ~ "The fantastic ORM library for 
 
 <!--
 The full code for this section can be found on GitHub
-[code/first-example/more-features](https://github.com/hofstadter-io/hof-docs/tree/main/code/first-example/using-a-database)
+[code/the-walkthrough/more-features](https://github.com/hofstadter-io/hof-docs/tree/main/code/the-walkthrough/using-a-database)
 -->
 

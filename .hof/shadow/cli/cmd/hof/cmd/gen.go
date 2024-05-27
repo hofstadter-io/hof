@@ -83,7 +83,7 @@ var genLong = `hof unifies CUE with Go's text/template system and diff3
 
 # Compose code gen mappings into reusable modules with
   hof gen app.cue -G frontend -G backend -G migrations -T ...
-  https://docs.hofstadter.io/first-example/`
+  https://docs.hofstadter.io/the-walkthrough/`
 
 func init() {
 

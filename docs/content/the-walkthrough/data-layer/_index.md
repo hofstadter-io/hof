@@ -36,10 +36,10 @@ After we will see `hof`'s code _regeneration_ capabilities by
 1. See how `hof` fits into typical application development
 
 Finally, we will look at how to upgrade our generator to use a database.
-Automatic migrations are covered in the [model history section](/first-example/model-history/).
+Automatic migrations are covered in the [model history section](/the-walkthrough/model-history/).
 
 The full code for this section can be found on GitHub
-[code/first-example/data-layer](https://github.com/hofstadter-io/hof-docs/tree/main/code/first-example/data-layer)
+[code/the-walkthrough/data-layer](https://github.com/hofstadter-io/hof-docs/tree/main/code/the-walkthrough/data-layer)
 
 _Database storage and automatic CRUD handler generation
 will be covered in more advanced sections._

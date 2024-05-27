@@ -25,5 +25,5 @@ showing off the compounding capabilities of code generation.
 
 <!--
 The full code for this section can be found on GitHub
-[code/first-example/more-features](https://github.com/hofstadter-io/hof-docs/tree/main/code/first-example/more-features)
+[code/the-walkthrough/more-features](https://github.com/hofstadter-io/hof-docs/tree/main/code/the-walkthrough/more-features)
 -->

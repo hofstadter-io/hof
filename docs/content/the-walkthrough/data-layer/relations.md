@@ -21,7 +21,7 @@ which already extends `hof`'s core `#Datamodel`.
 
 Here, we add a `GoType` field for template rendering
 
-{{<codePane title="schema/dm.cue" file="code/first-example/data-layer/content/schema/dm-reln.html">}}
+{{<codePane title="schema/dm.cue" file="code/the-walkthrough/data-layer/content/schema/dm-reln.html">}}
 
 
 ### Updating Design
@@ -34,7 +34,7 @@ It will still be available in our template input though.
 We specify that a User has many Todos
 and that a Todo belongs to a User.
 
-{{<codePane title="example/dm.cue" file="code/first-example/data-layer/content/examples/dm-reln.html">}}
+{{<codePane title="example/dm.cue" file="code/the-walkthrough/data-layer/content/examples/dm-reln.html">}}
 
 
 ### Type Template
@@ -46,7 +46,7 @@ Note
 - We stored the top-level TYPE in `$T` so we can reference it in nested template scopes.
 - some edge cases in the `*With*` helpers are omitted and left to the user.
 
-{{< codePane title="templates/type.go" file="code/first-example/data-layer/templates/type.go" lang="go" >}}
+{{< codePane title="templates/type.go" file="code/the-walkthrough/data-layer/templates/type.go" lang="go" >}}
 
 
 ### Custom Code

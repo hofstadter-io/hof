@@ -35,6 +35,6 @@ If you want help finding a task to work on, we can help you there too.
    we appreciate your feedback
 1. [The code & tests page](/contributing/code/) will help you get started with code contributions
 1. [The documentation page](/contributing/docs/) will help you get started with docs contributions
-1. [Create a generator](/first-example/) and share it with the community
+1. [Create a generator](/the-walkthrough/) and share it with the community
 1. Asking or answering questions on Slack & GitHub
 

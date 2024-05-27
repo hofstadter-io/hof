@@ -22,13 +22,13 @@ we make sure it will be generated from a template.
 We update our server generator to add `index.html`
 to the `OnceFiles`.
 
-{{< codePane title="gen/server.cue" file="code/first-example/web-client/content/gen/index-html.html" >}}
+{{< codePane title="gen/server.cue" file="code/the-walkthrough/web-client/content/gen/index-html.html" >}}
 
 ### Template
 
 Create an `index.html`. This displays a minimal welcome message.
 
-{{< codePane title="templates/index.html" lang="html" file="code/first-example/web-client/content/templates/index-init.html" >}}
+{{< codePane title="templates/index.html" lang="html" file="code/the-walkthrough/web-client/content/templates/index-init.html" >}}
 
 
 ### Serving
@@ -40,7 +40,7 @@ to make room for our static content route
 Second, we need to server our static content from `/`
 so index.html behaves correctly in the browser.
 
-{{< codePane title="templates/router.go" lang="go" file="code/first-example/web-client/content/templates/router.go" >}}
+{{< codePane title="templates/router.go" lang="go" file="code/the-walkthrough/web-client/content/templates/router.go" >}}
 
 ### Regen, Rebuild, Rerun
 

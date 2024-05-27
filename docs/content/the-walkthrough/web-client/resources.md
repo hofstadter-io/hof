@@ -10,7 +10,7 @@ weight: 30
 - (notice how our additions have reduced from original, to datamodel, to client), put in a final section
 - html without extension, hack so we can view contemporary url routes
 
-{{< codePane title="gen/server.cue" file="code/first-example/web-client/content/gen/resource-web.html" >}}
+{{< codePane title="gen/server.cue" file="code/the-walkthrough/web-client/content/gen/resource-web.html" >}}
 
 
 ### Initial HTML / JS
@@ -19,13 +19,13 @@ Since we broke down `index.html` into a number of partials,
 we can reuse them here and end up with a template for resource html
 which is very close to our index page.
 
-{{< codePane title="templates/resource.html" lang="html" file="code/first-example/web-client/templates/resource.html" >}}
+{{< codePane title="templates/resource.html" lang="html" file="code/the-walkthrough/web-client/templates/resource.html" >}}
 
 We will want to break this down into smaller snippets
 
 - talk about routes & query, list vs item views
 
-{{< codePane title="templates/resource.js" lang="js" file="code/first-example/web-client/content/templates/resource-prebreak.js" >}}
+{{< codePane title="templates/resource.js" lang="js" file="code/the-walkthrough/web-client/content/templates/resource-prebreak.js" >}}
 
 
 ### Rendering Resources

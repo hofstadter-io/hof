@@ -19,13 +19,13 @@ We first add a schema for a resource
 and a [CUE 'function'](https://cuetorials.com/patterns/functions/)
 for converting models to resources.
 
-{{< codePane title="gen/server.cue" file="code/first-example/data-layer/content/schema/resource.html" >}}
+{{< codePane title="gen/server.cue" file="code/the-walkthrough/data-layer/content/schema/resource.html" >}}
 
 ### Generator Changes
 
 Add the following changes in their appropriate places into the existing generator definition.
 
-{{< codePane title="gen/server.cue" file="code/first-example/data-layer/content/gen/resource.html" >}}
+{{< codePane title="gen/server.cue" file="code/the-walkthrough/data-layer/content/gen/resource.html" >}}
 
 
 ### Resource Template
@@ -36,14 +36,14 @@ because we added these in the schema and mapping.
 
 Create a new template called `resource.go`
 
-{{< codePane title="templates/resource.go" file="code/first-example/data-layer/templates/resource.go" lang="go" >}}
+{{< codePane title="templates/resource.go" file="code/the-walkthrough/data-layer/templates/resource.go" lang="go" >}}
 
 
 ### Other Templates
 
 Some small changes to existing templates as well
 
-{{<codePane title="templates/router.go" file="code/first-example/data-layer/content/templates/router.go" lang="go">}}
+{{<codePane title="templates/router.go" file="code/the-walkthrough/data-layer/content/templates/router.go" lang="go">}}
 
 ### Regenerate the Server
 

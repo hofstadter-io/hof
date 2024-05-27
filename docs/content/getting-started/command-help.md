@@ -7,7 +7,7 @@ weight: 100
 ---
 
 `hof` has several commands typically run during daily development.
-The `first-example` will introduce you to these commands
+The `the-walkthrough` will introduce you to these commands
 and each has a dedicated section for the topic as well.
 
 ### hof

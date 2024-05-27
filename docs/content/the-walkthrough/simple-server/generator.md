@@ -20,7 +20,7 @@ HofGenerators and Files have their own schemas.
 Only the core fields are shown here.
 You can find the real schemas in [the hof repository](https://github.com/hofstadter-io/hof/tree/_dev/schema/gen).
 
-{{<codePane file="code/first-example/simple-server/content/generator/schemas.html" title="Generator Schemas">}}
+{{<codePane file="code/the-walkthrough/simple-server/content/generator/schemas.html" title="Generator Schemas">}}
 
 ### Mapping In to Out
 
@@ -55,6 +55,6 @@ There are typically two types of files (templates)
 
 The following is the generator for our simple REST server.
 
-{{<codePane file="code/first-example/simple-server/gen/server.html" title="gen/server.cue">}}
+{{<codePane file="code/the-walkthrough/simple-server/gen/server.html" title="gen/server.cue">}}
 
 

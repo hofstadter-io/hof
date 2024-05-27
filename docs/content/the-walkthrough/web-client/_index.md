@@ -18,7 +18,7 @@ we can modularize even within a single module.
 We will be using [Bootstrap](https://getbootstrap.com/docs) for styling.
 
 The full code for this section can be found on GitHub
-[code/first-example/web-client](https://github.com/hofstadter-io/hof-docs/tree/main/code/first-example/web-client)
+[code/the-walkthrough/web-client](https://github.com/hofstadter-io/hof-docs/tree/main/code/the-walkthrough/web-client)
 
 {{<childpages>}}
 

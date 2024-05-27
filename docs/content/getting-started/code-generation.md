@@ -36,7 +36,7 @@ ad-hoc and a more sophisticated configuration or module-based method.
 
 
 In this section, we will explore the ad-hoc method which used the `-T` flag.
-The [first example](/first-example/) is a step-by-step guide
+The [first example](/the-walkthrough/) is a step-by-step guide
 on creating a generator using CUE based configuration.
 The [getting-started/create](/getting-started/create/) section
 will introduce `hof create`, which enables running generators directly from git repositories.
@@ -356,4 +356,4 @@ Several files are generated, including a CUE file that houses your generator and
 {{<codePane file="code/getting-started/code-generation/adhoc-mod-snippet.html" title="generator.cue snippet">}}
 
 The next page will cover modules in general
-and the [first-example](/first-example/) is a walkthrough on creating a full-stack application generator from scratch.
+and the [the-walkthrough](/the-walkthrough/) is a walkthrough on creating a full-stack application generator from scratch.

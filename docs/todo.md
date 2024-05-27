@@ -1,7 +1,7 @@
 # Todo
 
 
-### split first-example in two
+### split the-walkthrough in two
 
 for two personas / user stories
 

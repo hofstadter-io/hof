@@ -13,7 +13,7 @@ To generate types, we need to do two things
 
 Add the following changes in their appropriate places into the existing generator definition.
 
-{{< codePane title="gen/server.cue" file="code/first-example/data-layer/content/gen/type.html" >}}
+{{< codePane title="gen/server.cue" file="code/the-walkthrough/data-layer/content/gen/type.html" >}}
 
 
 ### Type Template
@@ -26,7 +26,7 @@ The following creates
 
 Create a new template called `type.go`
 
-{{< codePane title="templates/type.go" file="code/first-example/data-layer/content/templates/type.go" lang="go" >}}
+{{< codePane title="templates/type.go" file="code/the-walkthrough/data-layer/content/templates/type.go" lang="go" >}}
 
 ### Regenerate the server
 

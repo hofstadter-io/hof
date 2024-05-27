@@ -39,7 +39,7 @@ Learn more about CUE: [cuelang.org](https://cuelang.org) | [cuetorials.com](http
 Please see __[docs.hofstadter.io](https://docs.hofstadter.io)__ to learn more.
 
 The [getting-started](https://docs.hofstadter.io/getting-started/) section will take you on a tour of hof.
-The [first-example](https://docs.hofstadter.io/first-example/) section shows you how to build and use a generator.
+The [the-walkthrough](https://docs.hofstadter.io/the-walkthrough/) section shows you how to build and use a generator.
 
 Join us or ask questions on
 

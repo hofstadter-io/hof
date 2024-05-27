@@ -37,6 +37,10 @@ server {
     proxy_pass https://www.google-analytics.com;
   }
 
+  location /the-walkthrough {
+    rewrite ^ /the-walkthrough;
+  }
+
   location / {
     try_files $uri $uri/ =404;
     expires -1;

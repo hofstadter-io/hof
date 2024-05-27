@@ -1,5 +1,5 @@
 gen:
-	make -C first-example gen
+	make -C the-walkthrough gen
 
 test:
-	make -C first-example test
+	make -C the-walkthrough test

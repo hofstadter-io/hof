@@ -20,7 +20,7 @@ for `hof dm` to checkpoint and introspect data models.
 
 The following as the core of the `#Datamodel` schema.
 
-{{< codePane title="Core of #Datamodel" file="code/first-example/data-layer/content/schema/hof-dm.html">}}
+{{< codePane title="Core of #Datamodel" file="code/the-walkthrough/data-layer/content/schema/hof-dm.html">}}
 
 See [hof datamodel schemas](/data-modeling/schemas/) for the full schema.
 
@@ -33,7 +33,7 @@ field to use for the index in our types.
 
 We add a new file in our schema directory
 
-{{< codePane title="example/schema/dm.cue" file="code/first-example/data-layer/content/schema/dm-type.html">}}
+{{< codePane title="example/schema/dm.cue" file="code/the-walkthrough/data-layer/content/schema/dm-type.html">}}
 
 We now have an extended schema we can import to define our data models.
 

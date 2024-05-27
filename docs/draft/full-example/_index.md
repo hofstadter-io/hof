@@ -8,7 +8,7 @@ description: >
 ---
 
 {{<lead>}}
-This section expands on our first-example.
+This section expands on our the-walkthrough.
 We can import and reuse the generator.
 We'll build a full-stack application
 with many extras from a unified design.
@@ -51,13 +51,13 @@ We will use the generator in the second half.
 - use the __output__ and add custom code
 - __iterate__ on applications
   
-You can find __[the source for this example on GitHub](https://github.com/hofstadter-io/hof-docs/tree/main/code/getting-started/first-example/)__.
+You can find __[the source for this example on GitHub](https://github.com/hofstadter-io/hof-docs/tree/main/code/getting-started/the-walkthrough/)__.
 
 The directory layout is as follows
 
 {{<codeInner lang="sh" title="project layout">}}
 # source location in the website repo
-code/getting-started/first-example/
+code/getting-started/the-walkthrough/
 
   # The generator module
   server/

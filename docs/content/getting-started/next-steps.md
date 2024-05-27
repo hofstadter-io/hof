@@ -14,7 +14,7 @@ here are some links to get you started.
 
 #### walkthrough building and using a generator
 
-Try the	[first-example](/first-example) or
+Try the	[the-walkthrough](/the-walkthrough) or
 [demos repository](https://github.com/hofstadter-io/demos).
 
 #### build apps quickly

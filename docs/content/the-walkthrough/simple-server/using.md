@@ -13,13 +13,13 @@ Users _design_ by filling in the schema for a __Hof Generator__.
 This is the block which defines an entrypoint to `hof gen`,
 using `@gen(tags...)` and unifying with our generator `gen.Generator`.
 
-{{<codePane title="examples/gen.cue" file="code/first-example/simple-server/examples/gen.html">}}
+{{<codePane title="examples/gen.cue" file="code/the-walkthrough/simple-server/examples/gen.html">}}
 
 ### ServerDesign, with the schema
 
 This is the user created design for our server generator.
 
-{{<codePane title="examples/server.cue" file="code/first-example/simple-server/examples/server.html">}}
+{{<codePane title="examples/server.cue" file="code/the-walkthrough/simple-server/examples/server.html">}}
 
 ### Generate the Code
 

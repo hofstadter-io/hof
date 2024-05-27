@@ -13,7 +13,7 @@ This page is notes for when we stream `hof` development.
 - [ ] create a small test for gen+DM with history
 - [ ] create database migrations using DM history
 - [ ] getting-started/datamodel
-- [ ] hofmod-sql & demo -> first-example(s)
+- [ ] hofmod-sql & demo -> the-walkthrough(s)
 
 
 Other
