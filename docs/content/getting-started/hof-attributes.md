@@ -6,7 +6,7 @@ weight: 70
 ---
 
 {{<lead>}}
-The `#hof` definition is how generators, datamodels, and workflows are discovered.
+The `#hof` definition is how generators, datamodels, and workflows are discovered and configured.
 Several attributes allow you to write shorthand for common settings.
 {{</lead>}}
 
@@ -20,9 +20,13 @@ Hof turns these CUE attributes into `#hof` configuration.
 - `@datamodel(<name>)` - the root of a datamodel
 - `@flow(<name>)` - the root of a workflow
 
-Datamodels and workflows have a few more attributes
-that can be used under their root.
-They are covered in the respective sections on each.
+Datamodels and workflows have attributes that can be used under their root
+and are covered in their respective sections.
+
+Other attributes:
+
+- `@userfiles(<glob>)` - load file contents into a struct as strings, the key is the filepath.
+  This works with CUE based commands.
 
 ### Schema
 

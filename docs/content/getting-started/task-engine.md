@@ -39,6 +39,10 @@ Wrapping the workflow in an API server.
 
 {{<codePane title="server.cue" file="code/getting-started/task-engine/server.html" >}}
 
+<br>
+
+We now have a workflow we can call from the CLI or as an API.
+
 ### Command
 
 {{<codeInner title="hof flow help">}}
