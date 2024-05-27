@@ -354,4 +354,3 @@ Several files are generated, including a CUE file that houses your generator and
 
 The next page will cover modules in general
 and the [first-example](/first-example/) is a walkthrough on creating a full-stack application generator from scratch.
-

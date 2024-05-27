@@ -12,8 +12,9 @@ foo: gen.#Generator: {
 
 	// normally when writing generators as code
 	// you add the CUE to turn In -> Out
-	// - provide project specific config and flags
-	// - dynamically decide what files to generate
+	//   - provide project specific config and flags
+	//   - dynamically decide what files to generate
+	//   - craft schemas and DSLs to create anything
 
 	// list of files to generate
 	Out: [...]
