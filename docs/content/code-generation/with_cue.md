@@ -56,8 +56,8 @@ It really can't capture all of the nuances in the vanilla form. We need to do so
 Some helpful links
 
 - Discussion on Slack about the data modeling prototype in the #general channel around here: https://hofstadter-io.slack.com/archives/C013WKK9W1F/p1640891812004200
-- "Adding a Datamodel" section: https://docs.hofstadter.io/the-walkthrough/data-layer/
-- https://docs.hofstadter.io/the-walkthrough/data-layer/relations/#commentary
+- []"Adding a Datamodel" section](/the-walkthrough/data-layer/)
+- [/the-walkthrough/data-layer/relations/#commentary](/the-walkthrough/data-layer/relations/#commentary)
 - https://github.com/hofstadter-io/hofmod-server is based on the previous prototype of data modeling. It will be rewritten and broken into several modules
 - A local code for `hofmod-sql` and `hofmod-gotype` are in the works. `hofmod-server` will then build on these.
 

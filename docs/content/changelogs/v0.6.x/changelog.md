@@ -178,7 +178,6 @@ See the following to learn more
 
 - `hof gen -h`
 - [getting-started/code-generation](/getting-started/code-generation/)
-- [code-generation/adhoc](/code-generation/adhoc/)
 
 ### other changes
 
