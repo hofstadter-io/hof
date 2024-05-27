@@ -42,6 +42,10 @@ These are the same links for the curl.
 <br>
 
 {{<codeInner title="with Homebrew" lang="text">}}
+# release in main homebrew
+brew install hof
+
+# pre-releases in hofstadter tap
 brew install hofstadter-io/tap/hof
 {{</codeInner>}}
 
