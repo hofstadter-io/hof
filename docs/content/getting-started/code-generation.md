@@ -120,6 +120,9 @@ from the output file extension
 # full value to a single data file
 $ hof gen data.cue schema.cue -T =data.yaml
 
+# convert between data formats
+$ hof gen data.json -T =data.yaml
+
 # data file per item in iterable value
 $ hof gen data.cue schema.cue \
   -O out \
@@ -328,7 +331,7 @@ You can find more examples in the
 
 
 
-## What are Generators and Modules
+## Generators and Modules
 
 
 Hof Generators are CUE code that define a `hof gen` command,

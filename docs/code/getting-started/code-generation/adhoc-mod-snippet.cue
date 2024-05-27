@@ -4,7 +4,7 @@ import (
 	"github.com/hofstadter-io/hof/schema/gen"
 }
 
-foo: gen.#Generator: {
+foo: gen.Generator: {
 	@gen(foo)
 
 	// input data
@@ -17,7 +17,7 @@ foo: gen.#Generator: {
 	//   - craft schemas and DSLs to create anything
 
 	// list of files to generate
-	Out: [...]
+	Out: [...gen.File]
 
 	// other fields filled by hof when you turn adhoc -> reusable
 }
