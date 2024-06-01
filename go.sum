@@ -2,6 +2,8 @@ cuelabs.dev/go/oci/ociregistry v0.0.0-20240412105620-eedc705cef15 h1:W1yhnRytFwr
 cuelabs.dev/go/oci/ociregistry v0.0.0-20240412105620-eedc705cef15/go.mod h1:pK23AUVXuNzzTpfMCA06sxZGeVQ/75FdVtW249de9Uo=
 cuelang.org/go v0.8.2 h1:vWfHI1kQlBvwkna7ktAqXjV5LUEAgU6vyMlJjvZZaDw=
 cuelang.org/go v0.8.2/go.mod h1:CoDbYolfMms4BhWUlhD+t5ORnihR7wvjcfgyO9lL5FI=
+cuelang.org/go v0.9.0-rc.1 h1:uuCt2qaLxtj5UCbs9AaXCPZBWP7UyMB+Czi6DoqeQh0=
+cuelang.org/go v0.9.0-rc.1/go.mod h1:qpAYsLOf7gTM1YdEg6cxh553uZ4q9ZDWlPbtZr9q1Wk=
 dagger.io/dagger v0.8.4 h1:2zNu40cBvPZc/CSgMnLRfayfQj5VtbJlDtWJyWGwGSQ=
 dagger.io/dagger v0.8.4/go.mod h1:Nwl7WI8YETaZhGjPJvkiOZnKLJXBaJOkSarp5m4+FxA=
 dario.cat/mergo v1.0.0 h1:AGCNq9Evsj31mOgNPcLyXc+4PNABt905YmuqPYYpBWk=
