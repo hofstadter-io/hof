@@ -47,7 +47,7 @@ _gemini: {
   @task(api.Call)
 
   apikey: string
-  model: string | *"gemini-1.0-pro-002:generateContent"
+  model: string | *"gemini-1.5-pro-001:generateContent"
   prompt: string | *"You are an assistant who is very concise when responding."
   msg: string
 
@@ -77,9 +77,9 @@ _gemini: {
   }
 
   resp: {
-    body: _
+    body: {}
   }
-  @print(resp.body)
+  // @print(resp.body)
 
   // task-local ETL
   final: {

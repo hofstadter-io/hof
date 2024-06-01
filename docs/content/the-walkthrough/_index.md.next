@@ -8,16 +8,21 @@ description: >
   See all of hof's features in the process.
 ---
 
-TODO: convert this to a simple version of topical source
-
 {{<lead>}}
-The Walkthrough will take you on a tour of hof's features,
+The Walkthrough will take you on a tour of hof's features.
+You will build a generator for a full-stack application
+with multiple services and languages, the bells and whistles,
 covering the end-to-end developer experience. 
-We will build a generator for a full-stack application
-with multiple services and languages.
 {{</lead>}}
 
-We will primarily be using using Go, JS, and SQL amongst other languages.
+We will building on several technologies and languages
+
+- NextJS and Typescript for the application
+- Strapi as a headless CMS
+- Postgres, Redis, and Qdrant for storage
+- LlamaIndex and Python for the chat server
+- Dagger and Argo for CI
+- Kind and Kubernetes for deployment
 
 Each section will build on the previous
 and introduce more of hof's concepts.
