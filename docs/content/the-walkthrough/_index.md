@@ -8,8 +8,6 @@ description: >
   See all of hof's features in the process.
 ---
 
-TODO: convert this to a simple version of topical source
-
 {{<lead>}}
 The Walkthrough will take you on a tour of hof's features,
 covering the end-to-end developer experience. 

@@ -37,7 +37,7 @@ server {
     proxy_pass https://www.google-analytics.com;
   }
 
-  location /the-walkthrough {
+  location /first-example {
     rewrite ^ /the-walkthrough;
   }
 
