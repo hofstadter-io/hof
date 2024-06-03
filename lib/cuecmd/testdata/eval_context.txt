@@ -28,4 +28,3 @@ cmp stdout expect-stdout
 	"kind": "Service",
 	"@name": "elem3"
 }
--- cue.mod --

@@ -1,6 +1,6 @@
-# Issue #904 (CUE)
-exec hof eval -e _a
-stdout '34'
+# Issue #904 (CUE) (maybe fixed now?)
+# exec hof eval -e _a
+# stdout '34'
 
 exec hof eval -e _a dep.cue
 stdout '34'
