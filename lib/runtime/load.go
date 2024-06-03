@@ -266,7 +266,7 @@ func (R *Runtime) load() (err error) {
 
 	// XXX TODO XXX
 	//  add the second arg from our runtime when implemented?
-	//  is this to support multiple R's at oncce?
+	//  is this to support multiple R's at once?
 	//  or do we just wait for CUE to be better?
 	if R.CueContext == nil {
 		R.CueContext = singletons.CueContext()
@@ -430,16 +430,26 @@ func (R *Runtime) LoadOrphanedFile(f *build.File, pkgName string, root, dir stri
 	}
 
 	if f.Filename == "-" {
-    reader := bufio.NewReader(os.Stdin)
-    var buf bytes.Buffer
-    for {
-        b, err := reader.ReadByte()
-        if err != nil {
-            break
-        }
-        buf.WriteByte(b)
-    }
-		d = buf.Bytes()
+		if f.Source == nil {
+			reader := bufio.NewReader(os.Stdin)
+			var buf bytes.Buffer
+			for {
+					b, err := reader.ReadByte()
+					if err != nil {
+							break
+					}
+					buf.WriteByte(b)
+			}
+			d = buf.Bytes()
+		} else {
+			switch t := f.Source.(type) {
+			case []byte:
+				d = t
+			default:
+				err := fmt.Errorf("unknown f.Source.(type): %v", t)
+				return nil, fmt.Errorf("while loading data file: %w", err)
+			}	
+		}
 	} else {
 		d, err = os.ReadFile(f.Filename)
 		if err != nil {
