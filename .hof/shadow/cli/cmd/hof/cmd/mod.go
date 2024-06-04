@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/cmd/mod"
@@ -98,6 +101,11 @@ hof mod help
 
 `
 
+func ModPersistentPreRun(args []string) (err error) {
+
+	return err
+}
+
 var ModCmd = &cobra.Command{
 
 	Use: "mod",
@@ -109,6 +117,18 @@ var ModCmd = &cobra.Command{
 	Short: "CUE module dependency management",
 
 	Long: modLong,
+
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		var err error
+
+		// Argument Parsing
+
+		err = ModPersistentPreRun(args)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	},
 }
 
 func init() {

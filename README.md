@@ -43,8 +43,8 @@ The [the-walkthrough](https://docs.hofstadter.io/the-walkthrough/) section shows
 
 Join us or ask questions on
 
+- Discord (preferred): https://discord.com/invite/BXwX7n6B8w
 - Slack: [https://hofstadter-io.slack.com](https://join.slack.com/t/hofstadter-io/shared_invite/zt-e5f90lmq-u695eJur0zE~AG~njNlT1A)
-- Discord: https://discord.com/invite/BXwX7n6B8w
 
 We also use GitHub issues and discussions. Use which every is easiest for you!
 

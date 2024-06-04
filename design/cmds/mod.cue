@@ -20,6 +20,7 @@ ModCommand: schema.Command & {
 	//Topics: #ModTopics
 	//Examples: #ModExamples
 
+	PersistentPrerun:  true
 	OmitRun: true
 
 	#body: {

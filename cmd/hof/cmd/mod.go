@@ -1,6 +1,10 @@
 package cmd
 
 import (
+	"fmt"
+	"os"
+	"strconv"
+
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/cmd/mod"
@@ -98,6 +102,31 @@ hof mod help
 
 `
 
+const modWarning = `
+WARNING: hof will be migrating to CUE modules in 0.7.x
+We are doing this to work with the broader ecosystem.
+Git based repos will need migration to continue working.
+
+Set HOF_DISABLE_MOD_WARNING=true to hide this message.
+`
+
+func ModPersistentPreRun(args []string) (err error) {
+	disable := os.Getenv("HOF_DISABLE_MOD_WARNING")
+	if disable == "" {
+		disable = "false"
+	}
+	disabled, err := strconv.ParseBool(disable)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+	}
+
+	if !disabled {
+		fmt.Fprintln(os.Stderr, modWarning)
+	}
+
+	return nil
+}
+
 var ModCmd = &cobra.Command{
 
 	Use: "mod",
@@ -109,6 +138,18 @@ var ModCmd = &cobra.Command{
 	Short: "CUE module dependency management",
 
 	Long: modLong,
+
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		var err error
+
+		// Argument Parsing
+
+		err = ModPersistentPreRun(args)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	},
 }
 
 func init() {
