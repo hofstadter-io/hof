@@ -58,6 +58,13 @@ _cond: {
 	}
 }
 
+diff: F=_flow & {
+	@flow(diff)
+	print: {
+		@task(os.Stdout)
+		text: F.diff.stdout
+	}
+}
 
 build: F= _flow & {
 	@flow(build)
