@@ -4,10 +4,8 @@ go 1.21
 
 toolchain go1.21.4
 
-replace cuelang.org/go => ../cue
-
 require (
-	cuelang.org/go v0.9.0-rc.1
+	cuelang.org/go v0.9.1-0.20240606151748-e09cb310d52d
 	dagger.io/dagger v0.8.4
 	github.com/AlecAivazis/survey/v2 v2.3.7
 	github.com/BurntSushi/toml v1.3.2

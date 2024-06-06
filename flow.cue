@@ -50,6 +50,8 @@ _flow: {
 
 _cond: {
 	shouldi: yes: bool | *false
+	stdout: string
+	stderr: string
 	if _force || shouldi.yes {
 		@task(os.Exec)
 		if _print {
@@ -84,8 +86,6 @@ build: F= _flow & {
   docs: {
 		[string]: {
 			dir: "docs"
-			stdout: string
-			stderr: string
 			#after: { $cli: F.cli }
 			_cond
 		}
@@ -111,4 +111,17 @@ build: F= _flow & {
 			#after: { $gen: gen, $schemas: schemas }
 		}
   }
+}
+
+images: F=_flow & {
+	@flow(images)
+	_reg: "ghcr.io/hofstadter-io"
+	for _,tool in ["black", "csharpier", "prettier"] {
+		(tool): {
+			_cond
+			dir: "formatters/tools/\(tool)"
+			shouldi: F._shouldi & { globs: [dir] }
+			run: "docker build -t \(_reg)/\(tool):dirty -f Dockerfile.debian ."
+		}
+	}
 }
