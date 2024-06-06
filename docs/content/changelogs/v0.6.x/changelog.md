@@ -11,6 +11,7 @@ There are also new features like the CUE commands and the hof TUI.
 
 ### main changes
 
+- CUE v0.9.0 (+1 bugfix commit after)
 - Added the CUE commands [def,eval,export,vet]
 - Adjusted flags for consistency with CUE and internally across commands
 - Added `hof tui` for real-time CUE manipulation and exploration
