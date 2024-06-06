@@ -85,6 +85,10 @@ func (P *Flow) run() error {
 					panic("we should have found a node to even get here")
 				}
 
+				if node.Hof.Flow.Task == "" {
+					return nil
+				}
+
 				if node.Hof.Flow.Print.Level > 0 && !node.Hof.Flow.Print.Before {
 					pv := v.LookupPath(cue.ParsePath(node.Hof.Flow.Print.Path))
 					if node.Hof.Path == "" {

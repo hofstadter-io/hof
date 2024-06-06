@@ -34,6 +34,9 @@ func NewTasker(ctx *flowctx.Context) cueflow.TaskFunc {
 		if node == nil {
 			return nil, nil
 		}
+		if node.Hof.Flow.Task == "" {
+			return nil, nil
+		}
 		//if node.Hof.Flow.Task == "nest" {
 		//  fmt.Println("New Tasker NEST", node.Hof.Path, node.Hof.Label)
 		//}
