@@ -11,6 +11,7 @@ import (
 	"cuelang.org/go/cue"
 
 	hofcontext "github.com/hofstadter-io/hof/flow/context"
+	"github.com/hofstadter-io/hof/lib/cuetils"
 )
 
 type Exec struct{}
@@ -24,6 +25,12 @@ func (T *Exec) Run(ctx *hofcontext.Context) (interface{}, error) {
 	v := ctx.Value
 	var cmd *exec.Cmd
 
+	init_schemas(v.Context())
+	// unify with schema
+	v = v.Unify(task_exec)
+	if v.Err() != nil {
+		return nil, cuetils.ExpandCueError(v.Err())
+	}
 	// TODO, rework how i/o works for exec
 
 	// todo, check failure modes, fill, not return error?
