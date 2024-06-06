@@ -1,9 +1,17 @@
 package os
 
+import "strings"
+
 Exec: {
 	@task(os.Exec)
 
+	// the command to run
 	cmd: string | [string, ...string]
+
+	run?: string
+	if run != _|_ {
+		cmd: strings.Split(run, " ")
+	}
 
 	// dir specifies the working directory of the command.
 	// The default is the current working directory.
@@ -13,7 +21,7 @@ Exec: {
 	// If the value is a list, the entries mus be of the form key=value,
 	// where the last value takes precedence in the case of multiple
 	// occurrences of the same key.
-	env: {[string]: string} | [...=~"="]
+	env?: {[string]: string} | [...=~"="]
 
 	// stdout captures the output from stdout if it is of type bytes or string.
 	// The default value of null indicates it is redirected to the stdout of the
