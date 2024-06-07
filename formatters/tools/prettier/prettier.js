@@ -1,5 +1,7 @@
-const express = require('express');
-const prettier = require("prettier");
+// const express = require('express');
+// const prettier = require("prettier");
+import express from 'express'
+import prettier from 'prettier'
 
 const app = express();
 

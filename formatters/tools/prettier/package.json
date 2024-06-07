@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "a collection of formatters as a server",
   "main": "prettier.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -15,7 +16,6 @@
     "prettier": "^2.8.4",
     "prettier-plugin-go-template": "^0.0.13",
     "prettier-plugin-groovy": "^0.0.2",
-    "prettier-plugin-java": "^2.0.0",
     "prettier-plugin-rust": "^0.1.8",
     "prettier-plugin-sql": "^0.13.0"
   }
