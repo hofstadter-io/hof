@@ -150,7 +150,7 @@ func makeTask(ctx *flowctx.Context, node *hof.Node[any]) (cueflow.Runner, error)
 		}
 
 		if rerr != nil {
-			err = fmt.Errorf("in %q\n%v\n%+v", c.Value.Path(), cuetils.ExpandCueError(err), value)
+			rerr = fmt.Errorf("in %q\n%v\n%+v", c.Value.Path(), cuetils.ExpandCueError(rerr), value)
 			// fmt.Println("RunnerRunc Error:", err)
 			c.Error = rerr
 			bt.Error = rerr
