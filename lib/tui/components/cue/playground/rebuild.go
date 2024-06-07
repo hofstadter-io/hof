@@ -36,7 +36,7 @@ func (C *Playground) setThinking(thinking bool, which string) {
 }
 
 func (C *Playground) Rebuild() error {
-	tui.Log("info", fmt.Sprintf("Play.Rebuild %v %v", C.useScope, C.scope.GetSourceConfigs()))
+	tui.Log("info", fmt.Sprintf("Play.Rebuild %v %v %+v", C.Id(), C.useScope, C.scope.GetSourceConfigs()))
 
 	var (
 		v   cue.Value
@@ -61,7 +61,11 @@ func (C *Playground) Rebuild() error {
 		defer C.setThinking(false, "final")
 
 		// compile a value
+		tui.Log("trace", fmt.Sprintf("Play.Rebuild.scope %s", C.scope.Id()))
+		C.scope.RebuildValue()
+		C.scope.Rebuild()
 		sv := C.scope.GetValue()
+		// tui.Log("info", fmt.Sprintf("Play.Rebuild.ScopeValue %v\n", sv))
 		if C.useScope && sv.Exists() {
 			ctx := sv.Context()
 			v = ctx.CompileString(src, cue.InferBuiltins(true), cue.Scope(sv))
