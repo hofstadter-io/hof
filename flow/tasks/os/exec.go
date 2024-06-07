@@ -102,14 +102,6 @@ func (T *Exec) Run(ctx *hofcontext.Context) (interface{}, error) {
 	// build return value
 	ret := make(map[string]interface{})
 
-	if err != nil {
-		if doExit  {
-			return nil, err
-		}
-
-		ret["error"] = err.Error()
-	}
-
 	//
 	// possibly fill stdout/stderr
 	//
@@ -122,6 +114,15 @@ func (T *Exec) Run(ctx *hofcontext.Context) (interface{}, error) {
 	ret["exitcode"] = cmd.ProcessState.ExitCode()
 	ret["success"] = cmd.ProcessState.Success()
 
+	// fmt.Println("GOT HERE", err, v, ret)
+
+	if err != nil {
+		if doExit  {
+			return ret, err
+		}
+
+		ret["error"] = err.Error()
+	}
 	return ret, nil
 }
 
