@@ -30,6 +30,9 @@ type Context struct {
 	// debug / internal
 	Verbosity int
 
+	// print errors, even if we continue in their presence
+	ShowErrors bool
+
 	Middlewares  []Middleware
 	TaskRegistry *sync.Map
 
@@ -83,6 +86,7 @@ func Copy(ctx *Context) *Context {
 		Stderr: ctx.Stderr,
 
 		Verbosity: ctx.Verbosity,
+		ShowErrors: ctx.ShowErrors,
 
 		CUELock:  ctx.CUELock,
 		Mailbox:  ctx.Mailbox,

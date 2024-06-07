@@ -31,6 +31,7 @@ func prepFlow(R *Runtime, val cue.Value) (*flow.Flow, error) {
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr
 	c.Verbosity = R.Flags.Verbosity
+	c.ShowErrors = R.Flags.AllErrors
 
 	// how to inject tags into original value
 	// fill / return value
@@ -177,7 +178,7 @@ func printFinalContext(ctx *flowctx.Context) error {
 	fmt.Println("\n\n======= final =========")
 
 	return yagu.PrintAsTable(
-		[]string{"Task", "Deps", "Time"},
+		[]string{"Name", "Task", "Deps", "Time", "Err"},
 		func(table *tablewriter.Table) ([][]string, error) {
 			var rows = make([][]string, 0, len(ti))
 			// fill with data
@@ -204,7 +205,27 @@ func printFinalContext(ctx *flowctx.Context) error {
 					deps = fmt.Sprint(ps)
 				}
 
-				row := []string{t.ID, deps, fmt.Sprint(l)}
+				tt := ""
+				attrs := t.Orig.Attributes(cue.ValueAttr)
+				for _, a := range attrs {
+					if a.Name() == "task" {
+						tt = fmt.Sprint(a)
+						break
+					}
+				}
+
+				// fmt.Println(t.Final)
+				final := t.CueTask.Value()
+				// fmt.Println(final)
+
+				err := ""
+				if t.Error != nil {
+					err = fmt.Sprint(t.Error)
+				} else if e := final.LookupPath(cue.ParsePath("error")); e.Exists() {
+					err = fmt.Sprint(e)
+				}
+
+				row := []string{t.ID, tt, deps, fmt.Sprint(l), err}
 				rows = append(rows, row)
 			}
 

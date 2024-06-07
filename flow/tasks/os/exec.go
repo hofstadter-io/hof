@@ -95,7 +95,7 @@ func (T *Exec) Run(ctx *hofcontext.Context) (interface{}, error) {
 	//
 	// run command
 	//
-	err = cmd.Run()
+	rerr := cmd.Run()
 
 	// TODO, how to run in the background and wait for signal?
 
@@ -114,14 +114,15 @@ func (T *Exec) Run(ctx *hofcontext.Context) (interface{}, error) {
 	ret["exitcode"] = cmd.ProcessState.ExitCode()
 	ret["success"] = cmd.ProcessState.Success()
 
-	// fmt.Println("GOT HERE", err, v, ret)
 
-	if err != nil {
+	if rerr != nil {
+		ret["error"] = rerr.Error()
 		if doExit  {
-			return ret, err
+			fmt.Printf("In %v\n%v", v.Path(), ret)
+			return ret, rerr
+		} else if ctx.ShowErrors {
+			fmt.Printf("In %v\n%v", v.Path(), ret)
 		}
-
-		ret["error"] = err.Error()
 	}
 	return ret, nil
 }

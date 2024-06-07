@@ -121,16 +121,8 @@ func makeTask(ctx *flowctx.Context, node *hof.Node[any]) (cueflow.Runner, error)
 		// run the hof task
 		bt.AddTimeEvent("run.beg")
 		// (update)
-		value, err := T.Run(c)
+		value, rerr := T.Run(c)
 		bt.AddTimeEvent("run.end")
-
-		if err != nil {
-			err = fmt.Errorf("in %q\n%v", c.Value.Path(), cuetils.ExpandCueError(err))
-			// fmt.Println("RunnerRunc Error:", err)
-			c.Error = err
-			bt.Error = err
-			return err
-		}
 
 		if value != nil {
 			// fmt.Println("FILL:", taskId, c.Value.Path(), t.Value(), value)
@@ -140,20 +132,31 @@ func makeTask(ctx *flowctx.Context, node *hof.Node[any]) (cueflow.Runner, error)
 			//  fmt.Println("FILL:", taskId, c.Value.Path(), value)
 			//}
 			err = t.Fill(value)
+			bt.Final = t.Value()
 			bt.AddTimeEvent("fill.end")
+
+			// fmt.Println("FILL:", taskId, c.Value.Path(), t.Value(), value)
 			if err != nil {
 				c.Error = err
 				bt.Error = err
 				return err
 			}
 
-			bt.Final = t.Value()
 			//if node.Hof.Flow.Print.Level > 0 && !node.Hof.Flow.Print.Before {
 			//  // pv := bt.Final.LookupPath(cue.ParsePath(node.Hof.Flow.Print.Path))
 			//  fmt.Printf("%s.%s: %# v\n", node.Hof.Path, node.Hof.Flow.Print.Path, value)
 			//}
 
 		}
+
+		if rerr != nil {
+			err = fmt.Errorf("in %q\n%v\n%+v", c.Value.Path(), cuetils.ExpandCueError(err), value)
+			// fmt.Println("RunnerRunc Error:", err)
+			c.Error = rerr
+			bt.Error = rerr
+			return rerr
+		}
+
 		return nil
 	}), nil
 }
