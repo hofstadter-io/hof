@@ -71,6 +71,12 @@ diff: F=_flow & {
 build: F= _flow & {
 	@flow(build)
 
+	gha: {
+		_cond
+    shouldi: F._shouldi & { globs: ["ci/gha"] }
+		run: "make workflow"
+	}
+
 	gen: {
 		_cond
     shouldi: F._shouldi & { globs: ["design/"] }
@@ -79,6 +85,7 @@ build: F= _flow & {
 
 	cli: {
 		_cond
+		#after: { $gen: F.gen }
     shouldi: F._shouldi & { globs: ["go.*", "cmd/", "flow", "lib/", "schema/", "script/"] }
 		run: "go install ./cmd/hof"
 	}

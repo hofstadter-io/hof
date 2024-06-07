@@ -16,7 +16,6 @@ jobs:
           - 1.21.x
         os:
           - ubuntu-latest
-          - macos-13
     environment: hof mod testing
     runs-on: ${{ matrix.os }}
     steps:
