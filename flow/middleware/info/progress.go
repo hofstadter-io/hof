@@ -23,11 +23,11 @@ func NewProgress(opts flags.RootPflagpole, popts flags.FlowPflagpole) *Progress 
 }
 
 func (M *Progress) Run(ctx *hofcontext.Context) (results interface{}, err error) {
-	bt := ctx.BaseTask
-	fmt.Println("bt:", bt.ID, bt.UUID)
-	fmt.Println("task: pre @", strings.Join(ctx.FlowStack, "."), M.val.Path())
+	// bt := ctx.BaseTask
+	// fmt.Println("bt:", bt.ID, bt.UUID)
+	fmt.Println("task: pre   @", strings.Join(ctx.FlowStack, "."), M.val.Path())
 	result, err := M.next.Run(ctx)
-	fmt.Println("task: post @", strings.Join(ctx.FlowStack, "."), M.val.Path())
+	fmt.Println("task: post  @", strings.Join(ctx.FlowStack, "."), M.val.Path())
 	return result, err
 }
 

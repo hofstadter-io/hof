@@ -7,6 +7,7 @@ import (
 
 	"cuelang.org/go/cue"
 	"github.com/gammazero/workerpool"
+	"github.com/olekukonko/tablewriter"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	flowctx "github.com/hofstadter-io/hof/flow/context"
@@ -15,6 +16,7 @@ import (
 	"github.com/hofstadter-io/hof/flow/task"  // ensure tasks register
 	"github.com/hofstadter-io/hof/flow/tasks" // ensure tasks register
 	"github.com/hofstadter-io/hof/lib/hof"
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 func prepFlow(R *Runtime, val cue.Value) (*flow.Flow, error) {
@@ -157,9 +159,6 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.FlowPflagpole) 
 func printFinalContext(ctx *flowctx.Context) error {
 	// to start, print ids / timings
 	// rebuild task dependencies with hof tasks from cue tasks
-
-	fmt.Println("\n\n======= final =========")
-
 	tm := map[string]*task.BaseTask{}
 
 	ctx.Tasks.Range(func(key, value interface{}) bool {
@@ -174,28 +173,45 @@ func printFinalContext(ctx *flowctx.Context) error {
 		ti[t.CueTask.Index()] = t
 	}
 
-	for _, t := range ti {
-		if t == nil {
-			// panic("nil t")
-			fmt.Println("nil t")
-			continue
-		}
-		b := t.TimeEvents["run.beg"]
-		e := t.TimeEvents["run.end"]
-		l := e.Sub(b)
 
-		// is := []int{}
-		ps := []cue.Path{}
-		for _, D := range t.CueTask.Dependencies() {
-			// is = append(is, D.Index())
-			ps = append(ps, D.Path())
-		}
-		if len(ps) > 0 {
-			fmt.Println(t.ID, l, ps)
-		} else {
-			fmt.Println(t.ID, l)
-		}
-	}
+	fmt.Println("\n\n======= final =========")
+
+	return yagu.PrintAsTable(
+		[]string{"Task", "Deps", "Time"},
+		func(table *tablewriter.Table) ([][]string, error) {
+			var rows = make([][]string, 0, len(ti))
+			// fill with data
+
+			for _, t := range ti {
+				if t == nil {
+					// panic("nil t")
+					fmt.Println("nil t")
+					continue
+				}
+				b := t.TimeEvents["run.beg"]
+				e := t.TimeEvents["run.end"]
+				l := e.Sub(b)
+
+				// is := []int{}
+				ps := []cue.Path{}
+				for _, D := range t.CueTask.Dependencies() {
+					// is = append(is, D.Index())
+					ps = append(ps, D.Path())
+				}
+
+				deps := ""
+				if len(ps) > 0 {
+					deps = fmt.Sprint(ps)
+				}
+
+				row := []string{t.ID, deps, fmt.Sprint(l)}
+				rows = append(rows, row)
+			}
+
+			return rows, nil
+		},
+	)
+
 
 	return nil
 }
