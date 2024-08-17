@@ -1,4 +1,4 @@
-skip "need to update tests from upstream"
+skip
 ! exec hof eval -e nonExist
 cmp stderr expect/nonExist/stderr
 cmp stdout expect/nonExist/stdout
