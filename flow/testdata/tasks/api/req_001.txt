@@ -37,6 +37,7 @@ tasks: {
     val: call.resp.body
     mask: { 
       headers: {
+        connection: string
         "x-amzn-trace-id": string
         "x-request-start": string
       }
