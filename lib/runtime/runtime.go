@@ -90,6 +90,7 @@ func New(entrypoints []string, rflags flags.RootPflagpole) (*Runtime, error) {
 		Tools:      false,
 		DataFiles:  false,
 		Overlay:    make(map[string]load.Source),
+		AcceptLegacyModules: true,
 	}
 
 	// package?

@@ -8,6 +8,6 @@ Formatters: [
 
 Versions: {
 	docker: "24.0.7"
-	go:     "1.21.x" | ["1.22.x", "1.21.x"]
+	go:     "1.23.x" | ["1.23.x", "1.22.x"]
 	os:     "ubuntu-latest" | ["ubuntu-latest"]
 }

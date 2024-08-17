@@ -1,11 +1,11 @@
 module github.com/hofstadter-io/hof
 
-go 1.21
+go 1.22
 
-toolchain go1.21.4
+toolchain go1.23.0
 
 require (
-	cuelang.org/go v0.9.1-0.20240606151748-e09cb310d52d
+	cuelang.org/go v0.10.0
 	dagger.io/dagger v0.8.4
 	github.com/AlecAivazis/survey/v2 v2.3.7
 	github.com/BurntSushi/toml v1.3.2
@@ -43,14 +43,14 @@ require (
 	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06
 	github.com/sashabaranov/go-openai v1.23.0
 	github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3
-	github.com/spf13/cobra v1.8.0
+	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.9.0
 	go.uber.org/zap v1.27.0
-	golang.org/x/crypto v0.23.0
-	golang.org/x/mod v0.17.0
-	golang.org/x/text v0.15.0
+	golang.org/x/crypto v0.26.0
+	golang.org/x/mod v0.20.0
+	golang.org/x/text v0.17.0
 	gopkg.in/errgo.v2 v2.1.0
 	gopkg.in/inconshreveable/log15.v2 v2.16.0
 	gopkg.in/irc.v3 v3.1.4
@@ -60,7 +60,7 @@ require (
 )
 
 require (
-	cuelabs.dev/go/oci/ociregistry v0.0.0-20240412105620-eedc705cef15 // indirect
+	cuelabs.dev/go/oci/ociregistry v0.0.0-20240807094312-a32ad29eed79 // indirect
 	dario.cat/mergo v1.0.0 // indirect
 	github.com/99designs/gqlgen v0.17.44 // indirect
 	github.com/Khan/genqlient v0.7.0 // indirect
@@ -118,7 +118,7 @@ require (
 	github.com/prometheus/procfs v0.14.0 // indirect
 	github.com/protocolbuffers/txtpbfmt v0.0.0-20230328191034-3462fbc510c0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
-	github.com/rogpeppe/go-internal v1.12.0 // indirect
+	github.com/rogpeppe/go-internal v1.12.1-0.20240709150035-ccf4b4329d21 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
@@ -136,11 +136,11 @@ require (
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842 // indirect
-	golang.org/x/net v0.25.0 // indirect
-	golang.org/x/oauth2 v0.20.0 // indirect
-	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/sys v0.20.0 // indirect
-	golang.org/x/term v0.20.0 // indirect
+	golang.org/x/net v0.28.0 // indirect
+	golang.org/x/oauth2 v0.22.0 // indirect
+	golang.org/x/sync v0.8.0 // indirect
+	golang.org/x/sys v0.23.0 // indirect
+	golang.org/x/term v0.23.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect

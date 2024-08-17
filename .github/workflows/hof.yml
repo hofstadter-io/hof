@@ -12,8 +12,8 @@ jobs:
       fail-fast: false
       matrix:
         go:
+          - 1.23.x
           - 1.22.x
-          - 1.21.x
         os:
           - ubuntu-latest
     environment: hof mod testing
