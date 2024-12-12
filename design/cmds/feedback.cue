@@ -17,14 +17,14 @@ FeedbackCommand: schema.Command & {
 	Pflags: [{
 		Name:    "issue"
 		Long:    "issue"
-		Short:   "I"
+		Short:   ""
 		Type:    "bool"
 		Default: "false"
 		Help:    "create an issue (discussion is default)"
 	}, {
 		Name:    "labels"
 		Long:    "labels"
-		Short:   "L"
+		Short:   ""
 		Type:    "string"
 		Default: "\"feedback\""
 		Help:    "labels,comma,separated"

@@ -16,8 +16,8 @@ type FeedbackPflagpole struct {
 func SetupFeedbackPflags(fset *pflag.FlagSet, fpole *FeedbackPflagpole) {
 	// pflags
 
-	fset.BoolVarP(&(fpole.Issue), "issue", "I", false, "create an issue (discussion is default)")
-	fset.StringVarP(&(fpole.Labels), "labels", "L", "feedback", "labels,comma,separated")
+	fset.BoolVarP(&(fpole.Issue), "issue", "", false, "create an issue (discussion is default)")
+	fset.StringVarP(&(fpole.Labels), "labels", "", "feedback", "labels,comma,separated")
 }
 
 var FeedbackPflags FeedbackPflagpole
