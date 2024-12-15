@@ -21,10 +21,12 @@ func check(err error) {
 }
 
 var RUNTIME string
+var ARCH string
 var TESTS string
 
 func init() {
 	pflag.StringVarP(&RUNTIME, "runtime", "r", "docker", "container runtime to use [docker, nerdctl, podman, none]")
+	pflag.StringVarP(&ARCH, "arch", "a", "amd64", "arch identifier, like golang uses")
 	pflag.StringVarP(&TESTS, "tests", "t", "", "tests to run, comma separated")
 }
 
@@ -54,10 +56,10 @@ func main() {
 	//
 	// Building
 	//
-	base := R.GolangImage("linux/amd64")
+	base := R.GolangImage("linux/"+ARCH)
 	deps := R.FetchDeps(base, source)
 	builder := R.BuildHof(deps, source)
-	runner := R.RuntimeContainer(builder, "linux/amd64")
+	runner := R.RuntimeContainer(builder, "linux/"+ARCH)
 
 	//
 	// TESTS

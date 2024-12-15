@@ -21,11 +21,11 @@ func (R *Runtime) GolangImage(platform string) (*dagger.Container) {
 		From(goVer)
 
 	// setup mod cache
-	modCache := R.Client.CacheVolume("gomod-" + platform)
+	modCache := R.Client.CacheVolume(fmt.Sprintf("gomod-%s-%s", goVer, platform))
 	c = c.WithMountedCache("/go/pkg/mod", modCache)
 
 	// setup build cache
-	buildCache := R.Client.CacheVolume("go-build-" + platform)
+	buildCache := R.Client.CacheVolume(fmt.Sprintf("go-build-%s-%s", goVer, platform))
 	c = c.WithMountedCache("/root/.cache/go-build", buildCache)
 
 	// setup workdir
