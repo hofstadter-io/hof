@@ -39,7 +39,6 @@ func main() {
 
 	t := gcloud
 	t = t.WithEnvVariable("CACHEBUST", time.Now().String())
-	t = t.Pipeline("gcloud/list")
 	t = t.WithExec([]string{"gcloud", "compute", "instances", "list", "--format=json"})
 
 	out, err := t.Stdout(ctx)
@@ -58,8 +57,7 @@ func main() {
 			continue
 		}
 
-		d := t.Pipeline("gcloud/describe/" + name)
-		d = d.WithExec([]string{"gcloud", "compute", "instances", "describe", name, "--format=json", "--zone", zone})
+		d = t.WithExec([]string{"gcloud", "compute", "instances", "describe", name, "--format=json", "--zone", zone})
 		d.Sync(ctx)
 	}
 

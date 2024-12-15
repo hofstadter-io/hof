@@ -33,20 +33,12 @@ func main() {
 		Client: client,
 	}
 
-	// docker := R.DockerImage()
-	golang := R.GolangImage()
-
-	buildr := golang.Pipeline("builder")
+	buildr := R.GolangImage()
 	buildr = buildr.WithDirectory("/work", source)
 	buildr = buildr.WithExec([]string{"go", "build", "./cmd/hof"})
 
-	valid := buildr.Pipeline("validate")
-	valid = valid.WithExec([]string{"./hof", "version"})
-
-
-	final := valid
-	final.Sync(ctx)
-	// final.Stdout(ctx)
+	valid = buildr.WithExec([]string{"./hof", "version"})
+	valid.Sync(ctx)
 }
 
 func (R *Runtime) DockerImage() (*dagger.Container) {

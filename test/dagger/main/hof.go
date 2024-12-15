@@ -64,7 +64,6 @@ func main() {
 	//
 
 	tester := R.SetupTestingEnv(runner, source)
-	tester = tester.Pipeline("TESTS")
 
 	switch RUNTIME {
 	case "none":

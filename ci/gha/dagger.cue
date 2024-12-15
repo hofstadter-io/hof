@@ -21,7 +21,7 @@ ghacue.#Workflow & {
 			}
 
 			steps: [
-				common.Steps.go.setup & {#ver: "1.21.x"},
+				common.Steps.go.setup & {#ver: "1.23.x"},
 				common.Steps.checkout,
 				common.Steps.vars,
 				common.Steps.go.deps,

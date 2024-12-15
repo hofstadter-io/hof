@@ -10,7 +10,6 @@ func (R *Runtime) DockerClientContainer() (*dagger.Container, error) {
 
 	// official docker-cli image
 	c := R.Client.Container().From(dockerVer + "-cli")
-	c = c.Pipeline("docker/client")
 
 	// everyone gets a shared /tmp
 	c = c.WithMountedCache("/tmp", R.Client.CacheVolume("shared-tmp"))
@@ -26,7 +25,6 @@ func (R *Runtime) DockerClientContainer() (*dagger.Container, error) {
 func (R *Runtime) DockerDaemonContainer() (*dagger.Container, error) {
 	// official docker-in-docker (dind) image
 	c := R.Client.Container().From(dockerVer + "-dind")
-	c = c.Pipeline("docker/daemon")
 
 	// everyone gets a shared /tmp
 	c = c.WithMountedCache("/tmp", R.Client.CacheVolume("shared-tmp"))
@@ -38,14 +36,13 @@ func (R *Runtime) DockerDaemonContainer() (*dagger.Container, error) {
 	c = c.WithExposedPort(2375)
 
 	// last command is the one that will be executed, dockerd in our case
-	c = c.WithExec(
+	c = c.WithEntrypoint(
 		[]string{
 			"dockerd",
 			"--log-level=warn",
 			"--host=tcp://0.0.0.0:2375",
 			"--tls=false",
 		},
-		dagger.ContainerWithExecOpts{InsecureRootCapabilities: true},
 	)
 	return c, nil
 }
@@ -53,9 +50,13 @@ func (R *Runtime) DockerDaemonContainer() (*dagger.Container, error) {
 // Attaches the daemon as a dagger service to the container with the right settings.
 // A single daemon can be shared among many containers this way, running separately from each of them.
 func (R *Runtime) AttachDaemonAsService(c, daemon *dagger.Container) (*dagger.Container, error) {
-	c = c.Pipeline("docker/attach")
 	c = c.WithEnvVariable("DOCKER_HOST", "tcp://global-dockerd:2375")
-	c = c.WithServiceBinding("global-dockerd", daemon)
+	c = c.WithServiceBinding("global-dockerd", daemon.AsService(
+		dagger.ContainerAsServiceOpts{
+			UseEntrypoint: true,
+			InsecureRootCapabilities: true,
+		},
+	))
 
 	return c, nil
 }

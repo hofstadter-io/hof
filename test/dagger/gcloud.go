@@ -13,7 +13,6 @@ import (
 func (R *Runtime) GcloudImage() (*dagger.Container) {
 
 	c := R.Client.Container().From("google/cloud-sdk")
-	c = c.Pipeline("gcloud-sdk")
 
 	return c
 }

@@ -3,7 +3,6 @@ package dagger
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"dagger.io/dagger"
 )
@@ -18,7 +17,6 @@ var goVer = "golang:1.23"
 
 func (R *Runtime) GolangImage(platform string) (*dagger.Container) {
 	c := R.Client.
-		Pipeline(fmt.Sprintf("%s %s", goVer, platform)).
 		Container(dagger.ContainerOpts{Platform: dagger.Platform(platform)}).
 		From(goVer)
 
@@ -41,13 +39,11 @@ func (R *Runtime) RuntimeContainer(builder *dagger.Container, platform string) (
 
 	c := R.GolangImage(platform)
 	c = c.WithFile("/usr/local/bin/hof", hof)
-	c = c.Pipeline("hof/runtime")
 	
 	return c
 }
 
 func (R *Runtime) FetchDeps(c *dagger.Container, source *dagger.Directory) (*dagger.Container) {
-	c = c.Pipeline("hof/deps")
 
 	// get deps
 	c = c.WithDirectory("/work", source, dagger.ContainerWithDirectoryOpts{
@@ -60,7 +56,6 @@ func (R *Runtime) FetchDeps(c *dagger.Container, source *dagger.Directory) (*dag
 }
 
 func (R *Runtime) BuildHof(c *dagger.Container, source *dagger.Directory) (*dagger.Container) {
-	c = c.Pipeline("hof/build")
 
 	// exclude files we don't need so we can avoid cache misses?
 	c = c.WithDirectory("/work", source, dagger.ContainerWithDirectoryOpts{
@@ -86,10 +81,7 @@ func (R *Runtime) BuildHofMatrix(c *dagger.Container) (*dagger.Directory, error)
 	geese := []string{"linux", "darwin"}
 	goarches := []string{"amd64", "arm64"}
 
-	// c = c.Pipeline("matrix")
-
 	outputs := R.Client.Directory()
-	outputs = outputs.Pipeline("outputs")
 
 	// build matrix for writing to host
 	for _, goos := range geese {
@@ -97,11 +89,8 @@ func (R *Runtime) BuildHofMatrix(c *dagger.Container) (*dagger.Directory, error)
 			// create a directory for each OS and architecture
 			path := fmt.Sprintf("build/%s/%s/", goos, goarch)
 
-			// name the build
-			build := c.Pipeline(strings.TrimSuffix(path, "/"))
-
 			// set local env vars
-			build = build.
+			build := c.
 				WithEnvVariable("GOOS", goos).
 				WithEnvVariable("GOARCH", goarch)
 
@@ -117,8 +106,7 @@ func (R *Runtime) BuildHofMatrix(c *dagger.Container) (*dagger.Directory, error)
 }
 
 func (R *Runtime) HofVersion(c *dagger.Container) error {
-	t := c.Pipeline("hof/version")
-	t = t.WithExec([]string{"hof", "version"})
+	t := c.WithExec([]string{"hof", "version"})
 
 	_, err := t.Sync(R.Ctx)
 	return err

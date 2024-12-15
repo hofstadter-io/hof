@@ -47,7 +47,7 @@ func main() {
 	opts := dagger.ContainerWithExecOpts{ SkipEntrypoint: true, InsecureRootCapabilities: true }
 	daemon := r.WithExec([]string{"containerd", "-address", "0.0.0.0:2375"}, opts)
 
-	t := r.Pipeline("nerdctl/test")
+	t := r
 
 	// t = t.WithEnvVariable("DOCKER_HOST", "tcp://global-containerd:2375")
 	t = t.WithServiceBinding("global-containerd", daemon)
@@ -71,7 +71,7 @@ pkill socat
 `
 
 func withRuntimeTest(runtime string, c *dagger.Container) (*dagger.Container) {
-	t := c.Pipeline(runtime + "/test")
+	t := c
 
 	opts := dagger.ContainerWithExecOpts{ SkipEntrypoint: true, InsecureRootCapabilities: true }
 
