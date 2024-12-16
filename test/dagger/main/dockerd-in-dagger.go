@@ -147,7 +147,7 @@ func (R *runtime) daemonContainer() (*dagger.Container, error) {
 
 	c = c.WithEnvVariable("CACHE", time.Now().String())
 	c = c.WithExec([]string{"curl", "https://registry-1.docker.io"})
-	c = c.WithExec(
+	c = c.WithEntrypoint(
 		[]string{
 			"dockerd",
 			"--log-level=warn",
@@ -155,7 +155,6 @@ func (R *runtime) daemonContainer() (*dagger.Container, error) {
 			"--tls=false",
 			"--debug",
 		},
-		dagger.ContainerWithExecOpts{InsecureRootCapabilities: true},
 	)
 	return c, nil
 }
@@ -163,7 +162,12 @@ func (R *runtime) daemonContainer() (*dagger.Container, error) {
 func (R *runtime) attachService(c, s *dagger.Container) (*dagger.Container, error) {
 	t := c
 	t = t.WithEnvVariable("DOCKER_HOST", "tcp://global-dockerd:2375")
-	t = t.WithServiceBinding("global-dockerd", s)
+	t = t.WithServiceBinding("global-dockerd", s.AsService(
+		dagger.ContainerAsServiceOpts{
+			UseEntrypoint: true,
+			InsecureRootCapabilities: true,
+		},
+	))
 
 	return t, nil
 }
