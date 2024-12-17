@@ -18,7 +18,7 @@ Similar:
 
 - [Atlas](https://atlasgo.io/) & [Ent](https://entgo.io/)
 - [Prisma](https://www.prisma.io/docs/concepts/components/prisma-schema/data-model)
-- [Hasura](https://hasura.io/docs/latest/graphql/core/databases/postgres/schema/index.html)
+- [Hasura](https://hasura.io/docs/1.0/graphql/core/schema/index.html)
 
 
 Questions:
