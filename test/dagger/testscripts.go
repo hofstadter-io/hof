@@ -29,7 +29,7 @@ func (R *Runtime) SetupTestingEnv(c *dagger.Container, source *dagger.Directory)
 	// set env vars
 	c = c.WithEnvVariable("HOF_TELEMETRY_DISABLED", "1")
 	c = c.WithEnvVariable("GITHUB_TOKEN", os.Getenv("GITHUB_TOKEN"))
-	c = c.WithEnvVariable("GITHUB_TOKEN_LEN", fmt.Sprintf("%d", len(os.Getenv("GITHUB_TOKEN")))
+	c = c.WithEnvVariable("GITHUB_TOKEN_LEN", fmt.Sprintf("%d", len(os.Getenv("GITHUB_TOKEN"))))
 	c = c.WithEnvVariable("HOF_FMT_VERSION", os.Getenv("HOF_FMT_VERSION"))
 
 	// set fmt vars
