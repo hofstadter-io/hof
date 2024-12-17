@@ -227,6 +227,9 @@ Steps: {
 				"restore-keys": "${{ runner.os }}-dagger-"
 			}
 		}
+		env: {
+			GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+		}
 	}
 
 	gcloud: {

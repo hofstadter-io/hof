@@ -58,7 +58,7 @@ ghacue.#Workflow & {
 					name: "hof-in-dagger"
 					run:  "go run ./test/dagger/main/hof.go"
 					env: {
-						GITHUB_TOKEN:       "${{secrets.HOF_HOMEBREW_PAT}}"
+						GITHUB_TOKEN:       "${{secrets.GITHUB_TOKEN}}"
 						GITLAB_TOKEN:       "${{secrets.GITLAB_TOKEN}}"
 						BITBUCKET_USERNAME: "hofstadter"
 						BITBUCKET_PASSWORD: "${{secrets.BITBUCKET_TOKEN}}"
