@@ -32,7 +32,7 @@ func (R *Runtime) SetupTestingEnv(c *dagger.Container, source *dagger.Directory)
 	c = c.WithEnvVariable("HOF_FMT_VERSION", os.Getenv("HOF_FMT_VERSION"))
 
 	// set fmt vars
-	ver := "v0.6.8"
+	ver := "v0.6.9" // todo, get this from the version used in the CLI command, consider falling back to some version if dirty or CI?
 	c = c.WithEnvVariable("HOF_FMT_VERSION", ver)
 	c = c.WithEnvVariable("HOF_FMT_HOST", "http://global-dockerd")
 
