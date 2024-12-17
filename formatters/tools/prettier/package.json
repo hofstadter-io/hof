@@ -15,6 +15,7 @@
     "express": "^4.18.2",
     "prettier": "^2.8.4",
     "prettier-plugin-go-template": "^0.0.13",
+    "prettier-plugin-java": "^2.6.0",
     "prettier-plugin-groovy": "^0.0.2",
     "prettier-plugin-rust": "^0.1.8",
     "prettier-plugin-sql": "^0.13.0"
