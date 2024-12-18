@@ -1,7 +1,5 @@
-// const express = require('express');
-// const prettier = require("prettier");
 import express from 'express'
-import prettier from 'prettier'
+import * as prettier from 'prettier'
 
 const app = express();
 
@@ -12,13 +10,13 @@ app.use(
 );
 app.use(express.json({limit: "50mb", extended: true, parameterLimit:50000}));
 
-app.get('/', (req, res) => {
-	var info = prettier.getSupportInfo();
+app.get('/', async (req, res) => {
+	var info = await prettier.getSupportInfo();
 	res.write(JSON.stringify(info));
 	res.end();
 });
 
-app.post('/', (req, res) => {
+app.post('/', async (req, res) => {
 	// TODO, add debug level (env) and print
 	// console.log(req.body);
 	//
@@ -26,7 +24,7 @@ app.post('/', (req, res) => {
 	var config = req.body.config;
 
 	try {
-		var fmt = prettier.format(source, config);
+		var fmt = await prettier.format(source, config);
 		res.write(fmt);
 		res.end();
 	} catch(error) {

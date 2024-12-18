@@ -1,4 +1,13 @@
 {
+  "plugins": [
+    "@prettier/plugin-php",
+    "@prettier/plugin-ruby",
+    "prettier-plugin-go-template",
+    "prettier-plugin-groovy",
+    "prettier-plugin-java",
+    "prettier-plugin-rust",
+    "prettier-plugin-sql"
+  ],
   "languages": [
     {
       "linguistLanguageId": 183,

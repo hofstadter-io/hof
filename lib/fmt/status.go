@@ -13,6 +13,8 @@ func UpdateFormatterStatus() error {
 		return nil
 	}
 
+	// todo? check for container runtime setup & status
+
 	images, err := container.GetImages(fmt.Sprintf("%s/fmt-", CONTAINER_REPO))
 	if err != nil {
 		return fmt.Errorf("get images: %w", err)
@@ -69,7 +71,7 @@ func UpdateFormatterStatus() error {
 func getAndUpdateFmtrContainer(fmtr *Formatter) error {
 	containers, err := container.GetContainers(ContainerPrefix + fmtr.Name)
 	if err != nil {
-		return err
+		return fmt.Errorf("while getting formatter container status for: %w", err)
 	}
 
 	for _, c := range containers {

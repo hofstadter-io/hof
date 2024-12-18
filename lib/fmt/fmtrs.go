@@ -143,7 +143,7 @@ var fmtrReady = map[string]any{
 		"source": "var n = 1;",
 	},
 	"prettier": map[string]any{
-		"config": fmtrDefaultConfigs["prettier/js"],
+		"config": fmtrDefaultConfigs["prettier/babel"],
 		"source": "var n = 1;",
 	},
 }
@@ -234,26 +234,33 @@ var fmtrDefaultConfigs = map[string]interface{}{
 	},
 	"prettier/go-template": map[string]interface{}{
 		"parser": "go-template",
+		"plugins": []string{"prettier-plugin-go-template"},
 	},
 
 	// pretty extra
 	"prettier/java": map[string]interface{}{
 		"parser": "java",
+		"plugins": []string{"prettier-plugin-java"},
 	},
 	"prettier/groovy": map[string]interface{}{
 		"parser": "groovy",
+		"plugins": []string{"prettier-plugin-groovy"},
 	},
 	"prettier/ruby": map[string]interface{}{
 		"parser": "ruby",
+		"plugins": []string{"@prettier/plugin-ruby"},
 	},
 	"prettier/rust": map[string]interface{}{
 		"parser": "jinx-rust",
+		"plugins": []string{"prettier-plugin-rust"},
 	},
 	"prettier/php": map[string]interface{}{
 		"parser": "php",
+		"plugins": []string{"@prettier/plugin-php"},
 	},
 	"prettier/sql": map[string]interface{}{
 		"parser": "sql",
+		"plugins": []string{"prettier-plugin-sql"},
 	},
 }
 

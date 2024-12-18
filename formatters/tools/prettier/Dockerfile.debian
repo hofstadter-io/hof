@@ -47,7 +47,7 @@ RUN for i in $(seq 1 5); do \
 	&& s=0 && break || s=$? && echo "RETRY $i" && sleep $i; done; (exit $s)
 
 # our server code
-COPY prettier.js .
+COPY prettier.js prettierrc.json /app/
 
 # runtime settings
 EXPOSE 3000

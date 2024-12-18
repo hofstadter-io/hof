@@ -95,7 +95,7 @@ func (r runtime) exec(ctx context.Context, args ...string) (io.Reader, error) {
 	cmd.Stderr = &stderr
 
 	if err := cmd.Run(); err != nil {
-		return nil, fmt.Errorf("cmd run: %w\n%s", err, stderr.String())
+		return nil, fmt.Errorf("while running %v: %w\nstdout: %s\nstderr: %s", cmd.String(), err, stdout.String(), stderr.String())
 	}
 
 	if r.debug {
@@ -109,11 +109,13 @@ func (r runtime) exec(ctx context.Context, args ...string) (io.Reader, error) {
 func (r runtime) execJSON(ctx context.Context, resp any, args ...string) error {
 	stdout, err := r.exec(ctx, args...)
 	if err != nil {
-		return fmt.Errorf("exec: %w", err)
+		return err
 	}
 
 	if err := json.NewDecoder(stdout).Decode(resp); err != nil {
-		return fmt.Errorf("json decode: %w", err)
+		buf := new(strings.Builder)
+		_, err := io.Copy(buf, stdout)
+		return fmt.Errorf("json decode: %w in:\n%s", err, buf.String())
 	}
 
 	return nil
