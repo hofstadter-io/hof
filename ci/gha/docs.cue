@@ -33,7 +33,7 @@ ghacue.#Workflow & {
 				{
 					name: "Test"
 					run: """
-						hof fmt start prettier@v0.6.8
+						hof fmt start prettier@v0.6.10-rc.2
 						cd docs
 						make gen
 						make test
