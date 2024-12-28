@@ -263,7 +263,7 @@ Steps: {
 		setup: {
 			name: "Setup"
 			run: """
-				hof fmt start prettier@v0.6.9
+				hof fmt start prettier@v0.6.10-rc.2
 				cd docs
 				hof mod link
 				make tools
