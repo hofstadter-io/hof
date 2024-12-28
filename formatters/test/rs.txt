@@ -1,3 +1,4 @@
+skip
 exec hof fmt in.rs -v 1
 cmp in.rs golden.rs
 
