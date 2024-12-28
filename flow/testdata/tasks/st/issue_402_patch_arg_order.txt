@@ -1,0 +1,67 @@
+exec hof flow patch.cue
+cmp stdout stdout.golden
+
+-- stdout.golden --
+P.next: {
+	b: "b"
+	e: {
+		a: "a"
+		b: "b"
+		c: "c"
+	}
+	f: "new"
+}
+
+-- patch.cue --
+package patch
+
+// original thing being patched
+o: {
+    a: "a"
+    b: "b"
+    e: {
+        a: "a"
+        b: "b"
+        d: "d"
+    }
+}
+
+// update structure
+p: {
+    "-": {
+        a: "a"    // remove field 'a'
+    }
+    e: {
+        "-": {
+            d: "d"    // remove nested field 'd'
+        }
+        "+": {
+            c: "c"    // add new nested field 'c'
+        }
+    }
+    "+": {
+        f: "new"     // add new field 'f'
+    }
+}
+
+@flow()
+P: {
+  @task(st.Patch)
+  orig: o
+  patch: p
+  next: _
+} @print(next)
+
+// Result after patch
+n: {
+    b: "b"
+    e: {
+        a: "a"
+        b: "b"
+        c: "c"
+    }
+    f: "new"
+}
+
+// validation
+n: P.next
