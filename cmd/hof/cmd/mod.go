@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/spf13/cobra"
 	cuecmd "cuelang.org/go/cmd/cue/cmd"
+	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
@@ -45,7 +45,6 @@ var ModCmd = &cobra.Command{
 	},
 }
 
-
 var modsubs = []string{
 	"edit",
 	"fix",
@@ -67,6 +66,7 @@ func init() {
 		cmd := &cobra.Command{
 			Use: sub,
 			Run: func(cmd *cobra.Command, args []string) {
+				ga.SendCommandPath(cmd.CommandPath())
 				runCueCmd(os.Args[1:])
 			},
 			FParseErrWhitelist: cobra.FParseErrWhitelist{
