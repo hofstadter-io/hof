@@ -1,4 +1,5 @@
 module: "github.com/hofstadter-io/hof"
+source: kind: "git"
 language: {
 	version: "v0.9.0"
 }
