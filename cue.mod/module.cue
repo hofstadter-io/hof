@@ -10,6 +10,6 @@ deps: {
 		v: "v0.0.1"
 	}
 	"github.com/hofstadter-io/schemas@v0": {
-		v: "v0.0.1"
+		v: "v0.0.2"
 	}
 }
