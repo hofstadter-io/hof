@@ -1,6 +1,6 @@
 package config
 
-baseURL: "http://docs.hofstadter.io/"
+baseURL: "http://hofstadter.io/"
 
 languageCode:           "en-us"
 DefaultContentLanguage: "en"

@@ -11,7 +11,7 @@ On linux or codespaces:
 
 ```sh
 make first
-make run    of   make run.codespace
+make run    or   make run.codespace
 ```
 
 this will break on mac

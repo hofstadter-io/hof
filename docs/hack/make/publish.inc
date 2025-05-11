@@ -1,5 +1,5 @@
 config.yaml: config.cue
-	hof export config.cue --out yaml --outfile config.yaml --force
+	hof export config.cue --out yaml --outfile config.yaml
 
 .PHONT: nginx.next nginx.prod
 nginx.next:
@@ -13,7 +13,7 @@ all.prod: hugo.prod image.prod push.prod deploy.prod
 
 hugo.prod: config.yaml
 	@rm -rf dist
-	@hugo --baseURL https://docs.hofstadter.io/ -d dist
+	@hugo --baseURL https://hofstadter.io/ -d dist
 image.prod:
 	@docker build --platform linux/amd64 --no-cache -f ci/Dockerfile -t us.gcr.io/$(PROJECT)/docs.hofstadter.io:$(TAG) .
 push.prod:

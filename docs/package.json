@@ -4,7 +4,9 @@
   "description": "documentation for Hofstadter tools",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pages:dev": "yarn run wrangler pages dev",
+    "pages:deploy": "yarn run wrangler pages deploy"
   },
   "repository": {
     "type": "git",
@@ -31,6 +33,7 @@
     "javascript-autocomplete": "^1.0.5",
     "jquery": "^3.6.3",
     "lunr": "^2.3.9",
-    "shiki": "^0.10.0"
+    "shiki": "^0.10.0",
+    "wrangler": "^3.107.0"
   }
 }
