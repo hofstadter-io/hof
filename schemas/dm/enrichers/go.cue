@@ -1,6 +1,6 @@
 package go
 
-import "hofstadter.io/schemas/dm"
+import "github.com/hofstadter-io/schemas/dm"
 
 FieldEnricher: {
 	field: dm.Field

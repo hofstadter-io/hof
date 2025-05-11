@@ -1,7 +1,7 @@
 package dm
 
 import (
-	"hofstadter.io/schemas"
+	"github.com/hofstadter-io/schemas"
 )
 
 // This is a complete Value tracked as one

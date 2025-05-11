@@ -1,7 +1,7 @@
 package prompt
 
 import (
-	"hofstadter.io/schemas/common"
+	"github.com/hofstadter-io/schemas/common"
 )
 
 Prompt: {

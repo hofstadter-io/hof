@@ -1,7 +1,7 @@
 package create
 
 import (
-	"hofstadter.io/schemas/prompt"
+	"github.com/hofstadter-io/schemas/prompt"
 )
 
 Creator: Create: {
