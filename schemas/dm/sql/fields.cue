@@ -1,7 +1,7 @@
 package sql
 
 import (
-	"github.com/hofstadter-io/hof/schema/dm/fields"
+	"hofstadter.io/schemas/dm/fields"
 )
 
 CommonFields: {

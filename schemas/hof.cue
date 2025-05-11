@@ -1,4 +1,4 @@
-package schema
+package schemas
 
 // Hof is used to embed #hof and include the needed metadata
 // for hof's core functionality (gen,datamodel,flow)

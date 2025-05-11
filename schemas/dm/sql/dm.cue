@@ -1,8 +1,8 @@
 package sql
 
 import (
-	"github.com/hofstadter-io/hof/schema"
-	"github.com/hofstadter-io/hof/schema/dm"
+	"hofstadter.io/schemas"
+	"hofstadter.io/schemas/dm"
 )
 
 Datamodel: {

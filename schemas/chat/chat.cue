@@ -1,7 +1,7 @@
 package chat
 
 import (
-	"github.com/hofstadter-io/hof/schema"
+	"hofstadter.io/schemas"
 )
 
 // Chat represents a call to an LLM via the `hof chat with' command.
