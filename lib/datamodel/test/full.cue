@@ -1,7 +1,7 @@
 package datamodel
 
 import (
-	"github.com/hofstadter-io/hof/schema/dm"
+	"github.com/hofstadter-io/schemas/dm"
 )
 
 MyObject: dm.Object & {

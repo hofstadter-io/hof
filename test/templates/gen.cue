@@ -1,7 +1,7 @@
 package templates
 
 import (
-	"github.com/hofstadter-io/hof/schema/gen"
+	"github.com/hofstadter-io/schemas/gen"
 )
 
 #A: {
