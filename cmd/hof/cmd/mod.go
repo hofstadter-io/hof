@@ -22,6 +22,7 @@ func runCueCmd(args []string) {
 
 	err := c.Run(context.Background())
 
+	// todo, use copy / pipe / replace so we can stream output
 	s := buf.String()
 	s = strings.Replace(s, "cue ", "hof ", -1)
 	fmt.Println(s)
@@ -58,6 +59,7 @@ var modsubs = []string{
 
 func init() {
 	ModCmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+		// fmt.Println("HELP!:", cmd.CommandPath())
 		ga.SendCommandPath(cmd.CommandPath() + " help")
 		runCueCmd([]string{"mod", "--help"})
 	})
