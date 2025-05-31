@@ -14,10 +14,10 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/flow/flow"
 	"github.com/hofstadter-io/hof/lib/chat"
+	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/datamodel"
 	"github.com/hofstadter-io/hof/lib/gen"
 	"github.com/hofstadter-io/hof/lib/hof"
-	"github.com/hofstadter-io/hof/lib/cuetils"
 )
 
 // This is the hof Runtime that backs most commands
@@ -35,10 +35,13 @@ type Runtime struct {
 	// Other important dirs when loading templates (auto set)
 	WorkingDir    string
 	CueModuleRoot string
-	RootToCwd     string  // module root -> working dir (foo/bar)
-	CwdToRoot     string  // module root <- working dir (../..)
+	CueExtractDir string // where CUE extract modules to
+	RootToCwd     string // module root -> working dir (foo/bar)
+	CwdToRoot     string // module root <- working dir (../..)
 	// OutputDir     string  // where gen wants to write (tbd, other commands too)
-	OriginalWkdir string  // when we need to cd and then output back to this directory (create related, but could expand)
+	OriginalWkdir string // when we need to cd and then output back to this directory (create related, but could expand)
+
+	DepMapping map[string]string // map of module paths to module names, used for loading modules
 
 	// CUE related fields
 	Entrypoints    []string
@@ -54,17 +57,17 @@ type Runtime struct {
 	origEntrypoints []string
 
 	// when a user supplies an data.json@path.to.field
-	dataMappings    map[string]string
+	dataMappings map[string]string
 
 	// internal bookkeeping
-	loadedFiles []string  // cue+data (?)
+	loadedFiles []string // cue+data (?)
 
 	// non-data files loaded <cue-path> => <file-path>
-	userFiles   map[string]string  // non-data files loaded by user
-	modFiles    map[string]string  // non-data files loaded by modules
+	userFiles map[string]string // non-data files loaded by user
+	modFiles  map[string]string // non-data files loaded by modules
 
 	// The CUE value after all loading
-	Value    cue.Value
+	Value cue.Value
 
 	// we need to rethink how we organize the code
 	// in each of these packages so we can separate
@@ -80,16 +83,16 @@ type Runtime struct {
 
 func New(entrypoints []string, rflags flags.RootPflagpole) (*Runtime, error) {
 	cfg := &load.Config{
-		ModuleRoot: "",
-		Module:     "",
-		Package:    "",
-		Dir:        "",
-		Tags:       rflags.Tags,
-		TagVars:    load.DefaultTagVars(),
-		Tests:      false,
-		Tools:      false,
-		DataFiles:  false,
-		Overlay:    make(map[string]load.Source),
+		ModuleRoot:          "",
+		Module:              "",
+		Package:             "",
+		Dir:                 "",
+		Tags:                rflags.Tags,
+		TagVars:             load.DefaultTagVars(),
+		Tests:               false,
+		Tools:               false,
+		DataFiles:           false,
+		Overlay:             make(map[string]load.Source),
 		AcceptLegacyModules: true,
 	}
 
@@ -102,7 +105,7 @@ func New(entrypoints []string, rflags flags.RootPflagpole) (*Runtime, error) {
 	if rflags.InjectEnv {
 		for _, e := range os.Environ() {
 			parts := strings.Split(e, "=")
-			k,v := parts[0], parts[1]
+			k, v := parts[0], parts[1]
 			cfg.TagVars[k] = load.TagVar{
 				Func: func() (ast.Expr, error) {
 					return ast.NewString(v), nil
@@ -112,14 +115,15 @@ func New(entrypoints []string, rflags flags.RootPflagpole) (*Runtime, error) {
 	}
 
 	r := &Runtime{
-		Flags: rflags,
-		Entrypoints: entrypoints,
+		Flags:           rflags,
+		Entrypoints:     entrypoints,
 		origEntrypoints: entrypoints,
-		CueConfig:   cfg,
-		dataMappings: make(map[string]string),
-		userFiles: make(map[string]string),
-		modFiles: make(map[string]string),
-		Stats: make(RuntimeStats),
+		CueConfig:       cfg,
+		DepMapping:      make(map[string]string),
+		dataMappings:    make(map[string]string),
+		userFiles:       make(map[string]string),
+		modFiles:        make(map[string]string),
+		Stats:           make(RuntimeStats),
 	}
 
 	// calc cue dirs
@@ -128,6 +132,14 @@ func New(entrypoints []string, rflags flags.RootPflagpole) (*Runtime, error) {
 	if err != nil {
 		return r, err
 	}
+
+	d, err := os.UserCacheDir()
+	if err != nil {
+		return nil, err
+	}
+	r.CueExtractDir = filepath.Join(d, "cue", "mod", "extract")
+	// fmt.Println("CueExtractDir:", r.CueExtractDir)
+
 	// TODO: we could make this configurable
 	r.WorkingDir, _ = os.Getwd()
 	if r.CueModuleRoot != "" {

@@ -21,7 +21,7 @@ type TemplateGlobs struct {
 	// Prefix to trim
 	TrimPrefix string
 	// Custom delims
-	Delims templates.Delims
+	Delims     templates.Delims
 	DelimGlobs map[string]templates.Delims
 }
 
@@ -51,10 +51,12 @@ type Generator struct {
 	Outdir string
 
 	// Other important dirs when loading templates (auto set)
-	CueModuleRoot string
+	CueModuleRoot  string
+	CueExtractDir  string // where CUE extracts module code
 	RootModuleName string
-	WorkingDir    string
-	CwdToRoot     string  // module root <- working dir (../..)
+	WorkingDir     string
+	CwdToRoot      string            // module root <- working dir (../..)
+	DepMapping     map[string]string // map of module paths to module names, used for loading modules
 
 	// "Global" input, merged with out replacing onto the files
 	In  map[string]any
@@ -62,7 +64,7 @@ type Generator struct {
 
 	// File globs to watch and trigger regen on change
 	WatchFull []string
-	WatchFast  []string
+	WatchFast []string
 
 	// Formatting
 	FormattingDisabled bool
@@ -95,7 +97,7 @@ type Generator struct {
 	Generators map[string]*Generator
 
 	// backpointers, if a subgen
-	parent  *Generator
+	parent *Generator
 
 	// Used for indexing into the vendor directory...
 	// This should be `ModuleName: string | *"github.com/..." in your generator
@@ -104,8 +106,8 @@ type Generator struct {
 
 	// Use Diff3 & Shadow
 	Diff3FlagSet bool // set by flag
-	UseDiff3 bool
-	NoFormat bool
+	UseDiff3     bool
+	NoFormat     bool
 
 	// enable pre/post-flows
 	ExecFlows bool
@@ -123,12 +125,12 @@ type Generator struct {
 	PartialsMap templates.TemplateMap
 
 	// Files and the shadow dir for doing neat things
-	OrderedFiles    []*File
-	Files  map[string]*File
-	Shadow map[string]*File
+	OrderedFiles []*File
+	Files        map[string]*File
+	Shadow       map[string]*File
 
 	// Print extra information
-	Debug bool
+	Debug     bool
 	Verbosity int
 
 	// Status for this generator and processing
@@ -145,16 +147,16 @@ func NewGenerator(node *hof.Node[Generator]) *Generator {
 		Node: node,
 
 		// generator specific vals
-		Name:          node.Hof.Label,
-		CueValue:      node.Value,
+		Name:     node.Hof.Label,
+		CueValue: node.Value,
 
 		// initialize containers
-		PartialsMap:   templates.NewTemplateMap(),
-		TemplateMap:   templates.NewTemplateMap(),
-		Generators:    make(map[string]*Generator),
-		Files:         make(map[string]*File),
-		Shadow:        make(map[string]*File),
-		Stats:         &GeneratorStats{},
+		PartialsMap: templates.NewTemplateMap(),
+		TemplateMap: templates.NewTemplateMap(),
+		Generators:  make(map[string]*Generator),
+		Files:       make(map[string]*File),
+		Shadow:      make(map[string]*File),
+		Stats:       &GeneratorStats{},
 	}
 }
 
@@ -223,20 +225,38 @@ func (G *Generator) Initialize() []error {
 	return errs
 }
 
+func (G *Generator) calcBasePath() (string, error) {
+	// baseDir should always be an absolute path
+	// this should be moved out into a func and perhaps a field too
+	// this is the means to find the base path for loading files from outside of CUE
+	baseDir := G.CueModuleRoot
+	// lookup in vendor directory, this will need to change once CUE uses a shared cache in the user homedir
+	if G.ModuleName != "" && G.ModuleName != G.RootModuleName {
+		d, ok := G.DepMapping[G.ModuleName]
+		if !ok {
+			return "", fmt.Errorf("module %q not found in dep mapping %v", G.ModuleName, G.DepMapping)
+		}
+		// baseDir = filepath.Join(G.CueExtractDir, G.ModuleName+"@version") // need to replace version with the actual version
+		baseDir = d
+	}
+
+	return baseDir, nil
+}
+
 /* TODO, that the order of embedded vs disk files is inconsistent, we should clean this up and ensure consistent semantics (which may be the case?)
-	- statics: disk -> embed
-	- partials: embed -> disk
-	- templates: embed -> disk
+- statics: disk -> embed
+- partials: embed -> disk
+- templates: embed -> disk
 */
 
 func (G *Generator) initStaticFiles() []error {
 	var errs []error
 
 	// baseDir should always be an absolute path
-	baseDir := G.CueModuleRoot
-	// lookup in vendor directory, this will need to change once CUE uses a shared cache in the user homedir
-	if G.ModuleName != "" && G.ModuleName != G.RootModuleName {
-		baseDir = filepath.Join(G.CueModuleRoot, CUE_VENDOR_DIR, G.ModuleName)
+	baseDir, err := G.calcBasePath()
+	if err != nil {
+		errs = append(errs, err)
+		return errs
 	}
 
 	// Start with static file globs
@@ -296,14 +316,14 @@ func (G *Generator) initStaticFiles() []error {
 
 				// create a file
 				F := &File{
-					Filepath:     filepath.Clean(fp),
+					Filepath:      filepath.Clean(fp),
 					RenderContent: []byte(content),
-					StaticFile:   true,
-					parent: G,
+					StaticFile:    true,
+					parent:        G,
 				}
 
 				// check for collisions
-				if _,ok := G.Files[F.Filepath]; ok {
+				if _, ok := G.Files[F.Filepath]; ok {
 					errs = append(errs, fmt.Errorf("duplicate static file %q in %q", F.Filepath, G.NamePath()))
 					continue
 				}
@@ -321,14 +341,14 @@ func (G *Generator) initStaticFiles() []error {
 	// Then the static files in cue
 	for p, content := range G.EmbeddedStatics {
 		F := &File{
-			Filepath:     filepath.Clean(p),
+			Filepath:      filepath.Clean(p),
 			RenderContent: []byte(content),
-			StaticFile:   true,
-			parent: G,
+			StaticFile:    true,
+			parent:        G,
 		}
 
 		// check for collisions
-		if _,ok := G.Files[F.Filepath]; ok {
+		if _, ok := G.Files[F.Filepath]; ok {
 			errs = append(errs, fmt.Errorf("duplicate static file %q in %q", F.Filepath, G.NamePath()))
 			continue
 		}
@@ -340,7 +360,6 @@ func (G *Generator) initStaticFiles() []error {
 		G.Files[F.Filepath] = F
 		G.OrderedFiles = append(G.OrderedFiles, F)
 	}
-
 
 	return errs
 }
@@ -369,11 +388,10 @@ func (G *Generator) initPartials() []error {
 		}
 	}
 
-	// baseDir should always be an absolute path
-	baseDir := G.CueModuleRoot
-	// lookup in vendor directory, this will need to change once CUE uses a shared cache in the user homedir
-	if G.ModuleName != "" && G.ModuleName != G.RootModuleName {
-		baseDir = filepath.Join(G.CueModuleRoot, CUE_VENDOR_DIR, G.ModuleName)
+	baseDir, err := G.calcBasePath()
+	if err != nil {
+		errs = append(errs, err)
+		return errs
 	}
 
 	// then partials from disk via globs
@@ -388,13 +406,12 @@ func (G *Generator) initPartials() []error {
 			continue
 		}
 
-
 		for _, glob := range tg.Globs {
 			// setup vars
 			glob = filepath.Clean(glob)
 			glob = filepath.Join(baseDir, glob)
 			delimMap := make(map[string]templates.Delims)
-			for g,d := range tg.DelimGlobs {
+			for g, d := range tg.DelimGlobs {
 				g = filepath.Clean(g)
 				g = filepath.Join(baseDir, g)
 				delimMap[g] = d
@@ -457,10 +474,10 @@ func (G *Generator) initTemplates() []error {
 	}
 
 	// baseDir should always be an absolute path
-	baseDir := G.CueModuleRoot
-	// lookup in vendor directory, this will need to change once CUE uses a shared cache in the user homedir
-	if G.ModuleName != "" && G.ModuleName != G.RootModuleName {
-		baseDir = filepath.Join(G.CueModuleRoot, CUE_VENDOR_DIR, G.ModuleName)
+	baseDir, err := G.calcBasePath()
+	if err != nil {
+		errs = append(errs, err)
+		return errs
 	}
 
 	for _, tg := range G.Templates {
@@ -479,7 +496,7 @@ func (G *Generator) initTemplates() []error {
 			glob = filepath.Clean(glob)
 			glob = filepath.Join(baseDir, glob)
 			delimMap := make(map[string]templates.Delims)
-			for g,d := range tg.DelimGlobs {
+			for g, d := range tg.DelimGlobs {
 				g = filepath.Clean(g)
 				g = filepath.Join(baseDir, g)
 				delimMap[g] = d
@@ -541,12 +558,12 @@ func (G *Generator) initFileGens() []error {
 		F.Filepath = filepath.Clean(F.Filepath)
 
 		// check for collisions
-		if old,ok := G.Files[F.Filepath]; ok {
+		if old, ok := G.Files[F.Filepath]; ok {
 			static := ""
 			if old.StaticFile {
 				static = " (static)"
 			}
-			
+
 			fmt.Printf("WARN: duplicate generated file %q in %q & %q%s\n", F.Filepath, G.NamePath(), old.parent.NamePath(), static)
 			// errs = append(errs, fmt.Errorf("duplicate generated file %q in %q", F.Filepath, G.NamePath()))
 			continue
@@ -569,7 +586,7 @@ func (G *Generator) initFileGens() []error {
 
 	if len(errs) > 0 {
 		ts := make([]string, 0, len(G.TemplateMap))
-		for k,_ := range G.TemplateMap {
+		for k, _ := range G.TemplateMap {
 			ts = append(ts, k)
 		}
 		errs = append(errs, fmt.Errorf("%s templates: %v", G.NamePath(), ts))
