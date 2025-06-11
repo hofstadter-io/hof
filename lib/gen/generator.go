@@ -227,16 +227,19 @@ func (G *Generator) Initialize() []error {
 
 func (G *Generator) calcBasePath() (string, error) {
 	// baseDir should always be an absolute path
-	// this should be moved out into a func and perhaps a field too
-	// this is the means to find the base path for loading files from outside of CUE
 	baseDir := G.CueModuleRoot
-	// lookup in vendor directory, this will need to change once CUE uses a shared cache in the user homedir
 	if G.ModuleName != "" && G.ModuleName != G.RootModuleName {
-		d, ok := G.DepMapping[G.ModuleName]
+
+		// NOTE, the current generator "ModuleName" is more like a package name
+		// so we need to extract that out to see if we have the full module and version
+		parts := strings.Split(G.ModuleName, "/")
+		moduleName := strings.Join(parts[:3], "/")
+
+		// lookup abs path in dependency mapping
+		d, ok := G.DepMapping[moduleName]
 		if !ok {
-			return "", fmt.Errorf("module %q not found in dep mapping %v", G.ModuleName, G.DepMapping)
+			return "", fmt.Errorf("module %q not found in dep mapping %v", moduleName, G.ModuleName, G.DepMapping)
 		}
-		// baseDir = filepath.Join(G.CueExtractDir, G.ModuleName+"@version") // need to replace version with the actual version
 		baseDir = d
 	}
 

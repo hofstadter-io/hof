@@ -11,7 +11,7 @@ go 1.23.0
 // )
 
 require (
-	cuelang.org/go v0.13.0
+	cuelang.org/go v0.13.1
 	dagger.io/dagger v0.18.7
 	github.com/AlecAivazis/survey/v2 v2.3.7
 	github.com/BurntSushi/toml v1.3.2

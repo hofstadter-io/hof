@@ -312,6 +312,7 @@ func (R *Runtime) load() (err error) {
 		return err
 	}
 
+	// map dependencies module names to their cache dir
 	deps := bi.Dependencies()
 	for _, dep := range deps {
 		p1 := strings.Split(dep.Dir, "@")
@@ -323,7 +324,6 @@ func (R *Runtime) load() (err error) {
 
 			p := strings.Split(dep.Module, "@")[0]
 			R.DepMapping[p] = d
-			// fmt.Println(" ", p, d)
 		}
 	}
 

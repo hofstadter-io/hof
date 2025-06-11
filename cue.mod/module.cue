@@ -1,6 +1,6 @@
 module: "github.com/hofstadter-io/hof"
 language: {
-	version: "v0.12.0"
+	version: "v0.13.0"
 }
 source: {
 	kind: "self"

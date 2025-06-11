@@ -13,24 +13,13 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-func runCueCmd(args []string) {
-	c, _ := cuecmd.New(args)
+var modLong = `CUE module dependency management, imported from upstream CUE project`
 
-	var buf bytes.Buffer
+func ModRun(args []string) (err error) {
 
-	c.SetOutput(&buf)
+	runCueCmd(append([]string{"mod"}, args...))
 
-	err := c.Run(context.Background())
-
-	// todo, use copy / pipe / replace so we can stream output
-	s := buf.String()
-	s = strings.Replace(s, "cue ", "hof ", -1)
-	fmt.Println(s)
-
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	return err
 }
 
 var ModCmd = &cobra.Command{
@@ -39,10 +28,21 @@ var ModCmd = &cobra.Command{
 
 	Short: "CUE module dependency management",
 
-	Long: "CUE module dependency management",
+	Long: modLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		runCueCmd(append([]string{"mod"}, args...))
+
+		ga.SendCommandPath(cmd.CommandPath())
+
+		var err error
+
+		// Argument Parsing
+
+		err = ModRun(args)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 	},
 }
 
@@ -83,4 +83,23 @@ func init() {
 		ModCmd.AddCommand(cmd)
 	}
 
+}
+
+func runCueCmd(args []string) {
+	c, _ := cuecmd.New(args)
+
+	var buf bytes.Buffer
+	c.SetOutput(&buf)
+
+	err := c.Run(context.Background())
+
+	// todo, use copy / pipe / replace so we can stream output
+	s := buf.String()
+	s = strings.Replace(s, "cue ", "hof ", -1)
+	fmt.Println(s)
+
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
