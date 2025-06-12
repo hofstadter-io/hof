@@ -27,8 +27,8 @@ func (T *Template) AddGolangHelpers() {
 	// chat helpers
 
 	chatMap := template.FuncMap{
-		"chat": T.Helper_chat(),
-		"gen": T.Helper_gen(),
+		"chat":   T.Helper_chat(),
+		"gen":    T.Helper_gen(),
 		"render": T.Helper_render(),
 	}
 
@@ -62,11 +62,11 @@ func hchat(msg string, args map[string]any) (string, error) {
 	params := P.(map[string]any)
 	// fmt.Println("PARAMS:", params)
 
-	msgs := make([]chat.Message,0)
-	exas := make([]chat.Example,0)
+	msgs := make([]chat.Message, 0)
+	exas := make([]chat.Example, 0)
 
 	msgs = append(msgs, chat.Message{
-		Role: "user",
+		Role:    "user",
 		Content: msg,
 	})
 
@@ -202,8 +202,8 @@ var funcMap = template.FuncMap{
 	"dict":     Helper_dict,
 	"file":     Helper_file,
 
-	"add":     Helper_add,
-	"inc":     Helper_inc,
+	"add": Helper_add,
+	"inc": Helper_inc,
 
 	"typeof":  Helper_gokind,
 	"gokind":  Helper_gokind,
@@ -231,11 +231,13 @@ func Helper_toml(value interface{}) string {
 }
 
 func Helper_json(value interface{}) string {
-	bytes, err := json.MarshalIndent(value, "", "  ")
-	if err != nil {
-		return err.Error()
-	}
-	return string(bytes)
+	var b bytes.Buffer
+	enc := json.NewEncoder(&b)
+	enc.SetEscapeHTML(false)
+	enc.SetIndent("", "  ")
+	enc.Encode(value)
+
+	return b.String()
 }
 
 // jsonl too?
@@ -278,26 +280,26 @@ func Helper_indent(indent interface{}, value string) string {
 	if len(lines) == 1 {
 		return value
 	}
-	
+
 	// don't indent first line, left to user to place
 	ret += lines[0] + "\n"
 	lines = lines[1:]
 
 	// indent, depending on arg
 	switch i := indent.(type) {
-		case string:
-			for _, line := range lines {
-				ret += i + line + "\n"
-			}
+	case string:
+		for _, line := range lines {
+			ret += i + line + "\n"
+		}
 
-		case int:
-			spaces := strings.Repeat(" ", i)
-			for _, line := range lines {
-				ret += spaces + line + "\n"
-			}
+	case int:
+		spaces := strings.Repeat(" ", i)
+		for _, line := range lines {
+			ret += spaces + line + "\n"
+		}
 
-		default:
-			return "indent only supports a string or integer as argument"
+	default:
+		return "indent only supports a string or integer as argument"
 	}
 
 	return ret
@@ -478,7 +480,7 @@ func Helper_dict(values ...interface{}) (map[string]interface{}, error) {
 		return nil, errors.New("invalid dict call")
 	}
 	dict := make(map[string]interface{}, len(values)/2)
-	for i := 0; i < len(values); i+=2 {
+	for i := 0; i < len(values); i += 2 {
 		key, ok := values[i].(string)
 		if !ok {
 			return nil, errors.New("dict keys must be strings")
@@ -571,7 +573,7 @@ func Helper_lookup(path string, data any) any {
 
 // todo, should we support turning the content back to an objecct?
 // perhaps better to have different functions for this
-func (T *Template) Helper_render() (func (name string, data any) any) {
+func (T *Template) Helper_render() func(name string, data any) any {
 
 	return func(name string, data any) any {
 		t := T.T.Lookup(name)
