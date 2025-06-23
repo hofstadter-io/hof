@@ -2,14 +2,6 @@ module github.com/hofstadter-io/hof
 
 go 1.23.0
 
-// needed for Dagger
-// replace (
-// 	go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc => go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc v0.0.0-20240518090000-14441aefdf88
-// 	go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp => go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp v0.3.0
-// 	go.opentelemetry.io/otel/log => go.opentelemetry.io/otel/log v0.3.0
-// 	go.opentelemetry.io/otel/sdk/log => go.opentelemetry.io/otel/sdk/log v0.3.0
-// )
-
 require (
 	cuelang.org/go v0.13.1
 	dagger.io/dagger v0.18.7

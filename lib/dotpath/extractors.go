@@ -2,13 +2,48 @@ package dotpath
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
-func extract_from_slice_with_splice(splice string, data []interface{}) (interface{}, error) {
+func extract_from_strings_with_splice(splice string, data []string) (any, error) {
+
+	// handle slicing
+	fields := strings.Split(splice, ":")
+
+	// get slicing values
+	l, r := -1, -1
+	var ierr error
+	if f := fields[0]; f != "" {
+		l, ierr = strconv.Atoi(f)
+		if ierr != nil {
+			return nil, errors.Wrapf(ierr, "converting lpos in path in extract_splice: "+splice)
+		}
+	}
+	if f := fields[1]; f != "" {
+		r, ierr = strconv.Atoi(f)
+		if ierr != nil {
+			return nil, errors.Wrapf(ierr, "converting rpos in path in extract_splice: "+splice)
+		}
+	}
+
+	// fmt.Println("L,R: ", l, r, data)
+
+	// do things based on positions
+	if l > -1 && r > -1 {
+		return data[l:r], nil
+	} else if l == -1 && r > -1 {
+		return data[:r], nil
+	} else if l > -1 && r == -1 {
+		return data[l:], nil
+	}
+	return data, nil
+}
+
+func extract_from_slice_with_splice(splice string, data []any) (any, error) {
 
 	// handle slicing
 	fields := strings.Split(splice, ":")

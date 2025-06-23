@@ -550,7 +550,8 @@ func Helper_builtin(str string) any {
 
 func Helper_lookup(path string, data any) any {
 	if data == nil {
-		return fmt.Sprint("Nil data supplied for " + path)
+		return nil
+		// return fmt.Sprint("Nil data supplied for " + path)
 	}
 
 	// if OpenAPI format, convert to dotpath
