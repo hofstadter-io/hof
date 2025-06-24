@@ -1,11 +1,9 @@
-module: "github.com/hof/test"
-cue: "0.4.3"
-
-require: {
-	"github.com/hofstadter-io/hof": "v0.6.8-beta.5"
+module: "hof.io/test"
+language: {
+	version: "v0.13.0"
 }
-
-indirect: {
-	"github.com/hofstadter-io/ghacue": "v0.2.0"
-	"github.com/hofstadter-io/hofmod-cli": "v0.8.0"
+deps: {
+	"github.com/hofstadter-io/schemas@v0": {
+		v: "v0.0.2"
+	}	
 }
