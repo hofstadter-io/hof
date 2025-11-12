@@ -238,7 +238,7 @@ func (G *Generator) calcBasePath() (string, error) {
 		// lookup abs path in dependency mapping
 		d, ok := G.DepMapping[moduleName]
 		if !ok {
-			return "", fmt.Errorf("module %q not found in dep mapping %v", moduleName, G.ModuleName, G.DepMapping)
+			return "", fmt.Errorf("module %q | %q not found in dep mapping %v", moduleName, G.ModuleName, G.DepMapping)
 		}
 		baseDir = d
 	}

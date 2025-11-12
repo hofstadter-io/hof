@@ -313,6 +313,7 @@ func (R *Runtime) load() (err error) {
 	}
 
 	// map dependencies module names to their cache dir
+	R.DepMapping[strings.Split(bi.Module, "@")[0]] = R.CueModuleRoot
 	deps := bi.Dependencies()
 	for _, dep := range deps {
 		p1 := strings.Split(dep.Dir, "@")

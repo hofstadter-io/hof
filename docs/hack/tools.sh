@@ -2,7 +2,7 @@
 set -eou pipefail
 
 HUGO_VER="0.111.3"
-CUE_VER="v0.6.0"
+CUE_VER="v0.13.1"
 
 mkdir tmp
 pushd tmp

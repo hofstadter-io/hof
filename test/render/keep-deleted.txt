@@ -1,4 +1,4 @@
-exec hof mod vendor
+exec hof mod tidy
 
 exec hof gen
 exists out/always.txt
