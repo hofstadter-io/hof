@@ -23,7 +23,7 @@ func (V *Value) printLogR(out io.Writer, ts, indent, spaces string, max int, dfl
 
 	// recurse if children to load any nested histories
 	for _, c := range V.Children {
-		if err := c.T.printLogR(out, ts, indent + spaces, spaces, max, dflags, cflags); err != nil {
+		if err := c.T.printLogR(out, ts, indent+spaces, spaces, max, dflags, cflags); err != nil {
 			return err
 		}
 	}
@@ -69,7 +69,7 @@ func (V *Value) printLog(out io.Writer, ts, indent, spaces string, max int, dfla
 			extra = "~ has changes"
 		}
 
-		fstr := fmt.Sprintf("%%s%%-%ds %%s\n", max - len(indent))
+		fstr := fmt.Sprintf("%%s%%-%ds %%s\n", max-len(indent))
 		fmt.Fprintf(out, fstr, indent, name, extra)
 
 		if cflags.Details {
@@ -85,7 +85,6 @@ func (V *Value) printLog(out io.Writer, ts, indent, spaces string, max int, dfla
 					cue.Optional(true),
 					cue.Hidden(true),
 					cue.Concrete(true),
-					cue.ResolveReferences(true),
 				)
 				bytes, err := format.Node(
 					node,
@@ -101,7 +100,7 @@ func (V *Value) printLog(out io.Writer, ts, indent, spaces string, max int, dfla
 				for _, line := range lines {
 					str += indent + line + "\n"
 				}
-				
+
 				fmt.Fprintln(out, str)
 			}
 
@@ -112,7 +111,7 @@ func (V *Value) printLog(out io.Writer, ts, indent, spaces string, max int, dfla
 }
 
 func (dm *Datamodel) PrintLogByValue(out io.Writer, max int, dflags flags.DatamodelPflagpole, cflags flags.Datamodel__LogFlagpole) error {
-		return dm.T.printLogByValueR(out, "", "  ", max, dflags)
+	return dm.T.printLogByValueR(out, "", "  ", max, dflags)
 }
 
 func (V *Value) printLogByValueR(out io.Writer, indent, spaces string, max int, dflags flags.DatamodelPflagpole) error {
@@ -121,12 +120,12 @@ func (V *Value) printLogByValueR(out io.Writer, indent, spaces string, max int, 
 		return err
 	}
 	if V.Hof.Datamodel.History {
-		V.printLogEntriesByValue(out, indent + spaces, dflags)
+		V.printLogEntriesByValue(out, indent+spaces, dflags)
 	}
 
 	// recurse if children to load any nested histories
 	for _, c := range V.Children {
-		if err := c.T.printLogByValueR(out, indent + spaces, spaces, max, dflags); err != nil {
+		if err := c.T.printLogByValueR(out, indent+spaces, spaces, max, dflags); err != nil {
 			return err
 		}
 	}
@@ -157,7 +156,7 @@ func (V *Value) printLogByValue(out io.Writer, indent, spaces string, max int, d
 		extra = "+ new value"
 	}
 
-	fstr := fmt.Sprintf("%%s%%-%ds %%s\n", max - len(indent))
+	fstr := fmt.Sprintf("%%s%%-%ds %%s\n", max-len(indent))
 	fmt.Fprintf(out, fstr, indent, name, extra)
 
 	return nil

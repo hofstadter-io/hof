@@ -17,18 +17,18 @@ type Browser struct {
 	*tview.Frame
 
 	// mode mode [tree,cue,yaml,json]
-	mode string
-	nextMode string
-	refocus bool  // possibly refocus, if we rebuild the tree or switch views
+	mode       string
+	nextMode   string
+	refocus    bool // possibly refocus, if we rebuild the tree or switch views
 	usingScope bool // this is just for display in the status, scope is not used here, but impacts the results from the playground
 
 	// tree view
-	tree *tview.TreeView
-	root *tview.TreeNode
+	tree     *tview.TreeView
+	root     *tview.TreeNode
 	expanded bool // if root is expanded or not
 
 	// code view
-	code *tview.TextView
+	code  *tview.TextView
 	codeW io.Writer
 
 	// source configs
@@ -59,15 +59,15 @@ func (*Browser) TypeName() string {
 }
 
 func New() *Browser {
-	C := &Browser {
-		Frame: tview.NewFrame(),
-		sources: make([]*helpers.SourceConfig,0),
+	C := &Browser{
+		Frame:   tview.NewFrame(),
+		sources: make([]*helpers.SourceConfig, 0),
 
 		value: singletons.EmptyValue(),
 
 		// some sane defaults
-		mode: "cue",
-		ignore: true,
+		mode:    "cue",
+		ignore:  true,
 		resolve: true,
 	}
 
@@ -82,11 +82,10 @@ func New() *Browser {
 	C.root.SetColor(tcell.ColorSilver)
 
 	C.tree = tview.NewTreeView()
-	C.tree. SetRoot(C.root).SetCurrentNode(C.root)
+	C.tree.SetRoot(C.root).SetCurrentNode(C.root)
 
 	// set our selected handler for tree
 	C.tree.SetSelectedFunc(C.onSelect)
-
 
 	if C.mode == "tree" {
 		C.Frame.SetPrimitive(C.tree)
@@ -140,7 +139,7 @@ func (B *Browser) RemoveSourceConfig(index int) {
 }
 
 func (B *Browser) ClearSourceConfigs() {
-	B.sources = make([]*helpers.SourceConfig,0)
+	B.sources = make([]*helpers.SourceConfig, 0)
 }
 
 func (VB *Browser) GetUsingScope() bool {
@@ -165,7 +164,7 @@ func (C *Browser) SetValue(v cue.Value) {
 	C.value = v
 }
 
-func (VB *Browser) GetValueExpr(expr string) func () cue.Value {
+func (VB *Browser) GetValueExpr(expr string) func() cue.Value {
 	// tui.Log("trace", fmt.Sprintf("View.GetConnValueExpr from: %s/%s %s", VB.Id(), VB.Name(), expr))
 	p := cue.ParsePath(expr)
 
@@ -177,7 +176,6 @@ func (VB *Browser) GetValueExpr(expr string) func () cue.Value {
 
 func (VB *Browser) Options() []cue.Option {
 	opts := []cue.Option{
-		cue.ResolveReferences(VB.resolve),
 		cue.InlineImports(VB.inline),
 		cue.ErrorsAsValues(VB.ignore),
 		cue.Docs(VB.docs),
@@ -270,7 +268,7 @@ func (VB *Browser) SetupKeybinds() {
 		}
 
 		return evt
-	})	
+	})
 
 }
 

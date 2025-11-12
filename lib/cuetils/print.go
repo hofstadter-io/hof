@@ -18,7 +18,6 @@ import (
 func PrintCue(val cue.Value) (string, error) {
 	syn := val.Syntax(
 		cue.Final(),
-		cue.ResolveReferences(true),
 		cue.Definitions(true),
 		cue.Hidden(true),
 		cue.Optional(true),
@@ -37,7 +36,6 @@ func PrintCue(val cue.Value) (string, error) {
 func FormatCue(val cue.Value) (string, error) {
 	syn := val.Syntax(
 		cue.Final(),
-		cue.ResolveReferences(true),
 		cue.Concrete(true),
 		cue.Definitions(true),
 		cue.Hidden(true),
@@ -65,7 +63,6 @@ func CueSyntax(val cue.Value, opts []cue.Option) ast.Node {
 		cue.Docs(true),
 		cue.Hidden(true),
 		cue.Optional(true),
-		cue.ResolveReferences(true),
 	)
 }
 
@@ -78,7 +75,6 @@ func PrintCueValue(val cue.Value) (string, error) {
 		cue.Docs(true),
 		cue.Hidden(true),
 		cue.Optional(false),
-		cue.ResolveReferences(true),
 	)
 
 	bytes, err := format.Node(

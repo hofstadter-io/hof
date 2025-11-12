@@ -58,7 +58,7 @@ func loadSnapshot(dir, fpath string, ctx *cue.Context) (*Snapshot, error) {
 		Timestamp: ts,
 	}
 
-	fn := filepath.Join(dir,fpath)
+	fn := filepath.Join(dir, fpath)
 	data, err := os.ReadFile(fn)
 	if err != nil {
 		return nil, err
@@ -112,7 +112,6 @@ func writeSnapshot(dir, fname, suffix, message, pkgId string, V cue.Value) error
 		cue.Optional(true),
 		cue.Hidden(true),
 		cue.Concrete(true),
-		cue.ResolveReferences(true),
 	)
 
 	file, err := astutil.ToFile(node.(*ast.StructLit))
@@ -214,8 +213,6 @@ func (V *Value) makeSnapshot(timestamp, suffix, message string) error {
 	return nil
 }
 
-
-
 /*  HAS OLD BUMP LOGIC
 func checkpointDatamodel(dm *Datamodel, timestamp, bump string) error {
 	// check subsumption
@@ -281,11 +278,11 @@ func checkpointDatamodel(dm *Datamodel, timestamp, bump string) error {
 // The top most parent will contain all snapshots for any nested values,
 // due to the way diffs propagate up the hof node tree
 // You should not modify the returned snapshots
-func (dm *Datamodel) GetSnapshotList() (map[string][]*Snapshot) {
+func (dm *Datamodel) GetSnapshotList() map[string][]*Snapshot {
 	return dm.T.getSnapshotListR()
 }
 
-func (V *Value) getSnapshotListR() (map[string][]*Snapshot) {
+func (V *Value) getSnapshotListR() map[string][]*Snapshot {
 	// if we find a history point, it should be the top-level
 	// so stop recursion and return the snapshot list at this node
 	if V.Hof.Datamodel.History {
@@ -296,7 +293,7 @@ func (V *Value) getSnapshotListR() (map[string][]*Snapshot) {
 	ret := make(map[string][]*Snapshot)
 	for _, c := range V.Children {
 		R := c.T.getSnapshotListR()
-		for k,v := range R {
+		for k, v := range R {
 			ret[k] = v
 		}
 	}
@@ -304,8 +301,8 @@ func (V *Value) getSnapshotListR() (map[string][]*Snapshot) {
 	return ret
 }
 
-func (V *Value) getSnapshotList() (map[string][]*Snapshot) {
-	return map[string][]*Snapshot {
+func (V *Value) getSnapshotList() map[string][]*Snapshot {
+	return map[string][]*Snapshot{
 		V.Hof.Path: V.history,
 	}
 }

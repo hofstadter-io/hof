@@ -2,8 +2,8 @@ package panel
 
 import (
 	"fmt"
+	"strconv"
 
-	"cuelang.org/go/pkg/strconv"
 	"github.com/hofstadter-io/hof/lib/tui"
 	"github.com/hofstadter-io/hof/lib/tui/tview"
 )
@@ -15,7 +15,7 @@ func (P *Panel) insertPanelItem(context map[string]any) {
 			where = w
 		} else {
 			tui.Log("error", fmt.Sprintf("unknown where in Panel.insertPanelItem: %v %#v", P.Id(), context))
-		}	
+		}
 	}
 
 	panel := P
@@ -35,7 +35,7 @@ func (P *Panel) insertPanelItem(context map[string]any) {
 	}
 
 	t, _ := panel._creator(context, panel)
-	
+
 	switch where {
 
 	case "head":
@@ -96,7 +96,7 @@ func (P *Panel) createPanelItem(context map[string]any) {
 		cfi = i
 		// tui.Log("trace", fmt.Sprintf("setting cfi.2 %d\n", cfi))
 	}
-	
+
 	t, _ := panel._creator(context, panel)
 
 	// just insert, this happens on first load and such
@@ -140,7 +140,7 @@ func (P *Panel) movePanelItem(context map[string]any) {
 	i := cfi
 
 	if c < 2 {
-		return 
+		return
 	}
 
 	_where, _ := context["where"]
@@ -151,7 +151,7 @@ func (P *Panel) movePanelItem(context map[string]any) {
 	case "prev":
 		j--
 	case "next":
-		j++	
+		j++
 	case "index":
 		// this should be a specific index
 		// where does that value come from
@@ -171,7 +171,7 @@ func (P *Panel) movePanelItem(context map[string]any) {
 			j = p
 		}
 	default:
-		tui.Log("error", "unknown movePanel where: " + where)
+		tui.Log("error", "unknown movePanel where: "+where)
 		return
 	}
 
@@ -182,7 +182,7 @@ func (P *Panel) movePanelItem(context map[string]any) {
 
 	// otherwise, we should be good to swap
 	// tui.Log("trace", fmt.Sprintf("swapping %d & %d in %s", i,j,p.Id()))
-	panel.SwapIndexes(i,j)
+	panel.SwapIndexes(i, j)
 }
 
 func (P *Panel) deletePanelItem(context map[string]any) {
@@ -226,7 +226,7 @@ func (P *Panel) deletePanelItem(context map[string]any) {
 			// this code should only add back the default help text when there are no other widgets left
 			context["item"] = "default"
 			t, _ := panel._creator(context, panel)
-			panel.AddItem(t, 0, 1, true)	
+			panel.AddItem(t, 0, 1, true)
 		}
 	}
 

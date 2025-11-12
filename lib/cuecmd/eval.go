@@ -52,7 +52,6 @@ func Eval(args []string, rflags flags.RootPflagpole, cflags flags.EvalFlagpole) 
 		cue.Optional(cflags.Optional || cflags.All),
 		cue.InlineImports(cflags.InlineImports),
 		cue.ErrorsAsValues(wantErrorsInValue),
-		cue.ResolveReferences(cflags.Resolve),
 	}
 
 	// these two have to be done specially
@@ -102,4 +101,3 @@ func Eval(args []string, rflags flags.RootPflagpole, cflags flags.EvalFlagpole) 
 
 	return nil
 }
-
