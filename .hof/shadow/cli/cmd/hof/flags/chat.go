@@ -27,7 +27,7 @@ var ChatFlags ChatFlagpole
 func SetupChatFlags(fset *pflag.FlagSet, fpole *ChatFlagpole) {
 	// flags
 
-	fset.StringVarP(&(fpole.Model), "model", "M", "gpt-3.5-turbo", "LLM model to use [gpt-3.5-turbo,gpt-4,bard,chat-bison]")
+	fset.StringVarP(&(fpole.Model), "model", "M", "gemini-2.5-flash", "LLM model to use")
 	fset.StringArrayVarP(&(fpole.System), "system", "s", nil, "string or path to the system prompt for the LLM, concatenated")
 	fset.StringArrayVarP(&(fpole.Messages), "message", "m", nil, "string or path to a message for the LLM")
 	fset.StringArrayVarP(&(fpole.Examples), "example", "e", nil, "string or path to an example pair for the LLM")

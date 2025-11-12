@@ -13,8 +13,8 @@ ChatCommand: schema.Command & {
 	Flags: [...schema.Flag] & [{
 		Name:    "model"
 		Type:    "string"
-		Default: "\"gpt-3.5-turbo\""
-		Help:    "LLM model to use [gpt-3.5-turbo,gpt-4,bard,chat-bison]"
+		Default: "\"gemini-2.5-flash\""
+		Help:    "LLM model to use"
 		Long:    "model"
 		Short:   "M"
 	}, {
