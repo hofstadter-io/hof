@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+/* Use VS Code's variables for a native feel */
+body {
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
+  color: var(--vscode-foreground);
+  background-color: var(--vscode-editor-background);
+  margin: 0;
+  padding: 0;
+}

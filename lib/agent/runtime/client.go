@@ -1,0 +1,134 @@
+package runtime
+
+import (
+	"encoding/json"
+	"log"
+	"time"
+
+	"github.com/gorilla/websocket"
+)
+
+// Message is the "envelope" that all messages follow.
+// The 'type' field tells us how to parse the 'payload'.
+type Message struct {
+	Type    string          `json:"type"`
+	Payload json.RawMessage `json:"payload"` // Use RawMessage to delay payload parsing
+}
+
+// --- Client ---
+
+// Client is a wrapper for a single WebSocket connection (one VS Code window).
+type Client struct {
+	User string
+
+	conn *websocket.Conn
+	send chan []byte // Buffered channel for outbound messages
+
+	handleMessage func(*Client, *Message)
+}
+
+// readPump pumps messages from the WebSocket connection to the hub.
+func (r *Runtime) readPump(c *Client) {
+	defer func() {
+		// On exit, unregister the client and close the connection
+		r.unregister <- c
+		c.conn.Close()
+	}()
+
+	// Set read limits, pong handlers, etc. (good practice)
+	c.conn.SetReadLimit(5120) // 5KB
+	c.conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(60 * time.Second)); return nil })
+
+	for {
+		// Read a message from the WebSocket
+		_, jsonMessage, err := c.conn.ReadMessage()
+		if err != nil {
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+				log.Printf("error: %v", err)
+			}
+			break // Exit loop on error
+		}
+
+		// Deserialize the JSON message envelope
+		var msg Message
+		if err := json.Unmarshal(jsonMessage, &msg); err != nil {
+			log.Printf("Error unmarshaling message envelope: %v", err)
+			continue // Keep processing other messages
+		}
+
+		// handleMessage is the main router for deserialized messages.
+		log.Printf("Received message type: %s", msg.Type)
+		c.handleMessage(c, &msg)
+	}
+}
+
+// writePump pumps messages from the hub to the WebSocket connection.
+func (c *Client) writePump() {
+	ticker := time.NewTicker(30 * time.Second) // Ping ticker
+	defer func() {
+		ticker.Stop()
+		c.conn.Close()
+	}()
+
+	for {
+		select {
+		case message, ok := <-c.send:
+			// The hub closed the channel.
+			if !ok {
+				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
+				return
+			}
+
+			// prepare & write
+			c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+			w, err := c.conn.NextWriter(websocket.TextMessage)
+			if err != nil {
+				return
+			}
+			w.Write(message)
+
+			// // Add queued chat messages to the current websocket message.
+			// n := len(c.send)
+			// for i := 0; i < n; i++ {
+			// 	w.Write(<-c.send)
+			// }
+
+			if err := w.Close(); err != nil {
+				return
+			}
+
+		case <-ticker.C:
+			// Send ping
+			c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+				return
+			}
+		}
+	}
+}
+
+func (c *Client) Mail(typ string, data any) {
+	// Marshal the payload to JSON bytes
+	payloadBytes, err := json.Marshal(data)
+	if err != nil {
+		log.Printf("Error marshaling response: %v", err)
+		return
+	}
+
+	// Create the envelope
+	respMsg := Message{
+		Type:    typ,                           // The client will use this type
+		Payload: json.RawMessage(payloadBytes), // Pass the marshaled bytes
+	}
+
+	// Marshal the final envelope
+	msgBytes, err := json.Marshal(respMsg)
+	if err != nil {
+		log.Printf("Error marshaling envelope: %v", err)
+		return
+	}
+
+	// Send the message
+	c.send <- msgBytes
+}

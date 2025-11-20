@@ -1,0 +1,275 @@
+{
+  "name": "veg",
+  "displayName": "Veg",
+  "description": "Veg VS Code Extension",
+  "publisher": "verdverm",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.106.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "veg.connect",
+        "category": "Veg Connect",
+        "title": "Veg Connect"
+      },
+      {
+        "command": "alpha.helloWorld",
+        "category": "Veg Debug",
+        "title": "alpha.helloWorld"
+      },
+      {
+        "command": "alpha.echo",
+        "category": "Veg Debug",
+        "title": "alpha.echo"
+      },
+      {
+        "command": "alpha.clearColors",
+        "category": "Veg Debug",
+        "title": "Clear Colors",
+        "icon": "$(add)"
+      },
+      {
+				"command": "veg.sessions.refresh",
+        "category": "Veg",
+				"title": "veg.sessions.refresh",
+        "icon": "$(refresh)"
+			},
+      {
+        "command": "veg.sessions.chat",
+        "category": "Veg",
+        "title": "veg.sessions.chat",
+        "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "veg.sessions.create",
+        "category": "Veg",
+        "title": "veg.sessions.create",
+        "icon": "$(add)"
+      },
+			{
+				"command": "veg.sessions.edit",
+        "category": "Veg",
+				"title": "veg.sessions.edit",
+        "icon": "$(pencil)"
+			},
+			{
+				"command": "veg.sessions.delete",
+        "category": "Veg",
+				"title": "veg.sessions.delete",
+        "icon": "$(trash)"
+			},
+
+      {
+				"command": "veg.planning.refresh",
+        "category": "Veg Planning",
+				"title": "veg.planning.refresh",
+        "icon": "$(refresh)"
+			},
+      {
+        "command": "veg.planning.create",
+        "category": "Veg Planning",
+        "title": "veg.planning.create",
+        "icon": "$(add)"
+      },
+      {
+        "command": "veg.planning.createSub",
+        "category": "Veg Planning",
+        "title": "veg.planning.createSub",
+        "icon": "$(add)"
+      },
+			{
+				"command": "veg.planning.status",
+        "category": "Veg Planning",
+				"title": "veg.planning.status",
+        "icon": "$(open-preview)"
+			},
+			{
+				"command": "veg.planning.edit",
+        "category": "Veg Planning",
+				"title": "veg.planning.edit",
+        "icon": "$(pencil)"
+			},
+			{
+				"command": "veg.planning.delete",
+        "category": "Veg Planning",
+				"title": "veg.planning.delete",
+        "icon": "$(trash)"
+			},
+
+      {
+        "command": "veg.debug.requestSync",
+        "category": "Veg Debug",
+        "title": "veg.debug.requestSync",
+        "icon": "$(refresh)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "alpha.clearColors",
+          "group": "navigation",
+          "when": "view == veg-chat-webview"
+        },
+        {
+          "command": "veg.debug.requestSync",
+          "group": "navigation",
+          "when": "view == veg-config-webview"
+        },
+        {
+          "command": "veg.debug.requestSync",
+          "group": "navigation",
+          "when": "view == veg-config-webview"
+        },
+        {
+          "command": "veg.debug.requestSync",
+          "group": "navigation",
+          "when": "view == veg-debug-webview"
+        },
+        {
+          "command": "veg.debug.requestSync",
+          "group": "navigation",
+          "when": "view == veg-planning"
+        },
+				{
+					"command": "veg.planning.create",
+					"group": "navigation",
+					"when": "view == veg-planning"
+        },
+        {
+          "command": "veg.debug.requestSync",
+          "group": "navigation",
+          "when": "view == veg-sessions"
+        },
+				{
+					"command": "veg.sessions.create",
+					"group": "navigation",
+					"when": "view == veg-sessions"
+				}
+      ],
+			"view/item/context": [
+				{
+					"command": "veg.planning.delete",
+					"when": "view == veg-planning && viewItem == task",
+					"group": "inline"
+				},
+				{
+					"command": "veg.planning.status",
+					"when": "view == veg-planning && viewItem == task",
+					"group": "inline"
+				},
+				{
+					"command": "veg.planning.createSub",
+					"when": "view == veg-planning && viewItem == task",
+					"group": "inline"
+				},
+				{
+					"command": "veg.planning.edit",
+					"when": "view == veg-planning && viewItem == task",
+					"group": "inline"
+				},
+
+				{
+					"command": "veg.sessions.chat",
+					"when": "view == veg-sessions && viewItem == session",
+					"group": "inline"
+				},
+				{
+					"command": "veg.sessions.edit",
+					"when": "view == veg-sessions && viewItem == session",
+					"group": "inline"
+				},
+				{
+					"command": "veg.sessions.delete",
+					"when": "view == veg-sessions && viewItem == session",
+					"group": "inline"
+				}
+			]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "veg-chat-sidebar",
+          "title": "Veg Chat",
+          "icon": "$(comment-discussion)"
+        },
+        {
+          "id": "veg-manage-sidebar",
+          "title": "Veg Manage",
+          "icon": "media/carrot.svg"
+				}
+      ]
+    },
+    "views": {
+      "veg-chat-sidebar": [
+        {
+          "id": "veg-chat-webview",
+          "name": "Veg Chat",
+          "type": "webview",
+          "contextualTitle": "Chat"
+        }
+      ],
+      "veg-manage-sidebar": [
+        {
+          "id": "veg-planning",
+          "name": "Planning",
+          "contextualTitle": "Planning"
+        },
+				{
+					"id": "veg-sessions",
+					"name": "Sessions",
+					"contextualTitle": "Sessions"
+				},
+				{
+					"id": "veg-agents",
+					"name": "Agents",
+					"contextualTitle": "Agents"
+				},
+        {
+          "id": "veg-config-webview",
+          "name": "Config",
+          "type": "webview",
+          "contextualTitle": "Config"
+        },
+        {
+          "id": "veg-debug-webview",
+          "name": "Debug",
+          "type": "webview",
+          "contextualTitle": "Debug"
+        }
+      ]
+		}
+  },
+  "scripts": {
+    "vscode:prepublish": "pnpm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "pnpm run compile && pnpm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "@types/vscode": "^1.106.0",
+    "@types/ws": "^8.18.1",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2",
+    "eslint": "^9.39.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.3"
+  },
+  "dependencies": {
+    "ansi-colors": "^4.1.3",
+    "jsonc-parser": "^3.3.1",
+    "ws": "^8.18.3"
+  }
+}
