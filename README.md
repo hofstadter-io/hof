@@ -85,8 +85,6 @@ There are two interfaces to `hof`
 1. a CLI - great for scripting and automation
 2. a TUI - great for exploring and designing
 
-A desktop version is in the works, reach out if you would like early access.
-
 ### cli
 
 ```
@@ -146,4 +144,5 @@ The following YouTube video provides a tour.
 
 
 [![Tour Hof's TUI](http://img.youtube.com/vi/XNBqBWO4y08/0.jpg)](http://www.youtube.com/watch?v=XNBqBWO4y08 "Hof TUI Overview")
+
 

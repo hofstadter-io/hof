@@ -41,6 +41,7 @@ CLI: schema.Cli & {
 		cmds.VetCommand,
 
 		// beta commands
+		cmds.ExtensionCommand,
 		cmds.AgentCommand,
 		cmds.ChatCommand,
 		cmds.RunCommand,
