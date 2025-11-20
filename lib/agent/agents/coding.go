@@ -29,10 +29,10 @@ func CodingAgent(name string, m model.LLM) (agent.Agent, error) {
 	if err != nil {
 		return nil, err
 	}
-	patchFiles, err := tools.NewPatchFiles()
-	if err != nil {
-		return nil, err
-	}
+	// patchFiles, err := tools.NewPatchFiles()
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	return llmagent.New(llmagent.Config{
 		Name:        name,
@@ -45,7 +45,7 @@ func CodingAgent(name string, m model.LLM) (agent.Agent, error) {
 			readDir,
 			treeDir,
 			writeFile,
-			patchFiles,
+			// patchFiles,
 		},
 	})
 

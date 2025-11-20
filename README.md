@@ -4,23 +4,22 @@ A tool that unifies data models, schemas, code generation, and a task engine.
 
 __`hof` is a CLI tool you *add* to your workflow.__
 
-- Augment data, config, and schemas with CUE to improve consistency, gain confidence, and unlock new possibilities
-- Generate multiple Yaml and JSON files in one-shot, from a CUE based source of truth
-- Generate much of the application code, work directly in the output, regenerate without loss
-- Explore data or config with the TUI, work with it using CUE in live-reload mode
-- Run workflows with automatic task dependency inference, the right tasks are run in the right order
-
+- Foundation in CUE
+- Deterministic and Agentic code generation
+- Data models that can evolve and be input to code generation
+- Task engine based on cue/flow
+- Agent servers and VS Code extension
 
 | Core Features | |
-|:---                    |:-- |
-| __code generation__    | Data + templates = _ (anything), technology agnostic |
-| __data modeling__      | Define, checkpoint, and diff data models |
-| __task engine__        | Extensible task and DAG workflow engine |
-| __CUE cmds__           | Core def, eval, export, and vet commands |
-| __creators__           | bootstraping and starter kits from any repo |
-| __modules__            | CUE module dependency management |
-| __tui__                | A terminal interface to Hof and CUE |
-| __chat__               | Combine LLM and Hof code gen for better, scalable results |
+|:--- |:-- |
+| __code generation__ | Data + templates = _ (anything), technology agnostic |
+| __data modeling__ | Define, checkpoint, and diff data models |
+| __task engine__ | Extensible task and DAG workflow engine |
+| __CUE cmds__ | Core def, eval, export, and vet commands |
+| __creators__ | bootstraping and starter kits from any repo |
+| __modules__ | CUE module dependency management |
+| __tui__ | A terminal interface to Hof and CUE |
+| __chat__ | Combine LLM and Hof code gen for better, scalable results |
 
 <br>
 
@@ -51,7 +50,7 @@ We also use GitHub issues and discussions. Use which every is easiest for you!
 
 ## Installation
 
-You can find [the latest downloads on our GitHub releases page](https://github.com/hofstadter-io/hof/releases).
+You can find [the latest downloads on our GitHub releases page](https://github.com/hofstadter.io/hof/releases).
 This is the preferred method.
 
 If you already have hof, install a specific version with `hof update --version vX.Y.Z`.
@@ -69,13 +68,51 @@ hof --help
 hof version
 ```
 
+## Project Structure
+
+A brief overview of the project structure:
+
+-   `ci/`: Continuous integration scripts.
+-   `cmd/hof/`: The main entrypoint for the `hof` CLI.
+-   `docs/`: The source code for the documentation website.
+-   `flow/`: The source for `hof flow` and the task engine.
+-   `lib/`: Core logic for `hof`'s various subcommands.
+-   `test/`: Testscripts and testdata for `hof`'s subcommands.
+
+## Development
+
+To build the `hof` binary:
+
+```
+make build
+```
+
+To run the test suite:
+
+```
+make test
+```
+
+To run the docs website locally:
+
+```
+make docs-serve
+```
+
 
 ## Contributing & Community
 
-Interested in helping out or hanging out? The best ways to get started are
+We are happy to accept contributions and have a growing community.
+The best ways to get started are
 
-1. [Joining the Community](https://docs.hofstadter.io/help-and-support/#community/)
-1. [The Contributing Guild](https://docs.hofstadter.io/contributing/)
+1. [Joining our Discord](https://discord.com/invite/BXwX7n6B8w)
+2. Reading [The Contributing Guild](https://docs.hofstadter.io/contributing/)
+3. Finding an issue to work on. We are happy to guide you.
+4. Improving the documentation.
+
+When you are ready to contribute, please fork the repo and submit a pull request.
+We use a standard PR and review process. We also have a number of labels to help
+organize issues and PRs.
 
 
 ## Interfaces 
@@ -145,4 +182,6 @@ The following YouTube video provides a tour.
 
 [![Tour Hof's TUI](http://img.youtube.com/vi/XNBqBWO4y08/0.jpg)](http://www.youtube.com/watch?v=XNBqBWO4y08 "Hof TUI Overview")
 
+## License
 
+This project is licensed under the Apache 2.0 License. See the [LICENSE](LICENSE) file for details.
