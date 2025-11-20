@@ -181,15 +181,10 @@ function App() {
         console.log("CMD!", cmd, args)
 
         if (cmd === "/state") {
+          // no arg means delete
           if (args.length === 1) {
-            vscodeApi.postMessage({
-              type: 'session.state.get',
-              payload: {
-                sid,
-                key: args[0],
-              }
-            });
-
+            // add an empty element so we don't need extra logic below
+            args.push("")
           }
           if (args.length > 1) {
             vscodeApi.postMessage({
@@ -405,10 +400,13 @@ const AgentSelect = ({chatState, handleSelect}: {chatState: any, handleSelect:(s
   //   } 
   //   agents[k] = curr
   // }
-  agents["coding"] = ["lite", "fast", "norm", "hard"]
-  agents["basic"] = ["lite", "fast", "norm", "hard"]
-  agents["general"] = ["lite", "fast", "norm", "hard"]
-  agents["filesys"] = ["lite", "fast", "norm", "hard"]
+
+  const names = ["coding", "coding-ro", "basic", "general"]
+  names.forEach((n: string) => {
+    agents[n] = ["lite", "fast", "norm", "hard"]
+  })
+  // agents["basic"] = ["lite", "fast", "norm", "hard"]
+  // agents["general"] = ["lite", "fast", "norm", "hard"]
   // console.log("chat.input.agents", agents)
 
   return (

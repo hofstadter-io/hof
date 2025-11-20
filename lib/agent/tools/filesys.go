@@ -92,6 +92,7 @@ func NewTreeDir() (tool.Tool, error) {
 }
 
 func walkDir(path string, includeFiles bool, b *strings.Builder, prefix string) error {
+	// TODO, respect .gitignore
 	entries, err := os.ReadDir(path)
 	if err != nil {
 		return err
@@ -105,9 +106,10 @@ func walkDir(path string, includeFiles bool, b *strings.Builder, prefix string) 
 				return err
 			}
 		}
-		if includeFiles {
-			fmt.Fprintf(b, "%s%s", prefix, e.Name())
-		}
+		// don't include files for now, blows up the context
+		// if includeFiles {
+		// 	fmt.Fprintf(b, "%s%s", prefix, e.Name())
+		// }
 	}
 
 	return nil

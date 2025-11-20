@@ -225,6 +225,14 @@ func sessionPutState(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 		})
 	}
 
+	// "create" (put) the session (by using the same Sid)
+	_, err = r.S.Create(r.Ctx, &session.CreateRequest{
+		AppName:   r.AppName,
+		UserID:    c.User,
+		SessionID: s.Sid,
+		State:     maps.Collect(resp.Session.State().All()),
+	})
+
 	fmt.Println("State Set", s.Sid, s.Key, s.Val)
 	fmt.Println("session.state", maps.Collect(resp.Session.State().All()))
 }

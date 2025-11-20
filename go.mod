@@ -10,6 +10,7 @@ require (
 	github.com/alecthomas/chroma/v2 v2.13.0
 	github.com/atotto/clipboard v0.1.4
 	github.com/aymerick/raymond v2.0.2+incompatible
+	github.com/bluekeyes/go-gitdiff v0.8.1
 	github.com/bmatcuk/doublestar/v4 v4.6.1
 	github.com/clbanning/mxj v1.8.4
 	github.com/codemodus/kace v0.5.1
@@ -74,7 +75,6 @@ require (
 	github.com/ProtonMail/go-crypto v1.0.0 // indirect
 	github.com/adrg/xdg v0.5.3 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/bluekeyes/go-gitdiff v0.8.1 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cloudflare/circl v1.3.8 // indirect
@@ -208,3 +208,5 @@ exclude google.golang.org/protobuf v1.33.0
 exclude google.golang.org/protobuf v1.34.0
 
 exclude google.golang.org/protobuf v1.34.1
+
+replace google.golang.org/adk => /Users/tony/adk/go

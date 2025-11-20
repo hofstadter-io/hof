@@ -135,11 +135,33 @@ func (R *Runtime) initAgents() error {
 		m string
 		f func(name string, m model.LLM) (agent.Agent, error)
 	}
+
 	A := []pair{
-		{n: "coding-lite", m: "gemini-2.5-flash-lite", f: agents.CodingAgent},
-		{n: "coding-fast", m: "gemini-2.5-flash", f: agents.CodingAgent},
-		{n: "coding-norm", m: "gemini-2.5-pro", f: agents.CodingAgent},
-		{n: "coding-hard", m: "gemini-3-pro-preview", f: agents.CodingAgent},
+		{n: "coding-lite", m: "gemini-2.5-flash-lite", f: func(name string, m model.LLM) (agent.Agent, error) {
+			return agents.CodingAgent(name, m, false)
+		}},
+		{n: "coding-fast", m: "gemini-2.5-flash", f: func(name string, m model.LLM) (agent.Agent, error) {
+			return agents.CodingAgent(name, m, false)
+		}},
+		{n: "coding-norm", m: "gemini-2.5-pro", f: func(name string, m model.LLM) (agent.Agent, error) {
+			return agents.CodingAgent(name, m, false)
+		}},
+		{n: "coding-hard", m: "gemini-3-pro-preview", f: func(name string, m model.LLM) (agent.Agent, error) {
+			return agents.CodingAgent(name, m, false)
+		}},
+
+		{n: "coding-ro-lite", m: "gemini-2.5-flash-lite", f: func(name string, m model.LLM) (agent.Agent, error) {
+			return agents.CodingAgent(name, m, true)
+		}},
+		{n: "coding-ro-fast", m: "gemini-2.5-flash", f: func(name string, m model.LLM) (agent.Agent, error) {
+			return agents.CodingAgent(name, m, true)
+		}},
+		{n: "coding-ro-norm", m: "gemini-2.5-pro", f: func(name string, m model.LLM) (agent.Agent, error) {
+			return agents.CodingAgent(name, m, true)
+		}},
+		{n: "coding-ro-hard", m: "gemini-3-pro-preview", f: func(name string, m model.LLM) (agent.Agent, error) {
+			return agents.CodingAgent(name, m, true)
+		}},
 
 		{n: "general-lite", m: "gemini-2.5-flash-lite", f: agents.GeneralAgent},
 		{n: "general-fast", m: "gemini-2.5-flash", f: agents.GeneralAgent},
