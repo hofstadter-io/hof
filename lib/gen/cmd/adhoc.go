@@ -15,22 +15,22 @@ import (
 
 // parsed version of the --template flag
 // semicolon separated: <filepath>:<?cuepath>@<schema>;[]<?outpath>
-// each extra section is 
+// each extra section is
 type AdhocTemplateConfig struct {
 	// Template filepath
 	Filepath string
-	
+
 	// TrimPrefix for the template filename when not setting output
 	TrimPrefix string
 
 	// CUE path to input value within global value
-	Cuepath  string
+	Cuepath string
 
 	// CUE path to schema value within global value
 	Schema string
 
 	// Filepath to write results, possibly templated
-	Outpath  string
+	Outpath string
 
 	// Is this a repeated template
 	Repeated bool
@@ -54,8 +54,8 @@ func (R *Runtime) CreateAdhocGenerator() error {
 
 	// we build up GEN configs and entrypoints for CUE here
 	tcfgs := []AdhocTemplateConfig{}
-	files := make([]string,0)
-	add := func (c AdhocTemplateConfig) {
+	files := make([]string, 0)
+	add := func(c AdhocTemplateConfig) {
 		if c.Filepath != "" {
 			files = append(files, c.Filepath)
 		}
@@ -75,7 +75,7 @@ func (R *Runtime) CreateAdhocGenerator() error {
 		// we need to manually deal with files in adhoc?
 		if strings.Contains(cfg.Filepath, "*") {
 			// de-glob here
-			files, err := yagu.FilesFromGlobs([]string{cfg.Filepath})
+			files, err := yagu.FilepathsFromGlobs([]string{cfg.Filepath})
 			if err != nil {
 				return err
 			}
@@ -96,7 +96,7 @@ func (R *Runtime) CreateAdhocGenerator() error {
 	h.Gen.Name = "AdhocGen"
 	node := &hof.Node[gen.Generator]{
 		Value: R.Value,
-		Hof: h,
+		Hof:   h,
 	}
 
 	G := gen.NewGenerator(node)
@@ -104,11 +104,10 @@ func (R *Runtime) CreateAdhocGenerator() error {
 	G.CwdToRoot = ""
 	G.Outdir = ""
 
-	G.Templates = []*gen.TemplateGlobs{ &gen.TemplateGlobs{Globs: files} }
-	G.Partials  = []*gen.TemplateGlobs{ &gen.TemplateGlobs{Globs: R.GenFlags.Partial} }
+	G.Templates = []*gen.TemplateGlobs{&gen.TemplateGlobs{Globs: files}}
+	G.Partials = []*gen.TemplateGlobs{&gen.TemplateGlobs{Globs: R.GenFlags.Partial}}
 
 	Val := R.Value
-
 
 	stdout := 0
 	for _, cfg := range tcfgs {
@@ -162,7 +161,7 @@ func (R *Runtime) CreateAdhocGenerator() error {
 				}
 			}
 
-			// 
+			//
 			ft, err := templates.CreateFromString("outpath", op, templates.Delims{})
 			if err != nil {
 				return err
@@ -174,13 +173,13 @@ func (R *Runtime) CreateAdhocGenerator() error {
 			f.Filepath = string(bs)
 
 			if cfg.TrimPrefix != "" {
-				f.Filepath = strings.TrimPrefix(f.Filepath, cfg.TrimPrefix)	
+				f.Filepath = strings.TrimPrefix(f.Filepath, cfg.TrimPrefix)
 			}
 
 			/*
-			if cfg.DataFormat != "" {
-				fmt.Println(*f)
-			}
+				if cfg.DataFormat != "" {
+					fmt.Println(*f)
+				}
 			*/
 
 			G.Out = append(G.Out, f)
@@ -197,7 +196,7 @@ func (R *Runtime) CreateAdhocGenerator() error {
 						return err
 					}
 				}
-			// check if val is a struct
+				// check if val is a struct
 			} else if iter, ierr := val.Fields(); ierr == nil {
 				for iter.Next() {
 					v := iter.Value()
@@ -235,7 +234,7 @@ func (R *Runtime) CreateAdhocGenerator() error {
 // deconstructs the flag into struct
 // semicolon separated: <filepath>:<?cuepath>@<schema>=<?outpath>
 func ParseTemplateFlag(tf string) (cfg AdhocTemplateConfig, err error) {
-	// We work our way from end to start of the string, 
+	// We work our way from end to start of the string,
 	orig := tf
 
 	// look for =  |  outpath spec
@@ -278,7 +277,7 @@ func ParseTemplateFlag(tf string) (cfg AdhocTemplateConfig, err error) {
 		if cfg.Outpath == "" {
 			return cfg, fmt.Errorf("error parsing -T flag, expected output file for data file in %q", orig)
 		}
-		cfg.DataFormat = filepath.Ext(cfg.Outpath)[1:]  // trim '.' from ext
+		cfg.DataFormat = filepath.Ext(cfg.Outpath)[1:] // trim '.' from ext
 	} else {
 		parts = strings.Split(tf, "+")
 		if len(parts) > 1 {

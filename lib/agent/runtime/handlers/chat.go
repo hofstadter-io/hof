@@ -38,6 +38,9 @@ func chatUserMessage(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 
 	log.Println("userMsg", userMsg)
 
+	// do we construct agents/tools on demand, so they can have access to more scope?
+	// how do we get the write_file to send the contents to vs code instead of writing to disk?
+
 	// streamingMode := agent.StreamingModeSSE
 	streamingMode := agent.StreamingModeNone
 	for event := range r.Runners[p.Agent].Run(r.Ctx, c.User, p.Sid, userMsg, agent.RunConfig{

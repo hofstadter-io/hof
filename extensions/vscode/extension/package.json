@@ -11,7 +11,7 @@
     "Other"
   ],
   "activationEvents": [
-    "*"
+    "onStartupFinished"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -36,6 +36,11 @@
         "category": "Veg Debug",
         "title": "Clear Colors",
         "icon": "$(add)"
+      },
+      {
+        "command": "veg.debug.diff",
+        "category": "Veg",
+        "title": "veg.debug.diff"
       },
       {
 				"command": "veg.sessions.refresh",

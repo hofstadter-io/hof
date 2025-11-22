@@ -7,10 +7,6 @@ import (
 	"github.com/hofstadter-io/hof/lib/agent/runtime"
 )
 
-type IdRequest struct {
-	ID string `json:"id"`
-}
-
 // TODO, we need a good list of message types
 // for both the frontend, backend, and where/how they are used
 
@@ -76,6 +72,7 @@ func hello(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 }
 
 func broadcastSync(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
+	sessionGet(r, c, m)
 	sessionList(r, c, m)
 	modelsList(r, c, m)
 	agentsList(r, c, m)

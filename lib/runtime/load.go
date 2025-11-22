@@ -82,7 +82,7 @@ func (R *Runtime) prepPlacedDatafiles() {
 
 		// expand globs
 		if strings.Contains(E, "*") {
-			files, err := yagu.FilesFromGlobs([]string{E})
+			files, err := yagu.FilepathsFromGlobs([]string{E})
 			if err != nil {
 				fmt.Println("warning: error while globing %q: %v", E, err)
 			}
@@ -142,7 +142,7 @@ func (R *Runtime) prepPlacedUserfiles() error {
 		files := []string{filePath}
 		// expand globs
 		if strings.Contains(filePath, "*") {
-			fs, err := yagu.FilesFromGlobs([]string{filePath})
+			fs, err := yagu.FilepathsFromGlobs([]string{filePath})
 			if err != nil {
 				return fmt.Errorf("warning: error while globing %q: %v", filePath, err)
 			}
@@ -156,7 +156,7 @@ func (R *Runtime) prepPlacedUserfiles() error {
 			}
 
 			if stat.IsDir() {
-				fs, err := yagu.FilesFromGlobs([]string{filePath + "/*"})
+				fs, err := yagu.FilepathsFromGlobs([]string{filePath + "/*"})
 				if err != nil {
 					return fmt.Errorf("warning: error while loading dir %q: %v", filePath, err)
 				}

@@ -2,14 +2,19 @@ package tools
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/bluekeyes/go-gitdiff/gitdiff"
+	"google.golang.org/adk/session"
 	"google.golang.org/adk/tool"
 	"google.golang.org/adk/tool/functiontool"
+
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 type ReadFileArgs struct {
@@ -32,6 +37,41 @@ func NewReadFile() (tool.Tool, error) {
 	return functiontool.New(functiontool.Config{
 		Name:        "read_file",
 		Description: "returns the content of a file",
+	}, handler)
+}
+
+type GlobFilesArgs struct {
+	Globs []string `json:"globs"` // list of filepath globs to read into context
+}
+type GlobFilesResult struct {
+	Files string `json:"files"`
+	Error string `json:"error,omitempty"`
+}
+
+func NewGlobFiles() (tool.Tool, error) {
+	handler := func(ctx tool.Context, input GlobFilesArgs) (GlobFilesResult, error) {
+		fmt.Println("glob_files:", input.Globs)
+		entries, err := yagu.FilepathsFromGlobs(input.Globs)
+		if err != nil {
+			return GlobFilesResult{Error: err.Error()}, err
+		}
+
+		b := new(strings.Builder)
+		for _, entry := range entries {
+			r, err := os.Open(entry)
+			if err != nil {
+				return GlobFilesResult{Error: err.Error()}, err
+			}
+			fmt.Printf("filename: %s\n", entry)
+			io.Copy(b, r)
+			fmt.Printf("\n\n\n")
+		}
+
+		return GlobFilesResult{Files: b.String()}, nil
+	}
+	return functiontool.New(functiontool.Config{
+		Name:        "glob_files",
+		Description: "returns the content for all files matched by a list of filepath globs",
 	}, handler)
 }
 
@@ -65,8 +105,9 @@ func NewReadDir() (tool.Tool, error) {
 }
 
 type TreeDirArgs struct {
-	Path         string `json:"path"`         // path to a file
-	IncludeFiles bool   `json:"includeFiles"` // include files in the tree listing
+	Path         string `json:"path"`            // path to a file
+	IncludeFiles bool   `json:"includeFiles"`    // include files in the tree listing
+	Depth        int    `json:"depth,omitempty"` // how deep to traverse, limited to 10
 }
 type TreeDirResult struct {
 	Listing string `json:"listing"`
@@ -78,7 +119,22 @@ func NewTreeDir() (tool.Tool, error) {
 		fmt.Println("tree_dir:", input.Path, input.IncludeFiles)
 		b := new(strings.Builder)
 
-		err := walkDir(input.Path, input.IncludeFiles, b, "")
+		if input.Depth < 1 {
+			input.Depth = 4
+		}
+		if input.Depth > 10 {
+			input.Depth = 10
+		}
+
+		// respect .gitignore
+		// ideally only need to load this once at startup (lazily)
+		ign, err := yagu.IgnFromGit()
+		if err != nil {
+			return TreeDirResult{Error: err.Error()}, err
+		}
+
+		// perhaps use ign walk here, and also add file including or not
+		err = walkDir(input.Path, input.IncludeFiles, input.Depth, ign, b, "")
 		if err != nil {
 			return TreeDirResult{Error: err.Error()}, err
 		}
@@ -87,28 +143,38 @@ func NewTreeDir() (tool.Tool, error) {
 	}
 	return functiontool.New(functiontool.Config{
 		Name:        "tree_dir",
-		Description: "returns the tree layout of a directory, leading hyphens determine depth",
+		Description: "Returns the tree layout of a directory, including files should be done rarely. Depth controls how deep the listing can go, defaults to 4. Tabs are used for indentation to indicate depth.",
 	}, handler)
 }
 
-func walkDir(path string, includeFiles bool, b *strings.Builder, prefix string) error {
-	// TODO, respect .gitignore
+func walkDir(path string, includeFiles bool, depth int, ign yagu.IgnoreList, b *strings.Builder, prefix string) error {
+
+	if ign.Match(filepath.Join(path, path)) {
+		return nil
+	}
 	entries, err := os.ReadDir(path)
 	if err != nil {
 		return err
 	}
 
 	for _, e := range entries {
+		if ign.Match(filepath.Join(path, e.Name())) {
+			continue
+		}
 		if e.IsDir() {
-			fmt.Fprintf(b, "%s%s", prefix, e.Name())
-			err = walkDir(filepath.Join(path, e.Name()), includeFiles, b, prefix+"-")
+			fmt.Fprintf(b, "%s%s\n", prefix, e.Name())
+			err = walkDir(filepath.Join(path, e.Name()), includeFiles, depth-1, ign, b, "\t"+prefix)
 			if err != nil {
 				return err
 			}
 		}
-		// don't include files for now, blows up the context
+
+		// TEMP not including files because node_modules keeps getting picked up
 		// if includeFiles {
-		// 	fmt.Fprintf(b, "%s%s", prefix, e.Name())
+		// 	if ign.Match(filepath.Join(path, e.Name())) {
+		// 		continue
+		// 	}
+		// 	fmt.Fprintf(b, "%s%s\n", prefix, e.Name())
 		// }
 	}
 
@@ -128,21 +194,30 @@ type WriteFileResult struct {
 func NewWriteFile() (tool.Tool, error) {
 	handler := func(ctx tool.Context, input WriteFileArgs) (WriteFileResult, error) {
 		fmt.Println("write_file:", input.Path)
-		dir := filepath.Dir(input.Path)
-		err := os.MkdirAll(dir, 0o755)
-		if err != nil {
-			return WriteFileResult{Path: input.Path, Error: err.Error()}, err
+
+		// we just add the contents to the state and handle on the frontend
+		// in the end, we need to mirror the current "accepted" state
+		// in both the frontend and this backend (when context constructing)
+		val, err := ctx.State().Get("fs")
+		if err != nil && !errors.Is(err, session.ErrStateKeyNotExist) {
+			return WriteFileResult{Path: input.Path, Status: "error", Error: err.Error()}, nil
 		}
-		err = os.WriteFile(input.Path, []byte(input.Content), 0o644)
-		if err != nil {
-			return WriteFileResult{Path: input.Path, Error: err.Error()}, err
+		var fs map[string]string
+		if fs == nil {
+			fs = make(map[string]string)
+		} else {
+			fs = val.(map[string]string)
 		}
+
+		// we only keep the most recent version in state, we can update based on the user's final choices / checkpoints
+		fs[input.Path] = input.Content
+		ctx.State().Set("fs", fs)
 
 		return WriteFileResult{Path: input.Path, Status: "ok"}, nil
 	}
 	return functiontool.New(functiontool.Config{
 		Name:        "write_file",
-		Description: "writes content to a file, replacing any existing content",
+		Description: "Suggests changes to a file and present the user with a diff. The user will accept or reject, whole or parts, and then save the file.",
 	}, handler)
 }
 

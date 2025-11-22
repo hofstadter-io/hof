@@ -76,7 +76,7 @@ func (T *Watch) Run(ctx *hofcontext.Context) (interface{}, error) {
 		return nil, ferr
 	}
 
-	files, err := yagu.FilesFromGlobs(globs)
+	files, err := yagu.FilepathsFromGlobs(globs)
 	if err != nil {
 		return nil, ferr
 	}

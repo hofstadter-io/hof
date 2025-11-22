@@ -36,7 +36,7 @@ func (r *Runtime) readPump(c *Client) {
 	}()
 
 	// Set read limits, pong handlers, etc. (good practice)
-	c.conn.SetReadLimit(5120) // 5KB
+	c.conn.SetReadLimit(5 * 1024 * 1024) // 5Mb (for passing files around)
 	c.conn.SetReadDeadline(time.Now().Add(60 * time.Second))
 	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(60 * time.Second)); return nil })
 

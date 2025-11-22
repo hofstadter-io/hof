@@ -1,15 +1,25 @@
 import * as vscode from 'vscode';
 
+import * as diff from './diff'
+import * as env from './env'
 import * as terminals from './terminals'
+import * as window from './window'
+import * as workspace from './workspace'
+
+const cs = [
+  env,
+  window,
+  terminals,
+  workspace,
+  diff,
+]
 
 export function activate(context: vscode.ExtensionContext) {
   console.log(`activating sync features`)
-
-  terminals.activate(context)
+  cs.forEach( c => c.activate(context) )
 }
 
 export function deactivate() {
   console.log(`deactivating sync features`)
-
-  terminals.deactivate()
+  cs.reverse().forEach( c => c.deactivate() )
 }

@@ -15,10 +15,11 @@ import {
   CircleCheckBig,
   CircleDashed,
   OctagonAlert,
-  Megaphone,
+  PanelLeftOpen,
+  PanelRightClose,
   BrainCircuit,
   EqualApproximately,
-  Coins,
+  SquareSigma,
   DatabaseBackup,
 } from 'lucide-react'
 
@@ -157,23 +158,23 @@ export const UsageInfo = ({ evt, usage, size }: { evt?: any, usage?: any, size: 
   return (
     <div className="flex gap-2">
       <span className="flex gap-1">
-        <CircleQuestionMark size={size}/>
-        {u.candidatesTokenCount || "0"}
-      </span>
-      <span className="flex gap-1">
-        <Megaphone size={size}/>
+        <PanelRightClose size={size}/>
         {u.promptTokenCount || "0"}
       </span>
       <span className="flex gap-1">
         <BrainCircuit size={size}/>
         {u.thoughtsTokenCount || "0"}
       </span>
+      <span className="flex gap-1">
+        <PanelLeftOpen size={size}/>
+        {u.candidatesTokenCount || "0"}
+      </span>
       <span>
         <EqualApproximately size={size}/>
       </span>
       <span className="flex gap-1">
         {u.totalTokenCount || "0"}
-        <Coins size={size}/>
+        <SquareSigma size={size}/>
       </span>
       <span className="flex gap-1">
         {u.cachedContentTokenCount || "0"}

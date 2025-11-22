@@ -19,8 +19,8 @@ import {
 
 // Define the message types we expect
 // (These should match your Go server and extension)
-interface IdPayload {
-  id: string
+interface SidPayload {
+  sid: string
 }
 
 interface ServerMessage {
@@ -44,19 +44,30 @@ function App() {
   useEffect(() => {
     // The 'onMessage' helper returns a cleanup function
     const removeListener = vscodeApi.onMessage((event) => {
-      // console.log("Chat.sid event:", event)
+      console.log("ChatApp event:", event)
       const message = event.data as ServerMessage;
       // console.log("Chat.sid message:", message)
       
       if (message.type === "session.get.resp" || message.type === "session.info") {
-        console.log("Chat session.info", sid, message.payload)
-        const payload = message.payload as IdPayload;
-        if (payload.id === sid) {
+        console.log("Chat session.get.resp?", sid, message.payload)
+        const payload = message.payload as SidPayload;
+        if (payload.sid === sid) {
           vscodeApi.setState({
             ...state,
             session: payload,
           })
           setSession(message.payload as any)
+        }
+      }
+
+      if (message.type === "session.delete") {
+        console.log("Chat session.delete?", sid, message.payload)
+        const payload = message.payload as SidPayload;
+        if (payload.sid === sid) {
+          vscodeApi.setState({})
+          setSid('')
+          setSession({})
+          setChatState({})
         }
       }
     });
@@ -103,23 +114,29 @@ function App() {
       }
 
       if (message.type === "chat.loadSession") {
-        const payload = message.payload as IdPayload;
+        console.log("LOAD SID MSG:", message)
+        const payload = message.payload as SidPayload;
 
-        // update core state
-        vscodeApi.setState({
-          ...state,
-          sid: payload.id
-        })
-        setSid(payload.id)
+        console.log("LOAD SID PAY:", payload)
 
-        // request session info when we load
-        vscodeApi.postMessage({
-          type: 'session.get',
-          payload: {
-            id: payload.id,
-          }
-        });
+        if (payload.sid) {
+          // update core state
+          vscodeApi.setState({
+            ...state,
+            sid: payload.sid
+          })
+          setSid(payload.sid)
+
+          // request session info when we load
+          vscodeApi.postMessage({
+            type: 'session.get',
+            payload: {
+              sid: payload.sid,
+            }
+          });
+        }
       }
+
     });
 
     // console.log("initial fetch", state?.sid, state?.sid !== "")
@@ -127,7 +144,7 @@ function App() {
       vscodeApi.postMessage({
         type: 'session.get',
         payload: {
-          id: state.sid,
+          sid: state.sid,
         }
       });
     }
@@ -187,12 +204,13 @@ function App() {
             args.push("")
           }
           if (args.length > 1) {
+            const rest = args.splice(1).join(" ")
             vscodeApi.postMessage({
               type: 'session.state.put',
               payload: {
                 sid,
                 key: args[0],
-                val: args[1],
+                val: rest, // overly simple way to do this
               }
             });
 
@@ -203,9 +221,25 @@ function App() {
                   ...prev?.state
                 }
               }
-              next.state[parts[0]] = parts[1]
+              next.state[args[0]] = rest
               return next
             });
+
+            // clear input
+            handleInput('')
+
+            // make sure listeners have updated conent
+            vscodeApi.postMessage({
+              type: 'session.get',
+              payload: {
+                sid,
+              }
+            });
+            vscodeApi.postMessage({
+              type: 'session.getList',
+              payload: {}
+            });
+
           }
           return
         }
@@ -254,6 +288,7 @@ function App() {
   // console.log("chat.session", session)
   // console.log("chat.chatState", chatState)
 
+  // maybe put this on the chatState as read-only?
   const usage: any = {
     candidatesTokenCount: 0,
     promptTokenCount: 0,
@@ -276,7 +311,7 @@ function App() {
 
   return (
     <div className="flex flex-col p-2">
-      <Header sid={sid} usage={usage} />
+      <Header sid={sid} session={session} usage={usage} />
 
       <Events
         session={session}
@@ -286,6 +321,7 @@ function App() {
       <UserInputs 
         sid={sid}
         usage={usage}
+        session={session}
         chatState={chatState}
         handleInput={handleInput}
         handleSelect={handleSelect}
@@ -298,14 +334,16 @@ function App() {
 
 const Header = ({
   sid,
+  session,
   usage,
 }:{
   sid: string,
+  session: any,
   usage: any,
 }) => {
   return (
     <div className="m-4 p-3 border-b text-md font-thin flex gap-2 justify-between">
-      <span>{sid}</span>
+      <span>{session?.state?.title || sid}</span>
       <UsageInfo usage={usage} size={16}/>
     </div>
   )
@@ -339,6 +377,7 @@ const Events = ({
 const UserInputs = ({
   sid,
   usage,
+  session,
   chatState,
   handleInput,
   handleSelect,
@@ -346,6 +385,7 @@ const UserInputs = ({
 }:{
   sid: string,
   usage: any,
+  session: any,
   chatState: any,
   handleInput: any,
   handleSelect: any,
@@ -356,7 +396,7 @@ const UserInputs = ({
   return (
     <div className="flex flex-col bg-slate-800/80 mx-3 px-3 gap-2 mt-2 rounded-lg">
       <div className="py-3 px-1 text-md flex gap-2 justify-between">
-        <span>{sid}</span>
+        <span>{session?.state?.title || sid}</span>
         <UsageInfo usage={usage} size={16}/>
       </div>
       <textarea
@@ -400,14 +440,12 @@ const AgentSelect = ({chatState, handleSelect}: {chatState: any, handleSelect:(s
   //   } 
   //   agents[k] = curr
   // }
+  // console.log("chat.input.agents", agents)
 
-  const names = ["coding", "coding-ro", "basic", "general"]
+  const names = ["coding", "coding-ro", "basic", "general", "filesys"]
   names.forEach((n: string) => {
     agents[n] = ["lite", "fast", "norm", "hard"]
   })
-  // agents["basic"] = ["lite", "fast", "norm", "hard"]
-  // agents["general"] = ["lite", "fast", "norm", "hard"]
-  // console.log("chat.input.agents", agents)
 
   return (
     <Select 

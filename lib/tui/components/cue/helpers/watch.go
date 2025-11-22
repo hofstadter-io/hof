@@ -9,7 +9,6 @@ import (
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
-
 func (sc *SourceConfig) Watch() {
 	d := sc.WatchTime
 
@@ -32,7 +31,7 @@ func (sc *SourceConfig) Watch() {
 func (sc *SourceConfig) watch(label string, callback func(), debounce time.Duration) error {
 	var (
 		files []string
-		err error
+		err   error
 	)
 	if len(sc.WatchGlobs) == 0 {
 		switch sc.Source {
@@ -52,7 +51,7 @@ func (sc *SourceConfig) watch(label string, callback func(), debounce time.Durat
 			return fmt.Errorf("auto-file discover not available for %s, you can set globs manually though")
 		}
 	} else {
-		files, err = yagu.FilesFromGlobs(sc.WatchGlobs)
+		files, err = yagu.FilepathsFromGlobs(sc.WatchGlobs)
 	}
 	if err != nil {
 		return err

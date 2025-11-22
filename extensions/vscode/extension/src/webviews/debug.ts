@@ -10,39 +10,53 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(
       `veg-debug-webview`, // This ID must match package.json
-      provider
+      provider,
+      {
+        webviewOptions: { retainContextWhenHidden: true }
+      }
     )
   );
 
-  const sync = async () => {
+  const sync = async (s: string) => {
     extensionEmitter.fire({
       type: "requestSync",
+      payload: {
+        sid: s,
+      }
     });
     sendMessage({
       type: "requestSync",
-      payload: null
+      payload: {
+        sid: s,
+      }
     })
   }
 
-	vscode.commands.registerCommand('veg.debug.requestSync', () => {
-    sync()
-	});
-  sync()
-}
 
-// onMessage handles  Webview -> Server
-// function onMessage(data: any): void {
-//   switch (data.type) {
-//     case 'dummy':
-//       extensionEmitter.fire({
-//         type: data.type,
-//         payload: data.payload
-//       });
-//       // The user typed a message. Send it to the websocket.
-//       sendMessage({
-//         type: data.type,
-//         payload: data.payload
-//       }); // This function is imported from websocket.ts
-//       break;
-//   }
-// }
+  // incoming messages
+	extensionEmitter.event((e) => {
+		console.log(`debug.panel event:`, e)
+		switch (e.type) {
+			case "chat.loadSession":
+        console.log("WS SAVE SID:", e.payload?.sid)
+        context.workspaceState.update("sid", e.payload?.sid)
+				break;
+      case "session.delete":
+        const curr = context.workspaceState.get("sid")
+        if (curr && e.payload?.sid === curr ) {
+          context.workspaceState.update("sid", null)
+        }
+
+        break;
+		}
+	});
+
+
+	vscode.commands.registerCommand('veg.debug.requestSync', () => {
+    const sid = context.workspaceState.get("sid") as string
+    console.log("WS LOAD SID:", sid)
+    if (sid && sid !== "") {
+      sync(sid)
+    }
+	});
+}

@@ -11,8 +11,18 @@ import (
 	"google.golang.org/adk/session"
 )
 
+type SidRequest struct {
+	Sid string `json:"sid"`
+}
+
 type SessionCreateRequest struct {
-	Name  string `json:"name,omitempty"`
+	Title string `json:"title,omitempty"`
+	Focus bool   `json:"focus,omitempty"`
+}
+
+type SessionCreateResponse struct {
+	Sid   string `json:"sid"`
+	Title string `json:"title,omitempty"`
 	Focus bool   `json:"focus,omitempty"`
 }
 
@@ -20,7 +30,7 @@ func sessionGet(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 
 	fmt.Println("sessionGet", string(m.Payload))
 	// parse incoming payload
-	var p IdRequest
+	var p SidRequest
 	if err := json.Unmarshal(m.Payload, &p); err != nil {
 		log.Printf("Error unmarshaling 'session.get' payload: %v", err)
 		return
@@ -28,14 +38,14 @@ func sessionGet(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 
 	// lookup session
 	resp, err := r.S.Get(r.Ctx, &session.GetRequest{
-		AppName:   "veg",
-		UserID:    "tony",
-		SessionID: p.ID,
+		AppName:   r.AppName,
+		UserID:    c.User,
+		SessionID: p.Sid,
 	})
 	if err != nil {
 		log.Printf("session.get: %v", err)
 		c.Mail("session.get.resp", map[string]string{
-			"id":    p.ID,
+			"sid":   p.Sid,
 			"error": err.Error(),
 		})
 		return
@@ -44,7 +54,7 @@ func sessionGet(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 	// build outgoing payload
 	s := resp.Session
 	S := make(map[string]any)
-	S["id"] = s.ID()
+	S["sid"] = s.ID()
 	S["state"] = maps.Collect(s.State().All())
 	S["events"] = slices.Collect(s.Events().All())
 	S["lastUpdate"] = s.LastUpdateTime()
@@ -56,8 +66,8 @@ func sessionGet(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 func sessionList(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 	// sessions
 	sessions, err := r.S.List(r.Ctx, &session.ListRequest{
-		AppName: "veg",
-		UserID:  "tony",
+		AppName: r.AppName,
+		UserID:  c.User,
 	})
 	if err != nil {
 		log.Printf("session.getList: %v", err)
@@ -70,7 +80,7 @@ func sessionList(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 	payload := make([]map[string]any, 0, len(sessions.Sessions))
 	for _, s := range sessions.Sessions {
 		S := make(map[string]any)
-		S["id"] = s.ID()
+		S["sid"] = s.ID()
 		S["state"] = maps.Collect(s.State().All())
 		S["events"] = slices.Collect(s.Events().All())
 		S["lastUpdate"] = s.LastUpdateTime()
@@ -85,31 +95,41 @@ func sessionCreate(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 		log.Printf("Error unmarshaling 'session.delete' payload: %v", err)
 		return
 	}
-	_, err := r.S.Create(r.Ctx, &session.CreateRequest{
-		AppName: "veg",
-		UserID:  "tony",
+	s := make(map[string]any)
+	if p.Title != "" {
+		s["title"] = p.Title
+	}
+	resp, err := r.S.Create(r.Ctx, &session.CreateRequest{
+		AppName: r.AppName,
+		UserID:  c.User,
+		State:   s,
 	})
 	if err != nil {
 		log.Printf("Error deleting session: %v", err)
 		return
 	}
 
-	// make sure everyone is notified
-	// c.BroadcastSessions()
-	// hacky, but should work the same
+	// make sure everyone is notified (just the overall list that most listen to)
 	sessionList(r, c, m)
+
+	// if focused, tell chat
+	if p.Focus {
+		c.Mail("chat.loadSession", map[string]any{
+			"sid": resp.Session.ID(),
+		})
+	}
 }
 
 func sessionDelete(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
-	var p IdRequest
+	var p SidRequest
 	if err := json.Unmarshal(m.Payload, &p); err != nil {
 		log.Printf("Error unmarshaling 'session.delete' payload: %v", err)
 		return
 	}
 	err := r.S.Delete(r.Ctx, &session.DeleteRequest{
-		AppName:   "veg",
-		UserID:    "tony",
-		SessionID: p.ID,
+		AppName:   r.AppName,
+		UserID:    c.User,
+		SessionID: p.Sid,
 	})
 	if err != nil {
 		log.Printf("Error deleting session: %v", err)
@@ -252,7 +272,7 @@ func sessionDelState(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 	if err != nil {
 		log.Printf("Error: session.delState.getSession: %v", err)
 		c.Mail("session.delState.resp", map[string]string{
-			"id":    s.Sid,
+			"sid":   s.Sid,
 			"error": err.Error(),
 		})
 		return
@@ -262,7 +282,7 @@ func sessionDelState(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 	if err != nil {
 		log.Printf("Error: session.delState.setState: %v", err)
 		c.Mail("session.delState.resp", map[string]string{
-			"id":    s.Sid,
+			"sid":   s.Sid,
 			"error": err.Error(),
 		})
 	}

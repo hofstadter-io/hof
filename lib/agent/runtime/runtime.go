@@ -27,6 +27,7 @@ type Runtime struct {
 
 	Ctx context.Context
 	mu  sync.Mutex // To protect clients map
+	db  *gorm.DB
 	e   *echo.Echo
 
 	// services
@@ -173,10 +174,10 @@ func (R *Runtime) initAgents() error {
 		{n: "basic-norm", m: "gemini-2.5-pro", f: agents.BasicAgent},
 		{n: "basic-hard", m: "gemini-3-pro-preview", f: agents.BasicAgent},
 
-		{n: "filesys-lite", m: "gemini-2.5-flash-lite", f: agents.ReadOnlyFilesysAgent},
-		{n: "filesys-fast", m: "gemini-2.5-flash", f: agents.ReadOnlyFilesysAgent},
-		{n: "filesys-norm", m: "gemini-2.5-pro", f: agents.ReadOnlyFilesysAgent},
-		{n: "filesys-hard", m: "gemini-3-pro-preview", f: agents.ReadOnlyFilesysAgent},
+		{n: "filesys-lite", m: "gemini-2.5-flash-lite", f: agents.ReadWriteFilesysAgent},
+		{n: "filesys-fast", m: "gemini-2.5-flash", f: agents.ReadWriteFilesysAgent},
+		{n: "filesys-norm", m: "gemini-2.5-pro", f: agents.ReadWriteFilesysAgent},
+		{n: "filesys-hard", m: "gemini-3-pro-preview", f: agents.ReadWriteFilesysAgent},
 	}
 
 	// now create
@@ -192,14 +193,22 @@ func (R *Runtime) initAgents() error {
 }
 
 func (R *Runtime) initServices() error {
-	R.A = artifact.InMemoryService()
-	R.M = memory.InMemoryService()
+	// open comms to the db
+	db, err := gorm.Open(sqlite.Open("veg.db"), &gorm.Config{})
+	if err != nil {
+		return fmt.Errorf("error creating database session service: %w", err)
+	}
+	R.db = db
 
-	s, err := database.NewSessionService(sqlite.Open("veg.db"), &gorm.Config{})
+	s, err := database.NewSessionService(db)
 	if err != nil {
 		return err
 	}
 	database.AutoMigrate(s)
+
+	R.A = artifact.InMemoryService()
+	R.M = memory.InMemoryService()
+
 	R.S = s
 	// R.S = session.InMemoryService()
 

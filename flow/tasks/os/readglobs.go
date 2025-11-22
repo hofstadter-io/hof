@@ -1,8 +1,9 @@
 package os
 
 import (
-	"cuelang.org/go/cue"
 	g_os "os"
+
+	"cuelang.org/go/cue"
 
 	hofcontext "github.com/hofstadter-io/hof/flow/context"
 	"github.com/hofstadter-io/hof/lib/yagu"
@@ -23,7 +24,7 @@ func (T *ReadGlobs) Run(ctx *hofcontext.Context) (interface{}, error) {
 		return nil, err
 	}
 
-	filepaths, err := yagu.FilesFromGlobs(patterns)
+	filepaths, err := yagu.FilepathsFromGlobs(patterns)
 	if err != nil {
 		return nil, err
 	}
@@ -41,4 +42,3 @@ func (T *ReadGlobs) Run(ctx *hofcontext.Context) (interface{}, error) {
 
 	return map[string]interface{}{"files": data}, nil
 }
-

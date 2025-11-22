@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/olekukonko/tablewriter"
@@ -98,7 +98,7 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.FmtFlagpole) (e
 
 		// find files from glob
 		if strings.Contains(g.glob, "*") {
-			g.files, err = yagu.FilesFromGlobs([]string{g.glob})
+			g.files, err = yagu.FilepathsFromGlobs([]string{g.glob})
 			if err != nil {
 				return err
 			}
@@ -221,8 +221,8 @@ func Start(fmtr string, replace bool) error {
 
 		var (
 			fmtr, ok = formatters[name]
-			ref  = fmt.Sprintf("%s/fmt-%s:%s", CONTAINER_REPO, name, ver)
-			n    = ContainerPrefix + name
+			ref      = fmt.Sprintf("%s/fmt-%s:%s", CONTAINER_REPO, name, ver)
+			n        = ContainerPrefix + name
 		)
 
 		if !ok {
@@ -448,7 +448,7 @@ func Info(which string) (err error) {
 		return err
 	}
 	/*
-	*/
+	 */
 
 	return printAsTable(
 		[]string{"Name", "Status", "Port", "Image", "Available"},

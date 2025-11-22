@@ -5,6 +5,7 @@ import { sendMessage } from '../websocket';
 
 // todo, this is probably bad (being global)
 var sessions: any = [];
+var sort: string = 'lastUpdate'
 
 export function activate(context: vscode.ExtensionContext) {
 	const rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
@@ -20,7 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 	vscode.commands.registerCommand('veg.sessions.chat', (node: Session) => {
 		vscode.commands.executeCommand('veg-chat-webview.focus')
-		const payload = { id: node.id }
+		const payload = { sid: node.sid }
 		setTimeout(() => {
 			extensionEmitter.fire({ type: "chat.loadSession", payload })
 			sendMessage({ type: "session.get", payload })
@@ -28,12 +29,14 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 	vscode.commands.registerCommand('veg.sessions.edit', (node: Session) => vscode.window.showInformationMessage(`Successfully called edit entry on ${node.label}.`));
 	vscode.commands.registerCommand('veg.sessions.delete', (node: Session) => {
-		sendMessage({
+		const msg = {
 			type: "session.delete",
 			payload: {
-				id: node.id
+				sid: node.sid
 			}
-		})
+		}
+		sendMessage(msg)
+		extensionEmitter.fire(msg)
 		vscode.window.showInformationMessage(`Successfully called delete entry on ${node.label}.`)
 	});
 
@@ -79,12 +82,34 @@ export class SessionsProvider implements vscode.TreeDataProvider<Session> {
 			// console.log("elemental element", element)
 			return Promise.resolve([]);
 		} else {
-			// console.log("elementless child", sessions)
+			console.log("elementless child", sessions)
 			var nodes: Session[] = []
 			for (const s of sessions) {
-				const n = new Session(s.id, s.id, s.lastUpdate, vscode.TreeItemCollapsibleState.Collapsed)
+				const l = s.state?.title || s.sid
+				const n = new Session(s.sid, l, s.lastUpdate, vscode.TreeItemCollapsibleState.Collapsed)
 				nodes.push(n)
 			}
+			nodes.sort((a: Session,b: Session) => {
+				if (sort === "lastUpdate") {
+					// newest at the tope
+					if(a[sort] > b[sort]) {
+						return -1
+					}
+					if(a[sort] < b[sort]) {
+						return 1
+					}
+					return 0
+				}
+
+				if(a.label < b.label) {
+					return -1
+				}
+				if(a.label > b.label) {
+					return 1
+				}
+				return 0
+
+			})
 			return Promise.resolve(nodes);
 		}
 	}
@@ -93,17 +118,17 @@ export class SessionsProvider implements vscode.TreeDataProvider<Session> {
 
 export class Session extends vscode.TreeItem {
 	constructor(
-		public readonly id: string,
+		public readonly sid: string,
 		public readonly label: string,
-		private readonly version: string,
+		private readonly lastUpdate: string,
 		public readonly collapsibleState: vscode.TreeItemCollapsibleState,
 		public readonly command?: vscode.Command
 	) {
 
-		super(id, collapsibleState);
+		super(sid, collapsibleState);
 
-		this.tooltip = `${this.label}\n${this.version}`;
-		this.description = this.version;
+		this.tooltip = `${this.label}\n${this.sid}\n${this.lastUpdate}`;
+		this.description = this.lastUpdate;
 
 		// this.iconPath = {
 		// 	light: vscode.Uri.joinPath(extensionRoot, 'resources', 'light', 'list-tree.svg'),
