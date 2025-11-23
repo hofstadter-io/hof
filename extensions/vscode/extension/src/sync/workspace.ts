@@ -16,7 +16,6 @@ export function activate(context: vscode.ExtensionContext) {
 	);
 
 	extensionEmitter.event((e) => {
-		console.log(`sync.editors event:`, e)
 		switch (e.type) {
       case "sync.request":
       case "sync.request.workspace":

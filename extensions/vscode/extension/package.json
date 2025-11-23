@@ -15,6 +15,19 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "keybindings": [{
+      "command": "veg-chat-webview.focus",
+      "key": "ctrl+shift+g",
+      "mac": "cmd+shift+g"
+    },{
+      "command": "veg-sessions.focus",
+      "key": "alt+g",
+      "mac": "alt+g"
+    },{
+      "command": "veg-planning.focus",
+      "key": "ctrl+alt+g",
+      "mac": "cmd+alt+g"
+    }],
     "commands": [
       {
         "command": "veg.connect",
@@ -200,57 +213,52 @@
 			]
     },
     "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "veg-chat-sidebar",
-          "title": "Veg Chat",
-          "icon": "$(comment-discussion)"
-        },
-        {
-          "id": "veg-manage-sidebar",
-          "title": "Veg Manage",
-          "icon": "media/carrot.svg"
-				}
-      ]
+      "activitybar": [{
+        "id": "veg-chat-sidebar",
+        "title": "Veg Chat",
+        "icon": "$(comment-discussion)"
+      },{
+        "id": "veg-manage-sidebar",
+        "title": "Veg",
+        "icon": "media/carrot.svg"
+      }],
+      "panel": [{
+        "id": "veg-manage-panel",
+        "title": "Veg",
+        "icon": "media/carrot.svg"
+      }]
     },
     "views": {
-      "veg-chat-sidebar": [
-        {
-          "id": "veg-chat-webview",
-          "name": "Veg Chat",
-          "type": "webview",
-          "contextualTitle": "Chat"
-        }
-      ],
-      "veg-manage-sidebar": [
-        {
-          "id": "veg-planning",
-          "name": "Planning",
-          "contextualTitle": "Planning"
-        },
-				{
-					"id": "veg-sessions",
-					"name": "Sessions",
-					"contextualTitle": "Sessions"
-				},
-				{
-					"id": "veg-agents",
-					"name": "Agents",
-					"contextualTitle": "Agents"
-				},
-        {
-          "id": "veg-config-webview",
-          "name": "Config",
-          "type": "webview",
-          "contextualTitle": "Config"
-        },
-        {
-          "id": "veg-debug-webview",
-          "name": "Debug",
-          "type": "webview",
-          "contextualTitle": "Debug"
-        }
-      ]
+      "veg-chat-sidebar": [{
+        "id": "veg-chat-webview",
+        "name": "Veg Chat",
+        "type": "webview",
+        "contextualTitle": "Chat"
+      }],
+      "veg-manage-panel": [{
+        "id": "veg-sessions",
+        "name": "Sessions",
+        "contextualTitle": "Sessions"
+      },{
+        "id": "veg-debug-webview",
+        "name": "Debug",
+        "type": "webview",
+        "contextualTitle": "Debug"
+      }],
+      "veg-manage-sidebar": [{
+        "id": "veg-planning",
+        "name": "Planning",
+        "contextualTitle": "Planning"
+      },{
+        "id": "veg-agents",
+        "name": "Agents",
+        "contextualTitle": "Agents"
+      },{
+        "id": "veg-config-webview",
+        "name": "Config",
+        "type": "webview",
+        "contextualTitle": "Config"
+      }]
 		}
   },
   "scripts": {

@@ -12,6 +12,7 @@
   "dependencies": {
     "@radix-ui/react-select": "^2.2.6",
     "@tailwindcss/vite": "^4.1.17",
+    "@uiw/react-json-view": "2.0.0-alpha.39",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.554.0",

@@ -10,9 +10,9 @@ export function activate(context: vscode.ExtensionContext) {
 		? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
 
 	// Samples of `window.registerTreeDataProvider`
-	const planningProvider = new PlanningProvider(context, rootPath);
-	vscode.window.registerTreeDataProvider('veg-agents', planningProvider);
-	vscode.commands.registerCommand('veg.agents.refresh', () => planningProvider.refresh());
+	const agentProvider = new AgentProvider(context, rootPath);
+	vscode.window.registerTreeDataProvider('veg-agents', agentProvider);
+	vscode.commands.registerCommand('veg.agents.refresh', () => agentProvider.refresh());
 	vscode.commands.registerCommand('veg.agents.create', () => {
 		vscode.window.showInformationMessage(`Successfully called add entry.`)
 		sendMessage({
@@ -37,12 +37,10 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	extensionEmitter.event((e) => {
-		// console.log("AGENTS.event:", e)
 		switch (e.type) {
 			case "agents.list.resp":
-				console.log("agents", e.payload)
 				agents = e.payload
-				planningProvider.refresh()
+				agentProvider.refresh()
 				break;
 		}
 	});
@@ -50,7 +48,7 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 
-export class PlanningProvider implements vscode.TreeDataProvider<Agent> {
+export class AgentProvider implements vscode.TreeDataProvider<Agent> {
 
 	private _onDidChangeTreeData: vscode.EventEmitter<Agent | undefined | void> = new vscode.EventEmitter<Agent | undefined | void>();
 	readonly onDidChangeTreeData: vscode.Event<Agent | undefined | void> = this._onDidChangeTreeData.event;

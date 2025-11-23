@@ -88,6 +88,7 @@ func (R *Runtime) serveWs(c echo.Context) error {
 		conn:          conn,
 		send:          make(chan []byte, 256), // 256-message buffer
 		handleMessage: R.handleMessage,
+		State:         make(map[string]any),
 	}
 
 	// Register the new client with the hub

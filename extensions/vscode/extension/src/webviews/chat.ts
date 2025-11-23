@@ -21,10 +21,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
   // incoming messages
 	extensionEmitter.event((e) => {
-		console.log(`chat.panel event:`, e)
 		switch (e.type) {
 			case "chat.loadSession":
-        console.log("WS SAVE SID:", e.payload?.sid)
         context.workspaceState.update("sid", e.payload?.sid)
 				break;
 		}

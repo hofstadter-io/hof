@@ -121,7 +121,7 @@ function App() {
       }
 
       // check if our current session has been deleted
-      console.log("debug.sessionDelete?", message, debugValue)
+      // console.log("debug.sessionDelete?", message, debugValue)
       if (message.type === 'session.delete' && payload.sid === debugValue.session.sid) {
         setDebugValue((prevData: any) => {
           const next = {

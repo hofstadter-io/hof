@@ -54,7 +54,7 @@ export function getTerminals(): TerminalPayload[] {
 
 function broadcastTerminals() {
 	const msg = {
-		type: "terminalInfo",
+		type: "terminal.info",
 		payload: {
 			terminals: getTerminals(),
 		}
@@ -64,7 +64,7 @@ function broadcastTerminals() {
 }
 
 function findTerm(vsterm: vscode.Terminal): Terminal | null { 
-	console.log("find:", vsterm, trackedTerminals)
+	// console.log("find:", vsterm, trackedTerminals)
 	for (const term of trackedTerminals.values()) {
 		if (term.terminal == vsterm) {
 			return term
@@ -186,7 +186,7 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	extensionEmitter.event((e) => {
-		console.log(`sync.terminals event:`, e)
+		// console.log(`sync.terminals event:`, e)
 		switch (e.type) {
 			case "requestSync":
 				broadcastTerminals()

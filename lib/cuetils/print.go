@@ -173,7 +173,7 @@ func CueErrorToString(err error) string {
 
 func ExpandCueError(err error) error {
 	s := CueErrorToString(err)
-	return fmt.Errorf(s)
+	return fmt.Errorf("%s", s)
 }
 
 func PrintCueError(err error) {

@@ -3,7 +3,7 @@ module github.com/hofstadter-io/hof
 go 1.24.4
 
 require (
-	cuelang.org/go v0.15.0
+	cuelang.org/go v0.15.1
 	dagger.io/dagger v0.19.6
 	github.com/AlecAivazis/survey/v2 v2.3.7
 	github.com/BurntSushi/toml v1.3.2

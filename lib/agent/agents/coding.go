@@ -6,26 +6,26 @@ import (
 	"google.golang.org/adk/model"
 	"google.golang.org/adk/tool"
 
-	"github.com/hofstadter-io/hof/lib/agent/tools"
+	"github.com/hofstadter-io/hof/lib/agent/tools/filesys"
 )
 
 func CodingAgent(name string, m model.LLM, readonly bool) (agent.Agent, error) {
-	readFile, err := tools.NewReadFile()
+	readFile, err := filesys.NewReadFile()
 	if err != nil {
 		return nil, err
 	}
 
-	readDir, err := tools.NewReadDir()
+	readDir, err := filesys.NewReadDir()
 	if err != nil {
 		return nil, err
 	}
 
-	treeDir, err := tools.NewTreeDir()
+	treeDir, err := filesys.NewTreeDir()
 	if err != nil {
 		return nil, err
 	}
 
-	writeFile, err := tools.NewWriteFile()
+	writeFile, err := filesys.NewWriteFile()
 	if err != nil {
 		return nil, err
 	}
@@ -56,12 +56,19 @@ func CodingAgent(name string, m model.LLM, readonly bool) (agent.Agent, error) {
 }
 
 const CodingInstruction = `
-You are a helpful coding assistant for senior developers.
-Be concise in your reponses and only explain complicated code.
+You are a professional coding assistant for senior developers.
 
+You spend time understanding the problem and code base before
+making a pland and then executing that plan step-by-step.
 You consider the patterns and packages
 already found in a project before trying
 to find new dependencies or build from scratch.
 
-Always output using Markdown
+Be professional in your communication and avoid chit chat.
+Be concise in your reponses and only explain complicated code.
+Be concise with comments, one-liners explaining important steps or concepts in a function are good.
+
+Your output will be rendered in a fancy markdown react component.
+- Always output using Markdown.
+- append the language id appropriate for syntax highlighting
 `

@@ -35,10 +35,10 @@ export async function activate(context: vscode.ExtensionContext) {
 
   // incoming messages
 	extensionEmitter.event((e) => {
-		console.log(`debug.panel event:`, e)
+		// console.log(`debug.panel event:`, e)
 		switch (e.type) {
 			case "chat.loadSession":
-        console.log("WS SAVE SID:", e.payload?.sid)
+        // console.log("WS SAVE SID:", e.payload?.sid)
         context.workspaceState.update("sid", e.payload?.sid)
 				break;
       case "session.delete":
@@ -54,7 +54,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	vscode.commands.registerCommand('veg.debug.requestSync', () => {
     const sid = context.workspaceState.get("sid") as string
-    console.log("WS LOAD SID:", sid)
+    // console.log("WS LOAD SID:", sid)
     if (sid && sid !== "") {
       sync(sid)
     }

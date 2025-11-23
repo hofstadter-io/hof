@@ -86,13 +86,9 @@ async function connectOrSpawnServer(context: vscode.ExtensionContext) {
 function setupWebSocketHandlers(socket: WebSocket) {
   socket.on('message', (data) => {
     const messageStr = data.toString();
-    // console.log(`[Server]:`, messageStr, "\n");
-
-    // HMMM, we seem to be getting several messages at once here
-   
     try {
       const msg: Message<unknown> = JSON.parse(messageStr);
-      console.log(`[Server]:`, msg);
+      console.log(`[SERVER]:`, msg);
       extensionEmitter.fire(msg);
     } catch (e) {
       console.error('Error parsing server message', e);
@@ -128,6 +124,7 @@ export function sendMessage<T>(msg: Message<T>) {
     vscode.window.showErrorMessage('Server not connected.');
     return;
   }
+  console.log(`[VSCODE]:`, msg);
   ws.send(JSON.stringify(msg));
 }
 

@@ -19,7 +19,8 @@ type Message struct {
 
 // Client is a wrapper for a single WebSocket connection (one VS Code window).
 type Client struct {
-	User string
+	User  string
+	State map[string]any
 
 	conn *websocket.Conn
 	send chan []byte // Buffered channel for outbound messages

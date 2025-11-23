@@ -18,12 +18,15 @@ export function activate(context: vscode.ExtensionContext) {
 	extensionEmitter.event((e) => {
 		switch (e.type) {
       case "sync.request":
-      case "sync.request.window":
+      case "sync.request.env":
 			case "requestSync":
-				broadcastEnv()
+				broadcastEnv(context)
 				break;
 		}
 	});
+
+	// todo, register handlers on the workspace
+	// so we can broadcast updates when new folders are opened
 
 	// context.subscriptions.push(disposable);
 }
@@ -31,14 +34,23 @@ export function activate(context: vscode.ExtensionContext) {
 // This method is called when your extension is deactivated
 export function deactivate() {}
 
-async function broadcastEnv() {
+async function broadcastEnv(context: vscode.ExtensionContext) {
+	const wsF = vscode.workspace.workspaceFolders
+	var wDir: string | undefined
+	if (wsF && wsF.length > 0) {
+		wDir = wsF[0].uri.path	
+	}
+	const sid = context.workspaceState.get("sid")
+
 	const msg = {
 		type: "env.info.resp",
 		payload: {
+			sid,
 			machineId: vscode.env.machineId,
-			sessionId: vscode.env.sessionId,
+			vscodeSid: vscode.env.sessionId,
 			remoteName: vscode.env.remoteName,
-			appRoot: vscode.env.appRoot,
+			user: "verdverm",
+		  workspaceDir: wDir,
 			clipboard: await vscode.env.clipboard.readText(),
 		}
 	}

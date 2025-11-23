@@ -34,6 +34,11 @@ func SetupHandlers(r *runtime.Runtime) {
 	r.Handlers["session.state.get"] = sessionGetState
 	r.Handlers["session.state.put"] = sessionPutState
 
+	//
+	// things we want to track from the frontend
+	//
+	r.Handlers["env.info.resp"] = envInfo
+
 }
 
 type EchoPayload struct {

@@ -99,6 +99,7 @@ func sessionCreate(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 	if p.Title != "" {
 		s["title"] = p.Title
 	}
+	maps.Copy(s, c.State)
 	resp, err := r.S.Create(r.Ctx, &session.CreateRequest{
 		AppName: r.AppName,
 		UserID:  c.User,
@@ -161,7 +162,7 @@ func sessionGetStateAll(r *runtime.Runtime, c *runtime.Client, m *runtime.Messag
 		SessionID: s.Sid,
 	})
 	if err != nil {
-		log.Printf("session.get: %v", err)
+		log.Printf("session.getStateAll: %v", err)
 		c.Mail("session.get.resp", map[string]string{
 			"id":    s.Sid,
 			"error": err.Error(),
@@ -253,8 +254,8 @@ func sessionPutState(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 		State:     maps.Collect(resp.Session.State().All()),
 	})
 
-	fmt.Println("State Set", s.Sid, s.Key, s.Val)
-	fmt.Println("session.state", maps.Collect(resp.Session.State().All()))
+	// fmt.Println("State Set", s.Sid, s.Key, s.Val)
+	// fmt.Println("session.state", maps.Collect(resp.Session.State().All()))
 }
 
 func sessionDelState(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {

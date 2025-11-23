@@ -45,7 +45,7 @@ export function activate(context: vscode.ExtensionContext) {
 		// console.log(`sessions event:`, e)
 		switch (e.type) {
 			case "session.list":
-				console.log("sessions", e.payload)
+				// console.log("sessions", e.payload)
 				sessions = e.payload
 				sessionsProvider.refresh()
 				break;
@@ -82,7 +82,7 @@ export class SessionsProvider implements vscode.TreeDataProvider<Session> {
 			// console.log("elemental element", element)
 			return Promise.resolve([]);
 		} else {
-			console.log("elementless child", sessions)
+			// console.log("elementless child", sessions)
 			var nodes: Session[] = []
 			for (const s of sessions) {
 				const l = s.state?.title || s.sid

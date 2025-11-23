@@ -3,6 +3,9 @@ package runtime
 import (
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/labstack/echo/v4"
@@ -18,6 +21,8 @@ import (
 
 	"github.com/hofstadter-io/hof/lib/agent/agents"
 	"github.com/hofstadter-io/hof/lib/agent/models"
+	"github.com/hofstadter-io/hof/lib/cuetils"
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 // Sqlite driver based on CGO
@@ -130,71 +135,122 @@ func (R *Runtime) initModels() (err error) {
 }
 
 func (R *Runtime) initAgents() error {
-	// table driven config, will come from CUE eventually (too, some builtins here)
-	type pair struct {
-		n string
-		m string
-		f func(name string, m model.LLM) (agent.Agent, error)
+	// TODO, load agents from multiple locations
+	// 1. user
+	// 2. project
+
+	// user
+	// udir := configdir.LocalConfig("veg", "agents")
+	gdir, err := yagu.FindGitRepoAbsPath(".")
+	if err != nil {
+		return fmt.Errorf("while searching for git root: %w", err)
+	}
+	cwd, err := os.Getwd()
+	if err != nil {
+		return fmt.Errorf("while getting cwd: %w", err)
 	}
 
-	A := []pair{
-		{n: "coding-lite", m: "gemini-2.5-flash-lite", f: func(name string, m model.LLM) (agent.Agent, error) {
-			return agents.CodingAgent(name, m, false)
-		}},
-		{n: "coding-fast", m: "gemini-2.5-flash", f: func(name string, m model.LLM) (agent.Agent, error) {
-			return agents.CodingAgent(name, m, false)
-		}},
-		{n: "coding-norm", m: "gemini-2.5-pro", f: func(name string, m model.LLM) (agent.Agent, error) {
-			return agents.CodingAgent(name, m, false)
-		}},
-		{n: "coding-hard", m: "gemini-3-pro-preview", f: func(name string, m model.LLM) (agent.Agent, error) {
-			return agents.CodingAgent(name, m, false)
-		}},
-
-		{n: "coding-ro-lite", m: "gemini-2.5-flash-lite", f: func(name string, m model.LLM) (agent.Agent, error) {
-			return agents.CodingAgent(name, m, true)
-		}},
-		{n: "coding-ro-fast", m: "gemini-2.5-flash", f: func(name string, m model.LLM) (agent.Agent, error) {
-			return agents.CodingAgent(name, m, true)
-		}},
-		{n: "coding-ro-norm", m: "gemini-2.5-pro", f: func(name string, m model.LLM) (agent.Agent, error) {
-			return agents.CodingAgent(name, m, true)
-		}},
-		{n: "coding-ro-hard", m: "gemini-3-pro-preview", f: func(name string, m model.LLM) (agent.Agent, error) {
-			return agents.CodingAgent(name, m, true)
-		}},
-
-		{n: "general-lite", m: "gemini-2.5-flash-lite", f: agents.GeneralAgent},
-		{n: "general-fast", m: "gemini-2.5-flash", f: agents.GeneralAgent},
-		{n: "general-norm", m: "gemini-2.5-pro", f: agents.GeneralAgent},
-		{n: "general-hard", m: "gemini-3-pro-preview", f: agents.GeneralAgent},
-
-		{n: "basic-lite", m: "gemini-2.5-flash-lite", f: agents.BasicAgent},
-		{n: "basic-fast", m: "gemini-2.5-flash", f: agents.BasicAgent},
-		{n: "basic-norm", m: "gemini-2.5-pro", f: agents.BasicAgent},
-		{n: "basic-hard", m: "gemini-3-pro-preview", f: agents.BasicAgent},
-
-		{n: "filesys-lite", m: "gemini-2.5-flash-lite", f: agents.ReadWriteFilesysAgent},
-		{n: "filesys-fast", m: "gemini-2.5-flash", f: agents.ReadWriteFilesysAgent},
-		{n: "filesys-norm", m: "gemini-2.5-pro", f: agents.ReadWriteFilesysAgent},
-		{n: "filesys-hard", m: "gemini-3-pro-preview", f: agents.ReadWriteFilesysAgent},
+	bdir := gdir
+	if gdir == "" {
+		bdir = cwd
 	}
 
-	// now create
-	for _, a := range A {
-		g, err := a.f(a.m, R.Models[a.m])
-		if err != nil {
-			return fmt.Errorf("while init'n agent %q: %w", a.n, err)
-		}
-		R.Agents[a.n] = g
+	rdir, err := filepath.Rel(cwd, bdir)
+	if err != nil {
+		return fmt.Errorf("while relativing dir: %w", err)
 	}
+
+	adir := filepath.Join(rdir, "./.veg/agents")
+	fmt.Println("dirs", gdir, cwd, bdir, rdir, adir)
+	// formatting so CUE accepts it (cannot be absolute, cannot be without leading ./ or ../)
+	if strings.HasPrefix(adir, ".veg/") {
+		adir = "./" + adir
+	}
+
+	// Maybe we wait for the above until we hook agents into hof runtime and schemas
+
+	// project, based on cwd, but should probably look for a git root
+	as, err := agents.AgenticCUE(adir, R.Models)
+	if err != nil {
+		err = cuetils.ExpandCueError(err)
+		return fmt.Errorf("while loading AgenticCUE:\n%s", err)
+	}
+	for _, a := range as {
+		R.Agents[a.Name()] = a
+	}
+
+	// TODO, also load up instruction files
+	// AGENTS.md, CLAUDE.md, .github/...
+	// and all of their associated skills, subagents, and the like
 
 	return nil
+
+	// // table driven config, will come from CUE eventually (too, some builtins here)
+	// type pair struct {
+	// 	n string
+	// 	m string
+	// 	f func(name string, m model.LLM) (agent.Agent, error)
+	// }
+
+	// A := []pair{
+	// 	{n: "coding-lite", m: "gemini-2.5-flash-lite", f: func(name string, m model.LLM) (agent.Agent, error) {
+	// 		return agents.CodingAgent(name, m, false)
+	// 	}},
+	// 	{n: "coding-fast", m: "gemini-2.5-flash", f: func(name string, m model.LLM) (agent.Agent, error) {
+	// 		return agents.CodingAgent(name, m, false)
+	// 	}},
+	// 	{n: "coding-norm", m: "gemini-2.5-pro", f: func(name string, m model.LLM) (agent.Agent, error) {
+	// 		return agents.CodingAgent(name, m, false)
+	// 	}},
+	// 	{n: "coding-hard", m: "gemini-3-pro-preview", f: func(name string, m model.LLM) (agent.Agent, error) {
+	// 		return agents.CodingAgent(name, m, false)
+	// 	}},
+
+	// 	{n: "coding-ro-lite", m: "gemini-2.5-flash-lite", f: func(name string, m model.LLM) (agent.Agent, error) {
+	// 		return agents.CodingAgent(name, m, true)
+	// 	}},
+	// 	{n: "coding-ro-fast", m: "gemini-2.5-flash", f: func(name string, m model.LLM) (agent.Agent, error) {
+	// 		return agents.CodingAgent(name, m, true)
+	// 	}},
+	// 	{n: "coding-ro-norm", m: "gemini-2.5-pro", f: func(name string, m model.LLM) (agent.Agent, error) {
+	// 		return agents.CodingAgent(name, m, true)
+	// 	}},
+	// 	{n: "coding-ro-hard", m: "gemini-3-pro-preview", f: func(name string, m model.LLM) (agent.Agent, error) {
+	// 		return agents.CodingAgent(name, m, true)
+	// 	}},
+
+	// 	{n: "general-lite", m: "gemini-2.5-flash-lite", f: agents.GeneralAgent},
+	// 	{n: "general-fast", m: "gemini-2.5-flash", f: agents.GeneralAgent},
+	// 	{n: "general-norm", m: "gemini-2.5-pro", f: agents.GeneralAgent},
+	// 	{n: "general-hard", m: "gemini-3-pro-preview", f: agents.GeneralAgent},
+
+	// 	{n: "basic-lite", m: "gemini-2.5-flash-lite", f: agents.BasicAgent},
+	// 	{n: "basic-fast", m: "gemini-2.5-flash", f: agents.BasicAgent},
+	// 	{n: "basic-norm", m: "gemini-2.5-pro", f: agents.BasicAgent},
+	// 	{n: "basic-hard", m: "gemini-3-pro-preview", f: agents.BasicAgent},
+
+	// 	{n: "filesys-lite", m: "gemini-2.5-flash-lite", f: agents.ReadWriteFilesysAgent},
+	// 	{n: "filesys-fast", m: "gemini-2.5-flash", f: agents.ReadWriteFilesysAgent},
+	// 	{n: "filesys-norm", m: "gemini-2.5-pro", f: agents.ReadWriteFilesysAgent},
+	// 	{n: "filesys-hard", m: "gemini-3-pro-preview", f: agents.ReadWriteFilesysAgent},
+	// }
+
+	// // now create
+	// for _, a := range A {
+	// 	g, err := a.f(a.m, R.Models[a.m])
+	// 	if err != nil {
+	// 		return fmt.Errorf("while init'n agent %q: %w", a.n, err)
+	// 	}
+	// 	R.Agents[a.n] = g
+	// }
+
+	// fmt.Println("initAgents.AgenticCUE")
+
 }
 
 func (R *Runtime) initServices() error {
 	// open comms to the db
-	db, err := gorm.Open(sqlite.Open("veg.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open(".veg/veg.db"), &gorm.Config{})
 	if err != nil {
 		return fmt.Errorf("error creating database session service: %w", err)
 	}
