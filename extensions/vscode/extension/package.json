@@ -216,10 +216,6 @@
       "activitybar": [{
         "id": "veg-chat-sidebar",
         "title": "Veg Chat",
-        "icon": "$(comment-discussion)"
-      },{
-        "id": "veg-manage-sidebar",
-        "title": "Veg",
         "icon": "media/carrot.svg"
       }],
       "panel": [{
@@ -244,8 +240,7 @@
         "name": "Debug",
         "type": "webview",
         "contextualTitle": "Debug"
-      }],
-      "veg-manage-sidebar": [{
+      },{
         "id": "veg-planning",
         "name": "Planning",
         "contextualTitle": "Planning"

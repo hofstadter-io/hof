@@ -14,7 +14,7 @@ import {
 
 export const FunctionCall = ({evt}:{evt: any}) => {
   const [hidden, setHidden] = useState(true);
-  console.log("FunctionCall", evt)
+  // console.log("FunctionCall", evt)
   const msg = evt.Content.parts[0]
   const fn = msg.functionCall.name
 
@@ -28,10 +28,14 @@ export const FunctionCall = ({evt}:{evt: any}) => {
           setHidden(!hidden)
         }} />
         <div className="ml-auto">
-          { fn === "read_file" && <ReadFileCall evt={evt}/> }
-          { fn === "read_dir" && <ReadDirCall evt={evt}/> }
-          { fn === "tree_dir" && <TreeDirCall evt={evt}/> }
-          { fn === "write_file" && <WriteFileCall evt={evt}/> }
+          { fn === "read_file" && <NamePathCall evt={evt}/> }
+          { fn === "read_dir" && <NamePathCall evt={evt}/> }
+          { fn === "tree_dir" && <NamePathCall evt={evt}/> }
+          { fn === "write_file" && <NamePathCall evt={evt}/> }
+          { fn === "cache_file" && <NamePathCall evt={evt}/> }
+          { fn === "cache_dir" && <NamePathCall evt={evt}/> }
+          { fn === "cache_write" && <NameKeyCall evt={evt}/> }
+          { fn === "cache_remove" && <NameKeyCall evt={evt}/> }
         </div>
       </div>
       <JsonInfo hidden={hidden} data={evt} />
@@ -39,7 +43,7 @@ export const FunctionCall = ({evt}:{evt: any}) => {
   )
 }
 
-const ReadFileCall = ({evt}:{evt: any}) => {
+const NamePathCall = ({evt}:{evt: any}) => {
   const msg = evt.Content.parts[0]
   return (
     <div className="flex gap-2 overflow-x-auto">
@@ -49,32 +53,12 @@ const ReadFileCall = ({evt}:{evt: any}) => {
   )
 }
 
-const ReadDirCall = ({evt}:{evt: any}) => {
+const NameKeyCall = ({evt}:{evt: any}) => {
   const msg = evt.Content.parts[0]
   return (
     <div className="flex gap-2 overflow-x-auto">
       <div className="font-bold">{msg.functionCall.name}</div>
-      <div className="monospace text-xs">{msg.functionCall.args.path}</div>
-    </div>
-  )
-}
-
-const TreeDirCall = ({evt}:{evt: any}) => {
-  const msg = evt.Content.parts[0]
-  return (
-    <div className="flex gap-2 overflow-x-auto">
-      <div className="font-bold">{msg.functionCall.name}</div>
-      <div className="monospace text-xs">{msg.functionCall.args.path}</div>
-    </div>
-  )
-}
-
-const WriteFileCall = ({evt}:{evt: any}) => {
-  const msg = evt.Content.parts[0]
-  return (
-    <div className="flex gap-2 overflow-x-auto">
-      <div className="font-bold">{msg.functionCall.name}</div>
-      <div className="monospace text-xs">{msg.functionCall.args.path}</div>
+      <div className="monospace text-xs">{msg.functionCall.args.key}</div>
     </div>
   )
 }
@@ -82,7 +66,7 @@ const WriteFileCall = ({evt}:{evt: any}) => {
 export const FunctionResp = ({evt}:{evt: any}) => {
   const [hiddenDetails, setHiddenDetails] = useState(true);
   const [hiddenJson, setHiddenJson] = useState(true);
-  console.log("FunctionResp", evt)
+  // console.log("FunctionResp", evt)
   const msg = evt.Content.parts[0]
   const r = msg.functionResponse.response;
 

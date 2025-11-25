@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/hofstadter-io/hof/lib/agent/agents"
 )
 
 // Message is the "envelope" that all messages follow.
@@ -22,7 +23,11 @@ type Client struct {
 	User  string
 	State map[string]any
 
+	// when we have custom agents, or local to a session even? (b/c diff sess diff workdir)
+	AgentDefs map[string]agents.Agent
+
 	conn *websocket.Conn
+
 	send chan []byte // Buffered channel for outbound messages
 
 	handleMessage func(*Client, *Message)

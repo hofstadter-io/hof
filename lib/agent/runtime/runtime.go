@@ -9,11 +9,9 @@ import (
 	"sync"
 
 	"github.com/labstack/echo/v4"
-	"google.golang.org/adk/agent"
 	"google.golang.org/adk/artifact"
 	"google.golang.org/adk/memory"
 	"google.golang.org/adk/model"
-	"google.golang.org/adk/runner"
 	"google.golang.org/adk/session"
 	"google.golang.org/adk/session/database"
 	"gorm.io/driver/sqlite"
@@ -42,8 +40,7 @@ type Runtime struct {
 
 	// agentic stuff
 	Models  map[string]model.LLM
-	Agents  map[string]agent.Agent
-	Runners map[string]*runner.Runner
+	Agentic agents.Config
 
 	// clients & comms
 	Handlers   map[string]Handler
@@ -59,8 +56,6 @@ func NewRuntime() (*Runtime, error) {
 		AppName:    "veg",
 		Ctx:        context.Background(),
 		Models:     make(map[string]model.LLM),
-		Agents:     make(map[string]agent.Agent),
-		Runners:    make(map[string]*runner.Runner),
 		Handlers:   make(map[string]Handler),
 		clients:    make(map[*Client]bool),
 		register:   make(chan *Client),
@@ -96,48 +91,29 @@ func (r *Runtime) handleMessage(c *Client, m *Message) {
 }
 
 func (R *Runtime) init() (err error) {
+	err = R.ReadConfig()
+	if err != nil {
+		return fmt.Errorf("while init'n runtime: %w", err)
+	}
+
 	err = R.initModels()
 	if err != nil {
 		return fmt.Errorf("while init'n runtime: %w", err)
 	}
-	err = R.initAgents()
-	if err != nil {
-		return fmt.Errorf("while init'n runtime: %w", err)
-	}
+
 	err = R.initServices()
 	if err != nil {
 		return fmt.Errorf("while init'n runtime: %w", err)
 	}
-	err = R.initRunners()
-	if err != nil {
-		return fmt.Errorf("while init'n runtime: %w", err)
-	}
 
 	return nil
 }
 
-func (R *Runtime) initModels() (err error) {
-	ms := []string{
-		"gemini-2.5-flash-lite",
-		"gemini-2.5-flash",
-		"gemini-2.5-pro",
-		"gemini-3-pro-preview",
-	}
-
-	for _, m := range ms {
-		R.Models[m], err = models.Gemini(R.Ctx, m)
-		if err != nil {
-			return fmt.Errorf("while init'n model %q: %w", m, err)
-		}
-	}
-
-	return nil
-}
-
-func (R *Runtime) initAgents() error {
+func (R *Runtime) ReadConfig() error {
 	// TODO, load agents from multiple locations
 	// 1. user
 	// 2. project
+	// base on workspaceDir, eventually sent by vs code, or git clone in ephemeral dagger
 
 	// user
 	// udir := configdir.LocalConfig("veg", "agents")
@@ -170,82 +146,24 @@ func (R *Runtime) initAgents() error {
 	// Maybe we wait for the above until we hook agents into hof runtime and schemas
 
 	// project, based on cwd, but should probably look for a git root
-	as, err := agents.AgenticCUE(adir, R.Models)
+	R.Agentic, err = agents.AgenticCUE(adir, R.Models)
 	if err != nil {
 		err = cuetils.ExpandCueError(err)
 		return fmt.Errorf("while loading AgenticCUE:\n%s", err)
 	}
-	for _, a := range as {
-		R.Agents[a.Name()] = a
-	}
-
-	// TODO, also load up instruction files
-	// AGENTS.md, CLAUDE.md, .github/...
-	// and all of their associated skills, subagents, and the like
 
 	return nil
+}
 
-	// // table driven config, will come from CUE eventually (too, some builtins here)
-	// type pair struct {
-	// 	n string
-	// 	m string
-	// 	f func(name string, m model.LLM) (agent.Agent, error)
-	// }
+func (R *Runtime) initModels() (err error) {
+	for _, m := range R.Agentic.Models {
+		R.Models[m.Name], err = models.Gemini(R.Ctx, m.Id)
+		if err != nil {
+			return fmt.Errorf("while init'n model %q: %w", m, err)
+		}
+	}
 
-	// A := []pair{
-	// 	{n: "coding-lite", m: "gemini-2.5-flash-lite", f: func(name string, m model.LLM) (agent.Agent, error) {
-	// 		return agents.CodingAgent(name, m, false)
-	// 	}},
-	// 	{n: "coding-fast", m: "gemini-2.5-flash", f: func(name string, m model.LLM) (agent.Agent, error) {
-	// 		return agents.CodingAgent(name, m, false)
-	// 	}},
-	// 	{n: "coding-norm", m: "gemini-2.5-pro", f: func(name string, m model.LLM) (agent.Agent, error) {
-	// 		return agents.CodingAgent(name, m, false)
-	// 	}},
-	// 	{n: "coding-hard", m: "gemini-3-pro-preview", f: func(name string, m model.LLM) (agent.Agent, error) {
-	// 		return agents.CodingAgent(name, m, false)
-	// 	}},
-
-	// 	{n: "coding-ro-lite", m: "gemini-2.5-flash-lite", f: func(name string, m model.LLM) (agent.Agent, error) {
-	// 		return agents.CodingAgent(name, m, true)
-	// 	}},
-	// 	{n: "coding-ro-fast", m: "gemini-2.5-flash", f: func(name string, m model.LLM) (agent.Agent, error) {
-	// 		return agents.CodingAgent(name, m, true)
-	// 	}},
-	// 	{n: "coding-ro-norm", m: "gemini-2.5-pro", f: func(name string, m model.LLM) (agent.Agent, error) {
-	// 		return agents.CodingAgent(name, m, true)
-	// 	}},
-	// 	{n: "coding-ro-hard", m: "gemini-3-pro-preview", f: func(name string, m model.LLM) (agent.Agent, error) {
-	// 		return agents.CodingAgent(name, m, true)
-	// 	}},
-
-	// 	{n: "general-lite", m: "gemini-2.5-flash-lite", f: agents.GeneralAgent},
-	// 	{n: "general-fast", m: "gemini-2.5-flash", f: agents.GeneralAgent},
-	// 	{n: "general-norm", m: "gemini-2.5-pro", f: agents.GeneralAgent},
-	// 	{n: "general-hard", m: "gemini-3-pro-preview", f: agents.GeneralAgent},
-
-	// 	{n: "basic-lite", m: "gemini-2.5-flash-lite", f: agents.BasicAgent},
-	// 	{n: "basic-fast", m: "gemini-2.5-flash", f: agents.BasicAgent},
-	// 	{n: "basic-norm", m: "gemini-2.5-pro", f: agents.BasicAgent},
-	// 	{n: "basic-hard", m: "gemini-3-pro-preview", f: agents.BasicAgent},
-
-	// 	{n: "filesys-lite", m: "gemini-2.5-flash-lite", f: agents.ReadWriteFilesysAgent},
-	// 	{n: "filesys-fast", m: "gemini-2.5-flash", f: agents.ReadWriteFilesysAgent},
-	// 	{n: "filesys-norm", m: "gemini-2.5-pro", f: agents.ReadWriteFilesysAgent},
-	// 	{n: "filesys-hard", m: "gemini-3-pro-preview", f: agents.ReadWriteFilesysAgent},
-	// }
-
-	// // now create
-	// for _, a := range A {
-	// 	g, err := a.f(a.m, R.Models[a.m])
-	// 	if err != nil {
-	// 		return fmt.Errorf("while init'n agent %q: %w", a.n, err)
-	// 	}
-	// 	R.Agents[a.n] = g
-	// }
-
-	// fmt.Println("initAgents.AgenticCUE")
-
+	return nil
 }
 
 func (R *Runtime) initServices() error {
@@ -267,24 +185,6 @@ func (R *Runtime) initServices() error {
 
 	R.S = s
 	// R.S = session.InMemoryService()
-
-	return nil
-}
-
-func (R *Runtime) initRunners() error {
-	for k, v := range R.Agents {
-		r, err := runner.New(runner.Config{
-			AppName:         "veg",
-			Agent:           v,
-			SessionService:  R.S,
-			ArtifactService: R.A,
-			MemoryService:   R.M,
-		})
-		if err != nil {
-			return fmt.Errorf("while init'n runner %q: %w", k, err)
-		}
-		R.Runners[k] = r
-	}
 
 	return nil
 }

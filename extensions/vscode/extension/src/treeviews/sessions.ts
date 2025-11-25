@@ -22,10 +22,7 @@ export function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('veg.sessions.chat', (node: Session) => {
 		vscode.commands.executeCommand('veg-chat-webview.focus')
 		const payload = { sid: node.sid }
-		setTimeout(() => {
-			extensionEmitter.fire({ type: "chat.loadSession", payload })
-			sendMessage({ type: "session.get", payload })
-		}, 1000)
+		extensionEmitter.fire({ type: "chat.loadSession", payload })
 	});
 	vscode.commands.registerCommand('veg.sessions.edit', (node: Session) => vscode.window.showInformationMessage(`Successfully called edit entry on ${node.label}.`));
 	vscode.commands.registerCommand('veg.sessions.delete', (node: Session) => {

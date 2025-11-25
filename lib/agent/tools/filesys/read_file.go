@@ -20,14 +20,13 @@ type ReadFileArgs struct {
 	Path string `json:"path"` // path to a file
 }
 type ReadFileResult struct {
-	Status       string `json:"status"`                  // "ok" or "error"
-	Path         string `json:"path"`                    // path to a file
-	Content      string `json:"content,omitempty"`       // content of the file
-	ErrorMessage string `json:"error_message,omitempty"` // an error message
+	Path   string `json:"path"`            // path to a file
+	Status string `json:"status"`          // "ok" or "error"
+	Error  string `json:"error,omitempty"` // an error message
 }
 
-func readFileError(err error) ReadFileResult {
-	return ReadFileResult{Status: "error", ErrorMessage: err.Error()}
+func readFileError(path string, err error) ReadFileResult {
+	return ReadFileResult{Path: path, Status: "error", Error: err.Error()}
 }
 
 func NewReadFile() (tool.Tool, error) {
@@ -45,23 +44,24 @@ func NewReadFile() (tool.Tool, error) {
 		env, ok := state["env"].(map[string]any)
 		if !ok {
 			err := fmt.Errorf("while finding env state")
-			return readFileError(err), err
+			return readFileError(input.Path, err), err
 		}
 		// get the workspace dir from env
 		wsDir, ok := env["workspaceDir"].(string)
 		if !ok {
 			err := fmt.Errorf("while finding workspace directory")
-			return readFileError(err), err
+			return readFileError(input.Path, err), err
 		}
 
 		// read file relative to workspace dir
 		c, err := os.ReadFile(filepath.Join(wsDir, input.Path))
 		if err != nil {
 			fmt.Println("while reading from filesystem:", err)
-			return readFileError(err), err
+			return readFileError(input.Path, err), err
 		}
+		ctx.State().Set("fs:file:"+input.Path, string(c))
 		// return the result
-		return ReadFileResult{Content: string(c), Status: "ok"}, nil
+		return ReadFileResult{Path: input.Path, Status: "ok"}, nil
 	}
 	return functiontool.New(functiontool.Config{
 		Name:        ReadFileTool,

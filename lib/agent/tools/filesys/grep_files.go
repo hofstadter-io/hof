@@ -20,9 +20,9 @@ type GrepFilesResult struct {
 	ErrorMessage string `json:"error_message,omitempty"`
 }
 
-func NewGrepFiles() (tool.Tool, error) {
+func NewGrepRegexp() (tool.Tool, error) {
 	handler := func(ctx tool.Context, input GrepFilesArgs) (GrepFilesResult, error) {
-		fmt.Println("grep_files.input:", input)
+		fmt.Println("grep_regexp.input:", input)
 		var r GrepFilesResult
 
 		// TODO
@@ -31,7 +31,7 @@ func NewGrepFiles() (tool.Tool, error) {
 		// - generally validation since we are effectively running on the user machine
 
 		scriptFmt := `
-		rg --sort=path -e '%s' %s
+		rg -Rn --sort=path -e '%s' %s
 		`
 		// -B%s -A%d  // for extra lines before / after
 		// limit to a set of globs?
@@ -54,12 +54,12 @@ func NewGrepFiles() (tool.Tool, error) {
 		return r, nil
 	}
 	return functiontool.New(functiontool.Config{
-		Name:        "grep_files",
-		Description: GrepFilesDescription,
+		Name:        "grep_regexp",
+		Description: GrepRegexpDescription,
 	}, handler)
 }
 
-const GrepFilesDescription = `
+const GrepRegexpDescription = `
 Greps files for a regular expression from a path or the current directory if not set.
 Matches are returned using this format:
 

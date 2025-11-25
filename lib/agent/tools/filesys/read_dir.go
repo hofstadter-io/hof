@@ -15,8 +15,9 @@ type ReadDirArgs struct {
 	Path string `json:"path"` // path to a directory
 }
 type ReadDirResult struct {
-	Listing string `json:"listing"`
-	Error   string `json:"error,omitempty"`
+	Path   string `json:"path"`   // path to a directory
+	Status string `json:"status"` // "ok" or "error"
+	Error  string `json:"error,omitempty"`
 }
 
 func NewReadDir() (tool.Tool, error) {
@@ -26,17 +27,17 @@ func NewReadDir() (tool.Tool, error) {
 		env, ok := state["env"].(map[string]any)
 		if !ok {
 			err := fmt.Errorf("failed to get env")
-			return ReadDirResult{Error: err.Error()}, err
+			return ReadDirResult{Path: input.Path, Status: "error", Error: err.Error()}, err
 		}
 		wsDir, ok := env["workspaceDir"].(string)
 		if !ok {
 			err := fmt.Errorf("failed to get wsDir")
-			return ReadDirResult{Error: err.Error()}, err
+			return ReadDirResult{Path: input.Path, Status: "error", Error: err.Error()}, err
 		}
 
 		entries, err := os.ReadDir(filepath.Join(wsDir, input.Path))
 		if err != nil {
-			return ReadDirResult{Error: err.Error()}, err
+			return ReadDirResult{Path: input.Path, Status: "error", Error: err.Error()}, err
 		}
 
 		b := new(strings.Builder)
@@ -44,7 +45,8 @@ func NewReadDir() (tool.Tool, error) {
 			fmt.Fprintln(b, e.Name())
 		}
 
-		return ReadDirResult{Listing: b.String()}, nil
+		ctx.State().Set("fs:dir:"+input.Path, b.String())
+		return ReadDirResult{Status: "ok", Path: input.Path}, nil
 	}
 	return functiontool.New(functiontool.Config{
 		Name:        "read_dir",

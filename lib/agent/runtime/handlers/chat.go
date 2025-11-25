@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/hofstadter-io/hof/lib/agent/agents"
 	"github.com/hofstadter-io/hof/lib/agent/runtime"
 	"google.golang.org/adk/agent"
+	"google.golang.org/adk/runner"
 	"google.golang.org/genai"
 )
 
@@ -22,6 +24,7 @@ type ChatResponsePayload struct {
 }
 
 func chatUserMessage(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
+
 	var p ChatPayload
 	if err := json.Unmarshal(m.Payload, &p); err != nil {
 		c.Mail("chat.event.error", map[string]any{
@@ -37,24 +40,56 @@ func chatUserMessage(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 
 	log.Println("userMsg", userMsg, c.State)
 
-	// do we construct agents/tools on demand, so they can have access to more scope?
-	// how do we get the write_file to send the contents to vs code instead of writing to disk?
+	// TODO, attach this to the session or client
 
-	// TODO, be better about validating inputs
-	R, ok := r.Runners[p.Agent]
-	if !ok {
+	// build the agent on demand
+	a, err := agents.BuildAgent(r.Agentic, p.Agent, r.Models)
+	if err != nil {
 		c.Mail("chat.event.error", map[string]any{
-			"agent":         p.Agent,
-			"error_message": "agent not found",
+			"status":        "error",
+			"error_message": fmt.Errorf("while building agent %q: %w", p.Agent, err),
+		})
+		return
+	}
+
+	// TODO, also load up instruction files
+	// AGENTS.md, CLAUDE.md, .github/...
+	// and all of their associated skills, subagents, and the like
+
+	// we construct the runner on demand
+	// ...should we also for the agents/tools
+	// ...so they can have access to more scope?
+	// ...how do we get the write_file to send the contents to vs code instead of writing to disk?
+	// ...perhaps through artifacts
+	R, err := runner.New(runner.Config{
+		AppName:         "veg",
+		Agent:           a,
+		SessionService:  r.S,
+		ArtifactService: r.A,
+		MemoryService:   r.M,
+	})
+	if err != nil {
+		c.Mail("chat.event.error", map[string]any{
+			"status":        "error",
+			"error_message": fmt.Errorf("while initializing runner for %q: %w", a.Name(), err),
 		})
 		return
 	}
 
 	// streamingMode := agent.StreamingModeSSE
 	streamingMode := agent.StreamingModeNone
-	for event := range R.Run(r.Ctx, c.User, p.Sid, userMsg, agent.RunConfig{
+	for event, err := range R.Run(r.Ctx, c.User, p.Sid, userMsg, agent.RunConfig{
 		StreamingMode: streamingMode,
 	}) {
+		if err != nil {
+			fmt.Println("ERROR:", err)
+			c.Mail("chat.event.error", map[string]any{
+				"event":         event,
+				"status":        "error",
+				"error_message": fmt.Errorf("while running agent %q: %w", a.Name(), err).Error(),
+			})
+			continue
+		}
 		log.Printf("chat.event: %v\n", event)
 		c.Mail("chat.event", event)
 	}

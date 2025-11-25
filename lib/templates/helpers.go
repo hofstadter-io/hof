@@ -26,13 +26,14 @@ func (T *Template) AddGolangHelpers() {
 
 	// chat helpers
 
-	chatMap := template.FuncMap{
-		"chat":   T.Helper_chat(),
-		"gen":    T.Helper_gen(),
-		"render": T.Helper_render(),
-	}
+	// let's disable this since we have agentic now
+	// chatMap := template.FuncMap{
+	// 	"chat":   T.Helper_chat(),
+	// 	"gen":    T.Helper_gen(),
+	// 	"render": T.Helper_render(),
+	// }
 
-	T.T = T.T.Funcs(chatMap)
+	// T.T = T.T.Funcs(chatMap)
 }
 
 func hchat(msg string, args map[string]any) (string, error) {

@@ -2,9 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 
 	"github.com/hofstadter-io/hof/lib/agent/runtime"
+	"github.com/hofstadter-io/hof/lib/cuetils"
 )
 
 // TODO, we need a good list of message types
@@ -18,6 +20,7 @@ func SetupHandlers(r *runtime.Runtime) {
 
 	// informational handlers
 	r.Handlers["requestSync"] = broadcastSync
+	r.Handlers["config.reload"] = reloadConfig
 	r.Handlers["models.list"] = modelsList
 	r.Handlers["agents.list"] = agentsList
 
@@ -77,12 +80,26 @@ func hello(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 }
 
 func broadcastSync(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
+	reloadConfig(r, c, m)
 	sessionGet(r, c, m)
 	sessionList(r, c, m)
-	modelsList(r, c, m)
-	agentsList(r, c, m)
 
 	// runtime (runners?)
 	// memory
 	// artifacts
+}
+
+func reloadConfig(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
+	// todo, this should happen on a per-client/user basis
+	var err error
+	err = r.ReadConfig()
+	if err != nil {
+		err = cuetils.ExpandCueError(err)
+		c.Mail("config.reload.error", map[string]any{
+			"status":        "error",
+			"error_message": fmt.Errorf("while reloading config: %w", err),
+		})
+	}
+	modelsList(r, c, m)
+	agentsList(r, c, m)
 }

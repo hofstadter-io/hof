@@ -1,3 +1,6 @@
+import { useState } from 'react'
+import { vscodeApi } from '@/vscodeApi.js'
+
 import {
   Select,
   SelectContent,
@@ -15,20 +18,86 @@ export const UserInput = ({
   usage,
   session,
   chatState,
-  handleInput,
-  handleSelectModel,
-  handleSelectAgent,
   handleSend,
 }:{
   sid: string,
   usage: any,
   session: any,
   chatState: any,
-  handleInput: (input: string) => void,
-  handleSelectModel: (input: string) => void,
-  handleSelectAgent: (input: string) => void,
-  handleSend: () => void,
+  handleSend: (userInput: any) => void,
 }) => {
+  const [userInput, setUserInput] = useState<any>({ 
+    agent: chatState?.agent || "general_assistant",
+    model: chatState?.model || "gemini-2.5-flash",
+    text:  chatState?.input || "",
+  })
+  const inputReady: boolean = (userInput?.text as string).startsWith("/") ||
+                              (userInput?.agent !== "" && 
+                               userInput?.model !== "" &&
+                               userInput?.text  !== "" )
+
+  const handleInput = (input: string) => {
+    // console.log("handleInput")
+    setUserInput((prev: any) => {
+      const next = {
+        ...prev,
+        text: input,
+      }
+      const s = vscodeApi.getState()
+      vscodeApi.setState({
+        ...s,
+        userInput: next,
+      })
+      return next
+    })
+  }
+
+  const handleSelectModel = (input: string) => {
+    setUserInput((prev: any) => {
+      const s = vscodeApi.getState()
+      const next = {
+        ...prev,
+        model: input,
+      }
+      vscodeApi.setState({
+        ...s,
+        userInput: next,
+        chatState: {
+          ...s.chatState,
+          model: input,
+        },
+      })
+      return next
+    })
+  }
+
+  const handleSelectAgent = (input: string) => {
+    setUserInput((prev: any) => {
+      const s = vscodeApi.getState()
+      const next = {
+        ...prev,
+        agent: input,
+      }
+      vscodeApi.setState({
+        ...s,
+        userInput: next,
+        chatState: {
+          ...s.chatState,
+          agent: input,
+        },
+      })
+      return next
+    })
+  }
+
+  const doSend = (input: any) => {
+    handleSend(input);
+    setUserInput({
+      ...input,
+      text: "",
+    })
+  }
+
 
   return (
     <div 
@@ -42,26 +111,35 @@ export const UserInput = ({
       <textarea
         className="rounded-lg p-2 text-md m-2 bg-slate-700/80"
         rows={5}
-        value={chatState.input}
-        onChange={(e) => handleInput(e.target.value)}
+        value={userInput.text}
+        onChange={(e) => {
+          // console.log("textarea", e)
+          handleInput(e.target.value)
+        }}
         onKeyDown={(e) => {
           if (e.metaKey && e.key === 'Enter') {
-            handleSend();
+            doSend(userInput);
           }
         }}
         placeholder="Type a message..."
       />
 
-      { chatState?.error && <span
+      { userInput?.error && <span
         className="p-2 w-full border rounded bg-red-800 font-heavy"
-      >{chatState.error}</span>}
+      >{userInput.error}</span>}
 
       <div className="flex gap-2 m-3">
-        <AgentSelect chatState={chatState} handleSelect={handleSelectAgent} />
-        <ModelSelect chatState={chatState} handleSelect={handleSelectModel} />
+        <AgentSelect agent={userInput?.agent} agents={chatState?.agents} handleSelect={handleSelectAgent} />
+        <ModelSelect model={userInput?.model} models={chatState?.models} handleSelect={handleSelectModel} />
         <button 
-          onClick={handleSend}
-          className="w-32 p-2 rounded-lg border border-lime-600 bg-slate-800 hover:bg-slate-600"
+          disabled={!inputReady}
+          onClick={() => doSend(userInput)}
+          className={cn(
+            "w-32 p-2 rounded-lg border",
+            inputReady
+            ? "border-2 border-sky-500 bg-slate-700 hover:bg-slate-600"
+            : "border-gray-600 bg-slate-800",
+          )}
         >Send</button>
       </div>
     </div>
@@ -69,18 +147,20 @@ export const UserInput = ({
 }
 
 // @ts-ignore
-const AgentSelect = ({chatState, handleSelect}: {chatState: any, handleSelect:(s: string)=>void}) => {
-  const agents: string[] = []
-  for (const [key, _] of Object.entries(chatState?.agents)) {
-    agents.push(key)
+const AgentSelect = ({agent, agents, handleSelect}: {agent: string, agents: any, handleSelect:(s: string)=>void}) => {
+  const as: string[] = []
+  if (agents) {
+    for (const [key, _] of Object.entries(agents)) {
+      as.push(key)
+    }
   }
-  console.log("chat.input.agents", agents)
+  // console.log("chat.input.agents", agents)
 
   // const agents = ["coding", "coding-ro", "basic", "general", "filesys"]
 
   return (
     <Select 
-      defaultValue={chatState?.agent}
+      defaultValue={agent}
       onValueChange={(v: string) => {
         handleSelect(v)
       }}
@@ -89,7 +169,7 @@ const AgentSelect = ({chatState, handleSelect}: {chatState: any, handleSelect:(s
         <SelectValue placeholder="Select an agent" />
       </SelectTrigger>
       <SelectContent>
-        {agents.map((v: any) => {
+        {as.map((v: any) => {
           const val = `${v}`
           return (
             <SelectItem key={val} value={val}
@@ -103,18 +183,18 @@ const AgentSelect = ({chatState, handleSelect}: {chatState: any, handleSelect:(s
 }
 
 // @ts-ignore
-const ModelSelect = ({chatState, handleSelect}: {chatState: any, handleSelect:(s: string)=>void}) => {
+const ModelSelect = ({model, models, handleSelect}: {model: string, models: any, handleSelect:(s: string)=>void}) => {
 
-  const models = [
-    "gemini-2.5-flash-lite",
-    "gemini-2.5-flash",
-    "gemini-2.5-pro",
-    "gemini-3.0-pro-preview",
-  ]
+  const ms: string[] = []
+  if (models) {
+    for (const [key, _] of Object.entries(models)) {
+      ms.push(key)
+    }
+  }
 
   return (
     <Select 
-      defaultValue={chatState?.model}
+      defaultValue={model || "gemini-2.5-flash"}
       onValueChange={(v: string) => {
         handleSelect(v)
       }}
@@ -123,7 +203,7 @@ const ModelSelect = ({chatState, handleSelect}: {chatState: any, handleSelect:(s
         <SelectValue placeholder="Select a model" />
       </SelectTrigger>
       <SelectContent>
-        {models.map((v: any) => {
+        {ms.map((v: any) => {
           const val = `${v}`
           return (
             <SelectItem key={val} value={val}

@@ -5,18 +5,19 @@ import { EventDetails, JsonInfo, UsageInfo, TimeInfo } from "./Info";
 import { FunctionCall, FunctionResp } from './FunctionCalls'
 
 export const Events = ({
-  session,
+  events,
   messagesEndRef
 }:{
-  session: any,
-  messagesEndRef: any,
+  events: any[],
+  messagesEndRef?: any,
 }) => {
-  if (!session?.events?.length) {
+  console.log("Events", events, messagesEndRef)
+  if (!events?.length) {
     return null
   }
   return (
     <div className="flex-grow mx-2 overflow-y-auto">
-      {session?.events?.map((e: any) => {
+      {events?.map((e: any) => {
         if (!(e?.Content)) {
           return null
         }

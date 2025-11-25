@@ -2,20 +2,29 @@ package agents
 
 import (
 	"fmt"
+	"maps"
 	"strings"
 
 	"cuelang.org/go/cue/cuecontext"
 	"cuelang.org/go/cue/load"
-	"github.com/hofstadter-io/hof/lib/agent/tools/filesys"
 	"google.golang.org/adk/agent"
 	"google.golang.org/adk/agent/llmagent"
 	"google.golang.org/adk/model"
 	"google.golang.org/adk/tool"
 	"google.golang.org/adk/tool/agenttool"
+	"google.golang.org/genai"
+
+	"github.com/hofstadter-io/hof/lib/agent/tools/filesys"
+	"github.com/hofstadter-io/hof/lib/agent/tools/meta"
+	"github.com/hofstadter-io/hof/lib/templates"
 )
 
 type Config struct {
+	Models map[string]Model `json:"models"`
 	Agents map[string]Agent `json:"agents"`
+	Tools  map[string]Tool  `json:"tools"`
+
+	Instructions map[string]map[string]string `json:"instructions"`
 }
 
 type Agent struct {
@@ -28,63 +37,90 @@ type Agent struct {
 	SubAgents []string `json:"subagents"`
 }
 
+type Model struct {
+	Name string `json:"name"`
+	Id   string `json:"id"`
+}
+
+type Tool struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Instruction string `json:"instruction"`
+}
+
 // this code constructs one or more agents from a CUE value
 // to build up an agentic system
-func AgenticCUE(agentDir string, models map[string]model.LLM) ([]agent.Agent, error) {
+func AgenticCUE(agentDir string, models map[string]model.LLM) (config Config, err error) {
 	// loadup and validate our agentic CUE
 	ctx := cuecontext.New()
 	entrypoints := []string{agentDir}
 	bis := load.Instances(entrypoints, nil)
 	bi := bis[0]
 	if bi.Err != nil {
-		return nil, fmt.Errorf("while loading agentic CUE: %w", bi.Err)
+		return config, fmt.Errorf("while loading agentic CUE: %w", bi.Err)
 	}
 	val := ctx.BuildInstance(bi)
 	if val.Err() != nil {
-		return nil, fmt.Errorf("while building agentic CUE: %w", val.Err())
+		return config, fmt.Errorf("while building agentic CUE: %w", val.Err())
 	}
 
 	if err := val.Validate(); err != nil {
-		return nil, fmt.Errorf("while validating agentic CUE: %w", err)
+		return config, fmt.Errorf("while validating agentic CUE: %w", err)
 	}
 
-	fmt.Println("AgenticCUE.value:", val, "\n\n")
+	// fmt.Println("AgenticCUE.value:", val, "\n\n")
 
 	// decode the agentic CUE into a struct
-	var config Config
-	err := val.Decode(&config)
+	err = val.Decode(&config)
 	if err != nil {
-		return nil, fmt.Errorf("while decoding agentic CUE: %w", err)
+		return config, fmt.Errorf("while decoding agentic CUE: %w", err)
 	}
 	// fmt.Println("AgenticCUE.config:", config)
 
-	agents := []agent.Agent{}
-	for _, a := range config.Agents {
-		A, err := buildAgent(config, a.Name, models)
-		if err != nil {
-			return nil, fmt.Errorf("while building agent %q: %w", a.Name, err)
-		}
-		agents = append(agents, A)
-	}
-
-	return agents, nil
+	return config, nil
 }
 
-func buildAgent(config Config, agentName string, models map[string]model.LLM) (agent.Agent, error) {
-	agent := config.Agents[agentName]
-	model, ok := models[agent.Model]
+func BuildAgent(config Config, agentName string, models map[string]model.LLM) (agent.Agent, error) {
+	agt := config.Agents[agentName]
+	mdl, ok := models[agt.Model]
 	if !ok {
-		return nil, fmt.Errorf("unknown model %q in agent %q", agent.Model, agent.Name)
+		return nil, fmt.Errorf("unknown model %q in agent %q", agt.Model, agt.Name)
 	}
 
 	c := llmagent.Config{
-		Name:        agent.Name,
-		Model:       model,
-		Description: agent.Description,
-		Instruction: agent.Instruction,
+		Name:        agt.Name,
+		Model:       mdl,
+		Description: agt.Description,
+		// Instruction:         agent.Instruction,
+		InstructionProvider: renderInstructions(agt),
 	}
 
-	for _, t := range agent.Tools {
+	ts, err := buildTools(config, agt, models)
+	if err != nil {
+		return nil, fmt.Errorf("while building tools for %q: %w", agt.Name, err)
+	}
+	c.Tools = ts
+
+	addCallbacks(&c)
+
+	for _, sa := range agt.SubAgents {
+		if subagent, found := strings.CutPrefix(sa, "@"); found {
+			A, aerr := BuildAgent(config, subagent, models)
+			if aerr != nil {
+				return nil, fmt.Errorf("error creating agent subagent %q in agent %q", subagent, agt.Name)
+			}
+			c.SubAgents = append(c.SubAgents, A)
+		} else {
+			return nil, fmt.Errorf("unknown subagent %q in agent %q", sa, agt.Name)
+		}
+	}
+
+	return llmagent.New(c)
+}
+
+func buildTools(cfg Config, agt Agent, models map[string]model.LLM) ([]tool.Tool, error) {
+	var ts []tool.Tool
+	for _, t := range agt.Tools {
 		var T tool.Tool
 		var err error
 		switch t {
@@ -95,7 +131,7 @@ func buildAgent(config Config, agentName string, models map[string]model.LLM) (a
 			T, err = filesys.NewReadDir()
 
 		case "grep_regexp":
-			T, err = filesys.NewGrepFiles()
+			T, err = filesys.NewGrepRegexp()
 
 		case "read_file":
 			T, err = filesys.NewReadFile()
@@ -103,37 +139,144 @@ func buildAgent(config Config, agentName string, models map[string]model.LLM) (a
 		case "write_file":
 			T, err = filesys.NewWriteFile()
 
+		case "cache_write":
+			T, err = meta.NewCacheWrite()
+		case "cache_remove":
+			T, err = meta.NewCacheRemove()
+		case "cache_file":
+			T, err = meta.NewCacheFile()
+		case "cache_dir":
+			T, err = meta.NewCacheDir()
+
 		default:
 			if agentAsTool, found := strings.CutPrefix(t, "@"); found {
-				A, aerr := buildAgent(config, agentAsTool, models)
+				A, aerr := BuildAgent(cfg, agentAsTool, models)
 				if aerr != nil {
-					return nil, fmt.Errorf("error creating agent tool %q in agent %q", t, agent.Name)
+					return nil, fmt.Errorf("error creating agent tool %q in agent %q", t, agt.Name)
 				}
 				T = agenttool.New(A, &agenttool.Config{
 					SkipSummarization: true,
 				})
 			} else {
-				return nil, fmt.Errorf("unknown tool %q in agent %q", t, agent.Name)
+				return nil, fmt.Errorf("unknown tool %q in agent %q", t, agt.Name)
 			}
 		}
 
 		if err != nil {
 			return nil, fmt.Errorf("while creating tool %s: %w", t, err)
 		}
-		c.Tools = append(c.Tools, T)
+		ts = append(ts, T)
+	}
+	return ts, nil
+}
+
+func addCallbacks(c *llmagent.Config) {
+	c.BeforeAgentCallbacks = []agent.BeforeAgentCallback{
+		func(ctx agent.CallbackContext) (*genai.Content, error) {
+			fmt.Printf("\nBAC.%s\n", ctx.AgentName())
+			return nil, nil
+		},
 	}
 
-	for _, sa := range agent.SubAgents {
-		if subagent, found := strings.CutPrefix(sa, "@"); found {
-			A, aerr := buildAgent(config, subagent, models)
-			if aerr != nil {
-				return nil, fmt.Errorf("error creating agent subagent %q in agent %q", subagent, agent.Name)
-			}
-			c.SubAgents = append(c.SubAgents, A)
-		} else {
-			return nil, fmt.Errorf("unknown subagent %q in agent %q", sa, agent.Name)
+	c.BeforeModelCallbacks = []llmagent.BeforeModelCallback{
+		func(ctx agent.CallbackContext, req *model.LLMRequest) (*model.LLMResponse, error) {
+			fmt.Printf("\nBMC.%s\n", ctx.AgentName())
+			// fmt.Printf("\nBMC.%s\n%#+v\n", ctx.AgentName(), *req)
+			// fmt.Println(req.Config.SystemInstruction.Parts[0].Text)
+			return nil, nil
+		},
+	}
+
+	c.BeforeToolCallbacks = []llmagent.BeforeToolCallback{
+		func(ctx tool.Context, t tool.Tool, args map[string]any) (map[string]any, error) {
+			fmt.Printf("\nBTC.%s.%s %v\n", ctx.AgentName(), t.Name(), args)
+			return nil, nil
+		},
+	}
+
+	//
+	// reverse order on the way out
+	//
+
+	c.AfterToolCallbacks = []llmagent.AfterToolCallback{
+		func(ctx tool.Context, t tool.Tool, args, result map[string]any, err error) (map[string]any, error) {
+			fmt.Printf("\nATC.%s.%s %v %v\n", ctx.AgentName(), t.Name(), args, result)
+			return result, err
+		},
+	}
+
+	c.AfterModelCallbacks = []llmagent.AfterModelCallback{
+		func(ctx agent.CallbackContext, res *model.LLMResponse, err error) (*model.LLMResponse, error) {
+			fmt.Printf("\nAMC.%s\n%#+v\n", ctx.AgentName(), *res)
+			return res, err
+		},
+	}
+
+	c.AfterAgentCallbacks = []agent.AfterAgentCallback{
+		func(ctx agent.CallbackContext) (*genai.Content, error) {
+			fmt.Printf("\nAAC.%s\n", ctx.AgentName())
+			return nil, nil
+		},
+	}
+}
+
+func renderInstructions(agt Agent) llmagent.InstructionProvider {
+	return func(ctx agent.ReadonlyContext) (string, error) {
+		// TODO, this last arg is annoying, should have two funcs
+		fmt.Println("renderInstructions.Agent", agt.Name)
+
+		// load instruction template
+		t, err := templates.CreateFromString(agt.Name, agt.Instruction, templates.Delims{})
+		if err != nil {
+			fmt.Println("ERROR.renderInstructions.Create", err)
+			return "", err
+		}
+
+		// gather data
+		data, err := prepareData(ctx)
+		if err != nil {
+			fmt.Println("ERROR.renderInstructions.Prepare", err)
+			return "", err
+		}
+
+		// render instruction
+		b, err := t.Render(data)
+		if err != nil {
+			fmt.Println("ERROR.renderInstructions.Render", err)
+			return "", err
+		}
+
+		s := string(b)
+		// fmt.Printf("renderInstructions.Final %s\n%s\n", agt.Name, s)
+
+		return s, nil
+	}
+}
+
+func prepareData(ctx agent.ReadonlyContext) (map[string]any, error) {
+	data := make(map[string]any)
+
+	// environment of the workspace / vscode
+	state := maps.Collect(ctx.ReadonlyState().All())
+	data["env"] = state["env"]
+
+	// imaginary FS
+	fs := make(map[string]any)
+	for k, v := range state {
+		if p, matched := strings.CutPrefix(k, "fs:"); matched {
+			fs[p] = v
 		}
 	}
+	data["fs"] = fs
 
-	return llmagent.New(c)
+	// agent cache
+	cache := make(map[string]any)
+	for k, v := range state {
+		if p, matched := strings.CutPrefix(k, fmt.Sprintf("cache:%s:", ctx.AgentName())); matched {
+			cache[p] = v
+		}
+	}
+	data["cache"] = cache
+
+	return data, nil
 }
