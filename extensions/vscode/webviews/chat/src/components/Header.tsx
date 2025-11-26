@@ -1,12 +1,8 @@
 import { useState } from "react"
-import {
-  Braces,
-} from 'lucide-react'
 
 import { cn } from "@/lib/utils"
 
-
-import { JsonInfo, UsageInfo } from './Info';
+import { Menu, JsonInfo, UsageInfo } from './Info';
 
 export const Header = ({
   sid,
@@ -25,18 +21,17 @@ export const Header = ({
 
   return (
 
-    <div className={cn("flex flex-col p-2", className)}>
-      <div className="text-md flex gap-2 justify-between border-b px-4 py-2">
+    <div className={cn("flex flex-col m-2 border-b", className)}>
+
+      <div className="flex justify-between items-center gap-2 p-2">
         <span>{session?.state?.title || sid}</span>
-        <div className="ml-auto flex justify-end items-center gap-2">
-          <UsageInfo usage={usage} size={16}/>
-          <Braces size={16} onClick={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            setHidden(!hidden)
-          }} />
-        </div>
+        <Menu sid={sid} hidden={hidden} setHidden={setHidden} />
       </div>
+
+      <div className="flex justify-between items-center gap-2 p-2">
+        <UsageInfo usage={usage} size={16}/>
+      </div>
+
       { !hidden && <JsonInfo data={{
         sid,
         usage,

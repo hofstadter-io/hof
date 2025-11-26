@@ -1,10 +1,15 @@
 import { useState } from "react"
+import { vscodeApi } from "@/vscodeApi";
 import {
   Braces,
   Circle,
   CircleQuestionMark,
   CircleCheckBig,
   CircleDashed,
+  Columns3,
+  GitFork,
+  GitPullRequestArrow,
+  RefreshCcw,
   GraduationCap,
   OctagonAlert,
   PanelLeftOpen,
@@ -124,4 +129,47 @@ export const UsageInfo = ({ evt, usage, size }: { evt?: any, usage?: any, size: 
     </div>
   )
    
+}
+
+export const Menu = ({
+  sid,
+  hidden,
+  setHidden,
+}:{
+  sid: string,
+  hidden: boolean,
+  setHidden: (prev: any) => any
+}) => {
+  return (
+    <div className="ml-auto flex justify-end items-center gap-2">
+      <Columns3 size={16}
+        onClick={() => {
+          vscodeApi.postMessage({
+            type: "session.diff",
+            payload: {
+              sid,
+            }
+          })
+        }}
+      />
+      <GitPullRequestArrow size={16} />
+      <GitFork size={16} />
+      <RefreshCcw size={16}
+        onClick={() => {
+          vscodeApi.postMessage({
+            type: "session.get",
+            payload: {
+              sid,
+            }
+          })
+        }}
+      />
+      <Braces size={16} onClick={(e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setHidden(!hidden)
+      }} />
+    </div>
+  )
+
 }

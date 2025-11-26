@@ -1,7 +1,7 @@
 import { useState } from "react"
 
 import { Markdown } from './Markdown'
-import { EventDetails, JsonInfo, UsageInfo, TimeInfo } from "./Info";
+import { EventDetails, JsonInfo, UsageInfo, TimeInfo, Menu } from "./Info";
 
 export const Events = ({
   events,

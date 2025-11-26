@@ -46,6 +46,13 @@ export function activate(context: vscode.ExtensionContext) {
 				sessions = e.payload
 				sessionsProvider.refresh()
 				break;
+			case "session.diff.resp":
+				 const patch = e.payload.patch
+				 vscode.workspace.openTextDocument({
+					content: patch,
+					language: "diff",
+				 })
+				 break;
 		}
 	});
 

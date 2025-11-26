@@ -36,6 +36,7 @@ func SetupHandlers(r *runtime.Runtime) {
 	r.Handlers["session.getStateAll"] = sessionGetStateAll
 	r.Handlers["session.state.get"] = sessionGetState
 	r.Handlers["session.state.put"] = sessionPutState
+	r.Handlers["session.diff"] = sessionFilesysDiff
 
 	//
 	// things we want to track from the frontend

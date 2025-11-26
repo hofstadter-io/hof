@@ -9,8 +9,10 @@ import (
 	"slices"
 
 	"dagger.io/dagger"
-	"github.com/hofstadter-io/hof/lib/agent/runtime"
 	"google.golang.org/adk/session"
+
+	"github.com/hofstadter-io/hof/lib/agent/runtime"
+	vegdagger "github.com/hofstadter-io/hof/lib/agent/runtime/dagger"
 )
 
 type SidRequest struct {
@@ -127,7 +129,8 @@ func sessionCreate(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 		log.Printf("Error in 'session.create' while loading dir into dagger: %v", err)
 		return
 	}
-	initialState["dagger"] = id
+	initialState["origfs"] = string(id)
+	initialState["dagger"] = string(id)
 
 	maps.Copy(initialState, c.State)
 	resp, err := r.S.Create(r.Ctx, &session.CreateRequest{
@@ -319,5 +322,77 @@ func sessionDelState(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 	}
 }
 
+type SessionFilesysDiffResponse struct {
+	Sid    string `json:"sid"`
+	Status string `json:"status,omitempty"`
+	Error  string `json:"error,omitempty"`
+}
+
 func sessionFilesysDiff(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
+	var p SidRequest
+	if err := json.Unmarshal(m.Payload, &p); err != nil {
+		log.Printf("Error unmarshaling 'session.diff' payload: %v", err)
+		return
+	}
+
+	// lookup session
+	resp, err := r.S.Get(r.Ctx, &session.GetRequest{
+		AppName:   r.AppName,
+		UserID:    c.User,
+		SessionID: p.Sid,
+	})
+	if err != nil {
+		log.Printf("session.diff: %v", err)
+		c.Mail("session.diff.resp", map[string]string{
+			"sid":   p.Sid,
+			"error": err.Error(),
+		})
+	}
+
+	origId, _ := resp.Session.State().Get("origfs")
+	dagId, _ := resp.Session.State().Get("dagger")
+	dag, _ := vegdagger.Get(r.Ctx)
+	origDir := dag.LoadDirectoryFromID(dagger.DirectoryID(origId.(string)))
+	dagDir := dag.LoadDirectoryFromID(dagger.DirectoryID(dagId.(string)))
+	changes := dagDir.Changes(origDir)
+	// fmt.Println("session.diff.debug", origId, dagId, maps.Collect(resp.Session.State().All()))
+
+	addpaths, err := changes.AddedPaths(r.Ctx)
+	if err != nil {
+		log.Printf("session.diff.resp: %v", err)
+		c.Mail("session.diff.resp", map[string]string{
+			"sid":   p.Sid,
+			"error": err.Error(),
+		})
+	}
+
+	modpaths, err := changes.ModifiedPaths(r.Ctx)
+	if err != nil {
+		log.Printf("session.diff.resp: %v", err)
+		c.Mail("session.diff.resp", map[string]string{
+			"sid":   p.Sid,
+			"error": err.Error(),
+		})
+	}
+
+	delpaths, err := changes.RemovedPaths(r.Ctx)
+	if err != nil {
+		log.Printf("session.diff.resp: %v", err)
+		c.Mail("session.diff.resp", map[string]string{
+			"sid":   p.Sid,
+			"error": err.Error(),
+		})
+	}
+
+	pfile := changes.AsPatch()
+	patch, err := pfile.Contents(r.Ctx)
+
+	c.Mail("session.diff.resp", map[string]any{
+		"sid":      p.Sid,
+		"addpaths": addpaths,
+		"modpaths": modpaths,
+		"delpaths": delpaths,
+		"patch":    patch,
+	})
+
 }
