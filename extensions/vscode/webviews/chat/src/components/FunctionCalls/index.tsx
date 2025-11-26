@@ -3,20 +3,37 @@ import { cn } from "@/lib/utils";
 import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter'
 import {vscDarkPlus} from 'react-syntax-highlighter/dist/esm/styles/prism'
 
-import { CopyButton } from './Markdown'
+import { CopyButton } from '../Markdown'
 
-import { JsonInfo, UsageInfo, TimeInfo } from "./Info";
+import { JsonInfo, UsageInfo, TimeInfo } from "../Info";
 
 import {
   Braces,
   FileDiff,
 } from 'lucide-react'
 
+// change this to just the part?
 export const FunctionCall = ({evt}:{evt: any}) => {
   const [hidden, setHidden] = useState(true);
-  // console.log("FunctionCall", evt)
+  console.log("FunctionCall", evt)
   const msg = evt.Content.parts[0]
-  const fn = msg.functionCall.name
+  const fn = msg.functionCall.name as string
+
+  const f2NameArgs: Record<string,string[]> = {
+    "cache_file": ["path"],
+    "cache_dir": ["path"],
+    "cache_write": ["key"],
+    "cache_remove": ["key"],
+    "cache_glob": ["path", "regexp"],
+
+    // legacy
+    "read_file": ["path"],
+    "read_dir":  ["path"],
+    "tree_dir": ["path"],
+    "write_file": ["path"],
+  }
+
+  const fnArgs = f2NameArgs[fn]
 
   return (
     <div className="flex flex-col text-xs mt-2 mr-16 py-1 px-2 bg-green-700/80 rounded-t">
@@ -28,14 +45,11 @@ export const FunctionCall = ({evt}:{evt: any}) => {
           setHidden(!hidden)
         }} />
         <div className="ml-auto">
-          { fn === "read_file" && <NamePathCall evt={evt}/> }
-          { fn === "read_dir" && <NamePathCall evt={evt}/> }
-          { fn === "tree_dir" && <NamePathCall evt={evt}/> }
-          { fn === "write_file" && <NamePathCall evt={evt}/> }
-          { fn === "cache_file" && <NamePathCall evt={evt}/> }
-          { fn === "cache_dir" && <NamePathCall evt={evt}/> }
-          { fn === "cache_write" && <NameKeyCall evt={evt}/> }
-          { fn === "cache_remove" && <NameKeyCall evt={evt}/> }
+        { fnArgs ?
+          <NameArgCall name={fn} args={fnArgs}/>
+          :
+          <NameArgCall name={fn} args={[]}/>
+        }
         </div>
       </div>
       <JsonInfo hidden={hidden} data={evt} />
@@ -43,22 +57,11 @@ export const FunctionCall = ({evt}:{evt: any}) => {
   )
 }
 
-const NamePathCall = ({evt}:{evt: any}) => {
-  const msg = evt.Content.parts[0]
+const NameArgCall = ({name, args}:{name: string, args: string[]}) => {
   return (
-    <div className="flex gap-2 overflow-x-auto">
-      <div className="font-bold">{msg.functionCall.name}</div>
-      <div className="monospace text-xs">{msg.functionCall.args.path}</div>
-    </div>
-  )
-}
-
-const NameKeyCall = ({evt}:{evt: any}) => {
-  const msg = evt.Content.parts[0]
-  return (
-    <div className="flex gap-2 overflow-x-auto">
-      <div className="font-bold">{msg.functionCall.name}</div>
-      <div className="monospace text-xs">{msg.functionCall.args.key}</div>
+    <div className="flex gap-2 overflow-x">
+      <div className="font-bold">{name}</div>
+      <div className="monospace text-xs">{args.join("")}</div>
     </div>
   )
 }
@@ -70,7 +73,7 @@ export const FunctionResp = ({evt}:{evt: any}) => {
   const msg = evt.Content.parts[0]
   const r = msg.functionResponse.response;
 
-  if (r.error && r.error !== "") {
+  if (r?.error && r?.error !== "") {
     return <FunctionRespError evt={evt} />
   }
 

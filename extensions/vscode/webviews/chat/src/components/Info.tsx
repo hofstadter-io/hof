@@ -5,6 +5,7 @@ import {
   CircleQuestionMark,
   CircleCheckBig,
   CircleDashed,
+  GraduationCap,
   OctagonAlert,
   PanelLeftOpen,
   PanelRightClose,
@@ -12,6 +13,7 @@ import {
   EqualApproximately,
   SquareSigma,
   DatabaseBackup,
+  MessageSquareMore,
 } from 'lucide-react'
 
 import JsonView from '@uiw/react-json-view';
@@ -34,7 +36,7 @@ export const EventDetails = ({evt}:{evt: any}) => {
           }} />
         </div>
       </div>
-      <JsonInfo hidden={hidden} data={evt} />
+      { !hidden && <JsonInfo data={evt} /> }
     </div>
   )
 }
@@ -87,27 +89,37 @@ export const UsageInfo = ({ evt, usage, size }: { evt?: any, usage?: any, size: 
   return (
     <div className="flex gap-2">
       <span className="flex gap-1">
-        <PanelRightClose size={size}/>
-        {u.promptTokenCount || "0"}
+        <DatabaseBackup size={size}/>
+        {u.cachedContentTokenCount || "0"}
+      </span>
+      <span className="flex gap-1">
+        <GraduationCap size={size}/>
+        {u.promptTokenCount - (u.cachedContentTokenCount || 0) || "0"}
       </span>
       <span className="flex gap-1">
         <BrainCircuit size={size}/>
         {u.thoughtsTokenCount || "0"}
       </span>
       <span className="flex gap-1">
-        <PanelLeftOpen size={size}/>
+        <MessageSquareMore size={size}/>
         {u.candidatesTokenCount || "0"}
       </span>
+
       <span>
         <EqualApproximately size={size}/>
       </span>
+
       <span className="flex gap-1">
-        {u.totalTokenCount || "0"}
-        <SquareSigma size={size}/>
+        <PanelRightClose size={size}/>
+        {u.promptTokenCount || "0"}
       </span>
       <span className="flex gap-1">
-        {u.cachedContentTokenCount || "0"}
-        <DatabaseBackup size={size}/>
+        <PanelLeftOpen size={size}/>
+        {u.candidatesTokenCount + u.thoughtsTokenCount || "0"}
+      </span>
+      <span className="flex gap-1">
+        <SquareSigma size={size}/>
+        {u.totalTokenCount || "0"}
       </span>
     </div>
   )

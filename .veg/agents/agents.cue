@@ -43,7 +43,7 @@ agents: coding_assistant: {
   description: string | *"A coding assistant for senior developers."
   instruction: string | *instructions.agents.coding_assistant
   tools: [
-    "@coding_context_provider",
+    // "@coding_context_provider",
     "cache_write",
     "cache_edit",
     "cache_remove",

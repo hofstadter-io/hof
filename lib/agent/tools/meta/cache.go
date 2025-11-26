@@ -15,22 +15,28 @@ import (
 type CacheRemoveArgs struct {
 	Key string `json:"key"` // path to a directory
 }
-type CacheRemoveResult struct {
+type CacheResult struct {
 	Key    string `json:"key"`    // path to a directory
 	Status string `json:"status"` // "ok" or "error"
 	Error  string `json:"error,omitempty"`
 }
 
+func cacheError(key string, err error) CacheResult {
+	fmt.Println("ERROR:", key, err)
+	return CacheResult{Key: key, Status: "error", Error: err.Error()}
+}
+
 func NewCacheRemove(name, description string) (tool.Tool, error) {
-	handler := func(ctx tool.Context, input CacheRemoveArgs) (CacheRemoveResult, error) {
+	handler := func(ctx tool.Context, input CacheRemoveArgs) (CacheResult, error) {
 		k := fmt.Sprintf("cache:%s:%s", ctx.AgentName(), input.Key)
-		ctx.Actions().StateDelta[k] = nil
-		// TODO, do we also need to set state so the next function sees it?
-		// err := ctx.State().Set(k, nil)
-		// if err != nil {
-		// 	return CacheRemoveResult{Status: "error", Key: input.Key, Error: err.Error()}, err
-		// }
-		return CacheRemoveResult{Status: "ok", Key: input.Key}, nil
+		// TODO, do we also need to set StateDelta so the next function sees it?
+		// ctx.Actions().StateDelta[k] = nil
+		fmt.Println("cache_remove:", k)
+		err := ctx.State().Set(k, nil)
+		if err != nil {
+			return cacheError(input.Key, err), err
+		}
+		return CacheResult{Status: "ok", Key: input.Key}, nil
 	}
 	return functiontool.New(functiontool.Config{
 		Name:        name,
@@ -42,19 +48,19 @@ type CacheWriteArgs struct {
 	Key   string `json:"key"`   // path to a directory
 	Value string `json:"value"` // path to a directory
 }
-type CacheWriteResult struct {
-	Key    string `json:"key"`    // path to a directory
-	Status string `json:"status"` // "ok" or "error"
-	Error  string `json:"error,omitempty"`
-}
 
 func NewCacheWrite(name, description string) (tool.Tool, error) {
-	handler := func(ctx tool.Context, input CacheWriteArgs) (CacheWriteResult, error) {
+	handler := func(ctx tool.Context, input CacheWriteArgs) (CacheResult, error) {
 		k := fmt.Sprintf("cache:%s:%s", ctx.AgentName(), input.Key)
 
-		ctx.Actions().StateDelta[k] = input.Value
+		// ctx.Actions().StateDelta[k] = input.Value
+		fmt.Println("cache_write:", k, len(input.Value))
+		err := ctx.State().Set(k, input.Value)
+		if err != nil {
+			return cacheError(input.Key, err), err
+		}
 
-		return CacheWriteResult{Status: "ok", Key: input.Key}, nil
+		return CacheResult{Status: "ok", Key: input.Key}, nil
 	}
 	return functiontool.New(functiontool.Config{
 		Name:        name,
@@ -71,12 +77,8 @@ type CacheFileResult struct {
 	Error  string `json:"error,omitempty"` // an error message
 }
 
-func cacheFileError(path string, err error) CacheFileResult {
-	return CacheFileResult{Path: path, Status: "error", Error: err.Error()}
-}
-
 func NewCacheFile(name, description string) (tool.Tool, error) {
-	handler := func(ctx tool.Context, input CacheFileArgs) (CacheFileResult, error) {
+	handler := func(ctx tool.Context, input CacheFileArgs) (CacheResult, error) {
 		// need to cascade where we look, from closest to outer most
 		// 1. state
 		// 2. artifacts
@@ -84,32 +86,36 @@ func NewCacheFile(name, description string) (tool.Tool, error) {
 		// same for most tools
 
 		state := maps.Collect(ctx.State().All())
-		fmt.Println("cache_file:", input.Path, state)
+		// fmt.Println("cache_file:", input.Path, state)
 
 		// get the env from state
 		env, ok := state["env"].(map[string]any)
 		if !ok {
 			err := fmt.Errorf("while finding env state")
-			return cacheFileError(input.Path, err), err
+			return cacheError(input.Path, err), err
 		}
 		// get the workspace dir from env
 		wsDir, ok := env["workspaceDir"].(string)
 		if !ok {
 			err := fmt.Errorf("while finding workspace directory")
-			return cacheFileError(input.Path, err), err
+			return cacheError(input.Path, err), err
 		}
 
 		// read file relative to workspace dir
 		c, err := os.ReadFile(filepath.Join(wsDir, input.Path))
 		if err != nil {
-			fmt.Println("while reading from filesystem:", err)
-			return cacheFileError(input.Path, err), err
+			return cacheError(input.Path, err), err
 		}
 		k := fmt.Sprintf("cache:%s:%s", ctx.AgentName(), input.Path)
-		ctx.Actions().StateDelta[k] = string(c)
-		// ctx.State().Set(k, string(c))
+		// ctx.Actions().StateDelta[k] = string(c)
+
+		fmt.Println("cache_file:", k)
+		err = ctx.State().Set(k, string(c))
+		if err != nil {
+			return cacheError(input.Path, err), err
+		}
 		// return the result
-		return CacheFileResult{Path: input.Path, Status: "ok"}, nil
+		return CacheResult{Key: input.Path, Status: "ok"}, nil
 	}
 	return functiontool.New(functiontool.Config{
 		Name:        name,
@@ -127,23 +133,23 @@ type CacheDirResult struct {
 }
 
 func NewCacheDir(name, description string) (tool.Tool, error) {
-	handler := func(ctx tool.Context, input CacheDirArgs) (CacheDirResult, error) {
+	handler := func(ctx tool.Context, input CacheDirArgs) (CacheResult, error) {
 		state := maps.Collect(ctx.State().All())
 		fmt.Println("cache_dir", input.Path, state)
 		env, ok := state["env"].(map[string]any)
 		if !ok {
 			err := fmt.Errorf("failed to get env")
-			return CacheDirResult{Path: input.Path, Status: "error", Error: err.Error()}, err
+			return cacheError(input.Path, err), err
 		}
 		wsDir, ok := env["workspaceDir"].(string)
 		if !ok {
 			err := fmt.Errorf("failed to get wsDir")
-			return CacheDirResult{Path: input.Path, Status: "error", Error: err.Error()}, err
+			return cacheError(input.Path, err), err
 		}
 
 		entries, err := os.ReadDir(filepath.Join(wsDir, input.Path))
 		if err != nil {
-			return CacheDirResult{Path: input.Path, Status: "error", Error: err.Error()}, err
+			return cacheError(input.Path, err), err
 		}
 
 		b := new(strings.Builder)
@@ -151,11 +157,15 @@ func NewCacheDir(name, description string) (tool.Tool, error) {
 			fmt.Fprintln(b, e.Name())
 		}
 
-		k := fmt.Sprintf("cache:%s:dir:%s", ctx.AgentName(), input.Path)
+		k := fmt.Sprintf("cache:%s:%s", ctx.AgentName(), input.Path)
 
-		ctx.Actions().StateDelta[k] = b.String()
-		// ctx.State().Set(k, b.String())
-		return CacheDirResult{Status: "ok", Path: input.Path}, nil
+		// ctx.Actions().StateDelta[k] = b.String()
+		fmt.Println("cache_dir:", k)
+		err = ctx.State().Set(k, b.String())
+		if err != nil {
+			return cacheError(input.Path, err), err
+		}
+		return CacheResult{Status: "ok", Key: input.Path}, nil
 	}
 	return functiontool.New(functiontool.Config{
 		Name:        name,
@@ -164,39 +174,29 @@ func NewCacheDir(name, description string) (tool.Tool, error) {
 }
 
 type CacheEditArgs struct {
-	Path string `json:"path"` // path to a file
-	Old  string `json:"old_string"`
-	New  string `json:"new_string"`
-	Exp  int    `json:"expected replacements"`
-}
-
-type CacheEditResult struct {
-	Path   string `json:"path"`            // path to a file
-	Status string `json:"status"`          // "ok" or "error"
-	Error  string `json:"error,omitempty"` // an error message
-}
-
-func cacheEditError(path string, err error) CacheEditResult {
-	return CacheEditResult{Path: path, Status: "error", Error: err.Error()}
+	Key string `json:"key"` // path to a file
+	Old string `json:"old_string"`
+	New string `json:"new_string"`
+	Exp int    `json:"expected replacements"` // defaults to 1 if not set
 }
 
 func NewCacheEdit(name, description string) (tool.Tool, error) {
-	handler := func(ctx tool.Context, input CacheEditArgs) (CacheEditResult, error) {
+	handler := func(ctx tool.Context, input CacheEditArgs) (CacheResult, error) {
 		// need to cascade where we look, from closest to outer most
 		// 1. state
 		// 2. filesystem (host vs ephemeral) (tied to terminal access/env)
 		// same for most tools
-		k := fmt.Sprintf("cache:%s:%s", ctx.AgentName(), input.Path)
+		k := fmt.Sprintf("cache:%s:%s", ctx.AgentName(), input.Key)
 
 		curr, err := ctx.State().Get(k)
 		if err != nil {
-			return cacheEditError(input.Path, err), err
+			return cacheError(input.Key, err), nil
 		}
 
 		content, ok := curr.(string)
 		if !ok {
-			err = fmt.Errorf("%s was not found in the cache", input.Path)
-			return cacheEditError(input.Path, err), err
+			err = fmt.Errorf("key %q was not found in the cache", input.Key)
+			return cacheError(input.Key, err), nil
 		}
 
 		count := input.Exp
@@ -205,15 +205,19 @@ func NewCacheEdit(name, description string) (tool.Tool, error) {
 		}
 		found := strings.Count(content, input.Old)
 		if found != count {
-			err = fmt.Errorf("while editing %s, expected %d matches, but found %d", input.Path, count, found)
-			return cacheEditError(input.Path, err), err
+			err = fmt.Errorf("while editing %q, expected %d matches, but found %d", input.Key, count, found)
+			return cacheError(input.Key, err), nil
 		}
 
 		next := strings.Replace(content, input.Old, input.New, count)
 
-		ctx.Actions().StateDelta[k] = next
+		// ctx.Actions().StateDelta[k] = next
+		err = ctx.State().Set(k, next)
+		if err != nil {
+			return cacheError(input.Key, err), nil
+		}
 		// return the result
-		return CacheEditResult{Path: input.Path, Status: "ok"}, nil
+		return CacheResult{Key: input.Key, Status: "ok"}, nil
 	}
 	return functiontool.New(functiontool.Config{
 		Name:        name,
@@ -244,7 +248,7 @@ func NewCacheGrep(name, description string) (tool.Tool, error) {
 		// 1. state
 		// 2. filesystem (host vs ephemeral) (tied to terminal access/env)
 		// same for most tools
-		k := fmt.Sprintf("cache:%s:grep:%s", ctx.AgentName(), input.Path)
+		k := fmt.Sprintf("cache:%s:%s", ctx.AgentName(), input.Path)
 
 		// TODO, is there a stdlib "clamp" function in Go?
 		if input.Around < 0 {
@@ -274,7 +278,7 @@ func NewCacheGrep(name, description string) (tool.Tool, error) {
 		}
 		out, err := cmd.CombinedOutput()
 		if err != nil {
-			err = fmt.Errorf("Error:\n%s\n\nOutput:\n%s\n\n", err, string(out))
+			err = fmt.Errorf("Error:\n%w\n\nOutput:\n%s\n\n", err, string(out))
 			return cacheGrepError(input.Path, err), err
 		}
 
@@ -284,8 +288,11 @@ func NewCacheGrep(name, description string) (tool.Tool, error) {
 			out = append(out, []byte("\n...\noutput is too long and has been truncated")...)
 		}
 
-		ctx.Actions().StateDelta[k] = string(out)
-		// ctx.State().Set(k, string(out))
+		// ctx.Actions().StateDelta[k] = string(out)
+		err = ctx.State().Set(k, string(out))
+		if err != nil {
+			return cacheGrepError(input.Path, err), err
+		}
 		// return the result
 		return CacheGrepResult{Path: input.Path, Status: "ok"}, nil
 	}

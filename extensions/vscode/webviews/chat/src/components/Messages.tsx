@@ -2,7 +2,6 @@ import { useState } from "react"
 
 import { Markdown } from './Markdown'
 import { EventDetails, JsonInfo, UsageInfo, TimeInfo } from "./Info";
-import { FunctionCall, FunctionResp } from './FunctionCalls'
 
 export const Events = ({
   events,
@@ -11,16 +10,16 @@ export const Events = ({
   events: any[],
   messagesEndRef?: any,
 }) => {
-  console.log("Events", events, messagesEndRef)
   if (!events?.length) {
     return null
   }
+  console.log("Events", events)
+  // todo, coalesce events here
+
   return (
     <div className="flex-grow mx-2 overflow-y-auto">
       {events?.map((e: any) => {
-        if (!(e?.Content)) {
-          return null
-        }
+        console.log("event.loop", e)
         return (
           <Event key={e.ID} evt={e}/>
         )
@@ -32,50 +31,124 @@ export const Events = ({
 
 
 export const Event = ({evt}: {evt: any}) => {
-  // console.log("session event:", evt)
-  const msg = evt.Content.parts[0]
-
   if (evt.Content.role === "user") {
-    if (msg.text) { return <UserMessage evt={evt}/> }
-    if (msg.functionResponse) { return <FunctionResp evt={evt}/> }
+    return <UserMessage evt={evt}/>
   }
-
   if (evt.Content.role === "model") {
-    // if (msg.text && evt.FinishReason === "STOP") { return <ModelMessage evt={evt}/> }
-    // if (msg.text && evt.FinishReason === "") { return <ThinkingMessage evt={evt}/> }
-    if (msg.functionCall) { return <FunctionCall evt={evt}/> }
-    if (msg.text) { return <ModelMessage evt={evt}/> }
+    return <ModelMessage evt={evt}/>
   }
+  return <UnknownEvent data={evt} msg="missing Content.role"/>
+}
 
+const UnknownEvent = ({msg, data}: {msg?: string, data: any}) => {
   return (
     <div className="flex flex-col text-sm my-2 mx-4 px-2 py-1 bg-red-800">
-      <div className="font-bold">unknown event type</div>
-      <JsonInfo data={evt} />
+      <div className="font-bold">unknown event</div>
+      <div className="font-thin">{msg}</div>
+      <JsonInfo data={data} />
     </div>
   )
 }
 
-export const UserMessage = ({evt}:{evt: any}) => {
+
+const UserMessage = ({evt}:{evt: any}) => {
+  if (!evt?.Content?.parts) {
+    return <UnknownEvent data={evt} msg="missing Content.parts"/>
+  }
   return (
     <div className="ml-16 p-2 rounded-lg bg-slate-800/80 flex flex-col">
-      <div className="p-2 dark:prose-invert prose-sm prose-stone">
-        <Markdown>{evt.Content.parts.map((p: any) => p.text).join("\n\n")}</Markdown>
-      </div>
+      { evt.Content.parts.map((p: any) => <MessagePart part={p} evt={evt}/>)}
       <EventDetails evt={evt} />
     </div>
   )
 }
 
-export const ModelMessage = ({evt}:{evt: any}) => {
+const ModelMessage = ({evt}:{evt: any}) => {
+  if (!evt?.Content?.parts) {
+    return <UnknownEvent data={evt} msg="missing Content.parts"/>
+  }
   return (
     <div className="mr-16 my-2 p-3 rounded-lg bg-stone-800/80 flex flex-col gap-1">
-      <div className="p-3 dark:prose-invert prose-sm prose-stone">
-        <Markdown>{evt.Content.parts.map((p: any) => p.text).join("\n\n")}</Markdown>
-      </div>
+      { evt.Content.parts.map((p: any, n: any) => <MessagePart key={`${evt.id}`} part={p} evt={evt}/>)}
       <EventDetails evt={evt} />
     </div>
   )
 }
+
+const MessagePart = ({ part, evt }:{ part: any, evt: any }) => {
+  if (part.text) { return <TextPart part={part} evt={evt}/> }
+  if (part.functionCall) { return <FuncCall part={part} evt={evt}/> }
+  if (part.functionResponse) { return <FuncResp part={part} evt={evt}/> }
+
+  // what is it?
+  return <UnknownEvent data={part} msg="unknown part"/>
+}
+
+const TextPart = ({ part }:{ part: any, evt: any }) => {
+  // TODO, add copy button, size limiter (3 options)
+  return (
+    <div className="p-2 dark:prose-invert prose-sm prose-stone">
+      <Markdown>{part.text}</Markdown>
+    </div>
+  )
+}
+
+const NameArgTitle = ({name, args}:{name: string, args: string[]}) => {
+  return (
+    <div className="flex gap-2 overflow-x">
+      <div className="font-bold">{name}</div>
+      <div className="monospace text-xs">{args.join("")}</div>
+    </div>
+  )
+}
+
+const FuncTitle = ({name, args}:{name: string, args: any}) => {
+
+  const f2NameArgs: Record<string,string[]> = {
+    "cache_glob": ["path", "regexp"],
+    "cache_file": ["path"],
+    "cache_dir": ["path"],
+    "cache_write": ["key"],
+    "cache_edit": ["path"],
+    "cache_remove": ["key"],
+
+    // legacy
+    "read_file": ["path"],
+    "read_dir":  ["path"],
+    "tree_dir": ["path"],
+    "write_file": ["path"],
+  }
+
+  const fnArgs = f2NameArgs[name]
+
+  return (
+    <div>
+    { args && fnArgs ?
+      <NameArgTitle name={name} args={fnArgs.map(a=> a in args ? args[a] : "?")}/>
+      :
+      <NameArgTitle name={name} args={["???"]}/>
+    }
+    </div>
+  )
+}
+
+const FuncCall = ({ part }:{ part: any, evt: any }) => {
+  const fn = part.functionCall.name as string
+  return <div  className="mr-auto">
+      <FuncTitle name={fn} args={part.functionCall.args} />
+    </div>
+
+}
+const FuncResp = ({ part }:{ part: any, evt: any }) => {
+  console.log()
+  const fn = part.functionResponse.name as string
+  return (
+    <div  className="mr-auto">
+      <FuncTitle name={fn} args={part.functionResponse.args} />
+    </div>
+  )
+}
+
 
 // @ts-ignore
 export const ThinkingMessage = ({evt}:{evt: any}) => {

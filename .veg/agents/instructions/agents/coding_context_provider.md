@@ -35,7 +35,7 @@ Use this dynamically to explore and refine the files, directories, and summaries
 
 ### Dynamic Information and Cache State
 
-This is information about the environment and filesystem
+Useful information about the environment and filesystem
 <env>
 {{ yaml .env }}
 </env>
