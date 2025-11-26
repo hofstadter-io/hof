@@ -8,6 +8,7 @@ import (
 	"strings"
 	"sync"
 
+	"dagger.io/dagger"
 	"github.com/labstack/echo/v4"
 	"google.golang.org/adk/artifact"
 	"google.golang.org/adk/memory"
@@ -19,6 +20,7 @@ import (
 
 	"github.com/hofstadter-io/hof/lib/agent/agents"
 	"github.com/hofstadter-io/hof/lib/agent/models"
+	vegdagger "github.com/hofstadter-io/hof/lib/agent/runtime/dagger"
 	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
@@ -34,9 +36,10 @@ type Runtime struct {
 	e   *echo.Echo
 
 	// services
-	A artifact.Service
-	M memory.Service
-	S session.Service
+	Dagger *dagger.Client
+	A      artifact.Service
+	M      memory.Service
+	S      session.Service
 
 	// agentic stuff
 	Models  map[string]model.LLM
@@ -52,9 +55,11 @@ type Runtime struct {
 type Handler func(*Runtime, *Client, *Message)
 
 func NewRuntime() (*Runtime, error) {
+	ctx := context.Background()
+
 	R := &Runtime{
 		AppName:    "veg",
-		Ctx:        context.Background(),
+		Ctx:        ctx,
 		Models:     make(map[string]model.LLM),
 		Handlers:   make(map[string]Handler),
 		clients:    make(map[*Client]bool),
@@ -62,8 +67,14 @@ func NewRuntime() (*Runtime, error) {
 		unregister: make(chan *Client),
 	}
 
+	dag, err := vegdagger.Get(ctx)
+	if err != nil {
+		return R, err
+	}
+	R.Dagger = dag
+
 	// init components
-	err := R.init()
+	err = R.init()
 	if err != nil {
 		return R, err
 	}

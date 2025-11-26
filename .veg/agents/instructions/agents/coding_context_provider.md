@@ -38,6 +38,7 @@ Use this dynamically to explore and refine the files, directories, and summaries
 Useful information about the environment and filesystem
 <env>
 {{ yaml .env }}
+
 </env>
 
 This is the your working key/value cache

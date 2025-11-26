@@ -45,12 +45,6 @@
         "title": "alpha.echo"
       },
       {
-        "command": "alpha.clearColors",
-        "category": "Veg Debug",
-        "title": "Clear Colors",
-        "icon": "$(add)"
-      },
-      {
         "command": "veg.debug.diff",
         "category": "Veg",
         "title": "veg.debug.diff"
@@ -69,8 +63,8 @@
       },
       {
         "command": "veg.sessions.create",
-        "category": "Veg",
-        "title": "veg.sessions.create",
+        "category": "Veggie",
+        "title": "Fresh Veggie",
         "icon": "$(add)"
       },
 			{
@@ -133,7 +127,7 @@
     "menus": {
       "view/title": [
         {
-          "command": "alpha.clearColors",
+          "command": "veg.sessions.create",
           "group": "navigation",
           "when": "view == veg-chat-webview"
         },

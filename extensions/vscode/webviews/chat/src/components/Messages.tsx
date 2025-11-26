@@ -19,7 +19,7 @@ export const Events = ({
   return (
     <div className="flex-grow mx-2 overflow-y-auto">
       {events?.map((e: any) => {
-        console.log("event.loop", e)
+        // console.log("event.loop", e)
         return (
           <Event key={e.ID} evt={e}/>
         )
@@ -31,10 +31,10 @@ export const Events = ({
 
 
 export const Event = ({evt}: {evt: any}) => {
-  if (evt.Content.role === "user") {
+  if (evt?.Content?.role === "user") {
     return <UserMessage evt={evt}/>
   }
-  if (evt.Content.role === "model") {
+  if (evt?.Content?.role === "model") {
     return <ModelMessage evt={evt}/>
   }
   return <UnknownEvent data={evt} msg="missing Content.role"/>
@@ -105,18 +105,28 @@ const NameArgTitle = ({name, args}:{name: string, args: string[]}) => {
 const FuncTitle = ({name, args}:{name: string, args: any}) => {
 
   const f2NameArgs: Record<string,string[]> = {
-    "cache_glob": ["path", "regexp"],
-    "cache_file": ["path"],
-    "cache_dir": ["path"],
     "cache_write": ["key"],
-    "cache_edit": ["path"],
+    "cache_put": ["key"],
+    "cache_edit": ["key"],
+    "cache_del": ["key"],
     "cache_remove": ["key"],
+
+    "fs_read": ["path"],
+    "fs_list": ["path"],
+    "fs_grep": ["path", "regexp"],
+    "fs_write": ["path"],
+    "fs_edit": ["path"],
+    "fs_del": ["path"],
 
     // legacy
     "read_file": ["path"],
     "read_dir":  ["path"],
     "tree_dir": ["path"],
     "write_file": ["path"],
+    "cache_glob": ["path", "regexp"],
+    "cache_grep": ["path", "regexp"],
+    "cache_file": ["path"],
+    "cache_dir": ["path"],
   }
 
   const fnArgs = f2NameArgs[name]
@@ -124,7 +134,7 @@ const FuncTitle = ({name, args}:{name: string, args: any}) => {
   return (
     <div>
     { args && fnArgs ?
-      <NameArgTitle name={name} args={fnArgs.map(a=> a in args ? args[a] : "?")}/>
+      <NameArgTitle name={name} args={fnArgs.map(a=> args[a] || a)}/>
       :
       <NameArgTitle name={name} args={["???"]}/>
     }
@@ -144,7 +154,7 @@ const FuncResp = ({ part }:{ part: any, evt: any }) => {
   const fn = part.functionResponse.name as string
   return (
     <div  className="mr-auto">
-      <FuncTitle name={fn} args={part.functionResponse.args} />
+      <FuncTitle name={fn} args={part.functionResponse.response} />
     </div>
   )
 }

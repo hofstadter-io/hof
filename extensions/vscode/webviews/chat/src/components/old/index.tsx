@@ -20,20 +20,32 @@ export const FunctionCall = ({evt}:{evt: any}) => {
   const fn = msg.functionCall.name as string
 
   const f2NameArgs: Record<string,string[]> = {
-    "cache_file": ["path"],
-    "cache_dir": ["path"],
     "cache_write": ["key"],
+    "cache_put": ["key"],
+    "cache_edit": ["key"],
+    "cache_del": ["key"],
     "cache_remove": ["key"],
-    "cache_glob": ["path", "regexp"],
+
+    "fs_read": ["path"],
+    "fs_list": ["path"],
+    "fs_grep": ["path", "regexp"],
+    "fs_write": ["path"],
+    "fs_edit": ["path"],
+    "fs_del": ["path"],
 
     // legacy
     "read_file": ["path"],
     "read_dir":  ["path"],
     "tree_dir": ["path"],
     "write_file": ["path"],
+    "cache_glob": ["path", "regexp"],
+    "cache_grep": ["path", "regexp"],
+    "cache_file": ["path"],
+    "cache_dir": ["path"],
   }
 
   const fnArgs = f2NameArgs[fn]
+  console.log("funcCall:", fn, msg, fnArgs)
 
   return (
     <div className="flex flex-col text-xs mt-2 mr-16 py-1 px-2 bg-green-700/80 rounded-t">

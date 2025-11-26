@@ -1,0 +1,1 @@
+removes $path on the filesystem and in your working key/value cache and context

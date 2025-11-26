@@ -1,4 +1,4 @@
-This is a tool for editing files, snippets, or values in the cache.
+This is a tool for editing files. Changes will be written to both files and the key/value cache.
 
 Before using this tool:
 
@@ -51,3 +51,9 @@ WARNING: If you do not follow these requirements:
 
 Remember: When making multiple file edits in a row to the same file, or similar/related edits across multiple files,
 always do so by sending a single message/turn with multiple calls to this edit tool. 
+Changes will be automatically updated in the cache and available in your system prompt the next turn.
+You do not need to read files back in to check if they are updated.
+
+IMPORTANT: Do not call `fs_read` to verify changes were applied to the the contents. 
+Changes will be automatically updated to both the file system and your cache, making them available immediatly in your system prompt the next turn.
+Trust the process and that the file's contents in your system prompt are accurate and up-to-date.

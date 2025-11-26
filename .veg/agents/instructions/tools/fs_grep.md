@@ -7,3 +7,5 @@ The args have the following purpose
 - `path` - base path to grep from
 - `glob` - glob pattern to match (e.g. "*.md")
 - `regexp` - regular expression to grep for
+
+stores the results at grep:$path in your working key/value cache, making it available in your next turn's context

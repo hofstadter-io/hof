@@ -150,18 +150,25 @@ func buildTools(cfg Config, agt Agent, models map[string]model.LLM) ([]tool.Tool
 		}
 		switch t {
 
-		case "cache_write":
-			T, err = meta.NewCacheWrite(tcfg.Name, tcfg.Description)
+		case "cache_put", "cache_write":
+			T, err = meta.CacheWrite(tcfg.Name, tcfg.Description)
 		case "cache_edit":
-			T, err = meta.NewCacheEdit(tcfg.Name, tcfg.Description)
-		case "cache_remove":
-			T, err = meta.NewCacheRemove(tcfg.Name, tcfg.Description)
-		case "cache_grep":
-			T, err = meta.NewCacheGrep(tcfg.Name, tcfg.Description)
-		case "cache_file":
-			T, err = meta.NewCacheFile(tcfg.Name, tcfg.Description)
-		case "cache_dir":
-			T, err = meta.NewCacheDir(tcfg.Name, tcfg.Description)
+			T, err = meta.CacheEdit(tcfg.Name, tcfg.Description)
+		case "cache_del", "cache_remove":
+			T, err = meta.CacheRemove(tcfg.Name, tcfg.Description)
+
+		case "fs_read":
+			T, err = meta.FilesysRead(tcfg.Name, tcfg.Description)
+		case "fs_list":
+			T, err = meta.FilesysList(tcfg.Name, tcfg.Description)
+		case "fs_grep":
+			T, err = meta.FilesysGrep(tcfg.Name, tcfg.Description)
+		case "fs_edit":
+			T, err = meta.FilesysEdit(tcfg.Name, tcfg.Description)
+		case "fs_write":
+			T, err = meta.FilesysWrite(tcfg.Name, tcfg.Description)
+		case "fs_del":
+			T, err = meta.FilesysDel(tcfg.Name, tcfg.Description)
 
 		default:
 			return nil, fmt.Errorf("unknown tool %q in agent %q %q %v", t, agt.Name, agentAsTool, found)
@@ -190,7 +197,7 @@ func addCallbacks(c *llmagent.Config) {
 		func(ctx agent.CallbackContext, req *model.LLMRequest) (*model.LLMResponse, error) {
 			fmt.Printf("\nBMC.%s\n", ctx.AgentName())
 			// fmt.Printf("\nBMC.%s\n%#+v\n", ctx.AgentName(), *req)
-			// fmt.Println(req.Config.SystemInstruction.Parts[0].Text)
+			fmt.Println(req.Config.SystemInstruction.Parts[0].Text)
 			return nil, nil
 		},
 	}

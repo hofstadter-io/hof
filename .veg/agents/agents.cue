@@ -31,11 +31,11 @@ agents: coding_context_provider: {
   description: string | *"Returns the relevant context from directory listings, file contents, and/or terminal history necessary to aid completing a task based on the query"
   instruction: string | *instructions.agents.coding_context_provider
   tools: [
-    "cache_write",
-    "cache_remove",
-    "cache_grep",
-    "cache_file",
-    "cache_dir",
+    "cache_put",
+    "cache_del",
+    "fs_read",
+    "fs_list",
+    "fs_grep",
   ]
 }
 
@@ -43,12 +43,14 @@ agents: coding_assistant: {
   description: string | *"A coding assistant for senior developers."
   instruction: string | *instructions.agents.coding_assistant
   tools: [
-    // "@coding_context_provider",
-    "cache_write",
-    "cache_edit",
-    "cache_remove",
-    "cache_grep",
-    "cache_file",
-    "cache_dir",
+    "@coding_context_provider",
+    "cache_put",
+    "cache_del",
+    "fs_read",
+    "fs_list",
+    "fs_grep",
+    "fs_write",
+    "fs_edit",
+    "fs_del",
   ]
 }

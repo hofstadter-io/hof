@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"log"
 	"maps"
+	"os"
 	"slices"
 
+	"dagger.io/dagger"
 	"github.com/hofstadter-io/hof/lib/agent/runtime"
 	"google.golang.org/adk/session"
 )
@@ -16,14 +18,18 @@ type SidRequest struct {
 }
 
 type SessionCreateRequest struct {
-	Title string `json:"title,omitempty"`
-	Focus bool   `json:"focus,omitempty"`
+	Title   string `json:"title,omitempty"`
+	Dir     string `json:"dir,omitempty"`
+	Runtime string `json:"runtime,omitempty"`
+	Focus   bool   `json:"focus,omitempty"`
 }
 
 type SessionCreateResponse struct {
-	Sid   string `json:"sid"`
-	Title string `json:"title,omitempty"`
-	Focus bool   `json:"focus,omitempty"`
+	Sid    string `json:"sid"`
+	Title  string `json:"title,omitempty"`
+	Focus  bool   `json:"focus,omitempty"`
+	Status string `json:"status,omitempty"`
+	Error  string `json:"error,omitempty"`
 }
 
 func sessionGet(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
@@ -90,20 +96,44 @@ func sessionList(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 }
 
 func sessionCreate(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
-	var p SessionCreateRequest
-	if err := json.Unmarshal(m.Payload, &p); err != nil {
-		log.Printf("Error unmarshaling 'session.delete' payload: %v", err)
+	var err error
+
+	var payload SessionCreateRequest
+	if err := json.Unmarshal(m.Payload, &payload); err != nil {
+		log.Printf("Error unmarshaling 'session.create' payload: %v", err)
 		return
 	}
-	s := make(map[string]any)
-	if p.Title != "" {
-		s["title"] = p.Title
+
+	// initial state
+	initialState := make(map[string]any)
+	if payload.Title != "" {
+		initialState["title"] = payload.Title
 	}
-	maps.Copy(s, c.State)
+	dir := payload.Dir
+	if dir == "" {
+		dir, err = os.Getwd()
+		if err != nil {
+			log.Printf("Error in 'session.create' while getting cwd: %v", err)
+			return
+		}
+	}
+	fmt.Println("Initializing session with dir", dir)
+	// TODO, From container if in config
+	d := r.Dagger.Host().Directory(dir, dagger.HostDirectoryOpts{
+		Gitignore: true,
+	})
+	id, err := d.ID(r.Ctx)
+	if err != nil {
+		log.Printf("Error in 'session.create' while loading dir into dagger: %v", err)
+		return
+	}
+	initialState["dagger"] = id
+
+	maps.Copy(initialState, c.State)
 	resp, err := r.S.Create(r.Ctx, &session.CreateRequest{
 		AppName: r.AppName,
 		UserID:  c.User,
-		State:   s,
+		State:   initialState,
 	})
 	if err != nil {
 		log.Printf("Error deleting session: %v", err)
@@ -114,7 +144,7 @@ func sessionCreate(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 	sessionList(r, c, m)
 
 	// if focused, tell chat
-	if p.Focus {
+	if payload.Focus {
 		c.Mail("chat.loadSession", map[string]any{
 			"sid": resp.Session.ID(),
 		})
@@ -287,4 +317,7 @@ func sessionDelState(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 			"error": err.Error(),
 		})
 	}
+}
+
+func sessionFilesysDiff(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 }

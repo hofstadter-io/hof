@@ -17,7 +17,7 @@ export function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('veg.sessions.refresh', () => sessionsProvider.refresh());
 
 	vscode.commands.registerCommand('veg.sessions.create', () => {
-		sendMessage({ type: "session.create", payload: { focus: true } })
+		sendMessage({ type: "session.create", payload: { focus: true, dir: rootPath } })
 	});
 	vscode.commands.registerCommand('veg.sessions.chat', (node: Session) => {
 		vscode.commands.executeCommand('veg-chat-webview.focus')
