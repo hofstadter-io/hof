@@ -19,27 +19,23 @@ import {
   SquareSigma,
   DatabaseBackup,
   MessageSquareMore,
+  SquareTerminal,
 } from 'lucide-react'
 
 import JsonView from '@uiw/react-json-view';
 import { vscodeTheme } from '@uiw/react-json-view/vscode';
 
-export const EventDetails = ({evt}:{evt: any}) => {
+export const EventDetails = ({sid, evt}:{sid: string, evt: any}) => {
   const [hidden, setHidden] = useState(true);
   return (
-    <div className="flex flex-col">
-      <div className="flex gap-2">
+    <div className="flex flex-col gap-1 mt-2">
+      <div className="flex justify-between text-xs font-thin">
+        <TimeInfo timestamp={evt.Timestamp} />
+        <span className="text-sm">{evt.Author}</span>
+      </div>
+      <div className="flex justify-between items-center">
         <UsageInfo evt={evt} size={16} />
-        <MetaInfo evt={evt} size={12} />
-        <span className="text-sm font-thin ml-auto m-0 p-0">{evt.Author}</span>
-        <div className="ml-auto flex justify-end items-center gap-2">
-          <TimeInfo timestamp={evt.Timestamp} />
-          <Braces size={16} onClick={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            setHidden(!hidden)
-          }} />
-        </div>
+        <Menu sid={sid} hidden={hidden} setHidden={setHidden} />
       </div>
       { !hidden && <JsonInfo data={evt} /> }
     </div>
@@ -61,7 +57,7 @@ export const TimeInfo = ({ timestamp }: { timestamp?: string }) => {
   }
   const ts = new Date(timestamp)
   return (
-    <span className="ml-auto font-thin text-sm">
+    <span className="">
       {ts.toLocaleString()}
     </span>
   )
@@ -133,28 +129,63 @@ export const UsageInfo = ({ evt, usage, size }: { evt?: any, usage?: any, size: 
 
 export const Menu = ({
   sid,
+  pos,
   hidden,
+  refresh,
+  // checkpoint,
   setHidden,
 }:{
   sid: string,
+  pos?: number,
   hidden: boolean,
+  refresh?: boolean,
+  checkpoint?: boolean,
   setHidden: (prev: any) => any
 }) => {
   return (
     <div className="ml-auto flex justify-end items-center gap-2">
       <Columns3 size={16}
+        aria-label="diff"
+        className="hover:text-violet-500"
         onClick={() => {
           vscodeApi.postMessage({
             type: "session.diff",
             payload: {
               sid,
+              pos,
             }
           })
         }}
       />
-      <GitPullRequestArrow size={16} />
-      <GitFork size={16} />
-      <RefreshCcw size={16}
+      <GitPullRequestArrow size={16}
+        aria-label="merge"
+        className="hover:text-yellow-500"
+        onClick={() => {
+          vscodeApi.postMessage({
+            type: "session.diff",
+            payload: {
+              sid,
+              pos,
+            }
+          })
+        }}
+      />
+      <GitFork size={16}
+        aria-label="fork"
+        className="hover:text-sky-500"
+        onClick={() => {
+          vscodeApi.postMessage({
+            type: "session.create",
+            payload: {
+              from: sid,
+              pos,
+            }
+          })
+        }}
+      />
+      { refresh && <RefreshCcw size={16}
+        aria-label="refresh"
+        className="hover:text-sky-500"
         onClick={() => {
           vscodeApi.postMessage({
             type: "session.get",
@@ -163,12 +194,28 @@ export const Menu = ({
             }
           })
         }}
-      />
-      <Braces size={16} onClick={(e) => {
-        e.preventDefault()
-        e.stopPropagation()
-        setHidden(!hidden)
-      }} />
+      /> }
+      <div className="hover:text-green-500">
+        <SquareTerminal size={16}
+          aria-label="details"
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            setHidden(!hidden)
+          }}
+        />
+      </div>
+      <div className="hover:text-sky-500">
+        <Braces size={16}
+          aria-label="details"
+          className="hover:text-sky-500" 
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            setHidden(!hidden)
+          }}
+        />
+      </div>
     </div>
   )
 

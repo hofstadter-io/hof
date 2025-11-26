@@ -75,7 +75,7 @@ export const CopyButton = ({source}:{source: string}) => {
         { copied ?
           <ClipboardCheck size={32} strokeWidth={1} className={cn(common, "text-green-500")} /> 
         :   
-          <ClipboardCopy size={32} strokeWidth={1} className={cn(common, "hover:text-blue-300")} /> 
+          <ClipboardCopy size={32} strokeWidth={1} className={cn(common, "hover:text-sky-500")} /> 
         }
       </span>
     </CopyToClipboard>
