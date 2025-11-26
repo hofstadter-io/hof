@@ -14,7 +14,6 @@ import (
 	"google.golang.org/adk/tool/agenttool"
 	"google.golang.org/genai"
 
-	"github.com/hofstadter-io/hof/lib/agent/tools/filesys"
 	"github.com/hofstadter-io/hof/lib/agent/tools/meta"
 	"github.com/hofstadter-io/hof/lib/templates"
 )
@@ -45,7 +44,7 @@ type Model struct {
 type Tool struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	Instruction string `json:"instruction"`
+	// Instruction string `json:"instruction"`
 }
 
 // this code constructs one or more agents from a CUE value
@@ -80,11 +79,15 @@ func AgenticCUE(agentDir string, models map[string]model.LLM) (config Config, er
 	return config, nil
 }
 
-func BuildAgent(config Config, agentName string, models map[string]model.LLM) (agent.Agent, error) {
+func BuildAgent(config Config, agentName, modelName string, models map[string]model.LLM) (agent.Agent, error) {
 	agt := config.Agents[agentName]
-	mdl, ok := models[agt.Model]
+	if modelName == "" || modelName == "default" {
+		modelName = agt.Model
+	}
+	fmt.Println("BuildAgent", agentName, modelName)
+	mdl, ok := models[modelName]
 	if !ok {
-		return nil, fmt.Errorf("unknown model %q in agent %q", agt.Model, agt.Name)
+		return nil, fmt.Errorf("unknown model %q in agent %q", modelName, agt.Name)
 	}
 
 	c := llmagent.Config{
@@ -105,7 +108,7 @@ func BuildAgent(config Config, agentName string, models map[string]model.LLM) (a
 
 	for _, sa := range agt.SubAgents {
 		if subagent, found := strings.CutPrefix(sa, "@"); found {
-			A, aerr := BuildAgent(config, subagent, models)
+			A, aerr := BuildAgent(config, subagent, "default", models)
 			if aerr != nil {
 				return nil, fmt.Errorf("error creating agent subagent %q in agent %q", subagent, agt.Name)
 			}
@@ -121,52 +124,57 @@ func BuildAgent(config Config, agentName string, models map[string]model.LLM) (a
 func buildTools(cfg Config, agt Agent, models map[string]model.LLM) ([]tool.Tool, error) {
 	var ts []tool.Tool
 	for _, t := range agt.Tools {
+		fmt.Printf("%s.tool: %q\n", agt.Name, t)
 		var T tool.Tool
 		var err error
-		switch t {
-		case "directory_tree":
-			T, err = filesys.NewTreeDir()
 
-		case "list_directory":
-			T, err = filesys.NewReadDir()
-
-		case "grep_regexp":
-			T, err = filesys.NewGrepRegexp()
-
-		case "read_file":
-			T, err = filesys.NewReadFile()
-
-		case "write_file":
-			T, err = filesys.NewWriteFile()
-
-		case "cache_write":
-			T, err = meta.NewCacheWrite()
-		case "cache_remove":
-			T, err = meta.NewCacheRemove()
-		case "cache_file":
-			T, err = meta.NewCacheFile()
-		case "cache_dir":
-			T, err = meta.NewCacheDir()
-
-		default:
-			if agentAsTool, found := strings.CutPrefix(t, "@"); found {
-				A, aerr := BuildAgent(cfg, agentAsTool, models)
-				if aerr != nil {
-					return nil, fmt.Errorf("error creating agent tool %q in agent %q", t, agt.Name)
-				}
-				T = agenttool.New(A, &agenttool.Config{
-					SkipSummarization: true,
-				})
-			} else {
-				return nil, fmt.Errorf("unknown tool %q in agent %q", t, agt.Name)
+		// @<agent> handling
+		agentAsTool, found := strings.CutPrefix(t, "@")
+		fmt.Printf("%s.tool.agent: %q ? %v\n", agt.Name, agentAsTool, found)
+		if found {
+			A, aerr := BuildAgent(cfg, agentAsTool, "default", models)
+			if aerr != nil {
+				return nil, fmt.Errorf("error creating agent tool %q in agent %q: %w", t, agt.Name, aerr)
 			}
+			T = agenttool.New(A, &agenttool.Config{
+				SkipSummarization: true,
+			})
+			ts = append(ts, T)
+			continue
 		}
 
+		// otherwise a builtin tool
+		tcfg, ok := cfg.Tools[t]
+		if !ok {
+			return nil, fmt.Errorf("unknown tool %q in agent %q", t, agt.Name)
+		}
+		switch t {
+
+		case "cache_write":
+			T, err = meta.NewCacheWrite(tcfg.Name, tcfg.Description)
+		case "cache_edit":
+			T, err = meta.NewCacheEdit(tcfg.Name, tcfg.Description)
+		case "cache_remove":
+			T, err = meta.NewCacheRemove(tcfg.Name, tcfg.Description)
+		case "cache_grep":
+			T, err = meta.NewCacheGrep(tcfg.Name, tcfg.Description)
+		case "cache_file":
+			T, err = meta.NewCacheFile(tcfg.Name, tcfg.Description)
+		case "cache_dir":
+			T, err = meta.NewCacheDir(tcfg.Name, tcfg.Description)
+
+		default:
+			return nil, fmt.Errorf("unknown tool %q in agent %q %q %v", t, agt.Name, agentAsTool, found)
+		}
 		if err != nil {
 			return nil, fmt.Errorf("while creating tool %s: %w", t, err)
 		}
+
+		// keep the tool
 		ts = append(ts, T)
 	}
+
+	fmt.Println("Final Tools:", ts)
 	return ts, nil
 }
 
@@ -207,7 +215,7 @@ func addCallbacks(c *llmagent.Config) {
 
 	c.AfterModelCallbacks = []llmagent.AfterModelCallback{
 		func(ctx agent.CallbackContext, res *model.LLMResponse, err error) (*model.LLMResponse, error) {
-			fmt.Printf("\nAMC.%s\n%#+v\n", ctx.AgentName(), *res)
+			fmt.Printf("\nAMC.%s\n%#+v\n", ctx.AgentName(), res)
 			return res, err
 		},
 	}
@@ -239,14 +247,26 @@ func renderInstructions(agt Agent) llmagent.InstructionProvider {
 			return "", err
 		}
 
-		// render instruction
+		// render instruction (first time) to get length
 		b, err := t.Render(data)
 		if err != nil {
-			fmt.Println("ERROR.renderInstructions.Render", err)
+			fmt.Println("ERROR.renderInstructions.Render.First", err)
 			return "", err
 		}
 
+		if strings.Contains(agt.Instruction, "CACHE SIZE: {{") {
+			data["cacheSize"] = len(b)
+
+			b, err = t.Render(data)
+			if err != nil {
+				fmt.Println("ERROR.renderInstructions.Render.Final", err)
+				return "", err
+			}
+		}
+
 		s := string(b)
+
+		// TODO, add conditional logging from Agent config
 		// fmt.Printf("renderInstructions.Final %s\n%s\n", agt.Name, s)
 
 		return s, nil

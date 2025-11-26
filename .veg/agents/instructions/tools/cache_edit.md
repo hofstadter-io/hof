@@ -51,3 +51,4 @@ WARNING: If you do not follow these requirements:
 
 Remember: When making multiple file edits in a row to the same file, or similar/related edits across multiple files,
 always do so by sending a single message/turn with multiple calls to this edit tool. 
+

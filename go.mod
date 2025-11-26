@@ -9,7 +9,6 @@ require (
 	github.com/BurntSushi/toml v1.3.2
 	github.com/alecthomas/chroma/v2 v2.13.0
 	github.com/atotto/clipboard v0.1.4
-	github.com/aymerick/raymond v2.0.2+incompatible
 	github.com/bluekeyes/go-gitdiff v0.8.1
 	github.com/bmatcuk/doublestar/v4 v4.6.1
 	github.com/clbanning/mxj v1.8.4
@@ -53,7 +52,7 @@ require (
 	golang.org/x/mod v0.29.0
 	golang.org/x/text v0.31.0
 	google.golang.org/adk v0.1.1-0.20251119080121-e0c09d1636bb
-	google.golang.org/genai v1.20.0
+	google.golang.org/genai v1.36.0
 	gopkg.in/errgo.v2 v2.1.0
 	gopkg.in/inconshreveable/log15.v2 v2.16.0
 	gopkg.in/irc.v3 v3.1.4

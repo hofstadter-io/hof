@@ -37,12 +37,12 @@ export const Header = ({
           }} />
         </div>
       </div>
-      <JsonInfo hidden={hidden} data={{
+      { !hidden && <JsonInfo data={{
         sid,
         usage,
         session,
         chatState,
-      }} />
+      }} />}
     </div>
 
   )

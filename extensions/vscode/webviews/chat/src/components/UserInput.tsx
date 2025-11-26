@@ -28,9 +28,10 @@ export const UserInput = ({
 }) => {
   const [userInput, setUserInput] = useState<any>({ 
     agent: chatState?.agent || "general_assistant",
-    model: chatState?.model || "gemini-2.5-flash",
+    model: chatState?.model || "default",
     text:  chatState?.input || "",
   })
+
   const inputReady: boolean = (userInput?.text as string).startsWith("/") ||
                               (userInput?.agent !== "" && 
                                userInput?.model !== "" &&
@@ -203,6 +204,9 @@ const ModelSelect = ({model, models, handleSelect}: {model: string, models: any,
         <SelectValue placeholder="Select a model" />
       </SelectTrigger>
       <SelectContent>
+        <SelectItem value={"default"}
+          className="ml-2 p-1 text-sm font-thin text-gray-800"
+        >agent-default</SelectItem>
         {ms.map((v: any) => {
           const val = `${v}`
           return (

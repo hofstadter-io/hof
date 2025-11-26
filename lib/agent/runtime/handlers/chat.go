@@ -43,11 +43,13 @@ func chatUserMessage(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 	// TODO, attach this to the session or client
 
 	// build the agent on demand
-	a, err := agents.BuildAgent(r.Agentic, p.Agent, r.Models)
+	a, err := agents.BuildAgent(r.Agentic, p.Agent, p.Model, r.Models)
 	if err != nil {
+		err = fmt.Errorf("while building agent %q: %w", p.Agent, err)
+		fmt.Println("Error:", err)
 		c.Mail("chat.event.error", map[string]any{
 			"status":        "error",
-			"error_message": fmt.Errorf("while building agent %q: %w", p.Agent, err),
+			"error_message": err.Error(),
 		})
 		return
 	}
@@ -69,9 +71,11 @@ func chatUserMessage(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 		MemoryService:   r.M,
 	})
 	if err != nil {
+		err = fmt.Errorf("while initializing runner for %q: %w", a.Name(), err)
+		fmt.Println("Error:", err)
 		c.Mail("chat.event.error", map[string]any{
 			"status":        "error",
-			"error_message": fmt.Errorf("while initializing runner for %q: %w", a.Name(), err),
+			"error_message": err.Error(),
 		})
 		return
 	}
@@ -82,11 +86,12 @@ func chatUserMessage(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 		StreamingMode: streamingMode,
 	}) {
 		if err != nil {
+			err = fmt.Errorf("while running agent %q: %w", a.Name(), err)
 			fmt.Println("ERROR:", err)
 			c.Mail("chat.event.error", map[string]any{
 				"event":         event,
 				"status":        "error",
-				"error_message": fmt.Errorf("while running agent %q: %w", a.Name(), err).Error(),
+				"error_message": err.Error(),
 			})
 			continue
 		}

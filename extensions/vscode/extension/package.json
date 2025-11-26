@@ -215,19 +215,19 @@
     "viewsContainers": {
       "activitybar": [{
         "id": "veg-chat-sidebar",
-        "title": "Veg Chat",
+        "title": "Veggie",
         "icon": "media/carrot.svg"
       }],
       "panel": [{
         "id": "veg-manage-panel",
-        "title": "Veg",
+        "title": "VegOut",
         "icon": "media/carrot.svg"
       }]
     },
     "views": {
       "veg-chat-sidebar": [{
         "id": "veg-chat-webview",
-        "name": "Veg Chat",
+        "name": "Veggie",
         "type": "webview",
         "contextualTitle": "Chat"
       }],

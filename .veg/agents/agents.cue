@@ -21,31 +21,21 @@ agents: hack: {
   ]
 }
 
-agents: general_assistant: {
-  description: string | *"A general assistant helpful for any task"
-  instruction: string | *instructions.agents.general_assistant
+agents: veggie: {
+  description: string | *"Veggie, a general assistant helpful for any task"
+  instruction: string | *instructions.system.veggie
   tools: []
-}
-
-agents: file_system_context_provider: {
-  description: string | *"Returns file contents and/or directory listings based on the query"
-  instruction: string | *instructions.agents.file_system_context_provider
-  tools: [
-    "directory_tree",
-    "list_directory",
-    "grep_regexp",
-    "read_file",
-  ]
 }
 
 agents: coding_context_provider: {
   description: string | *"Returns the relevant context from directory listings, file contents, and/or terminal history necessary to aid completing a task based on the query"
   instruction: string | *instructions.agents.coding_context_provider
   tools: [
-    "directory_tree",
-    "list_directory",
-    "grep_regexp",
-    "read_file",
+    "cache_write",
+    "cache_remove",
+    "cache_grep",
+    "cache_file",
+    "cache_dir",
   ]
 }
 
@@ -54,9 +44,11 @@ agents: coding_assistant: {
   instruction: string | *instructions.agents.coding_assistant
   tools: [
     "@coding_context_provider",
-    "directory_tree",
-    "list_directory",
-    "grep_regexp",
-    "read_file",
+    "cache_write",
+    "cache_edit",
+    "cache_remove",
+    "cache_grep",
+    "cache_file",
+    "cache_dir",
   ]
 }

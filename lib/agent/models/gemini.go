@@ -2,7 +2,6 @@ package models
 
 import (
 	"context"
-	"os"
 
 	"google.golang.org/adk/model"
 	"google.golang.org/adk/model/gemini"
@@ -11,6 +10,8 @@ import (
 
 func Gemini(ctx context.Context, model string) (model.LLM, error) {
 	return gemini.NewModel(ctx, model, &genai.ClientConfig{
-		APIKey: os.Getenv("GOOGLE_API_KEY"),
+		// Project:  "gen-lang-client-0911744172",
+		// Location: "us-central1",
+		// Backend:  genai.BackendVertexAI,
 	})
 }
