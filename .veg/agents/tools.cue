@@ -6,16 +6,16 @@ tools: [n=string]: {
 }
 
 tools: {
-	cache_put: description:    instructions.tools.cache_write
-	cache_write: description:  instructions.tools.cache_write
-	cache_edit: description:   instructions.tools.cache_edit
-	cache_remove: description: instructions.tools.cache_remove
-	cache_del: description:    instructions.tools.cache_remove
+	cache_put: description:    instructions["tools/cache_write.md"]
+	cache_write: description:  instructions["tools/cache_write.md"]
+	cache_edit: description:   instructions["tools/cache_edit.md"]
+	cache_remove: description: instructions["tools/cache_remove.md"]
+	cache_del: description:    instructions["tools/cache_remove.md"]
 
-	fs_read: description:  instructions.tools.fs_read
-	fs_list: description:  instructions.tools.fs_list
-	fs_grep: description:  instructions.tools.fs_grep
-	fs_edit: description:  instructions.tools.fs_edit
-	fs_write: description: instructions.tools.fs_write
-	fs_del: description:   instructions.tools.fs_del
+	fs_read: description:  instructions["tools/fs_read.md"]
+	fs_list: description:  instructions["tools/fs_list.md"]
+	fs_grep: description:  instructions["tools/fs_grep.md"]
+	fs_edit: description:  instructions["tools/fs_edit.md"]
+	fs_write: description: instructions["tools/fs_write.md"]
+	fs_del: description:   instructions["tools/fs_write.md"]
 }

@@ -6,12 +6,14 @@ import { Menu, JsonInfo, UsageInfo } from './Info';
 
 export const Header = ({
   sid,
+  setPos,
   usage,
   session,
   chatState,
   className,
 }:{
   sid: string,
+  setPos: any,
   usage: any,
   session: any,
   chatState: any,
@@ -25,7 +27,7 @@ export const Header = ({
 
       <div className="flex justify-between items-center gap-2 p-2">
         <span>{session?.state?.title || sid}</span>
-        <Menu sid={sid} hidden={hidden} setHidden={setHidden} />
+        <Menu sid={sid} setPos={() => setPos(-1)} hidden={hidden} setHidden={setHidden} />
       </div>
 
       <div className="flex justify-between items-center gap-2 p-2">

@@ -8,10 +8,14 @@ import { BadgeQuestionMark, Check, X } from "lucide-react";
 
 export const Events = ({
   sid,
+  currPos,
+  setPos,
   events,
   messagesEndRef
 }:{
   sid: string,
+  currPos: number,
+  setPos: any,
   events: any[],
   messagesEndRef?: any,
 }) => {
@@ -23,10 +27,12 @@ export const Events = ({
 
   return (
     <div className="flex-grow flex flex-col mx-2 gap-4 overflow-y">
-      {events?.map((e: any) => {
-        // console.log("event.loop", e)
+      {events?.map((e: any, pos: number) => {
+        console.log("event.loop", pos, currPos)
         return (
-          <Event sid={sid} key={e.ID} evt={e}/>
+          <div className={cn(pos === currPos && "bg-violet-500/30 rounded")}>
+            <Event sid={sid} pos={pos} setPos={setPos} key={e.ID} evt={e}/>
+          </div>
         )
       })}
       <div ref={messagesEndRef} />
@@ -35,61 +41,61 @@ export const Events = ({
 }
 
 
-export const Event = ({sid, evt}: {sid: string, evt: any}) => {
+export const Event = ({sid, pos, setPos, evt}: {sid: string, pos: number, setPos: any, evt: any}) => {
   if (!evt?.Content?.parts) {
-    return <UnknownEvent sid={sid} data={evt} msg="missing Content.parts"/>
+    return <UnknownEvent sid={sid} pos={pos} setPos={setPos} data={evt} msg="missing Content.parts"/>
   }
   if (evt?.Content?.role === "user") {
-    return <UserMessage sid={sid} evt={evt}/>
+    return <UserMessage sid={sid} pos={pos} setPos={setPos} evt={evt}/>
   }
   if (evt?.Content?.role === "model") {
-    return <ModelMessage sid={sid} evt={evt}/>
+    return <ModelMessage sid={sid} pos={pos} setPos={setPos} evt={evt}/>
   }
-  return <UnknownEvent sid={sid} data={evt} msg="missing Content.role"/>
+  return <UnknownEvent sid={sid} pos={pos} setPos={setPos} data={evt} msg="missing Content.role"/>
 }
 
-const UnknownEvent = ({sid, msg, data}: {sid: string, msg?: string, data: any}) => {
+const UnknownEvent = ({sid, pos, setPos, msg, data}: {sid: string, pos: number, setPos: any, msg?: string, data: any}) => {
   return (
     <div className="flex flex-col text-sm m-2 px-2 py-1 border-red-800 rounded gap-2">
       <div className="flex justify-between items-center gap-2 p-2">
         <div className="font-bold">unknown event</div>
         <div className="font-thin">{msg}</div>
       </div>
-      <EventDetails sid={sid} evt={data} />
+      <EventDetails sid={sid} pos={pos} setPos={setPos} evt={data} />
     </div>
   )
 }
 
 
-const UserMessage = ({sid, evt}:{sid: string, evt: any}) => {
+const UserMessage = ({sid, pos, setPos, evt}:{sid: string, pos: number, setPos: any, evt: any}) => {
   return (
-    <div className="ml-16 rounded-lg border border-sky-300">
+    <div className={cn("ml-16 rounded-lg border", "border-sky-300")}>
       <div className="flex flex-col m-2 p-2 gap-2">
-        { evt.Content.parts.map((p: any) => <MessagePart sid={sid} part={p} evt={evt}/>)}
-        <EventDetails sid={sid} evt={evt} />
+        { evt.Content.parts.map((p: any) => <MessagePart sid={sid} pos={pos} setPos={setPos} part={p} evt={evt}/>)}
+        <EventDetails sid={sid} pos={pos} setPos={setPos} evt={evt} />
       </div>
     </div>
   )
 }
 
-const ModelMessage = ({sid, evt}:{sid: string, evt: any}) => {
+const ModelMessage = ({sid, pos, setPos, evt}:{sid: string, pos: number, setPos: any, evt: any}) => {
   return (
     <div className="mr-16 rounded-lg border border-green-300">
       <div className="flex flex-col m-2 p-2 gap-2">
-        { evt.Content.parts.map((p: any) => <MessagePart sid={sid} part={p} evt={evt}/>)}
-        <EventDetails sid={sid} evt={evt} />
+        { evt.Content.parts.map((p: any) => <MessagePart sid={sid} pos={pos} setPos={setPos} part={p} evt={evt}/>)}
+        <EventDetails sid={sid} pos={pos} setPos={setPos} evt={evt} />
       </div>
     </div>
   )
 }
 
-const MessagePart = ({ sid, part, evt }:{ sid: string, part: any, evt: any }) => {
+const MessagePart = ({ sid, pos, setPos, part, evt }:{ sid: string, pos: number, setPos: any, part: any, evt: any }) => {
   if (part.text) { return <TextPart part={part} evt={evt}/> }
   if (part.functionCall) { return <FuncCall part={part} evt={evt}/> }
   if (part.functionResponse) { return <FuncResp part={part} evt={evt}/> }
 
   // what is it?
-  return <UnknownEvent sid={sid} data={part} msg="unknown part"/>
+  return <UnknownEvent sid={sid} pos={pos} setPos={setPos} data={part} msg="unknown part"/>
 }
 
 const TextPart = ({ part }:{ part: any, evt: any }) => {

@@ -3,6 +3,7 @@ package agents
 import (
 	"fmt"
 	"maps"
+	"os"
 	"strings"
 
 	"cuelang.org/go/cue/cuecontext"
@@ -23,7 +24,10 @@ type Config struct {
 	Agents map[string]Agent `json:"agents"`
 	Tools  map[string]Tool  `json:"tools"`
 
-	Instructions map[string]map[string]string `json:"instructions"`
+	Instructions    map[string]any `json:"instructions"`
+	InstructionsDir string         `json:"instructionsDir"`
+
+	Templates templates.TemplateMap
 }
 
 type Agent struct {
@@ -74,8 +78,15 @@ func AgenticCUE(agentDir string, models map[string]model.LLM) (config Config, er
 	if err != nil {
 		return config, fmt.Errorf("while decoding agentic CUE: %w", err)
 	}
-	// fmt.Println("AgenticCUE.config:", config)
 
+	// todo, also put this on the Session
+	err = config.Templates.ImportFromFolder(config.InstructionsDir, config.InstructionsDir, templates.Delims{}, nil)
+	if err != nil {
+		cwd, _ := os.Getwd()
+		return config, fmt.Errorf("while loading instruction templates (%s,%s): %w", cwd, config.InstructionsDir, err)
+	}
+
+	// fmt.Println("AgenticCUE.config:", config)
 	return config, nil
 }
 
@@ -95,7 +106,7 @@ func BuildAgent(config Config, agentName, modelName string, models map[string]mo
 		Model:       mdl,
 		Description: agt.Description,
 		// Instruction:         agent.Instruction,
-		InstructionProvider: renderInstructions(agt),
+		InstructionProvider: renderInstructions(config, agt),
 	}
 
 	ts, err := buildTools(config, agt, models)
@@ -104,7 +115,7 @@ func BuildAgent(config Config, agentName, modelName string, models map[string]mo
 	}
 	c.Tools = ts
 
-	addCallbacks(&c)
+	addCallbacks(config, agt, &c)
 
 	for _, sa := range agt.SubAgents {
 		if subagent, found := strings.CutPrefix(sa, "@"); found {
@@ -185,7 +196,7 @@ func buildTools(cfg Config, agt Agent, models map[string]model.LLM) ([]tool.Tool
 	return ts, nil
 }
 
-func addCallbacks(c *llmagent.Config) {
+func addCallbacks(config Config, agt Agent, c *llmagent.Config) {
 	c.BeforeAgentCallbacks = []agent.BeforeAgentCallback{
 		func(ctx agent.CallbackContext) (*genai.Content, error) {
 			fmt.Printf("\nBAC.%s\n", ctx.AgentName())
@@ -235,7 +246,8 @@ func addCallbacks(c *llmagent.Config) {
 	}
 }
 
-func renderInstructions(agt Agent) llmagent.InstructionProvider {
+func renderInstructions(cfg Config, agt Agent) llmagent.InstructionProvider {
+
 	return func(ctx agent.ReadonlyContext) (string, error) {
 		// TODO, this last arg is annoying, should have two funcs
 		fmt.Println("renderInstructions.Agent", agt.Name)
@@ -248,7 +260,7 @@ func renderInstructions(agt Agent) llmagent.InstructionProvider {
 		}
 
 		// gather data
-		data, err := prepareData(ctx)
+		data, err := prepareData(cfg, agt)(ctx)
 		if err != nil {
 			fmt.Println("ERROR.renderInstructions.Prepare", err)
 			return "", err
@@ -280,30 +292,34 @@ func renderInstructions(agt Agent) llmagent.InstructionProvider {
 	}
 }
 
-func prepareData(ctx agent.ReadonlyContext) (map[string]any, error) {
-	data := make(map[string]any)
+func prepareData(cfg Config, agt Agent) func(ctx agent.ReadonlyContext) (map[string]any, error) {
+	return func(ctx agent.ReadonlyContext) (map[string]any, error) {
+		data := make(map[string]any)
 
-	// environment of the workspace / vscode
-	state := maps.Collect(ctx.ReadonlyState().All())
-	data["env"] = state["env"]
+		// environment of the workspace / vscode
+		state := maps.Collect(ctx.ReadonlyState().All())
+		data["env"] = state["env"]
+		data["config"] = cfg
+		data["agent"] = agt
 
-	// imaginary FS
-	fs := make(map[string]any)
-	for k, v := range state {
-		if p, matched := strings.CutPrefix(k, "fs:"); matched {
-			fs[p] = v
+		// imaginary FS
+		fs := make(map[string]any)
+		for k, v := range state {
+			if p, matched := strings.CutPrefix(k, "fs:"); matched {
+				fs[p] = v
+			}
 		}
-	}
-	data["fs"] = fs
+		data["fs"] = fs
 
-	// agent cache
-	cache := make(map[string]any)
-	for k, v := range state {
-		if p, matched := strings.CutPrefix(k, fmt.Sprintf("cache:%s:", ctx.AgentName())); matched {
-			cache[p] = v
+		// agent cache
+		cache := make(map[string]any)
+		for k, v := range state {
+			if p, matched := strings.CutPrefix(k, fmt.Sprintf("cache:%s:", ctx.AgentName())); matched {
+				cache[p] = v
+			}
 		}
-	}
-	data["cache"] = cache
+		data["cache"] = cache
 
-	return data, nil
+		return data, nil
+	}
 }

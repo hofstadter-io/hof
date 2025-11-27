@@ -13,6 +13,8 @@ function App() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const {
     sid,
+    pos,
+    setPos,
     session,
     usage,
     chatState,
@@ -33,6 +35,7 @@ function App() {
     <div className="flex flex-col p-2 gap-2 min-h-screen">
       <Header
         sid={sid}
+        setPos={setPos}
         session={session}
         usage={usage}
         chatState={chatState}
@@ -41,12 +44,15 @@ function App() {
 
       <Events
         sid={sid}
+        currPos={pos}
+        setPos={setPos}
         events={session?.events}
         messagesEndRef={messagesEndRef}
       />
 
       <UserInput
         sid={sid}
+        setPos={setPos}
         usage={usage}
         session={session}
         chatState={chatState}

@@ -322,18 +322,25 @@ func sessionDelState(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 	}
 }
 
+type SessionFilesysDiffRequest struct {
+	Sid string `json:"sid"`
+	Pos int    `json:"pos"`
+}
+
 type SessionFilesysDiffResponse struct {
 	Sid    string `json:"sid"`
+	Pos    int    `json:"pos"`
 	Status string `json:"status,omitempty"`
 	Error  string `json:"error,omitempty"`
 }
 
 func sessionFilesysDiff(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
-	var p SidRequest
+	var p SessionFilesysDiffRequest
 	if err := json.Unmarshal(m.Payload, &p); err != nil {
 		log.Printf("Error unmarshaling 'session.diff' payload: %v", err)
 		return
 	}
+	log.Printf("session.diff.payload: %v", p)
 
 	// lookup session
 	resp, err := r.S.Get(r.Ctx, &session.GetRequest{
@@ -349,9 +356,27 @@ func sessionFilesysDiff(r *runtime.Runtime, c *runtime.Client, m *runtime.Messag
 		})
 	}
 
+	// get dagger handle
+	dag, _ := vegdagger.Get(r.Ctx)
+
+	// find first and last fs ids
 	origId, _ := resp.Session.State().Get("origfs")
 	dagId, _ := resp.Session.State().Get("dagger")
-	dag, _ := vegdagger.Get(r.Ctx)
+
+	// walk from 0->pos
+	if p.Pos > 0 {
+		events := slices.Collect(resp.Session.Events().All())
+		posId := origId
+		for i := 0; i < p.Pos && i < len(events); i++ {
+			event := events[i]
+			if did, ok := event.Actions.StateDelta["dagger"]; ok && did != "" && did != posId {
+				posId = did
+			}
+		}
+		dagId = posId
+	}
+
+	// now get our dirs
 	origDir := dag.LoadDirectoryFromID(dagger.DirectoryID(origId.(string)))
 	dagDir := dag.LoadDirectoryFromID(dagger.DirectoryID(dagId.(string)))
 	changes := dagDir.Changes(origDir)

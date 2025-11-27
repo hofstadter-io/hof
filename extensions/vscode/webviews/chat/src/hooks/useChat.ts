@@ -44,13 +44,15 @@ function processEvents(session: any) {
 }
 
 export function useChat(messagesEndRef: React.RefObject<HTMLDivElement>) {
-  const state = {
-    sid: "",
-    session: {},
-    chatState: {},
-  };
-  // const state = vscodeApi.getState() || {};
+  // const state = {
+  //   sid: "",
+  //   pos: -1,
+  //   session: {},
+  //   chatState: {},
+  // };
+  const state = vscodeApi.getState() || {};
   const [sid, setSid] = useState(state?.sid || '');
+  const [pos, setPos] = useState(state?.pos || -1);
   const [session, setSession] = useState<any>(state?.session || {});
   const [usage, setUsage] = useState<any>({});
   const [chatState, setChatState] = useState<any>(state?.chatState || defaults);
@@ -200,6 +202,19 @@ export function useChat(messagesEndRef: React.RefObject<HTMLDivElement>) {
         }
       }
 
+      if (message.type === 'session.diff') {
+        const payload = message.payload as { sid: string, pos?: number };
+        if (payload.sid === sid && pos && pos > 0) {
+
+          const s = vscodeApi.getState();
+          vscodeApi.setState({
+            ...s,
+            pos,
+          });
+          setPos(pos)
+        }
+      }
+
       if (message.type === 'session.delete') {
         const payload = message.payload as SidPayload;
         if (payload.sid === sid) {
@@ -324,9 +339,11 @@ export function useChat(messagesEndRef: React.RefObject<HTMLDivElement>) {
 
   return {
     sid,
+    pos,
     session,
     usage,
     chatState,
+    setPos,
     handleSend,
   };
 }

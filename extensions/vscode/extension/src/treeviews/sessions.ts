@@ -38,7 +38,7 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	// incoming messages
-	extensionEmitter.event((e) => {
+	extensionEmitter.event(async (e) => {
 		// console.log(`sessions event:`, e)
 		switch (e.type) {
 			case "session.list":
@@ -48,11 +48,13 @@ export function activate(context: vscode.ExtensionContext) {
 				break;
 			case "session.diff.resp":
 				 const patch = e.payload.patch
-				 vscode.workspace.openTextDocument({
+				 var doc = await vscode.workspace.openTextDocument({
 					content: patch,
 					language: "diff",
 				 })
+				 vscode.window.showTextDocument(doc, 1, false)
 				 break;
+
 		}
 	});
 

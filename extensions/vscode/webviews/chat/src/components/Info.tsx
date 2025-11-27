@@ -25,7 +25,7 @@ import {
 import JsonView from '@uiw/react-json-view';
 import { vscodeTheme } from '@uiw/react-json-view/vscode';
 
-export const EventDetails = ({sid, evt}:{sid: string, evt: any}) => {
+export const EventDetails = ({sid, pos, setPos, evt}:{sid: string, pos: number, setPos: any, evt: any}) => {
   const [hidden, setHidden] = useState(true);
   return (
     <div className="flex flex-col gap-1 mt-2">
@@ -35,7 +35,7 @@ export const EventDetails = ({sid, evt}:{sid: string, evt: any}) => {
       </div>
       <div className="flex justify-between items-center">
         <UsageInfo evt={evt} size={16} />
-        <Menu sid={sid} hidden={hidden} setHidden={setHidden} />
+        <Menu sid={sid} pos={pos} setPos={setPos} hidden={hidden} setHidden={setHidden} />
       </div>
       { !hidden && <JsonInfo data={evt} /> }
     </div>
@@ -130,6 +130,7 @@ export const UsageInfo = ({ evt, usage, size }: { evt?: any, usage?: any, size: 
 export const Menu = ({
   sid,
   pos,
+  setPos,
   hidden,
   refresh,
   // checkpoint,
@@ -137,6 +138,7 @@ export const Menu = ({
 }:{
   sid: string,
   pos?: number,
+  setPos: any,
   hidden: boolean,
   refresh?: boolean,
   checkpoint?: boolean,
@@ -148,6 +150,7 @@ export const Menu = ({
         aria-label="diff"
         className="hover:text-violet-500"
         onClick={() => {
+          setPos(pos)
           vscodeApi.postMessage({
             type: "session.diff",
             payload: {
