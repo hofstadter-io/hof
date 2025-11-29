@@ -17,6 +17,7 @@ function App() {
     setPos,
     session,
     usage,
+    diff,
     chatState,
     handleSend,
   } = useChat(messagesEndRef as any);
@@ -39,16 +40,17 @@ function App() {
         session={session}
         usage={usage}
         chatState={chatState}
+        diff={diff}
         className="mx-2"
       />
 
-      <Events
+      {true && <Events
         sid={sid}
         currPos={pos}
         setPos={setPos}
         events={session?.events}
         messagesEndRef={messagesEndRef}
-      />
+      />}
 
       <UserInput
         sid={sid}
@@ -56,6 +58,7 @@ function App() {
         usage={usage}
         session={session}
         chatState={chatState}
+        diff={diff}
         handleSend={handleSend}
       />
 

@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import { extensionEmitter } from '../util/events';
 import { sendMessage } from '../websocket';
-import { isPrimitive } from 'util';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed

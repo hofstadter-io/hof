@@ -2,11 +2,13 @@ import { useState } from "react"
 
 import { cn } from "@/lib/utils"
 
-import { Menu, JsonInfo, UsageInfo } from './Info';
+import { JsonInfo, UsageInfo, DiffInfo } from '@/components/Info';
+import { Menu } from '@/components/SessionMenu'
 
 export const Header = ({
   sid,
   setPos,
+  diff,
   usage,
   session,
   chatState,
@@ -14,9 +16,10 @@ export const Header = ({
 }:{
   sid: string,
   setPos: any,
-  usage: any,
-  session: any,
-  chatState: any,
+  diff?: any,
+  usage?: any,
+  session?: any,
+  chatState?: any,
   className?: string,
 }) => {
   const [hidden, setHidden] = useState(true);
@@ -27,11 +30,12 @@ export const Header = ({
 
       <div className="flex justify-between items-center gap-2 p-2">
         <span>{session?.state?.title || sid}</span>
-        <Menu sid={sid} setPos={() => setPos(-1)} hidden={hidden} setHidden={setHidden} />
+        <Menu sid={sid} setPos={() => setPos(-1)} hidden={hidden} setHidden={setHidden} refresh/>
       </div>
 
       <div className="flex justify-between items-center gap-2 p-2">
         <UsageInfo usage={usage} size={16}/>
+        <DiffInfo diff={diff} size={16}/>
       </div>
 
       { !hidden && <JsonInfo data={{
@@ -39,9 +43,9 @@ export const Header = ({
         usage,
         session,
         chatState,
+        diff,
       }} />}
     </div>
 
   )
 }
-

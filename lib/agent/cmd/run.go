@@ -5,7 +5,7 @@ import (
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/agent/runtime"
-	"github.com/hofstadter-io/hof/lib/agent/runtime/handlers"
+	"github.com/hofstadter-io/hof/lib/agent/runtime/handlers/ws"
 )
 
 func Run(args []string, rflags flags.RootPflagpole, cflags flags.AgentFlagpole) error {
@@ -14,7 +14,7 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.AgentFlagpole) 
 		return fmt.Errorf("failed to create runtime: %v", err)
 	}
 
-	handlers.SetupHandlers(r)
+	ws.SetupHandlers(r)
 
 	return r.Run()
 }

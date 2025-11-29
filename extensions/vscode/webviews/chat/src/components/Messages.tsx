@@ -1,10 +1,8 @@
-import { useState } from "react"
-
 import { cn } from "@/lib/utils";
-
-import { Markdown } from './Markdown'
-import { EventDetails, JsonInfo, Menu } from "./Info";
 import { BadgeQuestionMark, Check, X } from "lucide-react";
+
+import { Markdown } from '@/components/Markdown'
+import { EventDetails } from "@/components/Info";
 
 export const Events = ({
   sid,
@@ -28,7 +26,6 @@ export const Events = ({
   return (
     <div className="flex-grow flex flex-col mx-2 gap-4 overflow-y">
       {events?.map((e: any, pos: number) => {
-        console.log("event.loop", pos, currPos)
         return (
           <div className={cn(pos === currPos && "bg-violet-500/30 rounded")}>
             <Event sid={sid} pos={pos} setPos={setPos} key={e.ID} evt={e}/>
@@ -111,59 +108,56 @@ const FuncCall = ({ part }:{ part: any, evt: any }) => {
   const fn = part.functionCall?.name as string
   const args = part.functionCall?.args
   const fnArgs = f2NameArgs[fn]
-  const argVals = fnArgs?.map(a=> args[a] || a)
+  const argVals = fnArgs?.map(a=> {
+    if(a in args) {
+      return args[a]
+    }
+  })
+
+  const isPlanning = fn === "cache_put" && args["key"] === "planning"
 
   return (
-    <div  className="mr-auto flex gap-2 items-baseline">
-      <span className="font-heavy">{fn}</span>
-      <span className="font-thin">{argVals.join(" ")}</span>
-    </div>
-  )
-}
-const FuncResp = ({ part }:{ part: any, evt: any }) => {
-  const fn = part.functionResponse?.name as string
-  const resp = part.functionResponse?.response
-  const fnArgs = f2NameArgs[fn]
-  const argVals = fnArgs?.map(a=> resp[a] || a)
-  // const status = resp.status
-  const err = resp.error
-
-  return (
-    <div className="mr-auto flex flex-col gap-2">
+    <div  className="mr-auto flex flex-col gap-2">
       <div  className="flex gap-2 items-baseline">
-        {/* <RespStatus size={14} status={status} /> */}
         <span className="font-heavy">{fn}</span>
         <span className="font-thin">{argVals.join(" ")}</span>
       </div>
-      { err && (
-        <div className="m-1 p-3 mx-auto rounded border border-red-600 font-thin">
-          {err}
-        </div>
+      { isPlanning && (
+        <pre className="m-2 p-2 border border-violet-500">
+          {args.value}
+        </pre>
       )}
     </div>
   )
 }
+const FuncResp = ({ part }:{ part: any, evt: any }) => {
+  // console.log("FuncResp.part", part)
 
-const RespStatus = ({status, size}:{status:string, size: number}) => {
-  switch (status) {
-    case "ok":
-      return <Check size={size} color="green" />
-      break;
+  const fn = part.functionResponse?.name as string
+  const resp = part.functionResponse?.response
 
-    case "error":
-      return <X size={size} color="red" />
-      break;
-
-    default:
-      return <BadgeQuestionMark size={size} />
+  const err = resp.error
+  // console.log("FuncResp.prep", fn, resp, err, !err)
+  var argVals: any[] = []
+  if (!err) {
+    const fnArgs = f2NameArgs[fn]
+    argVals = fnArgs?.map(a=> {
+      if(a in resp) {
+        return resp[a]
+      }
+      // return a
+    })
   }
-}
 
-const NameArgTitle = ({name, args}:{name: string, args: string[]}) => {
+  // console.log("FuncResp.render", fn, argVals, err)
   return (
-    <div className="flex gap-2 overflow-x items-baseline">
-      <div className="font-bold">{name}</div>
-      <div className="monospace text-xs">{args.join("")}</div>
+    <div className="mr-auto flex flex-col gap-2">
+      <div  className={cn("flex gap-2 items-baseline")}>
+        <span className="font-heavy">{fn}</span>
+        <span className="font-thin">{argVals.join(" ")}</span>
+        { err && <span className="text-red-400">Error</span> }
+
+      </div>
     </div>
   )
 }

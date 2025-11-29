@@ -14,19 +14,39 @@
     "onStartupFinished"
   ],
   "main": "./out/extension.js",
+  "capabilities": {
+    "virtualWorkspaces": true
+  }, 
   "contributes": {
-    "keybindings": [{
+    "keybindings": [
+    {
+      "command": "veg-chat-webview.focus",
+      "key": "ctrl+g",
+      "mac": "cmd+g"
+    },{
       "command": "veg-chat-webview.focus",
       "key": "ctrl+shift+g",
       "mac": "cmd+shift+g"
     },{
+      "command": "veg-chat-webview.focus",
+      "key": "alt+g g",
+      "mac": "alt+g g"
+    },{
       "command": "veg-sessions.focus",
-      "key": "alt+g",
-      "mac": "alt+g"
+      "key": "alt+g s",
+      "mac": "alt+g s"
+    },{
+      "command": "veg-agents.focus",
+      "key": "alt+g a",
+      "mac": "alt+g a"
     },{
       "command": "veg-planning.focus",
-      "key": "ctrl+alt+g",
-      "mac": "cmd+alt+g"
+      "key": "alt+g p",
+      "mac": "alt+g p"
+    },{
+      "command": "veg-debug-webview.focus",
+      "key": "alt+g d",
+      "mac": "alt+g d"
     }],
     "commands": [
       {
@@ -35,19 +55,22 @@
         "title": "Veg Connect"
       },
       {
-        "command": "alpha.helloWorld",
-        "category": "Veg Debug",
-        "title": "alpha.helloWorld"
-      },
-      {
-        "command": "alpha.echo",
-        "category": "Veg Debug",
-        "title": "alpha.echo"
-      },
-      {
-        "command": "veg.debug.diff",
+        "command": "veg.explorer.toggleShown",
         "category": "Veg",
-        "title": "veg.debug.diff"
+        "title": "Toggle Shown (Veg)",
+        "icon": "$(filter)"
+      },
+      {
+        "command": "veg.session.showSessionDiff",
+        "category": "Veg",
+        "title": "Show Session Diff (Veg)",
+        "icon": "$(diff-multiple)"
+      },
+      {
+        "command": "veg.session.showFileDiff",
+        "category": "Veg",
+        "title": "Show File Diff (Veg)",
+        "icon": "$(diff-multiple)"
       },
       {
 				"command": "veg.sessions.refresh",
@@ -125,6 +148,26 @@
       }
     ],
     "menus": {
+      "explorer/context": [
+        {
+          "command": "veg.explorer.toggleShown",
+          "group": "navigation"
+        },
+        {
+          "command": "veg.session.showFileDiff",
+          "group": "navigation"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "veg.explorer.toggleShown",
+          "group": "navigation"
+        },
+        {
+          "command": "veg.session.showSessionDiff",
+          "group": "navigation"
+        }
+      ],
       "view/title": [
         {
           "command": "veg.sessions.create",

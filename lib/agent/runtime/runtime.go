@@ -3,6 +3,7 @@ package runtime
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -10,6 +11,7 @@ import (
 
 	"dagger.io/dagger"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"google.golang.org/adk/artifact"
 	"google.golang.org/adk/memory"
 	"google.golang.org/adk/model"
@@ -104,17 +106,22 @@ func (r *Runtime) handleMessage(c *Client, m *Message) {
 func (R *Runtime) init() (err error) {
 	err = R.ReadConfig()
 	if err != nil {
-		return fmt.Errorf("while init'n runtime: %w", err)
+		return fmt.Errorf("while reading config: %w", err)
 	}
 
 	err = R.initModels()
 	if err != nil {
-		return fmt.Errorf("while init'n runtime: %w", err)
+		return fmt.Errorf("while init'n models: %w", err)
 	}
 
 	err = R.initServices()
 	if err != nil {
-		return fmt.Errorf("while init'n runtime: %w", err)
+		return fmt.Errorf("while init'n services: %w", err)
+	}
+
+	err = R.initServer()
+	if err != nil {
+		return fmt.Errorf("while init'n server: %w", err)
 	}
 
 	return nil
@@ -190,12 +197,44 @@ func (R *Runtime) initServices() error {
 		return err
 	}
 	database.AutoMigrate(s)
-
-	R.A = artifact.InMemoryService()
-	R.M = memory.InMemoryService()
-
 	R.S = s
 	// R.S = session.InMemoryService()
 
+	R.A = artifact.InMemoryService()
+	R.M, err = memory.FilesystemService("./.veg/memories")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *Runtime) initServer() error {
+	e := echo.New()
+	e.HideBanner = true
+
+	// middleware
+	// e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+
+	// routes
+	e.GET("/", r.serveWs)
+
+	e.GET("/alive", func(c echo.Context) error {
+		return c.String(http.StatusOK, "Hello, World!")
+	})
+	// TODO metrics & otel
+
+	//
+	// filesystem
+	//
+	e.POST("/fs/stat", r.fsStat)
+	e.POST("/fs/read", r.fsRead)
+	e.POST("/fs/list", r.fsList)
+	e.POST("/fs/write", r.fsWrite)
+	e.POST("/fs/delete", r.fsDelete)
+
+	// save & return
+	r.e = e
 	return nil
 }

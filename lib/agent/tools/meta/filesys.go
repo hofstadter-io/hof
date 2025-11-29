@@ -155,7 +155,7 @@ type FilesysEditArgs struct {
 func FilesysEdit(name, description string) (tool.Tool, error) {
 	handler := func(ctx tool.Context, input FilesysEditArgs) (FilesysResult, error) {
 		k := fmt.Sprintf("cache:%s:%s", ctx.AgentName(), input.Path)
-		fmt.Printf("%s:%s\n", name, k)
+		fmt.Printf("fsEdit.key: %s:%s\n", name, k)
 
 		//
 		// Get from Dagger
@@ -165,6 +165,7 @@ func FilesysEdit(name, description string) (tool.Tool, error) {
 		dir := dag.LoadDirectoryFromID(dagger.DirectoryID(dagId.(string)))
 		content, err := dir.File(input.Path).Contents(ctx)
 		if err != nil {
+			fmt.Println("fsEdit.read.error", err)
 			return filesysError(input.Path, err), nil
 		}
 
@@ -177,6 +178,7 @@ func FilesysEdit(name, description string) (tool.Tool, error) {
 		}
 		found := strings.Count(content, input.Old)
 		if found != count {
+			fmt.Println("fsEdit.count.error", err)
 			err = fmt.Errorf("while editing %q, expected %d matches, but found %d", input.Path, count, found)
 			return filesysError(input.Path, err), nil
 		}
@@ -188,16 +190,19 @@ func FilesysEdit(name, description string) (tool.Tool, error) {
 		dir = dir.WithNewFile(input.Path, next, dagger.DirectoryWithNewFileOpts{})
 		newId, err := dir.ID(ctx)
 		if err != nil {
+			fmt.Println("fsEdit.write.error", err)
 			return filesysError(input.Path, err), nil
 		}
 
 		// Add to State
 		err = ctx.State().Set(k, next)
 		if err != nil {
+			fmt.Println("fsEdit.state.key.error", err)
 			return filesysError(input.Path, err), nil
 		}
 		err = ctx.State().Set("dagger", string(newId))
 		if err != nil {
+			fmt.Println("fsEdit.state.dagger.error", err)
 			return filesysError(input.Path, err), nil
 		}
 

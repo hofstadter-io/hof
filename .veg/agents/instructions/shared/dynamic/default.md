@@ -13,4 +13,3 @@ This is the your working key/value cache
 
 {{ end}}
 </cache>
-

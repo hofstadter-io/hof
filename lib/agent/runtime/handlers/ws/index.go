@@ -1,4 +1,4 @@
-package handlers
+package ws
 
 import (
 	"encoding/json"
@@ -37,6 +37,11 @@ func SetupHandlers(r *runtime.Runtime) {
 	r.Handlers["session.state.get"] = sessionGetState
 	r.Handlers["session.state.put"] = sessionPutState
 	r.Handlers["session.diff"] = sessionFilesysDiff
+	r.Handlers["session.fork"] = sessionFork
+	r.Handlers["session.merge"] = sessionMerge
+	r.Handlers["session.tag"] = sessionTag
+	r.Handlers["session.push"] = sessionPush
+	r.Handlers["session.pull"] = sessionPull
 
 	//
 	// things we want to track from the frontend
@@ -81,9 +86,11 @@ func hello(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 }
 
 func broadcastSync(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
+	fmt.Println("broadcastSync")
 	reloadConfig(r, c, m)
 	sessionGet(r, c, m)
 	sessionList(r, c, m)
+	sessionFilesysDiff(r, c, m)
 
 	// runtime (runners?)
 	// memory

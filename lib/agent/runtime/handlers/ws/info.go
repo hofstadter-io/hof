@@ -1,4 +1,4 @@
-package handlers
+package ws
 
 import (
 	"encoding/json"

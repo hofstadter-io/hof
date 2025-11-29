@@ -1,15 +1,9 @@
 import { useState } from "react"
-import { vscodeApi } from "@/vscodeApi";
 import {
-  Braces,
   Circle,
   CircleQuestionMark,
   CircleCheckBig,
   CircleDashed,
-  Columns3,
-  GitFork,
-  GitPullRequestArrow,
-  RefreshCcw,
   GraduationCap,
   OctagonAlert,
   PanelLeftOpen,
@@ -19,11 +13,15 @@ import {
   SquareSigma,
   DatabaseBackup,
   MessageSquareMore,
-  SquareTerminal,
+  FilePlus,
+  FileX,
+  FilePen,
 } from 'lucide-react'
 
 import JsonView from '@uiw/react-json-view';
 import { vscodeTheme } from '@uiw/react-json-view/vscode';
+
+import { Menu } from '@/components/SessionMenu'
 
 export const EventDetails = ({sid, pos, setPos, evt}:{sid: string, pos: number, setPos: any, evt: any}) => {
   const [hidden, setHidden] = useState(true);
@@ -127,99 +125,21 @@ export const UsageInfo = ({ evt, usage, size }: { evt?: any, usage?: any, size: 
    
 }
 
-export const Menu = ({
-  sid,
-  pos,
-  setPos,
-  hidden,
-  refresh,
-  // checkpoint,
-  setHidden,
-}:{
-  sid: string,
-  pos?: number,
-  setPos: any,
-  hidden: boolean,
-  refresh?: boolean,
-  checkpoint?: boolean,
-  setHidden: (prev: any) => any
+export const DiffInfo = ({
+  diff,
+  size = 16,
+}: {
+  diff: any
+  size?: number
 }) => {
   return (
-    <div className="ml-auto flex justify-end items-center gap-2">
-      <Columns3 size={16}
-        aria-label="diff"
-        className="hover:text-violet-500"
-        onClick={() => {
-          setPos(pos)
-          vscodeApi.postMessage({
-            type: "session.diff",
-            payload: {
-              sid,
-              pos,
-            }
-          })
-        }}
-      />
-      <GitPullRequestArrow size={16}
-        aria-label="merge"
-        className="hover:text-yellow-500"
-        onClick={() => {
-          vscodeApi.postMessage({
-            type: "session.diff",
-            payload: {
-              sid,
-              pos,
-            }
-          })
-        }}
-      />
-      <GitFork size={16}
-        aria-label="fork"
-        className="hover:text-sky-500"
-        onClick={() => {
-          vscodeApi.postMessage({
-            type: "session.create",
-            payload: {
-              from: sid,
-              pos,
-            }
-          })
-        }}
-      />
-      { refresh && <RefreshCcw size={16}
-        aria-label="refresh"
-        className="hover:text-sky-500"
-        onClick={() => {
-          vscodeApi.postMessage({
-            type: "session.get",
-            payload: {
-              sid,
-            }
-          })
-        }}
-      /> }
-      <div className="hover:text-green-500">
-        <SquareTerminal size={16}
-          aria-label="details"
-          onClick={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            setHidden(!hidden)
-          }}
-        />
-      </div>
-      <div className="hover:text-sky-500">
-        <Braces size={16}
-          aria-label="details"
-          className="hover:text-sky-500" 
-          onClick={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            setHidden(!hidden)
-          }}
-        />
-      </div>
+    <div className="flex gap-1">
+      <FilePlus size={size}/>
+      {diff?.addpaths?.length || 0}
+      <FilePen size={size}/>
+      {diff?.modpaths?.length || 0}
+      <FileX size={size}/>
+      {diff?.delpaths?.length || 0}
     </div>
   )
-
 }

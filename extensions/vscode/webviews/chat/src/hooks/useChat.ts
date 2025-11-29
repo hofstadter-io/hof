@@ -54,6 +54,7 @@ export function useChat(messagesEndRef: React.RefObject<HTMLDivElement>) {
   const [sid, setSid] = useState(state?.sid || '');
   const [pos, setPos] = useState(state?.pos || -1);
   const [session, setSession] = useState<any>(state?.session || {});
+  const [diff, setDiff] = useState<any>(state?.diff || {});
   const [usage, setUsage] = useState<any>({});
   const [chatState, setChatState] = useState<any>(state?.chatState || defaults);
 
@@ -148,6 +149,12 @@ export function useChat(messagesEndRef: React.RefObject<HTMLDivElement>) {
               sid: payload.sid,
             },
           });
+          vscodeApi.postMessage({
+            type: 'session.diff',
+            payload: {
+              sid: payload.sid,
+            },
+          });
         }
       }
     });
@@ -156,6 +163,12 @@ export function useChat(messagesEndRef: React.RefObject<HTMLDivElement>) {
     if (state?.sid !== '') {
       vscodeApi.postMessage({
         type: 'session.get',
+        payload: {
+          sid: state.sid,
+        },
+      });
+      vscodeApi.postMessage({
+        type: 'session.diff',
         payload: {
           sid: state.sid,
         },
@@ -212,6 +225,13 @@ export function useChat(messagesEndRef: React.RefObject<HTMLDivElement>) {
             pos,
           });
           setPos(pos)
+        }
+      }
+
+      if (message.type === 'session.diff.resp') {
+        const payload = message.payload as { sid: string };
+        if (payload.sid === sid && pos && pos > 0) {
+          setDiff(payload)
         }
       }
 
@@ -283,6 +303,12 @@ export function useChat(messagesEndRef: React.RefObject<HTMLDivElement>) {
             },
           });
           vscodeApi.postMessage({
+            type: 'session.diff',
+            payload: {
+              sid,
+            },
+          });
+          vscodeApi.postMessage({
             type: 'session.getList',
             payload: {},
           });
@@ -343,6 +369,8 @@ export function useChat(messagesEndRef: React.RefObject<HTMLDivElement>) {
     session,
     usage,
     chatState,
+    diff,
+    setDiff,
     setPos,
     handleSend,
   };

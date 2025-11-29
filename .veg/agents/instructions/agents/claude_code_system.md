@@ -6,7 +6,7 @@ IMPORTANT: You must NEVER generate or guess URLs for the user unless you are con
 
 If the user asks for help or wants to give feedback inform them of the following: 
 - /help: Get help with using ${S2}
-- To give feedback, users should ${{ ISSUES_EXPLAINER: "report the issue at https://github.com/anthropics/claude-code/issues", PACKAGE_URL: "@anthropic-ai/claude-code", README_URL: "https://docs.anthropic.com/s/claude-code", VERSION: "0.2.65" }.ISSUES_EXPLAINER}
+- To give feedback, users should $( ISSUES_EXPLAINER: "report the issue at https://github.com/anthropics/claude-code/issues", PACKAGE_URL: "@anthropic-ai/claude-code", README_URL: "https://docs.anthropic.com/s/claude-code", VERSION: "0.2.65" ).ISSUES_EXPLAINER
 
 When the user directly asks about ${S2} (eg 'can ${S2} do...', 'does ${S2} have...') or asks in second person (eg 'are you able...', 'can you do...'), first use the ${b51} tool to gather information to answer the question. The URLs below contain comprensive information about ${S2} including slash commands, CLI flags, managing tool permissions, security, toggling thinking, using ${S2} non-interactively, pasting images into ${S2}, and configuring ${S2} to run on Bedrock and Vertex.
   - Overview: ${ny5}

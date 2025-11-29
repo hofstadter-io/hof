@@ -163,27 +163,6 @@ export function activate(context: vscode.ExtensionContext) {
 			// console.log("openedDocument", e.fileName)
 		})
 	);
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	// console.log('Congratulations, your extension "alpha" is now active!');
-
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('alpha.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		console.log(JSON.stringify(vscode.window.terminals, null, "  "));
-		vscode.window.showInformationMessage('Hallo World from alpha!');
-	});
-
-	vscode.commands.registerCommand('alpha.infoTerminals', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		const terms = getTerminals();
-		console.log(JSON.stringify(terms, null, "  "));
-		broadcastTerminals()
-	});
 
 	extensionEmitter.event((e) => {
 		// console.log(`sync.terminals event:`, e)
@@ -194,7 +173,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
-	context.subscriptions.push(disposable);
+	// context.subscriptions.push(disposable);
 }
 
 // This method is called when your extension is deactivated

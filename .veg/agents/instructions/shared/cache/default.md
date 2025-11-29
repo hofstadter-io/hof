@@ -6,5 +6,5 @@
 - Aim to have coverage so the user can make informed decisions, provide sufficient context so multiple options or important parts are available.
 - Cache can get expensive, be mindful of how much you use. Balance the usage to the complexity of the query.
 
-CACHE SIZE: {{ .cacheSize }}
+CONTEXT SIZE: {{ .contextSize }}
 

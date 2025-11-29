@@ -32,22 +32,6 @@ export async function activate(context: vscode.ExtensionContext) {
     })
   );
 
-  // Register commands related to this module
-  context.subscriptions.push(
-    vscode.commands.registerCommand('alpha.showCommands', () => {
-      showQuickPickOptions();
-    })
-  );
-  context.subscriptions.push(
-    vscode.commands.registerCommand('alpha.echo', () => {
-      if (ws) {
-        sendEcho('This is a test from Veggie!');
-        vscode.window.showInformationMessage('Sent echo message to server.');
-      } else {
-        vscode.window.showErrorMessage('Server not connected.');
-      }
-    })
-  );
 }
 
 export function deactivate() {

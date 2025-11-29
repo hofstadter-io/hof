@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"maps"
 	"os"
+	"path/filepath"
+	"slices"
 	"strings"
 
 	"cuelang.org/go/cue/cuecontext"
@@ -79,11 +81,9 @@ func AgenticCUE(agentDir string, models map[string]model.LLM) (config Config, er
 		return config, fmt.Errorf("while decoding agentic CUE: %w", err)
 	}
 
-	// todo, also put this on the Session
-	err = config.Templates.ImportFromFolder(config.InstructionsDir, config.InstructionsDir, templates.Delims{}, nil)
+	err = prepareTemplates(&config)
 	if err != nil {
-		cwd, _ := os.Getwd()
-		return config, fmt.Errorf("while loading instruction templates (%s,%s): %w", cwd, config.InstructionsDir, err)
+		return config, fmt.Errorf("while preparing templates: %w", err)
 	}
 
 	// fmt.Println("AgenticCUE.config:", config)
@@ -207,7 +207,8 @@ func addCallbacks(config Config, agt Agent, c *llmagent.Config) {
 	c.BeforeModelCallbacks = []llmagent.BeforeModelCallback{
 		func(ctx agent.CallbackContext, req *model.LLMRequest) (*model.LLMResponse, error) {
 			fmt.Printf("\nBMC.%s\n", ctx.AgentName())
-			// fmt.Printf("\nBMC.%s\n%#+v\n", ctx.AgentName(), *req)
+
+			// print system prompt before sending to LLM
 			fmt.Println(req.Config.SystemInstruction.Parts[0].Text)
 			return nil, nil
 		},
@@ -246,17 +247,66 @@ func addCallbacks(config Config, agt Agent, c *llmagent.Config) {
 	}
 }
 
+func prepareTemplates(config *Config) error {
+
+	cwd, _ := os.Getwd()
+	// todo, also put this on the Session
+	dir := filepath.Join(cwd, config.InstructionsDir)
+	pre := strings.TrimSuffix(dir, "/**/*.md")
+	config.Templates = templates.NewTemplateMap()
+	// fmt.Printf("found %d templates in %q %q\n", len(config.Templates), dir, pre)
+	err := config.Templates.ImportFromFolder(dir, pre, templates.Delims{}, nil)
+	if err != nil {
+		return fmt.Errorf("while loading instruction templates (%s,%s): %w", cwd, config.InstructionsDir, err)
+	}
+	fmt.Printf("found %d templates in %s\n", len(config.Templates), dir)
+
+	for _, T1 := range config.Templates {
+		for _, T2 := range config.Templates {
+			if T1.Name == T2.Name {
+				continue
+			}
+			t := T1.T.New(T2.Name)
+			_, err := t.Parse(T2.Source)
+			if err != nil {
+				return fmt.Errorf("while cross registering templates (%s,%s): %w", T1.Name, T2.Name, err)
+			}
+		}
+
+		// fmt.Println(T1.Name)
+		// for _, t := range T1.T.Templates() {
+		// 	fmt.Printf(" - %s\n", t.Name())
+		// }
+	}
+
+	return nil
+}
+
 func renderInstructions(cfg Config, agt Agent) llmagent.InstructionProvider {
 
 	return func(ctx agent.ReadonlyContext) (string, error) {
 		// TODO, this last arg is annoying, should have two funcs
 		fmt.Println("renderInstructions.Agent", agt.Name)
 
-		// load instruction template
-		t, err := templates.CreateFromString(agt.Name, agt.Instruction, templates.Delims{})
-		if err != nil {
-			fmt.Println("ERROR.renderInstructions.Create", err)
-			return "", err
+		var err error
+		var t *templates.Template
+
+		t, ok := cfg.Templates[agt.Instruction]
+		if !ok {
+			// load instruction template
+			t, err = templates.CreateFromString(agt.Name, agt.Instruction, templates.Delims{})
+			if err != nil {
+				fmt.Println("ERROR.renderInstructions.Create", err)
+				return "", err
+			}
+			t.Name = agt.Name + "-inline"
+			for _, T := range cfg.Templates {
+				t := t.T.New(T.Name)
+				_, err := t.Parse(T.Source)
+				if err != nil {
+					return "", fmt.Errorf("while cross registering templates (%s,%s): %w", t.Name(), T.Name, err)
+				}
+			}
 		}
 
 		// gather data
@@ -273,8 +323,8 @@ func renderInstructions(cfg Config, agt Agent) llmagent.InstructionProvider {
 			return "", err
 		}
 
-		if strings.Contains(agt.Instruction, "CACHE SIZE: {{") {
-			data["cacheSize"] = len(b)
+		if strings.Contains(string(b), "CONTEXT SIZE:") {
+			data["contextSize"] = len(b)
 
 			b, err = t.Render(data)
 			if err != nil {
@@ -298,27 +348,52 @@ func prepareData(cfg Config, agt Agent) func(ctx agent.ReadonlyContext) (map[str
 
 		// environment of the workspace / vscode
 		state := maps.Collect(ctx.ReadonlyState().All())
-		data["env"] = state["env"]
+		data["env"] = map[string]any{
+			"basedir": state["basedir"],
+		}
 		data["config"] = cfg
 		data["agent"] = agt
-
-		// imaginary FS
-		fs := make(map[string]any)
-		for k, v := range state {
-			if p, matched := strings.CutPrefix(k, "fs:"); matched {
-				fs[p] = v
-			}
-		}
-		data["fs"] = fs
 
 		// agent cache
 		cache := make(map[string]any)
 		for k, v := range state {
 			if p, matched := strings.CutPrefix(k, fmt.Sprintf("cache:%s:", ctx.AgentName())); matched {
-				cache[p] = v
+				switch p {
+				case "planning":
+					data["planning"] = v
+				case "subconscious":
+					data["subconscious"] = v
+
+				default:
+					cache[p] = v
+				}
 			}
 		}
 		data["cache"] = cache
+
+		stateKeys := slices.Collect(maps.Keys(state))
+		cacheKeys := slices.Collect(maps.Keys(cache))
+		dataKeys := slices.Collect(maps.Keys(data))
+
+		fmt.Println("stateKeys:")
+		for _, k := range stateKeys {
+			fmt.Println(" ", k)
+		}
+		fmt.Println("cacheKeys:")
+		for _, k := range cacheKeys {
+			fmt.Println(" ", k)
+		}
+		fmt.Println("dataKeys:")
+		for _, k := range dataKeys {
+			fmt.Println(" ", k)
+		}
+		fmt.Println("subconscious:", data["subconscious"])
+
+		// b, err := json.MarshalIndent(data["cache"], "", "  ")
+		// if err != nil {
+		// 	fmt.Println("error while marshalling data for debug of template input:", err)
+		// }
+		// fmt.Println(string(b))
 
 		return data, nil
 	}

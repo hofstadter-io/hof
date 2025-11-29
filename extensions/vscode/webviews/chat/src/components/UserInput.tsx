@@ -19,6 +19,7 @@ export const UserInput = ({
   usage,
   session,
   chatState,
+  diff,
   handleSend,
 }:{
   sid: string,
@@ -26,6 +27,7 @@ export const UserInput = ({
   usage: any,
   session: any,
   chatState: any,
+  diff?: any,
   handleSend: (userInput: any) => void,
 }) => {
   const [userInput, setUserInput] = useState<any>({ 
@@ -109,7 +111,14 @@ export const UserInput = ({
       "bg-slate-800/80 rounded-xl border-gray-500",
       )}
     >
-      <Header sid={sid} setPos={setPos} usage={usage} session={session} chatState={chatState} />
+      <Header
+        sid={sid}
+        setPos={setPos}
+        diff={diff}
+        usage={usage}
+        session={session}
+        chatState={chatState}
+      />
 
       <textarea
         className="rounded-lg p-2 text-md m-2 bg-slate-700/80"

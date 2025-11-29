@@ -1,4 +1,4 @@
-package handlers
+package ws
 
 import (
 	"encoding/json"
@@ -69,6 +69,8 @@ func sessionGet(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 
 	// fmt.Println("mailing sessions", payload)
 	c.Mail("session.info", S)
+	c.Mail("session.resp.get", S)
+	sessionFilesysDiff(r, c, m)
 }
 
 func sessionList(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
@@ -79,7 +81,7 @@ func sessionList(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 	})
 	if err != nil {
 		log.Printf("session.getList: %v", err)
-		c.Mail("session.list", map[string]string{
+		c.Mail("session.list.resp", map[string]string{
 			"error": err.Error(),
 		})
 		return
@@ -95,6 +97,7 @@ func sessionList(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 		payload = append(payload, S)
 	}
 	c.Mail("session.list", payload)
+	c.Mail("session.list.resp", payload)
 }
 
 func sessionCreate(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
@@ -120,10 +123,28 @@ func sessionCreate(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 		}
 	}
 	fmt.Println("Initializing session with dir", dir)
-	// TODO, From container if in config
+
+	// TODO, this startup is slow
+	// 1. loading code from fs or git remote
+	// 2. (still) boot a container
+	// we want to have the ui return quickly, the user is going to be taking some time to craft a message anyhow
+	//   also, might want to be lazy about dagger, (i.e.) if we aren't even doing coding
+	// anyway, let's
+	// - generate the Sid, return that quickly
+	// - do this init in the background
+	// - use a state value to indicate progress and readiness
+	// Followup, the UI still moves along and the user can start typing before the session loads
+	//   but they won't really notice as it is pretty seamless
+
+	// TODO, From container if in config, or even more so dagger DSL from CUE config for all sorts of things
+	// TODO, git sources
 	d := r.Dagger.Host().Directory(dir, dagger.HostDirectoryOpts{
 		Gitignore: true,
 	})
+	// wrapping the directory keeps it the same as the host dir, so we don't have to add/rmv the basedir
+	// that got confusing, but does not account for what we do with git remote dirs, maybe they will just work
+	d = r.Dagger.Directory().WithDirectory(dir, d, dagger.DirectoryWithDirectoryOpts{})
+
 	id, err := d.ID(r.Ctx)
 	if err != nil {
 		log.Printf("Error in 'session.create' while loading dir into dagger: %v", err)
@@ -131,6 +152,7 @@ func sessionCreate(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 	}
 	initialState["origfs"] = string(id)
 	initialState["dagger"] = string(id)
+	initialState["basedir"] = dir
 
 	maps.Copy(initialState, c.State)
 	resp, err := r.S.Create(r.Ctx, &session.CreateRequest{
@@ -145,6 +167,7 @@ func sessionCreate(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 
 	// make sure everyone is notified (just the overall list that most listen to)
 	sessionList(r, c, m)
+	sessionFilesysDiff(r, c, m)
 
 	// if focused, tell chat
 	if payload.Focus {
@@ -323,13 +346,15 @@ func sessionDelState(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 }
 
 type SessionFilesysDiffRequest struct {
-	Sid string `json:"sid"`
-	Pos int    `json:"pos"`
+	Sid  string `json:"sid"`
+	Pos  int    `json:"pos"`
+	Show bool   `json:"show,omitempty"`
 }
 
 type SessionFilesysDiffResponse struct {
 	Sid    string `json:"sid"`
 	Pos    int    `json:"pos"`
+	Show   bool   `json:"show,omitempty"`
 	Status string `json:"status,omitempty"`
 	Error  string `json:"error,omitempty"`
 }
@@ -349,11 +374,12 @@ func sessionFilesysDiff(r *runtime.Runtime, c *runtime.Client, m *runtime.Messag
 		SessionID: p.Sid,
 	})
 	if err != nil {
-		log.Printf("session.diff: %v", err)
+		log.Printf("session.diff.error: %v", err)
 		c.Mail("session.diff.resp", map[string]string{
 			"sid":   p.Sid,
 			"error": err.Error(),
 		})
+		return
 	}
 
 	// get dagger handle
@@ -379,45 +405,38 @@ func sessionFilesysDiff(r *runtime.Runtime, c *runtime.Client, m *runtime.Messag
 	// now get our dirs
 	origDir := dag.LoadDirectoryFromID(dagger.DirectoryID(origId.(string)))
 	dagDir := dag.LoadDirectoryFromID(dagger.DirectoryID(dagId.(string)))
-	changes := dagDir.Changes(origDir)
-	// fmt.Println("session.diff.debug", origId, dagId, maps.Collect(resp.Session.State().All()))
 
-	addpaths, err := changes.AddedPaths(r.Ctx)
+	payload, err := runtime.DiffDirectories(r.Ctx, origDir, dagDir)
 	if err != nil {
-		log.Printf("session.diff.resp: %v", err)
+		log.Printf("session.diff.error: %v", err)
 		c.Mail("session.diff.resp", map[string]string{
 			"sid":   p.Sid,
 			"error": err.Error(),
 		})
 	}
+	payload["sid"] = p.Sid
+	payload["show"] = p.Show
 
-	modpaths, err := changes.ModifiedPaths(r.Ctx)
-	if err != nil {
-		log.Printf("session.diff.resp: %v", err)
-		c.Mail("session.diff.resp", map[string]string{
-			"sid":   p.Sid,
-			"error": err.Error(),
-		})
-	}
+	c.Mail("session.diff.resp", payload)
 
-	delpaths, err := changes.RemovedPaths(r.Ctx)
-	if err != nil {
-		log.Printf("session.diff.resp: %v", err)
-		c.Mail("session.diff.resp", map[string]string{
-			"sid":   p.Sid,
-			"error": err.Error(),
-		})
-	}
+}
 
-	pfile := changes.AsPatch()
-	patch, err := pfile.Contents(r.Ctx)
+func sessionFork(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 
-	c.Mail("session.diff.resp", map[string]any{
-		"sid":      p.Sid,
-		"addpaths": addpaths,
-		"modpaths": modpaths,
-		"delpaths": delpaths,
-		"patch":    patch,
-	})
+}
+
+func sessionMerge(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
+
+}
+
+func sessionTag(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
+
+}
+
+func sessionPush(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
+
+}
+
+func sessionPull(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 
 }

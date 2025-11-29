@@ -4,40 +4,33 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sort"
 
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 )
 
 func (r *Runtime) Run() error {
 	port := ":2257"
 
-	r.setupServer()
+	routes := r.e.Routes()
+	sort.Slice(routes, func(i, j int) bool {
+		lhs, rhs := routes[i], routes[j]
+		if lhs.Path < rhs.Path {
+			return true
+		}
+		if lhs.Path > rhs.Path {
+			return false
+		}
+		return lhs.Method < rhs.Method
+	})
+	for _, route := range routes {
+		fmt.Printf("%-6s %s\n", route.Method, route.Path)
+	}
+
 	go r.runRegistrar()
 	r.e.Logger.Fatal(r.e.Start(port))
 
-	return nil
-}
-
-func (r *Runtime) setupServer() error {
-	e := echo.New()
-	e.HideBanner = true
-
-	// middleware
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
-
-	// routes
-	e.GET("/", r.serveWs)
-
-	e.GET("/alive", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello, World!")
-	})
-	// TODO metrics & otel
-
-	// save & return
-	r.e = e
 	return nil
 }
 
