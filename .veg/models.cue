@@ -1,4 +1,4 @@
-package agents
+package veg
 
 
 models: [n=string]: {

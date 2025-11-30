@@ -7,6 +7,10 @@ import (
 	"github.com/hofstadter-io/hof/lib/agent/runtime"
 )
 
+func configInfo(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
+	c.Mail("config.info.resp", r.Agentic)
+}
+
 func modelsList(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 	c.Mail("models.list.resp", r.Agentic.Models)
 }

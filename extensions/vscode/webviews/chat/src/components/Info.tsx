@@ -21,7 +21,10 @@ import {
 import JsonView from '@uiw/react-json-view';
 import { vscodeTheme } from '@uiw/react-json-view/vscode';
 
+import { Tooltipped } from "@/components/Tooltipped";
 import { Menu } from '@/components/SessionMenu'
+
+import { cn } from "@/lib/utils";
 
 export const EventDetails = ({sid, pos, setPos, evt}:{sid: string, pos: number, setPos: any, evt: any}) => {
   const [hidden, setHidden] = useState(true);
@@ -31,7 +34,7 @@ export const EventDetails = ({sid, pos, setPos, evt}:{sid: string, pos: number, 
         <TimeInfo timestamp={evt.Timestamp} />
         <span className="text-sm">{evt.Author}</span>
       </div>
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col justify-between items-center">
         <UsageInfo evt={evt} size={16} />
         <Menu sid={sid} pos={pos} setPos={setPos} hidden={hidden} setHidden={setHidden} />
       </div>
@@ -132,14 +135,29 @@ export const DiffInfo = ({
   diff: any
   size?: number
 }) => {
+  const ap = diff?.addpaths
+  const mp = diff?.modpaths
+  const dp = diff?.delpaths
   return (
     <div className="flex gap-1">
-      <FilePlus size={size}/>
-      {diff?.addpaths?.length || 0}
-      <FilePen size={size}/>
-      {diff?.modpaths?.length || 0}
-      <FileX size={size}/>
-      {diff?.delpaths?.length || 0}
+      <Tooltipped label={ap?.join("\n") || "nothing new"}>
+        <div className={cn("flex gap-1 hover:text-green-500", ap?.length && "text-green-500")}>
+          <FilePlus size={size}/>
+          {ap?.length || 0}
+        </div>
+      </Tooltipped>
+      <Tooltipped label={mp?.join("\n") || "no edits"}>
+        <div className={cn("flex gap-1 hover:text-yellow-500", mp?.length && "text-yellow-500")}>
+          <FilePen size={size}/>
+          {mp?.length || 0}
+        </div>
+      </Tooltipped>
+      <Tooltipped label={dp?.join("\n") || "did you take out the trash?"}>
+        <div className={cn("flex gap-1 hover:text-red-500", dp?.length && "text-red-500")}>
+          <FileX size={size}/>
+          {dp?.length || 0}
+        </div>
+      </Tooltipped>
     </div>
   )
 }

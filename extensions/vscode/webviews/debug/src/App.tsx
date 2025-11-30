@@ -38,6 +38,7 @@ interface Message {
 
 const setPairs: Record<string,string> = {
   "terminal.info": "terminals",
+  "config.info.resp": "config",
   "models.list.resp": "models",
   "agents.list.resp": "agents",
   "chat.loadSession": "sid",

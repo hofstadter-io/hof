@@ -61,6 +61,12 @@
         "icon": "$(filter)"
       },
       {
+        "command": "veg.explorer.refreshAll",
+        "category": "Veg",
+        "title": "Refresh Explorer (Veg)",
+        "icon": "$(clear-all)"
+      },
+      {
         "command": "veg.session.showSessionDiff",
         "category": "Veg",
         "title": "Show Session Diff (Veg)",
@@ -139,7 +145,12 @@
 				"title": "veg.planning.delete",
         "icon": "$(trash)"
 			},
-
+      {
+        "command": "veg.debug.terminal",
+        "category": "Veg Debug",
+        "title": "veg.debug.requestSync",
+        "icon": "$(terminal)"
+      },
       {
         "command": "veg.debug.requestSync",
         "category": "Veg Debug",
@@ -159,6 +170,10 @@
         }
       ],
       "editor/title": [
+        {
+          "command": "veg.explorer.refreshAll",
+          "group": "navigation"
+        },
         {
           "command": "veg.explorer.toggleShown",
           "group": "navigation"

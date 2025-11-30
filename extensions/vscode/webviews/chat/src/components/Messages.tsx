@@ -1,7 +1,6 @@
 import { cn } from "@/lib/utils";
-import { BadgeQuestionMark, Check, X } from "lucide-react";
 
-import { Markdown } from '@/components/Markdown'
+import { Markdown, CopyButton } from '@/components/Markdown'
 import { EventDetails } from "@/components/Info";
 
 export const Events = ({
@@ -95,10 +94,11 @@ const MessagePart = ({ sid, pos, setPos, part, evt }:{ sid: string, pos: number,
   return <UnknownEvent sid={sid} pos={pos} setPos={setPos} data={part} msg="unknown part"/>
 }
 
-const TextPart = ({ part }:{ part: any, evt: any }) => {
+const TextPart = ({ part, evt }:{ part: any, evt: any }) => {
   // TODO, add copy button, size limiter (3 options)
   return (
-    <div className="p-4 dark:prose-invert prose-sm prose-stone">
+    <div className="p-4 flex flex-col dark:prose-invert prose-sm prose-stone">
+      { evt?.Content?.role === "user" && <CopyButton source={part.text} positioning="ml-auto"/> }
       <Markdown>{part.text}</Markdown>
     </div>
   )
@@ -115,16 +115,22 @@ const FuncCall = ({ part }:{ part: any, evt: any }) => {
   })
 
   const isPlanning = fn === "cache_put" && args["key"] === "planning"
+  const isExec = fn === "exec"
 
   return (
     <div  className="mr-auto flex flex-col gap-2">
       <div  className="flex gap-2 items-baseline">
         <span className="font-heavy">{fn}</span>
-        <span className="font-thin">{argVals.join(" ")}</span>
+        <span className="font-thin">{(argVals || []).join(" ")}</span>
       </div>
       { isPlanning && (
         <pre className="m-2 p-2 border border-violet-500">
           {args.value}
+        </pre>
+      )}
+      { isExec && (
+        <pre className="m-2 p-2 border border-green-500">
+          {args.script}
         </pre>
       )}
     </div>
@@ -151,13 +157,17 @@ const FuncResp = ({ part }:{ part: any, evt: any }) => {
 
   // console.log("FuncResp.render", fn, argVals, err)
   return (
-    <div className="mr-auto flex flex-col gap-2">
+    <div className="flex flex-col gap-2">
       <div  className={cn("flex gap-2 items-baseline")}>
         <span className="font-heavy">{fn}</span>
-        <span className="font-thin">{argVals.join(" ")}</span>
+        <span className="font-thin">{(argVals || []).join(" ")}</span>
         { err && <span className="text-red-400">Error</span> }
-
       </div>
+      { err && 
+        <div className="m-2 p-3 border border-red-400 max-h-32">
+          <pre className="overflow-auto">{err}</pre>
+        </div>
+      }
     </div>
   )
 }
@@ -175,6 +185,8 @@ const f2NameArgs: Record<string,string[]> = {
   "fs_write": ["path"],
   "fs_edit": ["path"],
   "fs_del": ["path"],
+
+  "exec": ["key"],
 
   // legacy
   "read_file": ["path"],

@@ -91,6 +91,22 @@ function finalizeExec(term: Terminal, end: vscode.TerminalShellExecutionEndEvent
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+	let disposable = vscode.commands.registerCommand('veg.debug.terminal', () => {
+			// 1. Create the terminal
+			const terminal = vscode.window.createTerminal({
+					name: "Veg Terminal",
+					// shellPath: "..." // Optional: specify a shell
+			});
+
+			// 2. Show the terminal to the user (focus it)
+			terminal.show();
+
+			// 3. Send the command text
+			// The second argument 'true' implies adding a newline to execute immediately
+			terminal.sendText("echo 'Hello from VS Code Extension!'", true);
+	});
+
+	context.subscriptions.push(disposable);
 
 	context.subscriptions.push(
 
@@ -178,3 +194,4 @@ export function activate(context: vscode.ExtensionContext) {
 
 // This method is called when your extension is deactivated
 export function deactivate() {}
+

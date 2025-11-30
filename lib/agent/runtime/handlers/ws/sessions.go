@@ -140,6 +140,7 @@ func sessionCreate(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 	// TODO, git sources
 	d := r.Dagger.Host().Directory(dir, dagger.HostDirectoryOpts{
 		Gitignore: true,
+		NoCache:   true,
 	})
 	// wrapping the directory keeps it the same as the host dir, so we don't have to add/rmv the basedir
 	// that got confusing, but does not account for what we do with git remote dirs, maybe they will just work
@@ -150,9 +151,20 @@ func sessionCreate(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 		log.Printf("Error in 'session.create' while loading dir into dagger: %v", err)
 		return
 	}
+
+	renv := r.Agentic.Runenv["golang"]
+	container := r.Dagger.Container().From(renv.Spec.From).WithWorkdir(dir)
+	rid, err := container.ID(r.Ctx)
+	if err != nil {
+		log.Printf("Error in 'session.create' while loading dir into dagger: %v", err)
+		return
+	}
+
+	initialState["basedir"] = dir
 	initialState["origfs"] = string(id)
 	initialState["dagger"] = string(id)
-	initialState["basedir"] = dir
+	initialState["origrv"] = string(rid)
+	initialState["runenv"] = string(rid)
 
 	maps.Copy(initialState, c.State)
 	resp, err := r.S.Create(r.Ctx, &session.CreateRequest{

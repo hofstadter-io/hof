@@ -1,19 +1,15 @@
 import { vscodeApi } from "@/vscodeApi";
 import {
   Braces,
-  Columns3,
+  FileDiff,
+  GitGraph,
+  GitPullRequestCreateArrow,
+  ListTree,
   RefreshCcw,
   SquareTerminal,
-  GitPullRequestCreateArrow,
-  GitGraph,
-  ListTree,
 } from 'lucide-react'
 
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+import { Tooltipped } from "@/components/Tooltipped";
 
 export const Menu = ({
   sid,
@@ -21,7 +17,7 @@ export const Menu = ({
   setPos,
   hidden,
   refresh,
-  openFS,
+  // openFS,
   // checkpoint,
   setHidden,
 }:{
@@ -35,41 +31,13 @@ export const Menu = ({
   setHidden: (prev: any) => any
 }) => {
 
-  const Tooltipped = ({ label, children }: { label: string, children: any}) => {
-    return (
-      <Tooltip>
-        <TooltipTrigger>{children}</TooltipTrigger>
-        <TooltipContent>
-          <p>{label}</p>
-        </TooltipContent>
-      </Tooltip>
-    )
-  }
   return (
     <div className="ml-auto flex justify-end items-center gap-2">
-      {openFS && <Tooltipped label="diff">
-      <Columns3 size={16}
-        aria-label="diff"
-        className="hover:text-violet-500"
-        onClick={() => {
-          setPos(pos)
-          vscodeApi.postMessage({
-            type: "session.diff",
-            payload: {
-              sid,
-              pos,
-              show: true,
-              // todo, add start here
-            }
-          })
-        }}
-      />
-      </Tooltipped>}
 
       <Tooltipped label="browse">
       <ListTree size={16}
         aria-label="diff"
-        className="hover:text-violet-500"
+        className="hover:text-sky-500"
         onClick={() => {
           setPos(pos)
           vscodeApi.postMessage({
@@ -100,6 +68,25 @@ export const Menu = ({
           }}
         />
       </div>
+      </Tooltipped>
+
+      <Tooltipped label="diff">
+      <FileDiff size={16}
+        aria-label="diff"
+        className="hover:text-yellow-500"
+        onClick={() => {
+          setPos(pos)
+          vscodeApi.postMessage({
+            type: "session.diff",
+            payload: {
+              sid,
+              pos,
+              show: true,
+              // todo, add start here
+            }
+          })
+        }}
+      />
       </Tooltipped>
 
       <Tooltipped label="merge">

@@ -57,6 +57,8 @@ export async function activate(context: vscode.ExtensionContext) {
     // console.log("WS LOAD SID:", sid)
     if (sid && sid !== "") {
       sync(sid)
+    } else {
+      sync("")
     }
 	});
 }

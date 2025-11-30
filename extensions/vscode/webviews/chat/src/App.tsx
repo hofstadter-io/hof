@@ -3,11 +3,12 @@ import '@/index.css' // We'll add some styles
 
 // test comment to see what debug looks like
 
-import { Header } from '@/components/Header.js'
-import { Events } from '@/components/Messages.js';
-import { UserInput } from '@/components/UserInput.js';
+import { Header } from '@/components/Header'
+import { Welcome } from '@/components/Welcome'
+import { Events } from '@/components/Messages';
+import { UserInput } from '@/components/UserInput';
 
-import { useChat } from '@/hooks/useChat.js';
+import { useChat } from '@/hooks/useChat';
 
 function App() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -44,13 +45,16 @@ function App() {
         className="mx-2"
       />
 
-      {true && <Events
-        sid={sid}
-        currPos={pos}
-        setPos={setPos}
-        events={session?.events}
-        messagesEndRef={messagesEndRef}
-      />}
+      {session?.events?.length > 0 ?
+        <Events
+          sid={sid}
+          currPos={pos}
+          setPos={setPos}
+          events={session?.events}
+          messagesEndRef={messagesEndRef}
+        />
+        : <Welcome username={chatState?.env?.user || "to veggie"} />
+      }
 
       <UserInput
         sid={sid}

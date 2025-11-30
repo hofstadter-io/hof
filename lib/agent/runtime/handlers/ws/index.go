@@ -21,6 +21,7 @@ func SetupHandlers(r *runtime.Runtime) {
 	// informational handlers
 	r.Handlers["requestSync"] = broadcastSync
 	r.Handlers["config.reload"] = reloadConfig
+	r.Handlers["config.info"] = configInfo
 	r.Handlers["models.list"] = modelsList
 	r.Handlers["agents.list"] = agentsList
 
@@ -108,6 +109,5 @@ func reloadConfig(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 			"error_message": fmt.Errorf("while reloading config: %w", err),
 		})
 	}
-	modelsList(r, c, m)
-	agentsList(r, c, m)
+	configInfo(r, c, m)
 }

@@ -27,7 +27,9 @@ import (
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
-// Sqlite driver based on CGO
+// TODO, make these env vars
+const CONFIG_PATH = `.veg`
+const DATA_PATH = `.veg/data`
 
 type Runtime struct {
 	AppName string
@@ -154,7 +156,7 @@ func (R *Runtime) ReadConfig() error {
 		return fmt.Errorf("while relativing dir: %w", err)
 	}
 
-	adir := filepath.Join(rdir, "./.veg/agents")
+	adir := filepath.Join(rdir, CONFIG_PATH)
 	fmt.Println("dirs", gdir, cwd, bdir, rdir, adir)
 	// formatting so CUE accepts it (cannot be absolute, cannot be without leading ./ or ../)
 	if strings.HasPrefix(adir, ".veg/") {
@@ -186,22 +188,26 @@ func (R *Runtime) initModels() (err error) {
 
 func (R *Runtime) initServices() error {
 	// open comms to the db
-	db, err := gorm.Open(sqlite.Open(".veg/veg.db"), &gorm.Config{})
+	dia := sqlite.Open(filepath.Join(DATA_PATH, "veg.db"))
+	db, err := gorm.Open(dia, &gorm.Config{})
 	if err != nil {
 		return fmt.Errorf("error creating database session service: %w", err)
 	}
 	R.db = db
 
-	s, err := database.NewSessionService(db)
+	// session management
+	s, err := database.NewSessionServiceGorm(db)
 	if err != nil {
 		return err
 	}
 	database.AutoMigrate(s)
 	R.S = s
-	// R.S = session.InMemoryService()
 
+	// artifacts
 	R.A = artifact.InMemoryService()
-	R.M, err = memory.FilesystemService("./.veg/memories")
+
+	// memories
+	R.M, err = memory.FilesystemService(filepath.Join(DATA_PATH, "memories"))
 	if err != nil {
 		return err
 	}

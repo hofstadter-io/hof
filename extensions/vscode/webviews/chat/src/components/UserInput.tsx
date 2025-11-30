@@ -107,7 +107,7 @@ export const UserInput = ({
   return (
     <div 
       className={cn(
-      "my-auto flex flex-col gap-2 mx-2",
+      "flex flex-col gap-2 mx-2",
       "bg-slate-800/80 rounded-xl border-gray-500",
       )}
     >
@@ -141,8 +141,8 @@ export const UserInput = ({
       >{userInput.error}</span>}
 
       <div className="flex gap-2 m-3">
-        <AgentSelect agent={userInput?.agent} agents={chatState?.agents} handleSelect={handleSelectAgent} />
-        <ModelSelect model={userInput?.model} models={chatState?.models} handleSelect={handleSelectModel} />
+        <AgentSelect agent={userInput?.agent} agents={chatState?.config?.agents} handleSelect={handleSelectAgent} />
+        <ModelSelect model={userInput?.model} models={chatState?.config?.models} handleSelect={handleSelectModel} />
         <button 
           disabled={!inputReady}
           onClick={() => doSend(userInput)}

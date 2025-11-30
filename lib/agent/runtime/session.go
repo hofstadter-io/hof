@@ -4,7 +4,7 @@ package runtime
 
 // map of these in Client as well
 type Session struct {
-	// dagger container / fs
+	// dagger container / fs QoL
 	// instruction templates
 
 }

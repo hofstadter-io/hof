@@ -66,6 +66,36 @@ export function useChat(messagesEndRef: React.RefObject<HTMLDivElement>) {
     const removeListener = vscodeApi.onMessage((event) => {
       const message = event.data as ServerMessage;
 
+      if (message.type === 'config.info.resp') {
+        setChatState((prev: any) => {
+          const s = vscodeApi.getState();
+          const next = {
+            ...prev,
+            config: message.payload,
+          };
+          vscodeApi.setState({
+            ...s,
+            chatState: next,
+          });
+          return next;
+        });
+      }
+
+      if (message.type === 'env.info.resp') {
+        setChatState((prev: any) => {
+          const s = vscodeApi.getState();
+          const next = {
+            ...prev,
+            env: message.payload,
+          };
+          vscodeApi.setState({
+            ...s,
+            chatState: next,
+          });
+          return next;
+        });
+      }
+
       if (message.type === 'models.list.resp') {
         setChatState((prev: any) => {
           const s = vscodeApi.getState();
@@ -245,8 +275,10 @@ export function useChat(messagesEndRef: React.RefObject<HTMLDivElement>) {
             session: {},
           });
           setSid('');
+          setPos('')
           setSession({});
           setUsage({});
+          setDiff({});
         }
       }
     });

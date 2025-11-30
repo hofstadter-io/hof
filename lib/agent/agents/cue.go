@@ -8,6 +8,7 @@ import (
 	"slices"
 	"strings"
 
+	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/cuecontext"
 	"cuelang.org/go/cue/load"
 	"google.golang.org/adk/agent"
@@ -21,18 +22,39 @@ import (
 	"github.com/hofstadter-io/hof/lib/templates"
 )
 
-type Config struct {
-	Models map[string]Model `json:"models"`
-	Agents map[string]Agent `json:"agents"`
-	Tools  map[string]Tool  `json:"tools"`
+// this needs to be supported through a heirachy of unification
+// dir, project, user, org... with modules and per-request
+// (hence the CUE, still todo for more CUEism in memory ^^)
 
-	Instructions    map[string]any `json:"instructions"`
-	InstructionsDir string         `json:"instructionsDir"`
+// just cause this file is open... randome thought
+//
+// 1. I have left stuff like this all over the code, should build a specialized agent for this
+// 2. Why not build an agent (team) that can...
+//   1. search a dir or repo for them (3.1 i.e.), summarize
+//   2. do some deep research
+//   3. build a plan to tackle them, output something structured
+//   4. update roadmap / kanban
+// 3. sub-team / agent
+//   1. process one file at a time
+//   2. store comment and context
+//   3. give back to 2.1
+//
+// So then, can we build an agent that can assemble different setups like this, depending on the task?
+
+type Config struct {
+	Models map[string]Model  `json:"models"`
+	Agents map[string]Agent  `json:"agents"`
+	Tools  map[string]Tool   `json:"tools"`
+	Runenv map[string]Runenv `json:"runenv"`
+
+	Embeds   map[string]any `json:"embeds"`
+	EmbedDir string         `json:"embedDir"`
 
 	Templates templates.TemplateMap
 }
 
 type Agent struct {
+	// proxy to adk fields
 	Name        string `json:"name"`
 	Model       string `json:"model"`
 	Description string `json:"description"`
@@ -40,6 +62,10 @@ type Agent struct {
 
 	Tools     []string `json:"tools"`
 	SubAgents []string `json:"subagents"`
+
+	// veg concepts, some of this is more tied to the session, but every session starts with an agent
+	AutoLoadWorkdir bool   `json:"autoLoadWorkdir"`  // we need a way to say yay/nay to mounting the local dir, we don't need it for many queries
+	Runenv          string `json:"runenv,omitempty"` // what is the agent default, none means no container
 }
 
 type Model struct {
@@ -50,16 +76,38 @@ type Model struct {
 type Tool struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	// Instruction string `json:"instruction"`
+}
+
+type Runenv struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+
+	Spec      RunenvSpec `json:"spec"`
+	SpecValue cue.Value  `json:""`
+}
+
+type RunenvSpec struct {
+	From       string            `json:"from,omitempty"`
+	Env        map[string]string `json:"env,omitempty"`
+	Workdir    string            `json:"workdir,omitempty"`
+	Entrypoint []string          `json:"entrypoint,omitempty"`
+	Ports      map[string][]int  `json:"ports,omitempty"`
+	User       string            `json:"user,omitempty"`
 }
 
 // this code constructs one or more agents from a CUE value
 // to build up an agentic system
 func AgenticCUE(agentDir string, models map[string]model.LLM) (config Config, err error) {
 	// loadup and validate our agentic CUE
+	if strings.HasPrefix(agentDir, ".veg") {
+		agentDir = "./" + agentDir
+	}
+	fmt.Println("AgenticCUE", agentDir)
 	ctx := cuecontext.New()
 	entrypoints := []string{agentDir}
-	bis := load.Instances(entrypoints, nil)
+	bis := load.Instances(entrypoints, &load.Config{
+		Package: "veg",
+	})
 	bi := bis[0]
 	if bi.Err != nil {
 		return config, fmt.Errorf("while loading agentic CUE: %w", bi.Err)
@@ -181,6 +229,9 @@ func buildTools(cfg Config, agt Agent, models map[string]model.LLM) ([]tool.Tool
 		case "fs_del":
 			T, err = meta.FilesysDel(tcfg.Name, tcfg.Description)
 
+		case "exec":
+			T, err = meta.Exec(tcfg.Name, tcfg.Description, agt.Runenv)
+
 		default:
 			return nil, fmt.Errorf("unknown tool %q in agent %q %q %v", t, agt.Name, agentAsTool, found)
 		}
@@ -251,13 +302,13 @@ func prepareTemplates(config *Config) error {
 
 	cwd, _ := os.Getwd()
 	// todo, also put this on the Session
-	dir := filepath.Join(cwd, config.InstructionsDir)
-	pre := strings.TrimSuffix(dir, "/**/*.md")
+	dir := filepath.Join(cwd, config.EmbedDir)
+	glob := filepath.Join(dir, "**/*.*")
 	config.Templates = templates.NewTemplateMap()
-	// fmt.Printf("found %d templates in %q %q\n", len(config.Templates), dir, pre)
-	err := config.Templates.ImportFromFolder(dir, pre, templates.Delims{}, nil)
+	// fmt.Printf("found %d templates in %q\n", len(config.Templates), dir)
+	err := config.Templates.ImportFromFolder(glob, dir, templates.Delims{}, nil)
 	if err != nil {
-		return fmt.Errorf("while loading instruction templates (%s,%s): %w", cwd, config.InstructionsDir, err)
+		return fmt.Errorf("while loading instruction templates (%s,%s): %w", cwd, config.EmbedDir, err)
 	}
 	fmt.Printf("found %d templates in %s\n", len(config.Templates), dir)
 

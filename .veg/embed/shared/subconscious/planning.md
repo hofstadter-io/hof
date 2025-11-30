@@ -40,16 +40,20 @@ You MUST strictly follow this formatting.
 
 <plan-name>:
   status: todo | inprogress | done | reflecting | error | stuck | rethink
+  complexity: trivial | low | medium | hard | unknown
   steps:
     <step-name>:
-      status: ...
+      status: _
+      complexity: _
       steps:
         <sub-step-name>:
-          status: ...
-          steps: ...
+          status: _
+          complexity: _
+          steps: _
     <step-name>:
-      status: ...
-      steps: ...
+      status: _
+      complexity: _
+      steps: _
     ...
 
 </node-format>
@@ -57,28 +61,38 @@ You MUST strictly follow this formatting.
 <example>
 my-plan:
   status: inprogress
+  complexity: low
   steps:
     gather-context:
       status: done
+      complexity: low
       steps:
         explore-files:
           status: done
+          complexity: low
         refine-selection:
           status: done
+          complexity: low
         summarize-findings:
           status: done
+          complexity: low
     write-eval-loop:
       status: inprogress
+      complexity: low
       steps:
         write-code:
           status: done
+          complexity: med
         test:
           status: inprogress
+          complexity: trivial
         reflect:
           status: todo
+          complexity: unknown
         
     summarize-work:
       status: todo
+      complexity: low
 </example>
 
 <planning>

@@ -32,6 +32,11 @@ export function activate(context: vscode.ExtensionContext) {
 		})
 	);
 
+	vscode.commands.registerCommand('veg.explorer.refreshAll', async () => {
+		await vcp.refreshAll()
+		vscode.commands.executeCommand('workbench.files.action.refreshFilesExplorer')
+  })
+
 	vscode.commands.registerCommand('veg.explorer.toggleShown', () => {
     vcp.toggleShown()
 		vscode.commands.executeCommand('workbench.files.action.refreshFilesExplorer')
@@ -76,11 +81,18 @@ export function activate(context: vscode.ExtensionContext) {
 			vcp.openFS(sid, dir, name)
 			return
 		}
+		if (e.type === "session.fs.refresh") {
+			var { sid, pos: p }: { sid: string, pos?: string } = e.payload;
+			vcp.refreshFS(sid, p)
+			return
+		}
+
 		if (e.type === "session.merge") {
 			var { sid }: { sid: string, dir: string, name?: string } = e.payload;
 			vcp.mergeFS(sid)
 			return
 		}
+
 		if (e.type === "session.delete") {
 			var { sid }: { sid: string } = e.payload;
 			// console.log("FS.delete", sid)
@@ -88,6 +100,9 @@ export function activate(context: vscode.ExtensionContext) {
 			return
 		}
 
+		if (e.type === "session.list.resp") {
+			vcp.setSessions(e.payload)
+		}
 		if (e.type === "session.diff.show") {
 			var { sid, pos}: {
 				sid: string,
@@ -120,16 +135,16 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
-  const fsdeco = new VegFileDecorationProvider();
-  context.subscriptions.push(
-    vscode.window.registerFileDecorationProvider(fsdeco)
-  );
+  // const fsdeco = new VegFileDecorationProvider();
+  // context.subscriptions.push(
+  //   vscode.window.registerFileDecorationProvider(fsdeco)
+  // );
 
-	extensionEmitter.event(async (e) => {
-		if (e.type === "session.diff.resp") {
-      fsdeco.setDiff(e.payload.sid, e.payload)
-    }
-  })
+	// extensionEmitter.event(async (e) => {
+	// 	if (e.type === "session.diff.resp") {
+  //     fsdeco.setDiff(e.payload.sid, e.payload)
+  //   }
+  // })
 }
 
 // This method is called when your extension is deactivated
@@ -146,6 +161,8 @@ class VegContentProvider implements vscode.FileSystemProvider {
 	// <session>/<path> = <content>
 	private fs: Record<string, Record<string, string>> = {}
 	private diff: Record<string,any> = {}
+	private _sessions: Record<string,any> = {}
+
 
 	private _emitter = new vscode.EventEmitter<vscode.FileChangeEvent[]>();
 	private _bufferedEvents: vscode.FileChangeEvent[] = [];
@@ -199,7 +216,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 			// console.log("VEG.readDir.resp", resp)
 
 			const dag: any = await resp.json()
-			console.log("VEG.readDir.dag", dag)
+			// console.log("VEG.readDir.dag", dag)
 			const entries: Array<[string,boolean]> = dag?.entries || []
 
 			// our returned listing
@@ -211,7 +228,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 				const isDir = pair[1]
 				if (!this._shown) {
 					const match = matchPathInDiff(uri.path + path, diff)
-					console.log("show&tell", path, isDir, match)
+					// console.log("show&tell", path, isDir, match)
 					if (!match) {
 						continue
 					}
@@ -263,11 +280,6 @@ class VegContentProvider implements vscode.FileSystemProvider {
 			const c: string = dag.contents
 
 			return new TextEncoder().encode(c)
-
-		// console.log("VEG.readFile.uri", uri)
-		// const s = this.uriToFS(uri)
-		// this.ensureExists(s)
-		// const c = this.fs[s][uri.path]
 
 		}
 		return f()
@@ -364,6 +376,11 @@ class VegContentProvider implements vscode.FileSystemProvider {
 		vegUri = vegUri.with({
 			query: `sid=${sid}`
 		})
+		const sess = this._sessions[sid]
+		if ((!name || name === "") && sess) {
+			name = sess?.state?.title || sid
+		}
+
 		const f: Folder = {
 			uri: vegUri,
 			sid: sid,
@@ -381,6 +398,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 			const qp = new URLSearchParams(wsF[i].uri.query)
 			var s = qp.get("sid") as string
 			if (s === sid) {
+				// HMMM, I doubt this is right
 				return
 			}
 
@@ -390,6 +408,46 @@ class VegContentProvider implements vscode.FileSystemProvider {
 		const started = vscode.workspace.updateWorkspaceFolders(count, null, f)
 		// console.log("openFS started?", started)
 
+	}
+
+	async refreshAll() {
+		const wsF = vscode?.workspace?.workspaceFolders as any[]
+
+		var ws: vscode.WorkspaceFolder | any = null
+		wsF.forEach((ws, i)=>{
+			const qp = new URLSearchParams(ws.uri.query)
+			const s = qp.get("sid") as string
+			const S = this._sessions[s]
+			if (S) {
+				const wsN = { 
+					uri: ws.uri,
+					name:  S?.state?.title || "refresh",
+				}
+				const result = vscode.workspace.updateWorkspaceFolders(i, 1, wsN)
+			}
+		})
+	}
+
+	async refreshFS(sid: string, pos?: string) {
+		const wsF = vscode?.workspace?.workspaceFolders as any[]
+		const count = vscode.workspace.workspaceFolders?.length || 0
+
+		wsF.forEach((ws, i)=>{
+			const qp = new URLSearchParams(wsF[i].uri.query)
+			var s = qp.get("sid") as string
+			if (s === sid) {
+				const S = this._sessions[sid]
+				if (S) {
+					ws.name = S.state?.title || sid
+					const wsN = { 
+						uri: ws.uri,
+						name:  S?.state?.title || "refresh",
+					}
+					const result = vscode.workspace.updateWorkspaceFolders(i, 1, wsN)
+				}
+				return
+			}
+		})
 	}
 
 	async mergeFS(sid: string) {
@@ -455,6 +513,12 @@ class VegContentProvider implements vscode.FileSystemProvider {
 
 	setDiff(sid: string, diff: any) {
 		this.diff[sid] = diff
+	}
+
+	setSessions(sessions: any[]) {
+		sessions.forEach((s) => {
+			this._sessions[s.sid] = s
+		})
 	}
 
 	setFS(sid: string, files: Record<string,string>) {

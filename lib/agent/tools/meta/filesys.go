@@ -2,6 +2,7 @@ package meta
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"dagger.io/dagger"
@@ -32,13 +33,17 @@ func FilesysRead(name, description string) (tool.Tool, error) {
 		k := fmt.Sprintf("cache:%s:%s", ctx.AgentName(), input.Path)
 		fmt.Printf("%s:%s\n", name, k)
 
+		// workdir is always set by us
+		w, _ := ctx.State().Get("basedir")
+		workdir := w.(string)
+
 		//
 		// Get from Dagger
 		//
 		dagId, _ := ctx.State().Get("dagger")
 		dag, _ := vegdagger.Get(ctx)
 		dir := dag.LoadDirectoryFromID(dagger.DirectoryID(dagId.(string)))
-		file, err := dir.File(input.Path).Contents(ctx)
+		file, err := dir.File(filepath.Join(workdir, input.Path)).Contents(ctx)
 		if err != nil {
 			return filesysError(input.Path, err), nil
 		}
@@ -64,13 +69,17 @@ func FilesysList(name, description string) (tool.Tool, error) {
 		k := fmt.Sprintf("cache:%s:%s", ctx.AgentName(), input.Path)
 		fmt.Printf("%s:%s\n", name, k)
 
+		// workdir is always set by us
+		w, _ := ctx.State().Get("basedir")
+		workdir := w.(string)
+
 		//
 		// Get from Dagger
 		//
 		dagId, _ := ctx.State().Get("dagger")
 		dag, _ := vegdagger.Get(ctx)
 		dir := dag.LoadDirectoryFromID(dagger.DirectoryID(dagId.(string)))
-		entries, err := dir.Directory(input.Path).Entries(ctx)
+		entries, err := dir.Directory(filepath.Join(workdir, input.Path)).Entries(ctx)
 		if err != nil {
 			return filesysError(input.Path, err), nil
 		}
@@ -107,6 +116,10 @@ func FilesysGrep(name, description string) (tool.Tool, error) {
 		k := fmt.Sprintf("cache:%s:%s", ctx.AgentName(), input.Path)
 		fmt.Printf("%s:%s\n", name, k)
 
+		// workdir is always set by us
+		w, _ := ctx.State().Get("basedir")
+		workdir := w.(string)
+
 		//
 		// Get from Dagger
 		//
@@ -117,6 +130,7 @@ func FilesysGrep(name, description string) (tool.Tool, error) {
 		results, err := dir.Search(ctx, input.Regexp, dagger.DirectorySearchOpts{
 			Limit:       100,
 			SkipIgnored: true,
+			Paths:       []string{workdir},
 		})
 		if err != nil {
 			return filesysError(input.Path, err), nil
@@ -157,13 +171,17 @@ func FilesysEdit(name, description string) (tool.Tool, error) {
 		k := fmt.Sprintf("cache:%s:%s", ctx.AgentName(), input.Path)
 		fmt.Printf("fsEdit.key: %s:%s\n", name, k)
 
+		// workdir is always set by us
+		w, _ := ctx.State().Get("basedir")
+		workdir := w.(string)
+
 		//
 		// Get from Dagger
 		//
 		dagId, _ := ctx.State().Get("dagger")
 		dag, _ := vegdagger.Get(ctx)
 		dir := dag.LoadDirectoryFromID(dagger.DirectoryID(dagId.(string)))
-		content, err := dir.File(input.Path).Contents(ctx)
+		content, err := dir.File(filepath.Join(workdir, input.Path)).Contents(ctx)
 		if err != nil {
 			fmt.Println("fsEdit.read.error", err)
 			return filesysError(input.Path, err), nil
@@ -187,7 +205,7 @@ func FilesysEdit(name, description string) (tool.Tool, error) {
 		//
 		// Update in Dagger
 		//
-		dir = dir.WithNewFile(input.Path, next, dagger.DirectoryWithNewFileOpts{})
+		dir = dir.WithNewFile(filepath.Join(workdir, input.Path), next)
 		newId, err := dir.ID(ctx)
 		if err != nil {
 			fmt.Println("fsEdit.write.error", err)
@@ -226,13 +244,17 @@ func FilesysWrite(name, description string) (tool.Tool, error) {
 		k := fmt.Sprintf("cache:%s:%s", ctx.AgentName(), input.Path)
 		fmt.Printf("%s:%s\n", name, k)
 
+		// workdir is always set by us
+		w, _ := ctx.State().Get("basedir")
+		workdir := w.(string)
+
 		//
 		// Update Dagger
 		//
 		dagId, _ := ctx.State().Get("dagger")
 		dag, _ := vegdagger.Get(ctx)
 		dir := dag.LoadDirectoryFromID(dagger.DirectoryID(dagId.(string)))
-		dir = dir.WithNewFile(input.Path, input.Content, dagger.DirectoryWithNewFileOpts{})
+		dir = dir.WithNewFile(filepath.Join(workdir, input.Path), input.Content)
 		newId, err := dir.ID(ctx)
 		if err != nil {
 			return filesysError(input.Path, err), nil
@@ -265,13 +287,17 @@ func FilesysDel(name, description string) (tool.Tool, error) {
 		k := fmt.Sprintf("cache:%s:%s", ctx.AgentName(), input.Path)
 		fmt.Printf("%s:%s\n", name, k)
 
+		// workdir is always set by us
+		w, _ := ctx.State().Get("basedir")
+		workdir := w.(string)
+
 		//
 		// Update Dagger
 		//
 		dagId, _ := ctx.State().Get("dagger")
 		dag, _ := vegdagger.Get(ctx)
 		dir := dag.LoadDirectoryFromID(dagger.DirectoryID(dagId.(string)))
-		dir = dir.WithoutFile(input.Path)
+		dir = dir.WithoutFile(filepath.Join(workdir, input.Path))
 		newId, err := dir.ID(ctx)
 		if err != nil {
 			return filesysError(input.Path, err), nil

@@ -32,10 +32,10 @@ const components = {
     return match ? (
       // code block?
       <div className={cn(
-        "flex flex-col relative",
+        "flex flex-col relative w-full",
         show ? "" : "max-h-64"
       )}>
-        <CopyButton source={children} />
+        <CopyButton source={children} positioning="ml-auto"/>
         <SyntaxHighlighter
           {...rest}
           PreTag="div"
@@ -63,7 +63,7 @@ const components = {
   }
 }
 
-export const CopyButton = ({source}:{source: string}) => {
+export const CopyButton = ({source, positioning }:{source: string, positioning?: string}) => {
   const [copied, setCopied] = useState(false)
   const common = "p-1"
   return (
@@ -71,7 +71,7 @@ export const CopyButton = ({source}:{source: string}) => {
       setCopied(true)
       setTimeout(() => setCopied(false), 3000)
     }}>
-      <span className="absolute z-50 top-2 right-1">
+      <span className={cn(positioning || "absolute z-50 top-2 right-1")}>
         { copied ?
           <ClipboardCheck size={32} strokeWidth={1} className={cn(common, "text-green-500")} /> 
         :   
