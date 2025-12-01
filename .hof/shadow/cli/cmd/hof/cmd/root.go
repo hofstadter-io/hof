@@ -131,6 +131,7 @@ func RootInit() {
 	RootCmd.AddCommand(ExportCmd)
 	RootCmd.AddCommand(VetCmd)
 	RootCmd.AddCommand(ExtensionCmd)
+	RootCmd.AddCommand(DaggerooCmd)
 	RootCmd.AddCommand(AgentCmd)
 	RootCmd.AddCommand(ChatCmd)
 	RootCmd.AddCommand(RunCmd)

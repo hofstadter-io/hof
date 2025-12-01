@@ -59,7 +59,7 @@ export const Menu = ({
           aria-label="terminal"
           onClick={(e) => {
             vscodeApi.postMessage({
-              type: "session.term",
+              type: "session.term.open",
               payload: {
                 sid,
                 pos,

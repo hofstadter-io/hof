@@ -91,6 +91,7 @@ function finalizeExec(term: Terminal, end: vscode.TerminalShellExecutionEndEvent
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+	var sessions: any[] = []
 	let disposable = vscode.commands.registerCommand('veg.debug.terminal', () => {
 			// 1. Create the terminal
 			const terminal = vscode.window.createTerminal({
@@ -185,6 +186,40 @@ export function activate(context: vscode.ExtensionContext) {
 		switch (e.type) {
 			case "requestSync":
 				broadcastTerminals()
+				break;
+			case "session.list.resp":
+				sessions = e.payload
+				break;
+
+			case "session.term.open":
+				// process inputs
+				const { sid, pos, image } = e.payload
+
+				const S = sessions.filter((s) => s.sid === sid)[0]
+				if (!S) {
+					console.error("unknown session", sid)
+				}
+
+				const name = S.state?.title || sid
+				// todo, go to position in events to get dagger ref
+				const dagRef = S.state?.dagger
+				if (!dagRef) {
+					console.error("no dagger is session state", S)
+				}
+				const workdir = S.state?.basedir || S.state?.env?.workdir || "/"
+
+				const img = image || "qmcgaw/godevcontainer:debian"
+
+				// Create and show the terminal
+				const terminal = vscode.window.createTerminal({ 
+					name,
+					iconPath: new vscode.ThemeIcon("hubot")
+				});
+				terminal.show();
+
+				// run dagger via hof for arg handling
+				terminal.sendText(`dagger run hof daggeroo "${dagRef}" --workdir ${workdir} --image ${img}`, true);
+
 				break;
 		}
 	});

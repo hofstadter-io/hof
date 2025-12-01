@@ -425,6 +425,7 @@ func sessionFilesysDiff(r *runtime.Runtime, c *runtime.Client, m *runtime.Messag
 			"sid":   p.Sid,
 			"error": err.Error(),
 		})
+		return
 	}
 	payload["sid"] = p.Sid
 	payload["show"] = p.Show
