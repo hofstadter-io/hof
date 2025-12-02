@@ -22,20 +22,32 @@ type FilesysResult struct {
 	Error  string `json:"error,omitempty"` // the error message if present
 }
 
+type FilesysOutputResult struct {
+	Path   string `json:"path"`            // filesystem path
+	Output string `json:"output"`          // output of the filesystem query
+	Status string `json:"status"`          // "ok" or "error"
+	Error  string `json:"error,omitempty"` // the error message if present
+}
+
 func filesysError(path string, err error) FilesysResult {
 	fmt.Println("Filesys.ERROR:", path, err)
 	return FilesysResult{Path: path, Status: "error", Error: err.Error()}
+}
+func filesysOutputError(path string, err error) FilesysOutputResult {
+	fmt.Println("Filesys.ERROR:", path, err)
+	return FilesysOutputResult{Path: path, Status: "error", Error: err.Error()}
 }
 
 func FilesysRead(name, description string) (tool.Tool, error) {
 	handler := func(ctx tool.Context, input FilesysPathArgs) (FilesysResult, error) {
 		// calculate our real key
-		k := fmt.Sprintf("cache:%s:%s", ctx.AgentName(), input.Path)
+		k := fmt.Sprintf("files:%s:%s", ctx.AgentName(), input.Path)
 		fmt.Printf("%s:%s\n", name, k)
 
 		// workdir is always set by us
 		w, _ := ctx.State().Get("basedir")
 		workdir := w.(string)
+		// TODO, perhaps some cleaning or checking it is not an absolute path while constucting the real path
 
 		//
 		// Get from Dagger
@@ -64,13 +76,10 @@ func FilesysRead(name, description string) (tool.Tool, error) {
 }
 
 func FilesysList(name, description string) (tool.Tool, error) {
-	handler := func(ctx tool.Context, input FilesysPathArgs) (FilesysResult, error) {
-		// calculate our real key
-		k := fmt.Sprintf("cache:%s:%s", ctx.AgentName(), input.Path)
-		fmt.Printf("%s:%s\n", name, k)
-
+	handler := func(ctx tool.Context, input FilesysPathArgs) (FilesysOutputResult, error) {
 		// workdir is always set by us
 		w, _ := ctx.State().Get("basedir")
+		// TODO, perhaps some cleaning or checking it is not an absolute path while constucting the real path
 		workdir := w.(string)
 
 		//
@@ -81,23 +90,19 @@ func FilesysList(name, description string) (tool.Tool, error) {
 		dir := dag.LoadDirectoryFromID(dagger.DirectoryID(dagId.(string)))
 		entries, err := dir.Directory(filepath.Join(workdir, input.Path)).Entries(ctx)
 		if err != nil {
-			return filesysError(input.Path, err), nil
+			return filesysOutputError(input.Path, err), nil
 		}
 
 		//
-		// Add to State
+		// Construct output string
 		//
 		b := new(strings.Builder)
 		for _, e := range entries {
 			fmt.Fprintln(b, e)
 		}
-		err = ctx.State().Set(k, b.String())
-		if err != nil {
-			return filesysError(input.Path, err), nil
-		}
 
 		// return status result
-		return FilesysResult{Status: "ok", Path: input.Path}, nil
+		return FilesysOutputResult{Status: "ok", Path: input.Path, Output: b.String()}, nil
 	}
 	return functiontool.New(functiontool.Config{
 		Name:        name,
@@ -112,13 +117,11 @@ type FilesysGrepArgs struct {
 }
 
 func FilesysGrep(name, description string) (tool.Tool, error) {
-	handler := func(ctx tool.Context, input FilesysGrepArgs) (FilesysResult, error) {
-		k := fmt.Sprintf("cache:%s:%s", ctx.AgentName(), input.Path)
-		fmt.Printf("%s:%s\n", name, k)
-
+	handler := func(ctx tool.Context, input FilesysGrepArgs) (FilesysOutputResult, error) {
 		// workdir is always set by us
 		w, _ := ctx.State().Get("basedir")
 		workdir := w.(string)
+		// TODO, perhaps some cleaning or checking it is not an absolute path while constucting the real path
 
 		//
 		// Get from Dagger
@@ -133,7 +136,7 @@ func FilesysGrep(name, description string) (tool.Tool, error) {
 			Paths:       []string{workdir},
 		})
 		if err != nil {
-			return filesysError(input.Path, err), nil
+			return filesysOutputError(input.Path, err), nil
 		}
 
 		b := new(strings.Builder)
@@ -144,14 +147,8 @@ func FilesysGrep(name, description string) (tool.Tool, error) {
 			fmt.Fprintf(b, "%s:%d:%s\n", fp, ln, ml)
 		}
 
-		// write to state
-		err = ctx.State().Set(k, b.String())
-		if err != nil {
-			return filesysError(input.Path, err), nil
-		}
-
 		// return the result
-		return FilesysResult{Path: input.Path, Status: "ok"}, nil
+		return FilesysOutputResult{Status: "ok", Path: input.Path, Output: b.String()}, nil
 	}
 	return functiontool.New(functiontool.Config{
 		Name:        name,
@@ -168,12 +165,13 @@ type FilesysEditArgs struct {
 
 func FilesysEdit(name, description string) (tool.Tool, error) {
 	handler := func(ctx tool.Context, input FilesysEditArgs) (FilesysResult, error) {
-		k := fmt.Sprintf("cache:%s:%s", ctx.AgentName(), input.Path)
+		k := fmt.Sprintf("files:%s:%s", ctx.AgentName(), input.Path)
 		fmt.Printf("fsEdit.key: %s:%s\n", name, k)
 
 		// workdir is always set by us
 		w, _ := ctx.State().Get("basedir")
 		workdir := w.(string)
+		// TODO, perhaps some cleaning or checking it is not an absolute path while constucting the real path
 
 		//
 		// Get from Dagger
@@ -241,7 +239,7 @@ type FilesysWriteArgs struct {
 func FilesysWrite(name, description string) (tool.Tool, error) {
 	handler := func(ctx tool.Context, input FilesysWriteArgs) (FilesysResult, error) {
 		// calculate our real key
-		k := fmt.Sprintf("cache:%s:%s", ctx.AgentName(), input.Path)
+		k := fmt.Sprintf("files:%s:%s", ctx.AgentName(), input.Path)
 		fmt.Printf("%s:%s\n", name, k)
 
 		// workdir is always set by us
@@ -284,7 +282,7 @@ func FilesysWrite(name, description string) (tool.Tool, error) {
 func FilesysDel(name, description string) (tool.Tool, error) {
 	handler := func(ctx tool.Context, input FilesysPathArgs) (FilesysResult, error) {
 		// calculate our real key
-		k := fmt.Sprintf("cache:%s:%s", ctx.AgentName(), input.Path)
+		k := fmt.Sprintf("files:%s:%s", ctx.AgentName(), input.Path)
 		fmt.Printf("%s:%s\n", name, k)
 
 		// workdir is always set by us

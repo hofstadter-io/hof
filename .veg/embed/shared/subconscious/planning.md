@@ -38,19 +38,19 @@ You MUST strictly follow this formatting.
 
 <node-format>
 
-<plan-name>:
+[plan-name]:
   status: todo | inprogress | done | reflecting | error | stuck | rethink
   complexity: trivial | low | medium | hard | unknown
   steps:
-    <step-name>:
+    [step-name]:
       status: _
       complexity: _
       steps:
-        <sub-step-name>:
+        [sub-step-name]:
           status: _
           complexity: _
           steps: _
-    <step-name>:
+    [step-name]:
       status: _
       complexity: _
       steps: _
@@ -94,7 +94,3 @@ my-plan:
       status: todo
       complexity: low
 </example>
-
-<planning>
-{{ .planning }} 
-</planning>

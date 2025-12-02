@@ -227,7 +227,13 @@ class VegContentProvider implements vscode.FileSystemProvider {
 				const path = pair[0]
 				const isDir = pair[1]
 				if (!this._shown) {
-					const match = matchPathInDiff(uri.path + path, diff)
+					var p = uri.path
+					if (!p.endsWith("/") && !path.startsWith("/")) {
+						p += "/" + path
+					} else {
+						p += path
+					}
+					const match = matchPathInDiff(p, diff)
 					// console.log("show&tell", path, isDir, match)
 					if (!match) {
 						continue
@@ -680,21 +686,24 @@ export class VegFileDecorationProvider implements vscode.FileDecorationProvider 
 }
 
 function matchPathInDiff(path: string, diff: any): any {
-	if (diff?.addpaths?.includes(path)) {
-	  return {
-	    badge: '🌵', // 1-2 characters max
-	    color: new vscode.ThemeColor('gitDecoration.addedResourceForeground'), // Use theme colors
-	    tooltip: 'Created'
-	  };
-	}
 	if (diff?.modpaths?.includes(path)) {
+		// console.log("found-mp-i", path)
 	  return {
 	    badge: '🍋', // 1-2 characters max
 	    color: new vscode.ThemeColor('gitDecoration.modifiedResourceForeground'), // Use theme colors
 	    tooltip: 'Modified'
 	  };
 	}
+	if (diff?.addpaths?.includes(path)) {
+		// console.log("found-ap-i", path)
+	  return {
+	    badge: '🌵', // 1-2 characters max
+	    color: new vscode.ThemeColor('gitDecoration.addedResourceForeground'), // Use theme colors
+	    tooltip: 'Created'
+	  };
+	}
 	if (diff?.delpaths?.includes(path)) {
+		// console.log("found-dp-i", path)
 	  return {
 	    badge: '🍄', // 1-2 characters max
 	    color: new vscode.ThemeColor('gitDecoration.modifiedResourceForeground'), // Use theme colors
@@ -705,6 +714,7 @@ function matchPathInDiff(path: string, diff: any): any {
 	// look for prefixes, i.e. when a dir
 	// modify first, for directories
 	for (const p of diff?.modpaths) {
+			// console.log("found-mp-s", path)
 		if (p.startsWith(path)) {
 			return {
 				badge: '🍋', // 1-2 characters max
@@ -715,6 +725,7 @@ function matchPathInDiff(path: string, diff: any): any {
 	}
 	for (const p of diff?.addpaths) {
 		if (p.startsWith(path)) {
+			// console.log("found-ap-s", path)
 			return {
 				badge: '🌵', // 1-2 characters max
 				color: new vscode.ThemeColor('gitDecoration.addedResourceForeground'), // Use theme colors
@@ -724,6 +735,7 @@ function matchPathInDiff(path: string, diff: any): any {
 	}
 	for (const p of diff?.delpaths) {
 		if (p.startsWith(path)) {
+			// console.log("found-dp-s", path)
 			return {
 				badge: '🍄', // 1-2 characters max
 				color: new vscode.ThemeColor('gitDecoration.modifiedResourceForeground'), // Use theme colors
@@ -731,5 +743,7 @@ function matchPathInDiff(path: string, diff: any): any {
 			};
 		}
 	}
+
+	// console.log("not found", path)
 	return undefined;
 }

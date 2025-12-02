@@ -14,24 +14,33 @@ import (
 )
 
 type ExecArgs struct {
-	Key    string `json:"key"`    // key for the cache entry
 	Script string `json:"script"` // command or script to run
 }
 type ExecResult struct {
-	Key    string `json:"key"`             // path to a cache entry
-	Status string `json:"status"`          // "ok" or "error"
-	Error  string `json:"error,omitempty"` // error message if there is an error
+	ExitCode int    `json:"exitCode,omitempty"`
+	Stdout   string `json:"stdout"`
+	Stderr   string `json:"stderr"`
+	Status   string `json:"status"`          // "ok" or "error"
+	Error    string `json:"error,omitempty"` // error message if there is an error
 }
 
-func execError(key string, err error) ExecResult {
-	fmt.Println("ERROR:", key, err)
-	return ExecResult{Key: key, Status: "error", Error: err.Error()}
+func execError(err error) ExecResult {
+	fmt.Println("EXEC.error:", err)
+	return ExecResult{Status: "error", Error: err.Error()}
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
 
 func Exec(name, description, runenv string) (tool.Tool, error) {
 	handler := func(ctx tool.Context, input ExecArgs) (ExecResult, error) {
 		// calculate our real key
-		k := fmt.Sprintf("%s:%s", ctx.AgentName(), input.Key)
+		m := min(42, len(input.Script))
+		k := fmt.Sprintf("%s:%s", ctx.AgentName(), input.Script[:m])
 		fmt.Printf("%s:%s\n", name, k)
 
 		// workdir is always set by us
@@ -57,7 +66,7 @@ func Exec(name, description, runenv string) (tool.Tool, error) {
 		// mounting makes writing it back more challenging, or we lose the optimization?
 		// need to do some path finangling, and make sure the agent doesn't screw it up, so keep simple for now
 		container := dag.Container().From(runenv).
-			WithEnvVariable("CGO_ENABLED", "1").
+			WithEnvVariable("CGO_ENABLED", "1"). // TODO, this needs to be defined on the outside, project specific
 			WithWorkdir(workdir)
 		runner := container.WithMountedDirectory(workdir, wdir)
 
@@ -82,7 +91,7 @@ set -euo pipefail
 			}).Sync(ctx)
 		if err != nil {
 			fmt.Println("DONT WANT THIS ERROR:", err)
-			return execError(input.Key, err), nil
+			return execError(err), nil
 		}
 
 		//
@@ -90,15 +99,15 @@ set -euo pipefail
 		//
 		exitCode, err := result.ExitCode(ctx)
 		if err != nil {
-			return execError(input.Key, err), nil
+			return execError(err), nil
 		}
 		stdout, err := result.File("/stdout.txt").Contents(ctx)
 		if err != nil {
-			return execError(input.Key, err), nil
+			return execError(err), nil
 		}
 		stderr, err := result.File("/stderr.txt").Contents(ctx)
 		if err != nil {
-			return execError(input.Key, err), nil
+			return execError(err), nil
 		}
 
 		fmt.Println("ExitCode:", exitCode)
@@ -112,7 +121,7 @@ set -euo pipefail
 		//
 		envId, err := result.ID(ctx)
 		if err != nil {
-			return execError(input.Key, err), nil
+			return execError(err), nil
 		}
 		// newId, err := result.Directory(workdir).ID(ctx)
 		// if err != nil {
@@ -120,28 +129,24 @@ set -euo pipefail
 		// }
 
 		//
-		// update state
+		// update state (filesys,execenv)
 		//
-		outputFmt := "ExitCode: %d\n\nStdout:\n%s\n\nStderr:\n%s\n\n"
-		err = ctx.State().Set(k, fmt.Sprintf(outputFmt, exitCode, stdout, stderr))
-		if err != nil {
-			return execError(input.Key, err), nil
-		}
 		// err = ctx.State().Set("dagger", string(newId))
 		// if err != nil {
 		// 	return execError(input.Key, err), nil
 		// }
 		err = ctx.State().Set("runenv", string(envId))
 		if err != nil {
-			return execError(input.Key, err), nil
+			return execError(err), nil
 		}
 
+		status := "ok"
 		if exitCode != 0 {
-			return execError(input.Key, fmt.Errorf("command failed with exit code: %d", exitCode)), nil
+			status = "error"
 		}
 
 		// return status result
-		return ExecResult{Status: "ok", Key: input.Key}, nil
+		return ExecResult{Status: status, ExitCode: exitCode, Stdout: stdout, Stderr: stderr}, nil
 	}
 	return functiontool.New(functiontool.Config{
 		Name:        name,

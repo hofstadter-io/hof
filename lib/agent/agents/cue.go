@@ -405,6 +405,15 @@ func prepareData(cfg Config, agt Agent) func(ctx agent.ReadonlyContext) (map[str
 		data["config"] = cfg
 		data["agent"] = agt
 
+		// agent files
+		files := make(map[string]any)
+		for k, v := range state {
+			if p, matched := strings.CutPrefix(k, fmt.Sprintf("files:%s:", ctx.AgentName())); matched {
+				files[p] = v
+			}
+		}
+		data["files"] = files
+
 		// agent cache
 		cache := make(map[string]any)
 		for k, v := range state {

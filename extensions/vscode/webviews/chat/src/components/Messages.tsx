@@ -98,7 +98,7 @@ const TextPart = ({ part, evt }:{ part: any, evt: any }) => {
   // TODO, add copy button, size limiter (3 options)
   return (
     <div className="p-4 flex flex-col dark:prose-invert prose-sm prose-stone">
-      { evt?.Content?.role === "user" && <CopyButton source={part.text} positioning="ml-auto"/> }
+      <CopyButton source={part.text} positioning="ml-auto"/>
       <Markdown>{part.text}</Markdown>
     </div>
   )

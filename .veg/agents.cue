@@ -113,6 +113,16 @@ agents: fetch: {
   ]
 }
 
+agents: raw: {
+  description: "No instructions, tools, or agents."
+  instruction: "agents/empty.md"
+  tools: [
+    "cache_put",
+    "cache_del",
+  ]
+}
+
+
 agents: hack: {
   description: "A development agent to test out prompts, tools, and agents."
   instruction: "agents/hack.md"

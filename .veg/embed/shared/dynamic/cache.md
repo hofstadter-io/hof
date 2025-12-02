@@ -1,25 +1,18 @@
-## Dynamic Information and Cache State
-
-Here is useful information about the environment you are running in:
-<env>
-{{ yaml .env }}
-</env>
-
-This is the your working key/value cache
+This is the your key/value cache:
 <cache>
 {{ range $key,$val := .cache }}
---- {{ $key }} ---
-{{ $val }}
-
+<{{$key}}>
+{{$val}}
+</{{$key}}>
 {{ end}}
 </cache>
 
 REMEMBER: be mindful to not let your cache size get too big
 
-good < 20000
-ok   > 20000
-hmm  > 50000
-bad  > 100000
+good < 50000
+ok   > 50000
+hmm  > 100000
+bad  > 200000
 
 balancing the decision based on complexity and length on conversation
 - long conversation? see if anything can be removed and use `cache_put` '' to zero it out, consider summarizing or consolidating several cache entries too.
