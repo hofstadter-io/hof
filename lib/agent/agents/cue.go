@@ -1,6 +1,7 @@
 package agents
 
 import (
+	"context"
 	"fmt"
 	"maps"
 	"os"
@@ -18,6 +19,7 @@ import (
 	"google.golang.org/adk/tool/agenttool"
 	"google.golang.org/genai"
 
+	"github.com/hofstadter-io/hof/lib/agent/tools/mcp"
 	"github.com/hofstadter-io/hof/lib/agent/tools/meta"
 	"github.com/hofstadter-io/hof/lib/templates"
 )
@@ -42,10 +44,11 @@ import (
 // So then, can we build an agent that can assemble different setups like this, depending on the task?
 
 type Config struct {
-	Models map[string]Model  `json:"models"`
-	Agents map[string]Agent  `json:"agents"`
-	Tools  map[string]Tool   `json:"tools"`
-	Runenv map[string]Runenv `json:"runenv"`
+	Models   map[string]Model   `json:"models"`
+	Agents   map[string]Agent   `json:"agents"`
+	Tools    map[string]Tool    `json:"tools"`
+	Toolsets map[string]Toolset `json:"toolsets"`
+	Runenv   map[string]Runenv  `json:"runenv"`
 
 	Embeds   map[string]any `json:"embeds"`
 	EmbedDir string         `json:"embedDir"`
@@ -61,6 +64,8 @@ type Agent struct {
 	Instruction string `json:"instruction"`
 
 	Tools     []string `json:"tools"`
+	Toolsets  []string `json:"toolsets"`
+	Mcp       []string `json:"mcp"`
 	SubAgents []string `json:"subagents"`
 
 	// veg concepts, some of this is more tied to the session, but every session starts with an agent
@@ -76,6 +81,11 @@ type Model struct {
 type Tool struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
+}
+
+type Toolset struct {
+	Name  string `json:"name"`
+	Tools []Tool `json:"tools"`
 }
 
 type Runenv struct {
@@ -163,6 +173,12 @@ func BuildAgent(config Config, agentName, modelName string, models map[string]mo
 	}
 	c.Tools = ts
 
+	mcp, err := buildMcp(config, agt, models)
+	if err != nil {
+		return nil, fmt.Errorf("while building mcp toolsets for %q: %w", agt.Name, err)
+	}
+	c.Toolsets = append(c.Toolsets, mcp...)
+
 	addCallbacks(config, agt, &c)
 
 	for _, sa := range agt.SubAgents {
@@ -178,6 +194,29 @@ func BuildAgent(config Config, agentName, modelName string, models map[string]mo
 	}
 
 	return llmagent.New(c)
+}
+
+func buildMcp(cfg Config, agt Agent, models map[string]model.LLM) ([]tool.Toolset, error) {
+	var ts []tool.Toolset
+	for _, name := range agt.Mcp {
+		var (
+			t   tool.Toolset
+			err error
+		)
+		switch name {
+		case "github":
+			t, err = mcp.TavilyMCPToolset(context.Background())
+		case "tavily":
+			t, err = mcp.TavilyMCPToolset(context.Background())
+		default:
+			err = fmt.Errorf("unknown mcp toolset")
+		}
+		if err != nil {
+			return nil, fmt.Errorf("while initializing %s mcp toolset: %w", name, err)
+		}
+		ts = append(ts, t)
+	}
+	return ts, nil
 }
 
 func buildTools(cfg Config, agt Agent, models map[string]model.LLM) ([]tool.Tool, error) {

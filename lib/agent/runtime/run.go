@@ -65,10 +65,7 @@ var upgrader = websocket.Upgrader{
 }
 
 func (R *Runtime) serveWs(c echo.Context) error {
-	// TODO, look for session ID, or do we add that to the message?
-	// we will likely have multiple sessions on one websocket
-	// we just need to pull the user info / auth from here before upgrading and such
-
+	// TODO, we need to pull the user info / auth from here before upgrading and such
 	// TODO, store user info on the client type
 
 	conn, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
@@ -77,7 +74,7 @@ func (R *Runtime) serveWs(c echo.Context) error {
 	}
 
 	client := &Client{
-		User:          "tony",
+		User:          "tony", // needs to come from conn/auth info
 		conn:          conn,
 		send:          make(chan []byte, 256), // 256-message buffer
 		handleMessage: R.handleMessage,

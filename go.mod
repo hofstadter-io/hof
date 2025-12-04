@@ -34,6 +34,7 @@ require (
 	github.com/lucasb-eyer/go-colorful v1.2.0
 	github.com/lucsky/cuid v1.2.1
 	github.com/mattn/go-zglob v0.0.4
+	github.com/modelcontextprotocol/go-sdk v1.1.0
 	github.com/naoina/toml v0.1.1
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/parnurzeal/gorequest v0.2.16
@@ -50,6 +51,7 @@ require (
 	go.uber.org/zap v1.27.0
 	golang.org/x/crypto v0.45.0
 	golang.org/x/mod v0.30.0
+	golang.org/x/oauth2 v0.32.0
 	golang.org/x/text v0.31.0
 	google.golang.org/adk v0.1.1-0.20251119080121-e0c09d1636bb
 	google.golang.org/genai v1.36.0
@@ -155,6 +157,7 @@ require (
 	github.com/vbatts/tar-split v0.11.5 // indirect
 	github.com/vektah/gqlparser/v2 v2.5.31 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
+	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.63.0 // indirect
 	go.opentelemetry.io/otel v1.38.0 // indirect
@@ -176,7 +179,6 @@ require (
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/exp v0.0.0-20241215155358-4a5509556b9e // indirect
 	golang.org/x/net v0.47.0 // indirect
-	golang.org/x/oauth2 v0.32.0 // indirect
 	golang.org/x/sync v0.18.0 // indirect
 	golang.org/x/sys v0.38.0 // indirect
 	golang.org/x/term v0.37.0 // indirect

@@ -30,15 +30,19 @@ export const EventDetails = ({sid, pos, setPos, evt}:{sid: string, pos: number, 
   const [hidden, setHidden] = useState(true);
   return (
     <div className="flex flex-col gap-1 mt-2">
-      <div className="flex justify-between text-xs font-thin">
-        <TimeInfo timestamp={evt.Timestamp} />
-        <span className="text-sm">{evt.Author}</span>
-      </div>
-      <div className="flex flex-col justify-between items-center">
-        <UsageInfo evt={evt} size={16} />
-        <Menu sid={sid} pos={pos} setPos={setPos} hidden={hidden} setHidden={setHidden} />
-      </div>
       { !hidden && <JsonInfo data={evt} /> }
+      <div className="flex items-end">
+        <div className="flex-grow items-start">
+          <UsageInfo evt={evt} size={16} />
+        </div>
+        <div className="flex flex-col gap-1 items-end">
+          <div className="flex flex-col gap-1 font-thin text-sm">
+            <div>{evt.Author}</div>
+            <TimeInfo timestamp={evt.Timestamp} />
+          </div>
+          <Menu sid={sid} pos={pos} setPos={setPos} hidden={hidden} setHidden={setHidden} />
+        </div>
+      </div>
     </div>
   )
 }
@@ -52,21 +56,21 @@ export const JsonInfo = ({ hidden, data }: { hidden?: boolean, data: any }) => {
   )
 }
 
-export const TimeInfo = ({ timestamp }: { timestamp?: string }) => {
+export const TimeInfo = ({ timestamp, className }: { timestamp?: string, className?: string }) => {
   if (!timestamp || timestamp === "") {
     return null
   }
   const ts = new Date(timestamp)
   return (
-    <span className="">
+    <div className={className}>
       {ts.toLocaleString()}
-    </span>
+    </div>
   )
 }
 
 export const MetaInfo = ({ evt, size }: { evt?: any, size: any }) => {
   return (
-    <span className="flex gap-1 align-bottom align-end">
+    <div className="flex gap-1 align-bottom align-end">
       { evt.FinishReason === "STOP" ? 
         <OctagonAlert size={size} strokeWidth={2} className="text-red-600"/>
         :
@@ -82,47 +86,62 @@ export const MetaInfo = ({ evt, size }: { evt?: any, size: any }) => {
         :
         <Circle size={size} strokeWidth={2} className="text-yellow-600"/>
       }
-    </span>
+    </div>
   )
 }
 
+export function UsageNumber(num?: number): string {
+  if (!num) {
+    return "0"
+  }
+  if (num < 10000) {
+    return `${num}`
+  }
+  if (num < 500000) {
+    return `${(num / 1000.0).toFixed(1)}k`
+  }
+  if (num < 1000000) {
+    return `${(num / 1000000.0).toFixed(2)}M`
+  }
+  return `${(num / 1000000.0).toFixed(1)}M`
+}
 export const UsageInfo = ({ evt, usage, size }: { evt?: any, usage?: any, size: any }) => {
   var u = evt?.UsageMetadata || usage || {}
   return (
-    <div className="flex gap-2">
-      <span className="flex gap-1">
+    <div className="flex gap-2 h-4">
+      <div className="flex gap-1">
         <DatabaseBackup size={size}/>
-        {u.cachedContentTokenCount || "0"}
-      </span>
-      <span className="flex gap-1">
+        {UsageNumber(u.cachedContentTokenCount) || "0"}
+      </div>
+      <div className="flex gap-1">
         <GraduationCap size={size}/>
-        {u.promptTokenCount - (u.cachedContentTokenCount || 0) || "0"}
-      </span>
-      <span className="flex gap-1">
+        {UsageNumber(u.promptTokenCount - (u.cachedContentTokenCount || 0))}
+      </div>
+      <div className="flex gap-1">
         <BrainCircuit size={size}/>
-        {u.thoughtsTokenCount || "0"}
-      </span>
-      <span className="flex gap-1">
+        {UsageNumber(u.thoughtsTokenCount)}
+      </div>
+      <div className="flex gap-1">
         <MessageSquareMore size={size}/>
-        {u.candidatesTokenCount || "0"}
-      </span>
+        {UsageNumber(u.candidatesTokenCount)}
+      </div>
 
-      <span>
+      <div>
         <EqualApproximately size={size}/>
-      </span>
+      </div>
 
-      <span className="flex gap-1">
+      <div className="flex gap-1">
         <PanelRightClose size={size}/>
-        {u.promptTokenCount || "0"}
-      </span>
-      <span className="flex gap-1">
+        {UsageNumber(u.promptTokenCount)}
+      </div>
+      <div className="flex gap-1">
         <PanelLeftOpen size={size}/>
-        {u.candidatesTokenCount + u.thoughtsTokenCount || "0"}
-      </span>
-      <span className="flex gap-1">
+        {UsageNumber(u.candidatesTokenCount + u.thoughtsTokenCount)}
+      </div>
+      <div className="flex gap-1">
         <SquareSigma size={size}/>
-        {u.totalTokenCount || "0"}
-      </span>
+        {UsageNumber(u.totalTokenCount)}
+      </div>
     </div>
   )
    

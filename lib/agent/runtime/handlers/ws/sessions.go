@@ -146,14 +146,16 @@ func sessionCreate(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 	// that got confusing, but does not account for what we do with git remote dirs, maybe they will just work
 	d = r.Dagger.Directory().WithDirectory(dir, d, dagger.DirectoryWithDirectoryOpts{})
 
+	renv := r.Agentic.Runenv["golang"]
+	container := r.Dagger.Container().From(renv.Spec.From).WithWorkdir(dir)
+
+	// get IDs after setting things up
 	id, err := d.ID(r.Ctx)
 	if err != nil {
 		log.Printf("Error in 'session.create' while loading dir into dagger: %v", err)
 		return
 	}
 
-	renv := r.Agentic.Runenv["golang"]
-	container := r.Dagger.Container().From(renv.Spec.From).WithWorkdir(dir)
 	rid, err := container.ID(r.Ctx)
 	if err != nil {
 		log.Printf("Error in 'session.create' while loading dir into dagger: %v", err)

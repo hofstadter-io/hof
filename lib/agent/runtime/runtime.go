@@ -23,6 +23,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/agent/agents"
 	"github.com/hofstadter-io/hof/lib/agent/models"
 	vegdagger "github.com/hofstadter-io/hof/lib/agent/runtime/dagger"
+	vegsession "github.com/hofstadter-io/hof/lib/agent/runtime/stores/session"
 	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
@@ -35,7 +36,7 @@ type Runtime struct {
 	AppName string
 
 	Ctx context.Context
-	mu  sync.Mutex // To protect clients map
+	mu  sync.Mutex // To protect clients map among other things
 	db  *gorm.DB
 	e   *echo.Echo
 
@@ -196,7 +197,7 @@ func (R *Runtime) initServices() error {
 	R.db = db
 
 	// session management
-	s, err := database.NewSessionServiceGorm(db)
+	s, err := vegsession.NewSessionServiceGorm(db)
 	if err != nil {
 		return err
 	}

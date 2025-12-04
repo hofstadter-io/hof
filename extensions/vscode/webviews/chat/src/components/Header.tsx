@@ -32,7 +32,7 @@ export const Header = ({
     <div className={cn("flex flex-col m-2 border-b", className)}>
 
       <div className="flex justify-between items-center gap-2 p-2">
-        <span>{session?.state?.title || sid}</span>
+        <span>{session?.state?.title || sid || "no session"}</span>
         <Menu sid={sid} setPos={() => setPos(-1)} hidden={hidden} setHidden={setHidden} refresh/>
 
         <Tooltipped label="Create">

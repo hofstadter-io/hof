@@ -9,7 +9,7 @@ tools: [n=string]: {
 	description: string
 }
 
-tools: {
+TOOLS=tools: {
 	cache_put: description:    embed["tools/cache_put.md"]
 	cache_write: description:  embed["tools/cache_put.md"]
 	cache_edit: description:   embed["tools/cache_edit.md"]
@@ -24,4 +24,39 @@ tools: {
 	fs_del: description:   embed["tools/fs_del.md"]
 
 	exec: description:   embed["tools/exec.md"]
+}
+
+toolsets: {
+	[n=string]: { name: n }
+	cache_only: {
+		tools: [
+			TOOLS.cache_put,
+			TOOLS.cache_del,
+		]
+	}
+	fs_query: {
+		tools: [
+			TOOLS.fs_read,
+			TOOLS.fs_list,
+			TOOLS.fs_grep,
+		]
+	}
+	fs_mutate: {
+		tools: [
+			TOOLS.fs_edit,
+			TOOLS.fs_write,
+			TOOLS.fs_del,
+		]
+	}
+}
+
+mcp: {
+	github: {
+		uri: "https://api.githubcopilot.com/mcp/"
+		envVar: "GITHUB_PAT"
+	}
+	tavily: {
+		uri: "https://mcp.tavily.com/mcp/"
+		envVar: "TAVILY_APIKEY"
+	}
 }

@@ -39,8 +39,7 @@ func min(a, b int) int {
 func Exec(name, description, runenv string) (tool.Tool, error) {
 	handler := func(ctx tool.Context, input ExecArgs) (ExecResult, error) {
 		// calculate our real key
-		m := min(42, len(input.Script))
-		k := fmt.Sprintf("%s:%s", ctx.AgentName(), input.Script[:m])
+		k := fmt.Sprintf("%s:%s", ctx.AgentName(), input.Script[:min(42, len(input.Script))])
 		fmt.Printf("%s:%s\n", name, k)
 
 		// workdir is always set by us
@@ -48,7 +47,7 @@ func Exec(name, description, runenv string) (tool.Tool, error) {
 		workdir := w.(string)
 
 		//
-		// Get the latest Dagger layer (dir)
+		// Get the latest Dagger layer (dir or container?)
 		//
 		// get the client
 		dag, _ := vegdagger.Get(ctx)

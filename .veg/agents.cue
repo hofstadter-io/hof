@@ -15,6 +15,8 @@ agents: [n=string]: {
   instruction: string
   // globalInstruction: string
   tools: [...string]
+  toolsets: [...{ name: string, tools: [...string] }]
+  mcp: [...string]
   subagents: [...string]
 }
 
@@ -129,8 +131,8 @@ agents: hack: {
   tools: [
     "cache_put",
     "cache_del",
-    "fs_read",
-    "fs_list",
-    "fs_grep",
+  ]
+  mcp: [
+    "tavily",
   ]
 }

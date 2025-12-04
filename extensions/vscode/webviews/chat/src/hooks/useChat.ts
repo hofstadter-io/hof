@@ -44,15 +44,17 @@ function processEvents(session: any) {
 }
 
 export function useChat(messagesEndRef: React.RefObject<HTMLDivElement>) {
-  const stateOld = vscodeApi.getState() || {};
-  const state = {
-    sid: "",
-    pos: -1,
-    session: {},
-    diff: {},
-    usage: {},
-    chatState: stateOld?.chatState
-  };
+  // const stateOld = vscodeApi.getState() || {};
+  // const state = {
+  //   sid: "",
+  //   pos: -1,
+  //   session: {},
+  //   diff: {},
+  //   usage: {},
+  //   chatState: stateOld?.chatState
+  // };
+  const state = vscodeApi.getState() || {};
+
   const [sid, setSid] = useState(state?.sid || '');
   const [pos, setPos] = useState(state?.pos || -1);
   const [session, setSession] = useState<any>(state?.session || {});

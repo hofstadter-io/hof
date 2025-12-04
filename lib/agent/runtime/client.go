@@ -18,13 +18,31 @@ type Message struct {
 
 // --- Client ---
 
+// This should become more inclusive with optional features
+// i.e. we should associate more with vscode connected to extension server
+// i.e.2. we want to do cool things besides agentic with the virtualized FS backed by dagger
+// planned integrations like kubernetes, dagger cache info, github/gerrit, build systems...
+// (my ambitions for vscode extn development have exploded recently [as of writing this comment])
+
 // Client is a wrapper for a single WebSocket connection (one VS Code window).
 type Client struct {
 	User  string
-	State map[string]any
+	State map[string]any // should this be persisted, do we even need it with user:... State? (same user on two clients, repo in different locations?)
 
 	// when we have custom agents, or local to a session even? (b/c diff sess diff workdir)
 	AgentDefs map[string]agents.Agent
+
+	// this really depends on the workspace / session
+	// and should also be merged with (1) user global (2) builtin defaults
+	// need a place for selecting which ones show up in the dropdown vs @mention [any]
+	Agentic agents.Config
+
+	// we should perhaps store active sessions here
+	// various information we'd like to share between agents (multiple vscode status/state)
+
+	// other stuff needs to be persisted
+	// 1. agent config (maybe we just store these in the state with user:...)
+	// 2. session state/history (already done by SessionService, but needs improvements)
 
 	conn *websocket.Conn
 
@@ -42,7 +60,7 @@ func (r *Runtime) readPump(c *Client) {
 	}()
 
 	// Set read limits, pong handlers, etc. (good practice)
-	c.conn.SetReadLimit(5 * 1024 * 1024) // 5Mb (for passing files around)
+	c.conn.SetReadLimit(100 * 1024 * 1024) // 100Mb (for passing files around)
 	c.conn.SetReadDeadline(time.Now().Add(60 * time.Second))
 	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(60 * time.Second)); return nil })
 
@@ -51,7 +69,7 @@ func (r *Runtime) readPump(c *Client) {
 		_, jsonMessage, err := c.conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				log.Printf("error: %v", err)
+				log.Printf("ERROR.unexpected-close: %v", err)
 			}
 			break // Exit loop on error
 		}
@@ -87,13 +105,16 @@ func (c *Client) writePump() {
 			}
 
 			// prepare & write
-			c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+			c.conn.SetWriteDeadline(time.Now().Add(60 * time.Second))
 			w, err := c.conn.NextWriter(websocket.TextMessage)
 			if err != nil {
 				return
 			}
 			w.Write(message)
 
+			// WARN, commented this out because it was causing JSON parse errors on the front end
+			// the messages are not separated. Maybe we could parse them as JSONL (if everyone agrees to send json objs as a single line in their messages)
+			// this generally seems redundent with the select statement above firing them off in rapid succession anyway
 			// // Add queued chat messages to the current websocket message.
 			// n := len(c.send)
 			// for i := 0; i < n; i++ {
@@ -106,7 +127,7 @@ func (c *Client) writePump() {
 
 		case <-ticker.C:
 			// Send ping
-			c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+			c.conn.SetWriteDeadline(time.Now().Add(60 * time.Second))
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				return
 			}
