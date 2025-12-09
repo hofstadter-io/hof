@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { vscodeApi } from './vscodeApi.js'
 import './index.css' // We'll add some styles
-import JsonView from '@uiw/react-json-view';
-import { vscodeTheme } from '@uiw/react-json-view/vscode';
+
+import { JsonObject } from 'veg-webview-common'
 
 
 // generic message with type & payload
@@ -54,6 +54,8 @@ const setPairs: Record<string,string> = {
 
 function App() {
   const state = vscodeApi.getState()
+  console.log("debug state:", state)
+
   const [debugValue, setDebugValue] = useState(state || {});
 
   // Effect to listen for messages from the extension
@@ -148,7 +150,7 @@ function App() {
   return (
     <div className="flex">
       <pre className="text-sm">
-        <JsonView value={debugValue} style={vscodeTheme} displayDataTypes={false} indentWidth={12} shortenTextAfterLength={120}/>
+        <JsonObject data={debugValue} />
       </pre>
     </div>
   )

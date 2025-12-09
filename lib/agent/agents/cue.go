@@ -19,8 +19,10 @@ import (
 	"google.golang.org/adk/tool/agenttool"
 	"google.golang.org/genai"
 
+	"github.com/hofstadter-io/hof/lib/agent/tools/cache"
+	"github.com/hofstadter-io/hof/lib/agent/tools/exec"
+	"github.com/hofstadter-io/hof/lib/agent/tools/filesys"
 	"github.com/hofstadter-io/hof/lib/agent/tools/mcp"
-	"github.com/hofstadter-io/hof/lib/agent/tools/meta"
 	"github.com/hofstadter-io/hof/lib/templates"
 )
 
@@ -48,7 +50,7 @@ type Config struct {
 	Agents   map[string]Agent   `json:"agents"`
 	Tools    map[string]Tool    `json:"tools"`
 	Toolsets map[string]Toolset `json:"toolsets"`
-	Runenv   map[string]Runenv  `json:"runenv"`
+	Environs map[string]Environ `json:"environs"`
 
 	Embeds   map[string]any `json:"embeds"`
 	EmbedDir string         `json:"embedDir"`
@@ -88,15 +90,15 @@ type Toolset struct {
 	Tools []Tool `json:"tools"`
 }
 
-type Runenv struct {
+type Environ struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 
-	Spec      RunenvSpec `json:"spec"`
-	SpecValue cue.Value  `json:""`
+	Spec      EnvironSpec `json:"spec"`
+	SpecValue cue.Value   `json:""`
 }
 
-type RunenvSpec struct {
+type EnvironSpec struct {
 	From       string            `json:"from,omitempty"`
 	Env        map[string]string `json:"env,omitempty"`
 	Workdir    string            `json:"workdir,omitempty"`
@@ -205,9 +207,11 @@ func buildMcp(cfg Config, agt Agent, models map[string]model.LLM) ([]tool.Toolse
 		)
 		switch name {
 		case "github":
-			t, err = mcp.TavilyMCPToolset(context.Background())
+			t, err = mcp.GithubMCPToolset(context.Background())
 		case "tavily":
 			t, err = mcp.TavilyMCPToolset(context.Background())
+		case "quickbooks":
+			t, err = mcp.QuickbooksMCPToolset(context.Background())
 		default:
 			err = fmt.Errorf("unknown mcp toolset")
 		}
@@ -248,28 +252,38 @@ func buildTools(cfg Config, agt Agent, models map[string]model.LLM) ([]tool.Tool
 		}
 		switch t {
 
+		// cache ops
 		case "cache_put", "cache_write":
-			T, err = meta.CacheWrite(tcfg.Name, tcfg.Description)
+			T, err = cache.CacheWrite(tcfg.Name, tcfg.Description)
 		case "cache_edit":
-			T, err = meta.CacheEdit(tcfg.Name, tcfg.Description)
+			T, err = cache.CacheEdit(tcfg.Name, tcfg.Description)
 		case "cache_del", "cache_remove":
-			T, err = meta.CacheRemove(tcfg.Name, tcfg.Description)
+			T, err = cache.CacheRemove(tcfg.Name, tcfg.Description)
 
+		// fs query
 		case "fs_read":
-			T, err = meta.FilesysRead(tcfg.Name, tcfg.Description)
+			T, err = filesys.FilesysRead(tcfg.Name, tcfg.Description)
 		case "fs_list":
-			T, err = meta.FilesysList(tcfg.Name, tcfg.Description)
+			T, err = filesys.FilesysList(tcfg.Name, tcfg.Description)
 		case "fs_grep":
-			T, err = meta.FilesysGrep(tcfg.Name, tcfg.Description)
-		case "fs_edit":
-			T, err = meta.FilesysEdit(tcfg.Name, tcfg.Description)
-		case "fs_write":
-			T, err = meta.FilesysWrite(tcfg.Name, tcfg.Description)
-		case "fs_del":
-			T, err = meta.FilesysDel(tcfg.Name, tcfg.Description)
+			T, err = filesys.FilesysGrep(tcfg.Name, tcfg.Description)
 
+		// fs mutate
+		// case "fs_edit":
+		// 	T, err = meta.FilesysEdit(tcfg.Name, tcfg.Description)
+		// case "fs_write":
+		// 	T, err = meta.FilesysWrite(tcfg.Name, tcfg.Description)
+		// case "fs_del":
+		// 	T, err = meta.FilesysDel(tcfg.Name, tcfg.Description)
+
+		// do things
 		case "exec":
-			T, err = meta.Exec(tcfg.Name, tcfg.Description, agt.Runenv)
+			T, err = exec.Exec(tcfg.Name, tcfg.Description)
+		// browser
+
+		// search like
+
+		// veg/flow
 
 		default:
 			return nil, fmt.Errorf("unknown tool %q in agent %q %q %v", t, agt.Name, agentAsTool, found)

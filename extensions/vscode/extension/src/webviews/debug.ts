@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 
-import { sendMessage } from '../websocket'
-import { extensionEmitter } from '../util/events';
+import { extensionEmitter, sendMessage } from '../comms';
 import { WebviewProvider } from './provider'
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -9,7 +8,7 @@ export async function activate(context: vscode.ExtensionContext) {
   const provider = new WebviewProvider(context, "debug", (_)=>{});
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(
-      `veg-debug-webview`, // This ID must match package.json
+      `veg-debug`, // This ID must match package.json
       provider,
       {
         webviewOptions: { retainContextWhenHidden: true }

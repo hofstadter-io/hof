@@ -1,14 +1,15 @@
-import { useState } from "react"
+import { useState, type Ref } from "react"
 import { Plus, Trash2 } from "lucide-react";
 
 import { vscodeApi } from "@/vscodeApi";
 import { cn } from "@/lib/utils"
 
-import { JsonInfo, UsageInfo, DiffInfo } from '@/components/Info';
+import { UsageInfo, DiffInfo } from '@/components/Info';
 import { Menu } from '@/components/SessionMenu'
-import { Tooltipped } from "@/components/Tooltipped";
+import { JsonObject, ToolTipper } from 'veg-webview-common'
 
 export const Header = ({
+  ref,
   sid,
   setPos,
   diff,
@@ -17,6 +18,7 @@ export const Header = ({
   chatState,
   className,
 }:{
+  ref?: Ref<HTMLDivElement>,
   sid: string,
   setPos: any,
   diff?: any,
@@ -29,13 +31,13 @@ export const Header = ({
 
   return (
 
-    <div className={cn("flex flex-col m-2 border-b", className)}>
+    <div ref={ref} className={cn("flex flex-col gap-2 py-2", className)}>
 
-      <div className="flex justify-between items-center gap-2 p-2">
+      <div className="flex justify-between items-center gap-2">
         <span>{session?.state?.title || sid || "no session"}</span>
         <Menu sid={sid} setPos={() => setPos(-1)} hidden={hidden} setHidden={setHidden} refresh/>
 
-        <Tooltipped label="Create">
+        <ToolTipper label="Create">
           <Plus size={16}
             aria-label="create"
             className="hover:text-green-500"
@@ -48,8 +50,8 @@ export const Header = ({
               });
             }}
           />
-        </Tooltipped>
-        <Tooltipped label="Delete">
+        </ToolTipper>
+        <ToolTipper label="Delete">
           <Trash2 size={16}
             aria-label="delete"
             className="hover:text-red-500"
@@ -62,15 +64,15 @@ export const Header = ({
               });
             }}
           />
-        </Tooltipped>
+        </ToolTipper>
       </div>
 
-      <div className="flex justify-between items-center gap-2 p-2">
+      <div className="flex justify-between items-center gap-2">
         <UsageInfo usage={usage} size={16}/>
         <DiffInfo diff={diff} size={16}/>
       </div>
 
-      { !hidden && <JsonInfo data={{
+      { !hidden && <JsonObject data={{
         sid,
         usage,
         session,

@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises'
 import * as vscode from 'vscode';
-import { extensionEmitter } from '../util/events';
+import { extensionEmitter } from '../comms/events';
 
 const SERVER_PORT = 2257;
 const SERVER_URL = `http://localhost:${SERVER_PORT}`;

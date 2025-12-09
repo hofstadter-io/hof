@@ -37,12 +37,13 @@ func SetupHandlers(r *runtime.Runtime) {
 	r.Handlers["session.getStateAll"] = sessionGetStateAll
 	r.Handlers["session.state.get"] = sessionGetState
 	r.Handlers["session.state.put"] = sessionPutState
-	r.Handlers["session.diff"] = sessionFilesysDiff
+	// r.Handlers["session.diff"] = sessionFilesysDiff
 	r.Handlers["session.fork"] = sessionFork
 	r.Handlers["session.merge"] = sessionMerge
 	r.Handlers["session.tag"] = sessionTag
 	r.Handlers["session.push"] = sessionPush
 	r.Handlers["session.pull"] = sessionPull
+	// r.Handlers["session.environ.set"] = sessionEnvironSet
 
 	//
 	// things we want to track from the frontend
@@ -91,7 +92,7 @@ func broadcastSync(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 	reloadConfig(r, c, m)
 	sessionGet(r, c, m)
 	sessionList(r, c, m)
-	sessionFilesysDiff(r, c, m)
+	// sessionFilesysDiff(r, c, m)
 
 	// runtime (runners?)
 	// memory

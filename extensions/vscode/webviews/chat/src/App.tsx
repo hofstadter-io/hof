@@ -1,16 +1,31 @@
 import { useRef } from 'react'
 import '@/index.css' // We'll add some styles
 
-// test comment to see what debug looks like
+import { vscodeApi } from '@/vscodeApi.js'
+import { StickToBottom, useStickToBottomContext } from 'use-stick-to-bottom';
+
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable"
 
 import { Header } from '@/components/Header'
 import { Welcome } from '@/components/Welcome'
-import { Events } from '@/components/Messages';
+import { Events } from '@/components/Events';
 import { UserInput } from '@/components/UserInput';
 
 import { useChat } from '@/hooks/useChat';
 
+import {
+  ScrollTo,
+} from '@/components/ScrollTo'
+
 function App() {
+  const state = vscodeApi.getState()
+  console.log("chat state:", state)
+  const headerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const {
     sid,
@@ -34,39 +49,58 @@ function App() {
   // ... or are we manually doing that and making other sessions dirty and/or non-reproducible? (we might be ok, and it's more not having snapshots for app: / user: values)
 
   return (
-    <div className="flex flex-col p-2 gap-2 min-h-screen">
-      <Header
-        sid={sid}
-        setPos={setPos}
-        session={session}
-        usage={usage}
-        chatState={chatState}
-        diff={diff}
-        className="mx-2"
-      />
+    <ResizablePanelGroup direction="vertical" className="min-h-screen p-4 bg-[#1e1e1e]">
+      <ResizablePanel>
+        <StickToBottom className="flex flex-col p-2 gap-2 h-full relative" resize="smooth" initial="smooth">
+          <StickToBottom.Content className="flex-grow h-full flex flex-col gap-4">
 
-      {session?.events?.length > 0 ?
-        <Events
-          sid={sid}
-          currPos={pos}
-          setPos={setPos}
-          events={session?.events}
-          messagesEndRef={messagesEndRef}
-        />
-        : <Welcome username={chatState?.env?.user || "to veggie"} />
-      }
+            <Header
+              ref={headerRef}
+              sid={sid}
+              setPos={setPos}
+              session={session}
+              usage={usage}
+              chatState={chatState}
+              diff={diff}
+              className="border-b-2 border-fuchsia-700/70 pb-2"
+            />
 
-      <UserInput
-        sid={sid}
-        setPos={setPos}
-        usage={usage}
-        session={session}
-        chatState={chatState}
-        diff={diff}
-        handleSend={handleSend}
-      />
+            {session?.events?.length > 0 ?
+              <Events
+                sid={sid}
+                currPos={pos}
+                setPos={setPos}
+                events={session?.events}
+                messagesEndRef={messagesEndRef}
+              />
+              : <Welcome username={chatState?.env?.user} />
+            }
 
-    </div>
+          </StickToBottom.Content>
+
+          <ScrollTo target={headerRef} />
+
+          {/* This component uses `useStickToBottomContext` to scroll to bottom when the user enters a message */}
+          {/* <ChatBox /> */}
+        </StickToBottom>
+
+      </ResizablePanel>
+      <ResizableHandle className="pt-[3px] rounded-xl bg-fuchsia-500/20 hover:bg-fuchsia-500/70"/>
+      <ResizablePanel defaultSize={27}>
+        <div className="h-full overflow-y-auto">
+          <UserInput
+            sid={sid}
+            setPos={setPos}
+            usage={usage}
+            session={session}
+            chatState={chatState}
+            diff={diff}
+            handleSend={handleSend}
+          />
+        </div>
+      </ResizablePanel>
+
+    </ResizablePanelGroup>
   )
 }
 

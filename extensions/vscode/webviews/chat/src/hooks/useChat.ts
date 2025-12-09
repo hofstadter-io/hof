@@ -13,7 +13,7 @@ interface ServerMessage {
 }
 
 const defaults = {
-  agent: 'general_assistant',
+  agent: 'veggie',
   model: 'gemini-2.5-flash',
 };
 
@@ -300,13 +300,36 @@ export function useChat(messagesEndRef: React.RefObject<HTMLDivElement>) {
     const input = (userInput?.text as string).trim();
 
     // handle commands, which only care about the input box (for now?)
-    if (input.startsWith('/')) {
+    if (input.startsWith('$')) {
       const parts = input.split(/[,\s]/);
-      const cmd = parts[0];
+      const cmd = parts[0].substring(1);
       const args = parts.splice(1);
       console.log("CMD!", cmd, args);
 
-      if (cmd === '/state') {
+      switch (cmd) {
+      case "environ":
+        // no arg means delete
+        if (args.length === 0) {
+          // add an empty element so we don't need extra logic below
+          args.push('');
+        }
+        vscodeApi.postMessage({
+          type: 'session.environ.set',
+          payload: {
+            sid,
+            uri: args[0], // overly simple way to do this
+          },
+        });
+        setSession((prev: any) => {
+          const next = {
+            ...prev,
+            environ: args[0],
+          }
+          return next;
+        });
+        break;
+
+      case "state":
         // no arg means delete
         if (args.length === 1) {
           // add an empty element so we don't need extra logic below
@@ -334,34 +357,32 @@ export function useChat(messagesEndRef: React.RefObject<HTMLDivElement>) {
             return next;
           });
 
-          // make sure listeners have updated conent
-          vscodeApi.postMessage({
-            type: 'session.get',
-            payload: {
-              sid,
-            },
-          });
-          vscodeApi.postMessage({
-            type: 'session.diff',
-            payload: {
-              sid,
-            },
-          });
-          vscodeApi.postMessage({
-            type: 'session.getList',
-            payload: {},
-          });
         }
+        break;
+
+      default:
+        setChatState((prev: any) => {
+          return {
+            ...prev,
+            error: 'unknown command: ' + cmd,
+          };
+        });
         return;
       }
 
-      setChatState((prev: any) => {
-        return {
-          ...prev,
-          error: 'unknown command: ' + cmd,
-        };
+      // make sure listeners have updated conent
+      vscodeApi.postMessage({
+        type: 'session.get',
+        payload: {
+          sid,
+        },
       });
-      return;
+      vscodeApi.postMessage({
+        type: 'session.getList',
+        payload: {},
+      });
+
+      return
     }
 
     //

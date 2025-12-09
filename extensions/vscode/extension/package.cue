@@ -1,0 +1,135 @@
+package extension
+
+name: "veg",
+displayName: "Veg",
+description: "Veg VS Code Extension",
+publisher: "verdverm",
+version: "0.0.1",
+engines: {
+  vscode: "^1.106.0"
+},
+categories: [
+  "Other"
+],
+activationEvents: [
+  "onStartupFinished"
+],
+main: "./out/extension.js",
+capabilities: {
+  virtualWorkspaces: true
+}, 
+
+contributes: {
+
+  viewsContainers: {
+    activitybar: [
+      { id: "veg-chat-sidebar", title: "Veggie", icon: "media/leafy-green.svg" },
+      { id: "veg-manage-sidebar", title: "Veggie", icon: "media/carrot.svg" },
+    ],
+    panel: [
+      { id: "veg-debug-panel", title: "Veggie", icon: "media/sprout.svg" },
+    ]
+  },
+
+  views: {
+    "veg-chat-sidebar": [
+      { id: "veg-chat", name: "Chat", type: "webview", contextualTitle: "Chat" },
+    ],
+    "veg-manage-sidebar": [
+      { id: "veg-manage", name: "Manage", type: "webview", contextualTitle: "Manage" },
+    ],
+    "veg-debug-panel": [
+      { id: "veg-debug", name: "Debug", type: "webview", contextualTitle: "Debug" },
+      { id: "veg-sessions", name: "Sessions", contextualTitle: "Sessions" },
+      // { id: "veg-planning", name: "Planning", contextualTitle: "Planning" },
+      // { id: "veg-agents", name: "Agents", contextualTitle: "Agents" },
+    ]
+  }
+
+  keybindings: [
+    { command: "veg-chat-webview.focus", key: "ctrl+g", mac: "cmd+g" },
+    { command: "veg-chat-webview.focus", key: "ctrl+shift+g", mac: "cmd+shift+g" },
+    { command: "veg-chat-webview.focus", key: "alt+g g", mac: "alt+g g" },
+    { command: "veg-sessions.focus", key: "alt+g s", mac: "alt+g s" },
+    // { command: "veg-agents.focus", key: "alt+g a", mac: "alt+g a" },
+    // { command: "veg-planning.focus", key: "alt+g p", mac: "alt+g p" },
+    { command: "veg-debug-webview.focus", key: "alt+g d", mac: "alt+g d" }
+  ],
+
+  commands: [
+    { command: "veg.connect", category: "Veg Connect", title: "Veg Connect" },
+
+    { command: "veg.explorer.chat", category: "Veg", title: "Chat (Veg)", icon: "$(comment-discussion)" },
+    { command: "veg.explorer.openEnviron", category: "Veg", title: "Open (Veg)", icon: "$(new-folder)" },
+    { command: "veg.explorer.forkEnviron", category: "Veg", title: "Fork (Veg)", icon: "$(gist-fork)" },
+    { command: "veg.explorer.toggleShown", category: "Veg", title: "Toggle Diff Only (Veg)", icon: "$(filter)" },
+    { command: "veg.explorer.showDiff", category: "Veg", title: "Show Diff (Veg)", icon: "$(diff-multiple)" },
+    { command: "veg.explorer.showFileDiff", category: "Veg", title: "Show Diff (Veg)", icon: "$(diff)" },
+    { command: "veg.explorer.refreshAll", category: "Veg", title: "Refresh (Veg)", icon: "$(clear-all)" },
+
+    { command: "veg.session.showSessionDiff", category: "Veg", title: "Show Session Diff (Veg)", icon: "$(diff-multiple)" },
+    { command: "veg.session.showFileDiff", category: "Veg", title: "Show File Diff (Veg)", icon: "$(diff-multiple)" },
+    { command: "veg.sessions.refresh", category: "Veg", title: "veg.sessions.refresh", icon: "$(refresh)" },
+    { command: "veg.sessions.chat", category: "Veg", title: "veg.sessions.chat", icon: "$(comment-discussion)" },
+    { command: "veg.sessions.create", category: "Veggie", title: "Fresh Veggie", icon: "$(add)" },
+    { command: "veg.sessions.edit", category: "Veg", title: "veg.sessions.edit", icon: "$(pencil)" },
+    { command: "veg.sessions.delete", category: "Veg", title: "veg.sessions.delete", icon: "$(trash)" },
+
+    { command: "veg.debug.requestSync", category: "Veg Debug", title: "veg.debug.requestSync", icon: "$(refresh)" }
+    // { command: "veg.debug.terminal", category: "Veg Debug", title: "veg.debug.requestSync", icon: "$(terminal)" },
+  ],
+
+  menus: {
+    "explorer/context": [
+      { command: "veg.explorer.chat", group: "_veg" },
+      { command: "veg.explorer.openEnviron", group: "_veg" },
+      { command: "veg.explorer.forkEnviron", group: "_veg" },
+      { command: "veg.explorer.toggleShown", group: "_veg" },
+      { command: "veg.explorer.showDiff", group: "_veg" },
+      { command: "veg.explorer.refreshAll", group: "_veg" },
+    ],
+    "editor/title": [
+      { command: "veg.explorer.refreshAll", group: "navigation" },
+      { command: "veg.explorer.toggleShown", group: "navigation" },
+      { command: "veg.session.showSessionDiff", group: "navigation" }
+    ],
+    "view/title": [
+      { command: "veg.sessions.create", group: "navigation", when: "view == veg-chat" },
+      { command: "veg.debug.requestSync", group: "navigation", when: "view == veg-manage" },
+      { command: "veg.debug.requestSync", group: "navigation", when: "view == veg-debug" },
+      { command: "veg.debug.requestSync", group: "navigation", when: "view == veg-sessions" },
+      { command: "veg.sessions.create", group: "navigation", when: "view == veg-sessions" }
+    ],
+    "view/item/context": [
+      { command: "veg.sessions.chat", group: "inline", when: "view == veg-sessions && viewItem == session" },
+      { command: "veg.sessions.edit", group: "inline", when: "view == veg-sessions && viewItem == session" },
+      { command: "veg.sessions.delete", group: "inline", when: "view == veg-sessions && viewItem == session" }
+    ]
+  },
+
+},
+"scripts": {
+  "vscode:prepublish": "pnpm run compile",
+  "compile": "tsc -p ./",
+  "watch": "tsc -watch -p ./",
+  "pretest": "pnpm run compile && pnpm run lint",
+  "lint": "eslint src",
+  "test": "vscode-test"
+},
+"devDependencies": {
+  "@types/mocha": "^10.0.10",
+  "@types/node": "22.x",
+  "@types/vscode": "^1.106.0",
+  "@types/ws": "^8.18.1",
+  "@vscode/test-cli": "^0.0.12",
+  "@vscode/test-electron": "^2.5.2",
+  "eslint": "^9.39.1",
+  "typescript": "^5.9.3",
+  "typescript-eslint": "^8.46.3"
+},
+"dependencies": {
+  "ansi-colors": "^4.1.3",
+  "jsonc-parser": "^3.3.1",
+  "ws": "^8.18.3"
+}
+

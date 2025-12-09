@@ -3,15 +3,18 @@ package veg
 // https://github.com/qdm12/basedevcontainer
 // https://github.com/qdm12/binpot
 
-runenv: [n=string]: { name: n }
-runenv: {
-  base: {
-    description: "a base container with many common tools"
-    spec: from: "qmcgaw/basedevcontainer:debian"
+environs: [n=string]: { name: n }
+environs: {
+  debian: {
+    description: "official debian container"
+    spec: from: "debian:13-slim"
   }
-
   golang: {
-    description: "a golang specific container"
-    spec: from: "qmcgaw/godevcontainer:debian"
+    description: "official golang container"
+    spec: from: "golang:1.25-trixie"
+  }
+  node: {
+    description: "official node container"
+    spec: from: "node:25-trixie"
   }
 }

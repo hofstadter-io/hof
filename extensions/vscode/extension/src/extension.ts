@@ -1,47 +1,46 @@
 import * as vscode from 'vscode';
 
-import * as statusBar from './statusBar'
+import * as comms from './comms'
 import * as sync from './sync'
 import * as treeviews from './treeviews';
-import * as websocket from './websocket'
 import * as webviews from './webviews';
-
-import { extensionEmitter } from './util/events';
+import * as filesys from './services/filesystemProvider'
 
 export async function activate(context: vscode.ExtensionContext) {
   console.log('Activating extension "veg-extension"...');
 
+	const state = vscode.window.state
+  console.log("  state", context.globalState.keys())
+
 	// important subsystems first
-	statusBar.activate(context)
-	websocket.activate(context)
+	await comms.activate(context)
+
+	await filesys.activate(context)
 
 	// background monitoring
-	sync.activate(context)
+	// sync.activate(context)
 
 	// ui components
-	treeviews.activate(context)
-	webviews.activate(context)
+	await webviews.activate(context)
+	await treeviews.activate(context)
 
 	// two-way refresh with server
-	setTimeout(function() {
-		console.log('Sending startup sync');
-		extensionEmitter.fire({
-			type: "requestSync",
-		})
-		websocket.sendMessage({
-			type: "requestSync",
-			payload: {}
-		})
-	}, 2000);
+	console.log('Sending startup sync');
+	comms.extensionEmitter.fire({
+		type: "requestSync",
+	})
+	comms.sendMessage({
+		type: "requestSync",
+		payload: {}
+	})
 }
 
 /**
  * Clean up when the window closes.
  */
-export function deactivate() {
+export async function deactivate() {
   console.log('Dectivating extension "veg-extension"...');
 
-	sync.deactivate()
-	websocket.deactivate()
-	statusBar.deactivate()
+	// sync.deactivate()
+	await comms.deactivate()
 }

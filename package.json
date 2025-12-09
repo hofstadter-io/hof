@@ -1,0 +1,14 @@
+{
+  "name": "hof",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "pnpm run --sort --recursive --stream --filter '!./packages/{dev-env}' '/^(build)$/'",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.18.3"
+}

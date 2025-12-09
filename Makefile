@@ -73,3 +73,21 @@ release: goreleaser.yml
 
 workdir.clean:
 	find . -type d -name '.workdir' -exec rm -rf {} \;
+
+
+start.registry:
+	docker run -d --rm \
+		-p 5000:5000 \
+		--name registry \
+		--restart always \
+		-v $(pwd)/.veg/data/registry:/var/lib/registry \
+		registry:3
+
+start.dagger:
+	docker run -d --rm \
+		-v /var/lib/dagger \
+		-v $$HOME/.config/dagger/engine.json:/etc/dagger/engine.json \
+		--add-host=host.docker.internal:host-gateway \
+		--name veg-dagger-engine \
+		--privileged \
+		registry.dagger.io/engine:v0.19.7

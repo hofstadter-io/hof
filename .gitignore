@@ -68,3 +68,4 @@ tags
 /tmp/
 /build/
 /.veg/data
+node_modules

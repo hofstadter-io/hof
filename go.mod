@@ -6,7 +6,7 @@ require (
 	cuelang.org/go v0.15.1
 	dagger.io/dagger v0.19.7
 	github.com/AlecAivazis/survey/v2 v2.3.7
-	github.com/BurntSushi/toml v1.3.2
+	github.com/BurntSushi/toml v1.5.0
 	github.com/alecthomas/chroma/v2 v2.13.0
 	github.com/atotto/clipboard v0.1.4
 	github.com/bluekeyes/go-gitdiff v0.8.1
@@ -22,6 +22,7 @@ require (
 	github.com/go-git/go-git/v5 v5.12.0
 	github.com/gobwas/glob v0.2.3
 	github.com/gofrs/flock v0.8.1
+	github.com/google/go-cmp v0.7.0
 	github.com/google/go-containerregistry v0.19.1
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3
@@ -101,7 +102,6 @@ require (
 	github.com/go-stack/stack v1.8.1 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
-	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/jsonschema-go v0.3.0 // indirect
 	github.com/google/s2a-go v0.1.9 // indirect
 	github.com/google/safehtml v0.1.0 // indirect

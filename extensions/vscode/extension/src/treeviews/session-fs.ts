@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 
-import { extensionEmitter } from '../util/events';
-import { sendMessage } from '../websocket';
+import { extensionEmitter, sendMessage } from '../comms';
 
 var agents: any = [];
 

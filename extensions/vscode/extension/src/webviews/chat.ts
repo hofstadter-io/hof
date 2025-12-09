@@ -1,17 +1,15 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 
-import { extensionEmitter } from '../util/events';
-import { sendMessage } from '../websocket'
+import { extensionEmitter, sendMessage } from '../comms';
 import { WebviewProvider } from './provider'
-import { getHtmlForWebview } from '../webview';
 
 export async function activate(context: vscode.ExtensionContext) {
   console.log("  activating chat sidebar")
   const provider = new WebviewProvider(context, "chat", onMessage);
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(
-      `veg-chat-webview`, // This ID must match package.json
+      `veg-chat`, // This ID must match package.json
       provider,
       {
         webviewOptions: { retainContextWhenHidden: true }

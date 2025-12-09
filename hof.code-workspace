@@ -21,12 +21,11 @@
 			"path": "extensions/vscode/extension"
 		},
 		{
-			"name": "chat",
-			"path": "extensions/vscode/webviews/chat"
-		},
-		{
 			"name": "webviews",
 			"path": "extensions/vscode/webviews"
+		},
+		{
+			"path": ".tmp/quickbooks-online-mcp-server"
 		}
 	],
 	"settings": {}

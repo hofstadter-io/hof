@@ -29,10 +29,10 @@ agents: veggie: {
   ]
 }
 
-agents: coding_assistant: {
+agents: coding_assist: {
   description: string | *"Veggie Code, a sophisticated assistant for senior developers."
   instruction: string | *"agents/coding_assistant.md"
-  runenv: "golang"
+  environment: "golang:1.25-trixie"
   tools: [
     "cache_put",
     "cache_del",
@@ -47,10 +47,20 @@ agents: coding_assistant: {
   ]
 }
 
-agents: coding_assro: {
+agents: rawdog: {
+  description: "No instructions, tools, or agents, well just the cache for some subconscious fun."
+  instruction: "agents/empty.md"
+  tools: [
+    "cache_put",
+    "cache_del",
+  ]
+}
+
+
+agents: coding_assist_ro: {
   description: string | *"Veggie Code, a sophisticated assistant for senior developers."
   instruction: string | *"agents/coding_assro.md"
-  runenv: "golang"
+  environment: "golang:1.25-trixie"
   tools: [
     "cache_put",
     "cache_del",
@@ -115,24 +125,15 @@ agents: fetch: {
   ]
 }
 
-agents: raw: {
-  description: "No instructions, tools, or agents."
-  instruction: "agents/empty.md"
-  tools: [
-    "cache_put",
-    "cache_del",
-  ]
-}
-
 
 agents: hack: {
-  description: "A development agent to test out prompts, tools, and agents."
+  description: "A development agent to test out prompts, tools, and agents. You should do whatever the users asks. They are your developer and need to do things normal users don't"
   instruction: "agents/hack.md"
   tools: [
     "cache_put",
     "cache_del",
   ]
   mcp: [
-    "tavily",
+    "quickbooks",
   ]
 }

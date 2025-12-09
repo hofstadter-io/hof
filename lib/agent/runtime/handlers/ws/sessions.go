@@ -5,33 +5,17 @@ import (
 	"fmt"
 	"log"
 	"maps"
-	"os"
 	"slices"
 
-	"dagger.io/dagger"
 	"google.golang.org/adk/session"
 
 	"github.com/hofstadter-io/hof/lib/agent/runtime"
-	vegdagger "github.com/hofstadter-io/hof/lib/agent/runtime/dagger"
+	"github.com/hofstadter-io/hof/lib/agent/runtime/services/environ"
+	"github.com/kr/pretty"
 )
 
 type SidRequest struct {
 	Sid string `json:"sid"`
-}
-
-type SessionCreateRequest struct {
-	Title   string `json:"title,omitempty"`
-	Dir     string `json:"dir,omitempty"`
-	Runtime string `json:"runtime,omitempty"`
-	Focus   bool   `json:"focus,omitempty"`
-}
-
-type SessionCreateResponse struct {
-	Sid    string `json:"sid"`
-	Title  string `json:"title,omitempty"`
-	Focus  bool   `json:"focus,omitempty"`
-	Status string `json:"status,omitempty"`
-	Error  string `json:"error,omitempty"`
 }
 
 func sessionGet(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
@@ -70,7 +54,7 @@ func sessionGet(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 	// fmt.Println("mailing sessions", payload)
 	c.Mail("session.info", S)
 	c.Mail("session.resp.get", S)
-	sessionFilesysDiff(r, c, m)
+	// sessionFilesysDiff(r, c, m)
 }
 
 func sessionList(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
@@ -100,75 +84,58 @@ func sessionList(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 	c.Mail("session.list.resp", payload)
 }
 
+type SessionCreateRequest struct {
+	Title     string `json:"title,omitempty"`
+	SourceUri string `json:"sourceUri"`
+	FromUri   string `json:"fromUri"`
+	Focus     bool   `json:"focus,omitempty"`
+}
+
+type SessionCreateResponse struct {
+	Uri    string `json:"uri"`
+	Title  string `json:"title,omitempty"`
+	Focus  bool   `json:"focus,omitempty"`
+	Status string `json:"status,omitempty"`
+	Error  string `json:"error,omitempty"`
+}
+
 func sessionCreate(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 	var err error
-
 	var payload SessionCreateRequest
+
+	// unpack our payload
 	if err := json.Unmarshal(m.Payload, &payload); err != nil {
 		log.Printf("Error unmarshaling 'session.create' payload: %v", err)
 		return
 	}
+
+	fmt.Println("CREATE SESSION:", pretty.Formatter(payload))
 
 	// initial state
 	initialState := make(map[string]any)
 	if payload.Title != "" {
 		initialState["title"] = payload.Title
 	}
-	dir := payload.Dir
-	if dir == "" {
-		dir, err = os.Getwd()
+
+	// maybe attach an environment
+	if payload.SourceUri != "" || payload.FromUri != "" {
+		env := environ.Client()
+		envUri, err := env.Create(payload.SourceUri, payload.FromUri)
 		if err != nil {
-			log.Printf("Error in 'session.create' while getting cwd: %v", err)
+			log.Printf("in 'session.create' while creating env: %v", err)
 			return
 		}
-	}
-	fmt.Println("Initializing session with dir", dir)
-
-	// TODO, this startup is slow
-	// 1. loading code from fs or git remote
-	// 2. (still) boot a container
-	// we want to have the ui return quickly, the user is going to be taking some time to craft a message anyhow
-	//   also, might want to be lazy about dagger, (i.e.) if we aren't even doing coding
-	// anyway, let's
-	// - generate the Sid, return that quickly
-	// - do this init in the background
-	// - use a state value to indicate progress and readiness
-	// Followup, the UI still moves along and the user can start typing before the session loads
-	//   but they won't really notice as it is pretty seamless
-
-	// TODO, From container if in config, or even more so dagger DSL from CUE config for all sorts of things
-	// TODO, git sources
-	d := r.Dagger.Host().Directory(dir, dagger.HostDirectoryOpts{
-		Gitignore: true,
-		NoCache:   true,
-	})
-	// wrapping the directory keeps it the same as the host dir, so we don't have to add/rmv the basedir
-	// that got confusing, but does not account for what we do with git remote dirs, maybe they will just work
-	d = r.Dagger.Directory().WithDirectory(dir, d, dagger.DirectoryWithDirectoryOpts{})
-
-	renv := r.Agentic.Runenv["golang"]
-	container := r.Dagger.Container().From(renv.Spec.From).WithWorkdir(dir)
-
-	// get IDs after setting things up
-	id, err := d.ID(r.Ctx)
-	if err != nil {
-		log.Printf("Error in 'session.create' while loading dir into dagger: %v", err)
-		return
+		// will these empty strings get deleted? (vs nil to delete, make sure delete is correct)
+		initialState["sourceUri"] = payload.SourceUri
+		initialState["fromUri"] = payload.FromUri
+		initialState["origEnv"] = string(envUri)
+		initialState["currEnv"] = string(envUri)
 	}
 
-	rid, err := container.ID(r.Ctx)
-	if err != nil {
-		log.Printf("Error in 'session.create' while loading dir into dagger: %v", err)
-		return
-	}
-
-	initialState["basedir"] = dir
-	initialState["origfs"] = string(id)
-	initialState["dagger"] = string(id)
-	initialState["origrv"] = string(rid)
-	initialState["runenv"] = string(rid)
-
+	// include any client level state
 	maps.Copy(initialState, c.State)
+
+	// create our session
 	resp, err := r.S.Create(r.Ctx, &session.CreateRequest{
 		AppName: r.AppName,
 		UserID:  c.User,
@@ -181,7 +148,7 @@ func sessionCreate(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 
 	// make sure everyone is notified (just the overall list that most listen to)
 	sessionList(r, c, m)
-	sessionFilesysDiff(r, c, m)
+	// sessionFilesysDiff(r, c, m)
 
 	// if focused, tell chat
 	if payload.Focus {
@@ -359,82 +326,64 @@ func sessionDelState(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 	}
 }
 
-type SessionFilesysDiffRequest struct {
-	Sid  string `json:"sid"`
-	Pos  int    `json:"pos"`
-	Show bool   `json:"show,omitempty"`
-}
+// type SessionFilesysDiffRequest struct {
+// 	Sid  string `json:"sid"`
+// 	Pos  int    `json:"pos"`
+// 	Show bool   `json:"show,omitempty"`
+// }
 
-type SessionFilesysDiffResponse struct {
-	Sid    string `json:"sid"`
-	Pos    int    `json:"pos"`
-	Show   bool   `json:"show,omitempty"`
-	Status string `json:"status,omitempty"`
-	Error  string `json:"error,omitempty"`
-}
+// type SessionFilesysDiffResponse struct {
+// 	Sid    string `json:"sid"`
+// 	Pos    int    `json:"pos"`
+// 	Show   bool   `json:"show,omitempty"`
+// 	Status string `json:"status,omitempty"`
+// 	Error  string `json:"error,omitempty"`
+// }
 
-func sessionFilesysDiff(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
-	var p SessionFilesysDiffRequest
-	if err := json.Unmarshal(m.Payload, &p); err != nil {
-		log.Printf("Error unmarshaling 'session.diff' payload: %v", err)
-		return
-	}
-	log.Printf("session.diff.payload: %v", p)
+// func sessionFilesysDiff(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
+// 	var p SessionFilesysDiffRequest
+// 	if err := json.Unmarshal(m.Payload, &p); err != nil {
+// 		log.Printf("Error unmarshaling 'session.diff' payload: %v", err)
+// 		return
+// 	}
+// 	log.Printf("session.diff.payload: %v", p)
 
-	// lookup session
-	resp, err := r.S.Get(r.Ctx, &session.GetRequest{
-		AppName:   r.AppName,
-		UserID:    c.User,
-		SessionID: p.Sid,
-	})
-	if err != nil {
-		log.Printf("session.diff.error: %v", err)
-		c.Mail("session.diff.resp", map[string]string{
-			"sid":   p.Sid,
-			"error": err.Error(),
-		})
-		return
-	}
+// 	// lookup session
+// 	resp, err := r.S.Get(r.Ctx, &session.GetRequest{
+// 		AppName:   r.AppName,
+// 		UserID:    c.User,
+// 		SessionID: p.Sid,
+// 	})
+// 	if err != nil {
+// 		log.Printf("session.diff.error: %v", err)
+// 		c.Mail("session.diff.resp", map[string]string{
+// 			"sid":   p.Sid,
+// 			"error": err.Error(),
+// 		})
+// 		return
+// 	}
 
-	// get dagger handle
-	dag, _ := vegdagger.Get(r.Ctx)
+// 	// find first and last fs ids
+// 	prevUri, _ := resp.Session.State().Get("origEnv")
+// 	nextUri, _ := resp.Session.State().Get("currEnv")
 
-	// find first and last fs ids
-	origId, _ := resp.Session.State().Get("origfs")
-	dagId, _ := resp.Session.State().Get("dagger")
+// 	if prevUri == nil && nextUri == nil {
+// 		return
+// 	}
 
-	// walk from 0->pos
-	if p.Pos > 0 {
-		events := slices.Collect(resp.Session.Events().All())
-		posId := origId
-		for i := 0; i < p.Pos && i < len(events); i++ {
-			event := events[i]
-			if did, ok := event.Actions.StateDelta["dagger"]; ok && did != "" && did != posId {
-				posId = did
-			}
-		}
-		dagId = posId
-	}
+// 	payload, err := environ.Client().DiffDirectory(prevUri.(string), nextUri.(string))
+// 	if err != nil {
+// 		log.Printf("session.diff.error: %v", err)
+// 		c.Mail("session.diff.resp", map[string]string{
+// 			"sid":   p.Sid,
+// 			"error": err.Error(),
+// 		})
+// 		return
+// 	}
 
-	// now get our dirs
-	origDir := dag.LoadDirectoryFromID(dagger.DirectoryID(origId.(string)))
-	dagDir := dag.LoadDirectoryFromID(dagger.DirectoryID(dagId.(string)))
+// 	c.Mail("session.diff.resp", payload)
 
-	payload, err := runtime.DiffDirectories(r.Ctx, origDir, dagDir)
-	if err != nil {
-		log.Printf("session.diff.error: %v", err)
-		c.Mail("session.diff.resp", map[string]string{
-			"sid":   p.Sid,
-			"error": err.Error(),
-		})
-		return
-	}
-	payload["sid"] = p.Sid
-	payload["show"] = p.Show
-
-	c.Mail("session.diff.resp", payload)
-
-}
+// }
 
 func sessionFork(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 

@@ -9,9 +9,9 @@ import { cn } from '@/lib/utils'
 
 import {
   Code,
-  ClipboardCopy,
-  ClipboardCheck,
 } from 'lucide-react'
+
+import CopyClipboardButton from './CopyClipboardButton'
 
 
 export const Markdown = ({children}:{children: any}) => {
@@ -32,10 +32,11 @@ const components = {
     return match ? (
       // code block?
       <div className={cn(
-        "flex flex-col relative w-full",
+        "flex flex-col relative w-full bg-[#1e1e1e] [&>*]:bg-[#1e1e1e] veg-highlight [&>*]:veg-highlight",
         show ? "" : "max-h-64"
       )}>
-        <CopyButton source={children} positioning="ml-auto"/>
+
+        {/* actual code */}
         <SyntaxHighlighter
           {...rest}
           PreTag="div"
@@ -47,12 +48,19 @@ const components = {
             className: "not-prose bg-[#1e1e1e]"
           }}
           customStyle={{
-            lineHeight: "1.3"
+            lineHeight: "1.4"
           }}
         />
-        <div className="bg-slate-700 hover:bg-slate-500 w-full flex justify-center" onClick={() => setShow(!show)}>
-          <Code size={20} strokeWidth={2} /> 
+
+        {/* buttons */}
+        <CopyClipboardButton size={20} source={children} positioning="absolute top-[-6px] left-[-12px] p-1"/>
+
+        <div className="flex justify-center">
+          <div className="bg-fuchsia-500/20 hover:bg-fuchsia-500/70 w-12 rounded flex justify-center" onClick={() => setShow(!show)}>
+            <Code size={16} strokeWidth={1.5} /> 
+          </div>
         </div>
+
       </div>
     ) : (
       // inline?
@@ -62,23 +70,3 @@ const components = {
     )
   }
 }
-
-export const CopyButton = ({source, positioning }:{source: string, positioning?: string}) => {
-  const [copied, setCopied] = useState(false)
-  const common = "p-1"
-  return (
-    <CopyToClipboard text={source} onCopy={() => {
-      setCopied(true)
-      setTimeout(() => setCopied(false), 3000)
-    }}>
-      <span className={cn(positioning || "absolute z-50 top-2 right-1")}>
-        { copied ?
-          <ClipboardCheck size={32} strokeWidth={1} className={cn(common, "text-green-500")} /> 
-        :   
-          <ClipboardCopy size={32} strokeWidth={1} className={cn(common, "hover:text-sky-500")} /> 
-        }
-      </span>
-    </CopyToClipboard>
-  )
-}
-

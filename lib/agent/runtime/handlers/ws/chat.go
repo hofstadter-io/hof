@@ -68,7 +68,7 @@ func chatUserMessage(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 		Agent:           a,
 		SessionService:  r.S,
 		ArtifactService: r.A,
-		MemoryService:   r.M,
+		// MemoryService:   r.M,
 	})
 	if err != nil {
 		err = fmt.Errorf("while initializing runner for %q: %w", a.Name(), err)

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import c from 'ansi-colors';
-import { extensionEmitter } from '../util/events';
+import { extensionEmitter } from '../comms/events';
 import { sendMessage } from '../websocket';
 
 const trackedTerminals = new Set<Terminal>();

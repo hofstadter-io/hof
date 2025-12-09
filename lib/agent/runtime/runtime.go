@@ -9,21 +9,18 @@ import (
 	"strings"
 	"sync"
 
-	"dagger.io/dagger"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"google.golang.org/adk/artifact"
-	"google.golang.org/adk/memory"
 	"google.golang.org/adk/model"
 	"google.golang.org/adk/session"
-	"google.golang.org/adk/session/database"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
 	"github.com/hofstadter-io/hof/lib/agent/agents"
 	"github.com/hofstadter-io/hof/lib/agent/models"
-	vegdagger "github.com/hofstadter-io/hof/lib/agent/runtime/dagger"
-	vegsession "github.com/hofstadter-io/hof/lib/agent/runtime/stores/session"
+	"github.com/hofstadter-io/hof/lib/agent/runtime/services/environ"
+	vegsession "github.com/hofstadter-io/hof/lib/agent/runtime/services/session"
 	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
@@ -41,10 +38,8 @@ type Runtime struct {
 	e   *echo.Echo
 
 	// services
-	Dagger *dagger.Client
-	A      artifact.Service
-	M      memory.Service
-	S      session.Service
+	A artifact.Service
+	S session.Service
 
 	// agentic stuff
 	Models  map[string]model.LLM
@@ -72,14 +67,8 @@ func NewRuntime() (*Runtime, error) {
 		unregister: make(chan *Client),
 	}
 
-	dag, err := vegdagger.Get(ctx)
-	if err != nil {
-		return R, err
-	}
-	R.Dagger = dag
-
 	// init components
-	err = R.init()
+	err := R.init()
 	if err != nil {
 		return R, err
 	}
@@ -89,10 +78,6 @@ func NewRuntime() (*Runtime, error) {
 
 func (r *Runtime) ArtifactService() artifact.Service {
 	return r.A
-}
-
-func (r *Runtime) MemoryService() memory.Service {
-	return r.M
 }
 
 func (r *Runtime) SessionService() session.Service {
@@ -167,6 +152,7 @@ func (R *Runtime) ReadConfig() error {
 	// Maybe we wait for the above until we hook agents into hof runtime and schemas
 
 	// project, based on cwd, but should probably look for a git root
+
 	R.Agentic, err = agents.AgenticCUE(adir, R.Models)
 	if err != nil {
 		err = cuetils.ExpandCueError(err)
@@ -196,21 +182,24 @@ func (R *Runtime) initServices() error {
 	}
 	R.db = db
 
+	// environment management
+	err = environ.Initialize(R.Ctx, db)
+	if err != nil {
+		return fmt.Errorf("while initializing Runtime.EnvironService")
+	}
+
 	// session management
 	s, err := vegsession.NewSessionServiceGorm(db)
 	if err != nil {
-		return err
+		return fmt.Errorf("while initializing Runtime.SessionService")
 	}
-	database.AutoMigrate(s)
+	vegsession.AutoMigrate(s)
 	R.S = s
 
 	// artifacts
-	R.A = artifact.InMemoryService()
-
-	// memories
-	R.M, err = memory.FilesystemService(filepath.Join(DATA_PATH, "memories"))
+	R.A, err = artifact.FilesystemService(filepath.Join(DATA_PATH, "artifacts"))
 	if err != nil {
-		return err
+		return fmt.Errorf("while initializing Runtime.ArtifactService")
 	}
 
 	return nil
@@ -235,11 +224,15 @@ func (r *Runtime) initServer() error {
 	//
 	// filesystem
 	//
-	e.POST("/fs/stat", r.fsStat)
+	e.POST("/fs/open", fsOpen)
+	e.POST("/fs/stat", fsStat)
 	e.POST("/fs/read", r.fsRead)
 	e.POST("/fs/list", r.fsList)
+	e.POST("/fs/diff", r.fsDiff)
 	e.POST("/fs/write", r.fsWrite)
 	e.POST("/fs/delete", r.fsDelete)
+
+	e.POST("/env/list", r.envList)
 
 	// save & return
 	r.e = e

@@ -18,43 +18,11 @@ import {
   FilePen,
 } from 'lucide-react'
 
-import JsonView from '@uiw/react-json-view';
-import { vscodeTheme } from '@uiw/react-json-view/vscode';
-
-import { Tooltipped } from "@/components/Tooltipped";
+import { JsonObject, ToolTipper } from "veg-webview-common";
 import { Menu } from '@/components/SessionMenu'
 
 import { cn } from "@/lib/utils";
 
-export const EventDetails = ({sid, pos, setPos, evt}:{sid: string, pos: number, setPos: any, evt: any}) => {
-  const [hidden, setHidden] = useState(true);
-  return (
-    <div className="flex flex-col gap-1 mt-2">
-      { !hidden && <JsonInfo data={evt} /> }
-      <div className="flex items-end">
-        <div className="flex-grow items-start">
-          <UsageInfo evt={evt} size={16} />
-        </div>
-        <div className="flex flex-col gap-1 items-end">
-          <div className="flex flex-col gap-1 font-thin text-sm">
-            <div>{evt.Author}</div>
-            <TimeInfo timestamp={evt.Timestamp} />
-          </div>
-          <Menu sid={sid} pos={pos} setPos={setPos} hidden={hidden} setHidden={setHidden} />
-        </div>
-      </div>
-    </div>
-  )
-}
-
-
-export const JsonInfo = ({ hidden, data }: { hidden?: boolean, data: any }) => {
-  return (
-    <div hidden={hidden} className="transition hidden:h-0 whitespace-pre-line m-2 max-h-200 overflow-y-auto text-sm">
-      <JsonView value={data} style={vscodeTheme} displayDataTypes={false} indentWidth={12} shortenTextAfterLength={40} className="p-2"/>
-    </div>
-  )
-}
 
 export const TimeInfo = ({ timestamp, className }: { timestamp?: string, className?: string }) => {
   if (!timestamp || timestamp === "") {
@@ -105,43 +73,58 @@ export function UsageNumber(num?: number): string {
   }
   return `${(num / 1000000.0).toFixed(1)}M`
 }
+
 export const UsageInfo = ({ evt, usage, size }: { evt?: any, usage?: any, size: any }) => {
   var u = evt?.UsageMetadata || usage || {}
   return (
     <div className="flex gap-2 h-4">
-      <div className="flex gap-1">
-        <DatabaseBackup size={size}/>
-        {UsageNumber(u.cachedContentTokenCount) || "0"}
-      </div>
-      <div className="flex gap-1">
-        <GraduationCap size={size}/>
-        {UsageNumber(u.promptTokenCount - (u.cachedContentTokenCount || 0))}
-      </div>
-      <div className="flex gap-1">
-        <BrainCircuit size={size}/>
-        {UsageNumber(u.thoughtsTokenCount)}
-      </div>
-      <div className="flex gap-1">
-        <MessageSquareMore size={size}/>
-        {UsageNumber(u.candidatesTokenCount)}
-      </div>
+      <ToolTipper side="bottom" label="cached input tokens">
+        <div className="flex gap-1">
+          <DatabaseBackup size={size}/>
+          {UsageNumber(u.cachedContentTokenCount) || "0"}
+        </div>
+      </ToolTipper>
+      <ToolTipper side="bottom" label="normal input tokens">
+        <div className="flex gap-1">
+          <GraduationCap size={size}/>
+          {UsageNumber(u.promptTokenCount - (u.cachedContentTokenCount || 0))}
+        </div>
+      </ToolTipper>
+      <ToolTipper side="bottom" label="thinking tokens">
+        <div className="flex gap-1">
+          <BrainCircuit size={size}/>
+          {UsageNumber(u.thoughtsTokenCount)}
+        </div>
+      </ToolTipper>
+      <ToolTipper side="bottom" label="response tokens">
+        <div className="flex gap-1">
+          <MessageSquareMore size={size}/>
+          {UsageNumber(u.candidatesTokenCount)}
+        </div>
+      </ToolTipper>
 
       <div>
         <EqualApproximately size={size}/>
       </div>
 
-      <div className="flex gap-1">
-        <PanelRightClose size={size}/>
-        {UsageNumber(u.promptTokenCount)}
-      </div>
-      <div className="flex gap-1">
-        <PanelLeftOpen size={size}/>
-        {UsageNumber(u.candidatesTokenCount + u.thoughtsTokenCount)}
-      </div>
-      <div className="flex gap-1">
-        <SquareSigma size={size}/>
-        {UsageNumber(u.totalTokenCount)}
-      </div>
+      <ToolTipper side="bottom" label="total input">
+        <div className="flex gap-1">
+          <PanelRightClose size={size}/>
+          {UsageNumber(u.promptTokenCount)}
+        </div>
+      </ToolTipper>
+      <ToolTipper side="bottom" label="total output">
+        <div className="flex gap-1">
+          <PanelLeftOpen size={size}/>
+          {UsageNumber(u.candidatesTokenCount + u.thoughtsTokenCount)}
+        </div>
+      </ToolTipper>
+      <ToolTipper side="bottom" label="total tokens">
+        <div className="flex gap-1">
+          <SquareSigma size={size}/>
+          {UsageNumber(u.totalTokenCount)}
+        </div>
+      </ToolTipper>
     </div>
   )
    
@@ -158,25 +141,25 @@ export const DiffInfo = ({
   const mp = diff?.modpaths
   const dp = diff?.delpaths
   return (
-    <div className="flex gap-1">
-      <Tooltipped label={ap?.join("\n") || "nothing new"}>
+    <div className="flex gap-1 h-4">
+      <ToolTipper side="bottom" label={ap?.join("\n") || "nothing new"}>
         <div className={cn("flex gap-1 hover:text-green-500", ap?.length && "text-green-500")}>
           <FilePlus size={size}/>
           {ap?.length || 0}
         </div>
-      </Tooltipped>
-      <Tooltipped label={mp?.join("\n") || "no edits"}>
+      </ToolTipper>
+      <ToolTipper side="bottom" label={mp?.join("\n") || "no edits"}>
         <div className={cn("flex gap-1 hover:text-yellow-500", mp?.length && "text-yellow-500")}>
           <FilePen size={size}/>
           {mp?.length || 0}
         </div>
-      </Tooltipped>
-      <Tooltipped label={dp?.join("\n") || "did you take out the trash?"}>
+      </ToolTipper>
+      <ToolTipper side="bottom" label={dp?.join("\n") || "did you take out the trash?"}>
         <div className={cn("flex gap-1 hover:text-red-500", dp?.length && "text-red-500")}>
           <FileX size={size}/>
           {dp?.length || 0}
         </div>
-      </Tooltipped>
+      </ToolTipper>
     </div>
   )
 }

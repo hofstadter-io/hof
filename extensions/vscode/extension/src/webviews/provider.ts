@@ -1,8 +1,8 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 
-import { extensionEmitter } from '../util/events';
-import { getHtmlForWebview } from '../webview';
+import { extensionEmitter } from '../comms';
+import { getHtmlForWebview } from './loader';
 
 export class WebviewProvider implements vscode.WebviewViewProvider {
   private _view?: vscode.WebviewView;
