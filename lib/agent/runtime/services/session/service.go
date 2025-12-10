@@ -355,6 +355,9 @@ func (s *databaseService) Delete(ctx context.Context, req *session.DeleteRequest
 }
 
 func (s *databaseService) PrepareEvent(ctx context.Context, curSession session.Session, event *session.Event) error {
+	// get most recent event
+	// - if partial, combine
+	// - if not, append setting partial
 	return s.AppendEvent(ctx, curSession, event)
 }
 
@@ -367,16 +370,22 @@ func (s *databaseService) AppendEvent(ctx context.Context, curSession session.Se
 	}
 	// ignore partial events
 	if event.Partial {
+		// instead we should build up partial events, or make it configurable?
+		// having a separate function lets us do that without changing behavior or downstream usage
+		// though it would be simpler to just look at event.Partial
+		// we'd like to know about all of these me thinks
 		return nil
 	}
-
-	// Trim temp state before persisting
-	event = trimTempDeltaState(event)
 
 	sess, ok := curSession.(*localSession)
 	if !ok {
 		return fmt.Errorf("unexpected session type %T", sess)
 	}
+
+	// if most recent is a partial, combine here
+
+	// Trim temp state before persisting
+	event = trimTempDeltaState(event)
 
 	// applyChanges and persist them
 	err := s.applyEvent(ctx, sess, event)

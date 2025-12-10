@@ -43,7 +43,7 @@ export const Events = ({
           // console.log("functionCall", pi[0], ei)
           for (const pi2 in P2) {
             const p2 = P2[pi2]
-            if (!p2.functionCall || p1.id !== p2.id) {
+            if (!p2?.functionCall || p1.functionResponse.id !== p2.functionCall.id) {
               continue
             }
             E2.Content.parts[pi2].functionResponse = p1.functionResponse

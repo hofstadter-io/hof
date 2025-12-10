@@ -11,7 +11,6 @@ import (
 
 	"github.com/hofstadter-io/hof/lib/agent/runtime"
 	"github.com/hofstadter-io/hof/lib/agent/runtime/services/environ"
-	"github.com/kr/pretty"
 )
 
 type SidRequest struct {
@@ -109,7 +108,7 @@ func sessionCreate(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 		return
 	}
 
-	fmt.Println("CREATE SESSION:", pretty.Formatter(payload))
+	// fmt.Println("CREATE SESSION:", pretty.Formatter(payload))
 
 	// initial state
 	initialState := make(map[string]any)

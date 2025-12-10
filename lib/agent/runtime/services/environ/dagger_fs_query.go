@@ -112,11 +112,12 @@ func (le *localEnviron) ReadFile(envUri, path string) (string, error) {
 }
 
 func (le *localEnviron) ReadDirectory(envUri, path string) (*DirList, error) {
-	// fmt.Println("le.ReadDirectory.input", envUri, path)
-	_, env, err := le.lookupEnviron(envUri)
+	fmt.Println("le.ReadDirectory.input", envUri, path)
+	table, env, err := le.lookupEnviron(envUri)
 	if err != nil {
 		return nil, fmt.Errorf("while looking up environment(%s): %w", envUri, err)
 	}
+	fmt.Println("le.ReadDirectory.lookup", table)
 
 	// more fukcing reshaping... seriously, fuck vscode for having shitty Uri implementation
 	// we need to move this to vscode, it should not be handled in the environ service

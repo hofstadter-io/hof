@@ -7,29 +7,54 @@ var sessions: any = [];
 var sort: string = 'lastUpdate'
 
 export function activate(context: vscode.ExtensionContext) {
-	const rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
-		? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
 
 	// Samples of `window.registerTreeDataProvider`
-	const sessionsProvider = new SessionsProvider(context, rootPath);
+	const sessionsProvider = new SessionsProvider(context);
 	vscode.window.registerTreeDataProvider('veg-sessions', sessionsProvider);
+
 	vscode.commands.registerCommand('veg.sessions.refresh', () => sessionsProvider.refresh());
 
-	vscode.commands.registerCommand('veg.sessions.create', () => {
-		sendMessage({ type: "session.create", payload: { focus: true, dir: rootPath } })
+	vscode.commands.registerCommand('veg.sessions.create', (node?: Session) => {
+		console.log("create session", node)
+		// sendMessage({ type: "session.create", payload: { focus: true, dir: rootPath } })
 	});
-	vscode.commands.registerCommand('veg.sessions.chat', (node: Session) => {
-		vscode.commands.executeCommand('veg-chat-webview.focus')
-		const payload = { sid: node.sid }
+
+	vscode.commands.registerCommand('veg.session.openEnviron', (node?: Session) => {
+		console.log("open session", node)
+		if (!node || !node.session) {
+			console.error("veg.session.openEnviron was called without input or session info")
+			return
+		}
+		// sendMessage({ type: "session.create", payload: { focus: true, dir: rootPath } })
+		const msg = {
+			type: "filesys.openEnviron",
+			payload: {
+				session: node.session
+			}
+		}
+		extensionEmitter.fire(msg)
+	});
+
+	vscode.commands.registerCommand('veg.session.chat', (node: Session) => {
+		vscode.commands.executeCommand('veg-chat.focus')
+		const payload = { sid: node.session.sid }
 		extensionEmitter.fire({ type: "chat.loadSession", payload })
 		sendMessage({ type: "session.diff", payload })
 	});
-	vscode.commands.registerCommand('veg.sessions.edit', (node: Session) => vscode.window.showInformationMessage(`Successfully called edit entry on ${node.label}.`));
-	vscode.commands.registerCommand('veg.sessions.delete', (node: Session) => {
+
+	vscode.commands.registerCommand('veg.session.fork', (node: Session) => {
+		console.log("fork session", node)
+
+	})
+
+	vscode.commands.registerCommand('veg.session.edit', (node: Session) => {
+		vscode.window.showInformationMessage(`Successfully called edit entry on ${node.label}.`)
+	});
+	vscode.commands.registerCommand('veg.session.delete', (node: Session) => {
 		const msg = {
 			type: "session.delete",
 			payload: {
-				sid: node.sid
+				sid: node.session.sid
 			}
 		}
 		sendMessage(msg)
@@ -41,7 +66,7 @@ export function activate(context: vscode.ExtensionContext) {
 	extensionEmitter.event(async (e) => {
 		// console.log(`sessions event:`, e)
 		switch (e.type) {
-			case "session.list":
+			case "session.list.resp":
 				// console.log("sessions", e.payload)
 				sessions = e.payload
 				sessionsProvider.refresh()
@@ -62,7 +87,6 @@ export class SessionsProvider implements vscode.TreeDataProvider<Session> {
 
 	constructor(
 		private readonly context: vscode.ExtensionContext,
-		private readonly workspaceRoot: string | undefined
 	) { }
 
 	refresh(): void {
@@ -73,26 +97,28 @@ export class SessionsProvider implements vscode.TreeDataProvider<Session> {
 		return element;
 	}
 
-	getChildren(element?: Session): Thenable<Session[]> {
+	getChildren(element?: Session): Thenable<Session[] | undefined> {
 
 		if (element) {
-			// console.log("elemental element", element)
-			return Promise.resolve([]);
+			console.log("elemental element", element)
+			// return Promise.resolve([]);
+			return Promise.resolve(undefined)
 		} else {
-			// console.log("elementless child", sessions)
+			// root, so we work with the sessions we know about
+			console.log("elementless child", sessions)
 			var nodes: Session[] = []
 			for (const s of sessions) {
 				const l = s.state?.title || s.sid
-				const n = new Session(s.sid, l, s.lastUpdate, vscode.TreeItemCollapsibleState.Collapsed)
+				const n = new Session(s, l, vscode.TreeItemCollapsibleState.Collapsed)
 				nodes.push(n)
 			}
 			nodes.sort((a: Session,b: Session) => {
 				if (sort === "lastUpdate") {
 					// newest at the tope
-					if(a[sort] > b[sort]) {
+					if(a.session[sort] > b.session[sort]) {
 						return -1
 					}
-					if(a[sort] < b[sort]) {
+					if(a.session[sort] < b.session[sort]) {
 						return 1
 					}
 					return 0
@@ -107,6 +133,9 @@ export class SessionsProvider implements vscode.TreeDataProvider<Session> {
 				return 0
 
 			})
+			if (nodes.length === 0) {
+				return Promise.resolve(undefined)
+			}
 			return Promise.resolve(nodes);
 		}
 	}
@@ -115,22 +144,17 @@ export class SessionsProvider implements vscode.TreeDataProvider<Session> {
 
 export class Session extends vscode.TreeItem {
 	constructor(
-		public readonly sid: string,
+		public readonly session: any,
 		public readonly label: string,
-		private readonly lastUpdate: string,
 		public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-		public readonly command?: vscode.Command
+		public readonly command?: vscode.Command,
 	) {
+		super(session.sid, collapsibleState);
 
-		super(sid, collapsibleState);
+		this.tooltip = `${this.label}\n${this.session.sid}\n${this.session.lastUpdate}`;
+		this.description = this.session.lastUpdate;
 
-		this.tooltip = `${this.label}\n${this.sid}\n${this.lastUpdate}`;
-		this.description = this.lastUpdate;
-
-		// this.iconPath = {
-		// 	light: vscode.Uri.joinPath(extensionRoot, 'resources', 'light', 'list-tree.svg'),
-		// 	dark: vscode.Uri.joinPath(extensionRoot, 'resources', 'dark', 'list-tree.svg')
-		// };
+		// this.iconPath = new vscode.ThemeIcon("list-tree")
 	}
 
 	contextValue = 'session';

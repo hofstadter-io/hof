@@ -1,8 +1,16 @@
 import { cn } from "@/lib/utils";
 
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+
 import { Markdown } from '@/components/Markdown'
 import { EventDetails } from "@/components/Events/Details";
 import { FuncCall } from "./ToolCall";
+import { Microscope } from "lucide-react";
 
 
 export const UnknownEvent = ({sid, pos, setPos, msg, data}: {sid: string, pos: number, setPos: any, msg?: string, data: any}) => {
@@ -24,14 +32,24 @@ export const UserMessage = ({sid, pos, setPos, evt}:{sid: string, pos: number, s
       "ml-40 py-[1px] pl-[2px] rounded",
       "bg-linear-to-r from-sky-500/80 from-[20%] via-[#1e1e1e] via-[50%] to-[#1e1e1e]",
     )}>
-    <div className={cn(
-      "flex flex-col p-2 rounded",
-      "bg-linear-to-r from-slate-800/90 from-[20%] via-[#1e1e1e] via-[40%] to-[#1e1e1e]",
-    )}>
-      {/* <CopyClipboardButton source={part.text} positioning="ml-auto"/> */}
-      { evt.Content.parts.map((p: any) => <MessagePart sid={sid} pos={pos} setPos={setPos} part={p} evt={evt}/>)}
-      <EventDetails sid={sid} pos={pos} setPos={setPos} evt={evt} />
-    </div>
+      <div className={cn(
+        "flex flex-col p-2 rounded",
+        "bg-linear-to-r from-slate-800/90 from-[20%] via-[#1e1e1e] via-[40%] to-[#1e1e1e]",
+      )}>
+        <div className="flex flex-col">
+          { evt.Content.parts.map((p: any) => <MessagePart sid={sid} pos={pos} setPos={setPos} part={p} evt={evt}/>)}
+        </div>
+        <div className="mt-[-12px] mr-auto">
+          <Accordion type="single" collapsible>
+            <AccordionItem value="details">
+              <AccordionTrigger className="h-4"></AccordionTrigger>
+              <AccordionContent>
+                <EventDetails sid={sid} pos={pos} setPos={setPos} evt={evt} />
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+      </div>
     </div>
   )
 }
@@ -42,13 +60,24 @@ export const ModelMessage = ({sid, pos, setPos, evt}:{sid: string, pos: number, 
       "py-[1px] pl-[2px] rounded",
       "bg-linear-to-r from-lime-500/80 from-[5%] via-[#1e1e1e] via-[10%] to-[#1e1e1e]",
     )}>
-    <div className={cn(
-      "flex flex-col p-2 rounded",
-      "bg-[#1e1e1e]"
-    )}>
-      { evt.Content.parts.map((p: any) => <MessagePart sid={sid} pos={pos} setPos={setPos} part={p} evt={evt}/>)}
-      <EventDetails sid={sid} pos={pos} setPos={setPos} evt={evt} />
-    </div>
+      <div className={cn(
+        "flex flex-col p-2 rounded",
+        "bg-[#1e1e1e]"
+      )}>
+        <div className="flex flex-col">
+          { evt.Content.parts.map((p: any) => <MessagePart sid={sid} pos={pos} setPos={setPos} part={p} evt={evt}/>)}
+        </div>
+        <div className="mt-[-12px] mr-auto">
+          <Accordion type="single" collapsible>
+            <AccordionItem value="details">
+              <AccordionTrigger className="h-4"></AccordionTrigger>
+              <AccordionContent>
+                <EventDetails sid={sid} pos={pos} setPos={setPos} evt={evt} />
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+      </div>
     </div>
   )
 }
@@ -65,7 +94,7 @@ const MessagePart = ({ sid, pos, setPos, part, evt }:{ sid: string, pos: number,
 const TextPart = ({ part, evt }:{ part: any, evt: any }) => {
   // TODO, add copy button, size limiter (3 options)
   return (
-    <div className="p-2 flex flex-col dark:prose-invert prose-sm prose-stone">
+    <div className="pl-2 py-1 mr-8 flex flex-col dark:prose-invert prose-sm prose-stone">
       <Markdown>{part.text}</Markdown>
     </div>
   )

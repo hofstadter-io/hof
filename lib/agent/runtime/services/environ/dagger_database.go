@@ -51,16 +51,26 @@ func (le *localEnviron) AutoMigrate() error {
 
 func (le *localEnviron) lookupEnviron(envUri string) (tableEnviron, *dagger.Container, error) {
 	var foundEnv tableEnviron
+	// fucking more hacks because our paths / URIs are a mess...
+	// we are seeing veg://... here, which is not correct, we should never see that in the server, it is a vscode thing only!
+	if !strings.Contains(envUri, "://") {
+		envUri = "oci://" + envUri
+	}
 	e, err := url.Parse(envUri)
 	if err != nil {
 		return foundEnv, nil, fmt.Errorf("database error while fetching environ: %w", err)
 	}
+	// fmt.Printf("LOOKUP: %s: %#+v\n", envUri, e)
 	key := fmt.Sprintf("%s%s", e.Host, e.Path)
-	// fmt.Println("le.lookup", e, key)
+	// fmt.Println("le.lookupEnviron.key", key)
+	// hacky, error potential, but we should only be getting internal reps here anyway
+	parts := strings.Split(strings.Split(key, "/")[1], ":")
+	eid, tag := parts[0], parts[1]
 
 	err = le.db.WithContext(le.ctx).
 		Where(&tableEnviron{
-			Uri: key,
+			Eid: eid,
+			Tag: tag,
 		}).
 		First(&foundEnv).Error
 
@@ -69,7 +79,7 @@ func (le *localEnviron) lookupEnviron(envUri string) (tableEnviron, *dagger.Cont
 		return foundEnv, nil, fmt.Errorf("database error while fetching environ: %w", err)
 	}
 
-	// ociUri := fmt.Sprintf("%s/%s", VEG_ENVIRONMENT_REGISTRY, key)
+	// fmt.Printf("le.lookupEnviron.table %v\n", foundEnv)
 
 	env := le.dag.Container().From(foundEnv.Uri)
 
@@ -78,7 +88,7 @@ func (le *localEnviron) lookupEnviron(envUri string) (tableEnviron, *dagger.Cont
 
 func (le *localEnviron) persistEnviron(envUri string, tEnv *tableEnviron, c *dagger.Container) (err error) {
 
-	fmt.Println("le.persist.input", envUri)
+	// fmt.Println("le.persist.input", envUri)
 
 	// publish to persist
 	_, err = c.Publish(le.ctx, envUri)
@@ -86,7 +96,7 @@ func (le *localEnviron) persistEnviron(envUri string, tEnv *tableEnviron, c *dag
 		return fmt.Errorf("while persisting environment to registry(%s): %w", envUri, err)
 	}
 
-	fmt.Println("le.persist.published", true)
+	// fmt.Println("le.persist.published", true)
 
 	// extract eid:tag envUri
 	qparts := strings.Split(strings.TrimPrefix(envUri, "oci://"), "?")
@@ -94,7 +104,7 @@ func (le *localEnviron) persistEnviron(envUri string, tEnv *tableEnviron, c *dag
 	img := parts[len(parts)-1]
 	iparts := strings.Split(img, ":")
 
-	fmt.Println("le.persist.vars", qparts, parts, img, iparts)
+	// fmt.Println("le.persist.vars", qparts, parts, img, iparts)
 
 	// what about from?
 	if tEnv == nil {
@@ -104,7 +114,7 @@ func (le *localEnviron) persistEnviron(envUri string, tEnv *tableEnviron, c *dag
 	tEnv.Tag = iparts[1]
 	tEnv.Uri = envUri
 
-	fmt.Printf("tEnv: %#+v\n", *tEnv)
+	// fmt.Printf("tEnv: %#+v\n", *tEnv)
 
 	// save to database
 	err = le.db.WithContext(le.ctx).
@@ -113,7 +123,7 @@ func (le *localEnviron) persistEnviron(envUri string, tEnv *tableEnviron, c *dag
 		return fmt.Errorf("while persisting environment to database(%s): %w", envUri, err)
 	}
 
-	fmt.Println("le.persist.database", true)
+	// fmt.Println("le.persist.database", true)
 
 	return nil
 }

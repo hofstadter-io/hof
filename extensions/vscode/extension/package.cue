@@ -60,20 +60,23 @@ contributes: {
     { command: "veg.connect", category: "Veg Connect", title: "Veg Connect" },
 
     { command: "veg.explorer.chat", category: "Veg", title: "Chat (Veg)", icon: "$(comment-discussion)" },
-    { command: "veg.explorer.openEnviron", category: "Veg", title: "Open (Veg)", icon: "$(new-folder)" },
+    { command: "veg.explorer.openEnviron", category: "Veg", title: "Open (Veg)", icon: "$(folder-opened)" },
     { command: "veg.explorer.forkEnviron", category: "Veg", title: "Fork (Veg)", icon: "$(gist-fork)" },
     { command: "veg.explorer.toggleShown", category: "Veg", title: "Toggle Diff Only (Veg)", icon: "$(filter)" },
     { command: "veg.explorer.showDiff", category: "Veg", title: "Show Diff (Veg)", icon: "$(diff-multiple)" },
     { command: "veg.explorer.showFileDiff", category: "Veg", title: "Show Diff (Veg)", icon: "$(diff)" },
     { command: "veg.explorer.refreshAll", category: "Veg", title: "Refresh (Veg)", icon: "$(clear-all)" },
 
+    { command: "veg.session.openEnviron", category: "Veg", title: "Show Session Files (Veg)", icon: "$(list-tree)" },
     { command: "veg.session.showSessionDiff", category: "Veg", title: "Show Session Diff (Veg)", icon: "$(diff-multiple)" },
     { command: "veg.session.showFileDiff", category: "Veg", title: "Show File Diff (Veg)", icon: "$(diff-multiple)" },
-    { command: "veg.sessions.refresh", category: "Veg", title: "veg.sessions.refresh", icon: "$(refresh)" },
-    { command: "veg.sessions.chat", category: "Veg", title: "veg.sessions.chat", icon: "$(comment-discussion)" },
+    { command: "veg.session.chat", category: "Veg", title: "veg.sessions.chat", icon: "$(comment-discussion)" },
+    { command: "veg.session.fork", category: "Veg", title: "veg.sessions.fork", icon: "$(git-branch)" },
+    { command: "veg.session.edit", category: "Veg", title: "veg.sessions.edit", icon: "$(pencil)" },
+    { command: "veg.session.delete", category: "Veg", title: "veg.sessions.delete", icon: "$(trash)" },
+
+    { command: "veg.sessions.refresh", category: "Veg", title: "Refresh Session List (Veg)", icon: "$(refresh)" },
     { command: "veg.sessions.create", category: "Veggie", title: "Fresh Veggie", icon: "$(add)" },
-    { command: "veg.sessions.edit", category: "Veg", title: "veg.sessions.edit", icon: "$(pencil)" },
-    { command: "veg.sessions.delete", category: "Veg", title: "veg.sessions.delete", icon: "$(trash)" },
 
     { command: "veg.debug.requestSync", category: "Veg Debug", title: "veg.debug.requestSync", icon: "$(refresh)" }
     // { command: "veg.debug.terminal", category: "Veg Debug", title: "veg.debug.requestSync", icon: "$(terminal)" },
@@ -81,29 +84,30 @@ contributes: {
 
   menus: {
     "explorer/context": [
-      { command: "veg.explorer.chat", group: "_veg" },
-      { command: "veg.explorer.openEnviron", group: "_veg" },
-      { command: "veg.explorer.forkEnviron", group: "_veg" },
-      { command: "veg.explorer.toggleShown", group: "_veg" },
-      { command: "veg.explorer.showDiff", group: "_veg" },
-      { command: "veg.explorer.refreshAll", group: "_veg" },
+      { command: "veg.explorer.chat", group: "_veg@1" },
+      { command: "veg.explorer.openEnviron", group: "_veg@2" },
+      { command: "veg.explorer.forkEnviron", group: "_veg@3" },
+      { command: "veg.explorer.toggleShown", group: "_veg@4" },
+      { command: "veg.explorer.showDiff", group: "_veg@5" },
+      { command: "veg.explorer.refreshAll", group: "_veg@6" },
     ],
     "editor/title": [
       { command: "veg.explorer.refreshAll", group: "navigation" },
       { command: "veg.explorer.toggleShown", group: "navigation" },
-      { command: "veg.session.showSessionDiff", group: "navigation" }
+      { command: "veg.session.showSessionDiff", group: "navigation" },
     ],
     "view/title": [
       { command: "veg.sessions.create", group: "navigation", when: "view == veg-chat" },
       { command: "veg.debug.requestSync", group: "navigation", when: "view == veg-manage" },
       { command: "veg.debug.requestSync", group: "navigation", when: "view == veg-debug" },
       { command: "veg.debug.requestSync", group: "navigation", when: "view == veg-sessions" },
-      { command: "veg.sessions.create", group: "navigation", when: "view == veg-sessions" }
+      { command: "veg.sessions.create", group: "navigation", when: "view == veg-sessions" },
     ],
     "view/item/context": [
-      { command: "veg.sessions.chat", group: "inline", when: "view == veg-sessions && viewItem == session" },
-      { command: "veg.sessions.edit", group: "inline", when: "view == veg-sessions && viewItem == session" },
-      { command: "veg.sessions.delete", group: "inline", when: "view == veg-sessions && viewItem == session" }
+      { command: "veg.session.chat", group: "inline@1", when: "view == veg-sessions && viewItem == session" },
+      { command: "veg.session.openEnviron", group: "inline@2", when: "view == veg-sessions && viewItem == session" },
+      { command: "veg.session.fork", group: "inline@3", when: "view == veg-sessions && viewItem == session" },
+      { command: "veg.session.delete", group: "inline@4", when: "view == veg-sessions && viewItem == session" },
     ]
   },
 

@@ -54,6 +54,7 @@ func FilesysRead(name, description string) (tool.Tool, error) {
 		}
 
 		// TODO path shenanigans
+		fmt.Printf("%s:%s @ %s\n", name, k, currUri)
 
 		// Read file content
 		content, err := environ.Client().ReadFile(currUri.(string), input.Path)
@@ -90,6 +91,7 @@ func FilesysList(name, description string) (tool.Tool, error) {
 		}
 
 		// TODO path shenanigans
+		fmt.Printf("%s:%s @ %s\n", name, input.Path, currUri)
 
 		// Get directory list
 		dirList, err := environ.Client().ReadDirectory(currUri.(string), input.Path)

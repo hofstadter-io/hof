@@ -43,6 +43,7 @@ function processEvents(session: any) {
   };
 }
 
+// todo, this should be a useContext, but I only told the Ai to factor out or extract for reuse
 export function useChat(messagesEndRef: React.RefObject<HTMLDivElement>) {
   // const stateOld = vscodeApi.getState() || {};
   // const state = {

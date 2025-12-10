@@ -6,10 +6,11 @@ const SERVER_PORT = 2257;
 const SERVER_URL = `http://localhost:${SERVER_PORT}`;
 
 type Folder = {
-	readonly uri: vscode.Uri
-	readonly sid: string
-	readonly name?: string | undefined
-	readonly base?: string | undefined
+	uri: vscode.Uri
+	sid: string
+	name?: string | undefined
+	base?: string | undefined
+	session?: any
 }
 type FolderListing = Array<[string, vscode.FileType]>
 // This method is called when your extension is activated
@@ -69,6 +70,32 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	extensionEmitter.event(async (e) => {
     // ...
+		switch (e.type) {
+			case "filesys.openEnviron":
+				console.log("filesys.openEnviron.payload", e.payload)
+
+				// prefer envUri because it is more specific
+				const envUri = e.payload.envUri
+				if (envUri) {
+					vcp.open(envUri)
+					return
+				}
+
+				// if session, use curEnv in state
+				const session = e.payload.session
+				if (session) {
+					if (session.state?.currEnv) {
+						vcp.open("", session)
+					} else {
+						console.error("filesys.openEnviron called with invalid params")
+					}
+					return
+				}
+
+				// otherwise session
+				console.error("filesys.openEnviron called with invalid params")
+				return
+		}
 	});
 
 }
@@ -98,6 +125,10 @@ class VegContentProvider implements vscode.FileSystemProvider {
 	private _fireSoonHandle?: NodeJS.Timeout;
 
 	readonly onDidChangeFile: vscode.Event<vscode.FileChangeEvent[]> = this._emitter.event
+
+	//
+	// Translator functions, we need more of these. This component is likely the best place to consolidate the path complexity we have throughout the integration with vscode. Our extension/agent server needs to be simple so that it can interface with many systems.
+	//
 
 	private vsUriToVeg(uri: vscode.Uri): vscode.Uri {
 		// console.log("convert.uri", uri)
@@ -154,40 +185,91 @@ class VegContentProvider implements vscode.FileSystemProvider {
 		})
 	}
 
-	open(value: string) {
-		if (!value || value === "") {
+	// maybe path is not needed here, it is part of the uri, or we pass it around separately? there are places where we only have a single string to work with, which is why we started stuffing things into a URI, which is pretty flexible tbh
+	// open(anyUri: string, path?: string, session?: any) {
+	open(inputUri: string, session?: any) {
+		console.log("filesys.open", inputUri, session)
+		if ((!inputUri || inputUri === "") && !session) {
 			return
 		}
 
+		// we need to do some logic here to clean things up
+		// Uri parsing may be insufficient, it barfs on certain inputs
+		// const anyUri = vscode.Uri.parse(inputUri)
+		// So _i think_ this was switched to a more manual processing, though we could probably do some url parsing down under the hood?
+		var anyUri = inputUri
+		var path = ""
+
 		const f = async () => {
-			// console.log("filesys.open", value)
+			var sid = ""
+			var envUri = ""
+			var name = anyUri
 
 			// hacky parsing of user input to something our extension server understands
-			if (value?.startsWith("file://")) {
+			if (anyUri?.startsWith("veg://")) {
+				// hmmm, what do we do here
+				// do we use a veg://session.env/<sid>/... or does the sid come earlier?
+				// we want a way to always display the latest as it gets updated
+				// and thus we also need a way to indicate to refresh when as session gets updated
+			} else if (anyUri?.startsWith("file://")) {
 				// no-op
-			} else if (value?.startsWith("https://")) {
+				name = anyUri.substring(7)
+			} else if (anyUri?.startsWith("https://")) {
 				// no-op
-			} else if (value?.startsWith("/")) {
-				value = `file://${value}`
-			} else if (value?.startsWith("oci://")) {
+				name = anyUri.substring(8)
+			} else if (anyUri?.startsWith("/")) {
+				anyUri = `file://${anyUri}`
+			} else if (anyUri?.startsWith("oci://")) {
 				// no-op
-			} else if (value?.includes(":")) {
+				name = anyUri.substring(6)
+			} else if (anyUri?.includes(":")) {
 				// assume oci
 				// look for no-domain, use docker.io (i.e. implied in docker pull)
 				// the backend requires fully qualified oci://domain.com/reg/org/img:tag
-				const parts = value.split(":")
+				const parts = anyUri.split(":")
 				const paths = parts[0].split("/")
 				const host = paths[0]
 				if (!host.includes(".")) {
-					value = `docker.io/${value}`
+					anyUri = `docker.io/${anyUri}`
 				}
-				value = `oci://${value}`
+				anyUri = `oci://${anyUri}`
 			} else {
-				vscode.window.showErrorMessage(`unsupported environ: ${value}`)
+				if (session?.state?.currEnv) {
+					// these will always be oci
+					sid = session.sid
+					name = session.state.title || sid
+					// TODO, this should be a veg://<session>... something? we need to sort this out eventually, translators, more fields so we can differentiate, more alignment with server in open(...args) too?
+					// seems we can add extra without borking things up?
+					// this should probably be handled on the server during state managemtn
+					envUri = "oci://" + session.state.currEnv
+				} else {
+					vscode.window.showErrorMessage(`unsupported environ: ${anyUri}`)
+				}
 			}
 
+			if (envUri === "") {
+				envUri = anyUri
+			}
+
+			const tmpUri = vscode.Uri.parse(envUri)
+			const uri = vscode.Uri.from({
+				...tmpUri,
+				scheme: "veg",
+			})
+
+			const f: Folder = {
+				uri,
+				name,
+				sid,
+				session,
+				// base: dir,
+			}
+
+			console.log("filesys.open.midway", anyUri, uri, f, path, sid, envUri)
+
 			const resp = await this.makeReq("/fs/open", undefined, {
-				fromUri: value,
+				fromUri: envUri,
+				path,
 			})
 			// console.log("filesys.resp:", resp)
 			if (resp.status !== 200) {
@@ -196,30 +278,24 @@ class VegContentProvider implements vscode.FileSystemProvider {
 			}
 
 			const data: any = await resp.json()
-			// console.log("created:", data)
+			console.log("filesys.open.api.resp:", data)
 
-			// convert to something vscode will understand
-
-			const uri = vscode.Uri.parse(`veg://${data.envUri}`)
-			const parts = uri.path.split(":")
-			var sid = parts[0]
-			if (sid.startsWith("/")) {
-				sid = sid.substring(1)
-			}
+			const vegUri = vscode.Uri.parse(`veg://${data.envUri}`)
+			f.uri = vegUri
+			// const parts = uri.path.split(":")
+			// var sid = parts[0]
+			// if (sid.startsWith("/")) {
+			// 	sid = sid.substring(1)
+			// }
 			// const tag = parts[1]
 
-			const f: Folder = {
-				uri,
-				name: value,
-				sid: sid,
-				// base: dir,
-			}
+			// convert to something vscode will understand
 
 			const wsF = vscode?.workspace?.workspaceFolders as any[]
 			const count = vscode.workspace.workspaceFolders?.length || 0
 
 			var ws: vscode.WorkspaceFolder | any = null
-			// console.log("openFS:", sid, dir, name)
+			console.log("filesys.open.wsFolders:", f, wsF)
 			for (var i in wsF){
 				// console.log("openFS.loop:", i, wsF[i].sid === sid, wsF[i])
 				const qp = new URLSearchParams(wsF[i].uri.query)

@@ -45,6 +45,10 @@ function App() {
     <div className="flex flex-col p-2 gap-2 min-h-screen">
       <div className="rounded border m-2 p-2 font-thin text-xl">
         <Button>veggie!</Button>
+        <div className="border m-1 p-1 gap-1 flex flex-col md:flex-row">
+          <div className="border p-1 w-full">A1</div>
+          <div className="border p-1 w-full">A2</div>
+        </div>
       </div>
     </div>
   )
