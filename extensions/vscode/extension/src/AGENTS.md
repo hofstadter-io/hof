@@ -42,3 +42,8 @@ export async function activate(context: vscode.ExtensionContext) {
 | `sync` | Monitors and broadcasts VS Code state (workspace, terminals, environment) to the server. | [./sync/AGENTS.md](./sync/AGENTS.md) |
 | `treeviews` | Registers and manages all `vscode.TreeDataProvider` implementations (sessions, agents, planning). | [./treeviews/AGENTS.md](./treeviews/AGENTS.md) |
 | `webviews` | Implements the framework for all sidebars and panels (`chat`, `debug`, `manage`). | [./webviews/AGENTS.md](./webviews/AGENTS.md) |
+
+## Utilities and Tests
+
+- **`other/token-count.ts`**: Utilities for counting tokens (likely for AI context management).
+- **`test/extension.test.ts`**: Standard VS Code extension integration tests.

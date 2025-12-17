@@ -33,9 +33,52 @@ class Terminal {
 	terminal: vscode.Terminal | null = null;
 	history: Exec[] = [];	
 }
+
+class TerminalPayload {
+	id: number = -1;
+	name?: string;
+	history?: HistoryPayload[];
+}
+
+class HistoryPayload {
+	cmd?: any;
+	cwd?: string;
+	out?: string;
+	exit?: number;
+}
 ```
 
 It listens to:
 - `onDidStartTerminalShellExecution`
 - `onDidEndTerminalShellExecution`
 - `read()` from the execution stream to capture output.
+
+## Environment Synchronization (`env.ts`)
+
+Broadcasts information about the environment.
+
+```typescript
+async function broadcastEnv(context: vscode.ExtensionContext) {
+	const wsF = vscode.workspace.workspaceFolders
+	var wDir: string | undefined
+	if (wsF && wsF.length > 0) {
+		wDir = wsF[0].uri.path	
+	}
+	const sid = context.workspaceState.get("sid")
+
+	const msg = {
+		type: "env.info.resp",
+		payload: {
+			sid,
+			machineId: vscode.env.machineId,
+			vscodeSid: vscode.env.sessionId,
+			remoteName: vscode.env.remoteName,
+			user: "verdverm",
+		  workspaceDir: wDir,
+			clipboard: await vscode.env.clipboard.readText(),
+		}
+	}
+	extensionEmitter.fire(msg);
+	sendMessage(msg)
+}
+```
