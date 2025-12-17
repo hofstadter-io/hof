@@ -1,13 +1,51 @@
 # Agent Configuration
 
-This directory contains logic for mapping CUE configurations to Go types for the agent system.
+This directory handles the configuration and instantiation of agents, primarily using [CUE](https://cuelang.org/).
 
-## Files
+## Key Components
 
-- `cue.go`: Defines the configuration structures (`Config`, `Agent`, `Tool`, `Environ`) and provides the `AgenticCUE` function to load and validate agent configurations from CUE files. It acts as the bridge between the CUE definition language and the internal Go representation of agents.
+### CUE Mapping (`cue.go`)
+Maps declarative CUE configurations to Go types and constructs the runtime agent objects.
 
-## Key Types
+- **`AgenticCUE`**: Loads, builds, and validates the CUE configuration from the directory.
+- **`BuildAgent`**: Factory function. Takes the config and creates an `llmagent.New()` instance. It handles:
+    - Tool initialization (`buildTools`)
+    - MCP toolset setup (`buildMcp`)
+    - Model selection
+    - Callback registration
 
-- `Config`: Root configuration structure containing agents, models, tools, etc.
-- `Agent`: Defines an agent's properties, including tools, sub-agents, and LLM model.
-- `Environ`: Defines the execution environment (e.g., Docker container specs) for an agent.
+## Configuration Structure
+
+```go
+type Config struct {
+	Models   map[string]Model   `json:"models"`
+	Agents   map[string]Agent   `json:"agents"`
+	Tools    map[string]Tool    `json:"tools"`
+	Toolsets map[string]Toolset `json:"toolsets"`
+	Environs map[string]Environ `json:"environs"`
+
+	Embeds   map[string]any    `json:"embeds"`
+	EmbedDir string            `json:"embedDir"`
+	AgentsMD map[string]string `json:"agentsMD"`
+
+	Templates templates.TemplateMap
+}
+
+type Agent struct {
+	// proxy to adk fields
+	Name        string `json:"name"`
+	Model       string `json:"model"`
+	Description string `json:"description"`
+	Instruction string `json:"instruction"`
+
+	Tools     []string `json:"tools"`
+	Toolsets  []string `json:"toolsets"`
+	Mcp       []string `json:"mcp"`
+	SubAgents []string `json:"subagents"`
+
+	// veg concepts, some of this is more tied to the session, but every session starts with an agent
+	AutoLoadWorkdir bool              `json:"autoLoadWorkdir"`   // we need a way to say yay/nay to mounting the local dir, we don't need it for many queries
+	Environ         string            `json:"environ,omitempty"` // what is the agent default, none means no container
+	AgentsMD        map[string]string `json:""`
+}
+```

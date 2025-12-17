@@ -65,6 +65,7 @@ agents: agents_md_gen: {
 
     "fs_write",
     "fs_edit",
+    "fs_del",
   ]
 }
 
