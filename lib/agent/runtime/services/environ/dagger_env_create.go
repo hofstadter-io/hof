@@ -100,7 +100,10 @@ func (le *localEnviron) Create(opts EnvironCreateOptions) (envUri string, err er
 				d = r.Ref(suri.Fragment).Tree()
 			}
 		case "file":
-			d = le.dag.Host().Directory(suri.Path)
+			d = le.dag.Host().Directory(suri.Path, dagger.HostDirectoryOpts{
+				Gitignore: true,
+				NoCache:   true,
+			})
 
 		// this should probably be oci only?
 		case "veg", "oci":
