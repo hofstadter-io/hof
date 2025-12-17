@@ -38,22 +38,14 @@ Represents a connected user agent (e.g., a VS Code window) via WebSocket. Handle
 ```go
 type Client struct {
 	User  string
-	State map[string]any // should this be persisted, do we even need it with user:... State? (same user on two clients, repo in different locations?)
+	State map[string]any 
 
 	// when we have custom agents, or local to a session even? (b/c diff sess diff workdir)
 	AgentDefs map[string]agents.Agent
 
 	// this really depends on the workspace / session
 	// and should also be merged with (1) user global (2) builtin defaults
-	// need a place for selecting which ones show up in the dropdown vs @mention [any]
 	Agentic agents.Config
-
-	// we should perhaps store active sessions here
-	// various information we'd like to share between agents (multiple vscode status/state)
-
-	// other stuff needs to be persisted
-	// 1. agent config (maybe we just store these in the state with user:...)
-	// 2. session state/history (already done by SessionService, but needs improvements)
 
 	conn *websocket.Conn
 
@@ -61,24 +53,17 @@ type Client struct {
 
 	handleMessage func(*Client, *Message)
 }
-
-// readPump() handles incoming messages
-// writePump() handles outgoing messages
 ```
 
 ### REST API (`api_environ.go`)
 Provides HTTP endpoints for filesystem and environment operations, primarily used by the VS Code extension or other clients for synchronous operations.
 
-- `POST /fs/read`
-- `POST /fs/write`
-- `POST /fs/stat`
-- `POST /fs/list`
+- `POST /fs/*`: Filesystem operations (read, write, stat, list, etc.) backed by the environment service.
 
 ## Sub-directories
 
 ### [Services](services/AGENTS.md)
 Contains the business logic for Environments (Dagger), Sessions (DB), and Artifacts.
 
-### Handlers (`handlers/`)
-WebSocket message handlers.
-- **`ws/`**: Implementations for specific message types (chat, info, etc.).
+### [Handlers](handlers/AGENTS.md)
+WebSocket message handlers (`ws/`).
