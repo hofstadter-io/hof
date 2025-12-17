@@ -294,7 +294,7 @@ func (le *localEnviron) DiffDirectory(prevUri, nextUri string) (*DiffInfo, error
 		return nil, fmt.Errorf("while getting DelPaths(%s): %w", nextUri, err)
 	}
 
-	// ensure absolute
+	// ensure absolute (should we be doing this?) forgot why we needed it in the first place... probably some other thing making it into the path in vscode or something
 	for i, fp := range addpaths {
 		if !strings.HasPrefix(fp, "/") {
 			fp = "/" + fp

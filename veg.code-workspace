@@ -23,6 +23,10 @@
 		{
 			"name": "webviews",
 			"path": "extensions/vscode/webviews"
+		},
+		{
+			"name": "chat-provider",
+			"uri": "veg://host.docker.internal:5000/c396d105-a1bd-49be-8aae-5c74ea204a21:8"
 		}
 	],
 	"settings": {}

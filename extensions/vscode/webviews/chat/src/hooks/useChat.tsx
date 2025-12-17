@@ -1,8 +1,7 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, createContext, useContext, type ReactNode } from 'react';
 import { vscodeApi } from '@/vscodeApi.js';
 
 // Define the message types we expect
-// (These should match your Go server and extension)
 interface SidPayload {
   sid: string;
 }
@@ -43,17 +42,21 @@ function processEvents(session: any) {
   };
 }
 
-// todo, this should be a useContext, but I only told the Ai to factor out or extract for reuse
-export function useChat(messagesEndRef: React.RefObject<HTMLDivElement>) {
-  // const stateOld = vscodeApi.getState() || {};
-  // const state = {
-  //   sid: "",
-  //   pos: -1,
-  //   session: {},
-  //   diff: {},
-  //   usage: {},
-  //   chatState: stateOld?.chatState
-  // };
+interface ChatContextType {
+  sid: string;
+  pos: number;
+  session: any;
+  usage: any;
+  chatState: any;
+  diff: any;
+  setDiff: (diff: any) => void;
+  setPos: (pos: number) => void;
+  handleSend: (userInput: any) => void;
+}
+
+const ChatContext = createContext<ChatContextType | undefined>(undefined);
+
+export function ChatProvider({ children }: { children: ReactNode }) {
   const state = vscodeApi.getState() || {};
 
   const [sid, setSid] = useState(state?.sid || '');
@@ -210,22 +213,14 @@ export function useChat(messagesEndRef: React.RefObject<HTMLDivElement>) {
       });
     }
 
-    // scroll immediately if we already have history
-    messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
-
     // Return the cleanup function
     return removeListener;
   }, []); // Empty dependency array means this runs once
 
-  // Scroll to bottom when chat log changes
+  // Calculate usage when session changes
   useEffect(() => {
-    console.log("session?.events effect");
-
     const { usage: u } = processEvents(session);
     setUsage(u);
-
-    // todo, add configuration
-    messagesEndRef?.current?.scrollIntoView({ behavior: 'smooth' });
   }, [session?.events]);
 
   // update our listener when the sid changes
@@ -298,8 +293,6 @@ export function useChat(messagesEndRef: React.RefObject<HTMLDivElement>) {
   // Handler for sending a message
   const handleSend = useCallback((userInput: any) => {
     console.log("handleSend", userInput);
-    const input = (userInput?.text as string).trim();
-
     //
     // send a message to the agent / model
     //
@@ -339,7 +332,7 @@ export function useChat(messagesEndRef: React.RefObject<HTMLDivElement>) {
     }
   }, [sid]);
 
-  return {
+  const value = {
     sid,
     pos,
     session,
@@ -350,4 +343,18 @@ export function useChat(messagesEndRef: React.RefObject<HTMLDivElement>) {
     setPos,
     handleSend,
   };
+
+  return (
+    <ChatContext.Provider value={value}>
+      {children}
+    </ChatContext.Provider>
+  );
+}
+
+export function useChat() {
+  const context = useContext(ChatContext);
+  if (context === undefined) {
+    throw new Error('useChat must be used within a ChatProvider');
+  }
+  return context;
 }

@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useEffect } from 'react'
 import '@/index.css' // We'll add some styles
 
 import { vscodeApi } from '@/vscodeApi.js'
@@ -36,7 +36,9 @@ function App() {
     diff,
     chatState,
     handleSend,
-  } = useChat(messagesEndRef as any);
+  } = useChat();
+
+
 
 
   //

@@ -74,7 +74,7 @@ function findTerm(vsterm: vscode.Terminal): Terminal | null {
 
 function finalizeExec(term: Terminal, end: vscode.TerminalShellExecutionEndEvent) {
 	if (end.execution.commandLine.value === "") {
-		console.warn("ignoring empty command")
+		console.warn("terminal.finalizeExec: ignoring empty command")
 		return
 	}
 	// search backwards because we push to history, most probable at the end
@@ -111,9 +111,9 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 
 		vscode.window.onDidChangeTerminalShellIntegration(e => {
-			console.log("changeIntegration", e, trackedTerminals)
+			// console.log("changeIntegration", e, trackedTerminals)
 			if (!findTerm(e.terminal)){
-				console.log("changeIntegration.newTerminal", e)
+				// console.log("changeIntegration.newTerminal", e)
 				const t = new Terminal()
 				t.terminal = e.terminal
 				t.termIndex = termIndex
@@ -124,10 +124,10 @@ export function activate(context: vscode.ExtensionContext) {
 		}),
 
 		vscode.window.onDidStartTerminalShellExecution(async e => {
-			console.log("execStart", e, trackedTerminals)
+			// console.log("execStart", e, trackedTerminals)
 			var t = findTerm(e.terminal)
 			if (!t) {
-				console.log("execStart.newTerminal", e)
+				// console.log("execStart.newTerminal", e)
 				t = new Terminal()
 				t.terminal = e.terminal
 				t.termIndex = termIndex
@@ -137,7 +137,7 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 
 			if (e.execution.commandLine.value === "") {
-				console.warn("ignoring empty command")
+				// console.warn("ignoring empty command")
 				return
 			}
 
@@ -147,7 +147,7 @@ export function activate(context: vscode.ExtensionContext) {
 			h.start = e
 			broadcastTerminals()
 
-			console.log("hist", h)
+			// console.log("hist", h)
 			// collect output stream
 			const stream = e.execution.read();
 			for await (const data of stream) {
@@ -158,17 +158,17 @@ export function activate(context: vscode.ExtensionContext) {
 
 		vscode.window.onDidEndTerminalShellExecution(e => {
 			if (e.execution.commandLine.value === "") {
-				console.warn("ignoring empty command")
+				// console.warn("ignoring empty command")
 				return
 			}
-			console.log("execEnd", e)
+			// console.log("execEnd", e)
 			const t = findTerm(e.terminal)
 			if (!t) {
 				console.error("failed to find terminal for:", e)
 				return
 			}
 			finalizeExec(t, e)
-			console.log("done:", t)
+			// console.log("done:", t)
 			broadcastTerminals()
 		}),
 

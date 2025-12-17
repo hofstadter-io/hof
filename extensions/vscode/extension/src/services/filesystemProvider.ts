@@ -100,8 +100,9 @@ export async function activate(context: vscode.ExtensionContext) {
 		vscode.commands.executeCommand('workbench.files.action.refreshFilesExplorer')
   })
 
-	vscode.commands.registerCommand('veg.explorer.showDiff', async (args: any) => {
-		console.log("veg.explorer.showDiff.args", args)
+	vscode.commands.registerCommand('veg.explorer.showDiff', async (uri: vscode.Uri) => {
+		console.log("veg.explorer.showDiff.args", uri)
+		vcp.showDiff(uri)
   })
 
 	vscode.commands.registerCommand('veg.explorer.mergeDiff', async (uri: vscode.Uri) => {
@@ -498,6 +499,43 @@ class VegContentProvider implements vscode.FileSystemProvider {
 	}
 
 	// todo, we probably need a diffUri here
+	showDiff(source: vscode.Uri, destination?: vscode.Uri): void | Thenable<void> {
+		const f = async () => {
+			console.log("filesys.showDiff.args", source, destination)
+			const resp = await this.makeReq("/fs/diff", source)
+			if (resp.status !== 200) {
+				// console.error("filesys.showDiff.makeReq error:", resp)
+				throw vscode.FileSystemError.FileNotFound(source)
+			}
+			// console.log("filesys.showDiff.resp", uri, resp)
+
+			const diff: any = await resp.json()
+			console.log("filesys.showDiff.diff", diff)
+
+			// get vscode uris for the environ basepath
+			const prevUri = vscode.Uri.from({ ...vscode.Uri.parse(diff.prev), scheme: "veg" })
+			const nextUri = vscode.Uri.from({ ...vscode.Uri.parse(diff.next), scheme: "veg" })
+
+			// show diff
+			for (var p of diff.modPaths) {
+				const pfUri = vscode.Uri.from({ ...prevUri, path: prevUri.path + p })
+				const nfUri = vscode.Uri.from({ ...nextUri, path: nextUri.path + p })
+				console.log("diff", pfUri, nfUri)
+				vscode.commands.executeCommand('vscode.diff', pfUri, nfUri, `veg-diff: ${p}`, {
+					preserveFocus: false,
+					preview: false,
+					viewColumn: 1,
+				})
+			}
+
+			// // console.log("veg.diff", fileUri, vegUri)
+
+			return
+		}
+		return f()
+	}
+
+	// todo, we probably need a diffUri here
 	mergeDiff(source: vscode.Uri, destination: vscode.Uri): void | Thenable<void> {
 		if (destination.scheme !== 'file') {
 			vscode.window.showErrorMessage(`unsupported target, only file://: ${destination}`)
@@ -518,18 +556,30 @@ class VegContentProvider implements vscode.FileSystemProvider {
 			// write to disk
 			if (destination.scheme === 'file') {
 				for (var path of diff.addPaths) {
+					// skip ugh...
+					if ((path.startsWith("/") && path.endsWith("/")) || path === "/stdout.txt" || path === "/stderr.txt" ) {
+						continue
+					}
 					const val = diff.files[path]
 					const key = destination.path + path
 					await fs.writeFile(key, val)
 				}
 
 				for (var path of diff.modPaths) {
+					// skip ugh...
+					if ((path.startsWith("/") && path.endsWith("/")) || path === "/stdout.txt" || path === "/stderr.txt" ) {
+						continue
+					}
 					const val = diff.files[path]
 					const key = destination.path + path
 					await fs.writeFile(key, val)
 				}
 
-				for (var path of diff.modPaths) {
+				for (var path of diff.delPaths) {
+					// skip ugh...
+					if ((path.startsWith("/") && path.endsWith("/")) || path === "/stdout.txt" || path === "/stderr.txt" ) {
+						continue
+					}
 					const key = destination.path + path
 					await fs.rm(key)
 				}
