@@ -157,6 +157,10 @@ func FilesysGlob(name, description string) (tool.Tool, error) {
 			return filesysOutputError(input.Glob, err), nil
 		}
 
+		if len(results) > 100 {
+			return filesysOutputError(input.Glob, fmt.Errorf("too many results, narrow your glob pattern, suggest to limit depth by not using double star or limit to a subdirectory by using it as the prefix")), nil
+		}
+
 		// build output message
 		b := new(strings.Builder)
 		for _, r := range results {
