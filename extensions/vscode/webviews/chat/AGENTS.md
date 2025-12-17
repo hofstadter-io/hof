@@ -7,11 +7,21 @@ This document provides a high-level overview of the `veg-chat-webview` codebase 
 This project is a **React-based VS Code Webview** that serves as the UI for the Veggie AI coding assistant. It communicates with a host VS Code extension backend via message passing.
 
 **Tech Stack:**
+- **Package Manager:** pnpm (workspace) 
 - **Framework:** React (Vite)
 - **Language:** TypeScript
 - **Styling:** Tailwind CSS
 - **UI Library:** Shadcn/UI (Radix primitives), Lucide React (icons)
 - **State Management:** React Context (`ChatProvider`)
+
+## Testing
+
+IMPORTANT: you cannot run these commands yet, always ask the user to build, test, and validate.
+
+```sh
+# build the extension webapp
+pnpm build
+```
 
 ## Architecture
 
