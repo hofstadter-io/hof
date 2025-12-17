@@ -17,6 +17,7 @@ export const Menu = ({
   setPos,
   hidden,
   refresh,
+  session,
   // openFS,
   // checkpoint,
   setHidden,
@@ -26,8 +27,9 @@ export const Menu = ({
   setPos: any,
   hidden: boolean,
   refresh?: boolean,
-  openFS?: boolean,
-  checkpoint?: boolean,
+  session?: any,
+  // openFS?: boolean,
+  // checkpoint?: boolean,
   setHidden: (prev: any) => any
 }) => {
 
@@ -39,14 +41,15 @@ export const Menu = ({
         aria-label="diff"
         className="hover:text-sky-500"
         onClick={() => {
-          setPos(pos)
+          // currently, this is only enabled on the headers (not per message/event)
+          console.log("Browse session:", session)
+          if (!session) {
+            return
+          }
           vscodeApi.postMessage({
-            type: "session.fs.open",
+            type: "filesys.openEnviron",
             payload: {
-              sid,
-              pos,
-              show: true,
-              // todo, add start here
+              session,
             }
           })
         }}
@@ -58,13 +61,14 @@ export const Menu = ({
         <SquareTerminal size={16}
           aria-label="terminal"
           onClick={(e) => {
-            vscodeApi.postMessage({
-              type: "session.term.open",
-              payload: {
-                sid,
-                pos,
-              }
-            })
+            console.log("Terminal session:", session)
+            // vscodeApi.postMessage({
+            //   type: "session.term.open",
+            //   payload: {
+            //     sid,
+            //     pos,
+            //   }
+            // })
           }}
         />
       </div>
@@ -75,16 +79,16 @@ export const Menu = ({
         aria-label="diff"
         className="hover:text-yellow-500"
         onClick={() => {
-          setPos(pos)
-          vscodeApi.postMessage({
-            type: "session.diff",
-            payload: {
-              sid,
-              pos,
-              show: true,
-              // todo, add start here
-            }
-          })
+          // setPos(pos)
+          // vscodeApi.postMessage({
+          //   type: "session.diff",
+          //   payload: {
+          //     sid,
+          //     pos,
+          //     show: true,
+          //     // todo, add start here
+          //   }
+          // })
         }}
       />
       </ToolTipper>
@@ -94,13 +98,13 @@ export const Menu = ({
         aria-label="merge"
         className="hover:text-yellow-500"
         onClick={() => {
-          vscodeApi.postMessage({
-            type: "session.merge",
-            payload: {
-              sid,
-              pos,
-            }
-          })
+          // vscodeApi.postMessage({
+          //   type: "session.merge",
+          //   payload: {
+          //     sid,
+          //     pos,
+          //   }
+          // })
         }}
       />
       </ToolTipper>
@@ -110,13 +114,13 @@ export const Menu = ({
         aria-label="fork"
         className="hover:text-sky-500"
         onClick={() => {
-          vscodeApi.postMessage({
-            type: "session.fork",
-            payload: {
-              from: sid,
-              pos,
-            }
-          })
+          // vscodeApi.postMessage({
+          //   type: "session.fork",
+          //   payload: {
+          //     from: sid,
+          //     pos,
+          //   }
+          // })
         }}
       />
       </ToolTipper>

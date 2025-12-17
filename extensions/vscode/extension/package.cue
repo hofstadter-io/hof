@@ -47,24 +47,26 @@ contributes: {
   }
 
   keybindings: [
-    { command: "veg-chat-webview.focus", key: "ctrl+g", mac: "cmd+g" },
-    { command: "veg-chat-webview.focus", key: "ctrl+shift+g", mac: "cmd+shift+g" },
-    { command: "veg-chat-webview.focus", key: "alt+g g", mac: "alt+g g" },
+    { command: "veg-chat.focus", key: "ctrl+g", mac: "cmd+g" },
+    { command: "veg-chat.focus", key: "ctrl+shift+g", mac: "cmd+shift+g" },
+    { command: "veg-chat.focus", key: "alt+g g", mac: "alt+g g" },
     { command: "veg-sessions.focus", key: "alt+g s", mac: "alt+g s" },
     // { command: "veg-agents.focus", key: "alt+g a", mac: "alt+g a" },
     // { command: "veg-planning.focus", key: "alt+g p", mac: "alt+g p" },
-    { command: "veg-debug-webview.focus", key: "alt+g d", mac: "alt+g d" }
+    { command: "veg-debug.focus", key: "alt+g d", mac: "alt+g d" }
   ],
 
   commands: [
     { command: "veg.connect", category: "Veg Connect", title: "Veg Connect" },
 
+    { command: "veg.explorer.copyPath", category: "Veg", title: "Copy Path (Veg)", icon: "$(copy)" },
     { command: "veg.explorer.chat", category: "Veg", title: "Chat (Veg)", icon: "$(comment-discussion)" },
     { command: "veg.explorer.openEnviron", category: "Veg", title: "Open (Veg)", icon: "$(folder-opened)" },
     { command: "veg.explorer.forkEnviron", category: "Veg", title: "Fork (Veg)", icon: "$(gist-fork)" },
-    { command: "veg.explorer.toggleShown", category: "Veg", title: "Toggle Diff Only (Veg)", icon: "$(filter)" },
+    { command: "veg.explorer.toggleShown", category: "Veg", title: "Toggle Diff View (Veg)", icon: "$(filter)" },
     { command: "veg.explorer.showDiff", category: "Veg", title: "Show Diff (Veg)", icon: "$(diff-multiple)" },
-    { command: "veg.explorer.showFileDiff", category: "Veg", title: "Show Diff (Veg)", icon: "$(diff)" },
+    { command: "veg.explorer.showFileDiff", category: "Veg", title: "Show File Diff (Veg)", icon: "$(diff)" },
+    { command: "veg.explorer.mergeDiff", category: "Veg", title: "Merge Diff (Veg)", icon: "$(gist-merge)" },
     { command: "veg.explorer.refreshAll", category: "Veg", title: "Refresh (Veg)", icon: "$(clear-all)" },
 
     { command: "veg.session.openEnviron", category: "Veg", title: "Show Session Files (Veg)", icon: "$(list-tree)" },
@@ -89,7 +91,9 @@ contributes: {
       { command: "veg.explorer.forkEnviron", group: "_veg@3" },
       { command: "veg.explorer.toggleShown", group: "_veg@4" },
       { command: "veg.explorer.showDiff", group: "_veg@5" },
-      { command: "veg.explorer.refreshAll", group: "_veg@6" },
+      { command: "veg.explorer.mergeDiff", group: "_veg@6" },
+      { command: "veg.explorer.copyPath", group: "_veg@7" },
+      { command: "veg.explorer.refreshAll", group: "_veg@8" },
     ],
     "editor/title": [
       { command: "veg.explorer.refreshAll", group: "navigation" },

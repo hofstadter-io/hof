@@ -35,7 +35,7 @@ export const Header = ({
 
       <div className="flex justify-between items-center gap-2">
         <span>{session?.state?.title || sid || "no session"}</span>
-        <Menu sid={sid} setPos={() => setPos(-1)} hidden={hidden} setHidden={setHidden} refresh/>
+        <Menu sid={sid} setPos={() => setPos(-1)} hidden={hidden} setHidden={setHidden} refresh session={session}/>
 
         <ToolTipper label="Create">
           <Plus size={16}

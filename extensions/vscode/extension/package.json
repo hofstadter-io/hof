@@ -72,17 +72,17 @@
         },
         "keybindings": [
             {
-                "command": "veg-chat-webview.focus",
+                "command": "veg-chat.focus",
                 "key": "ctrl+g",
                 "mac": "cmd+g"
             },
             {
-                "command": "veg-chat-webview.focus",
+                "command": "veg-chat.focus",
                 "key": "ctrl+shift+g",
                 "mac": "cmd+shift+g"
             },
             {
-                "command": "veg-chat-webview.focus",
+                "command": "veg-chat.focus",
                 "key": "alt+g g",
                 "mac": "alt+g g"
             },
@@ -92,7 +92,7 @@
                 "mac": "alt+g s"
             },
             {
-                "command": "veg-debug-webview.focus",
+                "command": "veg-debug.focus",
                 "key": "alt+g d",
                 "mac": "alt+g d"
             }
@@ -102,6 +102,12 @@
                 "command": "veg.connect",
                 "category": "Veg Connect",
                 "title": "Veg Connect"
+            },
+            {
+                "command": "veg.explorer.copyPath",
+                "category": "Veg",
+                "title": "Copy Path (Veg)",
+                "icon": "$(copy)"
             },
             {
                 "command": "veg.explorer.chat",
@@ -124,7 +130,7 @@
             {
                 "command": "veg.explorer.toggleShown",
                 "category": "Veg",
-                "title": "Toggle Diff Only (Veg)",
+                "title": "Toggle Diff View (Veg)",
                 "icon": "$(filter)"
             },
             {
@@ -136,8 +142,14 @@
             {
                 "command": "veg.explorer.showFileDiff",
                 "category": "Veg",
-                "title": "Show Diff (Veg)",
+                "title": "Show File Diff (Veg)",
                 "icon": "$(diff)"
+            },
+            {
+                "command": "veg.explorer.mergeDiff",
+                "category": "Veg",
+                "title": "Merge Diff (Veg)",
+                "icon": "$(gist-merge)"
             },
             {
                 "command": "veg.explorer.refreshAll",
@@ -229,8 +241,16 @@
                     "group": "_veg@5"
                 },
                 {
-                    "command": "veg.explorer.refreshAll",
+                    "command": "veg.explorer.mergeDiff",
                     "group": "_veg@6"
+                },
+                {
+                    "command": "veg.explorer.copyPath",
+                    "group": "_veg@7"
+                },
+                {
+                    "command": "veg.explorer.refreshAll",
+                    "group": "_veg@8"
                 }
             ],
             "editor/title": [

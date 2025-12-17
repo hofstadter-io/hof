@@ -16,7 +16,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	vscode.commands.registerCommand('veg.sessions.create', (node?: Session) => {
 		console.log("create session", node)
-		// sendMessage({ type: "session.create", payload: { focus: true, dir: rootPath } })
+		sendMessage({ type: "session.create", payload: { focus: true } })
 	});
 
 	vscode.commands.registerCommand('veg.session.openEnviron', (node?: Session) => {

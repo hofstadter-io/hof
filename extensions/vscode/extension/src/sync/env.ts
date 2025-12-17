@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
-import { extensionEmitter } from '../comms/events';
-import { sendMessage } from '../websocket';
+import { extensionEmitter, sendMessage } from '../comms';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed

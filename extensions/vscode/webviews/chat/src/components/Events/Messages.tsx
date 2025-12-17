@@ -10,26 +10,56 @@ import {
 import { Markdown } from '@/components/Markdown'
 import { EventDetails } from "@/components/Events/Details";
 import { FuncCall } from "./ToolCall";
-import { Microscope } from "lucide-react";
+import { ArrowRight, MoveRight } from "lucide-react";
 
 
-export const UnknownEvent = ({sid, pos, setPos, msg, data}: {sid: string, pos: number, setPos: any, msg?: string, data: any}) => {
+export const UnknownEvent = ({
+  sid,
+  pos,
+  setPos,
+  msg,
+  evt,
+}: {
+  sid: string,
+  pos: number,
+  setPos: any,
+  msg?: string,
+  evt: any
+}) => {
   return (
-    <div className="flex flex-col text-sm px-2 py-1 border-red-800 rounded gap-2">
-      <div className="flex justify-between items-center gap-2 p-2">
-        <div className="font-bold">unknown event</div>
-        <div className="font-thin">{msg}</div>
+    <div className={cn(
+      "ml-40 my-2 py-[1px] pl-[2px] rounded",
+      "bg-linear-to-r from-red-500/80 from-[20%] via-[#1e1e1e] via-[50%] to-[#1e1e1e]",
+    )}>
+      <div className={cn(
+        "flex flex-col p-2 rounded",
+        "bg-linear-to-r from-slate-800/50 from-[20%] via-[#1e1e1e] via-[40%] to-[#1e1e1e]",
+      )}>
+        <div className="flex flex-col">
+          <div className="font-bold">unknown event</div>
+          <div className="font-thin">{msg}</div>
+        </div>
+        <div className="mt-[-12px] mr-auto">
+          <Accordion type="single" collapsible>
+            <AccordionItem value="details">
+              <AccordionTrigger className="h-3"></AccordionTrigger>
+              <AccordionContent>
+                <EventDetails sid={sid} pos={pos} setPos={setPos} evt={evt}/>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
       </div>
-      <EventDetails sid={sid} pos={pos} setPos={setPos} evt={data} />
     </div>
   )
 }
 
 
 export const UserMessage = ({sid, pos, setPos, evt}:{sid: string, pos: number, setPos: any, evt: any}) => {
+  const hasStateDelta = evt?.Actions?.StateDelta && Object.keys(evt?.Actions?.StateDelta).length > 0
   return (
     <div className={cn(
-      "ml-40 py-[1px] pl-[2px] rounded",
+      "ml-40 my-2 py-[1px] pl-[2px] rounded",
       "bg-linear-to-r from-sky-500/80 from-[20%] via-[#1e1e1e] via-[50%] to-[#1e1e1e]",
     )}>
       <div className={cn(
@@ -37,12 +67,26 @@ export const UserMessage = ({sid, pos, setPos, evt}:{sid: string, pos: number, s
         "bg-linear-to-r from-slate-800/90 from-[20%] via-[#1e1e1e] via-[40%] to-[#1e1e1e]",
       )}>
         <div className="flex flex-col">
-          { evt.Content.parts.map((p: any) => <MessagePart sid={sid} pos={pos} setPos={setPos} part={p} evt={evt}/>)}
+          { evt?.Content?.parts && evt.Content.parts.map((p: any) => <MessagePart sid={sid} pos={pos} setPos={setPos} part={p} evt={evt}/>) }
+          { hasStateDelta && Object.entries(evt.Actions.StateDelta).map(([key, val]) => {
+              return (
+                <div className="flex gap-1 items-center px-2 border-l-3 border-red-500">
+                  <span className="font-bold">
+                    ${key}
+                  </span>
+                  <MoveRight size={16} />
+                  <span>
+                    {val as string}
+                  </span>
+                </div>
+              )
+            })
+          }
         </div>
         <div className="mt-[-12px] mr-auto">
           <Accordion type="single" collapsible>
             <AccordionItem value="details">
-              <AccordionTrigger className="h-4"></AccordionTrigger>
+              <AccordionTrigger className="h-3"></AccordionTrigger>
               <AccordionContent>
                 <EventDetails sid={sid} pos={pos} setPos={setPos} evt={evt} />
               </AccordionContent>
@@ -64,7 +108,7 @@ export const ModelMessage = ({sid, pos, setPos, evt}:{sid: string, pos: number, 
         "flex flex-col p-2 rounded",
         "bg-[#1e1e1e]"
       )}>
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-1">
           { evt.Content.parts.map((p: any) => <MessagePart sid={sid} pos={pos} setPos={setPos} part={p} evt={evt}/>)}
         </div>
         <div className="mt-[-12px] mr-auto">
@@ -88,7 +132,7 @@ const MessagePart = ({ sid, pos, setPos, part, evt }:{ sid: string, pos: number,
   if (part.functionResponse) { return null }
 
   // what is it?
-  return <UnknownEvent sid={sid} pos={pos} setPos={setPos} data={part} msg="unknown part"/>
+  return <UnknownEvent sid={sid} pos={pos} setPos={setPos} evt={evt} msg="unknown part"/>
 }
 
 const TextPart = ({ part, evt }:{ part: any, evt: any }) => {

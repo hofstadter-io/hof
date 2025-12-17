@@ -6,11 +6,14 @@ import (
 	"log"
 	"maps"
 	"slices"
+	"time"
 
 	"google.golang.org/adk/session"
 
+	"github.com/google/uuid"
 	"github.com/hofstadter-io/hof/lib/agent/runtime"
 	"github.com/hofstadter-io/hof/lib/agent/runtime/services/environ"
+	"github.com/kr/pretty"
 )
 
 type SidRequest struct {
@@ -84,10 +87,9 @@ func sessionList(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 }
 
 type SessionCreateRequest struct {
-	Title     string `json:"title,omitempty"`
-	SourceUri string `json:"sourceUri"`
-	FromUri   string `json:"fromUri"`
-	Focus     bool   `json:"focus,omitempty"`
+	Title   string                        `json:"title,omitempty"`
+	Focus   bool                          `json:"focus,omitempty"`
+	Environ *environ.EnvironCreateOptions `json:"environ,omitempty"`
 }
 
 type SessionCreateResponse struct {
@@ -108,7 +110,7 @@ func sessionCreate(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 		return
 	}
 
-	// fmt.Println("CREATE SESSION:", pretty.Formatter(payload))
+	fmt.Println("CREATE SESSION:", pretty.Formatter(payload))
 
 	// initial state
 	initialState := make(map[string]any)
@@ -117,16 +119,16 @@ func sessionCreate(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 	}
 
 	// maybe attach an environment
-	if payload.SourceUri != "" || payload.FromUri != "" {
+	if payload.Environ != nil {
+		pe := *payload.Environ
 		env := environ.Client()
-		envUri, err := env.Create(payload.SourceUri, payload.FromUri)
+		envUri, err := env.Create(pe)
 		if err != nil {
 			log.Printf("in 'session.create' while creating env: %v", err)
 			return
 		}
 		// will these empty strings get deleted? (vs nil to delete, make sure delete is correct)
-		initialState["sourceUri"] = payload.SourceUri
-		initialState["fromUri"] = payload.FromUri
+		initialState["initEnv"] = pe
 		initialState["origEnv"] = string(envUri)
 		initialState["currEnv"] = string(envUri)
 	}
@@ -229,7 +231,7 @@ func sessionGetState(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 	})
 	if err != nil {
 		log.Printf("Error: session.state.get.getSession: %v", err)
-		c.Mail("session.state.get", map[string]string{
+		c.Mail("session.state.get.resp", map[string]string{
 			"id":    s.Sid,
 			"error": err.Error(),
 		})
@@ -273,22 +275,26 @@ func sessionPutState(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 		return
 	}
 
-	err = resp.Session.State().Set(s.Key, s.Val)
+	// "create" (put) the session (by using the same Sid)
+	err = r.S.AppendEvent(r.Ctx, resp.Session, &session.Event{
+		Author:       "user",
+		ID:           uuid.NewString(),
+		InvocationID: uuid.NewString(),
+		Timestamp:    time.Now(),
+		Actions: session.EventActions{
+			StateDelta: map[string]any{
+				s.Key: s.Val,
+			},
+		},
+	})
 	if err != nil {
-		log.Printf("Error: session.state.put.setState: %v", err)
+		log.Printf("Error: session.state.put.AppendEvent: %v", err)
 		c.Mail("session.state.put.resp", map[string]string{
 			"id":    s.Sid,
 			"error": err.Error(),
 		})
+		return
 	}
-
-	// "create" (put) the session (by using the same Sid)
-	_, err = r.S.Create(r.Ctx, &session.CreateRequest{
-		AppName:   r.AppName,
-		UserID:    c.User,
-		SessionID: s.Sid,
-		State:     maps.Collect(resp.Session.State().All()),
-	})
 
 	// fmt.Println("State Set", s.Sid, s.Key, s.Val)
 	// fmt.Println("session.state", maps.Collect(resp.Session.State().All()))
@@ -297,7 +303,7 @@ func sessionPutState(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 func sessionDelState(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 	var s StatePayload
 	if err := json.Unmarshal(m.Payload, &s); err != nil {
-		log.Printf("Error unmarshaling 'session.delState' payload: %v", err)
+		log.Printf("Error unmarshaling 'session.state.del.payload': %v", err)
 		return
 	}
 	// lookup session
@@ -307,21 +313,33 @@ func sessionDelState(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 		SessionID: s.Sid,
 	})
 	if err != nil {
-		log.Printf("Error: session.delState.getSession: %v", err)
-		c.Mail("session.delState.resp", map[string]string{
+		log.Printf("Error: session.state.del.getSession: %v", err)
+		c.Mail("session.state.del.resp", map[string]string{
 			"sid":   s.Sid,
 			"error": err.Error(),
 		})
 		return
 	}
 
-	err = resp.Session.State().Set(s.Key, nil)
+	// "create" (put) the session (by using the same Sid)
+	err = r.S.AppendEvent(r.Ctx, resp.Session, &session.Event{
+		Author:       "user",
+		ID:           uuid.NewString(),
+		InvocationID: uuid.NewString(),
+		Timestamp:    time.Now(),
+		Actions: session.EventActions{
+			StateDelta: map[string]any{
+				s.Key: nil,
+			},
+		},
+	})
 	if err != nil {
-		log.Printf("Error: session.delState.setState: %v", err)
-		c.Mail("session.delState.resp", map[string]string{
-			"sid":   s.Sid,
+		log.Printf("Error: session.state.del.AppendEvent: %v", err)
+		c.Mail("session.state.del.resp", map[string]string{
+			"id":    s.Sid,
 			"error": err.Error(),
 		})
+		return
 	}
 }
 

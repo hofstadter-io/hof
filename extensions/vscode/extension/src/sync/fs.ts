@@ -5,6 +5,12 @@ import { extensionEmitter } from '../comms/events';
 const SERVER_PORT = 2257;
 const SERVER_URL = `http://localhost:${SERVER_PORT}`;
 
+
+/*************************************************************/
+/*  THIS IS OLD STUFF, BUT HAS SOME SNIPPETS WE WANT TO KEEP */
+/*	Keeping it for now, but it is not imported anywhere      */
+/*************************************************************/
+
 type Folder = {
 	readonly uri: vscode.Uri
 	readonly sid: string

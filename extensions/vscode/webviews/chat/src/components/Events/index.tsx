@@ -10,12 +10,14 @@ export const Events = ({
   sid,
   currPos,
   setPos,
+  session,
   events,
   messagesEndRef
 }:{
   sid: string,
   currPos: number,
   setPos: any,
+  session: any,
   events: any[],
   messagesEndRef?: any,
 }) => {
@@ -31,10 +33,16 @@ export const Events = ({
     // loop over earlier events
     for (var e2 = e1-1; e2 >= 0; e2--) {
       const E2 = merged[e2]
+      const P2 = E2?.Content?.parts
+      if (!P2) {
+        continue
+      }
       // if we have a matching invocation id, lets do some matching
       if (E1.InvocationID === E2.InvocationID) {
         const P1 = E1?.Content?.parts
-        const P2 = E2?.Content?.parts
+        if (!P1) {
+          continue
+        }
         // todo, we need to loop over parts here too
         for (const p1 of P1) {
           if (!p1?.functionResponse) {
@@ -61,11 +69,11 @@ export const Events = ({
   // console.log("Events.merged", merged)
 
   return (
-    <div className="flex-grow flex flex-col mx-2 gap-3 overflow-y">
+    <div className="flex-grow flex flex-col mx-2 gap-1 overflow-y">
       {merged?.map((e: any, pos: number) => {
         return (
           <div className={cn(pos === currPos && "bg-violet-500/30 rounded")}>
-            <Event sid={sid} pos={pos} setPos={setPos} key={e.ID} evt={e}/>
+            <Event sid={sid} pos={pos} setPos={setPos} key={e.ID} evt={e} session={session}/>
           </div>
         )
       })}
@@ -74,27 +82,50 @@ export const Events = ({
   )
 }
 
-export const Event = ({sid, pos, setPos, evt}: {sid: string, pos: number, setPos: any, evt: any}) => {
-  if (!evt?.Content?.parts) {
-    return <UnknownEvent sid={sid} pos={pos} setPos={setPos} data={evt} msg="missing Content.parts"/>
-  }
-  if (evt?.Content?.role === "user") {
-
-    var found = false
-    evt.Content.parts.forEach((p: any) => {
-      if (p.text) {
-        found = true
+export const Event = ({
+  sid,
+  pos,
+  setPos,
+  evt,
+  session,
+}: {
+  sid: string,
+  pos: number,
+  setPos: any,
+  evt: any,
+  session: any,
+}) => {
+  // HACK: to ignore function responses, which get merged with the call and rendered together
+  var fnRespCnt: number = 0
+  var fnCallCnt: number = 0
+  if (evt?.Content?.parts) {
+    for (const p of evt?.Content?.parts) {
+      if (p.functionCall) {
+        fnCallCnt++
       }
-    })
-    if (!found) {
+      if (p.functionResponse) {
+        fnRespCnt++
+      }
+    }
+    if (fnRespCnt > 0 && fnCallCnt === 0) {
       return null
     }
-
-    return <UserMessage sid={sid} pos={pos} setPos={setPos} evt={evt}/>
   }
-  if (evt?.Content?.role === "model") {
+
+  if (evt?.Author === "user") {
+    return <UserMessage sid={sid} pos={pos} setPos={setPos} evt={evt}/>
+  } else {
+
+    // weird stop message
+    if (!evt?.Content && evt?.ErrorCode === "STOP" && evt?.FinishReason === "") {
+      return null
+    }
+    // all agent messages should have parts?
+    if (!evt?.Content?.parts) {
+      return <UnknownEvent sid={sid} pos={pos} setPos={setPos} evt={evt} msg="missing Content.parts"/>
+    }
+
     return <ModelMessage sid={sid} pos={pos} setPos={setPos} evt={evt}/>
   }
-  return <UnknownEvent sid={sid} pos={pos} setPos={setPos} data={evt} msg="missing Content.role"/>
 }
 

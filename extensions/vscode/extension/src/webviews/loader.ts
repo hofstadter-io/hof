@@ -64,8 +64,9 @@ export async function getHtmlForWebview(webview: vscode.Webview, extensionPath: 
     <meta http-equiv="Content-Security-Policy" content="
       default-src 'none';
       style-src ${webview.cspSource} 'unsafe-inline';
+      font-src ${webview.cspSource};
       script-src 'nonce-${nonce}';
-      img-src ${webview.cspSource} data:;
+      img-src ${webview.cspSource} https://cdn.jsdelivr.net https: data:;
     ">`
   );
 

@@ -44,20 +44,38 @@ type DiffInfo struct {
 	Errors []string `json:"errors"`
 }
 
-func (le *localEnviron) Stat(envUri, path string) (*FileStat, error) {
-	// fmt.Println("le.Stat", envUri, path)
-	row, env, err := le.lookupEnviron(envUri)
+// we'll need a way to specify other Uri, and if not set, use this "genesis/0" assumption
+func (le *localEnviron) getDagDir(envUri string, diff bool) (*dagger.Directory, error) {
+	_, env, err := le.LookupEnviron(envUri)
 	if err != nil {
-		return nil, fmt.Errorf("while looking up environment(%s): %w", envUri, err)
+		return nil, fmt.Errorf("while looking up environ(%s): %w", envUri, err)
+	}
+	d := env.Directory("/")
+	if diff {
+		origUri := ReplaceTag(envUri, "0")
+		if envUri == origUri {
+			return d, nil
+		}
+		_, orig, err := le.LookupEnviron(origUri)
+		if err != nil {
+			return nil, fmt.Errorf("while looking up orig environ(%s): %w", envUri, err)
+		}
+		od := orig.Directory("/")
+		d = od.Diff(d)
 	}
 
-	ok, err := env.Exists(le.ctx, path, dagger.ContainerExistsOpts{})
-	if err != nil || !ok {
-		return nil, fmt.Errorf("while looking up path(%s): %v %w", path, ok, err)
+	return d, nil
+}
+
+func (le *localEnviron) Stat(envUri, path string, diff bool) (*FileStat, error) {
+	// fmt.Println("le.Stat", envUri, path)
+	d, err := le.getDagDir(envUri, diff)
+	if err != nil {
+		return nil, fmt.Errorf("while getting base fs(%s): %s %v %w", envUri, path, diff, err)
 	}
 
 	ruri, err := url.Parse(envUri)
-	if err != nil || !ok {
+	if err != nil {
 		return nil, fmt.Errorf("while parsing uri(%s): %w", envUri, err)
 	}
 
@@ -65,20 +83,28 @@ func (le *localEnviron) Stat(envUri, path string) (*FileStat, error) {
 		path = ruri.Query().Get("path")
 	}
 
+	ok, err := d.Exists(le.ctx, path, dagger.DirectoryExistsOpts{})
+	if err != nil || !ok {
+		return nil, fmt.Errorf("while looking up path(%s): %v %w", path, ok, err)
+	}
+	if !ok {
+		return nil, fmt.Errorf("file not found(%s): %v %w", path, ok, err)
+	}
+
 	stat := &FileStat{
-		Uri:   envUri,
-		Path:  path,
-		Ctime: row.CreateAt.UnixMicro(), // this should be the first time the file showed up
-		Mtime: row.UpdateAt.UnixMicro(), // this should be the current env time (create/update likely always the same, unless we add names or allow changing uri?)
+		Uri:  envUri,
+		Path: path,
+		// Ctime: row.CreatedAt.UnixMicro(), // this should be the first time the file showed up
+		// Mtime: row.UpdatedAt.UnixMicro(), // this should be the current env time (create/update likely always the same, unless we add names or allow changing uri?)
 	}
 	// fmt.Println("le.Stat.found", row, stat)
 
 	// is it a directory?
-	ok, _ = env.Directory(".").Exists(le.ctx, path, dagger.DirectoryExistsOpts{ExpectedType: dagger.ExistsTypeDirectoryType})
+	ok, _ = d.Exists(le.ctx, path, dagger.DirectoryExistsOpts{ExpectedType: dagger.ExistsTypeDirectoryType})
 	if ok {
 		stat.Dir = true
 	} else {
-		stat.Size, err = env.File(path).Size(le.ctx)
+		stat.Size, err = d.File(path).Size(le.ctx)
 		if err != nil {
 			// fmt.Println("error:", err)
 			return nil, fmt.Errorf("while getting size for file(%s): %w", path, err)
@@ -88,12 +114,13 @@ func (le *localEnviron) Stat(envUri, path string) (*FileStat, error) {
 	return stat, nil
 }
 
-func (le *localEnviron) ReadFile(envUri, path string) (string, error) {
-
-	_, env, err := le.lookupEnviron(envUri)
+func (le *localEnviron) ReadFile(envUri, path string, diff bool) (string, error) {
+	// fmt.Println("le.Stat", envUri, path)
+	d, err := le.getDagDir(envUri, diff)
 	if err != nil {
-		return "", fmt.Errorf("while looking up environment(%s): %w", envUri, err)
+		return "", fmt.Errorf("while getting base fs(%s): %s %v %w", envUri, path, diff, err)
 	}
+
 	// more fukcing reshaping... seriously, fuck vscode for having shitty Uri implementation
 	ruri, err := url.Parse(envUri)
 	if err != nil {
@@ -103,7 +130,7 @@ func (le *localEnviron) ReadFile(envUri, path string) (string, error) {
 		path = ruri.Query().Get("path")
 	}
 
-	content, err := env.File(path).Contents(le.ctx, dagger.FileContentsOpts{})
+	content, err := d.File(path).Contents(le.ctx, dagger.FileContentsOpts{})
 	if err != nil {
 		return "", fmt.Errorf("while getting contents(%s): %w", path, err)
 	}
@@ -111,15 +138,15 @@ func (le *localEnviron) ReadFile(envUri, path string) (string, error) {
 	return content, nil
 }
 
-func (le *localEnviron) ReadDirectory(envUri, path string) (*DirList, error) {
-	fmt.Println("le.ReadDirectory.input", envUri, path)
-	table, env, err := le.lookupEnviron(envUri)
+func (le *localEnviron) ReadDirectory(envUri, path string, diff bool) (*DirList, error) {
+	// fmt.Println("le.ReadDirectory.input", envUri, path)
+	d, err := le.getDagDir(envUri, diff)
 	if err != nil {
-		return nil, fmt.Errorf("while looking up environment(%s): %w", envUri, err)
+		return nil, fmt.Errorf("while getting base fs(%s): %s %v %w", envUri, path, diff, err)
 	}
-	fmt.Println("le.ReadDirectory.lookup", table)
+	// fmt.Println("le.ReadDirectory.lookup", table)
 
-	// more fukcing reshaping... seriously, fuck vscode for having shitty Uri implementation
+	// more fucking reshaping... seriously, fuck vscode for having shitty Uri implementation
 	// we need to move this to vscode, it should not be handled in the environ service
 	ruri, err := url.Parse(envUri)
 	if err != nil {
@@ -129,7 +156,7 @@ func (le *localEnviron) ReadDirectory(envUri, path string) (*DirList, error) {
 		path = ruri.Query().Get("path")
 	}
 
-	envEntries, err := env.Directory(path).Entries(le.ctx)
+	envEntries, err := d.Directory(path).Entries(le.ctx)
 	if err != nil {
 		return nil, fmt.Errorf("while listing directory(%s): %w", path, err)
 	}
@@ -138,7 +165,8 @@ func (le *localEnviron) ReadDirectory(envUri, path string) (*DirList, error) {
 	entries := []DirEntry{}
 	for _, e := range envEntries {
 		realPath := filepath.Join(path, e)
-		ok, _ := env.Directory(".").Exists(le.ctx, realPath, dagger.DirectoryExistsOpts{ExpectedType: dagger.ExistsTypeDirectoryType})
+		// they must exist since we already go them
+		ok, _ := d.Exists(le.ctx, realPath, dagger.DirectoryExistsOpts{ExpectedType: dagger.ExistsTypeDirectoryType})
 		// fmt.Println("le.ReadDirectory.entry", realPath, ok)
 		entries = append(entries, DirEntry{Name: e, Dir: ok})
 	}
@@ -150,19 +178,82 @@ func (le *localEnviron) ReadDirectory(envUri, path string) (*DirList, error) {
 	}, nil
 }
 
-func (le *localEnviron) GrepDirectory(envUri, pattern string) ([]dagger.SearchResult, error) {
-	_, env, err := le.lookupEnviron(envUri)
+func (le *localEnviron) GrepDirectory(envUri, pattern string, diff bool) ([]dagger.SearchResult, error) {
+	d, err := le.getDagDir(envUri, diff)
 	if err != nil {
-		return nil, fmt.Errorf("while looking up environment(%s): %w", envUri, err)
+		return nil, fmt.Errorf("while getting base fs(%s): %s %v %w", envUri, pattern, diff, err)
 	}
 
-	results, err := env.Directory(".").Search(le.ctx, pattern, dagger.DirectorySearchOpts{
+	results, err := d.Search(le.ctx, pattern, dagger.DirectorySearchOpts{
 		Limit:       100,
 		SkipIgnored: true,
 		// Paths:       []string{workdir},
 	})
+	if err != nil {
+		return nil, fmt.Errorf("while searching environment(%s): %w", envUri, err)
+	}
 
-	return results, err
+	return results, nil
+}
+
+func (le *localEnviron) GlobDirectory(envUri, pattern string, diff bool) ([]string, error) {
+	d, err := le.getDagDir(envUri, diff)
+	if err != nil {
+		return nil, fmt.Errorf("while getting base fs(%s): %s %v %w", envUri, pattern, diff, err)
+	}
+
+	results, err := d.Glob(le.ctx, pattern)
+	if err != nil {
+		return nil, fmt.Errorf("while globbing environment(%s): %w", envUri, err)
+	}
+
+	return results, nil
+}
+
+func (le *localEnviron) FindAgentFiles(envUri string) (map[string]string, error) {
+	_, env, err := le.LookupEnviron(envUri)
+	if err != nil {
+		return nil, fmt.Errorf("while looking up environment(%s): %w", envUri, err)
+	}
+
+	results := make(map[string]string)
+	agents, err := env.Directory(".").Glob(le.ctx, "**/AGENTS.md")
+	if err != nil {
+		return nil, fmt.Errorf("while globbing for agents (%s): %w", envUri, err)
+	}
+	for _, path := range agents {
+		contents, err := env.Directory(".").File(path).Contents(le.ctx)
+		if err != nil {
+			return nil, fmt.Errorf("while reading agents.md (%s): %w", envUri, err)
+		}
+		results[path] = contents
+	}
+
+	claude, err := env.Directory(".").Glob(le.ctx, "**/CLAUDE.md")
+	if err != nil {
+		return nil, fmt.Errorf("while globbing for claude (%s): %w", envUri, err)
+	}
+	for _, path := range claude {
+		contents, err := env.Directory(".").File(path).Contents(le.ctx)
+		if err != nil {
+			return nil, fmt.Errorf("while reading claude.md (%s): %w", envUri, err)
+		}
+		results[path] = contents
+	}
+
+	gemini, err := env.Directory(".").Glob(le.ctx, "**/GEMINI.md")
+	if err != nil {
+		return nil, fmt.Errorf("while globbing for gemini (%s): %w", envUri, err)
+	}
+	for _, path := range gemini {
+		contents, err := env.Directory(".").File(path).Contents(le.ctx)
+		if err != nil {
+			return nil, fmt.Errorf("while reading gemini.md (%s): %w", envUri, err)
+		}
+		results[path] = contents
+	}
+
+	return results, nil
 }
 
 func (le *localEnviron) Watch(envUri, path string, excludes []string, recursive bool) (any, error) {
@@ -171,12 +262,16 @@ func (le *localEnviron) Watch(envUri, path string, excludes []string, recursive 
 }
 
 func (le *localEnviron) DiffDirectory(prevUri, nextUri string) (*DiffInfo, error) {
-	_, prev, err := le.lookupEnviron(prevUri)
+	if prevUri == "" {
+		prevUri = ReplaceTag(nextUri, "0")
+	}
+
+	_, prev, err := le.LookupEnviron(prevUri)
 	if err != nil {
 		return nil, fmt.Errorf("while looking up environment(%s): %w", prevUri, err)
 	}
 	prevDir := prev.Directory(".")
-	_, next, err := le.lookupEnviron(nextUri)
+	_, next, err := le.LookupEnviron(nextUri)
 	if err != nil {
 		return nil, fmt.Errorf("while looking up environment(%s): %w", nextUri, err)
 	}

@@ -8,29 +8,41 @@ import (
 	"google.golang.org/adk/tool/functiontool"
 
 	"github.com/hofstadter-io/hof/lib/agent/runtime/services/environ"
+	"github.com/kr/pretty"
 )
 
 type ExecArgs struct {
 	Script string `json:"script"` // command or script to run
 }
 type ExecResult struct {
-	ExitCode int    `json:"exitCode,omitempty"`
+	ExitCode int    `json:"exitCode"`
 	Stdout   string `json:"stdout"`
 	Stderr   string `json:"stderr"`
 	Status   string `json:"status"`          // "ok" or "error"
 	Error    string `json:"error,omitempty"` // error message if there is an error
 }
 
+func getAndCheckCurrEnv(ctx tool.Context) (string, error) {
+	// Get environ
+	currUri, err := ctx.State().Get("currEnv")
+	if err != nil {
+		return "", fmt.Errorf("while getting currEnv from state: %w", err)
+	}
+	if currUri == nil {
+		return "", fmt.Errorf("no environment, attach a filesystem or container")
+	}
+
+	currStr, ok := currUri.(string)
+	if !ok {
+		return "", fmt.Errorf("state.currEnv is not a string")
+	}
+
+	return currStr, nil
+}
+
 func execError(err error) ExecResult {
 	fmt.Println("EXEC.error:", err)
 	return ExecResult{Status: "error", Error: err.Error()}
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
 }
 
 func Exec(name, description string) (tool.Tool, error) {
@@ -39,10 +51,13 @@ func Exec(name, description string) (tool.Tool, error) {
 		k := fmt.Sprintf("%s:%s", ctx.AgentName(), input.Script[:min(42, len(input.Script))])
 		fmt.Printf("%s:%s\n", name, k)
 
-		envUri, _ := ctx.State().Get("currEnv")
+		// get the current env, it's in Uri format
+		currUri, err := getAndCheckCurrEnv(ctx)
+		if err != nil {
+			return execError(err), nil
+		}
 
-		resp, err := environ.Client().Exec(envUri.(string), "...", input.Script)
-
+		resp, err := environ.Client().Exec(currUri, input.Script)
 		if err != nil {
 			return execError(err), nil
 		}
@@ -52,11 +67,16 @@ func Exec(name, description string) (tool.Tool, error) {
 			status = "error"
 		}
 
-		// TODO, persist envId
-		// need to extract and update the tag, which requires figuring out all the path, tag, qp BS...
+		// update state
+		err = ctx.State().Set("currEnv", resp.NextUri)
+		if err != nil {
+			return execError(err), nil
+		}
 
-		// return status result
-		return ExecResult{Status: status, ExitCode: resp.ExitCode, Stdout: resp.Stdout, Stderr: resp.Stderr}, nil
+		// return exec results
+		final := ExecResult{Status: status, ExitCode: resp.ExitCode, Stdout: resp.Stdout, Stderr: resp.Stderr}
+		fmt.Printf("final: %#+v\n", pretty.Formatter(final))
+		return final, nil
 	}
 	return functiontool.New(functiontool.Config{
 		Name:        name,

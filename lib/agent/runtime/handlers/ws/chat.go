@@ -7,8 +7,10 @@ import (
 
 	"github.com/hofstadter-io/hof/lib/agent/agents"
 	"github.com/hofstadter-io/hof/lib/agent/runtime"
+	"github.com/hofstadter-io/hof/lib/agent/runtime/services/environ"
 	"google.golang.org/adk/agent"
 	"google.golang.org/adk/runner"
+	"google.golang.org/adk/session"
 	"google.golang.org/genai"
 )
 
@@ -35,6 +37,46 @@ func chatUserMessage(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 	}
 	log.Printf("Chatting payload: %#+v", p)
 
+	// lookup session
+	resp, err := r.S.Get(r.Ctx, &session.GetRequest{
+		AppName:   r.AppName,
+		UserID:    c.User,
+		SessionID: p.Sid,
+	})
+	if err != nil {
+		log.Printf("chat.msg.error.getSession: %v", err)
+		c.Mail("chat.event.error", map[string]string{
+			"sid":   p.Sid,
+			"error": err.Error(),
+		})
+		return
+	}
+	sess := resp.Session
+
+	// do we have an env? if yes, get all the agent files for use during instruction generation
+	envUri, err := sess.State().Get("currEnv")
+	if err != nil {
+		log.Printf("chat.msg.error.getCurrEnv: %v", err)
+		c.Mail("chat.event.error", map[string]string{
+			"id":    p.Sid,
+			"error": err.Error(),
+		})
+	}
+
+	// do we have agent paths
+	var agentMDs map[string]string
+	if envUri != nil {
+		agentMDs, err = environ.Client().FindAgentFiles(envUri.(string))
+		if err != nil {
+			log.Printf("chat.msg.error.GetAgentFiles: %v", err)
+			c.Mail("chat.event.error", map[string]string{
+				"id":    p.Sid,
+				"error": err.Error(),
+			})
+		}
+		// fmt.Println("FOUND ENVIRON INSTRUCTION FILES:", slices.Collect(maps.Keys(agentMDs)))
+	}
+
 	// --- This is how you serialize a typed response ---
 	userMsg := genai.NewContentFromText(p.Text, genai.RoleUser)
 
@@ -43,7 +85,7 @@ func chatUserMessage(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 	// TODO, attach this to the session or client
 
 	// build the agent on demand
-	a, err := agents.BuildAgent(r.Agentic, p.Agent, p.Model, r.Models)
+	a, err := agents.BuildAgent(r.Agentic, p.Agent, p.Model, r.Models, agentMDs)
 	if err != nil {
 		err = fmt.Errorf("while building agent %q: %w", p.Agent, err)
 		fmt.Println("Error:", err)
@@ -68,7 +110,6 @@ func chatUserMessage(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 		Agent:           a,
 		SessionService:  r.S,
 		ArtifactService: r.A,
-		// MemoryService:   r.M,
 	})
 	if err != nil {
 		err = fmt.Errorf("while initializing runner for %q: %w", a.Name(), err)

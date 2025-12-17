@@ -18,7 +18,9 @@ TOOLS=tools: {
 
 	fs_read: description:  embed["tools/fs_read.md"]
 	fs_list: description:  embed["tools/fs_list.md"]
+	fs_glob: description:  embed["tools/fs_glob.md"]
 	fs_grep: description:  embed["tools/fs_grep.md"]
+
 	fs_edit: description:  embed["tools/fs_edit.md"]
 	fs_write: description: embed["tools/fs_write.md"]
 	fs_del: description:   embed["tools/fs_del.md"]
@@ -38,6 +40,7 @@ toolsets: {
 		tools: [
 			TOOLS.fs_read,
 			TOOLS.fs_list,
+			TOOLS.fs_glob,
 			TOOLS.fs_grep,
 		]
 	}

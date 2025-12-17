@@ -2,29 +2,34 @@ package environ
 
 import (
 	"fmt"
-	"time"
 
 	"dagger.io/dagger"
 )
+
+type ExecRequest struct {
+	Script  string
+	Workdir string
+	// ... what else might we want to expose generally and to an agent
+}
 
 type ExecResponse struct {
 	ExitCode int
 	Stdout   string
 	Stderr   string
-	EnvID    string // resulting EnvID (not persisted)
+	NextUri  string
 }
 
-func (le *localEnviron) Exec(envUri, nextTag, script string) (resp ExecResponse, err error) {
+func (le *localEnviron) Exec(envUri, script string) (resp ExecResponse, err error) {
 
-	_, env, err := le.lookupEnviron(envUri)
+	_, env, err := le.LookupEnviron(envUri)
 	if err != nil {
 		return resp, fmt.Errorf("while looking up environment(%s): %w", envUri, err)
 	}
 
-	path, err := extractPathEmptyOk(envUri)
-	if err != nil {
-		return resp, fmt.Errorf("while looking up environment(%s): %w", envUri, err)
-	}
+	// path, err := extractPathEmptyOk(envUri)
+	// if err != nil {
+	// 	return resp, fmt.Errorf("while looking up environment(%s): %w", envUri, err)
+	// }
 
 	runner := env.
 		WithEnvVariable("CGO_ENABLED", "1")
@@ -32,34 +37,33 @@ func (le *localEnviron) Exec(envUri, nextTag, script string) (resp ExecResponse,
 		// TODO, this should be defined on the env itself, maybe we need more in the moment? (can just do itself for now)
 		// inject user ENV & SHH vars
 
-	// pushd/popd - part 1 - "pushd"
+	// if workdir not set
 	cwd, err := runner.Workdir(le.ctx)
 	if err != nil {
 		return resp, fmt.Errorf("while getting working directory(%s): %w", envUri, err)
 	}
-	if path != "" {
-		runner = runner.WithWorkdir(path)
-	}
 
 	scriptHeader := `
-#!/bin/bash
+#!/bin/sh
 set -euo pipefail
 
 `
 	fullScript := scriptHeader + script
-	fmt.Printf("Running script in %s:%s:%s\n", envUri, path)
+	fmt.Printf("Running script in %s at %s\n", envUri, cwd)
 	fmt.Println(fullScript)
 
 	//
 	// This is where we actually run the exec
 	//
 	//    TODO, sequences of exec should persist
-	result, err := runner.WithEnvVariable("CACHE_BUST", time.Now().Local().String()).
-		WithExec([]string{"sh", "-c", script}, dagger.ContainerWithExecOpts{
+	result, err := runner.
+		// WithEnvVariable("CACHE_BUST", time.Now().Local().String()).
+		WithExec([]string{"sh", "-c", fullScript}, dagger.ContainerWithExecOpts{
 			Expect:         dagger.ReturnTypeAny,
 			RedirectStdout: "/stdout.txt",
 			RedirectStderr: "/stderr.txt",
 			Expand:         true,
+			// Workdir:        path,
 		}).Sync(le.ctx)
 	if err != nil {
 		return resp, fmt.Errorf("while running script: %w", err)
@@ -81,26 +85,18 @@ set -euo pipefail
 		return resp, fmt.Errorf("while getting stderr: %w", err)
 	}
 
-	// pushd/popd - part 2 - "popd"
-	if path != "" {
-		result = result.WithWorkdir(cwd)
-	}
-
-	// get final ID
-	envId, err := result.ID(le.ctx)
+	nextUri, _, err := IncrementTag(envUri)
 	if err != nil {
-		return resp, fmt.Errorf("while getting envId: %w", err)
+		return resp, fmt.Errorf("while incrementing tag(%s): %w", envUri, err)
 	}
-	resp.EnvID = string(envId)
 
-	// TODO this should move out
-	// 1. we don't always want to save it (ephemeral)
-	// 2. the caller should decide what/when
-	//
-	// persist exec
-	//
-	nextUri := replaceTag(envUri, nextTag)
-	err = le.persistEnviron(nextUri, nil, runner)
+	fmt.Println("Environ.persisting", nextUri, result)
+
+	err = le.persistEnviron(nextUri, nil, result)
+	if err != nil {
+		return resp, fmt.Errorf("while persisting environ(%s -> %s): %w", envUri, nextUri, err)
+	}
+	resp.NextUri = nextUri
 
 	return resp, nil
 }

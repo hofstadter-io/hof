@@ -10,26 +10,23 @@ import (
 )
 
 type fsPayload struct {
-	Uri  string `json:"uri"`
-	Path string `json:"path,omitempty"`
+	Uri     string `json:"uri"`
+	Path    string `json:"path,omitempty"`
+	Diff    bool   `json:"diff"`
+	DiffUri string `json:"diffUri"`
 	// User string `json:"user,omitempty"`
-}
-
-type fsCreateRequest struct {
-	FromUri string `json:"fromUri"`
-	SrcUri  string `json:"srcUri"`
 }
 
 func fsOpen(c echo.Context) error {
 	// fmt.Println("fsStat.called!")
-	var p fsCreateRequest
-	err := c.Bind(&p)
+	var opts environ.EnvironCreateOptions
+	err := c.Bind(&opts)
 	if err != nil {
 		fmt.Println("error:", err)
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	envUri, err := environ.Client().Create(p.SrcUri, p.FromUri)
+	envUri, err := environ.Client().Create(opts)
 	if err != nil {
 		fmt.Println("error:", err)
 		return c.String(http.StatusBadRequest, err.Error())
@@ -53,14 +50,14 @@ func fsStat(c echo.Context) error {
 
 	u, err := url.Parse(p.Uri)
 	if err != nil {
-		// fmt.Println("error:", err)
+		fmt.Println("error:", err)
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 	if p.Path == "" {
 		p.Path = u.Query().Get("path")
 	}
 
-	stat, err := environ.Client().Stat(p.Uri, p.Path)
+	stat, err := environ.Client().Stat(p.Uri, p.Path, p.Diff)
 	if err != nil {
 		// fmt.Println("fsStat.stat.error:", err)
 		return c.String(http.StatusBadRequest, err.Error())
@@ -87,7 +84,7 @@ func (r *Runtime) fsRead(c echo.Context) error {
 		p.Path = u.Query().Get("path")
 	}
 
-	content, err := environ.Client().ReadFile(p.Uri, p.Path)
+	content, err := environ.Client().ReadFile(p.Uri, p.Path, p.Diff)
 	if err != nil {
 		// fmt.Println("fsRead.ReadFile.error:", err)
 		return c.String(http.StatusBadRequest, err.Error())
@@ -118,7 +115,7 @@ func (r *Runtime) fsList(c echo.Context) error {
 		p.Path = u.Query().Get("path")
 	}
 
-	entries, err := environ.Client().ReadDirectory(p.Uri, p.Path)
+	entries, err := environ.Client().ReadDirectory(p.Uri, p.Path, p.Diff)
 	if err != nil {
 		// fmt.Println("error:", err)
 		return c.String(http.StatusBadRequest, err.Error())
@@ -152,13 +149,14 @@ type fsDiffRequest struct {
 }
 
 func (r *Runtime) fsDiff(c echo.Context) error {
-	var p fsDiffRequest
+	var p fsPayload
 	err := c.Bind(&p)
 	if err != nil {
 		return c.String(http.StatusBadRequest, "bad request")
 	}
+	fmt.Println("fsDiff:", p)
 
-	diff, err := environ.Client().DiffDirectory(p.PrevUri, p.NextUri)
+	diff, err := environ.Client().DiffDirectory(p.DiffUri, p.Uri)
 	if err != nil {
 		// fmt.Println("error:", err)
 		return c.String(http.StatusBadRequest, "bad request")

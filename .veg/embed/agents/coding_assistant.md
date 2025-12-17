@@ -103,8 +103,8 @@ CONTEXT SIZE: {{ .contextSize }}
 {{ yaml .env }}
 </env>
 
-{{ template "shared/runtimes/golang.md" . }}
 {{ template "shared/cache/dynamic.md" . }}
+{{ template "shared/dynamic/project-agent-instructions.md" . }}
 {{ template "shared/files/dynamic.md" . }}
 {{ template "shared/planning/dynamic.md" . }}
 

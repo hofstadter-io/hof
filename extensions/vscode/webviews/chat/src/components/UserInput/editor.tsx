@@ -1,57 +1,80 @@
 import { useEffect, useMemo, useState } from 'react'
 import { cn } from '@/lib/utils'
+
+// tiptap
 import { useEditor, EditorContent, EditorContext } from '@tiptap/react'
 import Document from '@tiptap/extension-document'
 import StarterKit from '@tiptap/starter-kit'
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
+import { Table, TableRow, TableCell, TableHeader } from '@tiptap/extension-table'
 import { TaskItem, TaskList } from '@tiptap/extension-list'
 import { Markdown } from '@tiptap/markdown'
-
+import Emoji, { gitHubEmojis } from '@tiptap/extension-emoji'
+import Mention from '@tiptap/extension-mention'
 
 import { all, createLowlight } from 'lowlight'
 const lowlight = createLowlight(all)
 
-import Mention from '@tiptap/extension-mention'
 import suggest from './suggest'
+import emojiSuggest from './suggest/emojiSuggest'
 
 export const ChatEditor = ({
+  userInput,
   chatState,
-  onUpdate,
+  handlers,
   editorRef,
 }:{
+  userInput?: any
   chatState?: any
-  onUpdate?: any
+  handlers?: any
   editorRef?: any
 }) => {
 
   const editor = useEditor({
     editorProps: {
       attributes: {
-        class: 'prose-invert prose-sm flex-grow flex flex-col h-full min-w-full min-h-64',
+        class: 'prose-invert prose-sm flex-grow flex flex-col h-full min-w-full min-h-48',
       },
     },
     
 
-    onUpdate,
+    onUpdate: handlers.handleInputUpdate,
+    autofocus: true,
     extensions: [
-      Markdown,
+      // package deal
       StarterKit.configure({
         codeBlock: false,
       }),
+
+      // markdown
+      Table,
+      TableRow,
+      TableCell,
+      TableHeader,
       TaskList,
       TaskItem.configure({
         nested: true,
       }),
+      Markdown.configure({
+        markedOptions: { gfm: true },
+      }),
       CodeBlockLowlight.configure({ lowlight }),
+      Emoji.configure({
+        emojis: gitHubEmojis,
+        suggestion: emojiSuggest,
+      }),
+
+      // mentions
       Mention.configure({
         HTMLAttributes: {
           class: 'suggest',
         },
         suggestions: [{
+          // agents / models
           char: '@',
           ...suggest.mentioner,
           items: ({ query }: { query: string }) => {
-            const options = Object.keys(chatState?.config?.agents)
+            const options = Object.keys(chatState?.config?.agents).concat(Object.keys(chatState?.config?.models))
             const results = options
               .filter(item => item.toLowerCase().startsWith(query.toLowerCase()))
               .slice(0, 5)
@@ -61,9 +84,11 @@ export const ChatEditor = ({
             return results
           },
         },{
+          // environs (fs/exe)
           char: '>',
           ...suggest.mentioner,
           items: ({ query }: { query: string }) => {
+            // todo, sessions here too?
             const options = Object.keys(chatState?.config?.environs)
             const results = options
               .filter(item => item.toLowerCase().startsWith(query.toLowerCase()))
@@ -74,10 +99,10 @@ export const ChatEditor = ({
             return results
           },
         },{
+          // context
           char: '#',
           ...suggest.mentioner,
           items: ({ query }: { query: string }) => {
-            // const options = Object.keys(chatState?.config?.runenv)
             const options = ["term-0", "term-1", "term-2", "main.go", "pkg/runtime.go", "src/App.tsx", "src/components/Events.tsx"]
             const results = options
               .filter(item => item.toLowerCase().startsWith(query.toLowerCase()))
@@ -87,6 +112,43 @@ export const ChatEditor = ({
             }
             return results
           },
+        },{
+          // veg commands
+          char: '$',
+          // allowSpaces: true,
+          ...suggest.mentioner,
+          items: ({ query }: { query: string }) => {
+            const options = ["state"]
+            const results = options
+              .filter(item => item.toLowerCase().startsWith(query.toLowerCase()))
+              .slice(0, 5)
+            if (!results || results.length === 0) {
+              return [query]
+            }
+            return results
+          },
+        // },{
+        //   // emojis
+        //   char: ':',
+        //   ...suggest.mentioner,
+        //   items: ({ editor, query }) => {
+        //     if (!editor?.storage?.emoji?.emojis) {
+        //       return ["no emojis... :["]
+        //     }
+        //     // console.log("emoji query:", editor?.storage, editor?.storage?.emoji, editor?.storage?.emoji?.emojis)
+
+        //     const matched = editor.storage.emoji.emojis
+        //       .filter(({ shortcodes, tags }) => {
+        //         return (
+        //           shortcodes.find(shortcode => shortcode.startsWith(query.toLowerCase())) ||
+        //           tags.find(tag => tag.startsWith(query.toLowerCase()))
+        //         )
+        //       })
+        //       .slice(0, 5)
+            
+        //     console.log("matched emoji:", matched)
+        //     return [query]
+        //   },
         }]
       })
     ], // define your extension array

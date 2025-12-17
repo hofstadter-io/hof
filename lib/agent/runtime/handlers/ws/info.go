@@ -2,6 +2,7 @@ package ws
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 
 	"github.com/hofstadter-io/hof/lib/agent/runtime"
@@ -25,12 +26,12 @@ func envInfo(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 		log.Printf("Error unmarshaling 'envInfo' handler payload: %v", err)
 		return
 	}
-	// fmt.Println("envInfo.input", env)
+	fmt.Println("envInfo.input", env)
 
 	// we should probably just structure the object and save it on the client
 	// then add some fields when we set it on the session when we chat message
 
-	c.State["env"] = env
+	// c.State["env"] = env
 
 	// // ignore if not found
 	// esid, ok := env["sid"]

@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils"
 
 import { Header } from "../Header"
 import { ChatEditor } from './editor'
-import { AtSign, AudioLines, Bot, BotMessageSquare, Boxes, Drama, Forward, Send } from 'lucide-react'
+import { AtSign, AudioLines, Bot, BotMessageSquare, Boxes, DollarSign, Drama, Forward, Hash, Paperclip, ScrollText, Send, TerminalSquare } from 'lucide-react'
 
 export const UserInput = ({
   sid,
@@ -37,7 +37,7 @@ export const UserInput = ({
   const [userInput, setUserInput] = useState<any>({ 
     agent: chatState?.agent || "veggie",
     model: chatState?.model || "default",
-    environ: chatState?.environ || "debian",
+    environ: chatState?.environ || "",
     text:  chatState?.input || "",
   })
 
@@ -124,6 +124,125 @@ export const UserInput = ({
   }
 
   const doSend = () => {
+    console.log("doSend", userInput)
+    // what is the userInput?
+    // single line, starting with special char, or maybe a few?
+    // we are quickly going towards a parser here...
+    const text = (userInput.text as string).trim()
+    if (text.length === 0) {
+      // no input
+      return
+    }
+    const lines = text.split("\n")
+    // is this a special thing
+    if (lines.length === 1 && lines[0].startsWith("[@")) {
+      const line = lines[0] as string
+      const parts = line.split("[")
+      parts.forEach((part, p) => {
+        // probably the first part
+        if (part === "") {
+          return
+        }
+        // trim endings: [@ ... 
+        part = part.substring(2).trim()
+        const pairs = part.split(/\s+/)
+        console.log("handling special:", part, pairs)
+        var char = "@"
+        var rest = ""
+        var extra: string[] = []
+        pairs.forEach((p) => {
+          if (p.endsWith("]")) {
+            p = p.substring(0, p.length-1)
+          }
+          if (p.startsWith("id")) {
+            // trim endings: id="..."
+            p = p.trim().substring(4, p.length-1).trim()
+            rest = p
+          } else if (p.startsWith("char")) {
+            // trim endings: char="."
+            p = p.trim().substring(6, p.length-1).trim()
+            char = p[0]
+          } else {
+            extra.push(p)
+          }
+        })
+
+        rest = rest.trim()
+        console.log("parsed:", char, rest, extra)
+
+        switch (char) {
+          case "@":
+            if (Object.keys(chatState?.config?.agents).includes(rest)) {
+              handleSelectAgent(rest)
+            }
+            if (Object.keys(chatState?.config?.models).includes(rest)) {
+              handleSelectModel(rest)
+            }
+            break;
+
+          case ">":
+            handleSelectEnviron(rest)
+            break;
+
+          case "#":
+            break;
+
+          case "$":
+            console.log(`$${rest}:`, extra)
+            if (rest === "state") {
+              if (!extra || extra.length < 1) {
+                // todo, let user know by showing a help message
+                return
+              }
+              const key = extra[0]
+              var val: any = null
+              if (extra.length > 1) {
+                val = extra.splice(1).join(" ")
+              }
+
+              console.log("state!", key, val)
+              if (!val || val.trim() === "") {
+                vscodeApi.postMessage({
+                  type: 'session.state.del',
+                  payload: {
+                    sid,
+                    key,
+                  },
+                });
+              } else {
+                vscodeApi.postMessage({
+                  type: 'session.state.put',
+                  payload: {
+                    sid,
+                    key,
+                    val,
+                  },
+                });
+              }
+              vscodeApi.postMessage({
+                type: 'session.get',
+                payload: {
+                  sid,
+                },
+              });
+
+
+              // we can't process any more
+              return
+            }
+            break;
+        }
+      }) // end of part loop
+
+      // end of our special char handling, we should return and not send a message
+      editorRef?.current?.commands.clearContent()
+      return 
+    }
+
+    // otherwise assume a message for the agent
+    // TODO, facet detection and settings updates from longer text
+    // a user could want to delegate different parts of the task to different agents in their message
+
     handleSend(userInput);
     setUserInput({
       ...userInput,
@@ -137,7 +256,7 @@ export const UserInput = ({
   return (
     <div 
       className={cn(
-      "h-full flex flex-col gap-3",
+      "h-full flex flex-col gap-2",
       // "bg-slate-800/80 border-gray-500",
       )}
     >
@@ -151,15 +270,36 @@ export const UserInput = ({
         // className="border-t pt-2"
       />
 
-      {/* <div className="flex gap-1">
-        <Badge className="text-violet-300 bg-violet-700/30 "><TerminalSquare size={12}/>term-1</Badge>
-        <Badge className="text-violet-300 bg-violet-700/30 "><FileBracesCorner size={12}/>example.go</Badge>
-      </div> */}
-
+      {/* for plan or other things?*/}
       <div className="flex gap-1">
-        { userInput?.agent && <Badge className="text-sky-300 bg-sky-700/30 "><Bot size={12}/>{userInput?.agent}</Badge>}
-        { userInput?.model && <Badge className="text-sky-300 bg-sky-700/30 "><Drama size={12}/>{userInput?.model}</Badge>}
-        { userInput?.environ && <Badge className="text-lime-400 bg-lime-800/30 "><Boxes size={12}/>{userInput?.environ}</Badge>}
+        { session?.state && Object.keys(session?.state).map((key: string) => {
+          if (key.startsWith("cache:")) {
+            const parts = key.split(":")
+            const fname = parts[parts.length-1]
+            return (
+              <Badge className="text-fuchsia-200/80 bg-fuchsia-600/50 "><ScrollText size={12}/>{fname}</Badge>
+            )
+          }
+          return null
+        })}
+      </div>
+      <div className="flex gap-1">
+        { session?.state && Object.keys(session?.state).map((key: string) => {
+          if (key.startsWith("files:")) {
+            const parts = key.split(":")
+            const fname = parts[parts.length-1]
+            return (
+              <Badge className="text-violet-300 bg-violet-600/50 "><Paperclip size={12}/>{fname}</Badge>
+            )
+          }
+          return null
+        })}
+      </div>
+
+      <div className="flex gap-1 items-center">
+        { userInput?.agent && <Badge className="text-sky-300 bg-sky-600/50 "><Bot size={12}/>{userInput?.agent}</Badge>}
+        { userInput?.model && <Badge className="text-sky-300 bg-sky-600/50 "><Drama size={12}/>{userInput?.model}</Badge>}
+        { userInput?.environ && <Badge className="text-lime-300/80 bg-lime-600/50 "><TerminalSquare size={12}/>{userInput?.environ}</Badge>}
       </div>
 
       { userInput?.error && <span
@@ -186,17 +326,23 @@ export const UserInput = ({
         />
 
         <ChatEditor
+          userInput={userInput}
           chatState={chatState}  
-          onUpdate={handleInputUpdate}
+          handlers={{
+            handleInputUpdate,
+            handleSelectAgent,
+            handleSelectModel,
+            handleSelectEnviron,
+          }}
           editorRef={editorRef}
         />
       </div>
 
-      <div className="flex gap-2 m-3">
+      {/* <div className="flex gap-2 m-3">
         <AgentSelect agent={userInput?.agent} agents={chatState?.config?.agents} handleSelect={handleSelectAgent} />
         <ModelSelect model={userInput?.model} models={chatState?.config?.models} handleSelect={handleSelectModel} />
         <EnvironSelect environ={userInput?.environ} environs={chatState?.config?.environs} handleSelect={handleSelectEnviron} />
-      </div>
+      </div> */}
 
     </div>
   )

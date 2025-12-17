@@ -25,13 +25,19 @@ func cacheError(key string, err error) CacheResult {
 func CacheRemove(name, description string) (tool.Tool, error) {
 	handler := func(ctx tool.Context, input CacheRemoveArgs) (CacheResult, error) {
 		// calculate our real key
+		f := fmt.Sprintf("files:%s:%s", ctx.AgentName(), input.Key)
+		fmt.Printf("%s:%s\n", name, f)
 		k := fmt.Sprintf("cache:%s:%s", ctx.AgentName(), input.Key)
 		fmt.Printf("%s:%s\n", name, k)
 
 		//
 		// Add nil to State ("delete", update)
 		//
-		err := ctx.State().Set(k, nil)
+		err := ctx.State().Set(f, nil)
+		if err != nil {
+			return cacheError(input.Key, err), err
+		}
+		err = ctx.State().Set(k, nil)
 		if err != nil {
 			return cacheError(input.Key, err), err
 		}

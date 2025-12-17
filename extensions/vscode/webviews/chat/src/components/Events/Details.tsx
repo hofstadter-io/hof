@@ -7,7 +7,7 @@ import CopyClipboardButton from '@/components/CopyClipboardButton'
 export const EventDetails = ({sid, pos, setPos, evt}:{sid: string, pos: number, setPos: any, evt: any}) => {
   const [hidden, setHidden] = useState(true);
 
-  var text = evt.Content.parts.map((p: any) => p.text).join("\n\n")
+  var text = evt?.Content?.parts?.map((p: any) => p.text).join("\n\n")
 
   return (
     <div className="flex flex-col gap-1 mt-2">

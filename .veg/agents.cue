@@ -36,12 +36,16 @@ agents: coding_assist: {
   tools: [
     "cache_put",
     "cache_del",
+
     "fs_read",
     "fs_list",
+    "fs_glob",
     "fs_grep",
+
     "fs_write",
     "fs_edit",
     "fs_del",
+
     "exec",
     // "@coding_context_provider",
   ]
@@ -64,10 +68,13 @@ agents: coding_assist_ro: {
   tools: [
     "cache_put",
     "cache_del",
+
     "fs_read",
     "fs_list",
+    "fs_glob",
     "fs_grep",
-    "exec",
+
+    // "exec",
     // "@coding_context_provider",
   ]
 }

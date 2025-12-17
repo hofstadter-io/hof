@@ -1,0 +1,29 @@
+{
+	"folders": [
+		{
+			"name": "hof",
+			"path": "."
+		},
+		{
+			"name": ".veg",
+			"path": ".veg"
+		},
+		{
+			"name": "veg-go",
+			"path": "./lib/agent"
+		},
+		{
+			"name": "adk-go",
+			"path": "../../adk/go"
+		},
+		{
+			"name": "vscode",
+			"path": "extensions/vscode/extension"
+		},
+		{
+			"name": "webviews",
+			"path": "extensions/vscode/webviews"
+		}
+	],
+	"settings": {}
+}

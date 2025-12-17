@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
 	"sync"
 
 	"dagger.io/dagger"
@@ -48,7 +50,7 @@ func (le *localEnviron) ListEnvirons() ([]tableEnviron, error) {
 	err := le.db.WithContext(le.ctx).
 		Model(&tableEnviron{}).
 		Preload("Children").
-		Where("tag =?", "genesis").
+		Where("tag =?", "0").
 		Find(&envs).Error
 	if err != nil {
 		return nil, fmt.Errorf("while fetching environs from database: %w", err)
@@ -62,4 +64,46 @@ type listEnvironTagsResponse struct {
 
 func (le *localEnviron) ListEnvironTags(envUri string) ([]listEnvironTagsResponse, error) {
 	return nil, nil
+}
+
+func IncrementTag(envUri string) (nextUri, nextTag string, err error) {
+	// preserve any query params
+	qparts := strings.Split(envUri, "?")
+
+	// replace tag
+	parts := strings.Split(qparts[0], ":")
+	currTag := parts[len(parts)-1]
+	currInt, err := strconv.ParseInt(currTag, 10, 64)
+	if err != nil {
+		return "", "", err
+	}
+	nextTag = fmt.Sprintf("%d", currInt+1)
+	parts[len(parts)-1] = nextTag
+	nextUri = strings.Join(parts, ":")
+
+	// preserve any query params
+	if len(qparts) > 1 {
+		newParts := append([]string{nextUri}, qparts[1:]...)
+		nextUri = strings.Join(newParts, "?")
+	}
+
+	return nextUri, nextTag, nil
+}
+
+func ReplaceTag(envUri, nextTag string) string {
+	// preserve any query params
+	qparts := strings.Split(envUri, "?")
+
+	// replace tag
+	parts := strings.Split(qparts[0], ":")
+	parts[len(parts)-1] = nextTag
+	newUri := strings.Join(parts, ":")
+
+	// preserve any query params
+	if len(qparts) > 1 {
+		newParts := append([]string{newUri}, qparts[1:]...)
+		newUri = strings.Join(newParts, "?")
+	}
+
+	return newUri
 }

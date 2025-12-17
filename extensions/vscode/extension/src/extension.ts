@@ -18,7 +18,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	await filesys.activate(context)
 
 	// background monitoring
-	// sync.activate(context)
+	sync.activate(context)
 
 	// ui components
 	await webviews.activate(context)
@@ -41,6 +41,6 @@ export async function activate(context: vscode.ExtensionContext) {
 export async function deactivate() {
   console.log('Dectivating extension "veg-extension"...');
 
-	// sync.deactivate()
+	sync.deactivate()
 	await comms.deactivate()
 }

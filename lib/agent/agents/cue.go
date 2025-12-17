@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"maps"
 	"os"
+	"path"
 	"path/filepath"
 	"slices"
+	"strconv"
 	"strings"
 
 	"cuelang.org/go/cue"
@@ -52,8 +54,9 @@ type Config struct {
 	Toolsets map[string]Toolset `json:"toolsets"`
 	Environs map[string]Environ `json:"environs"`
 
-	Embeds   map[string]any `json:"embeds"`
-	EmbedDir string         `json:"embedDir"`
+	Embeds   map[string]any    `json:"embeds"`
+	EmbedDir string            `json:"embedDir"`
+	AgentsMD map[string]string `json:"agentsMD"`
 
 	Templates templates.TemplateMap
 }
@@ -71,8 +74,9 @@ type Agent struct {
 	SubAgents []string `json:"subagents"`
 
 	// veg concepts, some of this is more tied to the session, but every session starts with an agent
-	AutoLoadWorkdir bool   `json:"autoLoadWorkdir"`  // we need a way to say yay/nay to mounting the local dir, we don't need it for many queries
-	Runenv          string `json:"runenv,omitempty"` // what is the agent default, none means no container
+	AutoLoadWorkdir bool              `json:"autoLoadWorkdir"`   // we need a way to say yay/nay to mounting the local dir, we don't need it for many queries
+	Environ         string            `json:"environ,omitempty"` // what is the agent default, none means no container
+	AgentsMD        map[string]string `json:""`
 }
 
 type Model struct {
@@ -88,6 +92,12 @@ type Tool struct {
 type Toolset struct {
 	Name  string `json:"name"`
 	Tools []Tool `json:"tools"`
+}
+
+type AgentMD struct {
+	Path     string         `json:"path"`
+	Content  string         `json:"content"`
+	Metadata map[string]any `json:"metadata"`
 }
 
 type Environ struct {
@@ -146,12 +156,28 @@ func AgenticCUE(agentDir string, models map[string]model.LLM) (config Config, er
 		return config, fmt.Errorf("while preparing templates: %w", err)
 	}
 
+	if config.AgentsMD == nil {
+		config.AgentsMD = make(map[string]string)
+	}
+
 	// fmt.Println("AgenticCUE.config:", config)
 	return config, nil
 }
 
-func BuildAgent(config Config, agentName, modelName string, models map[string]model.LLM) (agent.Agent, error) {
+func BuildAgent(
+	config Config,
+	agentName string,
+	modelName string,
+	models map[string]model.LLM,
+	agentMdPaths map[string]string,
+) (agent.Agent, error) {
+	// look up agent and set some defaults
 	agt := config.Agents[agentName]
+	agt.AgentsMD = config.AgentsMD
+	for p, c := range agentMdPaths {
+		agt.AgentsMD[p] = c
+	}
+
 	if modelName == "" || modelName == "default" {
 		modelName = agt.Model
 	}
@@ -160,6 +186,8 @@ func BuildAgent(config Config, agentName, modelName string, models map[string]mo
 	if !ok {
 		return nil, fmt.Errorf("unknown model %q in agent %q", modelName, agt.Name)
 	}
+
+	// todo, also handle environment changes?
 
 	c := llmagent.Config{
 		Name:        agt.Name,
@@ -185,7 +213,7 @@ func BuildAgent(config Config, agentName, modelName string, models map[string]mo
 
 	for _, sa := range agt.SubAgents {
 		if subagent, found := strings.CutPrefix(sa, "@"); found {
-			A, aerr := BuildAgent(config, subagent, "default", models)
+			A, aerr := BuildAgent(config, subagent, "default", models, agentMdPaths)
 			if aerr != nil {
 				return nil, fmt.Errorf("error creating agent subagent %q in agent %q", subagent, agt.Name)
 			}
@@ -234,7 +262,7 @@ func buildTools(cfg Config, agt Agent, models map[string]model.LLM) ([]tool.Tool
 		agentAsTool, found := strings.CutPrefix(t, "@")
 		fmt.Printf("%s.tool.agent: %q ? %v\n", agt.Name, agentAsTool, found)
 		if found {
-			A, aerr := BuildAgent(cfg, agentAsTool, "default", models)
+			A, aerr := BuildAgent(cfg, agentAsTool, "default", models, agt.AgentsMD)
 			if aerr != nil {
 				return nil, fmt.Errorf("error creating agent tool %q in agent %q: %w", t, agt.Name, aerr)
 			}
@@ -265,24 +293,24 @@ func buildTools(cfg Config, agt Agent, models map[string]model.LLM) ([]tool.Tool
 			T, err = filesys.FilesysRead(tcfg.Name, tcfg.Description)
 		case "fs_list":
 			T, err = filesys.FilesysList(tcfg.Name, tcfg.Description)
+		case "fs_glob":
+			T, err = filesys.FilesysGlob(tcfg.Name, tcfg.Description)
 		case "fs_grep":
 			T, err = filesys.FilesysGrep(tcfg.Name, tcfg.Description)
 
 		// fs mutate
-		// case "fs_edit":
-		// 	T, err = meta.FilesysEdit(tcfg.Name, tcfg.Description)
-		// case "fs_write":
-		// 	T, err = meta.FilesysWrite(tcfg.Name, tcfg.Description)
-		// case "fs_del":
-		// 	T, err = meta.FilesysDel(tcfg.Name, tcfg.Description)
+		case "fs_edit":
+			T, err = filesys.FilesysEdit(tcfg.Name, tcfg.Description)
+		case "fs_write":
+			T, err = filesys.FilesysWrite(tcfg.Name, tcfg.Description)
+		case "fs_del":
+			T, err = filesys.FilesysDel(tcfg.Name, tcfg.Description)
 
-		// do things
+		// doThings
 		case "exec":
 			T, err = exec.Exec(tcfg.Name, tcfg.Description)
 		// browser
-
 		// search like
-
 		// veg/flow
 
 		default:
@@ -313,7 +341,19 @@ func addCallbacks(config Config, agt Agent, c *llmagent.Config) {
 			fmt.Printf("\nBMC.%s\n", ctx.AgentName())
 
 			// print system prompt before sending to LLM
-			fmt.Println(req.Config.SystemInstruction.Parts[0].Text)
+
+			// hmmm, little utils like this could get spread throughout the code
+			// TODO, make a schema somewhere for the various config (cli, system, per-user, per-session, state)
+			showStr, err := ctx.State().Get("showSystemPrompt")
+			fmt.Println("showSystemPrompt.1?", showStr, err)
+			if showStr != nil {
+				show, err := strconv.ParseBool(showStr.(string))
+				fmt.Println("showSystemPrompt.2?", show, err)
+				if err == nil && show {
+					fmt.Println(req.Config.SystemInstruction.Parts[0].Text)
+				}
+			}
+
 			return nil, nil
 		},
 	}
@@ -331,14 +371,14 @@ func addCallbacks(config Config, agt Agent, c *llmagent.Config) {
 
 	c.AfterToolCallbacks = []llmagent.AfterToolCallback{
 		func(ctx tool.Context, t tool.Tool, args, result map[string]any, err error) (map[string]any, error) {
-			fmt.Printf("\nATC.%s.%s %v %v\n", ctx.AgentName(), t.Name(), args, result)
+			fmt.Printf("\nATC.%s.%s %v %v %v %v\n", ctx.AgentName(), t.Name(), args, result, ctx.Actions().StateDelta, err)
 			return result, err
 		},
 	}
 
 	c.AfterModelCallbacks = []llmagent.AfterModelCallback{
 		func(ctx agent.CallbackContext, res *model.LLMResponse, err error) (*model.LLMResponse, error) {
-			fmt.Printf("\nAMC.%s\n%#+v\n", ctx.AgentName(), res)
+			fmt.Printf("\nAMC.%s %v\n%#+v\n", ctx.AgentName(), err, res)
 			return res, err
 		},
 	}
@@ -458,18 +498,18 @@ func prepareData(cfg Config, agt Agent) func(ctx agent.ReadonlyContext) (map[str
 		data["config"] = cfg
 		data["agent"] = agt
 
-		// agent files
+		// extract stuff from state
 		files := make(map[string]any)
-		for k, v := range state {
-			if p, matched := strings.CutPrefix(k, fmt.Sprintf("files:%s:", ctx.AgentName())); matched {
-				files[p] = v
-			}
-		}
-		data["files"] = files
-
-		// agent cache
 		cache := make(map[string]any)
 		for k, v := range state {
+
+			// files
+			if p, matched := strings.CutPrefix(k, fmt.Sprintf("files:%s:", ctx.AgentName())); matched {
+				files[p] = v
+				continue
+			}
+
+			// cache entries
 			if p, matched := strings.CutPrefix(k, fmt.Sprintf("cache:%s:", ctx.AgentName())); matched {
 				switch p {
 				case "planning":
@@ -480,13 +520,44 @@ func prepareData(cfg Config, agt Agent) func(ctx agent.ReadonlyContext) (map[str
 				default:
 					cache[p] = v
 				}
+				continue
+			}
+
+		}
+
+		data["files"] = files
+		data["cache"] = cache
+
+		agtmd := make(map[string]string)
+		for fpath, _ := range files {
+			for agtPath, agtContent := range agt.AgentsMD {
+				// check if it is already included
+				_, ok := agtmd[agtPath]
+				if ok {
+					continue
+				}
+				// get dir of agtPath
+				dir := path.Dir(agtPath)
+				if strings.HasPrefix(fpath, dir) {
+					agtmd[agtPath] = agtContent
+				}
 			}
 		}
-		data["cache"] = cache
+		// always include root agent files
+		for agtPath, agtContent := range agt.AgentsMD {
+			if !strings.Contains(agtPath, "/") {
+				agtmd[agtPath] = agtContent
+			}
+		}
+
+		// fmt.Println("USING INSTRUCTION FILES:", slices.Collect(maps.Keys(agtmd)))
+		data["agentsMd"] = agtmd
 
 		stateKeys := slices.Collect(maps.Keys(state))
 		cacheKeys := slices.Collect(maps.Keys(cache))
 		dataKeys := slices.Collect(maps.Keys(data))
+		filesKeys := slices.Collect(maps.Keys(files))
+		agentKeys := slices.Collect(maps.Keys(agtmd))
 
 		fmt.Println("stateKeys:")
 		for _, k := range stateKeys {
@@ -494,6 +565,14 @@ func prepareData(cfg Config, agt Agent) func(ctx agent.ReadonlyContext) (map[str
 		}
 		fmt.Println("cacheKeys:")
 		for _, k := range cacheKeys {
+			fmt.Println(" ", k)
+		}
+		fmt.Println("filesKeys:")
+		for _, k := range filesKeys {
+			fmt.Println(" ", k)
+		}
+		fmt.Println("agentKeys:")
+		for _, k := range agentKeys {
 			fmt.Println(" ", k)
 		}
 		fmt.Println("dataKeys:")

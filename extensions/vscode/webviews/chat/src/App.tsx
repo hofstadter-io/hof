@@ -70,6 +70,7 @@ function App() {
                 sid={sid}
                 currPos={pos}
                 setPos={setPos}
+                session={session}
                 events={session?.events}
                 messagesEndRef={messagesEndRef}
               />
@@ -86,7 +87,7 @@ function App() {
 
       </ResizablePanel>
       <ResizableHandle className="pt-[3px] rounded-xl bg-fuchsia-500/20 hover:bg-fuchsia-500/70"/>
-      <ResizablePanel defaultSize={27}>
+      <ResizablePanel defaultSize={20}>
         <div className="h-full overflow-y-auto">
           <UserInput
             sid={sid}

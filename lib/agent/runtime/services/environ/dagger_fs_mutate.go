@@ -2,203 +2,209 @@ package environ
 
 import (
 	"fmt"
-	"net/url"
+	"path/filepath"
 	"strings"
 
 	"dagger.io/dagger"
-	"github.com/google/uuid"
 )
 
-// Create from dir, FROM (containers and EIDs)
-// ... but how do we do both
-func (le *localEnviron) Create(srcUri, fromUri string) (envUri string, err error) {
-	uri, err := url.Parse(fromUri)
+func (le *localEnviron) WriteFile(envUri, path, content string) (nextUri string, err error) {
+	_, env, err := le.LookupEnviron(envUri)
 	if err != nil {
-		fmt.Println("error:", err)
-	} else {
-		fmt.Println("url:", uri.Scheme, uri.Host, uri.Path, uri.Query())
+		return "", fmt.Errorf("while looking up environment(%s): %w", envUri, err)
 	}
 
-	fmt.Println("fs.Create:", srcUri, fromUri, uri)
-
-	c := le.dag.Container()
-
-	switch uri.Scheme {
-	case "git":
-		// ...
-	case "https":
-		r := le.dag.Git(fmt.Sprintf("https://%s%s", uri.Host, uri.Path))
-		var d *dagger.Directory
-		if uri.Fragment == "" {
-			d = r.Head().Tree()
-		} else {
-			d = r.Ref(uri.Fragment).Tree()
-		}
-		c = c.WithDirectory(uri.Path, d).WithWorkdir(uri.Path)
-	case "file":
-		d := le.dag.Host().Directory(uri.Path)
-		c = c.WithDirectory(uri.Path, d).WithWorkdir(uri.Path)
-
-	case "veg":
-		_, env, err := le.lookupEnviron(fromUri)
-		if err != nil {
-			return "", fmt.Errorf("while looking up environment(%s): %w", envUri, err)
-		}
-
-		c = env
-		if err != nil {
-			return "", fmt.Errorf("while fetching source image: %w", err)
-		}
-		fmt.Println("started from:", fromUri)
-
-	case "oci":
-		// need to strip oci:// and any query params
-		// then use the query params
-		from := fmt.Sprintf("%s%s", uri.Host, uri.Path)
-		from = strings.TrimPrefix(from, "docker.io/")
-		fmt.Println("from:", from)
-		c, err = c.From(from).Sync(le.ctx)
-		if err != nil {
-			return "", fmt.Errorf("while fetching source image: %w", err)
-		}
-		fmt.Println("pulled:", from)
-		// default:
-		// 	if strings.HasPrefix(uri.Path, "/") {
-		// 	} else {
-		// 		d := le.dag.Host().Directory(uri.Path)
-		// 		c = c.WithDirectory(uri.Path, d).WithWorkdir(uri.Path)
-		// 	}
+	_, fname := filepath.Split(path)
+	f := le.dag.File(fname, content)
+	nextLayer, err := env.WithFile(path, f).Sync(le.ctx)
+	if err != nil {
+		return "", fmt.Errorf("while writing file(%s %s): %w", envUri, path, err)
 	}
 
-	name := srcUri
-	if name == "" {
-		name = fromUri
+	nextUri, _, err = IncrementTag(envUri)
+	if err != nil {
+		return "", fmt.Errorf("while incrementing tag(%s %s): %w", envUri, path, err)
 	}
 
-	// create a new uri
-	envUri = fmt.Sprintf("host.docker.internal:5000/%s:%s", uuid.New().String(), "genesis")
-	tEnv := &tableEnviron{
-		Name: name,
-		From: fromUri,
-		Src:  srcUri,
+	err = le.persistEnviron(nextUri, nil, nextLayer)
+	if err != nil {
+		return "", fmt.Errorf("while persisting environ(%s %s): %w", envUri, path, err)
 	}
 
-	// persist
-	fmt.Println("saving as:", envUri)
-	err = le.persistEnviron(envUri, tEnv, c)
-	fmt.Println("saved:", envUri, err)
-
-	return envUri, err
+	return nextUri, nil
 }
 
-func (le *localEnviron) WriteFile(envUri string, nextTag, content string) (err error) {
-	_, env, err := le.lookupEnviron(envUri)
-	if err != nil {
-		return fmt.Errorf("while looking up environment(%s): %w", envUri, err)
-	}
-
-	path, err := extractPath(envUri)
-	if err != nil {
-		return fmt.Errorf("while looking up environment(%s): %w", envUri, err)
-	}
-
-	f := le.dag.File(path, content)
-	c, err := env.WithFile(path, f).Sync(le.ctx)
-	if err != nil {
-		return fmt.Errorf("while writing file(%s %s): %w", envUri, path, err)
-	}
-
-	// persist the change
-	nextUri := replaceTag(envUri, nextTag)
-	return le.persistEnviron(nextUri, nil, c)
+type EditOp struct {
+	Old   string `json:"old"`
+	New   string `json:"new"`
+	Count int    `json:"count"`
 }
 
-func (le *localEnviron) EditFile(eid, path string, edits []any) (err error) {
+func (le *localEnviron) EditFile(envUri, path string, edits []EditOp) (nextUri, nextContent string, err error) {
+	_, env, err := le.LookupEnviron(envUri)
+	if err != nil {
+		return "", "", fmt.Errorf("while looking up environment(%s): %w", envUri, err)
+	}
 
-	return nil
+	content, err := env.File(path).Contents(le.ctx)
+	if err != nil {
+		return "", "", fmt.Errorf("while getting current contents for exit(%s -> %s): %w", envUri, path, err)
+	}
+
+	//
+	// Check and Replace content
+	//
+	for _, edit := range edits {
+		count := edit.Count
+		if count == 0 {
+			count = 1
+		}
+		found := strings.Count(content, edit.Old)
+		if found != count {
+			fmt.Println("fsEdit.count.error", err)
+			err = fmt.Errorf("while editing %q, expected %d matches, but found %d", path, count, found)
+			// HMM, should we build up errors so we can be resilient with multiple ops?
+			// perhaps we do this at the tool layer? (across files rather than within)
+			// we are already segmented here by path, so failing within a single file makes the most sense
+			return "", "", err
+		}
+		content = strings.Replace(content, edit.Old, edit.New, count)
+	}
+
+	// Update in Dagger
+	_, fname := filepath.Split(path)
+	f := le.dag.File(fname, content)
+	nextLayer, err := env.WithFile(path, f).Sync(le.ctx)
+	if err != nil {
+		return "", "", fmt.Errorf("while writing file(%s %s): %w", envUri, path, err)
+	}
+
+	// update internal tag
+	nextUri, _, err = IncrementTag(envUri)
+	if err != nil {
+		return "", "", fmt.Errorf("while incrementing tag(%s %s): %w", envUri, path, err)
+	}
+
+	// persist to DB & OCI
+	err = le.persistEnviron(nextUri, nil, nextLayer)
+	if err != nil {
+		return "", "", fmt.Errorf("while persisting environ(%s %s): %w", envUri, path, err)
+	}
+
+	return nextUri, content, nil
 }
 
-func (le *localEnviron) Delete(envUri, nextTag string, recursive bool) (err error) {
-	_, env, err := le.lookupEnviron(envUri)
+func (le *localEnviron) Delete(envUri, path string, recursive bool) (nextUri string, err error) {
+	_, env, err := le.LookupEnviron(envUri)
 	if err != nil {
-		return fmt.Errorf("while looking up environment(%s): %w", envUri, err)
-	}
-
-	path, err := extractPath(envUri)
-	if err != nil {
-		return fmt.Errorf("while looking up environment(%s): %w", envUri, err)
-	}
-
-	c, err := env.WithoutFile(path).Sync(le.ctx)
-	if err != nil {
-		return fmt.Errorf("while writing file(%s): %w", envUri, err)
-	}
-
-	// persist
-	nextUri := replaceTag(envUri, nextTag)
-	return le.persistEnviron(nextUri, nil, c)
-}
-
-func (le *localEnviron) Copy(envUri, nextTag, source, destination string, overwrite bool) error {
-	_, env, err := le.lookupEnviron(envUri)
-	if err != nil {
-		return fmt.Errorf("while looking up environment(%s): %w", envUri, err)
+		return "", fmt.Errorf("while looking up environment(%s): %w", envUri, err)
 	}
 
 	// is it a file or dir?
-	s, err := le.Stat(envUri, source)
+	s, err := le.Stat(envUri, path, false)
 	if err != nil {
-		return fmt.Errorf("while finding source(%s): %w", envUri, err)
+		return "", fmt.Errorf("while stat'n path(%s): %w", envUri, err)
 	}
 
-	var c *dagger.Container
+	var nextLayer *dagger.Container
 	if s.Dir {
-		d := env.Directory(source)
-		c, err = env.WithDirectory(destination, d).Sync(le.ctx)
-		if err != nil {
-			return fmt.Errorf("while copying directory(%s)[%s,%s]: %w", envUri, source, destination, err)
-		}
+		nextLayer = env.WithoutDirectory(path)
 	} else {
-		f := env.File(source)
-		c, err = env.WithFile(destination, f).Sync(le.ctx)
-		if err != nil {
-			return fmt.Errorf("while copying file(%s)[%s,%s]: %w", envUri, source, destination, err)
-		}
+		nextLayer = env.WithoutFile(path)
 	}
 
-	// persist
-	nextUri := replaceTag(envUri, nextTag)
-	return le.persistEnviron(nextUri, nil, c)
+	nextLayer, err = nextLayer.Sync(le.ctx)
+	if err != nil {
+		return "", fmt.Errorf("while deleting path(%s|%s): %w", envUri, path, err)
+	}
+
+	nextUri, _, err = IncrementTag(envUri)
+	if err != nil {
+		return "", fmt.Errorf("while incrementing tag(%s %s): %w", envUri, path, err)
+	}
+
+	err = le.persistEnviron(nextUri, nil, nextLayer)
+	if err != nil {
+		return "", fmt.Errorf("while persisting environ(%s %s): %w", envUri, path, err)
+	}
+
+	return nextUri, nil
 }
 
-func (le *localEnviron) Move(envUri, nextTag, source, destination string) error {
-	_, env, err := le.lookupEnviron(envUri)
+func (le *localEnviron) Copy(envUri, source, destination string, overwrite bool) (nextId string, err error) {
+	_, env, err := le.LookupEnviron(envUri)
 	if err != nil {
-		return fmt.Errorf("while looking up environment(%s): %w", envUri, err)
+		return "", fmt.Errorf("while looking up environment(%s): %w", envUri, err)
 	}
 
 	// is it a file or dir?
-	s, err := le.Stat(envUri, source)
+	s, err := le.Stat(envUri, source, false)
 	if err != nil {
-		return fmt.Errorf("while finding source(%s): %w", envUri, err)
+		return "", fmt.Errorf("while finding source(%s): %w", envUri, err)
 	}
 
-	var c *dagger.Container
+	var nextLayer *dagger.Container
 	if s.Dir {
 		d := env.Directory(source)
-		c, err = env.WithoutDirectory(source).WithDirectory(destination, d).Sync(le.ctx)
-		if err != nil {
-			return fmt.Errorf("while moving directory(%s)[%s,%s]: %w", envUri, source, destination, err)
-		}
+		nextLayer = env.WithDirectory(destination, d)
 	} else {
 		f := env.File(source)
-		c, err = env.WithoutFile(source).WithFile(destination, f).Sync(le.ctx)
-		if err != nil {
-			return fmt.Errorf("while moving file(%s)[%s,%s]: %w", envUri, source, destination, err)
-		}
+		nextLayer = env.WithFile(destination, f)
 	}
 
-	// persist
-	nextUri := replaceTag(envUri, nextTag)
-	return le.persistEnviron(nextUri, nil, c)
+	nextLayer, err = nextLayer.Sync(le.ctx)
+	if err != nil {
+		return "", fmt.Errorf("while copying path(%s)[%s,%s]: %w", envUri, source, destination, err)
+	}
+
+	nextUri, _, err := IncrementTag(envUri)
+	if err != nil {
+		return "", fmt.Errorf("while incrementing tag(%s)[%s,%s]: %w", envUri, source, destination, err)
+	}
+
+	err = le.persistEnviron(nextUri, nil, nextLayer)
+	if err != nil {
+		return "", fmt.Errorf("while persisting environ(%s)[%s,%s]: %w", envUri, source, destination, err)
+	}
+
+	return nextUri, nil
+}
+
+func (le *localEnviron) Move(envUri, source, destination string, overwrite bool) (newId string, err error) {
+	_, env, err := le.LookupEnviron(envUri)
+	if err != nil {
+		return "", fmt.Errorf("while looking up environment(%s): %w", envUri, err)
+	}
+
+	// is it a file or dir?
+	s, err := le.Stat(envUri, source, false)
+	if err != nil {
+		return "", fmt.Errorf("while finding source(%s): %w", envUri, err)
+	}
+
+	var nextLayer *dagger.Container
+	if s.Dir {
+		d := env.Directory(source)
+		nextLayer = env.WithoutDirectory(source).WithDirectory(destination, d)
+	} else {
+		f := env.File(source)
+		nextLayer = env.WithoutFile(source).WithFile(destination, f)
+	}
+
+	nextLayer, err = nextLayer.Sync(le.ctx)
+	if err != nil {
+		return "", fmt.Errorf("while moving path(%s)[%s,%s]: %w", envUri, source, destination, err)
+	}
+
+	nextUri, _, err := IncrementTag(envUri)
+	if err != nil {
+		return "", fmt.Errorf("while incrementing tag(%s)[%s,%s]: %w", envUri, source, destination, err)
+	}
+
+	err = le.persistEnviron(nextUri, nil, nextLayer)
+	if err != nil {
+		return "", fmt.Errorf("while persisting environ(%s)[%s,%s]: %w", envUri, source, destination, err)
+	}
+
+	return nextUri, nil
 }

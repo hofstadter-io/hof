@@ -300,92 +300,6 @@ export function useChat(messagesEndRef: React.RefObject<HTMLDivElement>) {
     console.log("handleSend", userInput);
     const input = (userInput?.text as string).trim();
 
-    // handle commands, which only care about the input box (for now?)
-    if (input.startsWith('$')) {
-      const parts = input.split(/[,\s]/);
-      const cmd = parts[0].substring(1);
-      const args = parts.splice(1);
-      console.log("CMD!", cmd, args);
-
-      switch (cmd) {
-      case "environ":
-        // no arg means delete
-        if (args.length === 0) {
-          // add an empty element so we don't need extra logic below
-          args.push('');
-        }
-        vscodeApi.postMessage({
-          type: 'session.environ.set',
-          payload: {
-            sid,
-            uri: args[0], // overly simple way to do this
-          },
-        });
-        setSession((prev: any) => {
-          const next = {
-            ...prev,
-            environ: args[0],
-          }
-          return next;
-        });
-        break;
-
-      case "state":
-        // no arg means delete
-        if (args.length === 1) {
-          // add an empty element so we don't need extra logic below
-          args.push('');
-        }
-        if (args.length > 1) {
-          const rest = args.splice(1).join(' ');
-          vscodeApi.postMessage({
-            type: 'session.state.put',
-            payload: {
-              sid,
-              key: args[0],
-              val: rest, // overly simple way to do this
-            },
-          });
-
-          setSession((prev: any) => {
-            const next = {
-              ...prev,
-              state: {
-                ...prev?.state,
-              },
-            };
-            next.state[args[0]] = rest;
-            return next;
-          });
-
-        }
-        break;
-
-      default:
-        setChatState((prev: any) => {
-          return {
-            ...prev,
-            error: 'unknown command: ' + cmd,
-          };
-        });
-        return;
-      }
-
-      // make sure listeners have updated conent
-      vscodeApi.postMessage({
-        type: 'session.get',
-        payload: {
-          sid,
-        },
-      });
-      vscodeApi.postMessage({
-        type: 'session.getList',
-        payload: {},
-      });
-
-      return
-    }
-
     //
     // send a message to the agent / model
     //
@@ -404,6 +318,7 @@ export function useChat(messagesEndRef: React.RefObject<HTMLDivElement>) {
         const next = {
           ...prev,
           events: [...(prev?.events || []), {
+            Author: "user",
             Content: {
               role: "user",
               parts: [{

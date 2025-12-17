@@ -17,15 +17,17 @@ type tableEnviron struct {
 
 	Name string
 	Uri  string `gorm:"index"`
-	Src  string `gorm:"index"`
-	From string `gorm:"index"`
-	Base string
 
-	CreateAt time.Time `gorm:"index"`
-	UpdateAt time.Time `gorm:"index"`
+	SrcUri  string
+	SrcPath string
+	FromUri string
+	DstPath string
+
+	CreatedAt time.Time `gorm:"index"`
+	UpdatedAt time.Time `gorm:"index"`
 
 	// Has-Many relationship: env can have many children-env.
-	Children []tableEnviron `gorm:"foreignKey:From;references:Uri"`
+	// Children []tableEnviron `gorm:"foreignKey:From;references:Uri"`
 
 	// Has-Many relationship: A session has many events.
 	// Sessions []storageEvent `gorm:"foreignKey:AppName,UserID,SessionID;references:AppName,UserID,ID"`
@@ -49,7 +51,7 @@ func (le *localEnviron) AutoMigrate() error {
 	return nil
 }
 
-func (le *localEnviron) lookupEnviron(envUri string) (tableEnviron, *dagger.Container, error) {
+func (le *localEnviron) LookupEnviron(envUri string) (tableEnviron, *dagger.Container, error) {
 	var foundEnv tableEnviron
 	// fucking more hacks because our paths / URIs are a mess...
 	// we are seeing veg://... here, which is not correct, we should never see that in the server, it is a vscode thing only!
@@ -128,51 +130,51 @@ func (le *localEnviron) persistEnviron(envUri string, tEnv *tableEnviron, c *dag
 	return nil
 }
 
-func replaceTag(envUri, nextTag string) string {
-	// preserve any query params
-	qparts := strings.Split(envUri, "?")
+// func replaceTag(envUri, nextTag string) string {
+// 	// preserve any query params
+// 	qparts := strings.Split(envUri, "?")
 
-	// replace tag
-	parts := strings.Split(qparts[0], ":")
-	parts[len(parts)-1] = nextTag
+// 	// replace tag
+// 	parts := strings.Split(qparts[0], ":")
+// 	parts[len(parts)-1] = nextTag
 
-	// preserve any query params
-	if len(qparts) > 1 {
-		parts = append(parts, qparts[1:]...)
-	}
+// 	// preserve any query params
+// 	if len(qparts) > 1 {
+// 		parts = append(parts, qparts[1:]...)
+// 	}
 
-	// return a new Uri
-	return strings.Join(parts, "")
-}
+// 	// return a new Uri
+// 	return strings.Join(parts, "")
+// }
 
-func extractPath(envUri string) (string, error) {
-	qparts := strings.Split(envUri, "?")
-	if len(qparts) < 2 {
-		return "", fmt.Errorf("missing query params in Uri to extact path in: %q", envUri)
-	}
-	vals, err := url.ParseQuery(qparts[1])
-	if err != nil {
-		return "", fmt.Errorf("while parsing query params in: %q, %w", envUri, err)
-	}
-	path := vals.Get("path")
-	if path == "" {
-		return "", fmt.Errorf("empty path in: %q", envUri)
-	}
-	return path, nil
-}
+// func extractPath(envUri string) (string, error) {
+// 	qparts := strings.Split(envUri, "?")
+// 	if len(qparts) < 2 {
+// 		return "", fmt.Errorf("missing query params in Uri to extact path in: %q", envUri)
+// 	}
+// 	vals, err := url.ParseQuery(qparts[1])
+// 	if err != nil {
+// 		return "", fmt.Errorf("while parsing query params in: %q, %w", envUri, err)
+// 	}
+// 	path := vals.Get("path")
+// 	if path == "" {
+// 		return "", fmt.Errorf("empty path in: %q", envUri)
+// 	}
+// 	return path, nil
+// }
 
-func extractPathEmptyOk(envUri string) (string, error) {
-	qparts := strings.Split(envUri, "?")
-	if len(qparts) < 2 {
-		return "", fmt.Errorf("missing query params in Uri to extact path in: %q", envUri)
-	}
-	vals, err := url.ParseQuery(qparts[1])
-	if err != nil {
-		return "", fmt.Errorf("while parsing query params in: %q, %w", envUri, err)
-	}
-	path := vals.Get("path")
-	return path, nil
-}
+// func extractPathEmptyOk(envUri string) (string, error) {
+// 	qparts := strings.Split(envUri, "?")
+// 	if len(qparts) < 2 {
+// 		return "", fmt.Errorf("missing query params in Uri to extact path in: %q", envUri)
+// 	}
+// 	vals, err := url.ParseQuery(qparts[1])
+// 	if err != nil {
+// 		return "", fmt.Errorf("while parsing query params in: %q, %w", envUri, err)
+// 	}
+// 	path := vals.Get("path")
+// 	return path, nil
+// }
 
 func (le *localEnviron) getEnvironEntry(envUri string) (tableEnviron, error) {
 	var foundEnv tableEnviron

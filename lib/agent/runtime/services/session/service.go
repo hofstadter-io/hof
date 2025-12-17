@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/kr/pretty"
 	"gorm.io/gorm"
 
 	"google.golang.org/adk/session"
@@ -436,25 +437,47 @@ func (s *databaseService) applyEvent(ctx context.Context, session *localSession,
 		}
 
 		appDelta, userDelta, sessionDelta := extractStateDeltas(event.Actions.StateDelta)
+		// fmt.Printf("Session Before: %#+v\n", pretty.Formatter(storageSess.State))
+		fmt.Printf("Session Delta: %#+v\n", pretty.Formatter(sessionDelta))
 
 		// Merge state deltas and update the storage objects.
 		// GORM's .Save() method will correctly perform an INSERT or UPDATE.
 		if len(appDelta) > 0 {
-			maps.Copy(storageApp.State, appDelta)
+			for key, value := range appDelta {
+				if value == nil {
+					delete(storageApp.State, key)
+				} else {
+					storageApp.State[key] = value
+				}
+			}
 			if err := tx.Save(&storageApp).Error; err != nil {
 				return fmt.Errorf("failed to save app state: %w", err)
 			}
 		}
 		if len(userDelta) > 0 {
-			maps.Copy(storageUser.State, userDelta)
+			for key, value := range userDelta {
+				if value == nil {
+					delete(storageUser.State, key)
+				} else {
+					storageUser.State[key] = value
+				}
+			}
 			if err := tx.Save(&storageUser).Error; err != nil {
 				return fmt.Errorf("failed to save user state: %w", err)
 			}
 		}
 		if len(sessionDelta) > 0 {
-			maps.Copy(storageSess.State, sessionDelta)
+			for key, value := range sessionDelta {
+				if value == nil {
+					delete(storageSess.State, key)
+				} else {
+					storageSess.State[key] = value
+				}
+			}
+			// maps.Copy(storageSess.State, sessionDelta)
 			// The session state update will be saved along with the event timestamp update.
 		}
+		fmt.Printf("Session After: %#+v\n", pretty.Formatter(storageSess.State))
 
 		// Create the new event record in the database.
 		storageEv, err := createStorageEvent(session, event)

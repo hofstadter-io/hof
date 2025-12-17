@@ -36,6 +36,24 @@ func filesysOutputError(path string, err error) FilesysOutputResult {
 	return FilesysOutputResult{Path: path, Status: "error", Error: err.Error()}
 }
 
+func getAndCheckCurrEnv(ctx tool.Context) (string, error) {
+	// Get environ
+	currUri, err := ctx.State().Get("currEnv")
+	if err != nil {
+		return "", fmt.Errorf("while getting currEnv from state: %w", err)
+	}
+	if currUri == nil {
+		return "", fmt.Errorf("no environment, attach a filesystem or container")
+	}
+
+	currStr, ok := currUri.(string)
+	if !ok {
+		return "", fmt.Errorf("state.currEnv is not a string")
+	}
+
+	return currStr, nil
+}
+
 func FilesysRead(name, description string) (tool.Tool, error) {
 	handler := func(ctx tool.Context, input FilesysPathArgs) (FilesysResult, error) {
 		// workdir is always set by us
@@ -48,16 +66,16 @@ func FilesysRead(name, description string) (tool.Tool, error) {
 		fmt.Printf("%s:%s\n", name, k)
 
 		// Get environ
-		currUri, _ := ctx.State().Get("currEnv")
-		if currUri == nil {
-			return filesysError(input.Path, fmt.Errorf("no environment, attach a filesystem or container")), nil
+		currUri, err := getAndCheckCurrEnv(ctx)
+		if err != nil {
+			return filesysError(input.Path, err), nil
 		}
 
 		// TODO path shenanigans
 		fmt.Printf("%s:%s @ %s\n", name, k, currUri)
 
 		// Read file content
-		content, err := environ.Client().ReadFile(currUri.(string), input.Path)
+		content, err := environ.Client().ReadFile(currUri, input.Path, false)
 		if err != nil {
 			return filesysError(input.Path, err), nil
 		}
@@ -85,16 +103,16 @@ func FilesysList(name, description string) (tool.Tool, error) {
 		// TODO, perhaps some cleaning or checking it is not an absolute path while constucting the real path
 
 		// Get environ
-		currUri, _ := ctx.State().Get("currEnv")
-		if currUri == nil {
-			return filesysOutputError(input.Path, fmt.Errorf("no environment, attach a filesystem or container")), nil
+		currUri, err := getAndCheckCurrEnv(ctx)
+		if err != nil {
+			return filesysOutputError(input.Path, err), nil
 		}
 
 		// TODO path shenanigans
 		fmt.Printf("%s:%s @ %s\n", name, input.Path, currUri)
 
 		// Get directory list
-		dirList, err := environ.Client().ReadDirectory(currUri.(string), input.Path)
+		dirList, err := environ.Client().ReadDirectory(currUri, input.Path, false)
 		if err != nil {
 			return filesysOutputError(input.Path, err), nil
 		}
@@ -107,6 +125,46 @@ func FilesysList(name, description string) (tool.Tool, error) {
 
 		// return status result
 		return FilesysOutputResult{Status: "ok", Path: input.Path, Output: b.String()}, nil
+	}
+	return functiontool.New(functiontool.Config{
+		Name:        name,
+		Description: strings.TrimSpace(description),
+	}, handler)
+}
+
+type FilesysGlobArgs struct {
+	Glob string `json:"glob"` // pattern to match (e.g. "*.md")
+}
+
+func FilesysGlob(name, description string) (tool.Tool, error) {
+	handler := func(ctx tool.Context, input FilesysGlobArgs) (FilesysOutputResult, error) {
+		// workdir is always set by us
+		// w, _ := ctx.State().Get("basedir")
+		// workdir := w.(string)
+		// TODO, perhaps some cleaning or checking it is not an absolute path while constucting the real path
+
+		// Get environ
+		currUri, err := getAndCheckCurrEnv(ctx)
+		if err != nil {
+			return filesysOutputError(input.Glob, err), nil
+		}
+
+		// TODO path shenanigans ?
+
+		// grep directory
+		results, err := environ.Client().GlobDirectory(currUri, input.Glob, false)
+		if err != nil {
+			return filesysOutputError(input.Glob, err), nil
+		}
+
+		// build output message
+		b := new(strings.Builder)
+		for _, r := range results {
+			fmt.Fprintf(b, "%s\n", r)
+		}
+
+		// return the result
+		return FilesysOutputResult{Status: "ok", Path: input.Glob, Output: b.String()}, nil
 	}
 	return functiontool.New(functiontool.Config{
 		Name:        name,
@@ -128,15 +186,15 @@ func FilesysGrep(name, description string) (tool.Tool, error) {
 		// TODO, perhaps some cleaning or checking it is not an absolute path while constucting the real path
 
 		// Get environ
-		currUri, _ := ctx.State().Get("currEnv")
-		if currUri == nil {
-			return filesysOutputError(input.Path, fmt.Errorf("no environment, attach a filesystem or container")), nil
+		currUri, err := getAndCheckCurrEnv(ctx)
+		if err != nil {
+			return filesysOutputError(input.Path, err), nil
 		}
 
 		// TODO path shenanigans
 
 		// grep directory
-		results, err := environ.Client().GrepDirectory(currUri.(string), input.Regexp)
+		results, err := environ.Client().GrepDirectory(currUri, input.Regexp, false)
 		if err != nil {
 			return filesysOutputError(input.Path, err), nil
 		}
@@ -159,158 +217,134 @@ func FilesysGrep(name, description string) (tool.Tool, error) {
 	}, handler)
 }
 
-// type FilesysEditArgs struct {
-// 	Path string `json:"path"` // path to a file
-// 	Old  string `json:"old_string"`
-// 	New  string `json:"new_string"`
-// 	Exp  int    `json:"expected_replacements"` // defaults to 1 if not set
-// }
+type FilesysEditArgs struct {
+	Path  string           `json:"path"` // path to a file
+	Edits []environ.EditOp `json:"edits"`
+}
 
-// func FilesysEdit(name, description string) (tool.Tool, error) {
-// 	handler := func(ctx tool.Context, input FilesysEditArgs) (FilesysResult, error) {
-// 		k := fmt.Sprintf("files:%s:%s", ctx.AgentName(), input.Path)
-// 		fmt.Printf("fsEdit.key: %s:%s\n", name, k)
+func FilesysEdit(name, description string) (tool.Tool, error) {
+	handler := func(ctx tool.Context, input FilesysEditArgs) (FilesysResult, error) {
+		k := fmt.Sprintf("files:%s:%s", ctx.AgentName(), input.Path)
+		fmt.Printf("fsEdit.key: %s:%s\n", name, k)
 
-// 		// workdir is always set by us
-// 		w, _ := ctx.State().Get("basedir")
-// 		workdir := w.(string)
-// 		// TODO, perhaps some cleaning or checking it is not an absolute path while constucting the real path
+		// get the current env, it's in Uri format
+		currUri, err := getAndCheckCurrEnv(ctx)
+		if err != nil {
+			return filesysError(input.Path, err), nil
+		}
 
-// 		//
-// 		// Get from Dagger
-// 		//
-// 		dagId, _ := ctx.State().Get("dagger")
-// 		dag, _ := vegdagger.Get(ctx)
-// 		dir := dag.LoadDirectoryFromID(dagger.DirectoryID(dagId.(string)))
-// 		content, err := dir.File(filepath.Join(workdir, input.Path)).Contents(ctx)
-// 		if err != nil {
-// 			fmt.Println("fsEdit.read.error", err)
-// 			return filesysError(input.Path, err), nil
-// 		}
+		// edit the file
+		nextUri, nextContent, err := environ.Client().EditFile(currUri, input.Path, input.Edits)
+		if err != nil {
+			return filesysError(input.Path, err), nil
+		}
 
-// 		//
-// 		// Check and Replace content
-// 		//
-// 		count := input.Exp
-// 		if count == 0 {
-// 			count = 1
-// 		}
-// 		found := strings.Count(content, input.Old)
-// 		if found != count {
-// 			fmt.Println("fsEdit.count.error", err)
-// 			err = fmt.Errorf("while editing %q, expected %d matches, but found %d", input.Path, count, found)
-// 			return filesysError(input.Path, err), nil
-// 		}
-// 		next := strings.Replace(content, input.Old, input.New, count)
+		//
+		// write to ADK state
+		//
+		err = ctx.State().Set(k, nextContent)
+		if err != nil {
+			return filesysError(input.Path, err), nil
+		}
+		err = ctx.State().Set("currEnv", nextUri)
+		if err != nil {
+			return filesysError(input.Path, err), nil
+		}
 
-// 		//
-// 		// Update in Dagger
-// 		//
-// 		dir = dir.WithNewFile(filepath.Join(workdir, input.Path), next)
-// 		newId, err := dir.ID(ctx)
-// 		if err != nil {
-// 			fmt.Println("fsEdit.write.error", err)
-// 			return filesysError(input.Path, err), nil
-// 		}
+		// return status result
+		return FilesysResult{Status: "ok", Path: input.Path}, nil
+	}
+	return functiontool.New(functiontool.Config{
+		Name:        name,
+		Description: strings.TrimSpace(description),
+	}, handler)
+}
 
-// 		// Add to State
-// 		err = ctx.State().Set(k, next)
-// 		if err != nil {
-// 			fmt.Println("fsEdit.state.key.error", err)
-// 			return filesysError(input.Path, err), nil
-// 		}
-// 		err = ctx.State().Set("dagger", string(newId))
-// 		if err != nil {
-// 			fmt.Println("fsEdit.state.dagger.error", err)
-// 			return filesysError(input.Path, err), nil
-// 		}
+type FilesysWriteArgs struct {
+	Path    string `json:"path"`    // path to a directory
+	Content string `json:"content"` // path to a directory
+}
 
-// 		// return status result
-// 		return FilesysResult{Path: input.Path, Status: "ok"}, nil
-// 	}
-// 	return functiontool.New(functiontool.Config{
-// 		Name:        name,
-// 		Description: strings.TrimSpace(description),
-// 	}, handler)
-// }
+func FilesysWrite(name, description string) (tool.Tool, error) {
+	handler := func(ctx tool.Context, input FilesysWriteArgs) (FilesysResult, error) {
+		// calculate our real key
+		k := fmt.Sprintf("files:%s:%s", ctx.AgentName(), input.Path)
+		fmt.Printf("%s:%s\n", name, k)
 
-// type FilesysWriteArgs struct {
-// 	Path    string `json:"path"`    // path to a directory
-// 	Content string `json:"content"` // path to a directory
-// }
+		// get the current env, it's in Uri format
+		currUri, err := getAndCheckCurrEnv(ctx)
+		if err != nil {
+			return filesysError(input.Path, err), nil
+		}
 
-// func FilesysWrite(name, description string) (tool.Tool, error) {
-// 	handler := func(ctx tool.Context, input FilesysWriteArgs) (FilesysResult, error) {
-// 		// calculate our real key
-// 		k := fmt.Sprintf("files:%s:%s", ctx.AgentName(), input.Path)
-// 		fmt.Printf("%s:%s\n", name, k)
+		// write the file
+		nextUri, err := environ.Client().WriteFile(currUri, input.Path, input.Content)
+		if err != nil {
+			return filesysError(input.Path, err), nil
+		}
 
-// 		currUri, _ := ctx.State().Get("currEnv")
-// 		err := environ.Client().WriteFile(currUri.(string), input.Path)
-// 		if err != nil {
-// 			return filesysError(input.Path, err), nil
-// 		}
+		//
+		// write to ADK state
+		//
+		err = ctx.State().Set(k, input.Content)
+		if err != nil {
+			return filesysError(input.Path, err), nil
+		}
+		err = ctx.State().Set("currEnv", nextUri)
+		if err != nil {
+			return filesysError(input.Path, err), nil
+		}
 
-// 		//
-// 		// update state
-// 		//
-// 		err = ctx.State().Set(k, input.Content)
-// 		if err != nil {
-// 			return filesysError(input.Path, err), nil
-// 		}
-// 		err = ctx.State().Set("dagger", string(newId))
-// 		if err != nil {
-// 			return filesysError(input.Path, err), nil
-// 		}
+		// return status result
+		return FilesysResult{Status: "ok", Path: input.Path}, nil
+	}
+	return functiontool.New(functiontool.Config{
+		Name:        name,
+		Description: strings.TrimSpace(description),
+	}, handler)
+}
 
-// 		// return status result
-// 		return FilesysResult{Status: "ok", Path: input.Path}, nil
-// 	}
-// 	return functiontool.New(functiontool.Config{
-// 		Name:        name,
-// 		Description: strings.TrimSpace(description),
-// 	}, handler)
-// }
+func FilesysDel(name, description string) (tool.Tool, error) {
+	handler := func(ctx tool.Context, input FilesysPathArgs) (FilesysResult, error) {
+		// calculate our real key
+		f := fmt.Sprintf("files:%s:%s", ctx.AgentName(), input.Path)
+		fmt.Printf("%s:%s\n", name, f)
+		k := fmt.Sprintf("files:%s:%s", ctx.AgentName(), input.Path)
+		fmt.Printf("%s:%s\n", name, k)
 
-// func FilesysDel(name, description string) (tool.Tool, error) {
-// 	handler := func(ctx tool.Context, input FilesysPathArgs) (FilesysResult, error) {
-// 		// calculate our real key
-// 		k := fmt.Sprintf("files:%s:%s", ctx.AgentName(), input.Path)
-// 		fmt.Printf("%s:%s\n", name, k)
+		// get the current env, it's in Uri format
+		currUri, err := getAndCheckCurrEnv(ctx)
+		if err != nil {
+			return filesysError(input.Path, err), nil
+		}
 
-// 		// workdir is always set by us
-// 		w, _ := ctx.State().Get("basedir")
-// 		workdir := w.(string)
+		// write the file
+		nextUri, err := environ.Client().Delete(currUri, input.Path, true)
+		if err != nil {
+			return filesysError(input.Path, err), nil
+		}
 
-// 		//
-// 		// Update Dagger
-// 		//
-// 		dagId, _ := ctx.State().Get("dagger")
-// 		dag, _ := vegdagger.Get(ctx)
-// 		dir := dag.LoadDirectoryFromID(dagger.DirectoryID(dagId.(string)))
-// 		dir = dir.WithoutFile(filepath.Join(workdir, input.Path))
-// 		newId, err := dir.ID(ctx)
-// 		if err != nil {
-// 			return filesysError(input.Path, err), nil
-// 		}
+		//
+		// write to ADK state
+		//
+		err = ctx.State().Set(f, nil)
+		if err != nil {
+			return filesysError(input.Path, err), nil
+		}
+		err = ctx.State().Set(k, nil)
+		if err != nil {
+			return filesysError(input.Path, err), nil
+		}
+		err = ctx.State().Set("currEnv", nextUri)
+		if err != nil {
+			return filesysError(input.Path, err), nil
+		}
 
-// 		//
-// 		// Add to State ("delete", update)
-// 		//
-// 		err = ctx.State().Set(k, nil)
-// 		if err != nil {
-// 			return filesysError(input.Path, err), nil
-// 		}
-// 		err = ctx.State().Set("dagger", string(newId))
-// 		if err != nil {
-// 			return filesysError(input.Path, err), nil
-// 		}
-
-// 		// return status result
-// 		return FilesysResult{Status: "ok", Path: input.Path}, nil
-// 	}
-// 	return functiontool.New(functiontool.Config{
-// 		Name:        name,
-// 		Description: strings.TrimSpace(description),
-// 	}, handler)
-// }
+		// return status result
+		return FilesysResult{Status: "ok", Path: input.Path}, nil
+	}
+	return functiontool.New(functiontool.Config{
+		Name:        name,
+		Description: strings.TrimSpace(description),
+	}, handler)
+}

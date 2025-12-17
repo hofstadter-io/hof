@@ -37,7 +37,8 @@ func SetupHandlers(r *runtime.Runtime) {
 	r.Handlers["session.getStateAll"] = sessionGetStateAll
 	r.Handlers["session.state.get"] = sessionGetState
 	r.Handlers["session.state.put"] = sessionPutState
-	// r.Handlers["session.diff"] = sessionFilesysDiff
+	r.Handlers["session.state.del"] = sessionDelState
+
 	r.Handlers["session.fork"] = sessionFork
 	r.Handlers["session.merge"] = sessionMerge
 	r.Handlers["session.tag"] = sessionTag
@@ -48,7 +49,9 @@ func SetupHandlers(r *runtime.Runtime) {
 	//
 	// things we want to track from the frontend
 	//
-	r.Handlers["env.info.resp"] = envInfo
+	// TODO, we want to track these on a client basis, so it is available to all agents
+	//  then only include some in the data that goes into populating the system prompt
+	// r.Handlers["env.info.resp"] = envInfo
 
 }
 

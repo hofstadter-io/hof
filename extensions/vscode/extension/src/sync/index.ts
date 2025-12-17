@@ -1,13 +1,11 @@
 import * as vscode from 'vscode';
 
-import * as fs from './fs'
 import * as env from './env'
 import * as terminals from './terminals'
 import * as window from './window'
 import * as workspace from './workspace'
 
 const cs = [
-  fs,
   env,
   window,
   terminals,
