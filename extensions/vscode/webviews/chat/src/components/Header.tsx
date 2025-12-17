@@ -7,26 +7,24 @@ import { cn } from "@/lib/utils"
 import { UsageInfo, DiffInfo } from '@/components/Info';
 import { Menu } from '@/components/SessionMenu'
 import { JsonObject, ToolTipper } from 'veg-webview-common'
+import { useChat } from "@/hooks/useChat";
 
 export const Header = ({
   ref,
-  sid,
-  setPos,
-  diff,
-  usage,
-  session,
-  chatState,
   className,
 }:{
   ref?: Ref<HTMLDivElement>,
-  sid: string,
-  setPos: any,
-  diff?: any,
-  usage?: any,
-  session?: any,
-  chatState?: any,
   className?: string,
 }) => {
+  const {
+    sid,
+    setPos,
+    diff,
+    usage,
+    session,
+    chatState,
+  } = useChat();
+
   const [hidden, setHidden] = useState(true);
 
   return (
@@ -35,7 +33,7 @@ export const Header = ({
 
       <div className="flex justify-between items-center gap-2">
         <span>{session?.state?.title || sid || "no session"}</span>
-        <Menu sid={sid} setPos={() => setPos(-1)} hidden={hidden} setHidden={setHidden} refresh session={session}/>
+        <Menu hidden={hidden} setHidden={setHidden} refresh />
 
         <ToolTipper label="Create">
           <Plus size={16}

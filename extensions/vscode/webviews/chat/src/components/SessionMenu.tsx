@@ -1,4 +1,5 @@
 import { vscodeApi } from "@/vscodeApi";
+import { useChat } from "@/hooks/useChat";
 import {
   Braces,
   FileDiff,
@@ -12,26 +13,17 @@ import {
 import { ToolTipper } from 'veg-webview-common'
 
 export const Menu = ({
-  sid,
   pos,
-  setPos,
   hidden,
   refresh,
-  session,
-  // openFS,
-  // checkpoint,
   setHidden,
 }:{
-  sid: string,
   pos?: number,
-  setPos: any,
   hidden: boolean,
   refresh?: boolean,
-  session?: any,
-  // openFS?: boolean,
-  // checkpoint?: boolean,
   setHidden: (prev: any) => any
 }) => {
+  const { sid, session, setPos } = useChat();
 
   return (
     <div className="ml-auto flex justify-end items-center gap-2">

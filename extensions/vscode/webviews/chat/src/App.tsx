@@ -25,17 +25,9 @@ function App() {
   const state = vscodeApi.getState()
   console.log("chat state:", state)
   const headerRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const {
-    sid,
-    pos,
-    setPos,
     session,
-    usage,
-    diff,
-    chatState,
-    handleSend,
   } = useChat();
 
 
@@ -58,25 +50,14 @@ function App() {
 
             <Header
               ref={headerRef}
-              sid={sid}
-              setPos={setPos}
-              session={session}
-              usage={usage}
-              chatState={chatState}
-              diff={diff}
               className="border-b-2 border-fuchsia-700/70 pb-2"
             />
 
             {session?.events?.length > 0 ?
               <Events
-                sid={sid}
-                currPos={pos}
-                setPos={setPos}
-                session={session}
-                events={session?.events}
                 messagesEndRef={messagesEndRef}
               />
-              : <Welcome username={chatState?.env?.user} />
+              : <Welcome />
             }
 
           </StickToBottom.Content>
@@ -91,15 +72,7 @@ function App() {
       <ResizableHandle className="pt-[3px] rounded-xl bg-fuchsia-500/20 hover:bg-fuchsia-500/70"/>
       <ResizablePanel defaultSize={20}>
         <div className="h-full overflow-y-auto">
-          <UserInput
-            sid={sid}
-            setPos={setPos}
-            usage={usage}
-            session={session}
-            chatState={chatState}
-            diff={diff}
-            handleSend={handleSend}
-          />
+          <UserInput />
         </div>
       </ResizablePanel>
 

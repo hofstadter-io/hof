@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { useChat } from "@/hooks/useChat";
 
 import {
   UnknownEvent,
@@ -7,20 +8,17 @@ import {
 } from './Messages'
 
 export const Events = ({
-  sid,
-  currPos,
-  setPos,
-  session,
-  events,
   messagesEndRef
 }:{
-  sid: string,
-  currPos: number,
-  setPos: any,
-  session: any,
-  events: any[],
   messagesEndRef?: any,
 }) => {
+  const {
+    pos: currPos,
+    session,
+  } = useChat();
+
+  const events = session?.events;
+
   if (!events?.length) {
     return null
   }
@@ -29,7 +27,7 @@ export const Events = ({
   // console.log("Events.events", events)
   // todo, coalesce events here
   var merged: any[] = []
-  events.forEach((E1, e1) => {
+  events.forEach((E1: any, e1: number) => {
     // loop over earlier events
     for (var e2 = e1-1; e2 >= 0; e2--) {
       const E2 = merged[e2]
@@ -73,7 +71,7 @@ export const Events = ({
       {merged?.map((e: any, pos: number) => {
         return (
           <div className={cn(pos === currPos && "bg-violet-500/30 rounded")}>
-            <Event sid={sid} pos={pos} setPos={setPos} key={e.ID} evt={e} session={session}/>
+            <Event pos={pos} key={e.ID} evt={e} />
           </div>
         )
       })}
@@ -83,17 +81,11 @@ export const Events = ({
 }
 
 export const Event = ({
-  sid,
   pos,
-  setPos,
   evt,
-  session,
 }: {
-  sid: string,
   pos: number,
-  setPos: any,
   evt: any,
-  session: any,
 }) => {
   // HACK: to ignore function responses, which get merged with the call and rendered together
   var fnRespCnt: number = 0
@@ -113,7 +105,7 @@ export const Event = ({
   }
 
   if (evt?.Author === "user") {
-    return <UserMessage sid={sid} pos={pos} setPos={setPos} evt={evt}/>
+    return <UserMessage pos={pos} evt={evt}/>
   } else {
 
     // weird stop message
@@ -122,10 +114,10 @@ export const Event = ({
     }
     // all agent messages should have parts?
     if (!evt?.Content?.parts) {
-      return <UnknownEvent sid={sid} pos={pos} setPos={setPos} evt={evt} msg="missing Content.parts"/>
+      return <UnknownEvent pos={pos} evt={evt} msg="missing Content.parts"/>
     }
 
-    return <ModelMessage sid={sid} pos={pos} setPos={setPos} evt={evt}/>
+    return <ModelMessage pos={pos} evt={evt}/>
   }
 }
 

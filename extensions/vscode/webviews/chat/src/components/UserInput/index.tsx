@@ -15,24 +15,18 @@ import { cn } from "@/lib/utils"
 import { Header } from "../Header"
 import { ChatEditor } from './editor'
 import { AtSign, AudioLines, Bot, BotMessageSquare, Boxes, DollarSign, Drama, Forward, Hash, Paperclip, ScrollText, Send, TerminalSquare } from 'lucide-react'
+import { useChat } from '@/hooks/useChat'
 
-export const UserInput = ({
-  sid,
-  setPos,
-  usage,
-  session,
-  chatState,
-  diff,
-  handleSend,
-}:{
-  sid: string,
-  setPos: any,
-  usage: any,
-  session: any,
-  chatState: any,
-  diff?: any,
-  handleSend: (userInput: any) => void,
-}) => {
+export const UserInput = () => {
+  const {
+    sid,
+    setPos,
+    usage,
+    session,
+    chatState,
+    diff,
+    handleSend,
+  } = useChat();
 
   const [userInput, setUserInput] = useState<any>({ 
     agent: chatState?.agent || "veggie",
@@ -261,13 +255,6 @@ export const UserInput = ({
       )}
     >
       <Header
-        sid={sid}
-        setPos={setPos}
-        diff={diff}
-        usage={usage}
-        session={session}
-        chatState={chatState}
-        // className="border-t pt-2"
       />
 
       {/* for plan or other things?*/}

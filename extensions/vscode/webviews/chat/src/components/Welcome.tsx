@@ -1,9 +1,9 @@
+import { useChat } from "@/hooks/useChat"
 
-export const Welcome = ({
-  username
-}:{
-  username?: string
-}) => {
+export const Welcome = () => {
+  const { chatState } = useChat()
+  const username = chatState?.env?.user
+  
   return (
     <div className="flex flex-col m-auto border border-sky-500/50 rounded-xl px-20 py-10 gap-5">
       <div className="flex gap-4 items-baseline">

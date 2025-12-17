@@ -14,15 +14,11 @@ import { ArrowRight, MoveRight } from "lucide-react";
 
 
 export const UnknownEvent = ({
-  sid,
   pos,
-  setPos,
   msg,
   evt,
 }: {
-  sid: string,
   pos: number,
-  setPos: any,
   msg?: string,
   evt: any
 }) => {
@@ -44,7 +40,7 @@ export const UnknownEvent = ({
             <AccordionItem value="details">
               <AccordionTrigger className="h-3"></AccordionTrigger>
               <AccordionContent>
-                <EventDetails sid={sid} pos={pos} setPos={setPos} evt={evt}/>
+                <EventDetails pos={pos} evt={evt}/>
               </AccordionContent>
             </AccordionItem>
           </Accordion>
@@ -55,7 +51,7 @@ export const UnknownEvent = ({
 }
 
 
-export const UserMessage = ({sid, pos, setPos, evt}:{sid: string, pos: number, setPos: any, evt: any}) => {
+export const UserMessage = ({pos, evt}:{pos: number, evt: any}) => {
   const hasStateDelta = evt?.Actions?.StateDelta && Object.keys(evt?.Actions?.StateDelta).length > 0
   return (
     <div className={cn(
@@ -67,7 +63,7 @@ export const UserMessage = ({sid, pos, setPos, evt}:{sid: string, pos: number, s
         "bg-linear-to-r from-slate-800/90 from-[20%] via-[#1e1e1e] via-[40%] to-[#1e1e1e]",
       )}>
         <div className="flex flex-col">
-          { evt?.Content?.parts && evt.Content.parts.map((p: any) => <MessagePart sid={sid} pos={pos} setPos={setPos} part={p} evt={evt}/>) }
+          { evt?.Content?.parts && evt.Content.parts.map((p: any) => <MessagePart pos={pos} part={p} evt={evt}/>) }
           { hasStateDelta && Object.entries(evt.Actions.StateDelta).map(([key, val]) => {
               return (
                 <div className="flex gap-1 items-center px-2 border-l-3 border-red-500">
@@ -88,7 +84,7 @@ export const UserMessage = ({sid, pos, setPos, evt}:{sid: string, pos: number, s
             <AccordionItem value="details">
               <AccordionTrigger className="h-3"></AccordionTrigger>
               <AccordionContent>
-                <EventDetails sid={sid} pos={pos} setPos={setPos} evt={evt} />
+                <EventDetails pos={pos} evt={evt} />
               </AccordionContent>
             </AccordionItem>
           </Accordion>
@@ -98,7 +94,7 @@ export const UserMessage = ({sid, pos, setPos, evt}:{sid: string, pos: number, s
   )
 }
 
-export const ModelMessage = ({sid, pos, setPos, evt}:{sid: string, pos: number, setPos: any, evt: any}) => {
+export const ModelMessage = ({pos, evt}:{pos: number, evt: any}) => {
   return (
     <div className={cn(
       "py-[1px] pl-[2px] rounded",
@@ -109,14 +105,14 @@ export const ModelMessage = ({sid, pos, setPos, evt}:{sid: string, pos: number, 
         "bg-[#1e1e1e]"
       )}>
         <div className="flex flex-col gap-1">
-          { evt.Content.parts.map((p: any) => <MessagePart sid={sid} pos={pos} setPos={setPos} part={p} evt={evt}/>)}
+          { evt.Content.parts.map((p: any) => <MessagePart pos={pos} part={p} evt={evt}/>)}
         </div>
         <div className="mt-[-12px] mr-auto">
           <Accordion type="single" collapsible>
             <AccordionItem value="details">
               <AccordionTrigger className="h-4"></AccordionTrigger>
               <AccordionContent>
-                <EventDetails sid={sid} pos={pos} setPos={setPos} evt={evt} />
+                <EventDetails pos={pos} evt={evt} />
               </AccordionContent>
             </AccordionItem>
           </Accordion>
@@ -126,13 +122,13 @@ export const ModelMessage = ({sid, pos, setPos, evt}:{sid: string, pos: number, 
   )
 }
 
-const MessagePart = ({ sid, pos, setPos, part, evt }:{ sid: string, pos: number, setPos: any, part: any, evt: any }) => {
+const MessagePart = ({ pos, part, evt }:{ pos: number, part: any, evt: any }) => {
   if (part.text) { return <TextPart part={part} evt={evt}/> }
   if (part.functionCall) { return <FuncCall part={part} evt={evt}/> }
   if (part.functionResponse) { return null }
 
   // what is it?
-  return <UnknownEvent sid={sid} pos={pos} setPos={setPos} evt={evt} msg="unknown part"/>
+  return <UnknownEvent pos={pos} evt={evt} msg="unknown part"/>
 }
 
 const TextPart = ({ part, evt }:{ part: any, evt: any }) => {

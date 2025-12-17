@@ -4,7 +4,7 @@ import { Menu } from '@/components/SessionMenu'
 import { UsageInfo, TimeInfo } from '@/components/Info'
 import CopyClipboardButton from '@/components/CopyClipboardButton'
 
-export const EventDetails = ({sid, pos, setPos, evt}:{sid: string, pos: number, setPos: any, evt: any}) => {
+export const EventDetails = ({pos, evt}:{pos: number, evt: any}) => {
   const [hidden, setHidden] = useState(true);
 
   var text = evt?.Content?.parts?.map((p: any) => p.text).join("\n\n")
@@ -24,7 +24,7 @@ export const EventDetails = ({sid, pos, setPos, evt}:{sid: string, pos: number, 
           <span className="flex gap-2 font-thin items-center">
             <TimeInfo timestamp={evt.Timestamp} />
           </span>
-          <Menu sid={sid} pos={pos} setPos={setPos} hidden={hidden} setHidden={setHidden} />
+          <Menu pos={pos} hidden={hidden} setHidden={setHidden} />
         </div>
       </div>
     </div>
