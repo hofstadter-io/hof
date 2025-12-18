@@ -38,41 +38,41 @@ export const FuncCall = ({ part }:{ part: any, evt: any }) => {
   )
 }
 
-export const FuncResp = ({ part }:{ part: any, evt: any }) => {
-  // console.log("FuncResp.part", part)
+// export const FuncResp = ({ part }:{ part: any, evt: any }) => {
+//   // console.log("FuncResp.part", part)
 
-  const fn = part.functionResponse?.name as string
-  const resp = part.functionResponse?.response
+//   const fn = part.functionResponse?.name as string
+//   const resp = part.functionResponse?.response
 
-  const err = resp.error
-  // console.log("FuncResp.prep", fn, resp, err, !err)
-  var argVals: any[] = []
-  if (!err) {
-    const fnArgs = f2NameArgs[fn]
-    argVals = fnArgs?.map(a=> {
-      if(a in resp) {
-        return resp[a]
-      }
-      // return a
-    })
-  }
+//   const err = resp.error
+//   // console.log("FuncResp.prep", fn, resp, err, !err)
+//   var argVals: any[] = []
+//   if (!err) {
+//     const fnArgs = f2NameArgs[fn]
+//     argVals = fnArgs?.map(a=> {
+//       if(a in resp) {
+//         return resp[a]
+//       }
+//       // return a
+//     })
+//   }
 
-  // console.log("FuncResp.render", fn, argVals, err)
-  return (
-    <div className="flex flex-col gap-2">
-      <div  className={cn("flex gap-2 items-baseline")}>
-        <span className="font-heavy">{fn}</span>
-        <span className="font-thin">{(argVals || []).join(" ")}</span>
-        { err && <span className="text-red-400">Error</span> }
-      </div>
-      { err && 
-        <div className="m-2 p-3 border border-red-400 max-h-32">
-          <pre className="overflow-auto">{err}</pre>
-        </div>
-      }
-    </div>
-  )
-}
+//   // console.log("FuncResp.render", fn, argVals, err)
+//   return (
+//     <div className="flex flex-col gap-2">
+//       <div  className={cn("flex gap-2 items-baseline")}>
+//         <span className="font-heavy">{fn}</span>
+//         <span className="font-thin">{(argVals || []).join(" ")}</span>
+//         { err && <span className="text-red-400">Error</span> }
+//       </div>
+//       { err && 
+//         <div className="m-2 p-3 border border-red-400 max-h-32">
+//           <pre className="overflow-auto">{err}</pre>
+//         </div>
+//       }
+//     </div>
+//   )
+// }
 
 const f2NameArgs: Record<string,string[]> = {
   "cache_write": ["key"],

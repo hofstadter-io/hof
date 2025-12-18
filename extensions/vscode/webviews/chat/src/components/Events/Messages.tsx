@@ -79,7 +79,7 @@ export const UserMessage = ({pos, evt}:{pos: number, evt: any}) => {
             })
           }
         </div>
-        <div className="mt-[-12px] mr-auto">
+        <div className="mt-[-12px] w-full">
           <Accordion type="single" collapsible>
             <AccordionItem value="details">
               <AccordionTrigger className="h-3"></AccordionTrigger>
@@ -107,7 +107,7 @@ export const ModelMessage = ({pos, evt}:{pos: number, evt: any}) => {
         <div className="flex flex-col gap-1">
           { evt.Content.parts.map((p: any) => <MessagePart pos={pos} part={p} evt={evt}/>)}
         </div>
-        <div className="mt-[-12px] mr-auto">
+        <div className="mt-[-12px] w-full">
           <Accordion type="single" collapsible>
             <AccordionItem value="details">
               <AccordionTrigger className="h-4"></AccordionTrigger>

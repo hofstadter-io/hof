@@ -11,8 +11,11 @@ export const EventDetails = ({pos, evt}:{pos: number, evt: any}) => {
 
   return (
     <div className="flex flex-col gap-1 mt-2">
+
       { !hidden && <JsonObject data={evt} /> }
+
       <div className="flex items-end">
+
         <div className="flex-grow flex flex-col gap-1 items-start">
           <span className="flex gap-2 items-center">
             <CopyClipboardButton size={16} strokeWidth={1.5} source={text}/>
@@ -20,12 +23,14 @@ export const EventDetails = ({pos, evt}:{pos: number, evt: any}) => {
           </span>
           <UsageInfo evt={evt} size={16} />
         </div>
+
         <div className="flex flex-col gap-1 items-end">
           <span className="flex gap-2 font-thin items-center">
             <TimeInfo timestamp={evt.Timestamp} />
           </span>
           <Menu pos={pos} hidden={hidden} setHidden={setHidden} />
         </div>
+        
       </div>
     </div>
   )
