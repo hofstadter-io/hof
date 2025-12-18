@@ -129,6 +129,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	vscode.commands.registerCommand('veg.explorer.refreshAll', async (args: any) => {
 		console.log("veg.explorer.refreshAll.args", args)
+		vcp.refreshAll()
 		vscode.commands.executeCommand('workbench.files.action.refreshFilesExplorer')
   })
 
@@ -136,6 +137,16 @@ export async function activate(context: vscode.ExtensionContext) {
 	extensionEmitter.event(async (e) => {
     // ...
 		switch (e.type) {
+
+			case "session.list.resp":
+				vcp.setSessions(e.payload)
+				break
+
+			case "session.diff":
+				console.log("filesys.session.diff", e.payload)
+				const uri = vscode.Uri.parse("oci://"+e.payload.currEnv)
+				vcp.showDiff(uri)
+
 			case "filesys.openEnviron":
 				console.log("filesys.openEnviron.payload", e.payload)
 
@@ -176,6 +187,51 @@ export async function deactivate() {}
 class VegContentProvider implements vscode.FileSystemProvider {
 
 	private _environs: Record<string,any> = {}
+	private _sessions: any[] = []
+
+	setSessions(sessions: any[]) {
+		this._sessions = sessions
+	}
+
+	refreshAll() {
+		const wsF = (vscode.workspace.workspaceFolders || []) as any[]
+		for (let i = 0; i < wsF.length; i++) {
+			const wf = wsF[i]
+			if (wf.uri.scheme !== 'veg') {
+				continue
+			}
+
+			// extract envId
+			let p = wf.uri.path
+			if (p.startsWith("/")) {
+				p = p.slice(1)
+			}
+			const envId = p.split("/")[0]
+			const cleanEnvId = envId.split(":")[0]
+
+			const session = this._sessions.find(s => {
+				const sEnv = s.state?.currEnv
+				console.log("  - ", sEnv, s)
+				if (!sEnv) { return false }
+				const sEnvId = sEnv.split("/")[1].split(":")[0]
+				return sEnvId === cleanEnvId
+			})
+
+			if (session) {
+				const f: Folder = {
+					uri: vscode.Uri.parse("veg://" + session.state?.currEnv),
+					name: session.state?.title || session.sid,
+					sid: session.sid,
+					session: session,
+					environ: {
+						fromUri: "oci://" + session.state?.currEnv,
+						name: session.state?.title || session.sid,
+					}
+				}
+				vscode.workspace.updateWorkspaceFolders(i, 1, f)
+			}
+		}
+	}
 
 	// we track a show (only) diff or everything
   private _onlyDiff: boolean = true

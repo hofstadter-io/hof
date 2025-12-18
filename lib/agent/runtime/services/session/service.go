@@ -438,7 +438,7 @@ func (s *databaseService) applyEvent(ctx context.Context, session *localSession,
 
 		appDelta, userDelta, sessionDelta := extractStateDeltas(event.Actions.StateDelta)
 		// fmt.Printf("Session Before: %#+v\n", pretty.Formatter(storageSess.State))
-		fmt.Printf("Session Delta: %#+v\n", pretty.Formatter(sessionDelta))
+		// fmt.Printf("Session Delta: %#+v\n", pretty.Formatter(sessionDelta))
 
 		// Merge state deltas and update the storage objects.
 		// GORM's .Save() method will correctly perform an INSERT or UPDATE.

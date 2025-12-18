@@ -23,7 +23,8 @@ export const Menu = ({
   refresh?: boolean,
   setHidden: (prev: any) => any
 }) => {
-  const { sid, session, setPos } = useChat();
+  const { sid, session, setPos, pos: currentPos, chatState } = useChat();
+  const effectivePos = pos ?? currentPos;
 
   return (
     <div className="ml-auto flex justify-end items-center gap-2">
@@ -71,16 +72,18 @@ export const Menu = ({
         aria-label="diff"
         className="hover:text-yellow-500"
         onClick={() => {
-          // setPos(pos)
-          // vscodeApi.postMessage({
-          //   type: "session.diff",
-          //   payload: {
-          //     sid,
-          //     pos,
-          //     show: true,
-          //     // todo, add start here
-          //   }
-          // })
+          if (pos !== undefined) {
+            setPos(pos)
+          }
+          vscodeApi.postMessage({
+            type: "session.diff",
+            payload: {
+              sid,
+              pos: effectivePos,
+              show: true,
+              currEnv: session?.state?.currEnv,
+            }
+          })
         }}
       />
       </ToolTipper>
