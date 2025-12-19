@@ -104,6 +104,51 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         });
       }
 
+      if (message.type === 'terminal.info') {
+        setChatState((prev: any) => {
+          const s = vscodeApi.getState();
+          const next = {
+            ...prev,
+            terminals: message.payload,
+          };
+          vscodeApi.setState({
+            ...s,
+            chatState: next,
+          });
+          return next;
+        });
+      }
+
+      if (message.type === 'window.info.resp') {
+        setChatState((prev: any) => {
+          const s = vscodeApi.getState();
+          const next = {
+            ...prev,
+            window: message.payload,
+          };
+          vscodeApi.setState({
+            ...s,
+            chatState: next,
+          });
+          return next;
+        });
+      }
+
+      if (message.type === 'workspace.info.resp') {
+        setChatState((prev: any) => {
+          const s = vscodeApi.getState();
+          const next = {
+            ...prev,
+            workspace: message.payload,
+          };
+          vscodeApi.setState({
+            ...s,
+            chatState: next,
+          });
+          return next;
+        });
+      }
+
       if (message.type === 'models.list.resp') {
         setChatState((prev: any) => {
           const s = vscodeApi.getState();
@@ -198,6 +243,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     });
 
     // console.log("initial fetch", state?.sid, state?.sid !== "")
+    vscodeApi.postMessage({ type: 'requestSync' });
     if (state?.sid !== '') {
       vscodeApi.postMessage({
         type: 'session.get',

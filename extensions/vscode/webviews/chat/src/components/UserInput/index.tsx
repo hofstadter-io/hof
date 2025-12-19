@@ -314,7 +314,6 @@ export const UserInput = () => {
 
         <ChatEditor
           userInput={userInput}
-          chatState={chatState}  
           handlers={{
             handleInputUpdate,
             handleSelectAgent,

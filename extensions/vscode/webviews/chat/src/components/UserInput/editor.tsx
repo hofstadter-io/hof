@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useRef, useEffect, useMemo } from 'react'
 import { cn } from '@/lib/utils'
 
-// tiptap
+import { vscodeApi } from '@/vscodeApi.js'
 import { useEditor, EditorContent, EditorContext } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
@@ -18,18 +18,34 @@ import { TailwindClasses } from '../Markdown'
 
 import suggest from './suggest'
 import emojiSuggest from './suggest/emojiSuggest'
+import { useChat } from '@/hooks/useChat'
 
 export const ChatEditor = ({
   userInput,
-  chatState,
   handlers,
   editorRef,
 }:{
   userInput?: any
-  chatState?: any
   handlers?: any
   editorRef?: any
 }) => {
+  const {
+    sid,
+    pos,
+    session,
+    usage,
+    chatState,
+    diff,
+    setDiff,
+    setPos,
+    handleSend,
+  } = useChat();
+
+  const chatStateRef = useRef(chatState)
+  useEffect(() => {
+    chatStateRef.current = chatState
+  }, [chatState])
+
   const editor = useEditor({
     editorProps: {
       attributes: {
@@ -37,6 +53,9 @@ export const ChatEditor = ({
       },
     },
     
+    onFocus: () => {
+      vscodeApi.postMessage({ type: 'requestSync' })
+    },
 
     onUpdate: handlers.handleInputUpdate,
     autofocus: true,
@@ -64,73 +83,75 @@ export const ChatEditor = ({
         suggestion: emojiSuggest,
       }),
 
-      // mentions
       Mention.configure({
         HTMLAttributes: {
           class: 'suggest',
         },
-        suggestions: [{
-          // agents / models
-          char: '@',
-          ...suggest.mentioner,
+        suggestion: {
           items: ({ query }: { query: string }) => {
-            const options = Object.keys(chatState?.config?.agents).concat(Object.keys(chatState?.config?.models))
-            const results = options
+            const options = Object.keys(chatStateRef.current?.config?.agents || {}).concat(Object.keys(chatStateRef.current?.config?.models || {}))
+            return options
               .filter(item => item.toLowerCase().startsWith(query.toLowerCase()))
               .slice(0, 5)
-            if (!results || results.length === 0) {
-              return [query]
-            }
-            return results
           },
-        },{
-          // environs (fs/exe)
+          ...suggest.mentioner,
+        }
+      }),
+      Mention.extend({ name: 'environ' }).configure({
+        HTMLAttributes: {
+          class: 'suggest',
+        },
+        suggestion: {
           char: '>',
-          ...suggest.mentioner,
           items: ({ query }: { query: string }) => {
-            // todo, sessions here too?
-            const options = Object.keys(chatState?.config?.environs)
-            const results = options
+            const options = Object.keys(chatStateRef.current?.config?.environs || {})
+            return options
               .filter(item => item.toLowerCase().startsWith(query.toLowerCase()))
               .slice(0, 5)
-            if (!results || results.length === 0) {
-              return [query]
-            }
-            return results
           },
-        },{
-          // context
+          ...suggest.mentioner,
+        }
+      }),
+      Mention.extend({ name: 'context' }).configure({
+        HTMLAttributes: {
+          class: 'suggest',
+        },
+        suggestion: {
           char: '#',
-          ...suggest.mentioner,
           items: ({ query }: { query: string }) => {
-            const options = ["term-0", "term-1", "term-2", "main.go", "pkg/runtime.go", "src/App.tsx", "src/components/Events.tsx"]
-            const results = options
-              .filter(item => item.toLowerCase().startsWith(query.toLowerCase()))
-              .slice(0, 5)
-            if (!results || results.length === 0) {
-              return [query]
+            const options: string[] = ["fresh"]
+            if (chatStateRef.current?.terminals?.terminals) {
+              chatStateRef.current.terminals.terminals.forEach((t: any) => options.push(`term-${t.id}`))
             }
-            return results
+            if (chatStateRef.current?.window?.tabgroups) {
+              chatStateRef.current.window.tabgroups.forEach((tg: any) => {
+                tg.tabs.forEach((t: any) => options.push(t.label))
+              })
+            }
+            return options
+              .filter(item => item.toLowerCase().startsWith(query.toLowerCase()))
+              .slice(0, 10)
           },
-        },{
-          // veg commands
-          char: '$',
-          // allowSpaces: true,
           ...suggest.mentioner,
+        }
+      }),
+      Mention.extend({ name: 'veg' }).configure({
+        HTMLAttributes: {
+          class: 'suggest',
+        },
+        suggestion: {
+          char: '$',
           items: ({ query }: { query: string }) => {
             const options = ["state"]
-            const results = options
+            return options
               .filter(item => item.toLowerCase().startsWith(query.toLowerCase()))
               .slice(0, 5)
-            if (!results || results.length === 0) {
-              return [query]
-            }
-            return results
           },
-        }]
+          ...suggest.mentioner,
+        }
       })
     ], // define your extension array
-  })
+  }, [])
 
   // Memoize the provider value to avoid unnecessary re-renders
   const providerValue = useMemo(() => ({ editor }), [editor])

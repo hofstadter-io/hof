@@ -33,6 +33,25 @@ export async function activate(context: vscode.ExtensionContext) {
 		type: "requestSync",
 		payload: {}
 	})
+
+	// Setup a background timer for periodic synchronization
+	const syncTimer = setInterval(() => {
+		const sid = context.workspaceState.get("sid") as string;
+		
+		// Always request general sync
+		const msg = { type: "requestSync", payload: { sid } };
+		comms.extensionEmitter.fire(msg);
+		comms.sendMessage(msg);
+
+		// If we have an active session, refresh its state
+		if (sid) {
+			const sessionMsg = { type: "session.get", payload: { sid } };
+			comms.extensionEmitter.fire(sessionMsg);
+			comms.sendMessage(sessionMsg);
+		}
+	}, 6 * 1000);
+
+	context.subscriptions.push({ dispose: () => clearInterval(syncTimer) });
 }
 
 /**
