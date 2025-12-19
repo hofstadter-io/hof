@@ -139,7 +139,8 @@ export async function activate(context: vscode.ExtensionContext) {
 			case "session.merge":
 				console.log("filesys.session.merge", e.payload)
 				const uriMerge = vscode.Uri.parse("oci://"+e.payload.currEnv)
-				vcp.mergeDiff(uriMerge)
+				const dest = e.payload.dest ? vscode.Uri.parse(e.payload.dest) : undefined
+				vcp.mergeDiff(uriMerge, dest, e.payload.forceInput)
 				break
 
 			case "filesys.openEnviron":

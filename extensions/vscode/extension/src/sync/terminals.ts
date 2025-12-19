@@ -192,7 +192,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 			case "session.term.open":
 				// process inputs
-				const { sid, pos, image } = e.payload
+				const { sid, pos, image, termId } = e.payload
 
 
 				const S = sessions.filter((s) => s.sid === sid)[0]
@@ -216,10 +216,16 @@ export function activate(context: vscode.ExtensionContext) {
 				cmd += ` terminal --cmd bash`
 
 				// Create and show the terminal
-				const terminal = vscode.window.createTerminal({ 
-					name,
-					iconPath: new vscode.ThemeIcon("hubot")
-				});
+				let terminal: vscode.Terminal;
+				const T = termId !== undefined ? findTermById(termId) : null;
+				if (T && T.terminal) {
+					terminal = T.terminal;
+				} else {
+					terminal = vscode.window.createTerminal({ 
+						name,
+						iconPath: new vscode.ThemeIcon("hubot")
+					});
+				}
 				terminal.show();
 
 				terminal.sendText(cmd, true);
@@ -229,6 +235,15 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	// context.subscriptions.push(disposable);
+}
+
+function findTermById(id: number): Terminal | null { 
+	for (const term of trackedTerminals.values()) {
+		if (term.termIndex == id) {
+			return term
+		}
+	}
+	return null
 }
 
 // This method is called when your extension is deactivated
