@@ -72,6 +72,17 @@ function findTerm(vsterm: vscode.Terminal): Terminal | null {
 	return null
 }
 
+function deleteTerm(vsterm: vscode.Terminal): Terminal | null { 
+	// console.log("find:", vsterm, trackedTerminals)
+	for (const term of trackedTerminals.values()) {
+		if (term.terminal == vsterm) {
+			trackedTerminals.delete(term)
+			return term
+		}
+	}
+	return null
+}
+
 function finalizeExec(term: Terminal, end: vscode.TerminalShellExecutionEndEvent) {
 	if (end.execution.commandLine.value === "") {
 		console.warn("terminal.finalizeExec: ignoring empty command")
@@ -111,7 +122,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 
 		vscode.window.onDidChangeTerminalShellIntegration(e => {
-			// console.log("changeIntegration", e, trackedTerminals)
+			console.log("changeIntegration", e, trackedTerminals)
 			if (!findTerm(e.terminal)){
 				// console.log("changeIntegration.newTerminal", e)
 				const t = new Terminal()
@@ -121,6 +132,18 @@ export function activate(context: vscode.ExtensionContext) {
 				trackedTerminals.add(t);
 				broadcastTerminals()
 			}
+		}),
+
+		vscode.window.onDidCloseTerminal(async e => {
+			console.log("close Terminal", e)
+			var t = findTerm(e)
+			if (t) {
+				deleteTerm(e)
+				console.log("DELETED:", t)
+			} else {
+				console.log("did not find!")
+			}
+
 		}),
 
 		vscode.window.onDidStartTerminalShellExecution(async e => {

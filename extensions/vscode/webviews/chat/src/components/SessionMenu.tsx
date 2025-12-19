@@ -119,13 +119,13 @@ export const Menu = ({
           <DropdownMenuItem 
             className="px-2 py-[2px] text-xs focus:bg-[#2e2e2e] hover:bg-[#2e2e2e] focus:text-white hover-text-white"
             onClick={() => {
-              vscodeApi.postMessage({
-                type: "session.term.open",
-                payload: {
-                  sid,
-                  pos: effectivePos,
-                }
-              })
+            vscodeApi.postMessage({
+              type: "session.term.open",
+              payload: {
+                sid,
+                pos: effectivePos,
+              }
+            })
             }}
           >
             fresh
@@ -134,14 +134,14 @@ export const Menu = ({
             <DropdownMenuItem key={t.id}
               className="px-2 py-[2px] text-xs focus:bg-[#2e2e2e] hover:bg-[#2e2e2e] focus:text-white hover-text-white"
               onClick={() => {
-                vscodeApi.postMessage({
-                  type: "session.term.open",
-                  payload: {
-                    sid,
-                    pos: effectivePos,
-                    termId: t.id,
-                  }
-                })
+              vscodeApi.postMessage({
+                type: "session.term.open",
+                payload: {
+                  sid,
+                  pos: effectivePos,
+                  termId: t.id,
+                }
+              })
               }}
             >
               {t.name} ({t.id})
@@ -199,20 +199,20 @@ export const Menu = ({
           </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="bg-[#0e0e0e] text-white border-0 font-mono text-xs font-light p-1">
-          <DropdownMenuLabel className="px-1 pb-1 pt-0 mb-1 border-b-1 text-xs">Merge Into</DropdownMenuLabel>
+          <DropdownMenuLabel className="px-1 pb-1 pt-0 mb-1 border-b-1 text-xs">merge into</DropdownMenuLabel>
           {session?.state?.initEnv?.srcUri && (
             <DropdownMenuItem
               className="px-2 py-[2px] text-xs focus:bg-[#2e2e2e] hover:bg-[#2e2e2e] focus:text-white hover-text-white"
               onClick={() => {
-                vscodeApi.postMessage({
-                  type: "session.merge",
-                  payload: {
-                    sid,
-                    pos: effectivePos,
-                    currEnv: session?.state?.currEnv,
-                    dest: session.state.initEnv.srcUri,
-                  }
-                })
+              vscodeApi.postMessage({
+                type: "session.merge",
+                payload: {
+                  sid,
+                  pos: effectivePos,
+                  currEnv: session?.state?.currEnv,
+                  dest: session.state.initEnv.srcUri,
+                }
+              })
               }}
             >
               {session.state.initEnv.srcUri}
@@ -221,15 +221,15 @@ export const Menu = ({
           <DropdownMenuItem
             className="px-2 py-[2px] text-xs focus:bg-[#2e2e2e] hover:bg-[#2e2e2e] focus:text-white hover-text-white"
             onClick={() => {
-              vscodeApi.postMessage({
-                type: "session.merge",
-                payload: {
-                  sid,
-                  pos: effectivePos,
-                  currEnv: session?.state?.currEnv,
-                  forceInput: true,
-                }
-              })
+            vscodeApi.postMessage({
+              type: "session.merge",
+              payload: {
+                sid,
+                pos: effectivePos,
+                currEnv: session?.state?.currEnv,
+                forceInput: true,
+              }
+            })
             }}
           >
             input...

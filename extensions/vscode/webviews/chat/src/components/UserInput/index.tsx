@@ -14,8 +14,9 @@ import { cn } from "@/lib/utils"
 
 import { Header } from "../Header"
 import { ChatEditor } from './editor'
-import { AtSign, AudioLines, Bot, BotMessageSquare, Boxes, DollarSign, Drama, Forward, Hash, Paperclip, ScrollText, Send, TerminalSquare } from 'lucide-react'
+import { AtSign, AudioLines, Bot, BotMessageSquare, Boxes, DollarSign, Drama, FileCode, Forward, Hash, ScrollText, Send, TerminalSquare } from 'lucide-react'
 import { useChat } from '@/hooks/useChat'
+import { ToolTipper } from 'veg-webview-common'
 
 export const UserInput = () => {
   const {
@@ -27,6 +28,9 @@ export const UserInput = () => {
     diff,
     handleSend,
   } = useChat();
+
+  const cacheKeys = Object.keys(session?.state || {}).filter(k => k.startsWith("cache:"));
+  const fileKeys = Object.keys(session?.state || {}).filter(k => k.startsWith("files:"));
 
   const [userInput, setUserInput] = useState<any>({ 
     agent: chatState?.agent || "veggie",
@@ -258,29 +262,23 @@ export const UserInput = () => {
       />
 
       {/* for plan or other things?*/}
-      <div className="flex gap-1">
-        { session?.state && Object.keys(session?.state).map((key: string) => {
-          if (key.startsWith("cache:")) {
-            const parts = key.split(":")
-            const fname = parts[parts.length-1]
-            return (
-              <Badge className="text-fuchsia-200/80 bg-fuchsia-600/50 "><ScrollText size={12}/>{fname}</Badge>
-            )
-          }
-          return null
-        })}
-      </div>
-      <div className="flex gap-1">
-        { session?.state && Object.keys(session?.state).map((key: string) => {
-          if (key.startsWith("files:")) {
-            const parts = key.split(":")
-            const fname = parts[parts.length-1]
-            return (
-              <Badge className="text-violet-300 bg-violet-600/50 "><Paperclip size={12}/>{fname}</Badge>
-            )
-          }
-          return null
-        })}
+      <div className="flex gap-1 items-center">
+        {cacheKeys.length > 0 && (
+          <ToolTipper label={cacheKeys.map(k => k.split(':').pop()).join('\n')}>
+            <Badge className="text-fuchsia-200/80 bg-fuchsia-600/50 flex gap-1 items-center px-2">
+              <ScrollText size={12}/>
+              <span>{cacheKeys.length}</span>
+            </Badge>
+          </ToolTipper>
+        )}
+        {fileKeys.length > 0 && (
+          <ToolTipper label={fileKeys.map(k => k.split(':').pop()).join('\n')}>
+            <Badge className="text-violet-300 bg-violet-600/50 flex gap-1 items-center px-2">
+              <FileCode size={12}/>
+              <span>{fileKeys.length}</span>
+            </Badge>
+          </ToolTipper>
+        )}
       </div>
 
       <div className="flex gap-1 items-center">
