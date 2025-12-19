@@ -671,11 +671,12 @@ class VegContentProvider implements vscode.FileSystemProvider {
 				group.label = title
 			}
 			
-			const multiDiffResources: { originalUri: vscode.Uri; modifiedUri: vscode.Uri }[] = [];
+			const multiDiffResources: { originalUri: vscode.Uri | undefined; modifiedUri: vscode.Uri | undefined }[] = [];
 			const resources: vscode.SourceControlResourceState[] = []
 
-			// show diff
+			// 1. Modified paths
 			for (var p of diff.modPaths) {
+
 				const pfUri = vscode.Uri.from({ ...prevUri, path: prevUri.path + p })
 				const nfUri = vscode.Uri.from({ ...nextUri, path: nextUri.path + p })
 				// console.log("diff", pfUri, nfUri)
@@ -683,7 +684,11 @@ class VegContentProvider implements vscode.FileSystemProvider {
 				// 1. Add to SCM view (Single file diff)
 				resources.push({
 					resourceUri: nfUri,
-					decorations: { tooltip: `Modified: ${p}` },
+					contextValue: 'modified',
+					decorations: { 
+						tooltip: `Modified: ${p}`,
+						iconPath: new vscode.ThemeIcon('diff-modified', new vscode.ThemeColor('gitDecoration.modifiedResourceForeground')),
+					},
 					command: {
 						command: 'vscode.diff',
 						title: 'Show Diff',
@@ -695,6 +700,64 @@ class VegContentProvider implements vscode.FileSystemProvider {
 				multiDiffResources.push({
 					originalUri: pfUri,
 					modifiedUri: nfUri,
+				});
+			}
+
+			// 2. Added paths
+			for (var p of diff.addPaths) {
+				if ((p.startsWith("/") && p.endsWith("/")) || p === "/stdout.txt" || p === "/stderr.txt") {
+					continue
+				}
+				const nfUri = vscode.Uri.from({ ...nextUri, path: nextUri.path + p })
+
+				resources.push({
+					resourceUri: nfUri,
+					contextValue: 'added',
+					decorations: { 
+						tooltip: `Added: ${p}`,
+						iconPath: new vscode.ThemeIcon('diff-added', new vscode.ThemeColor('gitDecoration.addedResourceForeground')),
+					},
+					command: {
+						command: 'vscode.open',
+						title: 'Open File',
+						arguments: [nfUri]
+					}
+				});
+
+				multiDiffResources.push({
+					// @ts-ignore
+					originalUri: undefined,
+					modifiedUri: nfUri,
+				});
+			}
+
+			// 3. Deleted paths
+			for (var p of diff.delPaths) {
+				if ((p.startsWith("/") && p.endsWith("/")) || p === "/stdout.txt" || p === "/stderr.txt") {
+					continue
+				}
+				const pfUri = vscode.Uri.from({ ...prevUri, path: prevUri.path + p })
+
+				resources.push({
+					resourceUri: pfUri,
+					contextValue: 'deleted',
+					decorations: { 
+						tooltip: `Deleted: ${p}`, 
+						strikeThrough: true,
+						faded: true,
+						iconPath: new vscode.ThemeIcon('diff-removed', new vscode.ThemeColor('gitDecoration.deletedResourceForeground')),
+					},
+					command: {
+						command: 'vscode.open',
+						title: 'Open File',
+						arguments: [pfUri]
+					}
+				});
+
+				multiDiffResources.push({
+					originalUri: pfUri,
+					// @ts-ignore
+					modifiedUri: undefined,
 				});
 			}
 			group.resourceStates = resources
