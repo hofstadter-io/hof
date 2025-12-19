@@ -35,7 +35,12 @@ export async function activate(context: vscode.ExtensionContext) {
 	})
 
 	// Setup a background timer for periodic synchronization
-	const syncTimer = setInterval(() => {
+	const syncTimer = setInterval(async () => {
+		// Try to reconnect if not connected
+		if (!comms.isConnected()) {
+			await comms.connectOrSpawnServer(context);
+		}
+
 		const sid = context.workspaceState.get("sid") as string;
 		
 		// Always request general sync
@@ -49,7 +54,7 @@ export async function activate(context: vscode.ExtensionContext) {
 			comms.extensionEmitter.fire(sessionMsg);
 			comms.sendMessage(sessionMsg);
 		}
-	}, 6 * 1000);
+	}, 6000);
 
 	context.subscriptions.push({ dispose: () => clearInterval(syncTimer) });
 }

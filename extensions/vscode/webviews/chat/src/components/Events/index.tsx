@@ -1,3 +1,6 @@
+import { useEffect } from "react";
+import { useStickToBottomContext } from "use-stick-to-bottom";
+
 import { cn } from "@/lib/utils";
 import { useChat } from "@/hooks/useChat";
 
@@ -6,8 +9,6 @@ import {
   UserMessage,
   ModelMessage,
 } from './Messages'
-// import { useStickToBottomContext } from "use-stick-to-bottom";
-// import { useEffect } from "react";
 
 export const Events = ({
   messagesEndRef
@@ -21,11 +22,11 @@ export const Events = ({
 
   const events = session?.events;
 
-  // const { scrollToBottom } = useStickToBottomContext();
+  const { isAtBottom, scrollToBottom } = useStickToBottomContext();
 
-  // useEffect(() => {
-  //   scrollToBottom()
-  // }, [events])
+  useEffect(() => {
+    isAtBottom && scrollToBottom()
+  }, [events])
 
   if (!events?.length) {
     return null

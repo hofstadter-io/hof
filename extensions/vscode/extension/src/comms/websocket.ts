@@ -18,6 +18,10 @@ interface EchoPayload { text: string; }
 
 let ws: WebSocket | undefined;
 
+export function isConnected(): boolean {
+  return ws !== undefined && ws.readyState === WebSocket.OPEN;
+}
+
 // Note: We rename `activate` to `activateWebsocket` to avoid
 // naming conflicts when we import it.
 export async function activate(context: vscode.ExtensionContext) {
@@ -41,7 +45,7 @@ export async function deactivate() {
   }
 }
 
-async function connectOrSpawnServer(context: vscode.ExtensionContext) {
+export async function connectOrSpawnServer(context: vscode.ExtensionContext) {
   updateStatusBar('Veg Server', 'Connecting...', 'sync~spin'); // <-- We call the imported function
   try {
     ws = await connectToWebSocket();

@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 export { extensionEmitter } from './events';
-export { sendMessage } from './websocket';
+export { sendMessage, isConnected, connectOrSpawnServer } from './websocket';
 export { updateStatusBar } from './statusBar';
 
 import { activate as wsActivate, deactivate as wsDeactivate } from './websocket';

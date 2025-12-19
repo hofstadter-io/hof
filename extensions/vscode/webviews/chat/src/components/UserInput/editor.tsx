@@ -143,9 +143,13 @@ export const ChatEditor = ({
           char: '$',
           items: ({ query }: { query: string }) => {
             const options = ["state"]
-            return options
+            const results = options
               .filter(item => item.toLowerCase().startsWith(query.toLowerCase()))
               .slice(0, 5)
+            if (!results || results.length === 0) {
+              return [query]
+            }
+            return results
           },
           ...suggest.mentioner,
         }
