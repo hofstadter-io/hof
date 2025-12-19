@@ -3,7 +3,6 @@ import { cn } from '@/lib/utils'
 
 // tiptap
 import { useEditor, EditorContent, EditorContext } from '@tiptap/react'
-import Document from '@tiptap/extension-document'
 import StarterKit from '@tiptap/starter-kit'
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
 import { Table, TableRow, TableCell, TableHeader } from '@tiptap/extension-table'
@@ -14,6 +13,8 @@ import Mention from '@tiptap/extension-mention'
 
 import { all, createLowlight } from 'lowlight'
 const lowlight = createLowlight(all)
+
+import { TailwindClasses } from '../Markdown'
 
 import suggest from './suggest'
 import emojiSuggest from './suggest/emojiSuggest'
@@ -29,11 +30,10 @@ export const ChatEditor = ({
   handlers?: any
   editorRef?: any
 }) => {
-
   const editor = useEditor({
     editorProps: {
       attributes: {
-        class: 'prose-invert prose-sm flex-grow flex flex-col h-full min-w-full min-h-48',
+        class: cn( "flex-grow flex flex-col h-full min-w-full min-h-48", ...TailwindClasses),
       },
     },
     
@@ -127,44 +127,9 @@ export const ChatEditor = ({
             }
             return results
           },
-        // },{
-        //   // emojis
-        //   char: ':',
-        //   ...suggest.mentioner,
-        //   items: ({ editor, query }) => {
-        //     if (!editor?.storage?.emoji?.emojis) {
-        //       return ["no emojis... :["]
-        //     }
-        //     // console.log("emoji query:", editor?.storage, editor?.storage?.emoji, editor?.storage?.emoji?.emojis)
-
-        //     const matched = editor.storage.emoji.emojis
-        //       .filter(({ shortcodes, tags }) => {
-        //         return (
-        //           shortcodes.find(shortcode => shortcode.startsWith(query.toLowerCase())) ||
-        //           tags.find(tag => tag.startsWith(query.toLowerCase()))
-        //         )
-        //       })
-        //       .slice(0, 5)
-            
-        //     console.log("matched emoji:", matched)
-        //     return [query]
-        //   },
         }]
       })
     ], // define your extension array
-//     content: `
-//         <p><span data-type="mention" data-id="veggie">@veggie</span> Can you help me with the error in <span data-type="mention" data-id="term-1" data-mention-suggestion-char="#">#term-1</span>?
-//         <p>Use: <span data-type="mention" data-id="golang" data-mention-suggestion-char=">">&gt;golang</span> and <span data-type="mention" data-id="example.go" data-mention-suggestion-char="#">#example.go</span></p>
-//         <h2>fix this... <b>now!</b></h2>
-//         <pre><code class="language-go">package main
-
-// func main() {
-//     fmt.Println("hallo world!")
-// }</code></pre>
-//         <p>– Thanks, your human friend!</p>
-//         <p><span data-type="mention" data-id="code_assist">@code_assist</span> double check this fool
-//       `,
-
   })
 
   // Memoize the provider value to avoid unnecessary re-renders

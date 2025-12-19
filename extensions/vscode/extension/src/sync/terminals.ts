@@ -194,6 +194,7 @@ export function activate(context: vscode.ExtensionContext) {
 				// process inputs
 				const { sid, pos, image } = e.payload
 
+
 				const S = sessions.filter((s) => s.sid === sid)[0]
 				if (!S) {
 					console.error("unknown session", sid)
@@ -201,13 +202,18 @@ export function activate(context: vscode.ExtensionContext) {
 
 				const name = S.state?.title || sid
 				// todo, go to position in events to get dagger ref
-				const dagRef = S.state?.dagger
-				if (!dagRef) {
-					console.error("no dagger is session state", S)
-				}
-				const workdir = S.state?.basedir || S.state?.env?.workdir || "/"
+				const workdir = S.state?.basedir || S.state?.env?.workdir
 
-				const img = image || "qmcgaw/godevcontainer:debian"
+				const img = image || S.state?.currEnv || "debian:13-slim"
+
+				// run dagger via hof for arg handling
+				let env = `_EXPERIMENTAL_DAGGER_RUNNER_HOST=container://veg-dagger-engine`
+
+				let cmd = `${env} dagger -i core container from --address "${img}"`
+				if (workdir) {
+					cmd += ` with-workdir --path "${workdir}"`
+				}
+				cmd += ` terminal --cmd bash`
 
 				// Create and show the terminal
 				const terminal = vscode.window.createTerminal({ 
@@ -216,8 +222,7 @@ export function activate(context: vscode.ExtensionContext) {
 				});
 				terminal.show();
 
-				// run dagger via hof for arg handling
-				terminal.sendText(`dagger run hof daggeroo "${dagRef}" --workdir ${workdir} --image ${img}`, true);
+				terminal.sendText(cmd, true);
 
 				break;
 		}

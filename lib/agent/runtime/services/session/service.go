@@ -23,7 +23,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/kr/pretty"
 	"gorm.io/gorm"
 
 	"google.golang.org/adk/session"
@@ -477,7 +476,7 @@ func (s *databaseService) applyEvent(ctx context.Context, session *localSession,
 			// maps.Copy(storageSess.State, sessionDelta)
 			// The session state update will be saved along with the event timestamp update.
 		}
-		fmt.Printf("Session After: %#+v\n", pretty.Formatter(storageSess.State))
+		// fmt.Printf("Session After: %#+v\n", pretty.Formatter(storageSess.State))
 
 		// Create the new event record in the database.
 		storageEv, err := createStorageEvent(session, event)

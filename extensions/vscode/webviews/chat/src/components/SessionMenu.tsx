@@ -55,13 +55,13 @@ export const Menu = ({
           aria-label="terminal"
           onClick={(e) => {
             console.log("Terminal session:", session)
-            // vscodeApi.postMessage({
-            //   type: "session.term.open",
-            //   payload: {
-            //     sid,
-            //     pos,
-            //   }
-            // })
+            vscodeApi.postMessage({
+              type: "session.term.open",
+              payload: {
+                sid,
+                pos: effectivePos,
+              }
+            })
           }}
         />
       </div>

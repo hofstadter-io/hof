@@ -7,10 +7,10 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 
-import { Markdown } from '@/components/Markdown'
+import { Markdown, TailwindClasses } from '@/components/Markdown'
 import { EventDetails } from "@/components/Events/Details";
 import { FuncCall } from "./ToolCall";
-import { ArrowRight, MoveRight } from "lucide-react";
+import { MoveRight } from "lucide-react";
 
 
 export const UnknownEvent = ({
@@ -134,7 +134,12 @@ const MessagePart = ({ pos, part, evt }:{ pos: number, part: any, evt: any }) =>
 const TextPart = ({ part, evt }:{ part: any, evt: any }) => {
   // TODO, add copy button, size limiter (3 options)
   return (
-    <div className="pl-2 py-1 mr-8 flex flex-col dark:prose-invert prose-sm prose-stone">
+    <div 
+      className={cn(
+        "pl-2 py-1 mr-8 flex flex-col",
+        ...TailwindClasses,
+      )}
+    >
       <Markdown>{part.text}</Markdown>
     </div>
   )

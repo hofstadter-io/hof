@@ -24,6 +24,21 @@ export const Markdown = ({children}:{children: any}) => {
   )
 }
 
+export const TailwindClasses: string[] = [
+  "prose-sm font-thin",
+
+  "prose-h1:my-[.5em]",
+  "prose-h2:my-[.5em]",
+  "prose-h3:my-[.5em]",
+
+  "prose-p:my-[.5em]",
+  "prose-hr:my-[1em]",
+
+  "prose-ol:list-decimal",
+  "prose-ul:list-disc",
+  "prose-li:mt-0",
+]
+
 const components = {
   code(props: any) {
     const [show, setShow] = useState(true)
