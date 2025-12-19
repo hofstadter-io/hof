@@ -11,6 +11,9 @@ engines: {
 categories: [
   "Other"
 ],
+enabledApiProposals: [
+    "scmMultiDiffEditor"
+],
 activationEvents: [
   "onStartupFinished"
 ],
@@ -58,6 +61,8 @@ contributes: {
 
   commands: [
     { command: "veg.connect", category: "Veg Connect", title: "Veg Connect" },
+
+    { command: "veg.filesys.hack", category: "Veg", title: "Hack Filesys (Veg)", icon: "$(symbol-class)" },
 
     { command: "veg.explorer.copyPath", category: "Veg", title: "Copy Path (Veg)", icon: "$(copy)" },
     { command: "veg.explorer.chat", category: "Veg", title: "Chat (Veg)", icon: "$(comment-discussion)" },
@@ -112,7 +117,10 @@ contributes: {
       { command: "veg.session.openEnviron", group: "inline@2", when: "view == veg-sessions && viewItem == session" },
       { command: "veg.session.fork", group: "inline@3", when: "view == veg-sessions && viewItem == session" },
       { command: "veg.session.delete", group: "inline@4", when: "view == veg-sessions && viewItem == session" },
-    ]
+    ],
+    "scm/resourceGroup/context": [
+      { command: "veg.filesys.hack", group: "navigation", when: "scmProvider == veg" },
+    ],
   },
 
 },

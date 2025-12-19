@@ -5,10 +5,6 @@
 			"path": "."
 		},
 		{
-			"name": "veg-go",
-			"path": "./lib/agent"
-		},
-		{
 			"name": "adk-go",
 			"path": "../../adk/go"
 		},
@@ -17,14 +13,11 @@
 			"path": ".veg"
 		},
 		{
-			"name": "vscode",
+			"name": "extension",
 			"path": "extensions/vscode/extension"
 		},
 		{
-			"name": "webviews",
-			"path": "extensions/vscode/webviews"
-		},
-		{
+			"name": "quickbooks-online-mcp-server",
 			"path": ".tmp/quickbooks-online-mcp-server"
 		}
 	],

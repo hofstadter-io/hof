@@ -136,7 +136,7 @@ func chatUserMessage(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 			})
 			continue
 		}
-		log.Printf("chat.event: %v\n", event)
+		// log.Printf("chat.event: %v\n", event)
 		c.Mail("chat.event", event)
 	}
 

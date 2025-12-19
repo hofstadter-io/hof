@@ -1,3 +1,4 @@
+// @ts-nocheck
 const vscode = require('vscode');
 const { encoding_for_model, get_encoding } = require('tiktoken');
 const { countTokens, getTokenizer } = require('@anthropic-ai/tokenizer');

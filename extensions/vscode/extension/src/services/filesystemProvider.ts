@@ -33,6 +33,9 @@ export async function activate(context: vscode.ExtensionContext) {
 		isCaseSensitive: true,
 		isReadonly: false,
 	})
+	vscode.commands.registerCommand('veg.filesys.hack', async (arg1: any) => {
+		console.log("veg.filesys.hack", arg1)
+	})
 
 	vscode.commands.registerCommand('veg.explorer.chat', async (uri: vscode.Uri) => {
 		console.log("veg.explorer.chat.args", uri)
@@ -50,28 +53,28 @@ export async function activate(context: vscode.ExtensionContext) {
 		}
 		switch (uri.scheme) {
 
-		case "file":
-			msg.payload.environ = {
-				srcUri: uri.toString(),
-			}
-			break
+			case "file":
+				msg.payload.environ = {
+					srcUri: uri.toString(),
+				}
+				break
 
-		case "veg":
-			// todo, see if there is a session query param (sid)
-			msg.payload.environ = {
-				fromUri: uri.toString(),
-			}
-			break
+			case "veg":
+				// todo, see if there is a session query param (sid)
+				msg.payload.environ = {
+					fromUri: uri.toString(),
+				}
+				break
 
-		default:
-			vscode.window.showErrorMessage(`unsupported chat uri: ${uri}`)
-			return
+			default:
+				vscode.window.showErrorMessage(`unsupported chat uri: ${uri}`)
+				return
 		}
 
 		console.log("veg.explorer.chat.msg", msg)
 		sendMessage(msg)
 
-  })
+	})
 
 	vscode.commands.registerCommand('veg.explorer.openEnviron', async (args: any) => {
 		console.log("veg.explorer.openEnviron.args", args)
@@ -82,48 +85,48 @@ export async function activate(context: vscode.ExtensionContext) {
 		})
 
 		vcp.open(value as string)
-  })
+	})
 
 	vscode.commands.registerCommand('veg.explorer.openSession', async (session: any) => {
 		console.log("veg.explorer.openEnviron.session", session)
 
 		// vcp.open(value as string)
-  })
+	})
 
 	vscode.commands.registerCommand('veg.explorer.forkEnviron', async (args: any) => {
 		console.log("veg.explorer.forkEnviron.args", args)
-  })
+	})
 
 	vscode.commands.registerCommand('veg.explorer.toggleShown', async (args: any) => {
 		console.log("veg.explorer.toggleShown.args", args)
-    vcp.toggleShown()
+		vcp.toggleShown()
 		vscode.commands.executeCommand('workbench.files.action.refreshFilesExplorer')
-  })
+	})
 
 	vscode.commands.registerCommand('veg.explorer.showDiff', async (uri: vscode.Uri) => {
-		console.log("veg.explorer.showDiff.args", uri)
+		console.log("veg.explorer.showDiff.args.CMD.uri", uri)
 		vcp.showDiff(uri)
-  })
+	})
 
 	vscode.commands.registerCommand('veg.explorer.mergeDiff', async (uri: vscode.Uri) => {
 		console.log("veg.explorer.mergeDiff.args", uri)
 		vcp.mergeDiff(uri, undefined, true)
-  })
+	})
 
 	vscode.commands.registerCommand('veg.explorer.copyPath', async (uri: vscode.Uri) => {
 		console.log("veg.explorer.copyPath.uri", uri.toString())
 		await vscode.env.clipboard.writeText(uri.toString())
-  })
+	})
 
 	vscode.commands.registerCommand('veg.explorer.refreshAll', async (args: any) => {
 		console.log("veg.explorer.refreshAll.args", args)
 		vcp.refreshAll()
 		vscode.commands.executeCommand('workbench.files.action.refreshFilesExplorer')
-  })
+	})
 
 
 	extensionEmitter.event(async (e) => {
-    // ...
+		// ...
 		switch (e.type) {
 
 			case "session.list.resp":
@@ -132,13 +135,13 @@ export async function activate(context: vscode.ExtensionContext) {
 
 			case "session.diff":
 				console.log("filesys.session.diff", e.payload)
-				const uriDiff = vscode.Uri.parse("oci://"+e.payload.currEnv)
+				const uriDiff = vscode.Uri.parse("oci://" + e.payload.currEnv)
 				vcp.showDiff(uriDiff)
 				break
 
 			case "session.merge":
 				console.log("filesys.session.merge", e.payload)
-				const uriMerge = vscode.Uri.parse("oci://"+e.payload.currEnv)
+				const uriMerge = vscode.Uri.parse("oci://" + e.payload.currEnv)
 				const dest = e.payload.dest ? vscode.Uri.parse(e.payload.dest) : undefined
 				vcp.mergeDiff(uriMerge, dest, e.payload.forceInput)
 				break
@@ -173,7 +176,7 @@ export async function activate(context: vscode.ExtensionContext) {
 }
 
 // This method is called when your extension is deactivated
-export async function deactivate() {}
+export async function deactivate() { }
 
 // https://github.com/microsoft/vscode-extension-samples/blob/main/fsprovider-sample/src/fileSystemProvider.ts
 
@@ -182,7 +185,7 @@ export async function deactivate() {}
 // todo, we need to persist this somewhere, the database or on the filesystem?
 class VegContentProvider implements vscode.FileSystemProvider {
 
-	private _environs: Record<string,any> = {}
+	private _environs: Record<string, any> = {}
 	private _sessions: any[] = []
 
 	setSessions(sessions: any[]) {
@@ -230,11 +233,11 @@ class VegContentProvider implements vscode.FileSystemProvider {
 	}
 
 	// we track a show (only) diff or everything
-  private _onlyDiff: boolean = true
-  toggleShown() {
-    this._onlyDiff = !this._onlyDiff
+	private _onlyDiff: boolean = true
+	toggleShown() {
+		this._onlyDiff = !this._onlyDiff
 		console.log("VEG.dagger.fs.toggleShown", this._onlyDiff)
-  }
+	}
 
 
 	private _emitter = new vscode.EventEmitter<vscode.FileChangeEvent[]>();
@@ -272,7 +275,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 			const r = vscode.Uri.from(vUri)
 			// console.log("convert.return", r)
 			return r
-		} catch(e: any) {
+		} catch (e: any) {
 			console.error("catch!", e)
 			throw e;
 		}
@@ -290,7 +293,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 				uri: `${ruri.scheme}://${ruri.authority}${ruri.path}?${ruri.query}`,
 				diff: this._onlyDiff,
 			}
-			if (!!diffUri) { 
+			if (!!diffUri) {
 				const duri = this.vsUriToVeg(diffUri)
 				req.diffUri = `${duri.scheme}://${duri.authority}${duri.path}?${duri.query}`;
 			}
@@ -523,8 +526,8 @@ class VegContentProvider implements vscode.FileSystemProvider {
 		return f()
 	}
 
-	writeFile(uri: vscode.Uri, content: Uint8Array, options: {create: boolean, overwrite: boolean}): void | Thenable<void> {
-	}	
+	writeFile(uri: vscode.Uri, content: Uint8Array, options: { create: boolean, overwrite: boolean }): void | Thenable<void> {
+	}
 
 
 	createDirectory(uri: vscode.Uri): void | Thenable<void> {
@@ -543,17 +546,20 @@ class VegContentProvider implements vscode.FileSystemProvider {
 
 	}
 
-	watch(uri: vscode.Uri, options: {excludes: readonly string[], recursive: boolean}): vscode.Disposable {
+	watch(uri: vscode.Uri, options: { excludes: readonly string[], recursive: boolean }): vscode.Disposable {
 		const handler = () => {
-      // DO NOT IMPLEMENT YET
+			// DO NOT IMPLEMENT YET
 		}
 		return new vscode.Disposable(handler)
 	}
 
+	private _scm: vscode.SourceControl | undefined
+
 	// todo, we probably need a diffUri here
 	showDiff(source: vscode.Uri, destination?: vscode.Uri): void | Thenable<void> {
+		console.log("GOT HERE")
 		const f = async () => {
-			console.log("filesys.showDiff.args", source, destination)
+			console.log("filesys.showDiff.ARGS", source, destination)
 			const resp = await this.makeReq("/fs/diff", source)
 			if (resp.status !== 200) {
 				// console.error("filesys.showDiff.makeReq error:", resp)
@@ -564,21 +570,97 @@ class VegContentProvider implements vscode.FileSystemProvider {
 			const diff: any = await resp.json()
 			console.log("filesys.showDiff.diff", diff)
 
+			// extract envId
+			let envId = "?"
+			let envVer = "?"
+			if (source.scheme === 'veg') {
+				let p = source.path
+				if (p.startsWith("/")) {
+					p = p.slice(1)
+				}
+				p = p.split("/")[0]
+				const ps = p.split(":")
+				envId = ps[0]
+				envVer = ps[1]
+			} else if (source.scheme === 'oci') {
+				const p = source.path.split("/")[1]
+				const ps = p.split(":")
+				envId = ps[0]
+				envVer = ps[1]
+			}
+
+			const session = this._sessions.find(s => {
+				const sEnv = s.state?.currEnv
+				if (!sEnv) { return false }
+				const sEnvId = sEnv.split("/")[1].split(":")[0]
+				return sEnvId === envId
+			})
+
+			var title = session?.state?.title || session?.sid || source.path
+			title += ` (v${envVer} @ ${envId})`
+
 			// get vscode uris for the environ basepath
 			const prevUri = vscode.Uri.from({ ...vscode.Uri.parse(diff.prev), scheme: "veg" })
 			const nextUri = vscode.Uri.from({ ...vscode.Uri.parse(diff.next), scheme: "veg" })
+
+			if (!this._scm) {
+				this._scm = vscode.scm.createSourceControl('veg', "Veggie")
+				this._scm.inputBox.visible = false
+				console.log("creating SCM", this._scm)
+			}
+
+			// const id = session?.state?.currEnv || session?.sid || source.path
+			// Reuse existing group if available to prevent duplicates
+			// let group = this._scm.resourceGroups.find(g => g.id === id)
+			// if (!group) {
+			// 	group = this._scm.createResourceGroup(id, title)
+			// } else {
+			// 	// update title
+			// 	group.label = title
+			// }
+
+			const id = session?.state?.currEnv || session?.sid || source.path
+			console.log("SCM id", id)
+			// Reuse existing group if available to prevent duplicates
+			// @ts-ignore
+			let group = this._scm.resourceGroups.find(g => g.id === id)
+			console.log("SCM group", group?.title)
+			if (!group) {
+				group = this._scm.createResourceGroup(id, title)
+			} else {
+				// update title
+				group.label = title
+			}
+			
+			// Cleanup other groups (Focus Mode)
+			// Dispose groups that are not the current one
+			// const others = this._scm.resourceGroups.filter(g => g.id !== id)
+			// others.forEach(g => g.dispose())
+
+			// @ts-ignore
+			this._scm.resourceGroups = [group]
+
+			const resources: vscode.SourceControlResourceState[] = []
 
 			// show diff
 			for (var p of diff.modPaths) {
 				const pfUri = vscode.Uri.from({ ...prevUri, path: prevUri.path + p })
 				const nfUri = vscode.Uri.from({ ...nextUri, path: nextUri.path + p })
-				console.log("diff", pfUri, nfUri)
-				vscode.commands.executeCommand('vscode.diff', pfUri, nfUri, `veg-diff: ${p}`, {
-					preserveFocus: false,
-					preview: false,
-					viewColumn: 1,
+				// console.log("diff", pfUri, nfUri)
+				resources.push({
+					resourceUri: nfUri,
+					decorations: {
+						tooltip: `Modified: ${p}`,
+					},
+					command: {
+						command: 'vscode.diff',
+						title: 'Show Diff',
+						arguments: [pfUri, nfUri, `veg-diff: ${p}`]
+					}
 				})
 			}
+			group.resourceStates = resources
+			vscode.commands.executeCommand('workbench.view.scm')
 
 			// // console.log("veg.diff", fileUri, vegUri)
 
@@ -651,7 +733,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 			if (dest.scheme === 'file') {
 				for (var path of diff.addPaths) {
 					// skip ugh...
-					if ((path.startsWith("/") && path.endsWith("/")) || path === "/stdout.txt" || path === "/stderr.txt" ) {
+					if ((path.startsWith("/") && path.endsWith("/")) || path === "/stdout.txt" || path === "/stderr.txt") {
 						continue
 					}
 					const val = diff.files[path]
@@ -661,7 +743,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 
 				for (var path of diff.modPaths) {
 					// skip ugh...
-					if ((path.startsWith("/") && path.endsWith("/")) || path === "/stdout.txt" || path === "/stderr.txt" ) {
+					if ((path.startsWith("/") && path.endsWith("/")) || path === "/stdout.txt" || path === "/stderr.txt") {
 						continue
 					}
 					const val = diff.files[path]
@@ -671,7 +753,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 
 				for (var path of diff.delPaths) {
 					// skip ugh...
-					if ((path.startsWith("/") && path.endsWith("/")) || path === "/stdout.txt" || path === "/stderr.txt" ) {
+					if ((path.startsWith("/") && path.endsWith("/")) || path === "/stdout.txt" || path === "/stderr.txt") {
 						continue
 					}
 					const key = dest.path + path
