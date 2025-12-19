@@ -10,7 +10,7 @@ export function ScrollTo({
   const { scrollToBottom } = useStickToBottomContext();
   function scrollToTop() {
     // @ts-ignore
-    target?.current?.scrollIntoView({
+    topTarget?.current?.scrollIntoView({
       behavior: "smooth"
     });
   }
