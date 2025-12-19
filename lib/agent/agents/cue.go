@@ -371,7 +371,7 @@ func addCallbacks(config Config, agt Agent, c *llmagent.Config) {
 
 	c.AfterToolCallbacks = []llmagent.AfterToolCallback{
 		func(ctx tool.Context, t tool.Tool, args, result map[string]any, err error) (map[string]any, error) {
-			fmt.Printf("\nATC.%s.%s %v %v %v %v\n", ctx.AgentName(), t.Name(), args, result, ctx.Actions().StateDelta, err)
+			fmt.Printf("\nATC.%s.%s %v %v %v\n", ctx.AgentName(), t.Name(), args, result, err)
 			return result, err
 		},
 	}

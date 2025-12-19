@@ -71,7 +71,8 @@ contributes: {
     { command: "veg.explorer.toggleShown", category: "Veg", title: "Toggle Diff View (Veg)", icon: "$(filter)" },
     { command: "veg.explorer.showDiff", category: "Veg", title: "Show Diff (Veg)", icon: "$(diff-multiple)" },
     { command: "veg.explorer.showFileDiff", category: "Veg", title: "Show File Diff (Veg)", icon: "$(diff)" },
-    { command: "veg.explorer.mergeDiff", category: "Veg", title: "Merge Diff (Veg)", icon: "$(gist-merge)" },
+    { command: "veg.explorer.mergeDiff", category: "Veg", title: "Merge Diff (Veg)", icon: "$(git-pull-request-create)" },
+    { command: "veg.explorer.hideDiff", category: "Veg", title: "HideDiff Diff (Veg)", icon: "$(eye-closed)" },
     { command: "veg.explorer.refreshAll", category: "Veg", title: "Refresh (Veg)", icon: "$(clear-all)" },
 
     { command: "veg.session.openEnviron", category: "Veg", title: "Show Session Files (Veg)", icon: "$(list-tree)" },
@@ -119,7 +120,9 @@ contributes: {
       { command: "veg.session.delete", group: "inline@4", when: "view == veg-sessions && viewItem == session" },
     ],
     "scm/resourceGroup/context": [
-      { command: "veg.filesys.hack", group: "navigation", when: "scmProvider == veg" },
+      { command: "veg.explorer.mergeDiff", group: "inline@1", when: "scmProvider == veg" },
+      { command: "veg.explorer.hideDiff", group: "inline@2", when: "scmProvider == veg" },
+      { command: "veg.filesys.hack", group: "inline@3", when: "scmProvider == veg" },
     ],
   },
 

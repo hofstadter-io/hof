@@ -158,7 +158,13 @@
                 "command": "veg.explorer.mergeDiff",
                 "category": "Veg",
                 "title": "Merge Diff (Veg)",
-                "icon": "$(gist-merge)"
+                "icon": "$(git-pull-request-create)"
+            },
+            {
+                "command": "veg.explorer.hideDiff",
+                "category": "Veg",
+                "title": "HideDiff Diff (Veg)",
+                "icon": "$(eye-closed)"
             },
             {
                 "command": "veg.explorer.refreshAll",
@@ -327,8 +333,18 @@
             ],
             "scm/resourceGroup/context": [
                 {
+                    "command": "veg.explorer.mergeDiff",
+                    "group": "inline@1",
+                    "when": "scmProvider == veg"
+                },
+                {
+                    "command": "veg.explorer.hideDiff",
+                    "group": "inline@2",
+                    "when": "scmProvider == veg"
+                },
+                {
                     "command": "veg.filesys.hack",
-                    "group": "navigation",
+                    "group": "inline@3",
                     "when": "scmProvider == veg"
                 }
             ]
