@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils"
 
 import { Header } from "../Header"
 import { ChatEditor } from './editor'
-import { AtSign, AudioLines, Bot, BotMessageSquare, Boxes, DollarSign, Drama, FileCode, Forward, Hash, ScrollText, Send, TerminalSquare } from 'lucide-react'
+import { AtSign, AudioLines, Bot, BotMessageSquare, Boxes, DollarSign, Drama, FileCode, Forward, Hash, Megaphone, ScrollText, Send, TerminalSquare } from 'lucide-react'
 import { useChat } from '@/hooks/useChat'
 import { ToolTipper } from 'veg-webview-common'
 
@@ -31,6 +31,7 @@ export const UserInput = () => {
 
   const cacheKeys = Object.keys(session?.state || {}).filter(k => k.startsWith("cache:"));
   const fileKeys = Object.keys(session?.state || {}).filter(k => k.startsWith("files:"));
+  const agentmdKeys = Object.keys(session?.state || {}).filter(k => k.startsWith("agentmd:"));
 
   const [userInput, setUserInput] = useState<any>({ 
     agent: chatState?.agent || "veggie",
@@ -264,7 +265,7 @@ export const UserInput = () => {
       {/* for plan or other things?*/}
       <div className="flex gap-1 items-center">
         {cacheKeys.length > 0 && (
-          <ToolTipper label={cacheKeys.map(k => k.split(':').pop()).join('\n')}>
+          <ToolTipper label={cacheKeys.map(k => k.split(':').slice(2).join(':')).join('\n')}>
             <Badge className="text-fuchsia-200/80 bg-fuchsia-600/50 flex gap-1 items-center px-2">
               <ScrollText size={12}/>
               <span>{cacheKeys.length}</span>
@@ -272,10 +273,18 @@ export const UserInput = () => {
           </ToolTipper>
         )}
         {fileKeys.length > 0 && (
-          <ToolTipper label={fileKeys.map(k => k.split(':').pop()).join('\n')}>
+          <ToolTipper label={fileKeys.map(k => k.split(':').slice(2).join(':')).join('\n')}>
             <Badge className="text-violet-300 bg-violet-600/50 flex gap-1 items-center px-2">
               <FileCode size={12}/>
               <span>{fileKeys.length}</span>
+            </Badge>
+          </ToolTipper>
+        )}
+        {agentmdKeys.length > 0 && (
+          <ToolTipper label={agentmdKeys.map(k => k.split(':').slice(2).join(':')).join('\n')}>
+            <Badge className="text-amber-200 bg-amber-600/50 flex gap-1 items-center px-2">
+              <Megaphone size={12}/>
+              <span>{agentmdKeys.length}</span>
             </Badge>
           </ToolTipper>
         )}

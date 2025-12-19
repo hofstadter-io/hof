@@ -8,6 +8,7 @@ import (
 	"path"
 	"path/filepath"
 	"slices"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -340,6 +341,22 @@ func addCallbacks(config Config, agt Agent, c *llmagent.Config) {
 		func(ctx agent.CallbackContext, req *model.LLMRequest) (*model.LLMResponse, error) {
 			fmt.Printf("\nBMC.%s\n", ctx.AgentName())
 
+			// update prompt files in state
+			data, _ := prepareData(config, agt)(ctx)
+			pfs := getPromptFiles(agt, data)
+
+			// clear old prompt keys
+			for k := range maps.Collect(ctx.State().All()) {
+				if strings.HasPrefix(k, "agentmd:"+ctx.AgentName()+":") {
+					ctx.State().Set(k, nil)
+				}
+			}
+
+			// set new ones
+			for _, pf := range pfs {
+				ctx.State().Set("agentmd:"+ctx.AgentName()+":"+pf, "included")
+			}
+
 			// print system prompt before sending to LLM
 
 			// hmmm, little utils like this could get spread throughout the code
@@ -360,7 +377,7 @@ func addCallbacks(config Config, agt Agent, c *llmagent.Config) {
 
 	c.BeforeToolCallbacks = []llmagent.BeforeToolCallback{
 		func(ctx tool.Context, t tool.Tool, args map[string]any) (map[string]any, error) {
-			fmt.Printf("\nBTC.%s.%s %v\n", ctx.AgentName(), t.Name(), args)
+			fmt.Printf("\nBTC.%s.%s\n", ctx.AgentName(), t.Name())
 			return nil, nil
 		},
 	}
@@ -371,14 +388,14 @@ func addCallbacks(config Config, agt Agent, c *llmagent.Config) {
 
 	c.AfterToolCallbacks = []llmagent.AfterToolCallback{
 		func(ctx tool.Context, t tool.Tool, args, result map[string]any, err error) (map[string]any, error) {
-			fmt.Printf("\nATC.%s.%s %v %v %v\n", ctx.AgentName(), t.Name(), args, result, err)
+			fmt.Printf("\nATC.%s.%s %v\n", ctx.AgentName(), t.Name(), err)
 			return result, err
 		},
 	}
 
 	c.AfterModelCallbacks = []llmagent.AfterModelCallback{
 		func(ctx agent.CallbackContext, res *model.LLMResponse, err error) (*model.LLMResponse, error) {
-			fmt.Printf("\nAMC.%s %v\n%#+v\n", ctx.AgentName(), err, res)
+			fmt.Printf("\nAMC.%s %v\n", ctx.AgentName(), err)
 			return res, err
 		},
 	}
@@ -460,6 +477,10 @@ func renderInstructions(cfg Config, agt Agent) llmagent.InstructionProvider {
 			return "", err
 		}
 
+		// calculate prompt files for visibility
+		promptFiles := getPromptFiles(agt, data)
+		data["promptFiles"] = promptFiles
+
 		// render instruction (first time) to get length
 		b, err := t.Render(data)
 		if err != nil {
@@ -484,6 +505,11 @@ func renderInstructions(cfg Config, agt Agent) llmagent.InstructionProvider {
 
 		return s, nil
 	}
+}
+
+type KVPair struct {
+	Key   string `json:"key"`
+	Value any    `json:"value"`
 }
 
 func prepareData(cfg Config, agt Agent) func(ctx agent.ReadonlyContext) (map[string]any, error) {
@@ -525,11 +551,29 @@ func prepareData(cfg Config, agt Agent) func(ctx agent.ReadonlyContext) (map[str
 
 		}
 
-		data["files"] = files
-		data["cache"] = cache
+		// Sort files by path
+		filesSorted := make([]KVPair, 0, len(files))
+		for k, v := range files {
+			filesSorted = append(filesSorted, KVPair{Key: k, Value: v})
+		}
+		sort.Slice(filesSorted, func(i, j int) bool {
+			return filesSorted[i].Key < filesSorted[j].Key
+		})
+		data["files"] = filesSorted
+
+		// Sort cache by key
+		cacheSorted := make([]KVPair, 0, len(cache))
+		for k, v := range cache {
+			cacheSorted = append(cacheSorted, KVPair{Key: k, Value: v})
+		}
+		sort.Slice(cacheSorted, func(i, j int) bool {
+			return cacheSorted[i].Key < cacheSorted[j].Key
+		})
+		data["cache"] = cacheSorted
 
 		agtmd := make(map[string]string)
-		for fpath, _ := range files {
+		for _, f := range filesSorted {
+			fpath := f.Key
 			for agtPath, agtContent := range agt.AgentsMD {
 				// check if it is already included
 				_, ok := agtmd[agtPath]
@@ -551,7 +595,26 @@ func prepareData(cfg Config, agt Agent) func(ctx agent.ReadonlyContext) (map[str
 		}
 
 		// fmt.Println("USING INSTRUCTION FILES:", slices.Collect(maps.Keys(agtmd)))
-		data["agentsMd"] = agtmd
+
+		agtmdSorted := make([]AgentMD, 0, len(agtmd))
+		for p, c := range agtmd {
+			agtmdSorted = append(agtmdSorted, AgentMD{Path: p, Content: c})
+		}
+		sort.Slice(agtmdSorted, func(i, j int) bool {
+			p1 := agtmdSorted[i].Path
+			p2 := agtmdSorted[j].Path
+
+			parts1 := strings.Split(p1, "/")
+			parts2 := strings.Split(p2, "/")
+
+			if len(parts1) != len(parts2) {
+				return len(parts1) < len(parts2)
+			}
+
+			return p1 < p2
+		})
+
+		data["agentsMd"] = agtmdSorted
 
 		stateKeys := slices.Collect(maps.Keys(state))
 		cacheKeys := slices.Collect(maps.Keys(cache))
@@ -589,4 +652,25 @@ func prepareData(cfg Config, agt Agent) func(ctx agent.ReadonlyContext) (map[str
 
 		return data, nil
 	}
+}
+
+func getPromptFiles(agt Agent, data map[string]any) []string {
+	var pfs []string
+
+	// // files from state
+	// if files, ok := data["files"].([]KVPair); ok {
+	// 	for _, f := range files {
+	// 		pfs = append(pfs, f.Key)
+	// 	}
+	// }
+
+	// matched agentsMd
+	if agtmd, ok := data["agentsMd"].([]AgentMD); ok {
+		for _, am := range agtmd {
+			pfs = append(pfs, am.Path)
+		}
+	}
+
+	sort.Strings(pfs)
+	return pfs
 }

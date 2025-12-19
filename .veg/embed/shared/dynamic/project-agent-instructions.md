@@ -2,9 +2,9 @@ These are extra instruction files associated with the project and files you have
 IMPORTANT: these are highly relevant by nature of contextual relevance and curated authorship.
 
 <extra-instructions>
-{{ range $path,$content := .agentsMd }}
-<file path="{{$path}}">
-{{$content}}
+{{ range .agentsMd }}
+<file path="{{.Path}}">
+{{.Content}}
 </file>
 {{ end}}
 </extra-instructions>
