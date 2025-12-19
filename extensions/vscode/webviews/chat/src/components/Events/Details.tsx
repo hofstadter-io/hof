@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { JsonObject, ToolTipper } from "veg-webview-common";
+import { JsonObject } from "veg-webview-common";
 import { Menu } from '@/components/SessionMenu'
 import { UsageInfo, TimeInfo } from '@/components/Info'
 import CopyClipboardButton from '@/components/CopyClipboardButton'

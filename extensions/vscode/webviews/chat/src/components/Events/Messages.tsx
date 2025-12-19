@@ -9,6 +9,7 @@ import {
 
 import { Markdown, TailwindClasses } from '@/components/Markdown'
 import { EventDetails } from "@/components/Events/Details";
+import { LightDetails } from "@/components/Events/LightDetails";
 import { FuncCall } from "./ToolCall";
 import { MoveRight } from "lucide-react";
 
@@ -40,6 +41,7 @@ export const UnknownEvent = ({
             <AccordionItem value="details">
               <AccordionTrigger className="h-3"></AccordionTrigger>
               <AccordionContent>
+                <LightDetails evt={evt} />
                 <EventDetails pos={pos} evt={evt}/>
               </AccordionContent>
             </AccordionItem>
@@ -84,6 +86,7 @@ export const UserMessage = ({pos, evt}:{pos: number, evt: any}) => {
             <AccordionItem value="details">
               <AccordionTrigger className="h-3"></AccordionTrigger>
               <AccordionContent>
+                <LightDetails evt={evt} />
                 <EventDetails pos={pos} evt={evt} />
               </AccordionContent>
             </AccordionItem>
@@ -112,6 +115,7 @@ export const ModelMessage = ({pos, evt}:{pos: number, evt: any}) => {
             <AccordionItem value="details">
               <AccordionTrigger className="h-4"></AccordionTrigger>
               <AccordionContent>
+                <LightDetails evt={evt} />
                 <EventDetails pos={pos} evt={evt} />
               </AccordionContent>
             </AccordionItem>

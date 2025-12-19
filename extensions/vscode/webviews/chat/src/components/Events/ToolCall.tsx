@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { BrainCircuit, CheckCircle, Shell, Siren } from "lucide-react";
 
-export const FuncCall = ({ part }:{ part: any, evt: any }) => {
+export const FuncCall = ({ part, evt }:{ part: any, evt: any }) => {
   const fn = part.functionCall?.name as string
   const args = part.functionCall?.args
   const fnArgs = f2NameArgs[fn]
@@ -24,6 +24,7 @@ export const FuncCall = ({ part }:{ part: any, evt: any }) => {
         { resp?.status === "ok" && <CheckCircle size={12} className="text-lime-500" />}
         { resp?.status === "error" && <Siren size={12} className="text-red-500" />}
       </div>
+      
       { isPlanning && (
         <pre className="m-2 p-2 border border-violet-500">
           {args.value}
