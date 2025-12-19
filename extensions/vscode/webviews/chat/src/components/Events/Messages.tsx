@@ -66,7 +66,7 @@ export const UserMessage = ({pos, evt}:{pos: number, evt: any}) => {
           { evt?.Content?.parts && evt.Content.parts.map((p: any) => <MessagePart pos={pos} part={p} evt={evt}/>) }
           { hasStateDelta && Object.entries(evt.Actions.StateDelta).map(([key, val]) => {
               return (
-                <div className="flex gap-1 items-center px-2 border-l-3 border-red-500">
+                <div className="flex gap-1 items-center px-2 border-l-3 border-amber-500/80">
                   <span className="font-bold">
                     ${key}
                   </span>

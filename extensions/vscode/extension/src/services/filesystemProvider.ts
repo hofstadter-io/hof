@@ -107,19 +107,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	vscode.commands.registerCommand('veg.explorer.mergeDiff', async (uri: vscode.Uri) => {
 		console.log("veg.explorer.mergeDiff.args", uri)
-
-		const value = await vscode.window.showInputBox({
-			title: "Merge Diff",
-			prompt: "Pick a directory or Veg environ to merge into",
-			placeHolder: "/path/on/disk/... | veg://...",
-		})
-		if (!value) {
-			return
-		}
-		const parsed = vscode.Uri.parse(value as string)
-		console.log("veg.explorer.mergeDiff.value", parsed)
-
-		vcp.mergeDiff(uri, parsed)
+		vcp.mergeDiff(uri, undefined, true)
   })
 
 	vscode.commands.registerCommand('veg.explorer.copyPath', async (uri: vscode.Uri) => {
@@ -144,8 +132,15 @@ export async function activate(context: vscode.ExtensionContext) {
 
 			case "session.diff":
 				console.log("filesys.session.diff", e.payload)
-				const uri = vscode.Uri.parse("oci://"+e.payload.currEnv)
-				vcp.showDiff(uri)
+				const uriDiff = vscode.Uri.parse("oci://"+e.payload.currEnv)
+				vcp.showDiff(uriDiff)
+				break
+
+			case "session.merge":
+				console.log("filesys.session.merge", e.payload)
+				const uriMerge = vscode.Uri.parse("oci://"+e.payload.currEnv)
+				vcp.mergeDiff(uriMerge)
+				break
 
 			case "filesys.openEnviron":
 				console.log("filesys.openEnviron.payload", e.payload)
@@ -592,13 +587,55 @@ class VegContentProvider implements vscode.FileSystemProvider {
 	}
 
 	// todo, we probably need a diffUri here
-	mergeDiff(source: vscode.Uri, destination: vscode.Uri): void | Thenable<void> {
-		if (destination.scheme !== 'file') {
-			vscode.window.showErrorMessage(`unsupported target, only file://: ${destination}`)
-		}
-
+	mergeDiff(source: vscode.Uri, destination?: vscode.Uri, forceInput?: boolean): void | Thenable<void> {
 		const f = async () => {
-			console.log("filesys.mergeDiff.args", source, destination)
+			let dest = destination
+			let session: any = undefined
+
+			// extract envId
+			let envId = ""
+			if (source.scheme === 'veg') {
+				let p = source.path
+				if (p.startsWith("/")) {
+					p = p.slice(1)
+				}
+				envId = p.split("/")[0].split(":")[0]
+			} else if (source.scheme === 'oci') {
+				envId = source.path.split("/")[1].split(":")[0]
+			}
+
+			session = this._sessions.find(s => {
+				const sEnv = s.state?.currEnv
+				if (!sEnv) { return false }
+				const sEnvId = sEnv.split("/")[1].split(":")[0]
+				return sEnvId === envId
+			})
+
+			if (!dest && !forceInput) {
+				if (session?.state?.initEnv?.srcUri?.startsWith("file://")) {
+					dest = vscode.Uri.parse(session.state.initEnv.srcUri)
+				}
+			}
+
+			if (!dest || forceInput) {
+				const value = await vscode.window.showInputBox({
+					title: "Merge Diff",
+					prompt: "Pick a directory or Veg environ to merge into",
+					placeHolder: "/path/on/disk/... | veg://...",
+					value: session?.state?.initEnv?.srcUri?.startsWith("file://") ? session.state.initEnv.srcUri : "",
+				})
+				if (!value) {
+					return
+				}
+				dest = vscode.Uri.parse(value as string)
+			}
+
+			if (dest.scheme !== 'file') {
+				vscode.window.showErrorMessage(`unsupported target, only file://: ${dest}`)
+				return
+			}
+
+			console.log("filesys.mergeDiff.args", source, dest)
 			const resp = await this.makeReq("/fs/diff", source)
 			if (resp.status !== 200) {
 				// console.error("filesys.mergeDiff.makeReq error:", resp)
@@ -610,14 +647,14 @@ class VegContentProvider implements vscode.FileSystemProvider {
 			console.log("filesys.mergeDiff.diff", diff)
 
 			// write to disk
-			if (destination.scheme === 'file') {
+			if (dest.scheme === 'file') {
 				for (var path of diff.addPaths) {
 					// skip ugh...
 					if ((path.startsWith("/") && path.endsWith("/")) || path === "/stdout.txt" || path === "/stderr.txt" ) {
 						continue
 					}
 					const val = diff.files[path]
-					const key = destination.path + path
+					const key = dest.path + path
 					await fs.writeFile(key, val)
 				}
 
@@ -627,7 +664,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 						continue
 					}
 					const val = diff.files[path]
-					const key = destination.path + path
+					const key = dest.path + path
 					await fs.writeFile(key, val)
 				}
 
@@ -636,7 +673,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 					if ((path.startsWith("/") && path.endsWith("/")) || path === "/stdout.txt" || path === "/stderr.txt" ) {
 						continue
 					}
-					const key = destination.path + path
+					const key = dest.path + path
 					await fs.rm(key)
 				}
 			}

@@ -3,9 +3,9 @@ import React, { useState, useEffect, type Ref } from "react";
 import { useStickToBottomContext } from 'use-stick-to-bottom';
 
 export function ScrollTo({
-  target,
+  topTarget,
 }:{
-  target: Ref<HTMLDivElement>,
+  topTarget: Ref<HTMLDivElement>,
 }) {
   const { scrollToBottom } = useStickToBottomContext();
   function scrollToTop() {

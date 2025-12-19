@@ -141,11 +141,16 @@ body {
   del {
     @apply text-red-300;
   }
+  a {
+    @apply text-sky-500 hover:text-sky-300 font-normal;
+  }
   p {
     @apply text-stone-200;
   }
-  code :not(:where([class~="not-prose"], [class~="not-prose"] *)) {
-    @apply px-1 bg-lime-800/50 text-lime-500/80;
+  code {
+    :not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+      @apply px-1 bg-lime-800/50 text-lime-500/80;
+    }
   }
   blockquote {
     @apply bg-[#1e1e1e] border-l-2;

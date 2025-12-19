@@ -93,13 +93,14 @@ export const Menu = ({
         aria-label="merge"
         className="hover:text-yellow-500"
         onClick={() => {
-          // vscodeApi.postMessage({
-          //   type: "session.merge",
-          //   payload: {
-          //     sid,
-          //     pos,
-          //   }
-          // })
+          vscodeApi.postMessage({
+            type: "session.merge",
+            payload: {
+              sid,
+              pos: effectivePos,
+              currEnv: session?.state?.currEnv,
+            }
+          })
         }}
       />
       </ToolTipper>

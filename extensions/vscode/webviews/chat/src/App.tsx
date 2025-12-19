@@ -62,10 +62,11 @@ function App() {
 
           </StickToBottom.Content>
 
-          <ScrollTo target={headerRef} />
 
+          {/* this handles both up and down buttons */}
           {/* This component uses `useStickToBottomContext` to scroll to bottom when the user enters a message */}
-          {/* <ChatBox /> */}
+          <ScrollTo topTarget={headerRef} />
+
         </StickToBottom>
 
       </ResizablePanel>
