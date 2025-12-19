@@ -12,8 +12,8 @@ interface ServerMessage {
 }
 
 const defaults = {
-  agent: 'veggie',
-  model: 'gemini-2.5-flash',
+  agent: 'coding_assist',
+  model: 'gemini-3-flash',
 };
 
 function processEvents(session: any) {

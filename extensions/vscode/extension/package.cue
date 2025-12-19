@@ -120,9 +120,9 @@ contributes: {
       { command: "veg.session.delete", group: "inline@4", when: "view == veg-sessions && viewItem == session" },
     ],
     "scm/resourceGroup/context": [
-      { command: "veg.explorer.mergeDiff", group: "inline@1", when: "scmProvider == veg" },
-      { command: "veg.explorer.hideDiff", group: "inline@2", when: "scmProvider == veg" },
-      { command: "veg.filesys.hack", group: "inline@3", when: "scmProvider == veg" },
+      { command: "veg.explorer.showDiff", group: "inline@1", when: "scmProvider == veg" },
+      { command: "veg.explorer.mergeDiff", group: "inline@2", when: "scmProvider == veg" },
+      { command: "veg.explorer.hideDiff", group: "inline@3", when: "scmProvider == veg" },
     ],
   },
 

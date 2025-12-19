@@ -562,37 +562,64 @@ class VegContentProvider implements vscode.FileSystemProvider {
 	private _resourceGroups: Map<string, vscode.SourceControlResourceGroup> = new Map()
 
 	// todo, we probably need a diffUri here
-	showDiff(source: vscode.Uri, destination?: vscode.Uri): void | Thenable<void> {
-		console.log("GOT HERE")
+	showDiff(source: vscode.Uri | vscode.SourceControlResourceGroup, destination?: vscode.Uri): void | Thenable<void> {
 		const f = async () => {
 			console.log("filesys.showDiff.ARGS", source, destination)
-			const resp = await this.makeReq("/fs/diff", source)
+
+			let uri: vscode.Uri
+			let envId = ""
+			
+			// @ts-ignore
+			if (source.id && !source.scheme) {
+				// @ts-ignore
+				const id = source.id
+				uri = vscode.Uri.parse("veg://" + id)
+				// Try exact match first since ID is usually currEnv
+				const session = this._sessions.find(s => s.state?.currEnv === id || s.sid === id)
+				
+				if (!session && id.includes("/")) {
+					// Fallback to extraction if exact match fails
+					envId = id.split("/")[1]?.split(":")[0]
+				}
+			} else {
+				uri = source as vscode.Uri
+				// extract envId
+				if (uri.scheme === 'veg') {
+					let p = uri.path
+					if (p.startsWith("/")) {
+						p = p.slice(1)
+					}
+					envId = p.split("/")[0].split(":")[0]
+				} else if (uri.scheme === 'oci') {
+					envId = uri.path.split("/")[1].split(":")[0]
+				}
+			}
+
+			const resp = await this.makeReq("/fs/diff", uri)
 			if (resp.status !== 200) {
 				// console.error("filesys.showDiff.makeReq error:", resp)
-				throw vscode.FileSystemError.FileNotFound(source)
+				throw vscode.FileSystemError.FileNotFound(uri)
 			}
 			// console.log("filesys.showDiff.resp", uri, resp)
 
 			const diff: any = await resp.json()
 			console.log("filesys.showDiff.diff", diff)
 
-			// extract envId
-			let envId = "?"
-			let envVer = "?"
-			if (source.scheme === 'veg') {
-				let p = source.path
-				if (p.startsWith("/")) {
-					p = p.slice(1)
+			// extract envId if we don't have it yet
+			if (!envId) {
+				if (uri.scheme === 'veg') {
+					let p = uri.path
+					if (p.startsWith("/")) {
+						p = p.slice(1)
+					}
+					p = p.split("/")[0]
+					const ps = p.split(":")
+					envId = ps[0]
+				} else if (uri.scheme === 'oci') {
+					const p = uri.path.split("/")[1]
+					const ps = p.split(":")
+					envId = ps[0]
 				}
-				p = p.split("/")[0]
-				const ps = p.split(":")
-				envId = ps[0]
-				envVer = ps[1]
-			} else if (source.scheme === 'oci') {
-				const p = source.path.split("/")[1]
-				const ps = p.split(":")
-				envId = ps[0]
-				envVer = ps[1]
 			}
 
 			const session = this._sessions.find(s => {
@@ -602,7 +629,23 @@ class VegContentProvider implements vscode.FileSystemProvider {
 				return sEnvId === envId
 			})
 
-			var title = session?.state?.title || session?.sid || source.path
+			var title = session?.state?.title || session?.sid || uri.path
+			// get envVer
+			let envVer = "?"
+			if (uri.scheme === 'veg') {
+				let p = uri.path
+				if (p.startsWith("/")) {
+					p = p.slice(1)
+				}
+				p = p.split("/")[0]
+				const ps = p.split(":")
+				envVer = ps[1]
+			} else if (uri.scheme === 'oci') {
+				const p = uri.path.split("/")[1]
+				const ps = p.split(":")
+				envVer = ps[1]
+			}
+
 			title += ` (v${envVer} @ ${envId})`
 
 			// get vscode uris for the environ basepath
@@ -615,17 +658,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 				console.log("creating SCM", this._scm)
 			}
 
-			// const id = session?.state?.currEnv || session?.sid || source.path
-			// Reuse existing group if available to prevent duplicates
-			// let group = this._scm.resourceGroups.find(g => g.id === id)
-			// if (!group) {
-			// 	group = this._scm.createResourceGroup(id, title)
-			// } else {
-			// 	// update title
-			// 	group.label = title
-			// }
-
-			const id = session?.state?.currEnv || session?.sid || source.path
+			const id = session?.state?.currEnv || session?.sid || uri.path
 			console.log("SCM id", id)
 			// Reuse existing group if available to prevent duplicates
 			let group: any = this._resourceGroups.get(id)
@@ -638,6 +671,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 				group.label = title
 			}
 			
+			const multiDiffResources: { originalUri: vscode.Uri; modifiedUri: vscode.Uri }[] = [];
 			const resources: vscode.SourceControlResourceState[] = []
 
 			// show diff
@@ -645,22 +679,44 @@ class VegContentProvider implements vscode.FileSystemProvider {
 				const pfUri = vscode.Uri.from({ ...prevUri, path: prevUri.path + p })
 				const nfUri = vscode.Uri.from({ ...nextUri, path: nextUri.path + p })
 				// console.log("diff", pfUri, nfUri)
+
+				// 1. Add to SCM view (Single file diff)
 				resources.push({
 					resourceUri: nfUri,
-					decorations: {
-						tooltip: `Modified: ${p}`,
-					},
+					decorations: { tooltip: `Modified: ${p}` },
 					command: {
 						command: 'vscode.diff',
 						title: 'Show Diff',
 						arguments: [pfUri, nfUri, `veg-diff: ${p}`]
 					}
-				})
+				});
+
+				// 2. Collect for Multi Diff View
+				multiDiffResources.push({
+					originalUri: pfUri,
+					modifiedUri: nfUri,
+				});
 			}
 			group.resourceStates = resources
+
+			
+
+			console.log("multiDiffResources:", multiDiffResources)
+
+			// Define the options object exactly as the internal interface expects
+			const options = {
+				title: title,
+				// This provides a unique ID for the tab so VS Code can manage it
+				multiDiffSourceUri: vscode.Uri.from({ scheme: 'veg', path: `/diff-session/${id}` }),
+				resources: multiDiffResources,
+			};
+
 			vscode.commands.executeCommand('workbench.view.scm')
 
-			// // console.log("veg.diff", fileUri, vegUri)
+			// Execute the internal workbench command
+			await vscode.commands.executeCommand('_workbench.openMultiDiffEditor', options);
+
+
 
 			return
 		}
