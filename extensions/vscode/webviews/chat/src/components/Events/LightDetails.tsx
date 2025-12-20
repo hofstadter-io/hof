@@ -29,7 +29,8 @@ export const LightDetails = ({ evt }: { evt: any }) => {
 const ToolSpecificError = ({ part, evt }: { part: any, evt: any }) => {
   const name = part.functionCall.name;
   const args = part.functionCall.args;
-  const error = part.functionResponse.response.error;
+  const response = part.functionResponse.response;
+  const error = response.error;
 
   switch (name) {
     case "cache_put":
@@ -78,7 +79,7 @@ const ToolSpecificError = ({ part, evt }: { part: any, evt: any }) => {
         <div className="text-red-500">
           <div>Exec error:</div>
           <pre className="whitespace-pre-wrap mb-2">{typeof error === 'string' ? error : JSON.stringify(error, null, 2)}</pre>
-          <ExecDetails args={args} response={part.functionResponse.response} />
+          <ExecDetails args={args} response={response} />
         </div>
       );
 
@@ -128,7 +129,7 @@ const ToolSpecificDetails = ({ part, evt }: { part: any, evt: any }) => {
       return (
         <div>
           <div>Filesystem: {args.path}</div>
-          {output && <pre className="mt-1 text-[10px] font-mono whitespace-pre-wrap max-h-40 overflow-auto border-t border-muted-foreground/30 pt-1">{output}</pre>}
+          {output && <pre className="mt-1 text-[10px] font-mono whitespace-pre max-h-40 overflow-auto border-t border-muted-foreground/30 pt-1">{output}</pre>}
         </div>
       );
 
@@ -140,7 +141,7 @@ const ToolSpecificDetails = ({ part, evt }: { part: any, evt: any }) => {
       return (
         <div>
           <div>Search: {args.path || args.glob} {args.regexp || ""}</div>
-          {output && <pre className="mt-1 text-[10px] font-mono whitespace-pre-wrap max-h-40 overflow-auto border-t border-muted-foreground/30 pt-1">{output}</pre>}
+          {output && <pre className="mt-1 text-[10px] font-mono whitespace-pre max-h-40 overflow-auto border-t border-muted-foreground/30 pt-1">{output}</pre>}
         </div>
       );
 
@@ -170,9 +171,9 @@ const FsEditDetails = ({ path, edits }: { path: string, edits: any[] }) => {
           <div className="font-semibold text-yellow-600 mb-1">
             ({edit.count}) {path}
           </div>
-          <div className="grid grid-cols-2 gap-2 text-[10px] font-mono whitespace-pre-wrap border border-muted-foreground/50 p-1">
-            <div className="text-red-400 border-r border-dashed border-muted-foreground/50 pr-2">{edit.old}</div>
-            <div className="text-green-400 pl-2">{edit.new}</div>
+          <div className="grid grid-cols-2 gap-2 text-[10px] font-mono border border-muted-foreground/50 p-1 overflow-auto max-h-64">
+            <div className="text-red-400/80 border-r border-dashed border-muted-foreground/50 pr-2 overflow-auto whitespace-pre">{edit.old}</div>
+            <div className="text-green-400/80 pl-2 overflow-auto whitespace-pre">{edit.new}</div>
           </div>
         </div>
       ))}
@@ -194,13 +195,13 @@ const ExecDetails = ({ args, response }: { args: any, response: any }) => {
       {response?.stdout && (
         <div className="mt-1">
           <div className="text-[9px] opacity-50 uppercase">stdout</div>
-          <pre className="text-[10px] font-mono whitespace-pre-wrap max-h-40 overflow-auto border border-muted-foreground/30 p-1">{response.stdout}</pre>
+          <pre className="text-[10px] font-mono whitespace-pre max-h-40 overflow-auto border border-muted-foreground/30 p-1">{response.stdout}</pre>
         </div>
       )}
       {response?.stderr && (
         <div className="mt-1">
           <div className="text-[9px] opacity-50 uppercase text-yellow-500">stderr</div>
-          <pre className="text-[10px] font-mono whitespace-pre-wrap max-h-40 overflow-auto border border-yellow-500/30 p-1 text-yellow-500/80">{response.stderr}</pre>
+          <pre className="text-[10px] font-mono whitespace-pre max-h-40 overflow-auto border border-yellow-500/30 p-1 text-yellow-500/80">{response.stderr}</pre>
         </div>
       )}
     </div>
