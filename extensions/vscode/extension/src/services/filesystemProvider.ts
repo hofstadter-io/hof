@@ -116,7 +116,7 @@ export async function activate(context: vscode.ExtensionContext) {
 				const session = e.payload.session
 				if (session) {
 					if (session.state?.currEnv) {
-						vcp.open("", session)
+						vcp.open("", session, e.payload.pos)
 					} else {
 						console.error("filesys.openEnviron called with invalid params")
 					}
@@ -156,20 +156,38 @@ class VegContentProvider implements vscode.FileSystemProvider {
 			}
 
 			// extract envId using helper
-			const { envId } = parseEnvUri(wf.uri)
+			const { envId, envVer } = parseEnvUri(wf.uri)
+			const q = new URLSearchParams(wf.uri.query)
+			const uriPos = q.get("pos")
 
 			// use helper
 			const session = findSession(this._sessions, envId)
 
 			if (session) {
+				let name = session.state?.title || session.sid
+
+				if (envVer && envVer !== "" && envVer !== "?" && !isNaN(parseInt(envVer))) {
+					name = `(${envVer}) ${name}`
+				}
+
+				let posVal = uriPos
+				if (!posVal) {
+					const posMatch = wf.name.match(/\[(\d+)\]/);
+					if (posMatch) posVal = posMatch[1]
+				}
+
+				if (posVal) {
+					name = `[${posVal}] ${name}`;
+				}
+
 				const f: Folder = {
-					uri: vscode.Uri.parse("veg://" + session.state?.currEnv),
-					name: session.state?.title || session.sid,
+					uri: wf.uri,
+					name: name,
 					sid: session.sid,
 					session: session,
 					environ: {
-						fromUri: "oci://" + session.state?.currEnv,
-						name: session.state?.title || session.sid,
+						fromUri: "oci://" + (wf.uri.authority + wf.uri.path).replace(/^\//, ''),
+						name: name,
 					}
 				}
 				vscode.workspace.updateWorkspaceFolders(i, 1, f)
@@ -194,8 +212,8 @@ class VegContentProvider implements vscode.FileSystemProvider {
 
 	// maybe path is not needed here, it is part of the uri, or we pass it around separately? there are places where we only have a single string to work with, which is why we started stuffing things into a URI, which is pretty flexible tbh
 	// open(anyUri: string, path?: string, session?: any) {
-	open(inputUri: string, session?: any) {
-		console.log("filesys.open", inputUri, session)
+	open(inputUri: string, session?: any, pos?: number) {
+		console.log("filesys.open", inputUri, session, pos)
 		if ((!inputUri || inputUri === "") && !session) {
 			return
 		}
@@ -249,10 +267,21 @@ class VegContentProvider implements vscode.FileSystemProvider {
 				environ.fromUri = `oci://${ociUri}`
 				environ.name = inputUri
 			} else {
+				// HMMM, perhaps this needs to be the first checked condition?
 				if (session?.state?.currEnv) {
 					// these will always be oci
 					sid = session.sid
 					environ.name = session.state.title || sid
+
+					const img = session.state.currEnv
+					const lastColon = img.lastIndexOf(":")
+					const tag = lastColon !== -1 ? img.substring(lastColon + 1) : ""
+					if (tag !== "" && !isNaN(parseInt(tag))) {
+						environ.name = `(${tag}) ${environ.name}`
+					}
+					if (pos !== undefined && pos >= 0) {
+						environ.name = `[${pos}] ${environ.name}`
+					}
 					// TODO, this should be a veg://<session>... something? we need to sort this out eventually, translators, more fields so we can differentiate, more alignment with server in open(...args) too?
 					// seems we can add extra without borking things up?
 					// this should probably be handled on the server during state managemtn
@@ -277,6 +306,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 			const uri = vscode.Uri.from({
 				...tmpUri,
 				scheme: "veg",
+				query: pos !== undefined ? `pos=${pos}` : tmpUri.query,
 			})
 
 			const f: Folder = {
@@ -316,7 +346,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 
 			const wsF = vscode?.workspace?.workspaceFolders as any[]
 			const count = vscode.workspace.workspaceFolders?.length || 0
-			var pos = count
+			var wsIndex = count
 
 			// skip if already open, replace if matchind sid
 			for (var i: number = 0; i < wsF.length; i++) {
@@ -325,13 +355,13 @@ class VegContentProvider implements vscode.FileSystemProvider {
 					return
 				}
 				if (f.sid === wsF[i].sid) {
-					pos = i
+					wsIndex = i
 					break
 				}
 			}
 			// console.log("filesys.open calling", f, count, uri)
 
-			const started = vscode.workspace.updateWorkspaceFolders(pos, pos < count ? 1 : null, f)
+			const started = vscode.workspace.updateWorkspaceFolders(wsIndex, wsIndex < count ? 1 : null, f)
 			// console.log("filesys.open started?", started)
 		}
 		return f()

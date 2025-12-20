@@ -293,14 +293,14 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
       if (message.type === 'session.diff') {
         const payload = message.payload as { sid: string, pos?: number };
-        if (payload.sid === sid && pos && pos > 0) {
+        if (payload.sid === sid && payload.pos !== undefined) {
 
           const s = vscodeApi.getState();
           vscodeApi.setState({
             ...s,
-            pos,
+            pos: payload.pos,
           });
-          setPos(pos)
+          setPos(payload.pos)
         }
       }
 

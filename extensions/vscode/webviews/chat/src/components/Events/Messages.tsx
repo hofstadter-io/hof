@@ -39,7 +39,19 @@ export const UnknownEvent = ({
         <div className="mt-[-12px] mr-auto">
           <Accordion type="single" collapsible>
             <AccordionItem value="details">
-              <AccordionTrigger className="h-3"></AccordionTrigger>
+              <AccordionTrigger className="h-3">
+              <div className="flex gap-2 font-thin items-center ml-2">
+                {/* TODO, this needs to com from the session */}
+                {evt?.Actions?.StateDelta?.currEnv && (
+                  <span className="text-amber-500 font-mono text-xs">
+                    ({evt.Actions.StateDelta.currEnv.split(':').pop()})
+                  </span>
+                )}
+                <span className="text-violet-500 font-mono text-xs">
+                  [{pos}]
+                </span>
+              </div>
+            </AccordionTrigger>
               <AccordionContent>
                 <LightDetails evt={evt} />
                 <EventDetails pos={pos} evt={evt}/>
@@ -84,7 +96,18 @@ export const UserMessage = ({pos, evt}:{pos: number, evt: any}) => {
         <div className="mt-[-12px] w-full">
           <Accordion type="single" collapsible>
             <AccordionItem value="details">
-              <AccordionTrigger className="h-3"></AccordionTrigger>
+              <AccordionTrigger className="h-3">
+              <div className="flex gap-2 font-thin items-center ml-2">
+                {evt?.Actions?.StateDelta?.currEnv && (
+                  <span className="text-amber-500 font-mono text-xs">
+                    ({evt.Actions.StateDelta.currEnv.split(':').pop()})
+                  </span>
+                )}
+                <span className="text-violet-500 font-mono text-xs">
+                  [{pos}]
+                </span>
+              </div>
+            </AccordionTrigger>
               <AccordionContent>
                 <LightDetails evt={evt} />
                 <EventDetails pos={pos} evt={evt} />
@@ -113,7 +136,18 @@ export const ModelMessage = ({pos, evt}:{pos: number, evt: any}) => {
         <div className="mt-[-12px] w-full">
           <Accordion type="single" collapsible>
             <AccordionItem value="details">
-              <AccordionTrigger className="h-4"></AccordionTrigger>
+              <AccordionTrigger className="h-4">
+              <div className="flex gap-2 font-thin items-center ml-2">
+                {evt?.Actions?.StateDelta?.currEnv && (
+                  <span className="text-amber-500 font-mono text-xs">
+                    ({evt.Actions.StateDelta.currEnv.split(':').pop()})
+                  </span>
+                )}
+                <span className="text-violet-500 font-mono text-xs">
+                  [{pos}]
+                </span>
+              </div>
+            </AccordionTrigger>
               <AccordionContent>
                 <LightDetails evt={evt} />
                 <EventDetails pos={pos} evt={evt} />

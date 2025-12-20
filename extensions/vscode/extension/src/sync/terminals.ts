@@ -223,11 +223,29 @@ export function activate(context: vscode.ExtensionContext) {
 					console.error("unknown session", sid)
 				}
 
-				const name = S.state?.title || sid
+				let img = image || S.state?.currEnv || "debian:13-slim"
+				if (!image && pos !== undefined && S.events) {
+					for (let i = pos; i >= 0; i--) {
+						const event = S.events[i];
+						if (event?.Actions?.StateDelta?.currEnv) {
+							img = event.Actions.StateDelta.currEnv;
+							break;
+						}
+					}
+				}
+
+				const lastColon = img.lastIndexOf(":")
+				const tag = lastColon !== -1 ? img.substring(lastColon + 1) : ""
+				let name = S.state?.title || sid
+				if (tag !== "" && !isNaN(parseInt(tag))) {
+					name = `(${tag}) ${name}`
+				}
+				if (pos !== undefined && pos >= 0) {
+					name = `[${pos}] ${name}`
+				}
+
 				// todo, go to position in events to get dagger ref
 				const workdir = S.state?.basedir || S.state?.env?.workdir
-
-				const img = image || S.state?.currEnv || "debian:13-slim"
 
 				// run dagger via hof for arg handling
 				let env = `_EXPERIMENTAL_DAGGER_RUNNER_HOST=container://veg-dagger-engine`

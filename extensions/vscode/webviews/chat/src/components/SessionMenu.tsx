@@ -21,6 +21,20 @@ import {
   DropdownMenuLabel,
 } from 'veg-webview-common'
 
+export const findCurrEnv = (session: any, pos?: number) => {
+  let currEnv = session?.state?.currEnv;
+  if (pos !== undefined && session?.events) {
+    for (let i = pos; i >= 0; i--) {
+      const e = session.events[i];
+      if (e?.Actions?.StateDelta?.currEnv) {
+        currEnv = e.Actions.StateDelta.currEnv;
+        break;
+      }
+    }
+  }
+  return currEnv;
+};
+
 export const Menu = ({
   pos,
   hidden,
@@ -32,8 +46,7 @@ export const Menu = ({
   refresh?: boolean,
   setHidden: (prev: any) => any
 }) => {
-  const { sid, session, setPos, pos: currentPos, chatState } = useChat();
-  const effectivePos = pos ?? currentPos;
+  const { sid, session, setPos, chatState } = useChat();
 
   const [termOpen, setTermOpen] = useState(false);
   const [mergeOpen, setMergeOpen] = useState(false);
@@ -78,10 +91,20 @@ export const Menu = ({
           if (!session) {
             return
           }
+
+          const currEnv = findCurrEnv(session, pos);
+
           vscodeApi.postMessage({
             type: "filesys.openEnviron",
             payload: {
-              session,
+              pos: pos,
+              session: {
+                ...session,
+                state: {
+                  ...session.state,
+                  currEnv,
+                }
+              },
             }
           })
         }}
@@ -102,11 +125,15 @@ export const Menu = ({
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
+
+                  const currEnv = findCurrEnv(session, pos);
+
                   vscodeApi.postMessage({
                     type: "session.term.open",
                     payload: {
                       sid,
-                      pos: effectivePos,
+                      pos: pos,
+                      image: currEnv,
                     }
                   })
                 }}
@@ -119,11 +146,13 @@ export const Menu = ({
           <DropdownMenuItem 
             className="px-2 py-[2px] text-xs focus:bg-[#2e2e2e] hover:bg-[#2e2e2e] focus:text-white hover-text-white"
             onClick={() => {
+            const currEnv = findCurrEnv(session, pos);
             vscodeApi.postMessage({
               type: "session.term.open",
               payload: {
                 sid,
-                pos: effectivePos,
+                pos: pos,
+                image: currEnv,
               }
             })
             }}
@@ -138,7 +167,7 @@ export const Menu = ({
                 type: "session.term.open",
                 payload: {
                   sid,
-                  pos: effectivePos,
+                  pos: pos,
                   termId: t.id,
                 }
               })
@@ -158,13 +187,16 @@ export const Menu = ({
           if (pos !== undefined) {
             setPos(pos)
           }
+
+          const currEnv = findCurrEnv(session, pos);
+
           vscodeApi.postMessage({
             type: "session.diff",
             payload: {
               sid,
-              pos: effectivePos,
+              pos: pos,
               show: true,
-              currEnv: session?.state?.currEnv,
+              currEnv,
             }
           })
         }}
@@ -185,12 +217,15 @@ export const Menu = ({
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
+
+                  const currEnv = findCurrEnv(session, pos);
+
                   vscodeApi.postMessage({
                     type: "session.merge",
                     payload: {
                       sid,
-                      pos: effectivePos,
-                      currEnv: session?.state?.currEnv,
+                      pos: pos,
+                      currEnv,
                     }
                   })
                 }}
@@ -204,15 +239,17 @@ export const Menu = ({
             <DropdownMenuItem
               className="px-2 py-[2px] text-xs focus:bg-[#2e2e2e] hover:bg-[#2e2e2e] focus:text-white hover-text-white"
               onClick={() => {
-              vscodeApi.postMessage({
-                type: "session.merge",
-                payload: {
-                  sid,
-                  pos: effectivePos,
-                  currEnv: session?.state?.currEnv,
-                  dest: session.state.initEnv.srcUri,
-                }
-              })
+                const currEnv = findCurrEnv(session, pos);
+
+                vscodeApi.postMessage({
+                  type: "session.merge",
+                  payload: {
+                    sid,
+                    pos: pos,
+                    currEnv,
+                    dest: session.state.initEnv.srcUri,
+                  }
+                })
               }}
             >
               {session.state.initEnv.srcUri}
@@ -221,15 +258,17 @@ export const Menu = ({
           <DropdownMenuItem
             className="px-2 py-[2px] text-xs focus:bg-[#2e2e2e] hover:bg-[#2e2e2e] focus:text-white hover-text-white"
             onClick={() => {
-            vscodeApi.postMessage({
-              type: "session.merge",
-              payload: {
-                sid,
-                pos: effectivePos,
-                currEnv: session?.state?.currEnv,
-                forceInput: true,
-              }
-            })
+              const currEnv = findCurrEnv(session, pos);
+
+              vscodeApi.postMessage({
+                type: "session.merge",
+                payload: {
+                  sid,
+                  pos: pos,
+                  currEnv,
+                  forceInput: true,
+                }
+              })
             }}
           >
             input...

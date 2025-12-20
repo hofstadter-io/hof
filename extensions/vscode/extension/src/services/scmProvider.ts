@@ -150,6 +150,20 @@ export class VegScmProvider {
 		});
 	}
 
+	public findCurrEnv(session: any, pos?: number): string | undefined {
+		let currEnv = session?.state?.currEnv;
+		if (pos !== undefined && session?.events) {
+			for (let i = pos; i >= 0; i--) {
+				const event = session.events[i];
+				if (event?.Actions?.StateDelta?.currEnv) {
+					currEnv = event.Actions.StateDelta.currEnv;
+					break;
+				}
+			}
+		}
+		return currEnv;
+	}
+
 	// todo, we probably need a diffUri here
 	showDiff(source: vscode.Uri | vscode.SourceControlResourceGroup, destination?: vscode.Uri): void | Thenable<void> {
 		const f = async () => {
@@ -463,15 +477,31 @@ export async function activate(context: vscode.ExtensionContext) {
 
 			case "session.diff":
 				console.log("filesys.session.diff", e.payload)
-				const uriDiff = vscode.Uri.parse("oci://" + e.payload.currEnv)
-				scmProvider.showDiff(uriDiff)
+				let currEnv = e.payload.currEnv;
+				if (!currEnv && e.payload.sid && e.payload.pos !== undefined) {
+					const session = findSession(scmProvider['_sessions'], e.payload.sid) || scmProvider['_sessions'].find((s: any) => s.sid === e.payload.sid);
+					currEnv = scmProvider.findCurrEnv(session, e.payload.pos);
+				}
+
+				if (currEnv) {
+					const uriDiff = vscode.Uri.parse("oci://" + currEnv)
+					scmProvider.showDiff(uriDiff)
+				}
 				break
 
 			case "session.merge":
 				console.log("filesys.session.merge", e.payload)
-				const uriMerge = vscode.Uri.parse("oci://" + e.payload.currEnv)
-				const dest = e.payload.dest ? vscode.Uri.parse(e.payload.dest) : undefined
-				scmProvider.mergeDiff(uriMerge, dest, e.payload.forceInput)
+				let mergeEnv = e.payload.currEnv;
+				if (!mergeEnv && e.payload.sid && e.payload.pos !== undefined) {
+					const session = findSession(scmProvider['_sessions'], e.payload.sid) || scmProvider['_sessions'].find((s: any) => s.sid === e.payload.sid);
+					mergeEnv = scmProvider.findCurrEnv(session, e.payload.pos);
+				}
+
+				if (mergeEnv) {
+					const uriMerge = vscode.Uri.parse("oci://" + mergeEnv)
+					const dest = e.payload.dest ? vscode.Uri.parse(e.payload.dest) : undefined
+					scmProvider.mergeDiff(uriMerge, dest, e.payload.forceInput)
+				}
 				break
 		}
 	})
