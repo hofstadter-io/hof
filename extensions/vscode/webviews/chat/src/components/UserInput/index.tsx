@@ -1,8 +1,10 @@
 import { useRef, useState } from 'react'
+import { Sparklines, SparklinesLine, SparklinesSpots } from 'react-sparklines';
+
 import { vscodeApi } from '@/vscodeApi.js'
 
 import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
+import { cn, processEvents } from "@/lib/utils"
 
 import { Header } from "../Header"
 import { ChatEditor } from './editor'
@@ -235,6 +237,32 @@ export const UserInput = () => {
     editorRef?.current?.commands.clearContent()
   }
 
+  const { usages } = processEvents(session?.events)
+  var cached: any[] = []
+  var prompt: any[] = []
+  var inputs: any[] = []
+  var thinks: any[] = []
+  var writes: any[] = []
+  var output: any[] = []
+  var totals: any[] = []
+
+  usages?.forEach((u) => {
+    const c = u?.cachedContentTokenCount || 0;
+    const p = u?.promptTokenCount || 0;
+    const i = p - c
+    const t = u?.thoughtsTokenCount || 0;
+    const w = u?.candidatesTokenCount || 0;
+    const o = t + w
+    const T = u?.totalTokenCount || 0;
+    cached.push(c)
+    prompt.push(p)
+    inputs.push(i)
+    thinks.push(t)
+    writes.push(w)
+    output.push(o)
+    totals.push(T)
+  })
+
 
   return (
     <div 
@@ -246,10 +274,13 @@ export const UserInput = () => {
       <Header />
 
       <div className="flex gap-1 items-center">
+
+        {/* User Settings */}
         { userInput?.agent && <Badge className="text-sky-300 bg-sky-600/50 "><Bot size={12}/>{userInput?.agent}</Badge>}
         { userInput?.model && <Badge className="text-sky-300 bg-sky-600/50 "><Drama size={12}/>{userInput?.model}</Badge>}
         { userInput?.environ && <Badge className="text-lime-300/80 bg-lime-600/50 "><TerminalSquare size={12}/>{userInput?.environ}</Badge>}
 
+        {/* Context Info */}
         {cacheKeys.length > 0 && (
           <ToolTipper label={cacheKeys.map(k => k.split(':').slice(2).join(':')).join('\n')}>
             <Badge className="text-fuchsia-200/80 bg-fuchsia-600/50 flex gap-1 items-center px-2">
@@ -274,6 +305,36 @@ export const UserInput = () => {
             </Badge>
           </ToolTipper>
         )}
+
+        {/* Token Usage */}
+        <div className="w-100 ml-4 px-2 h-6 flex relative rounded border-b border-dashed border-gray-400">
+          <div className="absolute top-0 left-0 h-3 w-full border-t border-dashed border-red-400 z-20">
+          </div>
+          <div className="absolute top-0 left-0 h-3 w-full border-b border-dashed border-amber-400 z-20">
+          </div>
+          <div className="absolute top-[-3px] left-0 h-6 w-50 z-30">
+            <Sparklines data={cached} width={140} height={20} min={0} max={100000}>
+              <SparklinesLine style={{ stroke: "oklch(84.1% 0.238 128.85)", fill: "oklch(84.1% 0.238 128.85)" }} />
+            </Sparklines>
+          </div>
+          <div className="absolute top-[-3px] left-0 h-6 w-50 z-30">
+            <Sparklines data={prompt} width={140} height={20} min={0} max={100000}>
+              <SparklinesLine style={{ stroke: "oklch(87.9% 0.169 91.605)", fill: "oklch(87.9% 0.169 91.605)" }} />
+            </Sparklines>
+          </div>
+
+          <div className="absolute top-[-3px] left-50 h-6 w-50">
+            <Sparklines data={output} width={140} height={20} min={0} max={100000}>
+              <SparklinesLine style={{ stroke: "oklch(74.6% 0.16 232.661)", fill: "oklch(74.6% 0.16 232.661)" }} />
+            </Sparklines>
+          </div>
+          <div className="absolute top-[-3px] left-50 h-6 w-50">
+            <Sparklines data={totals} width={140} height={20} min={0} max={100000}>
+              <SparklinesLine style={{ stroke: "oklch(74% 0.238 322.16)", fill: "oklch(74% 0.238 322.16)" }} />
+            </Sparklines>
+          </div>
+        </div>
+
       </div>
 
       { userInput?.error && <span
