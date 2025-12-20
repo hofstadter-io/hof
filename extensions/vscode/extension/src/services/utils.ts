@@ -23,22 +23,45 @@ export type Folder = {
 
 export function vsUriToVeg(uri: vscode.Uri): vscode.Uri {
 	// console.log("convert.uri", uri)
-	var p = uri.path
-	if (p.startsWith("/")) {
-		p = p.slice(1)
-	}
+	let authority = uri.authority
+	let p = uri.path
+	if (p.startsWith("/")) p = p.slice(1)
 	const parts = p.split("/")
-	const e = parts[0]
-	const path = parts.slice(1).join("/")
-	const q = new URLSearchParams(uri.query)
-	if (path !== "") {
-		q.set("path", path)
+
+	let envSegments: string[] = []
+	let pathSegments: string[] = []
+
+	if (authority.includes(":")) {
+		const full = authority + (uri.path.startsWith("/") ? uri.path : "/" + uri.path)
+		const segments = full.split("/")
+		let lastColonIndex = -1
+		for (let i = 0; i < segments.length; i++) {
+			if (segments[i].includes(":")) lastColonIndex = i
+		}
+		const envEndIndex = Math.max(0, lastColonIndex)
+		envSegments = segments.slice(0, envEndIndex + 1)
+		pathSegments = segments.slice(envEndIndex + 1)
+	} else {
+		envSegments = [authority]
+		if (parts[0] !== "") {
+			envSegments.push(parts[0])
+		}
+		pathSegments = parts.slice(1)
 	}
-	// console.log("convert.parts", e, q, parts)
+
+	const ociAuthority = envSegments[0]
+	const ociPath = "/" + envSegments.slice(1).join("/")
+	const filePath = pathSegments.join("/")
+
+	const q = new URLSearchParams(uri.query)
+	if (filePath !== "") {
+		q.set("path", filePath)
+	}
+
 	const vUri = {
 		scheme: "oci",
-		authority: uri.authority,
-		path: "/" + e,
+		authority: ociAuthority,
+		path: ociPath,
 		query: q.toString(),
 	}
 	// console.log("convert.vUri", vUri)
@@ -53,11 +76,28 @@ export function vsUriToVeg(uri: vscode.Uri): vscode.Uri {
 }
 
 export function parseEnvUri(uri: vscode.Uri) {
-	let p = uri.authority + uri.path
+	let authority = uri.authority
+	let p = uri.path
 	if (p.startsWith("/")) p = p.slice(1)
+	const parts = p.split("/")
 
-	// Take the first segment as the environment identifier
-	const envStr = p.split("/")[0]
+	let envStr = ""
+	if (authority.includes(":")) {
+		const full = authority + (uri.path.startsWith("/") ? uri.path : "/" + uri.path)
+		const segments = full.split("/")
+		let lastColonIndex = -1
+		for (let i = 0; i < segments.length; i++) {
+			if (segments[i].includes(":")) lastColonIndex = i
+		}
+		const envEndIndex = Math.max(0, lastColonIndex)
+		envStr = segments.slice(0, envEndIndex + 1).join("/")
+	} else {
+		envStr = authority
+		if (parts[0] !== "" && parts[0] !== undefined) {
+			envStr += (envStr !== "" ? "/" : "") + parts[0]
+		}
+	}
+
 	const lastColon = envStr.lastIndexOf(":")
 	
 	let envId = envStr
@@ -68,7 +108,7 @@ export function parseEnvUri(uri: vscode.Uri) {
 		envVer = envStr.substring(lastColon + 1)
 	}
 
-	return { envId, envVer, fullPath: p }
+	return { envId, envVer, fullPath: uri.authority + uri.path }
 }
 
 export function findSession(sessions: any[], envId: string) {

@@ -98,7 +98,7 @@ export const ChatEditor = ({
         suggestion: {
           char: '>',
           items: ({ query }: { query: string }) => {
-            const options = Object.keys(chatStateRef.current?.config?.environs || {})
+            const options = ["none"].concat(Object.keys(chatStateRef.current?.config?.environs || {}))
             return options
               .filter(item => item.toLowerCase().startsWith(query.toLowerCase()))
               .slice(0, 5)

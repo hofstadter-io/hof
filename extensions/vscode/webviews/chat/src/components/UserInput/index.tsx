@@ -94,6 +94,9 @@ export const UserInput = () => {
   }
 
   const handleSelectEnviron = (input: string) => {
+    if (input === "none") {
+      input = ""
+    }
     setUserInput((prev: any) => {
       const s = vscodeApi.getState()
       const next = {

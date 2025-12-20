@@ -185,8 +185,7 @@ export class VegScmProvider {
 
 			const scmId = info.scmId || session?.sid || envId
 			const scmTitle = session?.state?.title || scmId
-			let groupId = info.groupId || (uri.authority + uri.path)
-			if (groupId.startsWith("/")) groupId = groupId.slice(1)
+			let groupId = info.groupId || (envId + (envVer !== "?" ? ":" + envVer : ""))
 			const groupTitle = `${envVer} : ${envId}`
 
 			// Track latest
@@ -398,12 +397,11 @@ export class VegScmProvider {
 				}
 			} else {
 				const uri = source as vscode.Uri
-				const { envId } = parseEnvUri(uri)
+				const { envId, envVer } = parseEnvUri(uri)
 				const session = findSession(this._sessions, envId)
 
 				scmId = session?.sid || envId
-				groupId = uri.authority + uri.path
-				if (groupId.startsWith("/")) groupId = groupId.slice(1)
+				groupId = envId + (envVer !== "?" ? ":" + envVer : "")
 			}
 		}
 		console.log("hideDiff SCM id", scmId, "Group id", groupId, "isScm", isScm)
