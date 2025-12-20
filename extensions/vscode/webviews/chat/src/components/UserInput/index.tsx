@@ -307,32 +307,45 @@ export const UserInput = () => {
         )}
 
         {/* Token Usage */}
-        <div className="w-100 ml-4 px-2 h-6 flex relative rounded border-b border-dashed border-gray-400">
-          <div className="absolute top-0 left-0 h-3 w-full border-t border-dashed border-red-400 z-20">
-          </div>
-          <div className="absolute top-0 left-0 h-3 w-full border-b border-dashed border-amber-400 z-20">
-          </div>
-          <div className="absolute top-[-3px] left-0 h-6 w-50 z-30">
-            <Sparklines data={cached} width={140} height={20} min={0} max={100000}>
-              <SparklinesLine style={{ stroke: "oklch(84.1% 0.238 128.85)", fill: "oklch(84.1% 0.238 128.85)" }} />
-            </Sparklines>
-          </div>
-          <div className="absolute top-[-3px] left-0 h-6 w-50 z-30">
-            <Sparklines data={prompt} width={140} height={20} min={0} max={100000}>
-              <SparklinesLine style={{ stroke: "oklch(87.9% 0.169 91.605)", fill: "oklch(87.9% 0.169 91.605)" }} />
-            </Sparklines>
-          </div>
+        <div className="flex gap-2 h-6">
 
-          <div className="absolute top-[-3px] left-50 h-6 w-50">
-            <Sparklines data={output} width={140} height={20} min={0} max={100000}>
-              <SparklinesLine style={{ stroke: "oklch(74.6% 0.16 232.661)", fill: "oklch(74.6% 0.16 232.661)" }} />
-            </Sparklines>
-          </div>
-          <div className="absolute top-[-3px] left-50 h-6 w-50">
-            <Sparklines data={totals} width={140} height={20} min={0} max={100000}>
-              <SparklinesLine style={{ stroke: "oklch(74% 0.238 322.16)", fill: "oklch(74% 0.238 322.16)" }} />
-            </Sparklines>
-          </div>
+          { session?.events && session?.events.length > 0 && (
+            <div className="w-50 ml-4 px-2 h-6 flex relative rounded border-b border-dashed border-gray-400">
+              <div className="absolute top-0 left-0 h-3 w-full border-t border-dashed border-red-400 z-20">
+              </div>
+              <div className="absolute top-0 left-0 h-3 w-full border-b border-dashed border-amber-400 z-20">
+              </div>
+              <div className="absolute top-[-3px] left-0 h-6 w-50 z-30">
+                <Sparklines data={cached} width={140} height={20} min={0} max={100000}>
+                  <SparklinesLine style={{ stroke: "oklch(84.1% 0.238 128.85)", fill: "oklch(84.1% 0.238 128.85)" }} />
+                </Sparklines>
+              </div>
+              <div className="absolute top-[-3px] left-0 h-6 w-50 z-30">
+                <Sparklines data={prompt} width={140} height={20} min={0} max={100000}>
+                  <SparklinesLine style={{ stroke: "oklch(87.9% 0.169 91.605)", fill: "oklch(87.9% 0.169 91.605)" }} />
+                </Sparklines>
+              </div>
+            </div>
+          )}
+
+          { session?.events && session?.events.length > 0 && (
+            <div className="w-50 ml-4 px-2 h-6 flex relative rounded border-b border-dashed border-gray-400">
+              <div className="absolute top-0 left-0 h-3 w-full border-t border-dashed border-red-400 z-20">
+              </div>
+              <div className="absolute top-0 left-0 h-3 w-full border-b border-dashed border-amber-400 z-20">
+              </div>
+              <div className="absolute top-[-3px] left-0 h-6 w-50 z-30">
+                <Sparklines data={output} width={140} height={20} min={0} max={100000}>
+                  <SparklinesLine style={{ stroke: "oklch(74.6% 0.16 232.661)", fill: "oklch(74.6% 0.16 232.661)" }} />
+                </Sparklines>
+              </div>
+              <div className="absolute top-[-3px] left-0 h-6 w-50 z-30">
+                <Sparklines data={totals} width={140} height={20} min={0} max={100000}>
+                  <SparklinesLine style={{ stroke: "oklch(74% 0.238 322.16)", fill: "oklch(74% 0.238 322.16)" }} />
+                </Sparklines>
+              </div>
+            </div>
+          )}
         </div>
 
       </div>

@@ -234,10 +234,10 @@ export class VegScmProvider {
 			}
 
 			// Ensure the current group is at the top (newest first)
-			// @ts-ignore
-			const otherGroups = scm.resourceGroups.filter(g => g !== group)
-			// @ts-ignore
-			scm.resourceGroups = [group, ...otherGroups]
+			// // @ts-ignore
+			// const otherGroups = scm.resourceGroups.filter(g => g !== group)
+			// // @ts-ignore
+			// scm.resourceGroups = [group, ...otherGroups]
 
 			const multiDiffResources: { originalUri: vscode.Uri | undefined; modifiedUri: vscode.Uri | undefined }[] = [];
 			const resources: vscode.SourceControlResourceState[] = []

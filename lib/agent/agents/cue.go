@@ -341,20 +341,31 @@ func addCallbacks(config Config, agt Agent, c *llmagent.Config) {
 		func(ctx agent.CallbackContext, req *model.LLMRequest) (*model.LLMResponse, error) {
 			fmt.Printf("\nBMC.%s\n", ctx.AgentName())
 
-			// update prompt files in state
 			data, _ := prepareData(config, agt)(ctx)
 			pfs := getPromptFiles(agt, data)
 
-			// clear old prompt keys
+			// Update prompt keys in state (only changed ones)
+			prefix := "agentmd:" + ctx.AgentName() + ":"
+			desiredKeys := make(map[string]bool)
+			for _, pf := range pfs {
+				desiredKeys[prefix+pf] = true
+			}
+
 			for k := range maps.Collect(ctx.State().All()) {
-				if strings.HasPrefix(k, "agentmd:"+ctx.AgentName()+":") {
-					ctx.State().Set(k, nil)
+				if strings.HasPrefix(k, prefix) {
+					if !desiredKeys[k] {
+						// Remove keys that are no longer needed
+						ctx.State().Set(k, nil)
+					} else {
+						// Already present, remove from desired set so we don't re-set it
+						delete(desiredKeys, k)
+					}
 				}
 			}
 
-			// set new ones
-			for _, pf := range pfs {
-				ctx.State().Set("agentmd:"+ctx.AgentName()+":"+pf, "included")
+			// Add new keys
+			for k := range desiredKeys {
+				ctx.State().Set(k, "included")
 			}
 
 			// print system prompt before sending to LLM
