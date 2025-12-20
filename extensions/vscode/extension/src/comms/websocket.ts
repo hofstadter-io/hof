@@ -76,7 +76,7 @@ function setupWebSocketHandlers(socket: WebSocket) {
     const messageStr = data.toString();
     try {
       const msg: Message<unknown> = JSON.parse(messageStr);
-      console.log(`[SERVER]:`, msg);
+      // console.log(`[SERVER]:`, msg);
       extensionEmitter.fire(msg);
     } catch (e) {
       console.error('Error parsing server message', e);
@@ -112,7 +112,7 @@ export function sendMessage<T>(msg: Message<T>) {
     vscode.window.showErrorMessage('Server not connected.');
     return;
   }
-  console.log(`[VSCODE]:`, msg);
+  // console.log(`[VSCODE]:`, msg);
   ws.send(JSON.stringify(msg));
 }
 

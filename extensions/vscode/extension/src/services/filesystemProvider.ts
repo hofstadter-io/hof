@@ -123,6 +123,11 @@ export async function activate(context: vscode.ExtensionContext) {
 		await vscode.env.clipboard.writeText(uri.toString())
 	})
 
+	vscode.commands.registerCommand('veg.explorer.diffAll', async (args: any) => {
+		console.log("veg.explorer.diffAll.args", args)
+		vscode.window.showInformationMessage("Diff All (not implemented yet)")
+	})
+
 	vscode.commands.registerCommand('veg.explorer.refreshAll', async (args: any) => {
 		console.log("veg.explorer.refreshAll.args", args)
 		vcp.refreshAll()
@@ -192,6 +197,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 
 	private _environs: Record<string, any> = {}
 	private _sessions: any[] = []
+	private _latestEnvs: Map<string, string> = new Map()
 
 	setSessions(sessions: any[]) {
 		this._sessions = sessions
@@ -206,19 +212,18 @@ class VegContentProvider implements vscode.FileSystemProvider {
 			}
 
 			// extract envId
-			let p = wf.uri.path
-			if (p.startsWith("/")) {
-				p = p.slice(1)
-			}
-			const envId = p.split("/")[0]
-			const cleanEnvId = envId.split(":")[0]
+			let p = wf.uri.authority + wf.uri.path
+			if (p.startsWith("/")) p = p.slice(1)
+			const lastColon = p.lastIndexOf(":")
+			const envId = lastColon !== -1 ? p.substring(0, lastColon) : p
 
 			const session = this._sessions.find(s => {
 				const sEnv = s.state?.currEnv
-				console.log("  - ", sEnv, s)
+				// console.log("  - ", sEnv, s)
 				if (!sEnv) { return false }
-				const sEnvId = sEnv.split("/")[1].split(":")[0]
-				return sEnvId === cleanEnvId
+				const lastColon = sEnv.lastIndexOf(":")
+				const sId = lastColon !== -1 ? sEnv.substring(0, lastColon) : sEnv
+				return sId === envId
 			})
 
 			if (session) {
@@ -558,41 +563,114 @@ class VegContentProvider implements vscode.FileSystemProvider {
 		return new vscode.Disposable(handler)
 	}
 
-	private _scm: vscode.SourceControl | undefined
-	private _resourceGroups: Map<string, vscode.SourceControlResourceGroup> = new Map()
+	private _scms: Map<string, vscode.SourceControl> = new Map()
+	private _resourceGroups: Map<string, Map<string, vscode.SourceControlResourceGroup>> = new Map()
+
+	private getScmInfo(source: any): { uri?: vscode.Uri, session?: any, scmId?: string, groupId?: string } {
+		// @ts-ignore
+		if (!source.id || source.scheme) {
+			return { uri: source as vscode.Uri };
+		}
+
+		// @ts-ignore
+		const id = source.id;
+		let uri: vscode.Uri | undefined;
+		let session: any;
+		let scmId: string | undefined;
+		let groupId: string | undefined;
+
+		// try to find which SCM/Group this is
+		for (const [sid, scm] of this._scms.entries()) {
+			if (scm === source) {
+				scmId = sid;
+				const latest = this._latestEnvs.get(sid);
+				if (latest) uri = vscode.Uri.parse("veg://" + latest);
+				session = this._sessions.find(s => s.sid === sid);
+				break;
+			}
+		}
+
+		if (!scmId) {
+			for (const [sid, groups] of this._resourceGroups.entries()) {
+				for (const [gid, group] of groups.entries()) {
+					if (group === source) {
+						scmId = sid;
+						groupId = gid;
+						uri = vscode.Uri.parse("veg://" + gid);
+						session = this._sessions.find(s => s.sid === sid);
+						break;
+					}
+				}
+				if (scmId) break;
+			}
+		}
+
+		if (!scmId) {
+			// Fallback to old logic
+			session = this._sessions.find(s => s.state?.currEnv === id || s.sid === id);
+			if (session && id === session.sid) {
+				scmId = session.sid;
+				const sEnv = session.state?.currEnv;
+				uri = vscode.Uri.parse("veg://" + (sEnv || id));
+			} else {
+				scmId = id;
+				uri = vscode.Uri.parse("veg://" + id);
+			}
+		}
+
+		return { uri, session, scmId, groupId };
+	}
 
 	// todo, we probably need a diffUri here
 	showDiff(source: vscode.Uri | vscode.SourceControlResourceGroup, destination?: vscode.Uri): void | Thenable<void> {
 		const f = async () => {
 			console.log("filesys.showDiff.ARGS", source, destination)
 
-			let uri: vscode.Uri
-			let envId = ""
-			
-			// @ts-ignore
-			if (source.id && !source.scheme) {
-				// @ts-ignore
-				const id = source.id
-				uri = vscode.Uri.parse("veg://" + id)
-				// Try exact match first since ID is usually currEnv
-				const session = this._sessions.find(s => s.state?.currEnv === id || s.sid === id)
-				
-				if (!session && id.includes("/")) {
-					// Fallback to extraction if exact match fails
-					envId = id.split("/")[1]?.split(":")[0]
+			const info = this.getScmInfo(source);
+			let uri = info.uri;
+			let session = info.session;
+			let envId = "";
+			let envVer = "";
+
+			if (!uri) {
+				return
+			}
+
+			// extract envId and envVer from uri
+			if (uri.scheme === 'veg' || uri.scheme === 'oci') {
+				let p = uri.authority + uri.path
+				if (p.startsWith("/")) p = p.slice(1)
+				const lastColon = p.lastIndexOf(":")
+				if (lastColon !== -1) {
+					envId = p.substring(0, lastColon)
+					envVer = p.substring(lastColon + 1)
+				} else {
+					envId = p
+					envVer = "?"
 				}
-			} else {
-				uri = source as vscode.Uri
-				// extract envId
-				if (uri.scheme === 'veg') {
-					let p = uri.path
-					if (p.startsWith("/")) {
-						p = p.slice(1)
-					}
-					envId = p.split("/")[0].split(":")[0]
-				} else if (uri.scheme === 'oci') {
-					envId = uri.path.split("/")[1].split(":")[0]
-				}
+			}
+
+			if (!session) {
+				session = this._sessions.find(s => {
+					const sEnv = s.state?.currEnv
+					if (!sEnv) { return false }
+					const lastColon = sEnv.lastIndexOf(":")
+					const sId = lastColon !== -1 ? sEnv.substring(0, lastColon) : sEnv
+					return sId === envId
+				})
+			}
+
+			const scmId = info.scmId || session?.sid || envId
+			const scmTitle = session?.state?.title || scmId
+			let groupId = info.groupId || (uri.authority + uri.path)
+			if (groupId.startsWith("/")) groupId = groupId.slice(1)
+			const groupTitle = `${envVer} : ${envId}`
+
+			// Track latest
+			const currentLatest = this._latestEnvs.get(scmId);
+			const currentVer = parseInt(envVer);
+			if (!currentLatest || (!isNaN(currentVer) && currentVer > parseInt(currentLatest.split(":")[1]))) {
+				this._latestEnvs.set(scmId, `${envId}:${envVer}`);
 			}
 
 			const resp = await this.makeReq("/fs/diff", uri)
@@ -605,70 +683,31 @@ class VegContentProvider implements vscode.FileSystemProvider {
 			const diff: any = await resp.json()
 			console.log("filesys.showDiff.diff", diff)
 
-			// extract envId if we don't have it yet
-			if (!envId) {
-				if (uri.scheme === 'veg') {
-					let p = uri.path
-					if (p.startsWith("/")) {
-						p = p.slice(1)
-					}
-					p = p.split("/")[0]
-					const ps = p.split(":")
-					envId = ps[0]
-				} else if (uri.scheme === 'oci') {
-					const p = uri.path.split("/")[1]
-					const ps = p.split(":")
-					envId = ps[0]
-				}
-			}
-
-			const session = this._sessions.find(s => {
-				const sEnv = s.state?.currEnv
-				if (!sEnv) { return false }
-				const sEnvId = sEnv.split("/")[1].split(":")[0]
-				return sEnvId === envId
-			})
-
-			var title = session?.state?.title || session?.sid || uri.path
-			// get envVer
-			let envVer = "?"
-			if (uri.scheme === 'veg') {
-				let p = uri.path
-				if (p.startsWith("/")) {
-					p = p.slice(1)
-				}
-				p = p.split("/")[0]
-				const ps = p.split(":")
-				envVer = ps[1]
-			} else if (uri.scheme === 'oci') {
-				const p = uri.path.split("/")[1]
-				const ps = p.split(":")
-				envVer = ps[1]
-			}
-
-			title += ` (v${envVer} @ ${envId})`
-
 			// get vscode uris for the environ basepath
 			const prevUri = vscode.Uri.from({ ...vscode.Uri.parse(diff.prev), scheme: "veg" })
 			const nextUri = vscode.Uri.from({ ...vscode.Uri.parse(diff.next), scheme: "veg" })
 
-			if (!this._scm) {
-				this._scm = vscode.scm.createSourceControl('veg', "Veggie")
-				this._scm.inputBox.visible = false
-				console.log("creating SCM", this._scm)
+			let scm = this._scms.get(scmId)
+			if (!scm) {
+				scm = vscode.scm.createSourceControl("veg", scmTitle)
+				scm.inputBox.visible = false
+				this._scms.set(scmId, scm)
 			}
 
-			const id = session?.state?.currEnv || session?.sid || uri.path
-			console.log("SCM id", id)
-			// Reuse existing group if available to prevent duplicates
-			let group: any = this._resourceGroups.get(id)
-			console.log("SCM group", group?.title)
+			console.log("SCM id", scmId, "Group id", groupId)
+			
+			let scmGroups = this._resourceGroups.get(scmId)
+			if (!scmGroups) {
+				scmGroups = new Map()
+				this._resourceGroups.set(scmId, scmGroups)
+			}
+
+			let group = scmGroups.get(groupId)
 			if (!group) {
-				group = this._scm.createResourceGroup(id, title)
-				this._resourceGroups.set(id, group)
+				group = scm.createResourceGroup(groupId, groupTitle)
+				scmGroups.set(groupId, group)
 			} else {
-				// update title
-				group.label = title
+				group.label = groupTitle
 			}
 			
 			const multiDiffResources: { originalUri: vscode.Uri | undefined; modifiedUri: vscode.Uri | undefined }[] = [];
@@ -768,9 +807,9 @@ class VegContentProvider implements vscode.FileSystemProvider {
 
 			// Define the options object exactly as the internal interface expects
 			const options = {
-				title: title,
+				title: groupTitle,
 				// This provides a unique ID for the tab so VS Code can manage it
-				multiDiffSourceUri: vscode.Uri.from({ scheme: 'veg', path: `/diff-session/${id}` }),
+				multiDiffSourceUri: vscode.Uri.from({ scheme: 'veg', path: `/diff-session/${groupId}` }),
 				resources: multiDiffResources,
 			};
 
@@ -789,36 +828,26 @@ class VegContentProvider implements vscode.FileSystemProvider {
 	// todo, we probably need a diffUri here
 	mergeDiff(source: vscode.Uri | vscode.SourceControlResourceGroup, destination?: vscode.Uri, forceInput?: boolean): void | Thenable<void> {
 		const f = async () => {
+			const info = this.getScmInfo(source);
 			let dest = destination
-			let session: any = undefined
+			let session = info.session;
+			let uri = info.uri;
+			let envId = "";
+			let scmId = info.scmId || "";
 
-			// Handle ResourceGroup (from SCM view)
-			let uri: vscode.Uri
-			let envId = ""
-			
-			// @ts-ignore
-			if (source.id && !source.scheme) {
-				// @ts-ignore
-				const id = source.id
-				uri = vscode.Uri.parse("veg://" + id)
-				// Try exact match first since ID is usually currEnv
-				session = this._sessions.find(s => s.state?.currEnv === id || s.sid === id)
-				
-				if (!session && id.includes("/")) {
-					// Fallback to extraction if exact match fails
-					envId = id.split("/")[1]?.split(":")[0]
-				}
-			} else {
-				uri = source as vscode.Uri
-				// extract envId
-				if (uri.scheme === 'veg') {
-					let p = uri.path
-					if (p.startsWith("/")) {
-						p = p.slice(1)
-					}
-					envId = p.split("/")[0].split(":")[0]
-				} else if (uri.scheme === 'oci') {
-					envId = uri.path.split("/")[1].split(":")[0]
+			if (!uri) {
+				return
+			}
+
+			// extract envId from uri
+			if (uri.scheme === 'veg' || uri.scheme === 'oci') {
+				let p = uri.authority + uri.path
+				if (p.startsWith("/")) p = p.slice(1)
+				const lastColon = p.lastIndexOf(":")
+				if (lastColon !== -1) {
+					envId = p.substring(0, lastColon)
+				} else {
+					envId = p
 				}
 			}
 
@@ -826,9 +855,27 @@ class VegContentProvider implements vscode.FileSystemProvider {
 				session = this._sessions.find(s => {
 					const sEnv = s.state?.currEnv
 					if (!sEnv) { return false }
-					const sEnvId = sEnv.split("/")[1].split(":")[0]
-					return sEnvId === envId
+					const lastColon = sEnv.lastIndexOf(":")
+					const sId = lastColon !== -1 ? sEnv.substring(0, lastColon) : sEnv
+					return sId === envId
 				})
+			}
+
+			if (!scmId) scmId = session?.sid || envId
+
+			// Track latest
+			let envVer = ""
+			if (uri.scheme === 'veg') {
+				let p = uri.path
+				if (p.startsWith("/")) p = p.slice(1)
+				envVer = p.split("/")[0].split(":")[1] || "?"
+			} else if (uri.scheme === 'oci') {
+				envVer = uri.path.split("/")[1].split(":")[1] || "?"
+			}
+			const currentLatest = this._latestEnvs.get(scmId);
+			const currentVer = parseInt(envVer);
+			if (!currentLatest || (!isNaN(currentVer) && currentVer > parseInt(currentLatest.split(":")[1]))) {
+				this._latestEnvs.set(scmId, `${envId}:${envVer}`);
 			}
 
 			if (!dest && !forceInput) {
@@ -904,45 +951,106 @@ class VegContentProvider implements vscode.FileSystemProvider {
 	}
 
 	hideDiff(source: vscode.Uri | vscode.SourceControlResourceGroup) {
-		let id = "?"
-		
-		// @ts-ignore
-		if (source.id && !source.scheme) {
+		const info = this.getScmInfo(source);
+		let scmId = info.scmId || "";
+		let groupId = info.groupId || "";
+		let isScm = !groupId;
+
+		if (!scmId) {
+			// Fallback if getScmInfo didn't find it in maps
 			// @ts-ignore
-			id = source.id
-		} else {
-			const uri = source as vscode.Uri
-			// extract envId
-			let envId = "?"
-			if (uri.scheme === 'veg') {
-				let p = uri.path
-				if (p.startsWith("/")) {
-					p = p.slice(1)
+			if (source.id && !source.scheme) {
+				// @ts-ignore
+				const id = source.id
+				// check if it is an SCM provider or a resource group
+				// @ts-ignore
+				if (source.resourceStates === undefined) {
+					isScm = true
+					scmId = id
+				} else {
+					groupId = id
 				}
-				p = p.split("/")[0]
-				const ps = p.split(":")
-				envId = ps[0]
-			} else if (uri.scheme === 'oci') {
-				const p = uri.path.split("/")[1]
-				const ps = p.split(":")
-				envId = ps[0]
+
+				const lastColon = id.lastIndexOf(":")
+				const envIdFromId = lastColon !== -1 ? id.substring(0, lastColon) : id
+
+				const session = this._sessions.find(s => {
+					if (s.sid === id || s.state?.currEnv === id) return true
+					const sEnv = s.state?.currEnv
+					if (!sEnv) return false
+					const sLastColon = sEnv.lastIndexOf(":")
+					const sId = sLastColon !== -1 ? sEnv.substring(0, sLastColon) : sEnv
+					return sId === envIdFromId
+				})
+
+				if (session) {
+					scmId = session.sid
+					if (!isScm) groupId = id
+				} else {
+					scmId = envIdFromId
+					if (!isScm) groupId = id
+				}
+			} else {
+				const uri = source as vscode.Uri
+				// extract envId
+				let envId = "?"
+				if (uri.scheme === 'veg' || uri.scheme === 'oci') {
+					let p = uri.authority + uri.path
+					if (p.startsWith("/")) p = p.slice(1)
+					const lastColon = p.lastIndexOf(":")
+					if (lastColon !== -1) {
+						envId = p.substring(0, lastColon)
+					} else {
+						envId = p
+					}
+				}
+
+				const session = this._sessions.find(s => {
+					const sEnv = s.state?.currEnv
+					if (!sEnv) { return false }
+					const lastColon = sEnv.lastIndexOf(":")
+					const sId = lastColon !== -1 ? sEnv.substring(0, lastColon) : sEnv
+					return sId === envId
+				})
+
+				scmId = session?.sid || envId
+				groupId = uri.authority + uri.path
+				if (groupId.startsWith("/")) groupId = groupId.slice(1)
 			}
-
-			const session = this._sessions.find(s => {
-				const sEnv = s.state?.currEnv
-				if (!sEnv) { return false }
-				const sEnvId = sEnv.split("/")[1].split(":")[0]
-				return sEnvId === envId
-			})
-
-			id = session?.state?.currEnv || session?.sid || uri.path
 		}
-		console.log("hideDiff SCM id", id)
+		console.log("hideDiff SCM id", scmId, "Group id", groupId, "isScm", isScm)
 
-		const group = this._resourceGroups.get(id)
-		if (group) {
-			group.dispose()
-			this._resourceGroups.delete(id)
+		const scmGroups = this._resourceGroups.get(scmId)
+		if (scmGroups) {
+			if (isScm) {
+				// Hide all groups in this SCM
+				for (const group of scmGroups.values()) {
+					group.dispose()
+				}
+				scmGroups.clear()
+			} else {
+				const group = scmGroups.get(groupId)
+				if (group) {
+					group.dispose()
+					scmGroups.delete(groupId)
+				}
+			}
+			
+			if (scmGroups.size === 0) {
+				this._resourceGroups.delete(scmId)
+				const scm = this._scms.get(scmId)
+				if (scm) {
+					scm.dispose()
+					this._scms.delete(scmId)
+				}
+			}
+		} else if (isScm) {
+			// Even if no groups, dispose the SCM if it exists
+			const scm = this._scms.get(scmId)
+			if (scm) {
+				scm.dispose()
+				this._scms.delete(scmId)
+			}
 		}
 	}
 
