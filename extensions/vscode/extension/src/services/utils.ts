@@ -76,48 +76,46 @@ export function vsUriToVeg(uri: vscode.Uri): vscode.Uri {
 }
 
 export function parseEnvUri(uri: vscode.Uri) {
-	let authority = uri.authority
-	let p = uri.path
-	if (p.startsWith("/")) p = p.slice(1)
-	const parts = p.split("/")
-
-	let envStr = ""
-	if (authority.includes(":")) {
-		const full = authority + (uri.path.startsWith("/") ? uri.path : "/" + uri.path)
-		const segments = full.split("/")
-		let lastColonIndex = -1
-		for (let i = 0; i < segments.length; i++) {
-			if (segments[i].includes(":")) lastColonIndex = i
-		}
-		const envEndIndex = Math.max(0, lastColonIndex)
-		envStr = segments.slice(0, envEndIndex + 1).join("/")
-	} else {
-		envStr = authority
-		if (parts[0] !== "" && parts[0] !== undefined) {
-			envStr += (envStr !== "" ? "/" : "") + parts[0]
-		}
-	}
-
-	const lastColon = envStr.lastIndexOf(":")
+	let full = uri.authority + uri.path
+	if (full.endsWith("/")) full = full.slice(0, -1)
 	
-	let envId = envStr
+	const firstSlash = full.indexOf("/")
+	const lastColon = full.lastIndexOf(":")
+	
+	let envId = full
 	let envVer = "?"
-
+	
 	if (lastColon !== -1) {
-		envId = envStr.substring(0, lastColon)
-		envVer = envStr.substring(lastColon + 1)
+		// tag is after last colon IF that colon is after the first slash (host/img:tag)
+		// OR if there is no slash at all (img:tag)
+		if (firstSlash === -1 || lastColon > firstSlash) {
+			envId = full.substring(0, lastColon)
+			envVer = full.substring(lastColon + 1)
+		}
 	}
+	
+	return { envId, envVer, fullPath: full }
+}
 
-	return { envId, envVer, fullPath: uri.authority + uri.path }
+export function normalizeEnvId(envId: string): string {
+	const parts = envId.split("/")
+	if (parts.length > 1) {
+		// if parts[0] looks like a host (contains dot or colon)
+		if (parts[0].includes(":") || parts[0].includes(".")) {
+			return parts.slice(1).join("/")
+		}
+	}
+	return envId
 }
 
 export function findSession(sessions: any[], envId: string) {
+	const normId = normalizeEnvId(envId)
 	return sessions.find(s => {
 		const sEnv = s.state?.currEnv
 		if (!sEnv) { return false }
-		const lastColon = sEnv.lastIndexOf(":")
-		const sId = lastColon !== -1 ? sEnv.substring(0, lastColon) : sEnv
-		return sId === envId
+		
+		const { envId: sId } = parseEnvUri(vscode.Uri.parse("oci://" + sEnv))
+		return normalizeEnvId(sId) === normId
 	})
 }
 

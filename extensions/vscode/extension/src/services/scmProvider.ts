@@ -15,13 +15,25 @@ export class VegScmProvider {
 	}
 
 	private getScmInfo(source: any): { uri?: vscode.Uri, session?: any, scmId?: string, groupId?: string } {
-		// @ts-ignore
-		if (!source.id || source.scheme) {
+		console.log("getScmInfo: start", { 
+			hasSource: !!source, 
+			id: source?.id, 
+			scheme: source?.scheme,
+			isUri: source instanceof vscode.Uri
+		});
+
+		if (!source) return {};
+
+		if (source instanceof vscode.Uri || source.scheme) {
 			return { uri: source as vscode.Uri };
 		}
 
-		// @ts-ignore
 		const id = source.id;
+		if (!id) {
+			console.log("getScmInfo: no id found on source");
+			return {};
+		}
+
 		let uri: vscode.Uri | undefined;
 		let session: any;
 		let scmId: string | undefined;
@@ -34,6 +46,7 @@ export class VegScmProvider {
 				const latest = this._latestEnvs.get(sid);
 				if (latest) uri = vscode.Uri.parse("veg://" + latest);
 				session = this._sessions.find(s => s.sid === sid);
+				console.log("getScmInfo: found in _scms", { scmId, uri: uri?.toString() });
 				break;
 			}
 		}
@@ -46,6 +59,7 @@ export class VegScmProvider {
 						groupId = gid;
 						uri = vscode.Uri.parse("veg://" + gid);
 						session = this._sessions.find(s => s.sid === sid);
+						console.log("getScmInfo: found in _resourceGroups", { scmId, groupId, uri: uri?.toString() });
 						break;
 					}
 				}
@@ -56,13 +70,17 @@ export class VegScmProvider {
 		if (!scmId) {
 			// Fallback to old logic
 			session = this._sessions.find(s => s.state?.currEnv === id || s.sid === id);
-			if (session && id === session.sid) {
+			if (session) {
 				scmId = session.sid;
 				const sEnv = session.state?.currEnv;
 				uri = vscode.Uri.parse("veg://" + (sEnv || id));
+				console.log("getScmInfo: found via session fallback", { scmId, uri: uri.toString() });
 			} else {
 				scmId = id;
-				uri = vscode.Uri.parse("veg://" + id);
+				// avoid double scheme if id already has one
+				const uriStr = id.includes("://") ? id : "veg://" + id;
+				uri = vscode.Uri.parse(uriStr);
+				console.log("getScmInfo: final fallback", { scmId, uri: uri.toString() });
 			}
 		}
 
@@ -296,6 +314,12 @@ export class VegScmProvider {
 				session = findSession(this._sessions, envId)
 			}
 
+			console.log("mergeDiff: session info", { 
+				sid: session?.sid, 
+				hasInitEnv: !!session?.state?.initEnv,
+				srcUri: session?.state?.initEnv?.srcUri 
+			})
+
 			if (!scmId) scmId = session?.sid || envId
 
 			// Track latest
@@ -308,6 +332,7 @@ export class VegScmProvider {
 			if (!dest && !forceInput) {
 				if (session?.state?.initEnv?.srcUri?.startsWith("file://")) {
 					dest = vscode.Uri.parse(session.state.initEnv.srcUri)
+					console.log("mergeDiff: using session initEnv srcUri", dest.toString())
 				}
 			}
 
@@ -322,6 +347,8 @@ export class VegScmProvider {
 					return
 				}
 				dest = vscode.Uri.parse(value as string)
+			} else {
+				vscode.window.showInformationMessage(`Merging into ${dest.fsPath}`)
 			}
 
 			if (dest.scheme !== 'file') {
@@ -476,7 +503,11 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	vscode.commands.registerCommand('veg.explorer.mergeDiff', async (arg: any) => {
 		console.log("veg.explorer.mergeDiff.args", arg)
-		scmProvider.mergeDiff(arg, undefined, true)
+		try {
+			await scmProvider.mergeDiff(arg, undefined, false)
+		} catch (e) {
+			console.error("veg.explorer.mergeDiff execution error:", e)
+		}
 	})
 
 	vscode.commands.registerCommand('veg.explorer.hideDiff', async (arg: any) => {

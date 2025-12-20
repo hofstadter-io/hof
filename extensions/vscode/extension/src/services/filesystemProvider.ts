@@ -151,6 +151,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 
 	setSessions(sessions: any[]) {
 		this._sessions = sessions
+		this.refreshAll()
 	}
 
 	refreshAll() {
@@ -170,10 +171,24 @@ class VegContentProvider implements vscode.FileSystemProvider {
 			const session = findSession(this._sessions, envId)
 
 			if (session) {
+				const sEnv = session.state?.currEnv
+				const { envVer: sVer } = sEnv ? parseEnvUri(vscode.Uri.parse("oci://" + sEnv)) : { envVer: "" }
+
+				let nextUri = wf.uri
+				if (sVer !== "" && sVer !== envVer) {
+					const tmpUri = vscode.Uri.parse("oci://" + sEnv)
+					nextUri = vscode.Uri.from({
+						...tmpUri,
+						scheme: "veg",
+						query: wf.uri.query,
+					})
+				}
+
 				let name = session.state?.title || session.sid
 
-				if (envVer && envVer !== "" && envVer !== "?" && !isNaN(parseInt(envVer))) {
-					name = `(${envVer}) ${name}`
+				const ver = sVer !== "" ? sVer : envVer
+				if (ver && ver !== "" && ver !== "?" && !isNaN(parseInt(ver))) {
+					name = `(${ver}) ${name}`
 				}
 
 				let posVal = uriPos
@@ -187,16 +202,19 @@ class VegContentProvider implements vscode.FileSystemProvider {
 				}
 
 				const f: Folder = {
-					uri: wf.uri,
+					uri: nextUri,
 					name: name,
 					sid: session.sid,
 					session: session,
 					environ: {
-						fromUri: "oci://" + (wf.uri.authority + wf.uri.path).replace(/^\//, ''),
+						fromUri: "oci://" + (nextUri.authority + nextUri.path).replace(/^\//, ''),
 						name: name,
 					}
 				}
-				vscode.workspace.updateWorkspaceFolders(i, 1, f)
+				// only update if something changed to avoid unnecessary refreshes
+				if (wf.uri.toString() !== f.uri.toString() || wf.name !== f.name) {
+					vscode.workspace.updateWorkspaceFolders(i, 1, f)
+				}
 			}
 		}
 	}
@@ -350,18 +368,33 @@ class VegContentProvider implements vscode.FileSystemProvider {
 				// convert to something vscode will understand
 			}
 
-			const wsF = vscode?.workspace?.workspaceFolders as any[]
-			const count = vscode.workspace.workspaceFolders?.length || 0
+			const wsF = (vscode?.workspace?.workspaceFolders || []) as any[]
+			const count = wsF.length
 			var wsIndex = count
 
-			// skip if already open, replace if matchind sid
+			// skip if already open, replace if matching sid
+			const { envId: fEnvId } = parseEnvUri(f.uri)
+			const normFEnvId = normalizeEnvId(fEnvId)
+
 			for (var i: number = 0; i < wsF.length; i++) {
-				if (f.uri === wsF[i].uri) {
+				const wf = wsF[i]
+				if (wf.uri.scheme !== 'veg') continue
+
+				if (f.uri.toString() === wf.uri.toString()) {
 					vscode.window.showErrorMessage(`uri already open: ${f.uri}`)
 					return
 				}
-				if (f.sid === wsF[i].sid) {
+
+				const { envId: wfEnvId } = parseEnvUri(wf.uri)
+				if (normFEnvId === normalizeEnvId(wfEnvId)) {
 					wsIndex = i
+					// try to preserve pos from name if not provided
+					if (pos === undefined) {
+						const posMatch = wf.name.match(/\[(\d+)\]/);
+						if (posMatch) {
+							f.name = `[${posMatch[1]}] ${f.name}`
+						}
+					}
 					break
 				}
 			}
