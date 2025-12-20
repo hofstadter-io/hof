@@ -441,6 +441,30 @@ export class VegScmProvider {
 			}
 		}
 	}
+
+	public openTerminal(source: vscode.Uri | vscode.SourceControlResourceGroup): void {
+		const info = this.getScmInfo(source);
+		let uri = info.uri;
+		let session = info.session;
+
+		if (!uri) return;
+
+		let { envId } = parseEnvUri(uri);
+
+		if (!session) {
+			session = findSession(this._sessions, envId)
+		}
+
+		if (session) {
+			extensionEmitter.fire({
+				type: "session.term.open",
+				payload: {
+					sid: session.sid,
+					image: session.state?.currEnv
+				}
+			})
+		}
+	}
 }
 
 export const scmProvider = new VegScmProvider()

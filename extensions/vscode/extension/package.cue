@@ -64,6 +64,7 @@ contributes: {
 
     { command: "veg.filesys.hack", category: "Veg", title: "Hack Filesys (Veg)", icon: "$(symbol-class)" },
 
+    { command: "veg.explorer.terminal", category: "Veg", title: "Terminal (Veg)", icon: "$(terminal)" },
     { command: "veg.explorer.copyPath", category: "Veg", title: "Copy Path (Veg)", icon: "$(copy)" },
     { command: "veg.explorer.chat", category: "Veg", title: "Chat (Veg)", icon: "$(comment-discussion)" },
     { command: "veg.explorer.openEnviron", category: "Veg", title: "Open (Veg)", icon: "$(folder-opened)" },
@@ -124,6 +125,7 @@ contributes: {
       { command: "veg.explorer.showDiff", group: "inline@1", when: "scmProvider == veg" },
       { command: "veg.explorer.mergeDiff", group: "inline@2", when: "scmProvider == veg" },
       { command: "veg.explorer.hideDiff", group: "inline@3", when: "scmProvider == veg" },
+      { command: "veg.explorer.terminal", group: "inline@4", when: "scmProvider == veg" },
     ],
     "scm/title": [
       { command: "veg.explorer.showDiff", group: "navigation@1", when: "scmProvider == veg" },

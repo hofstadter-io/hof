@@ -113,6 +113,12 @@
                 "icon": "$(symbol-class)"
             },
             {
+                "command": "veg.explorer.terminal",
+                "category": "Veg",
+                "title": "Terminal (Veg)",
+                "icon": "$(terminal)"
+            },
+            {
                 "command": "veg.explorer.copyPath",
                 "category": "Veg",
                 "title": "Copy Path (Veg)",
@@ -351,6 +357,11 @@
                 {
                     "command": "veg.explorer.hideDiff",
                     "group": "inline@3",
+                    "when": "scmProvider == veg"
+                },
+                {
+                    "command": "veg.explorer.terminal",
+                    "group": "inline@4",
                     "when": "scmProvider == veg"
                 }
             ],

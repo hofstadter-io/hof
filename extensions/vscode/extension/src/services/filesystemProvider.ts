@@ -93,6 +93,12 @@ export async function activate(context: vscode.ExtensionContext) {
 		vscode.commands.executeCommand('workbench.files.action.refreshFilesExplorer')
 	})
 
+	vscode.commands.registerCommand('veg.explorer.terminal', async (arg: any) => {
+		console.log("veg.explorer.terminal.args", arg)
+		vscode.window.showInformationMessage(`Veg Terminal triggered: ${arg?.id || 'no id'}`);
+		scm.scmProvider.openTerminal(arg)
+	})
+
 
 	extensionEmitter.event(async (e) => {
 		// ...
