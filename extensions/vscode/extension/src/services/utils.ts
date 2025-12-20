@@ -52,6 +52,35 @@ export function vsUriToVeg(uri: vscode.Uri): vscode.Uri {
 	}
 }
 
+export function parseEnvUri(uri: vscode.Uri) {
+	let p = uri.authority + uri.path
+	if (p.startsWith("/")) p = p.slice(1)
+
+	// Take the first segment as the environment identifier
+	const envStr = p.split("/")[0]
+	const lastColon = envStr.lastIndexOf(":")
+	
+	let envId = envStr
+	let envVer = "?"
+
+	if (lastColon !== -1) {
+		envId = envStr.substring(0, lastColon)
+		envVer = envStr.substring(lastColon + 1)
+	}
+
+	return { envId, envVer, fullPath: p }
+}
+
+export function findSession(sessions: any[], envId: string) {
+	return sessions.find(s => {
+		const sEnv = s.state?.currEnv
+		if (!sEnv) { return false }
+		const lastColon = sEnv.lastIndexOf(":")
+		const sId = lastColon !== -1 ? sEnv.substring(0, lastColon) : sEnv
+		return sId === envId
+	})
+}
+
 export async function makeReq(route: string, uri?: vscode.Uri, diffUri?: vscode.Uri, body?: any, onlyDiff: boolean = true): Promise<Response> {
 	// console.log("filesys.makeReq", route, uri, body)
 	const url = `${SERVER_URL}${route}`

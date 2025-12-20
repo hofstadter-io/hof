@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import fs from 'node:fs/promises';
-import { makeReq } from './utils';
+import { makeReq, parseEnvUri, findSession } from './utils';
 import { extensionEmitter } from '../comms';
 
 export class VegScmProvider {
@@ -8,6 +8,7 @@ export class VegScmProvider {
 	private _latestEnvs: Map<string, string> = new Map()
 	private _scms: Map<string, vscode.SourceControl> = new Map()
 	private _resourceGroups: Map<string, Map<string, vscode.SourceControlResourceGroup>> = new Map()
+
 
 	setSessions(sessions: any[]) {
 		this._sessions = sessions
@@ -68,6 +69,87 @@ export class VegScmProvider {
 		return { uri, session, scmId, groupId };
 	}
 
+	private isIgnoredPath(p: string): boolean {
+		return (p.startsWith("/") && p.endsWith("/")) || p === "/stdout.txt" || p === "/stderr.txt";
+	}
+
+	private processDiffEntry(
+		type: 'modified' | 'added' | 'deleted',
+		path: string,
+		prevBaseUri: vscode.Uri,
+		nextBaseUri: vscode.Uri,
+		resources: vscode.SourceControlResourceState[],
+		multiDiffResources: { originalUri: vscode.Uri | undefined; modifiedUri: vscode.Uri | undefined }[]
+	) {
+		if (type !== 'modified' && this.isIgnoredPath(path)) {
+			return;
+		}
+
+		const pfUri = vscode.Uri.from({ ...prevBaseUri, path: prevBaseUri.path + path })
+		const nfUri = vscode.Uri.from({ ...nextBaseUri, path: nextBaseUri.path + path })
+
+		let resourceUri: vscode.Uri;
+		let command: vscode.Command;
+		let icon: vscode.ThemeIcon;
+		let tooltip: string;
+		let strikeThrough: boolean | undefined;
+		let faded: boolean | undefined;
+
+		switch (type) {
+			case 'modified':
+				resourceUri = nfUri;
+				command = {
+					command: 'vscode.diff',
+					title: 'Show Diff',
+					arguments: [pfUri, nfUri, `veg-diff: ${path}`]
+				};
+				icon = new vscode.ThemeIcon('diff-modified', new vscode.ThemeColor('gitDecoration.modifiedResourceForeground'));
+				tooltip = `Modified: ${path}`;
+				multiDiffResources.push({ originalUri: pfUri, modifiedUri: nfUri });
+				break;
+
+			case 'added':
+				resourceUri = nfUri;
+				command = {
+					command: 'vscode.open',
+					title: 'Open File',
+					arguments: [nfUri]
+				};
+				icon = new vscode.ThemeIcon('diff-added', new vscode.ThemeColor('gitDecoration.addedResourceForeground'));
+				tooltip = `Added: ${path}`;
+				multiDiffResources.push({ originalUri: undefined, modifiedUri: nfUri });
+				break;
+
+			case 'deleted':
+				resourceUri = pfUri;
+				command = {
+					command: 'vscode.open',
+					title: 'Open File',
+					arguments: [pfUri]
+				};
+				icon = new vscode.ThemeIcon('diff-removed', new vscode.ThemeColor('gitDecoration.deletedResourceForeground'));
+				tooltip = `Deleted: ${path}`;
+				strikeThrough = true;
+				faded = true;
+				multiDiffResources.push({ originalUri: pfUri, modifiedUri: undefined });
+				break;
+		}
+
+		const decorations: vscode.SourceControlResourceDecorations = {
+			iconPath: icon!,
+			tooltip,
+			strikeThrough,
+			faded
+		};
+
+		resources.push({
+			resourceUri,
+			contextValue: type,
+			decorations,
+			command
+		});
+	}
+
 	// todo, we probably need a diffUri here
 	showDiff(source: vscode.Uri | vscode.SourceControlResourceGroup, destination?: vscode.Uri): void | Thenable<void> {
 		const f = async () => {
@@ -76,35 +158,15 @@ export class VegScmProvider {
 			const info = this.getScmInfo(source);
 			let uri = info.uri;
 			let session = info.session;
-			let envId = "";
-			let envVer = "";
 
 			if (!uri) {
 				return
 			}
 
-			// extract envId and envVer from uri
-			if (uri.scheme === 'veg' || uri.scheme === 'oci') {
-				let p = uri.authority + uri.path
-				if (p.startsWith("/")) p = p.slice(1)
-				const lastColon = p.lastIndexOf(":")
-				if (lastColon !== -1) {
-					envId = p.substring(0, lastColon)
-					envVer = p.substring(lastColon + 1)
-				} else {
-					envId = p
-					envVer = "?"
-				}
-			}
+			let { envId, envVer } = parseEnvUri(uri);
 
 			if (!session) {
-				session = this._sessions.find(s => {
-					const sEnv = s.state?.currEnv
-					if (!sEnv) { return false }
-					const lastColon = sEnv.lastIndexOf(":")
-					const sId = lastColon !== -1 ? sEnv.substring(0, lastColon) : sEnv
-					return sId === envId
-				})
+				session = findSession(this._sessions, envId)
 			}
 
 			const scmId = info.scmId || session?.sid || envId
@@ -157,95 +219,25 @@ export class VegScmProvider {
 				group.label = groupTitle
 			}
 
+			// Ensure the current group is at the top (newest first)
+			// @ts-ignore
+			const otherGroups = scm.resourceGroups.filter(g => g !== group)
+			// @ts-ignore
+			scm.resourceGroups = [group, ...otherGroups]
+
 			const multiDiffResources: { originalUri: vscode.Uri | undefined; modifiedUri: vscode.Uri | undefined }[] = [];
 			const resources: vscode.SourceControlResourceState[] = []
 
-			// 1. Modified paths
-			for (var p of diff.modPaths) {
-
-				const pfUri = vscode.Uri.from({ ...prevUri, path: prevUri.path + p })
-				const nfUri = vscode.Uri.from({ ...nextUri, path: nextUri.path + p })
-				// console.log("diff", pfUri, nfUri)
-
-				// 1. Add to SCM view (Single file diff)
-				resources.push({
-					resourceUri: nfUri,
-					contextValue: 'modified',
-					decorations: {
-						tooltip: `Modified: ${p}`,
-						iconPath: new vscode.ThemeIcon('diff-modified', new vscode.ThemeColor('gitDecoration.modifiedResourceForeground')),
-					},
-					command: {
-						command: 'vscode.diff',
-						title: 'Show Diff',
-						arguments: [pfUri, nfUri, `veg-diff: ${p}`]
-					}
-				});
-
-				// 2. Collect for Multi Diff View
-				multiDiffResources.push({
-					originalUri: pfUri,
-					modifiedUri: nfUri,
-				});
+			for (const p of diff.modPaths) {
+				this.processDiffEntry('modified', p, prevUri, nextUri, resources, multiDiffResources);
+			}
+			for (const p of diff.addPaths) {
+				this.processDiffEntry('added', p, prevUri, nextUri, resources, multiDiffResources);
+			}
+			for (const p of diff.delPaths) {
+				this.processDiffEntry('deleted', p, prevUri, nextUri, resources, multiDiffResources);
 			}
 
-			// 2. Added paths
-			for (var p of diff.addPaths) {
-				if ((p.startsWith("/") && p.endsWith("/")) || p === "/stdout.txt" || p === "/stderr.txt") {
-					continue
-				}
-				const nfUri = vscode.Uri.from({ ...nextUri, path: nextUri.path + p })
-
-				resources.push({
-					resourceUri: nfUri,
-					contextValue: 'added',
-					decorations: {
-						tooltip: `Added: ${p}`,
-						iconPath: new vscode.ThemeIcon('diff-added', new vscode.ThemeColor('gitDecoration.addedResourceForeground')),
-					},
-					command: {
-						command: 'vscode.open',
-						title: 'Open File',
-						arguments: [nfUri]
-					}
-				});
-
-				multiDiffResources.push({
-					// @ts-ignore
-					originalUri: undefined,
-					modifiedUri: nfUri,
-				});
-			}
-
-			// 3. Deleted paths
-			for (var p of diff.delPaths) {
-				if ((p.startsWith("/") && p.endsWith("/")) || p === "/stdout.txt" || p === "/stderr.txt") {
-					continue
-				}
-				const pfUri = vscode.Uri.from({ ...prevUri, path: prevUri.path + p })
-
-				resources.push({
-					resourceUri: pfUri,
-					contextValue: 'deleted',
-					decorations: {
-						tooltip: `Deleted: ${p}`,
-						strikeThrough: true,
-						faded: true,
-						iconPath: new vscode.ThemeIcon('diff-removed', new vscode.ThemeColor('gitDecoration.deletedResourceForeground')),
-					},
-					command: {
-						command: 'vscode.open',
-						title: 'Open File',
-						arguments: [pfUri]
-					}
-				});
-
-				multiDiffResources.push({
-					originalUri: pfUri,
-					// @ts-ignore
-					modifiedUri: undefined,
-				});
-			}
 			group.resourceStates = resources
 
 
@@ -279,46 +271,21 @@ export class VegScmProvider {
 			let dest = destination
 			let session = info.session;
 			let uri = info.uri;
-			let envId = "";
 			let scmId = info.scmId || "";
 
 			if (!uri) {
 				return
 			}
 
-			// extract envId from uri
-			if (uri.scheme === 'veg' || uri.scheme === 'oci') {
-				let p = uri.authority + uri.path
-				if (p.startsWith("/")) p = p.slice(1)
-				const lastColon = p.lastIndexOf(":")
-				if (lastColon !== -1) {
-					envId = p.substring(0, lastColon)
-				} else {
-					envId = p
-				}
-			}
+			let { envId, envVer } = parseEnvUri(uri);
 
 			if (!session) {
-				session = this._sessions.find(s => {
-					const sEnv = s.state?.currEnv
-					if (!sEnv) { return false }
-					const lastColon = sEnv.lastIndexOf(":")
-					const sId = lastColon !== -1 ? sEnv.substring(0, lastColon) : sEnv
-					return sId === envId
-				})
+				session = findSession(this._sessions, envId)
 			}
 
 			if (!scmId) scmId = session?.sid || envId
 
 			// Track latest
-			let envVer = ""
-			if (uri.scheme === 'veg') {
-				let p = uri.path
-				if (p.startsWith("/")) p = p.slice(1)
-				envVer = p.split("/")[0].split(":")[1] || "?"
-			} else if (uri.scheme === 'oci') {
-				envVer = uri.path.split("/")[1].split(":")[1] || "?"
-			}
 			const currentLatest = this._latestEnvs.get(scmId);
 			const currentVer = parseInt(envVer);
 			if (!currentLatest || (!isNaN(currentVer) && currentVer > parseInt(currentLatest.split(":")[1]))) {
@@ -362,33 +329,18 @@ export class VegScmProvider {
 
 			// write to disk
 			if (dest.scheme === 'file') {
-				for (var path of diff.addPaths) {
-					// skip ugh...
-					if ((path.startsWith("/") && path.endsWith("/")) || path === "/stdout.txt" || path === "/stderr.txt") {
-						continue
-					}
+				const writes = [...diff.addPaths, ...diff.modPaths];
+				for (const path of writes) {
+					if (this.isIgnoredPath(path)) continue;
 					const val = diff.files[path]
 					const key = dest.path + path
 					await fs.writeFile(key, val)
 				}
 
-				for (var path of diff.modPaths) {
-					// skip ugh...
-					if ((path.startsWith("/") && path.endsWith("/")) || path === "/stdout.txt" || path === "/stderr.txt") {
-						continue
-					}
-					const val = diff.files[path]
+				for (const path of diff.delPaths) {
+					if (this.isIgnoredPath(path)) continue;
 					const key = dest.path + path
-					await fs.writeFile(key, val)
-				}
-
-				for (var path of diff.delPaths) {
-					// skip ugh...
-					if ((path.startsWith("/") && path.endsWith("/")) || path === "/stdout.txt" || path === "/stderr.txt") {
-						continue
-					}
-					const key = dest.path + path
-					await fs.rm(key)
+					await fs.rm(key, { force: true, recursive: true }).catch(() => { })
 				}
 			}
 
@@ -421,14 +373,7 @@ export class VegScmProvider {
 				const lastColon = id.lastIndexOf(":")
 				const envIdFromId = lastColon !== -1 ? id.substring(0, lastColon) : id
 
-				const session = this._sessions.find(s => {
-					if (s.sid === id || s.state?.currEnv === id) return true
-					const sEnv = s.state?.currEnv
-					if (!sEnv) return false
-					const sLastColon = sEnv.lastIndexOf(":")
-					const sId = sLastColon !== -1 ? sEnv.substring(0, sLastColon) : sEnv
-					return sId === envIdFromId
-				})
+				const session = findSession(this._sessions, envIdFromId)
 
 				if (session) {
 					scmId = session.sid
@@ -439,26 +384,8 @@ export class VegScmProvider {
 				}
 			} else {
 				const uri = source as vscode.Uri
-				// extract envId
-				let envId = "?"
-				if (uri.scheme === 'veg' || uri.scheme === 'oci') {
-					let p = uri.authority + uri.path
-					if (p.startsWith("/")) p = p.slice(1)
-					const lastColon = p.lastIndexOf(":")
-					if (lastColon !== -1) {
-						envId = p.substring(0, lastColon)
-					} else {
-						envId = p
-					}
-				}
-
-				const session = this._sessions.find(s => {
-					const sEnv = s.state?.currEnv
-					if (!sEnv) { return false }
-					const lastColon = sEnv.lastIndexOf(":")
-					const sId = lastColon !== -1 ? sEnv.substring(0, lastColon) : sEnv
-					return sId === envId
-				})
+				const { envId } = parseEnvUri(uri)
+				const session = findSession(this._sessions, envId)
 
 				scmId = session?.sid || envId
 				groupId = uri.authority + uri.path

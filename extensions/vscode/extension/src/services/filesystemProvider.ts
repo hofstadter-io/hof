@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { extensionEmitter, sendMessage } from '../comms';
-import { makeReq, vsUriToVeg, Environ, Folder } from './utils';
+import { makeReq, vsUriToVeg, Environ, Folder, parseEnvUri, findSession } from './utils';
 import * as scm from './scmProvider';
 
 // This method is called when your extension is activated
@@ -155,20 +155,11 @@ class VegContentProvider implements vscode.FileSystemProvider {
 				continue
 			}
 
-			// extract envId
-			let p = wf.uri.authority + wf.uri.path
-			if (p.startsWith("/")) p = p.slice(1)
-			const lastColon = p.lastIndexOf(":")
-			const envId = lastColon !== -1 ? p.substring(0, lastColon) : p
+			// extract envId using helper
+			const { envId } = parseEnvUri(wf.uri)
 
-			const session = this._sessions.find(s => {
-				const sEnv = s.state?.currEnv
-				// console.log("  - ", sEnv, s)
-				if (!sEnv) { return false }
-				const lastColon = sEnv.lastIndexOf(":")
-				const sId = lastColon !== -1 ? sEnv.substring(0, lastColon) : sEnv
-				return sId === envId
-			})
+			// use helper
+			const session = findSession(this._sessions, envId)
 
 			if (session) {
 				const f: Folder = {
