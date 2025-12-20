@@ -442,24 +442,130 @@ class VegContentProvider implements vscode.FileSystemProvider {
 		return f()
 	}
 
-	writeFile(uri: vscode.Uri, content: Uint8Array, options: { create: boolean, overwrite: boolean }): void | Thenable<void> {
+	async writeFile(uri: vscode.Uri, content: Uint8Array, options: { create: boolean, overwrite: boolean }): Promise<void> {
+		const resp = await makeReq("/fs/write", uri, undefined, {
+			uri: uri.toString(),
+			path: uri.path,
+			content: new TextDecoder().decode(content),
+		}, this._onlyDiff)
+
+		if (resp.status !== 200) {
+			throw vscode.FileSystemError.Unavailable(uri)
+		}
+
+		const data: any = await resp.json()
+		const nextUri = vscode.Uri.parse(`veg://${data.envUri}`)
+		this.updateUri(uri, nextUri)
 	}
 
 
-	createDirectory(uri: vscode.Uri): void | Thenable<void> {
+	async createDirectory(uri: vscode.Uri): Promise<void> {
+		const resp = await makeReq("/fs/mkdir", uri, undefined, {
+			uri: uri.toString(),
+			path: uri.path,
+		}, this._onlyDiff)
 
+		if (resp.status !== 200) {
+			throw vscode.FileSystemError.Unavailable(uri)
+		}
+
+		const data: any = await resp.json()
+		const nextUri = vscode.Uri.parse(`veg://${data.envUri}`)
+		this.updateUri(uri, nextUri)
 	}
 
-	delete(uri: vscode.Uri, options: { recursive: boolean }): void | Thenable<void> {
+	async delete(uri: vscode.Uri, options: { recursive: boolean }): Promise<void> {
+		const resp = await makeReq("/fs/delete", uri, undefined, {
+			uri: uri.toString(),
+			path: uri.path,
+		}, this._onlyDiff)
 
+		if (resp.status !== 200) {
+			throw vscode.FileSystemError.Unavailable(uri)
+		}
+
+		const data: any = await resp.json()
+		const nextUri = vscode.Uri.parse(`veg://${data.envUri}`)
+		this.updateUri(uri, nextUri)
 	}
 
-	rename(source: vscode.Uri, destination: vscode.Uri, options: { overwrite: boolean }): void | Thenable<void> {
-		// move
+	async rename(source: vscode.Uri, destination: vscode.Uri, options: { overwrite: boolean }): Promise<void> {
+		const resp = await makeReq("/fs/rename", source, undefined, {
+			uri: source.toString(),
+			src: source.path,
+			dst: destination.path,
+		}, this._onlyDiff)
+
+		if (resp.status !== 200) {
+			throw vscode.FileSystemError.Unavailable(source)
+		}
+
+		const data: any = await resp.json()
+		const nextUri = vscode.Uri.parse(`veg://${data.envUri}`)
+		this.updateUri(source, nextUri)
 	}
 
-	copy(source: vscode.Uri, destination: vscode.Uri, options: { overwrite: boolean }): void | Thenable<void> {
+	async copy(source: vscode.Uri, destination: vscode.Uri, options: { overwrite: boolean }): Promise<void> {
+		const resp = await makeReq("/fs/copy", source, undefined, {
+			uri: source.toString(),
+			src: source.path,
+			dst: destination.path,
+		}, this._onlyDiff)
 
+		if (resp.status !== 200) {
+			throw vscode.FileSystemError.Unavailable(source)
+		}
+
+		const data: any = await resp.json()
+		const nextUri = vscode.Uri.parse(`veg://${data.envUri}`)
+		this.updateUri(source, nextUri)
+	}
+
+	private updateUri(oldUri: vscode.Uri, nextUri: vscode.Uri) {
+		const wsF = (vscode.workspace.workspaceFolders || []) as any[]
+		for (let i = 0; i < wsF.length; i++) {
+			const wf = wsF[i]
+			if (wf.uri.scheme !== 'veg') continue
+
+			const { envId: oldEnvId } = parseEnvUri(oldUri)
+			const { envId: wfEnvId } = parseEnvUri(wf.uri)
+
+			if (oldEnvId === wfEnvId) {
+				const { envVer } = parseEnvUri(nextUri)
+				const q = new URLSearchParams(wf.uri.query)
+				const uriPos = q.get("pos")
+
+				const session = findSession(this._sessions, wfEnvId)
+				let name = session?.state?.title || session?.sid || wfEnvId
+
+				if (envVer && envVer !== "" && envVer !== "?" && !isNaN(parseInt(envVer))) {
+					name = `(${envVer}) ${name}`
+				}
+
+				let posVal = uriPos
+				if (!posVal) {
+					const posMatch = wf.name.match(/\[(\d+)\]/);
+					if (posMatch) posVal = posMatch[1]
+				}
+
+				if (posVal) {
+					name = `[${posVal}] ${name}`;
+				}
+
+				const f: Folder = {
+					uri: nextUri,
+					name: name,
+					sid: session?.sid || wfEnvId,
+					session: session,
+					environ: {
+						fromUri: "oci://" + (nextUri.authority + nextUri.path).replace(/^\//, ''),
+						name: name,
+					}
+				}
+				vscode.workspace.updateWorkspaceFolders(i, 1, f)
+				break
+			}
+		}
 	}
 
 	watch(uri: vscode.Uri, options: { excludes: readonly string[], recursive: boolean }): vscode.Disposable {

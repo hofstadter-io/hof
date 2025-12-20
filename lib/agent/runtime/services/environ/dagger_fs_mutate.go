@@ -34,6 +34,30 @@ func (le *localEnviron) WriteFile(envUri, path, content string) (nextUri string,
 	return nextUri, nil
 }
 
+func (le *localEnviron) CreateDirectory(envUri, path string) (nextUri string, err error) {
+	_, env, err := le.LookupEnviron(envUri)
+	if err != nil {
+		return "", fmt.Errorf("while looking up environment(%s): %w", envUri, err)
+	}
+
+	nextLayer, err := env.WithDirectory(path, le.dag.Directory()).Sync(le.ctx)
+	if err != nil {
+		return "", fmt.Errorf("while creating directory(%s %s): %w", envUri, path, err)
+	}
+
+	nextUri, _, err = IncrementTag(envUri)
+	if err != nil {
+		return "", fmt.Errorf("while incrementing tag(%s %s): %w", envUri, path, err)
+	}
+
+	err = le.persistEnviron(nextUri, nil, nextLayer)
+	if err != nil {
+		return "", fmt.Errorf("while persisting environ(%s %s): %w", envUri, path, err)
+	}
+
+	return nextUri, nil
+}
+
 type EditOp struct {
 	Old   string `json:"old"`
 	New   string `json:"new"`

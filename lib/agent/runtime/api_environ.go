@@ -125,22 +125,106 @@ func (r *Runtime) fsList(c echo.Context) error {
 }
 
 type fsWriteRequest struct {
-	EnvUri  string `json:"envUri"`
-	NextTag string `json:"nextTag"`
+	Uri     string `json:"uri"`
+	Path    string `json:"path"`
 	Content string `json:"content"`
 }
 
 func (r *Runtime) fsWrite(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello, World!")
+	var p fsWriteRequest
+	err := c.Bind(&p)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	nextUri, err := environ.Client().WriteFile(p.Uri, p.Path, p.Content)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, map[string]string{"envUri": nextUri})
 }
 
 type fsDeleteRequest struct {
-	EnvUri  string `json:"envUri"`
-	NextTag string `json:"nextTag"`
+	Uri  string `json:"uri"`
+	Path string `json:"path"`
 }
 
 func (r *Runtime) fsDelete(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello, World!")
+	var p fsDeleteRequest
+	err := c.Bind(&p)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	nextUri, err := environ.Client().Delete(p.Uri, p.Path, true)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, map[string]string{"envUri": nextUri})
+}
+
+type fsMkdirRequest struct {
+	Uri  string `json:"uri"`
+	Path string `json:"path"`
+}
+
+func (r *Runtime) fsMkdir(c echo.Context) error {
+	var p fsMkdirRequest
+	err := c.Bind(&p)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	nextUri, err := environ.Client().CreateDirectory(p.Uri, p.Path)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, map[string]string{"envUri": nextUri})
+}
+
+type fsRenameRequest struct {
+	Uri  string `json:"uri"`
+	Src  string `json:"src"`
+	Dst  string `json:"dst"`
+}
+
+func (r *Runtime) fsRename(c echo.Context) error {
+	var p fsRenameRequest
+	err := c.Bind(&p)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	nextUri, err := environ.Client().Move(p.Uri, p.Src, p.Dst, true)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, map[string]string{"envUri": nextUri})
+}
+
+type fsCopyRequest struct {
+	Uri  string `json:"uri"`
+	Src  string `json:"src"`
+	Dst  string `json:"dst"`
+}
+
+func (r *Runtime) fsCopy(c echo.Context) error {
+	var p fsCopyRequest
+	err := c.Bind(&p)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	nextUri, err := environ.Client().Copy(p.Uri, p.Src, p.Dst, true)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, map[string]string{"envUri": nextUri})
 }
 
 type fsDiffRequest struct {

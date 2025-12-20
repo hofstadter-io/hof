@@ -308,6 +308,98 @@ func FilesysWrite(name, description string) (tool.Tool, error) {
 	}, handler)
 }
 
+func FilesysMkdir(name, description string) (tool.Tool, error) {
+	handler := func(ctx tool.Context, input FilesysPathArgs) (FilesysResult, error) {
+		// get the current env, it's in Uri format
+		currUri, err := getAndCheckCurrEnv(ctx)
+		if err != nil {
+			return filesysError(input.Path, err), nil
+		}
+
+		// create the directory
+		nextUri, err := environ.Client().CreateDirectory(currUri, input.Path)
+		if err != nil {
+			return filesysError(input.Path, err), nil
+		}
+
+		// update state
+		err = ctx.State().Set("currEnv", nextUri)
+		if err != nil {
+			return filesysError(input.Path, err), nil
+		}
+
+		// return status result
+		return FilesysResult{Status: "ok", Path: input.Path}, nil
+	}
+	return functiontool.New(functiontool.Config{
+		Name:        name,
+		Description: strings.TrimSpace(description),
+	}, handler)
+}
+
+type FilesysMoveArgs struct {
+	Src string `json:"src"` // source path
+	Dst string `json:"dst"` // destination path
+}
+
+func FilesysRename(name, description string) (tool.Tool, error) {
+	handler := func(ctx tool.Context, input FilesysMoveArgs) (FilesysResult, error) {
+		// get the current env, it's in Uri format
+		currUri, err := getAndCheckCurrEnv(ctx)
+		if err != nil {
+			return filesysError(input.Src, err), nil
+		}
+
+		// move the path
+		nextUri, err := environ.Client().Move(currUri, input.Src, input.Dst, true)
+		if err != nil {
+			return filesysError(input.Src, err), nil
+		}
+
+		// update state
+		err = ctx.State().Set("currEnv", nextUri)
+		if err != nil {
+			return filesysError(input.Src, err), nil
+		}
+
+		// return status result
+		return FilesysResult{Status: "ok", Path: input.Src}, nil
+	}
+	return functiontool.New(functiontool.Config{
+		Name:        name,
+		Description: strings.TrimSpace(description),
+	}, handler)
+}
+
+func FilesysCopy(name, description string) (tool.Tool, error) {
+	handler := func(ctx tool.Context, input FilesysMoveArgs) (FilesysResult, error) {
+		// get the current env, it's in Uri format
+		currUri, err := getAndCheckCurrEnv(ctx)
+		if err != nil {
+			return filesysError(input.Src, err), nil
+		}
+
+		// copy the path
+		nextUri, err := environ.Client().Copy(currUri, input.Src, input.Dst, true)
+		if err != nil {
+			return filesysError(input.Src, err), nil
+		}
+
+		// update state
+		err = ctx.State().Set("currEnv", nextUri)
+		if err != nil {
+			return filesysError(input.Src, err), nil
+		}
+
+		// return status result
+		return FilesysResult{Status: "ok", Path: input.Src}, nil
+	}
+	return functiontool.New(functiontool.Config{
+		Name:        name,
+		Description: strings.TrimSpace(description),
+	}, handler)
+}
+
 func FilesysDel(name, description string) (tool.Tool, error) {
 	handler := func(ctx tool.Context, input FilesysPathArgs) (FilesysResult, error) {
 		// calculate our real key

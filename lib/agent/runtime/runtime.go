@@ -231,6 +231,9 @@ func (r *Runtime) initServer() error {
 	e.POST("/fs/diff", r.fsDiff)
 	e.POST("/fs/write", r.fsWrite)
 	e.POST("/fs/delete", r.fsDelete)
+	e.POST("/fs/mkdir", r.fsMkdir)
+	e.POST("/fs/rename", r.fsRename)
+	e.POST("/fs/copy", r.fsCopy)
 
 	e.POST("/env/list", r.envList)
 
