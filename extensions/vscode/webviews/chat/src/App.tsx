@@ -23,7 +23,7 @@ import {
 
 function App() {
   const state = vscodeApi.getState()
-  console.log("chat state:", state)
+  // console.log("chat state:", state)
   const headerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const {

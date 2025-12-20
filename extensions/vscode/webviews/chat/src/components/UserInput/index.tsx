@@ -2,19 +2,11 @@ import { useRef, useState } from 'react'
 import { vscodeApi } from '@/vscodeApi.js'
 
 import { Badge } from "@/components/ui/badge"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-
 import { cn } from "@/lib/utils"
 
 import { Header } from "../Header"
 import { ChatEditor } from './editor'
-import { AtSign, AudioLines, Bot, BotMessageSquare, Boxes, DollarSign, Drama, FileCode, Forward, Hash, Megaphone, ScrollText, Send, TerminalSquare } from 'lucide-react'
+import { Bot, BotMessageSquare, Drama, FileCode, Megaphone, ScrollText, TerminalSquare } from 'lucide-react'
 import { useChat } from '@/hooks/useChat'
 import { ToolTipper } from 'veg-webview-common'
 
@@ -33,16 +25,17 @@ export const UserInput = () => {
   const fileKeys = Object.keys(session?.state || {}).filter(k => k.startsWith("files:"));
   const agentmdKeys = Object.keys(session?.state || {}).filter(k => k.startsWith("agentmd:"));
 
+  const s = vscodeApi.getState()
+  // console.log("chat.state", s)
   const [userInput, setUserInput] = useState<any>({ 
-    agent: chatState?.agent || "veggie",
-    model: chatState?.model || "default",
-    environ: chatState?.environ || "",
-    text:  chatState?.input || "",
+    agent: s?.userInput?.agent || "",
+    model: s?.userInput?.model || "",
+    environ: s?.userInput?.environ || "",
+    text:  s?.userInput?.text || "",
   })
 
   const editorRef = useRef<any>(null);
-  const inputReady: boolean = (userInput?.text as string).startsWith("/") ||
-                              (userInput?.agent !== "" && 
+  const inputReady: boolean = (userInput?.agent !== "" && 
                                userInput?.model !== "" &&
                                userInput?.text  !== "" )
 
@@ -66,20 +59,19 @@ export const UserInput = () => {
   }
 
   const handleSelectModel = (input: string) => {
+    console.log("setting model:", input)
     setUserInput((prev: any) => {
-      const s = vscodeApi.getState()
       const next = {
         ...prev,
         model: input,
       }
-      vscodeApi.setState({
+      const s = vscodeApi.getState()
+      const n = {
         ...s,
         userInput: next,
-        chatState: {
-          ...s.chatState,
-          model: input,
-        },
-      })
+      }
+      console.log("setting userInput.model:", input, prev, next, s, n)
+      vscodeApi.setState(n)
       return next
     })
   }
@@ -94,10 +86,6 @@ export const UserInput = () => {
       vscodeApi.setState({
         ...s,
         userInput: next,
-        chatState: {
-          ...s.chatState,
-          agent: input,
-        },
       })
       return next
     })
@@ -113,10 +101,6 @@ export const UserInput = () => {
       vscodeApi.setState({
         ...s,
         userInput: next,
-        chatState: {
-          ...s.chatState,
-          environ: input,
-        },
       })
       return next
     })
@@ -259,11 +243,13 @@ export const UserInput = () => {
       // "bg-slate-800/80 border-gray-500",
       )}
     >
-      <Header
-      />
+      <Header />
 
-      {/* for plan or other things?*/}
       <div className="flex gap-1 items-center">
+        { userInput?.agent && <Badge className="text-sky-300 bg-sky-600/50 "><Bot size={12}/>{userInput?.agent}</Badge>}
+        { userInput?.model && <Badge className="text-sky-300 bg-sky-600/50 "><Drama size={12}/>{userInput?.model}</Badge>}
+        { userInput?.environ && <Badge className="text-lime-300/80 bg-lime-600/50 "><TerminalSquare size={12}/>{userInput?.environ}</Badge>}
+
         {cacheKeys.length > 0 && (
           <ToolTipper label={cacheKeys.map(k => k.split(':').slice(2).join(':')).join('\n')}>
             <Badge className="text-fuchsia-200/80 bg-fuchsia-600/50 flex gap-1 items-center px-2">
@@ -288,12 +274,6 @@ export const UserInput = () => {
             </Badge>
           </ToolTipper>
         )}
-      </div>
-
-      <div className="flex gap-1 items-center">
-        { userInput?.agent && <Badge className="text-sky-300 bg-sky-600/50 "><Bot size={12}/>{userInput?.agent}</Badge>}
-        { userInput?.model && <Badge className="text-sky-300 bg-sky-600/50 "><Drama size={12}/>{userInput?.model}</Badge>}
-        { userInput?.environ && <Badge className="text-lime-300/80 bg-lime-600/50 "><TerminalSquare size={12}/>{userInput?.environ}</Badge>}
       </div>
 
       { userInput?.error && <span
@@ -330,122 +310,6 @@ export const UserInput = () => {
           editorRef={editorRef}
         />
       </div>
-
-      {/* <div className="flex gap-2 m-3">
-        <AgentSelect agent={userInput?.agent} agents={chatState?.config?.agents} handleSelect={handleSelectAgent} />
-        <ModelSelect model={userInput?.model} models={chatState?.config?.models} handleSelect={handleSelectModel} />
-        <EnvironSelect environ={userInput?.environ} environs={chatState?.config?.environs} handleSelect={handleSelectEnviron} />
-      </div> */}
-
     </div>
-  )
-}
-
-// @ts-ignore
-const AgentSelect = ({agent, agents, handleSelect}: {agent: string, agents: any, handleSelect:(s: string)=>void}) => {
-  const as: string[] = []
-  if (agents) {
-    for (const [key, _] of Object.entries(agents)) {
-      as.push(key)
-    }
-  }
-  // console.log("chat.input.agents", agents)
-
-  // const agents = ["coding", "coding-ro", "basic", "general", "filesys"]
-
-  return (
-    <Select 
-      defaultValue={agent}
-      onValueChange={(v: string) => {
-        handleSelect(v)
-      }}
-    >
-      <SelectTrigger className="flex-3">
-        <SelectValue placeholder="Select an agent" />
-      </SelectTrigger>
-      <SelectContent>
-        {as.map((v: any) => {
-          const val = `${v}`
-          return (
-            <SelectItem key={val} value={val}
-              className="ml-2 p-1 text-sm font-thin text-gray-800"
-            >{val}</SelectItem>
-          )
-        })}
-      </SelectContent>
-    </Select>
-  )
-}
-
-// @ts-ignore
-const ModelSelect = ({model, models, handleSelect}: {model: string, models: any, handleSelect:(s: string)=>void}) => {
-
-  const ms: string[] = []
-  if (models) {
-    for (const [key, _] of Object.entries(models)) {
-      ms.push(key)
-    }
-  }
-
-  return (
-    <Select 
-      defaultValue={model}
-      onValueChange={(v: string) => {
-        handleSelect(v)
-      }}
-    >
-      <SelectTrigger className="flex-2">
-        <SelectValue placeholder="Select a model" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value={"default"}
-          className="ml-2 p-1 text-sm font-thin text-gray-800"
-        >agent-default</SelectItem>
-        {ms.map((v: any) => {
-          const val = `${v}`
-          return (
-            <SelectItem key={val} value={val}
-              className="ml-2 p-1 text-sm font-thin text-gray-800"
-            >{val}</SelectItem>
-          )
-        })}
-      </SelectContent>
-    </Select>
-  )
-}
-
-const EnvironSelect = ({environ, environs, handleSelect}: {environ: string, environs: any, handleSelect:(s: string)=>void}) => {
-
-  const ms: string[] = []
-  if (environs) {
-    for (const [key, _] of Object.entries(environs)) {
-      ms.push(key)
-    }
-  }
-
-  return (
-    <Select 
-      defaultValue={environ}
-      onValueChange={(v: string) => {
-        handleSelect(v)
-      }}
-    >
-      <SelectTrigger className="flex-2">
-        <SelectValue placeholder="Select a environ" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value={"default"}
-          className="ml-2 p-1 text-sm font-thin text-gray-800"
-        >agent-default</SelectItem>
-        {ms.map((v: any) => {
-          const val = `${v}`
-          return (
-            <SelectItem key={val} value={val}
-              className="ml-2 p-1 text-sm font-thin text-gray-800"
-            >{val}</SelectItem>
-          )
-        })}
-      </SelectContent>
-    </Select>
   )
 }

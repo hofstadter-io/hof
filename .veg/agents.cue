@@ -10,7 +10,7 @@ embedDir: "./.veg/embed"
 
 agents: [n=string]: {
   name: string | *n
-  model: string | *"gemini-2.5-flash"
+  model: string | *"gemini-3-flash"
   description: string
   instruction: string
   // globalInstruction: string

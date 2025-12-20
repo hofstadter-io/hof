@@ -30,15 +30,7 @@ export const ChatEditor = ({
   editorRef?: any
 }) => {
   const {
-    sid,
-    pos,
-    session,
-    usage,
     chatState,
-    diff,
-    setDiff,
-    setPos,
-    handleSend,
   } = useChat();
 
   const chatStateRef = useRef(chatState)
@@ -57,6 +49,8 @@ export const ChatEditor = ({
       vscodeApi.postMessage({ type: 'requestSync' })
     },
 
+    // need to parse markdown here
+    // content: userInput.text || "",
     onUpdate: handlers.handleInputUpdate,
     autofocus: true,
     extensions: [
@@ -143,6 +137,25 @@ export const ChatEditor = ({
           char: '$',
           items: ({ query }: { query: string }) => {
             const options = ["state"]
+            const results = options
+              .filter(item => item.toLowerCase().startsWith(query.toLowerCase()))
+              .slice(0, 5)
+            if (!results || results.length === 0) {
+              return [query]
+            }
+            return results
+          },
+          ...suggest.mentioner,
+        }
+      }),
+      Mention.extend({ name: 'hist' }).configure({
+        HTMLAttributes: {
+          class: 'suggest',
+        },
+        suggestion: {
+          char: '%',
+          items: ({ query }: { query: string }) => {
+            const options = ["rewind", "fork", "thread", "compact", "slice"]
             const results = options
               .filter(item => item.toLowerCase().startsWith(query.toLowerCase()))
               .slice(0, 5)
