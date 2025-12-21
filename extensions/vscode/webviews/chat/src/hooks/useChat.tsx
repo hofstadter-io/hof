@@ -48,6 +48,7 @@ interface ChatContextType {
   session: any;
   usage: any;
   chatState: any;
+  setChatState: React.Dispatch<React.SetStateAction<any>>;
   diff: any;
   setDiff: (diff: any) => void;
   setPos: (pos: number) => void;
@@ -384,6 +385,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     session,
     usage,
     chatState,
+    setChatState,
     diff,
     setDiff,
     setPos,

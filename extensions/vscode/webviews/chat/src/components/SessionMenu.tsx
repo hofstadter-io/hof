@@ -40,11 +40,13 @@ export const Menu = ({
   pos,
   hidden,
   refresh,
+  userInput,
   setHidden,
 }:{
   pos?: number,
   hidden: boolean,
   refresh?: boolean,
+  userInput?: any,
   setHidden: (prev: any) => any
 }) => {
   const { sid, session, setPos, chatState } = useChat();
@@ -298,11 +300,15 @@ export const Menu = ({
           aria-label="prompt"
           className="hover:text-sky-500"
           onClick={() => {
+            const currEnv = findCurrEnv(session, pos);
             vscodeApi.postMessage({
               type: "session.prompt",
               payload: {
                 from: sid,
                 pos,
+                agent: userInput?.agent || chatState?.userInput?.agent || chatState?.agent,
+                model: userInput?.model || chatState?.userInput?.model || chatState?.model,
+                environ: currEnv,
               }
             })
           }}

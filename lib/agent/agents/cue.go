@@ -195,7 +195,7 @@ func BuildAgent(
 		Model:       mdl,
 		Description: agt.Description,
 		// Instruction:         agent.Instruction,
-		InstructionProvider: renderInstructions(config, agt),
+		InstructionProvider: RenderInstructions(config, agt),
 	}
 
 	ts, err := buildTools(config, agt, models)
@@ -454,68 +454,71 @@ func prepareTemplates(config *Config) error {
 	return nil
 }
 
-func renderInstructions(cfg Config, agt Agent) llmagent.InstructionProvider {
-
+func RenderInstructions(cfg Config, agt Agent) llmagent.InstructionProvider {
 	return func(ctx agent.ReadonlyContext) (string, error) {
-		// TODO, this last arg is annoying, should have two funcs
-		fmt.Println("renderInstructions.Agent", agt.Name)
-
-		var err error
-		var t *templates.Template
-
-		t, ok := cfg.Templates[agt.Instruction]
-		if !ok {
-			// load instruction template
-			t, err = templates.CreateFromString(agt.Name, agt.Instruction, templates.Delims{})
-			if err != nil {
-				fmt.Println("ERROR.renderInstructions.Create", err)
-				return "", err
-			}
-			t.Name = agt.Name + "-inline"
-			for _, T := range cfg.Templates {
-				t := t.T.New(T.Name)
-				_, err := t.Parse(T.Source)
-				if err != nil {
-					return "", fmt.Errorf("while cross registering templates (%s,%s): %w", t.Name(), T.Name, err)
-				}
-			}
-		}
-
-		// gather data
-		data, err := prepareData(cfg, agt)(ctx)
-		if err != nil {
-			fmt.Println("ERROR.renderInstructions.Prepare", err)
-			return "", err
-		}
-
-		// calculate prompt files for visibility
-		promptFiles := getPromptFiles(agt, data)
-		data["promptFiles"] = promptFiles
-
-		// render instruction (first time) to get length
-		b, err := t.Render(data)
-		if err != nil {
-			fmt.Println("ERROR.renderInstructions.Render.First", err)
-			return "", err
-		}
-
-		if strings.Contains(string(b), "CONTEXT SIZE:") {
-			data["contextSize"] = len(b)
-
-			b, err = t.Render(data)
-			if err != nil {
-				fmt.Println("ERROR.renderInstructions.Render.Final", err)
-				return "", err
-			}
-		}
-
-		s := string(b)
-
-		// TODO, add conditional logging from Agent config
-		// fmt.Printf("renderInstructions.Final %s\n%s\n", agt.Name, s)
-
-		return s, nil
+		return RenderInstructionsWithNameAndState(cfg, agt, ctx.AgentName(), maps.Collect(ctx.ReadonlyState().All()))
 	}
+}
+
+func RenderInstructionsWithNameAndState(cfg Config, agt Agent, name string, state map[string]any) (string, error) {
+	// TODO, this last arg is annoying, should have two funcs
+	fmt.Println("RenderInstructions.Agent", agt.Name)
+
+	var err error
+	var t *templates.Template
+
+	t, ok := cfg.Templates[agt.Instruction]
+	if !ok {
+		// load instruction template
+		t, err = templates.CreateFromString(agt.Name, agt.Instruction, templates.Delims{})
+		if err != nil {
+			fmt.Println("ERROR.RenderInstructions.Create", err)
+			return "", err
+		}
+		t.Name = agt.Name + "-inline"
+		for _, T := range cfg.Templates {
+			t := t.T.New(T.Name)
+			_, err := t.Parse(T.Source)
+			if err != nil {
+				return "", fmt.Errorf("while cross registering templates (%s,%s): %w", t.Name(), T.Name, err)
+			}
+		}
+	}
+
+	// gather data
+	data, err := PrepareDataWithNameAndState(cfg, agt, name, state)
+	if err != nil {
+		fmt.Println("ERROR.RenderInstructions.Prepare", err)
+		return "", err
+	}
+
+	// calculate prompt files for visibility
+	promptFiles := getPromptFiles(agt, data)
+	data["promptFiles"] = promptFiles
+
+	// render instruction (first time) to get length
+	b, err := t.Render(data)
+	if err != nil {
+		fmt.Println("ERROR.RenderInstructions.Render.First", err)
+		return "", err
+	}
+
+	if strings.Contains(string(b), "CONTEXT SIZE:") {
+		data["contextSize"] = len(b)
+
+		b, err = t.Render(data)
+		if err != nil {
+			fmt.Println("ERROR.RenderInstructions.Render.Final", err)
+			return "", err
+		}
+	}
+
+	s := string(b)
+
+	// TODO, add conditional logging from Agent config
+	// fmt.Printf("RenderInstructions.Final %s\n%s\n", agt.Name, s)
+
+	return s, nil
 }
 
 type KVPair struct {
@@ -525,144 +528,147 @@ type KVPair struct {
 
 func prepareData(cfg Config, agt Agent) func(ctx agent.ReadonlyContext) (map[string]any, error) {
 	return func(ctx agent.ReadonlyContext) (map[string]any, error) {
-		data := make(map[string]any)
+		return PrepareDataWithNameAndState(cfg, agt, ctx.AgentName(), maps.Collect(ctx.ReadonlyState().All()))
+	}
+}
 
-		// environment of the workspace / vscode
-		state := maps.Collect(ctx.ReadonlyState().All())
-		data["env"] = map[string]any{
-			"basedir": state["basedir"],
+func PrepareDataWithNameAndState(cfg Config, agt Agent, agentName string, state map[string]any) (map[string]any, error) {
+	data := make(map[string]any)
+
+	// environment of the workspace / vscode
+	data["env"] = map[string]any{
+		"basedir": state["basedir"],
+	}
+	data["config"] = cfg
+	data["agent"] = agt
+
+	// extract stuff from state
+	files := make(map[string]any)
+	cache := make(map[string]any)
+	for k, v := range state {
+
+		// files
+		if p, matched := strings.CutPrefix(k, fmt.Sprintf("files:%s:", agentName)); matched {
+			files[p] = v
+			continue
 		}
-		data["config"] = cfg
-		data["agent"] = agt
 
-		// extract stuff from state
-		files := make(map[string]any)
-		cache := make(map[string]any)
-		for k, v := range state {
+		// cache entries
+		if p, matched := strings.CutPrefix(k, fmt.Sprintf("cache:%s:", agentName)); matched {
+			switch p {
+			case "planning":
+				data["planning"] = v
+			case "subconscious":
+				data["subconscious"] = v
 
-			// files
-			if p, matched := strings.CutPrefix(k, fmt.Sprintf("files:%s:", ctx.AgentName())); matched {
-				files[p] = v
-				continue
+			default:
+				cache[p] = v
 			}
-
-			// cache entries
-			if p, matched := strings.CutPrefix(k, fmt.Sprintf("cache:%s:", ctx.AgentName())); matched {
-				switch p {
-				case "planning":
-					data["planning"] = v
-				case "subconscious":
-					data["subconscious"] = v
-
-				default:
-					cache[p] = v
-				}
-				continue
-			}
-
+			continue
 		}
 
-		// Sort files by path
-		filesSorted := make([]KVPair, 0, len(files))
-		for k, v := range files {
-			filesSorted = append(filesSorted, KVPair{Key: k, Value: v})
-		}
-		sort.Slice(filesSorted, func(i, j int) bool {
-			return filesSorted[i].Key < filesSorted[j].Key
-		})
-		data["files"] = filesSorted
+	}
 
-		// Sort cache by key
-		cacheSorted := make([]KVPair, 0, len(cache))
-		for k, v := range cache {
-			cacheSorted = append(cacheSorted, KVPair{Key: k, Value: v})
-		}
-		sort.Slice(cacheSorted, func(i, j int) bool {
-			return cacheSorted[i].Key < cacheSorted[j].Key
-		})
-		data["cache"] = cacheSorted
+	// Sort files by path
+	filesSorted := make([]KVPair, 0, len(files))
+	for k, v := range files {
+		filesSorted = append(filesSorted, KVPair{Key: k, Value: v})
+	}
+	sort.Slice(filesSorted, func(i, j int) bool {
+		return filesSorted[i].Key < filesSorted[j].Key
+	})
+	data["files"] = filesSorted
 
-		agtmd := make(map[string]string)
-		for _, f := range filesSorted {
-			fpath := f.Key
-			for agtPath, agtContent := range agt.AgentsMD {
-				// check if it is already included
-				_, ok := agtmd[agtPath]
-				if ok {
-					continue
-				}
-				// get dir of agtPath
-				dir := path.Dir(agtPath)
-				if strings.HasPrefix(fpath, dir) {
-					agtmd[agtPath] = agtContent
-				}
-			}
-		}
-		// always include root agent files
+	// Sort cache by key
+	cacheSorted := make([]KVPair, 0, len(cache))
+	for k, v := range cache {
+		cacheSorted = append(cacheSorted, KVPair{Key: k, Value: v})
+	}
+	sort.Slice(cacheSorted, func(i, j int) bool {
+		return cacheSorted[i].Key < cacheSorted[j].Key
+	})
+	data["cache"] = cacheSorted
+
+	agtmd := make(map[string]string)
+	for _, f := range filesSorted {
+		fpath := f.Key
 		for agtPath, agtContent := range agt.AgentsMD {
-			if !strings.Contains(agtPath, "/") {
+			// check if it is already included
+			_, ok := agtmd[agtPath]
+			if ok {
+				continue
+			}
+			// get dir of agtPath
+			dir := path.Dir(agtPath)
+			if strings.HasPrefix(fpath, dir) {
 				agtmd[agtPath] = agtContent
 			}
 		}
-
-		// fmt.Println("USING INSTRUCTION FILES:", slices.Collect(maps.Keys(agtmd)))
-
-		agtmdSorted := make([]AgentMD, 0, len(agtmd))
-		for p, c := range agtmd {
-			agtmdSorted = append(agtmdSorted, AgentMD{Path: p, Content: c})
-		}
-		sort.Slice(agtmdSorted, func(i, j int) bool {
-			p1 := agtmdSorted[i].Path
-			p2 := agtmdSorted[j].Path
-
-			parts1 := strings.Split(p1, "/")
-			parts2 := strings.Split(p2, "/")
-
-			if len(parts1) != len(parts2) {
-				return len(parts1) < len(parts2)
-			}
-
-			return p1 < p2
-		})
-
-		data["agentsMd"] = agtmdSorted
-
-		stateKeys := slices.Collect(maps.Keys(state))
-		cacheKeys := slices.Collect(maps.Keys(cache))
-		dataKeys := slices.Collect(maps.Keys(data))
-		filesKeys := slices.Collect(maps.Keys(files))
-		agentKeys := slices.Collect(maps.Keys(agtmd))
-
-		fmt.Println("stateKeys:")
-		for _, k := range stateKeys {
-			fmt.Println(" ", k)
-		}
-		fmt.Println("cacheKeys:")
-		for _, k := range cacheKeys {
-			fmt.Println(" ", k)
-		}
-		fmt.Println("filesKeys:")
-		for _, k := range filesKeys {
-			fmt.Println(" ", k)
-		}
-		fmt.Println("agentKeys:")
-		for _, k := range agentKeys {
-			fmt.Println(" ", k)
-		}
-		fmt.Println("dataKeys:")
-		for _, k := range dataKeys {
-			fmt.Println(" ", k)
-		}
-		fmt.Println("subconscious:", data["subconscious"])
-
-		// b, err := json.MarshalIndent(data["cache"], "", "  ")
-		// if err != nil {
-		// 	fmt.Println("error while marshalling data for debug of template input:", err)
-		// }
-		// fmt.Println(string(b))
-
-		return data, nil
 	}
+	// always include root agent files
+	for agtPath, agtContent := range agt.AgentsMD {
+		if !strings.Contains(agtPath, "/") {
+			agtmd[agtPath] = agtContent
+		}
+	}
+
+	// fmt.Println("USING INSTRUCTION FILES:", slices.Collect(maps.Keys(agtmd)))
+
+	agtmdSorted := make([]AgentMD, 0, len(agtmd))
+	for p, c := range agtmd {
+		agtmdSorted = append(agtmdSorted, AgentMD{Path: p, Content: c})
+	}
+	sort.Slice(agtmdSorted, func(i, j int) bool {
+		p1 := agtmdSorted[i].Path
+		p2 := agtmdSorted[j].Path
+
+		parts1 := strings.Split(p1, "/")
+		parts2 := strings.Split(p2, "/")
+
+		if len(parts1) != len(parts2) {
+			return len(parts1) < len(parts2)
+		}
+
+		return p1 < p2
+	})
+
+	data["agentsMd"] = agtmdSorted
+
+	stateKeys := slices.Collect(maps.Keys(state))
+	cacheKeys := slices.Collect(maps.Keys(cache))
+	dataKeys := slices.Collect(maps.Keys(data))
+	filesKeys := slices.Collect(maps.Keys(files))
+	agentKeys := slices.Collect(maps.Keys(agtmd))
+
+	fmt.Println("stateKeys:")
+	for _, k := range stateKeys {
+		fmt.Println(" ", k)
+	}
+	fmt.Println("cacheKeys:")
+	for _, k := range cacheKeys {
+		fmt.Println(" ", k)
+	}
+	fmt.Println("filesKeys:")
+	for _, k := range filesKeys {
+		fmt.Println(" ", k)
+	}
+	fmt.Println("agentKeys:")
+	for _, k := range agentKeys {
+		fmt.Println(" ", k)
+	}
+	fmt.Println("dataKeys:")
+	for _, k := range dataKeys {
+		fmt.Println(" ", k)
+	}
+	fmt.Println("subconscious:", data["subconscious"])
+
+	// b, err := json.MarshalIndent(data["cache"], "", "  ")
+	// if err != nil {
+	// 	fmt.Println("error while marshalling data for debug of template input:", err)
+	// }
+	// fmt.Println(string(b))
+
+	return data, nil
 }
 
 func getPromptFiles(agt Agent, data map[string]any) []string {

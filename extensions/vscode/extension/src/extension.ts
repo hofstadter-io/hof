@@ -54,7 +54,7 @@ export async function activate(context: vscode.ExtensionContext) {
 			comms.extensionEmitter.fire(sessionMsg);
 			comms.sendMessage(sessionMsg);
 		}
-	}, 6 * 1000);
+	}, 60 * 1000);
 
 	context.subscriptions.push({ dispose: () => clearInterval(syncTimer) });
 }

@@ -19,6 +19,7 @@ export const UserInput = () => {
     usage,
     session,
     chatState,
+    setChatState,
     diff,
     handleSend,
   } = useChat();
@@ -56,6 +57,10 @@ export const UserInput = () => {
         ...s,
         userInput: next,
       })
+      
+      // Update chatState so it's available for the Header Menu
+      setChatState((c: any) => ({ ...c, userInput: next }));
+
       return next
     })
   }
@@ -74,6 +79,10 @@ export const UserInput = () => {
       }
       console.log("setting userInput.model:", input, prev, next, s, n)
       vscodeApi.setState(n)
+      
+      // Update chatState
+      setChatState((c: any) => ({ ...c, userInput: next }));
+
       return next
     })
   }
@@ -89,6 +98,10 @@ export const UserInput = () => {
         ...s,
         userInput: next,
       })
+      
+      // Update chatState
+      setChatState((c: any) => ({ ...c, userInput: next }));
+
       return next
     })
   }
@@ -107,6 +120,10 @@ export const UserInput = () => {
         ...s,
         userInput: next,
       })
+
+      // Update chatState
+      setChatState((c: any) => ({ ...c, userInput: next }));
+
       return next
     })
   }

@@ -236,6 +236,7 @@ func (r *Runtime) initServer() error {
 	e.POST("/fs/copy", r.fsCopy)
 
 	e.POST("/env/list", r.envList)
+	e.POST("/prompt/render", r.promptRender)
 
 	// save & return
 	r.e = e

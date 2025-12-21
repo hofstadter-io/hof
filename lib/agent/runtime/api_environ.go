@@ -2,9 +2,13 @@ package runtime
 
 import (
 	"fmt"
+	"maps"
 	"net/http"
 	"net/url"
 
+	"google.golang.org/adk/session"
+
+	"github.com/hofstadter-io/hof/lib/agent/agents"
 	"github.com/hofstadter-io/hof/lib/agent/runtime/services/environ"
 	"github.com/labstack/echo/v4"
 )
@@ -257,4 +261,63 @@ func (r *Runtime) envList(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, envs)
+}
+
+type promptRenderRequest struct {
+	Sid   string `json:"sid"`
+	Pos   int    `json:"pos"`
+	Agent string `json:"agent"`
+}
+
+func (r *Runtime) promptRender(c echo.Context) error {
+	var p promptRenderRequest
+	err := c.Bind(&p)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	// 1. Get Session
+	sreq := &session.GetRequest{
+		AppName:   "veg",
+		UserID:    "tony",
+		SessionID: p.Sid,
+	}
+	sresp, err := r.S.Get(c.Request().Context(), sreq)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	sess := sresp.Session
+
+	// 2. Get Agent Config
+	agentName := p.Agent
+	if agentName == "" {
+		// Try to get agent from state or use a default if available
+		// For now, if empty, we might need it passed or found in state
+		v, _ := sess.State().Get("agent")
+		if v != nil {
+			agentName = v.(string)
+		}
+	}
+	if agentName == "" {
+		agentName = "veggie" // fallback default
+	}
+
+	agt, ok := r.Agentic.Agents[agentName]
+	if !ok {
+		return c.String(http.StatusNotFound, "agent not found: "+agentName)
+	}
+
+	// 3. Prepare State
+	// TODO: We may need to walk the events backwards and process state changes inversely,
+	// from the current state for the session (I don't think it's recorded, only the latest and delta,
+	// we can leave this for later, leave a comment where it should go for now
+	st := maps.Collect(sess.State().All())
+
+	// 4. Render
+	prompt, err := agents.RenderInstructionsWithNameAndState(r.Agentic, agt, agentName, st)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, map[string]string{"prompt": prompt})
 }
