@@ -5,6 +5,15 @@ import { extensionEmitter, sendMessage } from '../comms';
 import { WebviewProvider } from './provider'
 import { makeReq } from '../services/utils';
 
+const prompts = new Map<string, string>();
+const promptProvider = new class implements vscode.TextDocumentContentProvider {
+	onDidChangeEmitter = new vscode.EventEmitter<vscode.Uri>();
+	onDidChange = this.onDidChangeEmitter.event;
+	provideTextDocumentContent(uri: vscode.Uri): string {
+		return prompts.get(uri.toString()) || "";
+	}
+};
+
 export async function activate(context: vscode.ExtensionContext) {
   console.log("  activating chat sidebar")
   const provider = new WebviewProvider(context, "chat", onMessage);
@@ -17,6 +26,8 @@ export async function activate(context: vscode.ExtensionContext) {
       }
     )
   );
+
+	context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider('veg-prompt', promptProvider));
 
   // incoming messages
 	extensionEmitter.event(async (e) => {
@@ -87,18 +98,19 @@ async function handleSessionPrompt(payload: any) {
 			environ: environ,
 		});
 		if (resp.ok) {
-			const data = await resp.json();
+			const data = await resp.json() as { prompt: string };
 			const prompt = data.prompt;
 
 			// Create a filename
 			const filename = `sid-${from}${agent ? '-' + agent : ''}.md`;
-			const uri = vscode.Uri.parse(`untitled:${filename}`);
+			const uri = vscode.Uri.parse(`veg-prompt:${filename}`);
+
+			prompts.set(uri.toString(), prompt);
+			promptProvider.onDidChangeEmitter.fire(uri);
 
 			const doc = await vscode.workspace.openTextDocument(uri);
-			const edit = new vscode.WorkspaceEdit();
-			edit.insert(uri, new vscode.Position(0, 0), prompt);
-			await vscode.workspace.applyEdit(edit);
 			await vscode.window.showTextDocument(doc, { preview: true });
+			await vscode.languages.setTextDocumentLanguage(doc, 'markdown');
 		} else {
 			vscode.window.showErrorMessage(`Failed to render prompt: ${resp.statusText}`);
 		}

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { extensionEmitter, sendMessage } from '../comms';
-import { makeReq, vsUriToVeg, Environ, Folder, parseEnvUri, findSession } from './utils';
+import { makeReq, normalizeEnvId, Environ, Folder, parseEnvUri, findSession } from './utils';
 import * as scm from './scmProvider';
 
 // This method is called when your extension is activated
