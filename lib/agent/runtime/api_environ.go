@@ -190,9 +190,9 @@ func (r *Runtime) fsMkdir(c echo.Context) error {
 }
 
 type fsRenameRequest struct {
-	Uri  string `json:"uri"`
-	Src  string `json:"src"`
-	Dst  string `json:"dst"`
+	Uri string `json:"uri"`
+	Src string `json:"src"`
+	Dst string `json:"dst"`
 }
 
 func (r *Runtime) fsRename(c echo.Context) error {
@@ -211,9 +211,9 @@ func (r *Runtime) fsRename(c echo.Context) error {
 }
 
 type fsCopyRequest struct {
-	Uri  string `json:"uri"`
-	Src  string `json:"src"`
-	Dst  string `json:"dst"`
+	Uri string `json:"uri"`
+	Src string `json:"src"`
+	Dst string `json:"dst"`
 }
 
 func (r *Runtime) fsCopy(c echo.Context) error {
@@ -288,23 +288,31 @@ func (r *Runtime) promptRender(c echo.Context) error {
 	}
 	sess := sresp.Session
 
+	// do we have an env? if yes, get all the agent files for use during instruction generation
+	envUri, _ := sess.State().Get("currEnv")
+	var environMDs map[string]string
+	if envUri != nil {
+		environMDs, err = environ.Client().FindAgentFiles(envUri.(string))
+		if err != nil {
+			fmt.Printf("promptRender.GetAgentFiles.error: %v\n", err)
+		}
+	}
+
 	// 2. Get Agent Config
 	agentName := p.Agent
 	if agentName == "" {
+		return c.String(http.StatusBadRequest, "agent must be set in request")
 		// Try to get agent from state or use a default if available
 		// For now, if empty, we might need it passed or found in state
-		v, _ := sess.State().Get("agent")
-		if v != nil {
-			agentName = v.(string)
-		}
-	}
-	if agentName == "" {
-		agentName = "veggie" // fallback default
+		// v, _ := sess.State().Get("agent")
+		// if v != nil {
+		// 	agentName = v.(string)
+		// }
 	}
 
-	agt, ok := r.Agentic.Agents[agentName]
-	if !ok {
-		return c.String(http.StatusNotFound, "agent not found: "+agentName)
+	agt, err := agents.LoadAgent(r.Agentic, agentName)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	// 3. Prepare State
@@ -314,10 +322,14 @@ func (r *Runtime) promptRender(c echo.Context) error {
 	st := maps.Collect(sess.State().All())
 
 	// 4. Render
-	prompt, err := agents.RenderInstructionsWithNameAndState(r.Agentic, agt, agentName, st)
+	fmt.Printf("promptRender.render.start: %s\n", agentName)
+	prompt, err := agents.RenderInstructionsWithNameAndState(r.Agentic, agt, agentName, st, environMDs)
 	if err != nil {
+		fmt.Printf("promptRender.render.error: %v\n", err)
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
+	// TODO calculate tokens here
+	fmt.Printf("promptRender.render.success: %d bytes\n", len(prompt))
 
 	return c.JSON(http.StatusOK, map[string]string{"prompt": prompt})
 }

@@ -29,6 +29,21 @@ import (
 	"github.com/hofstadter-io/hof/lib/templates"
 )
 
+func LoadAgent(config Config, agentName string) (Agent, error) {
+	agt, ok := config.Agents[agentName]
+	if !ok {
+		return Agent{}, fmt.Errorf("agent not found: %q", agentName)
+	}
+
+	// merge MDs: global < agent
+	mds := make(map[string]string)
+	maps.Copy(mds, config.AgentsMD)
+	maps.Copy(mds, agt.AgentsMD)
+	agt.AgentsMD = mds
+
+	return agt, nil
+}
+
 // this needs to be supported through a heirachy of unification
 // dir, project, user, org... with modules and per-request
 // (hence the CUE, still todo for more CUEism in memory ^^)
@@ -170,13 +185,12 @@ func BuildAgent(
 	agentName string,
 	modelName string,
 	models map[string]model.LLM,
-	agentMdPaths map[string]string,
+	environMDs map[string]string, // todo, expand the scope of what environData gets passed, could depend on some of the other params
 ) (agent.Agent, error) {
 	// look up agent and set some defaults
-	agt := config.Agents[agentName]
-	agt.AgentsMD = config.AgentsMD
-	for p, c := range agentMdPaths {
-		agt.AgentsMD[p] = c
+	agt, err := LoadAgent(config, agentName)
+	if err != nil {
+		return nil, err
 	}
 
 	if modelName == "" || modelName == "default" {
@@ -195,10 +209,10 @@ func BuildAgent(
 		Model:       mdl,
 		Description: agt.Description,
 		// Instruction:         agent.Instruction,
-		InstructionProvider: RenderInstructions(config, agt),
+		InstructionProvider: RenderInstructions(config, agt, environMDs),
 	}
 
-	ts, err := buildTools(config, agt, models)
+	ts, err := buildTools(config, agt, models, environMDs)
 	if err != nil {
 		return nil, fmt.Errorf("while building tools for %q: %w", agt.Name, err)
 	}
@@ -210,11 +224,11 @@ func BuildAgent(
 	}
 	c.Toolsets = append(c.Toolsets, mcp...)
 
-	addCallbacks(config, agt, &c)
+	addCallbacks(config, agt, environMDs, &c)
 
 	for _, sa := range agt.SubAgents {
 		if subagent, found := strings.CutPrefix(sa, "@"); found {
-			A, aerr := BuildAgent(config, subagent, "default", models, agentMdPaths)
+			A, aerr := BuildAgent(config, subagent, "default", models, environMDs)
 			if aerr != nil {
 				return nil, fmt.Errorf("error creating agent subagent %q in agent %q", subagent, agt.Name)
 			}
@@ -252,7 +266,7 @@ func buildMcp(cfg Config, agt Agent, models map[string]model.LLM) ([]tool.Toolse
 	return ts, nil
 }
 
-func buildTools(cfg Config, agt Agent, models map[string]model.LLM) ([]tool.Tool, error) {
+func buildTools(cfg Config, agt Agent, models map[string]model.LLM, environMDs map[string]string) ([]tool.Tool, error) {
 	var ts []tool.Tool
 	for _, t := range agt.Tools {
 		fmt.Printf("%s.tool: %q\n", agt.Name, t)
@@ -263,7 +277,7 @@ func buildTools(cfg Config, agt Agent, models map[string]model.LLM) ([]tool.Tool
 		agentAsTool, found := strings.CutPrefix(t, "@")
 		fmt.Printf("%s.tool.agent: %q ? %v\n", agt.Name, agentAsTool, found)
 		if found {
-			A, aerr := BuildAgent(cfg, agentAsTool, "default", models, agt.AgentsMD)
+			A, aerr := BuildAgent(cfg, agentAsTool, "default", models, environMDs)
 			if aerr != nil {
 				return nil, fmt.Errorf("error creating agent tool %q in agent %q: %w", t, agt.Name, aerr)
 			}
@@ -329,7 +343,7 @@ func buildTools(cfg Config, agt Agent, models map[string]model.LLM) ([]tool.Tool
 	return ts, nil
 }
 
-func addCallbacks(config Config, agt Agent, c *llmagent.Config) {
+func addCallbacks(config Config, agt Agent, environMDs map[string]string, c *llmagent.Config) {
 	c.BeforeAgentCallbacks = []agent.BeforeAgentCallback{
 		func(ctx agent.CallbackContext) (*genai.Content, error) {
 			fmt.Printf("\nBAC.%s\n", ctx.AgentName())
@@ -341,8 +355,19 @@ func addCallbacks(config Config, agt Agent, c *llmagent.Config) {
 		func(ctx agent.CallbackContext, req *model.LLMRequest) (*model.LLMResponse, error) {
 			fmt.Printf("\nBMC.%s\n", ctx.AgentName())
 
-			data, _ := prepareData(config, agt)(ctx)
-			pfs := getPromptFiles(agt, data)
+			// This next section is all about making sure the state is in a good place
+			// to match the data we are about to render instructions with
+			// this is why prepareData is getting called twice I think
+			// TODO, can we get this agent list some other way than preparing all this data?
+			data, _ := prepareData(config, agt, environMDs)(ctx)
+
+			var pfs []string
+			if agtmd, ok := data["agentsMd"].([]AgentMD); ok {
+				for _, am := range agtmd {
+					pfs = append(pfs, am.Path)
+				}
+			}
+			sort.Strings(pfs)
 
 			// Update prompt keys in state (only changed ones)
 			prefix := "agentmd:" + ctx.AgentName() + ":"
@@ -351,21 +376,20 @@ func addCallbacks(config Config, agt Agent, c *llmagent.Config) {
 				desiredKeys[prefix+pf] = true
 			}
 
+			// Loop 1: Remove stale agentmd keys for this agent
 			for k := range maps.Collect(ctx.State().All()) {
 				if strings.HasPrefix(k, prefix) {
 					if !desiredKeys[k] {
-						// Remove keys that are no longer needed
 						ctx.State().Set(k, nil)
-					} else {
-						// Already present, remove from desired set so we don't re-set it
-						delete(desiredKeys, k)
 					}
 				}
 			}
 
-			// Add new keys
+			// Loop 2: Add missing agentmd keys for this agent
 			for k := range desiredKeys {
-				ctx.State().Set(k, "included")
+				if val, _ := ctx.State().Get(k); val == nil {
+					ctx.State().Set(k, "included")
+				}
 			}
 
 			// print system prompt before sending to LLM
@@ -454,13 +478,13 @@ func prepareTemplates(config *Config) error {
 	return nil
 }
 
-func RenderInstructions(cfg Config, agt Agent) llmagent.InstructionProvider {
+func RenderInstructions(cfg Config, agt Agent, environMDs map[string]string) llmagent.InstructionProvider {
 	return func(ctx agent.ReadonlyContext) (string, error) {
-		return RenderInstructionsWithNameAndState(cfg, agt, ctx.AgentName(), maps.Collect(ctx.ReadonlyState().All()))
+		return RenderInstructionsWithNameAndState(cfg, agt, ctx.AgentName(), maps.Collect(ctx.ReadonlyState().All()), environMDs)
 	}
 }
 
-func RenderInstructionsWithNameAndState(cfg Config, agt Agent, name string, state map[string]any) (string, error) {
+func RenderInstructionsWithNameAndState(cfg Config, agt Agent, name string, state map[string]any, environMDs map[string]string) (string, error) {
 	// TODO, this last arg is annoying, should have two funcs
 	fmt.Println("RenderInstructions.Agent", agt.Name)
 
@@ -486,15 +510,11 @@ func RenderInstructionsWithNameAndState(cfg Config, agt Agent, name string, stat
 	}
 
 	// gather data
-	data, err := PrepareDataWithNameAndState(cfg, agt, name, state)
+	data, err := PrepareDataWithNameAndState(cfg, agt, name, state, environMDs)
 	if err != nil {
 		fmt.Println("ERROR.RenderInstructions.Prepare", err)
 		return "", err
 	}
-
-	// calculate prompt files for visibility
-	promptFiles := getPromptFiles(agt, data)
-	data["promptFiles"] = promptFiles
 
 	// render instruction (first time) to get length
 	b, err := t.Render(data)
@@ -504,6 +524,7 @@ func RenderInstructionsWithNameAndState(cfg Config, agt Agent, name string, stat
 	}
 
 	if strings.Contains(string(b), "CONTEXT SIZE:") {
+		// TODO, calculate tokens instead?
 		data["contextSize"] = len(b)
 
 		b, err = t.Render(data)
@@ -526,16 +547,17 @@ type KVPair struct {
 	Value any    `json:"value"`
 }
 
-func prepareData(cfg Config, agt Agent) func(ctx agent.ReadonlyContext) (map[string]any, error) {
+func prepareData(cfg Config, agt Agent, environMDs map[string]string) func(ctx agent.ReadonlyContext) (map[string]any, error) {
 	return func(ctx agent.ReadonlyContext) (map[string]any, error) {
-		return PrepareDataWithNameAndState(cfg, agt, ctx.AgentName(), maps.Collect(ctx.ReadonlyState().All()))
+		return PrepareDataWithNameAndState(cfg, agt, ctx.AgentName(), maps.Collect(ctx.ReadonlyState().All()), environMDs)
 	}
 }
 
-func PrepareDataWithNameAndState(cfg Config, agt Agent, agentName string, state map[string]any) (map[string]any, error) {
+func PrepareDataWithNameAndState(cfg Config, agt Agent, agentName string, state map[string]any, environMDs map[string]string) (map[string]any, error) {
 	data := make(map[string]any)
 
 	// environment of the workspace / vscode
+	// TODO, this should be included with the expanded environ context (just environMDs for now)
 	data["env"] = map[string]any{
 		"basedir": state["basedir"],
 	}
@@ -546,6 +568,11 @@ func PrepareDataWithNameAndState(cfg Config, agt Agent, agentName string, state 
 	files := make(map[string]any)
 	cache := make(map[string]any)
 	for k, v := range state {
+
+		//
+		// HMMM, filtering by agent name first probably breaks things, weh should be agnostic to this
+		//       so we can switch or pass state between agents
+		//
 
 		// files
 		if p, matched := strings.CutPrefix(k, fmt.Sprintf("files:%s:", agentName)); matched {
@@ -592,6 +619,21 @@ func PrepareDataWithNameAndState(cfg Config, agt Agent, agentName string, state 
 	agtmd := make(map[string]string)
 	for _, f := range filesSorted {
 		fpath := f.Key
+
+		// check environMDs (Project files)
+		for envPath, envContent := range environMDs {
+			// check if it is already included
+			_, ok := agtmd[envPath]
+			if ok {
+				continue
+			}
+			// get dir of envPath
+			dir := path.Dir(envPath)
+			if strings.HasPrefix(fpath, dir) {
+				agtmd[envPath] = envContent
+			}
+		}
+
 		for agtPath, agtContent := range agt.AgentsMD {
 			// check if it is already included
 			_, ok := agtmd[agtPath]
@@ -609,6 +651,15 @@ func PrepareDataWithNameAndState(cfg Config, agt Agent, agentName string, state 
 	for agtPath, agtContent := range agt.AgentsMD {
 		if !strings.Contains(agtPath, "/") {
 			agtmd[agtPath] = agtContent
+		}
+	}
+	// NOTE, these comments by gemini are actually backwards, we always want the project, agent is debatable
+	// always include root environ files (maybe not? let's stick to agtMD for now, unless requested)
+	// actually, for environMDs, we probably want the same logic?
+	// If it is a root file in the environ (like AGENTS.md at root), it should be included?
+	for envPath, envContent := range environMDs {
+		if !strings.Contains(envPath, "/") {
+			agtmd[envPath] = envContent
 		}
 	}
 
@@ -634,32 +685,59 @@ func PrepareDataWithNameAndState(cfg Config, agt Agent, agentName string, state 
 
 	data["agentsMd"] = agtmdSorted
 
-	stateKeys := slices.Collect(maps.Keys(state))
-	cacheKeys := slices.Collect(maps.Keys(cache))
-	dataKeys := slices.Collect(maps.Keys(data))
-	filesKeys := slices.Collect(maps.Keys(files))
-	agentKeys := slices.Collect(maps.Keys(agtmd))
+	// All Agent MDs (requested for full list visibility)
+	// Merge both agt.AgentsMD and environMDs
+	allMDs := make(map[string]string)
+	maps.Copy(allMDs, agt.AgentsMD)
+	maps.Copy(allMDs, environMDs)
 
+	allAgtmdSorted := make([]AgentMD, 0, len(allMDs))
+	for p, c := range allMDs {
+		allAgtmdSorted = append(allAgtmdSorted, AgentMD{Path: p, Content: c})
+	}
+	sort.Slice(allAgtmdSorted, func(i, j int) bool {
+		return allAgtmdSorted[i].Path < allAgtmdSorted[j].Path
+	})
+	data["allAgentsMd"] = allAgtmdSorted
+
+	// TODO, move this out and have it operate on data
+
+	// Debug printing
 	fmt.Println("stateKeys:")
+	stateKeys := slices.Collect(maps.Keys(state))
+	slices.Sort(stateKeys)
 	for _, k := range stateKeys {
 		fmt.Println(" ", k)
 	}
+
 	fmt.Println("cacheKeys:")
+	cacheKeys := slices.Collect(maps.Keys(cache))
+	slices.Sort(cacheKeys)
 	for _, k := range cacheKeys {
 		fmt.Println(" ", k)
 	}
+
 	fmt.Println("filesKeys:")
+	filesKeys := slices.Collect(maps.Keys(files))
+	slices.Sort(filesKeys)
 	for _, k := range filesKeys {
 		fmt.Println(" ", k)
 	}
+
 	fmt.Println("agentKeys:")
+	agentKeys := slices.Collect(maps.Keys(agtmd))
+	slices.Sort(agentKeys)
 	for _, k := range agentKeys {
 		fmt.Println(" ", k)
 	}
+
 	fmt.Println("dataKeys:")
+	dataKeys := slices.Collect(maps.Keys(data))
+	slices.Sort(dataKeys)
 	for _, k := range dataKeys {
 		fmt.Println(" ", k)
 	}
+
 	fmt.Println("subconscious:", data["subconscious"])
 
 	// b, err := json.MarshalIndent(data["cache"], "", "  ")
@@ -669,25 +747,4 @@ func PrepareDataWithNameAndState(cfg Config, agt Agent, agentName string, state 
 	// fmt.Println(string(b))
 
 	return data, nil
-}
-
-func getPromptFiles(agt Agent, data map[string]any) []string {
-	var pfs []string
-
-	// // files from state
-	// if files, ok := data["files"].([]KVPair); ok {
-	// 	for _, f := range files {
-	// 		pfs = append(pfs, f.Key)
-	// 	}
-	// }
-
-	// matched agentsMd
-	if agtmd, ok := data["agentsMd"].([]AgentMD); ok {
-		for _, am := range agtmd {
-			pfs = append(pfs, am.Path)
-		}
-	}
-
-	sort.Strings(pfs)
-	return pfs
 }

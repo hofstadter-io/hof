@@ -64,9 +64,9 @@ func chatUserMessage(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 	}
 
 	// do we have agent paths
-	var agentMDs map[string]string
+	var environMDs map[string]string
 	if envUri != nil {
-		agentMDs, err = environ.Client().FindAgentFiles(envUri.(string))
+		environMDs, err = environ.Client().FindAgentFiles(envUri.(string))
 		if err != nil {
 			log.Printf("chat.msg.error.GetAgentFiles: %v", err)
 			c.Mail("chat.event.error", map[string]string{
@@ -85,7 +85,7 @@ func chatUserMessage(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 	// TODO, attach this to the session or client
 
 	// build the agent on demand
-	a, err := agents.BuildAgent(r.Agentic, p.Agent, p.Model, r.Models, agentMDs)
+	a, err := agents.BuildAgent(r.Agentic, p.Agent, p.Model, r.Models, environMDs)
 	if err != nil {
 		err = fmt.Errorf("while building agent %q: %w", p.Agent, err)
 		fmt.Println("Error:", err)
