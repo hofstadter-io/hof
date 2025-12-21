@@ -66,8 +66,8 @@ export const Header = ({
       </div>
 
       <div className="flex justify-between items-center gap-2">
+        <span className="font-thin italic text-xs">tasks & planning</span>
         <UsageInfo usage={usage} size={16}/>
-        <DiffInfo diff={diff} size={16}/>
       </div>
 
       { !hidden && <JsonObject data={{

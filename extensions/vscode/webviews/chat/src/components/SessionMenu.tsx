@@ -8,6 +8,7 @@ import {
   GitPullRequestCreateArrow,
   ListTree,
   RefreshCcw,
+  ScrollText,
   SquareTerminal,
 } from 'lucide-react'
 
@@ -182,7 +183,7 @@ export const Menu = ({
       <ToolTipper label="diff">
       <FileDiff size={16}
         aria-label="diff"
-        className="hover:text-yellow-500"
+        className="hover:text-sky-500"
         onClick={() => {
           if (pos !== undefined) {
             setPos(pos)
@@ -201,6 +202,22 @@ export const Menu = ({
           })
         }}
       />
+      </ToolTipper>
+
+      <ToolTipper label="fork">
+        <GitGraph size={16}
+          aria-label="fork"
+          className="hover:text-sky-500"
+          onClick={() => {
+            // vscodeApi.postMessage({
+            //   type: "session.fork",
+            //   payload: {
+            //     from: sid,
+            //     pos,
+            //   }
+            // })
+          }}
+        />
       </ToolTipper>
 
       <DropdownMenu open={mergeOpen} onOpenChange={setMergeOpen}>
@@ -276,35 +293,20 @@ export const Menu = ({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <ToolTipper label="fork">
-      <GitGraph size={16}
-        aria-label="fork"
-        className="hover:text-sky-500"
-        onClick={() => {
-          // vscodeApi.postMessage({
-          //   type: "session.fork",
-          //   payload: {
-          //     from: sid,
-          //     pos,
-          //   }
-          // })
-        }}
-      />
-      </ToolTipper>
-
-      <ToolTipper label="refresh">
-      { refresh && <RefreshCcw size={16}
-        aria-label="refresh"
-        className="hover:text-sky-500"
-        onClick={() => {
-          vscodeApi.postMessage({
-            type: "session.get",
-            payload: {
-              sid,
-            }
-          })
-        }}
-      /> }
+      <ToolTipper label="view prompt">
+        <ScrollText size={16}
+          aria-label="prompt"
+          className="hover:text-sky-500"
+          onClick={() => {
+            vscodeApi.postMessage({
+              type: "session.prompt",
+              payload: {
+                from: sid,
+                pos,
+              }
+            })
+          }}
+        />
       </ToolTipper>
 
       <ToolTipper label="details">
@@ -319,6 +321,21 @@ export const Menu = ({
           }}
         />
       </div>
+      </ToolTipper>
+
+      <ToolTipper label="refresh">
+      { refresh && <RefreshCcw size={16}
+        aria-label="refresh"
+        className="hover:text-green-500"
+        onClick={() => {
+          vscodeApi.postMessage({
+            type: "session.get",
+            payload: {
+              sid,
+            }
+          })
+        }}
+      /> }
       </ToolTipper>
 
     </div>

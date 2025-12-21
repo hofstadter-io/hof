@@ -16,6 +16,10 @@ import {
   FilePlus,
   FileX,
   FilePen,
+  Megaphone,
+  BotMessageSquare,
+  BookMarked,
+  NotebookTabs,
 } from 'lucide-react'
 
 import { JsonObject, ToolTipper } from "veg-webview-common";
@@ -79,48 +83,48 @@ export const UsageInfo = ({ evt, usage, size }: { evt?: any, usage?: any, size: 
   return (
     <div className="flex gap-2 h-4">
       <ToolTipper side="bottom" label="cached input tokens">
-        <div className="flex gap-1">
-          <DatabaseBackup size={size}/>
+        <div className="flex gap-1 text-lime-400">
+          <BookMarked size={size}/>
           {UsageNumber(u.cachedContentTokenCount) || "0"}
         </div>
       </ToolTipper>
       <ToolTipper side="bottom" label="normal input tokens">
-        <div className="flex gap-1">
-          <GraduationCap size={size}/>
+        <div className="flex gap-1 text-amber-200">
+          <NotebookTabs size={size}/>
           {UsageNumber(u.promptTokenCount - (u.cachedContentTokenCount || 0))}
         </div>
       </ToolTipper>
       <ToolTipper side="bottom" label="thinking tokens">
-        <div className="flex gap-1">
+        <div className="flex gap-1 text-sky-300">
           <BrainCircuit size={size}/>
           {UsageNumber(u.thoughtsTokenCount)}
         </div>
       </ToolTipper>
       <ToolTipper side="bottom" label="response tokens">
-        <div className="flex gap-1">
-          <MessageSquareMore size={size}/>
+        <div className="flex gap-1 text-sky-300">
+          <BotMessageSquare size={size}/>
           {UsageNumber(u.candidatesTokenCount)}
         </div>
       </ToolTipper>
 
-      <div>
+      <div className="text-fuchsia-400">
         <EqualApproximately size={size}/>
       </div>
 
       <ToolTipper side="bottom" label="total input">
-        <div className="flex gap-1">
+        <div className="flex gap-1 text-amber-300">
           <PanelRightClose size={size}/>
           {UsageNumber(u.promptTokenCount)}
         </div>
       </ToolTipper>
       <ToolTipper side="bottom" label="total output">
-        <div className="flex gap-1">
+        <div className="flex gap-1 text-sky-400">
           <PanelLeftOpen size={size}/>
-          {UsageNumber(u.candidatesTokenCount + u.thoughtsTokenCount)}
+          {UsageNumber((u.candidatesTokenCount || 0) + (u.thoughtsTokenCount || 0))}
         </div>
       </ToolTipper>
       <ToolTipper side="bottom" label="total tokens">
-        <div className="flex gap-1">
+        <div className="flex gap-1 text-fuchsia-400">
           <SquareSigma size={size}/>
           {UsageNumber(u.totalTokenCount)}
         </div>

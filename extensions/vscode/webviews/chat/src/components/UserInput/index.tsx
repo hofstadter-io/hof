@@ -8,7 +8,7 @@ import { cn, processEvents } from "@/lib/utils"
 
 import { Header } from "../Header"
 import { ChatEditor } from './editor'
-import { Bot, BotMessageSquare, Drama, FileCode, Megaphone, ScrollText, TerminalSquare } from 'lucide-react'
+import { Bot, BotMessageSquare, Drama, FileClock, FileCode, FileCodeCorner, FileCog, FilePen, FileText, Megaphone, ScrollText, TerminalSquare } from 'lucide-react'
 import { useChat } from '@/hooks/useChat'
 import { ToolTipper } from 'veg-webview-common'
 
@@ -284,39 +284,44 @@ export const UserInput = () => {
         { userInput?.environ && <Badge className="text-lime-300/80 bg-lime-600/50 "><TerminalSquare size={12}/>{userInput?.environ}</Badge>}
 
         {/* Context Info */}
-        {cacheKeys.length > 0 && (
-          <ToolTipper label={cacheKeys.map(k => k.split(':').slice(2).join(':')).join('\n')}>
-            <Badge className="text-fuchsia-200/80 bg-fuchsia-600/50 flex gap-1 items-center px-2">
-              <ScrollText size={12}/>
-              <span>{cacheKeys.length}</span>
+        {agentmdKeys.length > 0 && (
+          <ToolTipper label={agentmdKeys.map(k => k.split(':').slice(2).join(':')).join('\n')}>
+            <Badge className="text-amber-200 bg-yellow-600/80 flex gap-1 items-center px-2">
+              <FileText size={12}/>
+              <span>{agentmdKeys.length}</span>
             </Badge>
           </ToolTipper>
         )}
         {fileKeys.length > 0 && (
           <ToolTipper label={fileKeys.map(k => k.split(':').slice(2).join(':')).join('\n')}>
             <Badge className="text-violet-300 bg-violet-600/50 flex gap-1 items-center px-2">
-              <FileCode size={12}/>
+              <FileCodeCorner size={12}/>
               <span>{fileKeys.length}</span>
             </Badge>
           </ToolTipper>
         )}
-        {agentmdKeys.length > 0 && (
-          <ToolTipper label={agentmdKeys.map(k => k.split(':').slice(2).join(':')).join('\n')}>
-            <Badge className="text-amber-200 bg-amber-600/50 flex gap-1 items-center px-2">
-              <Megaphone size={12}/>
-              <span>{agentmdKeys.length}</span>
+        {cacheKeys.length > 0 && (
+          <ToolTipper label={cacheKeys.map(k => k.split(':').slice(2).join(':')).join('\n')}>
+            <Badge className="text-fuchsia-200/80 bg-fuchsia-600/50 flex gap-1 items-center px-2">
+              <FilePen size={12}/>
+              <span>{cacheKeys.length}</span>
             </Badge>
           </ToolTipper>
         )}
 
         {/* Token Usage */}
-        <div className="flex gap-2 h-6">
+        <div className="flex ml-auto gap-1 h-6">
 
           { session?.events && session?.events.length > 0 && (
             <div className="w-50 ml-4 px-2 h-6 flex relative rounded border-b border-dashed border-gray-400">
               <div className="absolute top-0 left-0 h-3 w-full border-t border-dashed border-red-400 z-20">
               </div>
-              <div className="absolute top-0 left-0 h-3 w-full border-b border-dashed border-amber-400 z-20">
+              <div className="absolute top-0 left-0 h-3 w-full border-b border-dashed border-yellow-400 z-20">
+              </div>
+              <div className="absolute top-[-3px] left-0 h-6 w-50 z-30">
+                <Sparklines data={output} width={140} height={20} min={0} max={100000}>
+                  <SparklinesLine style={{ stroke: "oklch(82.8% 0.111 230.318)", fill: "oklch(82.8% 0.111 230.318)" }} />
+                </Sparklines>
               </div>
               <div className="absolute top-[-3px] left-0 h-6 w-50 z-30">
                 <Sparklines data={cached} width={140} height={20} min={0} max={100000}>
@@ -335,7 +340,12 @@ export const UserInput = () => {
             <div className="w-50 ml-4 px-2 h-6 flex relative rounded border-b border-dashed border-gray-400">
               <div className="absolute top-0 left-0 h-3 w-full border-t border-dashed border-red-400 z-20">
               </div>
-              <div className="absolute top-0 left-0 h-3 w-full border-b border-dashed border-amber-400 z-20">
+              <div className="absolute top-0 left-0 h-3 w-full border-b border-dashed border-yellow-400 z-20">
+              </div>
+              <div className="absolute top-[-3px] left-0 h-6 w-50 z-30">
+                <Sparklines data={prompt} width={140} height={20} min={0} max={100000}>
+                  <SparklinesLine style={{ stroke: "oklch(94.5% 0.129 101.54)", fill: "oklch(94.5% 0.129 101.54)" }} />
+                </Sparklines>
               </div>
               <div className="absolute top-[-3px] left-0 h-6 w-50 z-30">
                 <Sparklines data={output} width={140} height={20} min={0} max={100000}>
