@@ -357,8 +357,6 @@ func addCallbacks(config Config, agt Agent, environMDs map[string]string, c *llm
 
 			// This next section is all about making sure the state is in a good place
 			// to match the data we are about to render instructions with
-			// this is why prepareData is getting called twice I think
-			// TODO, can we get this agent list some other way than preparing all this data?
 			data, _ := prepareData(config, agt, environMDs)(ctx)
 
 			var pfs []string
@@ -516,6 +514,8 @@ func RenderInstructionsWithNameAndState(cfg Config, agt Agent, name string, stat
 		return "", err
 	}
 
+	debugPrintData(data)
+
 	// render instruction (first time) to get length
 	b, err := t.Render(data)
 	if err != nil {
@@ -647,16 +647,13 @@ func PrepareDataWithNameAndState(cfg Config, agt Agent, agentName string, state 
 			}
 		}
 	}
-	// always include root agent files
+	// root agent files, debatable if always needed
 	for agtPath, agtContent := range agt.AgentsMD {
 		if !strings.Contains(agtPath, "/") {
 			agtmd[agtPath] = agtContent
 		}
 	}
-	// NOTE, these comments by gemini are actually backwards, we always want the project, agent is debatable
-	// always include root environ files (maybe not? let's stick to agtMD for now, unless requested)
-	// actually, for environMDs, we probably want the same logic?
-	// If it is a root file in the environ (like AGENTS.md at root), it should be included?
+	// root project files, always included
 	for envPath, envContent := range environMDs {
 		if !strings.Contains(envPath, "/") {
 			agtmd[envPath] = envContent
@@ -700,35 +697,40 @@ func PrepareDataWithNameAndState(cfg Config, agt Agent, agentName string, state 
 	})
 	data["allAgentsMd"] = allAgtmdSorted
 
-	// TODO, move this out and have it operate on data
-
-	// Debug printing
-	fmt.Println("stateKeys:")
 	stateKeys := slices.Collect(maps.Keys(state))
 	slices.Sort(stateKeys)
-	for _, k := range stateKeys {
-		fmt.Println(" ", k)
+	data["stateKeys"] = stateKeys
+
+	return data, nil
+}
+
+func debugPrintData(data map[string]any) {
+	fmt.Println("stateKeys:")
+	if keys, ok := data["stateKeys"].([]string); ok {
+		for _, k := range keys {
+			fmt.Println(" ", k)
+		}
 	}
 
 	fmt.Println("cacheKeys:")
-	cacheKeys := slices.Collect(maps.Keys(cache))
-	slices.Sort(cacheKeys)
-	for _, k := range cacheKeys {
-		fmt.Println(" ", k)
+	if cache, ok := data["cache"].([]KVPair); ok {
+		for _, kv := range cache {
+			fmt.Println(" ", kv.Key)
+		}
 	}
 
 	fmt.Println("filesKeys:")
-	filesKeys := slices.Collect(maps.Keys(files))
-	slices.Sort(filesKeys)
-	for _, k := range filesKeys {
-		fmt.Println(" ", k)
+	if files, ok := data["files"].([]KVPair); ok {
+		for _, kv := range files {
+			fmt.Println(" ", kv.Key)
+		}
 	}
 
 	fmt.Println("agentKeys:")
-	agentKeys := slices.Collect(maps.Keys(agtmd))
-	slices.Sort(agentKeys)
-	for _, k := range agentKeys {
-		fmt.Println(" ", k)
+	if agtmd, ok := data["agentsMd"].([]AgentMD); ok {
+		for _, am := range agtmd {
+			fmt.Println(" ", am.Path)
+		}
 	}
 
 	fmt.Println("dataKeys:")
@@ -739,12 +741,4 @@ func PrepareDataWithNameAndState(cfg Config, agt Agent, agentName string, state 
 	}
 
 	fmt.Println("subconscious:", data["subconscious"])
-
-	// b, err := json.MarshalIndent(data["cache"], "", "  ")
-	// if err != nil {
-	// 	fmt.Println("error while marshalling data for debug of template input:", err)
-	// }
-	// fmt.Println(string(b))
-
-	return data, nil
 }
