@@ -1,5 +1,4 @@
 import { useRef, useState } from 'react'
-import { Sparklines, SparklinesLine, SparklinesSpots } from 'react-sparklines';
 
 import { vscodeApi } from '@/vscodeApi.js'
 
@@ -11,6 +10,7 @@ import { ChatEditor } from './editor'
 import { Bot, BotMessageSquare, Drama, FileClock, FileCode, FileCodeCorner, FileCog, FilePen, FileText, Megaphone, ScrollText, TerminalSquare } from 'lucide-react'
 import { useChat } from '@/hooks/useChat'
 import { ToolTipper } from 'veg-webview-common'
+import Sparkline from '../Sparkline';
 
 export const UserInput = () => {
   const {
@@ -283,6 +283,19 @@ export const UserInput = () => {
     totals.push(T)
   })
 
+  const lines=[{
+    value: 0,
+    className: "stroke-white"
+  },{
+    value: 25000,
+    className: "stroke-yellow-400"
+  },{
+    value: 50000,
+    className: "stroke-orange-500"
+  },{
+    value: 100000,
+    className: "stroke-red-500"
+  }]
 
   return (
     <div 
@@ -327,56 +340,57 @@ export const UserInput = () => {
         )}
 
         {/* Token Usage */}
-        <div className="flex ml-auto gap-1 h-6">
+        { session?.events && session?.events.length > 0 && (
+          <div className="flex flex-col w-full gap-3 my-2">
 
-          { session?.events && session?.events.length > 0 && (
-            <div className="w-50 ml-4 px-2 h-6 flex relative rounded border-b border-dashed border-gray-400">
-              <div className="absolute top-0 left-0 h-3 w-full border-t border-dashed border-red-400 z-20">
-              </div>
-              <div className="absolute top-0 left-0 h-3 w-full border-b border-dashed border-yellow-400 z-20">
-              </div>
-              <div className="absolute top-[-3px] left-0 h-6 w-50 z-30">
-                <Sparklines data={output} width={140} height={20} min={0} max={100000}>
-                  <SparklinesLine style={{ stroke: "oklch(82.8% 0.111 230.318)", fill: "oklch(82.8% 0.111 230.318)" }} />
-                </Sparklines>
-              </div>
-              <div className="absolute top-[-3px] left-0 h-6 w-50 z-30">
-                <Sparklines data={cached} width={140} height={20} min={0} max={100000}>
-                  <SparklinesLine style={{ stroke: "oklch(84.1% 0.238 128.85)", fill: "oklch(84.1% 0.238 128.85)" }} />
-                </Sparklines>
-              </div>
-              <div className="absolute top-[-3px] left-0 h-6 w-50 z-30">
-                <Sparklines data={prompt} width={140} height={20} min={0} max={100000}>
-                  <SparklinesLine style={{ stroke: "oklch(87.9% 0.169 91.605)", fill: "oklch(87.9% 0.169 91.605)" }} />
-                </Sparklines>
-              </div>
-            </div>
-          )}
+            <div className="flex ml-auto gap-4 h-8">
 
-          { session?.events && session?.events.length > 0 && (
-            <div className="w-50 ml-4 px-2 h-6 flex relative rounded border-b border-dashed border-gray-400">
-              <div className="absolute top-0 left-0 h-3 w-full border-t border-dashed border-red-400 z-20">
+              <div className="w-64">
+              <Sparkline
+                lines={lines}
+                series={[{
+                  title: "prompt",
+                  values: prompt,
+                  className: "stroke-amber-300 fill-amber-200/5 stroke-2"
+                },{
+                  title: "cached",
+                  values: cached,
+                  className: "stroke-lime-400 fill-lime-300/20"
+                },{
+                  title: "thinks",
+                  values: thinks,
+                  className: "stroke-cyan-400 fill-cyan-300/20"
+                },{
+                  title: "writes",
+                  values: writes,
+                  className: "stroke-blue-400 fill-blue-300/20"
+                }]}
+              />
               </div>
-              <div className="absolute top-0 left-0 h-3 w-full border-b border-dashed border-yellow-400 z-20">
+
+              <div className="w-64">
+              <Sparkline
+                lines={lines}
+                series={[{
+                  title: "totals",
+                  values: totals,
+                  className: "stroke-fuchsia-400 fill-fuchsia-300/5 stroke-2"
+                },{
+                  title: "prompt",
+                  values: prompt,
+                  className: "stroke-amber-300 fill-amber-200/5"
+                },{
+                  title: "output",
+                  values: output,
+                  className: "stroke-sky-400 fill-sky-300/20"
+                }]}
+              />
               </div>
-              <div className="absolute top-[-3px] left-0 h-6 w-50 z-30">
-                <Sparklines data={prompt} width={140} height={20} min={0} max={100000}>
-                  <SparklinesLine style={{ stroke: "oklch(94.5% 0.129 101.54)", fill: "oklch(94.5% 0.129 101.54)" }} />
-                </Sparklines>
-              </div>
-              <div className="absolute top-[-3px] left-0 h-6 w-50 z-30">
-                <Sparklines data={output} width={140} height={20} min={0} max={100000}>
-                  <SparklinesLine style={{ stroke: "oklch(74.6% 0.16 232.661)", fill: "oklch(74.6% 0.16 232.661)" }} />
-                </Sparklines>
-              </div>
-              <div className="absolute top-[-3px] left-0 h-6 w-50 z-30">
-                <Sparklines data={totals} width={140} height={20} min={0} max={100000}>
-                  <SparklinesLine style={{ stroke: "oklch(74% 0.238 322.16)", fill: "oklch(74% 0.238 322.16)" }} />
-                </Sparklines>
-              </div>
+
             </div>
-          )}
-        </div>
+          </div>
+        )}
+
 
       </div>
 

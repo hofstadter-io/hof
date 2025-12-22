@@ -78,32 +78,48 @@ export function UsageNumber(num?: number): string {
   return `${(num / 1000000.0).toFixed(1)}M`
 }
 
+export function PercentNumber(part: number, total: number) {
+  if (!part || part < 0 || !total || total < 1) {
+    return null
+  }
+  const p = Math.round(100 * (1 - ((total - part) / total)));
+  return <span className="align-super text-[.5em]">{p}</span>
+}
+
 export const UsageInfo = ({ evt, usage, size }: { evt?: any, usage?: any, size: any }) => {
   var u = evt?.UsageMetadata || usage || {}
+
+  const uncachedInput = u.promptTokenCount - (u.cachedContentTokenCount || 0)
+  const totalOutput = (u.candidatesTokenCount || 0) + (u.thoughtsTokenCount || 0)
+
   return (
     <div className="flex gap-2 h-4">
       <ToolTipper side="bottom" label="cached input tokens">
-        <div className="flex gap-1 text-lime-400">
-          <BookMarked size={size}/>
+        <div className="flex  text-lime-400">
+          <BookMarked size={size}  className="mr-1"/>
           {UsageNumber(u.cachedContentTokenCount) || "0"}
+          {PercentNumber(u.cachedContentTokenCount, u.promptTokenCount)}
         </div>
       </ToolTipper>
       <ToolTipper side="bottom" label="normal input tokens">
-        <div className="flex gap-1 text-amber-200">
-          <NotebookTabs size={size}/>
-          {UsageNumber(u.promptTokenCount - (u.cachedContentTokenCount || 0))}
+        <div className="flex  text-amber-200">
+          <NotebookTabs size={size} className="mr-1"/>
+          {UsageNumber(uncachedInput)}
+          {PercentNumber(uncachedInput, u.promptTokenCount)}
         </div>
       </ToolTipper>
       <ToolTipper side="bottom" label="thinking tokens">
-        <div className="flex gap-1 text-sky-300">
-          <BrainCircuit size={size}/>
+        <div className="flex  text-cyan-300">
+          <BrainCircuit size={size} className="mr-1"/>
           {UsageNumber(u.thoughtsTokenCount)}
+          {PercentNumber(u.thoughtsTokenCount, totalOutput)}
         </div>
       </ToolTipper>
       <ToolTipper side="bottom" label="response tokens">
-        <div className="flex gap-1 text-sky-300">
-          <BotMessageSquare size={size}/>
+        <div className="flex  text-blue-400">
+          <BotMessageSquare size={size} className="mr-1"/>
           {UsageNumber(u.candidatesTokenCount)}
+          {PercentNumber(u.candidatesTokenCount, totalOutput)}
         </div>
       </ToolTipper>
 
@@ -112,20 +128,22 @@ export const UsageInfo = ({ evt, usage, size }: { evt?: any, usage?: any, size: 
       </div>
 
       <ToolTipper side="bottom" label="total input">
-        <div className="flex gap-1 text-amber-300">
-          <PanelRightClose size={size}/>
+        <div className="flex  text-amber-300">
+          <PanelRightClose size={size} className="mr-1"/>
           {UsageNumber(u.promptTokenCount)}
+          {PercentNumber(u.promptTokenCount, u.totalTokenCount)}
         </div>
       </ToolTipper>
       <ToolTipper side="bottom" label="total output">
-        <div className="flex gap-1 text-sky-400">
-          <PanelLeftOpen size={size}/>
-          {UsageNumber((u.candidatesTokenCount || 0) + (u.thoughtsTokenCount || 0))}
+        <div className="flex  text-sky-400">
+          <PanelLeftOpen size={size} className="mr-1"/>
+          {UsageNumber(totalOutput)}
+          {PercentNumber(totalOutput, u.totalTokenCount)}
         </div>
       </ToolTipper>
       <ToolTipper side="bottom" label="total tokens">
-        <div className="flex gap-1 text-fuchsia-400">
-          <SquareSigma size={size}/>
+        <div className="flex  text-fuchsia-400">
+          <SquareSigma size={size} className="mr-1"/>
           {UsageNumber(u.totalTokenCount)}
         </div>
       </ToolTipper>
