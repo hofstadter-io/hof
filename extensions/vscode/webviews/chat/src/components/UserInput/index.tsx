@@ -7,10 +7,11 @@ import { cn, processEvents } from "@/lib/utils"
 
 import { Header } from "../Header"
 import { ChatEditor } from './editor'
-import { Bot, BotMessageSquare, Drama, FileClock, FileCode, FileCodeCorner, FileCog, FilePen, FileText, Megaphone, ScrollText, TerminalSquare } from 'lucide-react'
+import { BotMessageSquare } from 'lucide-react'
 import { useChat } from '@/hooks/useChat'
-import { ToolTipper } from 'veg-webview-common'
-import Sparkline from '../Sparkline';
+import { SessionSparklines } from '../SessionSparklines';
+import { ChatStatePills } from '../ChatStatePills';
+import { handleChatboxCommand } from '@/lib/chatboxCommandHandlers';
 
 export const UserInput = () => {
   const {
@@ -23,10 +24,6 @@ export const UserInput = () => {
     diff,
     handleSend,
   } = useChat();
-
-  const cacheKeys = Object.keys(session?.state || {}).filter(k => k.startsWith("cache:"));
-  const fileKeys = Object.keys(session?.state || {}).filter(k => k.startsWith("files:"));
-  const agentmdKeys = Object.keys(session?.state || {}).filter(k => k.startsWith("agentmd:"));
 
   const s = vscodeApi.getState()
   // console.log("chat.state", s)
@@ -138,110 +135,16 @@ export const UserInput = () => {
       // no input
       return
     }
-    const lines = text.split("\n")
-    // is this a special thing
-    if (lines.length === 1 && lines[0].startsWith("[@")) {
-      const line = lines[0] as string
-      const parts = line.split("[")
-      parts.forEach((part, p) => {
-        // probably the first part
-        if (part === "") {
-          return
-        }
-        // trim endings: [@ ... 
-        part = part.substring(2).trim()
-        const pairs = part.split(/\s+/)
-        console.log("handling special:", part, pairs)
-        var char = "@"
-        var rest = ""
-        var extra: string[] = []
-        pairs.forEach((p) => {
-          if (p.endsWith("]")) {
-            p = p.substring(0, p.length-1)
-          }
-          if (p.startsWith("id")) {
-            // trim endings: id="..."
-            p = p.trim().substring(4, p.length-1).trim()
-            rest = p
-          } else if (p.startsWith("char")) {
-            // trim endings: char="."
-            p = p.trim().substring(6, p.length-1).trim()
-            char = p[0]
-          } else {
-            extra.push(p)
-          }
-        })
 
-        rest = rest.trim()
-        console.log("parsed:", char, rest, extra)
+    const handled = handleChatboxCommand(text, sid, chatState, {
+      handleSelectAgent,
+      handleSelectModel,
+      handleSelectEnviron,
+    });
 
-        switch (char) {
-          case "@":
-            if (Object.keys(chatState?.config?.agents).includes(rest)) {
-              handleSelectAgent(rest)
-            }
-            if (Object.keys(chatState?.config?.models).includes(rest)) {
-              handleSelectModel(rest)
-            }
-            break;
-
-          case ">":
-            handleSelectEnviron(rest)
-            break;
-
-          case "#":
-            break;
-
-          case "$":
-            console.log(`$${rest}:`, extra)
-            if (rest === "state") {
-              if (!extra || extra.length < 1) {
-                // todo, let user know by showing a help message
-                return
-              }
-              const key = extra[0]
-              var val: any = null
-              if (extra.length > 1) {
-                val = extra.splice(1).join(" ")
-              }
-
-              console.log("state!", key, val)
-              if (!val || val.trim() === "") {
-                vscodeApi.postMessage({
-                  type: 'session.state.del',
-                  payload: {
-                    sid,
-                    key,
-                  },
-                });
-              } else {
-                vscodeApi.postMessage({
-                  type: 'session.state.put',
-                  payload: {
-                    sid,
-                    key,
-                    val,
-                  },
-                });
-              }
-              vscodeApi.postMessage({
-                type: 'session.get',
-                payload: {
-                  sid,
-                },
-              });
-
-
-              // we can't process any more
-              return
-            }
-            break;
-        }
-      }) // end of part loop
-
-      // end of our special char handling, we should return and not send a message
+    if (handled) {
       editorRef?.current?.commands.clearContent()
-      return 
+      return
     }
 
     // otherwise assume a message for the agent
@@ -257,46 +160,6 @@ export const UserInput = () => {
     editorRef?.current?.commands.clearContent()
   }
 
-  const { usages } = processEvents(session?.events)
-  var cached: any[] = []
-  var prompt: any[] = []
-  var inputs: any[] = []
-  var thinks: any[] = []
-  var writes: any[] = []
-  var output: any[] = []
-  var totals: any[] = []
-
-  usages?.forEach((u) => {
-    const c = u?.cachedContentTokenCount || 0;
-    const p = u?.promptTokenCount || 0;
-    const i = p - c
-    const t = u?.thoughtsTokenCount || 0;
-    const w = u?.candidatesTokenCount || 0;
-    const o = t + w
-    const T = u?.totalTokenCount || 0;
-    cached.push(c)
-    prompt.push(p)
-    inputs.push(i)
-    thinks.push(t)
-    writes.push(w)
-    output.push(o)
-    totals.push(T)
-  })
-
-  const lines=[{
-    value: 0,
-    className: "stroke-white"
-  },{
-    value: 25000,
-    className: "stroke-yellow-400"
-  },{
-    value: 50000,
-    className: "stroke-orange-500"
-  },{
-    value: 100000,
-    className: "stroke-red-500"
-  }]
-
   return (
     <div 
       className={cn(
@@ -307,91 +170,8 @@ export const UserInput = () => {
       <Header />
 
       <div className="flex gap-1 items-center">
-
-        {/* User Settings */}
-        { userInput?.agent && <Badge className="text-sky-300 bg-sky-600/50 "><Bot size={12}/>{userInput?.agent}</Badge>}
-        { userInput?.model && <Badge className="text-sky-300 bg-sky-600/50 "><Drama size={12}/>{userInput?.model}</Badge>}
-        { userInput?.environ && <Badge className="text-lime-300/80 bg-lime-600/50 "><TerminalSquare size={12}/>{userInput?.environ}</Badge>}
-
-        {/* Context Info */}
-        {agentmdKeys.length > 0 && (
-          <ToolTipper label={agentmdKeys.map(k => k.split(':').slice(2).join(':')).join('\n')}>
-            <Badge className="text-amber-200 bg-yellow-600/80 flex gap-1 items-center px-2">
-              <FileText size={12}/>
-              <span>{agentmdKeys.length}</span>
-            </Badge>
-          </ToolTipper>
-        )}
-        {fileKeys.length > 0 && (
-          <ToolTipper label={fileKeys.map(k => k.split(':').slice(2).join(':')).join('\n')}>
-            <Badge className="text-violet-300 bg-violet-600/50 flex gap-1 items-center px-2">
-              <FileCodeCorner size={12}/>
-              <span>{fileKeys.length}</span>
-            </Badge>
-          </ToolTipper>
-        )}
-        {cacheKeys.length > 0 && (
-          <ToolTipper label={cacheKeys.map(k => k.split(':').slice(2).join(':')).join('\n')}>
-            <Badge className="text-fuchsia-200/80 bg-fuchsia-600/50 flex gap-1 items-center px-2">
-              <FilePen size={12}/>
-              <span>{cacheKeys.length}</span>
-            </Badge>
-          </ToolTipper>
-        )}
-
-        {/* Token Usage */}
-        { session?.events && session?.events.length > 0 && (
-          <div className="flex flex-col w-full gap-3 my-2">
-
-            <div className="flex ml-auto gap-4 h-8">
-
-              <div className="w-64">
-              <Sparkline
-                lines={lines}
-                series={[{
-                  title: "prompt",
-                  values: prompt,
-                  className: "stroke-amber-300 fill-amber-200/5 stroke-2"
-                },{
-                  title: "cached",
-                  values: cached,
-                  className: "stroke-lime-400 fill-lime-300/20"
-                },{
-                  title: "thinks",
-                  values: thinks,
-                  className: "stroke-cyan-400 fill-cyan-300/20"
-                },{
-                  title: "writes",
-                  values: writes,
-                  className: "stroke-blue-400 fill-blue-300/20"
-                }]}
-              />
-              </div>
-
-              <div className="w-64">
-              <Sparkline
-                lines={lines}
-                series={[{
-                  title: "totals",
-                  values: totals,
-                  className: "stroke-fuchsia-400 fill-fuchsia-300/5 stroke-2"
-                },{
-                  title: "prompt",
-                  values: prompt,
-                  className: "stroke-amber-300 fill-amber-200/5"
-                },{
-                  title: "output",
-                  values: output,
-                  className: "stroke-sky-400 fill-sky-300/20"
-                }]}
-              />
-              </div>
-
-            </div>
-          </div>
-        )}
-
-
+        <ChatStatePills userInput={userInput} session={session} />
+        <SessionSparklines events={session?.events} session={session} chatState={chatState} />
       </div>
 
       { userInput?.error && <span
@@ -403,6 +183,7 @@ export const UserInput = () => {
         // need to capture all keyboard events for special case
         // tiptap isn't letting us do CMD + Enter to send easily
         onKeyDown={(evt: any)=>{
+          // TODO, need to make sure this does not make it into the text
           if (evt.metaKey && evt.key === "Enter") {
             console.log("Send", evt)
             doSend()
