@@ -36,10 +36,10 @@ EnvCommand: schema.Command & {
 		Short: "build an environment"
 		Long: "build an environment"
 	},{
-		Name:  "get"
-		Usage: "get <name>"
-		Short: "get an environments"
-		Long: "list environments"
+		Name:  "info"
+		Usage: "info <name>"
+		Short: "get info about an environments"
+		Long: "get info about an environments"
 	},{
 		Name:  "list"
 		Usage: "list <name-pattern>"

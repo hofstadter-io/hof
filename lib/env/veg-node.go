@@ -9,6 +9,8 @@ type Env struct {
 	HumanName   string
 	MachineName string
 
+	Kind string
+
 	Description        string
 	HumanDescription   string
 	MachineDescription string

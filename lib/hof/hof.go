@@ -135,6 +135,7 @@ type Chat struct {
 type Env struct {
 	Root  bool
 	Name  string
+	Kind  string
 	Extra string
 }
 
@@ -144,5 +145,6 @@ type Env struct {
 type Agent struct {
 	Root  bool
 	Name  string
+	Kind  string
 	Extra string
 }

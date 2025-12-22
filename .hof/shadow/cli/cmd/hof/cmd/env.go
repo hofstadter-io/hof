@@ -54,7 +54,7 @@ func init() {
 	EnvCmd.SetUsageFunc(tusage)
 
 	EnvCmd.AddCommand(cmdenv.BuildCmd)
-	EnvCmd.AddCommand(cmdenv.GetCmd)
+	EnvCmd.AddCommand(cmdenv.InfoCmd)
 	EnvCmd.AddCommand(cmdenv.ListCmd)
 	EnvCmd.AddCommand(cmdenv.PsCmd)
 	EnvCmd.AddCommand(cmdenv.RunCmd)

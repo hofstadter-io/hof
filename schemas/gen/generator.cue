@@ -1,9 +1,9 @@
 package gen
 
 import (
-	"github.com/hofstadter-io/schemas"
-	"github.com/hofstadter-io/schemas/common"
-	"github.com/hofstadter-io/schemas/create"
+	"github.com/hofstadter-io/hof/schemas"
+	"github.com/hofstadter-io/hof/schemas/common"
+	"github.com/hofstadter-io/hof/schemas/create"
 )
 
 // Definition for a generator

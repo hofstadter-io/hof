@@ -1,6 +1,6 @@
 package sql
 
-import "github.com/hofstadter-io/schemas/dm"
+import "github.com/hofstadter-io/hof/schemas/dm"
 
 CommonFields: {
 	ID:        fields.UUID & {Default: string | *"uuid_generate_v4()"}

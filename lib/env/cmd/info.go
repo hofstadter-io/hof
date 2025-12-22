@@ -9,7 +9,7 @@ import (
 	"github.com/olekukonko/tablewriter"
 )
 
-func Get(args []string, rflags flags.RootPflagpole) error {
+func Info(args []string, rflags flags.RootPflagpole) error {
 	R, err := prepRuntime(args, rflags)
 	if err != nil {
 		return err

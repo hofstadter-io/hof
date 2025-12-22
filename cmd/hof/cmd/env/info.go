@@ -11,25 +11,25 @@ import (
 	"github.com/hofstadter-io/hof/lib/env/cmd"
 )
 
-var getLong = `list environments`
+var infoLong = `get info about an environments`
 
-func GetRun(args []string) (err error) {
+func InfoRun(args []string) (err error) {
 
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = cmd.Run(args, flags.RootPflags)
+	err = cmd.Info(args, flags.RootPflags)
 
 	return err
 }
 
-var GetCmd = &cobra.Command{
+var InfoCmd = &cobra.Command{
 
-	Use: "get <name>",
+	Use: "info <name>",
 
-	Short: "get an environments",
+	Short: "get info about an environments",
 
-	Long: getLong,
+	Long: infoLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
 
@@ -39,7 +39,7 @@ var GetCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		err = GetRun(args)
+		err = InfoRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -53,8 +53,8 @@ func init() {
 		return false
 	}
 
-	ohelp := GetCmd.HelpFunc()
-	ousage := GetCmd.UsageFunc()
+	ohelp := InfoCmd.HelpFunc()
+	ousage := InfoCmd.UsageFunc()
 
 	help := func(cmd *cobra.Command, args []string) {
 
@@ -78,7 +78,7 @@ func init() {
 	tusage := func(cmd *cobra.Command) error {
 		return usage(cmd)
 	}
-	GetCmd.SetHelpFunc(thelp)
-	GetCmd.SetUsageFunc(tusage)
+	InfoCmd.SetHelpFunc(thelp)
+	InfoCmd.SetUsageFunc(tusage)
 
 }

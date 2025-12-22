@@ -1,6 +1,6 @@
 package py
 
-import "github.com/hofstadter-io/schemas/dm"
+import "github.com/hofstadter-io/hof/schemas/dm"
 
 FieldEnricher: {
 	field: dm.Field

@@ -16,7 +16,7 @@ func List(args []string, rflags flags.RootPflagpole) error {
 	}
 
 	return yagu.PrintAsTable(
-		[]string{"Name", "Path", "ID", "Extra"},
+		[]string{"Name", "Path", "ID", "Extra", "Kind"},
 		func(table *tablewriter.Table) ([][]string, error) {
 			var rows = make([][]string, 0, len(R.Envs))
 			// fill with data
@@ -31,8 +31,9 @@ func List(args []string, rflags flags.RootPflagpole) error {
 					name = "(anon)"
 				}
 				path := e.Hof.Path
+				kind := e.Hof.Env.Kind
 
-				row := []string{name, path, id, fmt.Sprint(e.Hof.Env.Extra)}
+				row := []string{name, path, id, fmt.Sprint(e.Hof.Env.Extra), kind}
 				rows = append(rows, row)
 			}
 			return rows, nil
