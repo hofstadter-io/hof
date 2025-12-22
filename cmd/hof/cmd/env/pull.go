@@ -1,4 +1,4 @@
-package cmd
+package cmdenv
 
 import (
 	"fmt"
@@ -7,34 +7,29 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
-
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
-	dcmd "github.com/hofstadter-io/hof/lib/dagger/cmd"
+	"github.com/hofstadter-io/hof/lib/env/cmd"
 )
 
-var daggerooLong = `dagger run helper for the extension server`
+var pullLong = `pull an environment`
 
-func init() {
-
-	flags.SetupDaggerooFlags(DaggerooCmd.Flags(), &(flags.DaggerooFlags))
-
-}
-
-func DaggerooRun(id string) (err error) {
+func PullRun(args []string) (err error) {
 
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	return dcmd.Run(id, flags.RootPflags, flags.DaggerooFlags)
+	err = cmd.Pull(args, flags.RootPflags)
+
+	return err
 }
 
-var DaggerooCmd = &cobra.Command{
+var PullCmd = &cobra.Command{
 
-	Use: "daggeroo [args]",
+	Use: "pull <name>",
 
-	Short: "dagger run helper for the extension server",
+	Short: "pull an environment",
 
-	Long: daggerooLong,
+	Long: pullLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
 
@@ -44,21 +39,7 @@ var DaggerooCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		if 0 >= len(args) {
-			fmt.Println("missing required argument: 'id'")
-			cmd.Usage()
-			os.Exit(1)
-		}
-
-		var id string
-
-		if 0 < len(args) {
-
-			id = args[0]
-
-		}
-
-		err = DaggerooRun(id)
+		err = PullRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -72,8 +53,8 @@ func init() {
 		return false
 	}
 
-	ohelp := DaggerooCmd.HelpFunc()
-	ousage := DaggerooCmd.UsageFunc()
+	ohelp := PullCmd.HelpFunc()
+	ousage := PullCmd.UsageFunc()
 
 	help := func(cmd *cobra.Command, args []string) {
 
@@ -97,7 +78,7 @@ func init() {
 	tusage := func(cmd *cobra.Command) error {
 		return usage(cmd)
 	}
-	DaggerooCmd.SetHelpFunc(thelp)
-	DaggerooCmd.SetUsageFunc(tusage)
+	PullCmd.SetHelpFunc(thelp)
+	PullCmd.SetUsageFunc(tusage)
 
 }

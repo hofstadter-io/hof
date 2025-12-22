@@ -1,4 +1,4 @@
-package cmd
+package cmdenv
 
 import (
 	"fmt"
@@ -7,33 +7,29 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
-
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+	"github.com/hofstadter-io/hof/lib/env/cmd"
 )
 
-var daggerooLong = `dagger run helper for the extension server`
+var psLong = `print stats for running environments`
 
-func init() {
-
-	flags.SetupDaggerooFlags(DaggerooCmd.Flags(), &(flags.DaggerooFlags))
-
-}
-
-func DaggerooRun(id string) (err error) {
+func PsRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	fmt.Println("not implemented")
+	// fmt.Println("not implemented")
+
+	err = cmd.Ps(args, flags.RootPflags)
 
 	return err
 }
 
-var DaggerooCmd = &cobra.Command{
+var PsCmd = &cobra.Command{
 
-	Use: "daggeroo [args]",
+	Use: "ps <name-pattern>",
 
-	Short: "dagger run helper for the extension server",
+	Short: "print stats for running environments",
 
-	Long: daggerooLong,
+	Long: psLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
 
@@ -43,21 +39,7 @@ var DaggerooCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		if 0 >= len(args) {
-			fmt.Println("missing required argument: 'id'")
-			cmd.Usage()
-			os.Exit(1)
-		}
-
-		var id string
-
-		if 0 < len(args) {
-
-			id = args[0]
-
-		}
-
-		err = DaggerooRun(id)
+		err = PsRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -71,8 +53,8 @@ func init() {
 		return false
 	}
 
-	ohelp := DaggerooCmd.HelpFunc()
-	ousage := DaggerooCmd.UsageFunc()
+	ohelp := PsCmd.HelpFunc()
+	ousage := PsCmd.UsageFunc()
 
 	help := func(cmd *cobra.Command, args []string) {
 
@@ -96,7 +78,7 @@ func init() {
 	tusage := func(cmd *cobra.Command) error {
 		return usage(cmd)
 	}
-	DaggerooCmd.SetHelpFunc(thelp)
-	DaggerooCmd.SetUsageFunc(tusage)
+	PsCmd.SetHelpFunc(thelp)
+	PsCmd.SetUsageFunc(tusage)
 
 }

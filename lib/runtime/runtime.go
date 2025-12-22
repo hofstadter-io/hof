@@ -13,9 +13,11 @@ import (
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/flow/flow"
+	"github.com/hofstadter-io/hof/lib/agent"
 	"github.com/hofstadter-io/hof/lib/chat"
 	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/datamodel"
+	"github.com/hofstadter-io/hof/lib/env"
 	"github.com/hofstadter-io/hof/lib/gen"
 	"github.com/hofstadter-io/hof/lib/hof"
 )
@@ -74,6 +76,8 @@ type Runtime struct {
 	// the commands from the types and core logic
 	Nodes      []*hof.Node[any]
 	Chats      []*chat.Chat
+	Envs       []*env.Env
+	Agents     []*agent.Agent
 	Datamodels []*datamodel.Datamodel
 	Generators []*gen.Generator
 	Workflows  []*flow.Flow

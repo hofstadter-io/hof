@@ -42,8 +42,8 @@ CLI: schema.Cli & {
 
 		// beta commands
 		cmds.ExtensionCommand,
-		cmds.DaggerooCommand,
 		cmds.AgentCommand,
+		cmds.EnvCommand,
 		cmds.ChatCommand,
 		cmds.RunCommand,
 		cmds.TuiCommand,

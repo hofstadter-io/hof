@@ -20,22 +20,22 @@ func upgradeAttrs[T any](node *Node[T], label string) bool {
 		an, ac := A.Name(), A.Contents()
 		lfound := true
 		switch an {
-			case "hof":
-				switch ac {
-					case "datamodel":
-					 node.Hof.Datamodel.Root = true
-				}
-			case "id":
-				node.Hof.Metadata.ID = ac
+		case "hof":
+			switch ac {
+			case "datamodel":
+				node.Hof.Datamodel.Root = true
+			}
+		case "id":
+			node.Hof.Metadata.ID = ac
 
 		case "datamodel":
-			 node.Hof.Datamodel.Root = true
+			node.Hof.Datamodel.Root = true
 		case "history":
-			 node.Hof.Datamodel.History = true
+			node.Hof.Datamodel.History = true
 		case "ordered":
-			 node.Hof.Datamodel.Ordered = true
+			node.Hof.Datamodel.Ordered = true
 		case "cue":
-			 node.Hof.Datamodel.Cue = true
+			node.Hof.Datamodel.Cue = true
 
 		// doesn't handle empty case, do we support that
 		// we probably should
@@ -70,7 +70,7 @@ func upgradeAttrs[T any](node *Node[T], label string) bool {
 				c, err := strconv.Atoi(parts[1])
 				if err != nil {
 					fmt.Println("warning: unable to parse %q to int", parts[1])
-					
+
 				} else {
 					node.Hof.Flow.Pool.Number = c
 				}
@@ -85,13 +85,23 @@ func upgradeAttrs[T any](node *Node[T], label string) bool {
 			node.Hof.Chat.Name = label
 			node.Hof.Chat.Extra = ac
 
+		case "env":
+			node.Hof.Env.Root = true
+			node.Hof.Env.Name = label
+			node.Hof.Env.Extra = ac
+
+		case "agent":
+			node.Hof.Env.Root = true
+			node.Hof.Env.Name = label
+			node.Hof.Env.Extra = ac
+
 		case "print":
 			// TODO, better parsing of AC to get parts
 			node.Hof.Flow.Print.Level = 1
-			node.Hof.Flow.Print.Path  = ac
+			node.Hof.Flow.Print.Path = ac
 
 		default:
-		  lfound = false
+			lfound = false
 		}
 		// write to outer found
 		if lfound {
@@ -130,7 +140,7 @@ func ParseHof[T any](val cue.Value) (*Node[T], error) {
 	// create new node
 	node := New[T](label, val, nil, nil)
 	found := false
-	
+
 	// look for #hof: _
 	hv := val.LookupPath(cue.ParsePath("#hof"))
 	if hv.Exists() {
@@ -151,20 +161,19 @@ func ParseHof[T any](val cue.Value) (*Node[T], error) {
 	if ufound {
 		found = ufound
 	}
-	
 
 	// filters to end recursion
 	// check datamodel root because of nested history and roots snafu
 	// This was here from before we made this singular function, in the context of nodes and the stack
 	//if node.Hof.Datamodel.Root {
-	//  // backtrack, walking parents		
+	//  // backtrack, walking parents
 	//  for bt := nodes; bt != nil; bt = bt.Parent {
 	//    // we found a nested root datamodel
 	//    if bt.Hof.Datamodel.Root {
 	//      // stop recursion
 	//      fmt.Println("hof.DM: want to stop recursion here", bt.Hof.Path, node.Hof.Path)
 	//      // return false
-	//    }	
+	//    }
 	//  }
 	//  // fmt.Println("found datamodel:", stack.Hof.Path)
 	//}
@@ -205,7 +214,7 @@ func FindHofs(value cue.Value) (roots []*Node[any], err error) {
 	// fmt.Println("FindHofs!")
 	var stack *Node[any] // cue stack
 
-	before := func (val cue.Value) bool {
+	before := func(val cue.Value) bool {
 		// get some info
 		path := val.Path()
 		sels := path.Selectors()
@@ -237,7 +246,7 @@ func FindHofs(value cue.Value) (roots []*Node[any], err error) {
 			// is this the root of that interesting thing?
 			// otherwise, push onto the stack and update parent/child pointers
 			if stack == nil {
-				stack = node	
+				stack = node
 				roots = append(roots, node)
 			} else {
 				// two-way relation setting
@@ -252,7 +261,7 @@ func FindHofs(value cue.Value) (roots []*Node[any], err error) {
 			// it doesn't work if we do, so... trying to reconcile this with history
 			// this is anything that can have a nested flow, ideally this could be inferred from the node / enrichment
 			if node.Hof.Flow.Task == "nest" ||
-				(node.Hof.Flow.Name != "" && node.Hof.Flow.Task == ""){
+				(node.Hof.Flow.Name != "" && node.Hof.Flow.Task == "") {
 				// fmt.Println("ending hof recursion in nest", node.Hof.Path, node.Hof.Label)
 				return false
 			}
@@ -262,7 +271,7 @@ func FindHofs(value cue.Value) (roots []*Node[any], err error) {
 		return true
 	}
 
-	after := func (val cue.Value) {
+	after := func(val cue.Value) {
 		// unwind node stack
 		if stack != nil {
 			stack = stack.Parent
@@ -286,7 +295,6 @@ func (n *Node[T]) indent() string {
 	}
 	return strings.Repeat("  ", d)
 }
-
 
 var defaultWalkOptions = []cue.Option{
 	cue.Attributes(true),
