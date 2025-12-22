@@ -116,7 +116,7 @@ export const UsageInfo = ({ evt, usage, size }: { evt?: any, usage?: any, size: 
         </div>
       </ToolTipper>
       <ToolTipper side="bottom" label="response tokens">
-        <div className="flex  text-blue-400">
+        <div className="flex  text-sky-400">
           <BotMessageSquare size={size} className="mr-1"/>
           {UsageNumber(u.candidatesTokenCount)}
           {PercentNumber(u.candidatesTokenCount, totalOutput)}
@@ -135,7 +135,7 @@ export const UsageInfo = ({ evt, usage, size }: { evt?: any, usage?: any, size: 
         </div>
       </ToolTipper>
       <ToolTipper side="bottom" label="total output">
-        <div className="flex  text-sky-400">
+        <div className="flex  text-blue-400">
           <PanelLeftOpen size={size} className="mr-1"/>
           {UsageNumber(totalOutput)}
           {PercentNumber(totalOutput, u.totalTokenCount)}

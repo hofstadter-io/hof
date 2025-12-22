@@ -14,10 +14,20 @@ type SparklineLine = {
     className?: string;
 }
 
+type SparklineVert = {
+    index: number;
+    className?: string;
+}
+
 type SparklineProps = {
     title?: string;
     series: SparklineSeries[];
     lines?: SparklineLine[];
+    verts?: SparklineVert[];
+    ticks?: SparklineVert[];
+    tooltipData?: SparklineSeries[];
+    formatter?: (val: number) => string;
+    meta?: { index: number, title: string, className?: string }[];
     dims?: {
       // start values
       max?: number;
@@ -33,6 +43,9 @@ const Sparkline: React.FC<SparklineProps> = (props) => {
   const containerRef = useRef<HTMLDivElement>(null);
   // Current dimensions for the chart
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  
+  // Tooltip state
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
 
   // Create effect to run when component mounts
   useEffect(() => {
@@ -69,6 +82,7 @@ const Sparkline: React.FC<SparklineProps> = (props) => {
   // Calculate the min and max values of the data, across all the data
   var min = props.dims?.min || 0;
   var max = props.dims?.max || 0;
+  var dataLength = 0;
   props.series.forEach((d) => {
     // Don't render the chart for less than 2 points
     if (!d?.values || d.values.length < 2) {
@@ -77,6 +91,7 @@ const Sparkline: React.FC<SparklineProps> = (props) => {
     }
     min = Math.min(...d.values, min);
     max = Math.max(...d.values, max);
+    dataLength = Math.max(dataLength, d.values.length);
   })
   // small buffer on points to reduce clipping
   max += 1000
@@ -84,10 +99,57 @@ const Sparkline: React.FC<SparklineProps> = (props) => {
   if (props.dims?.minMin) min = Math.max(min, props.dims.minMin);
   if (props.dims?.maxMax) max = Math.min(max, props.dims.maxMax);
 
-  const dims = { min, max, width, height };
+  const dims = { min, max, width, height, dataLength };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (dataLength < 2) return;
+    
+    // Calculate index from mouse position
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const index = Math.round((x / width) * (dataLength - 1));
+    
+    // If index changed
+    if (index !== hoverIndex) {
+        setHoverIndex(index);
+    }
+  };
+
+  const handleMouseLeave = () => {
+      setHoverIndex(null);
+  };
+
+  const tooltipValues = props.tooltipData || props.series;
+  const currentMeta = props.meta?.[hoverIndex || 0];
+  const tooltipTitle = currentMeta 
+      ? `[${currentMeta.index}] ${currentMeta.title}`
+      : `[${hoverIndex}] Step`;
 
   return (
-    <div ref={containerRef} style={{ width: '100%', height: '100%' }}>
+    <div 
+        ref={containerRef} 
+        style={{ width: '100%', height: '100%', position: 'relative' }}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+    >
+      {hoverIndex !== null && (
+          <div className="absolute z-50 text-white font-mono px-3 py-2 rounded-md shadow-md text-[10px] border border-white/10 whitespace-nowrap pointer-events-none backdrop-blur-sm" 
+               style={{ 
+                   backgroundColor: 'rgba(9, 9, 11, 0.7)',
+                   left: `${(hoverIndex / (dataLength - 1)) * 100}%`, 
+                   top: '100%', 
+                   marginTop: '4px',
+                   transform: hoverIndex > dataLength / 2 ? 'translateX(-100%)' : 'translateX(0)',
+               }}>
+              <div className={cn("font-bold border-b border-white/20 pb-1 mb-1 w-[100px] truncate", currentMeta?.className)}>{tooltipTitle}</div>
+              {tooltipValues.map((s, i) => (
+                  <div key={i} className="flex justify-between gap-4">
+                      <span className={s.className?.split(' ')[0] || ''}>{s.title}</span>
+                      <span>{props.formatter ? props.formatter(s.values[hoverIndex]) : s.values[hoverIndex]}</span>
+                  </div>
+              ))}
+          </div>
+      )}
       <svg width={width} height={height} className="overflow-hidden">
         {/* <!-- a transparent glow that takes on the colour of the object it's applied to --> */}
         <filter id="glow">
@@ -97,12 +159,61 @@ const Sparkline: React.FC<SparklineProps> = (props) => {
                 <feMergeNode in="SourceGraphic"/>
             </feMerge>
         </filter>
-        { props.lines?.map(l => <Dashline line={l} dims={dims} />)}
-        { props.series.map(s => <Polyline series={s} dims={dims} />)}
+        { props.lines?.map((l, i) => <Dashline key={i} line={l} dims={dims} />)}
+        { props.verts?.map((v, i) => <VertLine key={i} vert={v} dims={dims} />)}
+        { hoverIndex !== null && (
+            <line
+                x1={(hoverIndex / (dataLength - 1)) * width}
+                x2={(hoverIndex / (dataLength - 1)) * width}
+                y1={0}
+                y2={height}
+                className="stroke-white/50 stroke-1"
+            />
+        )}
+        { props.series.map((s, i) => <Polyline key={i} series={s} dims={dims} />)}
+        { props.ticks?.map((v, i) => <TickLine key={i} vert={v} dims={dims} />)}
       </svg>
     </div>
   );
 };
+
+type VertLineProps = {
+  vert: SparklineVert;
+  dims: {
+    width: number;
+    height: number;
+    dataLength: number;
+  };
+}
+
+const VertLine: React.FC<VertLineProps> = ({ vert, dims }) => {
+    const x = (vert.index / (dims.dataLength - 1)) * dims.width;
+    return (
+        <line
+            x1={x} x2={x}
+            y1={0} y2={dims.height}
+            strokeDasharray="2 2"
+            className={cn(
+                "fill-none stroke-1",
+                vert.className,
+            )}
+        />
+    )
+}
+
+const TickLine: React.FC<VertLineProps> = ({ vert, dims }) => {
+    const x = (vert.index / (dims.dataLength - 1)) * dims.width;
+    return (
+        <line
+            x1={x} x2={x}
+            y1={0} y2={4}
+            className={cn(
+                "fill-none stroke-2",
+                vert.className,
+            )}
+        />
+    )
+}
 
 type PolylineProps = {
   series: SparklineSeries;
