@@ -21,7 +21,7 @@ func ListRun(args []string) (err error) {
 
 var ListCmd = &cobra.Command{
 
-	Use: "list <name-pattern>",
+	Use: "list",
 
 	Short: "list environments",
 

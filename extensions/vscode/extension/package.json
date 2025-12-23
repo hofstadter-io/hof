@@ -250,34 +250,6 @@
                 {
                     "command": "veg.explorer.chat",
                     "group": "_veg@1"
-                },
-                {
-                    "command": "veg.explorer.openEnviron",
-                    "group": "_veg@2"
-                },
-                {
-                    "command": "veg.explorer.forkEnviron",
-                    "group": "_veg@3"
-                },
-                {
-                    "command": "veg.explorer.toggleShown",
-                    "group": "_veg@4"
-                },
-                {
-                    "command": "veg.explorer.showDiff",
-                    "group": "_veg@5"
-                },
-                {
-                    "command": "veg.explorer.mergeDiff",
-                    "group": "_veg@6"
-                },
-                {
-                    "command": "veg.explorer.copyPath",
-                    "group": "_veg@7"
-                },
-                {
-                    "command": "veg.explorer.refreshAll",
-                    "group": "_veg@8"
                 }
             ],
             "editor/title": [

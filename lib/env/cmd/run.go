@@ -1,41 +1,75 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
+	"os"
 
-	"github.com/codemodus/kace"
+	"dagger.io/dagger"
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
-	"github.com/hofstadter-io/hof/lib/yagu"
-	"github.com/olekukonko/tablewriter"
+	"github.com/hofstadter-io/hof/lib/env"
+	"github.com/hofstadter-io/hof/lib/env/dag"
+	"github.com/hofstadter-io/hof/lib/env/incept"
 )
 
-func Run(args []string, rflags flags.RootPflagpole) error {
-	R, err := prepRuntime(args, rflags)
+func Run(name string, rflags flags.RootPflagpole) error {
+	dst := os.Getenv("DAGGER_SESSION_TOKEN")
+
+	// incept if we are not in dagger
+	if dst == "" {
+		// Run incept
+		err := incept.Incept(context.Background(), []string{"hof", "env", "run", name}, &incept.InceptOptions{
+			Progress: "tty",
+			Stdout:   os.Stdout,
+			Stderr:   os.Stderr,
+			Stdin:    os.Stdin,
+		})
+		if err != nil {
+			return fmt.Errorf("while running incept: %w", err)
+		}
+
+		return nil
+	}
+	R, err := prepRuntime([]string{}, rflags)
 	if err != nil {
 		return err
 	}
 
-	return yagu.PrintAsTable(
-		[]string{"Name", "Path", "ID", "Extra"},
-		func(table *tablewriter.Table) ([][]string, error) {
-			var rows = make([][]string, 0, len(R.Envs))
-			// fill with data
-			for _, e := range R.Envs {
-				id := e.Hof.Metadata.ID
-				if id == "" {
-					id = kace.Snake(e.Hof.Metadata.Name) + " (auto)"
-				}
+	var e *env.Env
+	for _, ee := range R.Envs {
+		// only building containers right now
+		if ee.Hof.Env.Kind == "container" && name == ee.Hof.Env.Name {
+			e = ee
+			break
+		}
+	}
 
-				name := e.Hof.Env.Name
-				if name == "" {
-					name = "(anon)"
-				}
-				path := e.Hof.Path
+	if e == nil {
+		return fmt.Errorf("failed to find env %q", name)
+	}
 
-				row := []string{name, path, id, fmt.Sprint(e.Hof.Env.Extra)}
-				rows = append(rows, row)
-			}
-			return rows, nil
-		},
-	)
+	var c dag.Container
+	err = e.Value.Decode(&c)
+	if err != nil {
+		return err
+	}
+	// fmt.Println(pretty.Formatter(c))
+
+	ctx := context.Background()
+	client, err := dagger.Connect(ctx)
+	if err != nil {
+		return fmt.Errorf("while connecting to dagger in build: %w", err)
+	}
+
+	i, err := dag.Build(client, ctx, c)
+	if err != nil {
+		return err
+	}
+
+	i, err = i.Terminal(dagger.ContainerTerminalOpts{}).Sync(ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

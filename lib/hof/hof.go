@@ -18,6 +18,9 @@ type Hof struct {
 	// #hof: metadata: ...
 	Metadata Metadata
 
+	// #hof: description
+	Description string
+
 	// #hof: <feature>: ...
 	// @<feature>(<name>) can be shorthand with no-name implying label?
 	Datamodel Datamodel
@@ -131,7 +134,7 @@ type Chat struct {
 
 // hof/env configuration
 // #hof: env: "name"
-// @env(name)
+// @env(extra)
 type Env struct {
 	Root  bool
 	Name  string
@@ -141,7 +144,7 @@ type Env struct {
 
 // hof/agent configuration
 // #hof: agent: "name"
-// @agent(name)
+// @agent(extra)
 type Agent struct {
 	Root  bool
 	Name  string

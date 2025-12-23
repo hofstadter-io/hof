@@ -95,13 +95,13 @@ contributes: {
   menus: {
     "explorer/context": [
       { command: "veg.explorer.chat", group: "_veg@1" },
-      { command: "veg.explorer.openEnviron", group: "_veg@2" },
-      { command: "veg.explorer.forkEnviron", group: "_veg@3" },
-      { command: "veg.explorer.toggleShown", group: "_veg@4" },
-      { command: "veg.explorer.showDiff", group: "_veg@5" },
-      { command: "veg.explorer.mergeDiff", group: "_veg@6" },
-      { command: "veg.explorer.copyPath", group: "_veg@7" },
-      { command: "veg.explorer.refreshAll", group: "_veg@8" },
+      // { command: "veg.explorer.openEnviron", group: "_veg@2" },
+      // { command: "veg.explorer.forkEnviron", group: "_veg@3" },
+      // { command: "veg.explorer.toggleShown", group: "_veg@4" },
+      // { command: "veg.explorer.showDiff", group: "_veg@5" },
+      // { command: "veg.explorer.mergeDiff", group: "_veg@6" },
+      // { command: "veg.explorer.copyPath", group: "_veg@7" },
+      // { command: "veg.explorer.refreshAll", group: "_veg@8" },
     ],
     "editor/title": [
       { command: "veg.explorer.refreshAll", group: "navigation" },
@@ -117,6 +117,8 @@ contributes: {
     ],
     "view/item/context": [
       { command: "veg.session.chat", group: "inline@1", when: "view == veg-sessions && viewItem == session" },
+      // diff and merge here
+      // submenu these if possible (perhaps when manage webview)
       { command: "veg.session.openEnviron", group: "inline@2", when: "view == veg-sessions && viewItem == session" },
       { command: "veg.session.fork", group: "inline@3", when: "view == veg-sessions && viewItem == session" },
       { command: "veg.session.delete", group: "inline@4", when: "view == veg-sessions && viewItem == session" },

@@ -73,7 +73,7 @@ func (r runtime) addEnv() {
 		"CONTAINERD_NAMESPACE",
 	}
 
-	for _,v := range vars {
+	for _, v := range vars {
 		val := os.Getenv(v)
 		jnd := fmt.Sprintf("%s=%s", v, val)
 		r.env = append(r.env, jnd)
@@ -150,7 +150,7 @@ func (r runtime) Containers(ctx context.Context, name Name) ([]Container, error)
 		if strings.HasPrefix(c.State, "Up") {
 			c.State = "running"
 		}
-		
+
 		containers[i] = c
 	}
 
@@ -189,7 +189,7 @@ func (r runtime) Images(ctx context.Context, ref Ref) ([]Image, error) {
 			}
 		}
 		i, ok := m[img.Repository]
-		if !ok { 
+		if !ok {
 			i = img
 		}
 		if img.Tag != "" {
@@ -209,6 +209,14 @@ func (r runtime) Images(ctx context.Context, ref Ref) ([]Image, error) {
 
 func (r runtime) Pull(ctx context.Context, ref Ref) error {
 	if _, err := r.exec(ctx, "pull", string(ref)); err != nil {
+		return fmt.Errorf("exec: %w", err)
+	}
+
+	return nil
+}
+
+func (r runtime) Load(ctx context.Context, path string) error {
+	if _, err := r.exec(ctx, "load", path); err != nil {
 		return fmt.Errorf("exec: %w", err)
 	}
 
@@ -276,7 +284,7 @@ func ndjson[T any](r io.Reader) ([]T, error) {
 	} else if len(bs) > 0 {
 		// fmt.Println("GOT HERE")
 		// other runtimes return an ndjson
-		S  := bufio.NewScanner(bytes.NewReader(bs))
+		S := bufio.NewScanner(bytes.NewReader(bs))
 		for S.Scan() {
 			var t T
 			if err := json.Unmarshal(S.Bytes(), &t); err != nil {

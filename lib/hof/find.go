@@ -80,6 +80,11 @@ func upgradeAttrs[T any](node *Node[T], label string) bool {
 				node.Hof.Flow.Pool.Take = true
 			}
 
+		case "print":
+			// TODO, better parsing of AC to get parts
+			node.Hof.Flow.Print.Level = 1
+			node.Hof.Flow.Print.Path = ac
+
 		case "chat":
 			node.Hof.Chat.Root = true
 			node.Hof.Chat.Name = label
@@ -89,16 +94,16 @@ func upgradeAttrs[T any](node *Node[T], label string) bool {
 			node.Hof.Env.Root = true
 			node.Hof.Env.Name = label
 			node.Hof.Env.Extra = ac
+			// name override from local field
+			c := val.LookupPath(cue.ParsePath("name"))
+			if s, err := c.String(); err == nil {
+				node.Hof.Env.Name = s
+			}
 
 		case "agent":
-			node.Hof.Env.Root = true
-			node.Hof.Env.Name = label
-			node.Hof.Env.Extra = ac
-
-		case "print":
-			// TODO, better parsing of AC to get parts
-			node.Hof.Flow.Print.Level = 1
-			node.Hof.Flow.Print.Path = ac
+			node.Hof.Agent.Root = true
+			node.Hof.Agent.Name = label
+			node.Hof.Agent.Extra = ac
 
 		default:
 			lfound = false

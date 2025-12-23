@@ -9,9 +9,9 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var runLong = `run an environment`
+var runLong = `run an interactive environment`
 
-func RunRun(args []string) (err error) {
+func RunRun(name string) (err error) {
 
 	// you can safely comment this print out
 	fmt.Println("not implemented")
@@ -23,7 +23,7 @@ var RunCmd = &cobra.Command{
 
 	Use: "run <name>",
 
-	Short: "run an environment",
+	Short: "run an interactive environment",
 
 	Long: runLong,
 
@@ -35,7 +35,21 @@ var RunCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		err = RunRun(args)
+		if 0 >= len(args) {
+			fmt.Println("missing required argument: 'name'")
+			cmd.Usage()
+			os.Exit(1)
+		}
+
+		var name string
+
+		if 0 < len(args) {
+
+			name = args[0]
+
+		}
+
+		err = RunRun(name)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
