@@ -125,7 +125,7 @@ Dir: Step & {
 
 Env: Step & {
 	$kind: "env"
-	envs: [string]: string
+	[string]: string
 }
 
 Envfile: Step & {

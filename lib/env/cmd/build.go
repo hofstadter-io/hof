@@ -16,9 +16,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/runtime"
 )
 
-func Build(args []string, rflags flags.RootPflagpole) error {
-	dst := os.Getenv("DAGGER_SESSION_TOKEN")
-
+func Build(args []string, rflags flags.RootPflagpole, cflags flags.EnvPflagpole) error {
 	// check the runtime first before starting dagger
 	R, err := prepRuntime(nil, rflags)
 	if err != nil {
@@ -26,12 +24,14 @@ func Build(args []string, rflags flags.RootPflagpole) error {
 	}
 
 	// incept if we are not in dagger
+	dst := os.Getenv("DAGGER_SESSION_TOKEN")
 	if dst == "" {
-		err := incept.Incept(context.Background(), append([]string{"hof", "env", "build"}, args...), &incept.InceptOptions{
-			Progress: "tty",
-			Stdout:   os.Stdout,
-			Stderr:   os.Stderr,
-			Stdin:    os.Stdin,
+		err := incept.Incept(context.Background(), os.Args, &incept.InceptOptions{
+			Progress:    cflags.Progress,
+			Interactive: cflags.Interactive,
+			Stdout:      os.Stdout,
+			Stderr:      os.Stderr,
+			Stdin:       os.Stdin,
 		})
 		if err != nil {
 			return fmt.Errorf("while running incept: %w", err)
@@ -71,7 +71,7 @@ func Build(args []string, rflags flags.RootPflagpole) error {
 		}
 		if do {
 			fmt.Println(" -", e.Hof.Env.Name)
-			_, err = build(R, client, ctx, e)
+			_, err = build(R, client, ctx, e, cflags.NoCache)
 		}
 		if err != nil {
 			return err
@@ -81,7 +81,7 @@ func Build(args []string, rflags flags.RootPflagpole) error {
 	return nil
 }
 
-func build(R *runtime.Runtime, client *dagger.Client, ctx context.Context, e *env.Env) (*dagger.Container, error) {
+func build(R *runtime.Runtime, client *dagger.Client, ctx context.Context, e *env.Env, bust bool) (*dagger.Container, error) {
 	id := e.Hof.Metadata.ID
 	if id == "" {
 		id = kace.Snake(e.Hof.Metadata.Name) + " (auto)"
@@ -93,7 +93,7 @@ func build(R *runtime.Runtime, client *dagger.Client, ctx context.Context, e *en
 		return nil, err
 	}
 
-	i, err := dag.Build(client, ctx, c, false)
+	i, err := dag.Build(client, ctx, c, bust)
 	if err != nil {
 		return i, err
 	}

@@ -15,7 +15,7 @@ var exportLong = `export an environment into local container runtime`
 
 func ExportRun(args []string) (err error) {
 
-	return cmd.Export(args, flags.RootPflags)
+	return cmd.Export(args, flags.RootPflags, flags.EnvPflags)
 
 	// // you can safely comment this print out
 	// fmt.Println("not implemented")

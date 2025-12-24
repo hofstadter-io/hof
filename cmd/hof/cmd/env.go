@@ -5,10 +5,18 @@ import (
 
 	cmdenv "github.com/hofstadter-io/hof/cmd/hof/cmd/env"
 
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
+
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var envLong = `build, run, ship, and deploy environments (image, service, stack)`
+
+func init() {
+
+	flags.SetupEnvPflags(EnvCmd.PersistentFlags(), &(flags.EnvPflags))
+
+}
 
 var EnvCmd = &cobra.Command{
 

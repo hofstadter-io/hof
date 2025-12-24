@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/env/incept"
 )
 
-func Export(args []string, rflags flags.RootPflagpole) error {
+func Export(args []string, rflags flags.RootPflagpole, cflags flags.EnvPflagpole) error {
 
 	// check the runtime first before starting dagger
 	R, err := prepRuntime(nil, rflags)
@@ -22,11 +22,12 @@ func Export(args []string, rflags flags.RootPflagpole) error {
 	// incept if we are not in dagger
 	dst := os.Getenv("DAGGER_SESSION_TOKEN")
 	if dst == "" {
-		err := incept.Incept(context.Background(), append([]string{"hof", "env", "export"}, args...), &incept.InceptOptions{
-			Progress: "tty",
-			Stdout:   os.Stdout,
-			Stderr:   os.Stderr,
-			Stdin:    os.Stdin,
+		err := incept.Incept(context.Background(), os.Args, &incept.InceptOptions{
+			Progress:    cflags.Progress,
+			Interactive: cflags.Interactive,
+			Stdout:      os.Stdout,
+			Stderr:      os.Stderr,
+			Stdin:       os.Stdin,
 		})
 		if err != nil {
 			return fmt.Errorf("while running incept: %w", err)
@@ -66,7 +67,7 @@ func Export(args []string, rflags flags.RootPflagpole) error {
 		}
 		if do {
 			fmt.Println(" -", e.Hof.Env.Name)
-			i, err := build(R, client, ctx, e)
+			i, err := build(R, client, ctx, e, cflags.NoCache)
 			if err != nil {
 				return fmt.Errorf("while build'n image: %w", err)
 			}

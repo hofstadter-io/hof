@@ -18,7 +18,7 @@ func BuildRun(args []string) (err error) {
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = cmd.Build(args, flags.RootPflags)
+	err = cmd.Build(args, flags.RootPflags, flags.EnvPflags)
 
 	return err
 }

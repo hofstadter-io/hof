@@ -21,18 +21,15 @@ func Build(client *dagger.Client, ctx context.Context, c Container, noCache bool
 
 	r := client.Container()
 
-	// possibly bust cache
-	if noCache {
-		r = r.WithEnvVariable("BUSTED_CACHE", time.Now().String())
-	}
-
-	// handle from
+	// handle FROM first, without cache busting
+	// if you want that, cache bust the from image manually
+	//   otherwise we end up from images N-1 times
 	switch t := c.From.(type) {
 	case string:
 		r = r.From(t)
 
 	case Container:
-		b, err := Build(client, ctx, t, noCache)
+		b, err := Build(client, ctx, t, false)
 		if err != nil {
 			return nil, fmt.Errorf("while building the from image: %v %v", c, t)
 		}
@@ -43,13 +40,18 @@ func Build(client *dagger.Client, ctx context.Context, c Container, noCache bool
 		if err != nil {
 			return nil, fmt.Errorf("while parsing the from image: %v %v", c, t)
 		}
-		b, err := Build(client, ctx, m, noCache)
+		b, err := Build(client, ctx, m, false)
 		if err != nil {
 			return nil, fmt.Errorf("while building the from image: %v %v", c, t)
 		}
 		r = b
 	default:
 		return nil, fmt.Errorf("uknown from kind %v", t)
+	}
+
+	// possibly bust cache
+	if noCache {
+		r = r.WithEnvVariable("BUSTED_CACHE", time.Now().String())
 	}
 
 	// apply our steps
@@ -153,6 +155,13 @@ func addStep(client *dagger.Client, ctx context.Context, c *dagger.Container, s 
 		f := client.File(name, content.(string))
 
 		c = c.WithFile(p, f)
+
+	case "env":
+		for k, v := range s {
+			if k != "$kind" {
+				c = c.WithEnvVariable(k, v.(string), dagger.ContainerWithEnvVariableOpts{Expand: true})
+			}
+		}
 
 	case "entrypoint":
 		args, ok := s["args"]

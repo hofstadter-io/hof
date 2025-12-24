@@ -18,7 +18,7 @@ func RunRun(name string) (err error) {
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = cmd.Run(name, flags.RootPflags)
+	err = cmd.Run(name, flags.RootPflags, flags.EnvPflags)
 
 	return err
 }

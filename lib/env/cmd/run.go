@@ -12,28 +12,28 @@ import (
 	"github.com/hofstadter-io/hof/lib/env/incept"
 )
 
-func Run(name string, rflags flags.RootPflagpole) error {
-	dst := os.Getenv("DAGGER_SESSION_TOKEN")
+func Run(name string, rflags flags.RootPflagpole, cflags flags.EnvPflagpole) error {
+	R, err := prepRuntime([]string{}, rflags)
+	if err != nil {
+		return err
+	}
 
 	// incept if we are not in dagger
+	dst := os.Getenv("DAGGER_SESSION_TOKEN")
 	if dst == "" {
 		// Run incept
-		err := incept.Incept(context.Background(), []string{"hof", "env", "run", name}, &incept.InceptOptions{
-			Progress: "tty",
-			Stdout:   os.Stdout,
-			Stderr:   os.Stderr,
-			Stdin:    os.Stdin,
+		err := incept.Incept(context.Background(), os.Args, &incept.InceptOptions{
+			Progress:    cflags.Progress,
+			Interactive: true,
+			Stdout:      os.Stdout,
+			Stderr:      os.Stderr,
+			Stdin:       os.Stdin,
 		})
 		if err != nil {
 			return fmt.Errorf("while running incept: %w", err)
 		}
 
 		return nil
-	}
-
-	R, err := prepRuntime([]string{}, rflags)
-	if err != nil {
-		return err
 	}
 
 	var e *env.Env
@@ -62,7 +62,7 @@ func Run(name string, rflags flags.RootPflagpole) error {
 		return fmt.Errorf("while connecting to dagger in build: %w", err)
 	}
 
-	i, err := dag.Build(client, ctx, c, true)
+	i, err := dag.Build(client, ctx, c, cflags.NoCache)
 	if err != nil {
 		return err
 	}

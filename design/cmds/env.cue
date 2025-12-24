@@ -12,14 +12,28 @@ EnvCommand: schema.Command & {
 
 	OmitRun: true
 
-	// Pflags: [...schema.Flag] & [ {
-	// 	Name:    "Datamodels"
-	// 	Long:    "model"
-	// 	Short:   "M"
-	// 	Type:    "[]string"
-	// 	Default: "nil"
-	// 	Help:    "specify one or more data models to operate on"
-	// }, {
+	Pflags: [...schema.Flag] & [ {
+		Name:    "Progress"
+		Long:    "progress"
+		Short:   "P"
+		Type:    "string"
+		Default: "\"auto\""
+		Help:    "output format [auto, plain, tty, dots, report (for ai)]"
+  },{
+		Name:    "Interactive"
+		Long:    "interactive"
+		Short:   "X"
+		Type:    "bool"
+		Default: "false"
+		Help:    "enter an interactive terminal on failure, requires a tty"
+  },{
+		Name:    "NoCache"
+		Long:    "no-cache"
+		Short:   "Z"
+		Type:    "bool"
+		Default: "false"
+		Help:    "bust the cache and force evaluation"
+	}]
 
 	// all subcommands get the name arg
 	// Commands: [...{
