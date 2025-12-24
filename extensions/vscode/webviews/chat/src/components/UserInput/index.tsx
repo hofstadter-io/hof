@@ -50,7 +50,7 @@ export const UserInput = () => {
           ...prev,
           agent: session?.state?.agent || userInput.agent,
           model: session?.state?.model || userInput.model,
-          environ: session?.state?.envName || userInput,
+          environ: session?.state?.envName || userInput.environ,
         }
       })
     }
