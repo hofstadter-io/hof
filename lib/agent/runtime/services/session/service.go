@@ -16,6 +16,7 @@ package session
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"maps"
@@ -23,6 +24,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"google.golang.org/genai"
 	"gorm.io/gorm"
 
 	"google.golang.org/adk/session"
@@ -354,6 +356,218 @@ func (s *databaseService) Delete(ctx context.Context, req *session.DeleteRequest
 	})
 }
 
+// Clone returns a copy of this session with a new ID
+func (s *databaseService) Clone(ctx context.Context, sess session.Session) (session.Session, error) {
+	if sess == nil {
+		return nil, fmt.Errorf("session is nil")
+	}
+
+	newSessionID := uuid.NewString()
+	var newSess *localSession
+
+	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		// 1. Fetch original storage session
+		var srcSession storageSession
+		if err := tx.First(&srcSession, "app_name = ? AND user_id = ? AND id = ?", sess.AppName(), sess.UserID(), sess.ID()).Error; err != nil {
+			return fmt.Errorf("source session not found: %w", err)
+		}
+
+		// 2. Create new storage session
+		newStorageSess := srcSession
+		newStorageSess.ID = newSessionID
+		newStorageSess.UpdateTime = time.Now()
+		// Deep copy state map
+		newStorageSess.State = maps.Clone(srcSession.State)
+
+		if err := tx.Create(&newStorageSess).Error; err != nil {
+			return fmt.Errorf("failed to create clone session: %w", err)
+		}
+
+		// 3. Clone events
+		var events []storageEvent
+		if err := tx.Where("app_name = ? AND user_id = ? AND session_id = ?", srcSession.AppName, srcSession.UserID, srcSession.ID).Order("timestamp ASC").Find(&events).Error; err != nil {
+			return fmt.Errorf("failed to fetch events: %w", err)
+		}
+
+		newEvents := make([]storageEvent, len(events))
+		for i, ev := range events {
+			newEv := ev
+			newEv.ID = uuid.NewString()
+			newEv.SessionID = newSessionID
+			// Actions is []byte (JSON), so it's a slice, need copy?
+			// It's a byte slice, copy is needed if we modify it, but we assign to new struct.
+			// append/copy is safer.
+			if ev.Actions != nil {
+				newEv.Actions = make([]byte, len(ev.Actions))
+				copy(newEv.Actions, ev.Actions)
+			}
+			newEvents[i] = newEv
+		}
+
+		if len(newEvents) > 0 {
+			if err := tx.Create(&newEvents).Error; err != nil {
+				return fmt.Errorf("failed to clone events: %w", err)
+			}
+		}
+
+		// 4. Construct return session
+		storageApp, err := fetchStorageAppState(tx, sess.AppName())
+		if err != nil {
+			return err
+		}
+		storageUser, err := fetchStorageUserState(tx, sess.AppName(), sess.UserID())
+		if err != nil {
+			return err
+		}
+
+		newSess = &localSession{
+			appName:   sess.AppName(),
+			userID:    sess.UserID(),
+			sessionID: newSessionID,
+			state:     mergeStates(storageApp.State, storageUser.State, newStorageSess.State),
+			updatedAt: newStorageSess.UpdateTime,
+		}
+
+		sessEvents := make([]*session.Event, len(newEvents))
+		for i := range newEvents {
+			// use pointer to element in slice
+			evt, err := createEventFromStorageEvent(&newEvents[i])
+			if err != nil {
+				return err
+			}
+			sessEvents[i] = evt
+		}
+		newSess.events = sessEvents
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	return newSess, nil
+}
+
+// Splice makes in-place modifications to the session
+func (s *databaseService) Splice(ctx context.Context, sess session.Session, start, count int, fill session.Events) (session.Session, error) {
+	if sess == nil {
+		return nil, fmt.Errorf("session is nil")
+	}
+
+	var updatedSession *localSession
+
+	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		// Fetch existing events ordered by timestamp
+		var events []storageEvent
+		if err := tx.Where("app_name = ? AND user_id = ? AND session_id = ?", sess.AppName(), sess.UserID(), sess.ID()).Order("timestamp ASC").Find(&events).Error; err != nil {
+			return fmt.Errorf("failed to fetch events: %w", err)
+		}
+
+		// Calculate slice
+		n := len(events)
+		if start < 0 {
+			start = 0
+		}
+		if start > n {
+			start = n
+		}
+		if count < 0 {
+			count = 0
+		}
+		if start+count > n {
+			count = n - start
+		}
+
+		// Identify events to delete
+		toDelete := events[start : start+count]
+		if len(toDelete) > 0 {
+			ids := make([]string, len(toDelete))
+			for i, e := range toDelete {
+				ids[i] = e.ID
+			}
+			if err := tx.Where("id IN ?", ids).Delete(&storageEvent{}).Error; err != nil {
+				return fmt.Errorf("failed to delete events: %w", err)
+			}
+		}
+
+		// Insert new events
+		// Note: we insert them with their existing timestamps.
+		// If the user wants to maintain order, they should ensure timestamps are correct.
+		if fill != nil {
+			for ev := range fill.All() {
+				// We need a dummy localSession to use createStorageEvent?
+				// createStorageEvent uses session.ID/AppName/UserID.
+				// sess is passed in.
+				sev, err := createStorageEvent(sess, ev)
+				if err != nil {
+					return fmt.Errorf("failed to create storage event: %w", err)
+				}
+				if err := tx.Create(sev).Error; err != nil {
+					return fmt.Errorf("failed to insert event: %w", err)
+				}
+			}
+		}
+
+		// Update session UpdateTime
+		if err := tx.Model(&storageSession{}).
+			Where("app_name = ? AND user_id = ? AND id = ?", sess.AppName(), sess.UserID(), sess.ID()).
+			Update("update_time", time.Now()).Error; err != nil {
+			return fmt.Errorf("failed to update session time: %w", err)
+		}
+
+		// Re-fetch everything to return consistent state
+		// We could optimize by reusing objects, but re-fetching ensures DB consistency.
+		// Reuse Get logic? Get logic is on Service, here we are in Transaction.
+		// Let's replicate Get logic roughly or call internal helper?
+		// We need to return session.Session.
+
+		// fetch app/user/session state
+		storageApp, err := fetchStorageAppState(tx, sess.AppName())
+		if err != nil {
+			return err
+		}
+		storageUser, err := fetchStorageUserState(tx, sess.AppName(), sess.UserID())
+		if err != nil {
+			return err
+		}
+		var finalStorageSess storageSession
+		if err := tx.First(&finalStorageSess, "app_name = ? AND user_id = ? AND id = ?", sess.AppName(), sess.UserID(), sess.ID()).Error; err != nil {
+			return err
+		}
+
+		updatedSession = &localSession{
+			appName:   sess.AppName(),
+			userID:    sess.UserID(),
+			sessionID: sess.ID(),
+			state:     mergeStates(storageApp.State, storageUser.State, finalStorageSess.State),
+			updatedAt: finalStorageSess.UpdateTime,
+		}
+
+		// Fetch all events again
+		var finalEvents []storageEvent
+		if err := tx.Where("app_name = ? AND user_id = ? AND session_id = ?", sess.AppName(), sess.UserID(), sess.ID()).Order("timestamp ASC").Find(&finalEvents).Error; err != nil {
+			return err
+		}
+
+		sessEvents := make([]*session.Event, len(finalEvents))
+		for i := range finalEvents {
+			evt, err := createEventFromStorageEvent(&finalEvents[i])
+			if err != nil {
+				return err
+			}
+			sessEvents[i] = evt
+		}
+		updatedSession.events = sessEvents
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	return updatedSession, nil
+}
+
 func (s *databaseService) AppendEvent(ctx context.Context, curSession session.Session, event *session.Event) error {
 	if curSession == nil {
 		return fmt.Errorf("session is nil")
@@ -361,24 +575,21 @@ func (s *databaseService) AppendEvent(ctx context.Context, curSession session.Se
 	if event == nil {
 		return fmt.Errorf("event is nil")
 	}
-	// ignore partial events
-	if event.Partial {
-		// instead we should build up partial events, or make it configurable?
-		// having a separate function lets us do that without changing behavior or downstream usage
-		// though it would be simpler to just look at event.Partial
-		// we'd like to know about all of these me thinks
+
+	if event.Partial && event.Author != "user" {
 		return nil
 	}
+
+	// Truncate timestamp to microsecond precision to match database precision and prevent rounding errors.
+	event.Timestamp = time.UnixMicro(event.Timestamp.UnixMicro())
+
+	// Trim temp state before persisting
+	event = trimTempDeltaState(event)
 
 	sess, ok := curSession.(*localSession)
 	if !ok {
 		return fmt.Errorf("unexpected session type %T", sess)
 	}
-
-	// if most recent is a partial, combine here
-
-	// Trim temp state before persisting
-	event = trimTempDeltaState(event)
 
 	// applyChanges and persist them
 	err := s.applyEvent(ctx, sess, event)
@@ -392,12 +603,12 @@ func (s *databaseService) AppendEvent(ctx context.Context, curSession session.Se
 
 // applyEvent fetches the session, validates it, applies state changes from an
 // event, and saves the event atomically.
-func (s *databaseService) applyEvent(ctx context.Context, session *localSession, event *session.Event) error {
+func (s *databaseService) applyEvent(ctx context.Context, sess *localSession, event *session.Event) error {
 	// Wrap database operations in a single transaction.
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		// Fetch the session object from storage.
 		var storageSess storageSession
-		err := tx.Where(&storageSession{AppName: session.AppName(), UserID: session.UserID(), ID: session.ID()}).
+		err := tx.Where(&storageSession{AppName: sess.AppName(), UserID: sess.UserID(), ID: sess.ID()}).
 			First(&storageSess).Error
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -407,9 +618,9 @@ func (s *databaseService) applyEvent(ctx context.Context, session *localSession,
 		}
 
 		// Ensure the session object is not stale.
-		// We use UnixNano() for microsecond-level precision, matching the Python code.
-		storageUpdateTime := storageSess.UpdateTime.UnixNano()
-		sessionUpdateTime := session.updatedAt.UnixNano()
+		// We use UnixMicro() for microsecond-level precision, matching the Python code.
+		storageUpdateTime := storageSess.UpdateTime.UnixMicro()
+		sessionUpdateTime := sess.updatedAt.UnixMicro()
 		if storageUpdateTime > sessionUpdateTime {
 			return fmt.Errorf(
 				"stale session error: last update time from request (%s) is older than in database (%s)",
@@ -419,65 +630,107 @@ func (s *databaseService) applyEvent(ctx context.Context, session *localSession,
 		}
 
 		// Fetch App and User states.
-		storageApp, err := fetchStorageAppState(tx, session.AppName())
+		storageApp, err := fetchStorageAppState(tx, sess.AppName())
 		if err != nil {
 			return err
 		}
-		storageUser, err := fetchStorageUserState(tx, session.AppName(), session.UserID())
+		storageUser, err := fetchStorageUserState(tx, sess.AppName(), sess.UserID())
 		if err != nil {
 			return err
 		}
 
 		appDelta, userDelta, sessionDelta := extractStateDeltas(event.Actions.StateDelta)
-		// fmt.Printf("Session Before: %#+v\n", pretty.Formatter(storageSess.State))
-		// fmt.Printf("Session Delta: %#+v\n", pretty.Formatter(sessionDelta))
+
+		// Check for partial accumulation
+		var merged bool
+		var lastEvent storageEvent
+		if event.Author == "user" {
+			if err := tx.Where("app_name = ? AND user_id = ? AND session_id = ?", sess.AppName(), sess.UserID(), sess.ID()).
+				Order("timestamp DESC").First(&lastEvent).Error; err == nil {
+
+				isPartial := lastEvent.Partial != nil && *lastEvent.Partial
+				if isPartial && lastEvent.Author == "user" {
+					merged = true
+
+					// Merge Content
+					if event.Content != nil {
+						var lastContent genai.Content
+						if len(lastEvent.Content) > 0 {
+							if err := json.Unmarshal(lastEvent.Content, &lastContent); err != nil {
+								return fmt.Errorf("failed to unmarshal last event content: %w", err)
+							}
+						}
+						// Initialize Parts if nil? append handles nil slice.
+						lastContent.Parts = append(lastContent.Parts, event.Content.Parts...)
+
+						contentJSON, err := json.Marshal(lastContent)
+						if err != nil {
+							return fmt.Errorf("failed to marshal merged content: %w", err)
+						}
+						lastEvent.Content = contentJSON
+					}
+
+					// Merge StateDelta (Actions)
+					var lastActions session.EventActions
+					if len(lastEvent.Actions) > 0 {
+						if err := json.Unmarshal(lastEvent.Actions, &lastActions); err != nil {
+							return fmt.Errorf("failed to unmarshal last event actions: %w", err)
+						}
+					}
+					if lastActions.StateDelta == nil {
+						lastActions.StateDelta = make(map[string]any)
+					}
+					for k, v := range event.Actions.StateDelta {
+						lastActions.StateDelta[k] = v
+					}
+					actionsJSON, err := json.Marshal(lastActions)
+					if err != nil {
+						return fmt.Errorf("failed to marshal merged actions: %w", err)
+					}
+					lastEvent.Actions = actionsJSON
+
+					lastEvent.Timestamp = event.Timestamp
+					p := event.Partial
+					lastEvent.Partial = &p
+
+					if err := tx.Save(&lastEvent).Error; err != nil {
+						return fmt.Errorf("failed to update last event: %w", err)
+					}
+				}
+			}
+		}
 
 		// Merge state deltas and update the storage objects.
 		// GORM's .Save() method will correctly perform an INSERT or UPDATE.
 		if len(appDelta) > 0 {
-			for key, value := range appDelta {
-				if value == nil {
-					delete(storageApp.State, key)
-				} else {
-					storageApp.State[key] = value
-				}
-			}
+			maps.Copy(storageApp.State, appDelta)
+			storageApp.State = filterMap(storageApp.State)
 			if err := tx.Save(&storageApp).Error; err != nil {
 				return fmt.Errorf("failed to save app state: %w", err)
 			}
 		}
 		if len(userDelta) > 0 {
-			for key, value := range userDelta {
-				if value == nil {
-					delete(storageUser.State, key)
-				} else {
-					storageUser.State[key] = value
-				}
-			}
+			maps.Copy(storageUser.State, userDelta)
+			storageUser.State = filterMap(storageUser.State)
 			if err := tx.Save(&storageUser).Error; err != nil {
 				return fmt.Errorf("failed to save user state: %w", err)
 			}
 		}
 		if len(sessionDelta) > 0 {
-			for key, value := range sessionDelta {
-				if value == nil {
-					delete(storageSess.State, key)
-				} else {
-					storageSess.State[key] = value
-				}
-			}
-			// maps.Copy(storageSess.State, sessionDelta)
+			maps.Copy(storageSess.State, sessionDelta)
+			storageSess.State = filterMap(storageSess.State)
 			// The session state update will be saved along with the event timestamp update.
 		}
-		// fmt.Printf("Session After: %#+v\n", pretty.Formatter(storageSess.State))
 
 		// Create the new event record in the database.
-		storageEv, err := createStorageEvent(session, event)
-		if err != nil {
-			return fmt.Errorf("failed to map event to storage model: %w", err)
-		}
-		if err := tx.Create(storageEv).Error; err != nil {
-			return fmt.Errorf("failed to save event: %w", err)
+		if !merged {
+			storageEv, err := createStorageEvent(sess, event)
+			if err != nil {
+				return fmt.Errorf("failed to map event to storage model: %w", err)
+			}
+			if err := tx.Create(storageEv).Error; err != nil {
+				return fmt.Errorf("failed to save event: %w", err)
+			}
 		}
 
 		storageSess.UpdateTime = event.Timestamp
@@ -486,7 +739,7 @@ func (s *databaseService) applyEvent(ctx context.Context, session *localSession,
 			return fmt.Errorf("failed to save session state: %w", err)
 		}
 
-		session.updatedAt = storageSess.UpdateTime
+		sess.updatedAt = storageSess.UpdateTime
 
 		return nil // Returning nil commits the transaction.
 	})

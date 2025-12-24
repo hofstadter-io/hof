@@ -68,7 +68,7 @@ func (s *localSession) LastUpdateTime() time.Time {
 }
 
 func (s *localSession) appendEvent(event *session.Event) error {
-	if event.Partial {
+	if event.Partial && event.Author != "user" {
 		return nil
 	}
 
@@ -145,7 +145,11 @@ func (s *state) Set(key string, value any) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	s.state[key] = value
+	if value == nil {
+		delete(s.state, key)
+	} else {
+		s.state[key] = value
+	}
 	return nil
 }
 
@@ -185,9 +189,11 @@ func updateSessionState(sess *localSession, event *session.Event) error {
 			continue
 		}
 		if value == nil {
+			delete(sess.state, key)
 			continue
 		}
 		if s, ok := value.(string); ok && s == "" {
+			delete(sess.state, key)
 			continue
 		}
 		sess.state[key] = value
