@@ -54,6 +54,7 @@ func init() {
 	EnvCmd.SetUsageFunc(tusage)
 
 	EnvCmd.AddCommand(cmdenv.BuildCmd)
+	EnvCmd.AddCommand(cmdenv.ExportCmd)
 	EnvCmd.AddCommand(cmdenv.InfoCmd)
 	EnvCmd.AddCommand(cmdenv.ListCmd)
 	EnvCmd.AddCommand(cmdenv.ImagesCmd)

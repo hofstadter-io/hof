@@ -2,8 +2,11 @@ package container
 
 import (
 	"context"
+	"fmt"
 	"time"
 )
+
+// these should all take a context object
 
 func GetImages(ref string) ([]Image, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
@@ -39,4 +42,9 @@ func StopContainer(name string) error {
 
 func PullImage(ref string) error {
 	return rt.Pull(context.Background(), Ref(ref))
+}
+
+func LoadTarball(ctx context.Context, content []byte) error {
+	fmt.Println("got here 1:", len(content))
+	return rt.Load(ctx, "", []byte(content))
 }

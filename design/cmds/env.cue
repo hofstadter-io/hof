@@ -37,6 +37,11 @@ EnvCommand: schema.Command & {
 		Short: "build an environment"
 		Long: "build an environment"
 	},{
+		Name:  "export"
+		Usage: "export [target...]"
+		Short: "export an environment into local container runtime"
+		Long: "export an environment into local container runtime"
+	},{
 		Name:  "info"
 		Usage: "info [target...]"
 		Short: "get info about an environments"

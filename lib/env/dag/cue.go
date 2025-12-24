@@ -61,6 +61,9 @@ func Build(client *dagger.Client, ctx context.Context, c Container, noCache bool
 		}
 	}
 
+	for k, v := range c.Labels {
+		r = r.WithAnnotation(k, v)
+	}
 	// todo, set labels
 
 	return r, nil

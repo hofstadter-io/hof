@@ -13,8 +13,12 @@ veg: {
     from: "debian:13-slim"
 
     _pkgs: [
+      "ca-certificates",
       "curl",
+      "gnupg",
       "git",
+      "make",
+      "wget",
     ]
 
     steps: [
@@ -33,8 +37,20 @@ veg: {
     #hof: description: "A development image with many tools"
     from: base
 
+    _pkgs: [
+      "g++",
+      "gcc",
+      "libc6-dev",
+      "netbase",
+      "sq",
+      "pkg-config",
+      "zsh",
+    ]
+
     steps:[
-      _steps.apt & {#pkgs: ["zsh"]},
+      _steps.apt & {#pkgs: _pkgs},
+
+      // term customization
       _tools.zsh,
       env.Term & {args: ["zsh"]},
     ]
@@ -46,7 +62,12 @@ veg: {
     #hof: description: "Extension to veg-dev to add docker/dagger setup for inception"
     from: dev
 
-    steps:[]
+    steps:[
+      // docker cli
+      // dagger cli
+    ]
+
+    // whatever we import / user here, should also have mounts defined for easy reuse for runtime (run/up/asService)
   }
 
 

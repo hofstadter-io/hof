@@ -42,6 +42,7 @@ type Runtime interface {
 	Run(context.Context, Ref, Params) error
 	Remove(context.Context, Name) error
 	Pull(context.Context, Ref) error
+	Load(context.Context, string, []byte) error
 }
 
 func newRuntime(bin RuntimeBinary) runtime {
@@ -215,7 +216,8 @@ func (r runtime) Pull(ctx context.Context, ref Ref) error {
 	return nil
 }
 
-func (r runtime) Load(ctx context.Context, path string) error {
+func (r runtime) Load(ctx context.Context, path string, content []byte) error {
+	// maybe we want a save to make a tar as  well?
 	if _, err := r.exec(ctx, "load", path); err != nil {
 		return fmt.Errorf("exec: %w", err)
 	}

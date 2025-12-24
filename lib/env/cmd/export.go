@@ -7,17 +7,11 @@ import (
 	"strings"
 
 	"dagger.io/dagger"
-	"github.com/codemodus/kace"
-
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
-	"github.com/hofstadter-io/hof/lib/env"
-	"github.com/hofstadter-io/hof/lib/env/dag"
 	"github.com/hofstadter-io/hof/lib/env/incept"
-	"github.com/hofstadter-io/hof/lib/runtime"
 )
 
-func Build(args []string, rflags flags.RootPflagpole) error {
-	dst := os.Getenv("DAGGER_SESSION_TOKEN")
+func Export(args []string, rflags flags.RootPflagpole) error {
 
 	// check the runtime first before starting dagger
 	R, err := prepRuntime(nil, rflags)
@@ -26,8 +20,9 @@ func Build(args []string, rflags flags.RootPflagpole) error {
 	}
 
 	// incept if we are not in dagger
+	dst := os.Getenv("DAGGER_SESSION_TOKEN")
 	if dst == "" {
-		err := incept.Incept(context.Background(), append([]string{"hof", "env", "build"}, args...), &incept.InceptOptions{
+		err := incept.Incept(context.Background(), append([]string{"hof", "env", "export"}, args...), &incept.InceptOptions{
 			Progress: "tty",
 			Stdout:   os.Stdout,
 			Stderr:   os.Stderr,
@@ -40,7 +35,7 @@ func Build(args []string, rflags flags.RootPflagpole) error {
 		return nil
 	}
 
-	// do normal build stuff
+	// do normal stuff now that we are incepted
 
 	// this should be on the runtime probable?
 	ctx := context.Background()
@@ -51,7 +46,7 @@ func Build(args []string, rflags flags.RootPflagpole) error {
 		return fmt.Errorf("while connecting to dagger: %w", err)
 	}
 
-	fmt.Println("building:")
+	fmt.Println("exporting:")
 	for _, e := range R.Envs {
 		// only building containers right now
 		if e.Hof.Env.Kind != "container" {
@@ -71,37 +66,15 @@ func Build(args []string, rflags flags.RootPflagpole) error {
 		}
 		if do {
 			fmt.Println(" -", e.Hof.Env.Name)
-			_, err = build(R, client, ctx, e)
-		}
-		if err != nil {
-			return err
+			i, err := build(R, client, ctx, e)
+			if err != nil {
+				return fmt.Errorf("while build'n image: %w", err)
+			}
+
+			err = i.ExportImage(ctx, fmt.Sprintf("%s:%s", e.Hof.Env.Name, "local"))
+
 		}
 	}
 
 	return nil
-}
-
-func build(R *runtime.Runtime, client *dagger.Client, ctx context.Context, e *env.Env) (*dagger.Container, error) {
-	id := e.Hof.Metadata.ID
-	if id == "" {
-		id = kace.Snake(e.Hof.Metadata.Name) + " (auto)"
-	}
-
-	var c dag.Container
-	err := e.Value.Decode(&c)
-	if err != nil {
-		return nil, err
-	}
-
-	i, err := dag.Build(client, ctx, c, false)
-	if err != nil {
-		return i, err
-	}
-
-	i, err = i.Sync(ctx)
-	if err != nil {
-		return i, err
-	}
-
-	return i, nil
 }

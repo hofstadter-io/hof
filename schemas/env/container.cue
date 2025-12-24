@@ -12,11 +12,19 @@ Container: {
 		kind: "container"
 	}
 
-  // need some kind of from for host / git / oci
+	name: string
+
+	// need some kind of from for host / git / oci
 	from: string | Container
 
 	steps: [...Step]
 	labels: [string]: string
+
+	labels: {
+		"org.opencontainers.image.title":   string | *name
+		"org.opencontainers.image.version": string | *"latest"
+		"org.opencontainers.image.commit":  string | *"dirty"
+	}
 }
 
 StepKinds: [

@@ -52,7 +52,7 @@ func InitClient() error {
 	case "none":
 		rt = newNone()
 	default:
-		fmt.Println("failed to find any container runtimes %s in PATH", binaries)
+		fmt.Printf("failed to find any container runtimes %s in PATH\n", binaries)
 		fmt.Println("set HOF_CONTAINER_RUNTIME=none to disable this message")
 		rt = newNone()
 	}
