@@ -11,7 +11,6 @@ EnvCommand: schema.Command & {
 	Long:  "build, run, ship, and deploy environments (image, service, stack)"
 
 	OmitRun: true
-  PersistentPrerun: true
 
 	// Pflags: [...schema.Flag] & [ {
 	// 	Name:    "Datamodels"

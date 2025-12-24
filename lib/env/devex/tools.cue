@@ -26,7 +26,7 @@ _tools: {
     args: ["sh", "-c", _script]
     _script: """
       sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-      sed -i 's/^ZSH_THEME=.*/ZSH_THEME="ys"/' /root/.zshrc
+      sed -i 's/^ZSH_THEME=.*/ZSH_THEME="frisk"/' /root/.zshrc
       """
   }
 }

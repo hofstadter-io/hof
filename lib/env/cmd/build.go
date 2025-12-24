@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 
 	"dagger.io/dagger"
 	"github.com/codemodus/kace"
@@ -19,18 +20,14 @@ func Build(args []string, rflags flags.RootPflagpole) error {
 	dst := os.Getenv("DAGGER_SESSION_TOKEN")
 
 	// check the runtime first before starting dagger
-	R, err := prepRuntime(args, rflags)
+	R, err := prepRuntime(nil, rflags)
 	if err != nil {
 		return err
 	}
 
 	// incept if we are not in dagger
 	if dst == "" {
-		// Prepare arguments for the inner command (hof env build [args...])
-		inceptArgs := append([]string{"hof", "env", "build"}, args...)
-
-		// Run incept
-		err := incept.Incept(context.Background(), inceptArgs, &incept.InceptOptions{
+		err := incept.Incept(context.Background(), append([]string{"hof", "env", "build"}, args...), &incept.InceptOptions{
 			Progress: "tty",
 			Stdout:   os.Stdout,
 			Stderr:   os.Stderr,
@@ -54,6 +51,7 @@ func Build(args []string, rflags flags.RootPflagpole) error {
 		return fmt.Errorf("while connecting to dagger: %w", err)
 	}
 
+	fmt.Println("building:")
 	for _, e := range R.Envs {
 		// only building containers right now
 		if e.Hof.Env.Kind != "container" {
@@ -65,13 +63,14 @@ func Build(args []string, rflags flags.RootPflagpole) error {
 		if len(args) > 0 {
 			do = false
 			for _, a := range args {
-				if a == e.Hof.Env.Name {
+				if strings.HasPrefix(e.Hof.Env.Name, a) {
 					do = true
 					break
 				}
 			}
 		}
 		if do {
+			fmt.Println(" -", e.Hof.Env.Name)
 			err = build(R, client, ctx, e)
 		}
 		if err != nil {
@@ -94,7 +93,7 @@ func build(R *runtime.Runtime, client *dagger.Client, ctx context.Context, e *en
 		return err
 	}
 
-	i, err := dag.Build(client, ctx, c)
+	i, err := dag.Build(client, ctx, c, false)
 	if err != nil {
 		return err
 	}
@@ -103,11 +102,6 @@ func build(R *runtime.Runtime, client *dagger.Client, ctx context.Context, e *en
 	if err != nil {
 		return err
 	}
-
-	return nil
-}
-
-func inceptVeg(args []string, rflags flags.RootPflagpole) error {
 
 	return nil
 }

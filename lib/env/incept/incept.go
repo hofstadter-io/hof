@@ -192,8 +192,22 @@ func Incept(ctx context.Context, args []string, options *InceptOptions) error {
 		subCmd := exec.CommandContext(ctx, args[0], args[1:]...)
 		subCmd.Env = env
 		subCmd.Stdin = stdin
-		subCmd.Stdout = stdout
-		subCmd.Stderr = stderr
+		if !silent {
+			stdio := telemetry.SpanStdio(ctx, InstrumentationLibrary)
+			if stdoutIsTTY {
+				subCmd.Stdout = stdio.Stdout
+			} else {
+				subCmd.Stdout = stdout
+			}
+			if stderrIsTTY {
+				subCmd.Stderr = stdio.Stderr
+			} else {
+				subCmd.Stderr = stderr
+			}
+		} else {
+			subCmd.Stdout = stdout
+			subCmd.Stderr = stderr
+		}
 
 		ensureChildProcessesAreKilled(subCmd)
 

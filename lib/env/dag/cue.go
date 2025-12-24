@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
+	"time"
 
 	"dagger.io/dagger"
 )
@@ -16,32 +17,33 @@ type Container struct {
 	Labels map[string]string
 }
 
-func Build(client *dagger.Client, ctx context.Context, c Container) (*dagger.Container, error) {
+func Build(client *dagger.Client, ctx context.Context, c Container, noCache bool) (*dagger.Container, error) {
 
 	r := client.Container()
-	// r = r.WithEnvVariable("BUSTED_CACHE", time.Now().String())
 
+	// possibly bust cache
+	if noCache {
+		r = r.WithEnvVariable("BUSTED_CACHE", time.Now().String())
+	}
+
+	// handle from
 	switch t := c.From.(type) {
 	case string:
 		r = r.From(t)
 
 	case Container:
-		b, err := Build(client, ctx, t)
+		b, err := Build(client, ctx, t, noCache)
 		if err != nil {
 			return nil, fmt.Errorf("while building the from image: %v %v", c, t)
 		}
 		r = b
-		// r, err = b.Sync(ctx)
-		// if err != nil {
-		// 	return nil, fmt.Errorf("while building the from image: %v %v", c, t)
-		// }
 
 	case map[string]any:
 		m, err := mapToContainer(t)
 		if err != nil {
 			return nil, fmt.Errorf("while parsing the from image: %v %v", c, t)
 		}
-		b, err := Build(client, ctx, m)
+		b, err := Build(client, ctx, m, noCache)
 		if err != nil {
 			return nil, fmt.Errorf("while building the from image: %v %v", c, t)
 		}
@@ -50,6 +52,7 @@ func Build(client *dagger.Client, ctx context.Context, c Container) (*dagger.Con
 		return nil, fmt.Errorf("uknown from kind %v", t)
 	}
 
+	// apply our steps
 	for i, s := range c.Steps {
 		var err error
 		r, err = addStep(client, ctx, r, s)
@@ -57,6 +60,8 @@ func Build(client *dagger.Client, ctx context.Context, c Container) (*dagger.Con
 			return nil, fmt.Errorf("while adding step %d: %w", i, err)
 		}
 	}
+
+	// todo, set labels
 
 	return r, nil
 }

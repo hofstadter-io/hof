@@ -1,45 +1,14 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-
-	"github.com/dagger/dagger/analytics"
-	"github.com/dagger/dagger/engine"
-	enginetel "github.com/dagger/dagger/engine/telemetry"
 	"github.com/spf13/cobra"
 
 	cmdenv "github.com/hofstadter-io/hof/cmd/hof/cmd/env"
-	"github.com/hofstadter-io/hof/lib/env/incept"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var envLong = `build, run, ship, and deploy environments (image, service, stack)`
-
-func EnvPersistentPreRun(args []string) (err error) {
-	// maybe the goes on the persistent preRunE
-	workdir := "."
-	workdir, err = incept.NormalizeWorkdir(workdir)
-	if err != nil {
-		return err
-	}
-	if err := os.Chdir(workdir); err != nil {
-		return err
-	}
-	labels := enginetel.LoadDefaultLabels(workdir, engine.Version)
-	t := analytics.New(analytics.DefaultConfig(labels))
-	// cmd.SetContext(analytics.WithContext(cmd.Context(), t))
-	cobra.OnFinalize(func() {
-		t.Close()
-	})
-
-	// t.Capture(cmd.Context(), "cli_command", map[string]string{
-	// 	"name": commandName(cmd),
-	// })
-
-	return err
-}
 
 var EnvCmd = &cobra.Command{
 
@@ -48,18 +17,6 @@ var EnvCmd = &cobra.Command{
 	Short: "build, run, ship, and deploy environments (image, service, stack)",
 
 	Long: envLong,
-
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		var err error
-
-		// Argument Parsing
-
-		err = EnvPersistentPreRun(args)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-	},
 }
 
 func init() {

@@ -30,6 +30,7 @@ func Run(name string, rflags flags.RootPflagpole) error {
 
 		return nil
 	}
+
 	R, err := prepRuntime([]string{}, rflags)
 	if err != nil {
 		return err
@@ -61,7 +62,7 @@ func Run(name string, rflags flags.RootPflagpole) error {
 		return fmt.Errorf("while connecting to dagger in build: %w", err)
 	}
 
-	i, err := dag.Build(client, ctx, c)
+	i, err := dag.Build(client, ctx, c, true)
 	if err != nil {
 		return err
 	}
