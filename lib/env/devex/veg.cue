@@ -32,36 +32,62 @@ veg: {
 		from: base
 
 		steps: [
+      // todo, put these with the tools that depend on them (if they are one)
 			_steps.apt & {#pkgs: [
+        // go
 				"g++",
 				"gcc",
 				"libc6-dev",
 				"netbase",
-				"sq",
 				"pkg-config",
+				"sq",
+
+        // python
+        "pip",
+        "pipx",
+        "pylint",
+        "python3-poetry",
+        "python3-pytest",
+        "python3-flake8",
+
+        // general
 				"unzip",
 				"xz-utils",
 				"zsh",
 			]},
 
 			// setup languages
-			_tools.go & {#ver: "1.25.4"},
-			env.Env & {PATH: "$PATH:/usr/local/go/bin"},
-			_tools.node & {#ver: "24.12.0"},
+			env.Env & {PATH: "$PATH:/usr/local/go/bin"}, // set gopath first so we can install stuff therein
+			_tools.go,
+			_tools.node,
+			_tools.python,
 
 			// other binary tools
 			_tools.githubBin & {#repo: "cue-lang/cue", #ver: "0.15.1"},
-			_tools.kubectl & {#ver: "1.31.0"},
-			_tools.helm & {#ver: "4.0.4"},
-			_tools.hashicorpBin & {#tool: "terraform", #ver: "1.14.3"},
-			_tools.hashicorpBin & {#tool: "packer", #ver: "1.14.3"},
-      _tools.crane & { #ver: "0.20.7" },
+
+      // tools for agents
+      _tools.agents.lsp2mcp,
 
 			// term customization
 			_tools.zsh,
 			env.Term & {args: ["zsh"]},
 		]
 	}
+
+	ops: env.Container & {
+		@env()
+		name: "veg-ops"
+		#hof: description: "Extension to veg-dev to add devops tooling"
+		from: dev
+
+		steps: [
+			_tools.kubectl,
+			_tools.helm,
+			_tools.hashicorpBin & {#tool: "terraform"},
+			_tools.hashicorpBin & {#tool: "packer"},
+      _tools.crane,
+    ]
+  }
 
 	incept: env.Container & {
 		@env()
@@ -79,21 +105,24 @@ veg: {
 		// whatever we import / user here, should also have mounts defined for easy reuse for runtime (run/up/asService)
 	}
 
+	vegeta: env.Container & {
+		@env()
+		name: "vegeta"
+		#hof: description: "all of the veggie images, it's over 9000"
+		from: ops
+
+    // TODO, realize the dagger way of diamond build pattern optimizations (once we branch more than 2 wide, and have _tools in a better place with #file/#dir)
+    steps: incept.steps
+
+  }
+
 }
-// registry:2 as service & publishing
+
 // dind images (docker & dagger)
 // bin tools for File / Dir / Copy
-// - zsh, omzsh
-// - go, gopls
 // - python 3, poetry, uv
-// - node, pnpm
-// - cue, dagger, docker
-// - helm, tf, k8s
 // - gcloud
-//
-// ////
 //
 // build hof & formatters
 // docker-compose like experience (testnet?)
-//
 //

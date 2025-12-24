@@ -28,7 +28,8 @@ func Build(args []string, rflags flags.RootPflagpole, cflags flags.EnvPflagpole)
 	if dst == "" {
 		err := incept.Incept(context.Background(), os.Args, &incept.InceptOptions{
 			Progress:    cflags.Progress,
-			Interactive: cflags.Interactive,
+			Interactive: cflags.OnFailure,
+			NoExit:      cflags.NoExit,
 			Stdout:      os.Stdout,
 			Stderr:      os.Stderr,
 			Stdin:       os.Stdin,

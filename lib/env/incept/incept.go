@@ -14,10 +14,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/mattn/go-isatty"
 
+	"dagger.io/dagger/telemetry"
 	"github.com/dagger/dagger/dagql/dagui"
 	"github.com/dagger/dagger/dagql/idtui"
 	"github.com/dagger/dagger/engine/client"
-	"dagger.io/dagger/telemetry"
 )
 
 type InceptOptions struct {
@@ -39,6 +39,7 @@ type InceptOptions struct {
 	DisableHostRW      bool
 	Interactive        bool
 	InteractiveCommand string
+	NoExit             bool
 }
 
 // Incept mimics the `dagger run ...` command as a function without needing to run dagger.
@@ -119,6 +120,7 @@ func Incept(ctx context.Context, args []string, options *InceptOptions) error {
 	opts.Verbosity -= options.Quiet
 	opts.Silent = options.Silent
 	opts.Debug = options.Debug
+	opts.NoExit = options.NoExit
 	// opts.RevealNoisySpans = ... (not exposed in options struct yet, defaulting to false)
 	// opts.ExpandCompleted = ...
 

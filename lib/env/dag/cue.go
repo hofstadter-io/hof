@@ -31,7 +31,7 @@ func Build(client *dagger.Client, ctx context.Context, c Container, noCache bool
 	case Container:
 		b, err := Build(client, ctx, t, false)
 		if err != nil {
-			return nil, fmt.Errorf("while building the from image: %v %v", c, t)
+			return b, fmt.Errorf("while building the from image: %v %v", c, t)
 		}
 		r = b
 
@@ -42,7 +42,7 @@ func Build(client *dagger.Client, ctx context.Context, c Container, noCache bool
 		}
 		b, err := Build(client, ctx, m, false)
 		if err != nil {
-			return nil, fmt.Errorf("while building the from image: %v %v", c, t)
+			return b, fmt.Errorf("while building the from image: %v %v", c, t)
 		}
 		r = b
 	default:
@@ -55,12 +55,9 @@ func Build(client *dagger.Client, ctx context.Context, c Container, noCache bool
 	}
 
 	// apply our steps
-	for i, s := range c.Steps {
-		var err error
-		r, err = addStep(client, ctx, r, s)
-		if err != nil {
-			return nil, fmt.Errorf("while adding step %d: %w", i, err)
-		}
+	r, err := addSteps(client, ctx, r, c.Steps)
+	if err != nil {
+		return r, fmt.Errorf("while adding steps: %w", err)
 	}
 
 	for k, v := range c.Labels {
@@ -71,20 +68,15 @@ func Build(client *dagger.Client, ctx context.Context, c Container, noCache bool
 	return r, nil
 }
 
-func mapToContainer(m map[string]any) (Container, error) {
-	var c Container
-	c.From = m["from"]
+func addSteps(client *dagger.Client, ctx context.Context, c *dagger.Container, steps []Step) (*dagger.Container, error) {
+	for i, s := range steps {
+		var err error
+		// todo, if step is an []any, assume nested steps, this should make the CUE simpler
 
-	steps := m["steps"].([]any)
-	c.Steps = make([]Step, 0, len(steps))
-	for _, s := range steps {
-		c.Steps = append(c.Steps, Step(s.(map[string]any)))
-	}
-
-	labels := m["labels"].(map[string]any)
-	c.Labels = make(map[string]string)
-	for k, v := range labels {
-		c.Labels[k] = v.(string)
+		c, err = addStep(client, ctx, c, s)
+		if err != nil {
+			return c, fmt.Errorf("while adding step %d: %w", i, err)
+		}
 	}
 
 	return c, nil
@@ -198,6 +190,25 @@ func addStep(client *dagger.Client, ctx context.Context, c *dagger.Container, s 
 
 	default:
 		return c, fmt.Errorf("unknown kind %q", kind)
+	}
+
+	return c, nil
+}
+
+func mapToContainer(m map[string]any) (Container, error) {
+	var c Container
+	c.From = m["from"]
+
+	steps := m["steps"].([]any)
+	c.Steps = make([]Step, 0, len(steps))
+	for _, s := range steps {
+		c.Steps = append(c.Steps, Step(s.(map[string]any)))
+	}
+
+	labels := m["labels"].(map[string]any)
+	c.Labels = make(map[string]string)
+	for k, v := range labels {
+		c.Labels[k] = v.(string)
 	}
 
 	return c, nil

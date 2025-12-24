@@ -20,12 +20,19 @@ EnvCommand: schema.Command & {
 		Default: "\"auto\""
 		Help:    "output format [auto, plain, tty, dots, report (for ai)]"
   },{
-		Name:    "Interactive"
-		Long:    "interactive"
-		Short:   "X"
+		Name:    "OnFailure"
+		Long:    "on-failure"
+		Short:   "F"
 		Type:    "bool"
 		Default: "false"
-		Help:    "enter an interactive terminal on failure, requires a tty"
+		Help:    "on failure, enter an interactive terminal, requires a tty"
+  },{
+		Name:    "NoExit"
+		Long:    "no-exit"
+		Short:   "T"
+		Type:    "bool"
+		Default: "false"
+		Help:    "Leave the TUI open after finishing"
   },{
 		Name:    "NoCache"
 		Long:    "no-cache"

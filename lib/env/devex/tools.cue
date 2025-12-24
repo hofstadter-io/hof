@@ -6,6 +6,9 @@ import (
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
+
+// hof/veg
+
 _tools: {
 	// todo, eventually we can use this dag stuff to redo how cue, go, and others work
 	// indep container -> file/dir -> building container
@@ -40,7 +43,7 @@ _tools: {
 	}
 
 	hashicorpBin: env.Exec & {
-		#ver:  string
+		#ver:  string | *"1.14.3"
 		#arch: *"arm64" | "amd64"
 
 		#tool: string
@@ -73,7 +76,16 @@ _tools: {
     wget -q \(_src)
     tar -C /usr/local -xzf \(_file)
     rm -rf /tmp/*
+
+    # LSP
+    go install golang.org/x/tools/gopls@latest
+
+    # lint tools
+    go install honnef.co/go/tools/cmd/staticcheck@latest
+    go install github.com/mgechev/revive@latest
+    curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.7.2
     """
+
 	}
 
   node: env.Exec & {
@@ -83,7 +95,6 @@ _tools: {
     // # NOT a "standalone" binary as the say (it requires includes and more, so by def not standalone... fucktards...)
     _src: "https://nodejs.org/dist/v\(#ver)/\(_file)"
     _file: "node-v\(#ver)-linux-\(#arch).tar.xz"
-		_bins: "node npm"
 
 		args: ["sh", "-c", _script]
 
@@ -93,8 +104,39 @@ _tools: {
     cd /tmp
     wget -q \(_src)
     tar -C /usr/local -xf \(_file) --strip-components=1
+
+    # package manager
     corepack enable pnpm
+
+    # LSP
+    npm install -g tsx typescript typescript-language-server
     """
+  }
+
+  python: env.Exec & {
+		args: ["sh", "-c", _script]
+
+    // yes, pyright requires node and recommends installing via npm
+		_script: """
+    set -eou pipefail
+
+    # uv 
+    curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR="/usr/local/bin" sh
+
+    # LSP
+    npm install -g pyright
+    """
+  }
+
+  agents: {
+    lsp2mcp: env.Exec & {
+      args: ["sh", "-c", _script]
+
+      _script: """
+      # LSP -> MCP
+      go install github.com/isaacphi/mcp-language-server@latest
+      """
+    }
   }
 
 	zsh: env.Exec & {
