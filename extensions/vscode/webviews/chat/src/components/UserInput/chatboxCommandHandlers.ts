@@ -59,10 +59,11 @@ export const handleChatboxCommand = (text: string, sid: string, chatState: any, 
           break;
 
         case "#":
+          // todo, send partial messages / events to attach, or store in userInput for when we do send a message
           break;
 
         case "$":
-          console.log(`$${rest}:`, extra)
+          console.log(`COMMAND$${rest}:`, extra)
 
           if (rest === "chat") {
             console.error("implement the chat command dummy!")
@@ -75,6 +76,10 @@ export const handleChatboxCommand = (text: string, sid: string, chatState: any, 
             if (extra?.length > 0) {
               payload.environ = {
                 srcUri: extra[0]
+              }
+              // assume remaining is title
+              if (extra.length > 1) {
+                payload.title = extra.splice(1).join(" ")
               }
             }
 
