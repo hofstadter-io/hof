@@ -29,7 +29,7 @@ EnvCommand: schema.Command & {
   },{
 		Name:    "NoExit"
 		Long:    "no-exit"
-		Short:   "T"
+		Short:   "N"
 		Type:    "bool"
 		Default: "false"
 		Help:    "Leave the TUI open after finishing"
@@ -111,6 +111,26 @@ EnvCommand: schema.Command & {
 		Usage: "tag <src> <dst>"
 		Short: "tag an environment"
 		Long: "tag an environment"
+	},{
+		Name:  "publish"
+		Usage: "publish [target...]"
+		Short: "publish an environment"
+		Long: "publish an environment"
+    Flags: [{
+      Name:    "Registry"
+      Long:    "registry"
+      Short:   "R"
+      Type:    "string"
+      Default: #""host.docker.internal:5000""#
+      Help:    "registry to push to, defaults to veg internal" 
+    },{
+      Name:    "Tag"
+      Long:    "tag"
+      Short:   "T"
+      Type:    "[]string"
+      Default: #"[]string{"local"}"# // todo, support special options like git-tag or git-commit
+      Help:    "tags to give to the environment, can be set multiple times" 
+    }]
 	},{
 		Name:  "push"
 		Usage: "push <name>"

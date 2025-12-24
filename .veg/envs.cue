@@ -1,23 +1,20 @@
 package veg
 
-envs: [n=string]: { name: n }
-envs: {
-  veg: {
-    description: "official debian container"
-    spec: {
-        from: "debian:13-slim"
-    }
-  }
-  golang: {
-    description: "official golang container"
-    spec: {
-        from: "golang:1.25-trixie"
-    }
-  }
-  node: {
-    description: "official node container"
-    spec: {
-        from: "node:25-trixie"
+import (
+  "github.com/hofstadter-io/hof/lib/env/devex"
+)
+
+_reg: "host.docker.internal:5000"
+
+environs: [n=string]: { name: string | *n }
+environs: {
+  for k, env in devex.veg {
+    (k): {
+      name: env.name
+      description: env.description | "\(env.name) image"
+      spec: {
+        from: "\(_reg)/\(env.name):local"
+      }
     }
   }
 }
