@@ -7,6 +7,8 @@ import * as scm from './scmProvider';
 // Your extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
 
+  var userInput: any = null
+
 	const vcp = new VegContentProvider()
 
 	vscode.workspace.registerFileSystemProvider("veg", vcp, {
@@ -28,6 +30,9 @@ export async function activate(context: vscode.ExtensionContext) {
 			type: "session.create",
 			payload: {
 				focus: true,
+        agent: userInput?.agent,
+        model: userInput?.model,
+        envName: userInput?.environ,
 			}
 		}
 		switch (uri.scheme) {
@@ -103,6 +108,10 @@ export async function activate(context: vscode.ExtensionContext) {
 	extensionEmitter.event(async (e) => {
 		// ...
 		switch (e.type) {
+
+			case "chat.userInput.resp":
+				userInput = e.payload
+				break
 
 			case "session.list.resp":
 				vcp.setSessions(e.payload)

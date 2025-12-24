@@ -1,7 +1,7 @@
 import { vscodeApi } from '@/vscodeApi.js';
 
 export const handleChatboxCommand = (text: string, sid: string, chatState: any, handlers: any) => {
-  const lines = text.split("\n")
+  const lines = text.trim().split("\n")
   // is this a special thing
   if (lines.length === 1 && lines[0].startsWith("[@")) {
     const line = lines[0] as string
@@ -38,8 +38,13 @@ export const handleChatboxCommand = (text: string, sid: string, chatState: any, 
       rest = rest.trim()
       console.log("parsed:", char, rest, extra)
 
+      // / for slash commands for agents
+      // ! should run a command in the environ
+
       switch (char) {
         case "@":
+          // only send if known
+          // autocomplete (substr/middle) partial
           if (Object.keys(chatState?.config?.agents).includes(rest)) {
             handlers.handleSelectAgent(rest)
           }
@@ -49,6 +54,7 @@ export const handleChatboxCommand = (text: string, sid: string, chatState: any, 
           break;
 
         case ">":
+          // only send if known
           handlers.handleSelectEnviron(rest)
           break;
 
@@ -57,6 +63,31 @@ export const handleChatboxCommand = (text: string, sid: string, chatState: any, 
 
         case "$":
           console.log(`$${rest}:`, extra)
+
+          if (rest === "chat") {
+            console.error("implement the chat command dummy!")
+            const payload: any = { 
+              focus: true, 
+              agent: chatState?.userInput?.agent,
+              model: chatState?.userInput?.model,
+              envName: chatState?.userInput?.environ,
+            }
+            if (extra?.length > 0) {
+              payload.environ = {
+                srcUri: extra[0]
+              }
+            }
+
+            vscodeApi.postMessage({
+              type: 'session.create',
+              payload,
+            });
+
+            return true
+          }
+          
+
+          // only send if state
           if (rest === "state") {
             if (!extra || extra.length < 1) {
               // todo, let user know by showing a help message

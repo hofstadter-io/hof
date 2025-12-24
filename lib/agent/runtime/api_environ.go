@@ -30,7 +30,7 @@ func fsOpen(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	envUri, err := environ.Client().Create(opts)
+	envUri, err := environ.Client().Create(&opts)
 	if err != nil {
 		fmt.Println("error:", err)
 		return c.String(http.StatusBadRequest, err.Error())

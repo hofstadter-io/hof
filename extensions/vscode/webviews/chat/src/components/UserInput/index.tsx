@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { vscodeApi } from '@/vscodeApi.js'
 
@@ -11,7 +11,7 @@ import { BotMessageSquare } from 'lucide-react'
 import { useChat } from '@/hooks/useChat'
 import { SessionSparklines } from '../SessionSparklines';
 import { ChatStatePills } from '../ChatStatePills';
-import { handleChatboxCommand } from '@/lib/chatboxCommandHandlers';
+import { handleChatboxCommand } from './chatboxCommandHandlers';
 
 export const UserInput = () => {
   const {
@@ -38,6 +38,23 @@ export const UserInput = () => {
   const inputReady: boolean = (userInput?.agent !== "" && 
                                userInput?.model !== "" &&
                                userInput?.text  !== "" )
+
+  useEffect(() => {
+    if (
+      userInput.agent !== session?.state?.agent ||
+      userInput.model !== session?.state?.model ||
+      userInput.environ !== session?.state?.envName
+    ) {
+      setUserInput((prev: any) => {
+        return {
+          ...prev,
+          agent: session?.state?.agent || userInput.agent,
+          model: session?.state?.model || userInput.model,
+          environ: session?.state?.envName || userInput,
+        }
+      })
+    }
+  }, [session?.state])
 
   const handleInputUpdate = ({ editor }:{ editor: any }) => {
     // console.log("handleInputUpdate", editor)
@@ -104,10 +121,10 @@ export const UserInput = () => {
   }
 
   const handleSelectEnviron = (input: string) => {
-    if (input === "none") {
-      input = ""
-    }
     setUserInput((prev: any) => {
+      if (input === "none") {
+        input = ""
+      }
       const s = vscodeApi.getState()
       const next = {
         ...prev,

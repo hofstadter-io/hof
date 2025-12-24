@@ -270,6 +270,23 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     setUsage(u);
   }, [session?.events]);
 
+  useEffect(() => {
+    console.log("chatState.userInput effect");
+    // The 'onMessage' helper returns a cleanup function
+    const removeListener = vscodeApi.onMessage((event) => {
+      const message = event.data as ServerMessage;
+      if (message.type === "requestSync" || message.type === "chat.userInput") {
+        vscodeApi.postMessage({
+          type: 'chat.userInput.resp',
+          payload: chatState?.userInput
+        });
+      }
+    })
+
+    // Return the cleanup function
+    return removeListener;
+  }, [chatState?.userInput]);
+
   // update our listener when the sid changes
   useEffect(() => {
     console.log("sid effect");

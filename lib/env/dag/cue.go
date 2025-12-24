@@ -46,12 +46,12 @@ func Build(client *dagger.Client, ctx context.Context, c Container, noCache bool
 		}
 		r = b
 	default:
-		return nil, fmt.Errorf("uknown from kind %v", t)
+		return nil, fmt.Errorf("unknown from kind %v", t)
 	}
 
 	// possibly bust cache
 	if noCache {
-		r = r.WithEnvVariable("BUSTED_CACHE", time.Now().String())
+		r = r.WithEnvVariable("BUSTED_CACHE", time.Now().Local().String())
 	}
 
 	// apply our steps

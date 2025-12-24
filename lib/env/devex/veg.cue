@@ -13,15 +13,26 @@ veg: {
 
 		steps: [
 			// basics
-			env.Workdir & {path: "/root"},
 			_steps.apt & {#pkgs: [
 				"ca-certificates",
 				"curl",
 				"gnupg",
 				"git",
 				"make",
+				"unzip",
 				"wget",
+				"xz-utils",
+				"zsh",
 			]},
+
+			// term customization
+			_tools.zsh,
+			env.Args & {args: ["zsh"]},
+			env.Term & {args: ["zsh"]},
+			env.Entrypoint & {args: ["zsh"]},
+
+      // default workdir (for wide default consistency)
+			env.Workdir & {path: "/work"},
 		]
 	}
 
@@ -49,11 +60,6 @@ veg: {
         "python3-poetry",
         "python3-pytest",
         "python3-flake8",
-
-        // general
-				"unzip",
-				"xz-utils",
-				"zsh",
 			]},
 
 			// setup languages
@@ -67,10 +73,6 @@ veg: {
 
       // tools for agents
       _tools.agents.lsp2mcp,
-
-			// term customization
-			_tools.zsh,
-			env.Term & {args: ["zsh"]},
 		]
 	}
 

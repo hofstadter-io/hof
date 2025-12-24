@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import fs from 'node:fs/promises';
+import path from 'node:path';
 import { makeReq, parseEnvUri, findSession } from './utils';
 import { extensionEmitter } from '../comms';
 
@@ -370,16 +371,19 @@ export class VegScmProvider {
 			// write to disk
 			if (dest.scheme === 'file') {
 				const writes = [...diff.addPaths, ...diff.modPaths];
-				for (const path of writes) {
-					if (this.isIgnoredPath(path)) continue;
-					const val = diff.files[path]
-					const key = dest.path + path
+				for (var w of writes) {
+					if (this.isIgnoredPath(w)) continue;
+          // if not ignored, lets trim the prefix / that the server has to add for shenanigans elsewhere in vscode
+          // this also makes sure we can never write to the root unless the user gives that path, only below that directory
+          const npath = w.substring(1)
+					const val = diff.files[npath]
+					const key = path.join(dest.path, w)
 					await fs.writeFile(key, val)
 				}
 
 				for (const path of diff.delPaths) {
 					if (this.isIgnoredPath(path)) continue;
-					const key = dest.path + path
+					const key = path.join(dest.path, w)
 					await fs.rm(key, { force: true, recursive: true }).catch(() => { })
 				}
 			}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"time"
 
 	"dagger.io/dagger"
 	"github.com/google/uuid"
@@ -31,12 +32,13 @@ type EnvironCreateOptions struct {
 // let's make this clearer
 // 1. srcUri is files (typically from the outside via a ref, extract just the files from a oci://...)
 // 2. fromUri is containers (outside and everything inside)
-func (le *localEnviron) Create(opts EnvironCreateOptions) (envUri string, err error) {
+func (le *localEnviron) Create(opts *EnvironCreateOptions) (envUri string, err error) {
 	fmt.Printf("fs.Create.input: %#+v\n", pretty.Formatter(opts))
 
 	// setup container for consistency, `FROM scratch` if not set
-	c := le.dag.Container()
+	c := le.dag.Container().WithEnvVariable("BUSTED_CACHE", time.Now().Local().String())
 
+	// do we have an environment to attach?
 	if opts.FromUri != "" {
 		furi, err := url.Parse(opts.FromUri)
 		if err != nil {
@@ -99,11 +101,15 @@ func (le *localEnviron) Create(opts EnvironCreateOptions) (envUri string, err er
 			} else {
 				d = r.Ref(suri.Fragment).Tree()
 			}
+
 		case "file":
 			d = le.dag.Host().Directory(suri.Path, dagger.HostDirectoryOpts{
 				Gitignore: true,
 				NoCache:   true,
 			})
+			if opts.DstPath == "" {
+				opts.DstPath = suri.Path
+			}
 
 		// this should probably be oci only?
 		case "veg", "oci":
@@ -127,19 +133,32 @@ func (le *localEnviron) Create(opts EnvironCreateOptions) (envUri string, err er
 
 		}
 
+		// attach point for incoming source
+		dp := opts.DstPath
+
 		// get subpath within source filesystem
 		if opts.SrcPath != "" {
 			d = d.Directory(opts.SrcPath)
+			// set dest path if not
+			if dp == "" {
+				dp = opts.SrcPath // TODO, should include the base path from d too?
+			}
 		}
 
-		// attach source
-		dp := opts.DstPath
 		if dp == "" {
-			dp = "."
+			dp = "/work" // this is our generic and widely used within-container work dir
 		}
-		c = c.WithDirectory(dp, d)
+		opts.DstPath = dp
+		wd := opts.Workdir
+		if wd == "" {
+			wd = dp
+		}
+		opts.Workdir = wd
+
+		c = c.WithDirectory(dp, d).WithWorkdir(wd)
 	}
 
+	fmt.Printf("sf.createSession.opts.final: %#+v\n", pretty.Formatter(opts))
 	name := opts.Name
 	if name == "" {
 		name = opts.SrcUri

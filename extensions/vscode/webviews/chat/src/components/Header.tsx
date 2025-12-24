@@ -44,7 +44,12 @@ export const Header = ({
               console.log("Create!", state)
               vscodeApi.postMessage({
                 type: 'session.create',
-                payload: { focus: true, dir: chatState?.env?.workspaceDir },
+                payload: { 
+                  focus: true, 
+                  agent: chatState?.userInput?.agent,
+                  model: chatState?.userInput?.model,
+                  envName: chatState?.userInput?.environ,
+                },
               });
             }}
           />

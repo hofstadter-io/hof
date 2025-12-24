@@ -50,7 +50,7 @@ func (le *localEnviron) getDagDir(envUri string, diff bool) (*dagger.Directory, 
 	if err != nil {
 		return nil, fmt.Errorf("while looking up environ(%s): %w", envUri, err)
 	}
-	d := env.Directory("/")
+	d := env.Directory(".")
 	if diff {
 		origUri := ReplaceTag(envUri, "0")
 		if envUri == origUri {
@@ -60,7 +60,7 @@ func (le *localEnviron) getDagDir(envUri string, diff bool) (*dagger.Directory, 
 		if err != nil {
 			return nil, fmt.Errorf("while looking up orig environ(%s): %w", envUri, err)
 		}
-		od := orig.Directory("/")
+		od := orig.Directory(".")
 		d = od.Diff(d)
 	}
 
@@ -139,7 +139,7 @@ func (le *localEnviron) ReadFile(envUri, path string, diff bool) (string, error)
 }
 
 func (le *localEnviron) ReadDirectory(envUri, path string, diff bool) (*DirList, error) {
-	// fmt.Println("le.ReadDirectory.input", envUri, path)
+	fmt.Println("le.ReadDirectory.input", envUri, path, diff)
 	d, err := le.getDagDir(envUri, diff)
 	if err != nil {
 		return nil, fmt.Errorf("while getting base fs(%s): %s %v %w", envUri, path, diff, err)
@@ -155,19 +155,20 @@ func (le *localEnviron) ReadDirectory(envUri, path string, diff bool) (*DirList,
 	if path == "" {
 		path = ruri.Query().Get("path")
 	}
+	fmt.Println("le.ReadDirectory.vars", ruri, path, diff)
 
 	envEntries, err := d.Directory(path).Entries(le.ctx)
 	if err != nil {
 		return nil, fmt.Errorf("while listing directory(%s): %w", path, err)
 	}
-	// fmt.Println("le.ReadDirectory.envEntries", envEntries)
+	fmt.Println("le.ReadDirectory.envEntries", envEntries)
 
 	entries := []DirEntry{}
 	for _, e := range envEntries {
 		realPath := filepath.Join(path, e)
 		// they must exist since we already go them
 		ok, _ := d.Exists(le.ctx, realPath, dagger.DirectoryExistsOpts{ExpectedType: dagger.ExistsTypeDirectoryType})
-		// fmt.Println("le.ReadDirectory.entry", realPath, ok)
+		fmt.Println("le.ReadDirectory.entry", realPath, ok)
 		entries = append(entries, DirEntry{Name: e, Dir: ok})
 	}
 
@@ -270,6 +271,7 @@ func (le *localEnviron) DiffDirectory(prevUri, nextUri string) (*DiffInfo, error
 	if err != nil {
 		return nil, fmt.Errorf("while looking up environment(%s): %w", prevUri, err)
 	}
+
 	prevDir := prev.Directory(".")
 	_, next, err := le.LookupEnviron(nextUri)
 	if err != nil {
@@ -292,28 +294,6 @@ func (le *localEnviron) DiffDirectory(prevUri, nextUri string) (*DiffInfo, error
 	delpaths, err := changes.RemovedPaths(le.ctx)
 	if err != nil {
 		return nil, fmt.Errorf("while getting DelPaths(%s): %w", nextUri, err)
-	}
-
-	// ensure absolute (should we be doing this?) forgot why we needed it in the first place... probably some other thing making it into the path in vscode or something
-	for i, fp := range addpaths {
-		if !strings.HasPrefix(fp, "/") {
-			fp = "/" + fp
-			addpaths[i] = fp
-		}
-	}
-
-	for i, fp := range modpaths {
-		if !strings.HasPrefix(fp, "/") {
-			fp = "/" + fp
-			modpaths[i] = fp
-		}
-	}
-
-	for i, fp := range delpaths {
-		if !strings.HasPrefix(fp, "/") {
-			fp = "/" + fp
-			delpaths[i] = fp
-		}
 	}
 
 	// gather current files
@@ -352,6 +332,42 @@ func (le *localEnviron) DiffDirectory(prevUri, nextUri string) (*DiffInfo, error
 	patch, err := pfile.Contents(le.ctx)
 	if err != nil {
 		return nil, fmt.Errorf("while getting patch contents(%s): %w", nextUri, err)
+	}
+
+	// DO THIS LAST, so we don't break other reads above
+
+	// ensure absolute (should we be doing this?) forgot why we needed it in the first place... probably some other thing making it into the path in vscode or something
+	// somewhere we lose the `/` on the beginning of an absolute path and that broke something
+	// ~~Now turing this off because (1) source control explorer is borked (2) we see diffs outside of the workdir~~
+	// workdir, err := next.Workdir(le.ctx)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("while looking up workdir(%s): %w", nextUri, err)
+	// }
+
+	// Far too many different intertwining path knots, we need to untangle it and make a good pattern (<img>?path=...&sid=...) because we also need sid everywhere it's tied to an env
+	// Apparently not having / in the front means we see the image:Npath/to/file (unable to separate)
+	for i, fp := range addpaths {
+		if !strings.HasPrefix(fp, "/") {
+			fp = "/" + fp
+			addpaths[i] = fp
+		}
+		// addpaths[i] = filepath.Join(workdir, fp)
+	}
+
+	for i, fp := range modpaths {
+		if !strings.HasPrefix(fp, "/") {
+			fp = "/" + fp
+			modpaths[i] = fp
+		}
+		// modpaths[i] = filepath.Join(workdir, fp)
+	}
+
+	for i, fp := range delpaths {
+		if !strings.HasPrefix(fp, "/") {
+			fp = "/" + fp
+			delpaths[i] = fp
+		}
+		// delpaths[i] = filepath.Join(workdir, fp)
 	}
 
 	di := &DiffInfo{

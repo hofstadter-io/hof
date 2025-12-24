@@ -89,6 +89,9 @@ func sessionList(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 type SessionCreateRequest struct {
 	Title   string                        `json:"title,omitempty"`
 	Focus   bool                          `json:"focus,omitempty"`
+	Agent   string                        `json:"agent,omitempty"`
+	Model   string                        `json:"model,omitempty"`
+	EnvName string                        `json:"envName,omitempty"`
 	Environ *environ.EnvironCreateOptions `json:"environ,omitempty"`
 }
 
@@ -110,7 +113,7 @@ func sessionCreate(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 		return
 	}
 
-	fmt.Println("CREATE SESSION:", pretty.Formatter(payload))
+	fmt.Printf("CREATE SESSION: %#+v\n", pretty.Formatter(payload))
 
 	// initial state
 	initialState := make(map[string]any)
@@ -118,9 +121,27 @@ func sessionCreate(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 		initialState["title"] = payload.Title
 	}
 
+	initialState["agent"] = payload.Agent
+	initialState["model"] = payload.Model
+	initialState["envName"] = payload.EnvName
+
+	pe := payload.Environ
+	if pe == nil {
+		pe = new(environ.EnvironCreateOptions)
+	}
+
 	// maybe attach an environment
-	if payload.Environ != nil {
-		pe := *payload.Environ
+	if pe.FromUri == "" && payload.EnvName != "" {
+		fmt.Println("searching for env:", payload.EnvName)
+		for _, e := range r.Agentic.Environs {
+			fmt.Printf(" ? %#+v\n", e)
+			if e.Name == payload.EnvName {
+				fmt.Println("  MATCH")
+				pe.FromUri = "oci://" + e.Spec.From
+				break
+			}
+		}
+
 		env := environ.Client()
 		envUri, err := env.Create(pe)
 		if err != nil {

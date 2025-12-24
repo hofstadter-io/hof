@@ -249,12 +249,13 @@ export function activate(context: vscode.ExtensionContext) {
 
 				// run dagger via hof for arg handling
 				let env = `_EXPERIMENTAL_DAGGER_RUNNER_HOST=container://veg-dagger-engine`
+        const busted = new Date().toLocaleString()
 
-				let cmd = `${env} dagger -i core container from --address "${img}"`
+				let cmd = `${env} dagger -i core container with-env-variable --name BUSTED_CACHE --value '${busted}' from --address "${img}"`
 				if (workdir) {
 					cmd += ` with-workdir --path "${workdir}"`
 				}
-				cmd += ` terminal --cmd bash`
+				cmd += ` terminal --cmd zsh`
 
 				// Create and show the terminal
 				let terminal: vscode.Terminal;

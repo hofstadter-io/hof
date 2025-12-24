@@ -24,7 +24,7 @@ export const ChatEditor = ({
   userInput,
   handlers,
   editorRef,
-}:{
+}: {
   userInput?: any
   handlers?: any
   editorRef?: any
@@ -41,10 +41,10 @@ export const ChatEditor = ({
   const editor = useEditor({
     editorProps: {
       attributes: {
-        class: cn( "flex-grow flex flex-col h-full min-w-full min-h-48", ...TailwindClasses),
+        class: cn("flex-grow flex flex-col h-full min-w-full min-h-48", ...TailwindClasses),
       },
     },
-    
+
     onFocus: () => {
       vscodeApi.postMessage({ type: 'requestSync' })
     },
@@ -85,8 +85,8 @@ export const ChatEditor = ({
           items: ({ query }: { query: string }) => {
             const options = Object.keys(chatStateRef.current?.config?.agents || {}).concat(Object.keys(chatStateRef.current?.config?.models || {}))
             return options
-              .filter(item => item.toLowerCase().startsWith(query.toLowerCase()))
-              .slice(0, 5)
+              .filter(item => item.toLowerCase().includes(query.toLowerCase()))
+              .slice(0, 10)
           },
           ...suggest.mentioner,
         }
@@ -98,10 +98,10 @@ export const ChatEditor = ({
         suggestion: {
           char: '>',
           items: ({ query }: { query: string }) => {
-            const options = ["none"].concat(Object.keys(chatStateRef.current?.config?.environs || {}))
+            const options = ["none"].concat(Object.values(chatStateRef.current?.config?.environs || {}).map((e: any) => e.name) || [])
             return options
-              .filter(item => item.toLowerCase().startsWith(query.toLowerCase()))
-              .slice(0, 5)
+              .filter(item => item.toLowerCase().includes(query.toLowerCase()))
+              .slice(0, 10)
           },
           ...suggest.mentioner,
         }
@@ -123,7 +123,7 @@ export const ChatEditor = ({
               })
             }
             return options
-              .filter(item => item.toLowerCase().startsWith(query.toLowerCase()))
+              .filter(item => item.toLowerCase().includes(query.toLowerCase()))
               .slice(0, 10)
           },
           ...suggest.mentioner,
@@ -136,9 +136,9 @@ export const ChatEditor = ({
         suggestion: {
           char: '$',
           items: ({ query }: { query: string }) => {
-            const options = ["state"]
+            const options = ["state", "chat"]
             const results = options
-              .filter(item => item.toLowerCase().startsWith(query.toLowerCase()))
+              .filter(item => item.toLowerCase().includes(query.toLowerCase()))
               .slice(0, 5)
             if (!results || results.length === 0) {
               return [query]
@@ -157,7 +157,7 @@ export const ChatEditor = ({
           items: ({ query }: { query: string }) => {
             const options = ["rewind", "fork", "thread", "compact", "slice"]
             const results = options
-              .filter(item => item.toLowerCase().startsWith(query.toLowerCase()))
+              .filter(item => item.toLowerCase().includes(query.toLowerCase()))
               .slice(0, 5)
             if (!results || results.length === 0) {
               return [query]
