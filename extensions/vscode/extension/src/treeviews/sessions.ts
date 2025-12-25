@@ -100,12 +100,12 @@ export class SessionsProvider implements vscode.TreeDataProvider<Session> {
 	getChildren(element?: Session): Thenable<Session[] | undefined> {
 
 		if (element) {
-			console.log("elemental element", element)
+			// console.log("elemental element", element)
 			// return Promise.resolve([]);
 			return Promise.resolve(undefined)
 		} else {
 			// root, so we work with the sessions we know about
-			console.log("elementless child", sessions)
+			// console.log("elementless child", sessions)
 			var nodes: Session[] = []
 			for (const s of sessions) {
 				const l = s.state?.title || s.sid

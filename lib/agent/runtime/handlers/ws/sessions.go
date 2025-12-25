@@ -432,6 +432,7 @@ func sessionClone(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 		log.Printf("Error unmarshaling 'session.clone' payload: %v", err)
 		return
 	}
+	fmt.Printf("sessionClone.inputs: %#+v\n", pretty.Formatter(p))
 
 	// lookup session
 	resp, err := r.S.Get(r.Ctx, &session.GetRequest{
@@ -448,6 +449,8 @@ func sessionClone(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 		return
 	}
 
+	// fmt.Println("sessionClone.resp", resp)
+
 	cloned, err := r.S.Clone(r.Ctx, resp.Session)
 	if err != nil {
 		log.Printf("session.clone: %v", err)
@@ -457,9 +460,11 @@ func sessionClone(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 		})
 		return
 	}
+	// fmt.Println("sessionClone.cloned", cloned)
 
 	// splice if pos is non-zero
 	if p.Pos > 0 {
+		fmt.Println("sessionClone.splice", p.Pos)
 		n := cloned.Events().Len()
 		if p.Pos < n {
 			cloned, err = r.S.Splice(r.Ctx, cloned, p.Pos, n-p.Pos, nil)
@@ -482,7 +487,7 @@ func sessionClone(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 	S["lastUpdate"] = cloned.LastUpdateTime()
 	S["focus"] = p.Focus
 
-	// fmt.Println("mailing sessions", payload)
+	// fmt.Println("sessionClone.payload", S)
 	c.Mail("session.info", S)
 	c.Mail("session.clone.resp", S)
 
@@ -492,6 +497,8 @@ func sessionClone(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 			"sid": cloned.ID(),
 		})
 	}
+
+	fmt.Println("sessionClone.notify", cloned.ID())
 
 	// notify list
 	sessionList(r, c, m)
@@ -515,7 +522,7 @@ func sessionPull(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 
 type SessionSpliceRequest struct {
 	Sid   string           `json:"sid"`
-	Start int              `json:"start"`
+	Pos   int              `json:"pos"`
 	Count int              `json:"count"`
 	Fill  []*session.Event `json:"fill"`
 }
@@ -550,6 +557,8 @@ func sessionSplice(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 		return
 	}
 
+	fmt.Printf("sessionSplice.payload: %#+v\n", pretty.Formatter(p))
+
 	// lookup session
 	resp, err := r.S.Get(r.Ctx, &session.GetRequest{
 		AppName:   r.AppName,
@@ -564,9 +573,10 @@ func sessionSplice(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 		})
 		return
 	}
+	fmt.Println("sessionSplice.before", len(slices.Collect(resp.Session.Events().All())))
 
 	// splice it
-	spliced, err := r.S.Splice(r.Ctx, resp.Session, p.Start, p.Count, spliceEvents(p.Fill))
+	spliced, err := r.S.Splice(r.Ctx, resp.Session, p.Pos, p.Count, spliceEvents(p.Fill))
 	if err != nil {
 		log.Printf("session.splice: %v", err)
 		c.Mail("session.splice.resp", map[string]string{
@@ -576,6 +586,7 @@ func sessionSplice(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 		return
 	}
 
+	fmt.Println("sessionSplice.after", len(slices.Collect(spliced.Events().All())))
 	// build outgoing payload
 	S := make(map[string]any)
 	S["sid"] = spliced.ID()
@@ -585,6 +596,8 @@ func sessionSplice(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 
 	c.Mail("session.info", S)
 	c.Mail("session.splice.resp", S)
+
+	// fmt.Printf("sessionSplice.response", pretty.Formatter(p))
 
 	// notify list
 	sessionList(r, c, m)

@@ -106,7 +106,7 @@ func chatUserMessage(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 	// ...how do we get the write_file to send the contents to vs code instead of writing to disk?
 	// ...perhaps through artifacts
 	R, err := runner.New(runner.Config{
-		AppName:         "veg",
+		AppName:         r.AppName,
 		Agent:           a,
 		SessionService:  r.S,
 		ArtifactService: r.A,

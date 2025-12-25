@@ -10,6 +10,7 @@ import {
   RefreshCcw,
   ScrollText,
   SquareTerminal,
+  Trash2,
 } from 'lucide-react'
 
 import { 
@@ -279,21 +280,44 @@ export const Menu = ({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <ToolTipper label="fork">
+      <ToolTipper label="clone">
         <GitGraph size={16}
-          aria-label="fork"
+          aria-label="clone"
           className="hover:text-sky-500"
           onClick={() => {
             vscodeApi.postMessage({
-              type: "session.fork",
+              type: "session.clone",
               payload: {
-                from: sid,
-                pos,
+                sid: sid,
+                pos: pos ? pos + 1 : 0,
+                focus: true,
               }
             })
           }}
         />
       </ToolTipper>
+
+      { pos !== undefined && (
+        <ToolTipper label="splice">
+          <Trash2 size={16}
+            aria-label="splice"
+            className="hover:text-red-500"
+            onClick={(e) => {
+              console.log("splice.click", sid, pos)
+              e.preventDefault();
+              e.stopPropagation();
+              vscodeApi.postMessage({
+                type: "session.splice",
+                payload: {
+                  sid,
+                  pos,
+                  count: session.events.length - (pos),
+                }
+              })
+            }}
+          />
+        </ToolTipper>
+      )}
 
       <ToolTipper label="view prompt">
         <ScrollText size={16}

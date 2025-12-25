@@ -386,6 +386,14 @@ func (s *databaseService) Clone(ctx context.Context, sess session.Session) (sess
 		// Deep copy state map
 		newStorageSess.State = maps.Clone(srcSession.State)
 
+		// clone title if available
+		title, ok := newStorageSess.State["title"]
+		if ok {
+			newStorageSess.State["title"] = fmt.Sprintf("%v (cloned)", title)
+		} else {
+			newStorageSess.State["title"] = fmt.Sprintf(" %v (cloned from %v)", newSessionID, srcSession.ID)
+		}
+
 		if err := tx.Create(&newStorageSess).Error; err != nil {
 			return fmt.Errorf("failed to create clone session: %w", err)
 		}
@@ -456,7 +464,7 @@ func (s *databaseService) Clone(ctx context.Context, sess session.Session) (sess
 }
 
 // Splice makes in-place modifications to the session
-func (s *databaseService) Splice(ctx context.Context, sess session.Session, start, count int, fill session.Events) (session.Session, error) {
+func (s *databaseService) Splice(ctx context.Context, sess session.Session, pos, count int, fill session.Events) (session.Session, error) {
 	if sess == nil {
 		return nil, fmt.Errorf("session is nil")
 	}
@@ -472,21 +480,21 @@ func (s *databaseService) Splice(ctx context.Context, sess session.Session, star
 
 		// Calculate slice
 		n := len(events)
-		if start < 0 {
-			start = 0
+		if pos < 0 {
+			pos = 0
 		}
-		if start > n {
-			start = n
+		if pos > n {
+			pos = n
 		}
 		if count < 0 {
 			count = 0
 		}
-		if start+count > n {
-			count = n - start
+		if pos+count > n {
+			count = n - pos
 		}
 
 		// Identify events to delete
-		toDelete := events[start : start+count]
+		toDelete := events[pos : pos+count]
 		if len(toDelete) > 0 {
 			ids := make([]string, len(toDelete))
 			for i, e := range toDelete {

@@ -54,7 +54,7 @@ const setPairs: Record<string,string> = {
 
 function App() {
   const state = vscodeApi.getState()
-  console.log("debug state:", state)
+  // console.log("app.debug.state:", state)
 
   const [debugValue, setDebugValue] = useState(state || {});
 

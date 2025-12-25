@@ -266,7 +266,9 @@ func (r *Runtime) envList(c echo.Context) error {
 }
 
 type sessionCloneRequest struct {
-	Sid string `json:"sid"`
+	Sid   string `json:"sid"`
+	Pos   int    `json:"pos,omitempty"`
+	Focus bool   `json:"focus,omitempty"`
 }
 
 func (r *Runtime) sessionClone(c echo.Context) error {
@@ -278,7 +280,7 @@ func (r *Runtime) sessionClone(c echo.Context) error {
 
 	// 1. Get Session
 	sreq := &session.GetRequest{
-		AppName:   "veg",
+		AppName:   r.AppName,
 		UserID:    "tony",
 		SessionID: p.Sid,
 	}
@@ -293,19 +295,31 @@ func (r *Runtime) sessionClone(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
+	// splice if pos is non-zero
+	if p.Pos > 0 {
+		n := cloned.Events().Len()
+		if p.Pos < n {
+			cloned, err = r.S.Splice(c.Request().Context(), cloned, p.Pos, n-p.Pos, nil)
+			if err != nil {
+				return c.String(http.StatusInternalServerError, err.Error())
+			}
+		}
+	}
+
 	// build outgoing payload
 	S := make(map[string]any)
 	S["sid"] = cloned.ID()
 	S["state"] = maps.Collect(cloned.State().All())
 	S["events"] = slices.Collect(cloned.Events().All())
 	S["lastUpdate"] = cloned.LastUpdateTime()
+	S["focus"] = p.Focus
 
 	return c.JSON(http.StatusOK, S)
 }
 
 type sessionSpliceRequest struct {
 	Sid   string           `json:"sid"`
-	Start int              `json:"start"`
+	Pos   int              `json:"pos"`
 	Count int              `json:"count"`
 	Fill  []*session.Event `json:"fill"`
 }
@@ -319,7 +333,7 @@ func (r *Runtime) sessionSplice(c echo.Context) error {
 
 	// 1. Get Session
 	sreq := &session.GetRequest{
-		AppName:   "veg",
+		AppName:   r.AppName,
 		UserID:    "tony",
 		SessionID: p.Sid,
 	}
@@ -329,7 +343,7 @@ func (r *Runtime) sessionSplice(c echo.Context) error {
 	}
 
 	// 2. Splice
-	spliced, err := r.S.Splice(c.Request().Context(), sresp.Session, p.Start, p.Count, spliceEvents(p.Fill))
+	spliced, err := r.S.Splice(c.Request().Context(), sresp.Session, p.Pos, p.Count, spliceEvents(p.Fill))
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -382,7 +396,7 @@ func (r *Runtime) promptRender(c echo.Context) error {
 
 	// 1. Get Session
 	sreq := &session.GetRequest{
-		AppName:   "veg",
+		AppName:   r.AppName,
 		UserID:    "tony",
 		SessionID: p.Sid,
 	}

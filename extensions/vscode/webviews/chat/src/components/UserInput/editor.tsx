@@ -155,7 +155,7 @@ export const ChatEditor = ({
         suggestion: {
           char: '%',
           items: ({ query }: { query: string }) => {
-            const options = ["rewind", "fork", "thread", "compact", "slice"]
+            const options = ["rewind", "clone", "thread", "compact", "slice"]
             const results = options
               .filter(item => item.toLowerCase().includes(query.toLowerCase()))
               .slice(0, 5)

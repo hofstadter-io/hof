@@ -215,6 +215,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
       if (message.type === 'chat.loadSession') {
         const payload = message.payload as SidPayload;
+        console.log("LOAD CHAT:", payload)
         if (payload.sid) {
           // update core state
           const s = vscodeApi.getState();

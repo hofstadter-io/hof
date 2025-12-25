@@ -238,6 +238,9 @@ func (r *Runtime) initServer() error {
 	e.POST("/env/list", r.envList)
 	e.POST("/prompt/render", r.promptRender)
 
+	e.POST("/session/clone", r.sessionClone)
+	e.POST("/session/splice", r.sessionSplice)
+
 	// save & return
 	r.e = e
 	return nil
