@@ -206,22 +206,6 @@ export const Menu = ({
       />
       </ToolTipper>
 
-      <ToolTipper label="fork">
-        <GitGraph size={16}
-          aria-label="fork"
-          className="hover:text-sky-500"
-          onClick={() => {
-            // vscodeApi.postMessage({
-            //   type: "session.fork",
-            //   payload: {
-            //     from: sid,
-            //     pos,
-            //   }
-            // })
-          }}
-        />
-      </ToolTipper>
-
       <DropdownMenu open={mergeOpen} onOpenChange={setMergeOpen}>
         <DropdownMenuTrigger asChild>
           <div 
@@ -294,6 +278,22 @@ export const Menu = ({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <ToolTipper label="fork">
+        <GitGraph size={16}
+          aria-label="fork"
+          className="hover:text-sky-500"
+          onClick={() => {
+            vscodeApi.postMessage({
+              type: "session.fork",
+              payload: {
+                from: sid,
+                pos,
+              }
+            })
+          }}
+        />
+      </ToolTipper>
 
       <ToolTipper label="view prompt">
         <ScrollText size={16}
