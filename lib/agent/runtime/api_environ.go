@@ -2,9 +2,11 @@ package runtime
 
 import (
 	"fmt"
+	"iter"
 	"maps"
 	"net/http"
 	"net/url"
+	"slices"
 
 	"google.golang.org/adk/session"
 
@@ -261,6 +263,108 @@ func (r *Runtime) envList(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, envs)
+}
+
+type sessionCloneRequest struct {
+	Sid string `json:"sid"`
+}
+
+func (r *Runtime) sessionClone(c echo.Context) error {
+	var p sessionCloneRequest
+	err := c.Bind(&p)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	// 1. Get Session
+	sreq := &session.GetRequest{
+		AppName:   "veg",
+		UserID:    "tony",
+		SessionID: p.Sid,
+	}
+	sresp, err := r.S.Get(c.Request().Context(), sreq)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// 2. Clone
+	cloned, err := r.S.Clone(c.Request().Context(), sresp.Session)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// build outgoing payload
+	S := make(map[string]any)
+	S["sid"] = cloned.ID()
+	S["state"] = maps.Collect(cloned.State().All())
+	S["events"] = slices.Collect(cloned.Events().All())
+	S["lastUpdate"] = cloned.LastUpdateTime()
+
+	return c.JSON(http.StatusOK, S)
+}
+
+type sessionSpliceRequest struct {
+	Sid   string           `json:"sid"`
+	Start int              `json:"start"`
+	Count int              `json:"count"`
+	Fill  []*session.Event `json:"fill"`
+}
+
+func (r *Runtime) sessionSplice(c echo.Context) error {
+	var p sessionSpliceRequest
+	err := c.Bind(&p)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	// 1. Get Session
+	sreq := &session.GetRequest{
+		AppName:   "veg",
+		UserID:    "tony",
+		SessionID: p.Sid,
+	}
+	sresp, err := r.S.Get(c.Request().Context(), sreq)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// 2. Splice
+	spliced, err := r.S.Splice(c.Request().Context(), sresp.Session, p.Start, p.Count, spliceEvents(p.Fill))
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// build outgoing payload
+	S := make(map[string]any)
+	S["sid"] = spliced.ID()
+	S["state"] = maps.Collect(spliced.State().All())
+	S["events"] = slices.Collect(spliced.Events().All())
+	S["lastUpdate"] = spliced.LastUpdateTime()
+
+	return c.JSON(http.StatusOK, S)
+}
+
+type spliceEvents []*session.Event
+
+func (e spliceEvents) All() iter.Seq[*session.Event] {
+	return func(yield func(*session.Event) bool) {
+		for _, event := range e {
+			if !yield(event) {
+				return
+			}
+		}
+	}
+}
+
+func (e spliceEvents) Len() int {
+	return len(e)
+}
+
+func (e spliceEvents) At(i int) *session.Event {
+	if i >= 0 && i < len(e) {
+		return e[i]
+	}
+	return nil
 }
 
 type promptRenderRequest struct {

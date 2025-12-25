@@ -3,6 +3,7 @@ package ws
 import (
 	"encoding/json"
 	"fmt"
+	"iter"
 	"log"
 	"maps"
 	"slices"
@@ -17,7 +18,9 @@ import (
 )
 
 type SidRequest struct {
-	Sid string `json:"sid"`
+	Sid   string `json:"sid"`
+	Pos   int    `json:"pos,omitempty"`
+	Focus bool   `json:"focus,omitempty"`
 }
 
 func sessionGet(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
@@ -423,8 +426,75 @@ func sessionDelState(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 
 // }
 
-func sessionFork(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
+func sessionClone(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
+	var p SidRequest
+	if err := json.Unmarshal(m.Payload, &p); err != nil {
+		log.Printf("Error unmarshaling 'session.clone' payload: %v", err)
+		return
+	}
 
+	// lookup session
+	resp, err := r.S.Get(r.Ctx, &session.GetRequest{
+		AppName:   r.AppName,
+		UserID:    c.User,
+		SessionID: p.Sid,
+	})
+	if err != nil {
+		log.Printf("session.clone: %v", err)
+		c.Mail("session.clone.resp", map[string]string{
+			"sid":   p.Sid,
+			"error": err.Error(),
+		})
+		return
+	}
+
+	cloned, err := r.S.Clone(r.Ctx, resp.Session)
+	if err != nil {
+		log.Printf("session.clone: %v", err)
+		c.Mail("session.clone.resp", map[string]string{
+			"sid":   p.Sid,
+			"error": err.Error(),
+		})
+		return
+	}
+
+	// splice if pos is non-zero
+	if p.Pos > 0 {
+		n := cloned.Events().Len()
+		if p.Pos < n {
+			cloned, err = r.S.Splice(r.Ctx, cloned, p.Pos, n-p.Pos, nil)
+			if err != nil {
+				log.Printf("session.clone.splice: %v", err)
+				c.Mail("session.clone.resp", map[string]string{
+					"sid":   p.Sid,
+					"error": err.Error(),
+				})
+				return
+			}
+		}
+	}
+
+	// build outgoing payload
+	S := make(map[string]any)
+	S["sid"] = cloned.ID()
+	S["state"] = maps.Collect(cloned.State().All())
+	S["events"] = slices.Collect(cloned.Events().All())
+	S["lastUpdate"] = cloned.LastUpdateTime()
+	S["focus"] = p.Focus
+
+	// fmt.Println("mailing sessions", payload)
+	c.Mail("session.info", S)
+	c.Mail("session.clone.resp", S)
+
+	// if focused, tell chat
+	if p.Focus {
+		c.Mail("chat.loadSession", map[string]any{
+			"sid": cloned.ID(),
+		})
+	}
+
+	// notify list
+	sessionList(r, c, m)
 }
 
 func sessionMerge(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
@@ -441,4 +511,81 @@ func sessionPush(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 
 func sessionPull(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 
+}
+
+type SessionSpliceRequest struct {
+	Sid   string           `json:"sid"`
+	Start int              `json:"start"`
+	Count int              `json:"count"`
+	Fill  []*session.Event `json:"fill"`
+}
+
+type spliceEvents []*session.Event
+
+func (e spliceEvents) All() iter.Seq[*session.Event] {
+	return func(yield func(*session.Event) bool) {
+		for _, event := range e {
+			if !yield(event) {
+				return
+			}
+		}
+	}
+}
+
+func (e spliceEvents) Len() int {
+	return len(e)
+}
+
+func (e spliceEvents) At(i int) *session.Event {
+	if i >= 0 && i < len(e) {
+		return e[i]
+	}
+	return nil
+}
+
+func sessionSplice(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
+	var p SessionSpliceRequest
+	if err := json.Unmarshal(m.Payload, &p); err != nil {
+		log.Printf("Error unmarshaling 'session.splice' payload: %v", err)
+		return
+	}
+
+	// lookup session
+	resp, err := r.S.Get(r.Ctx, &session.GetRequest{
+		AppName:   r.AppName,
+		UserID:    c.User,
+		SessionID: p.Sid,
+	})
+	if err != nil {
+		log.Printf("session.splice: %v", err)
+		c.Mail("session.splice.resp", map[string]string{
+			"sid":   p.Sid,
+			"error": err.Error(),
+		})
+		return
+	}
+
+	// splice it
+	spliced, err := r.S.Splice(r.Ctx, resp.Session, p.Start, p.Count, spliceEvents(p.Fill))
+	if err != nil {
+		log.Printf("session.splice: %v", err)
+		c.Mail("session.splice.resp", map[string]string{
+			"sid":   p.Sid,
+			"error": err.Error(),
+		})
+		return
+	}
+
+	// build outgoing payload
+	S := make(map[string]any)
+	S["sid"] = spliced.ID()
+	S["state"] = maps.Collect(spliced.State().All())
+	S["events"] = slices.Collect(spliced.Events().All())
+	S["lastUpdate"] = spliced.LastUpdateTime()
+
+	c.Mail("session.info", S)
+	c.Mail("session.splice.resp", S)
+
+	// notify list
+	sessionList(r, c, m)
 }

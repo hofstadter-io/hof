@@ -39,11 +39,12 @@ func SetupHandlers(r *runtime.Runtime) {
 	r.Handlers["session.state.put"] = sessionPutState
 	r.Handlers["session.state.del"] = sessionDelState
 
-	r.Handlers["session.fork"] = sessionFork
 	r.Handlers["session.merge"] = sessionMerge
 	r.Handlers["session.tag"] = sessionTag
 	r.Handlers["session.push"] = sessionPush
 	r.Handlers["session.pull"] = sessionPull
+	r.Handlers["session.clone"] = sessionClone
+	r.Handlers["session.splice"] = sessionSplice
 	// r.Handlers["session.environ.set"] = sessionEnvironSet
 
 	//

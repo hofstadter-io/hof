@@ -125,7 +125,7 @@ func (s *databaseService) Create(ctx context.Context, req *session.CreateRequest
 		userID:    req.UserID,
 		sessionID: sessionID,
 		state:     stateMap,
-		updatedAt: time.Now(),
+		updatedAt: time.Now().UTC(),
 	}
 	createdSession, err := createStorageSession(val)
 	if err != nil {
@@ -187,16 +187,18 @@ func (s *databaseService) Get(ctx context.Context, req *session.GetRequest) (*se
 	}
 
 	var foundSession storageSession
-	err := s.db.WithContext(ctx).
+	result := s.db.WithContext(ctx).
 		Where(&storageSession{
 			AppName: appName,
 			UserID:  userID,
 			ID:      sessionID,
 		}).
-		First(&foundSession).Error
-	if err != nil {
-		// For any error including ErrRecordNotFound, return it as a system error.
-		return nil, fmt.Errorf("database error while fetching session: %w", err)
+		Limit(1).Find(&foundSession)
+	if result.Error != nil {
+		return nil, fmt.Errorf("database error while fetching session: %w", result.Error)
+	}
+	if result.RowsAffected == 0 {
+		return nil, fmt.Errorf("session not found: %w", gorm.ErrRecordNotFound)
 	}
 
 	// Fetch events
@@ -368,14 +370,19 @@ func (s *databaseService) Clone(ctx context.Context, sess session.Session) (sess
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		// 1. Fetch original storage session
 		var srcSession storageSession
-		if err := tx.First(&srcSession, "app_name = ? AND user_id = ? AND id = ?", sess.AppName(), sess.UserID(), sess.ID()).Error; err != nil {
-			return fmt.Errorf("source session not found: %w", err)
+		result := tx.Where("app_name = ? AND user_id = ? AND id = ?", sess.AppName(), sess.UserID(), sess.ID()).
+			Limit(1).Find(&srcSession)
+		if result.Error != nil {
+			return fmt.Errorf("failed to fetch source session: %w", result.Error)
+		}
+		if result.RowsAffected == 0 {
+			return fmt.Errorf("source session not found: %w", gorm.ErrRecordNotFound)
 		}
 
 		// 2. Create new storage session
 		newStorageSess := srcSession
 		newStorageSess.ID = newSessionID
-		newStorageSess.UpdateTime = time.Now()
+		newStorageSess.UpdateTime = time.Now().UTC()
 		// Deep copy state map
 		newStorageSess.State = maps.Clone(srcSession.State)
 
@@ -511,7 +518,7 @@ func (s *databaseService) Splice(ctx context.Context, sess session.Session, star
 		// Update session UpdateTime
 		if err := tx.Model(&storageSession{}).
 			Where("app_name = ? AND user_id = ? AND id = ?", sess.AppName(), sess.UserID(), sess.ID()).
-			Update("update_time", time.Now()).Error; err != nil {
+			Update("update_time", time.Now().UTC()).Error; err != nil {
 			return fmt.Errorf("failed to update session time: %w", err)
 		}
 
@@ -531,8 +538,13 @@ func (s *databaseService) Splice(ctx context.Context, sess session.Session, star
 			return err
 		}
 		var finalStorageSess storageSession
-		if err := tx.First(&finalStorageSess, "app_name = ? AND user_id = ? AND id = ?", sess.AppName(), sess.UserID(), sess.ID()).Error; err != nil {
-			return err
+		result := tx.Where("app_name = ? AND user_id = ? AND id = ?", sess.AppName(), sess.UserID(), sess.ID()).
+			Limit(1).Find(&finalStorageSess)
+		if result.Error != nil {
+			return result.Error
+		}
+		if result.RowsAffected == 0 {
+			return gorm.ErrRecordNotFound
 		}
 
 		updatedSession = &localSession{
@@ -576,12 +588,8 @@ func (s *databaseService) AppendEvent(ctx context.Context, curSession session.Se
 		return fmt.Errorf("event is nil")
 	}
 
-	if event.Partial && event.Author != "user" {
-		return nil
-	}
-
 	// Truncate timestamp to microsecond precision to match database precision and prevent rounding errors.
-	event.Timestamp = time.UnixMicro(event.Timestamp.UnixMicro())
+	event.Timestamp = time.UnixMicro(event.Timestamp.UnixMicro()).UTC()
 
 	// Trim temp state before persisting
 	event = trimTempDeltaState(event)
@@ -609,12 +617,12 @@ func (s *databaseService) applyEvent(ctx context.Context, sess *localSession, ev
 		// Fetch the session object from storage.
 		var storageSess storageSession
 		err := tx.Where(&storageSession{AppName: sess.AppName(), UserID: sess.UserID(), ID: sess.ID()}).
-			First(&storageSess).Error
+			Limit(1).Find(&storageSess).Error
 		if err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return fmt.Errorf("session not found, cannot apply event")
-			}
 			return fmt.Errorf("failed to get session: %w", err)
+		}
+		if storageSess.ID == "" {
+			return fmt.Errorf("session not found, cannot apply event")
 		}
 
 		// Ensure the session object is not stale.
@@ -624,8 +632,8 @@ func (s *databaseService) applyEvent(ctx context.Context, sess *localSession, ev
 		if storageUpdateTime > sessionUpdateTime {
 			return fmt.Errorf(
 				"stale session error: last update time from request (%s) is older than in database (%s)",
-				time.Unix(0, sessionUpdateTime).Format(time.RFC3339Nano),
-				time.Unix(0, storageUpdateTime).Format(time.RFC3339Nano),
+				time.Unix(0, sessionUpdateTime).UTC().Format(time.RFC3339Nano),
+				time.Unix(0, storageUpdateTime).UTC().Format(time.RFC3339Nano),
 			)
 		}
 
@@ -644,58 +652,57 @@ func (s *databaseService) applyEvent(ctx context.Context, sess *localSession, ev
 		// Check for partial accumulation
 		var merged bool
 		var lastEvent storageEvent
-		if event.Author == "user" {
-			if err := tx.Where("app_name = ? AND user_id = ? AND session_id = ?", sess.AppName(), sess.UserID(), sess.ID()).
-				Order("timestamp DESC").First(&lastEvent).Error; err == nil {
+		result := tx.Where("app_name = ? AND user_id = ? AND session_id = ?", sess.AppName(), sess.UserID(), sess.ID()).
+			Order("timestamp DESC").Limit(1).Find(&lastEvent)
+		if result.Error == nil && result.RowsAffected > 0 {
 
-				isPartial := lastEvent.Partial != nil && *lastEvent.Partial
-				if isPartial && lastEvent.Author == "user" {
-					merged = true
+			isPartial := lastEvent.Partial != nil && *lastEvent.Partial
+			if isPartial && lastEvent.Author == event.Author {
+				merged = true
 
-					// Merge Content
-					if event.Content != nil {
-						var lastContent genai.Content
-						if len(lastEvent.Content) > 0 {
-							if err := json.Unmarshal(lastEvent.Content, &lastContent); err != nil {
-								return fmt.Errorf("failed to unmarshal last event content: %w", err)
-							}
-						}
-						// Initialize Parts if nil? append handles nil slice.
-						lastContent.Parts = append(lastContent.Parts, event.Content.Parts...)
-
-						contentJSON, err := json.Marshal(lastContent)
-						if err != nil {
-							return fmt.Errorf("failed to marshal merged content: %w", err)
-						}
-						lastEvent.Content = contentJSON
-					}
-
-					// Merge StateDelta (Actions)
-					var lastActions session.EventActions
-					if len(lastEvent.Actions) > 0 {
-						if err := json.Unmarshal(lastEvent.Actions, &lastActions); err != nil {
-							return fmt.Errorf("failed to unmarshal last event actions: %w", err)
+				// Merge Content
+				if event.Content != nil {
+					var lastContent genai.Content
+					if len(lastEvent.Content) > 0 {
+						if err := json.Unmarshal(lastEvent.Content, &lastContent); err != nil {
+							return fmt.Errorf("failed to unmarshal last event content: %w", err)
 						}
 					}
-					if lastActions.StateDelta == nil {
-						lastActions.StateDelta = make(map[string]any)
-					}
-					for k, v := range event.Actions.StateDelta {
-						lastActions.StateDelta[k] = v
-					}
-					actionsJSON, err := json.Marshal(lastActions)
+					// Initialize Parts if nil? append handles nil slice.
+					lastContent.Parts = append(lastContent.Parts, event.Content.Parts...)
+
+					contentJSON, err := json.Marshal(lastContent)
 					if err != nil {
-						return fmt.Errorf("failed to marshal merged actions: %w", err)
+						return fmt.Errorf("failed to marshal merged content: %w", err)
 					}
-					lastEvent.Actions = actionsJSON
+					lastEvent.Content = contentJSON
+				}
 
-					lastEvent.Timestamp = event.Timestamp
-					p := event.Partial
-					lastEvent.Partial = &p
-
-					if err := tx.Save(&lastEvent).Error; err != nil {
-						return fmt.Errorf("failed to update last event: %w", err)
+				// Merge StateDelta (Actions)
+				var lastActions session.EventActions
+				if len(lastEvent.Actions) > 0 {
+					if err := json.Unmarshal(lastEvent.Actions, &lastActions); err != nil {
+						return fmt.Errorf("failed to unmarshal last event actions: %w", err)
 					}
+				}
+				if lastActions.StateDelta == nil {
+					lastActions.StateDelta = make(map[string]any)
+				}
+				for k, v := range event.Actions.StateDelta {
+					lastActions.StateDelta[k] = v
+				}
+				actionsJSON, err := json.Marshal(lastActions)
+				if err != nil {
+					return fmt.Errorf("failed to marshal merged actions: %w", err)
+				}
+				lastEvent.Actions = actionsJSON
+
+				lastEvent.Timestamp = event.Timestamp
+				p := event.Partial
+				lastEvent.Partial = &p
+
+				if err := tx.Save(&lastEvent).Error; err != nil {
+					return fmt.Errorf("failed to update last event: %w", err)
 				}
 			}
 		}
@@ -749,24 +756,24 @@ func (s *databaseService) applyEvent(ctx context.Context, sess *localSession, ev
 
 func fetchStorageAppState(tx *gorm.DB, appName string) (*storageAppState, error) {
 	var storageApp storageAppState
-	if err := tx.First(&storageApp, "app_name = ?", appName).Error; err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("failed to fetch app state: %w", err)
-		}
-		// If not found, initialize a new object to be created later.
-		storageApp = storageAppState{AppName: appName, State: make(map[string]any)}
+	result := tx.Limit(1).Find(&storageApp, "app_name = ?", appName)
+	if result.Error != nil {
+		return nil, fmt.Errorf("failed to fetch app state: %w", result.Error)
+	}
+	if result.RowsAffected == 0 {
+		return &storageAppState{AppName: appName, State: make(map[string]any)}, nil
 	}
 	return &storageApp, nil
 }
 
 func fetchStorageUserState(tx *gorm.DB, appName, userID string) (*storageUserState, error) {
 	var storageUser storageUserState
-	if err := tx.First(&storageUser, "app_name = ? AND user_id = ?", appName, userID).Error; err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("failed to fetch user state: %w", err)
-		}
-		// If not found, initialize a new object.
-		storageUser = storageUserState{AppName: appName, UserID: userID, State: make(map[string]any)}
+	result := tx.Limit(1).Find(&storageUser, "app_name = ? AND user_id = ?", appName, userID)
+	if result.Error != nil {
+		return nil, fmt.Errorf("failed to fetch user state: %w", result.Error)
+	}
+	if result.RowsAffected == 0 {
+		return &storageUserState{AppName: appName, UserID: userID, State: make(map[string]any)}, nil
 	}
 	return &storageUser, nil
 }
