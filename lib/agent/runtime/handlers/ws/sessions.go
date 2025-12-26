@@ -40,7 +40,7 @@ func sessionGet(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 		SessionID: p.Sid,
 	})
 	if err != nil {
-		log.Printf("session.get: %v", err)
+		// log.Printf("session.get: %v", err)
 		c.Mail("session.get.resp", map[string]string{
 			"sid":   p.Sid,
 			"error": err.Error(),
