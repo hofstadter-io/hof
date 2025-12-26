@@ -26,7 +26,6 @@ type Hof struct {
 	Datamodel Datamodel
 	Gen       Gen
 	Flow      Flow
-	Chat      Chat
 	Env       Env
 	Agent     Agent
 
@@ -121,15 +120,6 @@ type Print struct {
 	Before  bool
 	Message string
 	Path    string
-}
-
-/*
-hof/chat configuration
-*/
-type Chat struct {
-	Root  bool
-	Name  string
-	Extra string
 }
 
 // hof/env configuration

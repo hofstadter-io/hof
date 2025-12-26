@@ -85,11 +85,6 @@ func upgradeAttrs[T any](node *Node[T], label string) bool {
 			node.Hof.Flow.Print.Level = 1
 			node.Hof.Flow.Print.Path = ac
 
-		case "chat":
-			node.Hof.Chat.Root = true
-			node.Hof.Chat.Name = label
-			node.Hof.Chat.Extra = ac
-
 		case "env":
 			node.Hof.Env.Root = true
 			node.Hof.Env.Name = label

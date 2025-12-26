@@ -16,142 +16,23 @@ import (
 	"github.com/naoina/toml"
 	"gopkg.in/yaml.v3"
 
-	"github.com/hofstadter-io/hof/lib/chat"
 	"github.com/hofstadter-io/hof/lib/dotpath"
 )
 
 func (T *Template) AddGolangHelpers() {
-	// traditional helpers
+	// independent helpers
 	T.T = T.T.Funcs(funcMap)
 
-	// chat helpers
+	// *Template based helpers
 
 	// let's disable this since we have agentic now
-	// chatMap := template.FuncMap{
-	// 	"chat":   T.Helper_chat(),
-	// 	"gen":    T.Helper_gen(),
+	// tmplMap := template.FuncMap{
+	//  // "chat":   T.Helper_chat(),
+	//  // "gen":    T.Helper_gen(),
 	// 	"render": T.Helper_render(),
 	// }
 
-	// T.T = T.T.Funcs(chatMap)
-}
-
-func hchat(msg string, args map[string]any) (string, error) {
-	// fmt.Println("HCHAT", args)
-
-	isOpenai := true
-	model := "gpt-3.5-turbo"
-	if m, ok := args["model"]; ok {
-		model = m.(string)
-	}
-	if strings.HasPrefix(model, "chat-") || model == "bard" {
-		isOpenai = false
-	}
-	switch model {
-	case "bard":
-		model = "chat-bison"
-	case "gpt3", "gpt-3":
-		model = "gpt-3.5-turbo"
-	case "gpt4":
-		model = "gpt-4"
-	}
-
-	P, ok := args["params"]
-	if !ok || P == nil {
-		P = make(map[string]any)
-	}
-	params := P.(map[string]any)
-	// fmt.Println("PARAMS:", params)
-
-	msgs := make([]chat.Message, 0)
-	exas := make([]chat.Example, 0)
-
-	msgs = append(msgs, chat.Message{
-		Role:    "user",
-		Content: msg,
-	})
-
-	if isOpenai {
-		resp, err := chat.OpenaiChat(model, msgs, params)
-		if err != nil {
-			return resp, err
-		}
-		return resp, nil
-	} else {
-		resp, err := chat.GoogleChat(model, msgs, exas, params)
-		if err != nil {
-			return resp, err
-		}
-		if b, ok := args["debug"]; ok && b.(bool) {
-			fmt.Println("BARD:", resp)
-		}
-		return resp, nil
-	}
-}
-
-// returns the full response object
-func (T *Template) Helper_chat() func(string, ...map[string]any) any {
-
-	return func(msg string, args ...map[string]any) any {
-		if len(args) == 0 {
-			args = append(args, make(map[string]any))
-		}
-		arrrrgs := args[0]
-		curr := T.Buf.String()
-		input := curr + msg
-		body, err := hchat(input, arrrrgs)
-		if err != nil {
-			return body + "\n" + fmt.Sprint(err)
-		}
-
-		data := map[string]any{}
-		err = json.Unmarshal([]byte(body), &data)
-		if err != nil {
-			return fmt.Sprintf("%s\n%s\n", body, err)
-		}
-
-		return data
-	}
-}
-
-// returns just the message
-func (T *Template) Helper_gen() any {
-
-	return func(msg string, args ...map[string]any) string {
-		if len(args) == 0 {
-			args = append(args, make(map[string]any))
-		}
-		arrrrgs := args[0]
-		curr := T.Buf.String()
-		input := curr + msg
-		body, err := hchat(input, arrrrgs)
-		if err != nil {
-			return body + "\n" + fmt.Sprint(err)
-		}
-
-		isOpenai := true
-		model := "gpt-3.5-turbo"
-		if m, ok := arrrrgs["model"]; ok {
-			model = m.(string)
-		}
-		if strings.HasPrefix(model, "chat-") || model == "bard" {
-			isOpenai = false
-		}
-
-		if isOpenai {
-			resp, err := chat.OpenaiExtractContent(body)
-			if err != nil {
-				return resp + "\n" + fmt.Sprint(err)
-			}
-			return resp
-		} else {
-			resp, err := chat.GoogleExtractContent(body)
-			if err != nil {
-				return resp + "\n" + fmt.Sprint(err)
-			}
-			return resp
-		}
-	}
+	// T.T = T.T.Funcs(tmplMap)
 }
 
 var funcMap = template.FuncMap{
@@ -573,7 +454,7 @@ func Helper_lookup(path string, data any) any {
 	return obj
 }
 
-// todo, should we support turning the content back to an objecct?
+// todo, should we support turning the content back to an object?
 // perhaps better to have different functions for this
 func (T *Template) Helper_render() func(name string, data any) any {
 

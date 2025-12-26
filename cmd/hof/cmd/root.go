@@ -134,7 +134,6 @@ func RootInit() {
 	RootCmd.AddCommand(ExtensionCmd)
 	RootCmd.AddCommand(AgentCmd)
 	RootCmd.AddCommand(EnvCmd)
-	RootCmd.AddCommand(ChatCmd)
 	RootCmd.AddCommand(RunCmd)
 	RootCmd.AddCommand(TuiCmd)
 	RootCmd.AddCommand(FeedbackCmd)
@@ -185,12 +184,14 @@ Usage:
   hof [flags] [command] [args]
 
 Main commands:
-  chat                  co-create with AI (alpha)
+  agent                 run an agent
   create                starter kits or blueprints from any git repo
   datamodel             manage, diff, and migrate your data models
   def                   print consolidated CUE definitions
+  env                   build, run, ship, and deploy environments (image, service, stack)
   eval                  evaluate and print CUE configuration
   export                output data in a standard format
+  extension             run the extension server
   flow                  run workflows and tasks powered by CUE
   fmt                   format any code and manage the formatters
   gen                   CUE powered code generation
