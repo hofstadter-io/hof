@@ -75,23 +75,29 @@ workdir.clean:
 	find . -type d -name '.workdir' -exec rm -rf {} \;
 
 
-start.registry:
-	docker run -d --rm \
+registry.start:
+	-docker rm -f veg-registry
+	docker run -d \
 		-p 5000:5000 \
-		--name registry \
+		--name veg-registry \
 		--restart always \
-		-v $(pwd)/.veg/data/registry:/var/lib/registry \
+		-v ./.veg/data/registry:/var/lib/registry \
 		registry:3
 
+# this is empty :facepalm:
+# but has implications for the dagger volume below
+hack.pwd:
+	echo "$(pwd)"
 
-DF=-d --rm
+DF=-d
 # DF="-it"
 dagger.start:
 	-docker rm -f veg-dagger-engine
 	docker run $(DF) \
-		-v $(pwd)/.veg/data/registry:/var/lib/dagger \
+		-v $(pwd)/.veg/data/dummy:/var/lib/dagger \
 		-v ./lib/env/cfg/engine.json:/etc/dagger/engine.json \
 		--add-host=host.docker.internal:host-gateway \
 		--name veg-dagger-engine \
+		--restart always \
 		--privileged \
 		registry.dagger.io/engine:v0.19.8
