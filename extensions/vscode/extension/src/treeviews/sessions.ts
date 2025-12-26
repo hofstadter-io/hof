@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import { extensionEmitter, sendMessage } from '../comms';
 
 // todo, this is probably bad (being global)
-var sessions: any = [];
+var sessions: Map<string, any> = new Map();
 var sort: string = 'lastUpdate'
 
 export function activate(context: vscode.ExtensionContext) {
@@ -42,6 +42,48 @@ export function activate(context: vscode.ExtensionContext) {
 		sendMessage({ type: "session.diff", payload })
 	});
 
+	vscode.commands.registerCommand('veg.session.terminal', (node: Session) => {
+		extensionEmitter.fire({
+			type: "session.term.open",
+			payload: {
+				sid: node.session.sid,
+				image: node.session.state?.currEnv,
+			}
+		})
+	});
+
+	vscode.commands.registerCommand('veg.session.showDiff', (node: Session) => {
+		extensionEmitter.fire({
+			type: "session.diff",
+			payload: {
+				sid: node.session.sid,
+				show: true,
+				currEnv: node.session.state?.currEnv,
+			}
+		})
+	});
+
+	vscode.commands.registerCommand('veg.session.mergeDiff', (node: Session) => {
+		extensionEmitter.fire({
+			type: "session.merge",
+			payload: {
+				sid: node.session.sid,
+				currEnv: node.session.state?.currEnv,
+			}
+		})
+	});
+
+	vscode.commands.registerCommand('veg.session.clone', (node: Session) => {
+		extensionEmitter.fire({
+			type: "session.clone",
+			payload: {
+				sid: node.session.sid,
+				pos: node.session.events?.length || 0,
+				focus: true,
+			}
+		})
+	});
+
 	vscode.commands.registerCommand('veg.session.fork', (node: Session) => {
 		console.log("fork session", node)
 
@@ -68,7 +110,10 @@ export function activate(context: vscode.ExtensionContext) {
 		switch (e.type) {
 			case "session.list.resp":
 				// console.log("sessions", e.payload)
-				sessions = e.payload
+				sessions.clear()
+				for (const s of e.payload) {
+					sessions.set(s.sid, s)
+				}
 				sessionsProvider.refresh()
 				break;
 		}
@@ -107,7 +152,7 @@ export class SessionsProvider implements vscode.TreeDataProvider<Session> {
 			// root, so we work with the sessions we know about
 			// console.log("elementless child", sessions)
 			var nodes: Session[] = []
-			for (const s of sessions) {
+			for (const s of sessions.values()) {
 				const l = s.state?.title || s.sid
 				const n = new Session(s, l, vscode.TreeItemCollapsibleState.Collapsed)
 				nodes.push(n)

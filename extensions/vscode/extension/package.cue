@@ -77,12 +77,12 @@ contributes: {
 		{command: "veg.explorer.diffAll", category: "Veg", title: "Diff All (Veg)", icon: "$(group-by-ref-type)"},
 		{command: "veg.explorer.refreshAll", category: "Veg", title: "Refresh (Veg)", icon: "$(clear-all)"},
 
-		{command: "veg.session.openEnviron", category: "Veg", title: "Show Session Files (Veg)", icon: "$(list-tree)"},
-		{command: "veg.session.showSessionDiff", category: "Veg", title: "Show Session Diff (Veg)", icon: "$(diff-multiple)"},
-		{command: "veg.session.showFileDiff", category: "Veg", title: "Show File Diff (Veg)", icon: "$(diff-multiple)"},
-		{command: "veg.session.chat", category: "Veg", title: "veg.sessions.chat", icon: "$(comment-discussion)"},
-		{command: "veg.session.fork", category: "Veg", title: "veg.sessions.fork", icon: "$(git-branch)"},
-		{command: "veg.session.edit", category: "Veg", title: "veg.sessions.edit", icon: "$(pencil)"},
+		{command: "veg.session.chat", category: "Veg", title: "Session Chat (Veg)", icon: "$(comment-discussion)"},
+		{command: "veg.session.openEnviron", category: "Veg", title: "Opn Session Files (Veg)", icon: "$(list-tree)"},
+		{command: "veg.session.terminal", category: "Veg", title: "Terminal (Veg)", icon: "$(terminal)"},
+		{command: "veg.session.showDiff", category: "Veg", title: "Show Session Diff (Veg)", icon: "$(diff-multiple)"},
+		{command: "veg.session.mergeDiff", category: "Veg", title: "Merge Diff (Veg)", icon: "$(git-pull-request-create)"},
+		{command: "veg.session.clone", category: "Veg", title: "Clone Session", icon: "$(git-branch)"},
 		{command: "veg.session.delete", category: "Veg", title: "veg.sessions.delete", icon: "$(trash)"},
 
 		{command: "veg.sessions.refresh", category: "Veg", title: "Refresh Session List (Veg)", icon: "$(refresh)"},
@@ -114,7 +114,7 @@ contributes: {
 		"editor/title": [
 			{command: "veg.explorer.refreshAll", group: "navigation"},
 			{command: "veg.explorer.toggleShown", group: "navigation"},
-			{command: "veg.session.showSessionDiff", group: "navigation"},
+			{command: "veg.session.showDiff", group: "navigation"},
 		]
 		"view/title": [
 			{command: "veg.sessions.create", group: "navigation", when: "view == veg-chat"},

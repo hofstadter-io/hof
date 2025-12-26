@@ -185,40 +185,40 @@
                 "icon": "$(clear-all)"
             },
             {
+                "command": "veg.session.chat",
+                "category": "Veg",
+                "title": "Session Chat (Veg)",
+                "icon": "$(comment-discussion)"
+            },
+            {
                 "command": "veg.session.openEnviron",
                 "category": "Veg",
-                "title": "Show Session Files (Veg)",
+                "title": "Opn Session Files (Veg)",
                 "icon": "$(list-tree)"
             },
             {
-                "command": "veg.session.showSessionDiff",
+                "command": "veg.session.terminal",
+                "category": "Veg",
+                "title": "Terminal (Veg)",
+                "icon": "$(terminal)"
+            },
+            {
+                "command": "veg.session.showDiff",
                 "category": "Veg",
                 "title": "Show Session Diff (Veg)",
                 "icon": "$(diff-multiple)"
             },
             {
-                "command": "veg.session.showFileDiff",
+                "command": "veg.session.mergeDiff",
                 "category": "Veg",
-                "title": "Show File Diff (Veg)",
-                "icon": "$(diff-multiple)"
+                "title": "Merge Diff (Veg)",
+                "icon": "$(git-pull-request-create)"
             },
             {
-                "command": "veg.session.chat",
+                "command": "veg.session.clone",
                 "category": "Veg",
-                "title": "veg.sessions.chat",
-                "icon": "$(comment-discussion)"
-            },
-            {
-                "command": "veg.session.fork",
-                "category": "Veg",
-                "title": "veg.sessions.fork",
+                "title": "Clone Session",
                 "icon": "$(git-branch)"
-            },
-            {
-                "command": "veg.session.edit",
-                "category": "Veg",
-                "title": "veg.sessions.edit",
-                "icon": "$(pencil)"
             },
             {
                 "command": "veg.session.delete",
@@ -302,7 +302,7 @@
                     "group": "navigation"
                 },
                 {
-                    "command": "veg.session.showSessionDiff",
+                    "command": "veg.session.showDiff",
                     "group": "navigation"
                 }
             ],
@@ -347,22 +347,22 @@
                 {
                     "when": "view == veg-sessions && viewItem == session",
                     "group": "inline@2",
-                    "command": "veg.explorer.terminal"
+                    "command": "veg.session.terminal"
                 },
                 {
                     "when": "view == veg-sessions && viewItem == session",
                     "group": "inline@3",
-                    "command": "veg.explorer.showDiff"
+                    "command": "veg.session.showDiff"
                 },
                 {
                     "when": "view == veg-sessions && viewItem == session",
                     "group": "inline@4",
-                    "command": "veg.explorer.mergeDiff"
+                    "command": "veg.session.mergeDiff"
                 },
                 {
                     "when": "view == veg-sessions && viewItem == session",
                     "group": "inline@5",
-                    "command": "veg.session.fork"
+                    "command": "veg.session.clone"
                 },
                 {
                     "when": "view == veg-sessions && viewItem == session",
