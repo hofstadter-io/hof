@@ -1,6 +1,13 @@
 import { cn } from "@/lib/utils";
 
 import {
+  BrainCircuit,
+  CheckCircle,
+  MoveRight,
+  Siren,
+} from "lucide-react";
+
+import {
   Accordion,
   AccordionContent,
   AccordionItem,
@@ -10,9 +17,16 @@ import {
 import { Markdown, TailwindClasses } from '@/components/Markdown'
 import { EventDetails } from "@/components/Events/Details";
 import { LightDetails } from "@/components/Events/LightDetails";
-import { FuncCall } from "./ToolCall";
-import { MoveRight } from "lucide-react";
 
+
+const OPEN_BY_DEFAULT = ["fs_edit", "exec"];
+
+const shouldOpenDetails = (evt: any) => {
+  const parts = evt?.Content?.parts || [];
+  return parts.some((p: any) => 
+    p.functionCall && OPEN_BY_DEFAULT.includes(p.functionCall.name)
+  );
+};
 
 export const UnknownEvent = ({
   pos,
@@ -23,6 +37,7 @@ export const UnknownEvent = ({
   msg?: string,
   evt: any
 }) => {
+  const defaultOpen = shouldOpenDetails(evt) ? "details" : undefined;
   return (
     <div className={cn(
       "ml-40 my-2 py-[1px] pl-[2px] rounded",
@@ -36,17 +51,17 @@ export const UnknownEvent = ({
           <div className="font-bold">unknown event</div>
           <div className="font-thin">{msg}</div>
         </div>
-        <div className="mt-[-12px] mr-auto">
-          <Accordion type="single" collapsible>
+        <div className="mt-0 mr-auto">
+          <Accordion type="single" collapsible defaultValue={defaultOpen}>
             <AccordionItem value="details">
               <AccordionTrigger className="h-3">
-              <div className="flex gap-2 font-thin items-center ml-2">
-                {/* TODO, this needs to com from the session */}
-                {evt?.Actions?.StateDelta?.currEnv && (
-                  <span className="text-amber-500 font-mono text-xs">
-                    ({evt.Actions.StateDelta.currEnv.split(':').pop()})
-                  </span>
-                )}
+                <div className="flex gap-2 font-thin items-center ml-2">
+                  {/* TODO, this needs to com from the session */}
+                  {evt?.Actions?.StateDelta?.currEnv && (
+                    <span className="text-amber-500 font-mono text-xs">
+                      ({evt.Actions.StateDelta.currEnv.split(':').pop()})
+                    </span>
+                  )}
                 <span className="text-violet-500 font-mono text-xs">
                   [{pos}]
                 </span>
@@ -67,6 +82,7 @@ export const UnknownEvent = ({
 
 export const UserMessage = ({pos, evt}:{pos: number, evt: any}) => {
   const hasStateDelta = evt?.Actions?.StateDelta && Object.keys(evt?.Actions?.StateDelta).length > 0
+  const defaultOpen = shouldOpenDetails(evt) ? "details" : undefined;
   return (
     <div className={cn(
       "ml-40 my-2 py-[1px] pl-[2px] rounded",
@@ -93,8 +109,8 @@ export const UserMessage = ({pos, evt}:{pos: number, evt: any}) => {
             })
           }
         </div>
-        <div className="mt-[-12px] w-full">
-          <Accordion type="single" collapsible>
+        <div className="mt-0 w-full">
+          <Accordion type="single" collapsible defaultValue={defaultOpen}>
             <AccordionItem value="details">
               <AccordionTrigger className="h-3">
               <div className="flex gap-2 font-thin items-center ml-2">
@@ -121,6 +137,7 @@ export const UserMessage = ({pos, evt}:{pos: number, evt: any}) => {
 }
 
 export const ModelMessage = ({pos, evt}:{pos: number, evt: any}) => {
+  const defaultOpen = shouldOpenDetails(evt) ? "details" : undefined;
   return (
     <div className={cn(
       "py-[1px] pl-[2px] rounded",
@@ -133,8 +150,8 @@ export const ModelMessage = ({pos, evt}:{pos: number, evt: any}) => {
         <div className="flex flex-col gap-1">
           { evt.Content.parts.map((p: any) => <MessagePart pos={pos} part={p} evt={evt}/>)}
         </div>
-        <div className="mt-[-12px] w-full">
-          <Accordion type="single" collapsible>
+        <div className="mt-0 w-full">
+          <Accordion type="single" collapsible defaultValue={defaultOpen}>
             <AccordionItem value="details">
               <AccordionTrigger className="h-4">
               <div className="flex gap-2 font-thin items-center ml-2">
@@ -181,4 +198,69 @@ const TextPart = ({ part, evt }:{ part: any, evt: any }) => {
       <Markdown>{part.text}</Markdown>
     </div>
   )
+}
+
+export const FuncCall = ({ part, evt }:{ part: any, evt: any }) => {
+  const fn = part.functionCall?.name as string
+  const args = part.functionCall?.args
+  const fnArgs = f2NameArgs[fn]
+  const argVals = fnArgs?.map(a=> {
+    if(a in args) {
+      return args[a]
+    }
+  })
+  const resp = part.functionResponse?.response
+
+  const isPlanning = fn === "cache_put" && args["key"] === "planning"
+  const isExec = fn === "exec"
+
+  return (
+    <div  className="mr-auto ml-1 pl-1 border-l-3 border-yellow-500 flex flex-col gap-2">
+      <div  className="flex gap-2 items-baseline">
+        <span className="font-heavy text-yellow-500">{fn}</span>
+        <span className="font-thin">{(argVals || []).join(" ")}</span>
+        { !resp && <BrainCircuit size={10} strokeWidth={1} className="text-yellow-300 animate-ping" />}
+        { resp?.status === "ok" && <CheckCircle size={12} className="text-lime-500" />}
+        { resp?.status === "error" && <Siren size={12} className="text-red-500" />}
+      </div>
+      
+      { isPlanning && (
+        <pre className="m-2 p-2 border border-violet-500">
+          {args.value}
+        </pre>
+      )}
+      { isExec && (
+        <pre className="m-2 p-2 border border-green-500">
+          {args.script}
+        </pre>
+      )}
+    </div>
+  )
+}
+
+const f2NameArgs: Record<string,string[]> = {
+  "cache_write": ["key"],
+  "cache_put": ["key"],
+  "cache_edit": ["key"],
+  "cache_del": ["key"],
+  "cache_remove": ["key"],
+
+  "fs_read": ["path"],
+  "fs_list": ["path"],
+  "fs_grep": ["path", "regexp"],
+  "fs_write": ["path"],
+  "fs_edit": ["path"],
+  "fs_del": ["path"],
+
+  "exec": ["key"],
+
+  // legacy
+  "read_file": ["path"],
+  "read_dir":  ["path"],
+  "tree_dir": ["path"],
+  "write_file": ["path"],
+  "cache_glob": ["path", "regexp"],
+  "cache_grep": ["path", "regexp"],
+  "cache_file": ["path"],
+  "cache_dir": ["path"],
 }

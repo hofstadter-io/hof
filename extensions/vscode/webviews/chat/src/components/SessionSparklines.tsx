@@ -126,41 +126,8 @@ export const SessionSparklines: React.FC<SessionSparklinesProps> = ({ events, se
   }
 
   return (
-    <div className="flex ml-auto gap-4 h-8">
-      <div className="w-64">
-        <Sparkline
-          lines={lines}
-          verts={verts}
-          ticks={ticks}
-          meta={meta}
-          tooltipData={allMetrics}
-          formatter={UsageNumber}
-          series={[
-            {
-              title: "prompt",
-              values: prompt,
-              className: "stroke-amber-300 fill-amber-200/5 stroke-2"
-            },
-            {
-              title: "cached",
-              values: cached,
-              className: "stroke-lime-400 fill-lime-300/20"
-            },
-            {
-              title: "thinks",
-              values: thinks,
-              className: "stroke-cyan-400 fill-cyan-300/20"
-            },
-            {
-              title: "writes",
-              values: writes,
-              className: "stroke-sky-400 fill-sky-300/20"
-            }
-          ]}
-        />
-      </div>
-
-      <div className="w-64">
+    <div className="flex ml-auto gap-4 h-10">
+      <div className="w-96">
         <Sparkline
           lines={lines}
           verts={verts}
@@ -180,9 +147,24 @@ export const SessionSparklines: React.FC<SessionSparklinesProps> = ({ events, se
               className: "stroke-amber-300 fill-amber-200/5"
             },
             {
+              title: "cached",
+              values: cached,
+              className: "stroke-lime-400 fill-lime-300/10"
+            },
+            {
               title: "output",
               values: output,
-              className: "stroke-blue-400 fill-blue-300/20"
+              className: "stroke-blue-400"
+            },
+            {
+              title: "thinks",
+              values: thinks,
+              className: "stroke-cyan-400"
+            },
+            {
+              title: "writes",
+              values: writes,
+              className: "stroke-sky-400 fill-sky-300/20"
             }
           ]}
         />

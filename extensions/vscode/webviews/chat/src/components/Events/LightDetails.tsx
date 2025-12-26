@@ -1,4 +1,14 @@
+import { useMemo } from 'react';
 import { ToolTipper } from "veg-webview-common";
+import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter'
+import {vscDarkPlus} from 'react-syntax-highlighter/dist/esm/styles/prism'
+
+import { DiffView, DiffModeEnum } from "@git-diff-view/react";
+import { generateDiffFile } from "@git-diff-view/file";
+import "@git-diff-view/react/styles/diff-view.css";
+import { setEnableFastDiffTemplate } from '@git-diff-view/core';
+setEnableFastDiffTemplate(true);
+
 
 export const LightDetails = ({ evt }: { evt: any }) => {
   const parts = evt?.Content?.parts || [];
@@ -121,9 +131,11 @@ const ToolSpecificDetails = ({ part, evt }: { part: any, evt: any }) => {
       return <div>Cache: {args.key}</div>;
 
     case "fs_read":
-    case "fs_write":
     case "fs_del":
       return <div>Filesystem: {args.path}</div>;
+
+    case "fs_write":
+      return <FsWriteDetails path={args.path} content={args.content} />;
 
     case "fs_list":
       return (
@@ -162,25 +174,69 @@ const ToolSpecificDetails = ({ part, evt }: { part: any, evt: any }) => {
   }
 }
 
-const FsEditDetails = ({ path, edits }: { path: string, edits: any[] }) => {
-  const items = edits || [];
+const FsWriteDetails = ({ path, content }: { path: string, content: string }) => {
   return (
     <div className="flex flex-col gap-1">
-      {items.map((edit: any, i: number) => (
-        <div key={i} className="flex flex-col">
-          <div className="font-semibold text-yellow-600 mb-1">
-            ({edit.count}) {path}
-          </div>
-          <div className="grid grid-cols-2 gap-2 text-[10px] font-mono border border-muted-foreground/50 p-1 overflow-auto max-h-64">
-            <div className="text-red-400/80 border-r border-dashed border-muted-foreground/50 pr-2 overflow-auto whitespace-pre">{edit.old}</div>
-            <div className="text-green-400/80 pl-2 overflow-auto whitespace-pre">{edit.new}</div>
-          </div>
-        </div>
-      ))}
+      <div className="font-semibold text-yellow-600 mb-1">
+        {path}
+      </div>
+      <SyntaxHighlighter
+        language="typescript"
+        style={vscDarkPlus}
+        customStyle={{ margin: 0, padding: '0.5rem', fontSize: '10px' }}
+        wrapLongLines={true}
+      >
+        {content || ""}
+      </SyntaxHighlighter>
     </div>
   );
 }
 
+const FsEditDetails = ({ path, edits }: { path: string, edits: any[] }) => {
+  const renderedItems = useMemo(() => {
+    console.log("rendering items for", path)
+    const items = edits || [];
+    return items.map((edit: any, i: number) => {
+      if (!edit.old || !edit.new) return null;
+
+      try {
+        const ext = path.split(".").pop() || "";
+        const file = generateDiffFile(path, edit.old, path, edit.new, ext, ext);
+        file.initTheme('dark');
+        file.init();
+        file.buildSplitDiffLines();
+
+        return (
+          <div key={i} className="flex flex-col">
+            <div className="font-semibold text-yellow-600 mb-1">
+              ({edit?.count}) {path}
+            </div>
+            <div className="text-[10px] font-mono border border-muted-foreground/50 max-h-64 overflow-auto">
+              <DiffView 
+                diffFile={file}
+                diffViewMode={DiffModeEnum.Split}
+                diffViewTheme="dark"
+                diffViewHighlight
+                diffViewFontSize={10}
+              />
+            </div>
+          </div>
+        );
+      } catch (e: any) {
+        return (
+          <div key={i} className="flex flex-col">
+            <div className="font-semibold text-yellow-600 mb-1">({edit?.count}) {path}</div>
+            <div className="text-[10px] font-mono border border-muted-foreground/50 max-h-64 overflow-auto">
+              <span className="text-red">Error: {e.message}</span>
+            </div>
+          </div>
+        );
+      }
+    });
+  }, [path, edits]);
+
+  return <div className="flex flex-col gap-1">{renderedItems}</div>;
+};
 const ExecDetails = ({ args, response }: { args: any, response: any }) => {
   return (
     <div>

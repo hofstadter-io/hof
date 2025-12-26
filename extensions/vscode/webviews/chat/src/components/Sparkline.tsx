@@ -94,7 +94,7 @@ const Sparkline: React.FC<SparklineProps> = (props) => {
     dataLength = Math.max(dataLength, d.values.length);
   })
   // small buffer on points to reduce clipping
-  max += 1000
+  max *= 1.1
   // clamp values
   if (props.dims?.minMin) min = Math.max(min, props.dims.minMin);
   if (props.dims?.maxMax) max = Math.min(max, props.dims.maxMax);

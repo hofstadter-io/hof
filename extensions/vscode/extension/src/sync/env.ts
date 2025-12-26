@@ -41,6 +41,22 @@ async function broadcastEnv(context: vscode.ExtensionContext) {
 	}
 	const sid = context.workspaceState.get("sid")
 
+	let user: string | undefined = undefined;
+	const accounts = await vscode.authentication.getAccounts('github');
+  console.log("env.github.Accounts:", accounts)
+
+  var acct: any = undefined
+  if (accounts && accounts.length > 0) {
+    acct = accounts[0]
+    user = accounts[0].label
+  }
+
+	const session = await vscode.authentication.getSession('github', ['read:user'], { 
+    account: acct,
+    createIfNone: true,
+  });
+  console.log("env.github.Session:", session)
+
 	const msg = {
 		type: "env.info.resp",
 		payload: {
@@ -48,7 +64,9 @@ async function broadcastEnv(context: vscode.ExtensionContext) {
 			machineId: vscode.env.machineId,
 			vscodeSid: vscode.env.sessionId,
 			remoteName: vscode.env.remoteName,
-			user: "tony",
+			user,
+      githubSession: session || null,
+      githubAccounts: accounts || null,
 		  workspaceDir: wDir,
 			clipboard: await vscode.env.clipboard.readText(),
 		}
