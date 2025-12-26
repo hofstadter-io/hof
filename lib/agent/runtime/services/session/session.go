@@ -64,7 +64,7 @@ func (s *localSession) LastUpdateTime() time.Time {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	return s.updatedAt
+	return s.updatedAt.UTC()
 }
 
 func (s *localSession) appendEvent(event *session.Event) error {

@@ -54,7 +54,7 @@ func sessionGet(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 	S["sid"] = s.ID()
 	S["state"] = maps.Collect(s.State().All())
 	S["events"] = slices.Collect(s.Events().All())
-	S["lastUpdate"] = s.LastUpdateTime()
+	S["lastUpdate"] = s.LastUpdateTime().UTC()
 
 	// fmt.Println("mailing sessions", payload)
 	c.Mail("session.info", S)
@@ -82,7 +82,7 @@ func sessionList(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 		S["sid"] = s.ID()
 		S["state"] = maps.Collect(s.State().All())
 		S["events"] = slices.Collect(s.Events().All())
-		S["lastUpdate"] = s.LastUpdateTime()
+		S["lastUpdate"] = s.LastUpdateTime().UTC()
 		payload = append(payload, S)
 	}
 	c.Mail("session.list", payload)
@@ -304,7 +304,7 @@ func sessionPutState(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 		Author:       "user",
 		ID:           uuid.NewString(),
 		InvocationID: uuid.NewString(),
-		Timestamp:    time.Now(),
+		Timestamp:    time.Now().UTC(),
 		Actions: session.EventActions{
 			StateDelta: map[string]any{
 				s.Key: s.Val,
@@ -350,7 +350,7 @@ func sessionDelState(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 		Author:       "user",
 		ID:           uuid.NewString(),
 		InvocationID: uuid.NewString(),
-		Timestamp:    time.Now(),
+		Timestamp:    time.Now().UTC(),
 		Actions: session.EventActions{
 			StateDelta: map[string]any{
 				s.Key: nil,
@@ -484,7 +484,7 @@ func sessionClone(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 	S["sid"] = cloned.ID()
 	S["state"] = maps.Collect(cloned.State().All())
 	S["events"] = slices.Collect(cloned.Events().All())
-	S["lastUpdate"] = cloned.LastUpdateTime()
+	S["lastUpdate"] = cloned.LastUpdateTime().UTC()
 	S["focus"] = p.Focus
 
 	// fmt.Println("sessionClone.payload", S)
@@ -592,7 +592,7 @@ func sessionSplice(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 	S["sid"] = spliced.ID()
 	S["state"] = maps.Collect(spliced.State().All())
 	S["events"] = slices.Collect(spliced.Events().All())
-	S["lastUpdate"] = spliced.LastUpdateTime()
+	S["lastUpdate"] = spliced.LastUpdateTime().UTC()
 
 	c.Mail("session.info", S)
 	c.Mail("session.splice.resp", S)

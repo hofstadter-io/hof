@@ -120,12 +120,13 @@ func (s *databaseService) Create(ctx context.Context, req *session.CreateRequest
 	if stateMap == nil {
 		stateMap = make(map[string]any)
 	}
+	now := time.Now().UTC()
 	val := &localSession{
 		appName:   req.AppName,
 		userID:    req.UserID,
 		sessionID: sessionID,
 		state:     stateMap,
-		updatedAt: time.Now().UTC(),
+		updatedAt: now,
 	}
 	createdSession, err := createStorageSession(val)
 	if err != nil {
@@ -166,7 +167,7 @@ func (s *databaseService) Create(ctx context.Context, req *session.CreateRequest
 		}
 
 		val.state = mergeStates(storageApp.State, storageUser.State, sessionState)
-		val.updatedAt = createdSession.UpdateTime
+		val.updatedAt = createdSession.UpdateTime.UTC()
 		return nil
 	})
 	if err != nil {
@@ -464,7 +465,7 @@ func (s *databaseService) Clone(ctx context.Context, sess session.Session) (sess
 }
 
 // Splice makes in-place modifications to the session
-func (s *databaseService) Splice(ctx context.Context, sess session.Session, pos, count int, fill session.Events) (session.Session, error) {
+func (s *databaseService) Splice(ctx context.Context, sess session.Session, start, count int, fill session.Events) (session.Session, error) {
 	if sess == nil {
 		return nil, fmt.Errorf("session is nil")
 	}
@@ -480,21 +481,21 @@ func (s *databaseService) Splice(ctx context.Context, sess session.Session, pos,
 
 		// Calculate slice
 		n := len(events)
-		if pos < 0 {
-			pos = 0
+		if start < 0 {
+			start = 0
 		}
-		if pos > n {
-			pos = n
+		if start > n {
+			start = n
 		}
 		if count < 0 {
 			count = 0
 		}
-		if pos+count > n {
-			count = n - pos
+		if start+count > n {
+			count = n - start
 		}
 
 		// Identify events to delete
-		toDelete := events[pos : pos+count]
+		toDelete := events[start : start+count]
 		if len(toDelete) > 0 {
 			ids := make([]string, len(toDelete))
 			for i, e := range toDelete {

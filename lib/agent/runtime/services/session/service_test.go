@@ -175,7 +175,7 @@ func Test_databaseService_Get(t *testing.T) {
 		}
 
 		// Update 'updatedAt' to pass stale validation on append
-		session1.Session.(*localSession).updatedAt = time.Now()
+		session1.Session.(*localSession).updatedAt = time.Now().UTC()
 
 		err = s.AppendEvent(t.Context(), session1.Session.(*localSession), &session.Event{
 			ID:     "event_for_user1",
@@ -205,7 +205,7 @@ func Test_databaseService_Get(t *testing.T) {
 		}
 
 		for i := 1; i <= numTestEvents; i++ {
-			created.Session.(*localSession).updatedAt = time.Now()
+			created.Session.(*localSession).updatedAt = time.Now().UTC()
 			event := &session.Event{
 				ID:          strconv.Itoa(i),
 				Author:      "user",
@@ -757,7 +757,7 @@ func Test_databaseService_AppendEvent(t *testing.T) {
 
 			s := tt.setup(t)
 
-			tt.session.updatedAt = time.Now() // set updatedAt value to pass stale validation
+			tt.session.updatedAt = time.Now().UTC() // set updatedAt value to pass stale validation
 			err := s.AppendEvent(ctx, tt.session, tt.event)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("databaseService.AppendEvent() error = %v, wantErr %v", err, tt.wantErr)
@@ -807,7 +807,7 @@ func Test_databaseService_StateManagement(t *testing.T) {
 	t.Run("app_state_is_shared", func(t *testing.T) {
 		s := emptyService(t)
 		s1, _ := s.Create(ctx, &session.CreateRequest{AppName: appName, UserID: "u1", SessionID: "s1", State: map[string]any{"app:k1": "v1"}})
-		s1.Session.(*localSession).updatedAt = time.Now()
+		s1.Session.(*localSession).updatedAt = time.Now().UTC()
 		err := s.AppendEvent(ctx, s1.Session.(*localSession), &session.Event{
 			ID:          "event1",
 			Actions:     session.EventActions{StateDelta: map[string]any{"app:k2": "v2"}},
@@ -832,7 +832,7 @@ func Test_databaseService_StateManagement(t *testing.T) {
 	t.Run("user_state_is_user_specific", func(t *testing.T) {
 		s := emptyService(t)
 		s1, _ := s.Create(ctx, &session.CreateRequest{AppName: appName, UserID: "u1", SessionID: "s1", State: map[string]any{"user:k1": "v1"}})
-		s1.Session.(*localSession).updatedAt = time.Now()
+		s1.Session.(*localSession).updatedAt = time.Now().UTC()
 		err := s.AppendEvent(ctx, s1.Session.(*localSession), &session.Event{
 			ID:          "event1",
 			Actions:     session.EventActions{StateDelta: map[string]any{"user:k2": "v2"}},
@@ -859,7 +859,7 @@ func Test_databaseService_StateManagement(t *testing.T) {
 	t.Run("session_state_is_not_shared", func(t *testing.T) {
 		s := emptyService(t)
 		s1, _ := s.Create(ctx, &session.CreateRequest{AppName: appName, UserID: "u1", SessionID: "s1", State: map[string]any{"sk1": "v1"}})
-		s1.Session.(*localSession).updatedAt = time.Now()
+		s1.Session.(*localSession).updatedAt = time.Now().UTC()
 		err := s.AppendEvent(ctx, s1.Session.(*localSession), &session.Event{
 			ID:          "event1",
 			Actions:     session.EventActions{StateDelta: map[string]any{"sk2": "v2"}},
@@ -886,7 +886,7 @@ func Test_databaseService_StateManagement(t *testing.T) {
 	t.Run("temp_state_is_not_persisted", func(t *testing.T) {
 		s := emptyService(t)
 		s1, _ := s.Create(ctx, &session.CreateRequest{AppName: appName, UserID: "u1", SessionID: "s1"})
-		s1.Session.(*localSession).updatedAt = time.Now()
+		s1.Session.(*localSession).updatedAt = time.Now().UTC()
 		event := &session.Event{
 			ID:          "event1",
 			Actions:     session.EventActions{StateDelta: map[string]any{"temp:k1": "v1", "sk": "v2"}},

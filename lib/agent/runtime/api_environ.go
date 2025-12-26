@@ -311,7 +311,7 @@ func (r *Runtime) sessionClone(c echo.Context) error {
 	S["sid"] = cloned.ID()
 	S["state"] = maps.Collect(cloned.State().All())
 	S["events"] = slices.Collect(cloned.Events().All())
-	S["lastUpdate"] = cloned.LastUpdateTime()
+	S["lastUpdate"] = cloned.LastUpdateTime().UTC()
 	S["focus"] = p.Focus
 
 	return c.JSON(http.StatusOK, S)
@@ -353,7 +353,7 @@ func (r *Runtime) sessionSplice(c echo.Context) error {
 	S["sid"] = spliced.ID()
 	S["state"] = maps.Collect(spliced.State().All())
 	S["events"] = slices.Collect(spliced.Events().All())
-	S["lastUpdate"] = spliced.LastUpdateTime()
+	S["lastUpdate"] = spliced.LastUpdateTime().UTC()
 
 	return c.JSON(http.StatusOK, S)
 }
