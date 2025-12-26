@@ -82,7 +82,7 @@ func (r *Runtime) readPump(c *Client) {
 		}
 
 		// handleMessage is the main router for deserialized messages.
-		log.Printf("Received message type: %s", msg.Type)
+		// log.Printf("Received message type: %s", msg.Type)
 		c.handleMessage(c, &msg)
 	}
 }

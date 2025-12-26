@@ -17,7 +17,7 @@ Container: {
 	// need some kind of from for host / git / oci
 	from: string | Container
 
-	steps: [...Step]
+	steps: [...]
 	labels: [string]: string
 
 	labels: {

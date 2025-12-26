@@ -63,7 +63,6 @@ veg: {
 			]},
 
 			// setup languages
-			env.Env & {PATH: "$PATH:/usr/local/go/bin"}, // set gopath first so we can install stuff therein
 			_tools.go,
 			_tools.node,
 			_tools.python,

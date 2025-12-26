@@ -62,31 +62,37 @@ _tools: {
     """
 	}
 
-	go: env.Exec & {
-		#ver:  string | *"1.25.4"
-		#arch: *"arm64" | "amd64"
-		args: ["sh", "-c", _script]
+	go: [
+    // set Go ENV vars before installing, especially extra packages
+    env.Env & {PATH: "$PATH:/usr/local/go/bin"},
+    env.Env & {GOBIN: "/usr/local/bin"}, // go install to /usr/local/bin
+    env.Env & {GOPATH: "/go"}, // todo, dagger cache
+    env.Env & {GOCACHE: "/cache/go"}, // todo, dagger cache
+    env.Exec & {
+      #ver:  string | *"1.25.4"
+      #arch: *"arm64" | "amd64"
+      args: ["sh", "-c", _script]
 
-		_file:   "go\(#ver).linux-\(#arch).tar.gz"
-		_src:    "https://go.dev/dl/\(_file)"
-		_script: """
-    set -eou pipefail
+      _file:   "go\(#ver).linux-\(#arch).tar.gz"
+      _src:    "https://go.dev/dl/\(_file)"
+      _script: """
+      set -eou pipefail
 
-    cd /tmp
-    wget -q \(_src)
-    tar -C /usr/local -xzf \(_file)
-    rm -rf /tmp/*
+      cd /tmp
+      wget -q \(_src)
+      tar -C /usr/local -xzf \(_file)
+      rm -rf /tmp/*
 
-    # LSP
-    go install golang.org/x/tools/gopls@latest
+      # LSP
+      go install golang.org/x/tools/gopls@latest
 
-    # lint tools
-    go install honnef.co/go/tools/cmd/staticcheck@latest
-    go install github.com/mgechev/revive@latest
-    curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.7.2
-    """
-
-	}
+      # lint tools
+      go install honnef.co/go/tools/cmd/staticcheck@latest
+      go install github.com/mgechev/revive@latest
+      curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b /usr/local/bin v2.7.2
+      """
+    },
+  ]
 
   node: env.Exec & {
     #ver: string | *"24.12.0"

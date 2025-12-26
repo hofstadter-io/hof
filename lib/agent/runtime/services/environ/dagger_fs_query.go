@@ -114,6 +114,7 @@ func (le *localEnviron) Stat(envUri, path string, diff bool) (*FileStat, error) 
 	return stat, nil
 }
 
+// TODO, add offset/limit here
 func (le *localEnviron) ReadFile(envUri, path string, diff bool) (string, error) {
 	// fmt.Println("le.Stat", envUri, path)
 	d, err := le.getDagDir(envUri, diff)
@@ -130,7 +131,10 @@ func (le *localEnviron) ReadFile(envUri, path string, diff bool) (string, error)
 		path = ruri.Query().Get("path")
 	}
 
-	content, err := d.File(path).Contents(le.ctx, dagger.FileContentsOpts{})
+	content, err := d.File(path).Contents(le.ctx, dagger.FileContentsOpts{
+		OffsetLines: 0,
+		LimitLines:  2000,
+	})
 	if err != nil {
 		return "", fmt.Errorf("while getting contents(%s): %w", path, err)
 	}
@@ -186,9 +190,8 @@ func (le *localEnviron) GrepDirectory(envUri, pattern string, diff bool) ([]dagg
 	}
 
 	results, err := d.Search(le.ctx, pattern, dagger.DirectorySearchOpts{
-		Limit:       100,
+		Limit:       42,
 		SkipIgnored: true,
-		// Paths:       []string{workdir},
 	})
 	if err != nil {
 		return nil, fmt.Errorf("while searching environment(%s): %w", envUri, err)
@@ -206,6 +209,9 @@ func (le *localEnviron) GlobDirectory(envUri, pattern string, diff bool) ([]stri
 	results, err := d.Glob(le.ctx, pattern)
 	if err != nil {
 		return nil, fmt.Errorf("while globbing environment(%s): %w", envUri, err)
+	}
+	if len(results) > 42 {
+		results = append(results[:42], "... results truncated")
 	}
 
 	return results, nil

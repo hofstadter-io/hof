@@ -12,8 +12,8 @@ import (
 type Step map[string]any
 
 type Container struct {
-	From   any    `json:"from"`
-	Steps  []Step `json:"steps"`
+	From   any   `json:"from"`
+	Steps  []any `json:"steps"`
 	Labels map[string]string
 }
 
@@ -68,15 +68,30 @@ func Build(client *dagger.Client, ctx context.Context, c Container, noCache bool
 	return r, nil
 }
 
-func addSteps(client *dagger.Client, ctx context.Context, c *dagger.Container, steps []Step) (*dagger.Container, error) {
+func addSteps(client *dagger.Client, ctx context.Context, c *dagger.Container, steps []any) (*dagger.Container, error) {
 	for i, s := range steps {
 		var err error
 		// todo, if step is an []any, assume nested steps, this should make the CUE simpler
+		switch t := s.(type) {
+		case []any:
+			c, err = addSteps(client, ctx, c, t)
 
-		c, err = addStep(client, ctx, c, s)
-		if err != nil {
-			return c, fmt.Errorf("while adding step %d: %w", i, err)
+		case Step:
+			c, err = addStep(client, ctx, c, t)
+			if err != nil {
+				return c, fmt.Errorf("while adding step %d: %w", i, err)
+			}
+
+		case map[string]any:
+			c, err = addStep(client, ctx, c, t)
+			if err != nil {
+				return c, fmt.Errorf("while adding step %d: %w", i, err)
+			}
+
+		default:
+			return c, fmt.Errorf("unknown step type %d(%v): %w", i, t, err)
 		}
+
 	}
 
 	return c, nil
@@ -200,7 +215,7 @@ func mapToContainer(m map[string]any) (Container, error) {
 	c.From = m["from"]
 
 	steps := m["steps"].([]any)
-	c.Steps = make([]Step, 0, len(steps))
+	c.Steps = make([]any, 0, len(steps))
 	for _, s := range steps {
 		c.Steps = append(c.Steps, Step(s.(map[string]any)))
 	}

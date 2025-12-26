@@ -83,10 +83,17 @@ start.registry:
 		-v $(pwd)/.veg/data/registry:/var/lib/registry \
 		registry:3
 
-start.dagger:
-	docker run -d --rm \
-		-v /var/lib/dagger \
-		-v $$HOME/.config/dagger/engine.json:/etc/dagger/engine.json \
+
+dagger.config:
+	cue export ./lib/env/dag/engine.toml -fo ~/.config/dagger/engine.json
+
+DF=-d --rm
+# DF="-it"
+dagger.start:
+	-docker rm -f veg-dagger-engine
+	docker run $(DF) \
+		-v $(pwd)/.veg/data/registry:/var/lib/dagger \
+		-v ./lib/env/dag/engine.json:/etc/dagger/engine.json \
 		--add-host=host.docker.internal:host-gateway \
 		--name veg-dagger-engine \
 		--privileged \
