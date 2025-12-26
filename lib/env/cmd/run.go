@@ -49,20 +49,14 @@ func Run(name string, rflags flags.RootPflagpole, cflags flags.EnvPflagpole) err
 		return fmt.Errorf("failed to find env %q", name)
 	}
 
-	var c dag.Container
-	err = e.Value.Decode(&c)
-	if err != nil {
-		return err
-	}
-	// fmt.Println(pretty.Formatter(c))
-
 	ctx := context.Background()
 	client, err := dagger.Connect(ctx)
 	if err != nil {
 		return fmt.Errorf("while connecting to dagger in build: %w", err)
 	}
+	d, _ := dag.NewClient(ctx, client)
 
-	i, err := dag.Build(client, ctx, c, cflags.NoCache)
+	i, err := d.Build(e, nil, cflags.NoCache)
 	if err != nil {
 		return err
 	}

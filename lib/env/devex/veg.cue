@@ -97,7 +97,7 @@ veg: {
 		from: dev
 
 		steps: [
-			_tools.githubBin & {#repo: "dagger/dagger", #ver: "0.19.7"},
+			_tools.githubBin & {#repo: "dagger/dagger", #ver: "0.19.8"},
 			// todo, nested steps
 			_tools.dockerRepo,
 			_steps.apt & {#pkgs: ["docker-ce-cli", "docker-buildx-plugin", "docker-compose-plugin"]},

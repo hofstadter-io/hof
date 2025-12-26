@@ -8,6 +8,7 @@ import (
 
 	"dagger.io/dagger"
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+	"github.com/hofstadter-io/hof/lib/env/dag"
 	"github.com/hofstadter-io/hof/lib/env/incept"
 )
 
@@ -47,6 +48,7 @@ func Publish(args []string, rflags flags.RootPflagpole, cflags flags.EnvPflagpol
 	if err != nil {
 		return fmt.Errorf("while connecting to dagger: %w", err)
 	}
+	d, _ := dag.NewClient(ctx, client)
 
 	fmt.Println("publishing:")
 	for _, e := range R.Envs {
@@ -68,9 +70,10 @@ func Publish(args []string, rflags flags.RootPflagpole, cflags flags.EnvPflagpol
 		}
 		if do {
 			fmt.Print(" -", e.Hof.Env.Name)
-			i, err := build(R, client, ctx, e, cflags.NoCache)
+
+			i, err := d.Build(e, nil, cflags.NoCache)
 			if err != nil {
-				return fmt.Errorf("while build'n image: %w", err)
+				return err
 			}
 
 			for _, tag := range scflags.Tag {

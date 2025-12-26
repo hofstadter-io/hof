@@ -178,6 +178,8 @@ _tools: {
     #ver: string | *"1.31.0"
 		#arch: *"arm64" | "amd64"
 
+		args: ["sh", "-c", _script]
+
     _src: "https://storage.googleapis.com/kubernetes-release/release/v\(#ver)/bin/linux/\(#arch)/kubectl"
 
 		_script: """
@@ -195,6 +197,8 @@ _tools: {
   helm: env.Exec & {
     #ver: string | *"4.0.4"
 		#arch: *"arm64" | "amd64"
+
+		args: ["sh", "-c", _script]
 
     _src: "https://get.helm.sh/\(_file)"
     _file: "helm-v\(#ver)-linux-\(#arch).tar.gz"

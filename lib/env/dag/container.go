@@ -1,15 +1,13 @@
 package dag
 
 import (
-	"context"
 	"fmt"
 	"path/filepath"
 	"time"
 
 	"dagger.io/dagger"
+	"github.com/hofstadter-io/hof/lib/env"
 )
-
-type Step map[string]any
 
 type Container struct {
 	From   any   `json:"from"`
@@ -17,9 +15,19 @@ type Container struct {
 	Labels map[string]string
 }
 
-func Build(client *dagger.Client, ctx context.Context, c Container, noCache bool) (*dagger.Container, error) {
+func (d *Dag) Build(e *env.Env, c *Container, noCache bool) (*dagger.Container, error) {
 
-	r := client.Container()
+	r := d.dag.Container()
+
+	// todo, remove this at this level
+	if c == nil {
+		var _c Container
+		err := e.Value.Decode(&_c)
+		if err != nil {
+			return nil, err
+		}
+		c = &_c
+	}
 
 	// handle FROM first, without cache busting
 	// if you want that, cache bust the from image manually
@@ -28,19 +36,12 @@ func Build(client *dagger.Client, ctx context.Context, c Container, noCache bool
 	case string:
 		r = r.From(t)
 
-	case Container:
-		b, err := Build(client, ctx, t, false)
-		if err != nil {
-			return b, fmt.Errorf("while building the from image: %v %v", c, t)
-		}
-		r = b
-
 	case map[string]any:
 		m, err := mapToContainer(t)
 		if err != nil {
 			return nil, fmt.Errorf("while parsing the from image: %v %v", c, t)
 		}
-		b, err := Build(client, ctx, m, false)
+		b, err := d.Build(e, m, false)
 		if err != nil {
 			return b, fmt.Errorf("while building the from image: %v %v", c, t)
 		}
@@ -55,7 +56,7 @@ func Build(client *dagger.Client, ctx context.Context, c Container, noCache bool
 	}
 
 	// apply our steps
-	r, err := addSteps(client, ctx, r, c.Steps)
+	r, err := d.addSteps(r, c.Steps)
 	if err != nil {
 		return r, fmt.Errorf("while adding steps: %w", err)
 	}
@@ -68,22 +69,22 @@ func Build(client *dagger.Client, ctx context.Context, c Container, noCache bool
 	return r, nil
 }
 
-func addSteps(client *dagger.Client, ctx context.Context, c *dagger.Container, steps []any) (*dagger.Container, error) {
+func (d *Dag) addSteps(c *dagger.Container, steps []any) (*dagger.Container, error) {
 	for i, s := range steps {
 		var err error
 		// todo, if step is an []any, assume nested steps, this should make the CUE simpler
 		switch t := s.(type) {
 		case []any:
-			c, err = addSteps(client, ctx, c, t)
+			c, err = d.addSteps(c, t)
 
 		case Step:
-			c, err = addStep(client, ctx, c, t)
+			c, err = d.addStep(c, t)
 			if err != nil {
 				return c, fmt.Errorf("while adding step %d: %w", i, err)
 			}
 
 		case map[string]any:
-			c, err = addStep(client, ctx, c, t)
+			c, err = d.addStep(c, t)
 			if err != nil {
 				return c, fmt.Errorf("while adding step %d: %w", i, err)
 			}
@@ -97,7 +98,7 @@ func addSteps(client *dagger.Client, ctx context.Context, c *dagger.Container, s
 	return c, nil
 }
 
-func addStep(client *dagger.Client, ctx context.Context, c *dagger.Container, s Step) (*dagger.Container, error) {
+func (d *Dag) addStep(c *dagger.Container, s Step) (*dagger.Container, error) {
 
 	// fmt.Printf("    %#+v\n", pretty.Formatter(s))
 
@@ -109,7 +110,7 @@ func addStep(client *dagger.Client, ctx context.Context, c *dagger.Container, s 
 	switch kind {
 	case "sync":
 		var err error
-		c, err = c.Sync(ctx)
+		c, err = c.Sync(d.ctx)
 		if err != nil {
 			return c, err
 		}
@@ -124,7 +125,7 @@ func addStep(client *dagger.Client, ctx context.Context, c *dagger.Container, s 
 			as = append(as, a.(string))
 		}
 		c = c.WithExec(as, dagger.ContainerWithExecOpts{
-			Expand: true,
+			// Expand: true,
 		})
 
 	case "user":
@@ -159,14 +160,16 @@ func addStep(client *dagger.Client, ctx context.Context, c *dagger.Container, s 
 
 		_, name := filepath.Split(p)
 
-		f := client.File(name, content.(string))
+		f := d.dag.File(name, content.(string))
 
 		c = c.WithFile(p, f)
 
 	case "env":
 		for k, v := range s {
 			if k != "$kind" {
-				c = c.WithEnvVariable(k, v.(string), dagger.ContainerWithEnvVariableOpts{Expand: true})
+				c = c.WithEnvVariable(k, v.(string), dagger.ContainerWithEnvVariableOpts{
+					Expand: true,
+				})
 			}
 		}
 
@@ -210,15 +213,12 @@ func addStep(client *dagger.Client, ctx context.Context, c *dagger.Container, s 
 	return c, nil
 }
 
-func mapToContainer(m map[string]any) (Container, error) {
-	var c Container
+func mapToContainer(m map[string]any) (*Container, error) {
+	c := new(Container)
 	c.From = m["from"]
 
 	steps := m["steps"].([]any)
-	c.Steps = make([]any, 0, len(steps))
-	for _, s := range steps {
-		c.Steps = append(c.Steps, Step(s.(map[string]any)))
-	}
+	c.Steps = steps
 
 	labels := m["labels"].(map[string]any)
 	c.Labels = make(map[string]string)

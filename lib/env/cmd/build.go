@@ -7,13 +7,10 @@ import (
 	"strings"
 
 	"dagger.io/dagger"
-	"github.com/codemodus/kace"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
-	"github.com/hofstadter-io/hof/lib/env"
 	"github.com/hofstadter-io/hof/lib/env/dag"
 	"github.com/hofstadter-io/hof/lib/env/incept"
-	"github.com/hofstadter-io/hof/lib/runtime"
 )
 
 func Build(args []string, rflags flags.RootPflagpole, cflags flags.EnvPflagpole) error {
@@ -51,6 +48,7 @@ func Build(args []string, rflags flags.RootPflagpole, cflags flags.EnvPflagpole)
 	if err != nil {
 		return fmt.Errorf("while connecting to dagger: %w", err)
 	}
+	d, _ := dag.NewClient(ctx, client)
 
 	fmt.Println("building:")
 	for _, e := range R.Envs {
@@ -72,7 +70,17 @@ func Build(args []string, rflags flags.RootPflagpole, cflags flags.EnvPflagpole)
 		}
 		if do {
 			fmt.Println(" -", e.Hof.Env.Name)
-			_, err = build(R, client, ctx, e, cflags.NoCache)
+
+			i, err := d.Build(e, nil, cflags.NoCache)
+			if err != nil {
+				return err
+			}
+
+			i, err = i.Sync(ctx)
+			if err != nil {
+				return err
+			}
+
 		}
 		if err != nil {
 			return err
@@ -80,29 +88,4 @@ func Build(args []string, rflags flags.RootPflagpole, cflags flags.EnvPflagpole)
 	}
 
 	return nil
-}
-
-func build(R *runtime.Runtime, client *dagger.Client, ctx context.Context, e *env.Env, bust bool) (*dagger.Container, error) {
-	id := e.Hof.Metadata.ID
-	if id == "" {
-		id = kace.Snake(e.Hof.Metadata.Name) + " (auto)"
-	}
-
-	var c dag.Container
-	err := e.Value.Decode(&c)
-	if err != nil {
-		return nil, err
-	}
-
-	i, err := dag.Build(client, ctx, c, bust)
-	if err != nil {
-		return i, err
-	}
-
-	i, err = i.Sync(ctx)
-	if err != nil {
-		return i, err
-	}
-
-	return i, nil
 }
