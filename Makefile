@@ -81,7 +81,7 @@ registry.start:
 		-p 5000:5000 \
 		--name veg-registry \
 		--restart always \
-		-v ./.veg/data/registry:/var/lib/registry \
+		-v /.veg/data/registry:/var/lib/registry \
 		registry:3
 
 # this is empty :facepalm:
@@ -94,7 +94,7 @@ DF=-d
 dagger.start:
 	-docker rm -f veg-dagger-engine
 	docker run $(DF) \
-		-v $(pwd)/.veg/data/dummy:/var/lib/dagger \
+		-v /.veg/data/dagger:/var/lib/dagger \
 		-v ./lib/env/cfg/engine.json:/etc/dagger/engine.json \
 		--add-host=host.docker.internal:host-gateway \
 		--name veg-dagger-engine \

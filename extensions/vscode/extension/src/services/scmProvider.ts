@@ -4,6 +4,72 @@ import path from 'node:path';
 import { makeReq, parseEnvUri, findSession } from './utils';
 import { extensionEmitter } from '../comms';
 
+export async function activate(context: vscode.ExtensionContext) {
+
+	vscode.commands.registerCommand('veg.explorer.showDiff', async (uri: vscode.Uri) => {
+		console.log("veg.explorer.showDiff.args.CMD.uri", uri)
+		scmProvider.showDiff(uri)
+	})
+
+	vscode.commands.registerCommand('veg.explorer.mergeDiff', async (arg: any) => {
+		console.log("veg.explorer.mergeDiff.args", arg)
+		try {
+			await scmProvider.mergeDiff(arg, undefined, false)
+		} catch (e) {
+			console.error("veg.explorer.mergeDiff execution error:", e)
+		}
+	})
+
+	vscode.commands.registerCommand('veg.explorer.hideDiff', async (arg: any) => {
+		console.log("veg.explorer.hideDiff.args", arg)
+		scmProvider.hideDiff(arg)
+	})
+
+	vscode.commands.registerCommand('veg.explorer.diffAll', async (args: any) => {
+		console.log("veg.explorer.diffAll.args", args)
+		vscode.window.showInformationMessage("Diff All (not implemented yet)")
+	})
+
+	extensionEmitter.event(async (e) => {
+		// ...
+		switch (e.type) {
+
+			case "session.list.resp":
+				scmProvider.setSessions(e.payload)
+				break
+
+			case "session.diff":
+				console.log("filesys.session.diff", e.payload)
+				let currEnv = e.payload.currEnv;
+				if (!currEnv && e.payload.sid && e.payload.pos !== undefined) {
+					const session = findSession(scmProvider['_sessions'], e.payload.sid) || scmProvider['_sessions'].find((s: any) => s.sid === e.payload.sid);
+					currEnv = scmProvider.findCurrEnv(session, e.payload.pos);
+				}
+
+				if (currEnv) {
+					const uriDiff = vscode.Uri.parse("oci://" + currEnv)
+					scmProvider.showDiff(uriDiff)
+				}
+				break
+
+			case "session.merge":
+				console.log("filesys.session.merge", e.payload)
+				let mergeEnv = e.payload.currEnv;
+				if (!mergeEnv && e.payload.sid && e.payload.pos !== undefined) {
+					const session = findSession(scmProvider['_sessions'], e.payload.sid) || scmProvider['_sessions'].find((s: any) => s.sid === e.payload.sid);
+					mergeEnv = scmProvider.findCurrEnv(session, e.payload.pos);
+				}
+
+				if (mergeEnv) {
+					const uriMerge = vscode.Uri.parse("oci://" + mergeEnv)
+					const dest = e.payload.dest ? vscode.Uri.parse(e.payload.dest) : undefined
+					scmProvider.mergeDiff(uriMerge, dest, e.payload.forceInput)
+				}
+				break
+		}
+	})
+
+}
 export class VegScmProvider {
 	private _sessions: any[] = []
 	private _latestEnvs: Map<string, string> = new Map()
@@ -497,70 +563,3 @@ export class VegScmProvider {
 }
 
 export const scmProvider = new VegScmProvider()
-
-export async function activate(context: vscode.ExtensionContext) {
-
-	vscode.commands.registerCommand('veg.explorer.showDiff', async (uri: vscode.Uri) => {
-		console.log("veg.explorer.showDiff.args.CMD.uri", uri)
-		scmProvider.showDiff(uri)
-	})
-
-	vscode.commands.registerCommand('veg.explorer.mergeDiff', async (arg: any) => {
-		console.log("veg.explorer.mergeDiff.args", arg)
-		try {
-			await scmProvider.mergeDiff(arg, undefined, false)
-		} catch (e) {
-			console.error("veg.explorer.mergeDiff execution error:", e)
-		}
-	})
-
-	vscode.commands.registerCommand('veg.explorer.hideDiff', async (arg: any) => {
-		console.log("veg.explorer.hideDiff.args", arg)
-		scmProvider.hideDiff(arg)
-	})
-
-	vscode.commands.registerCommand('veg.explorer.diffAll', async (args: any) => {
-		console.log("veg.explorer.diffAll.args", args)
-		vscode.window.showInformationMessage("Diff All (not implemented yet)")
-	})
-
-	extensionEmitter.event(async (e) => {
-		// ...
-		switch (e.type) {
-
-			case "session.list.resp":
-				scmProvider.setSessions(e.payload)
-				break
-
-			case "session.diff":
-				console.log("filesys.session.diff", e.payload)
-				let currEnv = e.payload.currEnv;
-				if (!currEnv && e.payload.sid && e.payload.pos !== undefined) {
-					const session = findSession(scmProvider['_sessions'], e.payload.sid) || scmProvider['_sessions'].find((s: any) => s.sid === e.payload.sid);
-					currEnv = scmProvider.findCurrEnv(session, e.payload.pos);
-				}
-
-				if (currEnv) {
-					const uriDiff = vscode.Uri.parse("oci://" + currEnv)
-					scmProvider.showDiff(uriDiff)
-				}
-				break
-
-			case "session.merge":
-				console.log("filesys.session.merge", e.payload)
-				let mergeEnv = e.payload.currEnv;
-				if (!mergeEnv && e.payload.sid && e.payload.pos !== undefined) {
-					const session = findSession(scmProvider['_sessions'], e.payload.sid) || scmProvider['_sessions'].find((s: any) => s.sid === e.payload.sid);
-					mergeEnv = scmProvider.findCurrEnv(session, e.payload.pos);
-				}
-
-				if (mergeEnv) {
-					const uriMerge = vscode.Uri.parse("oci://" + mergeEnv)
-					const dest = e.payload.dest ? vscode.Uri.parse(e.payload.dest) : undefined
-					scmProvider.mergeDiff(uriMerge, dest, e.payload.forceInput)
-				}
-				break
-		}
-	})
-
-}

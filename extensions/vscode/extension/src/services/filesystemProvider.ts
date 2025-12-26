@@ -23,9 +23,22 @@ export async function activate(context: vscode.ExtensionContext) {
 		console.log("veg.filesys.hack", arg1)
 	})
 
-	vscode.commands.registerCommand('veg.explorer.chat', async (uri: vscode.Uri) => {
+	vscode.commands.registerCommand('veg.explorer.chat', async (uri: vscode.Uri | vscode.SourceControl) => {
 		console.log("veg.explorer.chat.args", uri)
 
+    // parse inputs
+    if (uri instanceof vscode.Uri) {
+      uri = uri
+    } else if (uri?.rootUri instanceof vscode.Uri) {
+      uri = uri.rootUri
+    } else {
+      console.log("veg.explorer.chat.unknown-type:", typeof uri)
+      console.log("veg.explorer.chat.args", uri)
+      return
+    }
+		console.log("veg.explorer.chat.args", uri)
+
+    // construct message
 		const msg: any = {
 			type: "session.create",
 			payload: {
@@ -55,6 +68,7 @@ export async function activate(context: vscode.ExtensionContext) {
 				return
 		}
 
+    // send message
 		console.log("veg.explorer.chat.msg", msg)
 		sendMessage(msg)
 

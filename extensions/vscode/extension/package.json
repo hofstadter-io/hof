@@ -245,11 +245,51 @@
                 "icon": "$(refresh)"
             }
         ],
+        "submenus": [
+            {
+                "id": "veg.explorerSubmenu",
+                "label": "More (Veg)"
+            }
+        ],
         "menus": {
             "explorer/context": [
                 {
                     "command": "veg.explorer.chat",
+                    "group": "_veg@0"
+                },
+                {
+                    "submenu": "veg.explorerSubmenu",
                     "group": "_veg@1"
+                }
+            ],
+            "veg.explorerSubmenu": [
+                {
+                    "command": "veg.explorer.openEnviron",
+                    "group": "_veg@2"
+                },
+                {
+                    "command": "veg.explorer.forkEnviron",
+                    "group": "_veg@3"
+                },
+                {
+                    "command": "veg.explorer.toggleShown",
+                    "group": "_veg@4"
+                },
+                {
+                    "command": "veg.explorer.showDiff",
+                    "group": "_veg@5"
+                },
+                {
+                    "command": "veg.explorer.mergeDiff",
+                    "group": "_veg@6"
+                },
+                {
+                    "command": "veg.explorer.copyPath",
+                    "group": "_veg@7"
+                },
+                {
+                    "command": "veg.explorer.refreshAll",
+                    "group": "_veg@8"
                 }
             ],
             "editor/title": [
@@ -295,24 +335,66 @@
             ],
             "view/item/context": [
                 {
-                    "command": "veg.session.chat",
+                    "when": "view == veg-sessions && viewItem == session",
+                    "group": "inline@0",
+                    "command": "veg.session.chat"
+                },
+                {
+                    "when": "view == veg-sessions && viewItem == session",
                     "group": "inline@1",
-                    "when": "view == veg-sessions && viewItem == session"
+                    "command": "veg.session.openEnviron"
                 },
                 {
-                    "command": "veg.session.openEnviron",
+                    "when": "view == veg-sessions && viewItem == session",
                     "group": "inline@2",
-                    "when": "view == veg-sessions && viewItem == session"
+                    "command": "veg.explorer.terminal"
                 },
                 {
-                    "command": "veg.session.fork",
+                    "when": "view == veg-sessions && viewItem == session",
                     "group": "inline@3",
-                    "when": "view == veg-sessions && viewItem == session"
+                    "command": "veg.explorer.showDiff"
                 },
                 {
-                    "command": "veg.session.delete",
+                    "when": "view == veg-sessions && viewItem == session",
                     "group": "inline@4",
-                    "when": "view == veg-sessions && viewItem == session"
+                    "command": "veg.explorer.mergeDiff"
+                },
+                {
+                    "when": "view == veg-sessions && viewItem == session",
+                    "group": "inline@5",
+                    "command": "veg.session.fork"
+                },
+                {
+                    "when": "view == veg-sessions && viewItem == session",
+                    "group": "inline@6",
+                    "command": "veg.session.delete"
+                }
+            ],
+            "scm/title": [
+                {
+                    "command": "veg.explorer.chat",
+                    "group": "navigation@0",
+                    "when": "scmProvider == git || scmProvider == veg"
+                },
+                {
+                    "command": "veg.explorer.showDiff",
+                    "group": "navigation@11",
+                    "when": "scmProvider == veg"
+                },
+                {
+                    "command": "veg.explorer.mergeDiff",
+                    "group": "navigation@12",
+                    "when": "scmProvider == veg"
+                },
+                {
+                    "command": "veg.explorer.hideDiff",
+                    "group": "navigation@13",
+                    "when": "scmProvider == veg"
+                },
+                {
+                    "command": "veg.explorer.diffAll",
+                    "group": "navigation@14",
+                    "when": "scmProvider == veg"
                 }
             ],
             "scm/resourceGroup/context": [
@@ -334,28 +416,6 @@
                 {
                     "command": "veg.explorer.terminal",
                     "group": "inline@4",
-                    "when": "scmProvider == veg"
-                }
-            ],
-            "scm/title": [
-                {
-                    "command": "veg.explorer.showDiff",
-                    "group": "navigation@1",
-                    "when": "scmProvider == veg"
-                },
-                {
-                    "command": "veg.explorer.mergeDiff",
-                    "group": "navigation@2",
-                    "when": "scmProvider == veg"
-                },
-                {
-                    "command": "veg.explorer.hideDiff",
-                    "group": "navigation@3",
-                    "when": "scmProvider == veg"
-                },
-                {
-                    "command": "veg.explorer.diffAll",
-                    "group": "navigation@4",
                     "when": "scmProvider == veg"
                 }
             ]
