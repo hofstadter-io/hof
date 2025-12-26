@@ -143,7 +143,7 @@ func (R *Runtime) ReadConfig() error {
 	}
 
 	adir := filepath.Join(rdir, CONFIG_PATH)
-	fmt.Println("dirs", gdir, cwd, bdir, rdir, adir)
+	// fmt.Println("dirs", gdir, cwd, bdir, rdir, adir)
 	// formatting so CUE accepts it (cannot be absolute, cannot be without leading ./ or ../)
 	if strings.HasPrefix(adir, ".veg/") {
 		adir = "./" + adir

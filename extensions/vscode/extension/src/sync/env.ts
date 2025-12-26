@@ -43,7 +43,7 @@ async function broadcastEnv(context: vscode.ExtensionContext) {
 
 	let user: string | undefined = undefined;
 	const accounts = await vscode.authentication.getAccounts('github');
-  console.log("env.github.Accounts:", accounts)
+  // console.log("env.github.Accounts:", accounts)
 
   var acct: any = undefined
   if (accounts && accounts.length > 0) {
@@ -55,7 +55,7 @@ async function broadcastEnv(context: vscode.ExtensionContext) {
     account: acct,
     createIfNone: true,
   });
-  console.log("env.github.Session:", session)
+  // console.log("env.github.Session:", session)
 
 	const msg = {
 		type: "env.info.resp",

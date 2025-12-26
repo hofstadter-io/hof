@@ -25,7 +25,7 @@ type SidRequest struct {
 
 func sessionGet(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 
-	fmt.Println("sessionGet", string(m.Payload))
+	// fmt.Println("sessionGet", string(m.Payload))
 	// parse incoming payload
 	var p SidRequest
 	if err := json.Unmarshal(m.Payload, &p); err != nil {
@@ -135,11 +135,11 @@ func sessionCreate(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 
 	// maybe attach an environment
 	if pe.FromUri == "" && payload.EnvName != "" {
-		fmt.Println("searching for env:", payload.EnvName)
+		// fmt.Println("searching for env:", payload.EnvName)
 		for _, e := range r.Agentic.Environs {
-			fmt.Printf(" ? %#+v\n", e)
+			// fmt.Printf(" ? %#+v\n", e)
 			if e.Name == payload.EnvName {
-				fmt.Println("  MATCH")
+				// fmt.Println("  MATCH")
 				pe.FromUri = "oci://" + e.Spec.From
 				break
 			}

@@ -140,7 +140,7 @@ func AgenticCUE(agentDir string, models map[string]model.LLM) (config Config, er
 	if strings.HasPrefix(agentDir, ".veg") {
 		agentDir = "./" + agentDir
 	}
-	fmt.Println("AgenticCUE", agentDir)
+	// fmt.Println("AgenticCUE", agentDir)
 	ctx := cuecontext.New()
 	entrypoints := []string{agentDir}
 	bis := load.Instances(entrypoints, &load.Config{
@@ -453,7 +453,7 @@ func prepareTemplates(config *Config) error {
 	if err != nil {
 		return fmt.Errorf("while loading instruction templates (%s,%s): %w", cwd, config.EmbedDir, err)
 	}
-	fmt.Printf("found %d templates in %s\n", len(config.Templates), dir)
+	// fmt.Printf("found %d templates in %s\n", len(config.Templates), dir)
 
 	for _, T1 := range config.Templates {
 		for _, T2 := range config.Templates {

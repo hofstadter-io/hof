@@ -92,7 +92,7 @@ func hello(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 }
 
 func broadcastSync(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
-	fmt.Println("broadcastSync")
+	// fmt.Println("broadcastSync")
 	reloadConfig(r, c, m)
 	sessionGet(r, c, m)
 	sessionList(r, c, m)
