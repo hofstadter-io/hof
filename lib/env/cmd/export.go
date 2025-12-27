@@ -12,7 +12,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/env/incept"
 )
 
-func Export(args []string, rflags flags.RootPflagpole, cflags flags.EnvPflagpole) error {
+func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole, cflags flags.Env__ExportFlagpole) error {
 
 	// check the runtime first before starting dagger
 	R, err := prepRuntime(nil, rflags)
@@ -24,9 +24,9 @@ func Export(args []string, rflags flags.RootPflagpole, cflags flags.EnvPflagpole
 	dst := os.Getenv("DAGGER_SESSION_TOKEN")
 	if dst == "" {
 		err := incept.Incept(context.Background(), os.Args, &incept.InceptOptions{
-			Progress:    cflags.Progress,
-			Interactive: cflags.OnFailure,
-			NoExit:      cflags.NoExit,
+			Progress:    eflags.Progress,
+			Interactive: eflags.OnFailure,
+			NoExit:      eflags.NoExit,
 			Stdout:      os.Stdout,
 			Stderr:      os.Stderr,
 			Stdin:       os.Stdin,
@@ -71,12 +71,16 @@ func Export(args []string, rflags flags.RootPflagpole, cflags flags.EnvPflagpole
 		if do {
 			fmt.Println(" -", e.Hof.Env.Name)
 
-			i, err := d.Build(e, nil, cflags.NoCache)
+			i, err := d.Build(e, eflags.NoCache)
 			if err != nil {
 				return err
 			}
 
-			err = i.ExportImage(ctx, fmt.Sprintf("%s:%s", e.Hof.Env.Name, "local"))
+			for _, t := range cflags.Tag {
+				// this is the "tag" annotation
+				i = i.WithAnnotation("org.opencontainers.image.version", t)
+				err = i.ExportImage(ctx, fmt.Sprintf("%s:%s", e.Hof.Env.Name, t))
+			}
 
 		}
 	}

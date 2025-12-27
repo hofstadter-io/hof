@@ -2,228 +2,152 @@ package dag
 
 import (
 	"fmt"
-	"path/filepath"
 	"time"
 
+	"cuelang.org/go/cue"
 	"dagger.io/dagger"
 	"github.com/hofstadter-io/hof/lib/env"
 )
 
-type Container struct {
-	From   any   `json:"from"`
-	Steps  []any `json:"steps"`
-	Labels map[string]string
+type hashContainerConfig struct {
+	Name   string            `json:"name"`
+	From   cue.Value         `json:"from"`
+	Envs   map[string]string `json:"envs"`
+	Steps  []cue.Value       `json:"steps"`
+	Labels map[string]string `json:"labels"`
 }
 
-func (d *Dag) Build(e *env.Env, c *Container, noCache bool) (*dagger.Container, error) {
+type hashContainerIndex struct {
+	node *env.Env
+	val  cue.Value
+	cfg  *hashContainerConfig
+	ctr  *dagger.Container
+}
 
-	r := d.dag.Container()
+func (h *hashContainerIndex) Key() string {
+	if h.cfg == nil {
+		return "#container.nil"
+	}
+	return fmt.Sprintf("#container.%s", h.cfg.Name)
+}
 
-	// todo, remove this at this level
-	if c == nil {
-		var _c Container
-		err := e.Value.Decode(&_c)
-		if err != nil {
-			return nil, err
-		}
-		c = &_c
+func (d *Dag) hashContainer(step cue.Value) (*dagger.Container, error) {
+	var cfg hashContainerConfig
+	err := step.Decode(&cfg)
+	if err != nil {
+		return nil, fmt.Errorf("while decoding hashHostDir: %w", err)
 	}
 
-	// handle FROM first, without cache busting
-	// if you want that, cache bust the from image manually
-	//   otherwise we end up from images N-1 times
-	switch t := c.From.(type) {
-	case string:
-		r = r.From(t)
+	// index for query and create if not found
+	idx := &hashContainerIndex{
+		val: step,
+		cfg: &cfg,
+	}
 
-	case map[string]any:
-		m, err := mapToContainer(t)
-		if err != nil {
-			return nil, fmt.Errorf("while parsing the from image: %v %v", c, t)
+	// lookup
+	ia, ok := d.cat[idx]
+	if ok {
+		ix := ia.(*hashContainerIndex)
+		return ix.ctr, nil
+	}
+
+	//
+	// build for realz
+	//
+	c := d.dag.Container()
+
+	// from
+	switch fk := cfg.From.IncompleteKind(); fk {
+	case cue.StringKind:
+		s, _ := cfg.From.String()
+		c = c.From(s)
+
+	case cue.StructKind:
+		kv := cfg.From.LookupPath(cue.ParsePath("$kind"))
+		if !kv.Exists() {
+			return nil, fmt.Errorf("missing $kind in from: %v", cfg.From)
 		}
-		b, err := d.Build(e, m, false)
-		if err != nil {
-			return b, fmt.Errorf("while building the from image: %v %v", c, t)
+		k, _ := kv.String()
+		switch k {
+		case "#container":
+			c, err = d.hashContainer(cfg.From)
+			if err != nil {
+				return c, err
+			}
+		case "#hostImage":
+			c, err = d.hashHostImage(cfg.From)
+			if err != nil {
+				return c, err
+			}
 		}
-		r = b
+
 	default:
-		return nil, fmt.Errorf("unknown from kind %v", t)
+		return nil, fmt.Errorf("unsupported from kind: %v", fk)
 	}
 
 	// possibly bust cache
-	if noCache {
-		r = r.WithEnvVariable("BUSTED_CACHE", time.Now().Local().String())
+	if d.noCache {
+		c = c.WithEnvVariable("BUSTED_CACHE", time.Now().Local().String())
 	}
 
 	// apply our steps
-	r, err := d.addSteps(r, c.Steps)
+	c, err = d.addSteps(c, cfg.Steps)
 	if err != nil {
-		return r, fmt.Errorf("while adding steps: %w", err)
+		return c, fmt.Errorf("while adding steps: %w", err)
 	}
 
-	for k, v := range c.Labels {
-		r = r.WithAnnotation(k, v)
+	for k, v := range cfg.Labels {
+		c = c.WithAnnotation(k, v)
 	}
-	// todo, set labels
 
-	return r, nil
+	// save
+	idx.ctr = c
+
+	// memoize
+	d.cat[idx] = idx
+
+	return idx.ctr, nil
 }
 
-func (d *Dag) addSteps(c *dagger.Container, steps []any) (*dagger.Container, error) {
+func (d *Dag) addSteps(c *dagger.Container, steps []cue.Value) (*dagger.Container, error) {
+	var err error
 	for i, s := range steps {
-		var err error
-		// todo, if step is an []any, assume nested steps, this should make the CUE simpler
-		switch t := s.(type) {
-		case []any:
-			c, err = d.addSteps(c, t)
-
-		case Step:
-			c, err = d.addStep(c, t)
+		switch ik := s.IncompleteKind(); ik {
+		case cue.ListKind:
+			it, _ := s.List()
+			l, _ := s.Len().Int64()
+			vals := make([]cue.Value, 0, l)
+			for it.Next() {
+				vals = append(vals, it.Value())
+			}
+			c, err = d.addSteps(c, vals)
 			if err != nil {
-				return c, fmt.Errorf("while adding step %d: %w", i, err)
+				return c, fmt.Errorf("during step(%d)[%s]: %w", i, ik, err)
 			}
 
-		case map[string]any:
-			c, err = d.addStep(c, t)
+		case cue.StructKind:
+			kv := s.LookupPath(cue.ParsePath("$kind"))
+			// fmt.Println("   -", i, kv)
+			if !kv.Exists() {
+				return c, fmt.Errorf("missing $kind on step: %v %v", s.Path(), s)
+			}
+
+			k, err := kv.String()
 			if err != nil {
-				return c, fmt.Errorf("while adding step %d: %w", i, err)
+				return c, fmt.Errorf("$kind should be a string, we should never get here unless you are not using the schemas, got: %v", s)
 			}
 
-		default:
-			return c, fmt.Errorf("unknown step type %d(%v): %w", i, t, err)
-		}
-
-	}
-
-	return c, nil
-}
-
-func (d *Dag) addStep(c *dagger.Container, s Step) (*dagger.Container, error) {
-
-	// fmt.Printf("    %#+v\n", pretty.Formatter(s))
-
-	kind, ok := s["$kind"]
-	if !ok {
-		return nil, fmt.Errorf("missing kind in step")
-	}
-
-	switch kind {
-	case "sync":
-		var err error
-		c, err = c.Sync(d.ctx)
-		if err != nil {
-			return c, err
-		}
-
-	case "exec":
-		args, ok := s["args"]
-		if !ok {
-			return c, fmt.Errorf("missing args in Exec")
-		}
-		as := make([]string, 0, len(args.([]any)))
-		for _, a := range args.([]any) {
-			as = append(as, a.(string))
-		}
-		c = c.WithExec(as, dagger.ContainerWithExecOpts{
-			// Expand: true,
-		})
-
-	case "user":
-		name, ok := s["name"]
-		if !ok {
-			return c, fmt.Errorf("missing name in User")
-		}
-		c = c.WithUser(name.(string))
-
-	case "workdir":
-		path, ok := s["path"]
-		if !ok {
-			return c, fmt.Errorf("missing path in Workdir")
-		}
-		p, ok := path.(string)
-		if !ok {
-			return c, fmt.Errorf("path in Workdir is not a string")
-		}
-		c = c.WithWorkdir(p)
-
-	case "file":
-		path, ok := s["path"]
-		if !ok {
-			return c, fmt.Errorf("missing path in File")
-		}
-		content, ok := s["content"]
-		if !ok {
-			return c, fmt.Errorf("missing content in File")
-		}
-
-		p := path.(string)
-
-		_, name := filepath.Split(p)
-
-		f := d.dag.File(name, content.(string))
-
-		c = c.WithFile(p, f)
-
-	case "env":
-		for k, v := range s {
-			if k != "$kind" {
-				c = c.WithEnvVariable(k, v.(string), dagger.ContainerWithEnvVariableOpts{
-					Expand: true,
-				})
+			h, ok := d.hdl[k]
+			if !ok {
+				return c, fmt.Errorf("unknown step(%d)[%s]: %v", i, k, s)
 			}
+
+			c, err = h(c, s)
+			if err != nil {
+				return c, fmt.Errorf("while adding step(%d)[%s@%v]: %w", i, k, s.Path(), err)
+			}
+
 		}
-
-	case "entrypoint":
-		args, ok := s["args"]
-		if !ok {
-			return c, fmt.Errorf("missing args in Entrypoint")
-		}
-		as := make([]string, 0, len(args.([]any)))
-		for _, a := range args.([]any) {
-			as = append(as, a.(string))
-		}
-		c = c.WithEntrypoint(as)
-
-	case "args":
-		args, ok := s["args"]
-		if !ok {
-			return c, fmt.Errorf("missing args in Args")
-		}
-		as := make([]string, 0, len(args.([]any)))
-		for _, a := range args.([]any) {
-			as = append(as, a.(string))
-		}
-		c = c.WithDefaultArgs(as)
-
-	case "term":
-		args, ok := s["args"]
-		if !ok {
-			return c, fmt.Errorf("missing args in Term")
-		}
-		as := make([]string, 0, len(args.([]any)))
-		for _, a := range args.([]any) {
-			as = append(as, a.(string))
-		}
-		c = c.WithDefaultTerminalCmd(as)
-
-	default:
-		return c, fmt.Errorf("unknown kind %q", kind)
-	}
-
-	return c, nil
-}
-
-func mapToContainer(m map[string]any) (*Container, error) {
-	c := new(Container)
-	c.From = m["from"]
-
-	steps := m["steps"].([]any)
-	c.Steps = steps
-
-	labels := m["labels"].(map[string]any)
-	c.Labels = make(map[string]string)
-	for k, v := range labels {
-		c.Labels[k] = v.(string)
 	}
 
 	return c, nil

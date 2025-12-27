@@ -6,10 +6,18 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
+
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var exportLong = `export an environment into local container runtime`
+
+func init() {
+
+	flags.SetupEnv__ExportFlags(ExportCmd.Flags(), &(flags.Env__ExportFlags))
+
+}
 
 func ExportRun(args []string) (err error) {
 

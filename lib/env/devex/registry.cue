@@ -5,24 +5,28 @@ import (
 )
 
 registry: {
-  container: env.Container & {
-    @env()
-    name: "registry"
-    from: "registry:3"
-  }
 
-  service: env.Service & {
-    @env()
-    name: "registry"
-    port: 5000
-    image: container
-    volumes: [volume] // todo, config?
-  }
+	service: env.#Service & {
+		@env()
+		name: "registry"
+		ports: [{
+      name: "http"
+			port: 5000
+		}]
 
-  volume: env.Volume & {
-    @env()
-    name: "registry"
-    type: "cache"
-  }
+		source: env.#Container & {
+			@env()
+			name: "registry"
+			from: "registry:3"
+		}
+
+		// image: container
+		// volumes: [volume] // todo, config?
+	}
+
+	volume: env.#Cache & {
+		@env()
+		name: "registry"
+	}
 
 }

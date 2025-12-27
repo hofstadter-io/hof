@@ -56,7 +56,7 @@ func Run(name string, rflags flags.RootPflagpole, cflags flags.EnvPflagpole) err
 	}
 	d, _ := dag.NewClient(ctx, client)
 
-	i, err := d.Build(e, nil, cflags.NoCache)
+	i, err := d.Build(e, cflags.NoCache)
 	if err != nil {
 		return err
 	}

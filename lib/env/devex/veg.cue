@@ -1,23 +1,36 @@
 package devex
 
 import (
+	"github.com/hofstadter-io/hof/lib/env/devex/steps/lang"
+	"github.com/hofstadter-io/hof/lib/env/devex/steps/tool"
+	"github.com/hofstadter-io/hof/lib/env/devex/steps/utils"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
 veg: {
-	base: env.Container & {
+	base: env.#Container & {
 		@env()
 		name: "veg-base"
-		#hof: description: "A minimal debian image with a few common tools"
+		#hof: metadata: description: "A minimal debian image with a few common tools"
 		from: "debian:13-slim"
 
 		steps: [
+			// default workdir (for wide default consistency)
+			env.Workdir & {path: "/work"},
+
+			// shared apt caches, for all derived images as well
+			// ya'know, instead of cleaning and refetching all the time?
+			utils.apt.mounts.varLib,
+			utils.apt.mounts.varCache,
+			// need to update once at the beginning
+			utils.apt.update,
+
 			// basics
-			_steps.apt & {#pkgs: [
+			utils.apt.install & {#pkgs: [
 				"ca-certificates",
 				"curl",
-				"gnupg",
 				"git",
+				"gnupg",
 				"make",
 				"unzip",
 				"wget",
@@ -26,104 +39,79 @@ veg: {
 			]},
 
 			// term customization
-			_tools.zsh,
-			env.Args & {args: ["zsh"]},
-			env.Term & {args: ["zsh"]},
-			env.Entrypoint & {args: ["zsh"]},
-
-      // default workdir (for wide default consistency)
-			env.Workdir & {path: "/work"},
+			tool.zsh.customize,
 		]
 	}
 
-	dev: env.Container & {
+	dev: env.#Container & {
 		@env()
 		name: "veg-dev"
-		#hof: description: "A development image with many tools"
+		#hof: metadata: description: "A development image with many tools"
+
 		from: base
 
 		steps: [
-      // todo, put these with the tools that depend on them (if they are one)
-			_steps.apt & {#pkgs: [
-        // go
+			// todo, put these with the tools that depend on them (if they are one)
+			utils.apt.install & {#pkgs: [
+				// deps for go/node/python -> c/c++ situations (like CGO)
 				"g++",
 				"gcc",
 				"libc6-dev",
 				"netbase",
 				"pkg-config",
 				"sq",
-
-        // python
-        "pip",
-        "pipx",
-        "pylint",
-        "python3-poetry",
-        "python3-pytest",
-        "python3-flake8",
 			]},
 
 			// setup languages
-			_tools.go,
-			_tools.node,
-			_tools.python,
+			lang.go.default,
+			lang.cue.default,
+			lang.node.default,
+			lang.python.default,
 
 			// other binary tools
-			_tools.githubBin & {#repo: "cue-lang/cue", #ver: "0.15.1"},
 
-      // tools for agents
-      _tools.agents.lsp2mcp,
+			// tools for agents
+			tool.agents.lsp2mcp,
 		]
 	}
 
-	ops: env.Container & {
+	ops: env.#Container & {
 		@env()
 		name: "veg-ops"
-		#hof: description: "Extension to veg-dev to add devops tooling"
+		#hof: metadata: description: "Extension to veg-dev to add devops tooling"
 		from: dev
 
 		steps: [
-			_tools.kubectl,
-			_tools.helm,
-			_tools.hashicorpBin & {#tool: "terraform"},
-			_tools.hashicorpBin & {#tool: "packer"},
-      _tools.crane,
-    ]
-  }
+			tool.k8s.kubectl,
+			tool.k8s.helm,
+			tool.k8s.crane,
+			tool.hashicorp.terraform,
+			tool.hashicorp.packer,
+		]
+	}
 
-	incept: env.Container & {
+	incept: env.#Container & {
 		@env()
 		name: "veg-incept"
-		#hof: description: "Extension to veg-dev to add docker/dagger setup for inception"
+		#hof: metadata: description: "Extension to veg-dev to add docker/dagger setup for inception"
 		from: dev
 
 		steps: [
-			_tools.githubBin & {#repo: "dagger/dagger", #ver: "0.19.8"},
-			// todo, nested steps
-			_tools.dockerRepo,
-			_steps.apt & {#pkgs: ["docker-ce-cli", "docker-buildx-plugin", "docker-compose-plugin"]},
+			tool.dagger.cli,
+			tool.docker.cli,
 		]
 
 		// whatever we import / user here, should also have mounts defined for easy reuse for runtime (run/up/asService)
 	}
 
-	vegeta: env.Container & {
+	vegeta: env.#Container & {
 		@env()
 		name: "vegeta"
-		#hof: description: "all of the veggie images, it's over 9000"
+		#hof: metadata: description: "all of the veggie images, it's over 9000"
 		from: ops
 
-    // TODO, realize the dagger way of diamond build pattern optimizations (once we branch more than 2 wide, and have _tools in a better place with #file/#dir)
-    steps: incept.steps
-
-  }
+		// TODO, realize the dagger way of diamond build pattern optimizations (once we branch more than 2 wide, and have _tools in a better place with #file/#dir)
+		steps: incept.steps
+	}
 
 }
-
-// dind images (docker & dagger)
-// bin tools for File / Dir / Copy
-// - python 3, poetry, uv
-// - gcloud
-//
-// build hof & formatters
-// docker-compose like experience (testnet?)
-//

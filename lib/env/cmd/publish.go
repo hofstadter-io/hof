@@ -71,7 +71,7 @@ func Publish(args []string, rflags flags.RootPflagpole, cflags flags.EnvPflagpol
 		if do {
 			fmt.Print(" -", e.Hof.Env.Name)
 
-			i, err := d.Build(e, nil, cflags.NoCache)
+			i, err := d.Build(e, cflags.NoCache)
 			if err != nil {
 				return err
 			}

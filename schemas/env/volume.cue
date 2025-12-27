@@ -4,14 +4,42 @@ import (
 	"github.com/hofstadter-io/hof/schemas"
 )
 
-Volume: {
+#Cache: Ref & {
 	schemas.Hof
 	#hof: env: {
 		root: true
-		kind: "volume"
+		kind: "cache"
 	}
 
-  // host is only available in docker / run
+  $kind: "#cache"
   name: string
-  type: "cache" | "host"
+}
+
+#Secret: Step & {
+	schemas.Hof
+	#hof: env: {
+		root: true
+		kind: "secret"
+	}
+
+	$kind: "#secret"
+
+  name: string
+
+  // plaintext, uri, or file
+  source: string | #File | #HostFile
+}
+
+// temp space config for ephemeral volumes not persisted between exec calls
+#Temp: {
+  $kind: "#temp"
+
+  // where to attach it
+  path: string
+
+  // size in bytes
+  size?: int
+
+  // expand vars in path like $HOME/.cache
+  expand?: bool
 }

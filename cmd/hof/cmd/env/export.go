@@ -13,9 +13,15 @@ import (
 
 var exportLong = `export an environment into local container runtime`
 
+func init() {
+
+	flags.SetupEnv__ExportFlags(ExportCmd.Flags(), &(flags.Env__ExportFlags))
+
+}
+
 func ExportRun(args []string) (err error) {
 
-	return cmd.Export(args, flags.RootPflags, flags.EnvPflags)
+	return cmd.Export(args, flags.RootPflags, flags.EnvPflags, flags.Env__ExportFlags)
 
 	// // you can safely comment this print out
 	// fmt.Println("not implemented")

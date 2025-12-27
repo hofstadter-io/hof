@@ -65,9 +65,10 @@ LabelNames: [N=string]: {#hof: metadata: name: N}
 
 // Typical metadata useful in many places
 Metadata: {
-	id?:      string
-	name?:    string
-	package?: string
+	id?:          string
+	name?:        string
+	description?: string
+	package?:     string
 	labels?: [string]: string
 }
 
