@@ -5,16 +5,15 @@
       "path": "."
     },
     {
-      "name": ".veg",
-      "path": ".veg"
-    },
-    {
       "name": "adk-go",
       "path": "../../adk/go"
     },
     {
       "name": "dagger",
       "path": "../dagger"
+    },
+    {
+      "path": "../../blebbit/testnet"
     }
   ],
 	"settings": {}

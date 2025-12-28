@@ -15,7 +15,7 @@ import (
 func prepRuntime(args []string, rflags flags.RootPflagpole) (*runtime.Runtime, error) {
 
 	// create our core runtime
-	r, err := runtime.New([]string{"./"}, rflags)
+	r, err := runtime.New(args, rflags)
 	if err != nil {
 		return nil, err
 	}

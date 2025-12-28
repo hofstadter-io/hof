@@ -14,8 +14,16 @@ import (
 )
 
 func Build(args []string, rflags flags.RootPflagpole, cflags flags.EnvPflagpole) error {
+	var cueargs []string
+	for i, a := range args {
+		if a == "--" {
+			cueargs = args[:i]
+			args = args[i+1:]
+		}
+	}
+
 	// check the runtime first before starting dagger
-	R, err := prepRuntime(nil, rflags)
+	R, err := prepRuntime(cueargs, rflags)
 	if err != nil {
 		return err
 	}

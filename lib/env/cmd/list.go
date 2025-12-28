@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"regexp"
 	"sort"
 	"strings"
 
@@ -10,7 +11,22 @@ import (
 )
 
 func List(args []string, rflags flags.RootPflagpole, cflags flags.Env__ListFlagpole) error {
-	R, err := prepRuntime(args, rflags)
+	// fmt.Println("args:", args)
+	cueargs := args
+	args = []string{}
+	for i, a := range cueargs {
+		// fmt.Println("-", i, a, cueargs[:i], cueargs[i:])
+		if a == "%" {
+			if i+1 < len(cueargs) {
+				args = cueargs[i+1:]
+			}
+			cueargs = cueargs[:i]
+			break
+		}
+	}
+	// fmt.Println(cueargs, args)
+
+	R, err := prepRuntime(cueargs, rflags)
 	if err != nil {
 		return err
 	}
@@ -21,9 +37,24 @@ func List(args []string, rflags flags.RootPflagpole, cflags flags.Env__ListFlagp
 	for _, e := range R.Envs {
 		name := e.Hof.Env.Name
 		if name == "" {
-			name = "(anon)"
+			continue
 		}
 		kind := e.Hof.Env.Kind
+
+		do := true
+		if len(args) > 0 {
+			do = false
+			for _, a := range args {
+				re, err := regexp.Compile(a)
+				if err == nil && re.MatchString(e.Hof.Env.Name) {
+					do = true
+					break
+				}
+			}
+		}
+		if !do {
+			continue
+		}
 
 		if len(cflags.Kind) > 0 {
 			match := false

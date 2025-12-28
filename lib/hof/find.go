@@ -91,8 +91,10 @@ func upgradeAttrs[T any](node *Node[T], label string) bool {
 			node.Hof.Env.Extra = ac
 			// name override from local field
 			c := val.LookupPath(cue.ParsePath("name"))
-			if s, err := c.String(); err == nil {
-				node.Hof.Env.Name = s
+			if c.Exists() {
+				if s, err := c.String(); err == nil {
+					node.Hof.Env.Name = s
+				}
 			}
 
 		case "agent":

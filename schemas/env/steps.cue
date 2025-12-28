@@ -96,7 +96,7 @@ Env: Step & {
 Envfile: Step & {
 	$kind: "envfile"
 
-	file: #File
+	file: #File | #HostFile
 }
 
 Expose: Step & {
