@@ -49,3 +49,19 @@ func daggerClient(ctx context.Context) (*dagger.Client, error) {
 	}
 	return client, nil
 }
+
+func splitArgs(orig []string) (args, cueargs []string) {
+	// fmt.Println("args:", args)
+	args = orig
+	for i, a := range orig {
+		// fmt.Println("-", i, a, cueargs[:i], cueargs[i:])
+		if a == "%" {
+			args = orig[:i]
+			if i+1 < len(orig) {
+				cueargs = orig[i+1:]
+			}
+			break
+		}
+	}
+	return args, cueargs
+}

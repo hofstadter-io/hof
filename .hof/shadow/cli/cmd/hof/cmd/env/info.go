@@ -21,7 +21,7 @@ func InfoRun(args []string) (err error) {
 
 var InfoCmd = &cobra.Command{
 
-	Use: "info [target...]",
+	Use: "info [...target] [% ...cue]",
 
 	Short: "get info about an environments",
 

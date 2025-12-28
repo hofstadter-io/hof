@@ -11,20 +11,7 @@ import (
 )
 
 func List(args []string, rflags flags.RootPflagpole, cflags flags.Env__ListFlagpole) error {
-	// fmt.Println("args:", args)
-	cueargs := args
-	args = []string{}
-	for i, a := range cueargs {
-		// fmt.Println("-", i, a, cueargs[:i], cueargs[i:])
-		if a == "%" {
-			if i+1 < len(cueargs) {
-				args = cueargs[i+1:]
-			}
-			cueargs = cueargs[:i]
-			break
-		}
-	}
-	// fmt.Println(cueargs, args)
+	args, cueargs := splitArgs(args)
 
 	R, err := prepRuntime(cueargs, rflags)
 	if err != nil {

@@ -21,7 +21,7 @@ func TagRun(args []string) (err error) {
 
 var TagCmd = &cobra.Command{
 
-	Use: "tag <src> <dst>",
+	Use: "tag <src> <dst> [% ...cue]",
 
 	Short: "tag an environment",
 

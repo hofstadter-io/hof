@@ -19,19 +19,19 @@ func init() {
 
 }
 
-func RunRun(name string) (err error) {
+func RunRun(args []string) (err error) {
 
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = cmd.Run(name, flags.RootPflags, flags.EnvPflags, flags.Env__RunFlags)
+	err = cmd.Run(args, flags.RootPflags, flags.EnvPflags, flags.Env__RunFlags)
 
 	return err
 }
 
 var RunCmd = &cobra.Command{
 
-	Use: "run <name>",
+	Use: "run <target> [% [...cue]]",
 
 	Short: "run an interactive environment",
 
@@ -45,21 +45,7 @@ var RunCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		if 0 >= len(args) {
-			fmt.Println("missing required argument: 'name'")
-			cmd.Usage()
-			os.Exit(1)
-		}
-
-		var name string
-
-		if 0 < len(args) {
-
-			name = args[0]
-
-		}
-
-		err = RunRun(name)
+		err = RunRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

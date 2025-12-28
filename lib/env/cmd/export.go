@@ -13,9 +13,9 @@ import (
 )
 
 func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole, cflags flags.Env__ExportFlagpole) error {
-
+	args, cueargs := splitArgs(args)
 	// check the runtime first before starting dagger
-	R, err := prepRuntime(nil, rflags)
+	R, err := prepRuntime(cueargs, rflags)
 	if err != nil {
 		return err
 	}

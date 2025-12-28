@@ -9,7 +9,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var ciLong = `CI's an environment, local + remote parity`
+var ciLong = `ci's an environment, local + remote parity`
 
 func CiRun(args []string) (err error) {
 
@@ -21,9 +21,9 @@ func CiRun(args []string) (err error) {
 
 var CiCmd = &cobra.Command{
 
-	Use: "ci [target...]",
+	Use: "ci [...target] [% ...cue]",
 
-	Short: "CI's an environment",
+	Short: "ci's an environment",
 
 	Long: ciLong,
 

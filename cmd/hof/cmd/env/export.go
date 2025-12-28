@@ -31,7 +31,7 @@ func ExportRun(args []string) (err error) {
 
 var ExportCmd = &cobra.Command{
 
-	Use: "export [target...]",
+	Use: "export [...target] [% ...cue]",
 
 	Short: "export an environment into local container runtime",
 

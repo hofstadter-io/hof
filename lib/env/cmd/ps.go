@@ -10,7 +10,8 @@ import (
 )
 
 func Ps(args []string, rflags flags.RootPflagpole) error {
-	R, err := prepRuntime(args, rflags)
+	args, cueargs := splitArgs(args)
+	R, err := prepRuntime(cueargs, rflags)
 	if err != nil {
 		return err
 	}

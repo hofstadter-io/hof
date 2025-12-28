@@ -21,7 +21,7 @@ func UpRun(args []string) (err error) {
 
 var UpCmd = &cobra.Command{
 
-	Use: "up [target...]",
+	Use: "up [...target] [% ...cue]",
 
 	Short: "starts an environment",
 

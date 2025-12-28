@@ -13,8 +13,12 @@ import (
 	"github.com/hofstadter-io/hof/lib/env/incept"
 )
 
-func Run(name string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole, cflags flags.Env__RunFlagpole) error {
-	R, err := prepRuntime([]string{}, rflags)
+func Run(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole, cflags flags.Env__RunFlagpole) error {
+	args, cueargs := splitArgs(args)
+	if len(args) != 1 {
+		return fmt.Errorf("run expects only a single target to run")
+	}
+	R, err := prepRuntime(cueargs, rflags)
 	if err != nil {
 		return err
 	}
@@ -36,6 +40,8 @@ func Run(name string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole, cfl
 
 		return nil
 	}
+
+	name := args[0]
 
 	var e *env.Env
 	for _, ee := range R.Envs {

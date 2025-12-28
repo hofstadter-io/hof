@@ -10,10 +10,10 @@ EnvCommand: schema.Command & {
 	Short: "build, run, ship, and deploy environments (image, service, stack)"
 	Long:  "build, run, ship, and deploy environments (image, service, stack)"
 
-  // TODO, this should fallback to looking for commands in config, like cue & pnpm do
-  // we want users to be able to define task/rules like Make, pnpm scripts, cue cmd
-  // hof flow is this outside of the env/ci realm, we need something that mirrors onto dagger
-  // this could also work into dagger modules/functions
+	// TODO, this should fallback to looking for commands in config, like cue & pnpm do
+	// we want users to be able to define task/rules like Make, pnpm scripts, cue cmd
+	// hof flow is this outside of the env/ci realm, we need something that mirrors onto dagger
+	// this could also work into dagger modules/functions
 	OmitRun: true
 
 	Pflags: [...schema.Flag] & [{
@@ -58,12 +58,12 @@ EnvCommand: schema.Command & {
 
 	Commands: [{
 		Name:  "build"
-		Usage: "build [target...]"
+		Usage: "build [...target] [% ...cue]"
 		Short: "build an environment"
 		Long:  "build an environment"
 	}, {
 		Name:  "export"
-		Usage: "export [target...]"
+		Usage: "export [...target] [% ...cue]"
 		Short: "export an environment into local container runtime"
 		Long:  "export an environment into local container runtime"
 		Flags: [{
@@ -76,12 +76,12 @@ EnvCommand: schema.Command & {
 		}]
 	}, {
 		Name:  "info"
-		Usage: "info [target...]"
+		Usage: "info [...target] [% ...cue]"
 		Short: "get info about an environments"
 		Long:  "get info about an environments"
 	}, {
 		Name:  "list"
-		Usage: "list"
+		Usage: "list [...target] [% ...cue]"
 		Short: "list environments"
 		Long:  "list environments"
 		Flags: [{
@@ -101,91 +101,81 @@ EnvCommand: schema.Command & {
 		}]
 	}, {
 		Name:  "images"
-		Usage: "images"
-		Short: "list environments"
-		Long:  "list environments"
-	},
-		// flags for filtering
-		{
-			Name:  "ps"
-			Usage: "ps [pattern...]"
-			Short: "print stats for running environments"
-			Long:  "print stats for running environments"
-		},
-		// flags for filtering
-		{
-			Name:  "run"
-			Usage: "run <name>"
-			Short: "run an interactive environment"
-			Long:  "run an interactive environment"
-			Args: [{
-				Name:     "name"
-				Type:     "string"
-				Required: true
-				Help:     "name of the environment"
-			}]
-      Flags: [{
-        Name:    "Command"
-        Long:    "cmd"
-        Short:   "c"
-        Type:    "string"
-        Default: "\"\""
-        Help:    "the command to run"
-      }]
-		}, {
-			Name:  "up"
-			Usage: "up [target...]"
-			Short: "starts an environment"
-			Long:  "starts an environment"
-		}, {
-			Name:  "down"
-			Usage: "down [target...]"
-			Short: "stops an environment"
-			Long:  "stops an environment"
-		}, {
-			Name:  "tag"
-			Usage: "tag <src> <dst>"
-			Short: "tag an environment"
-			Long:  "tag an environment"
-		}, {
-			Name:  "publish"
-			Usage: "publish [target...]"
-			Short: "publish an environment"
-			Long:  "publish an environment"
-			Flags: [{
-				Name:    "Registry"
-				Long:    "registry"
-				Short:   "R"
-				Type:    "string"
-				Default: #""host.docker.internal:5000""#
-				Help:    "registry to push to, defaults to veg internal"
-			}, {
-				Name:    "Tag"
-				Long:    "tag"
-				Short:   "T"
-				Type:    "[]string"
-				Default: #"[]string{"local"}"# // todo, support special options like git-tag or git-commit
-				Help:    "tags to give to the environment, can be set multiple times"
-			}]
-		}, {
-			Name:  "push"
-			Usage: "push <name>"
-			Short: "push an environment"
-			Long:  "push an environment"
-		}, {
-			Name:  "pull"
-			Usage: "pull <name>"
-			Short: "pull an environment"
-			Long:  "pull an environment"
-		}, {
-			Name:  "ci"
-			Usage: "ci [target...]"
-			Short: "CI's an environment"
-			Long:  "CI's an environment, local + remote parity"
-		}, {
-			Name:  "deploy"
-			Usage: "deploy [target...]"
-			Short: "deploy an environment"
-			Long:  "deploy an environment, think tf+helm"
+		Usage: "images [...target] [% ...cue]"
+		Short: "list images for an environments"
+		Long:  "list images for an environments"
+	}, {
+		Name:  "ps"
+		Usage: "ps [...target] [% ...cue]"
+		Short: "print stats for running environments"
+		Long:  "print stats for running environments"
+	}, {
+		Name:  "run"
+		Usage: "run <target> [% [...cue]]"
+		Short: "run an interactive environment"
+		Long:  "run an interactive environment"
+		Flags: [{
+			Name:    "Command"
+			Long:    "cmd"
+			Short:   "c"
+			Type:    "string"
+			Default: "\"\""
+			Help:    "the command to run"
 		}]
+	}, {
+		Name:  "up"
+		Usage: "up [...target] [% ...cue]"
+		Short: "starts an environment"
+		Long:  "starts an environment"
+	}, {
+		Name:  "down"
+		Usage: "down [...target] [% ...cue]"
+		Short: "stops an environment"
+		Long:  "stops an environment"
+	}, {
+		Name:  "tag"
+		Usage: "tag <src> <dst> [% ...cue]"
+		Short: "tag an environment"
+		Long:  "tag an environment"
+	}, {
+		Name:  "publish"
+		Usage: "publish [...target] [% ...cue]"
+		Short: "publish an environment"
+		Long:  "publish an environment"
+		Flags: [{
+			Name:    "Registry"
+			Long:    "registry"
+			Short:   "R"
+			Type:    "string"
+			Default: #""host.docker.internal:5000""#
+			Help:    "registry to push to, defaults to veg internal"
+		}, {
+			Name:    "Tag"
+			Long:    "tag"
+			Short:   "T"
+			Type:    "[]string"
+			Default: #"[]string{"local"}"# // todo, support special options like git-tag or git-commit
+			Help:    "tags to give to the environment, can be set multiple times"
+		}]
+	}, {
+		Name:  "push"
+		Usage: "push [...target] [% ...cue]"
+		Short: "push an environment"
+		Long:  "push an environment"
+	}, {
+		Name:  "pull"
+		Usage: "pull [...target] [% ...cue]"
+		Short: "pull an environment"
+		Long:  "pull an environment"
+	}, {
+		Name:  "ci"
+		Usage: "ci [...target] [% ...cue]"
+		Short: "ci's an environment"
+		Long:  "ci's an environment, local + remote parity"
+	}, {
+		Name:  "deploy"
+		Usage: "deploy [...target] [% ...cue]"
+		Short: "deploy an environment"
+		Long:  "deploy an environment, think tf+helm"
+	}]
 }

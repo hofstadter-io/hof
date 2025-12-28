@@ -9,7 +9,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var imagesLong = `list environments`
+var imagesLong = `list images for an environments`
 
 func ImagesRun(args []string) (err error) {
 
@@ -21,9 +21,9 @@ func ImagesRun(args []string) (err error) {
 
 var ImagesCmd = &cobra.Command{
 
-	Use: "images",
+	Use: "images [...target] [% ...cue]",
 
-	Short: "list environments",
+	Short: "list images for an environments",
 
 	Long: imagesLong,
 

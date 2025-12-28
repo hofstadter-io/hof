@@ -25,7 +25,7 @@ func PushRun(args []string) (err error) {
 
 var PushCmd = &cobra.Command{
 
-	Use: "push <name>",
+	Use: "push [...target] [% ...cue]",
 
 	Short: "push an environment",
 

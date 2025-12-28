@@ -25,7 +25,7 @@ func DeployRun(args []string) (err error) {
 
 var DeployCmd = &cobra.Command{
 
-	Use: "deploy [target...]",
+	Use: "deploy [...target] [% ...cue]",
 
 	Short: "deploy an environment",
 

@@ -29,7 +29,7 @@ func PublishRun(args []string) (err error) {
 
 var PublishCmd = &cobra.Command{
 
-	Use: "publish [target...]",
+	Use: "publish [...target] [% ...cue]",
 
 	Short: "publish an environment",
 

@@ -25,7 +25,7 @@ func PsRun(args []string) (err error) {
 
 var PsCmd = &cobra.Command{
 
-	Use: "ps [pattern...]",
+	Use: "ps [...target] [% ...cue]",
 
 	Short: "print stats for running environments",
 

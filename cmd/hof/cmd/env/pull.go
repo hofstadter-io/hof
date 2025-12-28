@@ -25,7 +25,7 @@ func PullRun(args []string) (err error) {
 
 var PullCmd = &cobra.Command{
 
-	Use: "pull <name>",
+	Use: "pull [...target] [% ...cue]",
 
 	Short: "pull an environment",
 

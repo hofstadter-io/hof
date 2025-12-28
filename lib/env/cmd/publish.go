@@ -13,9 +13,9 @@ import (
 )
 
 func Publish(args []string, rflags flags.RootPflagpole, cflags flags.EnvPflagpole, scflags flags.Env__PublishFlagpole) error {
-
+	args, cueargs := splitArgs(args)
 	// check the runtime first before starting dagger
-	R, err := prepRuntime(nil, rflags)
+	R, err := prepRuntime(cueargs, rflags)
 	if err != nil {
 		return err
 	}

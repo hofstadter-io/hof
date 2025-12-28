@@ -21,7 +21,7 @@ func DownRun(args []string) (err error) {
 
 var DownCmd = &cobra.Command{
 
-	Use: "down [target...]",
+	Use: "down [...target] [% ...cue]",
 
 	Short: "stops an environment",
 

@@ -31,7 +31,7 @@ func ListRun(args []string) (err error) {
 
 var ListCmd = &cobra.Command{
 
-	Use: "list",
+	Use: "list [...target] [% ...cue]",
 
 	Short: "list environments",
 

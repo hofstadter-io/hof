@@ -25,7 +25,7 @@ func BuildRun(args []string) (err error) {
 
 var BuildCmd = &cobra.Command{
 
-	Use: "build [target...]",
+	Use: "build [...target] [% ...cue]",
 
 	Short: "build an environment",
 
