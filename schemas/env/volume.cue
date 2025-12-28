@@ -15,21 +15,6 @@ import (
   name: string
 }
 
-#Secret: Step & {
-	schemas.Hof
-	#hof: env: {
-		root: true
-		kind: "secret"
-	}
-
-	$kind: "#secret"
-
-  name: string
-
-  // plaintext, uri, or file
-  source: string | #File | #HostFile
-}
-
 // temp space config for ephemeral volumes not persisted between exec calls
 #Temp: {
   $kind: "#temp"

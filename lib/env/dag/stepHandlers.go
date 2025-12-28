@@ -228,6 +228,13 @@ func (d *Dag) stepDirHandler(c *dagger.Container, step cue.Value) (*dagger.Conta
 				return nil, err
 			}
 
+		case "#hostImage":
+			ctr, err := d.hashHostImage(cfg.Source)
+			if err != nil {
+				return nil, err
+			}
+			dir = ctr.Directory(cfg.Path)
+
 		default:
 			return c, fmt.Errorf("unsupported $kind in stepDir source: %v", step)
 		}
@@ -251,6 +258,11 @@ type stepMountConfig struct {
 	// args
 	Path   string    `json:"path"`
 	Source cue.Value `json:"source"`
+
+	// opts (depending on source type?)
+	Owner  string `json:"owner"`
+	Expand bool   `json:"expand"`
+	Mode   int    `json:"mode"`
 }
 
 func (d *Dag) stepMountHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
@@ -272,8 +284,61 @@ func (d *Dag) stepMountHandler(c *dagger.Container, step cue.Value) (*dagger.Con
 		if err != nil {
 			return nil, err
 		}
+		c = c.WithMountedCache(cfg.Path, cache, dagger.ContainerWithMountedCacheOpts{
+			Owner:  cfg.Owner,
+			Expand: cfg.Expand,
+		})
 
-		c = c.WithMountedCache(cfg.Path, cache, dagger.ContainerWithMountedCacheOpts{})
+	case "#file":
+		file, err := d.hashFile(cfg.Source)
+		if err != nil {
+			return nil, err
+		}
+		c = c.WithMountedFile(cfg.Path, file, dagger.ContainerWithMountedFileOpts{
+			Owner:  cfg.Owner,
+			Expand: cfg.Expand,
+		})
+
+	case "#hostFile":
+		file, err := d.hashHostFile(cfg.Source)
+		if err != nil {
+			return nil, err
+		}
+		c = c.WithMountedFile(cfg.Path, file, dagger.ContainerWithMountedFileOpts{
+			Owner:  cfg.Owner,
+			Expand: cfg.Expand,
+		})
+
+	case "#dir":
+		dir, err := d.hashDir(cfg.Source)
+		if err != nil {
+			return nil, err
+		}
+		c = c.WithMountedDirectory(cfg.Path, dir, dagger.ContainerWithMountedDirectoryOpts{
+			Owner:  cfg.Owner,
+			Expand: cfg.Expand,
+		})
+
+	case "#hostDir":
+		dir, err := d.hashHostDir(cfg.Source)
+		if err != nil {
+			return nil, err
+		}
+		c = c.WithMountedDirectory(cfg.Path, dir, dagger.ContainerWithMountedDirectoryOpts{
+			Owner:  cfg.Owner,
+			Expand: cfg.Expand,
+		})
+
+	case "#secret":
+		shh, err := d.hashSecret(cfg.Source)
+		if err != nil {
+			return nil, err
+		}
+		c = c.WithMountedSecret(cfg.Path, shh, dagger.ContainerWithMountedSecretOpts{
+			Owner:  cfg.Owner,
+			Expand: cfg.Expand,
+			Mode:   cfg.Mode,
+		})
 
 	default:
 		return c, fmt.Errorf("unsupported $kind in stepMount.source: %v", step)
@@ -312,9 +377,10 @@ func (d *Dag) stepSecretHandler(c *dagger.Container, step cue.Value) (*dagger.Co
 }
 
 type stepExposeConfig struct {
-	Kind string `json:"$kind"`
-	Name string `json:"name"`
-	Port int    `json:"port"`
+	Kind     string `json:"$kind"`
+	Name     string `json:"name"`
+	Port     int    `json:"port"`
+	Protocol string `json:"protocol"`
 
 	ExperimentalSkipHealthchecks bool `json:"experimentalSkipHealthchecks"`
 }
@@ -328,6 +394,7 @@ func (d *Dag) stepExposeHandler(c *dagger.Container, step cue.Value) (*dagger.Co
 
 	c = c.WithExposedPort(cfg.Port, dagger.ContainerWithExposedPortOpts{
 		Description:                 cfg.Name,
+		Protocol:                    dagger.NetworkProtocol(cfg.Protocol),
 		ExperimentalSkipHealthcheck: cfg.ExperimentalSkipHealthchecks,
 	})
 	return c, nil

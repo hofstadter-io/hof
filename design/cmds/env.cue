@@ -120,6 +120,14 @@ EnvCommand: schema.Command & {
 				Required: true
 				Help:     "name of the environment"
 			}]
+      Flags: [{
+        Name:    "Command"
+        Long:    "cmd"
+        Short:   "c"
+        Type:    "string"
+        Default: "\"\""
+        Help:    "the command to run"
+      }]
 		}, {
 			Name:  "up"
 			Usage: "up [target...]"

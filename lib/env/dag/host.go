@@ -154,9 +154,9 @@ func (d *Dag) hashHostDir(step cue.Value) (*dagger.Directory, error) {
 
 	// load for realz
 	idx.dir = d.dag.Host().Directory(cfg.Path, dagger.HostDirectoryOpts{
-		Include:   cfg.Include,
-		Exclude:   cfg.Exclude,
-		NoCache:   cfg.NoCache,
+		// Include:   cfg.Include,
+		// Exclude:   cfg.Exclude,
+		// NoCache:   cfg.NoCache,
 		Gitignore: cfg.GitIgnore,
 	})
 

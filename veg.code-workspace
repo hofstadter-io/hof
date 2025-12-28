@@ -5,12 +5,16 @@
       "path": "."
     },
     {
+      "name": ".veg",
+      "path": ".veg"
+    },
+    {
       "name": "adk-go",
       "path": "../../adk/go"
     },
     {
-      "name": ".veg",
-      "path": ".veg"
+      "name": "dagger",
+      "path": "../dagger"
     }
   ],
 	"settings": {}

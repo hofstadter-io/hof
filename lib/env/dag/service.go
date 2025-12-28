@@ -11,16 +11,19 @@ import (
 type hashServiceConfig struct {
 	Kind string `json:"$kind"`
 
-	Name     string        `json:"name"`
-	Hostname string        `json:"hostname"`
-	Ports    []portForward `json:"ports"`
+	Name     string             `json:"name"`
+	Hostname string             `json:"hostname"`
+	Ports    []stepExposeConfig `json:"ports"`
 
 	Source cue.Value `json:"source"`
 
 	Args          []string `json:"args"`
 	UseEntrypoint bool     `json:"useEntrypoint"`
-	Expand        bool     `json:"expand"`
-	NoInit        bool     `json:"noINit"`
+
+	ExperimentalPrivilegedNesting bool `json:"experimentalPrivilegedNesting"`
+	InsecureRootCapabilities      bool `json:"insecureRootCapabilities"`
+	Expand                        bool `json:"expand"`
+	NoInit                        bool `json:"noINit"`
 }
 
 type hashServiceIndex struct {
@@ -58,18 +61,45 @@ func (d *Dag) hashService(step cue.Value) (*dagger.Service, error) {
 	}
 
 	// load for realz
-	ports := []dagger.PortForward{}
-	for _, p := range cfg.Ports {
-		ports = append(ports, dagger.PortForward{
-			Protocol: dagger.NetworkProtocol(p.Protocol),
-			Frontend: p.Frontend,
-			Backend:  p.Backend,
-		})
+
+	// look for kind
+	var c *dagger.Container
+	k := cfg.Source.LookupPath(cue.ParsePath("$kind"))
+	if !k.Exists() {
+		return nil, fmt.Errorf("missing $kind in #service.source: %v", step)
+	}
+	ks, _ := k.String()
+	switch ks {
+	case "#container":
+		c, err = d.hashContainer(cfg.Source)
+		if err != nil {
+			return nil, err
+		}
+	case "#hostImage":
+		c, err = d.hashHostImage(cfg.Source)
+		if err != nil {
+			return nil, err
+		}
+	default:
+		return nil, fmt.Errorf("unupported service.source $kind")
 	}
 
-	// idx.svc = d.dag.Host().Service(ports, dagger.HostServiceOpts{
-	// 	Host: cfg.Host,
-	// })
+	// prepare as-service inputs
+	for _, p := range cfg.Ports {
+		c = c.WithExposedPort(p.Port, dagger.ContainerWithExposedPortOpts{
+			Description:                 p.Name,
+			Protocol:                    dagger.NetworkProtocol(p.Protocol),
+			ExperimentalSkipHealthcheck: p.ExperimentalSkipHealthchecks,
+		})
+	}
+	idx.svc = c.AsService(dagger.ContainerAsServiceOpts{
+		Args:                          cfg.Args,
+		UseEntrypoint:                 cfg.UseEntrypoint,
+		ExperimentalPrivilegedNesting: cfg.ExperimentalPrivilegedNesting,
+		InsecureRootCapabilities:      cfg.InsecureRootCapabilities,
+		Expand:                        cfg.Expand,
+		NoInit:                        cfg.NoInit,
+	})
 
 	// memoize
 	d.cat[idx] = idx

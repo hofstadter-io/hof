@@ -24,6 +24,8 @@ docker: {
 			Components: stable
 			Signed-By: /etc/apt/keyrings/docker.asc
 			EOF
+
+			apt-get update -y
 			"""
 	}
 

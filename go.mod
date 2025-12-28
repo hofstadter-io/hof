@@ -15,7 +15,7 @@ require (
 	github.com/clbanning/mxj v1.8.4
 	github.com/codemodus/kace v0.5.1
 	github.com/dagger/dagger v0.19.8
-	github.com/dagger/dagger/engine/distconsts v0.19.7
+	github.com/dagger/dagger/engine/distconsts v0.19.8
 	github.com/fatih/color v1.18.0
 	github.com/franela/goblin v0.0.0-20200512143142-b260c999b2d7
 	github.com/fsnotify/fsnotify v1.9.0
@@ -324,6 +324,8 @@ exclude google.golang.org/protobuf v1.34.0
 
 exclude google.golang.org/protobuf v1.34.1
 
-replace google.golang.org/adk => /Users/tony/adk/go
+replace github.com/dagger/dagger => ../dagger
+
+replace google.golang.org/adk => ../../adk/go
 
 replace github.com/dagger/dagger/engine/distconsts => ./lib/env/incept/distconsts

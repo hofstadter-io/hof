@@ -32,7 +32,7 @@ func Publish(args []string, rflags flags.RootPflagpole, cflags flags.EnvPflagpol
 			Stdin:       os.Stdin,
 		})
 		if err != nil {
-			return fmt.Errorf("while running incept: %w", err)
+			return err
 		}
 
 		return nil

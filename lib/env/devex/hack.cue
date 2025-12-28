@@ -25,8 +25,8 @@ hack: dev: env.#Container & {
 		hack.src,
 
 		// the lsps
-		env.BindService & {service: hack.gopls},
-		env.BindService & {service: hack.cuepls},
+		// env.BindService & {service: hack.gopls},
+		// env.BindService & {service: hack.cuepls},
 	]
 
 }
@@ -75,7 +75,8 @@ hack: gopls: env.#Service & {
 	args: ["gopls", "serve", "-port=\(_port)"]
 
 	source: env.#Container & {
-		from: "\(_reg)/veg-dev:local"
+    name: "veg-dev"
+		from: "\(_reg)/\(name):local"
 
 		steps: [
 			env.Expose & {port: _port},
@@ -99,7 +100,8 @@ hack: cuepls: env.#Service & {
 	args: ["cue", "lsp", "serve", "-port=\(_port)"]
 
 	source: env.#Container & {
-		from: "\(_reg)/veg-dev:local"
+    name: "veg-dev"
+		from: "\(_reg)/\(name):local"
 		steps: [
 			env.Expose & {port: _port},
 			hack.src,

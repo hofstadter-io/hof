@@ -1,3 +1,5 @@
+@experiment(aliasv2)
+
 package env
 
 Step: {
@@ -81,7 +83,7 @@ Mount: Step & {
 	path: string
 
 	// cache, dir, file, secret, temp, host, service (?)
-	source?: #Cache | #Dir | #File | #HostDir | #HostFile
+	source?: #Cache | #File | #HostFile | #Dir | #HostDir
 }
 
 Env: Step & {
@@ -97,16 +99,10 @@ Envfile: Step & {
 	file: #File
 }
 
-Secret: Step & {
-	$kind:  "secret"
-	var?:   string
-	secret: #Secret
-}
-
 Expose: Step & {
 	$kind: "expose"
 
-	name:     string
+	name?:     string
 	port:     int
 	protocol: *"tcp" | "udp"
 
@@ -117,7 +113,7 @@ BindService: Step & {
 	$kind: "bindService"
 
 	// confitures an alias for the service when binding to this container
-	alias:   string | *service.hostname
+	alias:   string | *self.service.hostname
 	service: #Service
 }
 

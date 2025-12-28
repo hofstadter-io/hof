@@ -13,12 +13,18 @@ import (
 
 var runLong = `run an interactive environment`
 
+func init() {
+
+	flags.SetupEnv__RunFlags(RunCmd.Flags(), &(flags.Env__RunFlags))
+
+}
+
 func RunRun(name string) (err error) {
 
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
 
-	err = cmd.Run(name, flags.RootPflags, flags.EnvPflags)
+	err = cmd.Run(name, flags.RootPflags, flags.EnvPflags, flags.Env__RunFlags)
 
 	return err
 }

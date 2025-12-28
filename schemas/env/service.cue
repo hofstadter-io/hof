@@ -15,10 +15,10 @@ import (
   $kind: "#service"
 
   // convenience, and the default for hostname/alias depending on where it is used
-  name?: string | *hostname
+  name: string | *hostname
 
   // configures a hostname within the session at which the server which it can be reached
-  hostname?: string | *name
+  hostname: string | *name
 
   // ports to expose on the container
   ports?: [...#Port]
@@ -31,6 +31,10 @@ import (
 
   // if the container has an entrypoint, prepend it to the args
   useEntrypoint?: bool
+
+  // Provides Dagger access to the executed command.
+	experimentalPrivilegedNesting?: bool
+
 
 	// Execute the command with all root capabilities. This is similar to running a command with "sudo" or executing "docker run" with the "--privileged" flag. Containerization does not provide any security guarantees when using this option. It should only be used when absolutely necessary and only with trusted commands.
 	insecureRootCapabilities?: bool
@@ -46,10 +50,12 @@ import (
 }
 
 #Port: {
-  name: string
+  name?: string
   proto: *"tcp" | "udp" // align this with k8s too
 
   // the port
   port: int
   hostPort: int | *port
+
+	experimentalSkipHealthchecks?: bool
 }

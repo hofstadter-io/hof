@@ -52,6 +52,8 @@ func Incept(ctx context.Context, args []string, options *InceptOptions) error {
 	// 1. Initialize Globals (from main.go and engine.go)
 	// We need to set these because withEngine relies on them.
 
+	// HMMM, do we need one of those things that allows us to duplicate (fan out) i/o so we can also print after? (or save to file) (maybe even different frontends?!)
+
 	// IO Globals
 	if options.Stdout != nil {
 		stdout = options.Stdout
@@ -224,7 +226,8 @@ func Incept(ctx context.Context, args []string, options *InceptOptions) error {
 		go srv.Serve(sessionL)
 
 		// Run Command
-		return subCmd.Run()
+		err = subCmd.Run()
+		return err
 	})
 }
 

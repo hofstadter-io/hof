@@ -50,6 +50,7 @@ StepKinds: [
   "#service",
 
   // more stuff we can work with, but haven't really captured here yet
+  // "#git",
   "#cache",
   "#volume",
   "#secret",

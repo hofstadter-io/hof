@@ -32,7 +32,7 @@ func Build(args []string, rflags flags.RootPflagpole, cflags flags.EnvPflagpole)
 			Stdin:       os.Stdin,
 		})
 		if err != nil {
-			return fmt.Errorf("while running incept: %w", err)
+			return err
 		}
 
 		return nil
@@ -73,6 +73,7 @@ func Build(args []string, rflags flags.RootPflagpole, cflags flags.EnvPflagpole)
 
 			i, err := d.Build(e, cflags.NoCache)
 			if err != nil {
+				fmt.Println("error:", err)
 				return err
 			}
 

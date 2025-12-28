@@ -6,10 +6,18 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
+
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var runLong = `run an interactive environment`
+
+func init() {
+
+	flags.SetupEnv__RunFlags(RunCmd.Flags(), &(flags.Env__RunFlags))
+
+}
 
 func RunRun(name string) (err error) {
 
