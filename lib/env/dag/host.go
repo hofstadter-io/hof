@@ -2,6 +2,7 @@ package dag
 
 import (
 	"fmt"
+	"strings"
 
 	"cuelang.org/go/cue"
 	"dagger.io/dagger"
@@ -211,7 +212,7 @@ func (d *Dag) hashHostService(step cue.Value) (*dagger.Service, error) {
 	ports := []dagger.PortForward{}
 	for _, p := range cfg.Ports {
 		ports = append(ports, dagger.PortForward{
-			Protocol: dagger.NetworkProtocol(p.Protocol),
+			Protocol: dagger.NetworkProtocol(strings.ToUpper(p.Protocol)),
 			Frontend: p.Frontend,
 			Backend:  p.Backend,
 		})
@@ -272,7 +273,7 @@ func (d *Dag) hashHostTunnel(step cue.Value) (*dagger.Service, error) {
 	ports := []dagger.PortForward{}
 	for _, p := range cfg.Ports {
 		ports = append(ports, dagger.PortForward{
-			Protocol: dagger.NetworkProtocol(p.Protocol),
+			Protocol: dagger.NetworkProtocol(strings.ToUpper(p.Protocol)),
 			Frontend: p.Frontend,
 			Backend:  p.Backend,
 		})

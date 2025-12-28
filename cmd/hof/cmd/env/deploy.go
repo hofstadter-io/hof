@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/env/cmd"
 )
 
-var deployLong = `deploy an environment`
+var deployLong = `deploy an environment, think tf+helm`
 
 func DeployRun(args []string) (err error) {
 
@@ -25,7 +25,7 @@ func DeployRun(args []string) (err error) {
 
 var DeployCmd = &cobra.Command{
 
-	Use: "deploy <name>",
+	Use: "deploy [target...]",
 
 	Short: "deploy an environment",
 

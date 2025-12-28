@@ -10,6 +10,10 @@ EnvCommand: schema.Command & {
 	Short: "build, run, ship, and deploy environments (image, service, stack)"
 	Long:  "build, run, ship, and deploy environments (image, service, stack)"
 
+  // TODO, this should fallback to looking for commands in config, like cue & pnpm do
+  // we want users to be able to define task/rules like Make, pnpm scripts, cue cmd
+  // hof flow is this outside of the env/ci realm, we need something that mirrors onto dagger
+  // this could also work into dagger modules/functions
 	OmitRun: true
 
 	Pflags: [...schema.Flag] & [{
@@ -174,9 +178,14 @@ EnvCommand: schema.Command & {
 			Short: "pull an environment"
 			Long:  "pull an environment"
 		}, {
+			Name:  "ci"
+			Usage: "ci [target...]"
+			Short: "CI's an environment"
+			Long:  "CI's an environment, local + remote parity"
+		}, {
 			Name:  "deploy"
-			Usage: "deploy <name>"
+			Usage: "deploy [target...]"
 			Short: "deploy an environment"
-			Long:  "deploy an environment"
+			Long:  "deploy an environment, think tf+helm"
 		}]
 }

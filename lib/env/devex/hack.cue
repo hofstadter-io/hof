@@ -1,6 +1,7 @@
 package devex
 
 import (
+	"github.com/hofstadter-io/hof/lib/env/devex/steps/utils"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
@@ -16,30 +17,28 @@ hack: dev: env.#Container & {
 	name: "hack"
 	#hof: metadata: description: "hack dev container"
 
-	from: "\(_reg)/veg-dev:local"
+	from: veg.dev
 
 	// shared volume from current directory
 
 	steps: [
 		// the code
-		hack.src,
+		env.Mount & {path: "/work", source: hack.src},
+    utils.apt.install & {#pkgs: ["netcat-openbsd"]},
 
 		// the lsps
-		// env.BindService & {service: hack.gopls},
-		// env.BindService & {service: hack.cuepls},
+		env.BindService & {service: hack.gopls},
+		env.BindService & {service: hack.cuepls},
 	]
 
 }
 
 hack: {
-	src: env.Mount & {
-		path: "/work"
-		source: env.#HostDir & {
-			@env()
-			name: "hack-src"
-			path: flags.src
-			#hof: metadata: description: "hack dev source"
-		}
+	src: env.#HostDir & {
+		@env()
+		name: "hack-src"
+		path: flags.src
+		#hof: metadata: description: "hack dev source"
 	}
 }
 
@@ -75,12 +74,12 @@ hack: gopls: env.#Service & {
 	args: ["gopls", "serve", "-port=\(_port)"]
 
 	source: env.#Container & {
-    name: "veg-dev"
+		name: "veg-dev"
 		from: "\(_reg)/\(name):local"
 
 		steps: [
 			env.Expose & {port: _port},
-			hack.src,
+      env.Mount & {path: "/work", source: hack.src},
 		]
 	}
 
@@ -100,11 +99,11 @@ hack: cuepls: env.#Service & {
 	args: ["cue", "lsp", "serve", "-port=\(_port)"]
 
 	source: env.#Container & {
-    name: "veg-dev"
+		name: "veg-dev"
 		from: "\(_reg)/\(name):local"
 		steps: [
 			env.Expose & {port: _port},
-			hack.src,
+      env.Mount & {path: "/work", source: hack.src},
 		]
 	}
 }

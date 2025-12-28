@@ -9,9 +9,9 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var deployLong = `deploy an environment, think tf+helm`
+var ciLong = `CI's an environment, local + remote parity`
 
-func DeployRun(args []string) (err error) {
+func CiRun(args []string) (err error) {
 
 	// you can safely comment this print out
 	fmt.Println("not implemented")
@@ -19,13 +19,13 @@ func DeployRun(args []string) (err error) {
 	return err
 }
 
-var DeployCmd = &cobra.Command{
+var CiCmd = &cobra.Command{
 
-	Use: "deploy [target...]",
+	Use: "ci [target...]",
 
-	Short: "deploy an environment",
+	Short: "CI's an environment",
 
-	Long: deployLong,
+	Long: ciLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
 
@@ -35,7 +35,7 @@ var DeployCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		err = DeployRun(args)
+		err = CiRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -49,8 +49,8 @@ func init() {
 		return false
 	}
 
-	ohelp := DeployCmd.HelpFunc()
-	ousage := DeployCmd.UsageFunc()
+	ohelp := CiCmd.HelpFunc()
+	ousage := CiCmd.UsageFunc()
 
 	help := func(cmd *cobra.Command, args []string) {
 
@@ -74,7 +74,7 @@ func init() {
 	tusage := func(cmd *cobra.Command) error {
 		return usage(cmd)
 	}
-	DeployCmd.SetHelpFunc(thelp)
-	DeployCmd.SetUsageFunc(tusage)
+	CiCmd.SetHelpFunc(thelp)
+	CiCmd.SetUsageFunc(tusage)
 
 }

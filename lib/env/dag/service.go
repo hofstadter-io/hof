@@ -2,11 +2,49 @@ package dag
 
 import (
 	"fmt"
+	"strings"
 
 	"cuelang.org/go/cue"
 	"dagger.io/dagger"
 	"github.com/hofstadter-io/hof/lib/env"
 )
+
+type stepBindServiceConfig struct {
+	Kind  string `json:"$kind"`
+	Alias string `json:"alias"`
+
+	Service cue.Value `json:"service"`
+}
+
+func (d *Dag) stepBindServiceHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+	var cfg stepBindServiceConfig
+	err := step.Decode(&cfg)
+	if err != nil {
+		return nil, fmt.Errorf("while decoding stepEntrypoint: %w", err)
+	}
+	// fmt.Println("bindService.config", cfg)
+
+	s, err := d.hashService(cfg.Service)
+	if err != nil {
+		return nil, err
+	}
+	hn, err := s.Hostname(d.ctx)
+	if err != nil {
+		fmt.Println("hn.error", err)
+	}
+	if hn == "" {
+		s = s.WithHostname(cfg.Alias)
+		hn, _ = s.Hostname(d.ctx)
+		if err != nil {
+			fmt.Println("hn.error.2", err)
+		}
+	}
+
+	// fmt.Printf("buildService.attach: %q %q\n", cfg.Alias, hn)
+
+	c = c.WithServiceBinding(cfg.Alias, s)
+	return c, nil
+}
 
 type hashServiceConfig struct {
 	Kind string `json:"$kind"`
@@ -46,6 +84,7 @@ func (d *Dag) hashService(step cue.Value) (*dagger.Service, error) {
 	if err != nil {
 		return nil, fmt.Errorf("while decoding hashService: %w", err)
 	}
+	// fmt.Println("hashService.config", cfg)
 
 	// index for query and create if not found
 	idx := &hashServiceIndex{
@@ -84,11 +123,13 @@ func (d *Dag) hashService(step cue.Value) (*dagger.Service, error) {
 		return nil, fmt.Errorf("unupported service.source $kind")
 	}
 
+	// fmt.Println("hashService.preparing")
+
 	// prepare as-service inputs
 	for _, p := range cfg.Ports {
 		c = c.WithExposedPort(p.Port, dagger.ContainerWithExposedPortOpts{
 			Description:                 p.Name,
-			Protocol:                    dagger.NetworkProtocol(p.Protocol),
+			Protocol:                    dagger.NetworkProtocol(strings.ToUpper(p.Protocol)),
 			ExperimentalSkipHealthcheck: p.ExperimentalSkipHealthchecks,
 		})
 	}
@@ -100,6 +141,8 @@ func (d *Dag) hashService(step cue.Value) (*dagger.Service, error) {
 		Expand:                        cfg.Expand,
 		NoInit:                        cfg.NoInit,
 	})
+
+	// fmt.Println("hashService.done")
 
 	// memoize
 	d.cat[idx] = idx

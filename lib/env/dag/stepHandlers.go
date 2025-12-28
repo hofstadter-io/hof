@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"cuelang.org/go/cue"
 	"dagger.io/dagger"
@@ -389,37 +390,16 @@ func (d *Dag) stepExposeHandler(c *dagger.Container, step cue.Value) (*dagger.Co
 	var cfg stepExposeConfig
 	err := step.Decode(&cfg)
 	if err != nil {
-		return nil, fmt.Errorf("while decoding stepEntrypoint: %w", err)
+		return nil, fmt.Errorf("while decoding stepExpose: %w", err)
 	}
+	fmt.Println("stepExpose.config", cfg)
 
+	// c = c.WithExposedPort(cfg.Port)
 	c = c.WithExposedPort(cfg.Port, dagger.ContainerWithExposedPortOpts{
 		Description:                 cfg.Name,
-		Protocol:                    dagger.NetworkProtocol(cfg.Protocol),
+		Protocol:                    dagger.NetworkProtocol(strings.ToUpper(cfg.Protocol)),
 		ExperimentalSkipHealthcheck: cfg.ExperimentalSkipHealthchecks,
 	})
-	return c, nil
-}
-
-type stepBindServiceConfig struct {
-	Kind  string `json:"$kind"`
-	Alias string `json:"alias"`
-
-	Service cue.Value `json:"service"`
-}
-
-func (d *Dag) stepBindServiceHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
-	var cfg stepBindServiceConfig
-	err := step.Decode(&cfg)
-	if err != nil {
-		return nil, fmt.Errorf("while decoding stepEntrypoint: %w", err)
-	}
-
-	s, err := d.hashService(cfg.Service)
-	if err != nil {
-		return nil, err
-	}
-
-	c = c.WithServiceBinding(cfg.Alias, s)
 	return c, nil
 }
 

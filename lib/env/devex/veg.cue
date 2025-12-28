@@ -1,3 +1,5 @@
+@experiment(aliasv2)
+
 package devex
 
 import (
@@ -8,9 +10,21 @@ import (
 )
 
 veg: {
+  // apply these to all fields, except vegeta
+  [string]~(key,_): {
+    // todo, if we have more than containers in this struct, we can if $kind == "#container" { ... }
+    name: string
+    if key == "vegeta" {
+      name: key
+    }
+    if key != "vegeta" {
+      name: "veg-\(key)"
+    }
+    labels: env.DefaultLabels & { #name: name }
+  }
+
 	base: env.#Container & {
 		@env()
-		name: "veg-base"
 		#hof: metadata: description: "A minimal debian image with a few common tools"
 		from: "debian:13-slim"
 
@@ -45,7 +59,6 @@ veg: {
 
 	dev: env.#Container & {
 		@env()
-		name: "veg-dev"
 		#hof: metadata: description: "A development image with many tools"
 
 		from: base
@@ -77,7 +90,6 @@ veg: {
 
 	ops: env.#Container & {
 		@env()
-		name: "veg-ops"
 		#hof: metadata: description: "Extension to veg-dev to add devops tooling"
 		from: dev
 
@@ -92,7 +104,6 @@ veg: {
 
 	incept: env.#Container & {
 		@env()
-		name: "veg-incept"
 		#hof: metadata: description: "Extension to veg-dev to add docker/dagger setup for inception"
 		from: dev
 
@@ -106,7 +117,6 @@ veg: {
 
 	vegeta: env.#Container & {
 		@env()
-		name: "vegeta"
 		#hof: metadata: description: "all of the veggie images, it's over 9000"
 		from: ops
 

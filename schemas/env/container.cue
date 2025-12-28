@@ -35,11 +35,11 @@ import (
 
 	// labels are applied at the end
 	labels: [string]: string
-	// defaults (standard to have these three)
-	labels: {
-		"org.opencontainers.image.title": string | *name
-		"org.opencontainers.image.version": string | *"latest"
-		"org.opencontainers.image.commit":  string | *"dirty"
-		// TODO, support some well-known keywords for git
-	}
+}
+
+DefaultLabels: {
+	#name?:                             string | *"ephemeral"
+	"org.opencontainers.image.title":   string | *#name
+	"org.opencontainers.image.version": string | *"latest"
+	"org.opencontainers.image.commit":  string | *"dirty"
 }

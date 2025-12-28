@@ -14,17 +14,18 @@ import (
 
   $kind: "#service"
 
-  // convenience, and the default for hostname/alias depending on where it is used
+  // convenient name
   name: string | *hostname
 
-  // configures a hostname within the session at which the server which it can be reached
-  hostname: string | *name
+  // container to turn into a service
+  source: #Container | #HostImage
 
   // ports to expose on the container
   ports?: [...#Port]
 
-  // container to turn into a service
-  source: #Container | #HostImage
+  // configures a hostname within the session at which the server which it can be reached
+  // used when exposing to the host
+  hostname?: string | *name
 
   // if empty, the container's default will be used
   args?: [...string]

@@ -74,6 +74,7 @@ func init() {
 	EnvCmd.AddCommand(cmdenv.PublishCmd)
 	EnvCmd.AddCommand(cmdenv.PushCmd)
 	EnvCmd.AddCommand(cmdenv.PullCmd)
+	EnvCmd.AddCommand(cmdenv.CiCmd)
 	EnvCmd.AddCommand(cmdenv.DeployCmd)
 
 }

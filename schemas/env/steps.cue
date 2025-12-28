@@ -113,7 +113,7 @@ BindService: Step & {
 	$kind: "bindService"
 
 	// confitures an alias for the service when binding to this container
-	alias:   string | *self.service.hostname
+	alias:   string | *self.service.name
 	service: #Service
 }
 
