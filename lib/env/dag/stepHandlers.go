@@ -170,6 +170,7 @@ func (d *Dag) stepFileHandler(c *dagger.Container, step cue.Value) (*dagger.Cont
 		case "#file":
 			f, err = d.hashFile(cfg.Content)
 		case "#hostFile":
+			f, err = d.hashHostFile(cfg.Content)
 
 		default:
 			return c, fmt.Errorf("unsupported $kind in struct file source: %v", step)
@@ -211,23 +212,31 @@ func (d *Dag) stepDirHandler(c *dagger.Container, step cue.Value) (*dagger.Conta
 		}
 		ks, _ := k.String()
 		switch ks {
-		case "#container":
-			ctr, err := d.hashContainer(cfg.Source)
+		case "#gitRepo":
+			repo, err := d.hashGitRepo(cfg.Source)
 			if err != nil {
 				return nil, err
 			}
-			dir = ctr.Directory(cfg.Path)
+			dir = repo.Head().Tree()
 
 		case "#dir":
 			dir, err = d.hashDir(cfg.Source)
 			if err != nil {
 				return nil, err
 			}
+
 		case "#hostDir":
 			dir, err = d.hashHostDir(cfg.Source)
 			if err != nil {
 				return nil, err
 			}
+
+		case "#container":
+			ctr, err := d.hashContainer(cfg.Source)
+			if err != nil {
+				return nil, err
+			}
+			dir = ctr.Directory(cfg.Path)
 
 		case "#hostImage":
 			ctr, err := d.hashHostImage(cfg.Source)
@@ -392,7 +401,7 @@ func (d *Dag) stepExposeHandler(c *dagger.Container, step cue.Value) (*dagger.Co
 	if err != nil {
 		return nil, fmt.Errorf("while decoding stepExpose: %w", err)
 	}
-	fmt.Println("stepExpose.config", cfg)
+	// fmt.Println("stepExpose.config", cfg)
 
 	// c = c.WithExposedPort(cfg.Port)
 	c = c.WithExposedPort(cfg.Port, dagger.ContainerWithExposedPortOpts{

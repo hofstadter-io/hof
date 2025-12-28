@@ -44,15 +44,17 @@ StepKinds: [
   "#hostSocket",
 
   // outputs from these, but also generally
+  "#service",
   "#container",
   "#file",
   "#dir",
-  "#service",
 
   // more stuff we can work with, but haven't really captured here yet
-  // "#git",
   "#cache",
   "#volume",
   "#secret",
-  // #exec for results and doing logic in CUE (or do we just sidestep that whole problem by not supporting certain things)
+
+  // git related things
+  "#gitRepo",
+  // "#gitRef",
 ]

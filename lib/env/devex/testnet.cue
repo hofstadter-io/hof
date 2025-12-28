@@ -17,7 +17,7 @@ testnet: {
 				from: "blebbit/plc:latest"
 				steps: [
 					env.Envfile & {file: plc.config},
-					env.BindService & {service: plc["plc-pg-svc"]},
+					env.BindService & {service: plc.postgres},
 				]
 			}
 		}
@@ -35,7 +35,7 @@ testnet: {
 				steps: [
 					env.Envfile & {file: relay.config},
 					env.Mount & {path: "/data", source: relay.data},
-					env.BindService & {service: relay["relay-pg-svc"]},
+					env.BindService & {service: relay.postgres},
 					env.BindService & {service: plc.server},
 				]
 			}
@@ -97,32 +97,10 @@ testnet: {
 				}
 				steps: [
 					env.Exec & {args: ["migrate", "head"], useEntrypoint: true},
-					env.BindService & {service: pds["pds-pg-svc"]},
+					env.BindService & {service: pds.postgres},
 				]
 			}
 		}
 		(#pg & {#name: "spicedb"}).#out
-	}
-}
-
-#pg: {
-	#name: string
-	#out: {
-		"pg-vol"~V: env.#Cache & {@env()}
-		"pg-svc": env.#Service & {
-			@env()
-			ports: [{port: 5432}]
-			source: env.#Container & {
-				from: "postgres:16"
-				envs: {
-					POSTGRES_DB:       #name
-					POSTGRES_USER:     #name
-					POSTGRES_PASSWORD: #name
-				}
-        steps: [
-					env.Mount & {path: "/var/lib/postgresql/data", source: V},
-        ]
-			}
-		}
 	}
 }

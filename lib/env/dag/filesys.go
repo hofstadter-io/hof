@@ -44,6 +44,14 @@ func (d *Dag) hashFile(step cue.Value) (*dagger.File, error) {
 	}
 	sks, _ := sk.String()
 	switch sks {
+	case "#gitRepo":
+		repo, err := d.hashGitRepo(cfg.Source)
+		if err != nil {
+			return nil, err
+		}
+		dir := repo.Head().Tree()
+		return dir.File(cfg.Path), nil
+
 	case "#dir":
 		dir, err := d.hashDir(cfg.Source)
 		if err != nil {
@@ -60,6 +68,13 @@ func (d *Dag) hashFile(step cue.Value) (*dagger.File, error) {
 
 	case "#container":
 		ctr, err := d.hashContainer(cfg.Source)
+		if err != nil {
+			return nil, err
+		}
+		return ctr.File(cfg.Path), nil
+
+	case "#hostImage":
+		ctr, err := d.hashHostImage(cfg.Source)
 		if err != nil {
 			return nil, err
 		}
@@ -105,6 +120,14 @@ func (d *Dag) hashDir(step cue.Value) (*dagger.Directory, error) {
 	}
 	sks, _ := sk.String()
 	switch sks {
+	case "#gitRepo":
+		repo, err := d.hashGitRepo(cfg.Source)
+		if err != nil {
+			return nil, err
+		}
+		dir := repo.Head().Tree()
+		return dir.Directory(cfg.Path), nil
+
 	case "#dir":
 		dir, err := d.hashDir(cfg.Source)
 		if err != nil {
@@ -121,6 +144,15 @@ func (d *Dag) hashDir(step cue.Value) (*dagger.Directory, error) {
 
 	case "#container":
 		ctr, err := d.hashContainer(cfg.Source)
+		if err != nil {
+			return nil, err
+		}
+		return ctr.Directory(cfg.Path, dagger.ContainerDirectoryOpts{
+			// Expand: cfg.Expand
+		}), nil
+
+	case "#hostImage":
+		ctr, err := d.hashHostImage(cfg.Source)
 		if err != nil {
 			return nil, err
 		}

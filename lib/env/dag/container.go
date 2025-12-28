@@ -96,6 +96,10 @@ func (d *Dag) hashContainer(step cue.Value) (*dagger.Container, error) {
 		return c, fmt.Errorf("while adding steps: %w", err)
 	}
 
+	for k, v := range cfg.Envs {
+		c = c.WithEnvVariable(k, v)
+	}
+
 	for k, v := range cfg.Labels {
 		c = c.WithAnnotation(k, v)
 	}
