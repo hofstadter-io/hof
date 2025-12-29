@@ -120,17 +120,19 @@ import (
 }
 
 #PortForward: {
-  // friendly name for the port
-  name?: string
+	// friendly name for the port
+	name?: string
+
+	port: int
 
 	// Destination port for traffic.
-	backend: int
+	backend: port
 
 	// Port to expose to clients. If unspecified, a default will be chosen.
 	frontend?: int
 
 	// Transport layer protocol to use for traffic.
-	protocol?: *"tcp" | "udp"
+	protocol: *"TCP" | "UDP"
 }
 
 // Accesses a Unix socket on the host.

@@ -1,17 +1,35 @@
 package env
 
+import (
+	"github.com/hofstadter-io/hof/schemas"
+)
+
 // like dagger.File
 #File: Ref & {
-	$kind:   "#file"
-	path:    string
-	source?: #Dir | #Container | #HostDir | #HostImage | #GitRepo
+	schemas.Hof
+	#hof: env: {
+		root: true // need to figure out what this really means, how it interacts with discovery & cli vs walking a CUE value to construct a giant dagger dag
+		kind: "file"
+	}
+
+	$kind: "#file"
+	path:  string
+	// source?: #Dir | #Container | #HostDir | #HostImage | #GitRepo
+	source?: _
 }
 
 // this is creating a directory ref that we can do things with
 #Dir: Ref & {
-	$kind:   "#dir"
-	source?: #Dir | #Container | #HostDir | #HostImage | #GitRepo
-	path:    string
+	schemas.Hof
+	#hof: env: {
+		root: true // need to figure out what this really means, how it interacts with discovery & cli vs walking a CUE value to construct a giant dagger dag
+		kind: "dir"
+	}
+
+	$kind: "#dir"
+	path:  string
+	// source?: #Dir | #Container | #HostDir | #HostImage | #GitRepo
+	source?: _
 	include: [...string]
 	exclude: [...string]
 	gitignore: bool | *true
@@ -37,6 +55,7 @@ Dir: Step & {
 	// args
 	path:    string
 	source?: #Container | #Dir | #GitRepo | #HostDir | #HostImage // HMMM(B): or maybe this should just be dir kinds, make the user do an extra step? (nah, wouldn't have to with the SDK directly)
+	source?: _
 	// opts
 	include?: [...string]
 	exclude?: [...string]

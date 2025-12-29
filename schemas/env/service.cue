@@ -1,3 +1,4 @@
+@experiment(aliasv2)
 package env
 
 import (
@@ -12,30 +13,29 @@ import (
 		kind: "service"
 	}
 
-  $kind: "#service"
+	$kind: "#service"
 
-  // convenient name
-  name: string | *hostname
+	// convenient name
+	name!: string
 
-  // container to turn into a service
-  source: #Container | #HostImage
+	// container to turn into a service
+	source: #Container | #HostImage
 
-  // ports to expose on the container
-  ports?: [...#Port]
+	// ports to expose on the container
+	ports?: [...#PortForward]
 
-  // configures a hostname within the session at which the server which it can be reached
-  // used when exposing to the host
-  hostname?: string | *name
+	// configures a hostname within the session at which the server which it can be reached
+	// used when exposing to the host
+	hostname: string | *name
 
-  // if empty, the container's default will be used
-  args?: [...string]
+	// if empty, the container's default will be used
+	args?: [...string]
 
-  // if the container has an entrypoint, prepend it to the args
-  useEntrypoint?: bool
+	// if the container has an entrypoint, prepend it to the args
+	useEntrypoint?: bool
 
-  // Provides Dagger access to the executed command.
+	// Provides Dagger access to the executed command.
 	experimentalPrivilegedNesting?: bool
-
 
 	// Execute the command with all root capabilities. This is similar to running a command with "sudo" or executing "docker run" with the "--privileged" flag. Containerization does not provide any security guarantees when using this option. It should only be used when absolutely necessary and only with trusted commands.
 	insecureRootCapabilities?: bool
@@ -47,16 +47,22 @@ import (
 	//
 	// This should only be used if the user requires that their exec process be the pid 1 process in the container. Otherwise it may result in unexpected behavior.
 	noInit?: bool
-
 }
 
-#Port: {
-  name?: string
-  proto: *"tcp" | "udp" // align this with k8s too
+Expose: Step & {
+	$kind: "expose"
 
-  // the port
-  port: int
-  hostPort: int | *port
+	name?:    string
+	port:     int
+	protocol: *"TCP" | "UDP"
 
 	experimentalSkipHealthchecks?: bool
+}
+
+BindService: Step & {
+	$kind: "bindService"
+
+	// confitures an alias for the service when binding to this container
+	alias:   string | *self.service.name
+	service: #Service
 }

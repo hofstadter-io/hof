@@ -7,11 +7,11 @@ FieldEnricher: {
 
 	output: field
 	output: PyType: [
-			if field.Type == "uuid" {"uuid.UUID"},
-			if field.Type == "date" {"datetime.date"},
-			if field.Type == "time" {"datetime.time"},
-			if field.Type == "datetime" {"datetime.datetime"},
-			if field.Type == "string" {"str"},
-			field.Type,
+		if field.Type == "uuid" {"uuid.UUID"},
+		if field.Type == "date" {"datetime.date"},
+		if field.Type == "time" {"datetime.time"},
+		if field.Type == "datetime" {"datetime.datetime"},
+		if field.Type == "string" {"str"},
+		field.Type,
 	][0]
 }

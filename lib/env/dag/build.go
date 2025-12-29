@@ -24,7 +24,29 @@ func (d *Dag) Build(e *env.Env, noCache bool) (*dagger.Container, error) {
 	switch k.Kind {
 	case "#container":
 		return d.hashContainer(e.Value)
+	case "#hostImage":
+		return d.hashHostImage(e.Value)
 	default:
 		return nil, fmt.Errorf("unsupported build target: %v", k.Kind, e.Value)
+	}
+}
+
+func (d *Dag) Service(e *env.Env, noCache bool) (*dagger.Service, *hashServiceConfig, error) {
+	d.noCache = noCache
+
+	// it's probably wrong to assume this in general
+	var k kinder
+	err := e.Value.Decode(&k)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	switch k.Kind {
+	case "#service":
+		s, cfg, err := d.hashService(e.Value)
+
+		return s, cfg, err
+	default:
+		return nil, nil, fmt.Errorf("unsupported build target: %v", k.Kind, e.Value)
 	}
 }

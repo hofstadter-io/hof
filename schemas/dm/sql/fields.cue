@@ -3,7 +3,7 @@ package sql
 import "github.com/hofstadter-io/hof/schemas/dm"
 
 CommonFields: {
-	ID:        fields.UUID & {Default: string | *"uuid_generate_v4()"}
+	ID: fields.UUID & {Default: string | *"uuid_generate_v4()"}
 	CreatedAt: fields.Datetime
 	UpdatedAt: fields.Datetime
 }

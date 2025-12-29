@@ -3,11 +3,12 @@
 package env
 
 Step: {
-	$kind: or(StepKinds)
+	$kind: string
 }
 
-Ref: Step & {
-	id?: string
+Ref: {
+	$kind: string
+	id?:   string
 }
 
 Sync: Step & {
@@ -23,7 +24,7 @@ Exec: Step & {
 	redirectStdin?:  string
 	redirectStdout?: string
 	redirectStderr?: string
-  expect?: *"SUCCESS" | "FAILURE" | "ANY"
+	expect?:         *"SUCCESS" | "FAILURE" | "ANY"
 
 	experimentalPrivilegedNesting?: bool
 	insecureRootCapabilities?:      bool
@@ -56,37 +57,20 @@ Mount: Step & {
 
 	// cache, dir, file, secret, temp, host, service (?)
 	source?: #Cache | #File | #HostFile | #Dir | #HostDir
+	// source?: _
 }
 
 Env: Step & {
-	$kind:   "env"
-  // bit of a hack for convenience in a couple places
-	$expand: "1" | "t" | "T" | "TRUE" | "true" | "True" | "0" | "f" | "F" | "FALSE" | "false" | *"False"
-  [string]: string
+	$kind: "env"
+	// bit of a hack for convenience in a couple places
+	$expand:  "1" | "t" | "T" | "TRUE" | "true" | "True" | "0" | "f" | "F" | "FALSE" | "false" | *"False"
+	[string]: string
 }
 
 Envfile: Step & {
 	$kind: "envfile"
 
 	file: #File | #HostFile
-}
-
-Expose: Step & {
-	$kind: "expose"
-
-	name?:     string
-	port:     int
-	protocol: *"tcp" | "udp"
-
-	experimentalSkipHealthchecks?: bool
-}
-
-BindService: Step & {
-	$kind: "bindService"
-
-	// confitures an alias for the service when binding to this container
-	alias:   string | *self.service.name
-	service: #Service
 }
 
 Entrypoint: Step & {
@@ -107,4 +91,11 @@ Term: Step & {
 
 	experimentalPrivilegedNesting?: bool
 	insecureRootCapabilities?:      bool
+}
+
+// starts an interactive terminal
+Shell: Step & {
+	$kind: "shell"
+	args: [...string]
+	tbd: "this still needs to be implemented"
 }

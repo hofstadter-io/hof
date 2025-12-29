@@ -6,17 +6,21 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
+	"github.com/hofstadter-io/hof/lib/env/cmd"
 )
 
 var upLong = `starts an environment`
 
 func UpRun(args []string) (err error) {
 
-	// you can safely comment this print out
-	fmt.Println("not implemented")
+	return cmd.Up(args, flags.RootPflags, flags.EnvPflags)
 
-	return err
+	// you can safely comment this print out
+	// fmt.Println("not implemented")
+
+	// return err
 }
 
 var UpCmd = &cobra.Command{

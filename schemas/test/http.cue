@@ -12,7 +12,7 @@ package test
 	auth?:  string
 	headers?: [string]: string
 	query?: [string]:   string
-	data?:    string | {...}
+	data?: string | {...}
 	timeout?: string
 	retry?: {
 		count?: int

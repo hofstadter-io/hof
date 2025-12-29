@@ -24,7 +24,7 @@ func (d *Dag) stepBindServiceHandler(c *dagger.Container, step cue.Value) (*dagg
 	}
 	// fmt.Println("bindService.config", cfg)
 
-	s, err := d.hashService(cfg.Service)
+	s, _, err := d.hashService(cfg.Service)
 	if err != nil {
 		return nil, err
 	}
@@ -49,11 +49,12 @@ func (d *Dag) stepBindServiceHandler(c *dagger.Container, step cue.Value) (*dagg
 type hashServiceConfig struct {
 	Kind string `json:"$kind"`
 
-	Name     string             `json:"name"`
-	Hostname string             `json:"hostname"`
-	Ports    []stepExposeConfig `json:"ports"`
-
+	Name   string    `json:"name"`
 	Source cue.Value `json:"source"`
+
+	// various fields set when services are used
+	Hostname string        `json:"hostname"`
+	Ports    []portForward `json:"ports"`
 
 	Args          []string `json:"args"`
 	UseEntrypoint bool     `json:"useEntrypoint"`
@@ -78,11 +79,11 @@ func (idx *hashServiceIndex) Key() string {
 	return fmt.Sprintf("service.%s", idx.cfg.Name)
 }
 
-func (d *Dag) hashService(step cue.Value) (*dagger.Service, error) {
+func (d *Dag) hashService(step cue.Value) (*dagger.Service, *hashServiceConfig, error) {
 	var cfg hashServiceConfig
 	err := step.Decode(&cfg)
 	if err != nil {
-		return nil, fmt.Errorf("while decoding hashService: %w", err)
+		return nil, nil, fmt.Errorf("while decoding hashService: %w", err)
 	}
 	// fmt.Println("hashService.config", cfg)
 
@@ -96,7 +97,7 @@ func (d *Dag) hashService(step cue.Value) (*dagger.Service, error) {
 	ia, ok := d.cat[idx]
 	if ok {
 		ix := ia.(*hostServiceIndex)
-		return ix.svc, nil
+		return ix.svc, idx.cfg, nil
 	}
 
 	// load for realz
@@ -105,32 +106,32 @@ func (d *Dag) hashService(step cue.Value) (*dagger.Service, error) {
 	var c *dagger.Container
 	k := cfg.Source.LookupPath(cue.ParsePath("$kind"))
 	if !k.Exists() {
-		return nil, fmt.Errorf("missing $kind in #service.source: %v", step)
+		return nil, nil, fmt.Errorf("missing $kind in #service.source: %v", step)
 	}
 	ks, _ := k.String()
 	switch ks {
 	case "#container":
 		c, err = d.hashContainer(cfg.Source)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 	case "#hostImage":
 		c, err = d.hashHostImage(cfg.Source)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 	default:
-		return nil, fmt.Errorf("unupported service.source $kind")
+		return nil, nil, fmt.Errorf("unupported service.source $kind")
 	}
 
 	// fmt.Println("hashService.preparing")
 
 	// prepare as-service inputs
 	for _, p := range cfg.Ports {
-		c = c.WithExposedPort(p.Port, dagger.ContainerWithExposedPortOpts{
-			Description:                 p.Name,
-			Protocol:                    dagger.NetworkProtocol(strings.ToUpper(p.Protocol)),
-			ExperimentalSkipHealthcheck: p.ExperimentalSkipHealthchecks,
+		c = c.WithExposedPort(p.Backend, dagger.ContainerWithExposedPortOpts{
+			Description: p.Name,
+			Protocol:    dagger.NetworkProtocol(strings.ToUpper(p.Protocol)),
+			// ExperimentalSkipHealthcheck: p.ExperimentalSkipHealthchecks,
 		})
 	}
 	idx.svc = c.AsService(dagger.ContainerAsServiceOpts{
@@ -147,5 +148,5 @@ func (d *Dag) hashService(step cue.Value) (*dagger.Service, error) {
 	// memoize
 	d.cat[idx] = idx
 
-	return idx.svc, nil
+	return idx.svc, idx.cfg, nil
 }

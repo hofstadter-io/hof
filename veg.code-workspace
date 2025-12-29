@@ -13,7 +13,23 @@
       "path": "../dagger"
     },
     {
+      "name": "testnet",
       "path": "../../blebbit/testnet"
+    },
+    {
+      "name": "schemas",
+      "path": "schemas"
+    },
+    {
+      "name": "common",
+      "path": "lib/env/common"
+    },
+    {
+      "name": "examples",
+      "path": "examples"
+    },
+    {
+      "path": "lib/env"
     }
   ],
 	"settings": {}

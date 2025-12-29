@@ -1,6 +1,11 @@
 package cmd
 
 import (
+	"fmt"
+	"os"
+
+	"path/filepath"
+
 	"github.com/spf13/cobra"
 
 	"github.com/hofstadter-io/hof/cmd/hof/cmd/env"
@@ -18,6 +23,14 @@ func init() {
 
 }
 
+func EnvRun(args []string) (err error) {
+
+	// you can safely comment this print out
+	fmt.Println("not implemented")
+
+	return err
+}
+
 var EnvCmd = &cobra.Command{
 
 	Use: "env [args]",
@@ -25,6 +38,27 @@ var EnvCmd = &cobra.Command{
 	Short: "build, run, ship, and deploy environments (image, service, stack)",
 
 	Long: envLong,
+
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		glob := toComplete + "*"
+		matches, _ := filepath.Glob(glob)
+		return matches, cobra.ShellCompDirectiveDefault
+	},
+
+	Run: func(cmd *cobra.Command, args []string) {
+
+		ga.SendCommandPath(cmd.CommandPath())
+
+		var err error
+
+		// Argument Parsing
+
+		err = EnvRun(args)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	},
 }
 
 func init() {
@@ -63,18 +97,10 @@ func init() {
 
 	EnvCmd.AddCommand(cmdenv.BuildCmd)
 	EnvCmd.AddCommand(cmdenv.ExportCmd)
-	EnvCmd.AddCommand(cmdenv.InfoCmd)
+	EnvCmd.AddCommand(cmdenv.GetCmd)
 	EnvCmd.AddCommand(cmdenv.ListCmd)
-	EnvCmd.AddCommand(cmdenv.ImagesCmd)
-	EnvCmd.AddCommand(cmdenv.PsCmd)
 	EnvCmd.AddCommand(cmdenv.RunCmd)
 	EnvCmd.AddCommand(cmdenv.UpCmd)
-	EnvCmd.AddCommand(cmdenv.DownCmd)
-	EnvCmd.AddCommand(cmdenv.TagCmd)
 	EnvCmd.AddCommand(cmdenv.PublishCmd)
-	EnvCmd.AddCommand(cmdenv.PushCmd)
-	EnvCmd.AddCommand(cmdenv.PullCmd)
-	EnvCmd.AddCommand(cmdenv.CiCmd)
-	EnvCmd.AddCommand(cmdenv.DeployCmd)
 
 }

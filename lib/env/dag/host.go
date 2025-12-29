@@ -279,7 +279,7 @@ func (d *Dag) hashHostTunnel(step cue.Value) (*dagger.Service, error) {
 		})
 	}
 
-	svc, err := d.hashService(cfg.Service)
+	svc, _, err := d.hashService(cfg.Service)
 	if err != nil {
 		return nil, err
 	}
@@ -345,6 +345,7 @@ func (d *Dag) hashHostSocket(step cue.Value) (*dagger.Socket, error) {
 }
 
 type portForward struct {
+	Name     string `json:"name"`
 	Backend  int    `json:"backend"`
 	Frontend int    `json:"frontend"`
 	Protocol string `json:"protocol"`

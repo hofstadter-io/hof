@@ -11,20 +11,20 @@ import (
 		kind: "cache"
 	}
 
-  $kind: "#cache"
-  name: string
+	$kind: "#cache"
+	name:  string
 }
 
 // temp space config for ephemeral volumes not persisted between exec calls
 #Temp: {
-  $kind: "#temp"
+	$kind: "#temp"
 
-  // where to attach it
-  path: string
+	// where to attach it
+	path: string
 
-  // size in bytes
-  size?: int
+	// size in bytes
+	size?: int
 
-  // expand vars in path like $HOME/.cache
-  expand?: bool
+	// expand vars in path like $HOME/.cache
+	expand?: bool
 }

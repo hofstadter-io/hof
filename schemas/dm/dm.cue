@@ -7,7 +7,7 @@ import (
 // This is a complete Value tracked as one
 // useful for schemas, config, and NoSQL
 Object: {
-	schema.Hof// needed for reFerences
+	schema.Hof // needed for reFerences
 	#hof: datamodel: root: true
 
 	TrackHistory
@@ -26,7 +26,7 @@ Value: {
 // It can be expanded and enriched to cover more
 // Useful for SQL, APIs, forms, and similar
 Datamodel: {
-	schema.DHof  // needed for references
+	schema.DHof // needed for references
 	#hof: datamodel: root: true
 }
 

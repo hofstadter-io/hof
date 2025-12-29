@@ -9,7 +9,7 @@ import (
 // You can put these in your module to provide ChatGPT like interactions
 // for the other components in your module, or make a module just for Chats.
 Agent: {
-	schema.Hof// needed for reFerences
+	schema.Hof // needed for reFerences
 
 	#hof: agent: root: true
 
