@@ -6,6 +6,22 @@ import (
 	"github.com/hofstadter-io/hof/schemas"
 )
 
+_cmdCommon: {
+	// life-cycle, notifications, cleanup, ...
+	hooks?: {
+		onStart?:    _
+		onProgress?: _
+		onAbort?:    _
+		onSuccess?:  _
+		onFailure?:  _
+	}
+
+	// how to handle failures
+	config?: {
+		failFast: bool | *false
+	}
+}
+
 #Cmd: {
 	schemas.Hof
 	#hof: env: {
@@ -14,26 +30,11 @@ import (
 	}
 
 	$kind: "cmd"
-
 	name: string
 
-	// ideally, this is more dag/flow like
-	// two-level list, top-sequential | nest-parallel
 	tasks: [string]~(k,_): #Task & {name: k}
 
-	// how to handle failures
-	config?: {
-		failFast: bool | *false
-	}
-
-	// life-cycle, notifications, cleanup, ...
-	hooks?: {
-		onStart:    _
-		onProgress: _
-		onAbort:    _
-		onSuccess:  _
-		onFailure:  _
-	}
+  _cmdCommon
 
 	...
 }
@@ -48,6 +49,11 @@ import (
 	$kind: "task"
 	name:  string
 
-	parallel: bool | *false
-	tasks: [...#Task]
+	// ideally, this is more dag/flow like
+	// two-level list, top-sequential | nest-parallel
+	steps: [...[...]]
+
+  _cmdCommon
+
+	...
 }

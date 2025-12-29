@@ -23,9 +23,9 @@ func (d *Dag) Build(e *env.Env, noCache bool) (*dagger.Container, error) {
 
 	switch k.Kind {
 	case "#container":
-		return d.hashContainer(e.Value)
+		return d.HashContainer(e.Value)
 	case "#hostImage":
-		return d.hashHostImage(e.Value)
+		return d.HashHostImage(e.Value)
 	default:
 		return nil, fmt.Errorf("unsupported build target: %v", k.Kind, e.Value)
 	}

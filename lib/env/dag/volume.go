@@ -154,6 +154,4 @@ func (d *Dag) hashSecret(step cue.Value) (*dagger.Secret, error) {
 	d.cat[idx] = idx
 
 	return idx.shh, nil
-
-	return nil, nil
 }

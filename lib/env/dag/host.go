@@ -28,7 +28,7 @@ func (idx *hostImageIndex) Key() string {
 	return fmt.Sprintf("#hostImage.%s", idx.cfg.Name)
 }
 
-func (d *Dag) hashHostImage(step cue.Value) (*dagger.Container, error) {
+func (d *Dag) HashHostImage(step cue.Value) (*dagger.Container, error) {
 	var cfg hostImageConfig
 	err := step.Decode(&cfg)
 	if err != nil {

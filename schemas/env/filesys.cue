@@ -13,6 +13,8 @@ import (
 	}
 
 	$kind: "#file"
+  name?: string
+
 	path:  string
 	// source?: #Dir | #Container | #HostDir | #HostImage | #GitRepo
 	source?: _
@@ -27,6 +29,8 @@ import (
 	}
 
 	$kind: "#dir"
+  name?: string
+
 	path:  string
 	// source?: #Dir | #Container | #HostDir | #HostImage | #GitRepo
 	source?: _

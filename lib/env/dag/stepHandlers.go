@@ -232,14 +232,14 @@ func (d *Dag) stepDirHandler(c *dagger.Container, step cue.Value) (*dagger.Conta
 			}
 
 		case "#container":
-			ctr, err := d.hashContainer(cfg.Source)
+			ctr, err := d.HashContainer(cfg.Source)
 			if err != nil {
 				return nil, err
 			}
 			dir = ctr.Directory(cfg.Path)
 
 		case "#hostImage":
-			ctr, err := d.hashHostImage(cfg.Source)
+			ctr, err := d.HashHostImage(cfg.Source)
 			if err != nil {
 				return nil, err
 			}

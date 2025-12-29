@@ -31,7 +31,7 @@ func (h *hashContainerIndex) Key() string {
 	return fmt.Sprintf("#container.%s", h.cfg.Name)
 }
 
-func (d *Dag) hashContainer(step cue.Value) (*dagger.Container, error) {
+func (d *Dag) HashContainer(step cue.Value) (*dagger.Container, error) {
 	var cfg hashContainerConfig
 	err := step.Decode(&cfg)
 	if err != nil {
@@ -70,12 +70,12 @@ func (d *Dag) hashContainer(step cue.Value) (*dagger.Container, error) {
 		k, _ := kv.String()
 		switch k {
 		case "#container":
-			c, err = d.hashContainer(cfg.From)
+			c, err = d.HashContainer(cfg.From)
 			if err != nil {
 				return c, err
 			}
 		case "#hostImage":
-			c, err = d.hashHostImage(cfg.From)
+			c, err = d.HashHostImage(cfg.From)
 			if err != nil {
 				return c, err
 			}

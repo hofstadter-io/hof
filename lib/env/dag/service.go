@@ -96,7 +96,7 @@ func (d *Dag) hashService(step cue.Value) (*dagger.Service, *hashServiceConfig, 
 	// lookup
 	ia, ok := d.cat[idx]
 	if ok {
-		ix := ia.(*hostServiceIndex)
+		ix := ia.(*hashServiceIndex)
 		return ix.svc, idx.cfg, nil
 	}
 
@@ -111,12 +111,12 @@ func (d *Dag) hashService(step cue.Value) (*dagger.Service, *hashServiceConfig, 
 	ks, _ := k.String()
 	switch ks {
 	case "#container":
-		c, err = d.hashContainer(cfg.Source)
+		c, err = d.HashContainer(cfg.Source)
 		if err != nil {
 			return nil, nil, err
 		}
 	case "#hostImage":
-		c, err = d.hashHostImage(cfg.Source)
+		c, err = d.HashHostImage(cfg.Source)
 		if err != nil {
 			return nil, nil, err
 		}

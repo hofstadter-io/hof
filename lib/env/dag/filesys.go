@@ -9,9 +9,9 @@ import (
 )
 
 type hashFileConfig struct {
-	Kind string `json:"$kind"`
-	Path string `json:"path"`
-
+	Kind   string    `json:"$kind"`
+	Name   string    `json:"name"`
+	Path   string    `json:"path"`
 	Source cue.Value `json:"source"`
 }
 
@@ -67,14 +67,14 @@ func (d *Dag) hashFile(step cue.Value) (*dagger.File, error) {
 		return dir.File(cfg.Path), nil
 
 	case "#container":
-		ctr, err := d.hashContainer(cfg.Source)
+		ctr, err := d.HashContainer(cfg.Source)
 		if err != nil {
 			return nil, err
 		}
 		return ctr.File(cfg.Path), nil
 
 	case "#hostImage":
-		ctr, err := d.hashHostImage(cfg.Source)
+		ctr, err := d.HashHostImage(cfg.Source)
 		if err != nil {
 			return nil, err
 		}
@@ -87,6 +87,7 @@ func (d *Dag) hashFile(step cue.Value) (*dagger.File, error) {
 
 type hashDirConfig struct {
 	Kind    string    `json:"$kind"`
+	Name    string    `json:"name"`
 	Path    string    `json:"path"`
 	Source  cue.Value `json:"source"`
 	Include []string  `json:"include"`
@@ -143,7 +144,7 @@ func (d *Dag) hashDir(step cue.Value) (*dagger.Directory, error) {
 		return dir.Directory(cfg.Path), nil
 
 	case "#container":
-		ctr, err := d.hashContainer(cfg.Source)
+		ctr, err := d.HashContainer(cfg.Source)
 		if err != nil {
 			return nil, err
 		}
@@ -152,7 +153,7 @@ func (d *Dag) hashDir(step cue.Value) (*dagger.Directory, error) {
 		}), nil
 
 	case "#hostImage":
-		ctr, err := d.hashHostImage(cfg.Source)
+		ctr, err := d.HashHostImage(cfg.Source)
 		if err != nil {
 			return nil, err
 		}

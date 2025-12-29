@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 
 	cmdenv "github.com/hofstadter-io/hof/cmd/hof/cmd/env"
+	libenv "github.com/hofstadter-io/hof/lib/env/cmd"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 
@@ -25,10 +26,12 @@ func init() {
 
 func EnvRun(args []string) (err error) {
 
-	// you can safely comment this print out
-	fmt.Println("not implemented")
+	return libenv.Env(args, flags.RootPflags, flags.EnvPflags)
 
-	return err
+	// you can safely comment this print out
+	// fmt.Println("not implemented")
+
+	// return err
 }
 
 var EnvCmd = &cobra.Command{
