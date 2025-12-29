@@ -38,6 +38,13 @@ EnvCommand: schema.Command & {
 		Type:    "bool"
 		Default: "false"
 		Help:    "bust the cache and force evaluation"
+	}, {
+		Name:    "Shell"
+		Long:    "shell"
+		Short:   "S"
+		Type:    "bool"
+		Default: "false"
+		Help:    "launch a shell after cmd completion for each target"
 	}]
 
 	Commands: [{

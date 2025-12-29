@@ -13,6 +13,7 @@ type EnvPflagpole struct {
 	OnFailure bool
 	NoExit    bool
 	NoCache   bool
+	Shell     bool
 }
 
 func SetupEnvPflags(fset *pflag.FlagSet, fpole *EnvPflagpole) {
@@ -22,6 +23,7 @@ func SetupEnvPflags(fset *pflag.FlagSet, fpole *EnvPflagpole) {
 	fset.BoolVarP(&(fpole.OnFailure), "on-failure", "F", false, "on failure, enter an interactive terminal, requires a tty")
 	fset.BoolVarP(&(fpole.NoExit), "no-exit", "N", false, "Leave the TUI open after finishing")
 	fset.BoolVarP(&(fpole.NoCache), "no-cache", "Z", false, "bust the cache and force evaluation")
+	fset.BoolVarP(&(fpole.Shell), "shell", "S", false, "launch a shell after cmd completion for each target")
 }
 
 var EnvPflags EnvPflagpole

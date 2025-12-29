@@ -7,19 +7,23 @@ import (
 )
 
 _flags: {
+	// eventually this will go at the root of the repo and just be "."
+	local: string | *"/Users/tony/adk/go" @tag(local)
 	repo: string | *"https://github.com/google/adk-go" @tag(repo)
-	// eventually this will go at the root of the repo
-	code: string | *"/Users/tony/adk/go" @tag(code)
-	// app: string | *"/Users/tony/adk/go" @tag(app)
+
+  // are we using source from local or git
+  use: "repo" | *"local" @tag(use,short=repo|local)
 }
 
 src: {
 	[string]~(k,_): {@env(), name: k}
 	repo: env.#Dir & {path: ".", source: env.#GitRepo & {url: _flags.repo}}
-	code: env.#HostDir & {path: _flags.code}
+	local: env.#HostDir & {path: _flags.local}
 	// app: env.#HostDir & { path: _flags.app }
 
-	// _actual: repo
+	_actual: _
+  if _flags.use == "local" { _actual: local }
+  if _flags.use == "repo" { _actual: repo }
 }
 
 ctr: {
@@ -27,7 +31,7 @@ ctr: {
 	base: env.#Container & {
 		from: lang.go.ctr.base
 		steps: [
-			env.Mount & {path: "/work", source: src.repo},
+			env.Mount & {path: "/work", source: src._actual},
 		]
 	}
 	dev: env.#Container & {
@@ -55,14 +59,22 @@ cmd: {
 		@env(), name: k1
 		tasks: [string]~(k2,_): {
 			@env(), name: k2
-			steps: [[{name: "\(k1).\(k2)"}]]
+			steps: [...[...{name: "\(k1).\(k2)"}]]
 		}
 	}
 
 	test: tasks: {
 		go: {steps: [[_tester & {#cmd: "go test ./..."}]]}
-		race: {steps: [[_tester & {#cmd: "go test -race ./..."}]]}
-		cover: {steps: [[_tester & {#cmd: "go test -cover ./..."}]]}
+    // parallel tests
+    goUltra: { steps: [[
+      _tester & {#cmd: "go vet ./..."},
+      _tester & {#cmd: "go test -race ./..."},
+      _tester & {#cmd: "go test -cover ./..."},
+    ]]}
+    // sequential tests
+		// vet: {steps: [[_tester & {#cmd: "go vet ./..."}]]}
+		// race: {steps: [[_tester & {#cmd: "go test -race ./..."}]]}
+		// cover: {steps: [[_tester & {#cmd: "go test -cover ./..."}]]}
 	}
 	lint: tasks: {
 		// want something like: gofmt -l . | wc -l | grep -e '^0$'

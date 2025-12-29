@@ -13,7 +13,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/env/incept"
 )
 
-func Build(args []string, rflags flags.RootPflagpole, cflags flags.EnvPflagpole) error {
+func Build(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) error {
 	args, cueargs := splitArgs(args)
 
 	// check the runtime first before starting dagger
@@ -26,9 +26,9 @@ func Build(args []string, rflags flags.RootPflagpole, cflags flags.EnvPflagpole)
 	dst := os.Getenv("DAGGER_SESSION_TOKEN")
 	if dst == "" {
 		err := incept.Incept(context.Background(), os.Args, &incept.InceptOptions{
-			Progress:    cflags.Progress,
-			Interactive: cflags.OnFailure,
-			NoExit:      cflags.NoExit,
+			Progress:    eflags.Progress,
+			Interactive: eflags.OnFailure,
+			NoExit:      eflags.NoExit,
 			Stdout:      os.Stdout,
 			Stderr:      os.Stderr,
 			Stdin:       os.Stdin,
@@ -73,7 +73,7 @@ func Build(args []string, rflags flags.RootPflagpole, cflags flags.EnvPflagpole)
 		if do {
 			fmt.Println(" -", e.Hof.Env.Name)
 
-			i, err := d.Build(e, cflags.NoCache)
+			i, err := d.Build(e, eflags.NoCache)
 			if err != nil {
 				fmt.Println("error:", err)
 				return err
