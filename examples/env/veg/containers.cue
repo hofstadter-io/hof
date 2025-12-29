@@ -57,9 +57,10 @@ ctr: {
 	ops: env.#Container & {
 		@env()
 		#hof: metadata: description: "Extension to veg-dev to add devops tooling"
-		from: dev
+		from: bases.debian
 
 		steps: [
+			lang.cue.default,
 			tool.k8s.kubectl,
 			tool.k8s.helm,
 			tool.k8s.crane,

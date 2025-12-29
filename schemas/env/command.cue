@@ -30,11 +30,11 @@ _cmdCommon: {
 	}
 
 	$kind: "cmd"
-	name: string
+	name:  string
 
 	tasks: [string]~(k,_): #Task & {name: k}
 
-  _cmdCommon
+	_cmdCommon
 
 	...
 }
@@ -53,7 +53,7 @@ _cmdCommon: {
 	// two-level list, top-sequential | nest-parallel
 	steps: [...[...]]
 
-  _cmdCommon
+	_cmdCommon
 
 	...
 }

@@ -69,7 +69,7 @@ func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) e
 		for t, taskVal := range cmdCfg.Tasks {
 			t1++
 			// fmt.Printf("   [%d/%d]: %s\n", t1, len(cmdCfg.Tasks), t)
-			fmt.Printf("   %s:\n", t)
+			fmt.Printf("  %s:\n", t)
 			// fmt.Println(taskVal)
 			taskCfg, err := d.DecodeHashTask(taskVal)
 			if err != nil {
@@ -92,7 +92,7 @@ func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) e
 					}
 					// fmt.Printf("  [%d/%d][%d/%d]: %s", s1+1, len(seqSteps), s2+1, len(seqStep), k.Name)
 					str := fmt.Sprintf("%s.[%d/%d]", k.Name, s1+1, s2+1)
-					fmt.Printf("      %-24s", str)
+					fmt.Printf("    %-32s", str)
 
 					// go do() something with parStep
 					var c *dagger.Container

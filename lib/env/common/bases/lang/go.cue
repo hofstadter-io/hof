@@ -39,7 +39,7 @@ go: {
 		dev: env.#Container & {
 			from: ctr.gopls
 			steps: [
-				env.BindService & { service: go.svc },
+				env.BindService & {service: go.svc},
 			]
 		}
 	}
@@ -52,7 +52,7 @@ go: {
 			#port: int | *0
 			ports: [{name: "lsp", port: 4000, frontend: #port}]
 			args: ["gopls", "serve", "-port=4000"]
-      // source: _
+			// source: _
 			// from: ctr.gopls & { name: "gopls"}
 		}
 	}

@@ -27,6 +27,8 @@ debian: env.#Container & {
 			"ca-certificates",
 			"curl",
 			"git",
+			"git-absorb",
+			"git-lfs",
 			"gnupg",
 			"make",
 			"unzip",

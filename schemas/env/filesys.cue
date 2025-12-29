@@ -13,9 +13,9 @@ import (
 	}
 
 	$kind: "#file"
-  name?: string
+	name?: string
 
-	path:  string
+	path: string
 	// source?: #Dir | #Container | #HostDir | #HostImage | #GitRepo
 	source?: _
 }
@@ -29,9 +29,9 @@ import (
 	}
 
 	$kind: "#dir"
-  name?: string
+	name?: string
 
-	path:  string
+	path: string
 	// source?: #Dir | #Container | #HostDir | #HostImage | #GitRepo
 	source?: _
 	include: [...string]
