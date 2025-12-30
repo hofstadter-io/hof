@@ -19,7 +19,7 @@ func SetupEnv__ListFlags(fset *pflag.FlagSet, fpole *Env__ListFlagpole) {
 	// flags
 
 	fset.StringArrayVarP(&(fpole.Kind), "kind", "k", nil, "kinds to include, defaults to all")
-	fset.StringArrayVarP(&(fpole.Sort), "sort", "s", []string{"kind"}, "sort columns, default is the order CUE defines")
+	fset.StringArrayVarP(&(fpole.Sort), "sort", "s", []string{"name"}, "sort columns, default is the order CUE defines")
 }
 
 func init() {

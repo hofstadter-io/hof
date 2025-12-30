@@ -29,6 +29,8 @@ ctr: {
 	}
 }
 
+hof: cli: env.File & {path: "/usr/local/bin/hof", content: bins.multi["linux-arm64"]}
+
 bins: {
 	[string]~(k,_): {name: "bin-\(k)"}
 	hof: env.#File & {@env(), path: "./bins/hof", source: ctr.built}

@@ -5,7 +5,8 @@ import (
 )
 
 #ImageLike: #Container | #HostImage | #DockerBuild
-#DirLike: #Dir | #HostDir | #GitRepo
+#DirLike:   #Dir | #HostDir | #GitRepo
+
 #FileLike: #File | #HostFile
 
 // todo, registry auth
@@ -25,10 +26,13 @@ import (
 	// the name of the container or environment
 	name?: string
 
-  // actual, import env/rrr:env to enforce, performance penalty included
+	// actual, import env/rrr:env to enforce, performance penalty included
 	// from: string | #Container | #HostImage | #DockerBuild
-  // from: string | {...}  !!! PANIC !!!
-  from!: _
+	// from: string | {...}  !!! PANIC !!!
+	from!: _
+	if (from & string) != _|_ {
+		name: string | *from
+	}
 
 	// you can do this in steps, but it might be nice to have it
 	// 1. extracted / separate for easy usage in k8s (i.e.)
@@ -57,17 +61,16 @@ DefaultLabels: {
 		kind: "dockerBuild"
 	}
 
-  $kind: "#dockerBuild"
-  name?: string
+	$kind: "#dockerBuild"
+	name?: string
 
-  source: #Dir | #HostDir
+	source: #Dir | #HostDir
 
-  dockerfile?: string
-  platform?: string
-  buildArgs: [string]: string
+	dockerfile?: string
+	platform?:   string
+	buildArgs: [string]: string
 
-  target?: string
-  secrets?: [...#Secret]
-  noInit?: bool
-
+	target?: string
+	secrets?: [...#Secret]
+	noInit?: bool
 }

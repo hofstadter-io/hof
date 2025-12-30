@@ -1,7 +1,7 @@
 package tool
 
 import (
-	"github.com/hofstadter-io/hof/lib/env/common/steps/utils"
+	"github.com/hofstadter-io/hof/lib/env/common/steps/util"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
@@ -31,7 +31,7 @@ docker: {
 
 	cli: [
 		docker.repo,
-		utils.apt.install & {#pkgs: ["docker-ce-cli", "docker-buildx-plugin", "docker-compose-plugin"]},
+		util.apt.install & {#pkgs: ["docker-ce-cli", "docker-buildx-plugin", "docker-compose-plugin"]},
 	]
 
 }

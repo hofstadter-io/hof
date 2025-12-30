@@ -87,7 +87,7 @@ EnvCommand: schema.Command & {
 			Long:    "sort"
 			Short:   "s"
 			Type:    "[]string"
-			Default: #"[]string{"kind"}"# // todo, support special options like git-tag or git-commit
+			Default: #"[]string{"name"}"# // todo, support special options like git-tag or git-commit
 			Help:    "sort columns, default is the order CUE defines"
 		}]
 	}, {

@@ -4,7 +4,7 @@ package lang
 import (
 	"github.com/hofstadter-io/hof/lib/env/common/bases"
 	slang "github.com/hofstadter-io/hof/lib/env/common/steps/lang"
-	"github.com/hofstadter-io/hof/lib/env/common/steps/utils"
+	"github.com/hofstadter-io/hof/lib/env/common/steps/util"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
@@ -16,7 +16,7 @@ go: {
 			from: bases.debian
 			steps: [
 				// deps for cgo and more, from official docs
-				utils.apt.install & {#pkgs: [
+				util.apt.install & {#pkgs: [
 					"g++",
 					"gcc",
 					"libc6-dev",

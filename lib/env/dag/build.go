@@ -29,7 +29,7 @@ func (d *Dag) Container(e *env.Env, noCache bool) (*dagger.Container, error) {
 	case "#dockerBuild":
 		return d.HashDockerBuild(e.Value)
 	default:
-		return nil, fmt.Errorf("unsupported build target: %v", k.Kind, e.Value)
+		return nil, fmt.Errorf("unsupported build target(%s): %v", k.Kind, e.Value)
 	}
 }
 
@@ -49,7 +49,7 @@ func (d *Dag) Service(e *env.Env, noCache bool) (*dagger.Service, *hashServiceCo
 
 		return s, cfg, err
 	default:
-		return nil, nil, fmt.Errorf("unsupported build target: %v", k.Kind, e.Value)
+		return nil, nil, fmt.Errorf("unsupported build target(%s): %v", k.Kind, e.Value)
 	}
 }
 
@@ -69,7 +69,7 @@ func (d *Dag) File(e *env.Env, noCache bool) (*dagger.File, string, error) {
 	case "#hostFile":
 		return d.hashHostFile(e.Value)
 	default:
-		return nil, "", fmt.Errorf("unsupported build target: %v", k.Kind, e.Value)
+		return nil, "", fmt.Errorf("unsupported build target(%s): %v", k.Kind, e.Value)
 	}
 }
 
@@ -89,12 +89,12 @@ func (d *Dag) Dir(e *env.Env, noCache bool) (*dagger.Directory, string, error) {
 	case "#hostDir":
 		return d.hashHostDir(e.Value)
 	case "#gitRepo":
-		repo, err := d.hashGitRepo(e.Value)
+		repo, rcfg, err := d.hashGitRepo(e.Value)
 		if err != nil {
 			return nil, "", err
 		}
-		return repo.Head().Tree(), "", nil
+		return repo.Ref(rcfg.Ref).Tree(), "", nil
 	default:
-		return nil, "", fmt.Errorf("unsupported build target: %v", k.Kind, e.Value)
+		return nil, "", fmt.Errorf("unsupported build target(%s): %v", k.Kind, e.Value)
 	}
 }

@@ -2,13 +2,12 @@ package bases
 
 import (
 	"github.com/hofstadter-io/hof/lib/env/common/steps/tool"
-	"github.com/hofstadter-io/hof/lib/env/common/steps/utils"
+	"github.com/hofstadter-io/hof/lib/env/common/steps/util"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
 debian: env.#Container & {
 	#hof: metadata: description: "A minimal debian image with a few common tools"
-	name: "trixie"
 	from: "debian:13-slim"
 
 	steps: [
@@ -17,20 +16,23 @@ debian: env.#Container & {
 
 		// shared apt caches, for all derived images as well
 		// ya'know, instead of cleaning and refetching all the time?
-		utils.apt.mounts.varLib,
-		utils.apt.mounts.varCache,
+		util.apt.mounts.varLib,
+		util.apt.mounts.varCache,
 		// need to update once at the beginning
-		utils.apt.update,
+		util.apt.update,
 
 		// basics
-		utils.apt.install & {#pkgs: [
+		util.apt.install & {#pkgs: [
+			"apt-transport-https",
 			"ca-certificates",
 			"curl",
 			"git",
 			"git-absorb",
 			"git-lfs",
 			"gnupg",
+			"lsb-release",
 			"make",
+			"snap",
 			"unzip",
 			"wget",
 			"xz-utils",

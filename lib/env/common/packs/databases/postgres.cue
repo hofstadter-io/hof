@@ -7,10 +7,10 @@ Postgres: {
 	#name: string
 	#port: int | *5432
 
-	volume: env.#Cache & { name: string | *"\(#name)-pg-data"}
+	volume: env.#Cache & {name: string | *"\(#name)-pg-data"}
 
 	container: env.#Container & {
-    name: string | *"\(#name)-pg"
+		name: string | *"\(#name)-pg"
 		from: "postgres:16"
 		envs: {
 			POSTGRES_DB:       #name

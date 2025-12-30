@@ -13,22 +13,22 @@ import (
 	}
 
 	$kind: "#secret"
-	name: string
+	name:  string
 
 	// plaintext, uri, or file
-  // actual, import env/rrr:env to enforce, performance penalty included
+	// actual, import env/rrr:env to enforce, performance penalty included
 	// source: string | #FileLike
-  source: _
+	source: _
 }
 
 Secret: Step & {
 	$kind: "secret"
 
-  // the secret VAR_NAME
-  name: string
+	// the secret VAR_NAME
+	name: string
 
-  // the secret value
-  secret: #Secret
+	// the secret value
+	secret: #Secret
 }
 
 // treat secret content is an env file

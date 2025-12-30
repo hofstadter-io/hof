@@ -23,7 +23,7 @@ _cmdCommon: {
 }
 
 #Cmd: {
-  @env()
+	@env()
 	schemas.Hof
 	#hof: env: {
 		root: true // need to figure out what this really means, how it interacts with discovery & cli vs walking a CUE value to construct a giant dagger dag
@@ -33,13 +33,14 @@ _cmdCommon: {
 	$kind: "cmd"
 	name:  string | *#hof.metadata.name
 
-  // set tasks type and names
-  tasks: [string]: #Task
-  tasks: [string]~(k,_): {
-    @env()
-    name: k
-    // steps: [...[...{name: "\(#hof.metadata.name).\(k)"}]]
-  }
+	// set tasks type and names
+	tasks: [string]: #Task
+	tasks: [string]~(k,_): {
+		@env()
+
+		name: k
+		// steps: [...[...{name: "\(#hof.metadata.name).\(k)"}]]
+	}
 
 	_cmdCommon
 

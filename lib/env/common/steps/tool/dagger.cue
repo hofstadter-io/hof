@@ -1,12 +1,12 @@
 package tool
 
 import (
-	"github.com/hofstadter-io/hof/lib/env/common/steps/utils"
+	"github.com/hofstadter-io/hof/lib/env/common/steps/util"
 )
 
 dagger: {
 	#ver: string | *"0.19.8"
 	cli: [
-		utils.githubBin & {#repo: "dagger/dagger", #ver: dagger.#ver},
+		util.githubBin & {#repo: "dagger/dagger", #ver: dagger.#ver},
 	]
 }

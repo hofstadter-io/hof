@@ -5,11 +5,11 @@ import (
 	"github.com/hofstadter-io/hof/lib/env/common/bases"
 	"github.com/hofstadter-io/hof/lib/env/common/steps/lang"
 	"github.com/hofstadter-io/hof/lib/env/common/steps/tool"
-	"github.com/hofstadter-io/hof/lib/env/common/steps/utils"
+	"github.com/hofstadter-io/hof/lib/env/common/steps/util"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
-ctr: {
+ctr~C: {
 	// apply these to all fields, except vegeta
 	[string]~(key,_): {
 		// todo, if we have more than containers in this struct, we can if $kind == "#container" { ... }
@@ -31,7 +31,7 @@ ctr: {
 
 		steps: [
 			// todo, put these with the tools that depend on them (if they are one)
-			utils.apt.install & {#pkgs: [
+			util.apt.install & {#pkgs: [
 				// deps for go/node/python -> c/c++ situations (like CGO)
 				"g++",
 				"gcc",
@@ -48,6 +48,8 @@ ctr: {
 			lang.python.default,
 
 			// other binary tools
+			hof.cli,
+			tool.github.cli,
 
 			// tools for agents
 			tool.agents.lsp2mcp,
@@ -56,31 +58,37 @@ ctr: {
 
 	ops: env.#Container & {
 		@env()
-		#hof: metadata: description: "Extension to veg-dev to add devops tooling"
 		from: bases.debian
 
 		steps: [
-			// hof, tbd
+			hof.cli,
 			lang.cue.default,
 			tool.k8s.kubectl,
 			tool.k8s.helm,
 			tool.k8s.crane,
+			util.apt.install & {#pkgs: ["ansible"]},
 			tool.hashicorp.terraform,
 			tool.hashicorp.packer,
 		]
 	}
+	_clis: {
+		gcp: tool.cloud.gcloud
+		aws: tool.cloud.awscli
+		az:  tool.cloud.azure
+	}
+	for c, cli in _clis {
+		"ops-\(c)": env.#Container & {@env(), from: ops, steps: [cli]}
+	}
+	"ops-all": env.#Container & {@env(), from: ops, steps: [for _, cli in _clis {cli}]}
 
 	incept: env.#Container & {
 		@env()
-		#hof: metadata: description: "Extension to veg-dev to add docker/dagger setup for inception"
-		from: dev
+		from: C["ops-all"]
 
 		steps: [
 			tool.dagger.cli,
 			tool.docker.cli,
 		]
-
-		// whatever we import / user here, should also have mounts defined for easy reuse for runtime (run/up/asService)
 	}
 
 	vegeta: env.#Container & {
@@ -88,8 +96,6 @@ ctr: {
 		#hof: metadata: description: "all of the veggie images, it's over 9000"
 		from: ops
 
-		// TODO, realize the dagger way of diamond build pattern optimizations (once we branch more than 2 wide, and have _tools in a better place with #file/#dir)
 		steps: incept.steps
 	}
-
 }

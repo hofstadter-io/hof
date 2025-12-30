@@ -13,8 +13,9 @@ import (
 
 	$kind: "#gitRepo"
 	url:   string
+	ref:   string | *"HEAD"
 
-	name: string | *url
+	name: string | *"\(url)@\(ref)"
 
 	// opts
 	keepGitDir:               bool | *true

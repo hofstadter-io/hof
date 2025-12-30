@@ -174,15 +174,18 @@ func addPorts(b *strings.Builder, val cue.Value) {
 }
 
 func containerExtra(b *strings.Builder, val cue.Value) {
-	from := val.LookupPath(cue.ParsePath("from"))
+	// name := val.LookupPath(cue.ParsePath("name"))
+	from := val.LookupPath(cue.ParsePath("from.name"))
+	s, _ := from.String()
+	fmt.Fprintf(b, "from: %v", s)
 
-	switch ik := from.IncompleteKind(); ik {
-	case cue.StringKind:
-		s, _ := from.String()
-		fmt.Fprintf(b, "from: %v", s)
-	case cue.StructKind:
-		name := val.LookupPath(cue.ParsePath("name"))
-		s, _ := name.String()
-		fmt.Fprintf(b, "from: %v", s)
-	}
+	// switch ik := from.IncompleteKind(); ik {
+	// case cue.StringKind:
+	// 	s, _ := from.String()
+	// 	fmt.Fprintf(b, "from: %v", s)
+	// case cue.StructKind:
+	// 	name := val.LookupPath(cue.ParsePath("name"))
+	// 	s, _ := name.String()
+	// 	fmt.Fprintf(b, "from: %v", s)
+	// }
 }

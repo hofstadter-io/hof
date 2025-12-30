@@ -49,11 +49,11 @@ func (d *Dag) hashFile(step cue.Value) (*dagger.File, string, error) {
 	sks, _ := sk.String()
 	switch sks {
 	case "#gitRepo":
-		repo, err := d.hashGitRepo(cfg.Source)
+		repo, rcfg, err := d.hashGitRepo(cfg.Source)
 		if err != nil {
 			return nil, "", err
 		}
-		dir := repo.Head().Tree()
+		dir := repo.Ref(rcfg.Ref).Tree()
 		return dir.File(cfg.Path), cfg.Path, nil
 
 	case "#dir":
@@ -138,11 +138,11 @@ func (d *Dag) hashDir(step cue.Value) (*dagger.Directory, string, error) {
 	sks, _ := sk.String()
 	switch sks {
 	case "#gitRepo":
-		repo, err := d.hashGitRepo(cfg.Source)
+		repo, rcfg, err := d.hashGitRepo(cfg.Source)
 		if err != nil {
 			return nil, "", err
 		}
-		dir = repo.Head().Tree().Directory(cfg.Path)
+		dir = repo.Ref(rcfg.Ref).Tree().Directory(cfg.Path)
 
 	case "#dir":
 		dir, _, err = d.hashDir(cfg.Source)
@@ -379,11 +379,11 @@ func (d *Dag) stepDirHandler(c *dagger.Container, step cue.Value) (*dagger.Conta
 			}
 
 		case "#gitRepo":
-			repo, err := d.hashGitRepo(cfg.Source)
+			repo, rcfg, err := d.hashGitRepo(cfg.Source)
 			if err != nil {
 				return nil, err
 			}
-			dir = repo.Head().Tree()
+			dir = repo.Ref(rcfg.Ref).Tree()
 
 		case "#container":
 			ctr, err := d.HashContainer(cfg.Source)

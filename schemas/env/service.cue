@@ -19,9 +19,9 @@ import (
 	name!: string
 
 	// container to turn into a service
-  // actual, import env/rrr:env to enforce, performance penalty included
+	// actual, import env/rrr:env to enforce, performance penalty included
 	// source: #Container | #HostImage
-  source: _
+	source: _
 
 	// ports to expose on the container
 	ports?: [...#PortForward]

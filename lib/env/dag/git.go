@@ -12,6 +12,7 @@ type gitRepoConfig struct {
 	Kind string `json:"$kind"`
 	Name string `json:"name"`
 	Url  string `json:"url"`
+	Ref  string `json:"ref"`
 
 	// opts
 	KeepGitDir              bool      `json:"keepGitDir"`
@@ -37,11 +38,11 @@ func (idx *gitRepoIndex) Key() string {
 	return fmt.Sprintf("#gitRepo.%s", idx.cfg.Name)
 }
 
-func (d *Dag) hashGitRepo(step cue.Value) (*dagger.GitRepository, error) {
+func (d *Dag) hashGitRepo(step cue.Value) (*dagger.GitRepository, *gitRepoConfig, error) {
 	var cfg gitRepoConfig
 	err := step.Decode(&cfg)
 	if err != nil {
-		return nil, fmt.Errorf("while decoding hashHostFile: %w", err)
+		return nil, nil, fmt.Errorf("while decoding hashHostFile: %w", err)
 	}
 
 	// index for query and create if not found
@@ -54,10 +55,10 @@ func (d *Dag) hashGitRepo(step cue.Value) (*dagger.GitRepository, error) {
 	ia, ok := d.cat[idx]
 	if ok {
 		ix := ia.(*gitRepoIndex)
-		return ix.repo, nil
+		return ix.repo, ix.cfg, nil
 	}
 
-	// fmt.Println("#GitRepo", step, cfg)
+	fmt.Println("#GitRepo", step, cfg)
 
 	// load for realz
 	idx.repo = d.dag.Git(cfg.Url, dagger.GitOpts{
@@ -75,5 +76,5 @@ func (d *Dag) hashGitRepo(step cue.Value) (*dagger.GitRepository, error) {
 	// memoize
 	d.cat[idx] = idx
 
-	return idx.repo, nil
+	return idx.repo, idx.cfg, nil
 }

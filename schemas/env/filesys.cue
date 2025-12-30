@@ -13,10 +13,10 @@ import (
 	}
 
 	$kind: "#file"
-	name: string | *path
+	name:  string | *path
 	path!: string
 
-  // actual, import env/rrr:env to enforce, performance penalty included
+	// actual, import env/rrr:env to enforce, performance penalty included
 	// source: #Dir | #Container | #HostDir | #HostImage | #GitRepo
 	source!: _
 }
@@ -30,21 +30,21 @@ import (
 	}
 
 	$kind: "#dir"
-	name: string | *path
+	name:  string | *path
 
-  // actual, import env/rrr:env to enforce, performance penalty included
+	// actual, import env/rrr:env to enforce, performance penalty included
 	// source: #Dir | #Container | #HostDir | #HostImage | #GitRepo
 	source!: _
-	path: string | *"."
+	path:    string | *"."
 
-  // filters
+	// filters
 	include: [...string]
 	exclude: [...string]
 	gitignore: bool | *true
 
-  // git-compatible patch to apply after getting the directory
-  patch?: string
-  patchFile?: #FileLike
+	// git-compatible patch to apply after getting the directory
+	patch?:     string
+	patchFile?: #FileLike
 }
 
 // like dagger.WithFile
@@ -53,9 +53,9 @@ File: Step & {
 
 	path!: string
 
-  // actual, import env/rrr:env to enforce, performance penalty included
+	// actual, import env/rrr:env to enforce, performance penalty included
 	// content: string | #File | #HostFile // HMMM(A): should this just be file, or be container/image too?
-  content!: _
+	content!: _
 
 	permissions?: int
 	owner?:       string
@@ -66,9 +66,9 @@ File: Step & {
 Dir: Step & {
 	$kind: "dir"
 	// args
-	path:    string
+	path: string
 
-  // actual, import env/rrr:env to enforce, performance penalty included
+	// actual, import env/rrr:env to enforce, performance penalty included
 	// source: #Container | #Dir | #GitRepo | #HostDir | #HostImage // HMMM(B): or maybe this should just be dir kinds, make the user do an extra step? (nah, wouldn't have to with the SDK directly)
 	source!: _
 

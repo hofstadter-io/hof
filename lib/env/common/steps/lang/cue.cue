@@ -1,7 +1,7 @@
 package lang
 
 import (
-	"github.com/hofstadter-io/hof/lib/env/common/steps/utils"
+	"github.com/hofstadter-io/hof/lib/env/common/steps/util"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
@@ -22,6 +22,6 @@ cue: {
 	]
 
 	install: [
-		utils.githubBin & {#repo: "cue-lang/cue", #ver: cue.#ver},
+		util.githubBin & {#repo: "cue-lang/cue", #ver: cue.#ver},
 	]
 }

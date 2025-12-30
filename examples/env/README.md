@@ -39,3 +39,7 @@ Flags:
   -F, --on-failure        on failure, enter an interactive terminal, requires a tty
   -P, --progress string   output format [auto, plain, tty, dots, report (for ai)] (default "auto")
 ```
+
+## Examples
+
+### GitOps Images

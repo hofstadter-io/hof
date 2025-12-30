@@ -158,10 +158,10 @@ import (
 		kind: "exportFile"
 	}
 
-  $kind: "#exportFile"
-  name: string
-  path: string
-  file: #File
+	$kind: "#exportFile"
+	name:  string
+	path:  string
+	file:  #File
 
 	// If allowParentDirPath is true, the path argument can be a directory path, in which case the file will be created in that directory.
 	allowParentDirPath?: bool
@@ -174,12 +174,12 @@ import (
 		kind: "exportDir"
 	}
 
-  $kind: "#exportDir"
-  name: string
-  path: string
-  dir: #Dir
+	$kind: "#exportDir"
+	name:  string
+	path:  string
+	dir:   #Dir
 
-  // If true, then the host directory will be wiped clean before exporting so that it exactly matches the directory being exported; this means it will delete any files on the host that aren't in the exported dir. If false (the default), the contents of the directory will be merged with any existing contents of the host directory, leaving any existing files on the host that aren't in the exported directory alone.
+	// If true, then the host directory will be wiped clean before exporting so that it exactly matches the directory being exported; this means it will delete any files on the host that aren't in the exported dir. If false (the default), the contents of the directory will be merged with any existing contents of the host directory, leaving any existing files on the host that aren't in the exported directory alone.
 	wipe: bool | *false
 }
 
@@ -190,10 +190,10 @@ import (
 		kind: "exportImage"
 	}
 
-  $kind: "#exportImage"
-  name: string
-  url:  string
-  image: #Container
+	$kind: "#exportImage"
+	name:  string
+	url:   string
+	image: #Container
 }
 
 #ExportImageFile: Ref & {
@@ -203,8 +203,8 @@ import (
 		kind: "exportImageFile"
 	}
 
-  $kind: "#exportImageFile"
-  name: string
-  path: string
-  image: #Container
+	$kind: "#exportImageFile"
+	name:  string
+	path:  string
+	image: #Container
 }

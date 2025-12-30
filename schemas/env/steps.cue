@@ -33,32 +33,32 @@ Exec: Step & {
 }
 
 Script: Exec & {
-  script: string
-  args: ["sh", "-c", script]
+	script: string
+	args: ["sh", "-c", script]
 }
 Sh: Exec & {
-  script: string
-  _script: """
-  set -euo pipefail
+	script: string
+	_script: """
+		set -euo pipefail
 
-  """
-  args: ["sh", "-c", _script + script]
+		"""
+	args: ["sh", "-c", _script + script]
 }
 Bash: Exec & {
-  script: string
-  _script: """
-  set -euo pipefail
+	script: string
+	_script: """
+		set -euo pipefail
 
-  """
-  args: ["bash", "-c", _script + script]
+		"""
+	args: ["bash", "-c", _script + script]
 }
 Zsh: Exec & {
-  script: string
-  _script: """
-  set -euo pipefail
+	script: string
+	_script: """
+		set -euo pipefail
 
-  """
-  args: ["zsh", "-c", _script + script]
+		"""
+	args: ["zsh", "-c", _script + script]
 }
 
 // todo, think about how to hand stdio and redir to files,
@@ -90,7 +90,7 @@ Mount: Step & {
 }
 
 Env: Step & {
-	$kind: "env"
+	$kind:    "env"
 	[string]: string
 }
 
@@ -124,7 +124,7 @@ DefaultTerm: Step & {
 // starts an interactive terminal
 Terminal: Step & {
 	$kind: "terminal"
-  args: [...string]
+	args: [...string]
 	experimentalPrivilegedNesting?: bool
 	insecureRootCapabilities?:      bool
 }

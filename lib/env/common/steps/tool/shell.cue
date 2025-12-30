@@ -1,12 +1,12 @@
 package tool
 
 import (
-	"github.com/hofstadter-io/hof/lib/env/common/steps/utils"
+	"github.com/hofstadter-io/hof/lib/env/common/steps/util"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
 zsh: {
-	install: utils.apt.install & {#pkgs: ["zsh"]}
+	install: util.apt.install & {#pkgs: ["zsh"]}
 
 	customize: [
 		omz,

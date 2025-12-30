@@ -1,8 +1,8 @@
 package env
 
 #ImageLike: #Container | #HostImage | #DockerBuild
-#DirLike: #Dir | #HostDir | #GitRepo
-#FileLike: #File | #HostFile
+#DirLike:   #Dir | #HostDir | #GitRepo
+#FileLike:  #File | #HostFile
 
 #Container: {
 	from: string | #ImageLike

@@ -1,7 +1,7 @@
 package lang
 
 import (
-	"github.com/hofstadter-io/hof/lib/env/common/steps/utils"
+	"github.com/hofstadter-io/hof/lib/env/common/steps/util"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
@@ -14,7 +14,7 @@ python: {
 	}
 
 	default: [
-		utils.apt.install & {#pkgs: [
+		util.apt.install & {#pkgs: [
 			"pip",
 			"pipx",
 			"pylint",
