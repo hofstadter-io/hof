@@ -129,7 +129,7 @@ import (
 	backend: port
 
 	// Port to expose to clients. If unspecified, a default will be chosen.
-	frontend?: int
+	frontend: int
 
 	// Transport layer protocol to use for traffic.
 	protocol: *"TCP" | "UDP"

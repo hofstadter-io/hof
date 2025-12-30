@@ -168,7 +168,7 @@ func (d *Dag) stepMountHandler(c *dagger.Container, step cue.Value) (*dagger.Con
 		})
 
 	case "#file":
-		file, err := d.hashFile(cfg.Source)
+		file, _, err := d.hashFile(cfg.Source)
 		if err != nil {
 			return nil, err
 		}
@@ -178,7 +178,7 @@ func (d *Dag) stepMountHandler(c *dagger.Container, step cue.Value) (*dagger.Con
 		})
 
 	case "#hostFile":
-		file, err := d.hashHostFile(cfg.Source)
+		file, _, err := d.hashHostFile(cfg.Source)
 		if err != nil {
 			return nil, err
 		}
@@ -188,7 +188,7 @@ func (d *Dag) stepMountHandler(c *dagger.Container, step cue.Value) (*dagger.Con
 		})
 
 	case "#dir":
-		dir, err := d.hashDir(cfg.Source)
+		dir, _, err := d.hashDir(cfg.Source)
 		if err != nil {
 			return nil, err
 		}
@@ -198,7 +198,7 @@ func (d *Dag) stepMountHandler(c *dagger.Container, step cue.Value) (*dagger.Con
 		})
 
 	case "#hostDir":
-		dir, err := d.hashHostDir(cfg.Source)
+		dir, _, err := d.hashHostDir(cfg.Source)
 		if err != nil {
 			return nil, err
 		}
@@ -233,7 +233,7 @@ func (d *Dag) stepEnvHandler(c *dagger.Container, step cue.Value) (*dagger.Conta
 
 type stepEnvfileConfig struct {
 	Kind string    `json:"$kind"`
-	File cue.Value `json:"$file"`
+	File cue.Value `json:"file"`
 }
 
 // needed for checking below, loop copied from module source
@@ -247,21 +247,21 @@ func (d *Dag) stepEnvfileHandler(c *dagger.Container, step cue.Value) (*dagger.C
 	var cfg stepEnvfileConfig
 	err := step.Decode(&cfg)
 	if err != nil {
-		return nil, fmt.Errorf("while decoding stepExpose: %w", err)
+		return nil, fmt.Errorf("while decoding stepEnvfile: %w", err)
 	}
 	k := cfg.File.LookupPath(cue.ParsePath("$kind"))
 	if !k.Exists() {
-		return c, fmt.Errorf("missing $kind in stepDir source: %v", step)
+		return c, fmt.Errorf("missing $kind in stepEnvfile source: %v, got %v", step, k)
 	}
 
 	var file *dagger.File
 	ks, _ := k.String()
 	switch ks {
 	case "#file":
-		file, err = d.hashFile(cfg.File)
+		file, _, err = d.hashFile(cfg.File)
 
 	case "#hostFile":
-		file, err = d.hashHostFile(cfg.File)
+		file, _, err = d.hashHostFile(cfg.File)
 
 	default:
 		return c, fmt.Errorf("unsupported $kind in envfile.file: %v", step)
@@ -392,6 +392,8 @@ func (d *Dag) stepTerminalHandler(c *dagger.Container, step cue.Value) (*dagger.
 	if err != nil {
 		return nil, fmt.Errorf("while decoding stepTerm: %w", err)
 	}
+
+	fmt.Println("Terminal:", cfg, step)
 
 	c = c.Terminal(dagger.ContainerTerminalOpts{
 		Cmd: cfg.Args,

@@ -1,10 +1,12 @@
 package cmd
 
 import (
+	"fmt"
 	"regexp"
 	"sort"
 	"strings"
 
+	"cuelang.org/go/cue"
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/yagu"
 	"github.com/olekukonko/tablewriter"
@@ -58,7 +60,60 @@ func List(args []string, rflags flags.RootPflagpole, cflags flags.Env__ListFlagp
 
 		path := e.Hof.Path
 
-		row := []string{name, kind, path}
+		extra := ""
+		switch kind {
+
+		case "container":
+			b := new(strings.Builder)
+			containerExtra(b, e.Value)
+			extra = b.String()
+
+		// "name" (HostImage uses this directly)
+		case "hostImage":
+			sv := e.Value.LookupPath(cue.ParsePath("name"))
+			if sv.Exists() {
+				s, _ := sv.String()
+				extra = s
+			}
+		case "hostService":
+			sv := e.Value.LookupPath(cue.ParsePath("host"))
+			if sv.Exists() {
+				b := new(strings.Builder)
+				s, _ := sv.String()
+				fmt.Fprintf(b, "%s", s)
+				addPorts(b, e.Value)
+				extra = b.String()
+			}
+		case "service", "hostTunnel":
+			sv := e.Value.LookupPath(cue.ParsePath("name"))
+			if sv.Exists() {
+				b := new(strings.Builder)
+				s, _ := sv.String()
+				fmt.Fprintf(b, "%s", s)
+				addPorts(b, e.Value)
+				extra = b.String()
+			}
+
+		// "path"
+		case "dir", "file", "hostDir", "hostFile", "hostSocket", "exportFile", "exportDir", "exportImageFile":
+			sv := e.Value.LookupPath(cue.ParsePath("path"))
+			if sv.Exists() {
+				b := new(strings.Builder)
+				s, _ := sv.String()
+				fmt.Fprintf(b, "%s", s)
+				extra = b.String()
+			}
+
+		// "url"
+		case "gitRepo", "exportImage":
+			sv := e.Value.LookupPath(cue.ParsePath("url"))
+			if sv.Exists() {
+				s, _ := sv.String()
+				extra = s
+			}
+		}
+
+		row := []string{name, kind, path, extra}
 		rows = append(rows, row)
 	}
 
@@ -90,9 +145,44 @@ func List(args []string, rflags flags.RootPflagpole, cflags flags.Env__ListFlagp
 	}
 
 	return yagu.PrintAsTable(
-		[]string{"Name", "Kind", "Path"},
+		[]string{"Name", "Kind", "Path", "Extra"},
 		func(table *tablewriter.Table) ([][]string, error) {
 			return rows, nil
 		},
 	)
+}
+
+func addPorts(b *strings.Builder, val cue.Value) {
+	ports := val.LookupPath(cue.ParsePath("ports"))
+	if !ports.Exists() {
+		return
+	}
+	iter, _ := ports.List()
+	for iter.Next() {
+		pv := iter.Value()
+		bev := pv.LookupPath(cue.ParsePath("backend"))
+		be, _ := bev.Int64()
+		if be > 0 {
+			fmt.Fprintf(b, ":%d", be)
+		}
+		fev := pv.LookupPath(cue.ParsePath("frontend"))
+		fe, _ := fev.Int64()
+		if fe > 0 {
+			fmt.Fprintf(b, ":%d", fe)
+		}
+	}
+}
+
+func containerExtra(b *strings.Builder, val cue.Value) {
+	from := val.LookupPath(cue.ParsePath("from"))
+
+	switch ik := from.IncompleteKind(); ik {
+	case cue.StringKind:
+		s, _ := from.String()
+		fmt.Fprintf(b, "from: %v", s)
+	case cue.StructKind:
+		name := val.LookupPath(cue.ParsePath("name"))
+		s, _ := name.String()
+		fmt.Fprintf(b, "from: %v", s)
+	}
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 
 	"dagger.io/dagger"
@@ -28,6 +29,7 @@ func Run(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole, c
 	if dst == "" {
 		// Run incept
 		err := incept.Incept(context.Background(), os.Args, &incept.InceptOptions{
+			Verbose:     rflags.Verbosity,
 			Progress:    eflags.Progress,
 			Interactive: true,
 			Stdout:      os.Stdout,
@@ -42,11 +44,12 @@ func Run(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole, c
 	}
 
 	name := args[0]
+	valid := []string{"container", "hostImage", "dockerBuild"}
 
 	var e *env.Env
 	for _, ee := range R.Envs {
 		// only building containers right now
-		if ee.Hof.Env.Kind == "container" && name == ee.Hof.Env.Name {
+		if slices.Contains(valid, ee.Hof.Env.Kind) && name == ee.Hof.Env.Name {
 			e = ee
 			break
 		}
@@ -63,7 +66,7 @@ func Run(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole, c
 	}
 	d, _ := dag.NewClient(ctx, client)
 
-	i, err := d.Build(e, eflags.NoCache)
+	i, err := d.Container(e, eflags.NoCache)
 	if err != nil {
 		return err
 	}

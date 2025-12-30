@@ -8,11 +8,11 @@ import (
 
 _flags: {
 	// eventually this will go at the root of the repo and just be "."
-	local: string | *"/Users/tony/adk/go" @tag(local)
-	repo: string | *"https://github.com/google/adk-go" @tag(repo)
+	local: string | *"/Users/tony/adk/go"               @tag(local)
+	repo:  string | *"https://github.com/google/adk-go" @tag(repo)
 
-  // are we using source from local or git
-  use: "repo" | *"local" @tag(use,short=repo|local)
+	// are we using source from local or git
+	use: "repo" | *"local" @tag(use,short=repo|local)
 }
 
 src: {
@@ -22,8 +22,8 @@ src: {
 	// app: env.#HostDir & { path: _flags.app }
 
 	_actual: _
-  if _flags.use == "local" { _actual: local }
-  if _flags.use == "repo" { _actual: repo }
+	if _flags.use == "local" {_actual: local}
+	if _flags.use == "repo" {_actual: repo}
 }
 
 ctr: {
@@ -65,13 +65,13 @@ cmd: {
 
 	test: tasks: {
 		go: steps: [[_tester & {#cmd: "go test ./..."}]]
-    // parallel tests
-    goUltra: steps: [[
-      _tester & {#cmd: "go vet ./..."},
-      _tester & {#cmd: "go test -race ./..."},
-      _tester & {#cmd: "go test -cover ./..."},
-    ]]
-    // sequential tests
+		// parallel tests
+		goUltra: steps: [[
+			_tester & {#cmd: "go vet ./..."},
+			_tester & {#cmd: "go test -race ./..."},
+			_tester & {#cmd: "go test -cover ./..."},
+		]]
+		// sequential tests
 		// vet: {steps: [[_tester & {#cmd: "go vet ./..."}]]}
 		// race: {steps: [[_tester & {#cmd: "go test -race ./..."}]]}
 		// cover: {steps: [[_tester & {#cmd: "go test -cover ./..."}]]}

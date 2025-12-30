@@ -27,6 +27,7 @@ func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) e
 	if dst == "" {
 		// Run incept
 		err := incept.Incept(context.Background(), os.Args, &incept.InceptOptions{
+			Verbose:     rflags.Verbosity,
 			Progress:    eflags.Progress,
 			Interactive: eflags.OnFailure,
 			NoExit:      eflags.NoExit,

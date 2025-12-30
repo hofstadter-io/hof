@@ -2,10 +2,15 @@
 package atproto
 
 import (
+	"github.com/hofstadter-io/hof/examples/env/atproto/patches"
 	"github.com/hofstadter-io/hof/lib/env/common/bases"
 	"github.com/hofstadter-io/hof/lib/env/common/packs/databases"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
+
+_flags: {
+	blebbit: bool | *false @tag(blebbit,short=blebbit)
+}
 
 cmd: {
 	[string]~(k1,_): env.#Cmd & {
@@ -59,15 +64,13 @@ testnet: {
 	// @atproto PLC
 	plc: {
 		config: env.#HostFile & {@env(), path: "./env/plc.env"}
-		secret: env.#HostFile & {@env(), path: "./env/plc.secret.env"} // todo, we need secret version of this
 		server: env.#Service & {
 			@env()
 			ports: [{port: 3000}]
 			source: env.#Container & {
-				from: "blebbit/plc:latest"
+				from: builds.plc.ctr
 				steps: [
 					env.Envfile & {file: plc.config},
-					env.Envfile & {file: plc.secret}, // todo, we need secret version of this
 					env.BindService & {service: plc.postgres},
 				]
 			}
@@ -83,7 +86,7 @@ testnet: {
 			@env()
 			ports: [{port: 3000}]
 			source: env.#Container & {
-				from: "blebbit/relay:latest"
+				from: builds.relay.ctr
 				steps: [
 					env.Envfile & {file: relay.config},
 					env.Envfile & {file: relay.secret}, // todo, we need secret version of this
@@ -104,7 +107,7 @@ testnet: {
 			@env()
 			ports: [{port: 7002}]
 			source: env.#Container & {
-				from: "blebbit/jetstream:latest"
+				from: builds.jetstream.ctr
 				steps: [
 					env.Envfile & {file: jetstream.config},
 					env.Mount & {path: "/data", source: jetstream.data},
@@ -116,16 +119,21 @@ testnet: {
 		data: env.#Cache & {@env()}
 	}
 
-	// @blebbit Permissioning PDS
+	// @bluesky/pds or @blebbit/permissioned-pds
 	pds: {
 		config: env.#HostFile & {@env(), path: "./env/pds.env"}
+		secret: env.#HostFile & {@env(), path: "./env/pds.secret.env"} // todo, we need secret version of this
 		server: env.#Service & {
 			@env()
 			ports: [{port: 7002}]
 			source: env.#Container & {
-				from: "blebbit/jetstream:latest"
+				from: _ | *builds.pds.ctr
+				if _flags.blebbit {
+					from: builds.ppds.ctr
+				}
 				steps: [
 					env.Envfile & {file: pds.config},
+					env.Envfile & {file: pds.secret}, // todo, we need secret version of this
 					env.Mount & {path: "/app/data", source: pds.data},
 					env.Mount & {path: "/app/blobs", source: pds.blobs},
 					env.BindService & {service: pds.spicedb},
@@ -178,8 +186,38 @@ builds: {
 		ctr: env.#DockerBuild & {source: code, dockerfile: "services/pds/Dockerfile"}
 	}
 	plc: {
+		// source
 		code: env.#Dir & {source: repos.didplc}
-		ctr: env.#DockerBuild & {source: code, dockerfile: "packages/server/Dockerfile"}
+		fixd: env.#Dir & {source: repos.didplc, patch: patches.plc}
+		// images
+		ctr: env.#DockerBuild & {source: fixd, dockerfile: "packages/server/Dockerfile"}
+		dev: env.#Container & {
+			from: ctr
+			steps: [
+				env.User & {name: "root"},
+				env.Workdir & {path: "/app"},
+				env.Envfile & {file: testnet.plc.config},
+				env.BindService & {service: testnet.plc.postgres},
+				env.Entrypoint & {args: ["sh"]},
+				env.DefaultTerm & {args: ["sh"]},
+			]
+		}
+
+		// example of adhoc work to figure out and apply a patch
+		origCtr: env.#DockerBuild & {source: code, dockerfile: "packages/server/Dockerfile"}
+		origDev: env.#Container & {
+			from: origCtr
+			steps: [
+				env.User & {name: "root"},
+				env.Workdir & {path: "/app"},
+				env.Exec & {args: ["apk", "add", "--update", "patch", "git"]},
+				env.File & {path: "/app/plc.diff", content: patches.plc},
+				env.Envfile & {file: testnet.plc.config},
+				env.BindService & {service: testnet.plc.postgres},
+				env.Entrypoint & {args: ["sh"]},
+				env.DefaultTerm & {args: ["sh"]},
+			]
+		}
 	}
 	relay: {
 		code: env.#Dir & {source: repos.indigo}

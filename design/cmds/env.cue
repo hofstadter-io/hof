@@ -62,7 +62,7 @@ EnvCommand: schema.Command & {
 			Long:    "tag"
 			Short:   "T"
 			Type:    "[]string"
-			Default: #"[]string{"local"}"# // todo, support special options like git-tag or git-commit
+			Default: "nil" // todo, support special options like git-tag or git-commit
 			Help:    "tags to give to the environment, can be set multiple times"
 		}]
 	}, {
@@ -87,7 +87,7 @@ EnvCommand: schema.Command & {
 			Long:    "sort"
 			Short:   "s"
 			Type:    "[]string"
-			Default: "nil"
+			Default: #"[]string{"kind"}"# // todo, support special options like git-tag or git-commit
 			Help:    "sort columns, default is the order CUE defines"
 		}]
 	}, {

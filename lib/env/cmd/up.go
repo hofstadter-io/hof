@@ -28,6 +28,7 @@ func Up(args []string, rflags flags.RootPflagpole, cflags flags.EnvPflagpole) er
 	dst := os.Getenv("DAGGER_SESSION_TOKEN")
 	if dst == "" {
 		err := incept.Incept(context.Background(), os.Args, &incept.InceptOptions{
+			Verbose:     rflags.Verbosity,
 			Progress:    cflags.Progress,
 			Interactive: cflags.OnFailure,
 			NoExit:      cflags.NoExit,

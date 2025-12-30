@@ -12,7 +12,7 @@ svc: gopls: env.#Service & {
 
 	// There is also a built in MCP server!
 
-	let _port = _flags.ports.gopls
+	let _port = flags.ports.gopls
 	ports: [{name: "lsp", port: _port}]
 	args: ["gopls", "serve", "-port=\(_port)"]
 
@@ -32,7 +32,7 @@ svc: cuepls: env.#Service & {
 	name: "cuepls"
 	#hof: metadata: description: "veg.cuepls service"
 
-	let _port = _flags.ports.cuepls
+	let _port = flags.ports.cuepls
 	ports: [{name: "lsp", port: _port}]
 	args: ["cue", "lsp", "serve", "-port=\(_port)"]
 

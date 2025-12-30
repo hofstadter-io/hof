@@ -57,6 +57,8 @@ func (d *Dag) hashGitRepo(step cue.Value) (*dagger.GitRepository, error) {
 		return ix.repo, nil
 	}
 
+	// fmt.Println("#GitRepo", step, cfg)
+
 	// load for realz
 	idx.repo = d.dag.Git(cfg.Url, dagger.GitOpts{
 		KeepGitDir:       cfg.KeepGitDir,

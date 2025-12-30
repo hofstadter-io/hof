@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 
 	"dagger.io/dagger"
@@ -24,6 +25,7 @@ func Publish(args []string, rflags flags.RootPflagpole, cflags flags.EnvPflagpol
 	dst := os.Getenv("DAGGER_SESSION_TOKEN")
 	if dst == "" {
 		err := incept.Incept(context.Background(), os.Args, &incept.InceptOptions{
+			Verbose:     rflags.Verbosity,
 			Progress:    cflags.Progress,
 			Interactive: cflags.OnFailure,
 			NoExit:      cflags.NoExit,
@@ -50,10 +52,11 @@ func Publish(args []string, rflags flags.RootPflagpole, cflags flags.EnvPflagpol
 	}
 	d, _ := dag.NewClient(ctx, client)
 
+	valid := []string{"container", "hostImage", "dockerBuild"}
 	fmt.Println("publishing:")
 	for _, e := range R.Envs {
 		// only building containers right now
-		if e.Hof.Env.Kind != "container" {
+		if !slices.Contains(valid, e.Hof.Env.Kind) {
 			continue
 		}
 		// fmt.Println("-:", e.Hof.Env.Name, e.Hof.Env.Kind)
@@ -71,7 +74,7 @@ func Publish(args []string, rflags flags.RootPflagpole, cflags flags.EnvPflagpol
 		if do {
 			fmt.Print(" -", e.Hof.Env.Name)
 
-			i, err := d.Build(e, cflags.NoCache)
+			i, err := d.Container(e, cflags.NoCache)
 			if err != nil {
 				return err
 			}

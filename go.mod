@@ -327,6 +327,6 @@ exclude google.golang.org/protobuf v1.34.1
 
 replace github.com/dagger/dagger => ../dagger
 
-replace google.golang.org/adk => ../../adk/go
+replace google.golang.org/adk => ../adk
 
 replace github.com/dagger/dagger/engine/distconsts => ./lib/env/incept/distconsts

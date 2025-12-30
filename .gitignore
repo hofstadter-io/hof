@@ -69,3 +69,4 @@ tags
 /build/
 /.veg/data
 node_modules
+/bins/

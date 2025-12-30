@@ -78,11 +78,11 @@ func (idx *hostFileIndex) Key() string {
 	return fmt.Sprintf("#hostFile.%s", idx.cfg.Name)
 }
 
-func (d *Dag) hashHostFile(step cue.Value) (*dagger.File, error) {
+func (d *Dag) hashHostFile(step cue.Value) (*dagger.File, string, error) {
 	var cfg hostFileConfig
 	err := step.Decode(&cfg)
 	if err != nil {
-		return nil, fmt.Errorf("while decoding hashHostFile: %w", err)
+		return nil, "", fmt.Errorf("while decoding hashHostFile: %w", err)
 	}
 
 	// index for query and create if not found
@@ -95,7 +95,7 @@ func (d *Dag) hashHostFile(step cue.Value) (*dagger.File, error) {
 	ia, ok := d.cat[idx]
 	if ok {
 		ix := ia.(*hostFileIndex)
-		return ix.file, nil
+		return ix.file, cfg.Path, nil
 	}
 
 	// load for realz
@@ -106,7 +106,7 @@ func (d *Dag) hashHostFile(step cue.Value) (*dagger.File, error) {
 	// memoize
 	d.cat[idx] = idx
 
-	return idx.file, nil
+	return idx.file, cfg.Path, nil
 }
 
 type hostDirConfig struct {
@@ -133,11 +133,11 @@ func (idx *hostDirIndex) Key() string {
 	return fmt.Sprintf("#hostDir.%s", idx.cfg.Name)
 }
 
-func (d *Dag) hashHostDir(step cue.Value) (*dagger.Directory, error) {
+func (d *Dag) hashHostDir(step cue.Value) (*dagger.Directory, string, error) {
 	var cfg hostDirConfig
 	err := step.Decode(&cfg)
 	if err != nil {
-		return nil, fmt.Errorf("while decoding hashHostDir: %w", err)
+		return nil, "", fmt.Errorf("while decoding hashHostDir: %w", err)
 	}
 
 	// index for query and create if not found
@@ -150,7 +150,7 @@ func (d *Dag) hashHostDir(step cue.Value) (*dagger.Directory, error) {
 	ia, ok := d.cat[idx]
 	if ok {
 		ix := ia.(*hostDirIndex)
-		return ix.dir, nil
+		return ix.dir, cfg.Path, nil
 	}
 
 	// load for realz
@@ -164,7 +164,7 @@ func (d *Dag) hashHostDir(step cue.Value) (*dagger.Directory, error) {
 	// memoize
 	d.cat[idx] = idx
 
-	return idx.dir, nil
+	return idx.dir, cfg.Path, nil
 }
 
 type hostServiceConfig struct {

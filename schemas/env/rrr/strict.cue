@@ -20,6 +20,10 @@ package env
 	source: #DirLike | #ImageLike
 }
 
+#Patch: {
+	source: #DirLike | #ImageLike
+}
+
 Dir: {
 	source: #DirLike | #ImageLike
 }

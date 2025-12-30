@@ -286,6 +286,8 @@ func (R *Runtime) load() (err error) {
 	//
 	// load instances from entrypoints and config, this is the main CUE loader step
 	//
+	// fmt.Printf("tagVars: %#+v\n", pretty.Formatter(R.CueConfig.TagVars))
+
 	R.BuildInstances = load.Instances(R.Entrypoints, R.CueConfig)
 	//
 	//

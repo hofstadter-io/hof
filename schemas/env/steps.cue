@@ -91,7 +91,6 @@ Mount: Step & {
 
 Env: Step & {
 	$kind: "env"
-	// bit of a hack for convenience in a couple places
 	[string]: string
 }
 

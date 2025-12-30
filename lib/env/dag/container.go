@@ -222,12 +222,12 @@ func (d *Dag) HashDockerBuild(step cue.Value) (*dagger.Container, error) {
 	ks, _ := k.String()
 	switch ks {
 	case "#dir":
-		dir, err = d.hashDir(cfg.Source)
+		dir, _, err = d.hashDir(cfg.Source)
 		if err != nil {
 			return nil, err
 		}
 	case "#hostDir":
-		dir, err = d.hashHostDir(cfg.Source)
+		dir, _, err = d.hashHostDir(cfg.Source)
 		if err != nil {
 			return nil, err
 		}

@@ -75,7 +75,7 @@ func (d *Dag) hashSecret(step cue.Value) (*dagger.Secret, error) {
 
 		switch k {
 		case "#file":
-			file, err := d.hashFile(cfg.Source)
+			file, _, err := d.hashFile(cfg.Source)
 			if err != nil {
 				return nil, err
 			}
@@ -86,7 +86,7 @@ func (d *Dag) hashSecret(step cue.Value) (*dagger.Secret, error) {
 			idx.shh = d.dag.SetSecret(cfg.Name, text)
 
 		case "#hostFile":
-			file, err := d.hashHostFile(cfg.Source)
+			file, _, err := d.hashHostFile(cfg.Source)
 			if err != nil {
 				return nil, err
 			}

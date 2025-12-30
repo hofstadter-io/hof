@@ -1,5 +1,19 @@
 # hof/env
 
+## tl;dr
+
+```sh
+# install hof
+git clone https://github.com/hofstadter-io/hof && cd hof
+go install ./cmd/hof
+
+# run example
+cd examples/env/atproto
+hof env init
+hof env list
+hof env up
+```
+
 `hof/env` is a CUE interface to something like Docker + Compose
 
 ```

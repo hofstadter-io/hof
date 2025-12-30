@@ -24,6 +24,7 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 	dst := os.Getenv("DAGGER_SESSION_TOKEN")
 	if dst == "" {
 		err := incept.Incept(context.Background(), os.Args, &incept.InceptOptions{
+			Verbose:     rflags.Verbosity,
 			Progress:    eflags.Progress,
 			Interactive: eflags.OnFailure,
 			NoExit:      eflags.NoExit,
@@ -52,12 +53,7 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 
 	fmt.Println("exporting:")
 	for _, e := range R.Envs {
-		// only building containers right now
-		if e.Hof.Env.Kind != "container" {
-			continue
-		}
-		// fmt.Println("-:", e.Hof.Env.Name, e.Hof.Env.Kind)
-		// we just try to "build" everything unless there are args
+		// do we export this?
 		do := true
 		if len(args) > 0 {
 			do = false
@@ -68,22 +64,62 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 				}
 			}
 		}
-		if do {
-			fmt.Println(" -", e.Hof.Env.Name)
+		if !do {
+			continue
+		}
 
-			i, err := d.Build(e, eflags.NoCache)
+		switch e.Hof.Env.Kind {
+		case "container", "hostImage", "dockerBuile":
+			fmt.Printf(" - %s (%s)\n", e.Hof.Env.Name, e.Hof.Env.Kind)
+			i, err := d.Container(e, eflags.NoCache)
 			if err != nil {
+				fmt.Println("error:", err)
+				return err
+			}
+			if len(cflags.Tag) == 0 {
+				err = i.ExportImage(ctx, fmt.Sprintf("%s:%s", e.Hof.Env.Name, "latest"))
+			} else {
+				for _, t := range cflags.Tag {
+					// this is the "tag" annotation
+					i = i.WithAnnotation("org.opencontainers.image.version", t)
+					err = i.ExportImage(ctx, fmt.Sprintf("%s:%s", e.Hof.Env.Name, t))
+				}
+			}
+
+		case "file", "hostFile":
+			fmt.Printf(" - %s (%s)\n", e.Hof.Env.Name, e.Hof.Env.Kind)
+			file, p, err := d.File(e, eflags.NoCache)
+			if err != nil {
+				fmt.Println("error:", err)
 				return err
 			}
 
-			for _, t := range cflags.Tag {
-				// this is the "tag" annotation
-				i = i.WithAnnotation("org.opencontainers.image.version", t)
-				err = i.ExportImage(ctx, fmt.Sprintf("%s:%s", e.Hof.Env.Name, t))
+			if len(cflags.Tag) == 0 {
+				_, err = file.Export(ctx, p)
+			} else {
+				for _, t := range cflags.Tag {
+					_, err = file.Export(ctx, fmt.Sprintf("%s-%s", p, t))
+				}
+			}
+
+		case "dir", "hostDir", "gitRepo":
+			fmt.Printf(" - %s (%s)\n", e.Hof.Env.Name, e.Hof.Env.Kind)
+			dir, p, err := d.Dir(e, eflags.NoCache)
+			if err != nil {
+				fmt.Println("error:", err)
+				return err
+			}
+			if len(cflags.Tag) == 0 {
+				_, err = dir.Export(ctx, p)
+			} else {
+				for _, t := range cflags.Tag {
+					_, err = dir.Export(ctx, fmt.Sprintf("%s-%s", p, t))
+				}
 			}
 
 		}
+
 	}
 
-	return nil
+	return err
 }

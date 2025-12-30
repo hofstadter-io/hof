@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"slices"
 	"strings"
 
 	"dagger.io/dagger"
@@ -27,6 +26,7 @@ func Build(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole)
 	dst := os.Getenv("DAGGER_SESSION_TOKEN")
 	if dst == "" {
 		err := incept.Incept(context.Background(), os.Args, &incept.InceptOptions{
+			Verbose:     rflags.Verbosity,
 			Progress:    eflags.Progress,
 			Interactive: eflags.OnFailure,
 			NoExit:      eflags.NoExit,
@@ -53,14 +53,10 @@ func Build(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole)
 	}
 	d, _ := dag.NewClient(ctx, client)
 
-	valid := []string{"container", "hostImage", "dockerBuild"}
 	fmt.Println("building:")
 	for _, e := range R.Envs {
 		// fmt.Println("-:", e.Hof.Env.Name, e.Hof.Env.Kind)
 		// only building containers right now
-		if !slices.Contains(valid, e.Hof.Env.Kind) {
-			continue
-		}
 		// we just try to "build" everything unless there are args
 		do := true
 		if len(args) > 0 {
@@ -72,10 +68,14 @@ func Build(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole)
 				}
 			}
 		}
-		if do {
-			fmt.Println(" -", e.Hof.Env.Name)
+		if !do {
+			continue
+		}
 
-			i, err := d.Build(e, eflags.NoCache)
+		switch e.Hof.Env.Kind {
+		case "container", "hostImage", "dockerBuile":
+			fmt.Printf(" - %s (%s)\n", e.Hof.Env.Name, e.Hof.Env.Kind)
+			i, err := d.Container(e, eflags.NoCache)
 			if err != nil {
 				fmt.Println("error:", err)
 				return err
@@ -85,12 +85,33 @@ func Build(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole)
 			if err != nil {
 				return err
 			}
+		case "file", "hostFile":
+			fmt.Printf(" - %s (%s)\n", e.Hof.Env.Name, e.Hof.Env.Kind)
+			i, _, err := d.File(e, eflags.NoCache)
+			if err != nil {
+				fmt.Println("error:", err)
+				return err
+			}
 
+			i, err = i.Sync(ctx)
+			if err != nil {
+				return err
+			}
+		case "dir", "hostDir", "gitRepo":
+			fmt.Printf(" - %s (%s)\n", e.Hof.Env.Name, e.Hof.Env.Kind)
+			i, _, err := d.Dir(e, eflags.NoCache)
+			if err != nil {
+				fmt.Println("error:", err)
+				return err
+			}
+
+			i, err = i.Sync(ctx)
+			if err != nil {
+				return err
+			}
 		}
-		if err != nil {
-			return err
-		}
+
 	}
 
-	return nil
+	return err
 }

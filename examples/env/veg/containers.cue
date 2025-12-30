@@ -60,6 +60,7 @@ ctr: {
 		from: bases.debian
 
 		steps: [
+			// hof, tbd
 			lang.cue.default,
 			tool.k8s.kubectl,
 			tool.k8s.helm,
