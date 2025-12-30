@@ -62,7 +62,7 @@ type hashServiceConfig struct {
 	ExperimentalPrivilegedNesting bool `json:"experimentalPrivilegedNesting"`
 	InsecureRootCapabilities      bool `json:"insecureRootCapabilities"`
 	Expand                        bool `json:"expand"`
-	NoInit                        bool `json:"noINit"`
+	NoInit                        bool `json:"noInit"`
 }
 
 type hashServiceIndex struct {
@@ -117,6 +117,11 @@ func (d *Dag) hashService(step cue.Value) (*dagger.Service, *hashServiceConfig, 
 		}
 	case "#hostImage":
 		c, err = d.HashHostImage(cfg.Source)
+		if err != nil {
+			return nil, nil, err
+		}
+	case "#dockerBuild":
+		c, err = d.HashDockerBuild(cfg.Source)
 		if err != nil {
 			return nil, nil, err
 		}

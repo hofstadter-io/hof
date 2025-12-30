@@ -2,12 +2,11 @@ package dag
 
 import (
 	"fmt"
-	"path/filepath"
-	"strconv"
 	"strings"
 
 	"cuelang.org/go/cue"
 	"dagger.io/dagger"
+	"github.com/hashicorp/go-envparse"
 )
 
 type StepKind struct {
@@ -23,16 +22,17 @@ type stepHandlerMap map[string]stepHandler
 func (d *Dag) makeStepHandlers() stepHandlerMap {
 	return stepHandlerMap{
 		// not cataloged
-		"sync":        d.stepSyncHandler,
-		"exec":        d.stepExecHandler,
-		"user":        d.stepUserHandler,
-		"workdir":     d.stepWorkdirHandler,
-		"file":        d.stepFileHandler,
-		"dir":         d.stepDirHandler,
-		"mount":       d.stepMountHandler,
-		"env":         d.stepEnvHandler,
-		"envfile":     d.stepEnvfileHandler,
-		"secret":      d.stepSecretHandler,
+		"sync":    d.stepSyncHandler,
+		"exec":    d.stepExecHandler,
+		"user":    d.stepUserHandler,
+		"workdir": d.stepWorkdirHandler,
+		"file":    d.stepFileHandler,
+		"dir":     d.stepDirHandler,
+		"mount":   d.stepMountHandler,
+		"env":     d.stepEnvHandler,
+		"envfile": d.stepEnvfileHandler,
+		"secret":  d.stepSecretHandler,
+		// "secretvars":  d.stepSecretFileHandler,
 		"expose":      d.stepExposeHandler,
 		"bindService": d.stepBindServiceHandler,
 		"entrypoint":  d.stepEntrypointHandler,
@@ -120,134 +120,6 @@ func (d *Dag) stepWorkdirHandler(c *dagger.Container, step cue.Value) (*dagger.C
 	return c, nil
 }
 
-type stepFileConfig struct {
-	Kind string `json:"$kind"`
-	// args
-	Path    string    `json:"path"`
-	Content cue.Value `json:"content"`
-	// opts
-	Permissions int    `json:"permissions"`
-	Owner       string `json:"owner"`
-	Expand      bool   `json:"expand"`
-}
-
-func (d *Dag) stepFileHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
-	var cfg stepFileConfig
-	err := step.Decode(&cfg)
-	if err != nil {
-		return c, err
-	}
-
-	var f *dagger.File
-	switch ik := cfg.Content.IncompleteKind(); ik {
-	case cue.StringKind:
-		_, name := filepath.Split(cfg.Path)
-		s, _ := cfg.Content.String()
-		f = d.dag.File(name, s)
-	case cue.StructKind:
-		// look for kind
-		k := cfg.Content.LookupPath(cue.ParsePath("$kind"))
-		if !k.Exists() {
-			return c, fmt.Errorf("missing $kind in struct file source: %v", step)
-		}
-		ks, _ := k.String()
-		switch ks {
-		case "#file":
-			f, err = d.hashFile(cfg.Content)
-		case "#hostFile":
-			f, err = d.hashHostFile(cfg.Content)
-
-		default:
-			return c, fmt.Errorf("unsupported $kind in struct file source: %v", step)
-		}
-	}
-
-	c = c.WithFile(cfg.Path, f)
-
-	return c, nil
-}
-
-type stepDirConfig struct {
-	Kind string `json:"$kind"`
-	// args
-	Path   string    `json:"path"`
-	Source cue.Value `json:"source"`
-	// opts
-	Include   []string `json:"include"`
-	Exclude   []string `json:"exclude"`
-	Gitignore bool     `json:"gitignore"`
-	Owner     string   `json:"owner"`
-	Expand    bool     `json:"expand"`
-}
-
-func (d *Dag) stepDirHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
-	var cfg stepDirConfig
-	err := step.Decode(&cfg)
-	if err != nil {
-		return nil, fmt.Errorf("while decoding stepDir: %w", err)
-	}
-
-	var dir *dagger.Directory
-	switch ik := cfg.Source.IncompleteKind(); ik {
-	case cue.StructKind:
-		// look for kind
-		k := cfg.Source.LookupPath(cue.ParsePath("$kind"))
-		if !k.Exists() {
-			return c, fmt.Errorf("missing $kind in stepDir source: %v", step)
-		}
-		ks, _ := k.String()
-		switch ks {
-		case "#gitRepo":
-			repo, err := d.hashGitRepo(cfg.Source)
-			if err != nil {
-				return nil, err
-			}
-			dir = repo.Head().Tree()
-
-		case "#dir":
-			dir, err = d.hashDir(cfg.Source)
-			if err != nil {
-				return nil, err
-			}
-
-		case "#hostDir":
-			dir, err = d.hashHostDir(cfg.Source)
-			if err != nil {
-				return nil, err
-			}
-
-		case "#container":
-			ctr, err := d.HashContainer(cfg.Source)
-			if err != nil {
-				return nil, err
-			}
-			dir = ctr.Directory(cfg.Path)
-
-		case "#hostImage":
-			ctr, err := d.HashHostImage(cfg.Source)
-			if err != nil {
-				return nil, err
-			}
-			dir = ctr.Directory(cfg.Path)
-
-		default:
-			return c, fmt.Errorf("unsupported $kind in stepDir source: %v", step)
-		}
-
-	default:
-		return c, fmt.Errorf("unsupported stepDir value type: %v", step)
-	}
-
-	c = c.WithDirectory(cfg.Path, dir, dagger.ContainerWithDirectoryOpts{
-		Include:   cfg.Include,
-		Exclude:   cfg.Exclude,
-		Gitignore: cfg.Gitignore,
-		Owner:     cfg.Owner,
-		Expand:    cfg.Expand,
-	})
-	return c, nil
-}
-
 type stepMountConfig struct {
 	Kind string `json:"$kind"`
 	// args
@@ -282,6 +154,17 @@ func (d *Dag) stepMountHandler(c *dagger.Container, step cue.Value) (*dagger.Con
 		c = c.WithMountedCache(cfg.Path, cache, dagger.ContainerWithMountedCacheOpts{
 			Owner:  cfg.Owner,
 			Expand: cfg.Expand,
+		})
+
+	case "#secret":
+		shh, err := d.hashSecret(cfg.Source)
+		if err != nil {
+			return nil, err
+		}
+		c = c.WithMountedSecret(cfg.Path, shh, dagger.ContainerWithMountedSecretOpts{
+			Owner:  cfg.Owner,
+			Expand: cfg.Expand,
+			Mode:   cfg.Mode,
 		})
 
 	case "#file":
@@ -324,17 +207,6 @@ func (d *Dag) stepMountHandler(c *dagger.Container, step cue.Value) (*dagger.Con
 			Expand: cfg.Expand,
 		})
 
-	case "#secret":
-		shh, err := d.hashSecret(cfg.Source)
-		if err != nil {
-			return nil, err
-		}
-		c = c.WithMountedSecret(cfg.Path, shh, dagger.ContainerWithMountedSecretOpts{
-			Owner:  cfg.Owner,
-			Expand: cfg.Expand,
-			Mode:   cfg.Mode,
-		})
-
 	default:
 		return c, fmt.Errorf("unsupported $kind in stepMount.source: %v", step)
 	}
@@ -349,25 +221,76 @@ func (d *Dag) stepEnvHandler(c *dagger.Container, step cue.Value) (*dagger.Conta
 		return nil, fmt.Errorf("while decoding stepEnv: %w", err)
 	}
 
-	ev := step.LookupPath(cue.ParsePath("$expand"))
-	es, _ := ev.String()
-	eb, _ := strconv.ParseBool(es)
-
 	for k, v := range envs {
-		if k != "$kind" && k != "$expand" {
+		if k != "$kind" {
 			c = c.WithEnvVariable(k, v, dagger.ContainerWithEnvVariableOpts{
-				Expand: eb,
+				Expand: true,
 			})
 		}
 	}
 	return c, nil
 }
 
-func (d *Dag) stepEnvfileHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
-	return c, nil
+type stepEnvfileConfig struct {
+	Kind string    `json:"$kind"`
+	File cue.Value `json:"$file"`
 }
 
-func (d *Dag) stepSecretHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+// needed for checking below, loop copied from module source
+var envpair envparse.Pair
+
+func (d *Dag) stepEnvfileHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+
+	// DEV HACK
+	// return c, nil
+
+	var cfg stepEnvfileConfig
+	err := step.Decode(&cfg)
+	if err != nil {
+		return nil, fmt.Errorf("while decoding stepExpose: %w", err)
+	}
+	k := cfg.File.LookupPath(cue.ParsePath("$kind"))
+	if !k.Exists() {
+		return c, fmt.Errorf("missing $kind in stepDir source: %v", step)
+	}
+
+	var file *dagger.File
+	ks, _ := k.String()
+	switch ks {
+	case "#file":
+		file, err = d.hashFile(cfg.File)
+
+	case "#hostFile":
+		file, err = d.hashHostFile(cfg.File)
+
+	default:
+		return c, fmt.Errorf("unsupported $kind in envfile.file: %v", step)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	contents, err := file.Contents(d.ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	r := strings.NewReader(contents)
+	parser := envparse.New(r)
+	for {
+		kv, err := parser.Next()
+		if err != nil {
+			return nil, err
+		}
+
+		if kv == envpair {
+			break
+		}
+
+		c = c.WithEnvVariable(kv.Key, kv.Val)
+	}
+
 	return c, nil
 }
 

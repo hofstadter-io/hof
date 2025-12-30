@@ -79,6 +79,11 @@ func (d *Dag) HashContainer(step cue.Value) (*dagger.Container, error) {
 			if err != nil {
 				return c, err
 			}
+		case "#dockerBuild":
+			c, err = d.HashDockerBuild(cfg.From)
+			if err != nil {
+				return c, err
+			}
 		}
 
 	default:
@@ -155,4 +160,102 @@ func (d *Dag) addSteps(c *dagger.Container, steps []cue.Value) (*dagger.Containe
 	}
 
 	return c, nil
+}
+
+type hashDockerBuildConfig struct {
+	Kind string `json:"$kind"`
+	Name string `json:"name"`
+
+	Source     cue.Value `json:"source"`
+	Dockerfile string    `json:"dockerfile"`
+	Platform   string    `json:"platform"`
+	Target     string    `json:"target"`
+
+	BuildArgs map[string]string `json:"buildArgs"`
+	Secrets   []cue.Value       `json:"secrets"`
+	NoInit    bool              `json:"noInit"`
+}
+
+type hashDockerBuildIndex struct {
+	node *env.Env
+	val  cue.Value
+	cfg  *hashDockerBuildConfig
+	ctr  *dagger.Container
+}
+
+func (idx *hashDockerBuildIndex) Key() string {
+	if idx.cfg == nil {
+		return "service.nil"
+	}
+	return fmt.Sprintf("service.%s", idx.cfg.Name)
+}
+
+func (d *Dag) HashDockerBuild(step cue.Value) (*dagger.Container, error) {
+	var cfg hashDockerBuildConfig
+	err := step.Decode(&cfg)
+	if err != nil {
+		return nil, fmt.Errorf("while decoding hashDockerBuild: %w", err)
+	}
+	// fmt.Println("hashDockerBuild.config", cfg)
+
+	// index for query and create if not found
+	idx := &hashDockerBuildIndex{
+		val: step,
+		cfg: &cfg,
+	}
+
+	// lookup
+	ia, ok := d.cat[idx]
+	if ok {
+		ix := ia.(*hashDockerBuildIndex)
+		return ix.ctr, nil
+	}
+
+	// load for realz
+
+	// look for kind
+	var dir *dagger.Directory
+	k := cfg.Source.LookupPath(cue.ParsePath("$kind"))
+	if !k.Exists() {
+		return nil, fmt.Errorf("missing $kind in #service.source: %v", step)
+	}
+	ks, _ := k.String()
+	switch ks {
+	case "#dir":
+		dir, err = d.hashDir(cfg.Source)
+		if err != nil {
+			return nil, err
+		}
+	case "#hostDir":
+		dir, err = d.hashHostDir(cfg.Source)
+		if err != nil {
+			return nil, err
+		}
+	default:
+		return nil, fmt.Errorf("unupported service.source $kind")
+	}
+
+	// fmt.Println("hashDockerBuild.preparing")
+
+	args := []dagger.BuildArg{}
+	for k, v := range cfg.BuildArgs {
+		args = append(args, dagger.BuildArg{Name: k, Value: v})
+	}
+	secrets := []*dagger.Secret{}
+
+	idx.ctr = dir.DockerBuild(dagger.DirectoryDockerBuildOpts{
+		Dockerfile: cfg.Dockerfile,
+		Platform:   dagger.Platform(cfg.Platform),
+		BuildArgs:  args,
+		Target:     cfg.Target,
+		Secrets:    secrets,
+		NoInit:     cfg.NoInit,
+	})
+
+	// fmt.Println("hashService.done")
+
+	// memoize
+	d.cat[idx] = idx
+
+	return idx.ctr, nil
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 
 	"dagger.io/dagger"
@@ -52,13 +53,14 @@ func Build(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole)
 	}
 	d, _ := dag.NewClient(ctx, client)
 
+	valid := []string{"container", "hostImage", "dockerBuild"}
 	fmt.Println("building:")
 	for _, e := range R.Envs {
+		// fmt.Println("-:", e.Hof.Env.Name, e.Hof.Env.Kind)
 		// only building containers right now
-		if e.Hof.Env.Kind != "container" {
+		if !slices.Contains(valid, e.Hof.Env.Kind) {
 			continue
 		}
-		// fmt.Println("-:", e.Hof.Env.Name, e.Hof.Env.Kind)
 		// we just try to "build" everything unless there are args
 		do := true
 		if len(args) > 0 {

@@ -4,6 +4,10 @@ import (
 	"github.com/hofstadter-io/hof/schemas"
 )
 
+#ImageLike: #Container | #HostImage | #DockerBuild
+#DirLike: #Dir | #HostDir | #GitRepo
+#FileLike: #File | #HostFile
+
 // todo, registry auth
 
 // Definition for a container env
@@ -21,8 +25,10 @@ import (
 	// the name of the container or environment
 	name?: string
 
-	// need some kind of from for host / git / oci
-	from: string | #Container | #HostImage
+  // actual, import env/rrr:env to enforce, performance penalty included
+	// from: string | #Container | #HostImage | #DockerBuild
+  // from: string | {...}  !!! PANIC !!!
+  from!: _
 
 	// you can do this in steps, but it might be nice to have it
 	// 1. extracted / separate for easy usage in k8s (i.e.)
@@ -42,4 +48,26 @@ DefaultLabels: {
 	"org.opencontainers.image.title":   string | *#name
 	"org.opencontainers.image.version": string | *"latest"
 	"org.opencontainers.image.commit":  string | *"dirty"
+}
+
+#DockerBuild: {
+	schemas.Hof
+	#hof: env: {
+		root: true
+		kind: "dockerBuild"
+	}
+
+  $kind: "#dockerBuild"
+  name?: string
+
+  source: #Dir | #HostDir
+
+  dockerfile?: string
+  platform?: string
+  buildArgs: [string]: string
+
+  target?: string
+  secrets?: [...#Secret]
+  noInit?: bool
+
 }

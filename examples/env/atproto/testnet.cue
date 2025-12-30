@@ -1,5 +1,5 @@
 @experiment(aliasv2)
-package devex
+package atproto
 
 import (
 	"github.com/hofstadter-io/hof/lib/env/common/bases"
@@ -15,41 +15,41 @@ cmd: {
 		}
 	}
 
-  init: tasks: {
-    secrets: {
-      steps: [[
-        env.#ExportDir & {
-          @env(),
-          path: "./env", 
-          dir: env.#Dir & {
-            path: "/work"
-            source: env.#Container & {
-              from: bases.debian
-              steps: [ env.Bash & { script: _relay }, env.Bash & { script: _pds }]
-            }
-          }
-        },
-      ]]
+	init: tasks: {
+		secrets: {
+			steps: [[
+				env.#ExportDir & {
+					@env()
+					path: "./env"
+					dir: env.#Dir & {
+						path: "/work"
+						source: env.#Container & {
+							from: bases.debian
+							steps: [env.Bash & {script: _relay}, env.Bash & {script: _pds}]
+						}
+					}
+				},
+			]]
 
-      _relay: """
-      (
-        echo RELAY_ADMIN_PASSWORD=$(openssl rand -hex 32 | tr -d '\n')
-      ) > relay.secret.env
-      """
-      _pds: """
-      (
-        echo # Private keys - these are each expected to be 64 char hex strings (1024 bit)
-        echo PDS_REPO_SIGNING_KEY_K256_PRIVATE_KEY_HEX=$(openssl rand -hex 64 | tr -d '\n')
-        echo PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX=$(openssl rand -hex 64 | tr -d '\n')
-        echo # Secrets - update to secure high-entropy strings
-        echo PDS_DPOP_SECRET=$(openssl rand -hex 32 | tr -d '\n')
-        echo PDS_JWT_SECRET=$(openssl rand -hex 32 | tr -d '\n')
-        echo PDS_ADMIN_PASSWORD=$(openssl rand -hex 32 | tr -d '\n')
-        echo PDS_SPICEDB_TOKEN=$(openssl rand -hex 32 | tr -d '\n')
-      ) > pds.secret.env
-      """
-    }
-  }
+			_relay: """
+				(
+				  echo RELAY_ADMIN_PASSWORD=$(openssl rand -hex 32 | tr -d '\n')
+				) > relay.secret.env
+				"""
+			_pds: """
+				(
+				  echo # Private keys - these are each expected to be 64 char hex strings (1024 bit)
+				  echo PDS_REPO_SIGNING_KEY_K256_PRIVATE_KEY_HEX=$(openssl rand -hex 64 | tr -d '\n')
+				  echo PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX=$(openssl rand -hex 64 | tr -d '\n')
+				  echo # Secrets - update to secure high-entropy strings
+				  echo PDS_DPOP_SECRET=$(openssl rand -hex 32 | tr -d '\n')
+				  echo PDS_JWT_SECRET=$(openssl rand -hex 32 | tr -d '\n')
+				  echo PDS_ADMIN_PASSWORD=$(openssl rand -hex 32 | tr -d '\n')
+				  echo PDS_SPICEDB_TOKEN=$(openssl rand -hex 32 | tr -d '\n')
+				) > pds.secret.env
+				"""
+		}
+	}
 }
 
 testnet: {
@@ -156,4 +156,38 @@ testnet: {
 		}
 		(databases.Postgres & {#name: "spicedb"}).#out
 	}
+}
+
+builds: {
+	// give things consistent names
+	[string]~(group,_): [string]~(subgroup,_): {@env(), name: "\(group)-\(subgroup)"}
+
+	repos: {
+		blebbit: env.#GitRepo & {url: "https://github.com/blebbit/atproto"}
+		atproto: env.#GitRepo & {url: "https://github.com/bluesky-social/atproto"}
+		didplc: env.#GitRepo & {url: "https://github.com/did-method-plc/did-method-plc"}
+		indigo: env.#GitRepo & {url: "https://github.com/bluesky-social/indigo"}
+		jetstream: env.#GitRepo & {url: "https://github.com/bluesky-social/jetstream"}
+	}
+	ppds: {
+		code: env.#Dir & {source: repos.blebbit}
+		ctr: env.#DockerBuild & {source: code, dockerfile: "services/pds/Dockerfile"}
+	}
+	pds: {
+		code: env.#Dir & {source: repos.atproto}
+		ctr: env.#DockerBuild & {source: code, dockerfile: "services/pds/Dockerfile"}
+	}
+	plc: {
+		code: env.#Dir & {source: repos.didplc}
+		ctr: env.#DockerBuild & {source: code, dockerfile: "packages/server/Dockerfile"}
+	}
+	relay: {
+		code: env.#Dir & {source: repos.indigo}
+		ctr: env.#DockerBuild & {source: code, dockerfile: "cmd/relay/Dockerfile"}
+	}
+	jetstream: {
+		code: env.#Dir & {source: repos.jetstream}
+		ctr: env.#DockerBuild & {source: code}
+	}
+
 }

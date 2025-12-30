@@ -85,14 +85,13 @@ Mount: Step & {
 	path: string
 
 	// cache, dir, file, secret, temp, host, service (?)
-	source?: #Cache | #File | #HostFile | #Dir | #HostDir
-	// source?: _
+	// source: #Cache | #File | #HostFile | #Dir | #HostDir
+	source: _
 }
 
 Env: Step & {
 	$kind: "env"
 	// bit of a hack for convenience in a couple places
-	$expand:  "1" | "t" | "T" | "TRUE" | "true" | "True" | "0" | "f" | "F" | "FALSE" | "false" | *"False"
 	[string]: string
 }
 

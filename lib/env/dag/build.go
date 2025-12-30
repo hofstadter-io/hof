@@ -26,6 +26,8 @@ func (d *Dag) Build(e *env.Env, noCache bool) (*dagger.Container, error) {
 		return d.HashContainer(e.Value)
 	case "#hostImage":
 		return d.HashHostImage(e.Value)
+	case "#dockerBuild":
+		return d.HashDockerBuild(e.Value)
 	default:
 		return nil, fmt.Errorf("unsupported build target: %v", k.Kind, e.Value)
 	}

@@ -27,6 +27,7 @@ out: {
 	// this should filter from either repo or host
 	cuemod: env.#Dir & {
 		@env()
+    name: "cuemod"
 		path:   "."
 		source: src.repo
 		include: [

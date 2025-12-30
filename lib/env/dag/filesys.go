@@ -2,6 +2,7 @@ package dag
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"cuelang.org/go/cue"
 	"dagger.io/dagger"
@@ -66,6 +67,7 @@ func (d *Dag) hashFile(step cue.Value) (*dagger.File, error) {
 		}
 		return dir.File(cfg.Path), nil
 
+	// TODO, make similar FileLike and ImageLike handlers so we don't repeat this everywhere
 	case "#container":
 		ctr, err := d.HashContainer(cfg.Source)
 		if err != nil {
@@ -75,6 +77,13 @@ func (d *Dag) hashFile(step cue.Value) (*dagger.File, error) {
 
 	case "#hostImage":
 		ctr, err := d.HashHostImage(cfg.Source)
+		if err != nil {
+			return nil, err
+		}
+		return ctr.File(cfg.Path), nil
+
+	case "#dockerBuild":
+		ctr, err := d.HashDockerBuild(cfg.Source)
 		if err != nil {
 			return nil, err
 		}
@@ -255,4 +264,139 @@ func (d *Dag) HashExportImageFile(step cue.Value) (*dagger.Container, *hashExpor
 	}
 
 	return c, &cfg, nil
+}
+
+type stepFileConfig struct {
+	Kind string `json:"$kind"`
+	// args
+	Path    string    `json:"path"`
+	Content cue.Value `json:"content"`
+	// opts
+	Permissions int    `json:"permissions"`
+	Owner       string `json:"owner"`
+	Expand      bool   `json:"expand"`
+}
+
+func (d *Dag) stepFileHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+	var cfg stepFileConfig
+	err := step.Decode(&cfg)
+	if err != nil {
+		return c, err
+	}
+
+	var f *dagger.File
+	switch ik := cfg.Content.IncompleteKind(); ik {
+	case cue.StringKind:
+		_, name := filepath.Split(cfg.Path)
+		s, _ := cfg.Content.String()
+		f = d.dag.File(name, s)
+	case cue.StructKind:
+		// look for kind
+		k := cfg.Content.LookupPath(cue.ParsePath("$kind"))
+		if !k.Exists() {
+			return c, fmt.Errorf("missing $kind in struct file source: %v", step)
+		}
+		ks, _ := k.String()
+		switch ks {
+		case "#file":
+			f, err = d.hashFile(cfg.Content)
+		case "#hostFile":
+			f, err = d.hashHostFile(cfg.Content)
+
+		default:
+			return c, fmt.Errorf("unsupported $kind in struct file source: %v", step)
+		}
+	}
+
+	c = c.WithFile(cfg.Path, f)
+
+	return c, nil
+}
+
+type stepDirConfig struct {
+	Kind string `json:"$kind"`
+	// args
+	Path   string    `json:"path"`
+	Source cue.Value `json:"source"`
+	// opts
+	Include   []string `json:"include"`
+	Exclude   []string `json:"exclude"`
+	Gitignore bool     `json:"gitignore"`
+	Owner     string   `json:"owner"`
+	Expand    bool     `json:"expand"`
+}
+
+func (d *Dag) stepDirHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+	var cfg stepDirConfig
+	err := step.Decode(&cfg)
+	if err != nil {
+		return nil, fmt.Errorf("while decoding stepDir: %w", err)
+	}
+
+	var dir *dagger.Directory
+	switch ik := cfg.Source.IncompleteKind(); ik {
+	case cue.StructKind:
+		// look for kind
+		k := cfg.Source.LookupPath(cue.ParsePath("$kind"))
+		if !k.Exists() {
+			return c, fmt.Errorf("missing $kind in stepDir source: %v", step)
+		}
+		ks, _ := k.String()
+		switch ks {
+		case "#dir":
+			dir, err = d.hashDir(cfg.Source)
+			if err != nil {
+				return nil, err
+			}
+
+		case "#hostDir":
+			dir, err = d.hashHostDir(cfg.Source)
+			if err != nil {
+				return nil, err
+			}
+
+		case "#gitRepo":
+			repo, err := d.hashGitRepo(cfg.Source)
+			if err != nil {
+				return nil, err
+			}
+			dir = repo.Head().Tree()
+
+		case "#container":
+			ctr, err := d.HashContainer(cfg.Source)
+			if err != nil {
+				return nil, err
+			}
+			dir = ctr.Directory(cfg.Path)
+
+		case "#hostImage":
+			ctr, err := d.HashHostImage(cfg.Source)
+			if err != nil {
+				return nil, err
+			}
+			dir = ctr.Directory(cfg.Path)
+
+		// case "#dockerBuild":
+		// 	ctr, err := d.HashDockerBuild(cfg.Source)
+		// 	if err != nil {
+		// 		return nil, err
+		// 	}
+		// 	dir = ctr.Directory(cfg.Path)
+
+		default:
+			return c, fmt.Errorf("unsupported $kind in stepDir source: %v", step)
+		}
+
+	default:
+		return c, fmt.Errorf("unsupported stepDir value type: %v", step)
+	}
+
+	c = c.WithDirectory(cfg.Path, dir, dagger.ContainerWithDirectoryOpts{
+		Include:   cfg.Include,
+		Exclude:   cfg.Exclude,
+		Gitignore: cfg.Gitignore,
+		Owner:     cfg.Owner,
+		Expand:    cfg.Expand,
+	})
+	return c, nil
 }
