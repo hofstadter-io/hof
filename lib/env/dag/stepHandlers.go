@@ -36,25 +36,10 @@ func (d *Dag) makeStepHandlers() stepHandlerMap {
 		"expose":      d.stepExposeHandler,
 		"bindService": d.stepBindServiceHandler,
 		"entrypoint":  d.stepEntrypointHandler,
-		"args":        d.stepArgsHandler,
-		"term":        d.stepTermHandler,
+		"args":        d.stepDefaultArgsHandler,
+		"term":        d.stepDefaultTermHandler,
+		"terminal":    d.stepTerminalHandler,
 		"temp":        d.stepTempHandler,
-
-		// // cataloged
-		// "#hostImage":   d.hashHostImage,
-		// "#hostFile":    d.hashHostFile,
-		// "#hostDir":     d.hashHostDir,
-		// "#hostService": d.hashHostService,
-		// "#hostTunnel":  d.hashHostTunnel,
-		// "#hostSocket":  d.hashHostSocket,
-		// "#container":   d.hashContainer,
-		// "#file":        d.hashFile,
-		// "#dir":         d.hashDir,
-		// "#service":     d.hashService,
-		// "#temp":        d.hashTemp,
-		// "#cache":       d.hashCache,
-		// "#volume":      d.hashVolume,
-		// "#secret":      d.hashSecret,
 	}
 }
 
@@ -437,7 +422,7 @@ type stepArgsConfig struct {
 	Args []string `json:"args"`
 }
 
-func (d *Dag) stepArgsHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+func (d *Dag) stepDefaultArgsHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
 	var cfg stepArgsConfig
 	err := step.Decode(&cfg)
 	if err != nil {
@@ -456,7 +441,7 @@ type stepTermConfig struct {
 	InsecureRootCapabilities      bool `json:"insecureRootCapabilities"`
 }
 
-func (d *Dag) stepTermHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+func (d *Dag) stepDefaultTermHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
 	var cfg stepTermConfig
 	err := step.Decode(&cfg)
 	if err != nil {
@@ -467,6 +452,28 @@ func (d *Dag) stepTermHandler(c *dagger.Container, step cue.Value) (*dagger.Cont
 		ExperimentalPrivilegedNesting: cfg.ExperimentalPrivilegedNesting,
 		InsecureRootCapabilities:      cfg.InsecureRootCapabilities,
 	})
+	return c, nil
+}
+
+type stepTerminalConfig struct {
+	Kind string   `json:"$kind"`
+	Args []string `json:"args"`
+
+	ExperimentalPrivilegedNesting bool `json:"experimentalPrivilegedNesting"`
+	InsecureRootCapabilities      bool `json:"insecureRootCapabilities"`
+}
+
+func (d *Dag) stepTerminalHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+	var cfg stepTerminalConfig
+	err := step.Decode(&cfg)
+	if err != nil {
+		return nil, fmt.Errorf("while decoding stepTerm: %w", err)
+	}
+
+	c = c.Terminal(dagger.ContainerTerminalOpts{
+		Cmd: cfg.Args,
+	})
+
 	return c, nil
 }
 

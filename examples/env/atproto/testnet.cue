@@ -2,9 +2,55 @@
 package devex
 
 import (
+	"github.com/hofstadter-io/hof/lib/env/common/bases"
 	"github.com/hofstadter-io/hof/lib/env/common/packs/databases"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
+
+cmd: {
+	[string]~(k1,_): env.#Cmd & {
+		// @env(), name: k1
+		tasks: [string]~(k2,_): {
+			steps: [...[...{name: "\(k1).\(k2)"}]]
+		}
+	}
+
+  init: tasks: {
+    secrets: {
+      steps: [[
+        env.#ExportDir & {
+          @env(),
+          path: "./env", 
+          dir: env.#Dir & {
+            path: "/work"
+            source: env.#Container & {
+              from: bases.debian
+              steps: [ env.Bash & { script: _relay }, env.Bash & { script: _pds }]
+            }
+          }
+        },
+      ]]
+
+      _relay: """
+      (
+        echo RELAY_ADMIN_PASSWORD=$(openssl rand -hex 32 | tr -d '\n')
+      ) > relay.secret.env
+      """
+      _pds: """
+      (
+        echo # Private keys - these are each expected to be 64 char hex strings (1024 bit)
+        echo PDS_REPO_SIGNING_KEY_K256_PRIVATE_KEY_HEX=$(openssl rand -hex 64 | tr -d '\n')
+        echo PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX=$(openssl rand -hex 64 | tr -d '\n')
+        echo # Secrets - update to secure high-entropy strings
+        echo PDS_DPOP_SECRET=$(openssl rand -hex 32 | tr -d '\n')
+        echo PDS_JWT_SECRET=$(openssl rand -hex 32 | tr -d '\n')
+        echo PDS_ADMIN_PASSWORD=$(openssl rand -hex 32 | tr -d '\n')
+        echo PDS_SPICEDB_TOKEN=$(openssl rand -hex 32 | tr -d '\n')
+      ) > pds.secret.env
+      """
+    }
+  }
+}
 
 testnet: {
 	// give things consistent names
@@ -13,6 +59,7 @@ testnet: {
 	// @atproto PLC
 	plc: {
 		config: env.#HostFile & {@env(), path: "./env/plc.env"}
+		secret: env.#HostFile & {@env(), path: "./env/plc.secret.env"} // todo, we need secret version of this
 		server: env.#Service & {
 			@env()
 			ports: [{port: 3000}]
@@ -20,6 +67,7 @@ testnet: {
 				from: "blebbit/plc:latest"
 				steps: [
 					env.Envfile & {file: plc.config},
+					env.Envfile & {file: plc.secret}, // todo, we need secret version of this
 					env.BindService & {service: plc.postgres},
 				]
 			}
@@ -30,6 +78,7 @@ testnet: {
 	// @atproto Relay
 	relay: {
 		config: env.#HostFile & {@env(), path: "./env/relay.env"}
+		secret: env.#HostFile & {@env(), path: "./env/relay.secret.env"} // todo, we need secret version of this
 		server: env.#Service & {
 			@env()
 			ports: [{port: 3000}]
@@ -37,6 +86,7 @@ testnet: {
 				from: "blebbit/relay:latest"
 				steps: [
 					env.Envfile & {file: relay.config},
+					env.Envfile & {file: relay.secret}, // todo, we need secret version of this
 					env.Mount & {path: "/data", source: relay.data},
 					env.BindService & {service: relay.postgres},
 					env.BindService & {service: plc.server},

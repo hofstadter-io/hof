@@ -13,10 +13,6 @@
       "path": "../dagger"
     },
     {
-      "name": "testnet",
-      "path": "../../blebbit/testnet"
-    },
-    {
       "name": "schemas",
       "path": "schemas"
     },
@@ -29,7 +25,12 @@
       "path": "examples"
     },
     {
+      "name": "env",
       "path": "lib/env"
+    },
+    {
+      "name": "testnet",
+      "path": "../../blebbit/testnet"
     }
   ],
 	"settings": {}

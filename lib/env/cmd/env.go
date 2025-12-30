@@ -115,8 +115,45 @@ func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) e
 						}
 						// fmt.Printf("  [%d/%d][%d/%d]: %s", s1+1, len(seqSteps), s2+1, len(seqStep), k.Name)
 
-						// go do() something with parStep
+						//
+						// Phase 1 - eval cue and assemble dagger pointers
+						//
+
+						var file *dagger.File
+						var allowParent bool
+						var dir *dagger.Directory
+						var wipe bool
+						var dest string
+
 						switch k.Kind {
+						// todo, we need to split these across here (cue eval) & below (dag sync)
+						case "#exportFile":
+							_file, cfg, _err := d.HashExportFile(parStep)
+							if cfg != nil {
+								dest = cfg.Path
+							}
+							allowParent = cfg.AllowParentDirPath
+							file, err = _file, _err
+						case "#exportDir":
+							_dir, cfg, _err := d.HashExportDir(parStep)
+							if cfg != nil {
+								dest = cfg.Path
+								wipe = cfg.Wipe
+							}
+							dir, err = _dir, _err
+						case "#exportImage":
+							_c, cfg, _err := d.HashExportImage(parStep)
+							if cfg != nil {
+								dest = cfg.Url
+							}
+							c, err = _c, _err
+						case "#exportImageFile":
+							_c, cfg, _err := d.HashExportImageFile(parStep)
+							if cfg != nil {
+								dest = cfg.Path
+							}
+							c, err = _c, _err
+
 						case "#container":
 							c, err = d.HashContainer(parStep)
 						case "#hostImage":
@@ -125,17 +162,40 @@ func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) e
 							return fmt.Errorf("unsupported cmd target(%s): %v", k.Kind, parStep)
 						}
 
+						//
+						// Phase 2 - synchronize dagger, in parallel
+						//
+
 						// only parallel the dagger work
 						g.Go(func() error {
 
-							start := time.Now()
-
-							// TODO, build up or exit, depending on config
+							// if we already have an error, just return it for collection
 							if err != nil {
 								return err
 							}
 
-							c, err = c.Sync(ctx)
+							start := time.Now()
+
+							switch k.Kind {
+							// todo, we need to split these across here (cue eval) & below (dag sync)
+							case "#exportFile":
+								_, err = file.Export(ctx, dest, dagger.FileExportOpts{
+									AllowParentDirPath: allowParent,
+								})
+							case "#exportDir":
+								_, err = dir.Export(ctx, dest, dagger.DirectoryExportOpts{
+									Wipe: wipe,
+								})
+							case "#exportImage":
+								err = c.ExportImage(ctx, dest, dagger.ContainerExportImageOpts{})
+							case "#exportImageFile":
+								_, err = c.Export(ctx, dest, dagger.ContainerExportOpts{})
+
+							case "#container":
+								c, err = c.Sync(ctx)
+							case "#hostImage":
+								c, err = c.Sync(ctx)
+							}
 
 							// TODO, build up or exit, depending on config
 							str := fmt.Sprintf("%s.[%d/%d]", k.Name, s1+1, s2+1)
@@ -157,13 +217,13 @@ func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) e
 				} // end loop over task-seq-step
 
 				// shell at the end of a task
-				// if eflags.Shell {
-				// 	c = c.Terminal()
-				// 	c, err = c.Sync(ctx)
-				// 	if err != nil {
-				// 		return err
-				// 	}
-				// }
+				if eflags.Shell {
+					c = c.Terminal()
+					c, err = c.Sync(ctx)
+					if err != nil {
+						return err
+					}
+				}
 
 			} // end loop over tasks
 		} // end loop over envs

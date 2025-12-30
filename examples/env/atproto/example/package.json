@@ -1,0 +1,19 @@
+{
+  "name": "testnet",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.18.3",
+  "dependencies": {
+    "@atproto/api": "^0.17.7",
+    "@atproto/identity": "^0.4.9"
+  },
+  "devDependencies": {
+    "@types/node": "^24.9.2",
+    "dotenv": "^17.2.3",
+    "tsx": "^4.20.6"
+  }
+}

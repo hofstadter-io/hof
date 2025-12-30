@@ -165,3 +165,94 @@ func (d *Dag) hashDir(step cue.Value) (*dagger.Directory, error) {
 		return nil, fmt.Errorf("hashFile.source: unsupported $kind: %s", sks)
 	}
 }
+
+type hashExportFileConfig struct {
+	Kind string    `json:"$kind"`
+	Name string    `json:"name"`
+	Path string    `json:"path"`
+	File cue.Value `json:"file"`
+
+	AllowParentDirPath bool `json:"allowParentDirPath"`
+}
+
+func (d *Dag) HashExportFile(step cue.Value) (*dagger.File, *hashExportFileConfig, error) {
+	var cfg hashExportFileConfig
+	err := step.Decode(&cfg)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	file, err := d.hashFile(cfg.File)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return file, &cfg, nil
+}
+
+type hashExportDirConfig struct {
+	Kind string    `json:"$kind"`
+	Name string    `json:"name"`
+	Path string    `json:"path"`
+	Dir  cue.Value `json:"dir"`
+	Wipe bool      `json:"wipe"`
+}
+
+func (d *Dag) HashExportDir(step cue.Value) (*dagger.Directory, *hashExportDirConfig, error) {
+	var cfg hashExportDirConfig
+	err := step.Decode(&cfg)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	dir, err := d.hashDir(cfg.Dir)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return dir, &cfg, nil
+}
+
+type hashExportImageConfig struct {
+	Kind  string    `json:"$kind"`
+	Name  string    `json:"name"`
+	Url   string    `json:"url"`
+	Image cue.Value `json:"image"`
+}
+
+func (d *Dag) HashExportImage(step cue.Value) (*dagger.Container, *hashExportImageConfig, error) {
+	var cfg hashExportImageConfig
+	err := step.Decode(&cfg)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	c, err := d.HashContainer(cfg.Image)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return c, &cfg, nil
+}
+
+type hashExportImageFileConfig struct {
+	Kind  string    `json:"$kind"`
+	Name  string    `json:"name"`
+	Path  string    `json:"path"`
+	Image cue.Value `json:"image"`
+}
+
+func (d *Dag) HashExportImageFile(step cue.Value) (*dagger.Container, *hashExportImageFileConfig, error) {
+	var cfg hashExportImageFileConfig
+	err := step.Decode(&cfg)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	c, err := d.HashContainer(cfg.Image)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return c, &cfg, nil
+}

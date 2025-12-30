@@ -1,3 +1,4 @@
 packages:
   - 'extensions/vscode/*'
   - 'extensions/vscode/webviews/*'
+  - 'examples/env/atproto/example'

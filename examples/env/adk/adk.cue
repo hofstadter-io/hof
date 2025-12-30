@@ -64,13 +64,13 @@ cmd: {
 	}
 
 	test: tasks: {
-		go: {steps: [[_tester & {#cmd: "go test ./..."}]]}
+		go: steps: [[_tester & {#cmd: "go test ./..."}]]
     // parallel tests
-    goUltra: { steps: [[
+    goUltra: steps: [[
       _tester & {#cmd: "go vet ./..."},
       _tester & {#cmd: "go test -race ./..."},
       _tester & {#cmd: "go test -cover ./..."},
-    ]]}
+    ]]
     // sequential tests
 		// vet: {steps: [[_tester & {#cmd: "go vet ./..."}]]}
 		// race: {steps: [[_tester & {#cmd: "go test -race ./..."}]]}
@@ -78,8 +78,8 @@ cmd: {
 	}
 	lint: tasks: {
 		// want something like: gofmt -l . | wc -l | grep -e '^0$'
-		fmt: {steps: [[_tester & {#cmd: #"gofmt -l . || true"#}]]}
-		staticcheck: {steps: [[_tester & {#cmd: "staticcheck ./... || true"}]]}
-		golangci: {steps: [[_tester & {#cmd: "golangci-lint run || true"}]]}
+		fmt: steps: [[_tester & {#cmd: #"gofmt -l . || true"#}]]
+		staticcheck: steps: [[_tester & {#cmd: "staticcheck ./... || true"}]]
+		golangci: steps: [[_tester & {#cmd: "golangci-lint run || true"}]]
 	}
 }

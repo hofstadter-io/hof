@@ -19,7 +19,7 @@ import (
 	$kind: "#container"
 
 	// the name of the container or environment
-	name!: string
+	name?: string
 
 	// need some kind of from for host / git / oci
 	from: string | #Container | #HostImage

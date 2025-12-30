@@ -32,6 +32,35 @@ Exec: Step & {
 	noInit?:                        bool
 }
 
+Script: Exec & {
+  script: string
+  args: ["sh", "-c", script]
+}
+Sh: Exec & {
+  script: string
+  _script: """
+  set -euo pipefail
+
+  """
+  args: ["sh", "-c", _script + script]
+}
+Bash: Exec & {
+  script: string
+  _script: """
+  set -euo pipefail
+
+  """
+  args: ["bash", "-c", _script + script]
+}
+Zsh: Exec & {
+  script: string
+  _script: """
+  set -euo pipefail
+
+  """
+  args: ["zsh", "-c", _script + script]
+}
+
 // todo, think about how to hand stdio and redir to files,
 // ideally they can be on the CUE types, but this is when we get into...
 // the Fill CUE from Dagger results, continue eval'n CUE
@@ -80,12 +109,13 @@ Entrypoint: Step & {
 	keepDefaultArgs?: bool
 }
 
-Args: Step & {
+DefaultArgs: Step & {
 	$kind: "args"
 	args: [...string]
 }
 
-Term: Step & {
+// sets the default terminal
+DefaultTerm: Step & {
 	$kind: "term"
 	args: [...string]
 
@@ -94,8 +124,9 @@ Term: Step & {
 }
 
 // starts an interactive terminal
-Shell: Step & {
-	$kind: "shell"
-	args: [...string]
-	tbd: "this still needs to be implemented"
+Terminal: Step & {
+	$kind: "terminal"
+  args: [...string]
+	experimentalPrivilegedNesting?: bool
+	insecureRootCapabilities?:      bool
 }

@@ -1,0 +1,6 @@
+PLC=plc.blebbit.net
+PDS=pds.blebbit.net
+
+HANDLE=alice.pds.blebbit.net
+PASSWORD=generated
+DID=generated
