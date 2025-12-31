@@ -34,11 +34,8 @@ node: {
         tar -C /usr/local -xf \(_file) --strip-components=1
         rm -rf /tmp/*
 
-        # package manager
-        corepack enable pnpm
-
         # LSP
-        npm install -g tsx typescript typescript-language-server
+        npm install -g yarn pnpm tsx typescript typescript-language-server
         """
 
 			args: ["sh", "-c", _script]

@@ -17,7 +17,6 @@ AgentCommand: schema.Command & {
 		Help:    "agent to use"
 		Long:    "agent"
 		Short:   "A"
-
 	}]
 
 }

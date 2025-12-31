@@ -22,7 +22,7 @@ CreateCommand: schema.Command & {
 		Help: "extra arguments for the creator, if it accepts them"
 	}]
 
-	Flags: [...schema.Flag] & [ {
+	Flags: [...schema.Flag] & [{
 		Name:    "generator"
 		Type:    "[]string"
 		Default: "nil"

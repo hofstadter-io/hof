@@ -17,12 +17,14 @@ python: {
 		util.apt.install & {#pkgs: [
 			"pip",
 			"pipx",
+			"pipenv",
 			"pylint",
 			"python3-poetry",
 			"python3-pytest",
 			"python3-flake8",
 		]},
-
+	]
+	dev: [
 		env.Exec & {
 			args: ["sh", "-c", _script]
 

@@ -6,7 +6,7 @@ import (
 )
 
 cue: {
-	#ver: string | *"0.15.1"
+	#ver: string | *"0.15.3"
 
 	caches: {
 		cueMods: env.Volume & {

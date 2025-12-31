@@ -1,94 +1,60 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
-	"os"
 	"slices"
-	"strings"
 
-	"dagger.io/dagger"
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+	"github.com/hofstadter-io/hof/lib/env"
 	"github.com/hofstadter-io/hof/lib/env/dag"
-	"github.com/hofstadter-io/hof/lib/env/incept"
 )
 
-func Publish(args []string, rflags flags.RootPflagpole, cflags flags.EnvPflagpole, scflags flags.Env__PublishFlagpole) error {
-	args, cueargs := splitArgs(args)
-	// check the runtime first before starting dagger
-	R, err := prepRuntime(cueargs, rflags)
+func publishable(e *env.Env) bool {
+	accepting := []string{"container", "hostImage", "dockerBuild"}
+	_, kind := extractMeta(e)
+	// only publish containers right now
+	if slices.Contains(accepting, kind) {
+		return true
+	}
+	return false
+}
+
+func Publish(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole, scflags flags.Env__PublishFlagpole) error {
+	// some quick setup and early filtering
+	R, matches, err := commonStart(args, rflags, eflags, publishable)
 	if err != nil {
 		return err
 	}
 
 	// incept if we are not in dagger
-	dst := os.Getenv("DAGGER_SESSION_TOKEN")
-	if dst == "" {
-		err := incept.Incept(context.Background(), os.Args, &incept.InceptOptions{
-			Verbose:     rflags.Verbosity,
-			Progress:    cflags.Progress,
-			Interactive: cflags.OnFailure,
-			NoExit:      cflags.NoExit,
-			Stdout:      os.Stdout,
-			Stderr:      os.Stderr,
-			Stdin:       os.Stdin,
-		})
+	incepted, err := daggerInceptFlags(rflags, eflags)
+	if incepted {
+		return err
+	}
+
+	// setup dagger & cue->dagger engine
+	err = R.DaggerInit()
+	d, _ := dag.NewClient(R.Ctx, R.DagClient)
+
+	fmt.Println("publishing:")
+	for _, e := range matches {
+		name, kind := extractMeta(e)
+		fmt.Printf("  %s (%s)", name, kind)
+
+		i, err := d.Container(e, eflags.NoCache)
 		if err != nil {
 			return err
 		}
 
-		return nil
-	}
-
-	// do normal stuff now that we are incepted
-
-	// this should be on the runtime probable?
-	ctx := context.Background()
-	os.Setenv("_EXPERIMENTAL_DAGGER_RUNNER_HOST", DAGGER_HOST)
-
-	client, err := dagger.Connect(ctx, dagger.WithLogOutput(os.Stdout))
-	if err != nil {
-		return fmt.Errorf("while connecting to dagger: %w", err)
-	}
-	d, _ := dag.NewClient(ctx, client)
-
-	valid := []string{"container", "hostImage", "dockerBuild"}
-	fmt.Println("publishing:")
-	for _, e := range R.Envs {
-		// only building containers right now
-		if !slices.Contains(valid, e.Hof.Env.Kind) {
-			continue
-		}
-		// fmt.Println("-:", e.Hof.Env.Name, e.Hof.Env.Kind)
-		// we just try to "build" everything unless there are args
-		do := true
-		if len(args) > 0 {
-			do = false
-			for _, a := range args {
-				if strings.HasPrefix(e.Hof.Env.Name, a) {
-					do = true
-					break
-				}
-			}
-		}
-		if do {
-			fmt.Print(" -", e.Hof.Env.Name)
-
-			i, err := d.Container(e, cflags.NoCache)
+		for _, tag := range scflags.Tag {
+			uri := fmt.Sprintf("%s/%s:%s", scflags.Registry, name, tag)
+			_, err := i.Publish(R.Ctx, uri)
 			if err != nil {
-				return err
+				return fmt.Errorf("while publish'n image(%s): %w", uri, err)
 			}
-
-			for _, tag := range scflags.Tag {
-				uri := fmt.Sprintf("%s/%s:%s", scflags.Registry, e.Hof.Env.Name, tag)
-				_, err := i.Publish(ctx, uri)
-				if err != nil {
-					return fmt.Errorf("while publish'n image(%s): %w", uri, err)
-				}
-				fmt.Println(" ", uri)
-			}
-
+			fmt.Println(" -> ", uri)
 		}
+
 	}
 
 	return nil

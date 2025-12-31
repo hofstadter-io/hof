@@ -13,18 +13,12 @@ import (
 
 var listLong = `list environments`
 
-func init() {
-
-	flags.SetupEnv__ListFlags(ListCmd.Flags(), &(flags.Env__ListFlags))
-
-}
-
 func ListRun(args []string) (err error) {
+
+	err = cmd.List(args, flags.RootPflags, flags.EnvPflags)
 
 	// you can safely comment this print out
 	// fmt.Println("not implemented")
-
-	err = cmd.List(args, flags.RootPflags, flags.Env__ListFlags)
 
 	return err
 }

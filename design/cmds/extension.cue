@@ -8,6 +8,5 @@ ExtensionCommand: schema.Command & {
 	Name:  "extension"
 	Usage: "extension [args]"
 	Short: "run the extension server"
-	Long: "run the extension server"
+	Long:  "run the extension server"
 }
-

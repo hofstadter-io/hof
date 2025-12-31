@@ -45,6 +45,20 @@ EnvCommand: schema.Command & {
 		Type:    "bool"
 		Default: "false"
 		Help:    "launch a shell after cmd completion for each target"
+	}, {
+		Name:    "Kind"
+		Long:    "kind"
+		Short:   "k"
+		Type:    "[]string"
+		Default: "nil"
+		Help:    "kinds to include, defaults to all"
+	}, {
+		Name:    "Sort"
+		Long:    "sort"
+		Short:   "s"
+		Type:    "[]string"
+		Default: #"[]string{"name"}"# // todo, support special options like git-tag or git-commit
+		Help:    "sort columns, default is the order CUE defines"
 	}]
 
 	Commands: [{
@@ -75,21 +89,6 @@ EnvCommand: schema.Command & {
 		Usage: "list [...target] [% ...cue]"
 		Short: "list environments"
 		Long:  "list environments"
-		Flags: [{
-			Name:    "Kind"
-			Long:    "kind"
-			Short:   "k"
-			Type:    "[]string"
-			Default: "nil"
-			Help:    "kinds to include, defaults to all"
-		}, {
-			Name:    "Sort"
-			Long:    "sort"
-			Short:   "s"
-			Type:    "[]string"
-			Default: #"[]string{"name"}"# // todo, support special options like git-tag or git-commit
-			Help:    "sort columns, default is the order CUE defines"
-		}]
 	}, {
 		Name:  "run"
 		Usage: "run <target> [% [...cue]]"

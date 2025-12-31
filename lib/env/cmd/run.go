@@ -1,9 +1,6 @@
 package cmd
 
 import (
-	"context"
-	"fmt"
-	"os"
 	"slices"
 	"strings"
 
@@ -11,60 +8,37 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/env"
 	"github.com/hofstadter-io/hof/lib/env/dag"
-	"github.com/hofstadter-io/hof/lib/env/incept"
 )
 
-func Run(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole, cflags flags.Env__RunFlagpole) error {
-	args, cueargs := splitArgs(args)
-	if len(args) != 1 {
-		return fmt.Errorf("run expects only a single target to run")
+func runnable(e *env.Env) bool {
+	accepting := []string{"container", "hostImage", "dockerBuild"}
+	_, kind := extractMeta(e)
+	// only publish containers right now
+	if slices.Contains(accepting, kind) {
+		return true
 	}
-	R, err := prepRuntime(cueargs, rflags)
+	return false
+}
+
+func Run(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole, cflags flags.Env__RunFlagpole) error {
+	// some quick setup and early filtering
+	R, matches, err := commonStart(args, rflags, eflags, runnable)
 	if err != nil {
 		return err
 	}
 
 	// incept if we are not in dagger
-	dst := os.Getenv("DAGGER_SESSION_TOKEN")
-	if dst == "" {
-		// Run incept
-		err := incept.Incept(context.Background(), os.Args, &incept.InceptOptions{
-			Verbose:     rflags.Verbosity,
-			Progress:    eflags.Progress,
-			Interactive: true,
-			Stdout:      os.Stdout,
-			Stderr:      os.Stderr,
-			Stdin:       os.Stdin,
-		})
-		if err != nil {
-			return err
-		}
-
-		return nil
+	incepted, err := daggerInceptFlags(rflags, eflags)
+	if incepted {
+		return err
 	}
 
-	name := args[0]
-	valid := []string{"container", "hostImage", "dockerBuild"}
+	// setup dagger & cue->dagger engine
+	err = R.DaggerInit()
+	d, _ := dag.NewClient(R.Ctx, R.DagClient)
 
-	var e *env.Env
-	for _, ee := range R.Envs {
-		// only building containers right now
-		if slices.Contains(valid, ee.Hof.Env.Kind) && name == ee.Hof.Env.Name {
-			e = ee
-			break
-		}
-	}
-
-	if e == nil {
-		return fmt.Errorf("failed to find env %q", name)
-	}
-
-	ctx := context.Background()
-	client, err := dagger.Connect(ctx)
-	if err != nil {
-		return fmt.Errorf("while connecting to dagger in build: %w", err)
-	}
-	d, _ := dag.NewClient(ctx, client)
+	// eventually we want to loop, when we accept more kinds and flags to send them to the background
+	e := matches[0]
 
 	i, err := d.Container(e, eflags.NoCache)
 	if err != nil {
@@ -79,14 +53,14 @@ func Run(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole, c
 	}
 	// default args / cmd?
 	if len(cmd) == 0 {
-		args, _ := i.DefaultArgs(ctx)
+		args, _ := i.DefaultArgs(R.Ctx)
 		if len(args) > 0 {
 			cmd = args
 		}
 	}
 	// entrypoint?
 	if len(cmd) == 0 {
-		entry, _ := i.Entrypoint(ctx)
+		entry, _ := i.Entrypoint(R.Ctx)
 		if len(entry) > 0 {
 			cmd = entry
 		}
@@ -94,7 +68,7 @@ func Run(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole, c
 
 	i, err = i.Terminal(dagger.ContainerTerminalOpts{
 		Cmd: cmd,
-	}).Sync(ctx)
+	}).Sync(R.Ctx)
 	if err != nil {
 		return err
 	}

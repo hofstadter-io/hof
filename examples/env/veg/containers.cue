@@ -9,23 +9,17 @@ import (
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
-ctr~C: {
-	// apply these to all fields, except vegeta
-	[string]~(key,_): {
-		// todo, if we have more than containers in this struct, we can if $kind == "#container" { ... }
-		name: string
-		if key == "vegeta" {
-			name: key
-		}
-		if key != "vegeta" {
-			name: "veg-\(key)"
-		}
-		labels: env.DefaultLabels & {#name: name}
-	}
+let root = self
 
+ctr: {
 	dev: env.#Container & {
 		@env()
-		#hof: metadata: description: "A development image with many tools"
+		#hof: metadata: {
+			id:          "veg-dev"
+			name:        id
+			description: "setup needed to work on veg"
+		}
+		name: #hof.metadata.name
 
 		from: bases.debian
 
@@ -41,61 +35,132 @@ ctr~C: {
 				"sq",
 			]},
 
+			// binary tools
+			hof.cli,
+			tool.github.cli,
+
 			// setup languages
 			lang.go.default,
 			lang.cue.default,
 			lang.node.default,
 			lang.python.default,
-
-			// other binary tools
-			hof.cli,
-			tool.github.cli,
+			lang.python.dev, // depends on node
 
 			// tools for agents
 			tool.agents.lsp2mcp,
 		]
 	}
 
-	ops: env.#Container & {
+	vegeta: env.#Container & {
 		@env()
-		from: bases.debian
+		#hof: metadata: {
+			id:          "vegeta"
+			name:        id
+			description: "all of the veggie dev, it's over 9000"
+		}
+		name: #hof.metadata.name
 
+		from: root.ctr.dev
+
+		steps: [
+			tool.k8s.kubectl,
+			tool.k8s.helm,
+			tool.k8s.crane,
+			tool.github.cli,
+			tool.cloud.gcloud,
+			tool.dagger.cli,
+			tool.docker.cli,
+			tool.hashicorp.terraform,
+			tool.hashicorp.packer,
+			util.apt.install & {#pkgs: ["ansible"]},
+		]
+	}
+
+	// set id for all ops-, used for caching in env, and default names based on that
+	[=~"ops-"]~(k,_): { @env()
+		#hof: metadata: { id: "veg-\(k)", name: string | *id }
+		name: string | *#hof.metadata.name
+	}
+	// sugar image, override the name, keep id for caching
+	"ops": { name: "veg-ops", root.ctr["ops-lite"] }
+
+	// base ops container
+	"ops-lite": env.#Container & {
+		from: bases.debian
 		steps: [
 			hof.cli,
 			lang.cue.default,
 			tool.k8s.kubectl,
 			tool.k8s.helm,
 			tool.k8s.crane,
+			tool.github.cli,
+		]
+	}
+
+	// full ops container
+	"ops-full": env.#Container & {
+		from: root.ctr["ops-lite"]
+		steps: [
 			util.apt.install & {#pkgs: ["ansible"]},
 			tool.hashicorp.terraform,
 			tool.hashicorp.packer,
-		]
-	}
-	_clis: {
-		gcp: tool.cloud.gcloud
-		aws: tool.cloud.awscli
-		az:  tool.cloud.azure
-	}
-	for c, cli in _clis {
-		"ops-\(c)": env.#Container & {@env(), from: ops, steps: [cli]}
-	}
-	"ops-all": env.#Container & {@env(), from: ops, steps: [for _, cli in _clis {cli}]}
-
-	incept: env.#Container & {
-		@env()
-		from: C["ops-all"]
-
-		steps: [
 			tool.dagger.cli,
 			tool.docker.cli,
 		]
 	}
 
-	vegeta: env.#Container & {
-		@env()
-		#hof: metadata: description: "all of the veggie images, it's over 9000"
-		from: ops
+	// create branches from the ops bases for each cloud cli
+	for c, cli in _clis {
+		"ops-lite-\(c)": env.#Container & {@env(), from: root.ctr["ops-lite"], steps: [cli]}
+		"ops-full-\(c)": env.#Container & {@env(), from: root.ctr["ops-full"], steps: [cli]}
+	}
+	"ops-lite-all": env.#Container & {from: root.ctr["ops-lite"], steps: [for _, cli in _clis {cli}]}
+	"ops-full-all": env.#Container & {from: root.ctr["ops-full"], steps: [for _, cli in _clis {cli}]}
+	_clis: {
+		gcp: tool.cloud.gcloud
+		aws: tool.cloud.awscli
+		az:  tool.cloud.azure
+	}
 
-		steps: incept.steps
+}
+
+fmtr: {
+	[string]~(f,_): [string]~(k,_): {@env(), name: "fmtr-\(f)-\(k)"}
+	black: {
+		src: env.#HostDir & {path: "lib/fmt/tools/black"}
+		img: env.#Container & {
+			from: bases.debian
+			steps: [
+				lang.python.default,
+				env.Dir & {path: "/work", source: src},
+				env.Bash & {
+					script: """
+						pipenv --python /usr/bin/python3
+						pipenv install
+						"""
+				},
+				env.Entrypoint & {args: ["gunicorn", "app:app", "--bind", "0.0.0.0:3000", "--log-file", "-"]},
+				env.Expose & {port: 3000},
+			]
+		}
+	}
+	prettier: {
+		src: env.#HostDir & {path: "lib/fmt/tools/prettier"}
+		img: env.#Container & {
+			from: bases.debian
+			steps: [
+				util.apt.install & {#pkgs: [
+					"gcc",
+					"libc6-dev",
+					"ruby-dev",
+				]},
+				env.Bash & {script: "gem install bundler haml prettier_print rbs syntax_tree syntax_tree-haml syntax_tree-rbs"},
+				lang.node.install,
+				env.Dir & {path: "/work", source: src},
+				env.Exec & {args: ["yarn", "install", "--ignore-engines"]},
+				env.Entrypoint & {args: ["node", "prettier.js"]},
+				env.Expose & {port: 3000},
+			]
+		}
 	}
 }

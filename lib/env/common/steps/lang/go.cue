@@ -6,7 +6,7 @@ import (
 
 // versions
 go: {
-	#ver: string | *"1.25.4"
+	#ver: string | *"1.25.5"
 
 	#arch: *"arm64" | "amd64"
 	// os, always assume linux

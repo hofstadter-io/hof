@@ -6,18 +6,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/hofstadter-io/hof/cmd/hof/flags"
-
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var listLong = `list environments`
-
-func init() {
-
-	flags.SetupEnv__ListFlags(ListCmd.Flags(), &(flags.Env__ListFlags))
-
-}
 
 func ListRun(args []string) (err error) {
 

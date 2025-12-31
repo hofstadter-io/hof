@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"os"
 	"regexp"
 	"strings"
 	"time"
@@ -11,7 +10,6 @@ import (
 	"dagger.io/dagger"
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/env/dag"
-	"github.com/hofstadter-io/hof/lib/env/incept"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -23,31 +21,14 @@ func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) e
 	}
 
 	// incept if we are not in dagger
-	dst := os.Getenv("DAGGER_SESSION_TOKEN")
-	if dst == "" {
-		// Run incept
-		err := incept.Incept(context.Background(), os.Args, &incept.InceptOptions{
-			Verbose:     rflags.Verbosity,
-			Progress:    eflags.Progress,
-			Interactive: eflags.OnFailure,
-			NoExit:      eflags.NoExit,
-			Stdout:      os.Stdout,
-			Stderr:      os.Stderr,
-			Stdin:       os.Stdin,
-		})
-		if err != nil {
-			return err
-		}
-
-		return nil
+	incepted, err := daggerInceptFlags(rflags, eflags)
+	if incepted {
+		return err
 	}
 
-	ctx := context.Background()
-	client, err := dagger.Connect(ctx)
-	if err != nil {
-		return fmt.Errorf("while connecting to dagger in build: %w", err)
-	}
-	d, _ := dag.NewClient(ctx, client)
+	// setup dagger & cue->dagger engine
+	err = R.DaggerInit()
+	d, _ := dag.NewClient(R.Ctx, R.DagClient)
 
 	var cmdArg, taskArg string
 	for _, arg := range args {
@@ -220,7 +201,7 @@ func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) e
 				// shell at the end of a task
 				if eflags.Shell {
 					c = c.Terminal()
-					c, err = c.Sync(ctx)
+					c, err = c.Sync(R.Ctx)
 					if err != nil {
 						return err
 					}

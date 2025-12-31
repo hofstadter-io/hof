@@ -1,6 +1,8 @@
 package runtime
 
 import (
+	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -10,6 +12,7 @@ import (
 	"cuelang.org/go/cue/ast"
 	"cuelang.org/go/cue/build"
 	"cuelang.org/go/cue/load"
+	"dagger.io/dagger"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/flow/flow"
@@ -24,6 +27,7 @@ import (
 // This is the hof Runtime that backs most commands
 type Runtime struct {
 	sync.Mutex
+	Ctx context.Context
 
 	// original flags used to load the CUE
 	Flags flags.RootPflagpole
@@ -50,6 +54,9 @@ type Runtime struct {
 	CueConfig      *load.Config
 	BuildInstances []*build.Instance
 	FieldOpts      []cue.Option
+
+	// Dagger related fields
+	DagClient *dagger.Client
 
 	// this is a bit hacky, but we use this with vet to validate data (and probably st as well)
 	DontPlaceOrphanedFiles bool
@@ -118,6 +125,7 @@ func New(entrypoints []string, rflags flags.RootPflagpole) (*Runtime, error) {
 	}
 
 	r := &Runtime{
+		Ctx:             context.Background(),
 		Flags:           rflags,
 		Entrypoints:     entrypoints,
 		origEntrypoints: entrypoints,
@@ -181,4 +189,20 @@ func (R *Runtime) GetLoadedFiles() []string {
 	}
 
 	return files
+}
+
+const VEG_DAGGER_ENGINE_ENV_VAR = "VEG_EXPERIMENTAL_DAGGER_RUNNER_HOST"
+const VEG_DAGGER_HOST = "container://veg-dagger-engine"
+
+func (R *Runtime) DaggerInit() (err error) {
+	userVal := os.Getenv(VEG_DAGGER_ENGINE_ENV_VAR)
+	if userVal == "" {
+		os.Setenv(VEG_DAGGER_ENGINE_ENV_VAR, VEG_DAGGER_HOST)
+	}
+	R.DagClient, err = dagger.Connect(R.Ctx)
+	if err != nil {
+		return fmt.Errorf("while connecting to dagger: %w", err)
+	}
+	return nil
+
 }

@@ -11,7 +11,7 @@ RunCommand: schema.Command & {
 	Short: "Hof Line Script (HLS) is a successor to bash and python based scripting"
 	Long:  RunCommandHelp
 
-	Flags: [ {
+	Flags: [{
 		Name:    "mode"
 		Type:    "string"
 		Default: "\"run\""

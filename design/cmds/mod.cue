@@ -19,5 +19,4 @@ ModCommand: schema.Command & {
 
 	//Topics: #ModTopics
 	//Examples: #ModExamples
-
 }

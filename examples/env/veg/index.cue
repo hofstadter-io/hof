@@ -48,7 +48,7 @@ src: {
 	dagger: env.#HostDir & {@env(), path: flags.dagger}
 
 	// setup code base on flags and value
-	code: {@env(), name: string}
+	code: {@env(), name: "code"}
 	if flags.src == "repo" {code: repo}
 	if flags.src == "local" {code: local}
 	if strings.HasPrefix(flags.src, "https://") {

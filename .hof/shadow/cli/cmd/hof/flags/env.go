@@ -14,6 +14,8 @@ type EnvPflagpole struct {
 	NoExit    bool
 	NoCache   bool
 	Shell     bool
+	Kind      []string
+	Sort      []string
 }
 
 func SetupEnvPflags(fset *pflag.FlagSet, fpole *EnvPflagpole) {
@@ -24,6 +26,8 @@ func SetupEnvPflags(fset *pflag.FlagSet, fpole *EnvPflagpole) {
 	fset.BoolVarP(&(fpole.NoExit), "no-exit", "N", false, "Leave the TUI open after finishing")
 	fset.BoolVarP(&(fpole.NoCache), "no-cache", "Z", false, "bust the cache and force evaluation")
 	fset.BoolVarP(&(fpole.Shell), "shell", "S", false, "launch a shell after cmd completion for each target")
+	fset.StringArrayVarP(&(fpole.Kind), "kind", "k", nil, "kinds to include, defaults to all")
+	fset.StringArrayVarP(&(fpole.Sort), "sort", "s", []string{"name"}, "sort columns, default is the order CUE defines")
 }
 
 var EnvPflags EnvPflagpole

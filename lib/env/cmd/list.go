@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"regexp"
 	"sort"
 	"strings"
 
@@ -12,10 +11,9 @@ import (
 	"github.com/olekukonko/tablewriter"
 )
 
-func List(args []string, rflags flags.RootPflagpole, cflags flags.Env__ListFlagpole) error {
-	args, cueargs := splitArgs(args)
-
-	R, err := prepRuntime(cueargs, rflags)
+func List(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) error {
+	// some quick setup and early filtering
+	R, matches, err := commonStart(args, rflags, eflags)
 	if err != nil {
 		return err
 	}
@@ -23,41 +21,8 @@ func List(args []string, rflags flags.RootPflagpole, cflags flags.Env__ListFlagp
 	// gather rows
 	var rows = make([][]string, 0, len(R.Envs))
 	// fill with data
-	for _, e := range R.Envs {
-		name := e.Hof.Env.Name
-		if name == "" {
-			continue
-		}
-		kind := e.Hof.Env.Kind
-
-		do := true
-		if len(args) > 0 {
-			do = false
-			for _, a := range args {
-				re, err := regexp.Compile(a)
-				if err == nil && re.MatchString(e.Hof.Env.Name) {
-					do = true
-					break
-				}
-			}
-		}
-		if !do {
-			continue
-		}
-
-		if len(cflags.Kind) > 0 {
-			match := false
-			for _, k := range cflags.Kind {
-				if kind == k {
-					match = true
-					break
-				}
-			}
-			if !match {
-				continue
-			}
-		}
-
+	for _, e := range matches {
+		name, kind := extractMeta(e)
 		path := e.Hof.Path
 
 		extra := ""
@@ -118,9 +83,9 @@ func List(args []string, rflags flags.RootPflagpole, cflags flags.Env__ListFlagp
 	}
 
 	// multi-column sort based on cflags.Sort ([]string)
-	if len(cflags.Sort) > 0 {
+	if len(eflags.Sort) > 0 {
 		sort.Slice(rows, func(i, j int) bool {
-			for _, s := range cflags.Sort {
+			for _, s := range eflags.Sort {
 				s = strings.ToLower(s)
 				idx := -1
 				switch s {
