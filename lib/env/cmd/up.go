@@ -17,7 +17,7 @@ import (
 
 func upable(e *env.Env) bool {
 	accepting := []string{"service"}
-	_, kind := extractMeta(e)
+	_, kind, _ := extractMeta(e)
 	// only publish containers right now
 	if slices.Contains(accepting, kind) {
 		return true
@@ -44,7 +44,7 @@ func Up(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) er
 
 	fmt.Println("starting:")
 	for _, e := range matches {
-		name, kind := extractMeta(e)
+		name, kind, _ := extractMeta(e)
 		fmt.Printf("  %s (%s)", name, kind)
 
 		s, cfg, err := d.Service(e, eflags.NoCache)

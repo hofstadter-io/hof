@@ -21,7 +21,7 @@ import (
 	// container to turn into a service
 	// actual, import env/rrr:env to enforce, performance penalty included
 	// source: #Container | #HostImage
-	source: _
+	source!: _
 
 	// ports to expose on the container
 	ports?: [...#PortForward]
@@ -50,6 +50,23 @@ import (
 	// This should only be used if the user requires that their exec process be the pid 1 process in the container. Otherwise it may result in unexpected behavior.
 	noInit?: bool
 }
+
+#PortForward: {
+	// friendly name for the port
+	name?: string
+
+	port: int
+
+	// Destination port for traffic.
+	backend: port
+
+	// Port to expose to clients. If unspecified, a default will be chosen.
+	frontend?: int
+
+	// Transport layer protocol to use for traffic.
+	protocol: *"TCP" | "UDP"
+}
+
 
 Expose: Step & {
 	$kind: "expose"

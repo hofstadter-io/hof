@@ -115,7 +115,7 @@ EnvCommand: schema.Command & {
 		Flags: [{
 			Name:    "Registry"
 			Long:    "registry"
-			Short:   "R"
+			Short:   "G"
 			Type:    "string"
 			Default: #""host.docker.internal:5000""#
 			Help:    "registry to push to, defaults to veg internal"

@@ -89,8 +89,9 @@ Mount: Step & {
 	source: _
 }
 
-Env: Step & {
-	$kind:    "env"
+Env: EnvVars
+EnvVars: Step & {
+	$kind:    "env" // todo, also change this
 	[string]: string
 }
 

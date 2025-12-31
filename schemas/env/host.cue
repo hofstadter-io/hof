@@ -50,10 +50,10 @@ import (
 	$kind: "#hostDir"
 
 	// friendly name for dir
-	name?: string | *path
+	name: string | *path
 
 	// the path to load, relative or absolute
-	path: string
+	path!: string
 
 	// Exclude artifacts that match the given pattern (e.g., ["node_modules/", ".git*"]).
 	exclude?: [...string]
@@ -117,22 +117,6 @@ import (
 	// If no ports are given, all of the service's ports are forwarded. If native is true, each port maps to the same port on the host. If native is false, each port maps to a random port chosen by the host.
 	// If ports are given and native is true, the ports are additive.
 	ports?: [...#PortForward]
-}
-
-#PortForward: {
-	// friendly name for the port
-	name?: string
-
-	port: int
-
-	// Destination port for traffic.
-	backend: port
-
-	// Port to expose to clients. If unspecified, a default will be chosen.
-	frontend: int
-
-	// Transport layer protocol to use for traffic.
-	protocol: *"TCP" | "UDP"
 }
 
 // Accesses a Unix socket on the host.

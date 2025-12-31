@@ -15,7 +15,7 @@ func buildable(e *env.Env) bool {
 		"dir", "hostDir", "gitRepo",
 		"file", "hostFile",
 	}
-	_, kind := extractMeta(e)
+	_, kind, _ := extractMeta(e)
 	// only publish containers right now
 	if slices.Contains(accepting, kind) {
 		return true
@@ -43,7 +43,7 @@ func Build(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole)
 	// do actual work
 	fmt.Println("building:")
 	for _, e := range matches {
-		name, kind := extractMeta(e)
+		name, kind, _ := extractMeta(e)
 		fmt.Printf(" - %s (%s)\n", name, kind)
 
 		switch kind {

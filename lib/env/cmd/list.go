@@ -23,7 +23,7 @@ func List(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) 
 	var rows = make([][]string, 0, len(R.Envs))
 	// fill with data
 	for _, e := range matches {
-		name, kind := extractMeta(e)
+		name, kind, _ := extractMeta(e)
 		path := e.Hof.Path
 		extra := genExtra(e)
 
@@ -67,7 +67,7 @@ func List(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) 
 }
 
 func genExtra(e *env.Env) string {
-	_, kind := extractMeta(e)
+	_, kind, _ := extractMeta(e)
 
 	extra := ""
 	switch kind {
@@ -82,7 +82,7 @@ func genExtra(e *env.Env) string {
 		sv := e.Value.LookupPath(cue.ParsePath("name"))
 		if sv.Exists() {
 			s, _ := sv.String()
-			extra = s
+			extra = "<- " + s
 		}
 
 	case "hostService":
@@ -90,11 +90,12 @@ func genExtra(e *env.Env) string {
 		if sv.Exists() {
 			b := new(strings.Builder)
 			s, _ := sv.String()
-			fmt.Fprintf(b, "%s", s)
+			fmt.Fprintf(b, "<- %s", s)
 			addPorts(b, e.Value)
 			extra = b.String()
 		}
-	case "service", "hostTunnel":
+
+	case "service":
 		sv := e.Value.LookupPath(cue.ParsePath("name"))
 		if sv.Exists() {
 			b := new(strings.Builder)
@@ -104,13 +105,41 @@ func genExtra(e *env.Env) string {
 			extra = b.String()
 		}
 
+	case "hostTunnel":
+		sv := e.Value.LookupPath(cue.ParsePath("name"))
+		if sv.Exists() {
+			b := new(strings.Builder)
+			s, _ := sv.String()
+			fmt.Fprintf(b, "-> %s", s)
+			addPorts(b, e.Value)
+			extra = b.String()
+		}
+
 	// "path"
-	case "dir", "file", "hostDir", "hostFile", "hostSocket", "exportFile", "exportDir", "exportImageFile":
+	case "dir", "file":
 		sv := e.Value.LookupPath(cue.ParsePath("path"))
 		if sv.Exists() {
 			b := new(strings.Builder)
 			s, _ := sv.String()
 			fmt.Fprintf(b, "%s", s)
+			extra = b.String()
+		}
+
+	case "hostDir", "hostFile", "hostSocket":
+		sv := e.Value.LookupPath(cue.ParsePath("path"))
+		if sv.Exists() {
+			b := new(strings.Builder)
+			s, _ := sv.String()
+			fmt.Fprintf(b, "<- %s", s)
+			extra = b.String()
+		}
+
+	case "exportFile", "exportDir", "exportImageFile":
+		sv := e.Value.LookupPath(cue.ParsePath("path"))
+		if sv.Exists() {
+			b := new(strings.Builder)
+			s, _ := sv.String()
+			fmt.Fprintf(b, "-> %s", s)
 			extra = b.String()
 		}
 
@@ -124,6 +153,7 @@ func genExtra(e *env.Env) string {
 
 	case "exportImage", "publishImage":
 		b := new(strings.Builder)
+		fmt.Fprintf(b, "-> ")
 		rv := e.Value.LookupPath(cue.ParsePath("reg"))
 		if rv.Exists() {
 			s, _ := rv.String()
@@ -172,10 +202,23 @@ func addPorts(b *strings.Builder, val cue.Value) {
 }
 
 func containerExtra(b *strings.Builder, val cue.Value) {
+	// fmt.Println("containerExtra", val)
+
 	// name := val.LookupPath(cue.ParsePath("name"))
-	from := val.LookupPath(cue.ParsePath("from.name"))
-	s, _ := from.String()
-	fmt.Fprintf(b, "from: %v", s)
+	from := val.LookupPath(cue.ParsePath("from"))
+	if from.Exists() && from.IncompleteKind() == cue.StringKind {
+		// fmt.Println("from: string")
+		s, _ := from.String()
+		fmt.Fprintf(b, "<- %v", s)
+		return
+	}
+	fromname := val.LookupPath(cue.ParsePath("from.name"))
+	if fromname.Exists() && fromname.IncompleteKind() == cue.StringKind {
+		// fmt.Println("from: name")
+		s, _ := fromname.String()
+		fmt.Fprintf(b, "%s", s)
+		return
+	}
 
 	// switch ik := from.IncompleteKind(); ik {
 	// case cue.StringKind:

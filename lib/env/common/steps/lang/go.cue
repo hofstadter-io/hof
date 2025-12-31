@@ -40,7 +40,8 @@ go: {
 		}
 	}
 
-	default: [
+	default: defaultSteps
+	defaultSteps: [ // new way
 		envSets.default,
 		mounts.goBuild,
 		mounts.goMods,
@@ -50,7 +51,6 @@ go: {
 	]
 
 	install: {
-
 		cli: [
 			env.Exec & {
 				args: ["sh", "-c", _script]

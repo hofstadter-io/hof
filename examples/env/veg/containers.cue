@@ -24,7 +24,7 @@ ctr: {
 		from: bases.debian
 
 		steps: [
-			hof.cli,
+			bins.hof,
 		]
 	}
 	dev: env.#Container & {
@@ -42,16 +42,16 @@ ctr: {
 			// todo, put these with the tools that depend on them (if they are one)
 			util.apt.install & {#pkgs: [
 				// deps for go/node/python -> c/c++ situations (like CGO)
-				"g++",
+				// "g++",
 				"gcc",
 				"libc6-dev",
-				"netbase",
-				"pkg-config",
-				"sq",
+				// "netbase",
+				// "pkg-config",
+				// "sq",
 			]},
 
 			// binary tools
-			hof.cli,
+			bins.hof,
 			tool.github.cli,
 
 			// setup languages
@@ -103,7 +103,7 @@ ctr: {
 	"ops-lite": env.#Container & {
 		from: bases.debian
 		steps: [
-			hof.cli,
+			bins.hof,
 			lang.cue.default,
 			tool.k8s.kubectl,
 			tool.k8s.helm,

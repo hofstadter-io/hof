@@ -35,7 +35,7 @@ func (d *Dag) HashContainer(step cue.Value) (*dagger.Container, error) {
 	var cfg hashContainerConfig
 	err := step.Decode(&cfg)
 	if err != nil {
-		return nil, fmt.Errorf("while decoding hashHostDir: %w", err)
+		return nil, fmt.Errorf("while decoding HashContainer: %w", err)
 	}
 
 	// index for query and create if not found

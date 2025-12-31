@@ -6,6 +6,7 @@ import (
 )
 
 zsh: {
+	// hmm, this is tied to app, but we need general 'util.pkg'
 	install: util.apt.install & {#pkgs: ["zsh"]}
 
 	customize: [

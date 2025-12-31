@@ -26,7 +26,7 @@ func commonStart(args []string, rflags flags.RootPflagpole, eflags flags.EnvPfla
 
 	matches = make([]*env.Env, 0)
 	for _, e := range R.Envs {
-		name, kind := extractMeta(e)
+		name, kind, _ := extractMeta(e)
 		if name == "" {
 			continue
 		}
@@ -132,13 +132,14 @@ func splitArgs(orig []string) (args, cueargs []string) {
 	return args, cueargs
 }
 
-func extractMeta(e *env.Env) (name, kind string) {
-	name = e.Hof.Env.Name
-	if name == "" {
-		name = e.Hof.Metadata.Name
+func extractMeta(e *env.Env) (ename, ekind, mname string) {
+	ekind = e.Hof.Env.Kind
+	ename = e.Hof.Env.Name	
+	mname = e.Hof.Metadata.Name
+	if ename == "" {
+		ename = mname
 	}
-	kind = e.Hof.Env.Kind
-	return name, kind
+	return ename, ekind, mname
 }
 
 // tries to match val against a list of regexp

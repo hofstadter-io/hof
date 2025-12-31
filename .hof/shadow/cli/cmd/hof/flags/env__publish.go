@@ -18,7 +18,7 @@ var Env__PublishFlags Env__PublishFlagpole
 func SetupEnv__PublishFlags(fset *pflag.FlagSet, fpole *Env__PublishFlagpole) {
 	// flags
 
-	fset.StringVarP(&(fpole.Registry), "registry", "R", "host.docker.internal:5000", "registry to push to, defaults to veg internal")
+	fset.StringVarP(&(fpole.Registry), "registry", "G", "host.docker.internal:5000", "registry to push to, defaults to veg internal")
 	fset.StringArrayVarP(&(fpole.Tag), "tag", "T", []string{"local"}, "tags to give to the environment, can be set multiple times")
 }
 

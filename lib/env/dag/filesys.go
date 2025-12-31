@@ -53,7 +53,11 @@ func (d *Dag) hashFile(step cue.Value) (*dagger.File, string, error) {
 		return ix.file, ix.cfg.Path, nil
 	}
 
-	var f *dagger.File
+	var (
+		f *dagger.File
+		dir *dagger.Directory
+		ctr *dagger.Container
+	)
 
 	sk := cfg.Source.LookupPath(cue.ParsePath("$kind"))
 	if !sk.Exists() {
@@ -66,47 +70,51 @@ func (d *Dag) hashFile(step cue.Value) (*dagger.File, string, error) {
 		if err != nil {
 			return nil, "", err
 		}
-		dir := repo.Ref(rcfg.Ref).Tree()
-		f, _, err = dir.File(cfg.Path), cfg.Path, nil
+		dir = repo.Ref(rcfg.Ref).Tree()
+		f = dir.File(cfg.Path)
 
 	case "#dir":
-		dir, _, err := d.hashDir(cfg.Source)
+		dir, _, err = d.hashDir(cfg.Source)
 		if err != nil {
 			return nil, "", err
 		}
-		f, _, err = dir.File(cfg.Path), cfg.Path, nil
+		f = dir.File(cfg.Path)
 
 	case "#hostDir":
-		dir, _, err := d.hashHostDir(cfg.Source)
+		dir, _, err = d.hashHostDir(cfg.Source)
 		if err != nil {
 			return nil, "", err
 		}
-		f, _, err = dir.File(cfg.Path), cfg.Path, nil
+		f = dir.File(cfg.Path)
 
 	// TODO, make similar FileLike and ImageLike handlers so we don't repeat this everywhere
 	case "#container":
-		ctr, err := d.HashContainer(cfg.Source)
+		ctr, err = d.HashContainer(cfg.Source)
 		if err != nil {
 			return nil, "", err
 		}
-		f, _, err = ctr.File(cfg.Path), cfg.Path, nil
+		f = ctr.File(cfg.Path)
 
 	case "#hostImage":
-		ctr, err := d.HashHostImage(cfg.Source)
+		ctr, err = d.HashHostImage(cfg.Source)
 		if err != nil {
 			return nil, "", err
 		}
-		f, _, err = ctr.File(cfg.Path), cfg.Path, nil
+		f = ctr.File(cfg.Path)
 
 	case "#dockerBuild":
-		ctr, err := d.HashDockerBuild(cfg.Source)
+		ctr, err = d.HashDockerBuild(cfg.Source)
 		if err != nil {
 			return nil, "", err
 		}
-		f, _, err = ctr.File(cfg.Path), cfg.Path, nil
+		f = ctr.File(cfg.Path)
 
 	default:
-		return nil, "", fmt.Errorf("hashFile.source: unsupported $kind: %s", sks)
+		return nil, "", fmt.Errorf("hashFile.source: unsupported $kind %q in", sks, step)
+	}
+
+	if f == nil {
+		return nil, "", fmt.Errorf("error hashFile.file result is nil in: %v", step)
 	}
 
 	// memoize
@@ -266,6 +274,7 @@ func (d *Dag) stepFileHandler(c *dagger.Container, step cue.Value) (*dagger.Cont
 	}
 
 	var f *dagger.File
+	var dir *dagger.Directory
 	switch ik := cfg.Content.IncompleteKind(); ik {
 	case cue.StringKind:
 		_, name := filepath.Split(cfg.Path)
@@ -286,13 +295,32 @@ func (d *Dag) stepFileHandler(c *dagger.Container, step cue.Value) (*dagger.Cont
 		case "#hostFile":
 			f, _, err = d.hashHostFile(cfg.Content)
 
+		case "#dir":
+			dir, _, err = d.hashDir(cfg.Content)
+			if err == nil && dir != nil {
+				f = dir.File(cfg.Path)
+			}
+		case "#hostDir":
+			dir, _, err = d.hashHostDir(cfg.Content)
+			f = dir.File(cfg.Path)
+			if err == nil && dir != nil {
+				f = dir.File(cfg.Path)
+			}
+
 		default:
-			return c, fmt.Errorf("unsupported $kind in struct file source: %v", step)
+			return c, fmt.Errorf("unsupported $kind %q in struct file source: %v", ks, step)
 		}
+
+	default:
+			return c, fmt.Errorf("unhandle incomplete cue kind %q in in struct file source: %v", ik, step)
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("while trying to get file for content in %q: %w", cfg.Path, err)
 	}
 
 	if f == nil {
-		return nil, fmt.Errorf("ERROR! should not get here, nil file from cue", step)
+		return nil, fmt.Errorf("ERROR! should not get here, nil file from cue: %v", step)
 	}
 	c = c.WithFile(cfg.Path, f)
 

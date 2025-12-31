@@ -33,7 +33,7 @@ import (
 	name:  string | *path
 
 	// where to place
-	path:  string
+	path:  string | *"."
 
 	// pieces that make up the bundled dir
 	// sources:  [...#FileLike|#DirLike]
@@ -71,7 +71,7 @@ File: Step & {
 Dir: Step & {
 	$kind: "dir"
 	// args
-	path: string
+	path: string | *"."
 
 	// actual, import env/rrr:env to enforce, performance penalty included
 	// source: #Container | #Dir | #GitRepo | #HostDir | #HostImage // HMMM(B): or maybe this should just be dir kinds, make the user do an extra step? (nah, wouldn't have to with the SDK directly)

@@ -11,7 +11,7 @@ import (
 
 func publishable(e *env.Env) bool {
 	accepting := []string{"container", "hostImage", "dockerBuild"}
-	_, kind := extractMeta(e)
+	_, kind, _ := extractMeta(e)
 	// only publish containers right now
 	if slices.Contains(accepting, kind) {
 		return true
@@ -38,7 +38,7 @@ func Publish(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpol
 
 	fmt.Println("publishing:")
 	for _, e := range matches {
-		name, kind := extractMeta(e)
+		name, kind, _ := extractMeta(e)
 		fmt.Printf("  %s (%s)", name, kind)
 
 		i, err := d.Container(e, eflags.NoCache)

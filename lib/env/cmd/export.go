@@ -17,7 +17,7 @@ func exportable(e *env.Env) bool {
 		"exportFile", "exportDir",
 		"exportImage", "exportImageFile", "publishImage",
 	}
-	_, kind := extractMeta(e)
+	_, kind, _ := extractMeta(e)
 	// only publish containers right now
 	if slices.Contains(accepting, kind) {
 		return true
@@ -44,7 +44,7 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 
 	fmt.Println("exporting:")
 	for _, e := range matches {
-		name, kind := extractMeta(e)
+		name, kind, _ := extractMeta(e)
 		fmt.Printf(" - %s (%s)\n", name, kind)
 
 		switch kind {

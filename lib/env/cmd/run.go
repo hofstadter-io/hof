@@ -12,7 +12,7 @@ import (
 
 func runnable(e *env.Env) bool {
 	accepting := []string{"container", "hostImage", "dockerBuild"}
-	_, kind := extractMeta(e)
+	_, kind, _ := extractMeta(e)
 	// only publish containers right now
 	if slices.Contains(accepting, kind) {
 		return true
