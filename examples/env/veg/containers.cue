@@ -12,6 +12,21 @@ import (
 let root = self
 
 ctr: {
+	min: env.#Container & {
+		@env()
+		#hof: metadata: {
+			id:          "veg-min"
+			name:        id
+			description: "minimal veg, eat your veggies!"
+		}
+		name: #hof.metadata.name
+
+		from: bases.debian
+
+		steps: [
+			hof.cli,
+		]
+	}
 	dev: env.#Container & {
 		@env()
 		#hof: metadata: {

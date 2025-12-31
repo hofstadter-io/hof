@@ -37,6 +37,9 @@ func commonStart(args []string, rflags flags.RootPflagpole, eflags flags.EnvPfla
 		if !matchValRegexp(kind, eflags.Kind) {
 			continue
 		}
+		if !matchValRegexp(e.Hof.Path, eflags.Path) {
+			continue
+		}
 
 		if len(filters) > 0 {
 			ok := false
@@ -91,24 +94,15 @@ func EnrichEnv(R *runtime.Runtime, e *env.Env) error {
 }
 
 func daggerInceptFlags(rflags flags.RootPflagpole, eflags flags.EnvPflagpole) (bool, error) {
-	dst := os.Getenv("DAGGER_SESSION_TOKEN")
-	if dst == "" {
-		err := incept.Incept(context.Background(), os.Args, &incept.InceptOptions{
-			Verbose:     rflags.Verbosity,
-			Progress:    eflags.Progress,
-			Interactive: eflags.OnFailure,
-			NoExit:      eflags.NoExit,
-			Stdout:      os.Stdout,
-			Stderr:      os.Stderr,
-			Stdin:       os.Stdin,
-		})
-		if err != nil {
-			return true, err
-		}
-
-		return true, nil
-	}
-	return false, nil
+	return daggerInceptOpts(&incept.InceptOptions{
+		Verbose:     rflags.Verbosity,
+		Progress:    eflags.Renderer,
+		Interactive: eflags.OnFailure,
+		NoExit:      eflags.NoExit,
+		Stdout:      os.Stdout,
+		Stderr:      os.Stderr,
+		Stdin:       os.Stdin,
+	})
 }
 
 func daggerInceptOpts(opts *incept.InceptOptions) (bool, error) {

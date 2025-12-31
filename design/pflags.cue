@@ -89,6 +89,12 @@ CliPflags: [...schema.Flag] & [{
 	Default: ""
 	Help:    "turn off output and assume defaults at prompts"
 }, {
+	Name:    "DryRun"
+	Type:    "bool"
+	Default: "false"
+	Help:    "dry run certain commands"
+	Long:    "dry-run"
+}, {
 	Name:    "stats"
 	Type:    "bool"
 	Default: "false"

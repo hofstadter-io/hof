@@ -14,6 +14,8 @@ func exportable(e *env.Env) bool {
 		"container", "hostImage", "dockerBuild",
 		"dir", "hostDir", "gitRepo",
 		"file", "hostFile",
+		"exportFile", "exportDir",
+		"exportImage", "exportImageFile", "publishImage",
 	}
 	_, kind := extractMeta(e)
 	// only publish containers right now
@@ -53,11 +55,17 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 			}
 			if len(cflags.Tag) == 0 {
 				err = i.ExportImage(R.Ctx, fmt.Sprintf("%s:%s", name, "local"))
+				if err != nil {
+					return err
+				}
 			} else {
 				for _, t := range cflags.Tag {
 					// this is the "tag" annotation
 					i = i.WithAnnotation("org.opencontainers.image.version", t)
 					err = i.ExportImage(R.Ctx, fmt.Sprintf("%s:%s", name, t))
+					if err != nil {
+						return err
+					}
 				}
 			}
 
@@ -68,9 +76,15 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 			}
 			if len(cflags.Tag) == 0 {
 				_, err = dir.Export(R.Ctx, p)
+				if err != nil {
+					return err
+				}
 			} else {
 				for _, t := range cflags.Tag {
 					_, err = dir.Export(R.Ctx, fmt.Sprintf("%s-%s", p, t))
+					if err != nil {
+						return err
+					}
 				}
 			}
 
@@ -82,9 +96,153 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 
 			if len(cflags.Tag) == 0 {
 				_, err = file.Export(R.Ctx, p)
+				if err != nil {
+					return err
+				}
 			} else {
 				for _, t := range cflags.Tag {
 					_, err = file.Export(R.Ctx, fmt.Sprintf("%s-%s", p, t))
+					if err != nil {
+						return err
+					}
+				}
+			}
+
+		case "exportDir":
+			dir, cfg, err := d.HashExportDir(e.Value)
+			if err != nil {
+				return err
+			}
+			if len(cflags.Tag) == 0 {
+				_, err = dir.Export(R.Ctx, cfg.Path)
+				if err != nil {
+					return err
+				}
+			} else {
+				for _, t := range cflags.Tag {
+					_, err = dir.Export(R.Ctx, fmt.Sprintf("%s-%s", cfg.Path, t))
+					if err != nil {
+						return err
+					}
+				}
+			}
+
+		case "exportFile":
+			file, cfg, err := d.HashExportFile(e.Value)
+			if err != nil {
+				return err
+			}
+			if len(cflags.Tag) == 0 {
+				_, err = file.Export(R.Ctx, cfg.Path)
+			} else {
+				for _, t := range cflags.Tag {
+					_, err = file.Export(R.Ctx, fmt.Sprintf("%s-%s", cfg.Path, t))
+				}
+			}
+
+		case "exportImageFile":
+			i, cfg, err := d.HashExportImageFile(e.Value)
+			if err != nil {
+				return err
+			}
+
+			if len(cflags.Tag) == 0 {
+				if len(cfg.Tags) == 0 {
+					j := i.WithAnnotation("org.opencontainers.image.version", "local")
+					_, err = j.Export(R.Ctx, cfg.Path)
+					if err != nil {
+						return err
+					}
+				}
+				for _, t := range cfg.Tags {
+					j := i.WithAnnotation("org.opencontainers.image.version", t)
+					_, err = j.Export(R.Ctx, fmt.Sprintf("%s-%s", cfg.Path, t))
+					if err != nil {
+						return err
+					}
+				}
+			} else {
+				for _, t := range cflags.Tag {
+					// this is the "tag" annotation
+					j := i.WithAnnotation("org.opencontainers.image.version", t)
+					_, err = j.Export(R.Ctx, fmt.Sprintf("%s-%s", cfg.Path, t))
+					if err != nil {
+						return err
+					}
+				}
+			}
+
+		case "exportImage":
+			i, cfg, err := d.HashExportImage(e.Value)
+			if err != nil {
+				return err
+			}
+			url := cfg.Name
+			if cfg.Reg != "" {
+				url = fmt.Sprintf("%s/%s", cfg.Reg, cfg.Name)
+			}
+
+			if len(cflags.Tag) == 0 {
+				if len(cfg.Tags) == 0 {
+					t := "local"
+					j := i.WithAnnotation("org.opencontainers.image.version", t)
+					err = j.ExportImage(R.Ctx, fmt.Sprintf("%s:%s", url, t))
+					if err != nil {
+						return err
+					}
+				}
+				for _, t := range cfg.Tags {
+					j := i.WithAnnotation("org.opencontainers.image.version", t)
+					err = j.ExportImage(R.Ctx, fmt.Sprintf("%s:%s", url, t))
+					if err != nil {
+						return err
+					}
+				}
+			} else {
+				for _, t := range cflags.Tag {
+					// this is the "tag" annotation
+					j := i.WithAnnotation("org.opencontainers.image.version", t)
+					err = j.ExportImage(R.Ctx, fmt.Sprintf("%s:%s", url, t))
+					if err != nil {
+						return err
+					}
+				}
+			}
+
+		case "publishImage":
+			i, cfg, err := d.HashPublishImage(e.Value)
+			if err != nil {
+				return err
+			}
+			url := cfg.Name
+			if cfg.Reg != "" {
+				url = fmt.Sprintf("%s/%s", cfg.Reg, cfg.Name)
+			}
+
+			if len(cflags.Tag) == 0 {
+				if len(cfg.Tags) == 0 {
+					t := "local"
+					j := i.WithAnnotation("org.opencontainers.image.version", t)
+					_, err = j.Publish(R.Ctx, fmt.Sprintf("%s:%s", url))
+					if err != nil {
+						return err
+					}
+				}
+				for _, t := range cfg.Tags {
+					j := i.WithAnnotation("org.opencontainers.image.version", t)
+					_, err = j.Publish(R.Ctx, fmt.Sprintf("%s:%s", url, t))
+					if err != nil {
+						return err
+					}
+				}
+			} else {
+				for _, t := range cflags.Tag {
+					// this is the "tag" annotation
+					j := i.WithAnnotation("org.opencontainers.image.version", t)
+					_, err = j.Publish(R.Ctx, fmt.Sprintf("%s:%s", url, t))
+					if err != nil {
+						return err
+					}
 				}
 			}
 

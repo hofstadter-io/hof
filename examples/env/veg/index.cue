@@ -58,36 +58,21 @@ src: {
 		code: env.#HostDir & {path: flags.src}
 	}
 
+	cuemod: env.#Dir & {
+		path:   "."
+		sources: [src.code]
+		include: [
+			"cue.mod",
+			"schemas",
+			"flow/tasks/**.cue",
+			"examples",
+			"lib/env/common",
+		]
+	}
 }
 
 incept: {
 	[string]~(K,_): {name: K}
 	docker: env.#HostSocket & {@env(), path: "unix:///Users/tony/.colima/default/docker.sock"}
 	dagger: env.#HostSocket & {@env(), path: "unix:///var/run/docker.sock"}
-}
-
-out: {
-	// this should filter from either repo or host
-	cuemod: env.#Dir & {
-		@env()
-		name:   "cuemod"
-		path:   "."
-		source: src.repo
-		include: [
-			"cue.mod",
-			"schemas",
-			"examples",
-			"lib/env/common",
-			// way more to come here
-		]
-	}
-
-	// go builds, cross-arch/os
-	cli: {}
-
-	vscode: {}
-
-	docs: {}
-
-	fmtrs: {}
 }

@@ -1,0 +1,352 @@
+package dag
+
+import (
+	"fmt"
+
+	"cuelang.org/go/cue"
+	"dagger.io/dagger"
+	"github.com/hofstadter-io/hof/lib/env"
+)
+
+type exportFileConfig struct {
+	Kind string    `json:"$kind"`
+	Name string    `json:"name"`
+	Path string    `json:"path"`
+	File cue.Value `json:"file"`
+
+	AllowParentDirPath bool `json:"allowParentDirPath"`
+}
+
+type exportFileIndex struct {
+	node *env.Env
+	val  cue.Value
+	cfg  *exportFileConfig
+	file *dagger.File
+}
+
+func (idx *exportFileIndex) Key() string {
+	if idx.cfg == nil {
+		return "#exportFile.nil"
+	}
+	return fmt.Sprintf("#exportFile.%s", idx.cfg.Name)
+}
+
+func (d *Dag) HashExportFile(step cue.Value) (*dagger.File, *exportFileConfig, error) {
+	var cfg exportFileConfig
+	err := step.Decode(&cfg)
+	if err != nil {
+		return nil, nil, fmt.Errorf("while decoding hashExportFile: %w", err)
+	}
+
+	// index for query and create if not found
+	idx := &exportFileIndex{
+		val: step,
+		cfg: &cfg,
+	}
+
+	// lookup
+	ia, ok := d.cat[idx]
+	if ok {
+		ix := ia.(*exportFileIndex)
+		return ix.file, ix.cfg, nil
+	}
+
+	f, _, err := d.hashFile(cfg.File)
+	if err != nil {
+		return nil, nil, fmt.Errorf("while decoding hashExportFile.file: %w", err)
+	}
+
+	// memoize
+	idx.file = f
+	d.cat[idx] = idx
+
+	return idx.file, idx.cfg, nil
+}
+
+type exportDirConfig struct {
+	Kind    string      `json:"$kind"`
+	Name    string      `json:"name"`
+	Path    string      `json:"path"`
+	Sources []cue.Value `json:"sources"`
+
+	BundlePath string    `json:"bundlePath"`
+	Patch      string    `json:"patch"`
+	PatchFile  cue.Value `json:"patchFile"`
+
+	Include   []string `json:"include"`
+	Exclude   []string `json:"exclude"`
+	Gitignore bool     `json:"gitignore"`
+
+	Wipe bool `json:"wipe"`
+}
+
+type exportDirIndex struct {
+	node *env.Env
+	val  cue.Value
+	cfg  *exportDirConfig
+	dir  *dagger.Directory
+}
+
+func (idx *exportDirIndex) Key() string {
+	if idx.cfg == nil {
+		return "#exportDir.nil"
+	}
+	return fmt.Sprintf("#exportDir.%s", idx.cfg.Name)
+}
+
+func (d *Dag) HashExportDir(step cue.Value) (*dagger.Directory, *exportDirConfig, error) {
+	var cfg exportDirConfig
+	err := step.Decode(&cfg)
+	if err != nil {
+		return nil, nil, fmt.Errorf("while decoding hashExportDir: %w", err)
+	}
+
+	// index for query and create if not found
+	idx := &exportDirIndex{
+		val: step,
+		cfg: &cfg,
+	}
+
+	// lookup
+	ia, ok := d.cat[idx]
+	if ok {
+		ix := ia.(*exportDirIndex)
+		return ix.dir, ix.cfg, nil
+	}
+
+	if len(cfg.Sources) == 0 {
+		return nil, nil, fmt.Errorf("empty sources decoding hashExportDir(%s): %w", cfg.Name, err)
+	}
+
+	// TODO, we need to do something similar for #Dir as we do here (bundle, multi-source)
+	bundle := d.dag.Directory()
+	for i, src := range cfg.Sources {
+		var k kinder
+		err := src.Decode(&k)
+		if err != nil {
+			return nil, nil, fmt.Errorf("while decoding hashExportDir(%s).source.%d.$kind: %w", cfg.Name, i, err)
+		}
+		var (
+			file *dagger.File
+			dir  *dagger.Directory
+			path string
+		)
+		switch k.Kind {
+		case "#file":
+			file, path, err = d.hashFile(src)
+		case "#hostFile":
+			file, path, err = d.hashHostFile(src)
+
+		case "#dir":
+			dir, path, err = d.hashDir(src)
+		case "#hostDir":
+			dir, path, err = d.hashHostDir(src)
+		case "#gitRepo":
+			repo, rcfg, rerr := d.hashGitRepo(src)
+			if rerr == nil {
+				dir = repo.Ref(rcfg.Ref).Tree()
+			} else {
+				err = rerr
+			}
+		default:
+			return nil, nil, fmt.Errorf("unsupported kind %q in hashExportDir.source.%d.$kind: %w", k.Kind, i, err)
+
+		}
+		if err != nil {
+			return nil, nil, fmt.Errorf("while decoding hashExportDir.source.%d.$kind: %w", i, err)
+		}
+
+		if file != nil {
+			bundle = bundle.WithFile(path, file, dagger.DirectoryWithFileOpts{})
+		}
+		if dir != nil {
+			bundle = bundle.WithDirectory(path, dir, dagger.DirectoryWithDirectoryOpts{})
+		}
+
+	}
+
+	// our bundle is assembled, craft the final dir
+	// (1) filters
+	final := d.dag.Directory().WithDirectory("/", bundle, dagger.DirectoryWithDirectoryOpts{
+		Include:   cfg.Include,
+		Exclude:   cfg.Exclude,
+		Gitignore: cfg.Gitignore,
+	})
+	// (2) subpath selections
+	final = final.Directory(cfg.BundlePath)
+
+	if cfg.Patch != "" {
+		final = final.WithPatch(cfg.Patch)
+	} else if cfg.PatchFile.Exists() {
+		f, _, err := d.hashFile(cfg.PatchFile)
+		if err != nil {
+			return nil, nil, err
+		}
+		final = final.WithPatchFile(f)
+	}
+
+	// memoize
+	idx.dir = final
+	d.cat[idx] = idx
+
+	return idx.dir, idx.cfg, nil
+}
+
+type exportImageFileConfig struct {
+	Kind  string    `json:"$kind"`
+	Name  string    `json:"name"`
+	Path  string    `json:"path"`
+	Tags  []string  `json:"tags"`
+	Image cue.Value `json:"image"`
+}
+
+type exportImageFileIndex struct {
+	node *env.Env
+	val  cue.Value
+	cfg  *exportImageFileConfig
+	ctr  *dagger.Container
+}
+
+func (idx *exportImageFileIndex) Key() string {
+	if idx.cfg == nil {
+		return "#exportImageFile.nil"
+	}
+	return fmt.Sprintf("#exportImageFile.%s", idx.cfg.Name)
+}
+
+func (d *Dag) HashExportImageFile(step cue.Value) (*dagger.Container, *exportImageFileConfig, error) {
+	var cfg exportImageFileConfig
+	err := step.Decode(&cfg)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// index for query and create if not found
+	idx := &exportImageFileIndex{
+		val: step,
+		cfg: &cfg,
+	}
+
+	// lookup
+	ia, ok := d.cat[idx]
+	if ok {
+		ix := ia.(*exportImageFileIndex)
+		return ix.ctr, ix.cfg, nil
+	}
+	c, err := d.HashContainer(cfg.Image)
+	if err != nil {
+		return nil, nil, err
+	}
+	idx.ctr = c
+
+	// memoize
+	d.cat[idx] = idx
+
+	return idx.ctr, idx.cfg, nil
+}
+
+type exportImageConfig struct {
+	Kind  string    `json:"$kind"`
+	Name  string    `json:"name"`
+	Reg   string    `json:"reg"`
+	Tags  []string  `json:"tags"`
+	Image cue.Value `json:"image"`
+}
+
+type exportImageIndex struct {
+	node *env.Env
+	val  cue.Value
+	cfg  *exportImageConfig
+	ctr  *dagger.Container
+}
+
+func (idx *exportImageIndex) Key() string {
+	if idx.cfg == nil {
+		return "#exportImage.nil"
+	}
+	return fmt.Sprintf("#exportImage.%s", idx.cfg.Name)
+}
+
+func (d *Dag) HashExportImage(step cue.Value) (*dagger.Container, *exportImageConfig, error) {
+	var cfg exportImageConfig
+	err := step.Decode(&cfg)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// index for query and create if not found
+	idx := &exportImageIndex{
+		val: step,
+		cfg: &cfg,
+	}
+
+	// lookup
+	ia, ok := d.cat[idx]
+	if ok {
+		ix := ia.(*exportImageIndex)
+		return ix.ctr, ix.cfg, nil
+	}
+	c, err := d.HashContainer(cfg.Image)
+	if err != nil {
+		return nil, nil, err
+	}
+	idx.ctr = c
+
+	// memoize
+	d.cat[idx] = idx
+
+	return idx.ctr, idx.cfg, nil
+}
+
+type publishImageConfig struct {
+	Kind  string    `json:"$kind"`
+	Name  string    `json:"name"`
+	Reg   string    `json:"reg"`
+	Tags  []string  `json:"tags"`
+	Image cue.Value `json:"image"`
+}
+
+type publishImageIndex struct {
+	node *env.Env
+	val  cue.Value
+	cfg  *publishImageConfig
+	ctr  *dagger.Container
+}
+
+func (idx *publishImageIndex) Key() string {
+	if idx.cfg == nil {
+		return "#publishImage.nil"
+	}
+	return fmt.Sprintf("#publishImage.%s", idx.cfg.Name)
+}
+
+func (d *Dag) HashPublishImage(step cue.Value) (*dagger.Container, *publishImageConfig, error) {
+	var cfg publishImageConfig
+	err := step.Decode(&cfg)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// index for query and create if not found
+	idx := &publishImageIndex{
+		val: step,
+		cfg: &cfg,
+	}
+
+	// lookup
+	ia, ok := d.cat[idx]
+	if ok {
+		ix := ia.(*publishImageIndex)
+		return ix.ctr, ix.cfg, nil
+	}
+	c, err := d.HashContainer(cfg.Image)
+	if err != nil {
+		return nil, nil, err
+	}
+	idx.ctr = c
+
+	// memoize
+	d.cat[idx] = idx
+
+	return idx.ctr, idx.cfg, nil
+}

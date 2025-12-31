@@ -40,7 +40,20 @@ func (d *Dag) hashFile(step cue.Value) (*dagger.File, string, error) {
 		return nil, "", fmt.Errorf("while decoding hashFile: %w", err)
 	}
 
-	// ind
+	// index for query and create if not found
+	idx := &hashFileIndex{
+		val: step,
+		cfg: &cfg,
+	}
+
+	// lookup
+	ia, ok := d.cat[idx]
+	if ok {
+		ix := ia.(*hashFileIndex)
+		return ix.file, ix.cfg.Path, nil
+	}
+
+	var f *dagger.File
 
 	sk := cfg.Source.LookupPath(cue.ParsePath("$kind"))
 	if !sk.Exists() {
@@ -54,21 +67,21 @@ func (d *Dag) hashFile(step cue.Value) (*dagger.File, string, error) {
 			return nil, "", err
 		}
 		dir := repo.Ref(rcfg.Ref).Tree()
-		return dir.File(cfg.Path), cfg.Path, nil
+		f, _, err = dir.File(cfg.Path), cfg.Path, nil
 
 	case "#dir":
 		dir, _, err := d.hashDir(cfg.Source)
 		if err != nil {
 			return nil, "", err
 		}
-		return dir.File(cfg.Path), cfg.Path, nil
+		f, _, err = dir.File(cfg.Path), cfg.Path, nil
 
 	case "#hostDir":
 		dir, _, err := d.hashHostDir(cfg.Source)
 		if err != nil {
 			return nil, "", err
 		}
-		return dir.File(cfg.Path), cfg.Path, nil
+		f, _, err = dir.File(cfg.Path), cfg.Path, nil
 
 	// TODO, make similar FileLike and ImageLike handlers so we don't repeat this everywhere
 	case "#container":
@@ -76,36 +89,46 @@ func (d *Dag) hashFile(step cue.Value) (*dagger.File, string, error) {
 		if err != nil {
 			return nil, "", err
 		}
-		return ctr.File(cfg.Path), cfg.Path, nil
+		f, _, err = ctr.File(cfg.Path), cfg.Path, nil
 
 	case "#hostImage":
 		ctr, err := d.HashHostImage(cfg.Source)
 		if err != nil {
 			return nil, "", err
 		}
-		return ctr.File(cfg.Path), cfg.Path, nil
+		f, _, err = ctr.File(cfg.Path), cfg.Path, nil
 
 	case "#dockerBuild":
 		ctr, err := d.HashDockerBuild(cfg.Source)
 		if err != nil {
 			return nil, "", err
 		}
-		return ctr.File(cfg.Path), cfg.Path, nil
+		f, _, err = ctr.File(cfg.Path), cfg.Path, nil
 
 	default:
 		return nil, "", fmt.Errorf("hashFile.source: unsupported $kind: %s", sks)
 	}
+
+	// memoize
+	idx.file = f
+	d.cat[idx] = idx
+
+	return idx.file, idx.cfg.Path, nil
 }
 
 type hashDirConfig struct {
-	Kind      string    `json:"$kind"`
-	Name      string    `json:"name"`
-	Path      string    `json:"path"`
-	Source    cue.Value `json:"source"`
-	Patch     string    `json:"patch"`
-	PatchFile cue.Value `json:"patchFile"`
-	Include   []string  `json:"include"`
-	Exclude   []string  `json:"exclude"`
+	Kind    string      `json:"$kind"`
+	Name    string      `json:"name"`
+	Path    string      `json:"path"`
+	Sources []cue.Value `json:"sources"`
+
+	BundlePath string    `json:"bundlePath"`
+	Patch      string    `json:"patch"`
+	PatchFile  cue.Value `json:"patchFile"`
+
+	Include   []string `json:"include"`
+	Exclude   []string `json:"exclude"`
+	Gitignore bool     `json:"gitignore"`
 }
 
 type hashDirIndex struct {
@@ -129,155 +152,95 @@ func (d *Dag) hashDir(step cue.Value) (*dagger.Directory, string, error) {
 		return nil, "", err
 	}
 
-	sk := cfg.Source.LookupPath(cue.ParsePath("$kind"))
-	if !sk.Exists() {
-		return nil, "", fmt.Errorf("missing $kind in struct file source: %v", step)
+	// index for query and create if not found
+	idx := &hashDirIndex{
+		val: step,
+		cfg: &cfg,
 	}
 
-	var dir *dagger.Directory
-	sks, _ := sk.String()
-	switch sks {
-	case "#gitRepo":
-		repo, rcfg, err := d.hashGitRepo(cfg.Source)
-		if err != nil {
-			return nil, "", err
-		}
-		dir = repo.Ref(rcfg.Ref).Tree().Directory(cfg.Path)
-
-	case "#dir":
-		dir, _, err = d.hashDir(cfg.Source)
-		if err != nil {
-			return nil, "", err
-		}
-		dir = dir.Directory(cfg.Path)
-
-	case "#hostDir":
-		dir, _, err = d.hashHostDir(cfg.Source)
-		if err != nil {
-			return nil, "", err
-		}
-		dir = dir.Directory(cfg.Path)
-
-	case "#container":
-		ctr, err := d.HashContainer(cfg.Source)
-		if err != nil {
-			return nil, "", err
-		}
-		dir = ctr.Directory(cfg.Path)
-
-	case "#hostImage":
-		ctr, err := d.HashHostImage(cfg.Source)
-		if err != nil {
-			return nil, "", err
-		}
-		dir = ctr.Directory(cfg.Path)
-
-	default:
-		return nil, "", fmt.Errorf("hashFile.source: unsupported $kind: %s", sks)
+	// lookup
+	ia, ok := d.cat[idx]
+	if ok {
+		ix := ia.(*hashDirIndex)
+		return ix.dir, ix.cfg.Path, nil
 	}
+
+	if len(cfg.Sources) == 0 {
+		return nil, "", fmt.Errorf("empty sources decoding hashDir(%s): %w", cfg.Name, err)
+	}
+
+	// TODO, we need to do something similar for #Dir as we do here (bundle, multi-source)
+	bundle := d.dag.Directory()
+	for i, src := range cfg.Sources {
+		var k kinder
+		err := src.Decode(&k)
+		if err != nil {
+			return nil, "", fmt.Errorf("while decoding hashDir(%s).source.%d.$kind: %w", cfg.Name, i, err)
+		}
+		var (
+			file *dagger.File
+			dir  *dagger.Directory
+			path string
+		)
+		switch k.Kind {
+		case "#file":
+			file, path, err = d.hashFile(src)
+		case "#hostFile":
+			file, path, err = d.hashHostFile(src)
+
+		case "#dir":
+			dir, path, err = d.hashDir(src)
+		case "#hostDir":
+			dir, path, err = d.hashHostDir(src)
+		case "#gitRepo":
+			repo, rcfg, rerr := d.hashGitRepo(src)
+			if rerr == nil {
+				dir = repo.Ref(rcfg.Ref).Tree()
+			} else {
+				err = rerr
+			}
+		default:
+			return nil, "", fmt.Errorf("unsupported kind %q in hashDir.source.%d.$kind: %w", k.Kind, i, err)
+
+		}
+		if err != nil {
+			return nil, "", fmt.Errorf("while decoding hashDir.source.%d.$kind: %w", i, err)
+		}
+
+		if file != nil {
+			bundle = bundle.WithFile(path, file)
+		}
+		if dir != nil {
+			bundle = bundle.WithDirectory(path, dir)
+		}
+
+	}
+
+	// our bundle is assembled, craft the final dir
+	// (1) filters
+	final := d.dag.Directory().WithDirectory("/", bundle, dagger.DirectoryWithDirectoryOpts{
+		Include:   cfg.Include,
+		Exclude:   cfg.Exclude,
+		Gitignore: cfg.Gitignore,
+	})
+	// (2) subpath selections
+	final = final.Directory(cfg.BundlePath)
 
 	if cfg.Patch != "" {
-		dir = dir.WithPatch(cfg.Patch)
+		final = final.WithPatch(cfg.Patch)
 	} else if cfg.PatchFile.Exists() {
 		f, _, err := d.hashFile(cfg.PatchFile)
 		if err != nil {
 			return nil, "", err
 		}
-		dir = dir.WithPatchFile(f)
+		final = final.WithPatchFile(f)
 	}
 
-	return dir, cfg.Path, nil
-}
+	// memoize
+	idx.dir = final
+	d.cat[idx] = idx
 
-type hashExportFileConfig struct {
-	Kind string    `json:"$kind"`
-	Name string    `json:"name"`
-	Path string    `json:"path"`
-	File cue.Value `json:"file"`
-
-	AllowParentDirPath bool `json:"allowParentDirPath"`
-}
-
-func (d *Dag) HashExportFile(step cue.Value) (*dagger.File, *hashExportFileConfig, error) {
-	var cfg hashExportFileConfig
-	err := step.Decode(&cfg)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	file, _, err := d.hashFile(cfg.File)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return file, &cfg, nil
-}
-
-type hashExportDirConfig struct {
-	Kind string    `json:"$kind"`
-	Name string    `json:"name"`
-	Path string    `json:"path"`
-	Dir  cue.Value `json:"dir"`
-	Wipe bool      `json:"wipe"`
-}
-
-func (d *Dag) HashExportDir(step cue.Value) (*dagger.Directory, *hashExportDirConfig, error) {
-	var cfg hashExportDirConfig
-	err := step.Decode(&cfg)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	dir, _, err := d.hashDir(cfg.Dir)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return dir, &cfg, nil
-}
-
-type hashExportImageConfig struct {
-	Kind  string    `json:"$kind"`
-	Name  string    `json:"name"`
-	Url   string    `json:"url"`
-	Image cue.Value `json:"image"`
-}
-
-func (d *Dag) HashExportImage(step cue.Value) (*dagger.Container, *hashExportImageConfig, error) {
-	var cfg hashExportImageConfig
-	err := step.Decode(&cfg)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	c, err := d.HashContainer(cfg.Image)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return c, &cfg, nil
-}
-
-type hashExportImageFileConfig struct {
-	Kind  string    `json:"$kind"`
-	Name  string    `json:"name"`
-	Path  string    `json:"path"`
-	Image cue.Value `json:"image"`
-}
-
-func (d *Dag) HashExportImageFile(step cue.Value) (*dagger.Container, *hashExportImageFileConfig, error) {
-	var cfg hashExportImageFileConfig
-	err := step.Decode(&cfg)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	c, err := d.HashContainer(cfg.Image)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return c, &cfg, nil
+	return idx.dir, idx.cfg.Path, nil
 }
 
 type stepFileConfig struct {

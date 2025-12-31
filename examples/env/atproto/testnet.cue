@@ -26,13 +26,15 @@ cmd: {
 				env.#ExportDir & {
 					@env()
 					path: "./env"
-					dir: env.#Dir & {
+					sources: [env.#Dir & {
 						path: "/work"
-						source: env.#Container & {
-							from: bases.debian
-							steps: [env.Bash & {script: _relay}, env.Bash & {script: _pds}]
-						}
-					}
+						sources: [
+							env.#Container & {
+								from: bases.debian
+								steps: [env.Bash & {script: _relay}, env.Bash & {script: _pds}]
+							},
+						]
+					}]
 				},
 			]]
 
@@ -105,7 +107,7 @@ testnet: {
 		config: env.#HostFile & {@env(), path: "./env/jetstream.env"}
 		server: env.#Service & {
 			@env()
-			ports: [{port: 7002}]
+			ports: [{port: 3000}]
 			source: env.#Container & {
 				from: builds.jetstream.ctr
 				steps: [
@@ -125,7 +127,7 @@ testnet: {
 		secret: env.#HostFile & {@env(), path: "./env/pds.secret.env"} // todo, we need secret version of this
 		server: env.#Service & {
 			@env()
-			ports: [{port: 7002}]
+			ports: [{port: 3000}]
 			source: env.#Container & {
 				from: _ | *builds.pds.ctr
 				if _flags.blebbit {
@@ -178,17 +180,17 @@ builds: {
 		jetstream: env.#GitRepo & {url: "https://github.com/bluesky-social/jetstream"}
 	}
 	ppds: {
-		code: env.#Dir & {source: repos.blebbit}
+		code: env.#Dir & {sources: [repos.blebbit]}
 		ctr: env.#DockerBuild & {source: code, dockerfile: "services/pds/Dockerfile"}
 	}
 	pds: {
-		code: env.#Dir & {source: repos.atproto}
+		code: env.#Dir & {sources: [repos.atproto]}
 		ctr: env.#DockerBuild & {source: code, dockerfile: "services/pds/Dockerfile"}
 	}
 	plc: {
 		// source
-		code: env.#Dir & {source: repos.didplc}
-		fixd: env.#Dir & {source: repos.didplc, patch: patches.plc}
+		code: env.#Dir & {sources: [repos.didplc]}
+		fixd: env.#Dir & {sources: [repos.didplc], patch: patches.plc}
 		// images
 		ctr: env.#DockerBuild & {source: fixd, dockerfile: "packages/server/Dockerfile"}
 		dev: env.#Container & {
@@ -220,11 +222,11 @@ builds: {
 		}
 	}
 	relay: {
-		code: env.#Dir & {source: repos.indigo}
+		code: env.#Dir & {sources: [repos.indigo]}
 		ctr: env.#DockerBuild & {source: code, dockerfile: "cmd/relay/Dockerfile"}
 	}
 	jetstream: {
-		code: env.#Dir & {source: repos.jetstream}
+		code: env.#Dir & {sources: [repos.jetstream]}
 		ctr: env.#DockerBuild & {source: code}
 	}
 

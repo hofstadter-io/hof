@@ -7,6 +7,7 @@ import (
 
 	"cuelang.org/go/cue"
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+	"github.com/hofstadter-io/hof/lib/env"
 	"github.com/hofstadter-io/hof/lib/yagu"
 	"github.com/olekukonko/tablewriter"
 )
@@ -24,59 +25,7 @@ func List(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) 
 	for _, e := range matches {
 		name, kind := extractMeta(e)
 		path := e.Hof.Path
-
-		extra := ""
-		switch kind {
-
-		case "container":
-			b := new(strings.Builder)
-			containerExtra(b, e.Value)
-			extra = b.String()
-
-		// "name" (HostImage uses this directly)
-		case "hostImage":
-			sv := e.Value.LookupPath(cue.ParsePath("name"))
-			if sv.Exists() {
-				s, _ := sv.String()
-				extra = s
-			}
-		case "hostService":
-			sv := e.Value.LookupPath(cue.ParsePath("host"))
-			if sv.Exists() {
-				b := new(strings.Builder)
-				s, _ := sv.String()
-				fmt.Fprintf(b, "%s", s)
-				addPorts(b, e.Value)
-				extra = b.String()
-			}
-		case "service", "hostTunnel":
-			sv := e.Value.LookupPath(cue.ParsePath("name"))
-			if sv.Exists() {
-				b := new(strings.Builder)
-				s, _ := sv.String()
-				fmt.Fprintf(b, "%s", s)
-				addPorts(b, e.Value)
-				extra = b.String()
-			}
-
-		// "path"
-		case "dir", "file", "hostDir", "hostFile", "hostSocket", "exportFile", "exportDir", "exportImageFile":
-			sv := e.Value.LookupPath(cue.ParsePath("path"))
-			if sv.Exists() {
-				b := new(strings.Builder)
-				s, _ := sv.String()
-				fmt.Fprintf(b, "%s", s)
-				extra = b.String()
-			}
-
-		// "url"
-		case "gitRepo", "exportImage":
-			sv := e.Value.LookupPath(cue.ParsePath("url"))
-			if sv.Exists() {
-				s, _ := sv.String()
-				extra = s
-			}
-		}
+		extra := genExtra(e)
 
 		row := []string{name, kind, path, extra}
 		rows = append(rows, row)
@@ -115,6 +64,90 @@ func List(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) 
 			return rows, nil
 		},
 	)
+}
+
+func genExtra(e *env.Env) string {
+	_, kind := extractMeta(e)
+
+	extra := ""
+	switch kind {
+
+	case "container":
+		b := new(strings.Builder)
+		containerExtra(b, e.Value)
+		extra = b.String()
+
+	// "name" (HostImage uses this directly)
+	case "hostImage":
+		sv := e.Value.LookupPath(cue.ParsePath("name"))
+		if sv.Exists() {
+			s, _ := sv.String()
+			extra = s
+		}
+
+	case "hostService":
+		sv := e.Value.LookupPath(cue.ParsePath("host"))
+		if sv.Exists() {
+			b := new(strings.Builder)
+			s, _ := sv.String()
+			fmt.Fprintf(b, "%s", s)
+			addPorts(b, e.Value)
+			extra = b.String()
+		}
+	case "service", "hostTunnel":
+		sv := e.Value.LookupPath(cue.ParsePath("name"))
+		if sv.Exists() {
+			b := new(strings.Builder)
+			s, _ := sv.String()
+			fmt.Fprintf(b, "%s", s)
+			addPorts(b, e.Value)
+			extra = b.String()
+		}
+
+	// "path"
+	case "dir", "file", "hostDir", "hostFile", "hostSocket", "exportFile", "exportDir", "exportImageFile":
+		sv := e.Value.LookupPath(cue.ParsePath("path"))
+		if sv.Exists() {
+			b := new(strings.Builder)
+			s, _ := sv.String()
+			fmt.Fprintf(b, "%s", s)
+			extra = b.String()
+		}
+
+	// "url"
+	case "gitRepo":
+		sv := e.Value.LookupPath(cue.ParsePath("url"))
+		if sv.Exists() {
+			s, _ := sv.String()
+			extra = s
+		}
+
+	case "exportImage", "publishImage":
+		b := new(strings.Builder)
+		rv := e.Value.LookupPath(cue.ParsePath("reg"))
+		if rv.Exists() {
+			s, _ := rv.String()
+			if s != "" {
+				fmt.Fprintf(b, "%s/", s)
+			}
+		}
+		nv := e.Value.LookupPath(cue.ParsePath("image.name"))
+		if nv.Exists() {
+			s, _ := nv.String()
+			fmt.Fprintf(b, "%s", s)
+		}
+		tv := e.Value.LookupPath(cue.ParsePath("tag"))
+		if tv.Exists() {
+			s, _ := tv.String()
+			if s != "" {
+				fmt.Fprintf(b, ":%s", s)
+			}
+		}
+		extra = b.String()
+
+	}
+
+	return extra
 }
 
 func addPorts(b *strings.Builder, val cue.Value) {

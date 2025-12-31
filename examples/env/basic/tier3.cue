@@ -76,7 +76,7 @@ tier3: {
 	// sharing is caring (function pattern)
 	_nodePrep: {
 		dir: string
-		_dir: env.#Dir & {path: dir, source: tier3.repo}
+		_dir: env.#Dir & {path: dir, sources: [tier3.repo]}
 		steps: [
 			env.Workdir & {path: "/app"},
 			env.Dir & {path: "/app", source: _dir, include: ["package*.json"]},

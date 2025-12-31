@@ -32,17 +32,22 @@ import (
 	$kind: "#dir"
 	name:  string | *path
 
-	// actual, import env/rrr:env to enforce, performance penalty included
-	// source: #Dir | #Container | #HostDir | #HostImage | #GitRepo
-	source!: _
-	path:    string | *"."
+	// where to place
+	path:  string
 
-	// filters
+	// pieces that make up the bundled dir
+	// sources:  [...#FileLike|#DirLike]
+	sources:  [...]
+
+	// (1) filters
 	include: [...string]
 	exclude: [...string]
 	gitignore: bool | *true
 
-	// git-compatible patch to apply after getting the directory
+	// (2) path to select from the bundled dir
+	bundlePath: string | *"/"
+
+	// (3) git-compatible patch to apply after bundling and selecting
 	patch?:     string
 	patchFile?: #FileLike
 }

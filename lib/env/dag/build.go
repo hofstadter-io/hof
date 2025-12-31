@@ -68,6 +68,7 @@ func (d *Dag) File(e *env.Env, noCache bool) (*dagger.File, string, error) {
 		return d.hashFile(e.Value)
 	case "#hostFile":
 		return d.hashHostFile(e.Value)
+
 	default:
 		return nil, "", fmt.Errorf("unsupported build target(%s): %v", k.Kind, e.Value)
 	}

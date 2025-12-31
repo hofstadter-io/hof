@@ -21,6 +21,7 @@ type RootPflagpole struct {
 	UserFiles    []string
 	AllErrors    bool
 	IngoreErrors bool
+	DryRun       bool
 	Stats        bool
 	Quiet        bool
 	Verbosity    int
@@ -41,6 +42,7 @@ func SetupRootPflags(fset *pflag.FlagSet, fpole *RootPflagpole) {
 	fset.StringArrayVarP(&(fpole.UserFiles), "user-files", "U", nil, "file globs to embed into the root value (<cue-path>=<file-glob>), use % as slash to trim before")
 	fset.BoolVarP(&(fpole.AllErrors), "all-errors", "E", false, "print all available errors")
 	fset.BoolVarP(&(fpole.IngoreErrors), "ignore-errors", "i", false, "turn off output and assume defaults at prompts")
+	fset.BoolVarP(&(fpole.DryRun), "dry-run", "", false, "dry run certain commands")
 	fset.BoolVarP(&(fpole.Stats), "stats", "", false, "print generator statistics")
 	fset.BoolVarP(&(fpole.Quiet), "quiet", "q", false, "turn off output and assume defaults at prompts")
 	fset.IntVarP(&(fpole.Verbosity), "verbosity", "v", 0, "set the verbosity of output")

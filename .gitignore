@@ -70,3 +70,4 @@ tags
 /.veg/data
 node_modules
 /bins/
+/dist/

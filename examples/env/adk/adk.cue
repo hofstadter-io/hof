@@ -17,7 +17,7 @@ _flags: {
 
 src: {
 	[string]~(k,_): {@env(), name: k}
-	repo: env.#Dir & {path: ".", source: env.#GitRepo & {url: _flags.repo}}
+	repo: env.#Dir & {path: ".", sources: [env.#GitRepo & {url: _flags.repo}]}
 	local: env.#HostDir & {path: _flags.local}
 	// app: env.#HostDir & { path: _flags.app }
 

@@ -11,9 +11,9 @@ EnvCommand: schema.Command & {
 	Long:  "build, run, ship, and deploy environments (image, service, stack)"
 
 	Pflags: [...schema.Flag] & [{
-		Name:    "Progress"
-		Long:    "progress"
-		Short:   "P"
+		Name:    "Renderer"
+		Long:    "renderer"
+		Short:   "R"
 		Type:    "string"
 		Default: "\"auto\""
 		Help:    "output format [auto, plain, tty, dots, report (for ai)]"
@@ -39,26 +39,26 @@ EnvCommand: schema.Command & {
 		Default: "false"
 		Help:    "bust the cache and force evaluation"
 	}, {
-		Name:    "Shell"
-		Long:    "shell"
-		Short:   "S"
-		Type:    "bool"
-		Default: "false"
-		Help:    "launch a shell after cmd completion for each target"
+		Name:    "Path"
+		Long:    "path"
+		Short:   "P"
+		Type:    "[]string"
+		Default: "nil"
+		Help:    "(cue) path prefixes to include, defaults to all"
 	}, {
 		Name:    "Kind"
 		Long:    "kind"
-		Short:   "k"
+		Short:   "K"
 		Type:    "[]string"
 		Default: "nil"
 		Help:    "kinds to include, defaults to all"
 	}, {
 		Name:    "Sort"
 		Long:    "sort"
-		Short:   "s"
+		Short:   "S"
 		Type:    "[]string"
 		Default: #"[]string{"name"}"# // todo, support special options like git-tag or git-commit
-		Help:    "sort columns, default is the order CUE defines"
+		Help:    "sort columns, can be used multiple times" // todo, support +/- prefix for asc/desc
 	}]
 
 	Commands: [{

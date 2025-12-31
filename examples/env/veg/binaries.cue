@@ -38,20 +38,35 @@ bins: {
 		_goos: ["linux", "darwin"]
 		_arch: ["amd64", "arm64"]
 		for _g in _goos for _a in _arch {
-			let _short = "\(_g)-\(_a)"
-			let _bin = "hof-\(_short)"
-			(_short): env.#File & {
+			"\(_g)-\(_a)": env.#File & {
 				@env()
-				name: "bin-\(_short)"
-				path: ("./bins/\(_bin)")
+				name: "bin-\(_g)-\(_a)"
+				path: ("./bins/hof-\(_g)-\(_a)")
 				source: env.#Container & {
 					from: ctr.builder
 					steps: [
 						env.Env & {GOOS: _g, GOARCH: _a},
-						env.Exec & {args: ["go", "build", "-o", "./bins/\(_bin)", "./cmd/hof"]},
+						env.Exec & {args: ["go", "build", "-o", "./bins/hof-\(_g)-\(_a)", "./cmd/hof"]},
 					]
 				}
 			}
 		}
+
+		// for _g in _goos for _a in _arch {
+		// 	let _short = "\(_g)-\(_a)"
+		// 	let _bin = "hof-\(_short)"
+		// 	"\(_short)": env.#File & {
+		// 		@env()
+		// 		name: "bin-\(_short)"
+		// 		path: ("./bins/\(_bin)")
+		// 		source: env.#Container & {
+		// 			from: ctr.builder
+		// 			steps: [
+		// 				env.Env & {GOOS: _g, GOARCH: _a},
+		// 				env.Exec & {args: ["go", "build", "-o", "./bins/\(_bin)", "./cmd/hof"]},
+		// 			]
+		// 		}
+		// 	}
+		// }
 	}
 }

@@ -123,10 +123,16 @@ func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) e
 								wipe = cfg.Wipe
 							}
 							dir, err = _dir, _err
+						case "#publishImage":
+							_c, cfg, _err := d.HashPublishImage(parStep)
+							if cfg != nil {
+								dest = cfg.Name
+							}
+							c, err = _c, _err
 						case "#exportImage":
 							_c, cfg, _err := d.HashExportImage(parStep)
 							if cfg != nil {
-								dest = cfg.Url
+								dest = cfg.Name
 							}
 							c, err = _c, _err
 						case "#exportImageFile":
@@ -197,16 +203,6 @@ func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) e
 					}
 
 				} // end loop over task-seq-step
-
-				// shell at the end of a task
-				if eflags.Shell {
-					c = c.Terminal()
-					c, err = c.Sync(R.Ctx)
-					if err != nil {
-						return err
-					}
-				}
-
 			} // end loop over tasks
 		} // end loop over envs
 	} // end loop over args (cmds)
