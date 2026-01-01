@@ -11,7 +11,6 @@ import (
 go: {
 	// A base container with go tools, linters, and a shared cache.
 	ctr: {
-		[string]~(k,_): {name: k}
 		base: env.#Container & {
 			from: bases.debian.default
 			steps: [
@@ -39,21 +38,20 @@ go: {
 		dev: env.#Container & {
 			from: ctr.gopls
 			steps: [
-				env.BindService & {service: go.svc},
+				env.BindService & {service: go.svc.lsp},
 			]
 		}
 	}
 
 	// gopls-as-a-service
 	svc: {
-		[string]~(k,_): {name: k}
-		gopls: env.#Service & {
+		lsp: env.#Service & {
 			// There is also a built in MCP server!
 			#port: int | *0
 			ports: [{name: "lsp", port: 4000, frontend: #port}]
 			args: ["gopls", "serve", "-port=4000"]
 			// source: _
-			// from: ctr.gopls & { name: "gopls"}
+			source: ctr.gopls & {name: "gopls"}
 		}
 	}
 }

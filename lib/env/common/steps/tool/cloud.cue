@@ -56,5 +56,5 @@ cloud: {
 	}
 
 	// https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-linux?view=azure-cli-latest&pivots=apt
-	azure: env.Bash & { script: "curl -sL https://aka.ms/InstallAzureCLIDeb | bash" }
+	azure: env.Bash & {script: "curl -sL https://aka.ms/InstallAzureCLIDeb | bash"}
 }

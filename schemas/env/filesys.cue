@@ -33,11 +33,11 @@ import (
 	name:  string | *path
 
 	// where to place
-	path:  string | *"."
+	path: string | *"."
 
 	// pieces that make up the bundled dir
 	// sources:  [...#FileLike|#DirLike]
-	sources:  [...]
+	sources: [...]
 
 	// (1) filters
 	include: [...string]
@@ -61,7 +61,6 @@ Mount: Step & {
 	// source: #Cache | #File | #HostFile | #Dir | #HostDir
 	source: _
 }
-
 
 // like dagger.WithFile
 File: Step & {

@@ -14,24 +14,22 @@ let root = self
 _l1: [...string]
 _l1: [
 	"flags",
- "src",
- "bins",
- "ctr",
- "fmtr",
- "svc",
- "dist",
- "info",
- ]
+	"src",
+	"bins",
+	"ctr",
+	"fmtr",
+	"svc",
+	"dist",
+	"info",
+]
 // _l2: [string]: [...string]
 // _l2: { bins: ["multi"] }
 // _l3: [string]: [string]: [...string]
 
-
-
 infoData: {
 	layout: {
 		for _, l in _l1 {
-			(l): list.Sort([for k,_ in root[l] {k}], {x: string, y: string, less: x < y})
+			(l): list.Sort([for k, _ in root[l] {k}], {x: string, y: string, less: x < y})
 		}
 	}
 	steps: list.Sort([for k, _ in env {k}], {x: string, y: string, less: x < y})
@@ -50,17 +48,17 @@ info: {
 }
 
 layoutTmpl: """
-{{ range $top, $items := . }}
-{{ $top }}
-{{- range $items }}
-  {{ . }}{{ end }}
-{{ end}}
-
-"""
+	{{ range $top, $items := . }}
+	{{ $top }}
+	{{- range $items }}
+	  {{ . }}{{ end }}
+	{{ end}}
+	
+	"""
 
 stepsTmpl: """
-{{ range $top, $step := . }}
-{{ $step }}
-{{- end}}
-
-"""
+	{{ range $top, $step := . }}
+	{{ $step }}
+	{{- end}}
+	
+	"""

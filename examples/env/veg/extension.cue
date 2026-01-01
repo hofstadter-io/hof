@@ -7,17 +7,13 @@ import (
 extn: {
 	vscode: {
 		webviews: {
-			_commonSteps: [
-
-			]
+			_commonSteps: []
 			chat: env.#Dir & {
 				sources: [
 					env.#Container & {
 						from: ctr.dev
-						steps: [
-
-						]
-					}
+						steps: []
+					},
 				]
 			}
 		}

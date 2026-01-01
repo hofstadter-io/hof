@@ -20,7 +20,8 @@ Ref: {
 
 #FileLike: #File | #HostFile
 
-#StepList: { $kind: string & !~"^#"} | [...#StepList]
+#StepList: {$kind: string & !~"^#"} | [...#StepList]
+
 #HackList: [...] | {...}
 
 // todo, registry auth
@@ -54,6 +55,7 @@ Ref: {
 	// steps to build an image or environment
 	// TODO, put some basic checking on this
 	steps: [...] // OK
+
 	// steps: [...#HackList] // PANIC
 	// steps: [...([...] | {...})] // PANIC
 	// steps: [...] | {...} // OK (but not right)

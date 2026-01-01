@@ -35,11 +35,10 @@ curl github
 
 ### Binaries from GitHub
 
-|  eat your                                                                                           |  veggies                                                                                           |
-|:---------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------:|
+|                                              eat your                                               |                                              veggies                                               |
+| :-------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------: |
 | [linux / arm](https://github.com/hofstadter-io/hof/releases/download/v0.7.0/hof_v0.7.0_linux_arm64) | [mac / arm](https://github.com/hofstadter-io/hof/releases/download/v0.7.0/hof_v0.7.0_darwin_arm64) |
 | [linux / amd](https://github.com/hofstadter-io/hof/releases/download/v0.7.0/hof_v0.7.0_linux_amd64) | [mac / amd](https://github.com/hofstadter-io/hof/releases/download/v0.7.0/hof_v0.7.0_darwin_amd64) |
-
 
 ### Run an example
 
@@ -109,11 +108,10 @@ The `veg/env` command aims to be flexible, extensible, and consistent
 
 - All take the same flags and select / filter the same way
 
-
 Format: `veg env [cmd] [flags] [args] % [cue entrypoints]`
 
 - `cmd` is a built-in or custom command to run. Use `cmd/task` to subselect. Both are regexp.
-- `flags` there are two group, 
+- `flags` there are two group,
   - `-K/--kind` and `-P/--path` combine with `[args] to select targets. (todo, incorp label system)
   - `--no-cache`, `--no-exit`, `
 - `args` are a regexp match on names
@@ -130,8 +128,7 @@ Guidance on starting out with the commands
   - start with build or export before publish
 - use `env.Terminal` or `-F/-N` to go interactive
 
-> [!NOTE]
-> `veg env` without any subcommands will run your custom commands
+> [!NOTE] > `veg env` without any subcommands will run your custom commands
 
 #### Help Text
 
@@ -171,15 +168,16 @@ handy for the details of the following.
 Generally speaking...
 
 - There are several groups or classes of statements, all prefixed by the `schemas/env.*` package identifier.
-    - `env.Step` maps onto `With<Step>` and `Without<Step>` and can appear in `#Container: steps: [...]`
-    - `env.#Stuff` maps onto resources, artifacts, and Dagger types. They are inputs, intermediates, outputs, or runnable.
-    - `env.$Func` maps from one resource to one of the same or another, some `env.#Stuff` do some of these naturally too.
+  - `env.Step` maps onto `With<Step>` and `Without<Step>` and can appear in `#Container: steps: [...]`
+  - `env.#Stuff` maps onto resources, artifacts, and Dagger types. They are inputs, intermediates, outputs, or runnable.
+  - `env.$Func` maps from one resource to one of the same or another, some `env.#Stuff` do some of these naturally too.
 - It's a one way trip from CUE -> Dagger, you cannot for instance, use a directory listing or http response in CUE
-    - `hof/flow` exists for this use case and some merging is on the roadmap.
-    - The key requirement to maintain distinct operation modes, hermetic and yolo, with control over where, when, and how.
+  - `hof/flow` exists for this use case and some merging is on the roadmap.
+  - The key requirement to maintain distinct operation modes, hermetic and yolo, with control over where, when, and how.
 
 > [!WARNING]
 > We have swapped the semantics to `Token` | `#Token` from `WithToken()` and `Token()` with Dagger.
+>
 > 1. veg: `Dir` ~ dag: `WithDir()`
 > 2. veg: `#Dir` ~ dag: `Dir()`
 
@@ -339,7 +337,6 @@ dev: env.#Container & {
 - no need for yum rm
 - how binaries and dirs work
 
-
 That long-time advice to install packages like this: `apt update && apt install && apt clean`... it's over!
 We can now attach caches, just like we do for languages like `go.mod` and `node_modules`,
 to save context and time while keeping images clean and slim.
@@ -390,7 +387,6 @@ and exported when exported they are not included.
 
 `hof env ...`
 
-
 ```cue
 	minimal: env.#Container & {
 		@id(debian-13-minimal)
@@ -425,7 +421,6 @@ You can still build using your existing Dockerfiles.
 It's also easy to patch source code or use the resulting image anywhere `hov/env`.
 
 `hof env ...`
-
 
 ```cue
 // All your code belong to us
@@ -530,7 +525,6 @@ cmd: {
 
 ```
 
-
 ### Release Bundles
 
 You can define release bundles and then assemble and publish them with a single command.
@@ -540,7 +534,6 @@ You can define release bundles and then assemble and publish them with a single 
 ```
 
 ```
-
 
 ### Agent or Dev Environments with Tools
 
@@ -575,13 +568,11 @@ image: {
 
 ### bring your dotfiles and customization to any image
 
-
 ### Flags, Configs, and Defaults
 
 - using flags to override
 - using data to override
 - parameterize large swaths, show the propagation
-
 
 ### Matrix Comprehension
 

@@ -11,11 +11,10 @@ defaultFlags: {
 
 	// operation mode
 	defaultModes: "lite" | "full" | "ci" | "canary" | "prod"
-  mode: string | *defaultModes @tag(mode)
+	mode:         string | *defaultModes @tag(mode)
 
 	// git overrides
 	branch: string | *"main" @tag(branch)
 	target: string | *"main" @tag(target)
 	gitref: string | *"main" @tag(gitref)
-
 }

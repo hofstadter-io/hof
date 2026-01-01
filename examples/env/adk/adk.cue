@@ -14,7 +14,6 @@ flags: {
 	local: string | *"/work/adk"
 	fork:  string | *"https://github.com/verdverm/adk-go" @tag(fork)
 	repo:  string | *"https://github.com/google/adk-go"   @tag(repo)
-
 }
 
 src: {
@@ -47,7 +46,7 @@ ctr: {
 _tester: env.#Container & {
 	#cmd: string
 	from: ctr.base
-	steps: [ env.Bash & {script: "\(#cmd)"} ]
+	steps: [env.Bash & {script: "\(#cmd)"}]
 }
 
 cmd: {
@@ -87,19 +86,27 @@ cmd: {
 
 	review: tasks: {
 		agent: {
-			... code changes,
-			docs / agents.md need updating,
-			stage & apply suggested changes,
+			// ... code changes,
+			// docs / agents.md need updating,
+			// stage & apply suggested changes,
 		}
 	}
 
 	ci: tasks: {
-		default: steps: [test, lint, scan]
-		onPush:  steps: [test, lint]
-		prPush:  default
+		default: steps: [test, lint]
+		full: steps: [test, lint, scan, review]
+		release: steps: [full, gather, publish]
 
-		prepare: [...]
-		release: [ci.default, prepare]
-		onTag:   [release]
+		// env.#HostExec (todo)
+		gather: ["hof env export -P dist"]
+		publish: [
+			"git tag",
+			"gh cli to draft & upload",
+		]
+
+		onPush: default
+		prPush: full
+		onTag: steps: [release]
+
 	}
 }

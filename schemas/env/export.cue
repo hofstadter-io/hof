@@ -15,11 +15,11 @@ import (
 	name:  string
 
 	// where to place
-	path:  string
+	path: string
 
 	// pieces that make up the bundled dir
 	// sources:  [...#FileLike|#DirLike]
-	sources:  [...]
+	sources: [...]
 
 	// (1) filters
 	include: [...string]
@@ -63,7 +63,7 @@ import (
 	$kind: "#exportImageFile"
 	name:  string
 	path:  string
-	tags:  [...string]
+	tags: [...string]
 	image: #Container
 }
 
@@ -76,8 +76,8 @@ import (
 
 	$kind: "#exportImage"
 	name:  string | *image.name
-	reg?:   string
-	tags:  [...string]
+	reg?:  string
+	tags: [...string]
 	image: #Container
 }
 
@@ -91,6 +91,6 @@ import (
 	$kind: "#publishImage"
 	name:  string
 	reg:   string
-	tags:  [...string]
+	tags: [...string]
 	image: #Container
 }

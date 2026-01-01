@@ -33,8 +33,6 @@ src: {
 	}
 
 	extn: {
-		vscode: {
-
-		}
+		vscode: {}
 	}
 }

@@ -1,6 +1,3 @@
 package veg
 
-
-test: {
-
-}
+test: {}

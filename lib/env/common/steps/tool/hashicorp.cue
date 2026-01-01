@@ -15,16 +15,16 @@ _hashicorpBin: env.File & {
 	#tool: string
 
 	// internal
-	_file:   "\(#tool)_\(#ver)_linux_\(#arch).zip"
-	_src:    "https://releases.hashicorp.com/\(#tool)/\(#ver)/\(_file)"
+	_file: "\(#tool)_\(#ver)_linux_\(#arch).zip"
+	_src:  "https://releases.hashicorp.com/\(#tool)/\(#ver)/\(_file)"
 
 	// spec
 	path: #tool
 	content: env.#File & {
 		path: #tool
 		source: env.#Container & {
-			from: 
-			steps: [env.Bash & {script: "wget -q \(_src) && unzip \(_file)"}]
+			from:
+				steps: [env.Bash & {script: "wget -q \(_src) && unzip \(_file)"}]
 		}
 	}
 }
