@@ -58,3 +58,119 @@ func (d *Dag) hashCache(step cue.Value) (*dagger.CacheVolume, error) {
 
 	return idx.vol, nil
 }
+
+type stepTempConfig struct {
+	Kind   string `json:"$kind"`
+	Path   string `json:"path"`
+	Size   int    `json:"size"`
+	Expand bool   `json:"expand"`
+}
+
+func (d *Dag) stepTempHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+	var cfg stepTempConfig
+	err := step.Decode(&cfg)
+	if err != nil {
+		return nil, fmt.Errorf("while decoding stepTerm: %w", err)
+	}
+
+	c = c.WithMountedTemp(cfg.Path, dagger.ContainerWithMountedTempOpts{
+		Size:   cfg.Size,
+		Expand: cfg.Expand,
+	})
+
+	return c, nil
+}
+
+type stepMountConfig struct {
+	Kind string `json:"$kind"`
+	// args
+	Path   string    `json:"path"`
+	Source cue.Value `json:"source"`
+
+	// opts (depending on source type?)
+	Owner  string `json:"owner"`
+	Expand bool   `json:"expand"`
+	Mode   int    `json:"mode"`
+}
+
+func (d *Dag) stepMountHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+	var cfg stepMountConfig
+	err := step.Decode(&cfg)
+	if err != nil {
+		return c, err
+	}
+
+	// look for kind
+	k := cfg.Source.LookupPath(cue.ParsePath("$kind"))
+	if !k.Exists() {
+		return c, fmt.Errorf("missing $kind in stepDir source: %v", step)
+	}
+	ks, _ := k.String()
+	switch ks {
+	case "#cache":
+		cache, err := d.hashCache(cfg.Source)
+		if err != nil {
+			return nil, err
+		}
+		c = c.WithMountedCache(cfg.Path, cache, dagger.ContainerWithMountedCacheOpts{
+			Owner:  cfg.Owner,
+			Expand: cfg.Expand,
+		})
+
+	case "#secret":
+		shh, err := d.hashSecret(cfg.Source)
+		if err != nil {
+			return nil, err
+		}
+		c = c.WithMountedSecret(cfg.Path, shh, dagger.ContainerWithMountedSecretOpts{
+			Owner:  cfg.Owner,
+			Expand: cfg.Expand,
+			Mode:   cfg.Mode,
+		})
+
+	case "#file":
+		file, _, err := d.hashFile(cfg.Source)
+		if err != nil {
+			return nil, err
+		}
+		c = c.WithMountedFile(cfg.Path, file, dagger.ContainerWithMountedFileOpts{
+			Owner:  cfg.Owner,
+			Expand: cfg.Expand,
+		})
+
+	case "#hostFile":
+		file, _, err := d.hashHostFile(cfg.Source)
+		if err != nil {
+			return nil, err
+		}
+		c = c.WithMountedFile(cfg.Path, file, dagger.ContainerWithMountedFileOpts{
+			Owner:  cfg.Owner,
+			Expand: cfg.Expand,
+		})
+
+	case "#dir":
+		dir, _, err := d.hashDir(cfg.Source)
+		if err != nil {
+			return nil, err
+		}
+		c = c.WithMountedDirectory(cfg.Path, dir, dagger.ContainerWithMountedDirectoryOpts{
+			Owner:  cfg.Owner,
+			Expand: cfg.Expand,
+		})
+
+	case "#hostDir":
+		dir, _, err := d.hashHostDir(cfg.Source)
+		if err != nil {
+			return nil, err
+		}
+		c = c.WithMountedDirectory(cfg.Path, dir, dagger.ContainerWithMountedDirectoryOpts{
+			Owner:  cfg.Owner,
+			Expand: cfg.Expand,
+		})
+
+	default:
+		return c, fmt.Errorf("unsupported $kind in stepMount.source: %v", step)
+	}
+
+	return c, nil
+}

@@ -9,43 +9,6 @@ import (
 	"github.com/hofstadter-io/hof/lib/env"
 )
 
-type stepBindServiceConfig struct {
-	Kind  string `json:"$kind"`
-	Alias string `json:"alias"`
-
-	Service cue.Value `json:"service"`
-}
-
-func (d *Dag) stepBindServiceHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
-	var cfg stepBindServiceConfig
-	err := step.Decode(&cfg)
-	if err != nil {
-		return nil, fmt.Errorf("while decoding stepEntrypoint: %w", err)
-	}
-	// fmt.Println("bindService.config", cfg)
-
-	s, _, err := d.hashService(cfg.Service)
-	if err != nil {
-		return nil, err
-	}
-	hn, err := s.Hostname(d.ctx)
-	if err != nil {
-		fmt.Println("hn.error", err)
-	}
-	if hn == "" {
-		s = s.WithHostname(cfg.Alias)
-		hn, _ = s.Hostname(d.ctx)
-		if err != nil {
-			fmt.Println("hn.error.2", err)
-		}
-	}
-
-	// fmt.Printf("buildService.attach: %q %q\n", cfg.Alias, hn)
-
-	c = c.WithServiceBinding(cfg.Alias, s)
-	return c, nil
-}
-
 type hashServiceConfig struct {
 	Kind string `json:"$kind"`
 
@@ -158,4 +121,67 @@ func (d *Dag) hashService(step cue.Value) (*dagger.Service, *hashServiceConfig, 
 	d.cat[idx] = idx
 
 	return idx.svc, idx.cfg, nil
+}
+
+type stepExposeConfig struct {
+	Kind     string `json:"$kind"`
+	Name     string `json:"name"`
+	Port     int    `json:"port"`
+	Protocol string `json:"protocol"`
+
+	ExperimentalSkipHealthchecks bool `json:"experimentalSkipHealthchecks"`
+}
+
+func (d *Dag) stepExposeHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+	var cfg stepExposeConfig
+	err := step.Decode(&cfg)
+	if err != nil {
+		return nil, fmt.Errorf("while decoding stepExpose: %w", err)
+	}
+	// fmt.Println("stepExpose.config", cfg)
+
+	// c = c.WithExposedPort(cfg.Port)
+	c = c.WithExposedPort(cfg.Port, dagger.ContainerWithExposedPortOpts{
+		Description:                 cfg.Name,
+		Protocol:                    dagger.NetworkProtocol(strings.ToUpper(cfg.Protocol)),
+		ExperimentalSkipHealthcheck: cfg.ExperimentalSkipHealthchecks,
+	})
+	return c, nil
+}
+
+type stepBindServiceConfig struct {
+	Kind  string `json:"$kind"`
+	Alias string `json:"alias"`
+
+	Service cue.Value `json:"service"`
+}
+
+func (d *Dag) stepBindServiceHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+	var cfg stepBindServiceConfig
+	err := step.Decode(&cfg)
+	if err != nil {
+		return nil, fmt.Errorf("while decoding stepEntrypoint: %w", err)
+	}
+	// fmt.Println("bindService.config", cfg)
+
+	s, _, err := d.hashService(cfg.Service)
+	if err != nil {
+		return nil, err
+	}
+	hn, err := s.Hostname(d.ctx)
+	if err != nil {
+		fmt.Println("hn.error", err)
+	}
+	if hn == "" {
+		s = s.WithHostname(cfg.Alias)
+		hn, _ = s.Hostname(d.ctx)
+		if err != nil {
+			fmt.Println("hn.error.2", err)
+		}
+	}
+
+	// fmt.Printf("buildService.attach: %q %q\n", cfg.Alias, hn)
+
+	c = c.WithServiceBinding(cfg.Alias, s)
+	return c, nil
 }

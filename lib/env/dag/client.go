@@ -2,8 +2,10 @@ package dag
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
+	"cuelang.org/go/cue"
 	"dagger.io/dagger"
 	"github.com/hofstadter-io/hof/lib/env"
 )
@@ -63,4 +65,170 @@ func vegMemoKey(e *env.Env) string {
 		return meta.Name
 	}
 	return ""
+}
+
+type StepKind struct {
+	Kind  string `json:"$kind"`
+	Value cue.Value
+}
+
+type Step map[string]any
+
+type stepHandler func(c *dagger.Container, step cue.Value) (*dagger.Container, error)
+type stepHandlerMap map[string]stepHandler
+
+func (d *Dag) makeStepHandlers() stepHandlerMap {
+	return stepHandlerMap{
+		// steps, not cataloged like #things
+		// command.cue/go
+		// #Cmd
+		// #Task
+
+		// container.cue/go
+		// #Container
+		// #DockerBuild
+
+		// envshh.cue
+		"envVar":  d.stepEnvVarHandler,
+		"envFile": d.stepEnvFileHandler,
+		// #Secret
+		"secretVar":  d.stepSecretVarHandler,
+		"secretVars": d.stepSecretVarsHandler,
+
+		// exec.cue/go
+		"exec": d.stepExecHandler,
+		// Script, Sh, Bash, Zsh
+		"sync":        d.stepSyncHandler,
+		"user":        d.stepUserHandler,
+		"workdir":     d.stepWorkdirHandler,
+		"entrypoint":  d.stepEntrypointHandler,
+		"defaultArgs": d.stepDefaultArgsHandler,
+		"defaultTerm": d.stepDefaultTermHandler,
+		"terminal":    d.stepTerminalHandler,
+
+		// export.cue/go
+		// #ExportDir
+		// #ExportFile
+		// #ExportImageFile
+		// #ExportImage
+		// #PublishImage
+		// #ExportCuefig
+		// #ExportDagger
+
+		// filesystem.cue/go
+		// #File
+		// #Dir
+		"mount": d.stepMountHandler,
+		"file":  d.stepFileHandler,
+		"dir":   d.stepDirHandler,
+
+		// git.cue/go
+
+		// host.cue/go
+
+		// service.cue/go
+		"expose":      d.stepExposeHandler,
+		"bindService": d.stepBindServiceHandler,
+
+		// space.cue/go
+
+		// template.cue/go
+
+		// volume.cue/go
+
+		"temp": d.stepTempHandler,
+	}
+}
+
+type kinder struct {
+	Kind string `json:"$kind"`
+}
+
+func (d *Dag) Container(e *env.Env, noCache bool) (*dagger.Container, error) {
+	d.noCache = noCache
+
+	// it's probably wrong to assume this in general
+	var k kinder
+	err := e.Value.Decode(&k)
+	if err != nil {
+		return nil, err
+	}
+
+	switch k.Kind {
+	case "#container":
+		return d.HashContainer(e.Value)
+	case "#hostImage":
+		return d.HashHostImage(e.Value)
+	case "#dockerBuild":
+		return d.HashDockerBuild(e.Value)
+	default:
+		return nil, fmt.Errorf("unsupported build target(%s): %v", k.Kind, e.Value)
+	}
+}
+
+func (d *Dag) Service(e *env.Env, noCache bool) (*dagger.Service, *hashServiceConfig, error) {
+	d.noCache = noCache
+
+	// it's probably wrong to assume this in general
+	var k kinder
+	err := e.Value.Decode(&k)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	switch k.Kind {
+	case "#service":
+		s, cfg, err := d.hashService(e.Value)
+
+		return s, cfg, err
+	default:
+		return nil, nil, fmt.Errorf("unsupported build target(%s): %v", k.Kind, e.Value)
+	}
+}
+
+func (d *Dag) File(e *env.Env, noCache bool) (*dagger.File, string, error) {
+	d.noCache = noCache
+
+	// it's probably wrong to assume this in general
+	var k kinder
+	err := e.Value.Decode(&k)
+	if err != nil {
+		return nil, "", err
+	}
+
+	switch k.Kind {
+	case "#file":
+		return d.hashFile(e.Value)
+	case "#hostFile":
+		return d.hashHostFile(e.Value)
+
+	default:
+		return nil, "", fmt.Errorf("unsupported build target(%s): %v", k.Kind, e.Value)
+	}
+}
+
+func (d *Dag) Dir(e *env.Env, noCache bool) (*dagger.Directory, string, error) {
+	d.noCache = noCache
+
+	// it's probably wrong to assume this in general
+	var k kinder
+	err := e.Value.Decode(&k)
+	if err != nil {
+		return nil, "", err
+	}
+
+	switch k.Kind {
+	case "#dir":
+		return d.hashDir(e.Value)
+	case "#hostDir":
+		return d.hashHostDir(e.Value)
+	case "#gitRepo":
+		repo, rcfg, err := d.hashGitRepo(e.Value)
+		if err != nil {
+			return nil, "", err
+		}
+		return repo.Ref(rcfg.Ref).Tree(), "", nil
+	default:
+		return nil, "", fmt.Errorf("unsupported build target(%s): %v", k.Kind, e.Value)
+	}
 }

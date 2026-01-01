@@ -2,12 +2,32 @@
 
 package env
 
+#HostExec: Ref & {
+	schemas.Hof
+	#hof: env: {
+		root: true // need to figure out what this really means, how it interacts with discovery & cli vs walking a CUE value to construct a giant dagger dag
+		kind: "hostExec"
+	}
+
+	$kind: "#hostExec"
+	args: [...string]
+
+	workdir?:        string // todo, actually push/pop cwd/workdir just for exec
+	useEntrypoint?:  bool
+	stdin?:          string
+	redirectStdin?:  string
+	redirectStdout?: string
+	redirectStderr?: string
+	expect?:         *"SUCCESS" | "FAILURE" | "ANY"
+
+	// what else does Go provide
+}
+
 Exec: Step & {
 	$kind: "exec"
 	args: [...string]
 
-	// todo, set workdir for this exec
-
+	workdir?:        string // todo, actually push/pop cwd/workdir just for exec
 	useEntrypoint?:  bool
 	stdin?:          string
 	redirectStdin?:  string

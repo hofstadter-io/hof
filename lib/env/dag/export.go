@@ -370,3 +370,119 @@ func (d *Dag) HashPublishImage(step cue.Value) (*dagger.Container, *publishImage
 
 	return idx.ctr, idx.cfg, nil
 }
+
+type exportCuefigConfig struct {
+	Kind string    `json:"$kind"`
+	Name string    `json:"name"`
+	Path string    `json:"path"`
+	Data cue.Value `json:"data"`
+}
+
+type exportCuefigIndex struct {
+	node *env.Env
+	val  cue.Value
+	cfg  *exportCuefigConfig
+	file *dagger.File
+}
+
+func (idx *exportCuefigIndex) Key() string {
+	if idx.cfg == nil {
+		return "#exportCuefig.nil"
+	}
+	mk := vegMemoKey(idx.node)
+	if mk != "" {
+		return fmt.Sprintf("#exportCuefig.%s", mk)
+	}
+	return fmt.Sprintf("#exportCuefig.%s", idx.cfg.Name)
+}
+
+func (d *Dag) HashExportCuefig(step cue.Value) (*dagger.File, *exportCuefigConfig, error) {
+	var cfg exportCuefigConfig
+	err := step.Decode(&cfg)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// index for query and create if not found
+	idx := &exportCuefigIndex{
+		val: step,
+		cfg: &cfg,
+	}
+
+	// lookup
+	ia, ok := d.cat[idx]
+	if ok {
+		ix := ia.(*exportCuefigIndex)
+		return ix.file, ix.cfg, nil
+	}
+
+	// TODO, turn to data and create new file with it
+	// c, err := d.HashContainer(cfg.Image)
+	// if err != nil {
+	// 	return nil, nil, err
+	// }
+	// idx.file = f
+
+	// memoize
+	d.cat[idx] = idx
+
+	return idx.file, idx.cfg, nil
+}
+
+type exportDaggerConfig struct {
+	Kind string    `json:"$kind"`
+	Name string    `json:"name"`
+	Path string    `json:"path"`
+	Data cue.Value `json:"data"`
+}
+
+type exportDaggerIndex struct {
+	node *env.Env
+	val  cue.Value
+	cfg  *exportDaggerConfig
+	file *dagger.File
+}
+
+func (idx *exportDaggerIndex) Key() string {
+	if idx.cfg == nil {
+		return "#exportDagger.nil"
+	}
+	mk := vegMemoKey(idx.node)
+	if mk != "" {
+		return fmt.Sprintf("#exportDagger.%s", mk)
+	}
+	return fmt.Sprintf("#exportDagger.%s", idx.cfg.Name)
+}
+
+func (d *Dag) HashExportDagger(step cue.Value) (*dagger.File, *exportDaggerConfig, error) {
+	var cfg exportDaggerConfig
+	err := step.Decode(&cfg)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// index for query and create if not found
+	idx := &exportDaggerIndex{
+		val: step,
+		cfg: &cfg,
+	}
+
+	// lookup
+	ia, ok := d.cat[idx]
+	if ok {
+		ix := ia.(*exportDaggerIndex)
+		return ix.file, ix.cfg, nil
+	}
+
+	// TODO, turn to data and create new file with it
+	// c, err := d.HashContainer(cfg.Image)
+	// if err != nil {
+	// 	return nil, nil, err
+	// }
+	// idx.file = f
+
+	// memoize
+	d.cat[idx] = idx
+
+	return idx.file, idx.cfg, nil
+}

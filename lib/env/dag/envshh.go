@@ -3,11 +3,93 @@ package dag
 import (
 	"fmt"
 	"regexp"
+	"strings"
 
 	"cuelang.org/go/cue"
 	"dagger.io/dagger"
+	"github.com/hashicorp/go-envparse"
 	"github.com/hofstadter-io/hof/lib/env"
 )
+
+func (d *Dag) stepEnvVarHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+	var envs map[string]string
+	err := step.Decode(&envs)
+	if err != nil {
+		return nil, fmt.Errorf("while decoding stepEnv: %w", err)
+	}
+
+	for k, v := range envs {
+		if k != "$kind" {
+			c = c.WithEnvVariable(k, v, dagger.ContainerWithEnvVariableOpts{
+				Expand: true,
+			})
+		}
+	}
+	return c, nil
+}
+
+type stepEnvVarsConfig struct {
+	Kind string    `json:"$kind"`
+	File cue.Value `json:"file"`
+}
+
+// needed for checking below, loop copied from module source
+var envpair envparse.Pair
+
+func (d *Dag) stepEnvFileHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+
+	// DEV HACK
+	// return c, nil
+
+	var cfg stepEnvVarsConfig
+	err := step.Decode(&cfg)
+	if err != nil {
+		return nil, fmt.Errorf("while decoding stepEnvfile: %w", err)
+	}
+	k := cfg.File.LookupPath(cue.ParsePath("$kind"))
+	if !k.Exists() {
+		return c, fmt.Errorf("missing $kind in stepEnvfile source: %v, got %v", step, k)
+	}
+
+	var file *dagger.File
+	ks, _ := k.String()
+	switch ks {
+	case "#file":
+		file, _, err = d.hashFile(cfg.File)
+
+	case "#hostFile":
+		file, _, err = d.hashHostFile(cfg.File)
+
+	default:
+		return c, fmt.Errorf("unsupported $kind in envfile.file: %v", step)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	contents, err := file.Contents(d.ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	r := strings.NewReader(contents)
+	parser := envparse.New(r)
+	for {
+		kv, err := parser.Next()
+		if err != nil {
+			return nil, err
+		}
+
+		if kv == envpair {
+			break
+		}
+
+		c = c.WithEnvVariable(kv.Key, kv.Val)
+	}
+
+	return c, nil
+}
 
 type hashSecretConfig struct {
 	Kind   string    `json:"$kind"`
@@ -113,6 +195,10 @@ func (d *Dag) hashSecret(step cue.Value) (*dagger.Secret, error) {
 	return idx.shh, nil
 }
 
-func (d *Dag) stepSecretHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+func (d *Dag) stepSecretVarHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+	return c, nil
+}
+
+func (d *Dag) stepSecretVarsHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
 	return c, nil
 }

@@ -10,8 +10,8 @@ EnvVar: Step & {
 	[string]: string
 }
 
-EnvVars: Step & {
-	$kind: "envVars"
+EnvFile: Step & {
+	$kind: "envFile"
 
 	file: #File | #HostFile
 }
@@ -46,8 +46,8 @@ SecretVar: Step & {
 
 // treat secret content is an env file
 // exposing each line as secret vars
-SecretVars: Step & {
-	$kind: "secretVars"
+SecretFile: Step & {
+	$kind: "secretFile"
 
 	source: #Secret
 }

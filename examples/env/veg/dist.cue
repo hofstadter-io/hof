@@ -15,15 +15,15 @@ dist: {
 		name: string | *#hof.metadata.name
 	}
 
-	meta: env.#ExportDir & {
-		path: "dist/meta"
-		sources: [
-			root.src.changelog,
-			bins.checksum,
-			dist.sboms,
-		]
-		wipe: true
-	}
+	// meta: env.#ExportDir & {
+	// 	path: "dist/meta"
+	// 	sources: [
+	// 		root.src.changelog,
+	// 		bins.checksum,
+	// 		dist.sboms,
+	// 	]
+	// 	wipe: true
+	// }
 
 	cuemod: env.#ExportDir & {
 		path: "dist/cuemod"
@@ -48,11 +48,11 @@ dist: {
 		wipe:       true
 	}
 
-	vscode: env.#ExportDir & {
-		path: "dist/vscode"
-		wipe: true
-		sources: []
-	}
+	// vscode: env.#ExportDir & {
+	// 	path: "dist/vscode"
+	// 	wipe: true
+	// 	sources: []
+	// }
 
 	images: {
 		[string]~(k,_): {

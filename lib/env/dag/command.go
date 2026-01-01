@@ -10,6 +10,8 @@ type hashCmdConfig struct {
 	Kind string `json:"$kind"`
 	Name string `json:"name"`
 
+	// how do we order these? ... hear me out ... @z(int), same values have no order guarantees
+	// gets all mixed up between CUE topo & go maps, but lists aren't fun...
 	Tasks  map[string]cue.Value `json:"tasks"`
 	Hooks  map[string]cue.Value `json:"hooks"`
 	Config map[string]any       `json:"config"`
@@ -29,9 +31,11 @@ type hashTaskConfig struct {
 	Kind string `json:"$kind"`
 	Name string `json:"name"`
 
-	Steps  [][]cue.Value        `json:"steps"`
-	Hooks  map[string]cue.Value `json:"hooks"`
-	Config map[string]any       `json:"config"`
+	Steps []cue.Value          `json:"steps"`
+	Hooks map[string]cue.Value `json:"hooks"`
+
+	Parallel int            `json:"parallel"`
+	Config   map[string]any `json:"config"`
 }
 
 func (d *Dag) DecodeHashTask(step cue.Value) (*hashTaskConfig, error) {

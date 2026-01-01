@@ -102,6 +102,10 @@ cd k8s && \
 
 - `lib/env/...`
 
+> [!INFO]
+> `schemas/env` and `lib/env/dag` align very closely. The `dag` package uses a new progressive CUE schema alignment and decoding strategy
+> that works really, really well and will be used more widely in veg. It's also prime time for `veg gen`.
+
 ### The `veg/env` command
 
 The `veg/env` command aims to be flexible, extensible, and consistent
@@ -127,6 +131,7 @@ Guidance on starting out with the commands
   - start with list, then run and a workful command
   - start with build or export before publish
 - use `env.Terminal` or `-F/-N` to go interactive
+- import `schemas/env/rrr:env` instead of `schemas/env` for stricter schemas. It's slower because of the recursive disjunctions, but it will catch errors earlier and narrow down messages, especially with the aliasv2 experiment we are relying on.
 
 > [!NOTE] > `veg env` without any subcommands will run your custom commands
 
@@ -191,7 +196,7 @@ SecretVar         add a single secret
 EnvFile           add an env var file
 SecretFile        add a secret var file
 
-Temp              a temp volume for the next exex
+Temp              a temp volume for the next exec
 Mount             mount a cache, file, directory, secret
 BindService       bind another service to the container  (hint, dep graph)
 Expose            mark a port for servin
@@ -213,12 +218,14 @@ Terminal          drop into a terminal at any or many point(s), directory or con
 
 More to come...
 
+- VsCode (like terminal, combo of them too)
 - Chown
 - $Filter (#Dir->#Dir)
 - $Diff (#Dir-#Dir->#Dir)
 - Patch & #Patch
 - Diff & #Diff, Changes & #Changeset
 - ?Merge (not overwrite, doesn't exist yet)
+- #DirToGit         git from a dir
 
 Vscode            (we'll add a Step to open in vscode, or make something that does both, configurablely)
 
@@ -250,7 +257,6 @@ These are artifacts, intermediates, or resources you can work with
 #Cmd              a custom command with named subtasks
 #Task             a task is a list of runnables and is runnable itself
 
-#DirToGit         git from a dir
 #GitRepo          from a uri
 #HostDir          from a path
 #HostFile         from a path
@@ -267,8 +273,8 @@ These are artifacts, intermediates, or resources you can work with
 #PublishImage     to a registry
 
 # many data formats available
-- #ExportCuefig     returns a #File for the CUE representation any #Thing
-- #ExportDagger     returns a #File for the Dagger representation any #Thing
+#ExportCuefig     returns a #File for the CUE representation any #Thing
+#ExportDagger     returns a #File for the Dagger representation any #Thing
 ```
 
 ## Examples

@@ -8,7 +8,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/env"
 )
 
-type gitRepoConfig struct {
+type hashGitRepoConfig struct {
 	Kind string `json:"$kind"`
 	Name string `json:"name"`
 	Url  string `json:"url"`
@@ -24,10 +24,10 @@ type gitRepoConfig struct {
 	ExperimentalServiceHost cue.Value `json:"experimentalServiceHost"` // service
 }
 
-type gitRepoIndex struct {
+type hashGitRepoIndex struct {
 	node *env.Env
 	val  cue.Value
-	cfg  *gitRepoConfig
+	cfg  *hashGitRepoConfig
 	repo *dagger.GitRepository
 }
 
@@ -37,7 +37,7 @@ type gitRepoIndex struct {
 // think about how the recursive CUE decoding and structs here will eventually
 // be merged with and intermix with other subsystems like hof/flow
 
-func (idx *gitRepoIndex) Key() string {
+func (idx *hashGitRepoIndex) Key() string {
 	if idx.cfg == nil {
 		return "#gitRepo.nil"
 	}
@@ -49,15 +49,15 @@ func (idx *gitRepoIndex) Key() string {
 	return fmt.Sprintf("#gitRepo.%s", idx.cfg.Name)
 }
 
-func (d *Dag) hashGitRepo(step cue.Value) (*dagger.GitRepository, *gitRepoConfig, error) {
-	var cfg gitRepoConfig
+func (d *Dag) hashGitRepo(step cue.Value) (*dagger.GitRepository, *hashGitRepoConfig, error) {
+	var cfg hashGitRepoConfig
 	err := step.Decode(&cfg)
 	if err != nil {
 		return nil, nil, fmt.Errorf("while decoding hashHostFile: %w", err)
 	}
 
 	// index for query and create if not found
-	idx := &gitRepoIndex{
+	idx := &hashGitRepoIndex{
 		val: step,
 		cfg: &cfg,
 	}
@@ -65,7 +65,7 @@ func (d *Dag) hashGitRepo(step cue.Value) (*dagger.GitRepository, *gitRepoConfig
 	// lookup
 	ia, ok := d.cat[idx]
 	if ok {
-		ix := ia.(*gitRepoIndex)
+		ix := ia.(*hashGitRepoIndex)
 		return ix.repo, ix.cfg, nil
 	}
 

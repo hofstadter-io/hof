@@ -16,8 +16,8 @@ import (
 }
 
 // temp space config for ephemeral volumes not persisted between exec calls
-#Temp: {
-	$kind: "#temp"
+Temp: {
+	$kind: "temp"
 
 	// where to attach it
 	path: string
@@ -27,4 +27,14 @@ import (
 
 	// expand vars in path like $HOME/.cache
 	expand?: bool
+}
+
+Mount: Step & {
+	$kind: "mount"
+
+	path: string
+
+	// cache, dir, file, secret, temp, host, service (?)
+	// source: #Cache | #File | #HostFile | #Dir | #HostDir
+	source: _
 }
