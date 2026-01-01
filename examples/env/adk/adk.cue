@@ -2,26 +2,19 @@
 package adk
 
 import (
-	"github.com/hofstadter-io/hof/lib/env/common/bases/lang"
+	"github.com/hofstadter-io/hof/lib/env/common/packs/lang"
+	"github.com/hofstadter-io/hof/lib/env/common/utils"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
-_flags: {
-	// 
-	local: string | *"/work/adk"                @tag(local)
+_flags: flags
+flags: {
+	utils.defaultFlags
+
+	local: string | *"/work/adk"
 	fork:  string | *"https://github.com/verdverm/adk-go" @tag(fork)
 	repo:  string | *"https://github.com/google/adk-go"   @tag(repo)
 
-	// are we using source from local or git
-	use: *"local" | "fork" | "repo" | @tag(use,short=local|fork|repo)
-
-	// operation mode
-	mode: "lite" | "full" | "ci" | "canary" | "prod"
-
-	// git overrides
-	branch: string | *"main" @tag(branch)
-	target: string | *"main" @tag(target)
-	gitref: string | *"main" @tag(gitref)
 }
 
 src: {
@@ -54,13 +47,7 @@ ctr: {
 _tester: env.#Container & {
 	#cmd: string
 	from: ctr.base
-	steps: [
-		env.Exec & {args: ["bash", "-c", _script]},
-	]
-	_script: """
-  set -euo pipefail
-  \(#cmd)
-  """
+	steps: [ env.Bash & {script: "\(#cmd)"} ]
 }
 
 cmd: {
@@ -90,5 +77,20 @@ cmd: {
 		fmt: steps: [[_tester & {#cmd: #"gofmt -l . || true"#}]]
 		staticcheck: steps: [[_tester & {#cmd: "staticcheck ./... || true"}]]
 		golangci: steps: [[_tester & {#cmd: "golangci-lint run || true"}]]
+	}
+
+	scan: tasks: {
+		sonar: {}
+		vuln: {}
+	}
+
+	ci: tasks: {
+		default: steps: [test, lint, scan]
+		onPush:  steps: [test, lint]
+		prPush:  default
+
+		prepare: [...]
+		release: [ci.default, prepare]
+		onTag:   [release]
 	}
 }

@@ -5,22 +5,10 @@ The result is a blend of Makefiles, Dockerfiles, and Docker Compose.
 
 It forms the foundation for:
 
-1. shared fabrics across the life-cycle, both CUE and Dagger DAGs
+1. Shared fabrics across the life-cycle, both CUE and Dagger DAGs
 1. OCI modules and imports in the front, OCI images and environments in the back
-1. defining images/layers, services/deployments, and workflows/commands
-1. doing anything with ephemeral containers, layers, and filesystems
-1. improving structure and shared consistency while being flexible to all of our snowflake systems
-1. can be eased in to existing workflow as systems, not a big lift and shift
-1. context aware
-
-As well as:
-
-1. powering a vscode virtual filesystem and diff viewer
-1. then all this with all that agentic hype, especiall tools, skills, and having...
-   1. a safe space to work instead of restrictions being forced down
-   1. git like ops on sessions and their environments
-   1. fully recorded and sharable history via OCI
-1. ambitions for taming terraform & helm sequencing and reconciliation
+1. Defining images/layers, services/deployments, and workflows/tasks
+1. Works the same everywhere, the same `hof env ...` commands built with the same containerized workflows.
 
 ## Getting Started
 
@@ -32,8 +20,8 @@ brew install hofstadter-io/tap/hof
 
 ### Binaries from GitHub
 
-|                                                                                                     |                                                                                                    |
-| --------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+|  eat your                                                                                           |  veggies                                                                                           |
+|:---------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------:|
 | [linux / arm](https://github.com/hofstadter-io/hof/releases/download/v0.7.0/hof_v0.7.0_linux_arm64) | [mac / arm](https://github.com/hofstadter-io/hof/releases/download/v0.7.0/hof_v0.7.0_darwin_arm64) |
 | [linux / amd](https://github.com/hofstadter-io/hof/releases/download/v0.7.0/hof_v0.7.0_linux_amd64) | [mac / amd](https://github.com/hofstadter-io/hof/releases/download/v0.7.0/hof_v0.7.0_darwin_amd64) |
 
@@ -241,7 +229,11 @@ image: {
 }
 ```
 
-### "main" package flags
+### Flags, Configs, and Defaults
+
+- using flags to override
+- using data to override
+- parameterize large swaths, show the propagation
 
 ## Notes
 
@@ -257,3 +249,15 @@ docker rmi -f $(docker image list --format 'table {{.Repository}}:{{.Tag}}' | gr
 # inspect layers
 dive veg-dev:local
 ```
+
+What we use this CUE + Dagger magic for:
+
+1. Powering a vscode virtual filesystem and diff viewer
+1. Getting in on all that agentic hype, especiall tools, skills, and having...
+   1. a safe space to work instead of restrictions being forced down
+   1. git like ops on sessions and their environments
+   1. fully recorded and sharable history via OCI
+   1. Powering a Copilot alternative
+   1. We now use this CUE + Dagger for both organic and agentic coding
+1. Soon(?) CI, because there has to be a better way than Jenkins, Argo, GHA
+1. There exist ambitions to tame terraform / helm sequencing and reconciliation
