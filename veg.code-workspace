@@ -23,6 +23,9 @@
     {
       "name": "env",
       "path": "lib/env"
+    },
+    {
+      "path": "../cue"
     }
   ],
 	"settings": {}

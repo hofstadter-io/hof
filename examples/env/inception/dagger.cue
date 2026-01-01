@@ -1,3 +1,4 @@
+@experiment(aliasv2)
 package incept
 
 import (

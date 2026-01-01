@@ -29,11 +29,16 @@ dist: {
 		path: "dist/cuemod"
 		sources: [src.code]
 		include: [
-			"cue.mod",
+			"cue.mod/module.cue",
+			// "*.cue", // eventually, when we rework all of ci, use .veg more, and have a root index that imports many things, like a mega package if the user wants
 			"schemas",
-			"flow/tasks/**.cue",
 			"examples",
+			"flow/tasks",
 			"lib/env/common",
+			"SECURITY.md",
+			"README.md",
+			"AGENTS.md",
+			"LICENSE",
 		]
 		wipe: true
 	}

@@ -1,6 +1,9 @@
 @experiment(aliasv2)
-
 package env
+
+import (
+	"github.com/hofstadter-io/hof/schemas"
+)
 
 #HostExec: Ref & {
 	schemas.Hof
