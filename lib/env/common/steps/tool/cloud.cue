@@ -24,13 +24,10 @@ cloud: {
 
 	aws: {
 		#arch: *"aarch64" | "x86_64"
-		fetch: env.Exec & {
-			args: ["sh", "-c", _script]
-
-			_arch: "x86_64" | "aarch64"
+		fetch: env.Bash & {
 
 			// https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
-			_script: """
+			script: """
 				set -eou pipefail
 
 				curl "https://awscli.amazonaws.com/awscli-exe-linux-\(#arch).zip" -o "awscliv2.zip"
@@ -42,9 +39,9 @@ cloud: {
 		out: env.#Dir & {
 			sources: [
 				env.#Container & {
-					from: bases.debian
+					from: bases.debian.default
 					steps: [fetch]
-				}
+				},
 			]
 			include: [
 				"/usr/local/aws-cli",
@@ -58,14 +55,6 @@ cloud: {
 
 	}
 
-	azure: env.Exec & {
-		args: ["sh", "-c", _script]
-
-		// https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-linux?view=azure-cli-latest&pivots=apt
-		_script: """
-			set -eou pipefail
-
-			curl -sL https://aka.ms/InstallAzureCLIDeb | bash
-			"""
-	}
+	// https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-linux?view=azure-cli-latest&pivots=apt
+	azure: env.Bash & { script: "curl -sL https://aka.ms/InstallAzureCLIDeb | bash" }
 }

@@ -1,7 +1,7 @@
 package lang
 
 import (
-	"github.com/hofstadter-io/hof/lib/env/common/steps/util"
+	"github.com/hofstadter-io/hof/lib/env/common/utils"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
@@ -14,7 +14,7 @@ python: {
 	}
 
 	default: [
-		util.apt.install & {#pkgs: [
+		utils.apt.install & {#pkgs: [
 			"pip",
 			"pipx",
 			"pipenv",

@@ -30,7 +30,7 @@ cmd: {
 						path: "/work"
 						sources: [
 							env.#Container & {
-								from: bases.debian
+								from: bases.debian.default
 								steps: [env.Bash & {script: _relay}, env.Bash & {script: _pds}]
 							},
 						]
@@ -62,16 +62,16 @@ cmd: {
 // naming things is not so hard
 
 testnet: [string]~(S,_): {
-	config?: name: "\(S)-cfg"
-	secret?: name: "\(S)-shh"
-	service?: name: "\(S)-src"
+	config?: name:   "\(S)-cfg"
+	secret?: name:   "\(S)-shh"
+	service?: name:  "\(S)-src"
 	postgres?: name: "\(S)-pg"
 }
 
 testnet: {
 	// @atproto PLC
 	plc: {
-		config: env.#HostFile & {@env(), path: "./env/plc.env" }
+		config: env.#HostFile & {@env(), path: "./env/plc.env"}
 		service: env.#Service & {
 			@env()
 			ports: [{port: 3000}]
@@ -88,8 +88,8 @@ testnet: {
 
 	// @atproto Relay
 	relay: {
-		config: env.#HostFile & {@env(), path: "./env/relay.env" }
-		secret: env.#HostFile & {@env(), path: "./env/relay.secret.env" }
+		config: env.#HostFile & {@env(), path: "./env/relay.env"}
+		secret: env.#HostFile & {@env(), path: "./env/relay.secret.env"}
 		service: env.#Service & {
 			@env()
 			ports: [{port: 3000}]
@@ -110,7 +110,7 @@ testnet: {
 
 	// @atproto Jetstream
 	jetstream: {
-		config: env.#HostFile & {@env(), path: "./env/jetstream.env" }
+		config: env.#HostFile & {@env(), path: "./env/jetstream.env"}
 		service: env.#Service & {
 			@env()
 			ports: [{port: 3000}]
@@ -129,9 +129,9 @@ testnet: {
 
 	// @bluesky/pds or @blebbit/permissioned-pds
 	pds: {
-		config: env.#HostFile & {@env(), path: "./env/pds.env" }
+		config: env.#HostFile & {@env(), path: "./env/pds.env"}
 		// TODO, #Secret (make and then provide to #SecretEnvfile)
-		secret: env.#HostFile & {@env(), path: "./env/pds.secret.env" }
+		secret: env.#HostFile & {@env(), path: "./env/pds.secret.env"}
 		service: env.#Service & {
 			@env()
 			ports: [{port: 3000}]

@@ -2,7 +2,7 @@
 package veg
 
 import (
-	"github.com/hofstadter-io/hof/lib/env/common/bases/lang"
+	"github.com/hofstadter-io/hof/lib/env/common/packs/lang"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
@@ -11,7 +11,7 @@ import (
 
 ctr: {
 	builder: env.#Container & {
-		@env()
+		@env(), @id(hof-cli-builder)
 		from: lang.go.ctr.base
 		steps: [
 			env.Dir & {path: "/adk", source: src.adk},
@@ -20,7 +20,7 @@ ctr: {
 		]
 	}
 	built: env.#Container & {
-		@env()
+		@env(), @id(hof-cli-build)
 		from: builder
 		steps: [
 			env.Env & {GOOS: flags.goos, GOARCH: flags.arch},
@@ -37,21 +37,7 @@ bins: {
 	multi: {
 		_goos: ["linux", "darwin"]
 		_arch: ["amd64", "arm64"]
-		for _g in _goos for _a in _arch {
-			"\(_g)-\(_a)": env.#File & {
-				@env()
-				name: "bin-\(_g)-\(_a)"
-				path: ("./bins/hof-\(_g)-\(_a)")
-				source: env.#Container & {
-					from: ctr.builder
-					steps: [
-						env.Env & {GOOS: _g, GOARCH: _a},
-						env.Exec & {args: ["go", "build", "-o", "./bins/hof-\(_g)-\(_a)", "./cmd/hof"]},
-					]
-				}
-			}
-		}
-
+		for _g in _goos for _a in _arch
 		// for _g in _goos for _a in _arch {
 		// 	let _short = "\(_g)-\(_a)"
 		// 	let _bin = "hof-\(_short)"
@@ -68,5 +54,19 @@ bins: {
 		// 		}
 		// 	}
 		// }
+		{
+			"\(_g)-\(_a)": env.#File & {
+				@env()
+				name: "bin-\(_g)-\(_a)"
+				path: ("./bins/hof-\(_g)-\(_a)")
+				source: env.#Container & {
+					from: ctr.builder
+					steps: [
+						env.Env & {GOOS: _g, GOARCH: _a},
+						env.Exec & {args: ["go", "build", "-o", "./bins/hof-\(_g)-\(_a)", "./cmd/hof"]},
+					]
+				}
+			}
+		}
 	}
 }

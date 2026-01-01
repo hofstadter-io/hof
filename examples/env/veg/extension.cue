@@ -1,8 +1,5 @@
 package veg
 
-
 extn: {
-  vscode: {
-
-  }
+	vscode: {}
 }

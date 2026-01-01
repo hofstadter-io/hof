@@ -3,9 +3,9 @@ package veg
 
 import (
 	"github.com/hofstadter-io/hof/lib/env/common/bases"
-	"github.com/hofstadter-io/hof/lib/env/common/steps/lang"
+	"github.com/hofstadter-io/hof/lib/env/common/packs/lang"
 	"github.com/hofstadter-io/hof/lib/env/common/steps/tool"
-	"github.com/hofstadter-io/hof/lib/env/common/steps/util"
+	"github.com/hofstadter-io/hof/lib/env/common/utils"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
@@ -39,7 +39,7 @@ ctr: {
 			tool.zsh.customize,
 
 			// deps for go/node/python -> c/c++ situations (like CGO)
-			util.apt.install & {#pkgs: [ "gcc", "libc6-dev" ]},
+			utils.apt.install & {#pkgs: ["gcc", "libc6-dev"]},
 
 			// binary tools
 			hof.cli,
@@ -60,8 +60,8 @@ ctr: {
 	}
 
 	// set id for all ops-, used for caching in env, and default names based on that
-	[=~"ops-"]~(k,_): { @env()
-		#hof: metadata: { id: "veg-\(k)", name: string | *id }
+	[=~"ops-"]~(k,_): {@env()
+		#hof: metadata: {id: "veg-\(k)", name: string | *id}
 		name: string | *#hof.metadata.name
 	}
 
@@ -88,7 +88,7 @@ ctr: {
 		gcp: tool.cloud.gcloud
 		aws: tool.cloud.awscli
 		az:  tool.cloud.azure
-		ansible: util.apt.install & {#pkgs: ["ansible"]}
+		ansible: utils.apt.install & {#pkgs: ["ansible"]}
 	}
 
 }
@@ -98,7 +98,7 @@ fmtr: {
 	black: {
 		src: env.#HostDir & {path: "lib/fmt/tools/black"}
 		img: env.#Container & {
-			from: bases.debian
+			from: bases.debian.default
 			steps: [
 				lang.python.default,
 				env.Dir & {path: "/work", source: src},
@@ -116,9 +116,9 @@ fmtr: {
 	prettier: {
 		src: env.#HostDir & {path: "lib/fmt/tools/prettier"}
 		img: env.#Container & {
-			from: bases.debian
+			from: bases.debian.default
 			steps: [
-				util.apt.install & {#pkgs: [
+				utils.apt.install & {#pkgs: [
 					"gcc",
 					"libc6-dev",
 					"ruby-dev",

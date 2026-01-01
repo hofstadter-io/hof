@@ -59,7 +59,7 @@ src: {
 	}
 
 	cuemod: env.#Dir & {
-		path:   "."
+		path: "."
 		sources: [src.code]
 		include: [
 			"cue.mod",

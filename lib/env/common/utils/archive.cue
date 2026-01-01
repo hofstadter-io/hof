@@ -1,4 +1,4 @@
-package util
+package utils
 
 // Tar / Untar
 // Zip / Unzip

@@ -7,13 +7,21 @@ import (
 )
 
 _flags: {
-	// eventually this will go at the root of the repo and just be "."
-	local: string | *"/Users/tony/hof/adk"               @tag(local)
+	// 
+	local: string | *"/work/adk"                @tag(local)
 	fork:  string | *"https://github.com/verdverm/adk-go" @tag(fork)
-	repo:  string | *"https://github.com/google/adk-go" @tag(repo)
+	repo:  string | *"https://github.com/google/adk-go"   @tag(repo)
 
 	// are we using source from local or git
-	use: "repo" | *"local" @tag(use,short=repo|local)
+	use: *"local" | "fork" | "repo" | @tag(use,short=local|fork|repo)
+
+	// operation mode
+	mode: "lite" | "full" | "ci" | "canary" | "prod"
+
+	// git overrides
+	branch: string | *"main" @tag(branch)
+	target: string | *"main" @tag(target)
+	gitref: string | *"main" @tag(gitref)
 }
 
 src: {

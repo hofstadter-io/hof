@@ -3,8 +3,8 @@ package lang
 
 import (
 	"github.com/hofstadter-io/hof/lib/env/common/bases"
+	"github.com/hofstadter-io/hof/lib/env/common/utils"
 	slang "github.com/hofstadter-io/hof/lib/env/common/steps/lang"
-	"github.com/hofstadter-io/hof/lib/env/common/steps/util"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
@@ -13,10 +13,10 @@ go: {
 	ctr: {
 		[string]~(k,_): {name: k}
 		base: env.#Container & {
-			from: bases.debian
+			from: bases.debian.default
 			steps: [
 				// deps for cgo and more, from official docs
-				util.apt.install & {#pkgs: [
+				utils.apt.install & {#pkgs: [
 					"g++",
 					"gcc",
 					"libc6-dev",

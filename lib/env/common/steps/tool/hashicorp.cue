@@ -7,22 +7,24 @@ import (
 hashicorp: terraform: _hashicorpBin & {#tool: "terraform"}
 hashicorp: packer: _hashicorpBin & {#tool: "packer"}
 
-_hashicorpBin: env.Exec & {
+// equivalent to WithFile
+_hashicorpBin: env.File & {
+	// params
 	#ver:  string | *"1.14.3"
 	#arch: *"arm64" | "amd64"
-
 	#tool: string
 
-	args: ["sh", "-c", _script]
+	// internal
 	_file:   "\(#tool)_\(#ver)_linux_\(#arch).zip"
 	_src:    "https://releases.hashicorp.com/\(#tool)/\(#ver)/\(_file)"
-	_script: """
-  set -eou pipefail
 
-  cd /tmp
-  wget -q \(_src)
-  unzip \(_file)
-  mv \(#tool) /usr/local/bin/\(#tool)
-  rm -rf /tmp/*
-  """
+	// spec
+	path: #tool
+	content: env.#File & {
+		path: #tool
+		source: env.#Container & {
+			from: 
+			steps: [env.Bash & {script: "wget -q \(_src) && unzip \(_file)"}]
+		}
+	}
 }
