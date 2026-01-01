@@ -57,7 +57,7 @@ tier3: {
 		steps: [
 			(_nodePrep & {dir: "frontend"}).steps,
 			env.Exec & {args: ["npm", "run", "build"]},
-			env.Args & {args: ["npx", "serve", "-s", "build"]},
+			env.DefaultArgs & {args: ["npx", "serve", "-s", "build"]},
 			env.Expose & {port: 3000, name: "http"},
 			env.BindService & {service: tier3.api},
 		]
@@ -67,7 +67,7 @@ tier3: {
 		from: "node:24"
 		steps: [
 			(_nodePrep & {dir: "backend"}).steps,
-			env.Args & {args: ["npm", "start"]},
+			env.DefaultArgs & {args: ["npm", "start"]},
 			env.Expose & {port: 3000, name: "http"},
 			env.BindService & {service: tier3.db},
 		]
@@ -78,10 +78,9 @@ tier3: {
 		dir: string
 		_dir: env.#Dir & {path: dir, sources: [tier3.repo]}
 		steps: [
-			env.Workdir & {path: "/app"},
-			env.Dir & {path: "/app", source: _dir, include: ["package*.json"]},
-			env.Exec & {args: ["npm", "install"]},
+			env.Workdir & {path: "/app/\(dir)"},
 			env.Dir & {path: "/app", source: _dir},
+			env.Exec & {args: ["npm", "install"]},
 		]
 	}
 

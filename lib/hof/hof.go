@@ -21,6 +21,9 @@ type Hof struct {
 	// #hof: description
 	Description string
 
+	// #hof: memoID, memoization hinting
+	Memo string
+
 	// #hof: <feature>: ...
 	// @<feature>(<name>) can be shorthand with no-name implying label?
 	Datamodel Datamodel
@@ -39,14 +42,20 @@ type Metadata struct {
 	ID string `json:"id"`
 
 	// Given name for the value
-	Name string
+	Name string `json:"name"`
 
-	// arbitrary key=string data
-	Labels map[string]string
+	// Words for man or machine
+	Description string `json:"description"`
 
-	// CUE import path / package
-	// only needs to be set if importing elsewhere
-	Package string
+	// arbitrary key=string data used by the system
+	Labels map[string]string `json:"labels"`
+
+	// arbitrary key=string data used by 3rd party
+	//   key is reverse domain namespaced
+	Annotations map[string]string `json:"annotations"`
+
+	// Memoization hint / manual cache key
+	Memo string `json:"memo"`
 }
 
 // hof/datamodel configuration

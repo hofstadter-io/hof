@@ -20,12 +20,8 @@ ctr: {
 			description: "minimal veg, eat your veggies!"
 		}
 		name: #hof.metadata.name
-
 		from: bases.debian
-
-		steps: [
-			bins.hof,
-		]
+		steps: [hof.cli]
 	}
 	dev: env.#Container & {
 		@env()
@@ -51,7 +47,7 @@ ctr: {
 			]},
 
 			// binary tools
-			bins.hof,
+			hof.cli,
 			tool.github.cli,
 
 			// setup languages
@@ -103,7 +99,7 @@ ctr: {
 	"ops-lite": env.#Container & {
 		from: bases.debian
 		steps: [
-			bins.hof,
+			hof.cli,
 			lang.cue.default,
 			tool.k8s.kubectl,
 			tool.k8s.helm,

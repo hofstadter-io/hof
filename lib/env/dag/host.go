@@ -25,6 +25,10 @@ func (idx *hostImageIndex) Key() string {
 	if idx.cfg == nil {
 		return "#hostImage.nil"
 	}
+	mk := vegMemoKey(idx.node)
+	if mk != "" {
+		return fmt.Sprintf("#hostImage.%s", mk)
+	}
 	return fmt.Sprintf("#hostImage.%s", idx.cfg.Name)
 }
 
@@ -74,6 +78,10 @@ type hostFileIndex struct {
 func (idx *hostFileIndex) Key() string {
 	if idx.cfg == nil {
 		return "#hostFile.nil"
+	}
+	mk := vegMemoKey(idx.node)
+	if mk != "" {
+		return fmt.Sprintf("#hostFile.%s", mk)
 	}
 	return fmt.Sprintf("#hostFile.%s", idx.cfg.Name)
 }
@@ -130,6 +138,10 @@ func (idx *hostDirIndex) Key() string {
 	if idx.cfg == nil {
 		return "#hostDir.nil"
 	}
+	mk := vegMemoKey(idx.node)
+	if mk != "" {
+		return fmt.Sprintf("#hostDir.%s", mk)
+	}
 	return fmt.Sprintf("#hostDir.%s", idx.cfg.Name)
 }
 
@@ -184,6 +196,10 @@ type hostServiceIndex struct {
 func (idx *hostServiceIndex) Key() string {
 	if idx.cfg == nil {
 		return "#hostService.nil"
+	}
+	mk := vegMemoKey(idx.node)
+	if mk != "" {
+		return fmt.Sprintf("#hostService.%s", mk)
 	}
 	return fmt.Sprintf("#hostService.%s", idx.cfg.Name)
 }
@@ -245,6 +261,10 @@ type hostTunnelIndex struct {
 func (idx *hostTunnelIndex) Key() string {
 	if idx.cfg == nil {
 		return "#hostTunnel.nil"
+	}
+	mk := vegMemoKey(idx.node)
+	if mk != "" {
+		return fmt.Sprintf("#hostTunnel.%s", mk)
 	}
 	return fmt.Sprintf("#hostTunnel.%s", idx.cfg.Name)
 }
@@ -311,6 +331,10 @@ type hostSocketIndex struct {
 func (idx *hostSocketIndex) Key() string {
 	if idx.cfg == nil {
 		return "#hostSocket.nil"
+	}
+	mk := vegMemoKey(idx.node)
+	if mk != "" {
+		return fmt.Sprintf("#hostSocket.%s", mk)
 	}
 	return fmt.Sprintf("#hostSocket.%s", idx.cfg.Name)
 }

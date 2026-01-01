@@ -9,6 +9,9 @@ import (
 
 #FileLike: #File | #HostFile
 
+#StepList: { $kind: string & !~"^#"} | [...#StepList]
+#HackList: [...] | {...}
+
 // todo, registry auth
 
 // Definition for a container env
@@ -30,9 +33,6 @@ import (
 	// from: string | #Container | #HostImage | #DockerBuild
 	// from: string | {...}  !!! PANIC !!!
 	from!: _
-	if (from & string) != _|_ {
-		name: string | *from
-	}
 
 	// you can do this in steps, but it might be nice to have it
 	// 1. extracted / separate for easy usage in k8s (i.e.)
@@ -41,7 +41,13 @@ import (
 	envs: [string]: string
 
 	// steps to build an image or environment
-	steps: [...]
+	// TODO, put some basic checking on this
+	steps: [...] // OK
+	// steps: [...#HackList] // PANIC
+	// steps: [...([...] | {...})] // PANIC
+	// steps: [...] | {...} // OK (but not right)
+	// steps: [...{...}]  // OK (but not right)
+	// steps: [...{...}|[...]]  // PANIC
 
 	// labels are applied at the end
 	labels: [string]: string

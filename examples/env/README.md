@@ -42,4 +42,9 @@ Flags:
 
 ## Examples
 
+// index here
+
+
+// snippets here
+
 ### GitOps Images

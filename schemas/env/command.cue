@@ -59,6 +59,7 @@ _cmdCommon: {
 
 	// ideally, this is more dag/flow like
 	// two-level list, top-sequential | nest-parallel
+	// TODO, put some basic checking on this
 	steps: [...[...]]
 
 	_cmdCommon

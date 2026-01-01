@@ -31,9 +31,20 @@ type gitRepoIndex struct {
 	repo *dagger.GitRepository
 }
 
+// these index & Key are getting repetitive, as are the handlers
+// we should be able to refactor these down with some generics & interface love
+// we need to refactor down a bit anyway, use kinder in more places, more metadata inspection
+// think about how the recursive CUE decoding and structs here will eventually
+// be merged with and intermix with other subsystems like hof/flow
+
 func (idx *gitRepoIndex) Key() string {
 	if idx.cfg == nil {
 		return "#gitRepo.nil"
+	}
+	mk := vegMemoKey(idx.node)
+	if mk != "" {
+		// TODO, need a ref here, generally they may need parameteres
+		return fmt.Sprintf("#gitRepo.%s", mk)
 	}
 	return fmt.Sprintf("#gitRepo.%s", idx.cfg.Name)
 }
@@ -58,7 +69,7 @@ func (d *Dag) hashGitRepo(step cue.Value) (*dagger.GitRepository, *gitRepoConfig
 		return ix.repo, ix.cfg, nil
 	}
 
-	fmt.Println("#GitRepo", step, cfg)
+	// fmt.Println("#GitRepo", step, cfg)
 
 	// load for realz
 	idx.repo = d.dag.Git(cfg.Url, dagger.GitOpts{

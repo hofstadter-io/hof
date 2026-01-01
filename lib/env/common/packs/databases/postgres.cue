@@ -24,6 +24,7 @@ Postgres: {
 	}
 
 	service: env.#Service & {
+		name: string | *"\(#name)-pg-svc"
 		ports: [{port: #port}]
 		source: container
 	}

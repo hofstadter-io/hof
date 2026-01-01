@@ -1,0 +1,16 @@
+diff --git a/cmd/relay/Dockerfile b/cmd/relay/Dockerfile
+index 01b27cc8..bc206854 100644
+--- a/cmd/relay/Dockerfile
++++ b/cmd/relay/Dockerfile
+@@ -11,8 +11,9 @@ WORKDIR /dockerbuild
+ 
+ # timezone data for alpine builds
+ ENV GOEXPERIMENT=loopvar
+-RUN GIT_VERSION=$(git describe --tags --long --always) && \
+-    go build -tags timetzdata -o /relay ./cmd/relay
++# RUN GIT_VERSION=$(git describe --tags --long --always) && \
++#     go build -tags timetzdata -o /relay ./cmd/relay
++RUN go build -tags timetzdata -o /relay ./cmd/relay
+ 
+ ### Build Frontend stage
+ FROM node:18-alpine as web-builder

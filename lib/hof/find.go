@@ -27,6 +27,8 @@ func upgradeAttrs[T any](node *Node[T], label string) bool {
 			}
 		case "id":
 			node.Hof.Metadata.ID = ac
+		case "memo":
+			node.Hof.Metadata.Memo = ac
 
 		case "datamodel":
 			node.Hof.Datamodel.Root = true
@@ -90,9 +92,9 @@ func upgradeAttrs[T any](node *Node[T], label string) bool {
 			node.Hof.Env.Name = label
 			node.Hof.Env.Extra = ac
 			// name override from local field
-			c := val.LookupPath(cue.ParsePath("name"))
-			if c.Exists() {
-				if s, err := c.String(); err == nil {
+			n := val.LookupPath(cue.ParsePath("name"))
+			if n.Exists() {
+				if s, err := n.String(); err == nil {
 					node.Hof.Env.Name = s
 				}
 			}

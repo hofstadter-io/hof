@@ -55,6 +55,20 @@ Hof: {
 			// if op is not empty, it is a task value
 			op: string | *""
 		}
+
+		env: {
+			// define the root of en environment?
+			root: bool | *false
+
+			// name of the env kind
+			name: string | *""
+
+			// kind of the env
+			kind: string | *""
+
+			// memoization manual id
+			memo: string | *""
+		}
 	}
 }
 
@@ -68,9 +82,8 @@ Metadata: {
 	id?:          string
 	name?:        string
 	description?: string
-	package?:     string
 	labels?: [string]: string
-}
 
-// depreciated
-DHof: Hof
+	// memoization hint
+	memo?: string
+}

@@ -24,23 +24,30 @@ type hashContainerIndex struct {
 	ctr  *dagger.Container
 }
 
-func (h *hashContainerIndex) Key() string {
-	if h.cfg == nil {
+func (idx *hashContainerIndex) Key() string {
+	// default if no config, shouldn't really get here
+	if idx.cfg == nil {
 		return "#container.nil"
 	}
-	return fmt.Sprintf("#container.%s", h.cfg.Name)
+	mk := vegMemoKey(idx.node)
+	if mk != "" {
+		return fmt.Sprintf("#container.%s", mk)
+	}
+	// return the name on this config as a last resort
+	return fmt.Sprintf("#container.%s", idx.cfg.Name)
 }
 
-func (d *Dag) HashContainer(step cue.Value) (*dagger.Container, error) {
+// TODO, change this to take a context (for nested OTEL spans)
+func (d *Dag) HashContainer(val cue.Value) (*dagger.Container, error) {
 	var cfg hashContainerConfig
-	err := step.Decode(&cfg)
+	err := val.Decode(&cfg)
 	if err != nil {
 		return nil, fmt.Errorf("while decoding HashContainer: %w", err)
 	}
 
 	// index for query and create if not found
 	idx := &hashContainerIndex{
-		val: step,
+		val: val,
 		cfg: &cfg,
 	}
 
@@ -54,13 +61,23 @@ func (d *Dag) HashContainer(step cue.Value) (*dagger.Container, error) {
 	//
 	// build for realz
 	//
+	// possibly from scratch
 	c := d.dag.Container()
 
-	// from
+	// obtain the from
 	switch fk := cfg.From.IncompleteKind(); fk {
 	case cue.StringKind:
 		s, _ := cfg.From.String()
-		c = c.From(s)
+		switch s {
+		case "":
+			return nil, fmt.Errorf("empty from string in:", val)
+
+		case "scratch":
+			// no-op, do nothing
+
+		default:
+			c = c.From(s)
+		}
 
 	case cue.StructKind:
 		kv := cfg.From.LookupPath(cue.ParsePath("$kind"))
@@ -95,16 +112,18 @@ func (d *Dag) HashContainer(step cue.Value) (*dagger.Container, error) {
 		c = c.WithEnvVariable("BUSTED_CACHE", time.Now().Local().String())
 	}
 
+	// add env before the container goes (most common)
+	for k, v := range cfg.Envs {
+		c = c.WithEnvVariable(k, v)
+	}
+
 	// apply our steps
 	c, err = d.addSteps(c, cfg.Steps)
 	if err != nil {
 		return c, fmt.Errorf("while adding steps: %w", err)
 	}
 
-	for k, v := range cfg.Envs {
-		c = c.WithEnvVariable(k, v)
-	}
-
+	// add labels as we finish up
 	for k, v := range cfg.Labels {
 		c = c.WithAnnotation(k, v)
 	}
@@ -185,9 +204,14 @@ type hashDockerBuildIndex struct {
 
 func (idx *hashDockerBuildIndex) Key() string {
 	if idx.cfg == nil {
-		return "service.nil"
+		return "#dockerBuild.nil"
 	}
-	return fmt.Sprintf("service.%s", idx.cfg.Name)
+	mk := vegMemoKey(idx.node)
+	if mk != "" {
+		return fmt.Sprintf("#dockerBuild.%s", mk)
+	}
+
+	return fmt.Sprintf("#dockerBuild.%s", idx.cfg.Name)
 }
 
 func (d *Dag) HashDockerBuild(step cue.Value) (*dagger.Container, error) {

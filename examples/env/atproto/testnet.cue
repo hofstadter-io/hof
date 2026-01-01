@@ -59,14 +59,20 @@ cmd: {
 	}
 }
 
-testnet: {
-	// give things consistent names
-	[string]~(group,_): [string]~(subgroup,_): name: "\(group)-\(subgroup)"
+// naming things is not so hard
 
+testnet: [string]~(S,_): {
+	config?: name: "\(S)-cfg"
+	secret?: name: "\(S)-shh"
+	service?: name: "\(S)-src"
+	postgres?: name: "\(S)-pg"
+}
+
+testnet: {
 	// @atproto PLC
 	plc: {
-		config: env.#HostFile & {@env(), path: "./env/plc.env"}
-		server: env.#Service & {
+		config: env.#HostFile & {@env(), path: "./env/plc.env" }
+		service: env.#Service & {
 			@env()
 			ports: [{port: 3000}]
 			source: env.#Container & {
@@ -82,9 +88,9 @@ testnet: {
 
 	// @atproto Relay
 	relay: {
-		config: env.#HostFile & {@env(), path: "./env/relay.env"}
-		secret: env.#HostFile & {@env(), path: "./env/relay.secret.env"} // todo, we need secret version of this
-		server: env.#Service & {
+		config: env.#HostFile & {@env(), path: "./env/relay.env" }
+		secret: env.#HostFile & {@env(), path: "./env/relay.secret.env" }
+		service: env.#Service & {
 			@env()
 			ports: [{port: 3000}]
 			source: env.#Container & {
@@ -94,7 +100,7 @@ testnet: {
 					env.Envfile & {file: relay.secret}, // todo, we need secret version of this
 					env.Mount & {path: "/data", source: relay.data},
 					env.BindService & {service: relay.postgres},
-					env.BindService & {service: plc.server},
+					env.BindService & {service: plc.service},
 				]
 			}
 		}
@@ -104,8 +110,8 @@ testnet: {
 
 	// @atproto Jetstream
 	jetstream: {
-		config: env.#HostFile & {@env(), path: "./env/jetstream.env"}
-		server: env.#Service & {
+		config: env.#HostFile & {@env(), path: "./env/jetstream.env" }
+		service: env.#Service & {
 			@env()
 			ports: [{port: 3000}]
 			source: env.#Container & {
@@ -113,8 +119,8 @@ testnet: {
 				steps: [
 					env.Envfile & {file: jetstream.config},
 					env.Mount & {path: "/data", source: jetstream.data},
-					env.BindService & {service: plc.server},
-					env.BindService & {service: relay.server},
+					env.BindService & {service: plc.service},
+					env.BindService & {service: relay.service},
 				]
 			}
 		}
@@ -123,9 +129,10 @@ testnet: {
 
 	// @bluesky/pds or @blebbit/permissioned-pds
 	pds: {
-		config: env.#HostFile & {@env(), path: "./env/pds.env"}
-		secret: env.#HostFile & {@env(), path: "./env/pds.secret.env"} // todo, we need secret version of this
-		server: env.#Service & {
+		config: env.#HostFile & {@env(), path: "./env/pds.env" }
+		// TODO, #Secret (make and then provide to #SecretEnvfile)
+		secret: env.#HostFile & {@env(), path: "./env/pds.secret.env" }
+		service: env.#Service & {
 			@env()
 			ports: [{port: 3000}]
 			source: env.#Container & {
@@ -139,8 +146,8 @@ testnet: {
 					env.Mount & {path: "/app/data", source: pds.data},
 					env.Mount & {path: "/app/blobs", source: pds.blobs},
 					env.BindService & {service: pds.spicedb},
-					env.BindService & {service: plc.server},
-					env.BindService & {service: relay.server},
+					env.BindService & {service: plc.service},
+					env.BindService & {service: relay.service},
 				]
 			}
 		}
@@ -156,7 +163,7 @@ testnet: {
 				envs: {
 					SPICEDB_GRPC_PRESHARED_KEY: "testnet-spicedb"
 					SPICEDB_DATASTORE_ENGINE:   "postgres"
-					SPICEDB_DATASTORE_CONN_URI: "postgres://spicedb:spicedb@pds-pg-svc:5432/spicedb?sslmode=disable"
+					SPICEDB_DATASTORE_CONN_URI: "postgres://spicedb:spicedb@pds-pg:5432/spicedb?sslmode=disable"
 				}
 				steps: [
 					env.Exec & {args: ["migrate", "head"], useEntrypoint: true},
@@ -223,7 +230,8 @@ builds: {
 	}
 	relay: {
 		code: env.#Dir & {sources: [repos.indigo]}
-		ctr: env.#DockerBuild & {source: code, dockerfile: "cmd/relay/Dockerfile"}
+		fixd: env.#Dir & {sources: [repos.indigo], patch: patches.relay}
+		ctr: env.#DockerBuild & {source: fixd, dockerfile: "cmd/relay/Dockerfile"}
 	}
 	jetstream: {
 		code: env.#Dir & {sources: [repos.jetstream]}

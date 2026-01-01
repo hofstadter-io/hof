@@ -28,6 +28,10 @@ func (idx *exportFileIndex) Key() string {
 	if idx.cfg == nil {
 		return "#exportFile.nil"
 	}
+	mk := vegMemoKey(idx.node)
+	if mk != "" {
+		return fmt.Sprintf("#exportFile.%s", mk)
+	}
 	return fmt.Sprintf("#exportFile.%s", idx.cfg.Name)
 }
 
@@ -90,6 +94,10 @@ type exportDirIndex struct {
 func (idx *exportDirIndex) Key() string {
 	if idx.cfg == nil {
 		return "#exportDir.nil"
+	}
+	mk := vegMemoKey(idx.node)
+	if mk != "" {
+		return fmt.Sprintf("#exportDir.%s", mk)
 	}
 	return fmt.Sprintf("#exportDir.%s", idx.cfg.Name)
 }
@@ -211,6 +219,10 @@ func (idx *exportImageFileIndex) Key() string {
 	if idx.cfg == nil {
 		return "#exportImageFile.nil"
 	}
+	mk := vegMemoKey(idx.node)
+	if mk != "" {
+		return fmt.Sprintf("#exportImageFile.%s", mk)
+	}
 	return fmt.Sprintf("#exportImageFile.%s", idx.cfg.Name)
 }
 
@@ -264,6 +276,10 @@ func (idx *exportImageIndex) Key() string {
 	if idx.cfg == nil {
 		return "#exportImage.nil"
 	}
+	mk := vegMemoKey(idx.node)
+	if mk != "" {
+		return fmt.Sprintf("#exportImage.%s", mk)
+	}
 	return fmt.Sprintf("#exportImage.%s", idx.cfg.Name)
 }
 
@@ -316,6 +332,10 @@ type publishImageIndex struct {
 func (idx *publishImageIndex) Key() string {
 	if idx.cfg == nil {
 		return "#publishImage.nil"
+	}
+	mk := vegMemoKey(idx.node)
+	if mk != "" {
+		return fmt.Sprintf("#publishImage.%s", mk)
 	}
 	return fmt.Sprintf("#publishImage.%s", idx.cfg.Name)
 }

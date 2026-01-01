@@ -74,9 +74,13 @@ type hashServiceIndex struct {
 
 func (idx *hashServiceIndex) Key() string {
 	if idx.cfg == nil {
-		return "service.nil"
+		return "#service.nil"
 	}
-	return fmt.Sprintf("service.%s", idx.cfg.Name)
+	mk := vegMemoKey(idx.node)
+	if mk != "" {
+		return fmt.Sprintf("#service.%s", mk)
+	}
+	return fmt.Sprintf("#service.%s", idx.cfg.Name)
 }
 
 func (d *Dag) hashService(step cue.Value) (*dagger.Service, *hashServiceConfig, error) {

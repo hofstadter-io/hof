@@ -22,11 +22,15 @@ type hashSecretIndex struct {
 	shh  *dagger.Secret
 }
 
-func (h *hashSecretIndex) Key() string {
-	if h.cfg == nil {
+func (idx *hashSecretIndex) Key() string {
+	if idx.cfg == nil {
 		return "#secret.nil"
 	}
-	return fmt.Sprintf("#secret.%s", h.cfg.Name)
+	mk := vegMemoKey(idx.node)
+	if mk != "" {
+		return fmt.Sprintf("#exportFile.%s", mk)
+	}
+	return fmt.Sprintf("#secret.%s", idx.cfg.Name)
 }
 
 func (d *Dag) hashSecret(step cue.Value) (*dagger.Secret, error) {

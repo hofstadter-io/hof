@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"dagger.io/dagger"
+	"github.com/hofstadter-io/hof/lib/env"
 )
 
 type Dag struct {
@@ -47,4 +48,19 @@ func newCatalog() catalog {
 
 type Keyer interface {
 	Key() string
+}
+
+// preferences #hof: metadata: [memo|id|name]
+func vegMemoKey(e *env.Env) string {
+	meta := e.Hof.Metadata
+	if meta.Memo != "" {
+		return meta.Memo
+	}
+	if meta.ID != "" {
+		return meta.ID
+	}
+	if meta.Name != "" {
+		return meta.Name
+	}
+	return ""
 }

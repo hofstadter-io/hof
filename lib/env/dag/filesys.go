@@ -30,6 +30,10 @@ func (idx *hashFileIndex) Key() string {
 	if idx.cfg == nil {
 		return "#file.nil"
 	}
+	mk := vegMemoKey(idx.node)
+	if mk != "" {
+		return fmt.Sprintf("#file.%s", mk)
+	}
 	return fmt.Sprintf("#file.%s", idx.cfg.Path)
 }
 
@@ -54,7 +58,7 @@ func (d *Dag) hashFile(step cue.Value) (*dagger.File, string, error) {
 	}
 
 	var (
-		f *dagger.File
+		f   *dagger.File
 		dir *dagger.Directory
 		ctr *dagger.Container
 	)
@@ -110,7 +114,7 @@ func (d *Dag) hashFile(step cue.Value) (*dagger.File, string, error) {
 		f = ctr.File(cfg.Path)
 
 	default:
-		return nil, "", fmt.Errorf("hashFile.source: unsupported $kind %q in", sks, step)
+		return nil, "", fmt.Errorf("hashFile.source: unsupported $kind %q in %v", sks, step)
 	}
 
 	if f == nil {
@@ -149,6 +153,10 @@ type hashDirIndex struct {
 func (idx *hashDirIndex) Key() string {
 	if idx.cfg == nil {
 		return "#dir.nil"
+	}
+	mk := vegMemoKey(idx.node)
+	if mk != "" {
+		return fmt.Sprintf("#dir.%s", mk)
 	}
 	return fmt.Sprintf("#dir.%s", idx.cfg.Path)
 }
@@ -312,7 +320,7 @@ func (d *Dag) stepFileHandler(c *dagger.Container, step cue.Value) (*dagger.Cont
 		}
 
 	default:
-			return c, fmt.Errorf("unhandle incomplete cue kind %q in in struct file source: %v", ik, step)
+		return c, fmt.Errorf("unhandle incomplete cue kind %q in in struct file source: %v", ik, step)
 	}
 
 	if err != nil {
@@ -390,12 +398,12 @@ func (d *Dag) stepDirHandler(c *dagger.Container, step cue.Value) (*dagger.Conta
 			}
 			dir = ctr.Directory(cfg.Path)
 
-		// case "#dockerBuild":
-		// 	ctr, err := d.HashDockerBuild(cfg.Source)
-		// 	if err != nil {
-		// 		return nil, err
-		// 	}
-		// 	dir = ctr.Directory(cfg.Path)
+		case "#dockerBuild":
+			ctr, err := d.HashDockerBuild(cfg.Source)
+			if err != nil {
+				return nil, err
+			}
+			dir = ctr.Directory(cfg.Path)
 
 		default:
 			return c, fmt.Errorf("unsupported $kind in stepDir source: %v", step)

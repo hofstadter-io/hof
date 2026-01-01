@@ -8,7 +8,8 @@ import (
 
 _flags: {
 	// eventually this will go at the root of the repo and just be "."
-	local: string | *"/Users/tony/adk/go"               @tag(local)
+	local: string | *"/Users/tony/hof/adk"               @tag(local)
+	fork:  string | *"https://github.com/verdverm/adk-go" @tag(fork)
 	repo:  string | *"https://github.com/google/adk-go" @tag(repo)
 
 	// are we using source from local or git

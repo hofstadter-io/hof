@@ -20,11 +20,15 @@ type hashCacheIndex struct {
 	vol  *dagger.CacheVolume
 }
 
-func (h *hashCacheIndex) Key() string {
-	if h.cfg == nil {
+func (idx *hashCacheIndex) Key() string {
+	if idx.cfg == nil {
 		return "#cache.nil"
 	}
-	return fmt.Sprintf("#cache.%s", h.cfg.Name)
+	mk := vegMemoKey(idx.node)
+	if mk != "" {
+		return fmt.Sprintf("#cache.%s", mk)
+	}
+	return fmt.Sprintf("#cache.%s", idx.cfg.Name)
 }
 
 func (d *Dag) hashCache(step cue.Value) (*dagger.CacheVolume, error) {
