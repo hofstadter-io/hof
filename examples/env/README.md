@@ -103,16 +103,16 @@ cd k8s && \
 
 - `lib/env/...`
 
-### The `hof/env` command
+### The `veg/env` command
 
-The `hof/env` command aims to be flexible, extensible, and consistent
+The `veg/env` command aims to be flexible, extensible, and consistent
 
 - All take the same flags and select / filter the same way
 
 
-Format: `hof env [cmd] [flags] [args] % [cue entrypoints]`
+Format: `veg env [cmd] [flags] [args] % [cue entrypoints]`
 
-- `cmd` is the builtin or custom command to run. Use `cmd/task` to subselect. Both are regexp.
+- `cmd` is a built-in or custom command to run. Use `cmd/task` to subselect. Both are regexp.
 - `flags` there are two group, 
   - `-K/--kind` and `-P/--path` combine with `[args] to select targets. (todo, incorp label system)
   - `--no-cache`, `--no-exit`, `
@@ -122,14 +122,16 @@ Format: `hof env [cmd] [flags] [args] % [cue entrypoints]`
 
 Guidance on starting out with the commands
 
-
-- tries to be context aware
+- `veg/env` tries to be context aware
   - knows the project or subdirectory you are in
   - knows the object type when handling args (veg-dist as example)
+- the commands use the same flags and filtering
+  - start with list, then run and a workful command
+  - start with build or export before publish
+- use `env.Terminal` or `-F/-N` to go interactive
 
-
-`hof env` without any subcommands will run your commands
-
+> [!NOTE]
+> `veg env` without any subcommands will run your custom commands
 
 #### Help Text
 
@@ -163,7 +165,7 @@ Flags:
 ## Steps and #Stuff
 
 Keep [schema/env](../../schemas/veg)
-and [lib/env/common]()(../../lib/env/common)
+and [lib/env/common](../../lib/env/common)
 handy for the details of the following.
 
 Generally speaking...

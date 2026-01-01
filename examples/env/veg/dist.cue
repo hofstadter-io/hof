@@ -25,12 +25,16 @@ dist: {
 		wipe: true
 	}
 
-	checksum: env.#File
-	sboms: env.#Dir
-
 	cuemod: env.#ExportDir & {
 		path: "dist/cuemod"
-		sources: [root.src.cuemod]
+		sources: [src.code]
+		include: [
+			"cue.mod",
+			"schemas",
+			"flow/tasks/**.cue",
+			"examples",
+			"lib/env/common",
+		]
 		wipe: true
 	}
 
@@ -44,11 +48,11 @@ dist: {
 		wipe:       true
 	}
 
-	// vscode: env.#ExportDir & {
-	//   path: "dist/vscode"
-	//   wipe: true
-	//   sources: []
-	// }
+	vscode: env.#ExportDir & {
+		path: "dist/vscode"
+		wipe: true
+		sources: []
+	}
 
 	images: {
 		[string]~(k,_): {

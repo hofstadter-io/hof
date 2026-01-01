@@ -3,8 +3,8 @@ package hack
 
 import (
 	"github.com/hofstadter-io/hof/examples/env/veg"
-	"github.com/hofstadter-io/hof/lib/env/common/bases/lang"
-	"github.com/hofstadter-io/hof/lib/env/common/steps/util"
+	"github.com/hofstadter-io/hof/lib/env/common/packs/lang"
+	"github.com/hofstadter-io/hof/lib/env/common/utils"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
@@ -20,7 +20,7 @@ hack: {
 		steps: [
 			// the code
 			env.Mount & {path: "/work", source: hack.src},
-			util.apt.install & {#pkgs: ["netcat-openbsd"]},
+			utils.apt.install & {#pkgs: ["netcat-openbsd"]},
 
 			// the lsps
 			env.BindService & {service: hack.gopls},
