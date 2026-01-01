@@ -1,6 +1,7 @@
 package tool
 
 import (
+	"github.com/hofstadter-io/hof/lib/env/common/bases"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
@@ -19,20 +20,42 @@ cloud: {
 			"""
 	}
 
-	awscli: env.Exec & {
-		args: ["sh", "-c", _script]
+	awscli: aws.fetch
 
-		_arch: "x86_64" | "aarch64"
+	aws: {
+		#arch: *"aarch64" | "x86_64"
+		fetch: env.Exec & {
+			args: ["sh", "-c", _script]
 
-		// https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
-		_script: """
-			set -eou pipefail
+			_arch: "x86_64" | "aarch64"
 
-			curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"
-			unzip awscliv2.zip
-			./aws/install
-			rm -rf awscliv2.zip ./aws
-			"""
+			// https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+			_script: """
+				set -eou pipefail
+
+				curl "https://awscli.amazonaws.com/awscli-exe-linux-\(#arch).zip" -o "awscliv2.zip"
+				unzip awscliv2.zip
+				./aws/install
+				rm -rf awscliv2.zip ./aws
+				"""
+		}
+		out: env.#Dir & {
+			sources: [
+				env.#Container & {
+					from: bases.debian
+					steps: [fetch]
+				}
+			]
+			include: [
+				"/usr/local/aws-cli",
+				"/usr/local/bin/aws",
+				"/usr/local/bin/aws_completer",
+			]
+		}
+		dir: env.Dir & {
+			source: out
+		}
+
 	}
 
 	azure: env.Exec & {

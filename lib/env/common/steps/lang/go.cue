@@ -41,7 +41,7 @@ go: {
 	}
 
 	default: defaultSteps
-	defaultSteps: [ // new way
+	defaultSteps: [// new way
 		envSets.default,
 		mounts.goBuild,
 		mounts.goMods,

@@ -9,10 +9,7 @@ import (
 apt: {
 	caches: {
 		varLib: env.#Cache & {
-			name: "/var/lib/apt/lists-debian-13"
-		}
-		varCache: env.#Cache & {
-			name: "/var/cache/apt-debian-13"
+			name: "debian-13-var-lib-cache"
 		}
 	}
 
@@ -20,10 +17,6 @@ apt: {
 		varLib: env.Mount & {
 			path:   "/var/lib/apt/lists"
 			source: apt.caches.varLib
-		}
-		varCache: env.Mount & {
-			path:   "/var/cache/apt/archives"
-			source: apt.caches.varCache
 		}
 	}
 
@@ -34,7 +27,7 @@ apt: {
 	}
 
 	// runs apt-get update, do this once early
-	update: env.Bash & { script: "apt-get update -y" }
+	update: env.Bash & {script: "apt-get update -y"}
 
 	// You should NEVER need this again!
 	// we use caches to do even better than either method

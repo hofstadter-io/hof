@@ -20,7 +20,7 @@ ctr: {
 			description: "minimal veg, eat your veggies!"
 		}
 		name: #hof.metadata.name
-		from: bases.debian
+		from: bases.debian.minimal
 		steps: [hof.cli]
 	}
 	dev: env.#Container & {
@@ -32,19 +32,14 @@ ctr: {
 		}
 		name: #hof.metadata.name
 
-		from: bases.debian
+		from: bases.debian.default
 
 		steps: [
-			// todo, put these with the tools that depend on them (if they are one)
-			util.apt.install & {#pkgs: [
-				// deps for go/node/python -> c/c++ situations (like CGO)
-				// "g++",
-				"gcc",
-				"libc6-dev",
-				// "netbase",
-				// "pkg-config",
-				// "sq",
-			]},
+			// customization
+			tool.zsh.customize,
+
+			// deps for go/node/python -> c/c++ situations (like CGO)
+			util.apt.install & {#pkgs: [ "gcc", "libc6-dev" ]},
 
 			// binary tools
 			hof.cli,
@@ -52,38 +47,15 @@ ctr: {
 
 			// setup languages
 			lang.go.default,
-			lang.cue.default,
+			// lang.cue.default,
 			lang.node.default,
 			lang.python.default,
 			lang.python.dev, // depends on node
 
+			// devops stuff
+
 			// tools for agents
 			tool.agents.lsp2mcp,
-		]
-	}
-
-	vegeta: env.#Container & {
-		@env()
-		#hof: metadata: {
-			id:          "vegeta"
-			name:        id
-			description: "all of the veggie dev, it's over 9000"
-		}
-		name: #hof.metadata.name
-
-		from: root.ctr.dev
-
-		steps: [
-			tool.k8s.kubectl,
-			tool.k8s.helm,
-			tool.k8s.crane,
-			tool.github.cli,
-			tool.cloud.gcloud,
-			tool.dagger.cli,
-			tool.docker.cli,
-			tool.hashicorp.terraform,
-			tool.hashicorp.packer,
-			util.apt.install & {#pkgs: ["ansible"]},
 		]
 	}
 
@@ -92,15 +64,14 @@ ctr: {
 		#hof: metadata: { id: "veg-\(k)", name: string | *id }
 		name: string | *#hof.metadata.name
 	}
-	// sugar image, override the name, keep id for caching
-	"ops": { name: "veg-ops", root.ctr["ops-lite"] }
 
 	// base ops container
-	"ops-lite": env.#Container & {
-		from: bases.debian
+	"ops": env.#Container & {
+		from: bases.debian.minimal
 		steps: [
 			hof.cli,
-			lang.cue.default,
+			tool.hashicorp.terraform,
+			tool.hashicorp.packer,
 			tool.k8s.kubectl,
 			tool.k8s.helm,
 			tool.k8s.crane,
@@ -108,29 +79,16 @@ ctr: {
 		]
 	}
 
-	// full ops container
-	"ops-full": env.#Container & {
-		from: root.ctr["ops-lite"]
-		steps: [
-			util.apt.install & {#pkgs: ["ansible"]},
-			tool.hashicorp.terraform,
-			tool.hashicorp.packer,
-			tool.dagger.cli,
-			tool.docker.cli,
-		]
-	}
-
 	// create branches from the ops bases for each cloud cli
 	for c, cli in _clis {
-		"ops-lite-\(c)": env.#Container & {@env(), from: root.ctr["ops-lite"], steps: [cli]}
-		"ops-full-\(c)": env.#Container & {@env(), from: root.ctr["ops-full"], steps: [cli]}
+		"ops-\(c)": env.#Container & {@env(), from: root.ctr.ops, steps: [cli]}
 	}
-	"ops-lite-all": env.#Container & {from: root.ctr["ops-lite"], steps: [for _, cli in _clis {cli}]}
-	"ops-full-all": env.#Container & {from: root.ctr["ops-full"], steps: [for _, cli in _clis {cli}]}
+	"ops-all": env.#Container & {from: root.ctr["ops"], steps: [for _, cli in _clis {cli}]}
 	_clis: {
 		gcp: tool.cloud.gcloud
 		aws: tool.cloud.awscli
 		az:  tool.cloud.azure
+		ansible: util.apt.install & {#pkgs: ["ansible"]}
 	}
 
 }

@@ -48,3 +48,21 @@ Flags:
 // snippets here
 
 ### GitOps Images
+
+
+
+
+## Other Notes
+
+Use docker format & filters to inspect images
+
+```sh
+# view list & sort
+docker image list --format "table {{.Repository}}:{{.Tag}}\t{{.Size}}" --filter "reference=veg-*" | grep -e '^veg' | sort -k2 -h
+
+# remove matching patterns
+docker rmi -f $(docker image list --format 'table {{.Repository}}:{{.Tag}}' | grep -e '^veg')
+
+# inspect layers
+dive veg-dev:local
+```
