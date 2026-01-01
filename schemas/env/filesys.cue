@@ -52,6 +52,17 @@ import (
 	patchFile?: #FileLike
 }
 
+Mount: Step & {
+	$kind: "mount"
+
+	path: string
+
+	// cache, dir, file, secret, temp, host, service (?)
+	// source: #Cache | #File | #HostFile | #Dir | #HostDir
+	source: _
+}
+
+
 // like dagger.WithFile
 File: Step & {
 	$kind: "file"

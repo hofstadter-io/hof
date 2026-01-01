@@ -1,22 +1,37 @@
 # hof/env
 
 `hof/env` is a CUE interface over Dagger.
-The result is a blend of Makefiles, Dockerfiles, and Docker Compose.
+The result is a blend of Makefiles, Ansible, Dockerfiles, and Docker Compose.
 
 It forms the foundation for:
 
-1. Shared fabrics across the life-cycle, both CUE and Dagger DAGs
+1. Shared fabrics across the software lifecycle, via CUE and Dagger DAGs
 1. OCI modules and imports in the front, OCI images and environments in the back
 1. Defining images/layers, services/deployments, and workflows/tasks
-1. Works the same everywhere, the same `hof env ...` commands built with the same containerized workflows.
+1. Works the same everywhere with dynamic tasks dependencies and advanced caching
+
+> [!NOTE]
+> A name change is approaching, `hof` -> `veg`, you will see hints of that now.
 
 ## Getting Started
+
+You need docker, nerdctl, or podman installed.
 
 <!-- ### Install with Homebrew
 
 ```sh
 brew install hofstadter-io/tap/hof
 ``` -->
+
+```sh
+hof env install/hof
+
+dagger ...
+
+docker copy ghcr.io
+
+curl github
+```
 
 ### Binaries from GitHub
 
@@ -25,11 +40,14 @@ brew install hofstadter-io/tap/hof
 | [linux / arm](https://github.com/hofstadter-io/hof/releases/download/v0.7.0/hof_v0.7.0_linux_arm64) | [mac / arm](https://github.com/hofstadter-io/hof/releases/download/v0.7.0/hof_v0.7.0_darwin_arm64) |
 | [linux / amd](https://github.com/hofstadter-io/hof/releases/download/v0.7.0/hof_v0.7.0_linux_amd64) | [mac / amd](https://github.com/hofstadter-io/hof/releases/download/v0.7.0/hof_v0.7.0_darwin_amd64) |
 
+
 ### Run an example
 
 ```sh
 # get the repo
 git clone https://github.com/hofstadte-io/hof && cd hof
+make registry.start # todo, hof should handle this like it does for formatters
+make dagger.start
 
 # pick an example
 cd examples/env/...
@@ -59,7 +77,6 @@ cd k8s && \
    hof env lgtm && \
    hof env helm && \
    hof env test
-
 ```
 
 ### Code Organization
@@ -86,9 +103,35 @@ cd k8s && \
 
 - `lib/env/...`
 
-### Help Text
+### The `hof/env` command
+
+The `hof/env` command aims to be flexible, extensible, and consistent
+
+- All take the same flags and select / filter the same way
+
+
+Format: `hof env [cmd] [flags] [args] % [cue entrypoints]`
+
+- `cmd` is the builtin or custom command to run. Use `cmd/task` to subselect. Both are regexp.
+- `flags` there are two group, 
+  - `-K/--kind` and `-P/--path` combine with `[args] to select targets. (todo, incorp label system)
+  - `--no-cache`, `--no-exit`, `
+- `args` are a regexp match on names
+  - each arg is processed sequentially and independently
+  - any args after a `%` are considered entrypoint paths to the underlying CUE evaluator
+
+Guidance on starting out with the commands
+
+
+- tries to be context aware
+  - knows the project or subdirectory you are in
+  - knows the object type when handling args (veg-dist as example)
+
 
 `hof env` without any subcommands will run your commands
+
+
+#### Help Text
 
 ```
 build, run, ship, and deploy environments (image, service, stack)
@@ -119,55 +162,383 @@ Flags:
 
 ## Steps and #Stuff
 
-Keep `schema/env` and `lib/env/common` handy to see the details of each of these
+Keep [schema/env](../../schemas/veg)
+and [lib/env/common]()(../../lib/env/common)
+handy for the details of the following.
 
-- `env.Step` maps onto `With<Step>`
-- `env.#Stuff` maps onto resources, artifacts, and Dagger types
+Generally speaking...
+
+- There are several groups or classes of statements, all prefixed by the `schemas/env.*` package identifier.
+    - `env.Step` maps onto `With<Step>` and `Without<Step>` and can appear in `#Container: steps: [...]`
+    - `env.#Stuff` maps onto resources, artifacts, and Dagger types. They are inputs, intermediates, outputs, or runnable.
+    - `env.$Func` maps from one resource to one of the same or another, some `env.#Stuff` do some of these naturally too.
+- It's a one way trip from CUE -> Dagger, you cannot for instance, use a directory listing or http response in CUE
+    - `hof/flow` exists for this use case and some merging is on the roadmap.
+    - The key requirement to maintain distinct operation modes, hermetic and yolo, with control over where, when, and how.
+
+> [!WARNING]
+> We have swapped the semantics to `Token` | `#Token` from `WithToken()` and `Token()` with Dagger.
+> 1. veg: `Dir` ~ dag: `WithDir()`
+> 2. veg: `#Dir` ~ dag: `Dir()`
 
 ### Steps:
 
 ```
+Dir               add a directory
+File              add a file
+EnvVar            add a single env var
+SecretVar         add a single secret
+EnvFile           add an env var file
+SecretFile        add a secret var file
+
+Temp              a temp volume for the next exex
+Mount             mount a cache, file, directory, secret
+BindService       bind another service to the container  (hint, dep graph)
+Expose            mark a port for servin
+
+Sync              force evaluation of the dagger graph
+Exec              run any command as a container layer
+Sh, Bash, Zsh     exec wrappers with a 'script' param
+User              set the current user
+Workdir           set the current workdir
+
+
+Entrypoint        set container entrypoint
+DefaultArgs       set container default args
+DefaultTerm       set the terminal dagger uses when needed
+
+!!!
+Terminal          drop into a terminal at any or many point(s), directory or container
+!!!               (this is one of the coolest dagger features)
+
+More to come...
+
+- Chown
+- $Filter (#Dir->#Dir)
+- $Diff (#Dir-#Dir->#Dir)
+- Patch & #Patch
+- Diff & #Diff, Changes & #Changeset
+- ?Merge (not overwrite, doesn't exist yet)
+
+Vscode            (we'll add a Step to open in vscode, or make something that does both, configurablely)
+
+Without...
+  -- both #Dir and #Container
+  Dir
+  File
+  Files
+  -- #Containers only
+  EnvVar
+  SecretVar
 
 ```
 
 ### #Stuff:
 
+These are artifacts, intermediates, or resources you can work with
+
 ```
-#Container        can be run or published
-#Service          can be up'd or attached
+#DockerBuild      what you would expect
+#Container        this is the (dagger) way
+#Service          configure a container for running exposed
 
-#File
-#Dir
-#Secret
+#Dir              a dir that can be used in CUE
+#File             a file that can be used in CUE
+#Secret           a secret that will be elided from output
+#Cache            a named volume in memory, persists sessions
 
+#Cmd              a custom command with named subtasks
+#Task             a task is a list of runnables and is runnable itself
+
+#DirToGit         git from a dir
 #GitRepo          from a uri
-#HostFile         from a path
 #HostDir          from a path
-#HostImage        from local engine
+#HostFile         from a path
 #HostImageFile    from a tarball
+#HostImage        from local engine
+#HostService      expose host to dagger
+#HostTunnel       expose dagger to host
+#HostSocket       from a path
 
-#ExportFile       to host path
 #ExportDir        to host path
-#ExportImage      to local engine
+#ExportFile       to host path
 #ExportImageFile  to a tarball
+#ExportImage      to local engine
 #PublishImage     to a registry
+
+# many data formats available
+- #ExportCuefig     returns a #File for the CUE representation any #Thing
+- #ExportDagger     returns a #File for the Dagger representation any #Thing
 ```
 
 ## Examples
 
 ### Build and Run a Container
 
-### Multi-Stage Builds, DAG style
+`hof env ...`
+
+```cue
+dev: env.#Container & {
+  @env(), @id(veg-dev)
+  #hof: metadata: {
+    id:          "veg-dev"
+    name:        id
+    description: "setup needed to work on veg"
+  }
+  name: #hof.metadata.name
+
+  // start from our default debian
+  from: bases.debian.default
+
+  steps: [
+    // customization
+    tool.zsh.customize,
+
+    // daily drivers
+    hof.cli,
+    tool.github.cli,
+
+    // deps for go/node/python -> c/c++ situations (like CGO)
+    utils.apt.install & {#pkgs: ["gcc", "libc6-dev"]},
+
+    // setup languages
+    lang.go.default,
+    lang.cue.default,
+    lang.node.default,
+    lang.python.default,
+    lang.python.dev, // depends on node
+
+    // devops stuff
+    tool.hashicorp.terraform,
+    tool.hashicorp.packer,
+    tool.k8s.kubectl,
+    tool.k8s.helm,
+    tool.k8s.crane,
+
+    // tools just for agents
+    tool.agents.lsp2mcp,
+
+    // launch a terminal to check on things, continue when done
+    // env.Terminal,
+
+    // bind lsp servers, started on demand
+    env.BindService & {service: lang.go.lsp},
+    env.BindService & {service: lang.cue.lsp},
+    env.BindService & {service: lang.node.lsp},
+    env.BindService & {service: lang.python.lsp},
+
+  ]
+}
+```
+
+### Multi-Stage Builds and Beyond, DAG style
+
+- multi-stage
+- no need for yum rm
+- how binaries and dirs work
+
+
+That long-time advice to install packages like this: `apt update && apt install && apt clean`... it's over!
+We can now attach caches, just like we do for languages like `go.mod` and `node_modules`,
+to save context and time while keeping images clean and slim.
+
+`hof env ...`
+
+```cue
+apt: {
+	caches: {
+		varLib: env.#Cache & {
+			name: "debian-13-var-lib-cache"
+		}
+	}
+
+	mounts: {
+		varLib: env.Mount & {
+			path:   "/var/lib/apt/lists"
+			source: apt.caches.varLib
+		}
+	}
+
+	// generalized apt package install
+	install: env.Bash & {
+		#pkgs: [...string]
+		script: "apt-get install -y --no-install-recommends \(strings.Join(#pkgs, " "))"
+	}
+
+	// runs apt-get update, do this once early
+	update: env.Bash & {script: "apt-get update -y"}
+
+	// You should NEVER need this again!
+	// we use caches to do even better than either method
+	// 1. same size savings as ( [update -> install -> clean] )
+	// 2. save time with cache ( update -> [install] ... magic)
+	// anyway, it cleans apt stuff
+	clean: env.Bash & {
+		script: """
+			apt-get dist-clean
+			rm -rf /var/lib/apt/lists/*
+			"""
+	}
+}
+```
+
+You can then create a minimal base image with this mounted.
+Every step afterwards will use this mount while in Dagger
+and exported when exported they are not included.
+
+`hof env ...`
+
+
+```cue
+	minimal: env.#Container & {
+		@id(debian-13-minimal)
+		#hof: metadata: description: "A minimal debian13 image with updates and certs"
+
+		from: "debian:13-slim"
+
+		steps: [
+			// default workdir (for wide default consistency)
+			env.Workdir & {path: "/work"},
+
+      // staying clean caches
+			env.Mount & {path: "/var/log", source: env.#Cache & {name: "debian-13-var-log"}},
+			env.Mount & {path: "/var/cache", source: env.#Cache & {name: "debian-13-var-cache"}},
+
+			// Shared, persistent Apt caches, for all derived images too
+			// ...instead of cleaning and refetching all the time? (we like pain in devops #yamhell)
+			utils.apt.mounts.varLib,
+
+			// Update once at the beginning
+			utils.apt.update,
+
+			// just certs
+			utils.apt.install & {#pkgs: ["ca-certificates"]}, // shouldn't need wget/curl, we can do that at this level
+		]
+	}
+```
 
 ### Building with an existing Dockerfile
 
-[atproto]
+You can still build using your existing Dockerfiles.
+It's also easy to patch source code or use the resulting image anywhere `hov/env`.
 
-(you can patch too)
+`hof env ...`
+
+
+```cue
+// All your code belong to us
+repos: {
+  blebbit: env.#GitRepo & {url: "https://github.com/blebbit/atproto"}
+  atproto: env.#GitRepo & {url: "https://github.com/bluesky-social/atproto"}
+  didplc: env.#GitRepo & {url: "https://github.com/did-method-plc/did-method-plc"}
+  indigo: env.#GitRepo & {url: "https://github.com/bluesky-social/indigo"}
+  jetstream: env.#GitRepo & {url: "https://github.com/bluesky-social/jetstream"}
+}
+// Permissioned PDS
+ppds: {
+  code: env.#Dir & {sources: [repos.blebbit]}
+  ctr: env.#DockerBuild & {source: code, dockerfile: "services/pds/Dockerfile"}
+}
+// Official PDS
+pds: {
+  code: env.#Dir & {sources: [repos.atproto]}
+  ctr: env.#DockerBuild & {source: code, dockerfile: "services/pds/Dockerfile"}
+}
+// Official PLC (with a patch for CNPG friendly db conn strings)
+plc: {
+  code: env.#Dir & {sources: [repos.didplc]}
+  // patch
+  fixd: env.#Dir & {sources: [repos.didplc], patch: patches.plc}
+  ctr: env.#DockerBuild & {source: fixd, dockerfile: "packages/server/Dockerfile"}
+}
+// Official Relay (with a patch to remove git info in go build)
+relay: {
+  code: env.#Dir & {sources: [repos.indigo]}
+  // patch
+  fixd: env.#Dir & {sources: [repos.indigo], patch: patches.relay}
+  ctr: env.#DockerBuild & {source: fixd, dockerfile: "cmd/relay/Dockerfile"}
+}
+// Official Jetstream
+jetstream: {
+  code: env.#Dir & {sources: [repos.jetstream]}
+  ctr: env.#DockerBuild & {source: code}
+}
+```
 
 ### Commands in an Environment
 
-[adk]
+`hof env ...`
+
+```cue
+cmd: {
+	// unify in `@env()` and `name` two levels deep
+	// with [patternMatching]~(keyAlias,_valAlias): { name: keyAlias }
+	[string]~(k1,_): env.#Cmd & {
+		@env(), name: k1
+		tasks: [string]~(k2,_): {
+			@env(), name: k2
+			steps: [...[...{name: "\(k1).\(k2)"}]]
+		}
+	}
+
+	test: tasks: {
+		go: steps: [[_tester & {#cmd: "go test ./..."}]]
+		// parallel tests
+		goUltra: steps: [[
+			_tester & {#cmd: "go vet ./..."},
+			_tester & {#cmd: "go test -race ./..."},
+			_tester & {#cmd: "go test -cover ./..."},
+		]]
+		// sequential tests
+		// vet: {steps: [[_tester & {#cmd: "go vet ./..."}]]}
+		// race: {steps: [[_tester & {#cmd: "go test -race ./..."}]]}
+		// cover: {steps: [[_tester & {#cmd: "go test -cover ./..."}]]}
+	}
+	lint: tasks: {
+		// want something like: gofmt -l . | wc -l | grep -e '^0$'
+		fmt: steps: [[_tester & {#cmd: #"gofmt -l . || true"#}]]
+		staticcheck: steps: [[_tester & {#cmd: "staticcheck ./... || true"}]]
+		golangci: steps: [[_tester & {#cmd: "golangci-lint run || true"}]]
+		spelling: _
+	}
+
+	scan: tasks: {
+		sonar: {}
+		vuln: {}
+	}
+
+	review: tasks: {
+		agent: {
+			... code changes,
+			docs / agents.md need updating,
+			stage & apply suggested changes,
+		}
+	}
+
+	ci: tasks: {
+		default: steps: [test, lint, scan]
+		onPush:  steps: [test, lint]
+		prPush:  default
+
+		prepare: [...]
+		release: [ci.default, prepare]
+		onTag:   [release]
+	}
+}
+
+```
+
+
+### Release Bundles
+
+You can define release bundles and then assemble and publish them with a single command.
+
+`hof env ...`
+
+```
+
+```
+
 
 ### Agent or Dev Environments with Tools
 
@@ -177,7 +548,46 @@ Keep `schema/env` and `lib/env/common` handy to see the details of each of these
 
 ### Webhooks and Server Mode
 
-### GitOps Images
+## Patterns
+
+todo:
+
+- working with files and directories
+- the art of "container" composition (beyond multi-stage)
+- insert `env.Terminal` to debug, use flags too
+
+### custom steps with a single line
+
+```sh
+// https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-linux?view=azure-cli-latest&pivots=apt
+azureCli: env.Bash & { _script: "curl -sL https://aka.ms/InstallAzureCLIDeb | bash" }
+
+image: {
+  from: base.image
+  steps: [
+    azureCli,
+    ...
+  ]
+}
+```
+
+### bring your dotfiles and customization to any image
+
+
+### Flags, Configs, and Defaults
+
+- using flags to override
+- using data to override
+- parameterize large swaths, show the propagation
+
+
+### Matrix Comprehension
+
+CUE has list and struct comprehension we can use to
+
+- github like matrix [os,lang,version] CI
+- multi-arch images and binaries
+- container families and parameterization
 
 Create a base image and family of specializations. Need to ship gitops containers to customers across clouds? Add an extra matrix dimension with another for loop.
 `hof env build` will create them all without any arguments or use flags and args to parameterize, filter, and select a set of `#Things` to `hof env <op>`erate on or against.
@@ -211,29 +621,6 @@ _clis: {
   az:  tool.cloud.azure
 }
 ```
-
-## Patterns
-
-### custom steps with a single line
-
-```sh
-// https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-linux?view=azure-cli-latest&pivots=apt
-azureCli: env.Bash & { _script: "curl -sL https://aka.ms/InstallAzureCLIDeb | bash" }
-
-image: {
-  from: base.image
-  steps: [
-    azureCli,
-    ...
-  ]
-}
-```
-
-### Flags, Configs, and Defaults
-
-- using flags to override
-- using data to override
-- parameterize large swaths, show the propagation
 
 ## Notes
 

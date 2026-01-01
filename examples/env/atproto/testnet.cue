@@ -195,12 +195,26 @@ builds: {
 		ctr: env.#DockerBuild & {source: code, dockerfile: "services/pds/Dockerfile"}
 	}
 	plc: {
-		// source
 		code: env.#Dir & {sources: [repos.didplc]}
+		// patch
 		fixd: env.#Dir & {sources: [repos.didplc], patch: patches.plc}
-		// images
 		ctr: env.#DockerBuild & {source: fixd, dockerfile: "packages/server/Dockerfile"}
-		dev: env.#Container & {
+	}
+	relay: {
+		code: env.#Dir & {sources: [repos.indigo]}
+		// patch
+		fixd: env.#Dir & {sources: [repos.indigo], patch: patches.relay}
+		ctr: env.#DockerBuild & {source: fixd, dockerfile: "cmd/relay/Dockerfile"}
+	}
+	jetstream: {
+		code: env.#Dir & {sources: [repos.jetstream]}
+		ctr: env.#DockerBuild & {source: code}
+	}
+
+	hack: {
+		#ctr: env.#Container
+		// images
+		dev: #env.#Container & {
 			from: ctr
 			steps: [
 				env.User & {name: "root"},
@@ -211,31 +225,5 @@ builds: {
 				env.DefaultTerm & {args: ["sh"]},
 			]
 		}
-
-		// example of adhoc work to figure out and apply a patch
-		origCtr: env.#DockerBuild & {source: code, dockerfile: "packages/server/Dockerfile"}
-		origDev: env.#Container & {
-			from: origCtr
-			steps: [
-				env.User & {name: "root"},
-				env.Workdir & {path: "/app"},
-				env.Exec & {args: ["apk", "add", "--update", "patch", "git"]},
-				env.File & {path: "/app/plc.diff", content: patches.plc},
-				env.Envfile & {file: testnet.plc.config},
-				env.BindService & {service: testnet.plc.postgres},
-				env.Entrypoint & {args: ["sh"]},
-				env.DefaultTerm & {args: ["sh"]},
-			]
-		}
 	}
-	relay: {
-		code: env.#Dir & {sources: [repos.indigo]}
-		fixd: env.#Dir & {sources: [repos.indigo], patch: patches.relay}
-		ctr: env.#DockerBuild & {source: fixd, dockerfile: "cmd/relay/Dockerfile"}
-	}
-	jetstream: {
-		code: env.#Dir & {sources: [repos.jetstream]}
-		ctr: env.#DockerBuild & {source: code}
-	}
-
 }

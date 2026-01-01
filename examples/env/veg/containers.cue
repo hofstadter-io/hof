@@ -53,6 +53,18 @@ ctr: {
 			lang.python.dev, // depends on node
 
 			// devops stuff
+			tool.hashicorp.terraform,
+			tool.hashicorp.packer,
+			tool.k8s.kubectl,
+			tool.k8s.helm,
+			tool.k8s.crane,
+			tool.github.cli,
+
+			// // bind lsp servers, started on demand
+			// env.BindService & {service: lang.go.lsp},
+			// env.BindService & {service: lang.cue.lsp},
+			// env.BindService & {service: lang.node.lsp},
+			// env.BindService & {service: lang.python.lsp},
 
 			// tools for agents
 			tool.agents.lsp2mcp,

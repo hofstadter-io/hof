@@ -4,6 +4,17 @@ import (
 	"github.com/hofstadter-io/hof/schemas"
 )
 
+// Step in #container: [...Step]
+Step: {
+	$kind: string
+}
+
+// #Things...
+Ref: {
+	$kind: string
+	id?:   string
+}
+
 #ImageLike: #Container | #HostImage | #DockerBuild
 #DirLike:   #Dir | #HostDir | #GitRepo
 

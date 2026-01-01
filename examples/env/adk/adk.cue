@@ -77,11 +77,20 @@ cmd: {
 		fmt: steps: [[_tester & {#cmd: #"gofmt -l . || true"#}]]
 		staticcheck: steps: [[_tester & {#cmd: "staticcheck ./... || true"}]]
 		golangci: steps: [[_tester & {#cmd: "golangci-lint run || true"}]]
+		spelling: _
 	}
 
 	scan: tasks: {
 		sonar: {}
 		vuln: {}
+	}
+
+	review: tasks: {
+		agent: {
+			... code changes,
+			docs / agents.md need updating,
+			stage & apply suggested changes,
+		}
 	}
 
 	ci: tasks: {

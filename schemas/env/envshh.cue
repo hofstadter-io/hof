@@ -4,6 +4,18 @@ import (
 	"github.com/hofstadter-io/hof/schemas"
 )
 
+Env: EnvVar
+EnvVar: Step & {
+	$kind:    "envVar"
+	[string]: string
+}
+
+EnvVars: Step & {
+	$kind: "envVars"
+
+	file: #File | #HostFile
+}
+
 // sets a secret in the system
 #Secret: Step & {
 	schemas.Hof
@@ -21,8 +33,9 @@ import (
 	source: _
 }
 
-Secret: Step & {
-	$kind: "secret"
+Secret: SecretVar
+SecretVar: Step & {
+	$kind: "secretVar"
 
 	// the secret VAR_NAME
 	name: string
@@ -33,8 +46,8 @@ Secret: Step & {
 
 // treat secret content is an env file
 // exposing each line as secret vars
-Secretvars: Step & {
-	$kind: "secretvars"
+SecretVars: Step & {
+	$kind: "secretVars"
 
 	source: #Secret
 }

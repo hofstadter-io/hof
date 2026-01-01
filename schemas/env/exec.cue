@@ -6,6 +6,8 @@ Exec: Step & {
 	$kind: "exec"
 	args: [...string]
 
+	// todo, set workdir for this exec
+
 	useEntrypoint?:  bool
 	stdin?:          string
 	redirectStdin?:  string
@@ -55,6 +57,10 @@ Zsh: Exec & {
 // just increasingly eval the value as much as we can?
 // figure out what still needs to happen in Dagger, then do that
 // this got more abstract than just Exec, applies to files/dir as well
+
+Sync: Step & {
+	$kind: "sync"
+}
 
 User: Step & {
 	$kind: "user"

@@ -15,6 +15,19 @@ dist: {
 		name: string | *#hof.metadata.name
 	}
 
+	meta: env.#ExportDir & {
+		path: "dist/meta"
+		sources: [
+			root.src.changelog,
+			bins.checksum,
+			dist.sboms,
+		]
+		wipe: true
+	}
+
+	checksum: env.#File
+	sboms: env.#Dir
+
 	cuemod: env.#ExportDir & {
 		path: "dist/cuemod"
 		sources: [root.src.cuemod]
