@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/env/cmd"
 )
 
-var runLong = `run an interactive environment`
+var runLong = `run target point in an environment`
 
 func init() {
 
@@ -33,7 +33,7 @@ var RunCmd = &cobra.Command{
 
 	Use: "run <target> [% [...cue]]",
 
-	Short: "run an interactive environment",
+	Short: "run target point in an environment",
 
 	Long: runLong,
 

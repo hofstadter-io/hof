@@ -9,7 +9,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var upLong = `starts an environment`
+var upLong = `starts target points in an environment, this is very similar to docker-compose or helm locally`
 
 func UpRun(args []string) (err error) {
 
@@ -23,7 +23,7 @@ var UpCmd = &cobra.Command{
 
 	Use: "up [...target] [% ...cue]",
 
-	Short: "starts an environment",
+	Short: "starts target points in an environment",
 
 	Long: upLong,
 

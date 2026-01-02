@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/env/cmd"
 )
 
-var listLong = `list environments`
+var listLong = `list points in an environment`
 
 func ListRun(args []string) (err error) {
 
@@ -27,7 +27,7 @@ var ListCmd = &cobra.Command{
 
 	Use: "list [...target] [% ...cue]",
 
-	Short: "list environments",
+	Short: "list points in an environment",
 
 	Long: listLong,
 

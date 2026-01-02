@@ -17,7 +17,7 @@ var Env__ExportFlags Env__ExportFlagpole
 func SetupEnv__ExportFlags(fset *pflag.FlagSet, fpole *Env__ExportFlagpole) {
 	// flags
 
-	fset.StringArrayVarP(&(fpole.Tag), "tag", "T", nil, "tags to give to the environment, can be set multiple times")
+	fset.StringArrayVarP(&(fpole.Tag), "tag", "T", []string{"local"}, "tags to give to the environment, can be set multiple times")
 }
 
 func init() {

@@ -16,7 +16,47 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var envLong = `build, run, ship, and deploy environments (image, service, stack)`
+var envLong = `build, run, ship, and deploy environments (image, service, stack)
+
+'veg env' looks for custom commands and treats them equally to builtin commands.
+All commands have well known behaviors, depending on the $kind of a target.
+'veg env list' and 'hof env sync' work with all '$kind's.
+Most commands only work with a subset that makes sense or is explicit.
+See their help text to learn more.
+
+## Examples
+
+# [...targets], or "points", are selected via args and flags
+# list allows you to explore that space without syncing or triggering evaluation
+veg env list|info ['^name$'] [-K '^kind$'] [-P '^path$'] [-S name|kind|path]
+
+# sync, evaluates the DAGs, but doesn't export or make external alterations
+# it can act as "real dry run" compared to the --dry-run flag for other commands
+veg env sync [...targets] [...flags]
+
+# run, creates an interactive session and binds and dependent services
+# this is closest to docker run or kubectl exec
+veg env run [...target] [...flags]
+
+# run, launches an services or stacks, similar to compose and helm
+veg env up [...target] [...flags]
+
+# export artifacts, local or remote, object storage and registries
+veg env export -P release -T v0.4.3 -t dest=./release
+
+# make your own commands and flags, designed for your workflows
+# this is closest to Makefiles or package.json scripts
+# define similar commands with the power of CUE and Dagger
+veg env [init, test, lint, ci, publish, deploy, ...]
+veg env ... -t env=stg -t stack=app -t branch=main
+
+## Important References
+
+./schemas/env    # the CUE schemas for what you can do in veg/env
+./examples/env   # simple to complex examples to play and fork
+./catalogs/env   # reusable CUE for all sorts of things
+
+`
 
 func init() {
 
@@ -36,7 +76,7 @@ func EnvRun(args []string) (err error) {
 
 var EnvCmd = &cobra.Command{
 
-	Use: "env [args]",
+	Use: "env [...target] [% ...cue]",
 
 	Short: "build, run, ship, and deploy environments (image, service, stack)",
 
@@ -98,12 +138,11 @@ func init() {
 	EnvCmd.SetHelpFunc(thelp)
 	EnvCmd.SetUsageFunc(tusage)
 
-	EnvCmd.AddCommand(cmdenv.BuildCmd)
+	EnvCmd.AddCommand(cmdenv.SyncCmd)
 	EnvCmd.AddCommand(cmdenv.ExportCmd)
-	EnvCmd.AddCommand(cmdenv.GetCmd)
+	EnvCmd.AddCommand(cmdenv.InfoCmd)
 	EnvCmd.AddCommand(cmdenv.ListCmd)
 	EnvCmd.AddCommand(cmdenv.RunCmd)
 	EnvCmd.AddCommand(cmdenv.UpCmd)
-	EnvCmd.AddCommand(cmdenv.PublishCmd)
 
 }

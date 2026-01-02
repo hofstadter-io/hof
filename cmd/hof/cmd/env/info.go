@@ -6,37 +6,26 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/hofstadter-io/hof/cmd/hof/flags"
-	"github.com/hofstadter-io/hof/lib/env/cmd"
-
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var publishLong = `publish an environment`
+var infoLong = `get details for target points in an environments`
 
-func init() {
-
-	flags.SetupEnv__PublishFlags(PublishCmd.Flags(), &(flags.Env__PublishFlags))
-
-}
-
-func PublishRun(args []string) (err error) {
-
-	return cmd.Publish(args, flags.RootPflags, flags.EnvPflags, flags.Env__PublishFlags)
+func InfoRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	// fmt.Println("not implemented")
+	fmt.Println("not implemented")
 
-	// return err
+	return err
 }
 
-var PublishCmd = &cobra.Command{
+var InfoCmd = &cobra.Command{
 
-	Use: "publish [...target] [% ...cue]",
+	Use: "info [...target] [% ...cue]",
 
-	Short: "publish an environment",
+	Short: "get details for target points in an environments",
 
-	Long: publishLong,
+	Long: infoLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
 
@@ -46,7 +35,7 @@ var PublishCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		err = PublishRun(args)
+		err = InfoRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -60,8 +49,8 @@ func init() {
 		return false
 	}
 
-	ohelp := PublishCmd.HelpFunc()
-	ousage := PublishCmd.UsageFunc()
+	ohelp := InfoCmd.HelpFunc()
+	ousage := InfoCmd.UsageFunc()
 
 	help := func(cmd *cobra.Command, args []string) {
 
@@ -85,7 +74,7 @@ func init() {
 	tusage := func(cmd *cobra.Command) error {
 		return usage(cmd)
 	}
-	PublishCmd.SetHelpFunc(thelp)
-	PublishCmd.SetUsageFunc(tusage)
+	InfoCmd.SetHelpFunc(thelp)
+	InfoCmd.SetUsageFunc(tusage)
 
 }

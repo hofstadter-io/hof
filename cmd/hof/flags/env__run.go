@@ -17,7 +17,7 @@ var Env__RunFlags Env__RunFlagpole
 func SetupEnv__RunFlags(fset *pflag.FlagSet, fpole *Env__RunFlagpole) {
 	// flags
 
-	fset.StringVarP(&(fpole.Command), "cmd", "c", "", "the command to run")
+	fset.StringVarP(&(fpole.Command), "cmd", "c", "", "the command to run, if none by default or to override")
 }
 
 func init() {

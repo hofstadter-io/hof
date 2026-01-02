@@ -11,7 +11,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var exportLong = `export an environment into local container runtime`
+var exportLong = `export target points from an environment to outside world, for each point .. for each tag`
 
 func init() {
 
@@ -31,7 +31,7 @@ var ExportCmd = &cobra.Command{
 
 	Use: "export [...target] [% ...cue]",
 
-	Short: "export an environment into local container runtime",
+	Short: "export target points from an environment to outside world",
 
 	Long: exportLong,
 

@@ -114,11 +114,14 @@ cd examples/env/...
 hof env list
 hof env list ['^name$'] [-K '^kind$'] [-P '^path$'] [-S name|kind|path]
 
-# you can just do things!
-hof env [init, run, build, export, publish, up]
+# sync, evaluates the DAGs, but doesn't server, export, or make external alterations
+hof env sync [...targets] [...flags]
 
-# make your own commands and flags
-hof env [init, sync, test, lint, scan, promote, deploy, ci, ...]
+# export a release bundle, 
+hof env export -P release -T v0.4.3 -t dest=./release
+
+# make your own commands and flags, designed for your workflows
+hof env [init, test, lint, ci, publish, deploy, ...]
 hof env ... -t env=stg -t stack=app -t branch=main
 
 # one-liners
@@ -197,6 +200,7 @@ Guidance on starting out with the commands
 #### Help Text
 
 ```
+$ hof env -h
 build, run, ship, and deploy environments (image, service, stack)
 
 Usage:
@@ -204,23 +208,28 @@ Usage:
   hof env [command]
 
 Available Commands:
-  build       build an environment
-  export      export an environment into local container runtime
-  get         get details for an environments
-  list        list environments
-  publish     publish an environment
-  run         run an interactive environment
-  up          starts an environment
+  export      export target points from an environment to outside world
+  info        get details for target points in an environments
+  list        list points in an environment
+  run         run target point in an environment
+  sync        sync point(s) in an environment
+  up          starts target points in an environment
 
 Flags:
-  -h, --help               help for env
-  -K, --kind stringArray   kinds to include, defaults to all
-  -Z, --no-cache           bust the cache and force evaluation
-  -N, --no-exit            Leave the TUI open after finishing
-  -F, --on-failure         on failure, enter an interactive terminal, requires a tty
-  -P, --path stringArray   (cue) path prefixes to include, defaults to all
-  -R, --renderer string    output format [auto, plain, tty, dots, report (for ai)] (default "auto")
-  -S, --sort stringArray   sort columns, can be used multiple times (default [name])
+      --env-all                pass os.Env (everything)
+      --env-file stringArray   path to a file with ENV vars to pass
+      --env-var stringArray    key=value ENV vars to pass
+  -h, --help                   help for env
+  -K, --kind stringArray       kinds to include, defaults to all
+  -Z, --no-cache               bust the cache and force evaluation
+  -N, --no-exit                Leave the TUI open after finishing
+  -F, --on-failure             on failure, enter an interactive terminal, requires a tty
+      --parallel int           number of args or objects to process at once, they may be highly parallel internally (default 1)
+  -P, --path stringArray       (cue) path prefixes to include, defaults to all
+  -R, --renderer string        output format [auto, plain, tty, dots, report (for ai)] (default "auto")
+      --shh-file stringArray   path to a file with secret ENV vars to pass
+      --shh-var stringArray    key=value secret ENV vars to pass
+  -S, --sort stringArray       sort columns, can be used multiple times (default [name])
 ```
 
 Basically, the way this works is

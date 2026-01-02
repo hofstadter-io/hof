@@ -6,30 +6,26 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
-	"github.com/hofstadter-io/hof/lib/env/cmd"
 )
 
-var buildLong = `build an environment`
+var syncLong = `sync target points in an environment, making sure they are ready to go, no matter the type`
 
-func BuildRun(args []string) (err error) {
+func SyncRun(args []string) (err error) {
 
 	// you can safely comment this print out
-	// fmt.Println("not implemented")
-
-	err = cmd.Build(args, flags.RootPflags, flags.EnvPflags)
+	fmt.Println("not implemented")
 
 	return err
 }
 
-var BuildCmd = &cobra.Command{
+var SyncCmd = &cobra.Command{
 
-	Use: "build [...target] [% ...cue]",
+	Use: "sync [...target] [% ...cue]",
 
-	Short: "build an environment",
+	Short: "sync target points in an environment",
 
-	Long: buildLong,
+	Long: syncLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
 
@@ -39,7 +35,7 @@ var BuildCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		err = BuildRun(args)
+		err = SyncRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -53,8 +49,8 @@ func init() {
 		return false
 	}
 
-	ohelp := BuildCmd.HelpFunc()
-	ousage := BuildCmd.UsageFunc()
+	ohelp := SyncCmd.HelpFunc()
+	ousage := SyncCmd.UsageFunc()
 
 	help := func(cmd *cobra.Command, args []string) {
 
@@ -78,7 +74,7 @@ func init() {
 	tusage := func(cmd *cobra.Command) error {
 		return usage(cmd)
 	}
-	BuildCmd.SetHelpFunc(thelp)
-	BuildCmd.SetUsageFunc(tusage)
+	SyncCmd.SetHelpFunc(thelp)
+	SyncCmd.SetUsageFunc(tusage)
 
 }

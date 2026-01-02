@@ -9,9 +9,9 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
-var getLong = `get details for an environments`
+var syncLong = `sync target points in an environment, making sure they are ready to go, no matter the type`
 
-func GetRun(args []string) (err error) {
+func SyncRun(args []string) (err error) {
 
 	// you can safely comment this print out
 	fmt.Println("not implemented")
@@ -19,13 +19,13 @@ func GetRun(args []string) (err error) {
 	return err
 }
 
-var GetCmd = &cobra.Command{
+var SyncCmd = &cobra.Command{
 
-	Use: "get [...target] [% ...cue]",
+	Use: "sync [...target] [% ...cue]",
 
-	Short: "get details for an environments",
+	Short: "sync target points in an environment",
 
-	Long: getLong,
+	Long: syncLong,
 
 	Run: func(cmd *cobra.Command, args []string) {
 
@@ -35,7 +35,7 @@ var GetCmd = &cobra.Command{
 
 		// Argument Parsing
 
-		err = GetRun(args)
+		err = SyncRun(args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -49,8 +49,8 @@ func init() {
 		return false
 	}
 
-	ohelp := GetCmd.HelpFunc()
-	ousage := GetCmd.UsageFunc()
+	ohelp := SyncCmd.HelpFunc()
+	ousage := SyncCmd.UsageFunc()
 
 	help := func(cmd *cobra.Command, args []string) {
 
@@ -74,7 +74,7 @@ func init() {
 	tusage := func(cmd *cobra.Command) error {
 		return usage(cmd)
 	}
-	GetCmd.SetHelpFunc(thelp)
-	GetCmd.SetUsageFunc(tusage)
+	SyncCmd.SetHelpFunc(thelp)
+	SyncCmd.SetUsageFunc(tusage)
 
 }

@@ -4,11 +4,55 @@ import (
 	"github.com/hofstadter-io/hofmod-cli/schema"
 )
 
+_envLong: """
+build, run, ship, and deploy environments (image, service, stack)
+
+'veg env' looks for custom commands and treats them equally to builtin commands.
+All commands have well known behaviors, depending on the $kind of a target.
+'veg env list' and 'hof env sync' work with all '$kind's.
+Most commands only work with a subset that makes sense or is explicit.
+See their help text to learn more.
+
+## Examples
+
+# [...targets], or "points", are selected via args and flags
+# list allows you to explore that space without syncing or triggering evaluation
+veg env list|info ['^name$'] [-K '^kind$'] [-P '^path$'] [-S name|kind|path]
+
+# sync, evaluates the DAGs, but doesn't export or make external alterations
+# it can act as "real dry run" compared to the --dry-run flag for other commands
+veg env sync [...targets] [...flags]
+
+# run, creates an interactive session and binds and dependent services
+# this is closest to docker run or kubectl exec
+veg env run [...target] [...flags]
+
+# run, launches an services or stacks, similar to compose and helm
+veg env up [...target] [...flags]
+
+# export artifacts, local or remote, object storage and registries
+veg env export -P release -T v0.4.3 -t dest=./release
+
+# make your own commands and flags, designed for your workflows
+# this is closest to Makefiles or package.json scripts
+# define similar commands with the power of CUE and Dagger
+veg env [init, test, lint, ci, publish, deploy, ...]
+veg env ... -t env=stg -t stack=app -t branch=main
+
+## Important References
+
+./schemas/env    # the CUE schemas for what you can do in veg/env
+./examples/env   # simple to complex examples to play and fork
+./catalogs/env   # reusable CUE for all sorts of things
+
+
+"""
+
 EnvCommand: schema.Command & {
 	Name:  "env"
-	Usage: "env [args]"
+	Usage: "env [...target] [% ...cue]"
 	Short: "build, run, ship, and deploy environments (image, service, stack)"
-	Long:  "build, run, ship, and deploy environments (image, service, stack)"
+	Long:  _envLong
 
 	Pflags: [...schema.Flag] & [{
 		Name:    "Renderer"
@@ -98,70 +142,50 @@ EnvCommand: schema.Command & {
 	}]
 
 	Commands: [{
-		Name:  "build"
-		Usage: "build [...target] [% ...cue]"
-		Short: "build an environment"
-		Long:  "build an environment"
+		Name:  "sync"
+		Usage: "sync [...target] [% ...cue]"
+		Short: "sync target points in an environment"
+		Long: "sync target points in an environment, making sure they are ready to go, no matter the type"
 	}, {
 		Name:  "export"
 		Usage: "export [...target] [% ...cue]"
-		Short: "export an environment into local container runtime"
-		Long:  "export an environment into local container runtime"
+		Short: "export target points from an environment to outside world"
+		Long:  "export target points from an environment to outside world, for each point .. for each tag"
 		Flags: [{
 			Name:    "Tag"
 			Long:    "tag"
 			Short:   "T"
 			Type:    "[]string"
-			Default: "nil" // todo, support special options like git-tag or git-commit
+			Default: #"[]string{"local"}"# // todo, support special options like git-tag or git-commit "auto" that has an understanding of where it is running (list out the handful of variables that differentiate between env's env (local, ci, deployed), which each can have any user defined params as well)
 			Help:    "tags to give to the environment, can be set multiple times"
 		}]
 	}, {
-		Name:  "get"
-		Usage: "get [...target] [% ...cue]"
-		Short: "get details for an environments"
-		Long:  "get details for an environments"
+		Name:  "info"
+		Usage: "info [...target] [% ...cue]"
+		Short: "get details for target points in an environments"
+		Long:  "get details for target points in an environments"
 	}, {
 		Name:  "list"
 		Usage: "list [...target] [% ...cue]"
-		Short: "list environments"
-		Long:  "list environments"
+		Short: "list points in an environment"
+		Long:  "list points in an environment"
 	}, {
 		Name:  "run"
 		Usage: "run <target> [% [...cue]]"
-		Short: "run an interactive environment"
-		Long:  "run an interactive environment"
+		Short: "run target point in an environment"
+		Long:  "run target point in an environment"
 		Flags: [{
 			Name:    "Command"
 			Long:    "cmd"
 			Short:   "c"
 			Type:    "string"
 			Default: "\"\""
-			Help:    "the command to run"
+			Help:    "the command to run, if none by default or to override"
 		}]
 	}, {
 		Name:  "up"
 		Usage: "up [...target] [% ...cue]"
-		Short: "starts an environment"
-		Long:  "starts an environment"
-	}, {
-		Name:  "publish"
-		Usage: "publish [...target] [% ...cue]"
-		Short: "publish an environment"
-		Long:  "publish an environment"
-		Flags: [{
-			Name:    "Registry"
-			Long:    "registry"
-			Short:   "G"
-			Type:    "string"
-			Default: #""host.docker.internal:5000""#
-			Help:    "registry to push to, defaults to veg internal"
-		}, {
-			Name:    "Tag"
-			Long:    "tag"
-			Short:   "T"
-			Type:    "[]string"
-			Default: #"[]string{"local"}"# // todo, support special options like git-tag or git-commit
-			Help:    "tags to give to the environment, can be set multiple times"
-		}]
+		Short: "starts target points in an environment"
+		Long: "starts target points in an environment, this is very similar to docker-compose or helm locally"
 	}]
 }
