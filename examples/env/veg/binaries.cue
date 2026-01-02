@@ -1,4 +1,3 @@
-@experiment(aliasv2)
 package veg
 
 import (
@@ -29,18 +28,28 @@ ctr: {
 }
 
 // File version
-hof: File: { for k,v in hof.matrix { (k): env.File & { path: "/usr/local/bin/hof", content: v}}}
+hof: File: { for k,v in hof.cli.matrix { 
+	(k): env.File & {
+		#hof: { id: v.#hof.id, metadata: v.#hof.metadata }
+		name: v.name,
+		path: string | *"/usr/local/bin/hof",
+		content: v
+	}
+}}
 // #File verions
-hof: #File: {
-	[string]~(k,_): {name: "bin-\(k)"}
-
+hof: cli: {
 	_maker: env.#File & {
+		// metadata
+		@env()
+		#hof: id: "hof-cli-\(#variant)"
+		name: #hof.id
+
+		// params
 		#variant: string
 		#goos: string
 		#arch: string
-		@env()
-		#hof: id: "hof-cli-\(#variant)"
 
+		path: "./bins/hof"
 		source: env.#Container & {
 			from: ctr.builder
 			steps: [
@@ -50,7 +59,7 @@ hof: #File: {
 		}
 	}
 
-	local: _maker & {#goos: flags.goos, #arch: flags.arch}
+	local: _maker & {#variant: "local", #goos: flags.goos, #arch: flags.arch}
 	matrix: {
 		_goos: ["linux", "darwin"]
 		_arch: ["amd64", "arm64"]

@@ -11,8 +11,8 @@ flags: {
 	adk:    string | *"../adk"         @tag(adk)
 	dagger: string | *"../dagger"      @tag(dagger)
 
-	goos: string | *"darwin" @tag(goos,var=os)
-	arch: string | *"arm64"  @tag(arch,var=arch)
+	goos: string @tag(goos,var=os)
+	arch: string @tag(arch,var=arch)
 
 	lsp: bool | *false
 
