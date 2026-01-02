@@ -54,15 +54,14 @@ type Keyer interface {
 
 // preferences #hof: metadata: [memo|id|name]
 func vegMemoKey(e *env.Env) string {
-	meta := e.Hof.Metadata
-	if meta.Memo != "" {
-		return meta.Memo
+	if e.Hof.Memo != "" {
+		return e.Hof.Memo
 	}
-	if meta.ID != "" {
-		return meta.ID
+	if e.Hof.ID != "" {
+		return e.Hof.ID
 	}
-	if meta.Name != "" {
-		return meta.Name
+	if e.Hof.Metadata.Name != "" {
+		return e.Hof.Metadata.Name
 	}
 	return ""
 }

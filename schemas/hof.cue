@@ -10,6 +10,12 @@ Hof: {
 		// #hof version
 		apiVersion: "v1beta1"
 
+		// unique id
+		id?: string
+
+		// memoization hint
+		memo?: string
+
 		// typical metadata
 		metadata: Metadata
 
@@ -79,11 +85,7 @@ LabelNames: [N=string]: {#hof: metadata: name: N}
 
 // Typical metadata useful in many places
 Metadata: {
-	id?:          string
 	name?:        string
 	description?: string
 	labels?: [string]: string
-
-	// memoization hint
-	memo?: string
 }

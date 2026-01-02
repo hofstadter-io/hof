@@ -26,9 +26,9 @@ func upgradeAttrs[T any](node *Node[T], label string) bool {
 				node.Hof.Datamodel.Root = true
 			}
 		case "id":
-			node.Hof.Metadata.ID = ac
+			node.Hof.ID = ac
 		case "memo":
-			node.Hof.Metadata.Memo = ac
+			node.Hof.Memo = ac
 
 		case "datamodel":
 			node.Hof.Datamodel.Root = true
@@ -206,9 +206,9 @@ func ParseHof[T any](val cue.Value) (*Node[T], error) {
 		node.Hof.Metadata.Name = node.Hof.Label
 		node.Value = node.Value.FillPath(cue.ParsePath("#hof.metadata.name"), node.Hof.Metadata.Name)
 	}
-	if node.Hof.Metadata.ID == "" {
-		node.Hof.Metadata.ID = node.Hof.Metadata.Name
-		node.Value = node.Value.FillPath(cue.ParsePath("#hof.metadata.id"), kace.Kebab(node.Hof.Metadata.ID))
+	if node.Hof.ID == "" {
+		node.Hof.ID = node.Hof.Metadata.Name
+		node.Value = node.Value.FillPath(cue.ParsePath("#hof.metadata.id"), kace.Kebab(node.Hof.ID))
 	}
 
 	return node, nil

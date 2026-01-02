@@ -16,7 +16,7 @@ func (dm *Datamodel) EnrichValue() error {
 	// build a hof.Node tree from the gen.CueValue
 	//nodes, err := hof.FindHofs(val)
 	//if err != nil {
-		//return err
+	//return err
 	//}
 	//nodes := dm.Node
 
@@ -76,7 +76,7 @@ func (dm *Datamodel) enrichR(hn *hof.Node[Value]) error {
 
 func (dm *Datamodel) enrichHistory(hn *hof.Node[Value]) error {
 	// if G.Verbosity > 0 {
-		 // fmt.Println("found @history at: ", hn.Hof.Path, hn.Hof.Metadata.ID, dm.Hof.Path, dm.Hof.Metadata.ID)
+	// fmt.Println("found @history at: ", hn.Hof.Path, hn.Hof.Metadata.ID, dm.Hof.Path, dm.Hof.Metadata.ID)
 	// }
 
 	// We want to walk the root node tree to find where it aligns with the current hn.
@@ -91,11 +91,10 @@ func (dm *Datamodel) enrichHistory(hn *hof.Node[Value]) error {
 		return nil
 	}
 
-
 	// get & check history
 	hist := match.T.History()
 	// if G.Verbosity > 0 {
-		 // fmt.Println("injecting hist at: ", hn.Hof.Metadata.ID, match.Hof.Metadata.ID, len(hist), hist[0].Timestamp)
+	// fmt.Println("injecting hist at: ", hn.Hof.Metadata.ID, match.Hof.Metadata.ID, len(hist), hist[0].Timestamp)
 	// }
 
 	// build up the label
@@ -114,7 +113,6 @@ func (dm *Datamodel) enrichHistory(hn *hof.Node[Value]) error {
 		}
 		dm.Value = dm.Value.FillPath(cue.ParsePath(p+".Snapshot"), s)
 	}
-
 
 	// fmt.Println(start, p)
 	// Datafy each snapshot
@@ -143,7 +141,7 @@ func findHistoryMatchR(hn *hof.Node[Value], root *hof.Node[Value]) *hof.Node[Val
 	//   (ID really, but when not set, then ID = name)
 	//   so this could suffice for a while if we tell users to set the ID in this case
 	//   maybe we can just force this by having a check somewhere during loading
-	if root.Hof.Metadata.ID == hn.Hof.Metadata.ID {
+	if root.Hof.ID == hn.Hof.ID {
 		return root
 	}
 
@@ -185,15 +183,16 @@ func snapshotToData(snap *Snapshot) (any, error) {
 // generated code can shift around while being the "same"
 // This is where we auto-fill from @ordered(), but users can also do this manually
 // Note | XXX, CUE's order may change between versions, they are working towards defining a stable order
-//   at which point we will use the same for consistency. We should be backwards compatible at this point
-//   but there is risk until then
+//
+//	at which point we will use the same for consistency. We should be backwards compatible at this point
+//	but there is risk until then
 func (dm *Datamodel) enrichOrdered(hn *hof.Node[any]) error {
 	// if G.Verbosity > 0 {
-		// fmt.Println("found @ordered at: ", hn.Hof.Path)
+	// fmt.Println("found @ordered at: ", hn.Hof.Path)
 	// }
 
 	path := hn.Hof.Path
-	path = strings.TrimPrefix(path, dm.Hof.Metadata.Name + ".")
+	path = strings.TrimPrefix(path, dm.Hof.Metadata.Name+".")
 	value := dm.Value.LookupPath(cue.ParsePath(path))
 
 	iter, err := value.Fields()
@@ -222,6 +221,6 @@ func (dm *Datamodel) enrichOrdered(hn *hof.Node[any]) error {
 	l := value.Context().NewList(ordered...)
 
 	// fill into Gen value
-	dm.Value = dm.Value.FillPath(cue.ParsePath(path + "Ordered"), l)
+	dm.Value = dm.Value.FillPath(cue.ParsePath(path+"Ordered"), l)
 	return nil
 }

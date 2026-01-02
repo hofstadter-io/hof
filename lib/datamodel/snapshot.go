@@ -200,7 +200,7 @@ func (V *Value) makeSnapshot(timestamp, suffix, message string) error {
 	// - $hof
 	// - lacunas
 
-	pkg := V.Hof.Metadata.ID
+	pkg := V.Hof.ID
 	if pkg == "" {
 		pkg = V.Hof.Metadata.Name
 	}
