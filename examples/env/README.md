@@ -38,8 +38,9 @@ curl github
 
 |                                              eat your                                               |                                              veggies                                               |
 | :-------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------: |
-| [linux / arm](https://github.com/hofstadter-io/hof/releases/download/v0.7.0/hof_v0.7.0_linux_arm64) | [mac / arm](https://github.com/hofstadter-io/hof/releases/download/v0.7.0/hof_v0.7.0_darwin_arm64) |
-| [linux / amd](https://github.com/hofstadter-io/hof/releases/download/v0.7.0/hof_v0.7.0_linux_amd64) | [mac / amd](https://github.com/hofstadter-io/hof/releases/download/v0.7.0/hof_v0.7.0_darwin_amd64) |
+| [linux / arm](https://github.com/hofstadter-io/hof/releases/download/v0.7.0-alpha.1/hof-linux-arm64) | [mac / arm](https://github.com/hofstadter-io/hof/releases/download/v0.7.0-alpha.1/hof-darwin-arm64) |
+| [linux / amd](https://github.com/hofstadter-io/hof/releases/download/v0.7.0-alpha.1/hof-linux-amd64) | [mac / amd](https://github.com/hofstadter-io/hof/releases/download/v0.7.0-alpha.1/hof-darwin-amd64) |
+
 
 ### Build and Run a Container (low-level steps)
 
@@ -185,6 +186,9 @@ Format: `veg env [cmd] [flags] [args] % [cue entrypoints]`
 - `args` are a regexp match on names
   - each arg is processed sequentially and independently
   - any args after a `%` are considered entrypoint paths to the underlying CUE evaluator
+
+"points" are the targets, and they get sync'd, making it more a pull model than a push model
+- so for ci, just decide what you want in the end, and let the dag engine figure out what actually needs to build and happen
 
 Guidance on starting out with the commands
 
