@@ -59,7 +59,7 @@ func (d *Dag) stepEnvFileHandler(c *dagger.Container, step cue.Value) (*dagger.C
 		file, _, err = d.hashFile(cfg.File)
 
 	case "#hostFile":
-		file, _, err = d.hashHostFile(cfg.File)
+		file, _, err = d.HashHostFile(cfg.File)
 
 	default:
 		return c, fmt.Errorf("unsupported $kind in envfile.file: %v", step)
@@ -173,7 +173,7 @@ func (d *Dag) hashSecret(step cue.Value) (*dagger.Secret, error) {
 			idx.shh = d.dag.SetSecret(cfg.Name, text)
 
 		case "#hostFile":
-			file, _, err := d.hashHostFile(cfg.Source)
+			file, _, err := d.HashHostFile(cfg.Source)
 			if err != nil {
 				return nil, err
 			}

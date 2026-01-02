@@ -46,7 +46,7 @@ func (idx *hashServiceIndex) Key() string {
 	return fmt.Sprintf("#service.%s", idx.cfg.Name)
 }
 
-func (d *Dag) hashService(step cue.Value) (*dagger.Service, *hashServiceConfig, error) {
+func (d *Dag) HashService(step cue.Value) (*dagger.Service, *hashServiceConfig, error) {
 	var cfg hashServiceConfig
 	err := step.Decode(&cfg)
 	if err != nil {
@@ -164,7 +164,7 @@ func (d *Dag) stepBindServiceHandler(c *dagger.Container, step cue.Value) (*dagg
 	}
 	// fmt.Println("bindService.config", cfg)
 
-	s, _, err := d.hashService(cfg.Service)
+	s, _, err := d.HashService(cfg.Service)
 	if err != nil {
 		return nil, err
 	}

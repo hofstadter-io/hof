@@ -1,22 +1,20 @@
 package tool
 
 import (
-	"github.com/hofstadter-io/hof/lib/env/common/bases"
+	"github.com/hofstadter-io/hof/catalogs/env/bases"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
 cloud: {
-	gcloud: env.Exec & {
-		args: ["sh", "-c", _script]
-
+	// apt/debian
+	gcloud: env.Sh & {
 		// https://docs.cloud.google.com/sdk/docs/install-sdk#deb
-		_script: """
+		script: """
 			set -eou pipefail
 
 			curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
 			echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-			apt-get update -y
-			apt-get install -y google-cloud-cli
+			apt-get update -y && apt-get install -y google-cloud-cli
 			"""
 	}
 
@@ -24,12 +22,10 @@ cloud: {
 
 	aws: {
 		#arch: *"aarch64" | "x86_64"
-		fetch: env.Bash & {
+		fetch: env.Sh & {
 
 			// https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
 			script: """
-				set -eou pipefail
-
 				curl "https://awscli.amazonaws.com/awscli-exe-linux-\(#arch).zip" -o "awscliv2.zip"
 				unzip awscliv2.zip
 				./aws/install
@@ -56,5 +52,5 @@ cloud: {
 	}
 
 	// https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-linux?view=azure-cli-latest&pivots=apt
-	azure: env.Bash & {script: "curl -sL https://aka.ms/InstallAzureCLIDeb | bash"}
+	azure: env.Sh & {script: "curl -sL https://aka.ms/InstallAzureCLIDeb | bash"}
 }

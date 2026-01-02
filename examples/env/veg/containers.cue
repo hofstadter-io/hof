@@ -2,10 +2,10 @@
 package veg
 
 import (
-	"github.com/hofstadter-io/hof/lib/env/common/bases"
-	"github.com/hofstadter-io/hof/lib/env/common/steps/lang"
-	"github.com/hofstadter-io/hof/lib/env/common/steps/tool"
-	"github.com/hofstadter-io/hof/lib/env/common/utils"
+	"github.com/hofstadter-io/hof/catalogs/env/bases"
+	// "github.com/hofstadter-io/hof/catalogs/env/packs"
+	isteps "github.com/hofstadter-io/hof/catalogs/env/steps"
+	"github.com/hofstadter-io/hof/catalogs/env/utils"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
@@ -15,7 +15,7 @@ ctr: {
 	min: env.#Container & {
 		@env()
 		#hof: {
-			id:          "veg-min"
+			id: "veg-min"
 			metadata: {
 				name:        id
 				description: "minimal veg, eat your veggies!"
@@ -28,7 +28,7 @@ ctr: {
 	dev: env.#Container & {
 		@env()
 		#hof: {
-			id:          "veg-dev"
+			id: "veg-dev"
 			metadata: {
 				name:        id
 				description: "setup needed to work on veg"
@@ -40,21 +40,21 @@ ctr: {
 
 		steps: [
 			// customization
-			tool.zsh.customize,
+			isteps.tool.zsh.customize,
 
 			// deps for go/node/python -> c/c++ situations (like CGO)
 			utils.apt.install & {#pkgs: ["gcc", "libc6-dev"]},
 
 			// binary tools
 			hof.File.linux,
-			tool.github.cli,
+			isteps.tool.github.cli,
 
 			// setup languages
-			lang.go.defaultSteps,
+			isteps.lang.go.defaultSteps,
 			// lang.cue.default,
-			lang.node.default,
-			lang.python.default,
-			lang.python.dev, // depends on node
+			isteps.lang.node.default,
+			isteps.lang.python.default,
+			isteps.lang.python.dev, // depends on node
 
 			// devops stuff
 			// tool.hashicorp.terraform,
@@ -70,27 +70,27 @@ ctr: {
 			// env.BindService & {service: lang.python.lsp},
 
 			// tools for agents
-			tool.agents.lsp2mcp,
+			isteps.tool.agents.lsp2mcp,
 		]
 	}
 
 	// set id for all ops-, used for caching in env, and default names based on that
-	[=~"ops-"]~(k,_): {@env()
-		#hof: { id: "veg-\(k)", metadata: {name: string | *id}}
+	[=~"ops"]~(k,_): {@env()
+		#hof: {id: "veg-\(k)", metadata: {name: string | *id}}
 		name: string | *#hof.metadata.name
 	}
 
 	// base ops container
 	"ops": env.#Container & {
-		from: bases.debian.minimal
+		from: bases.debian.default
 		steps: [
-			hof.cli,
-			tool.hashicorp.terraform,
-			tool.hashicorp.packer,
-			tool.k8s.kubectl,
-			tool.k8s.helm,
-			tool.k8s.crane,
-			tool.github.cli,
+			hof.File.linux,
+			isteps.tool.hashicorp.terraform,
+			isteps.tool.hashicorp.packer,
+			isteps.tool.k8s.kubectl,
+			isteps.tool.k8s.helm,
+			isteps.tool.k8s.crane,
+			isteps.tool.github.cli,
 		]
 	}
 
@@ -100,9 +100,9 @@ ctr: {
 	}
 	"ops-all": env.#Container & {from: root.ctr["ops"], steps: [for _, cli in _clis {cli}]}
 	_clis: {
-		gcp: tool.cloud.gcloud
-		aws: tool.cloud.awscli
-		az:  tool.cloud.azure
+		gcp: isteps.tool.cloud.gcloud
+		aws: isteps.tool.cloud.awscli
+		az:  isteps.tool.cloud.azure
 		ansible: utils.apt.install & {#pkgs: ["ansible"]}
 	}
 
@@ -115,7 +115,7 @@ fmtr: {
 		img: env.#Container & {
 			from: bases.debian.default
 			steps: [
-				lang.python.default,
+				isteps.lang.python.default,
 				env.Dir & {path: "/work", source: src},
 				env.Bash & {
 					script: """
@@ -139,7 +139,7 @@ fmtr: {
 					"ruby-dev",
 				]},
 				env.Bash & {script: "gem install bundler haml prettier_print rbs syntax_tree syntax_tree-haml syntax_tree-rbs"},
-				lang.node.install,
+				isteps.lang.node.install,
 				env.Dir & {path: "/work", source: src},
 				env.Exec & {args: ["yarn", "install", "--ignore-engines"]},
 				env.Entrypoint & {args: ["node", "prettier.js"]},

@@ -1,23 +1,23 @@
 package bases
 
 import (
-	"github.com/hofstadter-io/hof/lib/env/common/utils"
+	"github.com/hofstadter-io/hof/catalogs/env/utils"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
-alpine: { alpine3["23"], name: "alpine"}
+alpine: {alpine3["23"], name: "alpine"}
 
 alpine3: {
-  default: { alpine3["23"], name: "alpine3"}
-  
+	default: {alpine3["23"], name: "alpine3"}
+
 	_minors: ["20", "21", "22", "23"] // these minors are too old for Jeffrey, Don Old, and their friends
 	for _, m in _minors {
-    let s = "alpine3-\(m)"
+		let s = "alpine3-\(m)"
 		(s): env.#Container & {
 			#hof: id: s // another way to @id(...no-cue-here...)
 			#hof: metadata: name: s
 
-      name: string | *s
+			name: string | *s
 			from: "alpine:3.\(m)"
 			steps: [
 				// globally consistent for us
@@ -28,7 +28,10 @@ alpine3: {
 
 				// shared packager caches, also for all derived images!
 				// ya'know, instead of cleaning and refetching all the time?
-				// utils.apk.mounts.varLib,
+
+				// TODO, we need to implement this
+				utils.apk.mounts.varLib,
+
 				// update just once at the beginning
 				utils.apk.update,
 				utils.apk.upgrade,

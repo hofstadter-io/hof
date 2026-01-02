@@ -1,7 +1,7 @@
 package tool
 
 import (
-	"github.com/hofstadter-io/hof/lib/env/common/utils"
+	"github.com/hofstadter-io/hof/catalogs/env/utils"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 

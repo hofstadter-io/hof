@@ -1,4 +1,3 @@
-@experiment(aliasv2)
 package databases
 
 import "github.com/hofstadter-io/hof/schemas/env"

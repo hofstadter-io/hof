@@ -144,12 +144,14 @@ func (d *Dag) HashExportDir(step cue.Value) (*dagger.Directory, *exportDirConfig
 		case "#file":
 			file, path, err = d.hashFile(src)
 		case "#hostFile":
-			file, path, err = d.hashHostFile(src)
+			_file, _cfg, _err := d.HashHostFile(src)
+			file, path, err = _file, _cfg.Path, _err
 
 		case "#dir":
 			dir, path, err = d.hashDir(src)
 		case "#hostDir":
-			dir, path, err = d.hashHostDir(src)
+			_dir, _cfg, _err := d.HashHostDir(src)
+			dir, path, err = _dir, _cfg.Path, _err
 		case "#gitRepo":
 			repo, rcfg, rerr := d.hashGitRepo(src)
 			if rerr == nil {
@@ -157,6 +159,7 @@ func (d *Dag) HashExportDir(step cue.Value) (*dagger.Directory, *exportDirConfig
 			} else {
 				err = rerr
 			}
+
 		default:
 			return nil, nil, fmt.Errorf("unsupported kind %q in hashExportDir.source.%d.$kind: %w", k.Kind, i, err)
 

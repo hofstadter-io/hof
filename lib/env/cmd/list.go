@@ -150,6 +150,11 @@ func genExtra(e *env.Env) string {
 			s, _ := sv.String()
 			extra = s
 		}
+		rv := e.Value.LookupPath(cue.ParsePath("ref"))
+		if sv.Exists() {
+			s, _ := rv.String()
+			extra += "@" + s
+		}
 
 	case "exportImage", "publishImage":
 		b := new(strings.Builder)
@@ -161,10 +166,16 @@ func genExtra(e *env.Env) string {
 				fmt.Fprintf(b, "%s/", s)
 			}
 		}
-		nv := e.Value.LookupPath(cue.ParsePath("image.name"))
+		nv := e.Value.LookupPath(cue.ParsePath("name"))
 		if nv.Exists() {
 			s, _ := nv.String()
 			fmt.Fprintf(b, "%s", s)
+		} else {
+			nv := e.Value.LookupPath(cue.ParsePath("image.name"))
+			if nv.Exists() {
+				s, _ := nv.String()
+				fmt.Fprintf(b, "%s", s)
+			}
 		}
 		tv := e.Value.LookupPath(cue.ParsePath("tag"))
 		if tv.Exists() {

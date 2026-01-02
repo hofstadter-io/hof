@@ -21,9 +21,9 @@ extn: {
 			name: "vscode-build"
 			from: "\(flags.registry)/veg-dev:local"
 			steps: [
-				env.Dir  & { path: "/work", source: src},
-				env.Bash & { script: "pnpm install"},
-				env.Bash & { script: "pnpm build:extn:vscode"},
+				env.Dir & {path: "/work", source: src},
+				env.Bash & {script: "pnpm install"},
+				env.Bash & {script: "pnpm build:extn:vscode"},
 			]
 		}
 	}

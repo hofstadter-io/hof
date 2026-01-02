@@ -1,6 +1,7 @@
 package tool
 
 import (
+	"github.com/hofstadter-io/hof/catalogs/env/bases"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
@@ -19,12 +20,12 @@ _hashicorpBin: env.File & {
 	_src:  "https://releases.hashicorp.com/\(#tool)/\(#ver)/\(_file)"
 
 	// spec
-	path: #tool
+	path: "/usr/local/bin/\(#tool)"
 	content: env.#File & {
 		path: #tool
 		source: env.#Container & {
-			from:
-				steps: [env.Bash & {script: "wget -q \(_src) && unzip \(_file)"}]
+			from: bases.debian.default
+			steps: [env.Bash & {script: "wget -q \(_src) && unzip \(_file)"}]
 		}
 	}
 }

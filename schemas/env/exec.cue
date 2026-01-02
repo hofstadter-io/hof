@@ -77,13 +77,13 @@ Entrypoint: Step & {
 }
 
 DefaultArgs: Step & {
-	$kind: "args"
+	$kind: "defaultArgs"
 	args: [...string]
 }
 
 // sets the default terminal
 DefaultTerm: Step & {
-	$kind: "term"
+	$kind: "defaultTerm"
 	args: [...string]
 
 	experimentalPrivilegedNesting?: bool
@@ -97,3 +97,5 @@ Terminal: Step & {
 	experimentalPrivilegedNesting?: bool
 	insecureRootCapabilities?:      bool
 }
+
+// TODO Vscode: Step & { ... } // or a family of them

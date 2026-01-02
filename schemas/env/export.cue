@@ -27,7 +27,7 @@ import (
 	gitignore: bool | *true
 
 	// (2) path to select from the bundled dir
-	bundlePath: string | *"/"
+	bundlePath?: string
 
 	// (3) git-compatible patch to apply after bundling and selecting
 	patch?:     string
@@ -75,7 +75,7 @@ import (
 	}
 
 	$kind: "#exportImage"
-	name:  string | *image.name
+	name:  string
 	reg?:  string
 	tags: [...string]
 	image: #Container

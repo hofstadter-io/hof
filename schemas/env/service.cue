@@ -33,6 +33,13 @@ import (
 	// if empty, the container's default will be used
 	args?: [...string]
 
+	// todo
+	envVars?:  [string]: string
+	envFiles?: [string]: #File
+	shhVars?:  [string]: string
+	shhFiles?: [string]: #File
+
+
 	// if the container has an entrypoint, prepend it to the args
 	useEntrypoint?: bool
 

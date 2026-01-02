@@ -5,16 +5,12 @@
       "path": "."
     },
     {
-      "name": "dagger",
-      "path": "../dagger"
-    },
-    {
       "name": "schemas",
       "path": "schemas"
     },
     {
-      "name": "common",
-      "path": "lib/env/common"
+      "name": "catalogs",
+      "path": "catalogs"
     },
     {
       "name": "examples",
@@ -23,9 +19,6 @@
     {
       "name": "env",
       "path": "lib/env"
-    },
-    {
-      "path": "../cue"
     }
   ],
 	"settings": {}

@@ -1,10 +1,9 @@
-@experiment(aliasv2)
 package lang
 
 import (
-	"github.com/hofstadter-io/hof/lib/env/common/bases"
-	"github.com/hofstadter-io/hof/lib/env/common/utils"
-	slang "github.com/hofstadter-io/hof/lib/env/common/steps/lang"
+	"github.com/hofstadter-io/hof/catalogs/env/bases"
+	"github.com/hofstadter-io/hof/catalogs/env/utils"
+	slang "github.com/hofstadter-io/hof/catalogs/env/steps/lang"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
@@ -28,7 +27,7 @@ go: {
 		}
 
 		gopls: env.#Container & {
-			from: ctr.base
+			from: base
 			steps: [
 				env.Expose & {port: 4000},
 			]
@@ -48,10 +47,11 @@ go: {
 		lsp: env.#Service & {
 			// There is also a built in MCP server!
 			#port: int | *0
+			name: "gopls"
 			ports: [{name: "lsp", port: 4000, frontend: #port}]
 			args: ["gopls", "serve", "-port=4000"]
 			// source: _
-			source: ctr.gopls & {name: "gopls"}
+			source: go.ctr.gopls & {name: "gopls"}
 		}
 	}
 }

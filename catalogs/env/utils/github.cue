@@ -7,7 +7,7 @@ import (
 )
 
 // helpers for downloading prebuild binaries
-githubBin: env.Exec & {
+githubBin: env.Sh & {
 	#ver: string
 
 	#arch:   string | *"arm64" | "amd64" // todo, this should default to current OS
@@ -18,13 +18,9 @@ githubBin: env.Exec & {
 	#bins: [...string] | *[#name]
 	_bins: strings.Join(#bins, " ")
 
-	args: ["sh", "-c", _script]
-
 	_file:   "\(#name)_v\(#ver)_\(#distro)_\(#arch).tar.gz"
 	_src:    "https://github.com/\(#repo)/releases/download/v\(#ver)/\(_file)"
 	_script: """
-		set -eou pipefail
-
 		cd /tmp
 		wget -q \(_src)
 		tar -xzf \(_file)

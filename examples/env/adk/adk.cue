@@ -2,43 +2,29 @@
 package adk
 
 import (
-	"github.com/hofstadter-io/hof/lib/env/common/packs/lang"
-	"github.com/hofstadter-io/hof/lib/env/common/utils"
+	"github.com/hofstadter-io/hof/catalogs/env/packs"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
-_flags: flags
-flags: {
-	utils.defaultFlags
-
-	local: string | *"/work/adk"
-	fork:  string | *"https://github.com/verdverm/adk-go" @tag(fork)
-	repo:  string | *"https://github.com/google/adk-go"   @tag(repo)
-}
-
 src: {
 	[string]~(k,_): {@env(), name: k}
-	repo: env.#Dir & {path: ".", sources: [env.#GitRepo & {url: _flags.repo}]}
-	local: env.#HostDir & {path: _flags.local}
-	// app: env.#HostDir & { path: _flags.app }
-
-	_actual: _
-	if _flags.use == "local" {_actual: local}
-	if _flags.use == "repo" {_actual: repo}
+	main: env.#GitRepo & {url: "https://github.com/google/adk-go", ref: "main"}
+	fork: env.#GitRepo & {url: "https://github.com/verdverm/adk-go", ref: "veg"}
+	code: env.#Dir & {path: ".", sources: [fork]}
 }
 
 ctr: {
 	[string]~(k,_): {@env(), name: k}
 	base: env.#Container & {
-		from: lang.go.ctr.base
+		from: packs.lang.go.ctr.base
 		steps: [
-			env.Mount & {path: "/work", source: src._actual},
+			env.Mount & {path: "/work", source: src.code},
 		]
 	}
 	dev: env.#Container & {
 		from: base
 		steps: [
-			env.BindService & {alias: "gopls", service: lang.go.svc.gopls & {name: "gopls", source: from}},
+			env.BindService & {alias: "gopls", service: packs.lang.go.svc.lsp},
 		]
 	}
 }

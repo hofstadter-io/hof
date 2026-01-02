@@ -3,8 +3,8 @@ package atproto
 
 import (
 	"github.com/hofstadter-io/hof/examples/env/atproto/patches"
-	"github.com/hofstadter-io/hof/lib/env/common/bases"
-	"github.com/hofstadter-io/hof/lib/env/common/packs/databases"
+	"github.com/hofstadter-io/hof/catalogs/env/bases"
+	"github.com/hofstadter-io/hof/catalogs/env/packs/databases"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
@@ -61,24 +61,27 @@ cmd: {
 
 // naming things is not so hard
 
-testnet: [string]~(S,_): {
-	config?: name:   "\(S)-cfg"
-	secret?: name:   "\(S)-shh"
-	service?: name:  "\(S)-src"
-	postgres?: name: "\(S)-pg"
+_testnet: [string]~(S,_): {
+	service?: {@env(), name: "\(S)"}
+	config?: {@env(), name: "\(S)-cfg"}
+}
+_testnet: [=~"(relay|pds)"]~(S2,_): {
+	secret?: {@env(), name: "\(S2)-shh"}
+}
+_testnet: [!~"(jetstream)"]~(S3,_): {
+	postgres?: {@env(), name: "\(S3)-pg"}
 }
 
-testnet: {
+testnet: _testnet & {
 	// @atproto PLC
 	plc: {
-		config: env.#HostFile & {@env(), path: "./env/plc.env"}
+		config: env.#HostFile & {path: "./env/plc.env"}
 		service: env.#Service & {
-			@env()
 			ports: [{port: 3000}]
 			source: env.#Container & {
 				from: builds.plc.ctr
 				steps: [
-					env.Envfile & {file: plc.config},
+					env.EnvFile & {file: plc.config},
 					env.BindService & {service: plc.postgres},
 				]
 			}
@@ -88,52 +91,49 @@ testnet: {
 
 	// @atproto Relay
 	relay: {
-		config: env.#HostFile & {@env(), path: "./env/relay.env"}
-		secret: env.#HostFile & {@env(), path: "./env/relay.secret.env"}
+		config: env.#HostFile & {path: "./env/relay.env"}
+		secret: env.#HostFile & {path: "./env/relay.secret.env"}
 		service: env.#Service & {
-			@env()
 			ports: [{port: 3000}]
 			source: env.#Container & {
 				from: builds.relay.ctr
 				steps: [
-					env.Envfile & {file: relay.config},
-					env.Envfile & {file: relay.secret}, // todo, we need secret version of this
+					env.EnvFile & {file: relay.config},
+					env.EnvFile & {file: relay.secret}, // todo, we need secret version of this
 					env.Mount & {path: "/data", source: relay.data},
 					env.BindService & {service: relay.postgres},
 					env.BindService & {service: plc.service},
 				]
 			}
 		}
-		data: env.#Cache & {@env()}
+		data: env.#Cache & {name: "relay-data"}
 		(databases.Postgres & {#name: "relay"}).#out
 	}
 
 	// @atproto Jetstream
 	jetstream: {
-		config: env.#HostFile & {@env(), path: "./env/jetstream.env"}
+		config: env.#HostFile & {path: "./env/jetstream.env"}
 		service: env.#Service & {
-			@env()
 			ports: [{port: 3000}]
 			source: env.#Container & {
 				from: builds.jetstream.ctr
 				steps: [
-					env.Envfile & {file: jetstream.config},
+					env.EnvFile & {file: jetstream.config},
 					env.Mount & {path: "/data", source: jetstream.data},
 					env.BindService & {service: plc.service},
 					env.BindService & {service: relay.service},
 				]
 			}
 		}
-		data: env.#Cache & {@env()}
+		data: env.#Cache & {name: "jetstream-data"}
 	}
 
 	// @bluesky/pds or @blebbit/permissioned-pds
 	pds: {
-		config: env.#HostFile & {@env(), path: "./env/pds.env"}
+		config: env.#HostFile & {path: "./env/pds.env"}
 		// TODO, #Secret (make and then provide to #SecretEnvfile)
-		secret: env.#HostFile & {@env(), path: "./env/pds.secret.env"}
+		secret: env.#HostFile & {path: "./env/pds.secret.env"}
 		service: env.#Service & {
-			@env()
 			ports: [{port: 3000}]
 			source: env.#Container & {
 				from: _ | *builds.pds.ctr
@@ -141,8 +141,8 @@ testnet: {
 					from: builds.ppds.ctr
 				}
 				steps: [
-					env.Envfile & {file: pds.config},
-					env.Envfile & {file: pds.secret}, // todo, we need secret version of this
+					env.EnvFile & {file: pds.config},
+					env.EnvFile & {file: pds.secret}, // todo, we need secret version of this
 					env.Mount & {path: "/app/data", source: pds.data},
 					env.Mount & {path: "/app/blobs", source: pds.blobs},
 					env.BindService & {service: pds.spicedb},
@@ -151,11 +151,11 @@ testnet: {
 				]
 			}
 		}
-		data: env.#Cache & {@env()}
-		blobs: env.#Cache & {@env()}
+		data: env.#Cache & {name: "pds-data"}
+		blobs: env.#Cache & {name: "pds-blobs"}
 
 		spicedb: env.#Service & {
-			@env()
+			name: "pds-spicedb"
 			ports: [{port: 8080}, {port: 9090}, {port: 50051}]
 			args: ["serve", "--http-enabled"]
 			source: env.#Container & {
@@ -171,7 +171,7 @@ testnet: {
 				]
 			}
 		}
-		(databases.Postgres & {#name: "spicedb"}).#out
+		(databases.Postgres & {#name: "pds-spicedb"}).#out
 	}
 }
 
@@ -211,20 +211,20 @@ builds: {
 		ctr: env.#DockerBuild & {source: code}
 	}
 
-	hack: {
-		#ctr: env.#Container
+	// hack: {
+	// 	ctr: env.#Container
 
-		// images
-		dev: #env.#Container & {
-			from: ctr
-			steps: [
-				env.User & {name: "root"},
-				env.Workdir & {path: "/app"},
-				env.Envfile & {file: testnet.plc.config},
-				env.BindService & {service: testnet.plc.postgres},
-				env.Entrypoint & {args: ["sh"]},
-				env.DefaultTerm & {args: ["sh"]},
-			]
-		}
-	}
+	// 	// images
+	// 	dev: env.#Container & {
+	// 		from: ctr
+	// 		steps: [
+	// 			env.User & {name: "root"},
+	// 			env.Workdir & {path: "/app"},
+	// 			env.Envfile & {file: testnet.plc.config},
+	// 			env.BindService & {service: testnet.plc.postgres},
+	// 			env.Entrypoint & {args: ["sh"]},
+	// 			env.DefaultTerm & {args: ["sh"]},
+	// 		]
+	// 	}
+	// }
 }

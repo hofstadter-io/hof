@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "pnpm run --sort --recursive --stream --filter '!./packages/{dev-env}' '/^(build)$/'",
+    "build:extn:vscode": "pnpm run --sort --recursive --stream --filter './extensions/vscode' '/^(build)$/'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

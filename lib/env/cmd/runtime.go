@@ -63,6 +63,8 @@ func commonStart(args []string, rflags flags.RootPflagpole, eflags flags.EnvPfla
 		return R, nil, fmt.Errorf("no matches found for given args and flags")
 	}
 
+	// TODO, sort them somehow
+
 	return R, matches, err
 }
 
@@ -134,7 +136,7 @@ func splitArgs(orig []string) (args, cueargs []string) {
 
 func extractMeta(e *env.Env) (ename, ekind, mname string) {
 	ekind = e.Hof.Env.Kind
-	ename = e.Hof.Env.Name	
+	ename = e.Hof.Env.Name
 	mname = e.Hof.Metadata.Name
 	if ename == "" {
 		ename = mname

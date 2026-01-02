@@ -139,7 +139,7 @@ func (d *Dag) stepMountHandler(c *dagger.Container, step cue.Value) (*dagger.Con
 		})
 
 	case "#hostFile":
-		file, _, err := d.hashHostFile(cfg.Source)
+		file, _, err := d.HashHostFile(cfg.Source)
 		if err != nil {
 			return nil, err
 		}
@@ -159,7 +159,7 @@ func (d *Dag) stepMountHandler(c *dagger.Container, step cue.Value) (*dagger.Con
 		})
 
 	case "#hostDir":
-		dir, _, err := d.hashHostDir(cfg.Source)
+		dir, _, err := d.HashHostDir(cfg.Source)
 		if err != nil {
 			return nil, err
 		}

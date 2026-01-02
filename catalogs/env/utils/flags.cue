@@ -3,18 +3,18 @@ package utils
 defaultFlags: {
 	// source code origins
 	local: string @tag(local)
-	fork:  string @tag(fork)
 	repo:  string @tag(repo)
+	fork:  string @tag(fork)
 
 	// control which origin
-	use: *"local" | "fork" | "repo" @tag(use,short=local|fork|repo)
+	use: *"local" | "repo" | "fork" @tag(use,short=local|repo|fork)
 
 	// operation mode
-	defaultModes: "lite" | "full" | "ci" | "canary" | "prod"
-	mode:         string | *defaultModes @tag(mode)
+	defaultModes: [...string] | *["lite" | "full" | "ci" | "canary" | "prod"]
+	mode: string | or(defaultModes) @tag(mode)
 
 	// git overrides
 	branch: string | *"main" @tag(branch)
 	target: string | *"main" @tag(target)
-	gitref: string | *"main" @tag(gitref)
+	gitRef: string | *"main" @tag(gitRef)
 }

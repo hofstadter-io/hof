@@ -85,7 +85,7 @@ func (d *Dag) hashFile(step cue.Value) (*dagger.File, string, error) {
 		f = dir.File(cfg.Path)
 
 	case "#hostDir":
-		dir, _, err = d.hashHostDir(cfg.Source)
+		dir, _, err = d.HashHostDir(cfg.Source)
 		if err != nil {
 			return nil, "", err
 		}
@@ -202,12 +202,14 @@ func (d *Dag) hashDir(step cue.Value) (*dagger.Directory, string, error) {
 		case "#file":
 			file, path, err = d.hashFile(src)
 		case "#hostFile":
-			file, path, err = d.hashHostFile(src)
+			_file, _cfg, _err := d.HashHostFile(src)
+			file, path, err = _file, _cfg.Path, _err
 
 		case "#dir":
 			dir, path, err = d.hashDir(src)
 		case "#hostDir":
-			dir, path, err = d.hashHostDir(src)
+			_dir, _cfg, _err := d.HashHostDir(src)
+			dir, path, err = _dir, _cfg.Path, _err
 		case "#gitRepo":
 			repo, rcfg, rerr := d.hashGitRepo(src)
 			if rerr == nil {
@@ -301,7 +303,8 @@ func (d *Dag) stepFileHandler(c *dagger.Container, step cue.Value) (*dagger.Cont
 		case "#file":
 			f, _, err = d.hashFile(cfg.Content)
 		case "#hostFile":
-			f, _, err = d.hashHostFile(cfg.Content)
+			_file, _, _err := d.HashHostFile(cfg.Content)
+			f, err = _file, _err
 
 		case "#dir":
 			dir, _, err = d.hashDir(cfg.Content)
@@ -309,7 +312,7 @@ func (d *Dag) stepFileHandler(c *dagger.Container, step cue.Value) (*dagger.Cont
 				f = dir.File(cfg.Path)
 			}
 		case "#hostDir":
-			dir, _, err = d.hashHostDir(cfg.Content)
+			dir, _, err = d.HashHostDir(cfg.Content)
 			f = dir.File(cfg.Path)
 			if err == nil && dir != nil {
 				f = dir.File(cfg.Path)
@@ -372,7 +375,7 @@ func (d *Dag) stepDirHandler(c *dagger.Container, step cue.Value) (*dagger.Conta
 			}
 
 		case "#hostDir":
-			dir, _, err = d.hashHostDir(cfg.Source)
+			dir, _, err = d.HashHostDir(cfg.Source)
 			if err != nil {
 				return nil, err
 			}

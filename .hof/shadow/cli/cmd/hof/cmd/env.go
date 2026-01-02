@@ -26,15 +26,16 @@ See their help text to learn more.
 ## Examples
 
 # [...targets], or "points", are selected via args and flags
-# list allows you to explore that space without syncing or triggering evaluation
+#   list allows you to explore that space without syncing or triggering evaluation
 veg env list|info ['^name$'] [-K '^kind$'] [-P '^path$'] [-S name|kind|path]
 
-# sync, evaluates the DAGs, but doesn't export or make external alterations
-# it can act as "real dry run" compared to the --dry-run flag for other commands
+# sync, evaluates the DAGs, but doesn't export or server anything, steps are run
+#   it can act as "real dry run" compared to the --dry-run flag for other commands
+#   without any args or flags, sync acts as a big test as well
 veg env sync [...targets] [...flags]
 
 # run, creates an interactive session and binds and dependent services
-# this is closest to docker run or kubectl exec
+#   this is closest to docker run or kubectl exec
 veg env run [...target] [...flags]
 
 # run, launches an services or stacks, similar to compose and helm
@@ -44,17 +45,16 @@ veg env up [...target] [...flags]
 veg env export -P release -T v0.4.3 -t dest=./release
 
 # make your own commands and flags, designed for your workflows
-# this is closest to Makefiles or package.json scripts
-# define similar commands with the power of CUE and Dagger
+#   this is closest to Makefiles or package.json scripts
+#   define similar commands with the power of CUE and Dagger
 veg env [init, test, lint, ci, publish, deploy, ...]
 veg env ... -t env=stg -t stack=app -t branch=main
 
 ## Important References
 
 ./schemas/env    # the CUE schemas for what you can do in veg/env
-./examples/env   # simple to complex examples to play and fork
-./catalogs/env   # reusable CUE for all sorts of things
-
+./catalogs/env   # reusable CUE for all sorts of things from small to big
+./examples/env   # simple and complex examples for you to play and fork
 `
 
 func init() {

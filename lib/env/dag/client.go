@@ -177,7 +177,7 @@ func (d *Dag) Service(val cue.Value, noCache bool) (*dagger.Service, *hashServic
 
 	switch k.Kind {
 	case "#service":
-		s, cfg, err := d.hashService(val)
+		s, cfg, err := d.HashService(val)
 
 		return s, cfg, err
 	default:
@@ -199,7 +199,11 @@ func (d *Dag) File(val cue.Value, noCache bool) (*dagger.File, string, error) {
 	case "#file":
 		return d.hashFile(val)
 	case "#hostFile":
-		return d.hashHostFile(val)
+		file, cfg, err := d.HashHostFile(val)
+		if err != nil {
+			return nil, "", err
+		}
+		return file, cfg.Path, nil
 
 	default:
 		return nil, "", fmt.Errorf("unsupported build target(%s): %v", k.Kind, val)
@@ -220,7 +224,11 @@ func (d *Dag) Dir(val cue.Value, noCache bool) (*dagger.Directory, string, error
 	case "#dir":
 		return d.hashDir(val)
 	case "#hostDir":
-		return d.hashHostDir(val)
+		dir, cfg, err := d.HashHostDir(val)
+		if err != nil {
+			return nil, "", err
+		}
+		return dir, cfg.Path, nil
 	case "#gitRepo":
 		repo, rcfg, err := d.hashGitRepo(val)
 		if err != nil {

@@ -41,11 +41,9 @@ curl github
 | [linux / arm](https://github.com/hofstadter-io/hof/releases/download/v0.7.0/hof_v0.7.0_linux_arm64) | [mac / arm](https://github.com/hofstadter-io/hof/releases/download/v0.7.0/hof_v0.7.0_darwin_arm64) |
 | [linux / amd](https://github.com/hofstadter-io/hof/releases/download/v0.7.0/hof_v0.7.0_linux_amd64) | [mac / amd](https://github.com/hofstadter-io/hof/releases/download/v0.7.0/hof_v0.7.0_darwin_amd64) |
 
-### Example: Build and Run a Container (basic)
+### Build and Run a Container (low-level steps)
 
-
-
-### Build and Run a Container (reusable)
+### Build and Run a Container (with the catalog)
 
 ```cue
 dev: env.#Container & {
@@ -98,7 +96,6 @@ dev: env.#Container & {
 }
 ```
 
-
 ### Run an example
 
 ```sh
@@ -110,14 +107,20 @@ make dagger.start
 # pick an example
 cd examples/env/...
 
+# or start something new
+mkdir potato && cd potato
+hof mod init vegg.io/potato
+hof mod get github.com/hofstadter-io/hof
+
 # poke around
 hof env list
 hof env list ['^name$'] [-K '^kind$'] [-P '^path$'] [-S name|kind|path]
 
 # sync, evaluates the DAGs, but doesn't server, export, or make external alterations
+hof env sync
 hof env sync [...targets] [...flags]
 
-# export a release bundle, 
+# export a release bundle,
 hof env export -P release -T v0.4.3 -t dest=./release
 
 # make your own commands and flags, designed for your workflows
@@ -146,13 +149,13 @@ cd k8s && \
 
 [todo] make these links
 
-- `schemas/env/`
-- `lib/env/common/` (these are import ordered to avoid cycles)
+- [schemas/env](../../schemas/env)
+- [catalogs/env](../../catalogs/env) (these are import ordered to avoid cycles)
   - `utils/` helpers that only import veg/schemas/...
   - `bases/` operating systems and the like
   - `steps/` something like ansible / multi-stage dockerfile
   - `packs/` abstractions, collections, and such for reuse
-- `examples/env/`
+- [examples/env](../../examples/env/)
   - `basic/` 3-tier app
   - `adk/` matrix test & lint
   - `atproto/` compose like testnet & app
@@ -164,8 +167,7 @@ cd k8s && \
 
 - `lib/env/...`
 
-> [!INFO]
-> `schemas/env` and `lib/env/dag` align very closely. The `dag` package uses a new progressive CUE schema alignment and decoding strategy
+> [!INFO] > `schemas/env` and `lib/env/dag` align very closely. The `dag` package uses a new progressive CUE schema alignment and decoding strategy
 > that works really, really well and will be used more widely in veg. It's also prime time for `veg gen`.
 
 ### The `veg/env` command
@@ -199,20 +201,61 @@ Guidance on starting out with the commands
 
 #### Help Text
 
-```
-$ hof env -h
+_remember, hof -> veg, so veg ~> hof_
+
+```sh
+$ veg env --help
 build, run, ship, and deploy environments (image, service, stack)
 
+'veg env' looks for custom commands and treats them equally to builtin commands.
+All commands have well known behaviors, depending on the $kind of a target.
+'veg env list' and 'hof env sync' work with all '$kind's.
+Most commands only work with a subset that makes sense or is explicit.
+See their help text to learn more.
+
+## Examples
+
+# [...targets], or "points", are selected via args and flags
+# list allows you to explore that space without syncing or triggering evaluation
+veg env list|info ['^name$'] [-K '^kind$'] [-P '^path$'] [-S name|kind|path]
+
+# sync, evaluates the DAGs, but doesn't export or make external alterations
+# it can act as "real dry run" compared to the --dry-run flag for other commands
+# without any args or flags, sync acts as a big test as well
+veg env sync [...targets] [...flags]
+
+# run, creates an interactive session and binds and dependent services
+# this is closest to docker run or kubectl exec
+veg env run [...target] [...flags]
+
+# run, launches an services or stacks, similar to compose and helm
+veg env up [...target] [...flags]
+
+# export artifacts, local or remote, object storage and registries
+veg env export -P release -T v0.4.3 -t dest=./release
+
+# make your own commands and flags, designed for your workflows
+# this is closest to Makefiles or package.json scripts
+# define similar commands with the power of CUE and Dagger
+veg env [init, test, lint, ci, publish, deploy, ...]
+veg env ... -t env=stg -t stack=app -t branch=main
+
+## Important References
+
+./schemas/env    # the CUE schemas for what you can do in veg/env
+./catalogs/env   # reusable CUE for all sorts of things from small to big
+./examples/env   # simple and complex examples for you to play and fork
+
 Usage:
-  hof env [args] [flags]
-  hof env [command]
+  veg env [...target] [% ...cue] [flags]
+  veg env [command]
 
 Available Commands:
   export      export target points from an environment to outside world
   info        get details for target points in an environments
   list        list points in an environment
   run         run target point in an environment
-  sync        sync point(s) in an environment
+  sync        sync target points in an environment
   up          starts target points in an environment
 
 Flags:
@@ -237,9 +280,9 @@ Basically, the way this works is
 1. CUE Value lattice defines overlays the Dagger OCI graph
 1. The CLI incantations determine the point(s) where CUE meets Dagger
 1. To handle the request, for each point
-  1. get the CUE Value, figure out the $kind
-  1. recursively walk the CUE Value, build a Dagger AST, do some memoization
-  1. Dagger Sync and perform which ever action the command is supposed to do
+1. get the CUE Value, figure out the $kind
+1. recursively walk the CUE Value, build a Dagger AST, do some memoization
+1. Dagger Sync and perform which ever action the command is supposed to do
 
 ## Steps and #Stuff
 
@@ -666,7 +709,6 @@ What we use this CUE + Dagger magic for:
    1. We now use this CUE + Dagger for both organic and agentic coding
 1. Soon(?) CI, because there has to be a better way than Jenkins, Argo, GHA
 1. There exist ambitions to tame terraform / helm sequencing and reconciliation
-
 
 Reasons to have CUE in your toolbox
 

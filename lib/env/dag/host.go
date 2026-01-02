@@ -86,16 +86,16 @@ func (idx *hostFileIndex) Key() string {
 	return fmt.Sprintf("#hostFile.%s", idx.cfg.Name)
 }
 
-func (d *Dag) hashHostFile(step cue.Value) (*dagger.File, string, error) {
+func (d *Dag) HashHostFile(val cue.Value) (*dagger.File, *hostFileConfig, error) {
 	var cfg hostFileConfig
-	err := step.Decode(&cfg)
+	err := val.Decode(&cfg)
 	if err != nil {
-		return nil, "", fmt.Errorf("while decoding hashHostFile: %w", err)
+		return nil, nil, fmt.Errorf("while decoding hashHostFile: %w", err)
 	}
 
 	// index for query and create if not found
 	idx := &hostFileIndex{
-		val: step,
+		val: val,
 		cfg: &cfg,
 	}
 
@@ -103,7 +103,7 @@ func (d *Dag) hashHostFile(step cue.Value) (*dagger.File, string, error) {
 	ia, ok := d.cat[idx]
 	if ok {
 		ix := ia.(*hostFileIndex)
-		return ix.file, cfg.Path, nil
+		return ix.file, ix.cfg, nil
 	}
 
 	// load for realz
@@ -114,7 +114,7 @@ func (d *Dag) hashHostFile(step cue.Value) (*dagger.File, string, error) {
 	// memoize
 	d.cat[idx] = idx
 
-	return idx.file, cfg.Path, nil
+	return idx.file, idx.cfg, nil
 }
 
 type hostDirConfig struct {
@@ -145,16 +145,16 @@ func (idx *hostDirIndex) Key() string {
 	return fmt.Sprintf("#hostDir.%s", idx.cfg.Name)
 }
 
-func (d *Dag) hashHostDir(step cue.Value) (*dagger.Directory, string, error) {
+func (d *Dag) HashHostDir(val cue.Value) (*dagger.Directory, *hostDirConfig, error) {
 	var cfg hostDirConfig
-	err := step.Decode(&cfg)
+	err := val.Decode(&cfg)
 	if err != nil {
-		return nil, "", fmt.Errorf("while decoding hashHostDir: %w", err)
+		return nil, nil, fmt.Errorf("while decoding hashHostDir: %w", err)
 	}
 
 	// index for query and create if not found
 	idx := &hostDirIndex{
-		val: step,
+		val: val,
 		cfg: &cfg,
 	}
 
@@ -162,7 +162,7 @@ func (d *Dag) hashHostDir(step cue.Value) (*dagger.Directory, string, error) {
 	ia, ok := d.cat[idx]
 	if ok {
 		ix := ia.(*hostDirIndex)
-		return ix.dir, cfg.Path, nil
+		return ix.dir, ix.cfg, nil
 	}
 
 	// load for realz
@@ -176,7 +176,7 @@ func (d *Dag) hashHostDir(step cue.Value) (*dagger.Directory, string, error) {
 	// memoize
 	d.cat[idx] = idx
 
-	return idx.dir, cfg.Path, nil
+	return idx.dir, idx.cfg, nil
 }
 
 type hostServiceConfig struct {
@@ -204,16 +204,16 @@ func (idx *hostServiceIndex) Key() string {
 	return fmt.Sprintf("#hostService.%s", idx.cfg.Name)
 }
 
-func (d *Dag) hashHostService(step cue.Value) (*dagger.Service, error) {
+func (d *Dag) HashHostService(val cue.Value) (*dagger.Service, *hostServiceConfig, error) {
 	var cfg hostServiceConfig
-	err := step.Decode(&cfg)
+	err := val.Decode(&cfg)
 	if err != nil {
-		return nil, fmt.Errorf("while decoding hashHostService: %w", err)
+		return nil, nil, fmt.Errorf("while decoding hashHostService: %w", err)
 	}
 
 	// index for query and create if not found
 	idx := &hostServiceIndex{
-		val: step,
+		val: val,
 		cfg: &cfg,
 	}
 
@@ -221,7 +221,7 @@ func (d *Dag) hashHostService(step cue.Value) (*dagger.Service, error) {
 	ia, ok := d.cat[idx]
 	if ok {
 		ix := ia.(*hostServiceIndex)
-		return ix.svc, nil
+		return ix.svc, ix.cfg, nil
 	}
 
 	// load for realz
@@ -240,7 +240,7 @@ func (d *Dag) hashHostService(step cue.Value) (*dagger.Service, error) {
 	// memoize
 	d.cat[idx] = idx
 
-	return idx.svc, nil
+	return idx.svc, idx.cfg, nil
 }
 
 type hostTunnelConfig struct {
@@ -251,6 +251,7 @@ type hostTunnelConfig struct {
 	Ports   []portForward `json:"ports"`
 }
 
+// maybe we should just export and return this, things are getting more mature
 type hostTunnelIndex struct {
 	node *env.Env
 	val  cue.Value
@@ -269,16 +270,16 @@ func (idx *hostTunnelIndex) Key() string {
 	return fmt.Sprintf("#hostTunnel.%s", idx.cfg.Name)
 }
 
-func (d *Dag) hashHostTunnel(step cue.Value) (*dagger.Service, error) {
+func (d *Dag) HashHostTunnel(val cue.Value) (*dagger.Service, *hostTunnelConfig, error) {
 	var cfg hostTunnelConfig
-	err := step.Decode(&cfg)
+	err := val.Decode(&cfg)
 	if err != nil {
-		return nil, fmt.Errorf("while decoding hashHostTunnel: %w", err)
+		return nil, nil, fmt.Errorf("while decoding hashHostTunnel: %w", err)
 	}
 
 	// index for query and create if not found
 	idx := &hostTunnelIndex{
-		val: step,
+		val: val,
 		cfg: &cfg,
 	}
 
@@ -286,7 +287,7 @@ func (d *Dag) hashHostTunnel(step cue.Value) (*dagger.Service, error) {
 	ia, ok := d.cat[idx]
 	if ok {
 		ix := ia.(*hostTunnelIndex)
-		return ix.svc, nil
+		return ix.svc, ix.cfg, nil
 	}
 
 	// load for realz
@@ -299,9 +300,9 @@ func (d *Dag) hashHostTunnel(step cue.Value) (*dagger.Service, error) {
 		})
 	}
 
-	svc, _, err := d.hashService(cfg.Service)
+	svc, _, err := d.HashService(cfg.Service)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	idx.svc = d.dag.Host().Tunnel(svc, dagger.HostTunnelOpts{
@@ -312,7 +313,7 @@ func (d *Dag) hashHostTunnel(step cue.Value) (*dagger.Service, error) {
 	// memoize
 	d.cat[idx] = idx
 
-	return idx.svc, nil
+	return idx.svc, idx.cfg, nil
 }
 
 type hostSocketConfig struct {
@@ -339,16 +340,16 @@ func (idx *hostSocketIndex) Key() string {
 	return fmt.Sprintf("#hostSocket.%s", idx.cfg.Name)
 }
 
-func (d *Dag) hashHostSocket(step cue.Value) (*dagger.Socket, error) {
+func (d *Dag) HashHostSocket(val cue.Value) (*dagger.Socket, *hostSocketConfig, error) {
 	var cfg hostSocketConfig
-	err := step.Decode(&cfg)
+	err := val.Decode(&cfg)
 	if err != nil {
-		return nil, fmt.Errorf("while decoding hashHostSocket: %w", err)
+		return nil, nil, fmt.Errorf("while decoding hashHostSocket: %w", err)
 	}
 
 	// index for query and create if not found
 	idx := &hostSocketIndex{
-		val: step,
+		val: val,
 		cfg: &cfg,
 	}
 
@@ -356,7 +357,7 @@ func (d *Dag) hashHostSocket(step cue.Value) (*dagger.Socket, error) {
 	ia, ok := d.cat[idx]
 	if ok {
 		ix := ia.(*hostSocketIndex)
-		return ix.sock, nil
+		return ix.sock, ix.cfg, nil
 	}
 
 	// load for realz
@@ -365,7 +366,7 @@ func (d *Dag) hashHostSocket(step cue.Value) (*dagger.Socket, error) {
 	// memoize
 	d.cat[idx] = idx
 
-	return idx.sock, nil
+	return idx.sock, idx.cfg, nil
 }
 
 type portForward struct {

@@ -1,7 +1,7 @@
 package bases
 
 import (
-	"github.com/hofstadter-io/hof/lib/env/common/utils"
+	"github.com/hofstadter-io/hof/catalogs/env/utils"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
@@ -12,8 +12,8 @@ debian13: {
 	minimal: env.#Container & {
 		#hof: {
 			id: "debian13-min"
-			metadata: {	
-				name: id
+			metadata: {
+				name:        id
 				description: "A minimal debian13 image with updates and certs"
 			}
 		}
@@ -33,6 +33,7 @@ debian13: {
 			utils.apt.mounts.varLib,
 			// need to update once at the beginning
 			utils.apt.update,
+			// utils.apt.upgrade,
 
 			// just certs
 			utils.apt.install & {#pkgs: ["ca-certificates", "wget", "curl"]}, // shouldn't need wget/curl, we can do that at this level
@@ -42,8 +43,8 @@ debian13: {
 	default: env.#Container & {
 		#hof: {
 			id: "debian13"
-			metadata: {	
-				name: id
+			metadata: {
+				name:        id
 				description: "A default debian13 image with common packages and tools"
 			}
 		}

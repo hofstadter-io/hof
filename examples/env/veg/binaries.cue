@@ -1,7 +1,7 @@
 package veg
 
 import (
-	"github.com/hofstadter-io/hof/lib/env/common/packs/lang"
+	"github.com/hofstadter-io/hof/catalogs/env/packs/lang"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
@@ -16,7 +16,7 @@ ctr: {
 			env.Dir & {path: "/adk", source: src.adk.fork},
 			env.Dir & {path: "/dagger", source: src.dagger.fork},
 			env.Dir & {path: "/work", source: env.#HostDir & {
-				path: "."
+				path: flags.local
 				name: "hof-bin-src"
 				include: [
 					"go.mod", "go.sum", "cue.mod",
@@ -28,11 +28,11 @@ ctr: {
 }
 
 // File version
-hof: File: { for k,v in hof.cli.matrix { 
+hof: File: {for k, v in hof.cli.matrix {
 	(k): env.File & {
-		#hof: { id: v.#hof.id, metadata: v.#hof.metadata }
-		name: v.name,
-		path: string | *"/usr/local/bin/hof",
+		#hof: {id: v.#hof.id, metadata: v.#hof.metadata}
+		name:    v.name
+		path:    string | *"/usr/local/bin/hof"
 		content: v
 	}
 }}
@@ -46,15 +46,15 @@ hof: cli: {
 
 		// params
 		#variant: string
-		#goos: string
-		#arch: string
+		#goos:    string
+		#arch:    string
 
-		path: "./bins/hof"
+		path: "./bins/hof-\(#variant)"
 		source: env.#Container & {
 			from: ctr.builder
 			steps: [
 				env.EnvVar & {GOOS: #goos, GOARCH: #arch},
-				env.Exec & {args: ["go", "build", "-o", "./bins/hof", "./cmd/hof"]},
+				env.Exec & {args: ["go", "build", "-ldflags", "-w", "-o", "./bins/hof-\(#variant)", "./cmd/hof"]},
 			]
 		}
 	}

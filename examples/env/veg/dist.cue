@@ -11,7 +11,7 @@ bins: multi: [string]: _
 
 dist: {
 	[!~"images"]~(k,_): {@env()
-		#hof: { id: "dist-\(k)", metadata: {name: string | *id}}
+		#hof: {id: "dist-\(k)", metadata: {name: string | *id}}
 		name: string | *#hof.metadata.name
 	}
 
@@ -26,13 +26,15 @@ dist: {
 	// }
 
 	cuemod: env.#ExportDir & {
+		name: "cue-module"
 		path: "dist/cuemod"
 		sources: [src.code]
 		include: [
 			"cue.mod/module.cue",
 			// "*.cue", // eventually, when we rework all of ci, use .veg more, and have a root index that imports many things, like a mega package if the user wants
 			"schemas",
-			"examples",
+			"catalogs/env",
+			"examples/env",
 			"flow/tasks/*.cue",
 			"flow/tasks/*/*.cue",
 			"lib/env/common",
@@ -45,10 +47,11 @@ dist: {
 	}
 
 	bins: env.#ExportDir & {
+		name: "gh-release"
 		path: "dist/bins"
 		sources: [
-			root.bins.hof,
-			for key,val in root.bins.matrix if key != "name" { val },
+			hof.cli.local,
+			for key, val in hof.cli.matrix if key != "name" {val}
 		]
 		// maybe this is better as trimPrefix or extractPath, this name is not clear
 		bundlePath: "./bins"
@@ -58,12 +61,15 @@ dist: {
 	images: {
 		[string]~(k,_): {
 			@env()
-			name: "veg-\(k)"
+			name: string | *"veg-\(k)"
+			reg: "ghcr.io/hofstadter-io"
 		}
 		min: env.#ExportImage & {image: root.ctr.min}
 		dev: env.#ExportImage & {image: root.ctr.dev}
+		ops: env.#ExportImage & {image: root.ctr["ops-all"], name: "veg-ops"}
 		for f, F in root.fmtr {
-			"fmtr-\(f)": env.#ExportImage & {image: F.img}
+			let _f = "fmt-\(f)"
+			(_f): env.#ExportImage & {image: F.img, name: _f}
 		}
 	}
 

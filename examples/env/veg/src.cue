@@ -9,13 +9,13 @@ import (
 src: {
 	repo: env.#GitRepo & {
 		@env()
-		name: string | *"repo"
+		// name: string | *"repo"
 		url:  flags.repo
-		ref:  flags.ref
+		ref:  string | *flags.ref
 	}
 	local: env.#HostDir & {
 		@env()
-		name: string | *"local"
+		// name: string | *"local"
 		path: flags.local
 	}
 	adk: {
