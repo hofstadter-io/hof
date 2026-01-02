@@ -80,6 +80,7 @@ type exportDirConfig struct {
 	Include   []string `json:"include"`
 	Exclude   []string `json:"exclude"`
 	Gitignore bool     `json:"gitignore"`
+	Owner     string   `json:"owner"`
 
 	Wipe bool `json:"wipe"`
 }
@@ -179,6 +180,7 @@ func (d *Dag) HashExportDir(step cue.Value) (*dagger.Directory, *exportDirConfig
 		Include:   cfg.Include,
 		Exclude:   cfg.Exclude,
 		Gitignore: cfg.Gitignore,
+		Owner:     cfg.Owner,
 	})
 	// (2) subpath selections
 	final = final.Directory(cfg.BundlePath)

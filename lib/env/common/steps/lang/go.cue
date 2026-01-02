@@ -13,10 +13,10 @@ go: {
 
 	envSets: {
 		default: [
-			env.Env & {PATH: "$PATH:/usr/local/go/bin"},
-			env.Env & {GOBIN: "/usr/local/bin"}, // go install to /usr/local/bin
-			env.Env & {GOCACHE: "/cache/go"},    // intermediate build artifacts
-			env.Env & {GOPATH: "/go"},           // mod / pkg / sumdb cache
+			env.EnvVar & {PATH: "$PATH:/usr/local/go/bin"},
+			env.EnvVar & {GOBIN: "/usr/local/bin"}, // go install to /usr/local/bin
+			env.EnvVar & {GOCACHE: "/cache/go"},    // intermediate build artifacts
+			env.EnvVar & {GOPATH: "/go"},           // mod / pkg / sumdb cache
 		]
 	}
 

@@ -144,91 +144,91 @@ type kinder struct {
 	Kind string `json:"$kind"`
 }
 
-func (d *Dag) Container(e *env.Env, noCache bool) (*dagger.Container, error) {
+func (d *Dag) Container(val cue.Value, noCache bool) (*dagger.Container, error) {
 	d.noCache = noCache
 
 	// it's probably wrong to assume this in general
 	var k kinder
-	err := e.Value.Decode(&k)
+	err := val.Decode(&k)
 	if err != nil {
 		return nil, err
 	}
 
 	switch k.Kind {
 	case "#container":
-		return d.HashContainer(e.Value)
+		return d.HashContainer(val)
 	case "#hostImage":
-		return d.HashHostImage(e.Value)
+		return d.HashHostImage(val)
 	case "#dockerBuild":
-		return d.HashDockerBuild(e.Value)
+		return d.HashDockerBuild(val)
 	default:
-		return nil, fmt.Errorf("unsupported build target(%s): %v", k.Kind, e.Value)
+		return nil, fmt.Errorf("unsupported build target(%s): %v", k.Kind, val)
 	}
 }
 
-func (d *Dag) Service(e *env.Env, noCache bool) (*dagger.Service, *hashServiceConfig, error) {
+func (d *Dag) Service(val cue.Value, noCache bool) (*dagger.Service, *hashServiceConfig, error) {
 	d.noCache = noCache
 
 	// it's probably wrong to assume this in general
 	var k kinder
-	err := e.Value.Decode(&k)
+	err := val.Decode(&k)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	switch k.Kind {
 	case "#service":
-		s, cfg, err := d.hashService(e.Value)
+		s, cfg, err := d.hashService(val)
 
 		return s, cfg, err
 	default:
-		return nil, nil, fmt.Errorf("unsupported build target(%s): %v", k.Kind, e.Value)
+		return nil, nil, fmt.Errorf("unsupported build target(%s): %v", k.Kind, val)
 	}
 }
 
-func (d *Dag) File(e *env.Env, noCache bool) (*dagger.File, string, error) {
+func (d *Dag) File(val cue.Value, noCache bool) (*dagger.File, string, error) {
 	d.noCache = noCache
 
 	// it's probably wrong to assume this in general
 	var k kinder
-	err := e.Value.Decode(&k)
+	err := val.Decode(&k)
 	if err != nil {
 		return nil, "", err
 	}
 
 	switch k.Kind {
 	case "#file":
-		return d.hashFile(e.Value)
+		return d.hashFile(val)
 	case "#hostFile":
-		return d.hashHostFile(e.Value)
+		return d.hashHostFile(val)
 
 	default:
-		return nil, "", fmt.Errorf("unsupported build target(%s): %v", k.Kind, e.Value)
+		return nil, "", fmt.Errorf("unsupported build target(%s): %v", k.Kind, val)
 	}
 }
 
-func (d *Dag) Dir(e *env.Env, noCache bool) (*dagger.Directory, string, error) {
+func (d *Dag) Dir(val cue.Value, noCache bool) (*dagger.Directory, string, error) {
 	d.noCache = noCache
 
 	// it's probably wrong to assume this in general
 	var k kinder
-	err := e.Value.Decode(&k)
+	err := val.Decode(&k)
 	if err != nil {
 		return nil, "", err
 	}
 
 	switch k.Kind {
 	case "#dir":
-		return d.hashDir(e.Value)
+		return d.hashDir(val)
 	case "#hostDir":
-		return d.hashHostDir(e.Value)
+		return d.hashHostDir(val)
 	case "#gitRepo":
-		repo, rcfg, err := d.hashGitRepo(e.Value)
+		repo, rcfg, err := d.hashGitRepo(val)
 		if err != nil {
 			return nil, "", err
 		}
 		return repo.Ref(rcfg.Ref).Tree(), "", nil
 	default:
-		return nil, "", fmt.Errorf("unsupported build target(%s): %v", k.Kind, e.Value)
+		return nil, "", fmt.Errorf("unsupported build target(%s): %v", k.Kind, val)
 	}
 }

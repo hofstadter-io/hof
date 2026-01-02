@@ -1,14 +1,15 @@
-# hof/env
+# veg/env
 
-`hof/env` is a CUE interface over Dagger.
+`veg/env` is a CUE interface over Dagger.
 The result is a blend of Makefiles, Ansible, Dockerfiles, and Docker Compose.
 
-It forms the foundation for:
+It forms as one of the foundations for:
 
-1. Shared fabrics across the software lifecycle, via CUE and Dagger DAGs
-1. OCI modules and imports in the front, OCI images and environments in the back
-1. Defining images/layers, services/deployments, and workflows/tasks
-1. Works the same everywhere with dynamic tasks dependencies and advanced caching
+1. Shared configuration mesh across the software lifecycle, via CUE and Dagger DAGs
+1. OCI modules and config in the front, OCI layers and environments in the back
+1. Automatic DAG evaluation with dependency ordering and advanced caching
+
+Define everything that goes into images/layers, stacks/services, and workflows/tasks which span local dev, ci/cd, and staged deployment. A singular, modular, shared fabric that acts as a source of truth and consistency from coder to commit to customer.
 
 > [!NOTE]
 > A name change is approaching, `hof` -> `veg`, you will see hints of that now.
@@ -23,7 +24,7 @@ You need docker, nerdctl, or podman installed.
 brew install hofstadter-io/tap/hof
 ``` -->
 
-```sh
+<!-- ```sh
 hof env install/hof
 
 dagger ...
@@ -31,7 +32,7 @@ dagger ...
 docker copy ghcr.io
 
 curl github
-```
+``` -->
 
 ### Binaries from GitHub
 
@@ -39,6 +40,64 @@ curl github
 | :-------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------: |
 | [linux / arm](https://github.com/hofstadter-io/hof/releases/download/v0.7.0/hof_v0.7.0_linux_arm64) | [mac / arm](https://github.com/hofstadter-io/hof/releases/download/v0.7.0/hof_v0.7.0_darwin_arm64) |
 | [linux / amd](https://github.com/hofstadter-io/hof/releases/download/v0.7.0/hof_v0.7.0_linux_amd64) | [mac / amd](https://github.com/hofstadter-io/hof/releases/download/v0.7.0/hof_v0.7.0_darwin_amd64) |
+
+### Example: Build and Run a Container (basic)
+
+
+
+### Build and Run a Container (reusable)
+
+```cue
+dev: env.#Container & {
+  @env()
+  name: "veg-dev"
+
+  // start from our debian default base image
+  from: bases.debian.default
+
+  // these steps are all RUN or COPY equivalents from a Dockerfile
+  // defined elsewhere
+  steps: [
+    // customization
+    tool.zsh.customize,
+
+    // daily drivers
+    veg.cli,
+    tool.github.cli,
+
+    // deps for go/node/python -> c/c++ situations (like CGO)
+    utils.apt.install & {#pkgs: ["gcc", "libc6-dev"]},
+
+    // setup languages
+    lang.go.default,
+    lang.cue.default,
+    lang.node.default,
+    lang.python.default,
+    lang.python.dev, // depends on node
+
+    // devops stuff
+    tool.hashicorp.terraform,
+    tool.hashicorp.packer,
+    tool.k8s.kubectl,
+    tool.k8s.helm,
+    tool.k8s.crane,
+
+    // tools just for agents
+    tool.agents.lsp2mcp,
+
+    // launch a terminal to check on things, continue when done
+    // env.Terminal,
+
+    // bind lsp servers, started on demand
+    env.BindService & {service: lang.go.lsp},
+    env.BindService & {service: lang.cue.lsp},
+    env.BindService & {service: lang.node.lsp},
+    env.BindService & {service: lang.python.lsp},
+
+  ]
+}
+```
+
 
 ### Run an example
 
@@ -164,6 +223,15 @@ Flags:
   -S, --sort stringArray   sort columns, can be used multiple times (default [name])
 ```
 
+Basically, the way this works is
+
+1. CUE Value lattice defines overlays the Dagger OCI graph
+1. The CLI incantations determine the point(s) where CUE meets Dagger
+1. To handle the request, for each point
+  1. get the CUE Value, figure out the $kind
+  1. recursively walk the CUE Value, build a Dagger AST, do some memoization
+  1. Dagger Sync and perform which ever action the command is supposed to do
+
 ## Steps and #Stuff
 
 Keep [schema/env](../../schemas/veg)
@@ -278,64 +346,6 @@ These are artifacts, intermediates, or resources you can work with
 ```
 
 ## Examples
-
-### Build and Run a Container
-
-`hof env ...`
-
-```cue
-dev: env.#Container & {
-  @env(), @id(veg-dev)
-  #hof: metadata: {
-    id:          "veg-dev"
-    name:        id
-    description: "setup needed to work on veg"
-  }
-  name: #hof.metadata.name
-
-  // start from our default debian
-  from: bases.debian.default
-
-  steps: [
-    // customization
-    tool.zsh.customize,
-
-    // daily drivers
-    hof.cli,
-    tool.github.cli,
-
-    // deps for go/node/python -> c/c++ situations (like CGO)
-    utils.apt.install & {#pkgs: ["gcc", "libc6-dev"]},
-
-    // setup languages
-    lang.go.default,
-    lang.cue.default,
-    lang.node.default,
-    lang.python.default,
-    lang.python.dev, // depends on node
-
-    // devops stuff
-    tool.hashicorp.terraform,
-    tool.hashicorp.packer,
-    tool.k8s.kubectl,
-    tool.k8s.helm,
-    tool.k8s.crane,
-
-    // tools just for agents
-    tool.agents.lsp2mcp,
-
-    // launch a terminal to check on things, continue when done
-    // env.Terminal,
-
-    // bind lsp servers, started on demand
-    env.BindService & {service: lang.go.lsp},
-    env.BindService & {service: lang.cue.lsp},
-    env.BindService & {service: lang.node.lsp},
-    env.BindService & {service: lang.python.lsp},
-
-  ]
-}
-```
 
 ### Multi-Stage Builds and Beyond, DAG style
 
@@ -647,3 +657,11 @@ What we use this CUE + Dagger magic for:
    1. We now use this CUE + Dagger for both organic and agentic coding
 1. Soon(?) CI, because there has to be a better way than Jenkins, Argo, GHA
 1. There exist ambitions to tame terraform / helm sequencing and reconciliation
+
+
+Reasons to have CUE in your toolbox
+
+1. It's an approachable, logical language. It's a can be a good thinking tool like Haskell if it's not a daily driver for you. It has mathsex appeal.
+2. It deals with config and data, rosetta stone, not just for formats. JQ on steroids
+3. It can be surgical, or global if you prefer. Add schema, transform data, or enforce policy
+4. Everything is pretty much ETL anyway, CUE is the glue or meta layer (#devops)

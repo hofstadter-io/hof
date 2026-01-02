@@ -92,21 +92,21 @@ cmd: {
 		}
 	}
 
-	ci: tasks: {
-		default: steps: [test, lint]
-		full: steps: [test, lint, scan, review]
-		release: steps: [full, gather, publish]
+	// ci: tasks: {
+	// 	default: steps: [test, lint]
+	// 	full: steps: [test, lint, scan, review]
+	// 	release: steps: [full, gather, publish]
 
-		// env.#HostExec (todo)
-		gather: ["hof env export -P dist"]
-		publish: [
-			"git tag",
-			"gh cli to draft & upload",
-		]
+	// 	// env.#HostExec (todo)
+	// 	gather: ["hof env export -P dist"]
+	// 	publish: [
+	// 		"git tag",
+	// 		"gh cli to draft & upload",
+	// 	]
 
-		onPush: default
-		prPush: full
-		onTag: steps: [release]
+	// 	onPush: default
+	// 	prPush: full
+	// 	onTag: steps: [release]
 
-	}
+	// }
 }

@@ -7,10 +7,13 @@ import (
 
 rocky8: {
 	minimal: env.#Container & {
-		@id(rocky-8-minimal)
-		#hof: metadata: description: "A minimal rocky8 image with updates and certs"
+		@id(rocky-8-minimal)  // @name(too?)
+		#hof: metadata: {
+			name: "rocky8-min"
+			description: "A minimal rocky8 image with updates and certs"
+		}
 
-		from: "rockylinux:8:minimal"
+		from: "rockylinux:8.9"
 
 		steps: [
 			// default workdir (for wide default consistency)
@@ -20,12 +23,12 @@ rocky8: {
 
 			// shared apt caches, for all derived images as well
 			// ya'know, instead of cleaning and refetching all the time?
-			utils.dnf.mounts.varLib,
+			// utils.dnf.mounts.varLib,
 			// need to update once at the beginning
-			utils.dnf.update,
+			// utils.dnf.update,
 
 			// just certs
-			utils.apt.install & {#pkgs: ["ca-certificates", "wget", "curl"]}, // shouldn't need wget/curl, we can do that at this level
+			utils.dnf.install & {#pkgs: ["ca-certificates", "wget", "curl"]}, // shouldn't need wget/curl, we can do that at this level
 		]
 	}
 }
@@ -33,9 +36,13 @@ rocky8: {
 rocky9: {
 	minimal: env.#Container & {
 		@id(rocky-9-minimal)
-		#hof: metadata: description: "A minimal rocky9 image with updates and certs"
+		#hof: metadata: {
+			name: "rocky9-min"
+			description: "A minimal rocky9 image with updates and certs"
+		}
 
-		from: "rockylinux:9:minimal"
+		name: "rocky9-min"
+		from: "rockylinux:9.3"
 
 		steps: [
 			// default workdir (for wide default consistency)
@@ -45,12 +52,12 @@ rocky9: {
 
 			// shared apt caches, for all derived images as well
 			// ya'know, instead of cleaning and refetching all the time?
-			utils.dnf.mounts.varLib,
+			// utils.dnf.mounts.varLib,
 			// need to update once at the beginning
 			utils.dnf.update,
 
-			// just certs
-			utils.apt.install & {#pkgs: ["ca-certificates", "wget", "curl"]}, // shouldn't need wget/curl, we can do that at this level
+			// bare essentials (ca-certs & curl already installed)
+			utils.dnf.install & {#pkgs: ["wget"]}, // shouldn't need wget/curl, we can do that at this level
 		]
 	}
 

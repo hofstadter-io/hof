@@ -20,4 +20,6 @@ flags: {
 		gopls:  int | *4000 @tag(ports_gopls)
 		cuepls: int | *4001 @tag(ports_cuepls)
 	}
+
+	registry: string | *"host.docker.internal:5000" @tag(reg)
 }

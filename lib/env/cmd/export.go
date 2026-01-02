@@ -11,9 +11,8 @@ import (
 
 func exportable(e *env.Env) bool {
 	accepting := []string{
-		"container", "hostImage", "dockerBuild",
-		"dir", "hostDir", "gitRepo",
-		"file", "hostFile",
+		"container", "dockerBuild",
+		"dir", "file",
 		"exportFile", "exportDir",
 		"exportImage", "exportImageFile", "publishImage",
 	}
@@ -48,8 +47,8 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 		fmt.Printf(" - %s (%s)\n", name, kind)
 
 		switch kind {
-		case "container", "hostImage", "dockerBuild":
-			i, err := d.Container(e, eflags.NoCache)
+		case "container", "dockerBuild":
+			i, err := d.Container(e.Value, eflags.NoCache)
 			if err != nil {
 				return err
 			}
@@ -69,8 +68,8 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 				}
 			}
 
-		case "dir", "hostDir", "gitRepo":
-			dir, p, err := d.Dir(e, eflags.NoCache)
+		case "dir":
+			dir, p, err := d.Dir(e.Value, eflags.NoCache)
 			if err != nil {
 				return err
 			}
@@ -88,8 +87,8 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 				}
 			}
 
-		case "file", "hostFile":
-			file, p, err := d.File(e, eflags.NoCache)
+		case "file":
+			file, p, err := d.File(e.Value, eflags.NoCache)
 			if err != nil {
 				return err
 			}

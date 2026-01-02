@@ -4,7 +4,6 @@ import (
 	"github.com/hofstadter-io/hof/schemas"
 )
 
-Env: EnvVar
 EnvVar: Step & {
 	$kind:    "envVar"
 	[string]: string
@@ -14,6 +13,11 @@ EnvFile: Step & {
 	$kind: "envFile"
 
 	file: #File | #HostFile
+}
+
+// pass all os.Env vars to the container or service
+EnvAll: Step & {
+	$kind: "envAll"
 }
 
 // sets a secret in the system
@@ -33,7 +37,6 @@ EnvFile: Step & {
 	source: _
 }
 
-Secret: SecretVar
 SecretVar: Step & {
 	$kind: "secretVar"
 

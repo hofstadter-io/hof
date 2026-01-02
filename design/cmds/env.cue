@@ -59,6 +59,42 @@ EnvCommand: schema.Command & {
 		Type:    "[]string"
 		Default: #"[]string{"name"}"# // todo, support special options like git-tag or git-commit
 		Help:    "sort columns, can be used multiple times" // todo, support +/- prefix for asc/desc
+	}, {
+		Name:    "EnvVar"
+		Long:    "env-var"
+		Type:    "[]string"
+		Default: "nil"
+		Help:    "key=value ENV vars to pass"
+	}, {
+		Name:    "EnvFile"
+		Long:    "env-file"
+		Type:    "[]string"
+		Default: "nil"
+		Help:    "path to a file with ENV vars to pass"
+	}, {
+		Name:    "ShhVar"
+		Long:    "shh-var"
+		Type:    "[]string"
+		Default: "nil"
+		Help:    "key=value secret ENV vars to pass"
+	}, {
+		Name:    "ShhFile"
+		Long:    "shh-file"
+		Type:    "[]string"
+		Default: "nil"
+		Help:    "path to a file with secret ENV vars to pass"
+	}, {
+		Name:    "EnvAll"
+		Long:    "env-all"
+		Type:    "bool"
+		Default: "false"
+		Help:    "pass os.Env (everything)"
+	}, {
+		Name:    "parallel"
+		Long:    "parallel"
+		Type:    "int"
+		Default: "1"
+		Help:    "number of args or objects to process at once, they may be highly parallel internally"
 	}]
 
 	Commands: [{

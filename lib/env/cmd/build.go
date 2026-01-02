@@ -64,7 +64,7 @@ func Build(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole)
 
 			switch kind {
 			case "container", "hostImage", "dockerBuild":
-				i, err := d.Container(e, eflags.NoCache)
+				i, err := d.Container(e.Value, eflags.NoCache)
 				if err != nil {
 					return err
 				}
@@ -74,7 +74,7 @@ func Build(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole)
 				}
 
 			case "dir", "hostDir", "gitRepo":
-				i, _, err := d.Dir(e, eflags.NoCache)
+				i, _, err := d.Dir(e.Value, eflags.NoCache)
 				if err != nil {
 					return err
 				}
@@ -84,7 +84,7 @@ func Build(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole)
 				}
 
 			case "file", "hostFile":
-				i, _, err := d.File(e, eflags.NoCache)
+				i, _, err := d.File(e.Value, eflags.NoCache)
 				if err != nil {
 					return err
 				}

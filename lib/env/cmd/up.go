@@ -47,7 +47,7 @@ func Up(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) er
 		name, kind, _ := extractMeta(e)
 		fmt.Printf("  %s (%s)", name, kind)
 
-		s, cfg, err := d.Service(e, eflags.NoCache)
+		s, cfg, err := d.Service(e.Value, eflags.NoCache)
 		if err != nil {
 			fmt.Println("error:", err)
 			return err

@@ -2,75 +2,16 @@ package dag
 
 import (
 	"fmt"
-	"os/exec"
-	"strings"
 
 	"cuelang.org/go/cue"
 	"dagger.io/dagger"
-	"github.com/hofstadter-io/hof/lib/env"
 )
-
-type hashHostExecConfig struct {
-	Kind string   `json:"$kind"`
-	Args []string `json:"args"`
-
-	// opts
-	UseEntrypoint  bool   `json:"useEntrypoint"`
-	Stdin          string `json:"stdin"`
-	RedirectStdin  string `json:"redirectStdin"`
-	RedirectStdout string `json:"redirectStdout"`
-	RedirectStderr string `json:"redirectStderr"`
-	Expect         string `json:"string"`
-}
-
-type hashHostExecIndex struct {
-	node *env.Env
-	val  cue.Value
-	cfg  *hashHostExecConfig
-	cmd  *exec.Cmd
-}
-
-func (idx *hashHostExecIndex) Key() string {
-	if idx.cfg == nil {
-		return "#service.nil"
-	}
-	mk := vegMemoKey(idx.node)
-	if mk != "" {
-		return fmt.Sprintf("#service.%s", mk)
-	}
-	return fmt.Sprintf("#service.%s", strings.Join(idx.cfg.Args, " "))
-}
-
-func (d *Dag) hashExecHandler(step cue.Value) (*exec.Cmd, error) {
-	var cfg hashHostExecConfig
-	err := step.Decode(&cfg)
-	if err != nil {
-		return nil, err
-	}
-	// fmt.Println("hashHostDec.config", cfg)
-
-	// index for query and create if not found
-	idx := &hashHostExecIndex{
-		val: step,
-		cfg: &cfg,
-	}
-
-	// lookup
-	ia, ok := d.cat[idx]
-	if ok {
-		ix := ia.(*hashHostExecIndex)
-		return ix.cmd, nil
-	}
-
-	return idx.cmd, nil
-}
 
 type stepExecConfig struct {
 	Kind string   `json:"$kind"`
 	Args []string `json:"args"`
 
 	// opts
-	Workdir        string `json:"workdir"`
 	UseEntrypoint  bool   `json:"useEntrypoint"`
 	Stdin          string `json:"stdin"`
 	RedirectStdin  string `json:"redirectStdin"`

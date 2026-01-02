@@ -41,7 +41,7 @@ func Publish(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpol
 		name, kind, _ := extractMeta(e)
 		fmt.Printf("  %s (%s)", name, kind)
 
-		i, err := d.Container(e, eflags.NoCache)
+		i, err := d.Container(e.Value, eflags.NoCache)
 		if err != nil {
 			return err
 		}

@@ -20,21 +20,21 @@ ctr: {
 		]
 	}
 	built: env.#Container & {
-		@env(), @id(hof-cli-build)
+		@env(), @id(hof-cli-built)
 		from: builder
 		steps: [
-			env.Env & {GOOS: flags.goos, GOARCH: flags.arch},
+			env.EnvVar & {GOOS: flags.goos, GOARCH: flags.arch},
 			env.Exec & {args: ["go", "build", "-o", "./bins/hof", "./cmd/hof"]},
 		]
 	}
 }
 
-hof: cli: env.File & {path: "/usr/local/bin/hof", content: bins.hof}
+hof: cli: env.File & {path: "/usr/local/bin/hof", content: bins.matrix["linux-arm64"]}
 
 bins: {
 	[string]~(k,_): {name: "bin-\(k)"}
 	hof: env.#File & {@env(), path: "./bins/hof", source: ctr.built}
-	multi: {
+	matrix: {
 		_goos: ["linux", "darwin"]
 		_arch: ["amd64", "arm64"]
 		for _g in _goos for _a in _arch
@@ -62,7 +62,7 @@ bins: {
 				source: env.#Container & {
 					from: ctr.builder
 					steps: [
-						env.Env & {GOOS: _g, GOARCH: _a},
+						env.EnvVar & {GOOS: _g, GOARCH: _a},
 						env.Exec & {args: ["go", "build", "-o", "./bins/hof-\(_g)-\(_a)", "./cmd/hof"]},
 					]
 				}

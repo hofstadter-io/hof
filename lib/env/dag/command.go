@@ -31,7 +31,8 @@ type hashTaskConfig struct {
 	Kind string `json:"$kind"`
 	Name string `json:"name"`
 
-	Steps []cue.Value          `json:"steps"`
+	Steps [][]cue.Value `json:"steps"`
+	// Steps []cue.Value          `json:"steps"`
 	Hooks map[string]cue.Value `json:"hooks"`
 
 	Parallel int            `json:"parallel"`

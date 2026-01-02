@@ -5,12 +5,18 @@ import (
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
-debian: {
+debian13: {
 
 	minimal: env.#Container & {
-		@id(debian-13-minimal)
-		#hof: metadata: description: "A minimal debian13 image with updates and certs"
+		#hof: {
+			id: "debian13-min"
+			metadata: {	
+				name: id
+				description: "A minimal debian13 image with updates and certs"
+			}
+		}
 
+		name: string | *"debian13-min"
 		from: "debian:13-slim"
 
 		steps: [
@@ -32,8 +38,13 @@ debian: {
 	}
 
 	default: env.#Container & {
-		@id(debian-13-default)
-		#hof: metadata: description: "A default debian13 image with common packages and tools"
+		#hof: {
+			id: "debian13"
+			metadata: {	
+				name: id
+				description: "A default debian13 image with common packages and tools"
+			}
+		}
 
 		from: "debian:13-slim"
 

@@ -61,9 +61,6 @@ Ref: {
 	// steps: [...] | {...} // OK (but not right)
 	// steps: [...{...}]  // OK (but not right)
 	// steps: [...{...}|[...]]  // PANIC
-
-	// labels are applied at the end
-	labels: [string]: string
 }
 
 DefaultLabels: {

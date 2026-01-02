@@ -40,7 +40,7 @@ func Run(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole, c
 	// eventually we want to loop, when we accept more kinds and flags to send them to the background
 	e := matches[0]
 
-	i, err := d.Container(e, eflags.NoCache)
+	i, err := d.Container(e.Value, eflags.NoCache)
 	if err != nil {
 		return err
 	}

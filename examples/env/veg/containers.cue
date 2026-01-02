@@ -3,7 +3,7 @@ package veg
 
 import (
 	"github.com/hofstadter-io/hof/lib/env/common/bases"
-	"github.com/hofstadter-io/hof/lib/env/common/packs/lang"
+	"github.com/hofstadter-io/hof/lib/env/common/steps/lang"
 	"github.com/hofstadter-io/hof/lib/env/common/steps/tool"
 	"github.com/hofstadter-io/hof/lib/env/common/utils"
 	"github.com/hofstadter-io/hof/schemas/env"
@@ -46,19 +46,18 @@ ctr: {
 			tool.github.cli,
 
 			// setup languages
-			lang.go.default,
+			lang.go.defaultSteps,
 			// lang.cue.default,
 			lang.node.default,
 			lang.python.default,
 			lang.python.dev, // depends on node
 
 			// devops stuff
-			tool.hashicorp.terraform,
-			tool.hashicorp.packer,
-			tool.k8s.kubectl,
-			tool.k8s.helm,
-			tool.k8s.crane,
-			tool.github.cli,
+			// tool.hashicorp.terraform,
+			// tool.hashicorp.packer,
+			// tool.k8s.kubectl,
+			// tool.k8s.helm,
+			// tool.k8s.crane,
 
 			// // bind lsp servers, started on demand
 			// env.BindService & {service: lang.go.lsp},

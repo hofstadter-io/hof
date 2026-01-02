@@ -5,13 +5,9 @@ import (
 )
 
 github: {
-	cli: env.Exec & {
-		args: ["sh", "-c", _script]
-
+	cli: env.Bash & {
 		// https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian
-		_script: """
-			set -eou pipefail
-
+		script: """
 			mkdir -p -m 755 /etc/apt/keyrings
 			out=$(mktemp)
 			wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg

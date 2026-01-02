@@ -57,9 +57,6 @@ func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) e
 			t1 := 0
 			for t, taskVal := range cmdCfg.Tasks {
 				t1++
-				// fmt.Printf("   [%d/%d]: %s\n", t1, len(cmdCfg.Tasks), t)
-				// fmt.Printf("  %s:\n", t)
-				// fmt.Println(taskVal)
 				taskCfg, err := d.DecodeHashTask(taskVal)
 				if err != nil {
 					return err
@@ -108,7 +105,6 @@ func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) e
 						var dest string
 
 						switch k.Kind {
-						// todo, we need to split these across here (cue eval) & below (dag sync)
 						case "#exportFile":
 							_file, cfg, _err := d.HashExportFile(parStep)
 							if cfg != nil {
@@ -123,12 +119,6 @@ func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) e
 								wipe = cfg.Wipe
 							}
 							dir, err = _dir, _err
-						case "#publishImage":
-							_c, cfg, _err := d.HashPublishImage(parStep)
-							if cfg != nil {
-								dest = cfg.Name
-							}
-							c, err = _c, _err
 						case "#exportImage":
 							_c, cfg, _err := d.HashExportImage(parStep)
 							if cfg != nil {
@@ -141,11 +131,23 @@ func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) e
 								dest = cfg.Path
 							}
 							c, err = _c, _err
+						case "#publishImage":
+							_c, cfg, _err := d.HashPublishImage(parStep)
+							if cfg != nil {
+								dest = cfg.Name
+							}
+							c, err = _c, _err
+
+						case "#file":
+							file, dest, err = d.File(parStep, eflags.NoCache)
+						case "#dir":
+							dir, dest, err = d.Dir(parStep, eflags.NoCache)
 
 						case "#container":
 							c, err = d.HashContainer(parStep)
-						case "#hostImage":
-							c, err = d.HashHostImage(parStep)
+						case "#dockerBuild":
+							c, err = d.HashDockerBuild(parStep)
+
 						default:
 							return fmt.Errorf("unsupported cmd target(%s): %v", k.Kind, parStep)
 						}
@@ -153,6 +155,8 @@ func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) e
 						//
 						// Phase 2 - synchronize dagger, in parallel
 						//
+
+						// we should control parallelism here
 
 						// only parallel the dagger work
 						g.Go(func() error {
@@ -163,6 +167,8 @@ func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) e
 							}
 
 							start := time.Now()
+
+							// HMMM, this decides what we do
 
 							switch k.Kind {
 							// todo, we need to split these across here (cue eval) & below (dag sync)
@@ -179,6 +185,8 @@ func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) e
 							case "#exportImageFile":
 								_, err = c.Export(ctx, dest, dagger.ContainerExportOpts{})
 
+							case "#publish":
+								c, err = c.Sync(ctx)
 							case "#container":
 								c, err = c.Sync(ctx)
 							case "#hostImage":

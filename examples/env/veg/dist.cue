@@ -33,7 +33,8 @@ dist: {
 			// "*.cue", // eventually, when we rework all of ci, use .veg more, and have a root index that imports many things, like a mega package if the user wants
 			"schemas",
 			"examples",
-			"flow/tasks",
+			"flow/tasks/*.cue",
+			"flow/tasks/*/*.cue",
 			"lib/env/common",
 			"SECURITY.md",
 			"README.md",
@@ -47,17 +48,12 @@ dist: {
 		path: "dist/bins"
 		sources: [
 			root.bins.hof,
-			// for k,val in root.bins.multi if k != "name" { val },
+			for key,val in root.bins.matrix if key != "name" { val },
 		]
+		// maybe this is better as trimPrefix or extractPath, this name is not clear
 		bundlePath: "./bins"
 		wipe:       true
 	}
-
-	// vscode: env.#ExportDir & {
-	// 	path: "dist/vscode"
-	// 	wipe: true
-	// 	sources: []
-	// }
 
 	images: {
 		[string]~(k,_): {

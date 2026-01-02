@@ -12,6 +12,7 @@ import (
 )
 
 func (d *Dag) stepEnvVarHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+	// no type for this one, it's just a map
 	var envs map[string]string
 	err := step.Decode(&envs)
 	if err != nil {
