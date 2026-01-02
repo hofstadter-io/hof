@@ -3,7 +3,7 @@ package veg
 
 import (
 	"github.com/hofstadter-io/hof/catalogs/env/bases"
-	// "github.com/hofstadter-io/hof/catalogs/env/packs"
+	"github.com/hofstadter-io/hof/catalogs/env/packs"
 	isteps "github.com/hofstadter-io/hof/catalogs/env/steps"
 	"github.com/hofstadter-io/hof/catalogs/env/utils"
 	"github.com/hofstadter-io/hof/schemas/env"
@@ -56,6 +56,9 @@ ctr: {
 			isteps.lang.python.default,
 			isteps.lang.python.dev, // depends on node
 
+			// tools for agents
+			isteps.tool.agents.lsp2mcp,
+
 			// devops stuff
 			// tool.hashicorp.terraform,
 			// tool.hashicorp.packer,
@@ -68,9 +71,6 @@ ctr: {
 			// env.BindService & {service: lang.cue.lsp},
 			// env.BindService & {service: lang.node.lsp},
 			// env.BindService & {service: lang.python.lsp},
-
-			// tools for agents
-			isteps.tool.agents.lsp2mcp,
 		]
 	}
 

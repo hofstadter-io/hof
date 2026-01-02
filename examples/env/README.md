@@ -3,13 +3,13 @@
 `veg/env` is a CUE interface over Dagger.
 The result is a blend of Makefiles, Ansible, Dockerfiles, and Docker Compose.
 
-It forms as one of the foundations for:
+This serves as a foundations for:
 
 1. Shared configuration mesh across the software lifecycle, via CUE and Dagger DAGs
 1. OCI modules and config in the front, OCI layers and environments in the back
 1. Automatic DAG evaluation with dependency ordering and advanced caching
 
-Define everything that goes into images/layers, stacks/services, and workflows/tasks which span local dev, ci/cd, and staged deployment. A singular, modular, shared fabric that acts as a source of truth and consistency from coder to commit to customer.
+Define everything that goes into images/layers, stacks/services, and workflows/tasks which span local dev, ci/cd, and staged deployment. A singular, modular, shared fabric that acts as a source of truth and consistency from coder to commit to cloud.
 
 > [!NOTE]
 > A name change is approaching, `hof` -> `veg`, you will see hints of that now.
@@ -46,33 +46,51 @@ curl github
 
 ### Build and Run a Container (with the catalog)
 
+`hof env run veg-dev`
+
 ```cue
+package veg
+
+import (
+	"github.com/hofstadter-io/hof/catalogs/env/bases"
+	isteps "github.com/hofstadter-io/hof/catalogs/env/steps"
+	"github.com/hofstadter-io/hof/catalogs/env/utils"
+	"github.com/hofstadter-io/hof/schemas/env"
+)
+
 dev: env.#Container & {
   @env()
-  name: "veg-dev"
+  #hof: {
+    id: "veg-dev"
+    metadata: {
+      name:        id
+      description: "setup needed to work on veg"
+    }
+  }
+  name: #hof.metadata.name
 
-  // start from our debian default base image
   from: bases.debian.default
 
-  // these steps are all RUN or COPY equivalents from a Dockerfile
-  // defined elsewhere
   steps: [
     // customization
-    tool.zsh.customize,
-
-    // daily drivers
-    veg.cli,
-    tool.github.cli,
+    isteps.tool.zsh.customize,
 
     // deps for go/node/python -> c/c++ situations (like CGO)
     utils.apt.install & {#pkgs: ["gcc", "libc6-dev"]},
 
+    // binary tools
+    hof.File.linux,
+    isteps.tool.github.cli,
+
     // setup languages
-    lang.go.default,
-    lang.cue.default,
-    lang.node.default,
-    lang.python.default,
-    lang.python.dev, // depends on node
+    isteps.lang.go.defaultSteps,
+    isteps.lang.cue.default,
+    isteps.lang.node.default,
+    isteps.lang.python.default,
+    isteps.lang.python.dev, // depends on node
+
+    // tools for agents
+    isteps.tool.agents.lsp2mcp,
 
     // devops stuff
     tool.hashicorp.terraform,
@@ -81,18 +99,11 @@ dev: env.#Container & {
     tool.k8s.helm,
     tool.k8s.crane,
 
-    // tools just for agents
-    tool.agents.lsp2mcp,
-
-    // launch a terminal to check on things, continue when done
-    // env.Terminal,
-
     // bind lsp servers, started on demand
     env.BindService & {service: lang.go.lsp},
     env.BindService & {service: lang.cue.lsp},
     env.BindService & {service: lang.node.lsp},
     env.BindService & {service: lang.python.lsp},
-
   ]
 }
 ```
@@ -117,12 +128,19 @@ hof mod get github.com/hofstadter-io/hof
 hof env list
 hof env list ['^name$'] [-K '^kind$'] [-P '^path$'] [-S name|kind|path]
 
-# sync, evaluates the DAGs, but doesn't server, export, or make external alterations
+# sync, evaluates the DAGs, but doesn't export or expose services
 hof env sync
 hof env sync [...targets] [...flags]
 
-# export a release bundle,
-hof env export -P release -T v0.4.3 -t dest=./release
+# export a release bundle (from the root of hof)
+hof env export -P dist -T my-test-rel
+
+# veg out in a dev container
+hof env run veg-dev
+# > ls /usr/local/bin
+
+# launch a full atprotocol network, including the permissioned pds
+cd examples/env/atproto && hof env up
 
 # make your own commands and flags, designed for your workflows
 hof env [init, test, lint, ci, publish, deploy, ...]
