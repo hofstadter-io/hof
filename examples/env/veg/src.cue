@@ -18,8 +18,14 @@ src: {
 		name: string | *"local"
 		path: flags.local
 	}
-	adk: env.#HostDir & {@env(), path: flags.adk}
-	dagger: env.#HostDir & {@env(), path: flags.dagger}
+	adk: {
+		local: env.#HostDir & {@env(), path: flags.adk}
+		fork: env.#GitRepo & {@env(), url: "https://github.com/verdverm/adk-go", ref: "veg"}
+	}
+	dagger: {
+		local: env.#HostDir & {@env(), path: flags.dagger}
+		fork: env.#GitRepo & {@env(), url: "https://github.com/verdverm/dagger", ref: "patches"}
+	}
 
 	// setup code base on flags and value
 	code: {@env(), name: "code"}

@@ -11,7 +11,7 @@ bins: multi: [string]: _
 
 dist: {
 	[!~"images"]~(k,_): {@env()
-		#hof: metadata: {id: "dist-\(k)", name: string | *id}
+		#hof: { id: "dist-\(k)", metadata: {name: string | *id}}
 		name: string | *#hof.metadata.name
 	}
 

@@ -14,58 +14,52 @@ ctr: {
 		@env(), @id(hof-cli-builder)
 		from: lang.go.ctr.base
 		steps: [
-			env.Dir & {path: "/adk", source: src.adk},
-			env.Dir & {path: "/dagger", source: src.dagger},
-			env.Dir & {path: "/work", source: src.code},
-		]
-	}
-	built: env.#Container & {
-		@env(), @id(hof-cli-built)
-		from: builder
-		steps: [
-			env.EnvVar & {GOOS: flags.goos, GOARCH: flags.arch},
-			env.Exec & {args: ["go", "build", "-o", "./bins/hof", "./cmd/hof"]},
+			env.Dir & {path: "/adk", source: src.adk.fork},
+			env.Dir & {path: "/dagger", source: src.dagger.fork},
+			env.Dir & {path: "/work", source: env.#HostDir & {
+				path: "."
+				name: "hof-bin-src"
+				include: [
+					"go.mod", "go.sum", "cue.mod",
+					"cmd", "lib", "flow", "script",
+				]
+			}},
 		]
 	}
 }
 
-hof: cli: env.File & {path: "/usr/local/bin/hof", content: bins.matrix["linux-arm64"]}
-
-bins: {
+// File version
+hof: File: { for k,v in hof.matrix { (k): env.File & { path: "/usr/local/bin/hof", content: v}}}
+// #File verions
+hof: #File: {
 	[string]~(k,_): {name: "bin-\(k)"}
-	hof: env.#File & {@env(), path: "./bins/hof", source: ctr.built}
+
+	_maker: env.#File & {
+		#variant: string
+		#goos: string
+		#arch: string
+		@env()
+		#hof: id: "hof-cli-\(#variant)"
+
+		source: env.#Container & {
+			from: ctr.builder
+			steps: [
+				env.EnvVar & {GOOS: #goos, GOARCH: #arch},
+				env.Exec & {args: ["go", "build", "-o", "./bins/hof", "./cmd/hof"]},
+			]
+		}
+	}
+
+	local: _maker & {#goos: flags.goos, #arch: flags.arch}
 	matrix: {
 		_goos: ["linux", "darwin"]
 		_arch: ["amd64", "arm64"]
-		for _g in _goos for _a in _arch
-		// for _g in _goos for _a in _arch {
-		// 	let _short = "\(_g)-\(_a)"
-		// 	let _bin = "hof-\(_short)"
-		// 	"\(_short)": env.#File & {
-		// 		@env()
-		// 		name: "bin-\(_short)"
-		// 		path: ("./bins/\(_bin)")
-		// 		source: env.#Container & {
-		// 			from: ctr.builder
-		// 			steps: [
-		// 				env.Env & {GOOS: _g, GOARCH: _a},
-		// 				env.Exec & {args: ["go", "build", "-o", "./bins/\(_bin)", "./cmd/hof"]},
-		// 			]
-		// 		}
-		// 	}
-		// }
-		{
-			"\(_g)-\(_a)": env.#File & {
-				@env()
-				name: "bin-\(_g)-\(_a)"
-				path: ("./bins/hof-\(_g)-\(_a)")
-				source: env.#Container & {
-					from: ctr.builder
-					steps: [
-						env.EnvVar & {GOOS: _g, GOARCH: _a},
-						env.Exec & {args: ["go", "build", "-o", "./bins/hof-\(_g)-\(_a)", "./cmd/hof"]},
-					]
-				}
+		for _g in _goos {
+			// local, by goos
+			(_g): _maker & {#variant: _g, #goos: _g, #arch: flags.arch}
+			// arch x goos
+			for _a in _arch {
+				"\(_g)-\(_a)": _maker & {#variant: "\(_g)-\(_a)", #goos: _g, #arch: _a}
 			}
 		}
 	}

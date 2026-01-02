@@ -5,6 +5,8 @@ import (
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
+rocky: rocky8
+
 rocky8: {
 	minimal: env.#Container & {
 		@id(rocky-8-minimal)  // @name(too?)

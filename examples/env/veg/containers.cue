@@ -14,21 +14,25 @@ let root = self
 ctr: {
 	min: env.#Container & {
 		@env()
-		#hof: metadata: {
+		#hof: {
 			id:          "veg-min"
-			name:        id
-			description: "minimal veg, eat your veggies!"
+			metadata: {
+				name:        id
+				description: "minimal veg, eat your veggies!"
+			}
 		}
 		name: #hof.metadata.name
 		from: bases.debian.minimal
-		steps: [hof.cli]
+		steps: [hof.File.linux]
 	}
 	dev: env.#Container & {
 		@env()
-		#hof: metadata: {
+		#hof: {
 			id:          "veg-dev"
-			name:        id
-			description: "setup needed to work on veg"
+			metadata: {
+				name:        id
+				description: "setup needed to work on veg"
+			}
 		}
 		name: #hof.metadata.name
 
@@ -42,7 +46,7 @@ ctr: {
 			utils.apt.install & {#pkgs: ["gcc", "libc6-dev"]},
 
 			// binary tools
-			hof.cli,
+			hof.File.linux,
 			tool.github.cli,
 
 			// setup languages
@@ -72,7 +76,7 @@ ctr: {
 
 	// set id for all ops-, used for caching in env, and default names based on that
 	[=~"ops-"]~(k,_): {@env()
-		#hof: metadata: {id: "veg-\(k)", name: string | *id}
+		#hof: { id: "veg-\(k)", metadata: {name: string | *id}}
 		name: string | *#hof.metadata.name
 	}
 

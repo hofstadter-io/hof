@@ -5,6 +5,8 @@ import (
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
+debian: debian13
+
 debian13: {
 
 	minimal: env.#Container & {
