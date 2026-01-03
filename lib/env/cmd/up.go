@@ -55,6 +55,9 @@ func Up(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) er
 
 		ports := []dagger.PortForward{}
 		for _, p := range cfg.Ports {
+			if p.Frontend == 0 {
+				p.Frontend = p.Backend
+			}
 			ports = append(ports, dagger.PortForward{
 				Backend:  p.Backend,
 				Frontend: p.Frontend,
