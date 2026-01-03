@@ -14,6 +14,7 @@ import (
 	"cuelang.org/go/cue/load"
 	"dagger.io/dagger"
 
+	"github.com/hofstadter-io/cinful"
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/flow/flow"
 	"github.com/hofstadter-io/hof/lib/agent"
@@ -22,6 +23,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/env"
 	"github.com/hofstadter-io/hof/lib/gen"
 	"github.com/hofstadter-io/hof/lib/hof"
+	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 // This is the hof Runtime that backs most commands
@@ -109,6 +111,46 @@ func New(entrypoints []string, rflags flags.RootPflagpole) (*Runtime, error) {
 	// package?
 	if rflags.Package != "" {
 		cfg.Package = rflags.Package
+	}
+
+	// some more default tag vars
+	extra := make(map[string]string)
+	// GIT INFO
+	if yagu.InGitRepo() {
+		extra["gitRoot"], _ = yagu.GitRepoRoot()
+		extra["gitCommit"], _ = yagu.GitCommit()
+		extra["gitShortSha"], _ = yagu.GitShortSHA()
+		extra["gitBranch"], _ = yagu.GitBranch()
+		extra["gitTag"], _ = yagu.GitTag()
+		dirty, _, _ := yagu.GitDirty()	
+		if dirty {
+			extra["gitDirty"] = "dirty"
+		} else {
+			extra["gitDirty"] = ""
+		}
+	} else {
+		extra["gitRoot"] = ""
+		extra["gitCommit"] = ""
+		extra["gitShortSha"] = ""
+		extra["gitBranch"] = ""
+		extra["gitTag"] = ""
+		extra["gitDirty"] = ""
+	}
+
+	// CI
+	vendor := cinful.Info()
+	if vendor != nil {
+		extra["ci"] = fmt.Sprint(vendor)
+	} else {
+		extra["ci"] = ""
+	}
+	// add extra to TagVars
+	for k, v := range extra {
+		cfg.TagVars[k] = load.TagVar{
+			Func: func() (ast.Expr, error) {
+				return ast.NewString(v), nil
+			},
+		}
 	}
 
 	// inject env?

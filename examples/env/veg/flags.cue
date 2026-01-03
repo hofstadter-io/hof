@@ -22,4 +22,12 @@ flags: {
 	}
 
 	registry: string | *"host.docker.internal:5000" @tag(reg)
+
+	ci: string @tag(ci,var=ci)
+	gitRoot: string @tag(gitRoot,var=gitRoot)
+	gitCommit: string @tag(gitCommit,var=gitCommit)
+	gitShortSha: string @tag(gitShortSha,var=gitShortSha)
+	gitBranch: string @tag(gitBranch,var=gitBranch)
+	gitTag: string @tag(gitTag,var=gitTag)
+	gitDirty: string @tag(gitDirty,var=gitDirty)
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -174,4 +175,84 @@ func SetupGitAuth(srcUrl, srcVer string, co *git.CloneOptions) error {
 	}
 
 	return nil
+}
+
+/*
+# git info setup
+GIT_ROOT   :=$(shell git rev-parse --show-toplevel)
+GIT_COMMIT :=$(shell git log -1 --pretty=format:"%h")
+GIT_BRANCH :=$(shell git rev-parse --abbrev-ref HEAD | tr -d "\n")
+GIT_TAG    :=$(shell git tag --points-at HEAD | tr -d "\n")
+GIT_DIFF   :=$(shell git diff)
+GIT_DIRTY  :=$(if $(GIT_DIFF),-dirty,)
+
+# image tag setup
+IMAGE_TAG :=$(GIT_COMMIT)
+IMAGE_TAG :=$(if $(GIT_TAG),$(GIT_TAG),$(IMAGE_TAG))
+IMAGE_TAG :=$(IMAGE_TAG)$(GIT_DIRTY)
+*/
+
+// InRepo returns true if the current working directory is within a git repo.
+func InGitRepo() bool {
+	return exec.Command("git", "rev-parse", "--git-dir").Run() == nil
+}
+
+// RepoRoot returns the root path of the git repo, or an error if the current
+// working directory is not within a git repo.
+func GitRepoRoot() (string, error) {
+	b, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
+	return strings.Trim(string(b), "\n"), err
+}
+
+func GitCommit() (string, error) {
+	b, err := exec.Command("git", "rev-parse", "HEAD").Output()
+	return strings.Trim(string(b), "\n"), err
+}
+
+func GitShortSHA() (string, error) {
+	b, err := exec.Command("git", "rev-parse", "--short", "HEAD").Output()
+	return strings.Trim(string(b), "\n"), err
+}
+
+func GitBranch() (string, error) {
+	b, err := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD").Output()
+	return strings.Trim(string(b), "\n"), err
+}
+
+func GitTag() (string, error) {
+	b, err := exec.Command("git", "tag", "--points-at=HEAD").Output()
+	return strings.Trim(string(b), "\n"), err
+}
+
+func GitTagsAtCommit(commit string) ([]string, error) {
+	b, err := exec.Command("git", "tag", "--points-at="+commit).Output()
+	return strings.Fields(strings.Trim(string(b), "\n")), err
+}
+
+func GitDiff() (string, error) {
+	b, err := exec.Command("git", "diff").Output()
+	return strings.Trim(string(b), "\n"), err
+}
+
+func GitDirty() (bool, string, error) {
+	diff, err := GitDiff()
+	if err != nil {
+		return true, diff, err
+	}
+	return strings.TrimSpace(diff) != "", diff, nil
+}
+
+// Attempts to return the current git branch
+func CurrentGitBranch() (string, error) {
+	b, err := exec.Command("git", "branch").Output()
+	if err != nil {
+		return "", err
+	}
+	branches := strings.Split(string(b), "\n")
+	for _, branch := range branches {
+		if strings.HasPrefix(branch, "* ") {
+			return strings.TrimPrefix(branch, "* "), nil
+		}
+	}
+	return "", fmt.Errorf("no current branch found")
 }
