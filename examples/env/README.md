@@ -78,7 +78,7 @@ dev: env.#Container & {
     // deps for go/node/python -> c/c++ situations (like CGO)
     utils.apt.install & {#pkgs: ["gcc", "libc6-dev"]},
 
-    // binary tools
+    // binary tool
     hof.File.linux,
     isteps.tool.github.cli,
 
@@ -308,8 +308,8 @@ Basically, the way this works is
 
 ## Steps and #Stuff
 
-Keep [schema/env](../../schemas/veg)
-and [lib/env/common](../../lib/env/common)
+Keep [schema/env](../../schemas/env/schema.md)
+and [catalog/env](../../catalog/env)
 handy for the details of the following.
 
 Generally speaking...
