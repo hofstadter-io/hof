@@ -155,7 +155,9 @@ export class VegScmProvider {
 	}
 
 	private isIgnoredPath(p: string): boolean {
-		return (p.startsWith("/") && p.endsWith("/")) || p === "/stdout.txt" || p === "/stderr.txt";
+		return (p.startsWith("/") && p.endsWith("/")) ||
+			p.includes("/.git/") || 
+			p === "/stdout.txt" || p === "/stderr.txt";
 	}
 
 	private processDiffEntry(

@@ -95,6 +95,7 @@ The user will primarily request you perform software engineering tasks. This inc
 {{ template "shared/planning/gemini-v0.md" . }}
 {{ template "shared/tools/gemini-v0.md" . }}
 {{ template "shared/langs/golang-v0.md" . }}
+{{ template "shared/envs/veg-dev-v0.md" . }}
 
 ## Contextual Agent Instructions
 

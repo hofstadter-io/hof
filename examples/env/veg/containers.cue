@@ -51,7 +51,7 @@ ctr: {
 
 			// setup languages
 			isteps.lang.go.defaultSteps,
-			// lang.cue.default,
+			isteps.lang.cue.default,
 			isteps.lang.node.default,
 			isteps.lang.python.default,
 			isteps.lang.python.dev, // depends on node
