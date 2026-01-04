@@ -132,6 +132,7 @@ func sessionCreate(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 	if pe == nil {
 		pe = new(environ.EnvironCreateOptions)
 	}
+	fmt.Printf("CREATE OPTIONS: %#+v\n", pretty.Formatter(pe))
 
 	// maybe attach an environment
 	if pe.FromUri == "" && payload.EnvName != "" {

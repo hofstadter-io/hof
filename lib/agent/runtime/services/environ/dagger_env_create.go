@@ -76,7 +76,10 @@ func (le *localEnviron) Create(opts *EnvironCreateOptions) (envUri string, err e
 
 		// set the workdir if provided
 		if opts.Workdir != "" {
-			c = c.WithWorkdir(opts.Workdir)
+			// HMMM, let's try ignoring this for now
+			// 1. we want to use the container default if possible
+			// 2. this seems to always be set, based on the host workdir, not the one we want *in* the container
+			// c = c.WithWorkdir(opts.Workdir)
 		}
 	}
 
@@ -107,9 +110,6 @@ func (le *localEnviron) Create(opts *EnvironCreateOptions) (envUri string, err e
 				Gitignore: true,
 				NoCache:   true,
 			})
-			if opts.DstPath == "" {
-				opts.DstPath = suri.Path
-			}
 
 		// this should probably be oci only?
 		case "veg", "oci":
@@ -133,29 +133,19 @@ func (le *localEnviron) Create(opts *EnvironCreateOptions) (envUri string, err e
 
 		}
 
-		// attach point for incoming source
-		dp := opts.DstPath
-
 		// get subpath within source filesystem
 		if opts.SrcPath != "" {
 			d = d.Directory(opts.SrcPath)
-			// set dest path if not
-			if dp == "" {
-				dp = opts.SrcPath // TODO, should include the base path from d too?
-			}
 		}
 
-		if dp == "" {
-			dp = "/work" // this is our generic and widely used within-container work dir
-		}
-		opts.DstPath = dp
-		wd := opts.Workdir
-		if wd == "" {
-			wd = dp
-		}
-		opts.Workdir = wd
+		// attach point for incoming source, "" will use env default
+		c = c.WithDirectory(opts.DstPath, d)
 
-		c = c.WithDirectory(dp, d).WithWorkdir(wd)
+		// opts.DstPath = dp
+		if opts.Workdir != "" {
+			c = c.WithWorkdir(opts.Workdir)
+		}
+
 	}
 
 	fmt.Printf("sf.createSession.opts.final: %#+v\n", pretty.Formatter(opts))
