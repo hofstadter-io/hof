@@ -2,7 +2,7 @@ package dag
 
 import (
 	"fmt"
-	"time"
+	// "time"
 
 	"cuelang.org/go/cue"
 	"dagger.io/dagger"
@@ -109,7 +109,8 @@ func (d *Dag) HashContainer(val cue.Value) (*dagger.Container, error) {
 
 	// possibly bust cache
 	if d.noCache {
-		c = c.WithEnvVariable("BUSTED_CACHE", time.Now().Local().String())
+		// c = c.WithEnvVariable("BUSTED_CACHE", time.Now().Local().String())
+		c = c.WithEnvVariable("BUSTED_CACHE", "womp womp, why don't you go fix it then?")
 	}
 
 	// add env before the container goes (most common)

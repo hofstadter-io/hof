@@ -1,4 +1,4 @@
-DAG_VARS=_EXPERIMENTAL_DAGGER_RUNNER_HOST=container://veg-dagger-engine
+DAG_VARS=_EXPERIMENTAL_DAGGER_RUNNER_HOST=docker-container://veg-dagger-engine
 query:
 	echo '{engine{localCache{entrySet}}}' | sh -c '$(DAG_VARS) dagger query > dagger-cache.json'
 

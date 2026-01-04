@@ -134,6 +134,12 @@ EnvCommand: schema.Command & {
 		Default: "false"
 		Help:    "pass os.Env (everything)"
 	}, {
+		Name:    "ShowAll"
+		Long:    "all"
+		Type:    "bool"
+		Default: "false"
+		Help:    "show all env targets, not just @env() ones"
+	}, {
 		Name:    "parallel"
 		Long:    "parallel"
 		Type:    "int"

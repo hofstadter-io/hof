@@ -26,6 +26,10 @@ func commonStart(args []string, rflags flags.RootPflagpole, eflags flags.EnvPfla
 
 	matches = make([]*env.Env, 0)
 	for _, e := range R.Envs {
+		// filter for @env() or show all
+		if !eflags.ShowAll && !e.Hof.AtMade {
+			continue
+		}
 		name, kind, _ := extractMeta(e)
 		if name == "" {
 			continue

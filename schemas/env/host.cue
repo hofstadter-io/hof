@@ -36,6 +36,9 @@ import (
 	// the path to load, relative or absolute
 	path: string
 
+	// a prefix to remove from the load path
+	trimPrefix: string | *""
+
 	// If true, the directory will always be reloaded from the host.
 	noCache?: bool
 }
@@ -66,6 +69,13 @@ import (
 
 	// Apply .gitignore filter rules inside the directory
 	gitignore?: bool | *true
+
+	// a prefix to remove from the load path
+	trimPrefix?: string
+
+	// git-compatible patch to apply after selecting and trimming
+	patch?:     string
+	patchFile?: #FileLike
 }
 
 // Creates a service that forwards traffic to a specified address via the host.

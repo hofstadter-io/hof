@@ -134,7 +134,7 @@ type hashDirConfig struct {
 	Path    string      `json:"path"`
 	Sources []cue.Value `json:"sources"`
 
-	BundlePath string    `json:"bundlePath"`
+	TrimPrefix string    `json:"trimPrefix"`
 	Patch      string    `json:"patch"`
 	PatchFile  cue.Value `json:"patchFile"`
 
@@ -202,14 +202,22 @@ func (d *Dag) hashDir(step cue.Value) (*dagger.Directory, string, error) {
 		case "#file":
 			file, path, err = d.hashFile(src)
 		case "#hostFile":
-			_file, _cfg, _err := d.HashHostFile(src)
-			file, path, err = _file, _cfg.Path, _err
+			_file, _, _err := d.HashHostFile(src)
+			if _err == nil {
+				file, err = _file, _err
+			} else {
+				err = _err
+			}
 
 		case "#dir":
 			dir, path, err = d.hashDir(src)
 		case "#hostDir":
-			_dir, _cfg, _err := d.HashHostDir(src)
-			dir, path, err = _dir, _cfg.Path, _err
+			_dir, _, _err := d.HashHostDir(src)
+			if _err == nil {
+				dir, err = _dir, _err
+			} else {
+				err = _err
+			}
 		case "#gitRepo":
 			repo, rcfg, rerr := d.hashGitRepo(src)
 			if rerr == nil {
@@ -241,8 +249,11 @@ func (d *Dag) hashDir(step cue.Value) (*dagger.Directory, string, error) {
 		Exclude:   cfg.Exclude,
 		Gitignore: cfg.Gitignore,
 	})
+
 	// (2) subpath selections
-	final = final.Directory(cfg.BundlePath)
+	if cfg.TrimPrefix != "" {
+		final = final.Directory(cfg.TrimPrefix)
+	}
 
 	if cfg.Patch != "" {
 		final = final.WithPatch(cfg.Patch)
@@ -373,12 +384,14 @@ func (d *Dag) stepDirHandler(c *dagger.Container, step cue.Value) (*dagger.Conta
 			if err != nil {
 				return nil, err
 			}
+			// dir = dir.Directory(cfg.Path)
 
 		case "#hostDir":
 			dir, _, err = d.HashHostDir(cfg.Source)
 			if err != nil {
 				return nil, err
 			}
+			// dir = dir.Directory(cfg.Path)
 
 		case "#gitRepo":
 			repo, rcfg, err := d.hashGitRepo(cfg.Source)
@@ -392,21 +405,24 @@ func (d *Dag) stepDirHandler(c *dagger.Container, step cue.Value) (*dagger.Conta
 			if err != nil {
 				return nil, err
 			}
-			dir = ctr.Directory(cfg.Path)
+			dir = ctr.Directory("")
+			// dir = ctr.Directory(cfg.Path)
 
 		case "#hostImage":
 			ctr, err := d.HashHostImage(cfg.Source)
 			if err != nil {
 				return nil, err
 			}
-			dir = ctr.Directory(cfg.Path)
+			dir = ctr.Directory("")
+			// dir = ctr.Directory(cfg.Path)
 
 		case "#dockerBuild":
 			ctr, err := d.HashDockerBuild(cfg.Source)
 			if err != nil {
 				return nil, err
 			}
-			dir = ctr.Directory(cfg.Path)
+			dir = ctr.Directory("")
+			// dir = ctr.Directory(cfg.Path)
 
 		default:
 			return c, fmt.Errorf("unsupported $kind in stepDir source: %v", step)

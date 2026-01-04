@@ -30,6 +30,9 @@ func upgradeAttrs[T any](node *Node[T], label string) bool {
 		case "memo":
 			node.Hof.Memo = ac
 
+		case "name":
+			node.Hof.Metadata.Name = ac
+
 		case "datamodel":
 			node.Hof.Datamodel.Root = true
 		case "history":
@@ -89,14 +92,26 @@ func upgradeAttrs[T any](node *Node[T], label string) bool {
 
 		case "env":
 			node.Hof.Env.Root = true
-			node.Hof.Env.Name = label
-			node.Hof.Env.Extra = ac
-			// name override from local field
+			// name preference
+			// 1. name set manually
+			// 2. @env(contents)
+			// 3. @id(contents)
+			// 4. label of the struct it is within
 			n := val.LookupPath(cue.ParsePath("name"))
 			if n.Exists() {
 				if s, err := n.String(); err == nil {
 					node.Hof.Env.Name = s
 				}
+			} else if ac != "" {
+				node.Hof.Env.Name = ac
+				// @env(...) will also write @id() if not set already
+				if node.Hof.ID == "" {
+					node.Hof.ID = ac
+				}
+			} else if node.Hof.ID != "" {
+				node.Hof.Env.Name = ac
+			} else {
+				node.Hof.Env.Name = label
 			}
 
 		case "agent":
@@ -110,6 +125,7 @@ func upgradeAttrs[T any](node *Node[T], label string) bool {
 		// write to outer found
 		if lfound {
 			found = true
+			node.Hof.AtMade = true
 		}
 	}
 

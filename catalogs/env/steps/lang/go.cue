@@ -40,6 +40,13 @@ go: {
 		}
 	}
 
+	setupSteps: [
+		envSets.default,
+		mounts.goBuild,
+		mounts.goMods,
+		install.cli,
+	]
+
 	default: defaultSteps
 	defaultSteps: [// new way
 		envSets.default,

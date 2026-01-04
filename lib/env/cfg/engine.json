@@ -6,8 +6,8 @@
   },
   "gc": {
     "enabled": true,
-    "reservedSpace": "20GB",
-    "maxUsedSpace": "50GB",
+    "reservedSpace": "80GB",
+    "maxUsedSpace": "100GB",
     "minFreeSpace": "10GB"
   }
 }

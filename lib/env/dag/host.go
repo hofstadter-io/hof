@@ -118,13 +118,18 @@ func (d *Dag) HashHostFile(val cue.Value) (*dagger.File, *hostFileConfig, error)
 }
 
 type hostDirConfig struct {
-	Kind      string   `json:"$kind"`
-	Name      string   `json:"name"`
-	Path      string   `json:"path"`
-	NoCache   bool     `json:"noCache"`
+	Kind string `json:"$kind"`
+	Name string `json:"name"`
+	Path string `json:"path"`
+
+	TrimPrefix string    `json:"trimPrefix"`
+	Patch      string    `json:"patch"`
+	PatchFile  cue.Value `json:"patchFile"`
+
 	Include   []string `json:"include"`
 	Exclude   []string `json:"exclude"`
 	GitIgnore bool     `json:"gitignore"`
+	NoCache   bool     `json:"noCache"`
 }
 
 type hostDirIndex struct {
@@ -166,14 +171,30 @@ func (d *Dag) HashHostDir(val cue.Value) (*dagger.Directory, *hostDirConfig, err
 	}
 
 	// load for realz
-	idx.dir = d.dag.Host().Directory(cfg.Path, dagger.HostDirectoryOpts{
+	final := d.dag.Host().Directory(cfg.Path, dagger.HostDirectoryOpts{
 		Include:   cfg.Include,
 		Exclude:   cfg.Exclude,
 		NoCache:   cfg.NoCache,
 		Gitignore: cfg.GitIgnore,
 	})
 
+	// (2) subpath selections
+	if cfg.TrimPrefix != "" {
+		final = final.Directory(cfg.TrimPrefix)
+	}
+
+	if cfg.Patch != "" {
+		final = final.WithPatch(cfg.Patch)
+	} else if cfg.PatchFile.Exists() {
+		f, _, err := d.hashFile(cfg.PatchFile)
+		if err != nil {
+			return nil, nil, err
+		}
+		final = final.WithPatchFile(f)
+	}
+
 	// memoize
+	idx.dir = final
 	d.cat[idx] = idx
 
 	return idx.dir, idx.cfg, nil
