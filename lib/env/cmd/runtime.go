@@ -30,12 +30,15 @@ func commonStart(args []string, rflags flags.RootPflagpole, eflags flags.EnvPfla
 		if !eflags.ShowAll && !e.Hof.AtMade {
 			continue
 		}
-		name, kind, _ := extractMeta(e)
+		name, kind, mname := extractMeta(e)
+		if name == "" {
+			name = mname
+		}
 		if name == "" {
 			continue
 		}
 
-		if !matchValRegexp(name, args) {
+		if !matchValRegexp(mname, args) {
 			continue
 		}
 		if !matchValRegexp(kind, eflags.Kind) {
@@ -67,7 +70,7 @@ func commonStart(args []string, rflags flags.RootPflagpole, eflags flags.EnvPfla
 		return R, nil, fmt.Errorf("no matches found for given args and flags")
 	}
 
-	// TODO, sort them somehow
+	// TODO, sort them somehow for consistency, perhaps moving the list command's logic here
 
 	return R, matches, err
 }

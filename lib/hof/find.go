@@ -110,14 +110,20 @@ func upgradeAttrs[T any](node *Node[T], label string) bool {
 			if node.Hof.Env.Name == "" {
 				if ac != "" {
 					node.Hof.Env.Name = ac
-					// @env(...) will also write @id() if not set already
-					if node.Hof.ID == "" {
-						node.Hof.ID = ac
-					}
 				} else if node.Hof.ID != "" {
-					node.Hof.Env.Name = ac
+					node.Hof.Env.Name = node.Hof.ID
 				} else {
 					node.Hof.Env.Name = label
+				}
+			}
+			// @env(...) will also write @id() @name() if not set already
+			// trying this out, may use elsewhere, would be good to have a pattern
+			if ac != "" {
+				if node.Hof.ID == "" {
+					node.Hof.ID = ac
+				}
+				if node.Hof.Metadata.Name == "" {
+					node.Hof.Metadata.Name = ac
 				}
 			}
 

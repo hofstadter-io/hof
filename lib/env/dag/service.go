@@ -164,10 +164,14 @@ func (d *Dag) stepBindServiceHandler(c *dagger.Container, step cue.Value) (*dagg
 	}
 	// fmt.Println("bindService.config", cfg)
 
-	s, _, err := d.HashService(cfg.Service)
+	s, scfg, err := d.HashService(cfg.Service)
 	if err != nil {
 		return nil, err
 	}
+	if cfg.Alias == "" {
+		cfg.Alias = scfg.Hostname
+	}
+
 	hn, err := s.Hostname(d.ctx)
 	if err != nil {
 		fmt.Println("hn.error", err)

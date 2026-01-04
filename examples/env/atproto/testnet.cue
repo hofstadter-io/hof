@@ -62,14 +62,15 @@ cmd: {
 // naming things is not so hard
 
 _testnet: [string]~(S,_): {
-	service?: {@env(), name: "\(S)"}
-	config?: {@env(), name: "\(S)-cfg"}
+	service?: {@env(), #hof: id: "\(S)", #hof: metadata: name: #hof.id}
+	config?: {@env(), #hof: id: "\(S)-cfg", #hof: metadata: name: #hof.id}
 }
 _testnet: [=~"(relay|pds)"]~(S2,_): {
-	secret?: {@env(), name: "\(S2)-shh"}
+	secret?: {@env(), #hof: id: "\(S2)-shh", #hof: metadata: name: #hof.id}
 }
 _testnet: [!~"(jetstream)"]~(S3,_): {
-	postgres?: {@env(), name: "\(S3)-pg"}
+	postgres?: {@env(), #hof: id: "\(S3)-pg", #hof: metadata: name: #hof.id}
+	postgresVolume?: {@env(), #hof: id: "\(S3)-pg-data", #hof: metadata: name: #hof.id}
 }
 
 testnet: _testnet & {
@@ -77,6 +78,7 @@ testnet: _testnet & {
 	plc: {
 		config: env.#HostFile & {path: "./env/plc.env"}
 		service: env.#Service & {
+			hostname: "plc"
 			ports: [{port: 3000}]
 			source: env.#Container & {
 				from: builds.plc.ctr
@@ -94,6 +96,7 @@ testnet: _testnet & {
 		config: env.#HostFile & {path: "./env/relay.env"}
 		secret: env.#HostFile & {path: "./env/relay.secret.env"}
 		service: env.#Service & {
+			hostname: "relay"
 			ports: [{port: 3000}]
 			source: env.#Container & {
 				from: builds.relay.ctr
@@ -114,6 +117,7 @@ testnet: _testnet & {
 	jetstream: {
 		config: env.#HostFile & {path: "./env/jetstream.env"}
 		service: env.#Service & {
+			hostname: "jetstream"
 			ports: [{port: 3000}]
 			source: env.#Container & {
 				from: builds.jetstream.ctr
@@ -134,6 +138,7 @@ testnet: _testnet & {
 		// TODO, #Secret (make and then provide to #SecretEnvfile)
 		secret: env.#HostFile & {path: "./env/pds.secret.env"}
 		service: env.#Service & {
+			hostname: "pds"
 			ports: [{port: 3000}]
 			source: env.#Container & {
 				from: _ | *builds.pds.ctr
@@ -177,7 +182,7 @@ testnet: _testnet & {
 
 builds: {
 	// give things consistent names
-	[string]~(group,_): [string]~(subgroup,_): {@env(), name: "\(group)-\(subgroup)"}
+	[string]~(group,_): [string]~(subgroup,_): {@env(), #hof: metadata: name: "\(group)-\(subgroup)"}
 
 	repos: {
 		blebbit: env.#GitRepo & {url: "https://github.com/blebbit/atproto"}

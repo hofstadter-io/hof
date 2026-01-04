@@ -66,6 +66,16 @@ dist: {
 		}
 		min: env.#ExportImage & {image: root.ctr.min}
 		dev: env.#ExportImage & {image: root.ctr.dev}
+		// the dev image with adk/dagger added
+		hof: env.#ExportImage & {
+			image: env.#Container & {
+				from: root.ctr.dev
+				steps: [
+					env.Dir & { path: "/adk", source: src.adk.fork },
+					env.Dir & { path: "/dagger", source: src.dagger.fork },
+				]
+			}
+		}
 		ops: env.#ExportImage & {image: root.ctr["ops-all"], name: "veg-ops"}
 		for f, F in root.fmtr {
 			let _f = "fmt-\(f)"

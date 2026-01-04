@@ -16,7 +16,7 @@ import (
 	$kind: "#service"
 
 	// convenient name
-	name!: string
+	name?: string
 
 	// container to turn into a service
 	// actual, import env/rrr:env to enforce, performance penalty included
@@ -28,7 +28,7 @@ import (
 
 	// configures a hostname within the session at which the server which it can be reached
 	// used when exposing to the host
-	hostname: string | *name
+	hostname?: string
 
 	// if empty, the container's default will be used
 	args?: [...string]
@@ -88,6 +88,6 @@ BindService: Step & {
 	$kind: "bindService"
 
 	// confitures an alias for the service when binding to this container
-	alias:   string | *self.service.name
+	alias?:   string | *self.service.hostname
 	service: #Service
 }

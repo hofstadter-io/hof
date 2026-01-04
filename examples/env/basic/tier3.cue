@@ -17,27 +17,27 @@ tier3: {
 
 	// source code
 	repo: env.#GitRepo & {
-		@env()
+		@env(tier3-repo)
 		url: _flags.tier3.repo
 	}
 
 	// frontend app
 	app: env.#Service & {
-		@env()
+		@env(tier3-app)
 		ports: [{port: 3000, frontend: _flags.tier3.appPort}]
 		source: tier3.appCtr
 	}
 
 	// backend api
 	api: env.#Service & {
-		@env()
+		@env(tier3-api)
 		ports: [{port: 3000, frontend: _flags.tier3.apiPort}]
 		source: tier3.apiCtr
 	}
 
 	// database server & volume
 	db: env.#Service & {
-		@env()
+		@env(tier3-db)
 		ports: [{port: 3306, frontend: _flags.tier3.dbPort}]
 		source: env.#Container & {
 			name: "mysql"
@@ -52,7 +52,6 @@ tier3: {
 
 	// containers, built and prepared
 	appCtr: env.#Container & {
-		@env()
 		from: "node:24"
 		steps: [
 			(_nodePrep & {dir: "frontend"}).steps,
@@ -63,7 +62,6 @@ tier3: {
 		]
 	}
 	apiCtr: env.#Container & {
-		@env()
 		from: "node:24"
 		steps: [
 			(_nodePrep & {dir: "backend"}).steps,
@@ -85,8 +83,8 @@ tier3: {
 	}
 
 	// dev container
-	appTest: env.#Container & {
-		@env()
+	play: env.#Container & {
+		@env(tier3-play)
 		from: "node:24"
 		steps: [
 			// (_nodePrep & { dir: "frontend" }).steps,

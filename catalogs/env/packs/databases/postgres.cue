@@ -23,7 +23,7 @@ Postgres: {
 	}
 
 	service: env.#Service & {
-		name: string | *"\(#name)-pg-svc"
+		hostname: string | *"\(#name)-pg"
 		ports: [{port: #port}]
 		source: container
 	}

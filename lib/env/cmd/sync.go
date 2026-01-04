@@ -10,6 +10,7 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/env"
 	"github.com/hofstadter-io/hof/lib/env/dag"
+	"golang.org/x/sync/errgroup"
 )
 
 var accepting = []string{
@@ -84,13 +85,7 @@ func Sync(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) 
 	}
 	d, _ := dag.NewClient(R.Ctx, R.DagClient)
 
-	names := make([]string, 0, len(matches))
-	for _, e := range matches {
-		name, _, _ := extractMeta(e)
-		names = append(names, name)
-	}
-
-	buildCtx, buildSpan := dagger.Tracer().Start(R.Ctx, fmt.Sprintf("hof env build: %v", names))
+	buildCtx, buildSpan := dagger.Tracer().Start(R.Ctx, "hof env sync")
 	defer buildSpan.End()
 
 	// A helper function to handle the common DryRun + Sync logic
@@ -98,10 +93,17 @@ func Sync(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) 
 	// do actual work
 	fmt.Printf("  %v\n", time.Since(veryStart).Round(time.Millisecond))
 	fmt.Println("sync'n")
+
+	g, groupCtx := errgroup.WithContext(buildCtx)
+	if eflags.Parallel > 0 {
+		g.SetLimit(eflags.Parallel)
+	}
+
 	for i, e := range matches {
-		err = func() error {
+		i, e := i, e
+		g.Go(func() error {
 			name, kind, _ := extractMeta(e)
-			matchCtx, matchSpan := dagger.Tracer().Start(buildCtx, fmt.Sprintf("building[%d]: %s (%s)", i, name, kind))
+			matchCtx, matchSpan := dagger.Tracer().Start(groupCtx, fmt.Sprintf("building[%d]: %s (%s)", i, name, kind))
 			defer matchSpan.End()
 			fmt.Printf("%3d. %-27s (%s)", i, name, kind)
 			start := time.Now()
@@ -113,89 +115,87 @@ func Sync(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) 
 
 			switch kind {
 			case "container", "dockerBuild", "hostImage":
-				i, err := d.Container(e.Value, eflags.NoCache)
+				val, err := d.Container(e.Value, eflags.NoCache)
 				if err != nil {
 					return err
 				}
-				return maybeSync(matchCtx, i, rflags.DryRun)
+				return maybeSync(matchCtx, val, rflags.DryRun)
 
 			case "dir", "gitRepo", "hostDir":
-				i, _, err := d.Dir(e.Value, eflags.NoCache)
+				val, _, err := d.Dir(e.Value, eflags.NoCache)
 				if err != nil {
 					return err
 				}
-				return maybeSync(matchCtx, i, rflags.DryRun)
+				return maybeSync(matchCtx, val, rflags.DryRun)
 
 			case "file", "hostFile":
-				i, _, err := d.File(e.Value, eflags.NoCache)
+				val, _, err := d.File(e.Value, eflags.NoCache)
 				if err != nil {
 					return err
 				}
-				return maybeSync(matchCtx, i, rflags.DryRun)
+				return maybeSync(matchCtx, val, rflags.DryRun)
 
 			case "exportDir":
-				i, _, err := d.HashExportDir(e.Value)
+				val, _, err := d.HashExportDir(e.Value)
 				if err != nil {
 					return err
 				}
 				if rflags.DryRun {
 					return nil
 				}
-				i, err = i.Sync(matchCtx)
-				if err != nil {
-					return err
-				}
+				_, err = val.Sync(matchCtx)
+				return err
 
 			case "exportFile":
-				i, _, err := d.HashExportFile(e.Value)
+				val, _, err := d.HashExportFile(e.Value)
 				if err != nil {
 					return err
 				}
-				return maybeSync(matchCtx, i, rflags.DryRun)
+				return maybeSync(matchCtx, val, rflags.DryRun)
 
 			case "exportImageFile":
-				i, _, err := d.HashExportImageFile(e.Value)
+				val, _, err := d.HashExportImageFile(e.Value)
 				if err != nil {
 					return err
 				}
-				return maybeSync(matchCtx, i, rflags.DryRun)
+				return maybeSync(matchCtx, val, rflags.DryRun)
 
 			case "exportImage":
-				i, _, err := d.HashExportImage(e.Value)
+				val, _, err := d.HashExportImage(e.Value)
 				if err != nil {
 					return err
 				}
-				return maybeSync(matchCtx, i, rflags.DryRun)
+				return maybeSync(matchCtx, val, rflags.DryRun)
 
 			case "publishImage":
-				i, _, err := d.HashPublishImage(e.Value)
+				val, _, err := d.HashPublishImage(e.Value)
 				if err != nil {
 					return err
 				}
-				return maybeSync(matchCtx, i, rflags.DryRun)
+				return maybeSync(matchCtx, val, rflags.DryRun)
 
 			case "service":
-				i, _, err := d.HashService(e.Value)
+				val, _, err := d.HashService(e.Value)
 				if err != nil {
 					return err
 				}
-				return maybeSync(matchCtx, i, rflags.DryRun)
+				return maybeSync(matchCtx, val, rflags.DryRun)
 
 			case "hostService":
-				i, _, err := d.HashHostService(e.Value)
+				val, _, err := d.HashHostService(e.Value)
 				if err != nil {
 					return err
 				}
-				return maybeSync(matchCtx, i, rflags.DryRun)
+				return maybeSync(matchCtx, val, rflags.DryRun)
 			}
 
 			return nil
-		}()
+		})
+	}
+	err = g.Wait()
 
-		if err != nil {
-			return fmt.Errorf("error building match.%d: %v | %v", i, err, e)
-		}
-
+	if err != nil {
+		return fmt.Errorf("error during sync: %v", err)
 	}
 
 	return err

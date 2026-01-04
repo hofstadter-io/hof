@@ -23,7 +23,11 @@ func List(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) 
 	var rows = make([][]string, 0, len(R.Envs))
 	// fill with data
 	for _, e := range matches {
-		name, kind, _ := extractMeta(e)
+		name, kind, mname := extractMeta(e)
+		if mname != "" {
+			name = mname
+		}
+
 		path := e.Hof.Path
 		extra := genExtra(e)
 
@@ -67,7 +71,10 @@ func List(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) 
 }
 
 func genExtra(e *env.Env) string {
-	_, kind, _ := extractMeta(e)
+	name, kind, mname := extractMeta(e)
+	if mname != "" {
+		name = mname
+	}
 
 	extra := ""
 	switch kind {
@@ -79,11 +86,7 @@ func genExtra(e *env.Env) string {
 
 	// "name" (HostImage uses this directly)
 	case "hostImage":
-		sv := e.Value.LookupPath(cue.ParsePath("name"))
-		if sv.Exists() {
-			s, _ := sv.String()
-			extra = "<- " + s
-		}
+		extra = "<- " + name
 
 	case "hostService":
 		sv := e.Value.LookupPath(cue.ParsePath("host"))
@@ -96,24 +99,16 @@ func genExtra(e *env.Env) string {
 		}
 
 	case "service":
-		sv := e.Value.LookupPath(cue.ParsePath("name"))
-		if sv.Exists() {
-			b := new(strings.Builder)
-			s, _ := sv.String()
-			fmt.Fprintf(b, "%s", s)
-			addPorts(b, e.Value)
-			extra = b.String()
-		}
+		b := new(strings.Builder)
+		fmt.Fprintf(b, "%s", name)
+		addPorts(b, e.Value)
+		extra = b.String()
 
 	case "hostTunnel":
-		sv := e.Value.LookupPath(cue.ParsePath("name"))
-		if sv.Exists() {
-			b := new(strings.Builder)
-			s, _ := sv.String()
-			fmt.Fprintf(b, "-> %s", s)
-			addPorts(b, e.Value)
-			extra = b.String()
-		}
+		b := new(strings.Builder)
+		fmt.Fprintf(b, "-> %s", name)
+		addPorts(b, e.Value)
+		extra = b.String()
 
 	// "path"
 	case "dir", "file":
@@ -153,7 +148,9 @@ func genExtra(e *env.Env) string {
 		rv := e.Value.LookupPath(cue.ParsePath("ref"))
 		if sv.Exists() {
 			s, _ := rv.String()
-			extra += "@" + s
+			if s != "" {
+				extra += "@" + s
+			}
 		}
 
 	case "exportImage", "publishImage":
@@ -199,11 +196,13 @@ func addPorts(b *strings.Builder, val cue.Value) {
 	iter, _ := ports.List()
 	for iter.Next() {
 		pv := iter.Value()
+
 		bev := pv.LookupPath(cue.ParsePath("backend"))
 		be, _ := bev.Int64()
 		if be > 0 {
 			fmt.Fprintf(b, ":%d", be)
 		}
+
 		fev := pv.LookupPath(cue.ParsePath("frontend"))
 		fe, _ := fev.Int64()
 		if fe > 0 {

@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"regexp"
 	"strings"
@@ -77,7 +76,12 @@ func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) e
 				for s1, seqStep := range seqSteps {
 					// fmt.Printf("      [%d/%d]\n", s1, len(seqSteps))
 
-					g, ctx := errgroup.WithContext(context.Background())
+					seqCtx, seqSpan := dagger.Tracer().Start(R.Ctx, fmt.Sprintf("env.%s.step.%d", e.Hof.Env.Name, s1))
+
+					g, ctx := errgroup.WithContext(seqCtx)
+					if eflags.Parallel > 0 {
+						g.SetLimit(eflags.Parallel)
+					}
 
 					for s2, parStep := range seqStep {
 
@@ -90,6 +94,7 @@ func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) e
 						var k brief
 						err := parStep.Decode(&k)
 						if err != nil {
+							seqSpan.End()
 							return err
 						}
 						// fmt.Printf("  [%d/%d][%d/%d]: %s", s1+1, len(seqSteps), s2+1, len(seqStep), k.Name)
@@ -149,6 +154,7 @@ func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) e
 							c, err = d.HashDockerBuild(parStep)
 
 						default:
+							seqSpan.End()
 							return fmt.Errorf("unsupported cmd target(%s): %v", k.Kind, parStep)
 						}
 
@@ -160,6 +166,8 @@ func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) e
 
 						// only parallel the dagger work
 						g.Go(func() error {
+							parCtx, parSpan := dagger.Tracer().Start(ctx, fmt.Sprintf("step.%s", k.Name))
+							defer parSpan.End()
 
 							// if we already have an error, just return it for collection
 							if err != nil {
@@ -173,24 +181,24 @@ func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) e
 							switch k.Kind {
 							// todo, we need to split these across here (cue eval) & below (dag sync)
 							case "#exportFile":
-								_, err = file.Export(ctx, dest, dagger.FileExportOpts{
+								_, err = file.Export(parCtx, dest, dagger.FileExportOpts{
 									AllowParentDirPath: allowParent,
 								})
 							case "#exportDir":
-								_, err = dir.Export(ctx, dest, dagger.DirectoryExportOpts{
+								_, err = dir.Export(parCtx, dest, dagger.DirectoryExportOpts{
 									Wipe: wipe,
 								})
 							case "#exportImage":
-								err = c.ExportImage(ctx, dest, dagger.ContainerExportImageOpts{})
+								err = c.ExportImage(parCtx, dest, dagger.ContainerExportImageOpts{})
 							case "#exportImageFile":
-								_, err = c.Export(ctx, dest, dagger.ContainerExportOpts{})
+								_, err = c.Export(parCtx, dest, dagger.ContainerExportOpts{})
 
 							case "#publish":
-								c, err = c.Sync(ctx)
+								c, err = c.Sync(parCtx)
 							case "#container":
-								c, err = c.Sync(ctx)
+								c, err = c.Sync(parCtx)
 							case "#hostImage":
-								c, err = c.Sync(ctx)
+								c, err = c.Sync(parCtx)
 							}
 
 							// TODO, build up or exit, depending on config
@@ -206,6 +214,7 @@ func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) e
 					} // end loop spawning parallel containers for the task-step
 
 					err = g.Wait()
+					seqSpan.End()
 					if err != nil {
 						return fmt.Errorf("while executing parallel tasks(%s.%s.%d): %w", e.Hof.Env.Name, t, s1, err)
 					}

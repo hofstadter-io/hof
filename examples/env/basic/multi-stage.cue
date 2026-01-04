@@ -9,7 +9,7 @@ multi: {
 	#os:   string           @tag(os,var=os)
 
 	// base container for building in
-	base: env.#Container & {@env()
+	base: env.#Container & {@env(multi-base)
 		from: "golang:\(#ver)-alpine"
 		steps: [
 			// mount caches for mods and intermediate build artifacts (saves time)
@@ -25,7 +25,7 @@ multi: {
 	}
 
 	// a container after the code has built
-	built: env.#Container & {@env()
+	built: env.#Container & {@env(multi-built)
 		from: base
 		steps: [
 			// here we are passing the content directly as a string
@@ -38,10 +38,10 @@ multi: {
 	}
 
 	// actual binary file for the server
-	binary: env.#File & {@env(), path: "server", source: built}
+	binary: env.#File & {@env(multi-binary), path: "server", source: built}
 
 	// start from an alpine, add the binary
-	runner: env.#Container & {@env()
+	runner: env.#Container & {@env(multi-runner)
 		from: "alpine:latest"
 		steps: [
 			// Sh is a wrapper around Exec to `sh -c <script>`
@@ -55,11 +55,15 @@ multi: {
 		]
 	}
 
-	service: env.#Service & {@env(), name: "hello-service", ports:[{ port: 8080 }], source: runner}
+	service: env.#Service & {
+    @env(multi-service)
+    ports:[{ port: 8080 }]
+    source: runner
+  }
 
 	// caches we mount to the Go toolchain for across session caching
 	caches: {
-		[string]~(k,_): {@env(), name: "go-\(k)"}
+		// [string]~(k,_): {@env(), name: "go-\(k)"}
 		build: env.Mount & {path: "/cache/go", source: env.#Cache & {name: "go-build-\(#ver)-\(#arch)"}}
 		mods: env.Mount & {path: "/go", source: env.#Cache & {name: "go-mods-\(#ver)-\(#arch)"}}
 	}

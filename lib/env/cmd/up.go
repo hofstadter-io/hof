@@ -8,6 +8,7 @@ import (
 	"strings"
 	"syscall"
 
+	"golang.org/x/sync/errgroup"
 	"dagger.io/dagger"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
@@ -42,37 +43,55 @@ func Up(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) er
 	err = R.DaggerInit()
 	d, _ := dag.NewClient(R.Ctx, R.DagClient)
 
+	buildCtx, buildSpan := dagger.Tracer().Start(R.Ctx, "hof env up")
+	defer buildSpan.End()
+
 	fmt.Println("starting:")
+	g, groupCtx := errgroup.WithContext(buildCtx)
+	if eflags.Parallel > 0 {
+		g.SetLimit(eflags.Parallel)
+	}
+
 	for _, e := range matches {
-		name, kind, _ := extractMeta(e)
-		fmt.Printf("  %s (%s)", name, kind)
+		e := e
+		g.Go(func() error {
+			name, kind, _ := extractMeta(e)
+			matchCtx, matchSpan := dagger.Tracer().Start(groupCtx, fmt.Sprintf("starting[%s]: (%s)", name, kind))
+			defer matchSpan.End()
 
-		s, cfg, err := d.Service(e.Value, eflags.NoCache)
-		if err != nil {
-			fmt.Println("error:", err)
-			return err
-		}
+			fmt.Printf("  %s (%s)", name, kind)
 
-		ports := []dagger.PortForward{}
-		for _, p := range cfg.Ports {
-			if p.Frontend == 0 {
-				p.Frontend = p.Backend
+			s, cfg, err := d.Service(e.Value, eflags.NoCache)
+			if err != nil {
+				fmt.Println("error:", err)
+				return err
 			}
-			ports = append(ports, dagger.PortForward{
-				Backend:  p.Backend,
-				Frontend: p.Frontend,
-				Protocol: dagger.NetworkProtocol(strings.ToUpper(p.Protocol)),
+
+			ports := []dagger.PortForward{}
+			for _, p := range cfg.Ports {
+				if p.Frontend == 0 {
+					p.Frontend = p.Backend
+				}
+				ports = append(ports, dagger.PortForward{
+					Backend:  p.Backend,
+					Frontend: p.Frontend,
+					Protocol: dagger.NetworkProtocol(strings.ToUpper(p.Protocol)),
+				})
+			}
+
+			s = R.DagClient.Host().Tunnel(s, dagger.HostTunnelOpts{
+				Ports: ports,
 			})
-		}
-
-		s = R.DagClient.Host().Tunnel(s, dagger.HostTunnelOpts{
-			Ports: ports,
+			s, err = s.Start(matchCtx)
+			if err != nil {
+				return err
+			}
+			return nil
 		})
-		s, err = s.Start(R.Ctx)
-		if err != nil {
-			return err
-		}
-
+	}
+	err = g.Wait()
+	if err != nil {
+		return err
 	}
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)

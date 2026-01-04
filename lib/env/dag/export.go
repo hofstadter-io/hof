@@ -155,7 +155,11 @@ func (d *Dag) HashExportDir(step cue.Value) (*dagger.Directory, *exportDirConfig
 		case "#gitRepo":
 			repo, rcfg, rerr := d.hashGitRepo(src)
 			if rerr == nil {
-				dir = repo.Ref(rcfg.Ref).Tree()
+				if rcfg != nil && rcfg.Ref != "" {
+					dir = repo.Ref(rcfg.Ref).Tree()
+				} else {
+					dir = repo.Head().Tree()
+				}
 			} else {
 				err = rerr
 			}

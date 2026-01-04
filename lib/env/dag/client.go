@@ -234,7 +234,11 @@ func (d *Dag) Dir(val cue.Value, noCache bool) (*dagger.Directory, string, error
 		if err != nil {
 			return nil, "", err
 		}
-		return repo.Ref(rcfg.Ref).Tree(), "", nil
+		if rcfg != nil && rcfg.Ref != "" {
+			return repo.Ref(rcfg.Ref).Tree(), "", nil
+		} else {
+			return repo.Head().Tree(), "", nil
+		}
 	default:
 		return nil, "", fmt.Errorf("unsupported build target(%s): %v", k.Kind, val)
 	}
