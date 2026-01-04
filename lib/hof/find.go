@@ -100,18 +100,25 @@ func upgradeAttrs[T any](node *Node[T], label string) bool {
 			n := val.LookupPath(cue.ParsePath("name"))
 			if n.Exists() {
 				if s, err := n.String(); err == nil {
-					node.Hof.Env.Name = s
+					if s != "" {
+						node.Hof.Env.Name = s
+					}
 				}
-			} else if ac != "" {
-				node.Hof.Env.Name = ac
-				// @env(...) will also write @id() if not set already
-				if node.Hof.ID == "" {
-					node.Hof.ID = ac
+			}
+
+			// wasn't manually set, lets do fallback
+			if node.Hof.Env.Name == "" {
+				if ac != "" {
+					node.Hof.Env.Name = ac
+					// @env(...) will also write @id() if not set already
+					if node.Hof.ID == "" {
+						node.Hof.ID = ac
+					}
+				} else if node.Hof.ID != "" {
+					node.Hof.Env.Name = ac
+				} else {
+					node.Hof.Env.Name = label
 				}
-			} else if node.Hof.ID != "" {
-				node.Hof.Env.Name = ac
-			} else {
-				node.Hof.Env.Name = label
 			}
 
 		case "agent":
