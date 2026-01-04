@@ -39,8 +39,10 @@ func (idx *hashContainerIndex) Key() string {
 
 // TODO, change this to take a context (for nested OTEL spans)
 func (d *Dag) HashContainer(val cue.Value) (*dagger.Container, error) {
+	d.mx.RLock()
 	var cfg hashContainerConfig
 	err := val.Decode(&cfg)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, fmt.Errorf("while decoding HashContainer: %w", err)
 	}
@@ -52,7 +54,7 @@ func (d *Dag) HashContainer(val cue.Value) (*dagger.Container, error) {
 	}
 
 	// lookup
-	ia, ok := d.cat[idx]
+	ia, ok := d.cat.Load(idx)
 	if ok {
 		ix := ia.(*hashContainerIndex)
 		return ix.ctr, nil
@@ -133,7 +135,7 @@ func (d *Dag) HashContainer(val cue.Value) (*dagger.Container, error) {
 	idx.ctr = c
 
 	// memoize
-	d.cat[idx] = idx
+	d.cat.Store(idx, idx)
 
 	return idx.ctr, nil
 }
@@ -216,8 +218,10 @@ func (idx *hashDockerBuildIndex) Key() string {
 }
 
 func (d *Dag) HashDockerBuild(step cue.Value) (*dagger.Container, error) {
+	d.mx.RLock()
 	var cfg hashDockerBuildConfig
 	err := step.Decode(&cfg)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, fmt.Errorf("while decoding hashDockerBuild: %w", err)
 	}
@@ -230,7 +234,7 @@ func (d *Dag) HashDockerBuild(step cue.Value) (*dagger.Container, error) {
 	}
 
 	// lookup
-	ia, ok := d.cat[idx]
+	ia, ok := d.cat.Load(idx)
 	if ok {
 		ix := ia.(*hashDockerBuildIndex)
 		return ix.ctr, nil
@@ -280,7 +284,7 @@ func (d *Dag) HashDockerBuild(step cue.Value) (*dagger.Container, error) {
 	// fmt.Println("hashService.done")
 
 	// memoize
-	d.cat[idx] = idx
+	d.cat.Store(idx, idx)
 
 	return idx.ctr, nil
 }

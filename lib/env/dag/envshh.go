@@ -13,8 +13,10 @@ import (
 
 func (d *Dag) stepEnvVarHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
 	// no type for this one, it's just a map
+	d.mx.RLock()
 	var envs map[string]string
 	err := step.Decode(&envs)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, fmt.Errorf("while decoding stepEnv: %w", err)
 	}
@@ -42,8 +44,10 @@ func (d *Dag) stepEnvFileHandler(c *dagger.Container, step cue.Value) (*dagger.C
 	// DEV HACK
 	// return c, nil
 
+	d.mx.RLock()
 	var cfg stepEnvVarsConfig
 	err := step.Decode(&cfg)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, fmt.Errorf("while decoding stepEnvfile: %w", err)
 	}
@@ -117,8 +121,10 @@ func (idx *hashSecretIndex) Key() string {
 }
 
 func (d *Dag) hashSecret(step cue.Value) (*dagger.Secret, error) {
+	d.mx.RLock()
 	var cfg hashSecretConfig
 	err := step.Decode(&cfg)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, fmt.Errorf("while decoding hashSecret: %w", err)
 	}
@@ -130,7 +136,7 @@ func (d *Dag) hashSecret(step cue.Value) (*dagger.Secret, error) {
 	}
 
 	// lookup
-	ia, ok := d.cat[idx]
+	ia, ok := d.cat.Load(idx)
 	if ok {
 		ix := ia.(*hashSecretIndex)
 		return ix.shh, nil
@@ -191,7 +197,7 @@ func (d *Dag) hashSecret(step cue.Value) (*dagger.Secret, error) {
 	}
 	idx.shh = d.dag.Secret(cfg.Name, dagger.SecretOpts{})
 	// memoize
-	d.cat[idx] = idx
+	d.cat.Store(idx, idx)
 
 	return idx.shh, nil
 }

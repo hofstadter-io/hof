@@ -38,8 +38,10 @@ func (idx *hashFileIndex) Key() string {
 }
 
 func (d *Dag) hashFile(step cue.Value) (*dagger.File, string, error) {
+	d.mx.RLock()
 	var cfg hashFileConfig
 	err := step.Decode(&cfg)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, "", fmt.Errorf("while decoding hashFile: %w", err)
 	}
@@ -51,7 +53,7 @@ func (d *Dag) hashFile(step cue.Value) (*dagger.File, string, error) {
 	}
 
 	// lookup
-	ia, ok := d.cat[idx]
+	ia, ok := d.cat.Load(idx)
 	if ok {
 		ix := ia.(*hashFileIndex)
 		return ix.file, ix.cfg.Path, nil
@@ -128,7 +130,7 @@ func (d *Dag) hashFile(step cue.Value) (*dagger.File, string, error) {
 
 	// memoize
 	idx.file = f
-	d.cat[idx] = idx
+	d.cat.Store(idx, idx)
 
 	return idx.file, idx.cfg.Path, nil
 }
@@ -167,8 +169,10 @@ func (idx *hashDirIndex) Key() string {
 }
 
 func (d *Dag) hashDir(step cue.Value) (*dagger.Directory, string, error) {
+	d.mx.RLock()
 	var cfg hashDirConfig
 	err := step.Decode(&cfg)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, "", err
 	}
@@ -180,7 +184,7 @@ func (d *Dag) hashDir(step cue.Value) (*dagger.Directory, string, error) {
 	}
 
 	// lookup
-	ia, ok := d.cat[idx]
+	ia, ok := d.cat.Load(idx)
 	if ok {
 		ix := ia.(*hashDirIndex)
 		return ix.dir, ix.cfg.Path, nil
@@ -193,8 +197,10 @@ func (d *Dag) hashDir(step cue.Value) (*dagger.Directory, string, error) {
 	// TODO, we need to do something similar for #Dir as we do here (bundle, multi-source)
 	bundle := d.dag.Directory()
 	for i, src := range cfg.Sources {
+		d.mx.RLock()
 		var k kinder
 		err := src.Decode(&k)
+		d.mx.RUnlock()
 		if err != nil {
 			return nil, "", fmt.Errorf("while decoding hashDir(%s).source.%d.$kind: %w", cfg.Name, i, err)
 		}
@@ -276,7 +282,7 @@ func (d *Dag) hashDir(step cue.Value) (*dagger.Directory, string, error) {
 
 	// memoize
 	idx.dir = final
-	d.cat[idx] = idx
+	d.cat.Store(idx, idx)
 
 	return idx.dir, idx.cfg.Path, nil
 }
@@ -293,8 +299,10 @@ type stepFileConfig struct {
 }
 
 func (d *Dag) stepFileHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+	d.mx.RLock()
 	var cfg stepFileConfig
 	err := step.Decode(&cfg)
+	d.mx.RUnlock()
 	if err != nil {
 		return c, err
 	}
@@ -372,8 +380,10 @@ type stepDirConfig struct {
 }
 
 func (d *Dag) stepDirHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+	d.mx.RLock()
 	var cfg stepDirConfig
 	err := step.Decode(&cfg)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, fmt.Errorf("while decoding stepDir: %w", err)
 	}

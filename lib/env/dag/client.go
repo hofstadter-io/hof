@@ -20,7 +20,7 @@ type Dag struct {
 
 	// catalog allows us to consolidate references across CUE that might get duplicated
 	// as well as each entry holding the value, config, and go types for the entire life-cycle
-	cat catalog
+	cat *catalog
 	hdl stepHandlerMap
 }
 
@@ -42,10 +42,12 @@ func NewClient(ctx context.Context, client *dagger.Client) (d *Dag, err error) {
 // 3. look up by name or id? (need to fill back the id?) or can we create an interface Key() <- better probably
 // 4. enough info to track, walk, schedule, and visualize the dag
 // 5. an interface or real type here, instead of any
-type catalog map[Keyer]any
+type catalog struct {
+	sync.Map
+}
 
-func newCatalog() catalog {
-	return make(map[Keyer]any)
+func newCatalog() *catalog {
+	return &catalog{}
 }
 
 type Keyer interface {
@@ -148,7 +150,9 @@ func (d *Dag) Container(val cue.Value, noCache bool) (*dagger.Container, error) 
 
 	// it's probably wrong to assume this in general
 	var k kinder
+	d.mx.RLock()
 	err := val.Decode(&k)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, err
 	}
@@ -170,7 +174,9 @@ func (d *Dag) Service(val cue.Value, noCache bool) (*dagger.Service, *hashServic
 
 	// it's probably wrong to assume this in general
 	var k kinder
+	d.mx.RLock()
 	err := val.Decode(&k)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, nil, err
 	}
@@ -190,7 +196,9 @@ func (d *Dag) File(val cue.Value, noCache bool) (*dagger.File, string, error) {
 
 	// it's probably wrong to assume this in general
 	var k kinder
+	d.mx.RLock()
 	err := val.Decode(&k)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, "", err
 	}
@@ -215,7 +223,9 @@ func (d *Dag) Dir(val cue.Value, noCache bool) (*dagger.Directory, string, error
 
 	// it's probably wrong to assume this in general
 	var k kinder
+	d.mx.RLock()
 	err := val.Decode(&k)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, "", err
 	}

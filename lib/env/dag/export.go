@@ -36,8 +36,10 @@ func (idx *exportFileIndex) Key() string {
 }
 
 func (d *Dag) HashExportFile(step cue.Value) (*dagger.File, *exportFileConfig, error) {
+	d.mx.RLock()
 	var cfg exportFileConfig
 	err := step.Decode(&cfg)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, nil, fmt.Errorf("while decoding hashExportFile: %w", err)
 	}
@@ -49,7 +51,7 @@ func (d *Dag) HashExportFile(step cue.Value) (*dagger.File, *exportFileConfig, e
 	}
 
 	// lookup
-	ia, ok := d.cat[idx]
+	ia, ok := d.cat.Load(idx)
 	if ok {
 		ix := ia.(*exportFileIndex)
 		return ix.file, ix.cfg, nil
@@ -62,7 +64,7 @@ func (d *Dag) HashExportFile(step cue.Value) (*dagger.File, *exportFileConfig, e
 
 	// memoize
 	idx.file = f
-	d.cat[idx] = idx
+	d.cat.Store(idx, idx)
 
 	return idx.file, idx.cfg, nil
 }
@@ -104,8 +106,10 @@ func (idx *exportDirIndex) Key() string {
 }
 
 func (d *Dag) HashExportDir(step cue.Value) (*dagger.Directory, *exportDirConfig, error) {
+	d.mx.RLock()
 	var cfg exportDirConfig
 	err := step.Decode(&cfg)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, nil, fmt.Errorf("while decoding hashExportDir: %w", err)
 	}
@@ -117,7 +121,7 @@ func (d *Dag) HashExportDir(step cue.Value) (*dagger.Directory, *exportDirConfig
 	}
 
 	// lookup
-	ia, ok := d.cat[idx]
+	ia, ok := d.cat.Load(idx)
 	if ok {
 		ix := ia.(*exportDirIndex)
 		return ix.dir, ix.cfg, nil
@@ -130,8 +134,10 @@ func (d *Dag) HashExportDir(step cue.Value) (*dagger.Directory, *exportDirConfig
 	// TODO, we need to do something similar for #Dir as we do here (bundle, multi-source)
 	bundle := d.dag.Directory()
 	for i, src := range cfg.Sources {
+		d.mx.RLock()
 		var k kinder
 		err := src.Decode(&k)
+		d.mx.RUnlock()
 		if err != nil {
 			return nil, nil, fmt.Errorf("while decoding hashExportDir(%s).source.%d.$kind: %w", cfg.Name, i, err)
 		}
@@ -204,7 +210,7 @@ func (d *Dag) HashExportDir(step cue.Value) (*dagger.Directory, *exportDirConfig
 
 	// memoize
 	idx.dir = final
-	d.cat[idx] = idx
+	d.cat.Store(idx, idx)
 
 	return idx.dir, idx.cfg, nil
 }
@@ -236,8 +242,10 @@ func (idx *exportImageFileIndex) Key() string {
 }
 
 func (d *Dag) HashExportImageFile(step cue.Value) (*dagger.Container, *exportImageFileConfig, error) {
+	d.mx.RLock()
 	var cfg exportImageFileConfig
 	err := step.Decode(&cfg)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, nil, err
 	}
@@ -249,7 +257,7 @@ func (d *Dag) HashExportImageFile(step cue.Value) (*dagger.Container, *exportIma
 	}
 
 	// lookup
-	ia, ok := d.cat[idx]
+	ia, ok := d.cat.Load(idx)
 	if ok {
 		ix := ia.(*exportImageFileIndex)
 		return ix.ctr, ix.cfg, nil
@@ -261,7 +269,7 @@ func (d *Dag) HashExportImageFile(step cue.Value) (*dagger.Container, *exportIma
 	idx.ctr = c
 
 	// memoize
-	d.cat[idx] = idx
+	d.cat.Store(idx, idx)
 
 	return idx.ctr, idx.cfg, nil
 }
@@ -293,8 +301,10 @@ func (idx *exportImageIndex) Key() string {
 }
 
 func (d *Dag) HashExportImage(step cue.Value) (*dagger.Container, *exportImageConfig, error) {
+	d.mx.RLock()
 	var cfg exportImageConfig
 	err := step.Decode(&cfg)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, nil, err
 	}
@@ -306,7 +316,7 @@ func (d *Dag) HashExportImage(step cue.Value) (*dagger.Container, *exportImageCo
 	}
 
 	// lookup
-	ia, ok := d.cat[idx]
+	ia, ok := d.cat.Load(idx)
 	if ok {
 		ix := ia.(*exportImageIndex)
 		return ix.ctr, ix.cfg, nil
@@ -318,7 +328,7 @@ func (d *Dag) HashExportImage(step cue.Value) (*dagger.Container, *exportImageCo
 	idx.ctr = c
 
 	// memoize
-	d.cat[idx] = idx
+	d.cat.Store(idx, idx)
 
 	return idx.ctr, idx.cfg, nil
 }
@@ -350,8 +360,10 @@ func (idx *publishImageIndex) Key() string {
 }
 
 func (d *Dag) HashPublishImage(step cue.Value) (*dagger.Container, *publishImageConfig, error) {
+	d.mx.RLock()
 	var cfg publishImageConfig
 	err := step.Decode(&cfg)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, nil, err
 	}
@@ -363,7 +375,7 @@ func (d *Dag) HashPublishImage(step cue.Value) (*dagger.Container, *publishImage
 	}
 
 	// lookup
-	ia, ok := d.cat[idx]
+	ia, ok := d.cat.Load(idx)
 	if ok {
 		ix := ia.(*publishImageIndex)
 		return ix.ctr, ix.cfg, nil
@@ -375,7 +387,7 @@ func (d *Dag) HashPublishImage(step cue.Value) (*dagger.Container, *publishImage
 	idx.ctr = c
 
 	// memoize
-	d.cat[idx] = idx
+	d.cat.Store(idx, idx)
 
 	return idx.ctr, idx.cfg, nil
 }
@@ -406,8 +418,10 @@ func (idx *exportCuefigIndex) Key() string {
 }
 
 func (d *Dag) HashExportCuefig(step cue.Value) (*dagger.File, *exportCuefigConfig, error) {
+	d.mx.RLock()
 	var cfg exportCuefigConfig
 	err := step.Decode(&cfg)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, nil, err
 	}
@@ -419,7 +433,7 @@ func (d *Dag) HashExportCuefig(step cue.Value) (*dagger.File, *exportCuefigConfi
 	}
 
 	// lookup
-	ia, ok := d.cat[idx]
+	ia, ok := d.cat.Load(idx)
 	if ok {
 		ix := ia.(*exportCuefigIndex)
 		return ix.file, ix.cfg, nil
@@ -433,7 +447,7 @@ func (d *Dag) HashExportCuefig(step cue.Value) (*dagger.File, *exportCuefigConfi
 	// idx.file = f
 
 	// memoize
-	d.cat[idx] = idx
+	d.cat.Store(idx, idx)
 
 	return idx.file, idx.cfg, nil
 }
@@ -464,8 +478,10 @@ func (idx *exportDaggerIndex) Key() string {
 }
 
 func (d *Dag) HashExportDagger(step cue.Value) (*dagger.File, *exportDaggerConfig, error) {
+	d.mx.RLock()
 	var cfg exportDaggerConfig
 	err := step.Decode(&cfg)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, nil, err
 	}
@@ -477,7 +493,7 @@ func (d *Dag) HashExportDagger(step cue.Value) (*dagger.File, *exportDaggerConfi
 	}
 
 	// lookup
-	ia, ok := d.cat[idx]
+	ia, ok := d.cat.Load(idx)
 	if ok {
 		ix := ia.(*exportDaggerIndex)
 		return ix.file, ix.cfg, nil
@@ -491,7 +507,7 @@ func (d *Dag) HashExportDagger(step cue.Value) (*dagger.File, *exportDaggerConfi
 	// idx.file = f
 
 	// memoize
-	d.cat[idx] = idx
+	d.cat.Store(idx, idx)
 
 	return idx.file, idx.cfg, nil
 }

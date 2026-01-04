@@ -47,8 +47,10 @@ func (idx *hashServiceIndex) Key() string {
 }
 
 func (d *Dag) HashService(step cue.Value) (*dagger.Service, *hashServiceConfig, error) {
+	d.mx.RLock()
 	var cfg hashServiceConfig
 	err := step.Decode(&cfg)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, nil, fmt.Errorf("while decoding hashService: %w", err)
 	}
@@ -61,7 +63,7 @@ func (d *Dag) HashService(step cue.Value) (*dagger.Service, *hashServiceConfig, 
 	}
 
 	// lookup
-	ia, ok := d.cat[idx]
+	ia, ok := d.cat.Load(idx)
 	if ok {
 		ix := ia.(*hashServiceIndex)
 		return ix.svc, idx.cfg, nil
@@ -118,7 +120,7 @@ func (d *Dag) HashService(step cue.Value) (*dagger.Service, *hashServiceConfig, 
 	// fmt.Println("hashService.done")
 
 	// memoize
-	d.cat[idx] = idx
+	d.cat.Store(idx, idx)
 
 	return idx.svc, idx.cfg, nil
 }
@@ -133,8 +135,10 @@ type stepExposeConfig struct {
 }
 
 func (d *Dag) stepExposeHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+	d.mx.RLock()
 	var cfg stepExposeConfig
 	err := step.Decode(&cfg)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, fmt.Errorf("while decoding stepExpose: %w", err)
 	}
@@ -157,8 +161,10 @@ type stepBindServiceConfig struct {
 }
 
 func (d *Dag) stepBindServiceHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+	d.mx.RLock()
 	var cfg stepBindServiceConfig
 	err := step.Decode(&cfg)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, fmt.Errorf("while decoding stepEntrypoint: %w", err)
 	}

@@ -33,8 +33,10 @@ func (idx *hostImageIndex) Key() string {
 }
 
 func (d *Dag) HashHostImage(step cue.Value) (*dagger.Container, error) {
+	d.mx.RLock()
 	var cfg hostImageConfig
 	err := step.Decode(&cfg)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, fmt.Errorf("while decoding hashHostImage: %w", err)
 	}
@@ -46,7 +48,7 @@ func (d *Dag) HashHostImage(step cue.Value) (*dagger.Container, error) {
 	}
 
 	// lookup
-	ia, ok := d.cat[idx]
+	ia, ok := d.cat.Load(idx)
 	if ok {
 		ix := ia.(*hostImageIndex)
 		return ix.img, nil
@@ -56,7 +58,7 @@ func (d *Dag) HashHostImage(step cue.Value) (*dagger.Container, error) {
 	idx.img = d.dag.Host().ContainerImage(cfg.Name)
 
 	// memoize
-	d.cat[idx] = idx
+	d.cat.Store(idx, idx)
 
 	return idx.img, nil
 }
@@ -87,8 +89,10 @@ func (idx *hostFileIndex) Key() string {
 }
 
 func (d *Dag) HashHostFile(val cue.Value) (*dagger.File, *hostFileConfig, error) {
+	d.mx.RLock()
 	var cfg hostFileConfig
 	err := val.Decode(&cfg)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, nil, fmt.Errorf("while decoding hashHostFile: %w", err)
 	}
@@ -100,7 +104,7 @@ func (d *Dag) HashHostFile(val cue.Value) (*dagger.File, *hostFileConfig, error)
 	}
 
 	// lookup
-	ia, ok := d.cat[idx]
+	ia, ok := d.cat.Load(idx)
 	if ok {
 		ix := ia.(*hostFileIndex)
 		return ix.file, ix.cfg, nil
@@ -112,7 +116,7 @@ func (d *Dag) HashHostFile(val cue.Value) (*dagger.File, *hostFileConfig, error)
 	})
 
 	// memoize
-	d.cat[idx] = idx
+	d.cat.Store(idx, idx)
 
 	return idx.file, idx.cfg, nil
 }
@@ -151,8 +155,10 @@ func (idx *hostDirIndex) Key() string {
 }
 
 func (d *Dag) HashHostDir(val cue.Value) (*dagger.Directory, *hostDirConfig, error) {
+	d.mx.RLock()
 	var cfg hostDirConfig
 	err := val.Decode(&cfg)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, nil, fmt.Errorf("while decoding hashHostDir: %w", err)
 	}
@@ -164,7 +170,7 @@ func (d *Dag) HashHostDir(val cue.Value) (*dagger.Directory, *hostDirConfig, err
 	}
 
 	// lookup
-	ia, ok := d.cat[idx]
+	ia, ok := d.cat.Load(idx)
 	if ok {
 		ix := ia.(*hostDirIndex)
 		return ix.dir, ix.cfg, nil
@@ -195,7 +201,7 @@ func (d *Dag) HashHostDir(val cue.Value) (*dagger.Directory, *hostDirConfig, err
 
 	// memoize
 	idx.dir = final
-	d.cat[idx] = idx
+	d.cat.Store(idx, idx)
 
 	return idx.dir, idx.cfg, nil
 }
@@ -226,8 +232,10 @@ func (idx *hostServiceIndex) Key() string {
 }
 
 func (d *Dag) HashHostService(val cue.Value) (*dagger.Service, *hostServiceConfig, error) {
+	d.mx.RLock()
 	var cfg hostServiceConfig
 	err := val.Decode(&cfg)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, nil, fmt.Errorf("while decoding hashHostService: %w", err)
 	}
@@ -239,7 +247,7 @@ func (d *Dag) HashHostService(val cue.Value) (*dagger.Service, *hostServiceConfi
 	}
 
 	// lookup
-	ia, ok := d.cat[idx]
+	ia, ok := d.cat.Load(idx)
 	if ok {
 		ix := ia.(*hostServiceIndex)
 		return ix.svc, ix.cfg, nil
@@ -259,7 +267,7 @@ func (d *Dag) HashHostService(val cue.Value) (*dagger.Service, *hostServiceConfi
 	})
 
 	// memoize
-	d.cat[idx] = idx
+	d.cat.Store(idx, idx)
 
 	return idx.svc, idx.cfg, nil
 }
@@ -292,8 +300,10 @@ func (idx *hostTunnelIndex) Key() string {
 }
 
 func (d *Dag) HashHostTunnel(val cue.Value) (*dagger.Service, *hostTunnelConfig, error) {
+	d.mx.RLock()
 	var cfg hostTunnelConfig
 	err := val.Decode(&cfg)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, nil, fmt.Errorf("while decoding hashHostTunnel: %w", err)
 	}
@@ -305,7 +315,7 @@ func (d *Dag) HashHostTunnel(val cue.Value) (*dagger.Service, *hostTunnelConfig,
 	}
 
 	// lookup
-	ia, ok := d.cat[idx]
+	ia, ok := d.cat.Load(idx)
 	if ok {
 		ix := ia.(*hostTunnelIndex)
 		return ix.svc, ix.cfg, nil
@@ -332,7 +342,7 @@ func (d *Dag) HashHostTunnel(val cue.Value) (*dagger.Service, *hostTunnelConfig,
 	})
 
 	// memoize
-	d.cat[idx] = idx
+	d.cat.Store(idx, idx)
 
 	return idx.svc, idx.cfg, nil
 }
@@ -362,8 +372,10 @@ func (idx *hostSocketIndex) Key() string {
 }
 
 func (d *Dag) HashHostSocket(val cue.Value) (*dagger.Socket, *hostSocketConfig, error) {
+	d.mx.RLock()
 	var cfg hostSocketConfig
 	err := val.Decode(&cfg)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, nil, fmt.Errorf("while decoding hashHostSocket: %w", err)
 	}
@@ -375,7 +387,7 @@ func (d *Dag) HashHostSocket(val cue.Value) (*dagger.Socket, *hostSocketConfig, 
 	}
 
 	// lookup
-	ia, ok := d.cat[idx]
+	ia, ok := d.cat.Load(idx)
 	if ok {
 		ix := ia.(*hostSocketIndex)
 		return ix.sock, ix.cfg, nil
@@ -385,7 +397,7 @@ func (d *Dag) HashHostSocket(val cue.Value) (*dagger.Socket, *hostSocketConfig, 
 	idx.sock = d.dag.Host().UnixSocket(cfg.Path)
 
 	// memoize
-	d.cat[idx] = idx
+	d.cat.Store(idx, idx)
 
 	return idx.sock, idx.cfg, nil
 }

@@ -32,8 +32,10 @@ func (idx *hashCacheIndex) Key() string {
 }
 
 func (d *Dag) hashCache(step cue.Value) (*dagger.CacheVolume, error) {
+	d.mx.RLock()
 	var cfg hashCacheConfig
 	err := step.Decode(&cfg)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, fmt.Errorf("while decoding hashCache: %w", err)
 	}
@@ -45,7 +47,7 @@ func (d *Dag) hashCache(step cue.Value) (*dagger.CacheVolume, error) {
 	}
 
 	// lookup
-	ia, ok := d.cat[idx]
+	ia, ok := d.cat.Load(idx)
 	if ok {
 		ix := ia.(*hashCacheIndex)
 		return ix.vol, nil
@@ -54,7 +56,7 @@ func (d *Dag) hashCache(step cue.Value) (*dagger.CacheVolume, error) {
 	// load for realz
 	idx.vol = d.dag.CacheVolume(cfg.Name)
 	// memoize
-	d.cat[idx] = idx
+	d.cat.Store(idx, idx)
 
 	return idx.vol, nil
 }
@@ -67,8 +69,10 @@ type stepTempConfig struct {
 }
 
 func (d *Dag) stepTempHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+	d.mx.RLock()
 	var cfg stepTempConfig
 	err := step.Decode(&cfg)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, fmt.Errorf("while decoding stepTerm: %w", err)
 	}
@@ -94,8 +98,10 @@ type stepMountConfig struct {
 }
 
 func (d *Dag) stepMountHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+	d.mx.RLock()
 	var cfg stepMountConfig
 	err := step.Decode(&cfg)
+	d.mx.RUnlock()
 	if err != nil {
 		return c, err
 	}

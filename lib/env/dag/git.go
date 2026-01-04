@@ -50,8 +50,10 @@ func (idx *hashGitRepoIndex) Key() string {
 }
 
 func (d *Dag) hashGitRepo(step cue.Value) (*dagger.GitRepository, *hashGitRepoConfig, error) {
+	d.mx.RLock()
 	var cfg hashGitRepoConfig
 	err := step.Decode(&cfg)
+	d.mx.RUnlock()
 	if err != nil {
 		return nil, nil, fmt.Errorf("while decoding hashHostFile: %w", err)
 	}
@@ -63,7 +65,7 @@ func (d *Dag) hashGitRepo(step cue.Value) (*dagger.GitRepository, *hashGitRepoCo
 	}
 
 	// lookup
-	ia, ok := d.cat[idx]
+	ia, ok := d.cat.Load(idx)
 	if ok {
 		ix := ia.(*hashGitRepoIndex)
 		return ix.repo, ix.cfg, nil
@@ -85,7 +87,7 @@ func (d *Dag) hashGitRepo(step cue.Value) (*dagger.GitRepository, *hashGitRepoCo
 	})
 
 	// memoize
-	d.cat[idx] = idx
+	d.cat.Store(idx, idx)
 
 	return idx.repo, idx.cfg, nil
 }
