@@ -18,8 +18,8 @@ githubBin: env.Sh & {
 	#bins: [...string] | *[#name]
 	_bins: strings.Join(#bins, " ")
 
-	_file:   "\(#name)_v\(#ver)_\(#distro)_\(#arch).tar.gz"
-	_src:    "https://github.com/\(#repo)/releases/download/v\(#ver)/\(_file)"
+	_file:  "\(#name)_v\(#ver)_\(#distro)_\(#arch).tar.gz"
+	_src:   "https://github.com/\(#repo)/releases/download/v\(#ver)/\(_file)"
 	script: """
 		cd /tmp
 		wget -q \(_src)

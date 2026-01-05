@@ -35,7 +35,7 @@ apt: {
 			_pkgs: strings.Join(#pkgs, " ")
 		}
 		script: "apt-get upgrade -y --no-install-recommends \(_pkgs)"
-	}	
+	}
 	update: env.Sh & {script: "apt-get update -y"}
 	clean: env.Sh & {
 		script: """

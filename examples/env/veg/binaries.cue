@@ -53,7 +53,7 @@ hof: cli: {
 		source: env.#Container & {
 			from: ctr.builder
 			steps: [
-				env.EnvVar & {GOOS: #goos, GOARCH: #arch},
+				env.EnvVars & {GOOS: #goos, GOARCH: #arch},
 				env.Exec & {args: ["go", "build", "-ldflags", "-w", "-o", "./bins/hof-\(#variant)", "./cmd/hof"]},
 			]
 		}

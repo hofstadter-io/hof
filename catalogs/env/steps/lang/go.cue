@@ -16,10 +16,12 @@ go: {
 
 	envSets: {
 		default: [
-			env.EnvVar & {PATH: "$PATH:/usr/local/go/bin"},
-			env.EnvVar & {GOBIN: "/usr/local/bin"}, // go install to /usr/local/bin
-			env.EnvVar & {GOCACHE: "/cache/go"},    // intermediate build artifacts
-			env.EnvVar & {GOPATH: "/go"},           // mod / pkg / sumdb cache
+			env.EnvVars & {
+				PATH:    "$PATH:/usr/local/go/bin"
+				GOBIN:   "/usr/local/bin" // go install to /usr/local/bin
+				GOCACHE: "/cache/go"      // intermediate build artifacts
+				GOPATH:  "/go"            // mod / pkg / sumdb cache
+			},
 		]
 	}
 
@@ -61,15 +63,15 @@ go: {
 	]
 
 	dev: env.#Container & {
-		from: bases.debian13.default
+		from:  bases.debian13.default
 		steps: defaultSteps
 	}
 
 	install: {
 		cli: [
 			env.Sh & {
-				_file:   "go\(#ver).linux-\(#arch).tar.gz"
-				_src:    "https://go.dev/dl/\(_file)"
+				_file:  "go\(#ver).linux-\(#arch).tar.gz"
+				_src:   "https://go.dev/dl/\(_file)"
 				script: """
 					cd /tmp
 					wget -q \(_src)
@@ -91,22 +93,22 @@ go: {
 		]
 
 		lsp: [
-			env.Sh & { script: "go install golang.org/x/tools/gopls@latest" },
+			env.Sh & {script: "go install golang.org/x/tools/gopls@latest"},
 		]
 
 		moduleBinary: env.#File & {
 			#params: {
-				module: string
-				version: string | *"latest"
+				module:       string
+				version:      string | *"latest"
 				_installName: "\(module)@\(version)"
-				_parts: strings.Split(module,"/")
-				_name: _parts[len(_parts)-1]
+				_parts:       strings.Split(module, "/")
+				_name:        _parts[len(_parts)-1]
 			}
 			path: string | *"/usr/local/bin/\(#params._name)"
 			source: env.#Container & {
 				from: go.dev
 				steps: [
-					env.Sh & { script: "go install \(#params._installName)"}
+					env.Sh & {script: "go install \(#params._installName)"},
 				]
 			}
 		}

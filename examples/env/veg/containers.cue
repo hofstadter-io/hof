@@ -69,7 +69,21 @@ ctr: {
 			_steps.tool.k8s.crane,
 			_steps.tool.k8s.helm,
 			_steps.tool.k8s.kind.binary,
+		]
+	}
+	run: env.#Container & {
+		@env()
+		#hof: {
+			id: "veg-run"
+			metadata: {
+				name:        id
+				description: "runtime veg-dev, with socket, secrets, and such"
+			}
+		}
+		name: #hof.metadata.name
 
+		from: dev
+		steps: [
 			// config / env stuff
 			_steps.tool.k8s.kind.config,
 
@@ -84,8 +98,12 @@ ctr: {
 
 			// add hof late, because it changes frequently
 			hof.File.linux,
-			env.Dir & { path: "/work", source: src.code },
-
+			env.Dir & {path: "/work", source: src.code},
+			env.Dir & {path: "/root/.ssh", source: secrets.dotssh},
+			env.Dir & {path: "/root/.kube", source: secrets.kubecfg},
+			env.SecretVars & {
+				GOOGLE_API_KEY: secrets.google
+			},
 		]
 	}
 

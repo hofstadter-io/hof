@@ -5,7 +5,7 @@ import (
 )
 
 github: {
-	cli: env.Bash & {
+	cli: env.Sh & {
 		// https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian
 		script: """
 			mkdir -p -m 755 /etc/apt/keyrings

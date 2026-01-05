@@ -14,9 +14,8 @@ zsh: {
 		makeDefault,
 	]
 
-	omz: env.Exec & {
-		args: ["sh", "-c", _script]
-		_script: """
+	omz: env.Sh & {
+		script: """
 			sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 			sed -i 's/^ZSH_THEME=.*/ZSH_THEME="frisk"/' /root/.zshrc
 			"""

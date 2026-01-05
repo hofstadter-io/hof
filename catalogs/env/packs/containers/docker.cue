@@ -27,7 +27,7 @@ docker: {
 			source: img.cli
 		}
 		install: env.File & {
-			path:   "/usr/local/bin/docker"
+			path:    "/usr/local/bin/docker"
 			content: cli.binary
 		}
 	}
@@ -43,20 +43,20 @@ docker: {
 		}
 		svc: env.#Service & {
 			@env(docker-daemon)
-			hostname:   "docker-daemon"
-			source: daemon.ctr
+			hostname: "docker-daemon"
+			source:   daemon.ctr
 			ports: [{port: 2375}]
 			insecureRootCapabilities: true
 		}
 
 		bind: [
-			env.Env & {DOCKER_HOST: "tcp://docker-daemon:2375"},
-			env.BindService & { service: daemon.svc & { @env(hide) }},
+			env.EnvVars & {DOCKER_HOST: "tcp://docker-daemon:2375"},
+			env.BindService & {service: daemon.svc & {@env(hide)}},
 		]
 	}
 
 	vols: {
-		tmp: env.#Cache & { @env(docker-tmp), name: "docker-tmp"}
-		varlib: env.#Cache & { @env(docker-varlib), name: "docker-varlib"}
+		tmp: env.#Cache & {@env(docker-tmp), name: "docker-tmp"}
+		varlib: env.#Cache & {@env(docker-varlib), name: "docker-varlib"}
 	}
 }

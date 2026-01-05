@@ -2,6 +2,7 @@ package dag
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 	"strings"
 
@@ -11,7 +12,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/env"
 )
 
-func (d *Dag) stepEnvVarHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+func (d *Dag) stepEnvVarsHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
 	// no type for this one, it's just a map
 	d.mx.RLock()
 	var envs map[string]string
@@ -31,7 +32,7 @@ func (d *Dag) stepEnvVarHandler(c *dagger.Container, step cue.Value) (*dagger.Co
 	return c, nil
 }
 
-type stepEnvVarsConfig struct {
+type stepEnvFileConfig struct {
 	Kind string    `json:"$kind"`
 	File cue.Value `json:"file"`
 }
@@ -41,11 +42,8 @@ var envpair envparse.Pair
 
 func (d *Dag) stepEnvFileHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
 
-	// DEV HACK
-	// return c, nil
-
 	d.mx.RLock()
-	var cfg stepEnvVarsConfig
+	var cfg stepEnvFileConfig
 	err := step.Decode(&cfg)
 	d.mx.RUnlock()
 	if err != nil {
@@ -149,7 +147,12 @@ func (d *Dag) hashSecret(step cue.Value) (*dagger.Secret, error) {
 		sv, _ := cfg.Source.String()
 		re := regexp.MustCompile(`^[a-z]+://.*`)
 		matched := re.MatchString(sv)
-		if matched {
+		upper := strings.ToUpper(sv) == sv
+		if upper {
+			// assume ENV var
+			val := os.Getenv(sv)
+			idx.shh = d.dag.SetSecret(cfg.Name, val)
+		} else if matched {
 			// uri style secret for dagger
 			idx.shh = d.dag.Secret(sv, dagger.SecretOpts{
 				CacheKey: cfg.Name,
@@ -195,17 +198,86 @@ func (d *Dag) hashSecret(step cue.Value) (*dagger.Secret, error) {
 	default:
 		return nil, fmt.Errorf("unsupported secret.source type: %v", ik)
 	}
-	idx.shh = d.dag.Secret(cfg.Name, dagger.SecretOpts{})
+	if idx.shh == nil {
+		idx.shh = d.dag.Secret(cfg.Name, dagger.SecretOpts{})
+	}
 	// memoize
 	d.cat.Store(idx, idx)
 
 	return idx.shh, nil
 }
 
-func (d *Dag) stepSecretVarHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+func (d *Dag) stepSecretVarsHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+	// no type for this one, it's just a map
+	d.mx.RLock()
+	var envs map[string]cue.Value
+	err := step.Decode(&envs)
+	d.mx.RUnlock()
+	if err != nil {
+		return nil, fmt.Errorf("while decoding stepSecretVar: %w", err)
+	}
+
+	for k, v := range envs {
+		if k != "$kind" {
+			s, err := d.hashSecret(v)
+			if err != nil {
+				return nil, fmt.Errorf("while decoding stepSecretVar.%s: %w", s, err)
+			}
+			c = c.WithSecretVariable(k, s)
+		}
+	}
 	return c, nil
 }
 
-func (d *Dag) stepSecretVarsHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+func (d *Dag) stepSecretFileHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+	d.mx.RLock()
+	var cfg stepEnvFileConfig
+	err := step.Decode(&cfg)
+	d.mx.RUnlock()
+	if err != nil {
+		return nil, fmt.Errorf("while decoding stepEnvfile: %w", err)
+	}
+	k := cfg.File.LookupPath(cue.ParsePath("$kind"))
+	if !k.Exists() {
+		return c, fmt.Errorf("missing $kind in stepEnvfile source: %v, got %v", step, k)
+	}
+
+	var file *dagger.File
+	ks, _ := k.String()
+	switch ks {
+	case "#file":
+		file, _, err = d.hashFile(cfg.File)
+
+	case "#hostFile":
+		file, _, err = d.HashHostFile(cfg.File)
+
+	default:
+		return c, fmt.Errorf("unsupported $kind in envfile.file: %v", step)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	contents, err := file.Contents(d.ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	r := strings.NewReader(contents)
+	parser := envparse.New(r)
+	for {
+		kv, err := parser.Next()
+		if err != nil {
+			return nil, err
+		}
+
+		if kv == envpair {
+			break
+		}
+
+		c = c.WithEnvVariable(kv.Key, kv.Val)
+	}
+
 	return c, nil
 }

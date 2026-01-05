@@ -8,15 +8,13 @@ import (
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
-k8s: kubectl: env.Exec & {
+k8s: kubectl: env.Sh & {
 	#ver:  string | *"1.31.0"
 	#arch: *"arm64" | "amd64"
 
-	args: ["sh", "-c", _script]
-
 	_src: "https://storage.googleapis.com/kubernetes-release/release/v\(#ver)/bin/linux/\(#arch)/kubectl"
 
-	_script: """
+	script: """
     set -eou pipefail
 
     cd /tmp
@@ -27,16 +25,14 @@ k8s: kubectl: env.Exec & {
     """
 }
 
-k8s: helm: env.Exec & {
+k8s: helm: env.Sh & {
 	#ver:  string | *"4.0.4"
 	#arch: *"arm64" | "amd64"
-
-	args: ["sh", "-c", _script]
 
 	_src:  "https://get.helm.sh/\(_file)"
 	_file: "helm-v\(#ver)-linux-\(#arch).tar.gz"
 
-	_script: """
+	script: """
     set -eou pipefail
 
     cd /tmp
@@ -48,7 +44,7 @@ k8s: helm: env.Exec & {
 }
 
 // basically the same as github, but without the version in teh filname
-k8s: crane: env.Exec & {
+k8s: crane: env.Sh & {
 	#ver:    string | *"0.20.7"
 	#arch:   string | *"arm64" | "x86_64"
 	#distro: string | *"Linux"
@@ -59,11 +55,9 @@ k8s: crane: env.Exec & {
 	#name: string | *strings.Split(#repo, "/")[1]
 	_bins: strings.Join(#bins, " ")
 
-	args: ["sh", "-c", _script]
-
 	_file:   "\(#name)_\(#distro)_\(#arch).tar.gz"
 	_src:    "https://github.com/\(#repo)/releases/download/v\(#ver)/\(_file)"
-	_script: """
+	script: """
     set -eou pipefail
 
     cd /tmp
@@ -79,19 +73,19 @@ k8s: kind: {
 		path: "/usr/local/bin/kind"
 		content: lang.go.install.moduleBinary & {
 			#params: {
-				module: "sigs.k8s.io/kind"
+				module:  "sigs.k8s.io/kind"
 				version: "v0.31.0"
 			}
 		}
 	}
 	config: env.File & {
-		path: "/veg/config/kind-config.yaml"
+		path:    "/veg/config/kind-config.yaml"
 		content: yaml.Marshal(_config)
 	}
 	_config: {
-		kind: "Cluster"
+		kind:       "Cluster"
 		apiVersion: "kind.x-k8s.io/v1alpha4"
-		name: "kind-veg"
+		name:       "kind-veg"
 		networking: {
 			// WARNING: It is _strongly_ recommended that you keep this the default
 			// (127.0.0.1) for security reasons. However it is possible to change this.
@@ -101,7 +95,6 @@ k8s: kind: {
 			// You may choose a specific port but probably don't need to in most cases.
 			// Using a random port makes it easier to spin up multiple clusters.
 			apiServerPort: 6443
-
 		}
 
 		nodes: [{
@@ -110,6 +103,7 @@ k8s: kind: {
 			kubeadmConfigPatches: [
 				_certSanPatch,
 			]
+		},
 
 			// extraPortMappings: [{
 			// // 	containerPort: 80
@@ -120,7 +114,7 @@ k8s: kind: {
 			// 	hostPort: 6443
 			// 	protocol: "TCP"
 			// }]
-		}]
+		]
 
 		// nodes: [{
 		// 	role: "control-plane"
@@ -132,10 +126,10 @@ k8s: kind: {
 	}
 }
 _certSanPatch: """
-kind: ClusterConfiguration
-apiServer:
-  certSANs:
-    - host.docker.internal
-    - localhost
-    - "127.0.0.1"
-"""
+	kind: ClusterConfiguration
+	apiServer:
+	  certSANs:
+	    - host.docker.internal
+	    - localhost
+	    - "127.0.0.1"
+	"""

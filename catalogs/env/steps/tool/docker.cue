@@ -6,10 +6,8 @@ import (
 )
 
 docker: {
-	repo: env.Exec & {
-		args: ["sh", "-c", _script]
-
-		_script: """
+	repo: env.Sh & {
+		script: """
 			set -eou pipefail
 
 			install -m 0755 -d /etc/apt/keyrings

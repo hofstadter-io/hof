@@ -21,6 +21,7 @@ var accepting = []string{
 
 	"dir",
 	"file",
+	"secret",
 
 	"gitRepo",
 	"hostDir",

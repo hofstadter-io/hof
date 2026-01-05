@@ -64,3 +64,20 @@ host: {
 		}
 	}
 }
+
+secrets: {
+	dotssh: env.#HostDir & {
+		@env(shh-dotssh)
+		path: "~/.ssh"
+	}
+	kubecfg: env.#HostDir & {
+		@env(shh-kubecfg)
+		path: "~/.kube"
+	}
+
+	google: env.#Secret & {
+		@env(shh-google)
+		name: "google-api-key"
+		source: "GOOGLE_API_KEY"
+	}
+}

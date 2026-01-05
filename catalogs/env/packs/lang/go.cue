@@ -47,7 +47,7 @@ go: {
 		lsp: env.#Service & {
 			// There is also a built in MCP server!
 			#port: int | *0
-			name: "gopls"
+			name:  "gopls"
 			ports: [{name: "lsp", port: 4000, frontend: #port}]
 			args: ["gopls", "serve", "-port=4000"]
 			// source: _

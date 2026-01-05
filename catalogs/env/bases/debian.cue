@@ -75,7 +75,7 @@ debian13: {
 				"jq",
 				"lsb-release",
 				"make",
-				"snap",
+				"ssh-client",
 				"tree",
 				"unzip",
 				"vim",

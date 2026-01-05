@@ -90,11 +90,10 @@ func (d *Dag) makeStepHandlers() stepHandlerMap {
 		// #DockerBuild
 
 		// envshh.cue
-		"envVar":  d.stepEnvVarHandler,
-		"envFile": d.stepEnvFileHandler,
-		// #Secret
-		"secretVar":  d.stepSecretVarHandler,
+		"envVars":    d.stepEnvVarsHandler,
+		"envFile":    d.stepEnvFileHandler,
 		"secretVars": d.stepSecretVarsHandler,
+		"secretFile": d.stepSecretFileHandler,
 
 		// exec.cue/go
 		"exec": d.stepExecHandler,
