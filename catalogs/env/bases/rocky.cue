@@ -5,11 +5,9 @@ import (
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
-rocky: rocky8
-
 rocky8: {
 	minimal: env.#Container & {
-		@id(rocky-8-minimal) // @name(too?)
+		@id(rocky8-min)
 		#hof: metadata: {
 			name:        "rocky8-min"
 			description: "A minimal rocky8 image with updates and certs"
@@ -28,7 +26,7 @@ rocky8: {
 			// utils.dnf.mounts.varLib,
 			// need to update once at the beginning
 			utils.dnf.update,
-			utils.dnf.upgrade,
+			// utils.dnf.upgrade,
 
 			// just certs
 			utils.dnf.install & {#pkgs: ["ca-certificates", "wget", "curl"]}, // shouldn't need wget/curl, we can do that at this level
@@ -38,12 +36,11 @@ rocky8: {
 
 rocky9: {
 	minimal: env.#Container & {
-		@id(rocky-9-minimal)
+		@id(rocky9-min)
 		#hof: metadata: {
 			name:        "rocky9-min"
 			description: "A minimal rocky9 image with updates and certs"
 		}
-
 		name: "rocky9-min"
 		from: "rockylinux:9.3"
 
@@ -58,6 +55,7 @@ rocky9: {
 			// utils.dnf.mounts.varLib,
 			// need to update once at the beginning
 			utils.dnf.update,
+			// utils.dnf.upgrade,
 
 			// bare essentials (ca-certs & curl already installed)
 			utils.dnf.install & {#pkgs: ["wget"]}, // shouldn't need wget/curl, we can do that at this level

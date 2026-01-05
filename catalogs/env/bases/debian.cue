@@ -5,20 +5,16 @@ import (
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
-debian: debian13
-
 debian13: {
 
 	minimal: env.#Container & {
+		@id(debian13-min)
 		#hof: {
-			id: "debian13-min"
 			metadata: {
-				name:        id
+				name:        "debian13-min"
 				description: "A minimal debian13 image with updates and certs"
 			}
 		}
-
-		name: string | *"debian13-min"
 		from: "debian:13-slim"
 
 		steps: [
@@ -30,10 +26,11 @@ debian13: {
 
 			// shared apt caches, for all derived images as well
 			// ya'know, instead of cleaning and refetching all the time?
-			utils.apt.mounts.varLib,
+			env.Mount & {path: "/var/lib/apt/lists", source: env.#Cache & {name: "debian-13-var-lib-apt-lists"}},
+
 			// need to update once at the beginning
 			utils.apt.update,
-			// utils.apt.upgrade,
+			utils.apt.upgrade, // upgrade should really happen in the base image from SCRATCH, perhaps we'll make some of those
 
 			// just certs
 			utils.apt.install & {#pkgs: ["ca-certificates", "wget", "curl"]}, // shouldn't need wget/curl, we can do that at this level
@@ -41,14 +38,13 @@ debian13: {
 	}
 
 	default: env.#Container & {
+		@id(debian13-default)
 		#hof: {
-			id: "debian13"
 			metadata: {
-				name:        id
+				name:        "debian13-default"
 				description: "A default debian13 image with common packages and tools"
 			}
 		}
-
 		from: "debian:13-slim"
 
 		steps: [
@@ -60,9 +56,11 @@ debian13: {
 
 			// shared apt caches, for all derived images as well
 			// ya'know, instead of cleaning and refetching all the time?
-			utils.apt.mounts.varLib,
+			env.Mount & {path: "/var/lib/apt/lists", source: env.#Cache & {name: "debian-13-var-lib-apt-lists"}},
+
 			// need to update once at the beginning
 			utils.apt.update,
+			utils.apt.upgrade, // upgrade should really happen in the base image from SCRATCH, perhaps we'll make some of those
 
 			// basics
 			utils.apt.install & {#pkgs: [
