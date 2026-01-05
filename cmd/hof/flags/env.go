@@ -23,6 +23,7 @@ type EnvPflagpole struct {
 	EnvAll    bool
 	ShowAll   bool
 	FailFast  bool
+	Unsafe    bool
 	Parallel  int
 }
 
@@ -43,6 +44,7 @@ func SetupEnvPflags(fset *pflag.FlagSet, fpole *EnvPflagpole) {
 	fset.BoolVarP(&(fpole.EnvAll), "env-all", "", false, "pass os.Env (everything)")
 	fset.BoolVarP(&(fpole.ShowAll), "all", "", false, "show all env targets, not just @env() ones")
 	fset.BoolVarP(&(fpole.FailFast), "fail-fast", "", false, "fail at first error instead of attempting all targets")
+	fset.BoolVarP(&(fpole.Unsafe), "unsafe", "", false, "set insecure root capabilities and privileged nesting, use at your own risk, needed for inception")
 	fset.IntVarP(&(fpole.Parallel), "parallel", "", 1, "number of args or objects to process at once, they may be highly parallel internally")
 }
 

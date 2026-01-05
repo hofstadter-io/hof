@@ -20,7 +20,7 @@ githubBin: env.Sh & {
 
 	_file:   "\(#name)_v\(#ver)_\(#distro)_\(#arch).tar.gz"
 	_src:    "https://github.com/\(#repo)/releases/download/v\(#ver)/\(_file)"
-	_script: """
+	script: """
 		cd /tmp
 		wget -q \(_src)
 		tar -xzf \(_file)

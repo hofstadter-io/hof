@@ -101,6 +101,13 @@ func upgradeAttrs[T any](node *Node[T], label string) bool {
 		case "env":
 			node.Hof.Env.Root = true
 			// name preference
+			// 0. @env(hide|hidden) will override any prior settings
+			if ac == "hide" || ac == "hidden" || node.Hof.Env.Name == "hidden" {
+				// this should hopefully overwrite, and give us order independence, hide always winning
+				node.Hof.Env.Name = "hidden"
+				break
+			}
+
 			// 1. name set manually
 			// 2. @env(contents)
 			// 3. @id(contents)

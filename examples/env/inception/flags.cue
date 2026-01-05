@@ -1,11 +1,11 @@
-package veg
+package inception
 
 flags: {
 	// TODO, scope these since we are now injecting the entire package at the repo root
 	repo: string | *"https://github.com/hofstadter-io/hof" @tag(repo)
 
 	// todo, change this to "." when we move something to the index, if we ever really do?
-	disk:  string | *"."              @tag(disk)
+	disk:  string | *"."              @tag(disk,var=gitRoot)
 	src:    "repo" | *"disk" | string @tag(src,short=repo|disk)
 	ref:    string | *"_next"          @tag(ref)
 	adk:    string | *"../adk"         @tag(adk)

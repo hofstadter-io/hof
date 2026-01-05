@@ -19,11 +19,11 @@ Exec: Step & {
 }
 
 Script: Exec & {
-	script: string
+	script!: string
 	args: ["sh", "-c", script]
 }
 Sh: Exec & {
-	script: string
+	script!: string
 	_script: """
 		set -euo pipefail
 
@@ -31,7 +31,7 @@ Sh: Exec & {
 	args: ["sh", "-c", _script + script]
 }
 Bash: Exec & {
-	script: string
+	script!: string
 	_script: """
 		set -euo pipefail
 
@@ -39,7 +39,7 @@ Bash: Exec & {
 	args: ["bash", "-c", _script + script]
 }
 Zsh: Exec & {
-	script: string
+	script!: string
 	_script: """
 		set -euo pipefail
 

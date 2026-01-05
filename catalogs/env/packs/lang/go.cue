@@ -11,7 +11,7 @@ go: {
 	// A base container with go tools, linters, and a shared cache.
 	ctr: {
 		base: env.#Container & {
-			from: bases.debian.minimal
+			from: bases.debian13.minimal
 			steps: [
 				// deps for cgo and more, from official docs
 				utils.apt.install & {#pkgs: [

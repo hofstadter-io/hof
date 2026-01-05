@@ -1,6 +1,9 @@
 package lang
 
 import (
+	"strings"
+
+	"github.com/hofstadter-io/hof/catalogs/env/bases"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
@@ -57,16 +60,17 @@ go: {
 		install.lsp,
 	]
 
+	dev: env.#Container & {
+		from: bases.debian13.default
+		steps: defaultSteps
+	}
+
 	install: {
 		cli: [
-			env.Exec & {
-				args: ["sh", "-c", _script]
-
+			env.Sh & {
 				_file:   "go\(#ver).linux-\(#arch).tar.gz"
 				_src:    "https://go.dev/dl/\(_file)"
-				_script: """
-					set -eou pipefail
-
+				script: """
 					cd /tmp
 					wget -q \(_src)
 					tar -C /usr/local -xzf \(_file)
@@ -76,10 +80,8 @@ go: {
 		]
 
 		devExtras: [
-			env.Exec & {
-				args: ["sh", "-c", _script]
-
-				_script: """
+			env.Sh & {
+				script: """
 					# lint tools
 					go install honnef.co/go/tools/cmd/staticcheck@latest
 					go install github.com/mgechev/revive@latest
@@ -89,14 +91,24 @@ go: {
 		]
 
 		lsp: [
-			env.Exec & {
-				args: ["sh", "-c", _script]
-
-				_script: """
-					# LSP
-					go install golang.org/x/tools/gopls@latest
-					"""
-			},
+			env.Sh & { script: "go install golang.org/x/tools/gopls@latest" },
 		]
+
+		moduleBinary: env.#File & {
+			#params: {
+				module: string
+				version: string | *"latest"
+				_installName: "\(module)@\(version)"
+				_parts: strings.Split(module,"/")
+				_name: _parts[len(_parts)-1]
+			}
+			path: string | *"/usr/local/bin/\(#params._name)"
+			source: env.#Container & {
+				from: go.dev
+				steps: [
+					env.Sh & { script: "go install \(#params._installName)"}
+				]
+			}
+		}
 	}
 }

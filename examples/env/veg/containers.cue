@@ -3,11 +3,14 @@ package veg
 
 import (
 	"github.com/hofstadter-io/hof/catalogs/env/bases"
-	// "github.com/hofstadter-io/hof/catalogs/env/packs"
-	isteps "github.com/hofstadter-io/hof/catalogs/env/steps"
+	"github.com/hofstadter-io/hof/catalogs/env/packs"
+	"github.com/hofstadter-io/hof/catalogs/env/steps"
 	"github.com/hofstadter-io/hof/catalogs/env/utils"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
+
+_packs: packs
+_steps: steps
 
 let root = self
 
@@ -22,7 +25,7 @@ ctr: {
 			}
 		}
 		name: #hof.metadata.name
-		from: bases.debian.minimal
+		from: bases.debian13.minimal
 		steps: [hof.File.linux]
 	}
 	dev: env.#Container & {
@@ -36,41 +39,53 @@ ctr: {
 		}
 		name: #hof.metadata.name
 
-		from: bases.debian.default
+		// cmd.test.tasks.go.steps.0.0.from.from...  steps.5.0.0.args.2
+		from: bases.debian13.default
 
 		steps: [
 			// customization
-			isteps.tool.zsh.customize,
+			_steps.tool.zsh.customize,
 
 			// deps for go/node/python -> c/c++ situations (like CGO)
 			utils.apt.install & {#pkgs: ["gcc", "libc6-dev"]},
 
-			// binary tools
-			hof.File.linux,
-			isteps.tool.github.cli,
-
 			// setup languages
-			isteps.lang.go.defaultSteps,
-			isteps.lang.cue.default,
-			isteps.lang.node.default,
-			isteps.lang.python.default,
-			isteps.lang.python.dev, // depends on node
+			_steps.lang.go.defaultSteps,
+			_steps.lang.cue.default,
+			_steps.lang.node.default,
+			_steps.lang.python.default,
+			_steps.lang.python.dev, // depends on node
 
 			// tools for agents
-			isteps.tool.agents.lsp2mcp,
+			_steps.tool.github.cli,
+			_steps.tool.agents.lsp2mcp,
 
-			// devops stuff
-			// tool.hashicorp.terraform,
-			// tool.hashicorp.packer,
-			// tool.k8s.kubectl,
-			// tool.k8s.helm,
-			// tool.k8s.crane,
+      // add a bunch of tools
+      _packs.containers.docker.cli.install,
+      _steps.tool.dagger.cli,
+			_steps.tool.hashicorp.packer,
+			_steps.tool.hashicorp.terraform,
+			_steps.tool.k8s.kubectl,
+			_steps.tool.k8s.crane,
+			_steps.tool.k8s.helm,
+			_steps.tool.k8s.kind.binary,
+
+			// config / env stuff
+			_steps.tool.k8s.kind.config,
+
+      // add the socket for inception
+      env.UnixSocket & { path: "/var/run/docker.sock", source: host.docker.socket },
 
 			// // bind lsp servers, started on demand
 			// env.BindService & {service: lang.go.lsp},
 			// env.BindService & {service: lang.cue.lsp},
 			// env.BindService & {service: lang.node.lsp},
 			// env.BindService & {service: lang.python.lsp},
+
+			// add hof late, because it changes frequently
+			hof.File.linux,
+			env.Dir & { path: "/work", source: src.code },
+
 		]
 	}
 
@@ -82,15 +97,15 @@ ctr: {
 
 	// base ops container
 	"ops": env.#Container & {
-		from: bases.debian.default
+		from: bases.debian13.default
 		steps: [
 			hof.File.linux,
-			isteps.tool.hashicorp.terraform,
-			isteps.tool.hashicorp.packer,
-			isteps.tool.k8s.kubectl,
-			isteps.tool.k8s.helm,
-			isteps.tool.k8s.crane,
-			isteps.tool.github.cli,
+			_steps.tool.hashicorp.terraform,
+			_steps.tool.hashicorp.packer,
+			_steps.tool.k8s.kubectl,
+			_steps.tool.k8s.helm,
+			_steps.tool.k8s.crane,
+			_steps.tool.github.cli,
 		]
 	}
 
@@ -100,9 +115,9 @@ ctr: {
 	}
 	"ops-all": env.#Container & {from: root.ctr["ops"], steps: [for _, cli in _clis {cli}]}
 	_clis: {
-		gcp: isteps.tool.cloud.gcloud
-		aws: isteps.tool.cloud.awscli
-		az:  isteps.tool.cloud.azure
+		gcp: _steps.tool.cloud.gcloud
+		aws: _steps.tool.cloud.awscli
+		az:  _steps.tool.cloud.azure
 		ansible: utils.apt.install & {#pkgs: ["ansible"]}
 	}
 
@@ -111,11 +126,12 @@ ctr: {
 fmtr: {
 	[string]~(f,_): [string]~(k,_): {@env(), name: "fmtr-\(f)-\(k)"}
 	black: {
-		src: env.#HostDir & {path: "lib/fmt/tools/black"}
+		src: env.#HostDir & {@env(fmt-black-src), path: "lib/fmt/tools/black"}
 		img: env.#Container & {
-			from: bases.debian.default
+			@env(fmt-black-img)
+			from: bases.debian13.default
 			steps: [
-				isteps.lang.python.default,
+				_steps.lang.python.default,
 				env.Dir & {path: "/work", source: src},
 				env.Bash & {
 					script: """
@@ -129,9 +145,10 @@ fmtr: {
 		}
 	}
 	prettier: {
-		src: env.#HostDir & {path: "lib/fmt/tools/prettier"}
+		src: env.#HostDir & {@env(fmt-prettier-src), path: "lib/fmt/tools/prettier"}
 		img: env.#Container & {
-			from: bases.debian.default
+			@env(fmt-pretteir-img)
+			from: bases.debian13.default
 			steps: [
 				utils.apt.install & {#pkgs: [
 					"gcc",
@@ -139,7 +156,7 @@ fmtr: {
 					"ruby-dev",
 				]},
 				env.Bash & {script: "gem install bundler haml prettier_print rbs syntax_tree syntax_tree-haml syntax_tree-rbs"},
-				isteps.lang.node.install,
+				_steps.lang.node.install,
 				env.Dir & {path: "/work", source: src},
 				env.Exec & {args: ["yarn", "install", "--ignore-engines"]},
 				env.Entrypoint & {args: ["node", "prettier.js"]},

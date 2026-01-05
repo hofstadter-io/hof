@@ -5,55 +5,58 @@ import "github.com/hofstadter-io/hof/schemas/env"
 docker: {
 	#ver: string | *"29"
 
-	imgs: {
-		_tags: [#ver, "cli", "dind", "dind-rootless"]
-		for _, tag in _tags {
-			(tag): env.#Container & {
-				name: tag
-				if tag == #ver {from: "docker:\(#ver)"}
-				if tag != #ver {from: "docker:\(#ver)-\(tag)"}
-			}
+	img: {
+		base: env.#Container & {
+			@env(docker-img-base)
+			from: "docker:\(#ver)"
+		}
+		cli: env.#Container & {
+			@env(docker-img-cli)
+			from: "docker:\(#ver)-cli"
+		}
+		dind: env.#Container & {
+			@env(docker-img-dind)
+			from: "docker:\(#ver)-dind"
 		}
 	}
 
-	cli: env.#File & {
-		path:   "/usr/local/bin/docker"
-		source: imgs.cli
+	cli: {
+		binary: env.#File & {
+			@env(docker-cli)
+			path:   "/usr/local/bin/docker"
+			source: img.cli
+		}
+		install: env.File & {
+			path:   "/usr/local/bin/docker"
+			content: cli.binary
+		}
 	}
 
 	daemon: {
 		ctr: env.#Container & {
-			from: imgs.dind
+			from: img.dind
 			steps: [
 				env.Mount & {path: "/tmp", source: vols.tmp},
-				env.Mount & {path: "/var/lib/docker", source: vols.lib},
-				env.Expose & {port: 2375},
-				env.Entrypoint & {args: [
-					"dockerd",
-					"--log-level=warn",
-					"--host=tcp://0.0.0.0:2375",
-					"--tls=false",
-				]},
+				// this seems bad, we probably don't really want to use this, but just the client and host socket mount
+				// env.Mount & {path: "/var/lib/docker", source: vols.varlib},
 			]
 		}
-
 		svc: env.#Service & {
-			name:   "global-dockerd"
+			@env(docker-daemon)
+			hostname:   "docker-daemon"
 			source: daemon.ctr
-			ports: [{name: "docker", port: 2375}]
-
+			ports: [{port: 2375}]
+			insecureRootCapabilities: true
 		}
-	}
 
-	steps: {
 		bind: [
-			env.Env & {DOCKER_HOST: "tcp://gbolal-dockerd:2375"},
-			env.BindService & {service: daemon.svc},
+			env.Env & {DOCKER_HOST: "tcp://docker-daemon:2375"},
+			env.BindService & { service: daemon.svc & { @env(hide) }},
 		]
 	}
 
 	vols: {
-		tmp: env.#Cache
-		lib: env.#Cache
+		tmp: env.#Cache & { @env(docker-tmp), name: "docker-tmp"}
+		varlib: env.#Cache & { @env(docker-varlib), name: "docker-varlib"}
 	}
 }

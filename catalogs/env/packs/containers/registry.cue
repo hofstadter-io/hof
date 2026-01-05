@@ -7,14 +7,14 @@ import (
 registry: {
 
 	service: env.#Service & {
-		@env()
+		@env(registry-svc)
 		name: "registry"
 		ports: [{name: "http", port: 5000}]
 		source: container
 	}
 
 	container: env.#Container & {
-		@env()
+		@env(registry-ctr)
 		name: "registry"
 		from: "registry:3"
 		steps: [
@@ -23,7 +23,7 @@ registry: {
 	}
 
 	data: env.#Cache & {
-		@env()
+		@env(registry-data)
 		name: "registry"
 	}
 

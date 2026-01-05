@@ -47,6 +47,7 @@ debian13: {
 		}
 		from: "debian:13-slim"
 
+		// cmd.test.tasks.go.steps.0.0.from.from.steps... 5.0.0.args.2
 		steps: [
 			// default workdir (for wide default consistency)
 			env.Workdir & {path: "/work"},
@@ -60,7 +61,7 @@ debian13: {
 
 			// need to update once at the beginning
 			utils.apt.update,
-			utils.apt.upgrade, // upgrade should really happen in the base image from SCRATCH, perhaps we'll make some of those
+			// utils.apt.upgrade, // upgrade should really happen in the base image from SCRATCH, perhaps we'll make some of those
 
 			// basics
 			utils.apt.install & {#pkgs: [
@@ -77,6 +78,7 @@ debian13: {
 				"snap",
 				"tree",
 				"unzip",
+				"vim",
 				"wget",
 				"xz-utils",
 				"zsh",

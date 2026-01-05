@@ -67,7 +67,9 @@ func Run(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole, c
 	}
 
 	i, err = i.Terminal(dagger.ContainerTerminalOpts{
-		Cmd: cmd,
+		Cmd:                           cmd,
+		ExperimentalPrivilegedNesting: eflags.Unsafe,
+		InsecureRootCapabilities:      eflags.Unsafe,
 	}).Sync(R.Ctx)
 	if err != nil {
 		return err

@@ -1,16 +1,16 @@
-@experiment(aliasv2)
+// @experiment(aliasv2)
 package veg
 
-import (
-	"github.com/hofstadter-io/hof/schemas/env"
-)
+// import (
+// 	"github.com/hofstadter-io/hof/schemas/env"
+// )
 
-spaces: {
-	[string]~(K,_): env.Space & {@env(), name: K}
+// spaces: {
+// 	[string]~(K,_): env.Space & {@env(), name: K}
 
-	dev: {}
-	agent: {}
-	ci: {}
-	prd: {}
+// 	dev: {}
+// 	agent: {}
+// 	ci: {}
+// 	prd: {}
 
-}
+// }

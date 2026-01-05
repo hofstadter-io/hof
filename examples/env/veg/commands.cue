@@ -5,11 +5,13 @@ import (
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
+let root = self
+
 _tester: env.#Container & {
 	#cmd: string
 	from: env.#Container & {
 		@id(tester-with-src)
-		from: ctr.dev
+		from: root.ctr.dev
 		steps: [
 			env.Dir & {path: "/adk", source: src.adk},
 			env.Dir & {path: "/dagger", source: src.dagger},
@@ -24,8 +26,11 @@ _tester: env.#Container & {
 cmd: {
 	[string]~(k1,_): env.#Cmd & {
 		@env(), name: k1
+		#hof: id: "cmd-\(k1)"
+		#hof: metadata: name: #hof.id
+
 		tasks: [string]~(k2,_): {
-			@env(), name: k2
+			name: k2
 			steps: [...[...{name: "\(k1).\(k2)"}]]
 		}
 	}

@@ -157,7 +157,7 @@ dev: env.#Container & {
   }
   name: #hof.metadata.name
 
-  from: bases.debian.default
+  from: bases.debian13.default
 
   steps: [
     // customization
@@ -263,18 +263,20 @@ cd k8s && \
 [todo] make these links
 
 - [schemas/env](../../schemas/env)
-- [catalogs/env](../../catalogs/env) (these are import ordered to avoid cycles)
+- [catalogs/env](../../catalogs/env) (important, these are ordered to avoid cycles)
+  - _note_, catalogs/env is an example and you can make your own, the only requirement is using the schemas/env
   - `utils/` helpers that only import veg/schemas/...
-  - `bases/` operating systems and the like
+  - `bases/` operating systems and other basie images manually crafted, even from scratch
   - `steps/` something like ansible / multi-stage dockerfile
-  - `packs/` abstractions, collections, and such for reuse
+		- `lang/` language specific steps and setup
+		- `tool/` tool specific steps and setup
+  - `packs/` abstractions, collections, and other reusable blocks
 - [examples/env](../../examples/env/)
-  - `basic/` 3-tier app
-  - `adk/` matrix test & lint
-  - `atproto/` compose like testnet & app
-  - `veg/` monorepo devx & ci
-  <!-- - `gitops/`      ordering tf & helm better
-  - `inception/` various nesting setups -->
+  - `basic/` multi-stage build and 3-tier app
+  - `adk/` commands example with matrix test & lint
+  - `atproto/` docker compose like setup & app, full network in an env
+  - `veg/` pretty much a kitchen sink, it's used to build, test, and publish this repo
+	- `inception/` using docker, dagger, hof, helm, kubernetes from inside an env
 
 #### Go (impl) files:
 
@@ -434,6 +436,7 @@ SecretFile        add a secret var file
 
 Temp              a temp volume for the next exec
 Mount             mount a cache, file, directory, secret
+UnixSocket        mount a unix socket at a path
 BindService       bind another service to the container  (hint, dep graph)
 Expose            mark a port for servin
 
@@ -772,7 +775,7 @@ Create a base image and family of specializations. Need to ship gitops container
 ```cue
 // base gitops container
 "ops": env.#Container & {
-  from: bases.debian.minimal
+  from: bases.debian13.minimal
   steps: [
     hof.cli,
     tool.hashicorp.terraform,

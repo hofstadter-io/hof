@@ -61,8 +61,10 @@ dist: {
 	images: {
 		[string]~(k,_): {
 			@env()
-			name: string | *"veg-\(k)"
+			#hof: id: string | *"dist-veg-\(k)"
+			#hof: metadata: name: #hof.id
 			reg: "ghcr.io/hofstadter-io"
+			name: "veg-\(k)"
 		}
 		min: env.#ExportImage & {image: root.ctr.min}
 		dev: env.#ExportImage & {image: root.ctr.dev}
@@ -79,7 +81,12 @@ dist: {
 		ops: env.#ExportImage & {image: root.ctr["ops-all"], name: "veg-ops"}
 		for f, F in root.fmtr {
 			let _f = "fmt-\(f)"
-			(_f): env.#ExportImage & {image: F.img, name: _f}
+			(_f): env.#ExportImage & {
+				@env()
+				#hof: id: "dist-\(_f)"
+				#hof: metadata: name: #hof.id
+				image: F.img,
+			}
 		}
 	}
 

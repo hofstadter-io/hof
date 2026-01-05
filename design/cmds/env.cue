@@ -146,6 +146,12 @@ EnvCommand: schema.Command & {
 		Default: "false"
 		Help:    "fail at first error instead of attempting all targets"
 	}, {
+		Name:    "Unsafe"
+		Long:    "unsafe"
+		Type:    "bool"
+		Default: "false"
+		Help:    "set insecure root capabilities and privileged nesting, use at your own risk, needed for inception"
+	}, {
 		Name:    "parallel"
 		Long:    "parallel"
 		Type:    "int"

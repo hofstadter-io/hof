@@ -11,8 +11,8 @@ flags: {
   repo: string | *"https://github.com/hofstadter-io/hof" @tag(repo)
 
   // todo, change this to "." when we move something to the index, if we ever really do?
-  local:  string | *"."              @tag(local)
-  src:    "repo" | *"local" | string @tag(src,short=repo|local)
+	disk:  string | *"."              @tag(disk)
+	src:    "repo" | *"disk" | string @tag(src,short=repo|disk)
   ref:    string | *"_next"          @tag(ref)
   adk:    string | *"../adk"         @tag(adk)
   dagger: string | *"../dagger"      @tag(dagger)

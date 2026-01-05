@@ -1,8 +1,10 @@
 package tool
 
 import (
+	"encoding/yaml"
 	"strings"
 
+	"github.com/hofstadter-io/hof/catalogs/env/steps/lang"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
@@ -71,3 +73,69 @@ k8s: crane: env.Exec & {
     rm -rf /tmp/*
     """
 }
+
+k8s: kind: {
+	binary: env.File & {
+		path: "/usr/local/bin/kind"
+		content: lang.go.install.moduleBinary & {
+			#params: {
+				module: "sigs.k8s.io/kind"
+				version: "v0.31.0"
+			}
+		}
+	}
+	config: env.File & {
+		path: "/veg/config/kind-config.yaml"
+		content: yaml.Marshal(_config)
+	}
+	_config: {
+		kind: "Cluster"
+		apiVersion: "kind.x-k8s.io/v1alpha4"
+		name: "kind-veg"
+		networking: {
+			// WARNING: It is _strongly_ recommended that you keep this the default
+			// (127.0.0.1) for security reasons. However it is possible to change this.
+			apiServerAddress: "127.0.0.1"
+
+			// By default the API server listens on a random open port.
+			// You may choose a specific port but probably don't need to in most cases.
+			// Using a random port makes it easier to spin up multiple clusters.
+			apiServerPort: 6443
+
+		}
+
+		nodes: [{
+			role: "control-plane"
+
+			kubeadmConfigPatches: [
+				_certSanPatch,
+			]
+
+			// extraPortMappings: [{
+			// // 	containerPort: 80
+			// // 	hostPort: 80
+			// // 	protocol: "TCP"
+			// // },{
+			// 	containerPort: 6443
+			// 	hostPort: 6443
+			// 	protocol: "TCP"
+			// }]
+		}]
+
+		// nodes: [{
+		// 	role: "control-plane"
+		// },{
+		// 	role: "worker"
+		// },{
+		// 	role: "worker"
+		// }]
+	}
+}
+_certSanPatch: """
+kind: ClusterConfiguration
+apiServer:
+  certSANs:
+    - host.docker.internal
+    - localhost
+    - "127.0.0.1"
+"""

@@ -60,6 +60,9 @@ func commonStart(args []string, rflags flags.RootPflagpole, eflags flags.EnvPfla
 		if name == "" {
 			continue
 		}
+		if name == "hide" || name == "hidden" {
+			continue
+		}
 
 		if !matchValRegexp(mname, args) {
 			continue

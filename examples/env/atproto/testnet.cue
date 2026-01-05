@@ -30,7 +30,7 @@ cmd: {
 						path: "/work"
 						sources: [
 							env.#Container & {
-								from: bases.debian.default
+								from: bases.debian13.default
 								steps: [env.Bash & {script: _relay}, env.Bash & {script: _pds}]
 							},
 						]

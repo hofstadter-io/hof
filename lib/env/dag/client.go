@@ -126,6 +126,7 @@ func (d *Dag) makeStepHandlers() stepHandlerMap {
 		// git.cue/go
 
 		// host.cue/go
+		"unixSocket": d.stepUnixSocketHandler,
 
 		// service.cue/go
 		"expose":      d.stepExposeHandler,

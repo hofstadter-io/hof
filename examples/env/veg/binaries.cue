@@ -10,13 +10,13 @@ import (
 
 ctr: {
 	builder: env.#Container & {
-		@env(), @id(hof-cli-builder)
+		@env(hof-cli-builder)
 		from: lang.go.ctr.base
 		steps: [
 			env.Dir & {path: "/adk", source: src.adk.fork},
 			env.Dir & {path: "/dagger", source: src.dagger.fork},
 			env.Dir & {path: "/work", source: env.#HostDir & {
-				path: flags.local
+				path: flags.disk
 				name: "hof-bin-src"
 				include: [
 					"go.mod", "go.sum", "cue.mod",
@@ -42,7 +42,7 @@ hof: cli: {
 		// metadata
 		@env()
 		#hof: id: "hof-cli-\(#variant)"
-		name: #hof.id
+		#hof: metadata: name: #hof.id
 
 		// params
 		#variant: string

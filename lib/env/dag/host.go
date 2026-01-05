@@ -408,3 +408,54 @@ type portForward struct {
 	Frontend int    `json:"frontend"`
 	Protocol string `json:"protocol"`
 }
+
+type stepUnixSocketConfig struct {
+	Kind string `json:"$kind"`
+
+	// args
+	Path   string    `json:"path"`
+	Source cue.Value `json:"source"`
+
+	// opts (depending on source type?)
+	Owner  string `json:"owner"`
+	Expand bool   `json:"expand"`
+}
+
+func (d *Dag) stepUnixSocketHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+
+	// DEV HACK
+	// return c, nil
+
+	d.mx.RLock()
+	var cfg stepUnixSocketConfig
+	err := step.Decode(&cfg)
+	d.mx.RUnlock()
+	if err != nil {
+		return nil, fmt.Errorf("while decoding stepUnixSocketConfig: %w", err)
+	}
+	k := cfg.Source.LookupPath(cue.ParsePath("$kind"))
+	if !k.Exists() {
+		return c, fmt.Errorf("missing $kind in stepUnixSocketConfig.source: %v, got %v", step, k)
+	}
+
+	var sock *dagger.Socket
+	ks, _ := k.String()
+	switch ks {
+	case "#hostSocket":
+		sock, _, err = d.HashHostSocket(cfg.Source)
+
+	default:
+		return c, fmt.Errorf("unsupported $kind in stepUnixSocketConfig.source: %v", step)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	c = c.WithUnixSocket(cfg.Path, sock, dagger.ContainerWithUnixSocketOpts{
+		Owner:  cfg.Owner,
+		Expand: cfg.Expand,
+	})
+
+	return c, nil
+}
