@@ -2,6 +2,7 @@ package hof
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 
@@ -29,6 +30,13 @@ func upgradeAttrs[T any](node *Node[T], label string) bool {
 			node.Hof.ID = ac
 		case "memo":
 			node.Hof.Memo = ac
+		case "z":
+			i, err := strconv.Atoi(ac)
+			if err == nil {
+				node.Hof.Z = i
+			} else {
+				fmt.Fprintf(os.Stderr, "WARN: @z(%s) parsing error in %s: %s", ac, val.Path(), err)
+			}
 
 		case "name":
 			node.Hof.Metadata.Name = ac

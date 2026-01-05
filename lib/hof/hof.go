@@ -33,6 +33,9 @@ type Hof struct {
 	// is this #hof associated with any @...
 	AtMade bool
 
+	// a "z" index for presentation
+	Z int
+
 	// #hof: <feature>: ...
 	// @<feature>(<name>) can be shorthand with no-name implying label?
 	Datamodel Datamodel
