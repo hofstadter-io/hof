@@ -140,6 +140,12 @@ EnvCommand: schema.Command & {
 		Default: "false"
 		Help:    "show all env targets, not just @env() ones"
 	}, {
+		Name:    "FailFast"
+		Long:    "fail-fast"
+		Type:    "bool"
+		Default: "false"
+		Help:    "fail at first error instead of attempting all targets"
+	}, {
 		Name:    "parallel"
 		Long:    "parallel"
 		Type:    "int"

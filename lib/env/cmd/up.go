@@ -1,12 +1,15 @@
 package cmd
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"os"
 	"os/signal"
 	"slices"
 	"strings"
 	"syscall"
+	"time"
 
 	"golang.org/x/sync/errgroup"
 	"dagger.io/dagger"
@@ -47,7 +50,15 @@ func Up(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) er
 	defer buildSpan.End()
 
 	fmt.Println("starting:")
-	g, groupCtx := errgroup.WithContext(buildCtx)
+	var g *errgroup.Group
+	var groupCtx context.Context
+	if eflags.FailFast {
+		g, groupCtx = errgroup.WithContext(buildCtx)
+	} else {
+		g = new(errgroup.Group)
+		groupCtx = buildCtx
+	}
+
 	if eflags.Parallel > 0 {
 		g.SetLimit(eflags.Parallel)
 	}
@@ -59,11 +70,17 @@ func Up(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) er
 			matchCtx, matchSpan := dagger.Tracer().Start(groupCtx, fmt.Sprintf("starting[%s]: (%s)", name, kind))
 			defer matchSpan.End()
 
-			fmt.Printf("  %s (%s)", name, kind)
+			if groupCtx.Err() != nil {
+				fmt.Printf("ABORT: %s (%s)\n", name, kind)
+				return groupCtx.Err()
+			}
+
+			fmt.Printf("START: %s (%s)\n", name, kind)
+			start := time.Now()
 
 			s, cfg, err := d.Service(e.Value, eflags.NoCache)
 			if err != nil {
-				fmt.Println("error:", err)
+				fmt.Printf("ERROR: %s (%s) %v\n", name, kind, err)
 				return err
 			}
 
@@ -84,11 +101,19 @@ func Up(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) er
 			})
 			s, err = s.Start(matchCtx)
 			if err != nil {
+				if errors.Is(err, context.Canceled) || isDaggerQueryError(err) {
+					fmt.Printf("ABORT: %s (%s)\n", name, kind)
+				} else {
+					fmt.Printf("ERROR: %s (%s) %v\n", name, kind, err)
+				}
 				return err
 			}
+
+			fmt.Printf(" DONE: %s (%s) (%v)\n", name, kind, time.Since(start).Round(time.Millisecond))
 			return nil
 		})
 	}
+
 	err = g.Wait()
 	if err != nil {
 		return err

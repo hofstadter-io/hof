@@ -1,8 +1,11 @@
 package cmd
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"slices"
+	"time"
 
 	"dagger.io/dagger"
 	"golang.org/x/sync/errgroup"
@@ -48,7 +51,15 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 	defer buildSpan.End()
 
 	fmt.Println("exporting:")
-	g, groupCtx := errgroup.WithContext(buildCtx)
+	var g *errgroup.Group
+	var groupCtx context.Context
+	if eflags.FailFast {
+		g, groupCtx = errgroup.WithContext(buildCtx)
+	} else {
+		g = new(errgroup.Group)
+		groupCtx = buildCtx
+	}
+
 	if eflags.Parallel > 0 {
 		g.SetLimit(eflags.Parallel)
 	}
@@ -60,18 +71,26 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 			matchCtx, matchSpan := dagger.Tracer().Start(groupCtx, fmt.Sprintf("exporting[%d]: %s (%s)", i, name, kind))
 			defer matchSpan.End()
 
-			fmt.Printf(" - %s (%s)\n", name, kind)
+			if groupCtx.Err() != nil {
+				fmt.Printf("ABORT: %s (%s)\n", name, kind)
+				return groupCtx.Err()
+			}
 
+			fmt.Printf("START: %s (%s)\n", name, kind)
+			start := time.Now()
+
+			var err error
 			switch kind {
 			case "container", "dockerBuild":
-				i, err := d.Container(e.Value, eflags.NoCache)
-				if err != nil {
-					return err
+				i, err2 := d.Container(e.Value, eflags.NoCache)
+				if err2 != nil {
+					err = err2
+					break
 				}
 				if len(cflags.Tag) == 0 {
 					err = i.ExportImage(matchCtx, fmt.Sprintf("%s:%s", name, "local"))
 					if err != nil {
-						return err
+						break
 					}
 				} else {
 					for _, t := range cflags.Tag {
@@ -79,86 +98,94 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 						i = i.WithAnnotation("org.opencontainers.image.version", t)
 						err = i.ExportImage(matchCtx, fmt.Sprintf("%s:%s", name, t))
 						if err != nil {
-							return err
+							break
 						}
 					}
 				}
 
 			case "dir":
-				dir, p, err := d.Dir(e.Value, eflags.NoCache)
-				if err != nil {
-					return err
+				dir, p, err2 := d.Dir(e.Value, eflags.NoCache)
+				if err2 != nil {
+					err = err2
+					break
 				}
 				if len(cflags.Tag) == 0 {
 					_, err = dir.Export(matchCtx, p)
 					if err != nil {
-						return err
+						break
 					}
 				} else {
 					for _, t := range cflags.Tag {
 						_, err = dir.Export(matchCtx, fmt.Sprintf("%s-%s", p, t))
 						if err != nil {
-							return err
+							break
 						}
 					}
 				}
 
 			case "file":
-				file, p, err := d.File(e.Value, eflags.NoCache)
-				if err != nil {
-					return err
+				file, p, err2 := d.File(e.Value, eflags.NoCache)
+				if err2 != nil {
+					err = err2
+					break
 				}
 
 				if len(cflags.Tag) == 0 {
 					_, err = file.Export(matchCtx, p)
 					if err != nil {
-						return err
+						break
 					}
 				} else {
 					for _, t := range cflags.Tag {
 						_, err = file.Export(matchCtx, fmt.Sprintf("%s-%s", p, t))
 						if err != nil {
-							return err
+							break
 						}
 					}
 				}
 
 			case "exportDir":
-				dir, cfg, err := d.HashExportDir(e.Value)
-				if err != nil {
-					return err
+				dir, cfg, err2 := d.HashExportDir(e.Value)
+				if err2 != nil {
+					err = err2
+					break
 				}
 				if len(cflags.Tag) == 0 {
 					_, err = dir.Export(matchCtx, cfg.Path)
 					if err != nil {
-						return err
+						break
 					}
 				} else {
 					for _, t := range cflags.Tag {
 						_, err = dir.Export(matchCtx, fmt.Sprintf("%s-%s", cfg.Path, t))
 						if err != nil {
-							return err
+							break
 						}
 					}
 				}
 
 			case "exportFile":
-				file, cfg, err := d.HashExportFile(e.Value)
-				if err != nil {
-					return err
+				file, cfg, err2 := d.HashExportFile(e.Value)
+				if err2 != nil {
+					err = err2
+					break
 				}
 				if len(cflags.Tag) == 0 {
 					_, err = file.Export(matchCtx, cfg.Path)
 				} else {
 					for _, t := range cflags.Tag {
 						_, err = file.Export(matchCtx, fmt.Sprintf("%s-%s", cfg.Path, t))
+						if err != nil {
+							break
+						}
 					}
 				}
 
 			case "exportImageFile":
-				i, cfg, err := d.HashExportImageFile(e.Value)
-				if err != nil {
-					return err
+				i, cfg, err2 := d.HashExportImageFile(e.Value)
+				if err2 != nil {
+					err = err2
+					break
 				}
 
 				if len(cflags.Tag) == 0 {
@@ -166,14 +193,14 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 						j := i.WithAnnotation("org.opencontainers.image.version", "local")
 						_, err = j.Export(matchCtx, cfg.Path)
 						if err != nil {
-							return err
+							break
 						}
 					}
 					for _, t := range cfg.Tags {
 						j := i.WithAnnotation("org.opencontainers.image.version", t)
 						_, err = j.Export(matchCtx, fmt.Sprintf("%s-%s", cfg.Path, t))
 						if err != nil {
-							return err
+							break
 						}
 					}
 				} else {
@@ -182,15 +209,16 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 						j := i.WithAnnotation("org.opencontainers.image.version", t)
 						_, err = j.Export(matchCtx, fmt.Sprintf("%s-%s", cfg.Path, t))
 						if err != nil {
-							return err
+							break
 						}
 					}
 				}
 
 			case "exportImage":
-				i, cfg, err := d.HashExportImage(e.Value)
-				if err != nil {
-					return err
+				i, cfg, err2 := d.HashExportImage(e.Value)
+				if err2 != nil {
+					err = err2
+					break
 				}
 				url := cfg.Name
 				if cfg.Reg != "" {
@@ -203,14 +231,14 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 						j := i.WithAnnotation("org.opencontainers.image.version", t)
 						err = j.ExportImage(matchCtx, fmt.Sprintf("%s:%s", url, t))
 						if err != nil {
-							return err
+							break
 						}
 					}
 					for _, t := range cfg.Tags {
 						j := i.WithAnnotation("org.opencontainers.image.version", t)
 						err = j.ExportImage(matchCtx, fmt.Sprintf("%s:%s", url, t))
 						if err != nil {
-							return err
+							break
 						}
 					}
 				} else {
@@ -219,15 +247,16 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 						j := i.WithAnnotation("org.opencontainers.image.version", t)
 						err = j.ExportImage(matchCtx, fmt.Sprintf("%s:%s", url, t))
 						if err != nil {
-							return err
+							break
 						}
 					}
 				}
 
 			case "publishImage":
-				i, cfg, err := d.HashPublishImage(e.Value)
-				if err != nil {
-					return err
+				i, cfg, err2 := d.HashPublishImage(e.Value)
+				if err2 != nil {
+					err = err2
+					break
 				}
 				url := cfg.Name
 				if cfg.Reg != "" {
@@ -240,14 +269,14 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 						j := i.WithAnnotation("org.opencontainers.image.version", t)
 						_, err = j.Publish(matchCtx, fmt.Sprintf("%s:%s", url))
 						if err != nil {
-							return err
+							break
 						}
 					}
 					for _, t := range cfg.Tags {
 						j := i.WithAnnotation("org.opencontainers.image.version", t)
 						_, err = j.Publish(matchCtx, fmt.Sprintf("%s:%s", url, t))
 						if err != nil {
-							return err
+							break
 						}
 					}
 				} else {
@@ -256,15 +285,27 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 						j := i.WithAnnotation("org.opencontainers.image.version", t)
 						_, err = j.Publish(matchCtx, fmt.Sprintf("%s:%s", url, t))
 						if err != nil {
-							return err
+							break
 						}
 					}
 				}
 
 			}
+
+			if err != nil {
+				if errors.Is(err, context.Canceled) || isDaggerQueryError(err) {
+					fmt.Printf("ABORT: %s (%s)\n", name, kind)
+				} else {
+					fmt.Printf("ERROR: %s (%s) %v\n", name, kind, err)
+				}
+				return err
+			}
+
+			fmt.Printf(" DONE: %s (%s) (%v)\n", name, kind, time.Since(start).Round(time.Millisecond))
 			return nil
 		})
 	}
+
 	err = g.Wait()
 
 	return err

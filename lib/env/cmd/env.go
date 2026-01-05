@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -78,7 +80,15 @@ func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) e
 
 					seqCtx, seqSpan := dagger.Tracer().Start(R.Ctx, fmt.Sprintf("env.%s.step.%d", e.Hof.Env.Name, s1))
 
-					g, ctx := errgroup.WithContext(seqCtx)
+					var g *errgroup.Group
+					var ctx context.Context
+					if eflags.FailFast {
+						g, ctx = errgroup.WithContext(seqCtx)
+					} else {
+						g = new(errgroup.Group)
+						ctx = seqCtx
+					}
+
 					if eflags.Parallel > 0 {
 						g.SetLimit(eflags.Parallel)
 					}
@@ -170,11 +180,19 @@ func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) e
 							defer parSpan.End()
 
 							// if we already have an error, just return it for collection
-							if err != nil {
-								return err
+							if ctx.Err() != nil {
+								fmt.Printf("ABORT: %s\n", k.Name)
+								return ctx.Err()
 							}
 
+							fmt.Printf("START: %s\n", k.Name)
 							start := time.Now()
+
+							// if we already have an error from phase 1, report it
+							if err != nil {
+								fmt.Printf("ERROR: %s %v\n", k.Name, err)
+								return err
+							}
 
 							// HMMM, this decides what we do
 
@@ -203,11 +221,15 @@ func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) e
 
 							// TODO, build up or exit, depending on config
 							str := fmt.Sprintf("%s.[%d/%d]", k.Name, s1+1, s2+1)
-							outcome := "ok"
 							if err != nil {
-								outcome = "err"
+								if errors.Is(err, context.Canceled) || isDaggerQueryError(err) {
+									fmt.Printf("ABORT: %s\n", k.Name)
+								} else {
+									fmt.Printf("ERROR: %s %v\n", str, err)
+								}
+								return err
 							}
-							fmt.Printf("%-32s  %-3s  %s\n", str, outcome, time.Since(start))
+							fmt.Printf(" DONE: %s (%v)\n", str, time.Since(start).Round(time.Millisecond))
 
 							return err
 						}) // end of goroutine

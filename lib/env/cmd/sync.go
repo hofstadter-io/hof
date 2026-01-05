@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"slices"
 	"time"
@@ -94,7 +95,15 @@ func Sync(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) 
 	fmt.Printf("  %v\n", time.Since(veryStart).Round(time.Millisecond))
 	fmt.Println("sync'n")
 
-	g, groupCtx := errgroup.WithContext(buildCtx)
+	var g *errgroup.Group
+	var groupCtx context.Context
+	if eflags.FailFast {
+		g, groupCtx = errgroup.WithContext(buildCtx)
+	} else {
+		g = new(errgroup.Group)
+		groupCtx = buildCtx
+	}
+
 	if eflags.Parallel > 0 {
 		g.SetLimit(eflags.Parallel)
 	}
@@ -105,93 +114,117 @@ func Sync(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) 
 			name, kind, _ := extractMeta(e)
 			matchCtx, matchSpan := dagger.Tracer().Start(groupCtx, fmt.Sprintf("building[%d]: %s (%s)", i, name, kind))
 			defer matchSpan.End()
-			fmt.Printf("%3d. %-27s (%s)", i, name, kind)
-			start := time.Now()
-			defer func() {
-				fmt.Printf("  %v\n", time.Since(start).Round(time.Millisecond))
-			}()
 
+			if groupCtx.Err() != nil {
+				fmt.Printf("ABORT: %s (%s)\n", name, kind)
+				return groupCtx.Err()
+			}
+
+			fmt.Printf("START: %s (%s)\n", name, kind)
+			start := time.Now()
+
+			var err error
 			// it would be freaking sweet if there was a way to get generics or something to move these syncs out and have just one, but different types and returns
 
 			switch kind {
 			case "container", "dockerBuild", "hostImage":
-				val, err := d.Container(e.Value, eflags.NoCache)
-				if err != nil {
-					return err
+				val, err2 := d.Container(e.Value, eflags.NoCache)
+				if err2 != nil {
+					err = err2
+					break
 				}
-				return maybeSync(matchCtx, val, rflags.DryRun)
+				err = maybeSync(matchCtx, val, rflags.DryRun)
 
 			case "dir", "gitRepo", "hostDir":
-				val, _, err := d.Dir(e.Value, eflags.NoCache)
-				if err != nil {
-					return err
+				val, _, err2 := d.Dir(e.Value, eflags.NoCache)
+				if err2 != nil {
+					err = err2
+					break
 				}
-				return maybeSync(matchCtx, val, rflags.DryRun)
+				err = maybeSync(matchCtx, val, rflags.DryRun)
 
 			case "file", "hostFile":
-				val, _, err := d.File(e.Value, eflags.NoCache)
-				if err != nil {
-					return err
+				val, _, err2 := d.File(e.Value, eflags.NoCache)
+				if err2 != nil {
+					err = err2
+					break
 				}
-				return maybeSync(matchCtx, val, rflags.DryRun)
+				err = maybeSync(matchCtx, val, rflags.DryRun)
 
 			case "exportDir":
-				val, _, err := d.HashExportDir(e.Value)
-				if err != nil {
-					return err
+				val, _, err2 := d.HashExportDir(e.Value)
+				if err2 != nil {
+					err = err2
+					break
 				}
 				if rflags.DryRun {
-					return nil
+					break
 				}
 				_, err = val.Sync(matchCtx)
-				return err
 
 			case "exportFile":
-				val, _, err := d.HashExportFile(e.Value)
-				if err != nil {
-					return err
+				val, _, err2 := d.HashExportFile(e.Value)
+				if err2 != nil {
+					err = err2
+					break
 				}
-				return maybeSync(matchCtx, val, rflags.DryRun)
+				err = maybeSync(matchCtx, val, rflags.DryRun)
 
 			case "exportImageFile":
-				val, _, err := d.HashExportImageFile(e.Value)
-				if err != nil {
-					return err
+				val, _, err2 := d.HashExportImageFile(e.Value)
+				if err2 != nil {
+					err = err2
+					break
 				}
-				return maybeSync(matchCtx, val, rflags.DryRun)
+				err = maybeSync(matchCtx, val, rflags.DryRun)
 
 			case "exportImage":
-				val, _, err := d.HashExportImage(e.Value)
-				if err != nil {
-					return err
+				val, _, err2 := d.HashExportImage(e.Value)
+				if err2 != nil {
+					err = err2
+					break
 				}
-				return maybeSync(matchCtx, val, rflags.DryRun)
+				err = maybeSync(matchCtx, val, rflags.DryRun)
 
 			case "publishImage":
-				val, _, err := d.HashPublishImage(e.Value)
-				if err != nil {
-					return err
+				val, _, err2 := d.HashPublishImage(e.Value)
+				if err2 != nil {
+					err = err2
+					break
 				}
-				return maybeSync(matchCtx, val, rflags.DryRun)
+				err = maybeSync(matchCtx, val, rflags.DryRun)
 
 			case "service":
-				val, _, err := d.HashService(e.Value)
-				if err != nil {
-					return err
+				val, _, err2 := d.HashService(e.Value)
+				if err2 != nil {
+					err = err2
+					break
 				}
-				return maybeSync(matchCtx, val, rflags.DryRun)
+				err = maybeSync(matchCtx, val, rflags.DryRun)
 
 			case "hostService":
-				val, _, err := d.HashHostService(e.Value)
-				if err != nil {
-					return err
+				val, _, err2 := d.HashHostService(e.Value)
+				if err2 != nil {
+					err = err2
+					break
 				}
-				return maybeSync(matchCtx, val, rflags.DryRun)
+				err = maybeSync(matchCtx, val, rflags.DryRun)
 			}
 
+			if err != nil {
+				if errors.Is(err, context.Canceled) || isDaggerQueryError(err) {
+					fmt.Printf("ABORT: %s (%s)\n", name, kind)
+				} else {
+					fmt.Printf("ERROR: %s (%s) %v\n", name, kind, err)
+				}
+				return err
+			}
+
+			fmt.Printf(" DONE: %s (%s) (%v)\n", name, kind, time.Since(start).Round(time.Millisecond))
 			return nil
 		})
 	}
+
 	err = g.Wait()
 
 	if err != nil {

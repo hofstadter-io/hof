@@ -3,8 +3,10 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"os"
 	"regexp"
+	"strings"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/cuetils"
@@ -14,6 +16,27 @@ import (
 )
 
 type envFilter func(*env.Env) bool
+
+func isDaggerQueryError(err error) bool {
+	if err == nil {
+		return false
+	}
+	s := err.Error()
+	if !strings.HasPrefix(s, `Post "`) {
+		return false
+	}
+	// find the first quote after Post "
+	endIdx := strings.Index(s[6:], `"`)
+	if endIdx == -1 {
+		return false
+	}
+	uriStr := s[6 : 6+endIdx]
+	u, err := url.Parse(uriStr)
+	if err != nil {
+		return false
+	}
+	return u.Path == "/query"
+}
 
 func commonStart(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole, filters ...envFilter) (R *runtime.Runtime, matches []*env.Env, err error) {
 	args, cueargs := splitArgs(args)
