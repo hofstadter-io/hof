@@ -6,20 +6,27 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/hofstadter-io/hof/cmd/hof/flags"
-	"github.com/hofstadter-io/hof/cmd/hof/ga"
+	libenvcmd "github.com/hofstadter-io/hof/lib/env/cmd"
 
 	"github.com/hofstadter-io/hof/lib/agent/extension"
+
+	"github.com/hofstadter-io/hof/cmd/hof/flags"
+
+	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
 
 var extensionLong = `run the extension server`
 
+func ExtensionPersistentPreRun(args []string) (err error) {
+
+	err = libenvcmd.EnsureInfra()
+
+	return err
+}
+
 func ExtensionRun(args []string) (err error) {
 
-	// you can safely comment this print out
-	// fmt.Println("not implemented")
-
-	return extension.Run(args, flags.RootPflags)
+	err = extension.Run(args, flags.RootPflags)
 
 	return err
 }
@@ -31,6 +38,18 @@ var ExtensionCmd = &cobra.Command{
 	Short: "run the extension server",
 
 	Long: extensionLong,
+
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		var err error
+
+		// Argument Parsing
+
+		err = ExtensionPersistentPreRun(args)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	},
 
 	Run: func(cmd *cobra.Command, args []string) {
 

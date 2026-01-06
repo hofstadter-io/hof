@@ -20,9 +20,8 @@ debian13: {
 		steps: [
 			// default workdir (for wide default consistency)
 			env.Workdir & {path: "/work"},
-			// env.Mount & { path: "/tmp", source: env.#Cache & { name: "debian-13-tmp"}},
 			env.Mount & {path: "/var/log", source: env.#Cache & {name: "debian-13-var-log"}},
-			env.Mount & {path: "/var/cache", source: env.#Cache & {name: "debian-13-var-cache"}},
+			// env.Mount & {path: "/var/cache", source: env.#Cache & {name: "debian-13-var-cache"}},
 
 			// shared apt caches, for all derived images as well
 			// ya'know, instead of cleaning and refetching all the time?
@@ -51,9 +50,8 @@ debian13: {
 		steps: [
 			// default workdir (for wide default consistency)
 			env.Workdir & {path: "/work"},
-			// env.Mount & { path: "/tmp", source: env.#Cache & { name: "debian-13-tmp"}},
 			env.Mount & {path: "/var/log", source: env.#Cache & {name: "debian-13-var-log"}},
-			env.Mount & {path: "/var/cache", source: env.#Cache & {name: "debian-13-var-cache"}},
+			// env.Mount & {path: "/var/cache", source: env.#Cache & {name: "debian-13-var-cache"}},
 
 			// shared apt caches, for all derived images as well
 			// ya'know, instead of cleaning and refetching all the time?
