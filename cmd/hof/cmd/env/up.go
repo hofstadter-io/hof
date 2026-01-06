@@ -6,21 +6,20 @@ import (
 
 	"github.com/spf13/cobra"
 
+	libenvcmd "github.com/hofstadter-io/hof/lib/env/cmd"
+
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
-	"github.com/hofstadter-io/hof/lib/env/cmd"
 )
 
 var upLong = `starts target points in an environment, this is very similar to docker-compose or helm locally`
 
 func UpRun(args []string) (err error) {
 
-	return cmd.Up(args, flags.RootPflags, flags.EnvPflags)
+	err = libenvcmd.Up(args, flags.RootPflags, flags.EnvPflags)
 
-	// you can safely comment this print out
-	// fmt.Println("not implemented")
-
-	// return err
+	return err
 }
 
 var UpCmd = &cobra.Command{

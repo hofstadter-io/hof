@@ -6,9 +6,11 @@ import (
 
 	"github.com/spf13/cobra"
 
+	libenvcmd "github.com/hofstadter-io/hof/lib/env/cmd"
+
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
-	"github.com/hofstadter-io/hof/lib/env/cmd"
 )
 
 var exportLong = `export target points from an environment to outside world, for each point .. for each tag`
@@ -21,12 +23,9 @@ func init() {
 
 func ExportRun(args []string) (err error) {
 
-	return cmd.Export(args, flags.RootPflags, flags.EnvPflags, flags.Env__ExportFlags)
+	err = libenvcmd.Export(args, flags.RootPflags, flags.EnvPflags, flags.Env__ExportFlags)
 
-	// // you can safely comment this print out
-	// fmt.Println("not implemented")
-
-	// return err
+	return err
 }
 
 var ExportCmd = &cobra.Command{

@@ -6,6 +6,8 @@ import (
 
 	"github.com/spf13/cobra"
 
+	libenvcmd "github.com/hofstadter-io/hof/lib/env/cmd"
+
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
@@ -21,8 +23,7 @@ func init() {
 
 func RunRun(args []string) (err error) {
 
-	// you can safely comment this print out
-	fmt.Println("not implemented")
+	err = libenvcmd.Run(args, flags.RootPflags, flags.EnvPflags, flags.Env__RunFlags)
 
 	return err
 }

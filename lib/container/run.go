@@ -15,7 +15,7 @@ type Params struct {
 	Mount         []string `json:"mount,omitempty"`
 	Network       string   `json:"network,omitempty"`
 	NetworkAlias  []string `json:"network-alias,omitempty"`
-	NoHealthcheck bool     `json:"no-healthcheck,omitempty"`
+	NoHealthcheck bool     `json:"noHealthcheck,omitempty"`
 	Platform      string   `json:"platform,omitempty"`
 	Privileged    bool     `json:"privileged,omitempty"`
 	Publish       []string `json:"publish,omitempty"`
@@ -24,6 +24,7 @@ type Params struct {
 	User          string   `json:"user,omitempty"`
 	Volume        []string `json:"volume,omitempty"`
 	Workdir       string   `json:"workdir,omitempty"`
+	AddHost       []string `json:"addHost,omitempty"`
 
 	Args []string `json:"args,omitempty"`
 }
@@ -99,6 +100,10 @@ func (r runtime) Run(ctx context.Context, ref Ref, p *Params) error {
 
 	if p.Workdir != "" {
 		args = append(args, "--workdir", p.Workdir)
+	}
+
+	for _, eh := range p.AddHost {
+		args = append(args, "--add-host", eh)
 	}
 
 	args = append(args, string(ref))

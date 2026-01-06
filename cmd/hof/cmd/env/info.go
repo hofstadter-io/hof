@@ -78,3 +78,4 @@ func init() {
 	InfoCmd.SetUsageFunc(tusage)
 
 }
+

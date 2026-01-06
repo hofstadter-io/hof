@@ -15,6 +15,11 @@ import (
 )
 
 func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) error {
+	err := EnsureInfra()
+	if err != nil {
+		return err
+	}
+
 	args, cueargs := splitArgs(args)
 	R, err := prepRuntime(cueargs, rflags)
 	if err != nil {

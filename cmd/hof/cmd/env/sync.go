@@ -6,21 +6,20 @@ import (
 
 	"github.com/spf13/cobra"
 
+	libenvcmd "github.com/hofstadter-io/hof/lib/env/cmd"
+
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
-	"github.com/hofstadter-io/hof/lib/env/cmd"
 )
 
 var syncLong = `sync target points in an environment, making sure they are ready to go, no matter the type`
 
 func SyncRun(args []string) (err error) {
 
-	return cmd.Sync(args, flags.RootPflags, flags.EnvPflags)
+	err = libenvcmd.Sync(args, flags.RootPflags, flags.EnvPflags)
 
-	// you can safely comment this print out
-	// fmt.Println("not implemented")
-
-	// return err
+	return err
 }
 
 var SyncCmd = &cobra.Command{

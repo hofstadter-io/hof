@@ -6,19 +6,18 @@ import (
 
 	"github.com/spf13/cobra"
 
+	libenvcmd "github.com/hofstadter-io/hof/lib/env/cmd"
+
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
-	"github.com/hofstadter-io/hof/lib/env/cmd"
 )
 
 var listLong = `list points in an environment`
 
 func ListRun(args []string) (err error) {
 
-	err = cmd.List(args, flags.RootPflags, flags.EnvPflags)
-
-	// you can safely comment this print out
-	// fmt.Println("not implemented")
+	err = libenvcmd.List(args, flags.RootPflags, flags.EnvPflags)
 
 	return err
 }

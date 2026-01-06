@@ -72,3 +72,5 @@ node_modules
 /bins/
 /dist/
 .DS_Store
+
+/catalogs/gen/

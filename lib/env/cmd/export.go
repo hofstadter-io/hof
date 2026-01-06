@@ -267,7 +267,7 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 					if len(cfg.Tags) == 0 {
 						t := "local"
 						j := i.WithAnnotation("org.opencontainers.image.version", t)
-						_, err = j.Publish(matchCtx, fmt.Sprintf("%s:%s", url))
+						_, err = j.Publish(matchCtx, fmt.Sprintf("%s:%s", url, "latest"))
 						if err != nil {
 							break
 						}

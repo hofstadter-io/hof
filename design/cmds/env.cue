@@ -13,6 +13,9 @@ All commands have well known behaviors, depending on the $kind of a target.
 Most commands only work with a subset that makes sense or is explicit.
 See their help text to learn more.
 
+Note, hof -> veg in terms of name, I have started with this command, and also the agentic stuff
+The big move is coming soon...
+
 ## Examples
 
 # [...targets], or "points", are selected via args and flags
@@ -53,6 +56,72 @@ EnvCommand: schema.Command & {
 	Usage: "env [...target] [% ...cue]"
 	Short: "build, run, ship, and deploy environments (image, service, stack)"
 	Long:  _envLong
+
+	Imports: [{As: "libenvcmd", Path: "github.com/hofstadter-io/hof/lib/env/cmd"}]
+
+	PersistentPrerun: true
+	PersistentPrerunBody: "err = libenvcmd.EnsureInfra()"
+
+	// this runs the commands or naked `veg env` command
+	Body: "err = libenvcmd.Env(args, flags.RootPflags, flags.EnvPflags)"
+
+	Commands: [{
+		Name:  "sync"
+		Usage: "sync [...target] [% ...cue]"
+		Short: "sync target points in an environment"
+		Long: "sync target points in an environment, making sure they are ready to go, no matter the type"
+		Imports: [{As: "libenvcmd", Path: "github.com/hofstadter-io/hof/lib/env/cmd"},{Path: "github.com/hofstadter-io/hof/cmd/hof/flags"}]
+		Body: "err = libenvcmd.Sync(args, flags.RootPflags, flags.EnvPflags)"
+	}, {
+		Name:  "export"
+		Usage: "export [...target] [% ...cue]"
+		Short: "export target points from an environment to outside world"
+		Long:  "export target points from an environment to outside world, for each point .. for each tag"
+		Imports: [{As: "libenvcmd", Path: "github.com/hofstadter-io/hof/lib/env/cmd"}]
+		Body: "err = libenvcmd.Export(args, flags.RootPflags, flags.EnvPflags, flags.Env__ExportFlags)"
+		Flags: [{
+			Name:    "Tag"
+			Long:    "tag"
+			Short:   "T"
+			Type:    "[]string"
+			Default: #"[]string{"local"}"# // todo, support special options like git-tag or git-commit "auto" that has an understanding of where it is running (list out the handful of variables that differentiate between env's env (local, ci, deployed), which each can have any user defined params as well)
+			Help:    "tags to give to the environment, can be set multiple times"
+		}]
+	}, {
+		Name:  "info"
+		Usage: "info [...target] [% ...cue]"
+		Short: "get details for target points in an environments"
+		Long:  "get details for target points in an environments"
+	}, {
+		Name:  "list"
+		Usage: "list [...target] [% ...cue]"
+		Short: "list points in an environment"
+		Long:  "list points in an environment"
+		Imports: [{As: "libenvcmd", Path: "github.com/hofstadter-io/hof/lib/env/cmd"},{Path: "github.com/hofstadter-io/hof/cmd/hof/flags"}]
+		Body: "err = libenvcmd.List(args, flags.RootPflags, flags.EnvPflags)"
+	}, {
+		Name:  "run"
+		Usage: "run <target> [% [...cue]]"
+		Short: "run target point in an environment"
+		Long:  "run target point in an environment"
+		Imports: [{As: "libenvcmd", Path: "github.com/hofstadter-io/hof/lib/env/cmd"}]
+		Body: "err = libenvcmd.Run(args, flags.RootPflags, flags.EnvPflags, flags.Env__RunFlags)"
+		Flags: [{
+			Name:    "Command"
+			Long:    "cmd"
+			Short:   "c"
+			Type:    "string"
+			Default: "\"\""
+			Help:    "the command to run, if none by default or to override"
+		}]
+	}, {
+		Name:  "up"
+		Usage: "up [...target] [% ...cue]"
+		Short: "starts target points in an environment"
+		Long: "starts target points in an environment, this is very similar to docker-compose or helm locally"
+		Imports: [{As: "libenvcmd", Path: "github.com/hofstadter-io/hof/lib/env/cmd"},{Path: "github.com/hofstadter-io/hof/cmd/hof/flags"}]
+		Body: "err = libenvcmd.Up(args, flags.RootPflags, flags.EnvPflags)"
+	}]
 
 	Pflags: [...schema.Flag] & [{
 		Name:    "Renderer"
@@ -159,51 +228,4 @@ EnvCommand: schema.Command & {
 		Help:    "number of args or objects to process at once, they may be highly parallel internally"
 	}]
 
-	Commands: [{
-		Name:  "sync"
-		Usage: "sync [...target] [% ...cue]"
-		Short: "sync target points in an environment"
-		Long: "sync target points in an environment, making sure they are ready to go, no matter the type"
-	}, {
-		Name:  "export"
-		Usage: "export [...target] [% ...cue]"
-		Short: "export target points from an environment to outside world"
-		Long:  "export target points from an environment to outside world, for each point .. for each tag"
-		Flags: [{
-			Name:    "Tag"
-			Long:    "tag"
-			Short:   "T"
-			Type:    "[]string"
-			Default: #"[]string{"local"}"# // todo, support special options like git-tag or git-commit "auto" that has an understanding of where it is running (list out the handful of variables that differentiate between env's env (local, ci, deployed), which each can have any user defined params as well)
-			Help:    "tags to give to the environment, can be set multiple times"
-		}]
-	}, {
-		Name:  "info"
-		Usage: "info [...target] [% ...cue]"
-		Short: "get details for target points in an environments"
-		Long:  "get details for target points in an environments"
-	}, {
-		Name:  "list"
-		Usage: "list [...target] [% ...cue]"
-		Short: "list points in an environment"
-		Long:  "list points in an environment"
-	}, {
-		Name:  "run"
-		Usage: "run <target> [% [...cue]]"
-		Short: "run target point in an environment"
-		Long:  "run target point in an environment"
-		Flags: [{
-			Name:    "Command"
-			Long:    "cmd"
-			Short:   "c"
-			Type:    "string"
-			Default: "\"\""
-			Help:    "the command to run, if none by default or to override"
-		}]
-	}, {
-		Name:  "up"
-		Usage: "up [...target] [% ...cue]"
-		Short: "starts target points in an environment"
-		Long: "starts target points in an environment, this is very similar to docker-compose or helm locally"
-	}]
 }

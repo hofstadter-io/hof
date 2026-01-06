@@ -8,8 +8,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	cmdenv "github.com/hofstadter-io/hof/cmd/hof/cmd/env"
-	libenv "github.com/hofstadter-io/hof/lib/env/cmd"
+	libenvcmd "github.com/hofstadter-io/hof/lib/env/cmd"
+
+	"github.com/hofstadter-io/hof/cmd/hof/cmd/env"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 
@@ -23,6 +24,9 @@ All commands have well known behaviors, depending on the $kind of a target.
 'veg env list' and 'hof env sync' work with all '$kind's.
 Most commands only work with a subset that makes sense or is explicit.
 See their help text to learn more.
+
+Note, hof -> veg in terms of name, I have started with this command, and also the agentic stuff
+The big move is coming soon...
 
 ## Examples
 
@@ -64,14 +68,18 @@ func init() {
 
 }
 
+func EnvPersistentPreRun(args []string) (err error) {
+
+	err = libenvcmd.EnsureInfra()
+
+	return err
+}
+
 func EnvRun(args []string) (err error) {
 
-	return libenv.Env(args, flags.RootPflags, flags.EnvPflags)
+	err = libenvcmd.Env(args, flags.RootPflags, flags.EnvPflags)
 
-	// you can safely comment this print out
-	// fmt.Println("not implemented")
-
-	// return err
+	return err
 }
 
 var EnvCmd = &cobra.Command{
@@ -86,6 +94,18 @@ var EnvCmd = &cobra.Command{
 		glob := toComplete + "*"
 		matches, _ := filepath.Glob(glob)
 		return matches, cobra.ShellCompDirectiveDefault
+	},
+
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		var err error
+
+		// Argument Parsing
+
+		err = EnvPersistentPreRun(args)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 	},
 
 	Run: func(cmd *cobra.Command, args []string) {
@@ -146,3 +166,4 @@ func init() {
 	EnvCmd.AddCommand(cmdenv.UpCmd)
 
 }
+
