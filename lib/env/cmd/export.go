@@ -21,6 +21,7 @@ func exportable(e *env.Env) bool {
 		"dir", "file",
 		"exportFile", "exportDir",
 		"exportImage", "exportImageFile", "publishImage",
+		"hostExec",
 	}
 	_, kind, _ := extractMeta(e)
 	// only publish containers right now
@@ -289,6 +290,9 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 						}
 					}
 				}
+
+			case "hostExec":
+				err = d.HashHostExec(e.Value)
 
 			}
 

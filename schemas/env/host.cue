@@ -7,6 +7,44 @@ import (
 	"github.com/hofstadter-io/hof/schemas"
 )
 
+// run a command on a host, only localhost for now
+// WARNING, this does NOT go through dagger
+// this is used in replacing ansible among other tools
+// there is also an idea to have a flag that replaces the underlying runtime
+//   such that [dagger,localhost,remote,kubernetes] becomes indistinguishable
+// this is implemented with go.os/exec.Cmd, so mirrors it closely
+#HostExec: Ref & {
+	schemas.Hof
+	#hof: env: {
+		root: true // need to figure out what this really means, how it interacts with discovery & cli vs walking a CUE value to construct a giant dagger dag
+		kind: "hostExec"
+	}
+
+	$kind: "#hostExec"
+
+	// the first arg is the Path, the rest are the args to it
+	args: [string, ...string]
+
+	// the working directory of the command
+	// if not set, it is the current workdir hof is run from
+	workdir?: string
+
+	// key=value pairs
+	envs: [...string]
+
+	// filepath to redirect stdin to
+	stdin?: string
+
+	// filepath to redirect stdout to
+	stdout?: string
+
+	// filepath to redirect stderr to
+	stderr?: string
+
+	// expose all host env hof sees to the exec
+	allEnv: bool | *false
+}
+
 // access an image in host container runtime
 #HostImage: Ref & {
 	schemas.Hof

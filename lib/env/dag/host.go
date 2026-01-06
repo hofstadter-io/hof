@@ -2,6 +2,8 @@ package dag
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
 	"strings"
 
 	"cuelang.org/go/cue"
@@ -458,4 +460,65 @@ func (d *Dag) stepUnixSocketHandler(c *dagger.Container, step cue.Value) (*dagge
 	})
 
 	return c, nil
+}
+
+type hostExecConfig struct {
+	Kind string `json:"$kind"`
+	Name string `json:"name"`
+
+	Args    []string `json:"args"`
+	Workdir string   `json:"workdir"`
+	Envs    []string `json:"envs"`
+	Stdin   string   `json:"stdin"`
+	Stdout  string   `json:"stdout"`
+	Stderr  string   `json:"stderr"`
+	AllEnv  bool     `json:"allEnv"`
+}
+
+func (d *Dag) HashHostExec(val cue.Value) error {
+	d.mx.RLock()
+	var cfg hostExecConfig
+	err := val.Decode(&cfg)
+	d.mx.RUnlock()
+	if err != nil {
+		return fmt.Errorf("while decoding hashHostExec: %w", err)
+	}
+
+	if len(cfg.Args) == 0 {
+		return fmt.Errorf("hostExec: args must have at least one element")
+	}
+
+	cmd := exec.Command(cfg.Args[0], cfg.Args[1:]...)
+	cmd.Dir = cfg.Workdir
+	cmd.Env = cfg.Envs
+	if cfg.AllEnv {
+		cmd.Env = append(os.Environ(), cmd.Env...)
+	}
+
+	if cfg.Stdin != "" {
+		f, err := os.Open(cfg.Stdin)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		cmd.Stdin = f
+	}
+	if cfg.Stdout != "" {
+		f, err := os.Create(cfg.Stdout)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		cmd.Stdout = f
+	}
+	if cfg.Stderr != "" {
+		f, err := os.Create(cfg.Stderr)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		cmd.Stderr = f
+	}
+
+	return cmd.Run()
 }

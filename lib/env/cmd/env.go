@@ -158,6 +158,9 @@ func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) e
 							}
 							c, err = _c, _err
 
+						case "#hostExec":
+							// no-op in Phase 1, we run in Phase 2
+
 						case "#file":
 							file, dest, err = d.File(parStep, eflags.NoCache)
 						case "#dir":
@@ -203,6 +206,8 @@ func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) e
 
 							switch k.Kind {
 							// todo, we need to split these across here (cue eval) & below (dag sync)
+							case "#hostExec":
+								err = d.HashHostExec(parStep)
 							case "#exportFile":
 								_, err = file.Export(parCtx, dest, dagger.FileExportOpts{
 									AllowParentDirPath: allowParent,

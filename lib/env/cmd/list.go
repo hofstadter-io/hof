@@ -88,6 +88,14 @@ func genExtra(e *env.Env) string {
 	case "hostImage":
 		extra = "<- " + name
 
+	case "hostExec":
+		sv := e.Value.LookupPath(cue.ParsePath("args"))
+		if sv.Exists() {
+			var args []string
+			sv.Decode(&args)
+			extra = strings.Join(args, " ")
+		}
+
 	case "hostService":
 		sv := e.Value.LookupPath(cue.ParsePath("host"))
 		if sv.Exists() {
