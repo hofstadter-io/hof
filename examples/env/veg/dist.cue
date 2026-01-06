@@ -63,7 +63,7 @@ dist: {
 			@env()
 			#hof: id: string | *"dist-veg-\(k)"
 			#hof: metadata: name: #hof.id
-			reg: "ghcr.io/hofstadter-io"
+			reg: root.flags.registry
 			name: "veg-\(k)"
 		}
 		min: env.#ExportImage & {image: root.ctr.min}

@@ -22,9 +22,9 @@ const DaggerEngineConfig = `
   },
   "gc": {
     "enabled": true,
-    "reservedSpace": "80GB",
-    "maxUsedSpace": "100GB",
-    "minFreeSpace": "10GB"
+    "reservedSpace": "20GB",
+    "maxUsedSpace": "50GB",
+    "minFreeSpace": "5GB"
   }
 }
 `
@@ -143,8 +143,8 @@ func ensureDagger() error {
 		Restart:    "always",
 		Privileged: true,
 		Volume: []string{
-			"/var/lib/dagger",
-			// fmt.Sprintf("%s:/etc/dagger/engine.json", enginePath),
+			"veg-dagger-engine:/var/lib/dagger",
+			fmt.Sprintf("%s:/etc/dagger/engine.json", enginePath),
 		},
 		AddHost: []string{"host.docker.internal:host-gateway"},
 	}

@@ -6,7 +6,8 @@ import (
 
 hack: {
 
-
+  // used as a simple reproducer to determine that veg-dagger-engine
+  // was missing a volume mount and using crazy amounts of disk
   diskUsage: env.#Container & {
     @env(hack-diskUsage)
     from: "ghcr.io/hofstadter-io/veg-hof:v0.7.0-alpha.1"
@@ -14,4 +15,5 @@ hack: {
 			env.Mount & {path: "/work", source: src.code},
     ]
   }
+
 }
