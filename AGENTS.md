@@ -46,3 +46,19 @@ This is all we are working on currently.
   - ./design (hof's own CUE design, just for the cli)
   - ./cmd (the generated cli code, proxy to ./lib/...)
   - ./docs (for users of hof)
+
+
+### Build, Test, Validate
+
+Right now, you should only run one of the following commands.
+If more are needed, the user will instruct you.
+
+```sh
+# Build, this is the main way we validate agent/ai changes work on a basic level
+go install ./cmd/hof
+
+# basic check
+hof env list
+```
+
+Do not run any other hof commands or go test UNLESS specifically instructed to by the user.

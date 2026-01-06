@@ -4,7 +4,8 @@ import (
 	"github.com/hofstadter-io/hof/schemas"
 )
 
-// like dagger.File
+// a file ref that can be used within CUE
+// is a: *dagger.File
 #File: Ref & {
 	schemas.Hof
 	#hof: env: {
@@ -21,7 +22,24 @@ import (
 	source!: _
 }
 
-// this is creating a directory ref that we can do things with
+// step that adds a file to a container
+// is a: dagger.WithFile
+File: Step & {
+	$kind: "file"
+
+	path!: string
+
+	// actual, import env/rrr:env to enforce, performance penalty included
+	// content: string | #File | #HostFile // HMMM(A): should this just be file, or be container/image too?
+	content!: _
+
+	permissions?: int
+	owner?:       string
+	expand?:      bool
+}
+
+// a dir ref that can be used within CUE
+// is a: *dagger.Directory
 #Dir: Ref & {
 	schemas.Hof
 	#hof: env: {
@@ -54,22 +72,8 @@ import (
 	patchFile?: #FileLike
 }
 
-// like dagger.WithFile
-File: Step & {
-	$kind: "file"
-
-	path!: string
-
-	// actual, import env/rrr:env to enforce, performance penalty included
-	// content: string | #File | #HostFile // HMMM(A): should this just be file, or be container/image too?
-	content!: _
-
-	permissions?: int
-	owner?:       string
-	expand?:      bool
-}
-
-// this is including a directory in a container
+// step that adds a dir to a container
+// is a: dagger.WithDirectory
 Dir: Step & {
 	$kind: "dir"
 	// args
@@ -85,4 +89,8 @@ Dir: Step & {
 	gitignore?: bool | *true
 	owner?:     string
 	expand?:    bool
+}
+
+#Diff: Ref & {
+
 }
