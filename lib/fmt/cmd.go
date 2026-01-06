@@ -62,7 +62,14 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.FmtFlagpole) (e
 		}
 
 		// extract formatter settings
-		parts := strings.Split(arg, "@")
+		var parts []string
+		if strings.Contains(arg, "@") {
+			parts = strings.Split(arg, "@")
+		} else if strings.Contains(arg, ":") {
+			parts = strings.Split(arg, ":")
+		} else {
+			parts = []string{arg}
+		}
 		g.path = parts[0]
 		if len(parts) > 2 {
 			return fmt.Errorf("bad arg %q", arg)
@@ -197,9 +204,18 @@ func Start(fmtr string, replace bool) error {
 		return fmt.Errorf("update formatter status: %w", err)
 	}
 
-	// override the default version
 	ver := defaultVersion
-	parts := strings.Split(fmtr, "@")
+
+	var parts []string
+	if strings.Contains(fmtr, "@") {
+		parts = strings.Split(fmtr, "@")
+	} else if strings.Contains(fmtr, ":") {
+		parts = strings.Split(fmtr, ":")
+	} else {
+		parts = []string{fmtr}
+	}
+
+	// override the default version?
 	if len(parts) == 2 {
 		fmtr, ver = parts[0], parts[1]
 	}
@@ -236,12 +252,13 @@ func Start(fmtr string, replace bool) error {
 			}
 		}
 
-		err = container.StartContainer(
-			ref,
-			n,
-			fmtrEnvs[name],
-			replace,
-		)
+		params := &container.Params{
+			Name:    container.Name(n),
+			Env:     fmtrEnvs[name],
+			Replace: replace,
+		}
+
+		err = container.StartContainer(ref, params)
 		if err != nil {
 			return fmt.Errorf("start container %s: %w", n, err)
 		}
@@ -314,9 +331,18 @@ func Test(fmtr string) error {
 		return fmt.Errorf("update formatter status: %w", err)
 	}
 
-	// override the default version
 	ver := defaultVersion
-	parts := strings.Split(fmtr, "@")
+
+	var parts []string
+	if strings.Contains(fmtr, "@") {
+		parts = strings.Split(fmtr, "@")
+	} else if strings.Contains(fmtr, ":") {
+		parts = strings.Split(fmtr, ":")
+	} else {
+		parts = []string{fmtr}
+	}
+
+	// override the default version
 	if len(parts) == 2 {
 		fmtr, ver = parts[0], parts[1]
 	}
