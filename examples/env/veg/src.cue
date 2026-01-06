@@ -17,6 +17,7 @@ src: {
 		@env(src-hof-disk)
 		// name: string | *"disk"
 		path: flags.disk
+		gitignore: true
 	}
 	adk: {
 		disk: env.#HostDir & {@env(src-adk-disk), path: flags.adk}

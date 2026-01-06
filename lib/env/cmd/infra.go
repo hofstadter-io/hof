@@ -122,8 +122,9 @@ func ensureDagger() error {
 		enginePath = filepath.Join(configDir, "veg", "dagger-engine.json")
 	}
 
+	fmt.Println("looking for config:", enginePath)
 	if _, err := os.Stat(enginePath); os.IsNotExist(err) {
-		// write engine.json to a temp location for mounting
+		fmt.Println("creating first engine config:", enginePath)
 		err = os.MkdirAll(filepath.Dir(enginePath), 0755)
 		if err != nil {
 			return err
@@ -132,6 +133,8 @@ func ensureDagger() error {
 		if err != nil {
 			return err
 		}
+	} else {
+		fmt.Println("found config at:", enginePath)
 	}
 
 	params := &container.Params{
@@ -140,7 +143,8 @@ func ensureDagger() error {
 		Restart:    "always",
 		Privileged: true,
 		Volume: []string{
-			fmt.Sprintf("%s:/etc/dagger/engine.json", enginePath),
+			"/var/lib/dagger",
+			// fmt.Sprintf("%s:/etc/dagger/engine.json", enginePath),
 		},
 		AddHost: []string{"host.docker.internal:host-gateway"},
 	}

@@ -1,4 +1,4 @@
-package tool
+package containers
 
 import (
 	"github.com/hofstadter-io/hof/catalogs/env/utils"
@@ -6,7 +6,8 @@ import (
 
 dagger: {
 	#ver: string | *"0.19.8"
-	cli: [
+	// hack for now to maintain consistency in pack.<tool>.cli.install
+	cli: install: [
 		utils.githubBin & {#repo: "dagger/dagger", #ver: dagger.#ver},
 	]
 }

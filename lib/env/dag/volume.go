@@ -174,6 +174,23 @@ func (d *Dag) stepMountHandler(c *dagger.Container, step cue.Value) (*dagger.Con
 			Expand: cfg.Expand,
 		})
 
+	case "#gitRepo":
+		repo, rcfg, rerr := d.hashGitRepo(cfg.Source)
+		if rerr == nil {
+			var dir *dagger.Directory
+			if rcfg != nil && rcfg.Ref != "" {
+				dir = repo.Ref(rcfg.Ref).Tree()
+			} else {
+				dir = repo.Head().Tree()
+			}
+			c = c.WithMountedDirectory(cfg.Path, dir, dagger.ContainerWithMountedDirectoryOpts{
+				Owner:  cfg.Owner,
+				Expand: cfg.Expand,
+			})
+		} else {
+			err = rerr
+		}
+
 	default:
 		return c, fmt.Errorf("unsupported $kind in stepMount.source: %v", step)
 	}

@@ -60,9 +60,14 @@ ctr: {
 			_steps.tool.github.cli,
 			_steps.tool.agents.lsp2mcp,
 
-      // add a bunch of tools
+      // add a bunch of tools (from packs)
       _packs.containers.docker.cli.install,
-      _steps.tool.dagger.cli,
+      _packs.containers.dagger.cli.install,
+      _packs.containers.cosign.cli.install,
+      _packs.containers.buildah.cli.install,
+      _packs.containers.dive.cli.install,
+
+			// still to be moved to packs
 			_steps.tool.hashicorp.packer,
 			_steps.tool.hashicorp.terraform,
 			_steps.tool.k8s.kubectl,

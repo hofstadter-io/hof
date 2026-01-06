@@ -106,7 +106,7 @@ import (
 	noCache?: bool
 
 	// Apply .gitignore filter rules inside the directory
-	gitignore?: bool | *true
+	gitignore: bool | *true
 
 	// a prefix to remove from the load path
 	trimPrefix?: string

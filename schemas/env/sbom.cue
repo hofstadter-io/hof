@@ -12,7 +12,7 @@ sbomFormats: ["cue", "json", "yaml", "toml"]
 sbomCommon: {
 	name:    string
 	path:    string
-	format:  or(_formats)
+	format:  or(sbomFormats)
 	data:    _
 }
 
@@ -28,7 +28,7 @@ sbomCommon: {
 	}
 	$kind:   "#cuefigSBOM"
 
-  commonSBOM
+  sbomCommon 
 }
 
 // generate the Dagger representation
@@ -43,7 +43,7 @@ sbomCommon: {
 	}
 	$kind:   "#daggerSBOM"
 
-  commonSBOM
+  sbomCommon 
 }
 
 // TODO, sigstore/cosign stuff
