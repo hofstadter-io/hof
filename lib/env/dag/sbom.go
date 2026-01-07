@@ -13,7 +13,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/env"
 )
 
-type hashSBOMConfig struct {
+type hashCuefigSBOMConfig struct {
 	Kind   string    `json:"$kind"`
 	Name   string    `json:"name"`
 	Path   string    `json:"path"`
@@ -21,35 +21,35 @@ type hashSBOMConfig struct {
 	Data   cue.Value `json:"data"`
 }
 
-type hashSBOMIndex struct {
+type hashCuefigSBOMIndex struct {
 	node *env.Env
 	val  cue.Value
-	cfg  *hashSBOMConfig
+	cfg  *hashCuefigSBOMConfig
 	file *dagger.File
 }
 
-func (idx *hashSBOMIndex) Key() string {
+func (idx *hashCuefigSBOMIndex) Key() string {
 	if idx.cfg == nil {
-		return "#sbom.nil"
+		return "#cuefigSBOM.nil"
 	}
 	mk := vegMemoKey(idx.node)
 	if mk != "" {
-		return fmt.Sprintf("#sbom.%s.%s", idx.cfg.Kind, mk)
+		return fmt.Sprintf("#cuefigSBOM.%s.%s", idx.cfg.Kind, mk)
 	}
-	return fmt.Sprintf("#sbom.%s.%s", idx.cfg.Kind, idx.cfg.Path)
+	return fmt.Sprintf("#cuefigSBOM.%s.%s", idx.cfg.Kind, idx.cfg.Path)
 }
 
 func (d *Dag) HashCuefigSBOM(step cue.Value) (*dagger.File, string, error) {
 	d.mx.RLock()
-	var cfg hashSBOMConfig
+	var cfg hashCuefigSBOMConfig
 	err := step.Decode(&cfg)
 	d.mx.RUnlock()
 	if err != nil {
-		return nil, "", fmt.Errorf("while decoding hashCuefigSBOM: %w", err)
+		return nil, "", fmt.Errorf("while decoding HashCuefigSBOM: %w", err)
 	}
 
 	// index for query and create if not found
-	idx := &hashSBOMIndex{
+	idx := &hashCuefigSBOMIndex{
 		val: step,
 		cfg: &cfg,
 	}
@@ -57,7 +57,7 @@ func (d *Dag) HashCuefigSBOM(step cue.Value) (*dagger.File, string, error) {
 	// lookup
 	ia, ok := d.cat.Load(idx)
 	if ok {
-		ix := ia.(*hashSBOMIndex)
+		ix := ia.(*hashCuefigSBOMIndex)
 		return ix.file, ix.cfg.Path, nil
 	}
 
@@ -102,135 +102,6 @@ func (d *Dag) HashCuefigSBOM(step cue.Value) (*dagger.File, string, error) {
 
 	default:
 		return nil, "", fmt.Errorf("unsupported format %q for hashCuefigSBOM", cfg.Format)
-	}
-
-	f := d.dag.File(cfg.Path, string(bs))
-
-	// memoize
-	idx.file = f
-	d.cat.Store(idx, idx)
-
-	return idx.file, idx.cfg.Path, nil
-}
-
-func (d *Dag) HashDaggerSBOM(step cue.Value) (*dagger.File, string, error) {
-	d.mx.RLock()
-	var cfg hashSBOMConfig
-	err := step.Decode(&cfg)
-	d.mx.RUnlock()
-	if err != nil {
-		return nil, "", fmt.Errorf("while decoding hashDaggerSBOM: %w", err)
-	}
-
-	// index for query and create if not found
-	idx := &hashSBOMIndex{
-		val: step,
-		cfg: &cfg,
-	}
-
-	// lookup
-	ia, ok := d.cat.Load(idx)
-	if ok {
-		ix := ia.(*hashSBOMIndex)
-		return ix.file, ix.cfg.Path, nil
-	}
-
-	// 1. Get the actual dagger object from the CUE value
-	// We use the existing dispatchers to get the *dagger.Type
-	var obj json.Marshaler
-	var dErr error
-
-	k := cfg.Data.LookupPath(cue.ParsePath("$kind"))
-	if !k.Exists() {
-		return nil, "", fmt.Errorf("missing $kind in DaggerSBOM data: %v", cfg.Data)
-	}
-	ks, _ := k.String()
-
-	switch ks {
-	case "#container", "#hostImage", "#dockerBuild":
-		obj, dErr = d.Container(cfg.Data, false)
-	case "#exportImageFile":
-		obj, _, dErr = d.HashExportImageFile(cfg.Data)
-	case "#exportImage":
-		obj, _, dErr = d.HashExportImage(cfg.Data)
-	case "#publishImage":
-		obj, _, dErr = d.HashPublishImage(cfg.Data)
-
-	case "#service":
-		obj, _, dErr = d.Service(cfg.Data, false)
-	case "#hostService":
-		obj, _, dErr = d.HashHostService(cfg.Data)
-	case "#hostTunnel":
-		obj, _, dErr = d.HashHostTunnel(cfg.Data)
-	case "#hostSocket":
-		obj, _, dErr = d.HashHostSocket(cfg.Data)
-
-	case "#file", "#hostFile":
-		obj, _, dErr = d.File(cfg.Data, false)
-	case "#exportFile":
-		obj, _, dErr = d.HashExportFile(cfg.Data)
-
-	case "#dir", "#hostDir", "#gitRepo":
-		obj, _, dErr = d.Dir(cfg.Data, false)
-	case "#exportDir":
-		obj, _, dErr = d.HashExportDir(cfg.Data)
-
-	case "#secret":
-		obj, dErr = d.hashSecret(cfg.Data)
-	case "#cache":
-		obj, dErr = d.hashCache(cfg.Data)
-
-	case "#cuefigSBOM":
-		obj, _, dErr = d.HashCuefigSBOM(cfg.Data)
-	case "#daggerSBOM":
-		obj, _, dErr = d.HashDaggerSBOM(cfg.Data)
-
-	default:
-		return nil, "", fmt.Errorf("unsupported $kind %q in DaggerSBOM data", ks)
-	}
-
-	if dErr != nil {
-		return nil, "", fmt.Errorf("while resolving Dagger object for SBOM: %w", dErr)
-	}
-
-	// 2. Marshal to JSON
-	jsonBS, err := obj.MarshalJSON()
-	if err != nil {
-		return nil, "", fmt.Errorf("while marshaling Dagger object to JSON: %w", err)
-	}
-
-	// 3. Handle formats
-	var bs []byte
-	var cerr error
-
-	switch cfg.Format {
-	case "json":
-		bs = jsonBS
-
-	case "yaml":
-		var tmp any
-		cerr = json.Unmarshal(jsonBS, &tmp)
-		if cerr == nil {
-			bs, cerr = yaml.Marshal(tmp)
-		}
-
-	case "toml":
-		var tmp any
-		cerr = json.Unmarshal(jsonBS, &tmp)
-		if cerr == nil {
-			bs, cerr = toml.Marshal(tmp)
-		}
-
-	case "cue":
-		// This might be tricky if we want "nice" CUE, but for now we can just use the JSON
-		bs = jsonBS
-
-	default:
-		return nil, "", fmt.Errorf("unsupported format %q for hashDaggerSBOM", cfg.Format)
-	}
-
-	if cerr != nil {
-		return nil, "", fmt.Errorf("while transcoding Dagger SBOM to %q: %w", cfg.Format, cerr)
 	}
 
 	f := d.dag.File(cfg.Path, string(bs))

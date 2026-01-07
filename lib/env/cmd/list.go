@@ -119,7 +119,7 @@ func genExtra(e *env.Env) string {
 		extra = b.String()
 
 	// "path"
-	case "dir", "file", "cuefigSBOM", "daggerSBOM":
+	case "dir", "file", "cuefigSBOM":
 		sv := e.Value.LookupPath(cue.ParsePath("path"))
 		if sv.Exists() {
 			b := new(strings.Builder)

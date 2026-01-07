@@ -214,8 +214,6 @@ func (d *Dag) File(val cue.Value, noCache bool) (*dagger.File, string, error) {
 		return file, cfg.Path, nil
 	case "#cuefigSBOM":
 		return d.HashCuefigSBOM(val)
-	case "#daggerSBOM":
-		return d.HashDaggerSBOM(val)
 
 	default:
 		return nil, "", fmt.Errorf("unsupported build target(%s): %v", k.Kind, val)

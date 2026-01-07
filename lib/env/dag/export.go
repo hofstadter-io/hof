@@ -173,9 +173,6 @@ func (d *Dag) HashExportDir(step cue.Value) (*dagger.Directory, *exportDirConfig
 		case "#cuefigSBOM":
 			_file, _path, _err := d.HashCuefigSBOM(src)
 			file, path, err = _file, _path, _err
-		case "#daggerSBOM":
-			_file, _path, _err := d.HashDaggerSBOM(src)
-			file, path, err = _file, _path, _err
 
 		default:
 			return nil, nil, fmt.Errorf("unsupported kind %q in hashExportDir.source.%d.$kind: %w", k.Kind, i, err)

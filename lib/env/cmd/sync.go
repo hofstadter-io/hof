@@ -38,7 +38,6 @@ var accepting = []string{
 	"publishImage",
 
 	"cuefigSBOM",
-	"daggerSBOM",
 }
 
 func syncable(e *env.Env) bool {

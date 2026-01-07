@@ -2,7 +2,7 @@ package env
 
 #ImageLike: #Container | #HostImage | #DockerBuild
 #DirLike:   #Dir | #HostDir | #GitRepo
-#FileLike:  #File | #HostFile | #CuefigSBOM | #DaggerSBOM
+#FileLike:  #File | #HostFile | #CuefigSBOM
 
 #Container: {
 	from: string | #ImageLike
