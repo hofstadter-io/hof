@@ -45,14 +45,15 @@ func Eval(args []string, rflags flags.RootPflagpole, cflags flags.EvalFlagpole) 
 	}
 
 	// build options
-	opts := []cue.Option{
-		cue.Docs(cflags.Comments),
-		cue.Attributes(cflags.Attributes),
-		cue.Definitions(cflags.Definitions),
-		cue.Optional(cflags.Optional || cflags.All),
-		cue.InlineImports(cflags.InlineImports),
-		cue.ErrorsAsValues(wantErrorsInValue),
+	opts := []cue.Option{}
+	if cflags.Comments {
+		opts = append(opts, cue.Docs(cflags.Comments))
 	}
+	// 	cue.Attributes(cflags.Attributes),
+	// 	cue.Definitions(cflags.Definitions),
+	// 	cue.Optional(cflags.Optional || cflags.All),
+	// 	cue.InlineImports(cflags.InlineImports),
+	// 	cue.ErrorsAsValues(wantErrorsInValue),
 
 	// these two have to be done specially
 	// because there are three options [true, false, missing]

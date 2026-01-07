@@ -2,6 +2,8 @@
 package veg
 
 import (
+	"strings"
+
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
@@ -10,20 +12,21 @@ let root = self
 bins: multi: [string]: _
 
 dist: {
-	[!~"images"]~(k,_): {@env()
+	[!~"(images|sbom)"]~(k,_): {@env()
 		#hof: {id: "dist-\(k)", metadata: {name: string | *id}}
 		name: string | *#hof.metadata.name
 	}
 
-	// meta: env.#ExportDir & {
-	// 	path: "dist/meta"
-	// 	sources: [
-	// 		root.src.changelog,
-	// 		bins.checksum,
-	// 		dist.sboms,
-	// 	]
-	// 	wipe: true
-	// }
+	meta: env.#ExportDir & {
+		path: "dist/meta"
+		sources: [
+			// root.src.changelog,
+			// bins.checksum,
+
+			for sbom in dist.sbom { sbom },
+		]
+		wipe: true
+	}
 
 	cuemod: env.#ExportDir & {
 		name: "cue-module"
@@ -86,6 +89,36 @@ dist: {
 				#hof: id: "dist-\(_f)"
 				#hof: metadata: name: #hof.id
 				image: F.img,
+			}
+		}
+	}
+
+	sbom: {
+		cuemod: env.#CuefigSBOM & {
+			@env()
+			#hof: id: "sbom-cuemod"
+			#hof: metadata: name: #hof.id
+			path: "cuemod.cue"
+			format: "cue"
+			data: dist.cuemod
+		}
+		bins: env.#CuefigSBOM & {
+			@env()
+			#hof: id: "sbom-bins"
+			#hof: metadata: name: #hof.id
+			path: "bins.cue"
+			format: "cue"
+			data: dist.bins
+		}
+		for i, img in dist.images {
+			(i): env.#CuefigSBOM & {
+				@env()
+				_id: strings.TrimPrefix(img.#hof.id, "dist-")
+				#hof: id: "sbom-\(_id)"
+				#hof: metadata: name: #hof.id
+				path: "\(_id).cue"
+				format: "cue"
+				data: img
 			}
 		}
 	}

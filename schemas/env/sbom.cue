@@ -10,7 +10,7 @@ sbomFormats: ["cue", "json", "yaml", "toml"]
 
 // common fields for sbom generators, used internally
 sbomCommon: {
-	name:    string
+	name?:    string
 	path:    string
 	format:  or(sbomFormats)
 	data:    _

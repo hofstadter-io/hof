@@ -16,4 +16,18 @@ hack: {
     ]
   }
 
+  sbom: {
+    cuefig: env.#CuefigSBOM & {
+      @env(hack-cuefig-sbom)
+      path: "hack-cuefig-sbom.cue"
+      format: "cue"
+      data: diskUsage
+    }
+    dagger: env.#DaggerSBOM & {
+      @env(hack-dagger-sbom)
+      path: "hack-dagger-sbom.json"
+      format: "cue"
+      data: diskUsage
+    }
+  }
 }

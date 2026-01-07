@@ -333,6 +333,10 @@ func (d *Dag) stepFileHandler(c *dagger.Container, step cue.Value) (*dagger.Cont
 		case "#hostFile":
 			_file, _, _err := d.HashHostFile(cfg.Content)
 			f, err = _file, _err
+		case "#cuefigSBOM":
+			f, _, err = d.HashCuefigSBOM(cfg.Content)
+		case "#daggerSBOM":
+			f, _, err = d.HashDaggerSBOM(cfg.Content)
 
 		case "#dir":
 			dir, _, err = d.hashDir(cfg.Content)

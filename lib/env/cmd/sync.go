@@ -37,8 +37,8 @@ var accepting = []string{
 	"exportImage",
 	"publishImage",
 
-	// "exportCuefig",
-	// "exportDagger",
+	"cuefigSBOM",
+	"daggerSBOM",
 }
 
 func syncable(e *env.Env) bool {
