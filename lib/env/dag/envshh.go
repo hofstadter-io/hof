@@ -276,7 +276,8 @@ func (d *Dag) stepSecretFileHandler(c *dagger.Container, step cue.Value) (*dagge
 			break
 		}
 
-		c = c.WithEnvVariable(kv.Key, kv.Val)
+		s := d.dag.SetSecret(kv.Key, kv.Val)
+		c = c.WithSecretVariable(kv.Key, s)
 	}
 
 	return c, nil

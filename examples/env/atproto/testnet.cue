@@ -102,7 +102,7 @@ testnet: _testnet & {
 				from: builds.relay.ctr
 				steps: [
 					env.EnvFile & {file: relay.config},
-					env.EnvFile & {file: relay.secret}, // todo, we need secret version of this
+					env.SecretFile & {file: relay.secret}, // todo, we need secret version of this
 					env.Mount & {path: "/data", source: relay.data},
 					env.BindService & {service: relay.postgres},
 					env.BindService & {service: plc.service},
@@ -147,7 +147,7 @@ testnet: _testnet & {
 				}
 				steps: [
 					env.EnvFile & {file: pds.config},
-					env.EnvFile & {file: pds.secret}, // todo, we need secret version of this
+					env.SecretFile & {file: pds.secret}, // todo, we need secret version of this
 					env.Mount & {path: "/app/data", source: pds.data},
 					env.Mount & {path: "/app/blobs", source: pds.blobs},
 					env.BindService & {service: pds.spicedb},
