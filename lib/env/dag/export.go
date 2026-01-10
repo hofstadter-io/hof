@@ -75,7 +75,7 @@ type exportDirConfig struct {
 	Path    string      `json:"path"`
 	Sources []cue.Value `json:"sources"`
 
-	BundlePath string    `json:"bundlePath"`
+	TrimPrefix string    `json:"trimPrefix"`
 	Patch      string    `json:"patch"`
 	PatchFile  cue.Value `json:"patchFile"`
 
@@ -200,7 +200,7 @@ func (d *Dag) HashExportDir(step cue.Value, noCache bool) (*dagger.Directory, *e
 		Owner:     cfg.Owner,
 	})
 	// (2) subpath selections
-	final = final.Directory(cfg.BundlePath)
+	final = final.Directory(cfg.TrimPrefix)
 
 	if cfg.Patch != "" {
 		final = final.WithPatch(cfg.Patch)

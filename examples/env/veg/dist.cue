@@ -35,15 +35,23 @@ dist: {
 		wipe: true
 	}
 
-	bins: env.#ExportDir & {
-		name: "gh-release"
-		path: "dist/bins"
+	github: env.#ExportDir & {
+		name: "github-files"
+		path: "dist/github"
 		sources: [
-			hof.cli.local,
 			for key, val in hof.cli.matrix if key != "name" {val}
+
 		]
-		// maybe this is better as trimPrefix or extractPath, this name is not clear
-		bundlePath: "./bins"
+		trimPrefix: "./bins"
+		wipe:       true
+	}
+
+	vscode: env.#ExportDir & {
+		name: "vscode-files"
+		path: "dist/vscode"
+		sources: [
+			extn.vscode.vsix,
+		]
 		wipe:       true
 	}
 
@@ -80,21 +88,15 @@ dist: {
 	}
 
 	sbom: {
-		cuemod: env.#CuefigSBOM & {
-			@env()
-			#hof: id: "sbom-cuemod"
-			#hof: metadata: name: #hof.id
-			path: "cuemod.cue"
-			format: "cue"
-			data: dist.cuemod
-		}
-		bins: env.#CuefigSBOM & {
-			@env()
-			#hof: id: "sbom-bins"
-			#hof: metadata: name: #hof.id
-			path: "bins.cue"
-			format: "cue"
-			data: dist.bins
+		for k in ["cuemod", "github", "vscode"] {
+			(k): env.#CuefigSBOM & {
+				@env()
+				#hof: id: "sbom-\(k)"
+				#hof: metadata: name: #hof.id
+				path: "\(k).cue"
+				format: "cue"
+				data: dist[k]
+			}
 		}
 		for i, img in dist.images {
 			(i): env.#CuefigSBOM & {

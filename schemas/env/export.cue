@@ -27,7 +27,7 @@ import (
 	gitignore: bool | *true
 
 	// (2) path to select from the bundled dir
-	bundlePath?: string
+	trimPrefix?: string
 
 	// (3) git-compatible patch to apply after bundling and selecting
 	patch?:     string

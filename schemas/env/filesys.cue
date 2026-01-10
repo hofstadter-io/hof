@@ -16,6 +16,7 @@ import (
 	$kind: "#file"
 	name:  string | *path
 	path!: string
+	trimPrefix: string | *""
 
 	// actual, import env/rrr:env to enforce, performance penalty included
 	// source: #Dir | #Container | #HostDir | #HostImage | #GitRepo
@@ -64,8 +65,6 @@ File: Step & {
 
 	// (2) path to select from the bundled dir
 	trimPrefix: string | *""
-	trimPrefix: bundlePath
-	bundlePath: trimPrefix
 
 	// (3) git-compatible patch to apply after bundling and selecting
 	// perhaps this gets moved out, or updated and kept for convenience

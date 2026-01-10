@@ -1,14 +1,19 @@
+@experiment(aliasv2)
 package veg
 
 import (
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
+let root = self
+
 extn: {
 	vscode: {
-		src: env.#HostDir & {
+		#ver: "0.0.1"
+		src: env.#Dir & {
+			@env(vscode-src)
 			name: "vscode-src"
-			path: "."
+			sources: [root.src.code]
 			include: [
 				"package.json",
 				"pnpm-lock.yaml",
@@ -17,23 +22,27 @@ extn: {
 			]
 		}
 		build: env.#Container & {
-			@env(), @id(vscode-build)
+			@env(vscode-build)
 			name: "vscode-build"
-			from: "\(flags.registry)/veg-dev:local"
+			from: "\(root.flags.registry)/veg-dev:local"
 			steps: [
+				// add source
 				env.Dir & {path: "/work", source: src},
-				env.Bash & {script: "pnpm install"},
-				env.Bash & {script: "pnpm build:extn:vscode"},
+
+				// linting 
+				// shouldi to make sure package.json is up to date with what we see
+
+				// actual build steps
+				env.Sh & {script: "pnpm install"},
+				env.Sh & {script: "pnpm vscode:build:prod"},
+				env.Sh & {script: "pnpm vscode:package"}
 			]
 		}
+		vsix: env.#File & {
+			@env(vscode-vsix)
+			trimPrefix: "/work/extensions/vscode/extension/"
+			path: "\(trimPrefix)veg-\(#ver).vsix"
+			source: build
+		}
 	}
-}
-
-// or split values over files
-dist: {
-	// vscode: env.#ExportDir & {
-	// 	path: "dist/vscode"
-	// 	wipe: true
-	// 	sources: []
-	// }
 }

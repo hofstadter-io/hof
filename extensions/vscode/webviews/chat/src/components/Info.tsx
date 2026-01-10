@@ -4,26 +4,21 @@ import {
   CircleQuestionMark,
   CircleCheckBig,
   CircleDashed,
-  GraduationCap,
   OctagonAlert,
   PanelLeftOpen,
   PanelRightClose,
   BrainCircuit,
   EqualApproximately,
   SquareSigma,
-  DatabaseBackup,
-  MessageSquareMore,
   FilePlus,
   FileX,
   FilePen,
-  Megaphone,
   BotMessageSquare,
   BookMarked,
   NotebookTabs,
 } from 'lucide-react'
 
-import { JsonObject, ToolTipper } from "veg-webview-common";
-import { Menu } from '@/components/SessionMenu'
+import { ToolTipper } from "veg-webview-common";
 
 import { cn } from "@/lib/utils";
 

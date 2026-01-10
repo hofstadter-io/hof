@@ -3,6 +3,7 @@ package dag
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 
 	"cuelang.org/go/cue"
 	"dagger.io/dagger"
@@ -13,10 +14,11 @@ import (
 //       we do need to be careful about unnamed things, skip memo-optimization for those
 
 type hashFileConfig struct {
-	Kind   string    `json:"$kind"`
-	Name   string    `json:"name"`
-	Path   string    `json:"path"`
-	Source cue.Value `json:"source"`
+	Kind       string    `json:"$kind"`
+	Name       string    `json:"name"`
+	Path       string    `json:"path"`
+	TrimPrefix string    `json:"trimPrefix"`
+	Source     cue.Value `json:"source"`
 }
 
 type hashFileIndex struct {
@@ -150,7 +152,12 @@ func (d *Dag) hashFile(step cue.Value, noCache bool) (*dagger.File, string, erro
 	idx.file = f
 	d.cat.Store(idx, idx)
 
-	return idx.file, idx.cfg.Path, nil
+	path := idx.cfg.Path
+	if cfg.TrimPrefix != "" {
+		path = strings.TrimPrefix(path, cfg.TrimPrefix)
+	}
+
+	return idx.file, path, nil
 }
 
 type hashDirConfig struct {

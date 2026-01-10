@@ -3,6 +3,7 @@ package extension
 name:        "veg"
 displayName: "Veg"
 description: "Veg VS Code Extension"
+repository:  "github.com/hofstadter-io/hof"
 publisher:   "verdverm"
 version:     "0.0.1"
 engines: {
@@ -158,19 +159,22 @@ contributes: {
 }
 "scripts": {
 	"vscode:prepublish": "pnpm run compile"
+	"vscode:package":    "pnpm vsce package --no-dependencies"
+	"vscode:publish":    "pnpm vsce publish --no-dependencies"
 	"compile":           "tsc -p ./"
 	"watch":             "tsc -watch -p ./"
 	"pretest":           "pnpm run compile && pnpm run lint"
 	"lint":              "eslint src"
 	"test":              "vscode-test"
+	"gen:self":          "hof export package.cue -o package.json"
 }
 "devDependencies": {
 	"@types/mocha":          "^10.0.10"
 	"@types/node":           "22.x"
-	"@types/vscode":         "^1.106.0"
 	"@types/ws":             "^8.18.1"
 	"@vscode/test-cli":      "^0.0.12"
 	"@vscode/test-electron": "^2.5.2"
+	"@vscode/vsce":          "^3.7.1"
 	"eslint":                "^9.39.1"
 	"typescript":            "^5.9.3"
 	"typescript-eslint":     "^8.46.3"
