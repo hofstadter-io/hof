@@ -78,7 +78,14 @@ export function PercentNumber(part: number, total: number) {
     return null
   }
   const p = Math.round(100 * (1 - ((total - part) / total)));
-  return <span className="align-super text-[.5em]">{p}</span>
+  return <span className="align-super text-[.5em]">{p}%</span>
+}
+
+export function PriceNumber(cost: number) {
+  if (!cost || cost <= 0) {
+    return null
+  }
+  return <span className="self-end align-sub text-[.5em]">{cost.toFixed(2)}</span>
 }
 
 export const UsageInfo = ({ evt, usage, size }: { evt?: any, usage?: any, size: any }) => {
@@ -86,6 +93,7 @@ export const UsageInfo = ({ evt, usage, size }: { evt?: any, usage?: any, size: 
 
   const uncachedInput = u.promptTokenCount - (u.cachedContentTokenCount || 0)
   const totalOutput = (u.candidatesTokenCount || 0) + (u.thoughtsTokenCount || 0)
+  const totalInputCost = (u.costInput || 0) + (u.costCache || 0)
 
   return (
     <div className="flex gap-2 h-4">
@@ -93,28 +101,40 @@ export const UsageInfo = ({ evt, usage, size }: { evt?: any, usage?: any, size: 
         <div className="flex  text-lime-400">
           <BookMarked size={size}  className="mr-1"/>
           {UsageNumber(u.cachedContentTokenCount) || "0"}
-          {PercentNumber(u.cachedContentTokenCount, u.promptTokenCount)}
+          <span className="flex flex-col justify-start content-start text-left pl-[.1em]">
+            {PercentNumber(u.cachedContentTokenCount, u.promptTokenCount)}
+            {PriceNumber(u.costCache)}
+          </span>
         </div>
       </ToolTipper>
       <ToolTipper side="bottom" label="normal input tokens">
         <div className="flex  text-amber-200">
           <NotebookTabs size={size} className="mr-1"/>
           {UsageNumber(uncachedInput)}
-          {PercentNumber(uncachedInput, u.promptTokenCount)}
+          <span className="flex flex-col justify-start content-start text-left pl-[.1em]">
+            {PercentNumber(uncachedInput, u.promptTokenCount)}
+            {PriceNumber(u.costInput)}
+          </span>
         </div>
       </ToolTipper>
       <ToolTipper side="bottom" label="thinking tokens">
         <div className="flex  text-cyan-300">
           <BrainCircuit size={size} className="mr-1"/>
           {UsageNumber(u.thoughtsTokenCount)}
-          {PercentNumber(u.thoughtsTokenCount, totalOutput)}
+          <span className="flex flex-col justify-start content-start text-left pl-[.1em]">
+            {PercentNumber(u.thoughtsTokenCount, totalOutput)}
+            {PriceNumber(u.costThink)}
+          </span>
         </div>
       </ToolTipper>
       <ToolTipper side="bottom" label="response tokens">
         <div className="flex  text-sky-400">
           <BotMessageSquare size={size} className="mr-1"/>
           {UsageNumber(u.candidatesTokenCount)}
-          {PercentNumber(u.candidatesTokenCount, totalOutput)}
+          <span className="flex flex-col justify-start content-start text-left pl-[.1em]">
+            {PercentNumber(u.candidatesTokenCount, totalOutput)}
+            {PriceNumber(u.costWrite)}
+          </span>
         </div>
       </ToolTipper>
 
@@ -126,20 +146,30 @@ export const UsageInfo = ({ evt, usage, size }: { evt?: any, usage?: any, size: 
         <div className="flex  text-amber-300">
           <PanelRightClose size={size} className="mr-1"/>
           {UsageNumber(u.promptTokenCount)}
-          {PercentNumber(u.promptTokenCount, u.totalTokenCount)}
+          <span className="flex flex-col justify-start content-start text-left pl-[.1em]">
+            {PercentNumber(u.promptTokenCount, u.totalTokenCount)}
+            {PriceNumber(totalInputCost)}
+          </span>
         </div>
       </ToolTipper>
       <ToolTipper side="bottom" label="total output">
         <div className="flex  text-blue-400">
           <PanelLeftOpen size={size} className="mr-1"/>
           {UsageNumber(totalOutput)}
-          {PercentNumber(totalOutput, u.totalTokenCount)}
+          <span className="flex flex-col justify-start content-start text-left pl-[.1em]">
+            {PercentNumber(totalOutput, u.totalTokenCount)}
+            {PriceNumber(u.costOutput)}
+          </span>
         </div>
       </ToolTipper>
       <ToolTipper side="bottom" label="total tokens">
         <div className="flex  text-fuchsia-400">
           <SquareSigma size={size} className="mr-1"/>
           {UsageNumber(u.totalTokenCount)}
+          <span className="flex flex-col justify-end text-left pl-[.1em]">
+            <span> </span>
+            {PriceNumber(u.costTotal)}
+          </span>
         </div>
       </ToolTipper>
     </div>

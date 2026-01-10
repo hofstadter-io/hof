@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, createContext, useContext, type ReactNode } from 'react';
 import { vscodeApi } from '@/vscodeApi.js';
+import { prices } from '@/lib/prices';
 
 // Define the message types we expect
 interface SidPayload {
@@ -23,7 +24,16 @@ function processEvents(session: any) {
     cachedContentTokenCount: 0,
     thoughtsTokenCount: 0,
     totalTokenCount: 0,
+    costInput: 0,
+    costCache: 0,
+    costThink: 0,
+    costOutput: 0,
+    costTotal: 0,
+    model: session?.state?.model,
   };
+  const model = session?.state?.model;
+  const price = (model && (prices as any)[model]) ? (prices as any)[model] : null;
+
   if (!!(session?.events) && session.events.length > 0) {
     session?.events?.forEach((e: any) => {
       if (e?.UsageMetadata) {
@@ -33,6 +43,32 @@ function processEvents(session: any) {
         usage.promptTokenCount += u.promptTokenCount || 0;
         usage.thoughtsTokenCount += u.thoughtsTokenCount || 0;
         usage.totalTokenCount += u.totalTokenCount || 0;
+
+        if (price && price.input) {
+            const isLong = (u.promptTokenCount || 0) > (price.input.cutoff || 128000);
+            
+            const pInput = isLong ? price.input.long : price.input.short;
+            const pCache = isLong ? price.cache.long : price.cache.short;
+            const pOutput = isLong ? price.output.long : price.output.short;
+
+            const uncached = (u.promptTokenCount || 0) - (u.cachedContentTokenCount || 0);
+            const think = (u.thoughtsTokenCount || 0);
+            const write = (u.candidatesTokenCount || 0);
+            const output = think + write
+            
+            const costInput = (uncached / 1000000) * pInput;
+            const costCache = ((u.cachedContentTokenCount || 0) / 1000000) * pCache;
+            const costThink = (output / 1000000) * pOutput;
+            const costWrite = (output / 1000000) * pOutput;
+            const costOutput = (output / 1000000) * pOutput;
+
+            usage.costInput += costInput;
+            usage.costCache += costCache;
+            usage.costThink += costThink;
+            usage.costWrite += costWrite;
+            usage.costOutput += costOutput;
+            usage.costTotal += costInput + costCache + costOutput;
+        }
       }
     });
   }
