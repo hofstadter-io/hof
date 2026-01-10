@@ -152,7 +152,7 @@ func Sync(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) 
 				err = maybeSync(matchCtx, val, rflags.DryRun)
 
 			case "exportDir":
-				val, _, err2 := d.HashExportDir(e.Value)
+				val, _, err2 := d.HashExportDir(e.Value, eflags.NoCache)
 				if err2 != nil {
 					err = err2
 					break
@@ -163,7 +163,7 @@ func Sync(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) 
 				_, err = val.Sync(matchCtx)
 
 			case "exportFile":
-				val, _, err2 := d.HashExportFile(e.Value)
+				val, _, err2 := d.HashExportFile(e.Value, eflags.NoCache)
 				if err2 != nil {
 					err = err2
 					break
@@ -171,7 +171,7 @@ func Sync(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) 
 				err = maybeSync(matchCtx, val, rflags.DryRun)
 
 			case "exportImageFile":
-				val, _, err2 := d.HashExportImageFile(e.Value)
+				val, _, err2 := d.HashExportImageFile(e.Value, eflags.NoCache)
 				if err2 != nil {
 					err = err2
 					break
@@ -179,7 +179,7 @@ func Sync(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) 
 				err = maybeSync(matchCtx, val, rflags.DryRun)
 
 			case "exportImage":
-				val, _, err2 := d.HashExportImage(e.Value)
+				val, _, err2 := d.HashExportImage(e.Value, eflags.NoCache)
 				if err2 != nil {
 					err = err2
 					break
@@ -187,7 +187,7 @@ func Sync(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) 
 				err = maybeSync(matchCtx, val, rflags.DryRun)
 
 			case "publishImage":
-				val, _, err2 := d.HashPublishImage(e.Value)
+				val, _, err2 := d.HashPublishImage(e.Value, eflags.NoCache)
 				if err2 != nil {
 					err = err2
 					break
@@ -195,7 +195,7 @@ func Sync(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) 
 				err = maybeSync(matchCtx, val, rflags.DryRun)
 
 			case "service":
-				val, _, err2 := d.HashService(e.Value)
+				val, _, err2 := d.HashService(e.Value, eflags.NoCache)
 				if err2 != nil {
 					err = err2
 					break

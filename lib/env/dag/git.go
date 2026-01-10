@@ -49,10 +49,19 @@ func (idx *hashGitRepoIndex) Key() string {
 	return fmt.Sprintf("#gitRepo.%s", idx.cfg.Name)
 }
 
-func (d *Dag) hashGitRepo(step cue.Value) (*dagger.GitRepository, *hashGitRepoConfig, error) {
+func (d *Dag) hashGitRepo(step cue.Value, noCache bool) (*dagger.GitRepository, *hashGitRepoConfig, error) {
+	var err error
+	step, err = d.Resolve(step)
+	if err != nil {
+		return nil, nil, fmt.Errorf("while resolving hashGitRepo: %w", err)
+	}
+	if !step.Exists() {
+		return nil, nil, fmt.Errorf("hashGitRepo: resolved to empty value")
+	}
+
 	d.mx.RLock()
 	var cfg hashGitRepoConfig
-	err := step.Decode(&cfg)
+	err = step.Decode(&cfg)
 	d.mx.RUnlock()
 	if err != nil {
 		return nil, nil, fmt.Errorf("while decoding hashHostFile: %w", err)

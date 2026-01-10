@@ -38,10 +38,19 @@ func (idx *hashContainerIndex) Key() string {
 }
 
 // TODO, change this to take a context (for nested OTEL spans)
-func (d *Dag) HashContainer(val cue.Value) (*dagger.Container, error) {
+func (d *Dag) HashContainer(val cue.Value, noCache bool) (*dagger.Container, error) {
+	var err error
+	val, err = d.Resolve(val)
+	if err != nil {
+		return nil, err
+	}
+	if !val.Exists() {
+		return nil, fmt.Errorf("HashContainer: resolved to empty value")
+	}
+
 	d.mx.RLock()
 	var cfg hashContainerConfig
-	err := val.Decode(&cfg)
+	err = val.Decode(&cfg)
 	d.mx.RUnlock()
 	if err != nil {
 		return nil, fmt.Errorf("while decoding HashContainer: %w", err)
@@ -89,17 +98,17 @@ func (d *Dag) HashContainer(val cue.Value) (*dagger.Container, error) {
 		k, _ := kv.String()
 		switch k {
 		case "#container":
-			c, err = d.HashContainer(cfg.From)
+			c, err = d.HashContainer(cfg.From, noCache)
 			if err != nil {
 				return c, err
 			}
 		case "#hostImage":
-			c, err = d.HashHostImage(cfg.From)
+			c, err = d.HashHostImage(cfg.From, noCache)
 			if err != nil {
 				return c, err
 			}
 		case "#dockerBuild":
-			c, err = d.HashDockerBuild(cfg.From)
+			c, err = d.HashDockerBuild(cfg.From, noCache)
 			if err != nil {
 				return c, err
 			}
@@ -110,7 +119,7 @@ func (d *Dag) HashContainer(val cue.Value) (*dagger.Container, error) {
 	}
 
 	// possibly bust cache
-	if d.noCache {
+	if noCache {
 		// c = c.WithEnvVariable("BUSTED_CACHE", time.Now().Local().String())
 		c = c.WithEnvVariable("BUSTED_CACHE", "womp womp, why don't you go fix it then?")
 	}
@@ -217,10 +226,19 @@ func (idx *hashDockerBuildIndex) Key() string {
 	return fmt.Sprintf("#dockerBuild.%s", idx.cfg.Name)
 }
 
-func (d *Dag) HashDockerBuild(step cue.Value) (*dagger.Container, error) {
+func (d *Dag) HashDockerBuild(step cue.Value, noCache bool) (*dagger.Container, error) {
+	var err error
+	step, err = d.Resolve(step)
+	if err != nil {
+		return nil, err
+	}
+	if !step.Exists() {
+		return nil, fmt.Errorf("HashDockerBuild: resolved to empty value")
+	}
+
 	d.mx.RLock()
 	var cfg hashDockerBuildConfig
-	err := step.Decode(&cfg)
+	err = step.Decode(&cfg)
 	d.mx.RUnlock()
 	if err != nil {
 		return nil, fmt.Errorf("while decoding hashDockerBuild: %w", err)
@@ -251,12 +269,12 @@ func (d *Dag) HashDockerBuild(step cue.Value) (*dagger.Container, error) {
 	ks, _ := k.String()
 	switch ks {
 	case "#dir":
-		dir, _, err = d.hashDir(cfg.Source)
+		dir, _, err = d.hashDir(cfg.Source, noCache)
 		if err != nil {
 			return nil, err
 		}
 	case "#hostDir":
-		dir, _, err = d.HashHostDir(cfg.Source)
+		dir, _, err = d.HashHostDir(cfg.Source, noCache)
 		if err != nil {
 			return nil, err
 		}

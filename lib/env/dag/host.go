@@ -34,7 +34,7 @@ func (idx *hostImageIndex) Key() string {
 	return fmt.Sprintf("#hostImage.%s", idx.cfg.Name)
 }
 
-func (d *Dag) HashHostImage(step cue.Value) (*dagger.Container, error) {
+func (d *Dag) HashHostImage(step cue.Value, noCache bool) (*dagger.Container, error) {
 	d.mx.RLock()
 	var cfg hostImageConfig
 	err := step.Decode(&cfg)
@@ -90,7 +90,7 @@ func (idx *hostFileIndex) Key() string {
 	return fmt.Sprintf("#hostFile.%s", idx.cfg.Name)
 }
 
-func (d *Dag) HashHostFile(val cue.Value) (*dagger.File, *hostFileConfig, error) {
+func (d *Dag) HashHostFile(val cue.Value, noCache bool) (*dagger.File, *hostFileConfig, error) {
 	d.mx.RLock()
 	var cfg hostFileConfig
 	err := val.Decode(&cfg)
@@ -114,7 +114,7 @@ func (d *Dag) HashHostFile(val cue.Value) (*dagger.File, *hostFileConfig, error)
 
 	// load for realz
 	idx.file = d.dag.Host().File(cfg.Path, dagger.HostFileOpts{
-		NoCache: cfg.NoCache,
+		NoCache: cfg.NoCache || noCache,
 	})
 
 	// memoize
@@ -156,7 +156,7 @@ func (idx *hostDirIndex) Key() string {
 	return fmt.Sprintf("#hostDir.%s", idx.cfg.Name)
 }
 
-func (d *Dag) HashHostDir(val cue.Value) (*dagger.Directory, *hostDirConfig, error) {
+func (d *Dag) HashHostDir(val cue.Value, noCache bool) (*dagger.Directory, *hostDirConfig, error) {
 	d.mx.RLock()
 	var cfg hostDirConfig
 	err := val.Decode(&cfg)
@@ -182,7 +182,7 @@ func (d *Dag) HashHostDir(val cue.Value) (*dagger.Directory, *hostDirConfig, err
 	final := d.dag.Host().Directory(cfg.Path, dagger.HostDirectoryOpts{
 		Include:   cfg.Include,
 		Exclude:   cfg.Exclude,
-		NoCache:   cfg.NoCache,
+		NoCache:   cfg.NoCache || noCache,
 		Gitignore: cfg.GitIgnore,
 	})
 
@@ -194,7 +194,7 @@ func (d *Dag) HashHostDir(val cue.Value) (*dagger.Directory, *hostDirConfig, err
 	if cfg.Patch != "" {
 		final = final.WithPatch(cfg.Patch)
 	} else if cfg.PatchFile.Exists() {
-		f, _, err := d.hashFile(cfg.PatchFile)
+		f, _, err := d.hashFile(cfg.PatchFile, noCache)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -333,7 +333,7 @@ func (d *Dag) HashHostTunnel(val cue.Value) (*dagger.Service, *hostTunnelConfig,
 		})
 	}
 
-	svc, _, err := d.HashService(cfg.Service)
+	svc, _, err := d.HashService(cfg.Service, false) // hmm, wonder why it ai chose false here and didn't pass it in, host interaction is a weird one and really shouldn't cache every in these networky ones anyway?
 	if err != nil {
 		return nil, nil, err
 	}

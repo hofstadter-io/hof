@@ -15,9 +15,6 @@ type Dag struct {
 	ctx context.Context
 	dag *dagger.Client
 
-	// should probably just pass in the flags...
-	noCache bool
-
 	// catalog allows us to consolidate references across CUE that might get duplicated
 	// as well as each entry holding the value, config, and go types for the entire life-cycle
 	cat *catalog
@@ -92,6 +89,7 @@ func (d *Dag) makeStepHandlers() stepHandlerMap {
 		// envshh.cue
 		"envVars":    d.stepEnvVarsHandler,
 		"envFile":    d.stepEnvFileHandler,
+		"envAll":     d.stepEnvAllHandler,
 		"secretVars": d.stepSecretVarsHandler,
 		"secretFile": d.stepSecretFileHandler,
 
@@ -151,12 +149,19 @@ type kinder struct {
 }
 
 func (d *Dag) Container(val cue.Value, noCache bool) (*dagger.Container, error) {
-	d.noCache = noCache
+	var err error
+	val, err = d.Resolve(val)
+	if err != nil {
+		return nil, err
+	}
+	if !val.Exists() {
+		return nil, nil
+	}
 
 	// it's probably wrong to assume this in general
 	var k kinder
 	d.mx.RLock()
-	err := val.Decode(&k)
+	err = val.Decode(&k)
 	d.mx.RUnlock()
 	if err != nil {
 		return nil, err
@@ -164,23 +169,30 @@ func (d *Dag) Container(val cue.Value, noCache bool) (*dagger.Container, error) 
 
 	switch k.Kind {
 	case "#container":
-		return d.HashContainer(val)
+		return d.HashContainer(val, noCache)
 	case "#hostImage":
-		return d.HashHostImage(val)
+		return d.HashHostImage(val, noCache)
 	case "#dockerBuild":
-		return d.HashDockerBuild(val)
+		return d.HashDockerBuild(val, noCache)
 	default:
 		return nil, fmt.Errorf("unsupported build target(%s): %v", k.Kind, val)
 	}
 }
 
 func (d *Dag) Service(val cue.Value, noCache bool) (*dagger.Service, *hashServiceConfig, error) {
-	d.noCache = noCache
+	var err error
+	val, err = d.Resolve(val)
+	if err != nil {
+		return nil, nil, err
+	}
+	if !val.Exists() {
+		return nil, nil, nil
+	}
 
 	// it's probably wrong to assume this in general
 	var k kinder
 	d.mx.RLock()
-	err := val.Decode(&k)
+	err = val.Decode(&k)
 	d.mx.RUnlock()
 	if err != nil {
 		return nil, nil, err
@@ -188,7 +200,7 @@ func (d *Dag) Service(val cue.Value, noCache bool) (*dagger.Service, *hashServic
 
 	switch k.Kind {
 	case "#service":
-		s, cfg, err := d.HashService(val)
+		s, cfg, err := d.HashService(val, noCache)
 
 		return s, cfg, err
 	default:
@@ -197,12 +209,19 @@ func (d *Dag) Service(val cue.Value, noCache bool) (*dagger.Service, *hashServic
 }
 
 func (d *Dag) File(val cue.Value, noCache bool) (*dagger.File, string, error) {
-	d.noCache = noCache
+	var err error
+	val, err = d.Resolve(val)
+	if err != nil {
+		return nil, "", err
+	}
+	if !val.Exists() {
+		return nil, "", nil
+	}
 
 	// it's probably wrong to assume this in general
 	var k kinder
 	d.mx.RLock()
-	err := val.Decode(&k)
+	err = val.Decode(&k)
 	d.mx.RUnlock()
 	if err != nil {
 		return nil, "", err
@@ -210,22 +229,22 @@ func (d *Dag) File(val cue.Value, noCache bool) (*dagger.File, string, error) {
 
 	switch k.Kind {
 	case "#file":
-		return d.hashFile(val)
+		return d.hashFile(val, noCache)
 	case "#hostFile":
-		file, cfg, err := d.HashHostFile(val)
+		file, cfg, err := d.HashHostFile(val, noCache)
 		if err != nil {
 			return nil, "", err
 		}
 		return file, cfg.Path, nil
 	case "#cuefigSBOM":
-		return d.HashCuefigSBOM(val)
+		return d.HashCuefigSBOM(val, noCache)
 
 	case "#changes":
-		chg, err := d.HashChanges(val)
+		chg, err := d.HashChanges(val, noCache)
 		file := chg.AsPatch()
 		return file, "", err
 	case "#patchFile":
-		file, err := d.HashPatchFile(val)
+		file, err := d.HashPatchFile(val, noCache)
 		return file, "", err
 
 	default:
@@ -234,12 +253,19 @@ func (d *Dag) File(val cue.Value, noCache bool) (*dagger.File, string, error) {
 }
 
 func (d *Dag) Dir(val cue.Value, noCache bool) (*dagger.Directory, string, error) {
-	d.noCache = noCache
+	var err error
+	val, err = d.Resolve(val)
+	if err != nil {
+		return nil, "", err
+	}
+	if !val.Exists() {
+		return nil, "", nil
+	}
 
 	// it's probably wrong to assume this in general
 	var k kinder
 	d.mx.RLock()
-	err := val.Decode(&k)
+	err = val.Decode(&k)
 	d.mx.RUnlock()
 	if err != nil {
 		return nil, "", err
@@ -247,15 +273,15 @@ func (d *Dag) Dir(val cue.Value, noCache bool) (*dagger.Directory, string, error
 
 	switch k.Kind {
 	case "#dir":
-		return d.hashDir(val)
+		return d.hashDir(val, noCache)
 	case "#hostDir":
-		dir, cfg, err := d.HashHostDir(val)
+		dir, cfg, err := d.HashHostDir(val, noCache)
 		if err != nil {
 			return nil, "", err
 		}
 		return dir, cfg.Path, nil
 	case "#gitRepo":
-		repo, rcfg, err := d.hashGitRepo(val)
+		repo, rcfg, err := d.hashGitRepo(val, noCache)
 		if err != nil {
 			return nil, "", err
 		}

@@ -58,9 +58,9 @@ _cmdCommon: {
 	name:  string | *#hof.metadata.name
 
 	// ideally, this is more dag/flow like
-	// two-level list, top-sequential | nest-parallel
-	// TODO, put some basic checking on this
-	steps: [...[...]]
+	steps: [...]
+
+	parallel: int | *0
 
 	_cmdCommon
 

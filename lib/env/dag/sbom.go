@@ -39,7 +39,7 @@ func (idx *hashCuefigSBOMIndex) Key() string {
 	return fmt.Sprintf("#cuefigSBOM.%s.%s", idx.cfg.Kind, idx.cfg.Path)
 }
 
-func (d *Dag) HashCuefigSBOM(step cue.Value) (*dagger.File, string, error) {
+func (d *Dag) HashCuefigSBOM(step cue.Value, noCache bool) (*dagger.File, string, error) {
 	d.mx.RLock()
 	var cfg hashCuefigSBOMConfig
 	err := step.Decode(&cfg)

@@ -37,10 +37,19 @@ func (idx *hashFileIndex) Key() string {
 	return fmt.Sprintf("#file.%s", idx.cfg.Path)
 }
 
-func (d *Dag) hashFile(step cue.Value) (*dagger.File, string, error) {
+func (d *Dag) hashFile(step cue.Value, noCache bool) (*dagger.File, string, error) {
+	var err error
+	step, err = d.Resolve(step)
+	if err != nil {
+		return nil, "", err
+	}
+	if !step.Exists() {
+		return nil, "", fmt.Errorf("hashFile: resolved to empty value")
+	}
+
 	d.mx.RLock()
 	var cfg hashFileConfig
-	err := step.Decode(&cfg)
+	err = step.Decode(&cfg)
 	d.mx.RUnlock()
 	if err != nil {
 		return nil, "", fmt.Errorf("while decoding hashFile: %w", err)
@@ -72,7 +81,7 @@ func (d *Dag) hashFile(step cue.Value) (*dagger.File, string, error) {
 	sks, _ := sk.String()
 	switch sks {
 	case "#gitRepo":
-		repo, rcfg, err := d.hashGitRepo(cfg.Source)
+		repo, rcfg, err := d.hashGitRepo(cfg.Source, noCache)
 		if err != nil {
 			return nil, "", err
 		}
@@ -84,7 +93,7 @@ func (d *Dag) hashFile(step cue.Value) (*dagger.File, string, error) {
 		f = dir.File(cfg.Path)
 
 	case "#dir":
-		dir, _, err = d.hashDir(cfg.Source)
+		dir, _, err = d.hashDir(cfg.Source, noCache)
 		if err != nil {
 			return nil, "", err
 		}
@@ -92,29 +101,38 @@ func (d *Dag) hashFile(step cue.Value) (*dagger.File, string, error) {
 		f = dir.File(cfg.Path)
 
 	case "#hostDir":
-		dir, _, err = d.HashHostDir(cfg.Source)
+		dir, _, err = d.HashHostDir(cfg.Source, noCache)
 		if err != nil {
 			return nil, "", err
 		}
 		f = dir.File(cfg.Path)
 
+	case "#file":
+		f, _, err = d.hashFile(cfg.Source, noCache)
+
+	case "#hostFile":
+		f, _, err = d.HashHostFile(cfg.Source, noCache)
+
+	case "#cuefigSBOM":
+		f, _, err = d.HashCuefigSBOM(cfg.Source, noCache)
+
 	// TODO, make similar FileLike and ImageLike handlers so we don't repeat this everywhere
 	case "#container":
-		ctr, err = d.HashContainer(cfg.Source)
+		ctr, err = d.HashContainer(cfg.Source, noCache)
 		if err != nil {
 			return nil, "", err
 		}
 		f = ctr.File(cfg.Path)
 
 	case "#hostImage":
-		ctr, err = d.HashHostImage(cfg.Source)
+		ctr, err = d.HashHostImage(cfg.Source, noCache)
 		if err != nil {
 			return nil, "", err
 		}
 		f = ctr.File(cfg.Path)
 
 	case "#dockerBuild":
-		ctr, err = d.HashDockerBuild(cfg.Source)
+		ctr, err = d.HashDockerBuild(cfg.Source, noCache)
 		if err != nil {
 			return nil, "", err
 		}
@@ -168,10 +186,19 @@ func (idx *hashDirIndex) Key() string {
 	return fmt.Sprintf("#dir.%s", idx.cfg.Path)
 }
 
-func (d *Dag) hashDir(step cue.Value) (*dagger.Directory, string, error) {
+func (d *Dag) hashDir(step cue.Value, noCache bool) (*dagger.Directory, string, error) {
+	var err error
+	step, err = d.Resolve(step)
+	if err != nil {
+		return nil, "", err
+	}
+	if !step.Exists() {
+		return nil, "", fmt.Errorf("hashDir: resolved to empty value")
+	}
+
 	d.mx.RLock()
 	var cfg hashDirConfig
-	err := step.Decode(&cfg)
+	err = step.Decode(&cfg)
 	d.mx.RUnlock()
 	if err != nil {
 		return nil, "", err
@@ -211,9 +238,9 @@ func (d *Dag) hashDir(step cue.Value) (*dagger.Directory, string, error) {
 		)
 		switch k.Kind {
 		case "#file":
-			file, path, err = d.hashFile(src)
+			file, path, err = d.hashFile(src, noCache)
 		case "#hostFile":
-			_file, _, _err := d.HashHostFile(src)
+			_file, _, _err := d.HashHostFile(src, noCache)
 			if _err == nil {
 				file, err = _file, _err
 			} else {
@@ -221,16 +248,16 @@ func (d *Dag) hashDir(step cue.Value) (*dagger.Directory, string, error) {
 			}
 
 		case "#dir":
-			dir, path, err = d.hashDir(src)
+			dir, path, err = d.hashDir(src, noCache)
 		case "#hostDir":
-			_dir, _, _err := d.HashHostDir(src)
+			_dir, _, _err := d.HashHostDir(src, noCache)
 			if _err == nil {
 				dir, err = _dir, _err
 			} else {
 				err = _err
 			}
 		case "#gitRepo":
-			repo, rcfg, rerr := d.hashGitRepo(src)
+			repo, rcfg, rerr := d.hashGitRepo(src, noCache)
 			if rerr == nil {
 				if rcfg != nil && rcfg.Ref != "" {
 					dir = repo.Ref(rcfg.Ref).Tree()
@@ -242,7 +269,7 @@ func (d *Dag) hashDir(step cue.Value) (*dagger.Directory, string, error) {
 			}
 
 		case "#container":
-			_ctr, _err := d.HashContainer(src)
+			_ctr, _err := d.HashContainer(src, noCache)
 			if _err == nil {
 				dir = _ctr.Directory("/")
 				path = "/"
@@ -251,7 +278,7 @@ func (d *Dag) hashDir(step cue.Value) (*dagger.Directory, string, error) {
 			}
 
 		case "#hostImage":
-			_ctr, _err := d.HashHostImage(src)
+			_ctr, _err := d.HashHostImage(src, noCache)
 			if _err == nil {
 				dir = _ctr.Directory("/")
 			} else {
@@ -259,7 +286,7 @@ func (d *Dag) hashDir(step cue.Value) (*dagger.Directory, string, error) {
 			}
 
 		case "#dockerBuild":
-			_ctr, _err := d.HashDockerBuild(src)
+			_ctr, _err := d.HashDockerBuild(src, noCache)
 			if _err == nil {
 				dir = _ctr.Directory("/")
 			} else {
@@ -302,7 +329,7 @@ func (d *Dag) hashDir(step cue.Value) (*dagger.Directory, string, error) {
 			s, _ := cfg.Patch.String()
 			final = final.WithPatch(s)
 		case cue.StructKind:
-			chg, err := d.HashChanges(cfg.Patch)
+			chg, err := d.HashChanges(cfg.Patch, noCache)
 			if err != nil {
 				return nil, "", err
 			}
@@ -310,7 +337,7 @@ func (d *Dag) hashDir(step cue.Value) (*dagger.Directory, string, error) {
 			final = final.WithPatchFile(f)
 		}
 	} else if cfg.PatchFile.Exists() {
-		f, err := d.HashPatchFile(cfg.PatchFile)
+		f, err := d.HashPatchFile(cfg.PatchFile, noCache)
 		if err != nil {
 			return nil, "", err
 		}
@@ -366,20 +393,20 @@ func (d *Dag) stepFileHandler(c *dagger.Container, step cue.Value) (*dagger.Cont
 		ks, _ := k.String()
 		switch ks {
 		case "#file":
-			f, _, err = d.hashFile(cfg.Content)
+			f, _, err = d.hashFile(cfg.Content, false) // steps should not use noCache from DAG?
 		case "#hostFile":
-			_file, _, _err := d.HashHostFile(cfg.Content)
+			_file, _, _err := d.HashHostFile(cfg.Content, false)
 			f, err = _file, _err
 		case "#cuefigSBOM":
-			f, _, err = d.HashCuefigSBOM(cfg.Content)
+			f, _, err = d.HashCuefigSBOM(cfg.Content, false)
 
 		case "#dir":
-			dir, _, err = d.hashDir(cfg.Content)
+			dir, _, err = d.hashDir(cfg.Content, false)
 			if err == nil && dir != nil {
 				f = dir.File(cfg.Path)
 			}
 		case "#hostDir":
-			dir, _, err = d.HashHostDir(cfg.Content)
+			dir, _, err = d.HashHostDir(cfg.Content, false)
 			f = dir.File(cfg.Path)
 			if err == nil && dir != nil {
 				f = dir.File(cfg.Path)
@@ -441,21 +468,21 @@ func (d *Dag) stepDirHandler(c *dagger.Container, step cue.Value) (*dagger.Conta
 		ks, _ := k.String()
 		switch ks {
 		case "#dir":
-			dir, _, err = d.hashDir(cfg.Source)
+			dir, _, err = d.hashDir(cfg.Source, false)
 			if err != nil {
 				return nil, err
 			}
 			// dir = dir.Directory(cfg.Path)
 
 		case "#hostDir":
-			dir, _, err = d.HashHostDir(cfg.Source)
+			dir, _, err = d.HashHostDir(cfg.Source, false)
 			if err != nil {
 				return nil, err
 			}
 			// dir = dir.Directory(cfg.Path)
 
 		case "#gitRepo":
-			repo, rcfg, err := d.hashGitRepo(cfg.Source)
+			repo, rcfg, err := d.hashGitRepo(cfg.Source, false)
 			if err != nil {
 				return nil, err
 			}
@@ -466,7 +493,7 @@ func (d *Dag) stepDirHandler(c *dagger.Container, step cue.Value) (*dagger.Conta
 			}
 
 		case "#container":
-			ctr, err := d.HashContainer(cfg.Source)
+			ctr, err := d.HashContainer(cfg.Source, false)
 			if err != nil {
 				return nil, err
 			}
@@ -474,7 +501,7 @@ func (d *Dag) stepDirHandler(c *dagger.Container, step cue.Value) (*dagger.Conta
 			// dir = ctr.Directory(cfg.Path)
 
 		case "#hostImage":
-			ctr, err := d.HashHostImage(cfg.Source)
+			ctr, err := d.HashHostImage(cfg.Source, false)
 			if err != nil {
 				return nil, err
 			}
@@ -482,7 +509,7 @@ func (d *Dag) stepDirHandler(c *dagger.Container, step cue.Value) (*dagger.Conta
 			// dir = ctr.Directory(cfg.Path)
 
 		case "#dockerBuild":
-			ctr, err := d.HashDockerBuild(cfg.Source)
+			ctr, err := d.HashDockerBuild(cfg.Source, false)
 			if err != nil {
 				return nil, err
 			}
@@ -507,7 +534,7 @@ func (d *Dag) stepDirHandler(c *dagger.Container, step cue.Value) (*dagger.Conta
 			s, _ := cfg.Patch.String()
 			dir = dir.WithPatch(s)
 		case cue.StructKind:
-			chg, err := d.HashChanges(cfg.Patch)
+			chg, err := d.HashChanges(cfg.Patch, false)
 			if err != nil {
 				return nil, err
 			}
@@ -515,7 +542,7 @@ func (d *Dag) stepDirHandler(c *dagger.Container, step cue.Value) (*dagger.Conta
 			dir = dir.WithPatchFile(f)
 		}
 	} else if cfg.PatchFile.Exists() {
-		f, err := d.HashPatchFile(cfg.PatchFile)
+		f, err := d.HashPatchFile(cfg.PatchFile, false)
 		if err != nil {
 			return nil, err
 		}

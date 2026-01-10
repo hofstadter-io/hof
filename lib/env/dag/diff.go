@@ -33,7 +33,7 @@ func (idx *hashChangesIndex) Key() string {
 	return "#changes"
 }
 
-func (d *Dag) HashChanges(val cue.Value) (*dagger.Changeset, error) {
+func (d *Dag) HashChanges(val cue.Value, noCache bool) (*dagger.Changeset, error) {
 	d.mx.RLock()
 	var cfg hashChangesConfig
 	err := val.Decode(&cfg)
@@ -60,14 +60,14 @@ func (d *Dag) HashChanges(val cue.Value) (*dagger.Changeset, error) {
 	)
 
 	// prev
-	p, _, err := d.Dir(cfg.Prev, d.noCache)
+	p, _, err := d.Dir(cfg.Prev, noCache)
 	if err != nil {
 		return nil, err
 	}
 	prev = p
 
 	// next
-	n, _, err := d.Dir(cfg.Next, d.noCache)
+	n, _, err := d.Dir(cfg.Next, noCache)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +94,7 @@ func (d *Dag) stepChangesHandler(c *dagger.Container, step cue.Value) (*dagger.C
 		return c, err
 	}
 
-	chg, err := d.HashChanges(cfg.Change)
+	chg, err := d.HashChanges(cfg.Change, false)
 	if err != nil {
 		return c, err
 	}
@@ -129,7 +129,7 @@ func (idx *hashPatchFileIndex) Key() string {
 	return "#patchFile"
 }
 
-func (d *Dag) HashPatchFile(val cue.Value) (*dagger.File, error) {
+func (d *Dag) HashPatchFile(val cue.Value, noCache bool) (*dagger.File, error) {
 	d.mx.RLock()
 	var cfg hashPatchFileConfig
 	err := val.Decode(&cfg)
@@ -160,7 +160,7 @@ func (d *Dag) HashPatchFile(val cue.Value) (*dagger.File, error) {
 		s, _ := cfg.Source.String()
 		f = d.dag.File(name, s)
 	case cue.StructKind:
-		chg, cerr := d.HashChanges(cfg.Source)
+		chg, cerr := d.HashChanges(cfg.Source, noCache)
 		if cerr != nil {
 			return nil, cerr
 		}
@@ -197,7 +197,7 @@ func (d *Dag) stepPatchHandler(c *dagger.Container, step cue.Value) (*dagger.Con
 		c = c.WithRootfs(rfs)
 		return c, nil
 	case cue.StructKind:
-		chg, err := d.HashChanges(cfg.Source)
+		chg, err := d.HashChanges(cfg.Source, false)
 		if err != nil {
 			return c, err
 		}
@@ -225,7 +225,7 @@ func (d *Dag) stepPatchFileHandler(c *dagger.Container, step cue.Value) (*dagger
 		return c, err
 	}
 
-	f, err := d.HashPatchFile(cfg.Source)
+	f, err := d.HashPatchFile(cfg.Source, false)
 	if err != nil {
 		return c, err
 	}
@@ -264,6 +264,34 @@ func (idx *hashShouldiIndex) Key() string {
 	return "#shouldi"
 }
 
+func (d *Dag) Resolve(val cue.Value) (cue.Value, error) {
+	for {
+		if !val.Exists() {
+			return val, nil
+		}
+
+		// check for #shouldi
+		var k kinder
+		err := val.Decode(&k)
+		if err != nil {
+			// not a struct or matching shape, probably the value we want
+			return val, nil
+		}
+
+		if k.Kind == "#shouldi" {
+			next, err := d.HashShouldi(val)
+			if err != nil {
+				return val, err
+			}
+			val = next
+			continue
+		}
+
+		break
+	}
+	return val, nil
+}
+
 func (d *Dag) HashShouldi(val cue.Value) (cue.Value, error) {
 	d.mx.RLock()
 	var cfg hashShouldiConfig
@@ -291,7 +319,7 @@ func (d *Dag) HashShouldi(val cue.Value) (cue.Value, error) {
 	}
 
 	// Get the changes
-	chg, err := d.HashChanges(cfg.Changes)
+	chg, err := d.HashChanges(cfg.Changes, false)
 	if err != nil {
 		return cue.Value{}, err
 	}
@@ -341,7 +369,7 @@ func (d *Dag) HashShouldi(val cue.Value) (cue.Value, error) {
 		if cfg.Else.Exists() {
 			idx.res = cfg.Else
 		} else {
-			idx.res = val // or some null? CUE schema has else as optional
+			idx.res = cue.Value{}
 		}
 	}
 

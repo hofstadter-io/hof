@@ -35,7 +35,7 @@ func (idx *exportFileIndex) Key() string {
 	return fmt.Sprintf("#exportFile.%s", idx.cfg.Name)
 }
 
-func (d *Dag) HashExportFile(step cue.Value) (*dagger.File, *exportFileConfig, error) {
+func (d *Dag) HashExportFile(step cue.Value, noCache bool) (*dagger.File, *exportFileConfig, error) {
 	d.mx.RLock()
 	var cfg exportFileConfig
 	err := step.Decode(&cfg)
@@ -57,7 +57,7 @@ func (d *Dag) HashExportFile(step cue.Value) (*dagger.File, *exportFileConfig, e
 		return ix.file, ix.cfg, nil
 	}
 
-	f, _, err := d.hashFile(cfg.File)
+	f, _, err := d.hashFile(cfg.File, noCache)
 	if err != nil {
 		return nil, nil, fmt.Errorf("while decoding hashExportFile.file: %w", err)
 	}
@@ -105,7 +105,7 @@ func (idx *exportDirIndex) Key() string {
 	return fmt.Sprintf("#exportDir.%s", idx.cfg.Name)
 }
 
-func (d *Dag) HashExportDir(step cue.Value) (*dagger.Directory, *exportDirConfig, error) {
+func (d *Dag) HashExportDir(step cue.Value, noCache bool) (*dagger.Directory, *exportDirConfig, error) {
 	d.mx.RLock()
 	var cfg exportDirConfig
 	err := step.Decode(&cfg)
@@ -148,18 +148,18 @@ func (d *Dag) HashExportDir(step cue.Value) (*dagger.Directory, *exportDirConfig
 		)
 		switch k.Kind {
 		case "#file":
-			file, path, err = d.hashFile(src)
+			file, path, err = d.hashFile(src, noCache)
 		case "#hostFile":
-			_file, _cfg, _err := d.HashHostFile(src)
+			_file, _cfg, _err := d.HashHostFile(src, noCache)
 			file, path, err = _file, _cfg.Path, _err
 
 		case "#dir":
-			dir, path, err = d.hashDir(src)
+			dir, path, err = d.hashDir(src, noCache)
 		case "#hostDir":
-			_dir, _cfg, _err := d.HashHostDir(src)
+			_dir, _cfg, _err := d.HashHostDir(src, noCache)
 			dir, path, err = _dir, _cfg.Path, _err
 		case "#gitRepo":
-			repo, rcfg, rerr := d.hashGitRepo(src)
+			repo, rcfg, rerr := d.hashGitRepo(src, noCache)
 			if rerr == nil {
 				if rcfg != nil && rcfg.Ref != "" {
 					dir = repo.Ref(rcfg.Ref).Tree()
@@ -171,7 +171,7 @@ func (d *Dag) HashExportDir(step cue.Value) (*dagger.Directory, *exportDirConfig
 			}
 
 		case "#cuefigSBOM":
-			_file, _path, _err := d.HashCuefigSBOM(src)
+			_file, _path, _err := d.HashCuefigSBOM(src, noCache)
 			file, path, err = _file, _path, _err
 
 		default:
@@ -205,7 +205,7 @@ func (d *Dag) HashExportDir(step cue.Value) (*dagger.Directory, *exportDirConfig
 	if cfg.Patch != "" {
 		final = final.WithPatch(cfg.Patch)
 	} else if cfg.PatchFile.Exists() {
-		f, _, err := d.hashFile(cfg.PatchFile)
+		f, _, err := d.hashFile(cfg.PatchFile, noCache)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -245,7 +245,7 @@ func (idx *exportImageFileIndex) Key() string {
 	return fmt.Sprintf("#exportImageFile.%s", idx.cfg.Name)
 }
 
-func (d *Dag) HashExportImageFile(step cue.Value) (*dagger.Container, *exportImageFileConfig, error) {
+func (d *Dag) HashExportImageFile(step cue.Value, noCache bool) (*dagger.Container, *exportImageFileConfig, error) {
 	d.mx.RLock()
 	var cfg exportImageFileConfig
 	err := step.Decode(&cfg)
@@ -266,7 +266,7 @@ func (d *Dag) HashExportImageFile(step cue.Value) (*dagger.Container, *exportIma
 		ix := ia.(*exportImageFileIndex)
 		return ix.ctr, ix.cfg, nil
 	}
-	c, err := d.HashContainer(cfg.Image)
+	c, err := d.HashContainer(cfg.Image, noCache)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -304,7 +304,7 @@ func (idx *exportImageIndex) Key() string {
 	return fmt.Sprintf("#exportImage.%s", idx.cfg.Name)
 }
 
-func (d *Dag) HashExportImage(step cue.Value) (*dagger.Container, *exportImageConfig, error) {
+func (d *Dag) HashExportImage(step cue.Value, noCache bool) (*dagger.Container, *exportImageConfig, error) {
 	d.mx.RLock()
 	var cfg exportImageConfig
 	err := step.Decode(&cfg)
@@ -325,7 +325,7 @@ func (d *Dag) HashExportImage(step cue.Value) (*dagger.Container, *exportImageCo
 		ix := ia.(*exportImageIndex)
 		return ix.ctr, ix.cfg, nil
 	}
-	c, err := d.HashContainer(cfg.Image)
+	c, err := d.HashContainer(cfg.Image, noCache)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -363,7 +363,7 @@ func (idx *publishImageIndex) Key() string {
 	return fmt.Sprintf("#publishImage.%s", idx.cfg.Name)
 }
 
-func (d *Dag) HashPublishImage(step cue.Value) (*dagger.Container, *publishImageConfig, error) {
+func (d *Dag) HashPublishImage(step cue.Value, noCache bool) (*dagger.Container, *publishImageConfig, error) {
 	d.mx.RLock()
 	var cfg publishImageConfig
 	err := step.Decode(&cfg)
@@ -384,7 +384,7 @@ func (d *Dag) HashPublishImage(step cue.Value) (*dagger.Container, *publishImage
 		ix := ia.(*publishImageIndex)
 		return ix.ctr, ix.cfg, nil
 	}
-	c, err := d.HashContainer(cfg.Image)
+	c, err := d.HashContainer(cfg.Image, noCache)
 	if err != nil {
 		return nil, nil, err
 	}

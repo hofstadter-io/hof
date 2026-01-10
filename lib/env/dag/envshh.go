@@ -32,6 +32,16 @@ func (d *Dag) stepEnvVarsHandler(c *dagger.Container, step cue.Value) (*dagger.C
 	return c, nil
 }
 
+func (d *Dag) stepEnvAllHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+	for _, env := range os.Environ() {
+		parts := strings.SplitN(env, "=", 2)
+		if len(parts) == 2 {
+			c = c.WithEnvVariable(parts[0], parts[1])
+		}
+	}
+	return c, nil
+}
+
 type stepEnvFileConfig struct {
 	Kind string    `json:"$kind"`
 	File cue.Value `json:"file"`
@@ -58,10 +68,10 @@ func (d *Dag) stepEnvFileHandler(c *dagger.Container, step cue.Value) (*dagger.C
 	ks, _ := k.String()
 	switch ks {
 	case "#file":
-		file, _, err = d.hashFile(cfg.File)
+		file, _, err = d.hashFile(cfg.File, false)
 
 	case "#hostFile":
-		file, _, err = d.HashHostFile(cfg.File)
+		file, _, err = d.HashHostFile(cfg.File, false)
 
 	default:
 		return c, fmt.Errorf("unsupported $kind in envfile.file: %v", step)
@@ -171,7 +181,7 @@ func (d *Dag) hashSecret(step cue.Value) (*dagger.Secret, error) {
 
 		switch k {
 		case "#file":
-			file, _, err := d.hashFile(cfg.Source)
+			file, _, err := d.hashFile(cfg.Source, false)
 			if err != nil {
 				return nil, err
 			}
@@ -182,7 +192,7 @@ func (d *Dag) hashSecret(step cue.Value) (*dagger.Secret, error) {
 			idx.shh = d.dag.SetSecret(cfg.Name, text)
 
 		case "#hostFile":
-			file, _, err := d.HashHostFile(cfg.Source)
+			file, _, err := d.HashHostFile(cfg.Source, false)
 			if err != nil {
 				return nil, err
 			}
@@ -246,10 +256,10 @@ func (d *Dag) stepSecretFileHandler(c *dagger.Container, step cue.Value) (*dagge
 	ks, _ := k.String()
 	switch ks {
 	case "#file":
-		file, _, err = d.hashFile(cfg.File)
+		file, _, err = d.hashFile(cfg.File, false)
 
 	case "#hostFile":
-		file, _, err = d.HashHostFile(cfg.File)
+		file, _, err = d.HashHostFile(cfg.File, false)
 
 	default:
 		return c, fmt.Errorf("unsupported $kind in envfile.file: %v", step)

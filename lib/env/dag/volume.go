@@ -135,7 +135,7 @@ func (d *Dag) stepMountHandler(c *dagger.Container, step cue.Value) (*dagger.Con
 		})
 
 	case "#file":
-		file, _, err := d.hashFile(cfg.Source)
+		file, _, err := d.hashFile(cfg.Source, false)
 		if err != nil {
 			return nil, err
 		}
@@ -145,7 +145,7 @@ func (d *Dag) stepMountHandler(c *dagger.Container, step cue.Value) (*dagger.Con
 		})
 
 	case "#hostFile":
-		file, _, err := d.HashHostFile(cfg.Source)
+		file, _, err := d.HashHostFile(cfg.Source, false)
 		if err != nil {
 			return nil, err
 		}
@@ -155,7 +155,7 @@ func (d *Dag) stepMountHandler(c *dagger.Container, step cue.Value) (*dagger.Con
 		})
 
 	case "#dir":
-		dir, _, err := d.hashDir(cfg.Source)
+		dir, _, err := d.hashDir(cfg.Source, false)
 		if err != nil {
 			return nil, err
 		}
@@ -165,7 +165,7 @@ func (d *Dag) stepMountHandler(c *dagger.Container, step cue.Value) (*dagger.Con
 		})
 
 	case "#hostDir":
-		dir, _, err := d.HashHostDir(cfg.Source)
+		dir, _, err := d.HashHostDir(cfg.Source, false)
 		if err != nil {
 			return nil, err
 		}
@@ -175,7 +175,7 @@ func (d *Dag) stepMountHandler(c *dagger.Container, step cue.Value) (*dagger.Con
 		})
 
 	case "#gitRepo":
-		repo, rcfg, rerr := d.hashGitRepo(cfg.Source)
+		repo, rcfg, rerr := d.hashGitRepo(cfg.Source, false)
 		if rerr == nil {
 			var dir *dagger.Directory
 			if rcfg != nil && rcfg.Ref != "" {

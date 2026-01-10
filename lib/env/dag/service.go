@@ -46,10 +46,19 @@ func (idx *hashServiceIndex) Key() string {
 	return fmt.Sprintf("#service.%s", idx.cfg.Name)
 }
 
-func (d *Dag) HashService(step cue.Value) (*dagger.Service, *hashServiceConfig, error) {
+func (d *Dag) HashService(step cue.Value, noCache bool) (*dagger.Service, *hashServiceConfig, error) {
+	var err error
+	step, err = d.Resolve(step)
+	if err != nil {
+		return nil, nil, err
+	}
+	if !step.Exists() {
+		return nil, nil, fmt.Errorf("HashService: resolved to empty value")
+	}
+
 	d.mx.RLock()
 	var cfg hashServiceConfig
-	err := step.Decode(&cfg)
+	err = step.Decode(&cfg)
 	d.mx.RUnlock()
 	if err != nil {
 		return nil, nil, fmt.Errorf("while decoding hashService: %w", err)
@@ -80,17 +89,17 @@ func (d *Dag) HashService(step cue.Value) (*dagger.Service, *hashServiceConfig, 
 	ks, _ := k.String()
 	switch ks {
 	case "#container":
-		c, err = d.HashContainer(cfg.Source)
+		c, err = d.HashContainer(cfg.Source, noCache)
 		if err != nil {
 			return nil, nil, err
 		}
 	case "#hostImage":
-		c, err = d.HashHostImage(cfg.Source)
+		c, err = d.HashHostImage(cfg.Source, noCache)
 		if err != nil {
 			return nil, nil, err
 		}
 	case "#dockerBuild":
-		c, err = d.HashDockerBuild(cfg.Source)
+		c, err = d.HashDockerBuild(cfg.Source, noCache)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -170,7 +179,7 @@ func (d *Dag) stepBindServiceHandler(c *dagger.Container, step cue.Value) (*dagg
 	}
 	// fmt.Println("bindService.config", cfg)
 
-	s, scfg, err := d.HashService(cfg.Service)
+	s, scfg, err := d.HashService(cfg.Service, false) // hmm, should we respect noCache here? probably not for a step binding
 	if err != nil {
 		return nil, err
 	}

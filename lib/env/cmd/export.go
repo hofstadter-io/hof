@@ -146,7 +146,7 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 				}
 
 			case "exportDir":
-				dir, cfg, err2 := d.HashExportDir(e.Value)
+				dir, cfg, err2 := d.HashExportDir(e.Value, eflags.NoCache)
 				if err2 != nil {
 					err = err2
 					break
@@ -168,7 +168,7 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 				}
 
 			case "exportFile":
-				file, cfg, err2 := d.HashExportFile(e.Value)
+				file, cfg, err2 := d.HashExportFile(e.Value, eflags.NoCache)
 				if err2 != nil {
 					err = err2
 					break
@@ -185,7 +185,7 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 				}
 
 			case "exportImageFile":
-				i, cfg, err2 := d.HashExportImageFile(e.Value)
+				i, cfg, err2 := d.HashExportImageFile(e.Value, eflags.NoCache)
 				if err2 != nil {
 					err = err2
 					break
@@ -218,7 +218,7 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 				}
 
 			case "exportImage":
-				i, cfg, err2 := d.HashExportImage(e.Value)
+				i, cfg, err2 := d.HashExportImage(e.Value, eflags.NoCache)
 				if err2 != nil {
 					err = err2
 					break
@@ -256,7 +256,7 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 				}
 
 			case "publishImage":
-				i, cfg, err2 := d.HashPublishImage(e.Value)
+				i, cfg, err2 := d.HashPublishImage(e.Value, eflags.NoCache)
 				if err2 != nil {
 					err = err2
 					break

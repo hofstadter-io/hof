@@ -151,7 +151,7 @@ func commonStart(args []string, rflags flags.RootPflagpole, eflags flags.EnvPfla
 	// 	}
 	// }
 
-	fmt.Println("env.commonStart:", args, pkg, rflags.Expression, len(envs))
+	// fmt.Println("env.commonStart:", args, pkg, rflags.Expression, len(envs))
 
 	matches = make([]*env.Env, 0)
 	for _, e := range envs {
