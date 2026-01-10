@@ -63,6 +63,7 @@ cmd: {
 
 _testnet: [string]~(S,_): {
 	service?: {@env(), #hof: id: "\(S)", #hof: metadata: name: #hof.id}
+	runner?: {@env(), #hof: id: "\(S)-run", #hof: metadata: name: #hof.id}
 	config?: {@env(), #hof: id: "\(S)-cfg", #hof: metadata: name: #hof.id}
 }
 _testnet: [=~"(relay|pds)"]~(S2,_): {
@@ -94,7 +95,7 @@ testnet: _testnet & {
 	// @atproto Relay
 	relay: {
 		config: env.#HostFile & {path: "./env/relay.env"}
-		secret: env.#HostFile & {path: "./env/relay.secret.env"}
+		secret: env.#HostFile & {path: "./env/relay.secret.env"} // this is still not ok, the contents are visible, there doesn't seem to be a great way to handle this right now, other than rolling our own #HostSecretFile
 		service: env.#Service & {
 			hostname: "relay"
 			ports: [{port: 3000}]
@@ -137,38 +138,43 @@ testnet: _testnet & {
 		config: env.#HostFile & {path: "./env/pds.env"}
 		// TODO, #Secret (make and then provide to #SecretEnvfile)
 		secret: env.#HostFile & {path: "./env/pds.secret.env"}
+		runner: env.#Container & {
+			from: _ | *builds.pds.ctr
+			if _flags.blebbit {
+				from: builds.ppds.ctr
+			}
+			steps: [
+				env.EnvFile & {file: pds.config},
+				env.SecretFile & {file: pds.secret}, // todo, we need secret version of this
+				env.Mount & {path: "/app/data", source: pds.data},
+				env.Mount & {path: "/app/blobs", source: pds.blobs},
+				env.BindService & {service: pds.spicedb.svc},
+				env.BindService & {service: plc.service},
+				env.BindService & {service: relay.service},
+			]
+		}
 		service: env.#Service & {
 			hostname: "pds"
 			ports: [{port: 3000}]
-			source: env.#Container & {
-				from: _ | *builds.pds.ctr
-				if _flags.blebbit {
-					from: builds.ppds.ctr
-				}
-				steps: [
-					env.EnvFile & {file: pds.config},
-					env.SecretFile & {file: pds.secret}, // todo, we need secret version of this
-					env.Mount & {path: "/app/data", source: pds.data},
-					env.Mount & {path: "/app/blobs", source: pds.blobs},
-					env.BindService & {service: pds.spicedb},
-					env.BindService & {service: plc.service},
-					env.BindService & {service: relay.service},
-				]
-			}
+			source: runner
 		}
 		data: env.#Cache & {name: "pds-data"}
 		blobs: env.#Cache & {name: "pds-blobs"}
 
-		spicedb: env.#Service & {
-			name: "pds-spicedb"
-			ports: [{port: 8080}, {port: 9090}, {port: 50051}]
-			args: ["serve", "--http-enabled"]
-			source: env.#Container & {
+		spicedb: {
+			svc: env.#Service & {
+				name: "pds-spicedb"
+				ports: [{port: 8080}, {port: 9090}, {port: 50051}]
+				args: ["serve", "--http-enabled"]
+				source: ctr
+			}
+			ctr: env.#Container & {
+				@env()
 				from: "authzed/spicedb:latest"
 				envs: {
 					SPICEDB_GRPC_PRESHARED_KEY: "testnet-spicedb"
 					SPICEDB_DATASTORE_ENGINE:   "postgres"
-					SPICEDB_DATASTORE_CONN_URI: "postgres://spicedb:spicedb@pds-pg:5432/spicedb?sslmode=disable"
+					SPICEDB_DATASTORE_CONN_URI: "postgres://spicedb:spicedb@pds-spicedb-pg:5432/spicedb?sslmode=disable"
 				}
 				steps: [
 					env.Exec & {args: ["migrate", "head"], useEntrypoint: true},
@@ -180,9 +186,13 @@ testnet: _testnet & {
 	}
 }
 
+
 builds: {
 	// give things consistent names
-	[string]~(group,_): [string]~(subgroup,_): {@env(), #hof: metadata: name: "\(group)-\(subgroup)"}
+	[string]~(group,_): [string]~(subgroup,_): {
+		@env()
+		#hof: metadata: name: "\(group)-\(subgroup)"
+	}
 
 	repos: {
 		blebbit: env.#GitRepo & {url: "https://github.com/blebbit/atproto"}

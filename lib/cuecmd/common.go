@@ -114,7 +114,7 @@ func writeOutput(
 	// range of expressions the user desires
 	for _, ex := range exs {
 		// if more than one output, prefix with name in commment
-		v := getValByEx(ex, pkg, val)
+		v := cuetils.GetValByEx(ex, pkg, val)
 		if !v.Exists() {
 			handleErr(v.Err(), ex)
 			continue
@@ -129,7 +129,7 @@ func writeOutput(
 		}
 
 		for _, schema := range schemas {
-			s := getValByEx(schema, pkg, val)
+			s := cuetils.GetValByEx(schema, pkg, val)
 			// we don't ignore here because we want to actually have these schemas in the value to use
 			// and ignore any errors the data may have against them
 			if s.Err() != nil {
@@ -175,13 +175,13 @@ func writeOutput(
 		case "toml":
 			b, err := gen.FormatToml(v)
 			handleStuff(err, string(b), ex)
-			
+
 		case "text":
 			s, err := v.String()
 			handleStuff(err, s, ex)
-			
+
 		default:
-			return fmt.Errorf("unknown output type %s", outtype)	
+			return fmt.Errorf("unknown output type %s", outtype)
 		}
 	}
 
@@ -191,44 +191,4 @@ func writeOutput(
 	}
 
 	return nil
-}
-
-func getValByEx(ex, pkg string, val cue.Value) cue.Value {
-	if ex == "" || ex == "." {
-		return val
-	} else {
-		p := exToPath(ex, pkg)
-		if p.Err() == nil {
-			return val.LookupPath(p)
-		} else {
-			ctx := val.Context()
-			return ctx.CompileString(
-				ex,
-				cue.Filename("--expression:"+ex),
-				cue.InferBuiltins(true),
-				cue.Scope(val),
-			)
-		}
-	}
-}
-
-func exToPath(ex, pkg string) (cue.Path) {
-	if pkg == "" {
-		pkg = "_"
-	}
-	var sels []cue.Selector
-	// assume we can split on dots
-	parts := strings.Split(ex, ".")
-	for _, part := range parts {
-		if strings.HasPrefix(part, "_") {
-			sels = append(sels, cue.Hid(part, pkg))
-			// fmt.Println("SELS", pkg, sels)
-		} else {
-			p := cue.ParsePath(part)
-			sels = append(sels, p.Selectors()...)
-			// fmt.Printf("P: %#+v %v\n", p.Selectors(), p.Err())
-		}
-	}
-
-	return cue.MakePath(sels...)
 }

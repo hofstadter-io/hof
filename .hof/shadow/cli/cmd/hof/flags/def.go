@@ -9,7 +9,6 @@ var _ *pflag.FlagSet
 var DefFlagSet *pflag.FlagSet
 
 type DefFlagpole struct {
-	Expression    []string
 	List          bool
 	Simplify      bool
 	Out           string
@@ -24,7 +23,6 @@ var DefFlags DefFlagpole
 func SetupDefFlags(fset *pflag.FlagSet, fpole *DefFlagpole) {
 	// flags
 
-	fset.StringArrayVarP(&(fpole.Expression), "expression", "e", nil, "evaluate these expressions only")
 	fset.BoolVarP(&(fpole.List), "list", "", false, "concatenate multiple objects into a list")
 	fset.BoolVarP(&(fpole.Simplify), "simplify", "", false, "simplify CUE statements where possible")
 	fset.StringVarP(&(fpole.Out), "out", "", "", "output data format, when detection does not work")

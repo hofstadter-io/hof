@@ -22,6 +22,9 @@ flags: {
 	}
 
 	registry: string | *"host.docker.internal:5000" @tag(reg)
+
+	socket: string | *"unix:///var/run/docker.sock" @tag(socket)
+	socket: "unix:///Users/tony/.colima/default/docker.sock"
 }
 
 gitFlags: {

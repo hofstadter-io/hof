@@ -26,6 +26,13 @@ CliPflags: [...schema.Flag] & [{
 	Default: "false"
 	Help:    "A flag that ensure stdin is zero and does not block"
 }, {
+	Name:    "expression"
+	Long:    "expression"
+	Short:   "e"
+	Type:    "[]string"
+	Default: "nil"
+	Help:    "evaluate these CUE expressions only"
+}, {
 	Name:    "tags"
 	Long:    "tags"
 	Short:   "t"

@@ -10,7 +10,7 @@ import (
 
 const (
 	RegistryImage = "registry:3"
-	DaggerImage   = "registry.dagger.io/engine:v0.19.8"
+	DaggerImage   = "registry.dagger.io/engine:v0.19.9"
 )
 
 const DaggerEngineConfig = `
@@ -85,6 +85,10 @@ func ensureRegistry() error {
 		Publish: []string{"5000:5000"},
 		Restart: "always",
 		Volume:  []string{fmt.Sprintf("%s:/var/lib/registry", registryData)},
+		Env: []string{
+			"OTEL_TRACES_EXPORTER=none",
+			// "REGISTRY_HTTP_SECRET=vegreg",
+		},
 	}
 
 	return container.StartContainer(RegistryImage, params)

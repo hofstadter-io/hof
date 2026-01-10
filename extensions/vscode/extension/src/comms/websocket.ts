@@ -104,12 +104,12 @@ function setupWebSocketHandlers(socket: WebSocket) {
     }
   });
 
-  sendHello(socket);
+  // sendHello(socket);
 }
 
 export function sendMessage<T>(msg: Message<T>) {
   if (!ws) {
-    vscode.window.showErrorMessage('Server not connected.');
+    vscode.window.showErrorMessage('Server not connected. (sendMessage)');
     return;
   }
   // console.log(`[VSCODE]:`, msg);
@@ -119,7 +119,7 @@ export function sendMessage<T>(msg: Message<T>) {
 
 export function sendEcho(textToSend: string) {
   if (!ws) {
-    vscode.window.showErrorMessage('Server not connected.');
+    vscode.window.showErrorMessage('Server not connected. (sendEcho)');
     return;
   }
   const payload: EchoPayload = { text: textToSend };

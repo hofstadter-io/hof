@@ -9,13 +9,12 @@ var _ *pflag.FlagSet
 var ExportFlagSet *pflag.FlagSet
 
 type ExportFlagpole struct {
-	Expression []string
-	List       bool
-	Simplify   bool
-	Out        string
-	Outfile    string
-	Escape     bool
-	Comments   bool
+	List     bool
+	Simplify bool
+	Out      string
+	Outfile  string
+	Escape   bool
+	Comments bool
 }
 
 var ExportFlags ExportFlagpole
@@ -23,7 +22,6 @@ var ExportFlags ExportFlagpole
 func SetupExportFlags(fset *pflag.FlagSet, fpole *ExportFlagpole) {
 	// flags
 
-	fset.StringArrayVarP(&(fpole.Expression), "expression", "e", nil, "evaluate these expressions only")
 	fset.BoolVarP(&(fpole.List), "list", "", false, "concatenate multiple objects into a list")
 	fset.BoolVarP(&(fpole.Simplify), "simplify", "", false, "simplify CUE statements where possible")
 	fset.StringVarP(&(fpole.Out), "out", "", "", "output data format, when detection does not work")

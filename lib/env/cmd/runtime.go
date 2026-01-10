@@ -3,11 +3,14 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"maps"
 	"net/url"
 	"os"
 	"regexp"
+	"slices"
 	"strings"
 
+	"cuelang.org/go/cue"
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/env"
@@ -47,8 +50,111 @@ func commonStart(args []string, rflags flags.RootPflagpole, eflags flags.EnvPfla
 		return R, nil, err
 	}
 
+	envs := R.Envs
+
+	pkg := R.CueConfig.Package
+	if pkg == "" {
+		pkg = R.BuildInstances[0].PkgName
+	}
+
+	if len(rflags.Expression) > 0 {
+		disco := make(map[int]*env.Env)
+		for _, ex := range rflags.Expression {
+			v := cuetils.GetValByEx(ex, pkg, R.Value)
+			if v.Exists() {
+				switch ik := v.IncompleteKind(); ik {
+				case cue.StructKind:
+					vp := v.Path().String()
+					for i, ev := range R.Envs {
+						ep := ev.Value.Path().String()
+						if strings.HasPrefix(ep, vp) {
+							if _, ok := disco[i]; !ok {
+								disco[i] = ev
+							}
+						}
+					}
+
+					// This doesn't really work, paths are rewritten by comprehension I think
+					// case cue.ListKind:
+					// 	iter, err := v.List()
+					// 	if err != nil {
+					// 		return R, nil, err
+					// 	}
+					// 	for iter.Next() {
+					// 		vp := iter.Value().Path().String()
+					// 		for i, ev := range R.Envs {
+					// 			ep := ev.Value.Path().String()
+					// 			if strings.HasPrefix(ep, vp) {
+					// 				if _, ok := disco[i]; !ok {
+					// 					disco[i] = ev
+					// 				}
+					// 			}
+					// 		}
+					// 	}
+				}
+			}
+		}
+		envs = slices.Collect(maps.Values(disco))
+	}
+
+	// if len(rflags.Expression) > 0 {
+	// 	envs = make([]*env.Env, 0)
+	// 	for _, ex := range rflags.Expression {
+	// 		// if more than one output, prefix with name in commment
+	// 		v := cuetils.GetValByEx(ex, pkg, R.Value)
+	// 		if v.Exists() {
+	// 			roots, err := hof.FindHofs(v)
+	// 			if err != nil {
+	// 				return R, nil, err
+	// 			}
+	// 			for _, root := range roots {
+	// 				// what we really want to do is avoid nested nodes
+	// 				if root.Value.Path().String() != v.Path().String() {
+	// 					continue
+	// 				}
+	// 				// pkgRoot, pkgPath := root.Value.ReferencePath()
+	// 				// fmt.Printf(" - %q %q %q\n", pkgRoot.Path(), pkgPath, root.Value.Path())
+	// 				e := &env.Env{Node: root}
+	// 				envs = append(envs, e)
+	// 			}
+	// 		}
+	// 	}
+	// }
+
+	// this is not right, we need to discover hof.Env within the values returned
+	// // if there are -e, build up a list of matching paths
+	// if len(rflags.Expression) > 0 {
+	// 	envs = make([]*env.Env, 0)
+	// 	for _, ex := range rflags.Expression {
+	// 		// if more than one output, prefix with name in commment
+	// 		v := cuetils.GetValByEx(ex, pkg, R.Value)
+	// 		if v.Exists() {
+	// 			node, err := hof.ParseHof[any](v)
+	// 			if err != nil {
+	// 				return R, nil, err
+	// 			}
+	// 			e := &env.Env{Node: node}
+	// 			envs = append(envs, e)
+	// 		}
+	// 	}
+	// }
+
+	// if there are -e, build up a list of matching paths
+	// var expaths []string
+	// if len(rflags.Expression) > 0 {
+	// 	for _, ex := range rflags.Expression {
+	// 		// if more than one output, prefix with name in commment
+	// 		v := cuetils.GetValByEx(ex, pkg, R.Value)
+	// 		if v.Exists() {
+	// 			expaths = append(expaths, v.Path().String())
+	// 		}
+	// 	}
+	// }
+
+	fmt.Println("env.commonStart:", args, pkg, rflags.Expression, len(envs))
+
 	matches = make([]*env.Env, 0)
-	for _, e := range R.Envs {
+	for _, e := range envs {
 		// filter for @env() or show all
 		if !eflags.ShowAll && !e.Hof.AtMade {
 			continue
@@ -70,9 +176,6 @@ func commonStart(args []string, rflags flags.RootPflagpole, eflags flags.EnvPfla
 		if !matchValRegexp(kind, eflags.Kind) {
 			continue
 		}
-		if !matchValRegexp(e.Hof.Path, eflags.Path) {
-			continue
-		}
 
 		if len(filters) > 0 {
 			ok := false
@@ -87,6 +190,23 @@ func commonStart(args []string, rflags flags.RootPflagpole, eflags flags.EnvPfla
 				continue
 			}
 		}
+
+		// do CUE last, since it's the most expensive
+		//   we are doing a cheaper, simpler version for now
+		// if len(expaths) > 0 {
+		// 	p := e.Value.Path().String()
+		// 	ok := false
+		// 	for _, ex := range expaths {
+		// 		if strings.HasPrefix(p, ex) {
+		// 			ok = true
+		// 			break
+		// 		}
+		// 	}
+
+		// 	if !ok {
+		// 		continue
+		// 	}
+		// }
 
 		// plan to run the thing
 		matches = append(matches, e)

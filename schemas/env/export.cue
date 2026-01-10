@@ -12,7 +12,7 @@ import (
 	}
 
 	$kind: "#exportDir"
-	name:  string
+	name?:  string
 
 	// where to place
 	path: string
@@ -45,7 +45,7 @@ import (
 	}
 
 	$kind: "#exportFile"
-	name:  string
+	name?:  string
 	path:  string
 	file:  #File
 
@@ -61,7 +61,7 @@ import (
 	}
 
 	$kind: "#exportImageFile"
-	name:  string
+	name?:  string
 	path:  string
 	tags: [...string]
 	image: #Container
@@ -75,7 +75,7 @@ import (
 	}
 
 	$kind: "#exportImage"
-	name:  string
+	name?:  string
 	reg?:  string
 	tags: [...string]
 	image: #Container
@@ -89,7 +89,7 @@ import (
 	}
 
 	$kind: "#publishImage"
-	name:  string
+	name?:  string
 	reg:   string
 	tags: [...string]
 	image: #Container

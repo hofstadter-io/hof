@@ -84,7 +84,7 @@ EnvCommand: schema.Command & {
 			Long:    "tag"
 			Short:   "T"
 			Type:    "[]string"
-			Default: #"[]string{"local"}"# // todo, support special options like git-tag or git-commit "auto" that has an understanding of where it is running (list out the handful of variables that differentiate between env's env (local, ci, deployed), which each can have any user defined params as well)
+			Default: "nil" // todo, support special options like git-tag or git-commit "auto" that has an understanding of where it is running (list out the handful of variables that differentiate between env's env (local, ci, deployed), which each can have any user defined params as well)
 			Help:    "tags to give to the environment, can be set multiple times"
 		}]
 	}, {
@@ -152,13 +152,6 @@ EnvCommand: schema.Command & {
 		Default: "false"
 		Help:    "bust the cache and force evaluation"
 	}, {
-		Name:    "Path"
-		Long:    "path"
-		Short:   "P"
-		Type:    "[]string"
-		Default: "nil"
-		Help:    "(cue) path prefixes to include, defaults to all"
-	}, {
 		Name:    "Kind"
 		Long:    "kind"
 		Short:   "K"
@@ -223,6 +216,7 @@ EnvCommand: schema.Command & {
 	}, {
 		Name:    "parallel"
 		Long:    "parallel"
+		Short:   "P"
 		Type:    "int"
 		Default: "1"
 		Help:    "number of args or objects to process at once, they may be highly parallel internally"

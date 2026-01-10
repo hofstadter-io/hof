@@ -90,7 +90,7 @@ func Eval(args []string, rflags flags.RootPflagpole, cflags flags.EvalFlagpole) 
 		fopts,
 		cflags.Out,
 		cflags.Outfile,
-		cflags.Expression,
+		rflags.Expression,
 		rflags.Schema,
 		cflags.Escape,
 		cflags.Defaults,

@@ -35,8 +35,11 @@ cmd: {
 		}
 	}
 
+	// most of this should move to the Go pack
 	test: tasks: {
 		go: steps: [[_tester & {#cmd: "go test ./..."}]]
+		govet: steps: [[_tester & {#cmd: "go vet ./..."}]]
+		goveti: steps: [[_tester & {#cmd: "go test ./..."}]]
 		// parallel tests
 		goUltra: steps: [[
 			_tester & {#cmd: "go vet ./..."},

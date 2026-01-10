@@ -68,8 +68,9 @@ File: Step & {
 	bundlePath: trimPrefix
 
 	// (3) git-compatible patch to apply after bundling and selecting
-	patch?:     string
-	patchFile?: #FileLike
+	// perhaps this gets moved out, or updated and kept for convenience
+	patch?:     string | #Changes
+	patchFile?: #PatchFile
 }
 
 // step that adds a dir to a container
@@ -86,11 +87,12 @@ Dir: Step & {
 	// opts
 	include?: [...string]
 	exclude?: [...string]
+	trimPrefix?: string
 	gitignore?: bool | *true
 	owner?:     string
 	expand?:    bool
-}
 
-#Diff: Ref & {
-
+	// maybe patch stuff here too? as a convenience
+	patch?:     string | #Changes
+	patchFile?: #PatchFile
 }

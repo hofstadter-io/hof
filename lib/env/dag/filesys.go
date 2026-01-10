@@ -240,8 +240,34 @@ func (d *Dag) hashDir(step cue.Value) (*dagger.Directory, string, error) {
 			} else {
 				err = rerr
 			}
+
+		case "#container":
+			_ctr, _err := d.HashContainer(src)
+			if _err == nil {
+				dir = _ctr.Directory("/")
+				path = "/"
+			} else {
+				err = _err
+			}
+
+		case "#hostImage":
+			_ctr, _err := d.HashHostImage(src)
+			if _err == nil {
+				dir = _ctr.Directory("/")
+			} else {
+				err = _err
+			}
+
+		case "#dockerBuild":
+			_ctr, _err := d.HashDockerBuild(src)
+			if _err == nil {
+				dir = _ctr.Directory("/")
+			} else {
+				err = _err
+			}
+
 		default:
-			return nil, "", fmt.Errorf("unsupported kind %q in hashDir.source.%d.$kind: %w", k.Kind, i, err)
+			return nil, "", fmt.Errorf("unsupported kind %q in hashDir.source.%d.$kind", k.Kind, i)
 
 		}
 		if err != nil {
@@ -374,11 +400,12 @@ type stepDirConfig struct {
 	Path   string    `json:"path"`
 	Source cue.Value `json:"source"`
 	// opts
-	Include   []string `json:"include"`
-	Exclude   []string `json:"exclude"`
-	Gitignore bool     `json:"gitignore"`
-	Owner     string   `json:"owner"`
-	Expand    bool     `json:"expand"`
+	Include    []string `json:"include"`
+	Exclude    []string `json:"exclude"`
+	TrimPrefix string   `json:"trimPrefix"`
+	Gitignore  bool     `json:"gitignore"`
+	Owner      string   `json:"owner"`
+	Expand     bool     `json:"expand"`
 }
 
 func (d *Dag) stepDirHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
@@ -430,7 +457,7 @@ func (d *Dag) stepDirHandler(c *dagger.Container, step cue.Value) (*dagger.Conta
 			if err != nil {
 				return nil, err
 			}
-			dir = ctr.Directory("")
+			dir = ctr.Directory("/")
 			// dir = ctr.Directory(cfg.Path)
 
 		case "#hostImage":
@@ -438,7 +465,7 @@ func (d *Dag) stepDirHandler(c *dagger.Container, step cue.Value) (*dagger.Conta
 			if err != nil {
 				return nil, err
 			}
-			dir = ctr.Directory("")
+			dir = ctr.Directory("/")
 			// dir = ctr.Directory(cfg.Path)
 
 		case "#dockerBuild":
@@ -446,7 +473,7 @@ func (d *Dag) stepDirHandler(c *dagger.Container, step cue.Value) (*dagger.Conta
 			if err != nil {
 				return nil, err
 			}
-			dir = ctr.Directory("")
+			dir = ctr.Directory("/")
 			// dir = ctr.Directory(cfg.Path)
 
 		default:

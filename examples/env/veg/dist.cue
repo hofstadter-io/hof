@@ -31,21 +31,7 @@ dist: {
 	cuemod: env.#ExportDir & {
 		name: "cue-module"
 		path: "dist/cuemod"
-		sources: [src.code]
-		include: [
-			"cue.mod/module.cue",
-			// "*.cue", // eventually, when we rework all of ci, use .veg more, and have a root index that imports many things, like a mega package if the user wants
-			"schemas",
-			"catalogs/env",
-			"examples/env",
-			"flow/tasks/*.cue",
-			"flow/tasks/*/*.cue",
-			"lib/env/common",
-			"SECURITY.md",
-			"README.md",
-			"AGENTS.md",
-			"LICENSE",
-		]
+		sources: [root.src.cuemod]
 		wipe: true
 	}
 

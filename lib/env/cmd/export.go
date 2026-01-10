@@ -158,7 +158,9 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 					}
 				} else {
 					for _, t := range cflags.Tag {
-						_, err = dir.Export(matchCtx, fmt.Sprintf("%s-%s", cfg.Path, t))
+						_, err = dir.Export(matchCtx, fmt.Sprintf("%s-%s", cfg.Path, t), dagger.DirectoryExportOpts{
+							Wipe: cfg.Wipe,
+						})
 						if err != nil {
 							break
 						}

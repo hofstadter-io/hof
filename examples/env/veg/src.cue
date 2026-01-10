@@ -39,6 +39,25 @@ src: {
 		code: env.#HostDir & {path: flags.src}
 	}
 
+	cuemod: env.#Dir & {
+		@env(src-cuemod)
+		sources: [src.code]
+		include: [
+			"cue.mod/module.cue",
+			// "*.cue", // eventually, when we rework all of ci, use .veg more, and have a root index that imports many things, like a mega package if the user wants
+			"schemas",
+			"catalogs/env",
+			"examples/env",
+			"flow/tasks/*.cue",
+			"flow/tasks/*/*.cue",
+			"lib/env/common",
+			"SECURITY.md",
+			"README.md",
+			"AGENTS.md",
+			"LICENSE",
+		]
+	}
+
 	extn: {
 		vscode: {}
 	}
@@ -47,12 +66,10 @@ src: {
 host: {
 	docker: {
 		// get a socket from the host, inception will be painfully slow otherwise
-		#socket: string | *"unix:///var/run/docker.sock"
-		#socket: "unix:///Users/tony/.colima/default/docker.sock"
 		socket: env.#HostSocket & {
 			@env(docker-sock)
 			name: "docker-sock"
-			path: #socket
+			path: flags.socket
 		}
 	}
 

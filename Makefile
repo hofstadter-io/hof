@@ -100,4 +100,4 @@ dagger.start:
 		--name veg-dagger-engine \
 		--restart always \
 		--privileged \
-		registry.dagger.io/engine:v0.19.8
+		registry.dagger.io/engine:v0.19.9

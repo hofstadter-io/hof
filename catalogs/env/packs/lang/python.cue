@@ -13,7 +13,7 @@ python: {
 		}
 	}
 
-	default: [
+	defaultSteps: [
 		utils.apt.install & {#pkgs: [
 			"pip",
 			"pipx",
@@ -24,7 +24,7 @@ python: {
 			"python3-flake8",
 		]},
 	]
-	dev: [
+	devExtras: [
 		env.Exec & {
 			args: ["sh", "-c", _script]
 

@@ -6,6 +6,13 @@ import (
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
+flags: {
+	goos: string @tag(goos,var=os)
+	goarch: string @tag(goarch,var=arch)
+}
+
+_goPack: packs.lang.go & {#goos: flags.goos, #goarch: flags.goarch}
+
 src: {
 	[string]~(k,_): {@env(), name: k}
 	main: env.#GitRepo & {url: "https://github.com/google/adk-go", ref: "main"}

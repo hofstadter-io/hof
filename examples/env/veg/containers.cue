@@ -4,13 +4,11 @@ package veg
 import (
 	"github.com/hofstadter-io/hof/catalogs/env/bases"
 	"github.com/hofstadter-io/hof/catalogs/env/packs"
-	"github.com/hofstadter-io/hof/catalogs/env/steps"
 	"github.com/hofstadter-io/hof/catalogs/env/utils"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
 _packs: packs
-_steps: steps
 
 let root = self
 
@@ -44,21 +42,21 @@ ctr: {
 
 		steps: [
 			// customization
-			_steps.tool.zsh.customize,
+			_packs.tool.zsh.customize,
 
 			// deps for go/node/python -> c/c++ situations (like CGO)
 			utils.apt.install & {#pkgs: ["gcc", "libc6-dev"]},
 
 			// setup languages
-			_steps.lang.go.defaultSteps,
-			_steps.lang.cue.default,
-			_steps.lang.node.default,
-			_steps.lang.python.default,
-			_steps.lang.python.dev, // depends on node
+			_packs.lang.go.defaultSteps,
+			_packs.lang.cue.defaultSteps,
+			_packs.lang.node.defaultSteps,
+			_packs.lang.python.defaultSteps,
+			_packs.lang.python.devExtras, // depends on node
 
 			// tools for agents
-			_steps.tool.github.cli,
-			_steps.tool.agents.lsp2mcp,
+			_packs.tool.github.cli,
+			_packs.tool.agents.lsp2mcp,
 
       // add a bunch of tools (from packs)
       _packs.containers.docker.cli.install,
@@ -68,12 +66,12 @@ ctr: {
       _packs.containers.dive.cli.install,
 
 			// still to be moved to packs
-			_steps.tool.hashicorp.packer,
-			_steps.tool.hashicorp.terraform,
-			_steps.tool.k8s.kubectl,
-			_steps.tool.k8s.crane,
-			_steps.tool.k8s.helm,
-			_steps.tool.k8s.kind.binary,
+			_packs.tool.hashicorp.packer,
+			_packs.tool.hashicorp.terraform,
+			_packs.tool.k8s.kubectl,
+			_packs.tool.k8s.crane,
+			_packs.tool.k8s.helm,
+			_packs.tool.k8s.kind.binary,
 		]
 	}
 	run: env.#Container & {
@@ -90,7 +88,7 @@ ctr: {
 		from: dev
 		steps: [
 			// config / env stuff
-			_steps.tool.k8s.kind.config,
+			_packs.tool.k8s.kind.config,
 
       // add the socket for inception
       env.UnixSocket & { path: "/var/run/docker.sock", source: host.docker.socket },
@@ -123,12 +121,12 @@ ctr: {
 		from: bases.debian13.default
 		steps: [
 			hof.File.linux,
-			_steps.tool.hashicorp.terraform,
-			_steps.tool.hashicorp.packer,
-			_steps.tool.k8s.kubectl,
-			_steps.tool.k8s.helm,
-			_steps.tool.k8s.crane,
-			_steps.tool.github.cli,
+			_packs.tool.hashicorp.terraform,
+			_packs.tool.hashicorp.packer,
+			_packs.tool.k8s.kubectl,
+			_packs.tool.k8s.helm,
+			_packs.tool.k8s.crane,
+			_packs.tool.github.cli,
 		]
 	}
 
@@ -138,9 +136,9 @@ ctr: {
 	}
 	"ops-all": env.#Container & {from: root.ctr["ops"], steps: [for _, cli in _clis {cli}]}
 	_clis: {
-		gcp: _steps.tool.cloud.gcloud
-		aws: _steps.tool.cloud.awscli
-		az:  _steps.tool.cloud.azure
+		gcp: _packs.tool.cloud.gcloud
+		aws: _packs.tool.cloud.awscli
+		az:  _packs.tool.cloud.azure
 		ansible: utils.apt.install & {#pkgs: ["ansible"]}
 	}
 
@@ -154,7 +152,7 @@ fmtr: {
 			@env(fmt-black-img)
 			from: bases.debian13.default
 			steps: [
-				_steps.lang.python.default,
+				_packs.lang.python.default,
 				env.Dir & {path: "/work", source: src},
 				env.Bash & {
 					script: """
@@ -179,7 +177,7 @@ fmtr: {
 					"ruby-dev",
 				]},
 				env.Bash & {script: "gem install bundler haml prettier_print rbs syntax_tree syntax_tree-haml syntax_tree-rbs"},
-				_steps.lang.node.install,
+				_packs.lang.node.install,
 				env.Dir & {path: "/work", source: src},
 				env.Exec & {args: ["yarn", "install", "--ignore-engines"]},
 				env.Entrypoint & {args: ["node", "prettier.js"]},

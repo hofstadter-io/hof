@@ -4,7 +4,7 @@ import (
 	"encoding/yaml"
 	"strings"
 
-	"github.com/hofstadter-io/hof/catalogs/env/steps/lang"
+	"github.com/hofstadter-io/hof/catalogs/env/packs/lang"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
@@ -71,7 +71,7 @@ k8s: crane: env.Sh & {
 k8s: kind: {
 	binary: env.File & {
 		path: "/usr/local/bin/kind"
-		content: lang.go.install.moduleBinary & {
+		packs: lang.go.install.moduleBinary & {
 			#params: {
 				module:  "sigs.k8s.io/kind"
 				version: "v0.31.0"

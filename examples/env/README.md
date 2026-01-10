@@ -45,7 +45,6 @@ curl github
 ### First Examples (low-level steps)
 
 ```cue
-@experiment(aliasv2)
 package basic
 
 import "github.com/hofstadter-io/hof/schemas/env"
@@ -56,7 +55,8 @@ multi: {
 	#os:   string           @tag(os,var=os)
 
 	// base container for building in
-	base: env.#Container & {@env()
+	base: env.#Container & {
+		@env()
 		from: "golang:\(#ver)-alpine"
 		steps: [
 			// mount caches for mods and intermediate build artifacts (saves time)
@@ -72,7 +72,8 @@ multi: {
 	}
 
 	// a container after the code has built
-	built: env.#Container & {@env()
+	built: env.#Container & {
+		@env()
 		from: base
 		steps: [
 			// here we are passing the content directly as a string
@@ -106,8 +107,7 @@ multi: {
 
 	// caches we mount to the Go toolchain for across session caching
 	caches: {
-		[string]~(k,_): {@env(), name: "go-\(k)"}
-		build: env.Mount & {path: "/cache/go", source: env.#Cache & {name: "go-build-\(#ver)-\(#arch)"}}
+		build: env.Mount & { path: "/cache/go", source: env.#Cache & {name: "go-build-\(#ver)-\(#arch)"}}
 		mods: env.Mount & {path: "/go", source: env.#Cache & {name: "go-mods-\(#ver)-\(#arch)"}}
 	}
 }
@@ -130,7 +130,7 @@ _goSrc: """
 	}
 	"""
 
-````
+```
 
 ### Build and Run a Container (with the catalog)
 
@@ -140,58 +140,50 @@ _goSrc: """
 package veg
 
 import (
+	"github.com/hofstadter-io/hof/catalogs/env/packs"
 	"github.com/hofstadter-io/hof/catalogs/env/bases"
-	isteps "github.com/hofstadter-io/hof/catalogs/env/steps"
 	"github.com/hofstadter-io/hof/catalogs/env/utils"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
 dev: env.#Container & {
-  @env()
-  #hof: {
-    id: "veg-dev"
-    metadata: {
-      name:        id
-      description: "setup needed to work on veg"
-    }
-  }
-  name: #hof.metadata.name
+  @env(veg-dev)
 
   from: bases.debian13.default
 
   steps: [
     // customization
-    isteps.tool.zsh.customize,
+    packs.tool.zsh.customize,
 
     // deps for go/node/python -> c/c++ situations (like CGO)
     utils.apt.install & {#pkgs: ["gcc", "libc6-dev"]},
 
     // binary tool
     hof.File.linux,
-    isteps.tool.github.cli,
+    packs.tool.github.cli,
 
     // setup languages
-    isteps.lang.go.defaultSteps,
-    isteps.lang.cue.default,
-    isteps.lang.node.default,
-    isteps.lang.python.default,
-    isteps.lang.python.dev, // depends on node
+    packs.lang.go.defaultSteps,
+    packs.lang.cue.default,
+    packs.lang.node.default,
+    packs.lang.python.default,
+    packs.lang.python.dev, // depends on node
 
     // tools for agents
-    isteps.tool.agents.lsp2mcp,
+    packs.tool.agents.lsp2mcp,
 
     // devops stuff
-    tool.hashicorp.terraform,
-    tool.hashicorp.packer,
-    tool.k8s.kubectl,
-    tool.k8s.helm,
-    tool.k8s.crane,
+    packs.tool.hashicorp.terraform,
+    packs.tool.hashicorp.packer,
+    packs.tool.k8s.kubectl,
+    packs.tool.k8s.helm,
+    packs.tool.k8s.crane,
 
     // bind lsp servers, started on demand
-    env.BindService & {service: lang.go.lsp},
-    env.BindService & {service: lang.cue.lsp},
-    env.BindService & {service: lang.node.lsp},
-    env.BindService & {service: lang.python.lsp},
+    env.BindService & {service: packs.lang.go.lsp},
+    env.BindService & {service: packs.lang.cue.lsp},
+    env.BindService & {service: packs.lang.node.lsp},
+    env.BindService & {service: packs.lang.python.lsp},
   ]
 }
 ```
@@ -267,10 +259,7 @@ cd k8s && \
   - _note_, catalogs/env is an example and you can make your own, the only requirement is using the schemas/env
   - `utils/` helpers that only import veg/schemas/...
   - `bases/` operating systems and other basie images manually crafted, even from scratch
-  - `steps/` something like ansible / multi-stage dockerfile
-		- `lang/` language specific steps and setup
-		- `tool/` tool specific steps and setup
-  - `packs/` abstractions, collections, and other reusable blocks
+  - `packs/` abstractions, collections, and other reusable packs of env stuff
 - [examples/env](../../examples/env/)
   - `basic/` multi-stage build and 3-tier app
   - `adk/` commands example with matrix test & lint
@@ -429,8 +418,8 @@ Generally speaking...
 ```
 Dir               add a directory
 File              add a file
-EnvVar            add a single env var
-SecretVar         add a single secret
+EnvVars           add a set of env vars
+SecretVars        add a set of secret vars
 EnvFile           add an env var file
 SecretFile        add a secret var file
 

@@ -1,11 +1,12 @@
 package veg
 
 import (
+  // "github.com/hofstadter-io/hof/catalogs/env/bases"
+  "github.com/hofstadter-io/hof/catalogs/env/packs"
   "github.com/hofstadter-io/hof/schemas/env"
 )
 
 hack: {
-
   // used as a simple reproducer to determine that veg-dagger-engine
   // was missing a volume mount and using crazy amounts of disk
   diskUsage: env.#Container & {
@@ -22,6 +23,17 @@ hack: {
       path: "hack-cuefig-sbom.cue"
       format: "cue"
       data: diskUsage
+    }
+  }
+
+  install: {
+    crane: env.#ExportDir & {
+      @env(hack-install-crane)
+      path: "/usr/local/bin"
+      sources: [(packs.containers.crane & {#distro: "Darwin"}).files]
+      // sources: [files]
+      include: ["crane", "krane"]
+      wipe: true
     }
   }
 }

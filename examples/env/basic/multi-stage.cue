@@ -9,7 +9,8 @@ multi: {
 	#os:   string           @tag(os,var=os)
 
 	// base container for building in
-	base: env.#Container & {@env(multi-base)
+	base: env.#Container & {
+		@env(multi-base)
 		from: "golang:\(#ver)-alpine"
 		steps: [
 			// mount caches for mods and intermediate build artifacts (saves time)
@@ -17,7 +18,7 @@ multi: {
 			env.Mount & {path: "/go", source: env.#Cache & {name: "go-mods-\(#ver)-\(#arch)"}},
 
 			// set any default Go vars for all builds
-			env.EnvVar & {CGO_ENABLED: "0"},
+			env.EnvVars & {CGO_ENABLED: "0"},
 
 			// a globally consistent workdir
 			env.Workdir & {path: "/work"},
@@ -25,7 +26,8 @@ multi: {
 	}
 
 	// a container after the code has built
-	built: env.#Container & {@env(multi-built)
+	built: env.#Container & {
+		@env(multi-built)
 		from: base
 		steps: [
 			// here we are passing the content directly as a string

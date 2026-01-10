@@ -2,8 +2,7 @@
 package hack
 
 import (
-	"github.com/hofstadter-io/hof/examples/env/veg"
-	"github.com/hofstadter-io/hof/catalogs/env/packs/lang"
+	"github.com/hofstadter-io/hof/catalogs/env/packs"
 	"github.com/hofstadter-io/hof/catalogs/env/utils"
 	"github.com/hofstadter-io/hof/schemas/env"
 )
@@ -16,7 +15,7 @@ _flags: {
 hack: {
 	[string]~(k,_): {@env(), name: k}
 	dev: env.#Container & {
-		from: lang.go.ctr.base
+		from: packs.lang.go.ctr.base
 		steps: [
 			// the code
 			env.Mount & {path: "/work", source: hack.src},
@@ -29,38 +28,5 @@ hack: {
 	}
 
 	src: env.#HostDir & {path: _flags.src}
-
-	// gopls: lang.go.svc.gopls & {
-	//   @env()
-	// }
-
-	gopls: env.#Service & {
-		_port: 4000
-		ports: [{name: "lsp", port: _port}]
-		args: ["gopls", "serve", "-port=\(_port)"]
-		source: env.#Container & {
-			name: "veg-dev"
-			from: veg.ctr.dev
-
-			steps: [
-				env.Expose & {port: _port},
-				env.Mount & {path: "/work", source: hack.src},
-			]
-		}
-	}
-
-	cuepls: env.#Service & {
-		_port: 4001
-		ports: [{name: "lsp", port: _port}]
-		args: ["cue", "lsp", "serve", "-port=\(_port)"]
-		source: env.#Container & {
-			name: "veg-dev"
-			from: veg.ctr.dev
-			steps: [
-				env.Expose & {port: _port},
-				env.Mount & {path: "/work", source: hack.src},
-			]
-		}
-	}
 
 }

@@ -55,7 +55,7 @@ _cmdCommon: {
 	}
 
 	$kind: "task"
-	name:  string
+	name:  string | *#hof.metadata.name
 
 	// ideally, this is more dag/flow like
 	// two-level list, top-sequential | nest-parallel

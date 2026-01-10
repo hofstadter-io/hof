@@ -9,20 +9,6 @@ import (
 // ideally this could be a separate flagpole,
 // and then embedded into other flagpoles
 SharedCueFlags: [...schema.Flag] & [{
-	Name:    "expression"
-	Long:    "expression"
-	Short:   "e"
-	Type:    "[]string"
-	Default: "nil"
-	Help:    "evaluate these expressions only"
-}, {
-	//  Name:    "extensions"
-	//  Long:    "extensions"
-	//  Short:   "x"
-	//  Type:    "bool"
-	//  Default: "false"
-	//  Help:    "include hof extensions when evaluating CUE code"
-	//}, {
 	Name:    "list"
 	Long:    "list"
 	Type:    "bool"

@@ -15,7 +15,7 @@ node: {
 		}
 	}
 
-	default: [
+	defaultSteps: [
 		// cache
 		install,
 	]

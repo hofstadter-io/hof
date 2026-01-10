@@ -55,7 +55,7 @@ func Def(args []string, rflags flags.RootPflagpole, cflags flags.DefFlagpole) er
 	if bi.Module == "" {
 		pkg = bi.ID()
 	}
-	err = writeOutput(R.Value, pkg, opts, fopts, cflags.Out, cflags.Outfile, cflags.Expression, rflags.Schema, false, false, true)
+	err = writeOutput(R.Value, pkg, opts, fopts, cflags.Out, cflags.Outfile, rflags.Expression, rflags.Schema, false, false, true)
 	if err != nil {
 		return err
 	}

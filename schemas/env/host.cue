@@ -183,6 +183,8 @@ import (
 	path: string
 }
 
+// #HostPatch
+
 UnixSocket: Step & {
 	schemas.Hof
 	#hof: env: {
