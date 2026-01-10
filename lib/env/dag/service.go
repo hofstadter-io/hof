@@ -48,7 +48,7 @@ func (idx *hashServiceIndex) Key() string {
 
 func (d *Dag) HashService(step cue.Value, noCache bool) (*dagger.Service, *hashServiceConfig, error) {
 	var err error
-	step, err = d.Resolve(step)
+	step, err = d.ResolveShouldi(step)
 	if err != nil {
 		return nil, nil, err
 	}

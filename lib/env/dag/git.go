@@ -51,7 +51,7 @@ func (idx *hashGitRepoIndex) Key() string {
 
 func (d *Dag) hashGitRepo(step cue.Value, noCache bool) (*dagger.GitRepository, *hashGitRepoConfig, error) {
 	var err error
-	step, err = d.Resolve(step)
+	step, err = d.ResolveShouldi(step)
 	if err != nil {
 		return nil, nil, fmt.Errorf("while resolving hashGitRepo: %w", err)
 	}

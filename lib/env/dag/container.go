@@ -40,7 +40,7 @@ func (idx *hashContainerIndex) Key() string {
 // TODO, change this to take a context (for nested OTEL spans)
 func (d *Dag) HashContainer(val cue.Value, noCache bool) (*dagger.Container, error) {
 	var err error
-	val, err = d.Resolve(val)
+	val, err = d.ResolveShouldi(val)
 	if err != nil {
 		return nil, err
 	}
@@ -228,7 +228,7 @@ func (idx *hashDockerBuildIndex) Key() string {
 
 func (d *Dag) HashDockerBuild(step cue.Value, noCache bool) (*dagger.Container, error) {
 	var err error
-	step, err = d.Resolve(step)
+	step, err = d.ResolveShouldi(step)
 	if err != nil {
 		return nil, err
 	}

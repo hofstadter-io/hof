@@ -150,7 +150,7 @@ type kinder struct {
 
 func (d *Dag) Container(val cue.Value, noCache bool) (*dagger.Container, error) {
 	var err error
-	val, err = d.Resolve(val)
+	val, err = d.ResolveShouldi(val)
 	if err != nil {
 		return nil, err
 	}
@@ -181,7 +181,7 @@ func (d *Dag) Container(val cue.Value, noCache bool) (*dagger.Container, error) 
 
 func (d *Dag) Service(val cue.Value, noCache bool) (*dagger.Service, *hashServiceConfig, error) {
 	var err error
-	val, err = d.Resolve(val)
+	val, err = d.ResolveShouldi(val)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -210,7 +210,7 @@ func (d *Dag) Service(val cue.Value, noCache bool) (*dagger.Service, *hashServic
 
 func (d *Dag) File(val cue.Value, noCache bool) (*dagger.File, string, error) {
 	var err error
-	val, err = d.Resolve(val)
+	val, err = d.ResolveShouldi(val)
 	if err != nil {
 		return nil, "", err
 	}
@@ -254,7 +254,7 @@ func (d *Dag) File(val cue.Value, noCache bool) (*dagger.File, string, error) {
 
 func (d *Dag) Dir(val cue.Value, noCache bool) (*dagger.Directory, string, error) {
 	var err error
-	val, err = d.Resolve(val)
+	val, err = d.ResolveShouldi(val)
 	if err != nil {
 		return nil, "", err
 	}

@@ -39,7 +39,7 @@ func (idx *hashFileIndex) Key() string {
 
 func (d *Dag) hashFile(step cue.Value, noCache bool) (*dagger.File, string, error) {
 	var err error
-	step, err = d.Resolve(step)
+	step, err = d.ResolveShouldi(step)
 	if err != nil {
 		return nil, "", err
 	}
@@ -188,7 +188,7 @@ func (idx *hashDirIndex) Key() string {
 
 func (d *Dag) hashDir(step cue.Value, noCache bool) (*dagger.Directory, string, error) {
 	var err error
-	step, err = d.Resolve(step)
+	step, err = d.ResolveShouldi(step)
 	if err != nil {
 		return nil, "", err
 	}

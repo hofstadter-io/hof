@@ -264,7 +264,7 @@ func (idx *hashShouldiIndex) Key() string {
 	return "#shouldi"
 }
 
-func (d *Dag) Resolve(val cue.Value) (cue.Value, error) {
+func (d *Dag) ResolveShouldi(val cue.Value) (cue.Value, error) {
 	for {
 		if !val.Exists() {
 			return val, nil

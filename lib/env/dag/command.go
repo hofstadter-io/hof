@@ -118,7 +118,7 @@ func (d *Dag) RunTask(ctx context.Context, taskCfg *hashTaskConfig, opts RunTask
 			var err error
 
 			// Resolve #shouldi
-			step, err = d.Resolve(step)
+			step, err = d.ResolveShouldi(step)
 			if err != nil {
 				return err
 			}
