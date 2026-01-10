@@ -106,6 +106,11 @@ func (d *Dag) makeStepHandlers() stepHandlerMap {
 		"defaultTerm": d.stepDefaultTermHandler,
 		"terminal":    d.stepTerminalHandler,
 
+		// diff.cue/go
+		"changes":   d.stepChangesHandler,
+		"patch":     d.stepPatchHandler,
+		"patchFile": d.stepPatchFileHandler,
+
 		// export.cue/go
 		// #ExportDir
 		// #ExportFile
@@ -214,6 +219,14 @@ func (d *Dag) File(val cue.Value, noCache bool) (*dagger.File, string, error) {
 		return file, cfg.Path, nil
 	case "#cuefigSBOM":
 		return d.HashCuefigSBOM(val)
+
+	case "#changes":
+		chg, err := d.HashChanges(val)
+		file := chg.AsPatch()
+		return file, "", err
+	case "#patchFile":
+		file, err := d.HashPatchFile(val)
+		return file, "", err
 
 	default:
 		return nil, "", fmt.Errorf("unsupported build target(%s): %v", k.Kind, val)

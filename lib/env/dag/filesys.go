@@ -142,7 +142,7 @@ type hashDirConfig struct {
 	Sources []cue.Value `json:"sources"`
 
 	TrimPrefix string    `json:"trimPrefix"`
-	Patch      string    `json:"patch"`
+	Patch      cue.Value `json:"patch"`
 	PatchFile  cue.Value `json:"patchFile"`
 
 	Include   []string `json:"include"`
@@ -296,10 +296,21 @@ func (d *Dag) hashDir(step cue.Value) (*dagger.Directory, string, error) {
 		final = final.Directory(cfg.TrimPrefix)
 	}
 
-	if cfg.Patch != "" {
-		final = final.WithPatch(cfg.Patch)
+	if cfg.Patch.Exists() {
+		switch ik := cfg.Patch.IncompleteKind(); ik {
+		case cue.StringKind:
+			s, _ := cfg.Patch.String()
+			final = final.WithPatch(s)
+		case cue.StructKind:
+			chg, err := d.HashChanges(cfg.Patch)
+			if err != nil {
+				return nil, "", err
+			}
+			f := chg.AsPatch()
+			final = final.WithPatchFile(f)
+		}
 	} else if cfg.PatchFile.Exists() {
-		f, _, err := d.hashFile(cfg.PatchFile)
+		f, err := d.HashPatchFile(cfg.PatchFile)
 		if err != nil {
 			return nil, "", err
 		}
@@ -400,12 +411,14 @@ type stepDirConfig struct {
 	Path   string    `json:"path"`
 	Source cue.Value `json:"source"`
 	// opts
-	Include    []string `json:"include"`
-	Exclude    []string `json:"exclude"`
-	TrimPrefix string   `json:"trimPrefix"`
-	Gitignore  bool     `json:"gitignore"`
-	Owner      string   `json:"owner"`
-	Expand     bool     `json:"expand"`
+	Include    []string  `json:"include"`
+	Exclude    []string  `json:"exclude"`
+	TrimPrefix string    `json:"trimPrefix"`
+	Gitignore  bool      `json:"gitignore"`
+	Owner      string    `json:"owner"`
+	Expand     bool      `json:"expand"`
+	Patch      cue.Value `json:"patch"`
+	PatchFile  cue.Value `json:"patchFile"`
 }
 
 func (d *Dag) stepDirHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
@@ -482,6 +495,31 @@ func (d *Dag) stepDirHandler(c *dagger.Container, step cue.Value) (*dagger.Conta
 
 	default:
 		return c, fmt.Errorf("unsupported stepDir value type: %v", step)
+	}
+
+	if cfg.TrimPrefix != "" {
+		dir = dir.Directory(cfg.TrimPrefix)
+	}
+
+	if cfg.Patch.Exists() {
+		switch ik := cfg.Patch.IncompleteKind(); ik {
+		case cue.StringKind:
+			s, _ := cfg.Patch.String()
+			dir = dir.WithPatch(s)
+		case cue.StructKind:
+			chg, err := d.HashChanges(cfg.Patch)
+			if err != nil {
+				return nil, err
+			}
+			f := chg.AsPatch()
+			dir = dir.WithPatchFile(f)
+		}
+	} else if cfg.PatchFile.Exists() {
+		f, err := d.HashPatchFile(cfg.PatchFile)
+		if err != nil {
+			return nil, err
+		}
+		dir = dir.WithPatchFile(f)
 	}
 
 	c = c.WithDirectory(cfg.Path, dir, dagger.ContainerWithDirectoryOpts{

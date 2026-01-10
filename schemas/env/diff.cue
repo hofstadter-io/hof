@@ -35,6 +35,7 @@ Changes: Step & {
 	}
 	$kind: "#patchFile"
   
+	name?:  string
   source: string | #Changes
 }
 
@@ -42,12 +43,14 @@ Changes: Step & {
 Patch: Step & {
 	$kind: "patch"
   source: string | #Changes
+	basepath?: string
 }
 
 // patch a #Container with a #PatchFile
 PatchFile: Step & {
 	$kind: "patchFile"
   source: #PatchFile
+	basepath?: string
 }
 
 // #HostPatch
