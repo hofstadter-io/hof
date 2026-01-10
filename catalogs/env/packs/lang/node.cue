@@ -42,4 +42,12 @@ node: {
 
 		},
 	]
+
+	cspell: {
+		install: env.Sh & {
+			#ver: string | *"latest"
+			script: "npm install -g cspell@\(#ver)"
+		}
+		run: env.Sh & {script: "cspell ."}
+	}
 }

@@ -13,6 +13,17 @@ python: {
 		}
 	}
 
+	astralSteps: [
+		env.Sh & {
+			script: """
+				# uv 
+				curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR="/usr/local/bin" sh
+
+				uv tool install ruff@latest
+				uv tool install ty@latest
+				"""
+		},
+	]
 	defaultSteps: [
 		utils.apt.install & {#pkgs: [
 			"pip",
@@ -24,17 +35,10 @@ python: {
 			"python3-flake8",
 		]},
 	]
-	devExtras: [
-		env.Exec & {
-			args: ["sh", "-c", _script]
-
+	defaultExtras: [
+		env.Sh & {
 			// yes, pyright requires node and recommends installing via npm
-			_script: """
-				set -eou pipefail
-
-				# uv 
-				curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR="/usr/local/bin" sh
-
+			script: """
 				# LSP
 				npm install -g pyright
 				"""

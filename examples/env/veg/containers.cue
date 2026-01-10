@@ -1,6 +1,7 @@
 @experiment(aliasv2)
 package veg
 
+
 import (
 	"github.com/hofstadter-io/hof/catalogs/env/bases"
 	"github.com/hofstadter-io/hof/catalogs/env/packs"
@@ -50,9 +51,13 @@ ctr: {
 			// setup languages
 			_packs.lang.go.defaultSteps,
 			_packs.lang.cue.defaultSteps,
+			_packs.lang.python.astralSteps,
 			_packs.lang.node.defaultSteps,
-			_packs.lang.python.defaultSteps,
-			_packs.lang.python.devExtras, // depends on node
+
+			// spell checker
+			_packs.lang.node.cspell.install,
+			// TODO, sync or use custom dictionaries with vscode and others
+			// or more likely have a way to load them and adding them here should be a one liner
 
 			// tools for agents
 			_packs.tool.github.cli,
@@ -88,7 +93,8 @@ ctr: {
 		from: dev
 		steps: [
 			// config / env stuff
-			_packs.tool.k8s.kind.config,
+			// _packs.tool.k8s.kind.config,
+			// going to switch to k3d / k3s
 
       // add the socket for inception
       env.UnixSocket & { path: "/var/run/docker.sock", source: host.docker.socket },
@@ -152,7 +158,7 @@ fmtr: {
 			@env(fmt-black-img)
 			from: bases.debian13.default
 			steps: [
-				_packs.lang.python.default,
+				_packs.lang.python.defaultSteps,
 				env.Dir & {path: "/work", source: src},
 				env.Bash & {
 					script: """
@@ -168,7 +174,7 @@ fmtr: {
 	prettier: {
 		src: env.#HostDir & {@env(fmt-prettier-src), path: "lib/fmt/tools/prettier"}
 		img: env.#Container & {
-			@env(fmt-pretteir-img)
+			@env(fmt-prettier-img)
 			from: bases.debian13.default
 			steps: [
 				utils.apt.install & {#pkgs: [
@@ -177,7 +183,7 @@ fmtr: {
 					"ruby-dev",
 				]},
 				env.Bash & {script: "gem install bundler haml prettier_print rbs syntax_tree syntax_tree-haml syntax_tree-rbs"},
-				_packs.lang.node.install,
+				_packs.lang.node.defaultSteps,
 				env.Dir & {path: "/work", source: src},
 				env.Exec & {args: ["yarn", "install", "--ignore-engines"]},
 				env.Entrypoint & {args: ["node", "prettier.js"]},

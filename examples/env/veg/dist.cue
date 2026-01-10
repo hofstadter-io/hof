@@ -48,17 +48,17 @@ dist: {
 	}
 
 	images: {
-		[string]~(k,_): {
+		[string]~(k,_): env.#PublishImage & {
 			@env()
 			#hof: id: string | *"dist-veg-\(k)"
 			#hof: metadata: name: #hof.id
 			reg: root.flags.registry
 			name: "veg-\(k)"
 		}
-		min: env.#ExportImage & {image: root.ctr.min}
-		dev: env.#ExportImage & {image: root.ctr.dev}
+		min: {image: root.ctr.min}
+		dev: {image: root.ctr.dev}
 		// the dev image with adk/dagger added
-		hof: env.#ExportImage & {
+		hof: {
 			image: env.#Container & {
 				from: root.ctr.dev
 				steps: [
@@ -67,10 +67,10 @@ dist: {
 				]
 			}
 		}
-		ops: env.#ExportImage & {image: root.ctr["ops-all"], name: "veg-ops"}
+		ops: {image: root.ctr["ops-all"], name: "veg-ops"}
 		for f, F in root.fmtr {
 			let _f = "fmt-\(f)"
-			(_f): env.#ExportImage & {
+			(_f): {
 				@env()
 				#hof: id: "dist-\(_f)"
 				#hof: metadata: name: #hof.id

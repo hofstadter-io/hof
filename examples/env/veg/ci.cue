@@ -17,48 +17,50 @@ ci: {
   #next: _ | *src.disk
 
   // this is what we run to verify the cue mod
-  cuemod: env.#Shouldi & {
-    @env(ci-cuemod-shouldi)
-    changes: env.#Changes & {
-      prev: #prev
-      next: #next
-    }
-    include: root.dist.cuemod.include
-    then: env.#Task & {
-      @env(ci-cuemod-task)
-      steps: [
-        // fmt/lint
-        [_tester & {#cmd: "cue fmt ./..."}],
-
-        // test
-        [root.cmd.test.tasks.go, root.cmd.test.tasks.goveti]
-      ]
-    }
-  }
-
-  cuefmt: {
-    fmtd: env.#Container & {
-      @env(ci-cuemod-fmtd)
+  cuemod: {
+    // container with cuemod files
+    ctr: env.#Container & {
+      @id(ci-cuemod-with-src)
       from: root.ctr.dev
       steps: [
         env.Dir & {source: root.src.cuemod},
-        env.Sh & {script: "cue fmt ./..."},
       ]
     }
-  }
-
-  _tester: env.#Container & {
-    #cmd: string
-    from: env.#Container & {
-      @id(ci-tester-with-src)
-      from: root.ctr.dev
+    _runner: env.#Container & {
+      #script: string
+      from: ctr
       steps: [
-        
+        env.Sh & {script: #script},
       ]
     }
-    steps: [
-      env.Bash & {script: "\(#cmd)"},
-    ]
+
+    shouldi: env.#Shouldi & {
+      @env(ci-cuemod-shouldi)
+      changes: env.#Changes & {
+        prev: #prev
+        next: #next
+      }
+      include: root.src.cuemod.include
+      then: env.#Task & {
+        @env(ci-cuemod-task)
+        steps: [
+          // fmt/lint
+          [_runner & {#cmd: "cue fmt ./..."}],
+
+          // vet
+          [_runner & {#cmd: "cue vet -c=false ./..."}],
+        ]
+      }
+    }
+
+    cmd: env.#Command & {
+      name: "ci.cuemod"
+      tasks: {
+        name: "check"
+        steps: [[shouldi]]
+      }
+    }
+
   }
 
 }

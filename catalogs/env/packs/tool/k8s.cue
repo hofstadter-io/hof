@@ -71,7 +71,7 @@ k8s: crane: env.Sh & {
 k8s: kind: {
 	binary: env.File & {
 		path: "/usr/local/bin/kind"
-		packs: lang.go.install.moduleBinary & {
+		content: lang.go.install.moduleBinary & {
 			#params: {
 				module:  "sigs.k8s.io/kind"
 				version: "v0.31.0"

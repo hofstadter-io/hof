@@ -163,13 +163,14 @@ testnet: _testnet & {
 
 		spicedb: {
 			svc: env.#Service & {
-				name: "pds-spicedb"
+				@env(pds-spicedb-svc)
+				hostname: "pds-spicedb"
 				ports: [{port: 8080}, {port: 9090}, {port: 50051}]
 				args: ["serve", "--http-enabled"]
 				source: ctr
 			}
 			ctr: env.#Container & {
-				@env()
+				@env(pds-spicedb-ctr)
 				from: "authzed/spicedb:latest"
 				envs: {
 					SPICEDB_GRPC_PRESHARED_KEY: "testnet-spicedb"
