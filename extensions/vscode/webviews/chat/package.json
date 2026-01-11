@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build:prod": "tsc -b && vite build",
-    "build": "tsc -b && vite build --mode development",
+    "build": "tsc -b && vite build --mode development --emptyOutDir",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
@@ -20,7 +20,7 @@
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-tooltip": "^1.2.8",
-    "@tailwindcss/vite": "^4.1.17",
+    "@tailwindcss/vite": "^4.1.18",
     "@tiptap/extension-code-block": "^3.13.0",
     "@tiptap/extension-code-block-lowlight": "^3.13.0",
     "@tiptap/extension-document": "^3.13.0",
@@ -55,7 +55,7 @@
     "react-markdown": "^10.1.0",
     "react-resizable-panels": "^3.0.6",
     "tailwind-merge": "^3.4.0",
-    "tailwindcss": "^4.1.17",
+    "tailwindcss": "^4.1.18",
     "tippy.js": "^6.3.7",
     "use-stick-to-bottom": "^1.1.1",
     "veg-webview-common": "workspace:*"

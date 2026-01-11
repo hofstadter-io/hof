@@ -5,7 +5,7 @@ import {vscDarkPlus} from 'react-syntax-highlighter/dist/esm/styles/prism'
 
 import { DiffView, DiffModeEnum } from "@git-diff-view/react";
 import { generateDiffFile } from "@git-diff-view/file";
-import "@git-diff-view/react/styles/diff-view.css";
+import "@git-diff-view/react/styles/diff-view-pure.css";
 import { setEnableFastDiffTemplate } from '@git-diff-view/core';
 setEnableFastDiffTemplate(true);
 

@@ -23,7 +23,7 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
       formats: ['es', 'umd'],
-      name: "authr-react-tanstack",
+      name: "veg-webview-common",
       fileName: (format) => `index.${format}.js`,
     },
     rollupOptions: {

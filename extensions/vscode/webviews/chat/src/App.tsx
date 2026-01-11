@@ -1,8 +1,8 @@
 import { useRef, useEffect } from 'react'
-import '@/index.css' // We'll add some styles
+// import '@/index.css' // We'll add some styles
 
 import { vscodeApi } from '@/vscodeApi.js'
-import { StickToBottom, useStickToBottomContext } from 'use-stick-to-bottom';
+import { StickToBottom } from 'use-stick-to-bottom';
 
 import {
   ResizableHandle,

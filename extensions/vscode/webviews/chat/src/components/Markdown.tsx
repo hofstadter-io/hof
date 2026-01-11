@@ -1,10 +1,8 @@
 import { useState } from "react"
-// import { vscodeApi } from './vscodeApi.js'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter'
 import {vscDarkPlus} from 'react-syntax-highlighter/dist/esm/styles/prism'
-import { CopyToClipboard } from "react-copy-to-clipboard-ts";
 import { cn } from '@/lib/utils'
 
 import {
@@ -25,6 +23,7 @@ export const Markdown = ({children}:{children: any}) => {
 }
 
 export const TailwindClasses: string[] = [
+  "prose prose-sm prose-invert",
   "prose-sm font-thin",
 
   "prose-h1:my-[.5em]",

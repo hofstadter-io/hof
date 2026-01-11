@@ -85,12 +85,12 @@ export const UserMessage = ({pos, evt}:{pos: number, evt: any}) => {
   const defaultOpen = shouldOpenDetails(evt) ? "details" : undefined;
   return (
     <div className={cn(
-      "ml-40 my-2 py-[1px] pl-[2px] rounded",
-      "bg-linear-to-r from-sky-500/80 from-[20%] via-[#1e1e1e] via-[50%] to-[#1e1e1e]",
+      "ml-40 my-2 py-px pl-0.5 rounded",
+      "bg-linear-to-r from-sky-500/80 from-20% via-[#1e1e1e] via-50% to-[#1e1e1e]",
     )}>
       <div className={cn(
         "flex flex-col p-2 rounded",
-        "bg-linear-to-r from-slate-800/90 from-[20%] via-[#1e1e1e] via-[40%] to-[#1e1e1e]",
+        "bg-linear-to-r from-slate-800/90 from-20% via-[#1e1e1e] via-40% to-[#1e1e1e]",
       )}>
         <div className="flex flex-col">
           { evt?.Content?.parts && evt.Content.parts.map((p: any) => <MessagePart pos={pos} part={p} evt={evt}/>) }
@@ -140,8 +140,8 @@ export const ModelMessage = ({pos, evt}:{pos: number, evt: any}) => {
   const defaultOpen = shouldOpenDetails(evt) ? "details" : undefined;
   return (
     <div className={cn(
-      "py-[1px] pl-[2px] rounded",
-      "bg-linear-to-r from-lime-500/80 from-[5%] via-[#1e1e1e] via-[10%] to-[#1e1e1e]",
+      "py-px pl-0.5 rounded",
+      "bg-linear-to-r from-lime-500/80 from-5% via-[#1e1e1e] via-10% to-[#1e1e1e]",
     )}>
       <div className={cn(
         "flex flex-col p-2 rounded",
