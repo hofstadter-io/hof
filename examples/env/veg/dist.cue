@@ -23,7 +23,7 @@ dist: {
 			// root.src.changelog,
 			// bins.checksum,
 
-			for sbom in dist.sbom { sbom },
+			for sbom in dist.sbom {sbom},
 		]
 		wipe: true
 	}
@@ -39,7 +39,7 @@ dist: {
 		name: "github-files"
 		path: "dist/github"
 		sources: [
-			for key, val in hof.cli.matrix if key != "name" {val}
+			for key, val in hof.cli.matrix if key != "name" {val},
 
 		]
 		trimPrefix: "./bins"
@@ -52,7 +52,7 @@ dist: {
 		sources: [
 			extn.vscode.vsix,
 		]
-		wipe:       true
+		wipe: true
 	}
 
 	images: {
@@ -60,7 +60,7 @@ dist: {
 			@env()
 			#hof: id: string | *"dist-veg-\(k)"
 			#hof: metadata: name: #hof.id
-			reg: root.flags.registry
+			reg:  root.flags.registry
 			name: "veg-\(k)"
 		}
 		min: {image: root.ctr.min}
@@ -70,8 +70,8 @@ dist: {
 			image: env.#Container & {
 				from: root.ctr.dev
 				steps: [
-					env.Dir & { path: "/adk", source: src.adk.fork },
-					env.Dir & { path: "/dagger", source: src.dagger.fork },
+					env.Dir & {path: "/adk", source: src.adk.fork},
+					env.Dir & {path: "/dagger", source: src.dagger.fork},
 				]
 			}
 		}
@@ -82,7 +82,7 @@ dist: {
 				@env()
 				#hof: id: "dist-\(_f)"
 				#hof: metadata: name: #hof.id
-				image: F.img,
+				image: F.img
 			}
 		}
 	}
@@ -93,9 +93,9 @@ dist: {
 				@env()
 				#hof: id: "sbom-\(k)"
 				#hof: metadata: name: #hof.id
-				path: "\(k).cue"
+				path:   "\(k).cue"
 				format: "cue"
-				data: dist[k]
+				data:   dist[k]
 			}
 		}
 		for i, img in dist.images {
@@ -104,9 +104,9 @@ dist: {
 				_id: strings.TrimPrefix(img.#hof.id, "dist-")
 				#hof: id: "sbom-\(_id)"
 				#hof: metadata: name: #hof.id
-				path: "\(_id).cue"
+				path:   "\(_id).cue"
 				format: "cue"
-				data: img
+				data:   img
 			}
 		}
 	}

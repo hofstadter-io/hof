@@ -9,14 +9,16 @@ import (
 src: {
 	repo: env.#GitRepo & {
 		@env(src-hof-repo)
+
 		// name: string | *"repo"
-		url:  flags.repo
-		ref:  string | *flags.ref
+		url: flags.repo
+		ref: string | *flags.ref
 	}
 	disk: env.#HostDir & {
 		@env(src-hof-disk)
+
 		// name: string | *"disk"
-		path: flags.disk
+		path:      flags.disk
 		gitignore: true
 	}
 	adk: {
@@ -58,6 +60,15 @@ src: {
 		]
 	}
 
+	docs: env.#Dir & {
+		@env(src-docs)
+		sources: [src.code]
+		include: [
+			"docs/",
+		]
+		trimPrefix: "docs/"
+	}
+
 	extn: {
 		vscode: {}
 	}
@@ -74,11 +85,11 @@ host: {
 	}
 
 	kindapi: {
-		service: env.#HostService & { 
+		service: env.#HostService & {
 			@env(kindapi-host)
 			name: "kindapi-host"
 			host: "host.docker.internal"
-			ports: [{ port: 6443}]
+			ports: [{port: 6443}]
 		}
 	}
 }
@@ -95,7 +106,7 @@ secrets: {
 
 	google: env.#Secret & {
 		@env(shh-google)
-		name: "google-api-key"
+		name:   "google-api-key"
 		source: "GOOGLE_API_KEY"
 	}
 }

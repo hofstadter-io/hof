@@ -9,7 +9,7 @@ import (
 cue: {
 	#ver: string | *"0.15.3"
 
-	#goos: *"linux" | "darwin"
+	#goos:   *"linux" | "darwin"
 	#goarch: *"arm64" | "amd64"
 
 	caches: {
@@ -38,7 +38,7 @@ cue: {
 					mv cue /usr/local/bin/
 					rm -rf /tmp/*
 					"""
-			}
+			},
 		]
 	}
 
@@ -47,7 +47,7 @@ cue: {
 		// base container with cue binary
 		base: env.#Container & {
 			@env(pack-lang-cue-ctr-base)
-			from:  bases.debian13.minimal
+			from: bases.debian13.minimal
 			steps: [defaultSteps]
 		}
 

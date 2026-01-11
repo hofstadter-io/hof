@@ -1,7 +1,6 @@
 @experiment(aliasv2)
 package veg
 
-
 import (
 	"github.com/hofstadter-io/hof/catalogs/env/bases"
 	"github.com/hofstadter-io/hof/catalogs/env/packs"
@@ -63,12 +62,12 @@ ctr: {
 			_packs.tool.github.cli,
 			_packs.tool.agents.lsp2mcp,
 
-      // add a bunch of tools (from packs)
-      _packs.containers.docker.cli.install,
-      _packs.containers.dagger.cli.install,
-      _packs.containers.cosign.cli.install,
-      _packs.containers.buildah.cli.install,
-      _packs.containers.dive.cli.install,
+			// add a bunch of tools (from packs)
+			_packs.containers.docker.cli.install,
+			_packs.containers.dagger.cli.install,
+			_packs.containers.cosign.cli.install,
+			_packs.containers.buildah.cli.install,
+			_packs.containers.dive.cli.install,
 
 			// still to be moved to packs
 			_packs.tool.hashicorp.packer,
@@ -96,8 +95,8 @@ ctr: {
 			// _packs.tool.k8s.kind.config,
 			// going to switch to k3d / k3s
 
-      // add the socket for inception
-      env.UnixSocket & { path: "/var/run/docker.sock", source: host.docker.socket },
+			// add the socket for inception
+			env.UnixSocket & {path: "/var/run/docker.sock", source: host.docker.socket},
 
 			// // bind lsp servers, started on demand
 			// env.BindService & {service: lang.go.lsp},

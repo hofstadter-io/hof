@@ -55,8 +55,8 @@ k8s: crane: env.Sh & {
 	#name: string | *strings.Split(#repo, "/")[1]
 	_bins: strings.Join(#bins, " ")
 
-	_file:   "\(#name)_\(#distro)_\(#arch).tar.gz"
-	_src:    "https://github.com/\(#repo)/releases/download/v\(#ver)/\(_file)"
+	_file:  "\(#name)_\(#distro)_\(#arch).tar.gz"
+	_src:   "https://github.com/\(#repo)/releases/download/v\(#ver)/\(_file)"
 	script: """
     set -eou pipefail
 

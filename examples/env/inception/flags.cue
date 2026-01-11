@@ -5,11 +5,11 @@ flags: {
 	repo: string | *"https://github.com/hofstadter-io/hof" @tag(repo)
 
 	// todo, change this to "." when we move something to the index, if we ever really do?
-	disk:  string | *"."              @tag(disk,var=gitRoot)
+	disk:   string | *"."             @tag(disk,var=gitRoot)
 	src:    "repo" | *"disk" | string @tag(src,short=repo|disk)
-	ref:    string | *"_next"          @tag(ref)
-	adk:    string | *"../adk"         @tag(adk)
-	dagger: string | *"../dagger"      @tag(dagger)
+	ref:    string | *"_next"         @tag(ref)
+	adk:    string | *"../adk"        @tag(adk)
+	dagger: string | *"../dagger"     @tag(dagger)
 
 	goos: string @tag(goos,var=os)
 	arch: string @tag(arch,var=arch)
@@ -25,11 +25,11 @@ flags: {
 }
 
 gitFlags: {
-	ci: string @tag(ci,var=ci)
-	gitRoot: string @tag(gitRoot,var=gitRoot)
-	gitCommit: string @tag(gitCommit,var=gitCommit)
+	ci:          string @tag(ci,var=ci)
+	gitRoot:     string @tag(gitRoot,var=gitRoot)
+	gitCommit:   string @tag(gitCommit,var=gitCommit)
 	gitShortSha: string @tag(gitShortSha,var=gitShortSha)
-	gitBranch: string @tag(gitBranch,var=gitBranch)
-	gitTag: string @tag(gitTag,var=gitTag)
-	gitDirty: string @tag(gitDirty,var=gitDirty)
+	gitBranch:   string @tag(gitBranch,var=gitBranch)
+	gitTag:      string @tag(gitTag,var=gitTag)
+	gitDirty:    string @tag(gitDirty,var=gitDirty)
 }

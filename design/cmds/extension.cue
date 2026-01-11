@@ -16,10 +16,9 @@ ExtensionCommand: schema.Command & {
 		{Path: "github.com/hofstadter-io/hof/cmd/hof/flags"},
 	]
 
-	PersistentPrerun: true
+	PersistentPrerun:     true
 	PersistentPrerunBody: "err = libenvcmd.EnsureInfra()"
 
 	// this runs the commands or naked `veg env` command
 	Body: "err = extension.Run(args, flags.RootPflags)"
-
 }

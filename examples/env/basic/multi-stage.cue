@@ -58,10 +58,10 @@ multi: {
 	}
 
 	service: env.#Service & {
-    @env(multi-service)
-    ports:[{ port: 8080 }]
-    source: runner
-  }
+		@env(multi-service)
+		ports: [{port: 8080}]
+		source: runner
+	}
 
 	// caches we mount to the Go toolchain for across session caching
 	caches: {

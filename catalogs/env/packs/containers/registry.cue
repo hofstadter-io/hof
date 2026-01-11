@@ -29,5 +29,4 @@ registry: {
 
 	// https://github.com/distribution/distribution/blob/main/cmd/registry/config-example.yml
 	// config: _
-
 }

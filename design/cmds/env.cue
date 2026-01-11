@@ -5,51 +5,51 @@ import (
 )
 
 _envLong: """
-build, run, ship, and deploy environments (image, service, stack)
-
-'veg env' looks for custom commands and treats them equally to builtin commands.
-All commands have well known behaviors, depending on the $kind of a target.
-'veg env list' and 'hof env sync' work with all '$kind's.
-Most commands only work with a subset that makes sense or is explicit.
-See their help text to learn more.
-
-Note, hof -> veg in terms of name, I have started with this command, and also the agentic stuff
-The big move is coming soon...
-
-## Examples
-
-# [...targets], or "points", are selected via args and flags
-#   list allows you to explore that space without syncing or triggering evaluation
-veg env list|info ['^name$'] [-K '^kind$'] [-P '^path$'] [-S name|kind|path]
-
-# sync, evaluates the DAGs, but doesn't export or server anything, steps are run
-#   it can act as "real dry run" compared to the --dry-run flag for other commands
-#   without any args or flags, sync acts as a big test as well
-veg env sync [...targets] [...flags]
-
-# run, creates an interactive session and binds and dependent services
-#   this is closest to docker run or kubectl exec
-veg env run [...target] [...flags]
-
-# run, launches an services or stacks, similar to compose and helm
-veg env up [...target] [...flags]
-
-# export artifacts, local or remote, object storage and registries
-veg env export -P release -T v0.4.3 -t dest=./release
-
-# make your own commands and flags, designed for your workflows
-#   this is closest to Makefiles or package.json scripts
-#   define similar commands with the power of CUE and Dagger
-veg env [init, test, lint, ci, publish, deploy, ...]
-veg env ... -t env=stg -t stack=app -t branch=main
-
-## Important References
-
-./schemas/env    # the CUE schemas for what you can do in veg/env
-./catalogs/env   # reusable CUE for all sorts of things from small to big
-./examples/env   # simple and complex examples for you to play and fork
-
-"""
+	build, run, ship, and deploy environments (image, service, stack)
+	
+	'veg env' looks for custom commands and treats them equally to builtin commands.
+	All commands have well known behaviors, depending on the $kind of a target.
+	'veg env list' and 'hof env sync' work with all '$kind's.
+	Most commands only work with a subset that makes sense or is explicit.
+	See their help text to learn more.
+	
+	Note, hof -> veg in terms of name, I have started with this command, and also the agentic stuff
+	The big move is coming soon...
+	
+	## Examples
+	
+	# [...targets], or "points", are selected via args and flags
+	#   list allows you to explore that space without syncing or triggering evaluation
+	veg env list|info ['^name$'] [-K '^kind$'] [-P '^path$'] [-S name|kind|path]
+	
+	# sync, evaluates the DAGs, but doesn't export or server anything, steps are run
+	#   it can act as "real dry run" compared to the --dry-run flag for other commands
+	#   without any args or flags, sync acts as a big test as well
+	veg env sync [...targets] [...flags]
+	
+	# run, creates an interactive session and binds and dependent services
+	#   this is closest to docker run or kubectl exec
+	veg env run [...target] [...flags]
+	
+	# run, launches an services or stacks, similar to compose and helm
+	veg env up [...target] [...flags]
+	
+	# export artifacts, local or remote, object storage and registries
+	veg env export -P release -T v0.4.3 -t dest=./release
+	
+	# make your own commands and flags, designed for your workflows
+	#   this is closest to Makefiles or package.json scripts
+	#   define similar commands with the power of CUE and Dagger
+	veg env [init, test, lint, ci, publish, deploy, ...]
+	veg env ... -t env=stg -t stack=app -t branch=main
+	
+	## Important References
+	
+	./schemas/env    # the CUE schemas for what you can do in veg/env
+	./catalogs/env   # reusable CUE for all sorts of things from small to big
+	./examples/env   # simple and complex examples for you to play and fork
+	
+	"""
 
 EnvCommand: schema.Command & {
 	Name:  "env"
@@ -59,7 +59,7 @@ EnvCommand: schema.Command & {
 
 	Imports: [{As: "libenvcmd", Path: "github.com/hofstadter-io/hof/lib/env/cmd"}]
 
-	PersistentPrerun: true
+	PersistentPrerun:     true
 	PersistentPrerunBody: "err = libenvcmd.EnsureInfra()"
 
 	// this runs the commands or naked `veg env` command
@@ -69,8 +69,8 @@ EnvCommand: schema.Command & {
 		Name:  "sync"
 		Usage: "sync [...target] [% ...cue]"
 		Short: "sync target points in an environment"
-		Long: "sync target points in an environment, making sure they are ready to go, no matter the type"
-		Imports: [{As: "libenvcmd", Path: "github.com/hofstadter-io/hof/lib/env/cmd"},{Path: "github.com/hofstadter-io/hof/cmd/hof/flags"}]
+		Long:  "sync target points in an environment, making sure they are ready to go, no matter the type"
+		Imports: [{As: "libenvcmd", Path: "github.com/hofstadter-io/hof/lib/env/cmd"}, {Path: "github.com/hofstadter-io/hof/cmd/hof/flags"}]
 		Body: "err = libenvcmd.Sync(args, flags.RootPflags, flags.EnvPflags)"
 	}, {
 		Name:  "export"
@@ -97,7 +97,7 @@ EnvCommand: schema.Command & {
 		Usage: "list [...target] [% ...cue]"
 		Short: "list points in an environment"
 		Long:  "list points in an environment"
-		Imports: [{As: "libenvcmd", Path: "github.com/hofstadter-io/hof/lib/env/cmd"},{Path: "github.com/hofstadter-io/hof/cmd/hof/flags"}]
+		Imports: [{As: "libenvcmd", Path: "github.com/hofstadter-io/hof/lib/env/cmd"}, {Path: "github.com/hofstadter-io/hof/cmd/hof/flags"}]
 		Body: "err = libenvcmd.List(args, flags.RootPflags, flags.EnvPflags)"
 	}, {
 		Name:  "run"
@@ -118,8 +118,8 @@ EnvCommand: schema.Command & {
 		Name:  "up"
 		Usage: "up [...target] [% ...cue]"
 		Short: "starts target points in an environment"
-		Long: "starts target points in an environment, this is very similar to docker-compose or helm locally"
-		Imports: [{As: "libenvcmd", Path: "github.com/hofstadter-io/hof/lib/env/cmd"},{Path: "github.com/hofstadter-io/hof/cmd/hof/flags"}]
+		Long:  "starts target points in an environment, this is very similar to docker-compose or helm locally"
+		Imports: [{As: "libenvcmd", Path: "github.com/hofstadter-io/hof/lib/env/cmd"}, {Path: "github.com/hofstadter-io/hof/cmd/hof/flags"}]
 		Body: "err = libenvcmd.Up(args, flags.RootPflags, flags.EnvPflags)"
 	}]
 
@@ -163,7 +163,7 @@ EnvCommand: schema.Command & {
 		Long:    "sort"
 		Short:   "S"
 		Type:    "[]string"
-		Default: #"[]string{"name"}"# // todo, support special options like git-tag or git-commit
+		Default: #"[]string{"name"}"#                       // todo, support special options like git-tag or git-commit
 		Help:    "sort columns, can be used multiple times" // todo, support +/- prefix for asc/desc
 	}, {
 		Name:    "EnvVar"

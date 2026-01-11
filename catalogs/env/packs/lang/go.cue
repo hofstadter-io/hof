@@ -11,7 +11,7 @@ import (
 go: {
 	#ver: string | *"1.25.5"
 
-	#goos: *"linux" | "darwin"
+	#goos:   *"linux" | "darwin"
 	#goarch: *"arm64" | "amd64"
 
 	envSets: {
@@ -111,7 +111,7 @@ go: {
 	ctr: {
 		base: env.#Container & {
 			@env(pack-lang-go-ctr-base)
-			from:  bases.debian13.minimal
+			from: bases.debian13.minimal
 			steps: [
 				utils.apt.install & {#pkgs: [
 					"g++",
@@ -146,6 +146,7 @@ go: {
 	svc: {
 		lsp: env.#Service & {
 			@env(pack-lang-go-svc-lsp)
+
 			// There is also a built in MCP server!
 			#port: int | *0
 			name:  "gopls"

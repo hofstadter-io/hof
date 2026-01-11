@@ -1,8 +1,8 @@
 package hof
 
 import (
-  "path"
-  "strings"
+	"path"
+	"strings"
 )
 
 RepoRoot: {
@@ -14,54 +14,52 @@ RepoRoot: {
 
 GitDiff: {
 	@task(os.Exec)
-  ref: string | *""
+	ref: string | *""
 	cmd: ["bash", "-c", "git diff \(ref) --name-only"]
 	stdout: string
 	out:    strings.TrimSpace(stdout)
-  files: strings.Split(out, "\n")
+	files:  strings.Split(out, "\n")
 }
 
 ShouldI: {
-  globs: [...string]
-  files: [...string]
+	globs: [...string]
+	files: [...string]
 
-  match: [
-    for _, f in files
-    for _, g in globs
-    if path.Match(g, f, "unix") || strings.HasPrefix(f,g)
-    { "\(f) -> \(g)" }
-  ]
+	match: [
+		for _, f in files
+		for _, g in globs
+		if path.Match(g, f, "unix") || strings.HasPrefix(f, g) {"\(f) -> \(g)"},
+	]
 
-  yes: bool | *false
-  if len(match) > 0 {
-    yes: true
-  }
+	yes: bool | *false
+	if len(match) > 0 {
+		yes: true
+	}
 
 }
 
 shouldi_test: F={
-  @flow(shouldi.test)
+	@flow(shouldi.test)
 
-  globs: [...string] | *["*cue"]
-  _g: string @tag(globs)
-  if _g != _|_ {
-    globs: strings.Split(_g, ",")
-  }
+	globs: [...string] | *["*cue"]
+	_g: string @tag(globs)
+	if _g != _|_ {
+		globs: strings.Split(_g, ",")
+	}
 
+	diff: GitDiff
+	_shouldi: ShouldI & {files: diff.files}
 
-  diff: GitDiff
-  _shouldi: ShouldI & { files: diff.files }
+	print: {
+		@task(os.Stdout)
+		shouldi: _shouldi & {globs: F.globs}
 
-  print: {
-    @task(os.Stdout)
-    shouldi: _shouldi & { globs: F.globs }
-
-    if shouldi.yes {
-      text: "yes\n"
-    }
-    if !shouldi.yes {
-      text: "no\n"
-    }
-    @print()
-  }
+		if shouldi.yes {
+			text: "yes\n"
+		}
+		if !shouldi.yes {
+			text: "no\n"
+		}
+		@print()
+	}
 }

@@ -35,14 +35,14 @@ extn: {
 				// actual build steps
 				env.Sh & {script: "pnpm install"},
 				env.Sh & {script: "pnpm vscode:build:prod"},
-				env.Sh & {script: "pnpm vscode:package"}
+				env.Sh & {script: "pnpm vscode:package"},
 			]
 		}
 		vsix: env.#File & {
 			@env(vscode-vsix)
 			trimPrefix: "/work/extensions/vscode/extension/"
-			path: "\(trimPrefix)veg-\(#ver).vsix"
-			source: build
+			path:       "\(trimPrefix)veg-\(#ver).vsix"
+			source:     build
 		}
 	}
 }

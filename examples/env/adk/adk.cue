@@ -7,7 +7,7 @@ import (
 )
 
 flags: {
-	goos: string @tag(goos,var=os)
+	goos:   string @tag(goos,var=os)
 	goarch: string @tag(goarch,var=arch)
 }
 
