@@ -51,7 +51,7 @@ export const UnknownEvent = ({
           <div className="font-bold">unknown event</div>
           <div className="font-thin">{msg}</div>
         </div>
-        <div className="mt-0 mr-auto">
+        <div className="mt-[-1em] w-full">
           <Accordion type="single" collapsible defaultValue={defaultOpen}>
             <AccordionItem value="details">
               <AccordionTrigger className="h-3">
@@ -85,7 +85,7 @@ export const UserMessage = ({pos, evt}:{pos: number, evt: any}) => {
   const defaultOpen = shouldOpenDetails(evt) ? "details" : undefined;
   return (
     <div className={cn(
-      "ml-40 my-2 py-px pl-0.5 rounded",
+      "mx-20 my-2 py-px pl-0.5 rounded",
       "bg-linear-to-r from-sky-500/80 from-20% via-[#1e1e1e] via-50% to-[#1e1e1e]",
     )}>
       <div className={cn(
@@ -109,7 +109,7 @@ export const UserMessage = ({pos, evt}:{pos: number, evt: any}) => {
             })
           }
         </div>
-        <div className="mt-0 w-full">
+        <div className="mt-[-1em] w-full">
           <Accordion type="single" collapsible defaultValue={defaultOpen}>
             <AccordionItem value="details">
               <AccordionTrigger className="h-3">
@@ -150,7 +150,7 @@ export const ModelMessage = ({pos, evt}:{pos: number, evt: any}) => {
         <div className="flex flex-col gap-1">
           { evt.Content.parts.map((p: any) => <MessagePart pos={pos} part={p} evt={evt}/>)}
         </div>
-        <div className="mt-0 w-full">
+        <div className="mt-[-1em] w-full">
           <Accordion type="single" collapsible defaultValue={defaultOpen}>
             <AccordionItem value="details">
               <AccordionTrigger className="h-4">
