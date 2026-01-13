@@ -34,7 +34,7 @@ func SetupEnvPflags(fset *pflag.FlagSet, fpole *EnvPflagpole) {
 	fset.BoolVarP(&(fpole.NoExit), "no-exit", "N", false, "Leave the TUI open after finishing")
 	fset.BoolVarP(&(fpole.NoCache), "no-cache", "Z", false, "bust the cache and force evaluation")
 	fset.StringArrayVarP(&(fpole.Kind), "kind", "K", nil, "kinds to include, defaults to all")
-	fset.StringArrayVarP(&(fpole.Sort), "sort", "S", []string{"name"}, "sort columns, can be used multiple times")
+	fset.StringArrayVarP(&(fpole.Sort), "sort", "S", nil, "sort columns, can be used multiple times")
 	fset.StringArrayVarP(&(fpole.EnvVar), "env-var", "", nil, "key=value ENV vars to pass")
 	fset.StringArrayVarP(&(fpole.EnvFile), "env-file", "", nil, "path to a file with ENV vars to pass")
 	fset.StringArrayVarP(&(fpole.ShhVar), "shh-var", "", nil, "key=value secret ENV vars to pass")

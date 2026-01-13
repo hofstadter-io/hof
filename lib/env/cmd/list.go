@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"sort"
 	"strings"
 
 	"cuelang.org/go/cue"
@@ -33,33 +32,6 @@ func List(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) 
 
 		row := []string{name, kind, path, extra}
 		rows = append(rows, row)
-	}
-
-	// multi-column sort based on cflags.Sort ([]string)
-	if len(eflags.Sort) > 0 {
-		sort.Slice(rows, func(i, j int) bool {
-			for _, s := range eflags.Sort {
-				s = strings.ToLower(s)
-				idx := -1
-				switch s {
-				case "name":
-					idx = 0
-				case "kind":
-					idx = 1
-				case "path":
-					idx = 2
-				}
-
-				if idx == -1 {
-					continue
-				}
-
-				if rows[i][idx] != rows[j][idx] {
-					return rows[i][idx] < rows[j][idx]
-				}
-			}
-			return false
-		})
 	}
 
 	return yagu.PrintAsTable(

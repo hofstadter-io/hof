@@ -245,31 +245,52 @@ func (d *Dag) stepSecretFileHandler(c *dagger.Container, step cue.Value) (*dagge
 	err := step.Decode(&cfg)
 	d.mx.RUnlock()
 	if err != nil {
-		return nil, fmt.Errorf("while decoding stepEnvfile: %w", err)
+		return nil, fmt.Errorf("while decoding stepSecretFile: %w", err)
 	}
 	k := cfg.File.LookupPath(cue.ParsePath("$kind"))
 	if !k.Exists() {
-		return c, fmt.Errorf("missing $kind in stepEnvfile source: %v, got %v", step, k)
+		return c, fmt.Errorf("missing $kind in stepSecretFile source: %v, got %v", step, k)
 	}
 
+	var contents string
 	var file *dagger.File
 	ks, _ := k.String()
 	switch ks {
 	case "#file":
 		file, _, err = d.hashFile(cfg.File, false)
+		if err != nil {
+			break
+		}
+		contents, err = file.Contents(d.ctx)
+		if err != nil {
+			break
+		}
 
 	case "#hostFile":
 		file, _, err = d.HashHostFile(cfg.File, false)
+		if err != nil {
+			break
+		}
+		contents, err = file.Contents(d.ctx)
+		if err != nil {
+			break
+		}
+
+	case "#secret":
+		var s *dagger.Secret
+		s, err = d.hashSecret(cfg.File)
+		if err != nil {
+			break
+		}
+		contents, err = s.Plaintext(d.ctx)
+		if err != nil {
+			break
+		}
 
 	default:
-		return c, fmt.Errorf("unsupported $kind in envfile.file: %v", step)
+		return c, fmt.Errorf("unsupported $kind in stepSecretFile.file: %v", step)
 	}
 
-	if err != nil {
-		return nil, err
-	}
-
-	contents, err := file.Contents(d.ctx)
 	if err != nil {
 		return nil, err
 	}

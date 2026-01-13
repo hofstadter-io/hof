@@ -49,5 +49,5 @@ SecretVars: Step & {
 SecretFile: Step & {
 	$kind: "secretFile"
 
-	file: #File | #HostFile
+	file: #File | #HostFile | #Secret
 }

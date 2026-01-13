@@ -163,7 +163,7 @@ EnvCommand: schema.Command & {
 		Long:    "sort"
 		Short:   "S"
 		Type:    "[]string"
-		Default: #"[]string{"name"}"#                       // todo, support special options like git-tag or git-commit
+		Default: "nil"                       // todo, support special options like git-tag or git-commit
 		Help:    "sort columns, can be used multiple times" // todo, support +/- prefix for asc/desc
 	}, {
 		Name:    "EnvVar"
