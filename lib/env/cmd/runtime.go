@@ -151,7 +151,7 @@ func commonStart(args []string, rflags flags.RootPflagpole, eflags flags.EnvPfla
 				case "path":
 					lhsVal, rhsVal = lhs.Hof.Path, rhs.Hof.Path
 				default:
-					fmt.Println("unknown sort field %q", s)
+					fmt.Printf("WARN: unknown sort field %q ignored", s)
 					continue
 				}
 
