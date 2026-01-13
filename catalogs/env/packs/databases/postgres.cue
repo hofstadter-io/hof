@@ -5,12 +5,13 @@ import "github.com/hofstadter-io/hof/schemas/env"
 Postgres: {
 	#name: string
 	#port: int | *5432
+	#ver: string | *"18"
 
 	volume: env.#Cache & {name: string | *"\(#name)-pg-data"}
 
 	container: env.#Container & {
 		name: string | *"\(#name)-pg"
-		from: "postgres:16"
+		from: "postgres:\(#ver)"
 		envs: {
 			POSTGRES_DB:       #name
 			POSTGRES_PORT:     "\(#port)"
@@ -18,7 +19,7 @@ Postgres: {
 			POSTGRES_PASSWORD: #name
 		}
 		steps: [
-			env.Mount & {path: "/var/lib/postgresql/data", source: volume},
+			env.Mount & {path: "/var/lib/postgresql", source: volume},
 		]
 	}
 
