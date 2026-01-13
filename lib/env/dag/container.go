@@ -112,6 +112,13 @@ func (d *Dag) HashContainer(val cue.Value, noCache bool) (*dagger.Container, err
 			if err != nil {
 				return c, err
 			}
+		case "#rootfs":
+			var dir *dagger.Directory
+			dir, err = d.hashRootFS(cfg.From, noCache)
+			if err != nil {
+				return nil, err
+			}
+			c = c.WithRootfs(dir)
 		}
 
 	default:
@@ -275,6 +282,11 @@ func (d *Dag) HashDockerBuild(step cue.Value, noCache bool) (*dagger.Container, 
 		}
 	case "#hostDir":
 		dir, _, err = d.HashHostDir(cfg.Source, noCache)
+		if err != nil {
+			return nil, err
+		}
+	case "#rootfs":
+		dir, err = d.hashRootFS(cfg.Source, noCache)
 		if err != nil {
 			return nil, err
 		}

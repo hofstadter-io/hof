@@ -170,6 +170,9 @@ func (d *Dag) HashExportDir(step cue.Value, noCache bool) (*dagger.Directory, *e
 				err = rerr
 			}
 
+		case "#rootfs":
+			dir, err = d.hashRootFS(src, noCache)
+
 		case "#cuefigSBOM":
 			_file, _path, _err := d.HashCuefigSBOM(src, noCache)
 			file, path, err = _file, _path, _err

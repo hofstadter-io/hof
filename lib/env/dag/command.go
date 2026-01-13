@@ -185,6 +185,8 @@ func (d *Dag) RunTask(ctx context.Context, taskCfg *hashTaskConfig, opts RunTask
 				file, dest, err = d.File(step, opts.NoCache)
 			case "#dir":
 				dir, dest, err = d.Dir(step, opts.NoCache)
+			case "#rootfs":
+				dir, dest, err = d.Dir(step, opts.NoCache)
 
 			case "#container":
 				c, err = d.HashContainer(step, opts.NoCache)

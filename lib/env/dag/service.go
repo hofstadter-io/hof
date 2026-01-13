@@ -103,6 +103,12 @@ func (d *Dag) HashService(step cue.Value, noCache bool) (*dagger.Service, *hashS
 		if err != nil {
 			return nil, nil, err
 		}
+	case "#rootfs":
+		dir, err := d.hashRootFS(cfg.Source, noCache)
+		if err != nil {
+			return nil, nil, err
+		}
+		c = d.dag.Container().WithRootfs(dir)
 	default:
 		return nil, nil, fmt.Errorf("unupported service.source $kind")
 	}

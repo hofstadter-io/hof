@@ -115,6 +115,12 @@ func (d *Dag) hashFile(step cue.Value, noCache bool) (*dagger.File, string, erro
 	case "#hostFile":
 		f, _, err = d.HashHostFile(cfg.Source, noCache)
 
+	case "#rootfs":
+		dir, err = d.hashRootFS(cfg.Source, noCache)
+		if err == nil && dir != nil {
+			f = dir.File(cfg.Path)
+		}
+
 	case "#cuefigSBOM":
 		f, _, err = d.HashCuefigSBOM(cfg.Source, noCache)
 
@@ -275,6 +281,9 @@ func (d *Dag) hashDir(step cue.Value, noCache bool) (*dagger.Directory, string, 
 				err = rerr
 			}
 
+		case "#rootfs":
+			dir, err = d.hashRootFS(src, noCache)
+
 		case "#container":
 			_ctr, _err := d.HashContainer(src, noCache)
 			if _err == nil {
@@ -414,7 +423,12 @@ func (d *Dag) stepFileHandler(c *dagger.Container, step cue.Value) (*dagger.Cont
 			}
 		case "#hostDir":
 			dir, _, err = d.HashHostDir(cfg.Content, false)
-			f = dir.File(cfg.Path)
+			if err == nil && dir != nil {
+				f = dir.File(cfg.Path)
+			}
+
+		case "#rootfs":
+			dir, err = d.hashRootFS(cfg.Content, false)
 			if err == nil && dir != nil {
 				f = dir.File(cfg.Path)
 			}
@@ -523,6 +537,9 @@ func (d *Dag) stepDirHandler(c *dagger.Container, step cue.Value) (*dagger.Conta
 			dir = ctr.Directory("/")
 			// dir = ctr.Directory(cfg.Path)
 
+		case "#rootfs":
+			dir, err = d.hashRootFS(cfg.Source, false)
+
 		default:
 			return c, fmt.Errorf("unsupported $kind in stepDir source: %v", step)
 		}
@@ -564,4 +581,151 @@ func (d *Dag) stepDirHandler(c *dagger.Container, step cue.Value) (*dagger.Conta
 		Expand:    cfg.Expand,
 	})
 	return c, nil
+}
+
+type hashRootFSConfig struct {
+	Kind   string    `json:"$kind"`
+	Source cue.Value `json:"source"`
+}
+
+type hashRootFSIndex struct {
+	node *env.Env
+	val  cue.Value
+	cfg  *hashRootFSConfig
+	dir  *dagger.Directory
+}
+
+func (idx *hashRootFSIndex) Key() string {
+	if idx.cfg == nil {
+		return "#rootfs.nil"
+	}
+	mk := vegMemoKey(idx.node)
+	if mk != "" {
+		return fmt.Sprintf("#rootfs.%s", mk)
+	}
+	return fmt.Sprintf("#rootfs.%v", idx.val)
+}
+
+func (d *Dag) hashRootFS(val cue.Value, noCache bool) (*dagger.Directory, error) {
+	var err error
+	val, err = d.ResolveShouldi(val)
+	if err != nil {
+		return nil, err
+	}
+	if !val.Exists() {
+		return nil, fmt.Errorf("hashRootFS: resolved to empty value")
+	}
+
+	d.mx.RLock()
+	var cfg hashRootFSConfig
+	err = val.Decode(&cfg)
+	d.mx.RUnlock()
+	if err != nil {
+		return nil, fmt.Errorf("while decoding hashRootFS: %w", err)
+	}
+
+	// index for query and create if not found
+	idx := &hashRootFSIndex{
+		val: val,
+		cfg: &cfg,
+	}
+
+	// lookup
+	ia, ok := d.cat.Load(idx)
+	if ok {
+		ix := ia.(*hashRootFSIndex)
+		return ix.dir, nil
+	}
+
+	var ctr *dagger.Container
+	sk := cfg.Source.LookupPath(cue.ParsePath("$kind"))
+	if !sk.Exists() {
+		return nil, fmt.Errorf("missing $kind in #rootfs source: %v", val)
+	}
+	sks, _ := sk.String()
+	switch sks {
+	case "#container":
+		ctr, err = d.HashContainer(cfg.Source, noCache)
+	case "#hostImage":
+		ctr, err = d.HashHostImage(cfg.Source, noCache)
+	case "#dockerBuild":
+		ctr, err = d.HashDockerBuild(cfg.Source, noCache)
+	default:
+		return nil, fmt.Errorf("hashRootFS.source: unsupported $kind %q in %v", sks, val)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	idx.dir = ctr.Rootfs()
+	d.cat.Store(idx, idx)
+
+	return idx.dir, nil
+}
+
+type stepRootFSConfig struct {
+	Kind   string    `json:"$kind"`
+	Source cue.Value `json:"source"`
+}
+
+func (d *Dag) stepRootFSHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
+	d.mx.RLock()
+	var cfg stepRootFSConfig
+	err := step.Decode(&cfg)
+	d.mx.RUnlock()
+	if err != nil {
+		return nil, fmt.Errorf("while decoding stepRootFS: %w", err)
+	}
+
+	var dir *dagger.Directory
+	sk := cfg.Source.LookupPath(cue.ParsePath("$kind"))
+	if !sk.Exists() {
+		return nil, fmt.Errorf("missing $kind in RootFS source: %v", step)
+	}
+	sks, _ := sk.String()
+	switch sks {
+	case "#dir":
+		dir, _, err = d.hashDir(cfg.Source, false)
+	case "#hostDir":
+		dir, _, err = d.HashHostDir(cfg.Source, false)
+	case "#gitRepo":
+		repo, rcfg, _err := d.hashGitRepo(cfg.Source, false)
+		if _err == nil {
+			if rcfg != nil && rcfg.Ref != "" {
+				dir = repo.Ref(rcfg.Ref).Tree()
+			} else {
+				dir = repo.Head().Tree()
+			}
+		} else {
+			err = _err
+		}
+	case "#rootfs":
+		dir, err = d.hashRootFS(cfg.Source, false)
+	case "#container":
+		var ctr *dagger.Container
+		ctr, err = d.HashContainer(cfg.Source, false)
+		if err == nil {
+			dir = ctr.Rootfs()
+		}
+	case "#hostImage":
+		var ctr *dagger.Container
+		ctr, err = d.HashHostImage(cfg.Source, false)
+		if err == nil {
+			dir = ctr.Rootfs()
+		}
+	case "#dockerBuild":
+		var ctr *dagger.Container
+		ctr, err = d.HashDockerBuild(cfg.Source, false)
+		if err == nil {
+			dir = ctr.Rootfs()
+		}
+	default:
+		return nil, fmt.Errorf("RootFS.source: unsupported $kind %q in %v", sks, step)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return c.WithRootfs(dir), nil
 }

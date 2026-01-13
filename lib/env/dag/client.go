@@ -124,6 +124,7 @@ func (d *Dag) makeStepHandlers() stepHandlerMap {
 		"mount": d.stepMountHandler,
 		"file":  d.stepFileHandler,
 		"dir":   d.stepDirHandler,
+		"rootfs": d.stepRootFSHandler,
 
 		// git.cue/go
 
@@ -174,6 +175,12 @@ func (d *Dag) Container(val cue.Value, noCache bool) (*dagger.Container, error) 
 		return d.HashHostImage(val, noCache)
 	case "#dockerBuild":
 		return d.HashDockerBuild(val, noCache)
+	case "#rootfs":
+		dir, err := d.hashRootFS(val, noCache)
+		if err != nil {
+			return nil, err
+		}
+		return d.dag.Container().WithRootfs(dir), nil
 	default:
 		return nil, fmt.Errorf("unsupported build target(%s): %v", k.Kind, val)
 	}
@@ -280,6 +287,9 @@ func (d *Dag) Dir(val cue.Value, noCache bool) (*dagger.Directory, string, error
 			return nil, "", err
 		}
 		return dir, cfg.Path, nil
+	case "#rootfs":
+		dir, err := d.hashRootFS(val, noCache)
+		return dir, "", err
 	case "#gitRepo":
 		repo, rcfg, err := d.hashGitRepo(val, noCache)
 		if err != nil {

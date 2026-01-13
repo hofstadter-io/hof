@@ -90,3 +90,13 @@ DefaultLabels: {
 	secrets?: [...#Secret]
 	noInit?: bool
 }
+
+// we probably need to move this into the Go
+// so we can copy over a bunch of the meta/env/cmd/entry
+#Flatten: #Container & {
+	#orig: _
+	from: "scratch"
+	steps: [
+		Dir & { path: "/", source: #Dir & { path: "/", sources: [#orig]} }
+	]
+}

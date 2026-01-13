@@ -190,6 +190,15 @@ func (d *Dag) stepMountHandler(c *dagger.Container, step cue.Value) (*dagger.Con
 		} else {
 			err = rerr
 		}
+	case "#rootfs":
+		dir, err := d.hashRootFS(cfg.Source, false)
+		if err != nil {
+			return nil, err
+		}
+		c = c.WithMountedDirectory(cfg.Path, dir, dagger.ContainerWithMountedDirectoryOpts{
+			Owner:  cfg.Owner,
+			Expand: cfg.Expand,
+		})
 
 	default:
 		return c, fmt.Errorf("unsupported $kind in stepMount.source: %v", step)

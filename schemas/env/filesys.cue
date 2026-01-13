@@ -95,3 +95,27 @@ Dir: Step & {
 	patch?:     string | #Changes
 	patchFile?: #PatchFile
 }
+
+
+// use the RootFS of a container as a dir ref that can be used within CUE
+// is a: *dagger.Directory
+#RootFS: Ref & {
+	schemas.Hof
+	#hof: env: {
+		root: true // need to figure out what this really means, how it interacts with discovery & cli vs walking a CUE value to construct a giant dagger dag
+		kind: "rootfs"
+	}
+
+	$kind: "#rootfs"
+
+	// source: #ImageLike
+	source: _
+}
+
+// step that sets the RootFS of a container to the source dir
+RootFS: Step & {
+	$kind: "rootfs"
+
+	// source: #DirLike
+	source: _
+}
