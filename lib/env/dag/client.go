@@ -142,6 +142,21 @@ func (d *Dag) makeStepHandlers() stepHandlerMap {
 		// volume.cue/go
 
 		"temp": d.stepTempHandler,
+
+		"withoutDefaultArgs":    d.stepWithoutDefaultArgsHandler,
+		"withoutDirectory":      d.stepWithoutDirectoryHandler,
+		"withoutEntrypoint":     d.stepWithoutEntrypointHandler,
+		"withoutEnvVariable":    d.stepWithoutEnvVariableHandler,
+		"withoutExposedPort":    d.stepWithoutExposedPortHandler,
+		"withoutFile":           d.stepWithoutFileHandler,
+		"withoutFiles":          d.stepWithoutFilesHandler,
+		"withoutLabel":          d.stepWithoutLabelHandler,
+		"withoutMount":          d.stepWithoutMountHandler,
+		"withoutRegistryAuth":   d.stepWithoutRegistryAuthHandler,
+		"withoutSecretVariable": d.stepWithoutSecretVariableHandler,
+		"withoutUnixSocket":     d.stepWithoutUnixSocketHandler,
+		"withoutUser":           d.stepWithoutUserHandler,
+		"withoutWorkdir":        d.stepWithoutWorkdirHandler,
 	}
 }
 
