@@ -30,7 +30,7 @@ go: {
 			name: "go-build-\(#ver)-\(#goos)-\(#goarch)"
 		}
 		goMods: env.#Cache & {
-			name: "go-mods-\(#ver)-\(#goos)-\(#goarch)"
+			name: "go-mods"
 		}
 	}
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"sort"
 	"strings"
 
 	"cuelang.org/go/cue"
@@ -22,18 +23,27 @@ func (d *Dag) stepEnvVarsHandler(c *dagger.Container, step cue.Value) (*dagger.C
 		return nil, fmt.Errorf("while decoding stepEnv: %w", err)
 	}
 
-	for k, v := range envs {
+	keys := make([]string, 0, len(envs))
+	for k := range envs {
 		if k != "$kind" {
-			c = c.WithEnvVariable(k, v, dagger.ContainerWithEnvVariableOpts{
-				Expand: true,
-			})
+			keys = append(keys, k)
 		}
+	}
+	sort.Strings(keys)
+
+	for _, k := range keys {
+		v := envs[k]
+		c = c.WithEnvVariable(k, v, dagger.ContainerWithEnvVariableOpts{
+			Expand: true,
+		})
 	}
 	return c, nil
 }
 
 func (d *Dag) stepEnvAllHandler(c *dagger.Container, step cue.Value) (*dagger.Container, error) {
-	for _, env := range os.Environ() {
+	envs := os.Environ()
+	sort.Strings(envs)
+	for _, env := range envs {
 		parts := strings.SplitN(env, "=", 2)
 		if len(parts) == 2 {
 			c = c.WithEnvVariable(parts[0], parts[1])
@@ -227,14 +237,21 @@ func (d *Dag) stepSecretVarsHandler(c *dagger.Container, step cue.Value) (*dagge
 		return nil, fmt.Errorf("while decoding stepSecretVar: %w", err)
 	}
 
-	for k, v := range envs {
+	keys := make([]string, 0, len(envs))
+	for k := range envs {
 		if k != "$kind" {
-			s, err := d.hashSecret(v)
-			if err != nil {
-				return nil, fmt.Errorf("while decoding stepSecretVar.%s: %w", s, err)
-			}
-			c = c.WithSecretVariable(k, s)
+			keys = append(keys, k)
 		}
+	}
+	sort.Strings(keys)
+
+	for _, k := range keys {
+		v := envs[k]
+		s, err := d.hashSecret(v)
+		if err != nil {
+			return nil, fmt.Errorf("while decoding stepSecretVar.%s: %w", k, err)
+		}
+		c = c.WithSecretVariable(k, s)
 	}
 	return c, nil
 }

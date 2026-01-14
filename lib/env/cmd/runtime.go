@@ -150,6 +150,14 @@ func commonStart(args []string, rflags flags.RootPflagpole, eflags flags.EnvPfla
 					lhsVal, rhsVal = lhsKind, rhsKind
 				case "path":
 					lhsVal, rhsVal = lhs.Hof.Path, rhs.Hof.Path
+				case "z":
+					if lhs.Hof.Z != rhs.Hof.Z {
+						if desc {
+							return lhs.Hof.Z > rhs.Hof.Z
+						} else {
+							return lhs.Hof.Z < rhs.Hof.Z
+						}
+					}
 				default:
 					fmt.Printf("WARN: unknown sort field %q ignored", s)
 					continue

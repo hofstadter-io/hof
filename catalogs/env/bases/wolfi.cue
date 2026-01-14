@@ -25,3 +25,55 @@ wolfi: {
 		]
 	}
 }
+
+chaingaurd: {
+	// free
+	apko: {} // build images from apk w/o dockerfile
+	"aspnet-runtime": {}
+	bash: {}
+	busybox: {}
+	cosign: {}
+	crane: {}
+	curl: {}
+	dfc: {}
+	dive: {}
+	"docker-dind": {}
+	"dotnet-runtime": {}
+	"dotnet-sdk": {}
+	"gcc-glibc": {}
+	git: {}
+	"glibc-dynamic": {}
+	go: {}
+	gradle: {}
+	grype: {} // vuln scanning
+	haproxy: {}
+	helm: {}
+	hugo: {}
+	jdk: {}
+	jre: {}
+	k3s: {}
+	"k3s-static": {}
+	ko: {}
+	kubectl: {}
+	laravel: {}
+	malconent: {} // secops
+	mariadb: {}
+	maven: {}
+	mongodb: {}
+	nginx: {}
+	node: {}
+	openscap: {}
+	"opentelemetry-collector-contrib": {}
+	php: {}
+	postgres: {}
+	python: {}
+	pytorch: {}
+	redis: {}
+	ruby: {}
+	rust: {}
+	static: {}
+	valkey: {}
+	"wait-for-it": {}
+	"wolfi-base": {}
+	wordpress: {}
+}

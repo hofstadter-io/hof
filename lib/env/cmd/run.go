@@ -51,20 +51,21 @@ func Run(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole, c
 	if cflags.Command != "" {
 		cmd = strings.Fields(cflags.Command)
 	}
+
 	// default args / cmd?
-	if len(cmd) == 0 {
-		args, _ := i.DefaultArgs(R.Ctx)
-		if len(args) > 0 {
-			cmd = args
-		}
-	}
+	// if len(cmd) == 0 {
+	// 	args, _ := i.DefaultArgs(R.Ctx)
+	// 	if len(args) > 0 {
+	// 		cmd = args
+	// 	}
+	// }
 	// entrypoint?
-	if len(cmd) == 0 {
-		entry, _ := i.Entrypoint(R.Ctx)
-		if len(entry) > 0 {
-			cmd = entry
-		}
-	}
+	// if len(cmd) == 0 {
+	// 	entry, _ := i.Entrypoint(R.Ctx)
+	// 	if len(entry) > 0 {
+	// 		cmd = entry
+	// 	}
+	// }
 
 	i, err = i.Terminal(dagger.ContainerTerminalOpts{
 		Cmd:                           cmd,

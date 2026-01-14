@@ -2,6 +2,7 @@ package dag
 
 import (
 	"fmt"
+	"sort"
 	// "time"
 
 	"cuelang.org/go/cue"
@@ -131,9 +132,21 @@ func (d *Dag) HashContainer(val cue.Value, noCache bool) (*dagger.Container, err
 		c = c.WithEnvVariable("BUSTED_CACHE", "womp womp, why don't you go fix it then?")
 	}
 
-	// add env before the container goes (most common)
-	for k, v := range cfg.Envs {
-		c = c.WithEnvVariable(k, v)
+	// add env before the container goes (most common, determinstic order)
+	envs := cfg.Envs
+	keys := make([]string, 0, len(envs))
+	for k := range envs {
+		if k != "$kind" {
+			keys = append(keys, k)
+		}
+	}
+	sort.Strings(keys)
+
+	for _, k := range keys {
+		v := envs[k]
+		c = c.WithEnvVariable(k, v, dagger.ContainerWithEnvVariableOpts{
+			Expand: true,
+		})
 	}
 
 	// apply our steps

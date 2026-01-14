@@ -32,6 +32,7 @@ func exportable(e *env.Env) bool {
 }
 
 func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole, cflags flags.Env__ExportFlagpole) error {
+	veryStart := time.Now()
 	// some quick setup and early filtering
 	R, matches, err := commonStart(args, rflags, eflags, exportable)
 	if err != nil {
@@ -43,6 +44,10 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 	if incepted {
 		return err
 	}
+	defer func() {
+		fmt.Println("done! ", time.Since(veryStart).Round(time.Millisecond))
+	}()
+	fmt.Printf("init'n  ")
 
 	// setup dagger & cue->dagger engine
 	err = R.DaggerInit()
@@ -50,6 +55,8 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 
 	buildCtx, buildSpan := dagger.Tracer().Start(R.Ctx, "hof env export")
 	defer buildSpan.End()
+
+	fmt.Printf("  %v\n", time.Since(veryStart).Round(time.Millisecond))
 
 	fmt.Println("exporting:")
 	var g *errgroup.Group
@@ -65,8 +72,8 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 		g.SetLimit(eflags.Parallel)
 	}
 
-	for i, e := range matches {
-		i, e := i, e
+	for ii, ee := range matches {
+		i, e := ii, ee
 		g.Go(func() error {
 			name, kind, _ := extractMeta(e)
 			matchCtx, matchSpan := dagger.Tracer().Start(groupCtx, fmt.Sprintf("exporting[%d]: %s (%s)", i, name, kind))

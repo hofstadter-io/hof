@@ -19,6 +19,7 @@ func upgradeAttrs[T any](node *Node[T], label string) bool {
 	found := false
 	for _, A := range attrs {
 		an, ac := A.Name(), A.Contents()
+		ac = strings.TrimSpace(ac)
 		lfound := true
 		switch an {
 		case "hof":
@@ -131,6 +132,7 @@ func upgradeAttrs[T any](node *Node[T], label string) bool {
 					node.Hof.Env.Name = label
 				}
 			}
+
 			// @env(...) will also write @id() @name() if not set already
 			// trying this out, may use elsewhere, would be good to have a pattern
 			if ac != "" {
@@ -140,6 +142,10 @@ func upgradeAttrs[T any](node *Node[T], label string) bool {
 				if node.Hof.Metadata.Name == "" {
 					node.Hof.Metadata.Name = ac
 				}
+			}
+			// if not already, set metadata name based on env name
+			if node.Hof.Metadata.Name == "" {
+				node.Hof.Metadata.Name = node.Hof.Env.Name
 			}
 
 		case "agent":

@@ -37,4 +37,10 @@ Mount: Step & {
 	// cache, dir, file, secret, temp, host, service (?)
 	// source: #Cache | #File | #HostFile | #Dir | #HostDir
 	source: _
+	expand: bool | *true
+
+	// cache, file, dir, secret
+	owner?: string
+	// secret
+	mode?: int
 }

@@ -6,8 +6,9 @@ Postgres: {
 	#name: string
 	#port: int | *5432
 	#ver: string | *"18"
+	#temp: bool | *false
 
-	volume: env.#Cache & {name: string | *""}
+	volume: env.#Cache & {name: string | *"\(#name)-pg-data"}
 
 	container: env.#Container & {
 		name: string | *"\(#name)-pg"
@@ -19,8 +20,8 @@ Postgres: {
 			POSTGRES_PASSWORD: #name
 		}
 		steps: [
-			// env.Mount & {path: "/var/lib/postgresql", source: volume},
-			env.Temp & {path: "/var/lib/postgresql"},
+			if !#temp { env.Mount & {path: "/var/lib/postgresql", source: volume} },
+			if  #temp { env.Temp & {path: "/var/lib/postgresql"} },
 		]
 	}
 
@@ -31,7 +32,7 @@ Postgres: {
 	}
 
 	#out: {
-		// postgresVolume: volume & {@env()}
-		postgres: service & {@env()}
+		postgresVolume: volume
+		postgres: service
 	}
 }

@@ -22,15 +22,12 @@ func List(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) 
 	var rows = make([][]string, 0, len(R.Envs))
 	// fill with data
 	for _, e := range matches {
-		name, kind, mname := extractMeta(e)
-		if mname != "" {
-			name = mname
-		}
+		_, kind, mname := extractMeta(e)
 
 		path := e.Hof.Path
 		extra := genExtra(e)
 
-		row := []string{name, kind, path, extra}
+		row := []string{mname, kind, path, extra}
 		rows = append(rows, row)
 	}
 
