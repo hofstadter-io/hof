@@ -60,15 +60,6 @@ src: {
 		]
 	}
 
-	docs: env.#Dir & {
-		@env(src-docs)
-		sources: [src.code]
-		include: [
-			"docs/",
-		]
-		trimPrefix: "docs/"
-	}
-
 	extn: {
 		vscode: {}
 	}

@@ -9,8 +9,9 @@ import (
 )
 
 type hashCacheConfig struct {
-	Kind string `json:"$kind"`
-	Name string `json:"name"`
+	Kind   string    `json:"$kind"`
+	Name   string    `json:"name"`
+	Source cue.Value `json:"source"`
 }
 
 type hashCacheIndex struct {
@@ -18,6 +19,7 @@ type hashCacheIndex struct {
 	val  cue.Value
 	cfg  *hashCacheConfig
 	vol  *dagger.CacheVolume
+	dir  *dagger.Directory
 }
 
 func (idx *hashCacheIndex) Key() string {
@@ -31,13 +33,13 @@ func (idx *hashCacheIndex) Key() string {
 	return fmt.Sprintf("#cache.%s", idx.cfg.Name)
 }
 
-func (d *Dag) hashCache(step cue.Value) (*dagger.CacheVolume, error) {
+func (d *Dag) hashCache(step cue.Value) (*dagger.CacheVolume, *dagger.Directory, error) {
 	d.mx.RLock()
 	var cfg hashCacheConfig
 	err := step.Decode(&cfg)
 	d.mx.RUnlock()
 	if err != nil {
-		return nil, fmt.Errorf("while decoding hashCache: %w", err)
+		return nil, nil, fmt.Errorf("while decoding hashCache: %w", err)
 	}
 
 	// index for query and create if not found
@@ -50,15 +52,82 @@ func (d *Dag) hashCache(step cue.Value) (*dagger.CacheVolume, error) {
 	ia, ok := d.cat.Load(idx)
 	if ok {
 		ix := ia.(*hashCacheIndex)
-		return ix.vol, nil
+		return ix.vol, ix.dir, nil
 	}
 
 	// load for realz
 	idx.vol = d.dag.CacheVolume(cfg.Name)
+
+	k := cfg.Source.LookupPath(cue.ParsePath("$kind"))
+	if k.Exists() {
+		// fmt.Println("src:", cfg.Source)
+		var dir *dagger.Directory
+		ks, _ := k.String()
+		switch ks {
+		case "#dir":
+			dir, _, err = d.hashDir(cfg.Source, false)
+			if err != nil {
+				return nil, nil, err
+			}
+			// dir = dir.Directory(cfg.Path)
+
+		case "#hostDir":
+			dir, _, err = d.HashHostDir(cfg.Source, false)
+			if err != nil {
+				return nil, nil, err
+			}
+			// dir = dir.Directory(cfg.Path)
+
+		case "#gitRepo":
+			repo, rcfg, err := d.hashGitRepo(cfg.Source, false)
+			if err != nil {
+				return nil, nil, err
+			}
+			if rcfg != nil && rcfg.Ref != "" {
+				dir = repo.Ref(rcfg.Ref).Tree()
+			} else {
+				dir = repo.Head().Tree()
+			}
+
+		case "#container":
+			ctr, err := d.HashContainer(cfg.Source, false)
+			if err != nil {
+				return nil, nil, err
+			}
+			dir = ctr.Directory("/")
+			// dir = ctr.Directory(cfg.Path)
+
+		case "#hostImage":
+			ctr, err := d.HashHostImage(cfg.Source, false)
+			if err != nil {
+				return nil, nil, err
+			}
+			dir = ctr.Directory("/")
+			// dir = ctr.Directory(cfg.Path)
+
+		case "#dockerBuild":
+			ctr, err := d.HashDockerBuild(cfg.Source, false)
+			if err != nil {
+				return nil, nil, err
+			}
+			dir = ctr.Directory("/")
+			// dir = ctr.Directory(cfg.Path)
+
+		case "#rootfs":
+			dir, err = d.hashRootFS(cfg.Source, false)
+			if err != nil {
+				return nil, nil, err
+			}
+
+		}
+
+		idx.dir = dir
+	}
+
 	// memoize
 	d.cat.Store(idx, idx)
 
-	return idx.vol, nil
+	return idx.vol, idx.dir, nil
 }
 
 type stepTempConfig struct {
@@ -114,11 +183,12 @@ func (d *Dag) stepMountHandler(c *dagger.Container, step cue.Value) (*dagger.Con
 	ks, _ := k.String()
 	switch ks {
 	case "#cache":
-		cache, err := d.hashCache(cfg.Source)
+		cache, dir, err := d.hashCache(cfg.Source)
 		if err != nil {
 			return nil, err
 		}
 		c = c.WithMountedCache(cfg.Path, cache, dagger.ContainerWithMountedCacheOpts{
+			Source: dir,
 			Owner:  cfg.Owner,
 			Expand: cfg.Expand,
 		})

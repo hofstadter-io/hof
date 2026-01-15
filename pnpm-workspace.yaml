@@ -2,3 +2,4 @@ packages:
   - 'extensions/vscode/extension'
   - 'extensions/vscode/webviews/*'
   - 'examples/env/atproto/example'
+  - 'docs'

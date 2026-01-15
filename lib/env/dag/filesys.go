@@ -539,6 +539,9 @@ func (d *Dag) stepDirHandler(c *dagger.Container, step cue.Value) (*dagger.Conta
 
 		case "#rootfs":
 			dir, err = d.hashRootFS(cfg.Source, false)
+			if err != nil {
+				return nil, err
+			}
 
 		default:
 			return c, fmt.Errorf("unsupported $kind in stepDir source: %v", step)

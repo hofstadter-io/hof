@@ -13,6 +13,9 @@ import (
 
 	$kind: "#cache"
 	name:  string
+
+	// dir-like to prepopulate cache with
+	source?: _
 }
 
 // temp space config for ephemeral volumes not persisted between exec calls
