@@ -16,6 +16,10 @@ import (
 
 	// dir-like to prepopulate cache with
 	source?: _
+
+	// watch the source #HostDir for changes
+	// only works with #HostDir and Mount
+	watch?: bool
 }
 
 // temp space config for ephemeral volumes not persisted between exec calls

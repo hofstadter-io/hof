@@ -19,6 +19,8 @@ type Dag struct {
 	// as well as each entry holding the value, config, and go types for the entire life-cycle
 	cat *catalog
 	hdl stepHandlerMap
+
+	watched []*hashCacheIndex
 }
 
 func NewClient(ctx context.Context, client *dagger.Client) (d *Dag, err error) {
@@ -121,9 +123,9 @@ func (d *Dag) makeStepHandlers() stepHandlerMap {
 		// filesystem.cue/go
 		// #File
 		// #Dir
-		"mount": d.stepMountHandler,
-		"file":  d.stepFileHandler,
-		"dir":   d.stepDirHandler,
+		"mount":  d.stepMountHandler,
+		"file":   d.stepFileHandler,
+		"dir":    d.stepDirHandler,
 		"rootfs": d.stepRootFSHandler,
 
 		// git.cue/go

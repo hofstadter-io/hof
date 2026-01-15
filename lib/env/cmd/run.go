@@ -194,6 +194,10 @@ func Run(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole, c
 	if len(serviceMatches) > 0 {
 		return g.Wait()
 	}
+	err = d.StopWatchers()
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

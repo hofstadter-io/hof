@@ -20,12 +20,20 @@ docs: {
 			"docs/",
 		]
 	}
+	watched: env.#HostDir & {
+		path:      flags.disk
+		gitignore: true
+		include: ["docs"]
+		trimPrefix: "docs"
+	}
 
 	_mounts: [
 		env.Mount & {path: "/work/node_modules", source: env.#Cache & { name: "veg-docs-root-node-modules"}},
 		env.Mount & {path: "/work/docs", source: env.#Cache & {
 			name: "veg-docs-docs-work-dir"
-			source: env.#Dir & { sources: [src], include: ["docs"], trimPrefix: "docs"}
+			watch: true
+			source: watched
+			// source: env.#Dir & { sources: [src], include: ["docs"], trimPrefix: "docs"}
 		}},
 		env.Mount & {path: "/work/docs/node_modules", source: env.#Cache & { name: "veg-docs-docs-node-modules"}},
 	]
