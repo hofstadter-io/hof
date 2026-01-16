@@ -40,7 +40,7 @@ export const Events = ({
   // console.log("Events.merged", merged)
 
   return (
-    <div className="flex-grow flex flex-col mx-2 gap-1 overflow-y">
+    <div className="grow flex flex-col mx-2 gap-1 overflow-y">
       {merged?.map((e: any, pos: number) => {
         return (
           <div className={cn(pos === currPos && "bg-violet-500/30 rounded")}>

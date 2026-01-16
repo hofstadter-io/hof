@@ -193,6 +193,7 @@ function calculateUsage(session: any) {
     costInput: 0,
     costCache: 0,
     costThink: 0,
+    costWrite: 0,
     costOutput: 0,
     costTotal: 0,
     model: session?.state?.model,
@@ -200,6 +201,8 @@ function calculateUsage(session: any) {
 
   const model = session?.state?.model;
   const price = (model && (prices as any)[model]) ? (prices as any)[model] : null;
+
+  console.log("calc'n prices with:", price)
 
   session?.events?.forEach((e: any) => {
     if (e?.UsageMetadata) {
@@ -211,23 +214,23 @@ function calculateUsage(session: any) {
       usage.totalTokenCount += u.totalTokenCount || 0;
 
       if (price?.input) {
-        const isLong = (u.promptTokenCount || 0) > (price.input.cutoff || 128000);
+        const isLong = (u.promptTokenCount || 0) > (price.input.cutoff || 0);
         const pInput = isLong ? price.input.long : price.input.short;
         const pCache = isLong ? price.cache.long : price.cache.short;
         const pOutput = isLong ? price.output.long : price.output.short;
 
         const uncached = (u.promptTokenCount || 0) - (u.cachedContentTokenCount || 0);
-        const output = (u.thoughtsTokenCount || 0) + (u.candidatesTokenCount || 0);
+        // const output = (u.thoughtsTokenCount || 0) + (u.candidatesTokenCount || 0);
 
         usage.costInput += (uncached / 1000000) * pInput;
         usage.costCache += ((u.cachedContentTokenCount || 0) / 1000000) * pCache;
-        const costOut = (output / 1000000) * pOutput;
-        usage.costThink += (u.thoughtsTokenCount / 1000000) * pOutput;
-        usage.costWrite += (u.candidatesTokenCount / 1000000) * pOutput;
-        usage.costOutput += costOut;
-        usage.costTotal += usage.costInput + usage.costCache + costOut;
+        // const costOut = (output / 1000000) * pOutput;
+        usage.costThink += ((u.thoughtsTokenCount || 0) / 1000000) * pOutput;
+        usage.costWrite += ((u.candidatesTokenCount || 0) / 1000000) * pOutput;
       }
     }
+    usage.costOutput = usage.costThink + usage.costWrite;
+    usage.costTotal = usage.costInput + usage.costCache + usage.costOutput;
   });
 
   return usage;
