@@ -28,6 +28,7 @@ export const UserInput = () => {
   const s = vscodeApi.getState()
   // console.log("chat.state", s)
   const [userInput, setUserInput] = useState<any>({ 
+    sid: s?.userInput?.sid || "",
     agent: s?.userInput?.agent || "",
     model: s?.userInput?.model || "",
     environ: s?.userInput?.environ || "",
@@ -40,21 +41,23 @@ export const UserInput = () => {
                                userInput?.text  !== "" )
 
   useEffect(() => {
-    if (
-      userInput.agent !== session?.state?.agent ||
-      userInput.model !== session?.state?.model ||
-      userInput.environ !== session?.state?.envName
-    ) {
-      setUserInput((prev: any) => {
-        return {
-          ...prev,
-          agent: session?.state?.agent || userInput.agent,
-          model: session?.state?.model || userInput.model,
-          environ: session?.state?.envName || userInput.environ,
-        }
-      })
-    }
-  }, [session?.state])
+    // console.log("update state useEffect?", session, userInput)
+    // if (session?.sid && session?.agent && userInput.sid !== session.sid) {
+      const next = {
+        ...userInput,
+        sid: session.sid,
+        agent: session?.state?.agent || userInput.agent,
+        model: session?.state?.model || userInput.model,
+        environ: session?.state?.envName || userInput.environ,
+      };
+      // console.log("update state", session, userInput, next)
+      setUserInput(next);
+      
+      const s = vscodeApi.getState();
+      vscodeApi.setState({ ...s, userInput: next });
+      setChatState((c: any) => ({ ...c, userInput: next }));
+    // }
+  }, [session.sid, session.state]);
 
   const handleInputUpdate = ({ editor }:{ editor: any }) => {
     // console.log("handleInputUpdate", editor)
