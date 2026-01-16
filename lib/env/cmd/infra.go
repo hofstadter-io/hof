@@ -10,7 +10,7 @@ import (
 
 const (
 	RegistryImage = "registry:3"
-	DaggerImage   = "registry.dagger.io/engine:v0.19.9"
+	DaggerImage   = "registry.dagger.io/engine:v0.19.10"
 )
 
 const DaggerEngineConfig = `
@@ -22,8 +22,8 @@ const DaggerEngineConfig = `
   },
   "gc": {
     "enabled": true,
-    "reservedSpace": "20GB",
-    "maxUsedSpace": "50GB",
+    "reservedSpace": "50GB",
+    "maxUsedSpace": "100GB",
     "minFreeSpace": "5GB"
   }
 }
