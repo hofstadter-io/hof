@@ -30,6 +30,7 @@ export const TailwindClasses: string[] = [
   "prose-h2:my-[.5em]",
   "prose-h3:my-[.5em]",
 
+  "prose-pre:bg-[#1e1e1e] prose-pre:rounded prose-pre:border prose-pre:border-[#7e7e7e]",
   "prose-p:my-[.5em]",
   "prose-hr:my-[1em]",
 
@@ -43,8 +44,16 @@ const components = {
     const [show, setShow] = useState(true)
     const {children, className, node, ...rest} = props
     const match = /language-(\w+)/.exec(className || '') // || "\n" in children?
-    return match ? (
-      // code block?
+    const lang = match ? match[1] : "text"
+
+    const inline = typeof children === "string" && !String(children).includes("\n")
+
+    return inline ? (
+      <code {...rest} className={className}>
+        {children}
+      </code>
+    ) : (
+      // code block
       <div className={cn(
         "flex flex-col relative w-full bg-[#1e1e1e] [&>*]:bg-[#1e1e1e] veg-highlight [&>*]:veg-highlight",
         show ? "" : "max-h-64"
@@ -55,7 +64,7 @@ const components = {
           {...rest}
           PreTag="div"
           children={String(children).replace(/\n$/, '')}
-          language={match[1]}
+          language={lang}
           style={vscDarkPlus}
           // className="bg-stone-800"
           codeTagProps={{
@@ -76,11 +85,6 @@ const components = {
         </div>
 
       </div>
-    ) : (
-      // inline?
-      <code {...rest} className={className}>
-        {children}
-      </code>
     )
   }
 }

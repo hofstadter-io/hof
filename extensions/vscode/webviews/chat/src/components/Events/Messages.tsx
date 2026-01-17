@@ -40,12 +40,12 @@ export const UnknownEvent = ({
   const defaultOpen = shouldOpenDetails(evt) ? "details" : undefined;
   return (
     <div className={cn(
-      "ml-40 my-2 py-[1px] pl-[2px] rounded",
-      "bg-linear-to-r from-red-500/80 from-[20%] via-[#1e1e1e] via-[50%] to-[#1e1e1e]",
+      "ml-40 my-2 py-px pl-2px rounded",
+      "bg-linear-to-r from-red-500/80 from-20% via-[#1e1e1e] via-50% to-[#1e1e1e]",
     )}>
       <div className={cn(
         "flex flex-col p-2 rounded",
-        "bg-linear-to-r from-slate-800/50 from-[20%] via-[#1e1e1e] via-[40%] to-[#1e1e1e]",
+        "bg-linear-to-r from-slate-800/50 from-20% via-[#1e1e1e] via-40% to-[#1e1e1e]",
       )}>
         <div className="flex flex-col">
           <div className="font-bold">unknown event</div>
@@ -91,12 +91,12 @@ export const StopEvent = ({
   const defaultOpen = shouldOpenDetails(evt) ? "details" : undefined;
   return (
     <div className={cn(
-      "mx-20 my-2 py-[1px] pl-[2px] rounded",
-      "bg-linear-to-r from-red-500/80 from-[20%] via-[#1e1e1e] via-[50%] to-[#1e1e1e]",
+      "ml-10 mr-20 my-2 py-px pl-0.5 rounded",
+      "bg-linear-to-r from-red-500/80 from-20% via-[#1e1e1e] via-50% to-[#1e1e1e]",
     )}>
       <div className={cn(
         "flex flex-col p-2 rounded",
-        "bg-linear-to-r from-slate-800/50 from-[20%] via-[#1e1e1e] via-[40%] to-[#1e1e1e]",
+        "bg-linear-to-r from-slate-800/50 from-20% via-[#1e1e1e] via-40% to-[#1e1e1e]",
       )}>
         <div className="flex flex-col">
           <div className="font-thin text-lg pl-2">User Interrupt</div>
