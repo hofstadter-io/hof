@@ -191,7 +191,7 @@ export const ModelMessage = ({pos, evt}:{pos: number, evt: any}) => {
   const defaultOpen = shouldOpenDetails(evt) ? "details" : undefined;
   return (
     <div className={cn(
-      "py-px pl-0.5 rounded",
+      "mr-20 py-px pl-0.5 rounded",
       "bg-linear-to-r from-lime-500/80 from-5% via-[#1e1e1e] via-10% to-[#1e1e1e]",
     )}>
       <div className={cn(
