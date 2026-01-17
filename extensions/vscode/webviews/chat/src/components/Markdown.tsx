@@ -25,6 +25,7 @@ export const Markdown = ({children}:{children: any}) => {
 export const TailwindClasses: string[] = [
   "prose prose-sm prose-invert",
   "prose-sm font-thin",
+  "max-w-full",
 
   "prose-h1:my-[.5em]",
   "prose-h2:my-[.5em]",

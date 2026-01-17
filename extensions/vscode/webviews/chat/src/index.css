@@ -15,6 +15,10 @@ body {
   padding: 0;
 }
 
+.prose {
+  max-width: 100% !important;
+}
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
