@@ -183,15 +183,19 @@ export const UserInput = () => {
   return (
     <div 
       className={cn(
-      "h-full flex flex-col gap-2",
+      "h-full flex flex-col gap-2 py-2",
       // "bg-slate-800/80 border-gray-500",
       )}
     >
       <Header />
 
-      <div className="flex gap-1 items-center">
-        <ChatStatePills userInput={userInput} session={session} />
-        <SessionSparklines events={session?.events} session={session} chatState={chatState} />
+      <div className="flex flex-col lg:flex-row gap-2">
+        <div className="max-w-150">
+          <SessionSparklines events={session?.events} session={session} chatState={chatState} />
+        </div>
+        <div className="flex gap-1 items-center">
+          <ChatStatePills userInput={userInput} session={session} />
+        </div>
       </div>
 
       { userInput?.error && <span

@@ -126,8 +126,8 @@ export const SessionSparklines: React.FC<SessionSparklinesProps> = ({ events, se
   }
 
   return (
-    <div className="flex ml-auto gap-4 h-10">
-      <div className="w-96">
+    <div className="flex ml-auto gap-4 h-12">
+      <div className="w-full">
         <Sparkline
           lines={lines}
           verts={verts}

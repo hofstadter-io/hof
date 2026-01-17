@@ -29,7 +29,7 @@ export const Header = ({
 
   return (
 
-    <div ref={ref} className={cn("flex flex-col gap-2 py-2", className)}>
+    <div ref={ref} className={cn("flex flex-col gap-2", className)}>
 
       <div className="flex justify-between items-center gap-2">
         <span>{session?.state?.title || sid || "no session"}</span>
@@ -70,7 +70,7 @@ export const Header = ({
         </ToolTipper>
       </div>
 
-      <div className="flex justify-between items-center gap-2">
+      <div className="flex flex-col gap-2">
         <span className="font-thin italic text-xs">tasks & planning</span>
         <UsageInfo usage={usage} size={16}/>
       </div>
