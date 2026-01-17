@@ -76,7 +76,7 @@ func ensureRegistry() error {
 		if err != nil {
 			return err
 		}
-		registryData = filepath.Join(cacheDir, "veg", "registry")
+		registryData = filepath.Join(cacheDir, "veg", "data", "registry")
 	}
 
 	params := &container.Params{
@@ -147,7 +147,7 @@ func ensureDagger() error {
 		Restart:    "always",
 		Privileged: true,
 		Volume: []string{
-			"veg-dagger-engine:/var/lib/dagger",
+			"/var/lib/dagger",
 			fmt.Sprintf("%s:/etc/dagger/engine.json", enginePath),
 		},
 		AddHost: []string{"host.docker.internal:host-gateway"},

@@ -29,6 +29,13 @@ import (
 const CONFIG_PATH = `.veg`
 const DATA_PATH = `.veg/data`
 
+const VEG_SYS_DATA_DIR_VAR = "VEG_SYS_DATA_DIR"
+const VEG_USER_DATA_DIR_VAR = "VEG_USER_DATA_DIR"
+const VEG_SYS_DATA_DIR_DEFAULT = "/var/lib/veg/data"
+
+var VEG_SYS_DATA_DIR string
+var VEG_USER_DATA_DIR string
+
 type Runtime struct {
 	AppName string
 
@@ -96,6 +103,20 @@ func (r *Runtime) handleMessage(c *Client, m *Message) {
 }
 
 func (R *Runtime) init() (err error) {
+	VEG_SYS_DATA_DIR = os.Getenv(VEG_SYS_DATA_DIR_VAR)
+	if VEG_SYS_DATA_DIR == "" {
+		VEG_SYS_DATA_DIR = VEG_SYS_DATA_DIR_VAR
+	}
+
+	VEG_USER_DATA_DIR = os.Getenv(VEG_USER_DATA_DIR_VAR)
+	if VEG_USER_DATA_DIR == "" {
+		configDir, err := os.UserConfigDir()
+		if err != nil {
+			return err
+		}
+		VEG_USER_DATA_DIR = filepath.Join(configDir, "veg", "data")
+	}
+
 	err = R.ReadConfig()
 	if err != nil {
 		return fmt.Errorf("while reading config: %w", err)
@@ -178,8 +199,12 @@ func (R *Runtime) initModels() (err error) {
 }
 
 func (R *Runtime) initServices() error {
+
+	// VEG|RENAME: make this a multi-tier lookup and unify system
+	// generally for all the subsystems
+
 	// open comms to the db
-	dia := sqlite.Open(filepath.Join(DATA_PATH, "veg.db"))
+	dia := sqlite.Open(filepath.Join(VEG_USER_DATA_DIR, "veg.db"))
 	db, err := gorm.Open(dia, &gorm.Config{})
 	if err != nil {
 		return fmt.Errorf("error creating database session service: %w", err)

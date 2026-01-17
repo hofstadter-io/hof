@@ -19,95 +19,15 @@ import (
 )
 
 type ChatPayload struct {
-	Text  string `json:"text"`
-	Sid   string `json:"sid"`
-	Agent string `json:"agent"`
-	Model string `json:"model"`
+	Text    string `json:"text"`
+	Sid     string `json:"sid"`
+	Agent   string `json:"agent"`
+	Model   string `json:"model"`
+	Environ string `json:"environ"`
 }
 
 type ChatResponsePayload struct {
 	ResponseText string `json:"responseText"`
-}
-
-func sessionCancel(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
-	var p SidRequest
-	if err := json.Unmarshal(m.Payload, &p); err != nil {
-		log.Printf("Error unmarshaling 'session.cancel' payload: %v", err)
-		return
-	}
-
-	s, ok := r.GetSession(p.Sid)
-	if !ok && s == nil {
-		c.Mail("session.cancel.error", map[string]string{
-			"sid":   p.Sid,
-			"error": "unknown sid",
-		})
-		return
-	}
-
-	fmt.Println("cancelling:", p.Sid)
-
-	s.StopFunc()
-	c.Mail("session.cancel.resp", map[string]string{
-		"sid": p.Sid,
-	})
-
-	// lookup session
-	resp, err := r.S.Get(r.Ctx, &session.GetRequest{
-		AppName:   r.AppName,
-		UserID:    c.User,
-		SessionID: p.Sid,
-	})
-	if err != nil {
-		// log.Printf("session.get: %v", err)
-		c.Mail("session.cancel.error", map[string]string{
-			"sid":   p.Sid,
-			"error": err.Error(),
-		})
-		return
-	}
-	agent, err := resp.Session.State().Get("agent")
-	if err != nil {
-		// log.Printf("session.get: %v", err)
-		c.Mail("session.cancel.error", map[string]string{
-			"sid":   p.Sid,
-			"error": err.Error(),
-		})
-		return
-	}
-
-	cEvt := &session.Event{
-		LLMResponse: model.LLMResponse{
-			FinishReason: "OTHER",
-			TurnComplete: true,
-			Interrupted:  true,
-		},
-		Author:       agent.(string),
-		ID:           uuid.NewString(),
-		InvocationID: uuid.NewString(),
-		Timestamp:    time.Now().UTC(),
-		Actions: session.EventActions{
-			StateDelta: map[string]any{
-				"canceled": true,
-			},
-		},
-	}
-	fmt.Println("saving:", p.Sid, cEvt)
-	// "create" (put) the session (by using the same Sid)
-	err = r.S.AppendEvent(r.Ctx, resp.Session, cEvt)
-
-	if err != nil {
-		// log.Printf("session.get: %v", err)
-		c.Mail("session.cancel.error", map[string]string{
-			"sid":   p.Sid,
-			"error": err.Error(),
-		})
-		return
-	}
-
-	c.Mail("session.cancel.resp", map[string]string{
-		"sid": p.Sid,
-	})
 }
 
 func chatUserMessage(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
@@ -233,4 +153,85 @@ func chatUserMessage(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 		c.Mail("chat.event", event)
 	}
 
+}
+
+func sessionCancel(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
+	var p SidRequest
+	if err := json.Unmarshal(m.Payload, &p); err != nil {
+		log.Printf("Error unmarshaling 'session.cancel' payload: %v", err)
+		return
+	}
+
+	s, ok := r.GetSession(p.Sid)
+	if !ok && s == nil {
+		c.Mail("session.cancel.error", map[string]string{
+			"sid":   p.Sid,
+			"error": "unknown sid",
+		})
+		return
+	}
+
+	fmt.Println("cancelling:", p.Sid)
+
+	s.StopFunc()
+	c.Mail("session.cancel.resp", map[string]string{
+		"sid": p.Sid,
+	})
+
+	// lookup session
+	resp, err := r.S.Get(r.Ctx, &session.GetRequest{
+		AppName:   r.AppName,
+		UserID:    c.User,
+		SessionID: p.Sid,
+	})
+	if err != nil {
+		// log.Printf("session.get: %v", err)
+		c.Mail("session.cancel.error", map[string]string{
+			"sid":   p.Sid,
+			"error": err.Error(),
+		})
+		return
+	}
+	agent, err := resp.Session.State().Get("agent")
+	if err != nil {
+		// log.Printf("session.get: %v", err)
+		c.Mail("session.cancel.error", map[string]string{
+			"sid":   p.Sid,
+			"error": err.Error(),
+		})
+		return
+	}
+
+	cEvt := &session.Event{
+		LLMResponse: model.LLMResponse{
+			FinishReason: "OTHER",
+			TurnComplete: true,
+			Interrupted:  true,
+		},
+		Author:       agent.(string),
+		ID:           uuid.NewString(),
+		InvocationID: uuid.NewString(),
+		Timestamp:    time.Now().UTC(),
+		Actions: session.EventActions{
+			StateDelta: map[string]any{
+				"canceled": true,
+			},
+		},
+	}
+	fmt.Println("saving:", p.Sid, cEvt)
+	// "create" (put) the session (by using the same Sid)
+	err = r.S.AppendEvent(r.Ctx, resp.Session, cEvt)
+
+	if err != nil {
+		// log.Printf("session.get: %v", err)
+		c.Mail("session.cancel.error", map[string]string{
+			"sid":   p.Sid,
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.Mail("session.cancel.resp", map[string]string{
+		"sid": p.Sid,
+	})
 }
