@@ -5,11 +5,13 @@ import { UsageNumber } from './Info';
 
 type SessionSparklinesProps = {
   events: any[];
-  session: any;
-  chatState: any;
 }
 
-export const SessionSparklines: React.FC<SessionSparklinesProps> = ({ events, session, chatState }) => {
+export const SessionSparklines: React.FC<SessionSparklinesProps> = ({ events }) => {
+  if (!events || events.length < 2) {
+    return null;
+  }
+
   const { usages } = processEvents(events);
   
   const cached: number[] = [];
@@ -36,6 +38,10 @@ export const SessionSparklines: React.FC<SessionSparklinesProps> = ({ events, se
     output.push(o);
     totals.push(T);
   });
+
+  if (totals.length < 2) {
+    return null
+  }
 
   const verts: any[] = [];
   const ticks: any[] = [];
@@ -120,10 +126,6 @@ export const SessionSparklines: React.FC<SessionSparklinesProps> = ({ events, se
     { title: "output", values: output, className: "text-blue-400" },
     { title: "totals", values: totals, className: "text-fuchsia-400" },
   ];
-
-  if (!events || events.length === 0) {
-    return null;
-  }
 
   return (
     <div className="flex ml-auto gap-4 h-12">

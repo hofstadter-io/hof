@@ -12,9 +12,11 @@ import { useChat } from "@/hooks/useChat";
 export const Header = ({
   ref,
   className,
+  userInput,
 }:{
   ref?: Ref<HTMLDivElement>,
   className?: string,
+  userInput?: any
 }) => {
   const {
     sid,
@@ -27,28 +29,29 @@ export const Header = ({
 
   const [hidden, setHidden] = useState(true);
 
+  const realInput = userInput || chatState?.userInput
+
   return (
 
     <div ref={ref} className={cn("flex flex-col gap-2", className)}>
 
       <div className="flex justify-between items-center gap-2">
         <span>{session?.state?.title || sid || "no session"}</span>
-        <Menu hidden={hidden} setHidden={setHidden} refresh userInput={chatState?.userInput}/>
+        <Menu hidden={hidden} setHidden={setHidden} refresh userInput={realInput}/>
 
         <ToolTipper label="Create">
           <Plus size={16}
             aria-label="create"
             className="hover:text-green-500"
             onClick={() => {
-              const state = vscodeApi.getState()
-              console.log("Create!", state)
+              console.log("Create!", realInput)
               vscodeApi.postMessage({
                 type: 'session.create',
                 payload: { 
                   focus: true, 
-                  agent: chatState?.userInput?.agent,
-                  model: chatState?.userInput?.model,
-                  envName: chatState?.userInput?.environ,
+                  agent: realInput?.agent,
+                  model: realInput?.model,
+                  envName: realInput?.environ,
                 },
               });
             }}
@@ -59,8 +62,7 @@ export const Header = ({
             aria-label="delete"
             className="hover:text-red-500"
             onClick={() => {
-              const state = vscodeApi.getState()
-              console.log("Delete!", state)
+              console.log("Delete!", sid)
               vscodeApi.postMessage({
                 type: 'session.delete',
                 payload: { sid },
@@ -77,6 +79,7 @@ export const Header = ({
 
       { !hidden && <JsonObject data={{
         sid,
+        userInput,
         usage,
         session,
         chatState,

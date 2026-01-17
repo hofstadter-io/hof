@@ -79,6 +79,57 @@ export const UnknownEvent = ({
   )
 }
 
+export const StopEvent = ({
+  pos,
+  msg,
+  evt,
+}: {
+  pos: number,
+  msg?: string,
+  evt: any
+}) => {
+  const defaultOpen = shouldOpenDetails(evt) ? "details" : undefined;
+  return (
+    <div className={cn(
+      "mx-20 my-2 py-[1px] pl-[2px] rounded",
+      "bg-linear-to-r from-red-500/80 from-[20%] via-[#1e1e1e] via-[50%] to-[#1e1e1e]",
+    )}>
+      <div className={cn(
+        "flex flex-col p-2 rounded",
+        "bg-linear-to-r from-slate-800/50 from-[20%] via-[#1e1e1e] via-[40%] to-[#1e1e1e]",
+      )}>
+        <div className="flex flex-col">
+          <div className="font-thin text-lg pl-2">User Interrupt</div>
+        </div>
+        <div className="mt-[-1em] w-full">
+          <Accordion type="single" collapsible defaultValue={defaultOpen}>
+            <AccordionItem value="details">
+              <AccordionTrigger className="h-3">
+                <div className="flex gap-2 font-thin items-center ml-2">
+                  {/* TODO, this needs to com from the session */}
+                  {evt?.Actions?.StateDelta?.currEnv && (
+                    <span className="text-amber-500 font-mono text-xs">
+                      ({evt.Actions.StateDelta.currEnv.split(':').pop()})
+                    </span>
+                  )}
+                <span className="text-violet-500 font-mono text-xs">
+                  [{pos}]
+                </span>
+              </div>
+            </AccordionTrigger>
+              <AccordionContent>
+                <LightDetails evt={evt} />
+                <EventDetails pos={pos} evt={evt}/>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+
 
 export const UserMessage = ({pos, evt}:{pos: number, evt: any}) => {
   const hasStateDelta = evt?.Actions?.StateDelta && Object.keys(evt?.Actions?.StateDelta).length > 0

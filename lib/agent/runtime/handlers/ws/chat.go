@@ -1,14 +1,18 @@
 package ws
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/hofstadter-io/hof/lib/agent/agents"
 	"github.com/hofstadter-io/hof/lib/agent/runtime"
 	"github.com/hofstadter-io/hof/lib/agent/runtime/services/environ"
 	"google.golang.org/adk/agent"
+	"google.golang.org/adk/model"
 	"google.golang.org/adk/runner"
 	"google.golang.org/adk/session"
 	"google.golang.org/genai"
@@ -23,6 +27,87 @@ type ChatPayload struct {
 
 type ChatResponsePayload struct {
 	ResponseText string `json:"responseText"`
+}
+
+func sessionCancel(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
+	var p SidRequest
+	if err := json.Unmarshal(m.Payload, &p); err != nil {
+		log.Printf("Error unmarshaling 'session.cancel' payload: %v", err)
+		return
+	}
+
+	s, ok := r.GetSession(p.Sid)
+	if !ok && s == nil {
+		c.Mail("session.cancel.error", map[string]string{
+			"sid":   p.Sid,
+			"error": "unknown sid",
+		})
+		return
+	}
+
+	fmt.Println("cancelling:", p.Sid)
+
+	s.StopFunc()
+	c.Mail("session.cancel.resp", map[string]string{
+		"sid": p.Sid,
+	})
+
+	// lookup session
+	resp, err := r.S.Get(r.Ctx, &session.GetRequest{
+		AppName:   r.AppName,
+		UserID:    c.User,
+		SessionID: p.Sid,
+	})
+	if err != nil {
+		// log.Printf("session.get: %v", err)
+		c.Mail("session.cancel.error", map[string]string{
+			"sid":   p.Sid,
+			"error": err.Error(),
+		})
+		return
+	}
+	agent, err := resp.Session.State().Get("agent")
+	if err != nil {
+		// log.Printf("session.get: %v", err)
+		c.Mail("session.cancel.error", map[string]string{
+			"sid":   p.Sid,
+			"error": err.Error(),
+		})
+		return
+	}
+
+	cEvt := &session.Event{
+		LLMResponse: model.LLMResponse{
+			FinishReason: "OTHER",
+			TurnComplete: true,
+			Interrupted:  true,
+		},
+		Author:       agent.(string),
+		ID:           uuid.NewString(),
+		InvocationID: uuid.NewString(),
+		Timestamp:    time.Now().UTC(),
+		Actions: session.EventActions{
+			StateDelta: map[string]any{
+				"canceled": true,
+			},
+		},
+	}
+	fmt.Println("saving:", p.Sid, cEvt)
+	// "create" (put) the session (by using the same Sid)
+	err = r.S.AppendEvent(r.Ctx, resp.Session, cEvt)
+
+	if err != nil {
+		// log.Printf("session.get: %v", err)
+		c.Mail("session.cancel.error", map[string]string{
+			"sid":   p.Sid,
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.Mail("session.cancel.resp", map[string]string{
+		"sid": p.Sid,
+	})
 }
 
 func chatUserMessage(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
@@ -121,9 +206,17 @@ func chatUserMessage(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 		return
 	}
 
+	// setup subcontext and wait group
+	chatCtx, chatStop := context.WithCancel(r.Ctx)
+
+	r.SetSession(&runtime.Session{
+		Sid:      p.Sid,
+		StopFunc: chatStop,
+	})
+
 	// streamingMode := agent.StreamingModeSSE
 	streamingMode := agent.StreamingModeNone
-	for event, err := range R.Run(r.Ctx, c.User, p.Sid, userMsg, agent.RunConfig{
+	for event, err := range R.Run(chatCtx, c.User, p.Sid, userMsg, agent.RunConfig{
 		StreamingMode: streamingMode,
 	}) {
 		if err != nil {

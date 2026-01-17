@@ -83,6 +83,7 @@ const Sparkline: React.FC<SparklineProps> = (props) => {
   var min = props.dims?.min || 0;
   var max = props.dims?.max || 0;
   var dataLength = 0;
+  var badData = false
   props.series.forEach((d) => {
     // Don't render the chart for less than 2 points
     if (!d?.values || d.values.length < 2) {

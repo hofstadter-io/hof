@@ -6,6 +6,7 @@ import { useChat } from "@/hooks/useChat";
 
 import {
   UnknownEvent,
+  StopEvent,
   UserMessage,
   ModelMessage,
 } from './Messages'
@@ -80,6 +81,10 @@ export const Event = ({
   if (evt?.Author === "user") {
     return <UserMessage pos={pos} evt={evt}/>
   } else {
+
+    if (evt?.TurnComplete && evt?.Interrupted) {
+    return <StopEvent pos={pos} evt={evt}/>
+    }
 
     // weird stop message
     if (!evt?.Content && evt?.ErrorCode === "STOP" && evt?.FinishReason === "") {

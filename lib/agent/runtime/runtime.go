@@ -50,6 +50,9 @@ type Runtime struct {
 	clients    map[*Client]bool
 	register   chan *Client
 	unregister chan *Client
+
+	sessions   map[string]*Session
+	sessionsMx sync.RWMutex
 }
 
 type Handler func(*Runtime, *Client, *Message)
@@ -65,6 +68,7 @@ func NewRuntime() (*Runtime, error) {
 		clients:    make(map[*Client]bool),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
+		sessions:   make(map[string]*Session),
 	}
 
 	// init components

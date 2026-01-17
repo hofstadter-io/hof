@@ -141,7 +141,30 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     }
 
     return removeListener;
-  }, [state.sid, state.pos, state.chatState.userInput, updateState]);
+  }, [state.sid, state.pos, updateState]);
+
+
+  useEffect(() => {
+    const removeListener = vscodeApi.onMessage((event) => {
+      const { type, payload } = event.data as ServerMessage;
+
+      switch (type) {
+        case 'requestSync':
+        case 'chat.userInput':
+          vscodeApi.postMessage({ type: 'chat.userInput.resp', payload: state.chatState.userInput });
+          break;
+      }
+    });
+
+    // vscodeApi.postMessage({ type: 'requestSync' });
+    // if (state.sid) {
+    //   vscodeApi.postMessage({ type: 'session.get', payload: { sid: state.sid } });
+    //   vscodeApi.postMessage({ type: 'session.diff', payload: { sid: state.sid } });
+    // }
+
+    return removeListener;
+  }, [state.sid, state.chatState.userInput]);
+
 
   const handleSend = useCallback((userInput: any) => {
     if (!userInput.text.trim() || !userInput.model || !userInput.agent) return;
@@ -151,17 +174,17 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       payload: { sid: state.sid, ...userInput },
     });
 
-    updateState(prev => ({
-      session: {
-        ...prev.session,
-        events: [...(prev.session?.events || []), {
-          Author: "user",
-          Content: { role: "user", parts: [{ text: userInput.text }] },
-          Timestamp: new Date().toISOString(),
-        }],
-      }
-    }));
-  }, [state.sid, updateState]);
+    // updateState(prev => ({
+    //   session: {
+    //     ...prev.session,
+    //     events: [...(prev.session?.events || []), {
+    //       Author: "user",
+    //       Content: { role: "user", parts: [{ text: userInput.text }] },
+    //       Timestamp: new Date().toISOString(),
+    //     }],
+    //   }
+    // }));
+  }, [state.sid]);
 
   const value = {
     ...state,

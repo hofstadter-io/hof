@@ -3,6 +3,7 @@ package runtime
 import (
 	"encoding/json"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -64,6 +65,8 @@ func (r *Runtime) readPump(c *Client) {
 	c.conn.SetReadDeadline(time.Now().Add(60 * time.Second))
 	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(60 * time.Second)); return nil })
 
+	var wg sync.WaitGroup
+
 	for {
 		// Read a message from the WebSocket
 		_, jsonMessage, err := c.conn.ReadMessage()
@@ -83,8 +86,14 @@ func (r *Runtime) readPump(c *Client) {
 
 		// handleMessage is the main router for deserialized messages.
 		// log.Printf("Received message type: %s", msg.Type)
-		c.handleMessage(c, &msg)
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			c.handleMessage(c, &msg)
+		}()
 	}
+
+	wg.Wait()
 }
 
 // writePump pumps messages from the hub to the WebSocket connection.

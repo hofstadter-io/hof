@@ -28,6 +28,7 @@ func SetupHandlers(r *runtime.Runtime) {
 	// chat
 	r.Handlers["chat"] = chatUserMessage
 	r.Handlers["chat.userMessage"] = chatUserMessage
+	r.Handlers["session.cancel"] = sessionCancel
 
 	// sessions
 	r.Handlers["session.get"] = sessionGet

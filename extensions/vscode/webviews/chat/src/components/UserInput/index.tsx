@@ -1,27 +1,23 @@
 import { useEffect, useRef, useState } from 'react'
+import { BotMessageSquare } from 'lucide-react'
 
 import { vscodeApi } from '@/vscodeApi.js'
 
-import { Badge } from "@/components/ui/badge"
-import { cn, processEvents } from "@/lib/utils"
+import { useChat } from '@/hooks/useChat'
+import { cn } from "@/lib/utils"
 
 import { Header } from "../Header"
-import { ChatEditor } from './editor'
-import { BotMessageSquare } from 'lucide-react'
-import { useChat } from '@/hooks/useChat'
-import { SessionSparklines } from '../SessionSparklines';
 import { ChatStatePills } from '../ChatStatePills';
+import { SessionSparklines } from '../SessionSparklines';
 import { handleChatboxCommand } from './chatboxCommandHandlers';
+import { ChatEditor } from './editor'
 
 export const UserInput = () => {
   const {
     sid,
-    setPos,
-    usage,
     session,
     chatState,
     setChatState,
-    diff,
     handleSend,
   } = useChat();
 
@@ -34,30 +30,47 @@ export const UserInput = () => {
     environ: s?.userInput?.environ || "",
     text:  s?.userInput?.text || "",
   })
-
+  const [working, setWorking] = useState<boolean>(false)
   const editorRef = useRef<any>(null);
-  const inputReady: boolean = (userInput?.agent !== "" && 
-                               userInput?.model !== "" &&
-                               userInput?.text  !== "" )
 
   useEffect(() => {
-    // console.log("update state useEffect?", session, userInput)
-    // if (session?.sid && session?.agent && userInput.sid !== session.sid) {
-      const next = {
-        ...userInput,
-        sid: session.sid,
-        agent: session?.state?.agent || userInput.agent,
-        model: session?.state?.model || userInput.model,
-        environ: session?.state?.envName || userInput.environ,
-      };
-      // console.log("update state", session, userInput, next)
-      setUserInput(next);
-      
-      const s = vscodeApi.getState();
-      vscodeApi.setState({ ...s, userInput: next });
-      setChatState((c: any) => ({ ...c, userInput: next }));
-    // }
-  }, [session.sid, session.state]);
+    const extra = session?.state ? {
+      agent: session.state?.agent,
+      model: session.state?.model,
+      environ: session.state?.envName,
+    } : {
+      agent: userInput.agent,
+      model: userInput.model,
+      environ: userInput.environ,
+    }
+
+    // construct next state
+    const next = {
+      ...userInput,
+      sid: session.sid,
+      ...extra,
+    };
+
+    // has the machine finished?
+
+    // update state in react
+    setUserInput(next);    
+    setChatState((c: any) => ({ ...c, userInput: next }));
+    // persist state to vscode
+    const s = vscodeApi.getState();
+    vscodeApi.setState({ ...s, userInput: next });
+
+  }, [session?.sid, session?.state?.model, session?.state?.agent, session?.state?.environ]);
+
+  useEffect(() =>{
+    if (session.events && session.events.length > 1) {
+      const last = session.events[session.events.length-1] as any
+      console.log("considering last message...", last, last["TurnComplete"])
+      if (last["TurnComplete"] === true) {
+        setWorking(false)
+      }
+    }
+  }, [session?.events])
 
   const handleInputUpdate = ({ editor }:{ editor: any }) => {
     // console.log("handleInputUpdate", editor)
@@ -172,12 +185,21 @@ export const UserInput = () => {
     // a user could want to delegate different parts of the task to different agents in their message
 
     handleSend(userInput);
+    setWorking(true);
     setUserInput({
       ...userInput,
       text: "",
     })
     console.log("doSend.clear", editorRef.current)
     editorRef?.current?.commands.clearContent()
+  }
+
+  const doStop = () => {
+    console.log("cancel!", sid)
+    vscodeApi.postMessage({
+      type: 'session.cancel',
+      payload: { sid },
+    });
   }
 
   return (
@@ -187,11 +209,11 @@ export const UserInput = () => {
       // "bg-slate-800/80 border-gray-500",
       )}
     >
-      <Header />
+      <Header userInput={userInput}/>
 
       <div className="flex flex-col lg:flex-row gap-2">
         <div className="max-w-150">
-          <SessionSparklines events={session?.events} session={session} chatState={chatState} />
+          <SessionSparklines events={session?.events} />
         </div>
         <div className="flex gap-1 items-center">
           <ChatStatePills userInput={userInput} session={session} />
@@ -218,8 +240,12 @@ export const UserInput = () => {
         <BotMessageSquare
           size={32}
           strokeWidth={1.5}
-          className="z-50 absolute rounded-4xl right-2 top-2 p-2 text-white/50 bg-sky-500/50 hover:text-white hover:bg-sky-500"
-          onClick={() => doSend()}
+          className={cn(
+            "z-50 absolute rounded-4xl right-2 top-2 p-2",
+            "text-white/50 hover:text-white",
+            working ? "bg-red-500/50 hover:bg-red-500" : "bg-sky-500/50 hover:bg-sky-500",
+          )}
+          onClick={() => working ? doStop() : doSend()}
         />
 
         <ChatEditor
