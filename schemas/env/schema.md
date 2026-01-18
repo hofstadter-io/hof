@@ -3,11 +3,6 @@
 ```cue
 package env
 
-// NOTE(2self): this probably needs a bookkeeping struct for { ...kind[<key>] }
-// so we can track and reuse by kind and id, based on some "key" field, depending on the type
-
-// hmmm, what might this be for...?
-
 import "github.com/hofstadter-io/hof/schemas"
 
 _cmdCommon: {
@@ -117,9 +112,80 @@ DefaultLabels: {
 	"org.opencontainers.image.version": string | *"latest"
 	"org.opencontainers.image.commit":  string | *"dirty"
 }
-EnvVar: Step & {
+#DockerBuild: {
+	schemas.Hof
+	#hof: {
+		env: {
+			root: true
+			kind: "dockerBuild"
+		}
+	}
+	$kind:       "#dockerBuild"
+	name?:       string
+	source:      #Dir | #HostDir
+	dockerfile?: string
+	platform?:   string
+	buildArgs: {
+		[string]: string
+	}
+	target?: string
+	secrets?: [...#Secret]
+	noInit?: bool
+}
+
+// #Changes calcs the changeset between two directories
+// is a: *dagger.Changeset
+#Changes: Ref & {
+	schemas.Hof
+	#hof: {
+		env: {
+			root: true
+			kind: "changes"
+		}
+	}
+	$kind: "#changes"
+
+	// #DirLike | #ImageLike
+	prev: _
+	next: _
+}
+
+// Applies a changeset to a container
+Changes: Step & {
+	$kind:  "changes"
+	change: #Changes
+}
+
+// create a #File from #Changes or git-like patch
+#PatchFile: Ref & {
+	schemas.Hof
+	#hof: {
+		env: {
+			root: true
+			kind: "patchFile"
+		}
+	}
+	$kind:  "#patchFile"
+	name?:  string
+	source: string | #Changes
+}
+
+// patch a #Container with a git-like patch or #Changes
+Patch: Step & {
+	$kind:     "patch"
+	source:    string | #Changes
+	basepath?: string
+}
+
+// patch a #Container with a #PatchFile
+PatchFile: Step & {
+	$kind:     "patchFile"
+	source:    #PatchFile
+	basepath?: string
+}
+EnvVars: Step & {
 	{
-		$kind:    "envVar"
+		$kind:    "envVars"
 		[string]: string
 	}
 }
@@ -150,14 +216,24 @@ EnvAll: Step & {
 	// source: string | #FileLike
 	source: _
 }
-SecretVar: Step & {
-	$kind: "secretVar"
+SecretVars: Step & {
+	{
+		$kind: "secretVars"
 
-	// the secret VAR_NAME
-	name: string
-
-	// the secret value
-	secret: #Secret
+		// the secret value
+		[!~"\\$kind"]: #Secret
+	}
+}
+#Error: {
+	schemas.Hof
+	#hof: {
+		env: {
+			root: true
+			kind: "error"
+		}
+	}
+	$kind:    "#error"
+	message?: string
 }
 Exec: Step & {
 	$kind: "exec"
@@ -174,11 +250,11 @@ Exec: Step & {
 	noInit?:                        bool
 }
 Script: Exec & {
-	script: string
+	script!: string
 	args: ["sh", "-c", script]
 }
 Sh: Exec & {
-	script: string
+	script!: string
 	_script: """
 		set -euo pipefail
 
@@ -186,7 +262,7 @@ Sh: Exec & {
 	args: ["sh", "-c", _script + script]
 }
 Bash: Exec & {
-	script: string
+	script!: string
 	_script: """
 		set -euo pipefail
 
@@ -194,7 +270,7 @@ Bash: Exec & {
 	args: ["bash", "-c", _script + script]
 }
 Zsh: Exec & {
-	script: string
+	script!: string
 	_script: """
 		set -euo pipefail
 
@@ -238,7 +314,7 @@ DefaultTerm: Step & {
 		}
 	}
 	$kind: "#exportDir"
-	name:  string
+	name?: string
 
 	// where to place
 	path: string
@@ -253,7 +329,7 @@ DefaultTerm: Step & {
 	gitignore: bool | *true
 
 	// (2) path to select from the bundled dir
-	bundlePath?: string
+	trimPrefix?: string
 
 	// (3) git-compatible patch to apply after bundling and selecting
 	patch?:     string
@@ -271,7 +347,7 @@ DefaultTerm: Step & {
 		}
 	}
 	$kind: "#exportFile"
-	name:  string
+	name?: string
 	path:  string
 	file:  #File
 
@@ -287,7 +363,7 @@ DefaultTerm: Step & {
 		}
 	}
 	$kind: "#exportImageFile"
-	name:  string
+	name?: string
 	path:  string
 	tags: [...string]
 	image: #Container
@@ -301,43 +377,14 @@ DefaultTerm: Step & {
 		}
 	}
 	$kind: "#exportImage"
-	name:  string
+	name?: string
 	reg?:  string
 	tags: [...string]
 	image: #Container
 }
-#PublishImage: Ref & {
-	schemas.Hof
-	#hof: {
-		env: {
-			root: true
-			kind: "publishImage"
-		}
-	}
-	$kind: "#publishImage"
-	name:  string
-	reg:   string
-	tags: [...string]
-	image: #Container
-}
 
-// export the CUE representation
-#ExportCuefig: Ref & {
-	schemas.Hof
-	#hof: {
-		env: {
-			root: true
-			kind: "exportCuefig"
-		}
-	}
-	$kind:   "#exportCuefig"
-	name:    string
-	path:    string
-	format?: string
-	data:    _
-}
-
-// like dagger.File
+// a file ref that can be used within CUE
+// is a: *dagger.File
 #File: Ref & {
 	schemas.Hof
 	#hof: {
@@ -346,16 +393,32 @@ DefaultTerm: Step & {
 			kind: "file"
 		}
 	}
-	$kind: "#file"
-	name:  string | *path
-	path!: string
+	$kind:      "#file"
+	name:       string | *path
+	path!:      string
+	trimPrefix: string | *""
 
 	// actual, import env/rrr:env to enforce, performance penalty included
 	// source: #Dir | #Container | #HostDir | #HostImage | #GitRepo
 	source!: _
 }
 
-// this is creating a directory ref that we can do things with
+// step that adds a file to a container
+// is a: dagger.WithFile
+File: Step & {
+	$kind: "file"
+	path!: string
+
+	// actual, import env/rrr:env to enforce, performance penalty included
+	// content: string | #File | #HostFile // HMMM(A): should this just be file, or be container/image too?
+	content!:     _
+	permissions?: int
+	owner?:       string
+	expand?:      bool
+}
+
+// a dir ref that can be used within CUE
+// is a: *dagger.Directory
 #Dir: Ref & {
 	schemas.Hof
 	#hof: {
@@ -380,24 +443,52 @@ DefaultTerm: Step & {
 	gitignore: bool | *true
 
 	// (2) path to select from the bundled dir
-	bundlePath: string | *"/"
+	trimPrefix: string | *""
 
 	// (3) git-compatible patch to apply after bundling and selecting
-	patch?:     string
-	patchFile?: #FileLike
+	// perhaps this gets moved out, or updated and kept for convenience
+	patch?:     string | #Changes
+	patchFile?: #PatchFile
 }
 
-// like dagger.WithFile
-File: Step & {
-	$kind: "file"
-	path!: string
+// step that adds a dir to a container
+// is a: dagger.WithDirectory
+Dir: Step & {
+	$kind: "dir"
+	// args
+	path: string | *"."
 
 	// actual, import env/rrr:env to enforce, performance penalty included
-	// content: string | #File | #HostFile // HMMM(A): should this just be file, or be container/image too?
-	content!:     _
-	permissions?: int
-	owner?:       string
-	expand?:      bool
+	// source: #Container | #Dir | #GitRepo | #HostDir | #HostImage // HMMM(B): or maybe this should just be dir kinds, make the user do an extra step? (nah, wouldn't have to with the SDK directly)
+	source!: _
+
+	// opts
+	include?: [...string]
+	exclude?: [...string]
+	trimPrefix?: string
+	gitignore?:  bool | *true
+	owner?:      string
+	expand?:     bool
+
+	// maybe patch stuff here too? as a convenience
+	patch?:     string | #Changes
+	patchFile?: #PatchFile
+}
+
+// use the RootFS of a container as a dir ref that can be used within CUE
+// is a: *dagger.Directory
+#RootFS: Ref & {
+	schemas.Hof
+	#hof: {
+		env: {
+			root: true
+			kind: "rootfs"
+		}
+	}
+	$kind: "#rootfs"
+
+	// source: #ImageLike
+	source: _
 }
 #GitRepo: Ref & {
 	schemas.Hof
@@ -420,6 +511,45 @@ File: Step & {
 	httpAuthToken?:           #Secret
 	httpAuthHeader?:          #Secret
 	experimentalServiceHost?: #Service
+}
+
+// run a command on a host, only localhost for now
+// WARNING, this does NOT go through dagger
+// this is used in replacing ansible among other tools
+// there is also an idea to have a flag that replaces the underlying runtime
+//   such that [dagger,localhost,remote,kubernetes] becomes indistinguishable
+// this is implemented with go.os/exec.Cmd, so mirrors it closely
+#HostExec: Ref & {
+	schemas.Hof
+	#hof: {
+		env: {
+			root: true
+			kind: "hostExec"
+		}
+	}
+	$kind: "#hostExec"
+
+	// the first arg is the Path, the rest are the args to it
+	args: [string, ...string]
+
+	// the working directory of the command
+	// if not set, it is the current workdir hof is run from
+	workdir?: string
+
+	// key=value pairs
+	envs: [...string]
+
+	// filepath to redirect stdin to
+	stdin?: string
+
+	// filepath to redirect stdout to
+	stdout?: string
+
+	// filepath to redirect stderr to
+	stderr?: string
+
+	// expose all host env hof sees to the exec
+	allEnv: bool | *false
 }
 
 // access an image in host container runtime
@@ -452,6 +582,9 @@ File: Step & {
 	// the path to load, relative or absolute
 	path: string
 
+	// a prefix to remove from the load path
+	trimPrefix: string | *""
+
 	// If true, the directory will always be reloaded from the host.
 	noCache?: bool
 }
@@ -481,7 +614,14 @@ File: Step & {
 	noCache?: bool
 
 	// Apply .gitignore filter rules inside the directory
-	gitignore?: bool | *true
+	gitignore: bool | *true
+
+	// a prefix to remove from the load path
+	trimPrefix?: string
+
+	// git-compatible patch to apply after selecting and trimming
+	patch?:     string
+	patchFile?: #FileLike
 }
 
 // Creates a service that forwards traffic to a specified address via the host.
@@ -536,6 +676,42 @@ File: Step & {
 	ports?: [...#PortForward]
 }
 
+// Accesses a Unix socket on the host.
+#HostSocket: Ref & {
+	schemas.Hof
+	#hof: {
+		env: {
+			root: true
+			kind: "hostSocket"
+		}
+	}
+	$kind: "#hostSocket"
+
+	// friendly name for socket
+	name?: string | *path
+	path:  string
+}
+#Method: *"GET" | "POST" | "PUT" | "DELETE" | "OPTIONS" | "HEAD" | "CONNECT" | "TRACE" | "PATCH"
+
+// generate the CUE representation
+// is a: *dagger.File with format:[cue,json,yaml,toml] content
+// data: any CUE value
+// hmmm, can we reverse this one?
+#CuefigSBOM: Ref & {
+	schemas.Hof
+	#hof: {
+		env: {
+			root: true
+			kind: "cuefigSBOM"
+		}
+	}
+	$kind: "#cuefigSBOM"
+	format: or(["cue", "json", "yaml", "toml"])
+	name?: string
+	path:  string
+	data:  _
+}
+
 // something you can launch or deploy, this amounts to AsService in Dagger
 #Service: Ref & {
 	schemas.Hof
@@ -548,7 +724,7 @@ File: Step & {
 	$kind: "#service"
 
 	// convenient name
-	name!: string
+	name?: string
 
 	// container to turn into a service
 	// actual, import env/rrr:env to enforce, performance penalty included
@@ -560,7 +736,7 @@ File: Step & {
 
 	// configures a hostname within the session at which the server which it can be reached
 	// used when exposing to the host
-	hostname: string | *name
+	hostname?: string
 
 	// if empty, the container's default will be used
 	args?: [...string]
@@ -662,6 +838,13 @@ Expose: Step & {
 	}
 	$kind: "#cache"
 	name:  string
+
+	// dir-like to prepopulate cache with
+	source?: _
+
+	// watch the source #HostDir for changes
+	// only works with #HostDir and Mount
+	watch?: bool
 }
 
 // temp space config for ephemeral volumes not persisted between exec calls
@@ -677,6 +860,62 @@ Temp: {
 	// expand vars in path like $HOME/.cache
 	expand?: bool
 }
+WithoutDefaultArgs: {
+	$kind: "withoutDefaultArgs"
+}
+WithoutDirectory: {
+	$kind:  "withoutDirectory"
+	path:   string
+	expand: bool | *false
+}
+WithoutEntrypoint: {
+	$kind:           "withoutEntrypoint"
+	keepDefaultArgs: bool | *false
+}
+WithoutEnvVariable: {
+	$kind: "withoutEnvVariable"
+	name:  string
+}
+WithoutExposedPort: {
+	$kind:    "withoutExposedPort"
+	port:     int
+	protocol: string | *"TCP"
+}
+WithoutFile: {
+	$kind:  "withoutFile"
+	path:   string
+	expand: bool | *false
+}
+WithoutFiles: {
+	$kind: "withoutFiles"
+	paths: [...string]
+	expand: bool | *false
+}
+WithoutLabel: {
+	$kind: "withoutLabel"
+	name:  string
+}
+WithoutMount: {
+	$kind:  "withoutMount"
+	path:   string
+	expand: bool | *false
+}
+WithoutRegistryAuth: {
+	$kind:   "withoutRegistryAuth"
+	address: string
+}
+WithoutSecretVariable: {
+	$kind: "withoutSecretVariable"
+	name:  string
+}
+WithoutUnixSocket: {
+	$kind:  "withoutUnixSocket"
+	path:   string
+	expand: bool | *false
+}
+WithoutUser: {
+	$kind: "withoutUser"
+}
 #Task: {
 	schemas.Hof
 	_cmdCommon
@@ -687,40 +926,60 @@ Temp: {
 		}
 	}
 	$kind: "task"
-	name:  string
+	name:  string | *#hof.metadata.name
 
 	// ideally, this is more dag/flow like
-	// two-level list, top-sequential | nest-parallel
-	// TODO, put some basic checking on this
-	steps: [...[...]]
+	steps: [...]
+	parallel: int | *0
 	...
 }
-#DockerBuild: {
+
+// we probably need to move this into the Go
+// so we can copy over a bunch of the meta/env/cmd/entry
+#Flatten: #Container & {
+	#orig: _
+	from:  "scratch"
+	steps: [Dir & {
+		path: "/"
+		source: #Dir & {
+			path: "/"
+			sources: [#orig]
+		}
+	}]
+}
+
+// #Shouldi resolves then or else
+//   based on a diff and patterns
+#Shouldi: Ref & {
 	schemas.Hof
 	#hof: {
 		env: {
 			root: true
-			kind: "dockerBuild"
+			kind: "shouldi"
 		}
 	}
-	$kind:       "#dockerBuild"
-	name?:       string
-	source:      #Dir | #HostDir
-	dockerfile?: string
-	platform?:   string
-	buildArgs: {
-		[string]: string
-	}
-	target?: string
-	secrets?: [...#Secret]
-	noInit?: bool
+	$kind: "#shouldi"
+
+	// changes to match against
+	changes!: #Changes
+
+	// patterns for matching
+	include: [...string]
+	exclude: [...string]
+
+	// just do it!
+	force?: bool
+
+	// what to do
+	then!: _
+	else?: _
 }
 
 // treat secret content is an env file
 // exposing each line as secret vars
 SecretFile: Step & {
-	$kind:  "secretFile"
-	source: #Secret
+	$kind: "secretFile"
+	file:  #File | #HostFile | #Secret
 }
 
 // starts an interactive terminal
@@ -730,61 +989,66 @@ Terminal: Step & {
 	experimentalPrivilegedNesting?: bool
 	insecureRootCapabilities?:      bool
 }
-
-// export the Dagger representation
-#ExportDagger: Ref & {
+#PublishImage: Ref & {
 	schemas.Hof
 	#hof: {
 		env: {
 			root: true
-			kind: "exportDagger"
+			kind: "publishImage"
 		}
 	}
-	$kind:   "#exportDagger"
-	name:    string
+	$kind: "#publishImage"
+	name?: string
+	reg:   string
+	tags: [...string]
+	image: #Container
+}
+
+// step that sets the RootFS of a container to the source dir
+RootFS: Step & {
+	$kind: "rootfs"
+
+	// source: #DirLike
+	source: _
+}
+UnixSocket: Step & {
+	schemas.Hof
+	#hof: {
+		env: {
+			root: true
+			kind: "unixSocket"
+		}
+	}
+	$kind:   "unixSocket"
 	path:    string
-	format?: string
-	data:    _
+	source:  #HostSocket
+	owner?:  string
+	expand?: bool
 }
-
-// this is including a directory in a container
-Dir: Step & {
-	$kind: "dir"
-	// args
-	path: string | *"."
-
-	// actual, import env/rrr:env to enforce, performance penalty included
-	// source: #Container | #Dir | #GitRepo | #HostDir | #HostImage // HMMM(B): or maybe this should just be dir kinds, make the user do an extra step? (nah, wouldn't have to with the SDK directly)
-	source!: _
-
-	// opts
-	include?: [...string]
-	exclude?: [...string]
-	gitignore?: bool | *true
-	owner?:     string
-	expand?:    bool
-}
-
-// Accesses a Unix socket on the host.
-#HostSocket: Ref & {
-	schemas.Hof
-	#hof: {
-		env: {
-			root: true
-			kind: "hostSocket"
+#Route: Ref & {
+	path:   string
+	method: #Method
+	input: {
+		url: string
+		headers: {
+			[string]: string
 		}
+		query: {
+			[string]: string
+		}
+		body: bytes | string | *{}
 	}
-	$kind: "#hostSocket"
 
-	// friendly name for socket
-	name?: string | *path
-	path:  string
+	// some #Thing that get's Sync/Export/Etc...
+	vegOp:   "SYNC" | "EXPORT" | "CMD"
+	handler: _
+	routes: [...#Route]
 }
 BindService: Step & {
 	$kind: "bindService"
 
 	// confitures an alias for the service when binding to this container
-	alias:   string | *self.service.name
+	alias?:  string | *self.service.hostname
 	service: #Service
 }
 Mount: Step & {
@@ -794,6 +1058,15 @@ Mount: Step & {
 	// cache, dir, file, secret, temp, host, service (?)
 	// source: #Cache | #File | #HostFile | #Dir | #HostDir
 	source: _
+	expand: bool | *true
+
+	// cache, file, dir, secret
+	owner?: string
+	// secret
+	mode?: int
+}
+WithoutWorkdir: {
+	$kind: "withoutWorkdir"
 }
 
 let service_9 = service

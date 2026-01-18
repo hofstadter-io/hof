@@ -426,16 +426,16 @@ Generally speaking...
 ```
 Dir               add a directory
 File              add a file
+
+Changes           applies #Changes to a container
+Patch             applies a git-like patch or #Changes
+PatchFile         applies a #PatchFile
+RootFS            set the root FS of a container
+
 EnvVars           add a set of env vars
 SecretVars        add a set of secret vars
 EnvFile           add an env var file
 SecretFile        add a secret var file
-
-Temp              a temp volume for the next exec
-Mount             mount a cache, file, directory, secret
-UnixSocket        mount a unix socket at a path
-BindService       bind another service to the container  (hint, dep graph)
-Expose            mark a port for servin
 
 Sync              force evaluation of the dagger graph
 Exec              run any command as a container layer
@@ -443,38 +443,42 @@ Sh, Bash, Zsh     exec wrappers with a 'script' param
 User              set the current user
 Workdir           set the current workdir
 
-
 Entrypoint        set container entrypoint
 DefaultArgs       set container default args
 DefaultTerm       set the terminal dagger uses when needed
+Terminal          start a terminal at any or many point(s), directory or container
 
-!!!
-Terminal          drop into a terminal at any or many point(s), directory or container
-!!!               (this is one of the coolest dagger features)
+Temp              a temp volume for the next exec
+Mount             mount a cache, file, directory, secret
+UnixSocket        mount a unix socket at a path
+BindService       bind another service to the container  (hint, dep graph)
+Expose            mark a port for servin
 
-More to come...
+                  these all remove from a container as a new layer
+WithoutDefaultArgs
+WithoutDirectory
+WithoutEntrypoint
+WithoutEnvVariable
+WithoutExposedPort
+WithoutFile
+WithoutFiles
+WithoutLabel
+WithoutMount
+WithoutRegistryAuth
+WithoutSecretVariable
+WithoutUnixSocket
+WithoutUser
+WithoutWorkdir
+```
+<!-- More to come...
 
 - VsCode (like terminal, combo of them too)
 - Chown
-- $Filter (#Dir->#Dir)
-- $Diff (#Dir-#Dir->#Dir)
-- Patch & #Patch
-- Diff & #Diff, Changes & #Changeset
 - ?Merge (not overwrite, doesn't exist yet)
 - #DirToGit         git from a dir
 
-Vscode            (we'll add a Step to open in vscode, or make something that does both, configurablely)
+Vscode            (we'll add a Step to open in vscode, or make something that does both, configurablely) -->
 
-Without...
-  -- both #Dir and #Container
-  Dir
-  File
-  Files
-  -- #Containers only
-  EnvVar
-  SecretVar
-
-```
 
 ### #Stuff:
 
@@ -489,6 +493,11 @@ These are artifacts, intermediates, or resources you can work with
 #File             a file that can be used in CUE
 #Secret           a secret that will be elided from output
 #Cache            a named volume in memory, persists sessions
+#RootFS           get the root FS for a container
+
+#Changes          calculate the diff between two directories
+#PatchFile        convert #Changes into a patch #File
+#Shouldi          condition evaluation based on git diffs
 
 #Cmd              a custom command with named subtasks
 #Task             a task is a list of runnables and is runnable itself
@@ -501,6 +510,7 @@ These are artifacts, intermediates, or resources you can work with
 #HostService      expose host to dagger
 #HostTunnel       expose dagger to host
 #HostSocket       from a path
+#HostExec         run a command on the host (!outside of containers!)
 
 #ExportDir        to host path
 #ExportFile       to host path
@@ -508,9 +518,12 @@ These are artifacts, intermediates, or resources you can work with
 #ExportImage      to local engine
 #PublishImage     to a registry
 
+
+# helpers, not #things, but work / make them
+#Flatten          create a new container from scratch and an existing container or directory
+
 # many data formats available
-#ExportCuefig     returns a #File for the CUE representation any #Thing
-#ExportDagger     returns a #File for the Dagger representation any #Thing
+#CuefigSBOM       returns a #File with the CUE/Dagger representation for any #Thing
 ```
 
 ## Examples

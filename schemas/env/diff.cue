@@ -39,7 +39,7 @@ Changes: Step & {
   source: string | #Changes
 }
 
-// patch a #Container with a git-lie patch or #Changes
+// patch a #Container with a git-like patch or #Changes
 Patch: Step & {
 	$kind: "patch"
   source: string | #Changes

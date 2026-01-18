@@ -5,7 +5,7 @@ displayName: "Veg"
 description: "Veg VS Code Extension"
 repository:  "github.com/hofstadter-io/hof"
 publisher:   "verdverm"
-version:     "0.0.1"
+version:     "v0.7.0-alpha.2"
 engines: {
 	vscode: "^1.106.0"
 }
