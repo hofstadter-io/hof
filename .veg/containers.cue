@@ -91,6 +91,9 @@ ctr: {
 
 		from: dev
 		steps: [
+			// add hof late (not in dev), because it changes frequently
+			hof.File.linux,
+
 			// config / env stuff
 			// _packs.tool.k8s.kind.config,
 			// going to switch to k3d / k3s
@@ -104,9 +107,6 @@ ctr: {
 			// env.BindService & {service: lang.node.lsp},
 			// env.BindService & {service: lang.python.lsp},
 
-			// add hof late, because it changes frequently
-			hof.File.linux,
-			env.Dir & {path: "/work", source: src.code},
 			env.Dir & {path: "/root/.ssh", source: secrets.dotssh},
 			env.Dir & {path: "/root/.kube", source: secrets.kubecfg},
 			env.SecretVars & {

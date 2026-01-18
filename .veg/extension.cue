@@ -8,8 +8,8 @@ import (
 let root = self
 
 extn: {
+	#ver: string | *"v0.7.0-alpha.2"
 	vscode: {
-		#ver: "0.0.1"
 		src: env.#Dir & {
 			@env(vscode-src)
 			name: "vscode-src"
@@ -24,10 +24,13 @@ extn: {
 		build: env.#Container & {
 			@env(vscode-build)
 			name: "vscode-build"
-			from: "\(root.flags.registry)/veg-dev:local"
+			from: root.ctr.dev
 			steps: [
+				// add mounts
+
 				// add source
 				env.Dir & {path: "/work", source: src},
+
 
 				// linting 
 				// shouldi to make sure package.json is up to date with what we see

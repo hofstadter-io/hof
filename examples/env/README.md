@@ -38,8 +38,8 @@ curl github
 
 |                                              eat your                                               |                                              veggies                                               |
 | :-------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------: |
-| [linux / arm](https://github.com/hofstadter-io/hof/releases/download/v0.7.0-alpha.1/hof-linux-arm64) | [mac / arm](https://github.com/hofstadter-io/hof/releases/download/v0.7.0-alpha.1/hof-darwin-arm64) |
-| [linux / amd](https://github.com/hofstadter-io/hof/releases/download/v0.7.0-alpha.1/hof-linux-amd64) | [mac / amd](https://github.com/hofstadter-io/hof/releases/download/v0.7.0-alpha.1/hof-darwin-amd64) |
+| [linux / arm](https://github.com/hofstadter-io/hof/releases/download/v0.7.0-alpha.2/hof-linux-arm64) | [mac / arm](https://github.com/hofstadter-io/hof/releases/download/v0.7.0-alpha.2/hof-darwin-arm64) |
+| [linux / amd](https://github.com/hofstadter-io/hof/releases/download/v0.7.0-alpha.2/hof-linux-amd64) | [mac / amd](https://github.com/hofstadter-io/hof/releases/download/v0.7.0-alpha.2/hof-darwin-amd64) |
 
 
 ### First Examples (low-level steps)
@@ -221,7 +221,7 @@ hof env sync [...targets] [...flags]
 # export a release bundle (from the root of hof)
 hof env export -P dist -T my-test-rel
 
-# veg out in a dev container
+# veg out in a dev container (from repo root)
 hof env run veg-dev
 # > ls /usr/local/bin
 
@@ -233,20 +233,21 @@ hof env [init, test, lint, ci, publish, deploy, ...]
 hof env ... -t env=stg -t stack=app -t branch=main
 
 # one-liners
-cd veg       && hof env run   veg-dev
-cd veg       && hof env build veg-ops
+hof env sync veg-dev
+hof env run  veg-run
 cd adk       && hof env test lint scan  # or `hof env ci`
 cd atproto   && hof env up
 cd inception && hof env turtles
+```
 
-# is k8s in dagger still a one-liner?
+<!-- # is k8s in dagger still a one-liner?
 cd k8s && \
    hof env init && \
    hof env boot && \
    hof env lgtm && \
    hof env helm && \
-   hof env test
-```
+   hof env test -->
+
 
 ### Code Organization
 
@@ -260,11 +261,11 @@ cd k8s && \
   - `utils/` helpers that only import veg/schemas/...
   - `bases/` operating systems and other basie images manually crafted, even from scratch
   - `packs/` abstractions, collections, and other reusable packs of env stuff
+- [`.veg/`](../../.veg) the kitchen sink, it's all the things for this repo
 - [examples/env](../../examples/env/)
   - `basic/` multi-stage build and 3-tier app
   - `adk/` commands example with matrix test & lint
   - `atproto/` docker compose like setup & app, full network in an env
-  - `veg/` pretty much a kitchen sink, it's used to build, test, and publish this repo
 	- `inception/` using docker, dagger, hof, helm, kubernetes from inside an env
 
 #### Go (impl) files:
@@ -366,30 +367,37 @@ Available Commands:
   up          starts target points in an environment
 
 Flags:
+      --all                    show all env targets, not just @env() ones
       --env-all                pass os.Env (everything)
       --env-file stringArray   path to a file with ENV vars to pass
       --env-var stringArray    key=value ENV vars to pass
+      --fail-fast              fail at first error instead of attempting all targets
   -h, --help                   help for env
   -K, --kind stringArray       kinds to include, defaults to all
   -Z, --no-cache               bust the cache and force evaluation
   -N, --no-exit                Leave the TUI open after finishing
   -F, --on-failure             on failure, enter an interactive terminal, requires a tty
-      --parallel int           number of args or objects to process at once, they may be highly parallel internally (default 1)
-  -P, --path stringArray       (cue) path prefixes to include, defaults to all
+  -P, --parallel int           number of args or objects to process at once, they may be highly parallel internally (default 1)
   -R, --renderer string        output format [auto, plain, tty, dots, report (for ai)] (default "auto")
       --shh-file stringArray   path to a file with secret ENV vars to pass
       --shh-var stringArray    key=value secret ENV vars to pass
-  -S, --sort stringArray       sort columns, can be used multiple times (default [name])
+  -S, --sort stringArray       sort columns, can be used multiple times
+      --unsafe                 set insecure root capabilities and privileged nesting, use at your own risk, needed for inception
+
+Global Flags:
+      --dry-run                  dry run certain commands
+  -e, --expression stringArray   evaluate these CUE expressions only
+      ...
 ```
 
 Basically, the way this works is
 
-1. CUE Value lattice defines overlays the Dagger OCI graph
-1. The CLI incantations determine the point(s) where CUE meets Dagger
+1. CUE Value lattice (DAG.1) defines the Dagger OCI graph (DAG.2)
+1. The CLI args/flags determine the point(s) you want to evaluate
 1. To handle the request, for each point
-1. get the CUE Value, figure out the $kind
-1. recursively walk the CUE Value, build a Dagger AST, do some memoization
-1. Dagger Sync and perform which ever action the command is supposed to do
+    1. get the CUE Value, figure out the $kind
+    1. recursively walk the CUE Value, build a Dagger AST, do some memoization
+    1. Dagger Sync and perform which ever action the command is supposed to do
 
 ## Steps and #Stuff
 

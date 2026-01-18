@@ -79,65 +79,65 @@ agents: rawdog: {
 }
 
 
-agents: coding_assist_ro: {
-  description: string | *"Veggie Code, a sophisticated assistant for senior developers."
-  instruction: string | *"agents/coding_assro.md"
-  environment: "golang:1.25-trixie"
-  tools: [
-    "cache_put",
-    "cache_del",
+// agents: coding_assist_ro: {
+//   description: string | *"Veggie Code, a sophisticated assistant for senior developers."
+//   instruction: string | *"agents/coding_assro.md"
+//   environment: "golang:1.25-trixie"
+//   tools: [
+//     "cache_put",
+//     "cache_del",
 
-    "fs_read",
-    "fs_list",
-    "fs_glob",
-    "fs_grep",
+//     "fs_read",
+//     "fs_list",
+//     "fs_glob",
+//     "fs_grep",
 
-    // "exec",
-    // "@coding_context_provider",
-  ]
-}
+//     // "exec",
+//     // "@coding_context_provider",
+//   ]
+// }
 
-agents: coding_context_provider: {
-  description: string | *"Returns the relevant context from directory listings, file contents, and/or terminal history necessary to aid completing a task based on the query"
-  instruction: string | *"agents/coding_context_provider.md"
-  tools: [
-    "cache_put",
-    "cache_del",
-    "fs_read",
-    "fs_list",
-    "fs_grep",
-  ]
-}
+// agents: coding_context_provider: {
+//   description: string | *"Returns the relevant context from directory listings, file contents, and/or terminal history necessary to aid completing a task based on the query"
+//   instruction: string | *"agents/coding_context_provider.md"
+//   tools: [
+//     "cache_put",
+//     "cache_del",
+//     "fs_read",
+//     "fs_list",
+//     "fs_grep",
+//   ]
+// }
 
-agents: deepc: {
-  description: "A deep research agent specializing in code base analysis to iteratively search, evaluate, summarize, and build well cited research."
-  instruction: "agents/deepr.md"
-  tools: [
-    "cache_put",
-    "cache_del",
-    "fs_read",
-    "fs_list",
-    "fs_grep",
-    "fs_write",
-    "search",
-    "fetch",
-  ]
-}
+// agents: deepc: {
+//   description: "A deep research agent specializing in code base analysis to iteratively search, evaluate, summarize, and build well cited research."
+//   instruction: "agents/deepr.md"
+//   tools: [
+//     "cache_put",
+//     "cache_del",
+//     "fs_read",
+//     "fs_list",
+//     "fs_grep",
+//     "fs_write",
+//     "search",
+//     "fetch",
+//   ]
+// }
 
-agents: deepr: {
-  description: "A deep research agent to iteratively search, evaluate, summarize, and build well cited reports."
-  instruction: "agents/deepr.md"
-  tools: [
-    "cache_put",
-    "cache_del",
-    "fs_read",
-    "fs_list",
-    "fs_grep",
-    "fs_write",
-    "search",
-    "fetch",
-  ]
-}
+// agents: deepr: {
+//   description: "A deep research agent to iteratively search, evaluate, summarize, and build well cited reports."
+//   instruction: "agents/deepr.md"
+//   tools: [
+//     "cache_put",
+//     "cache_del",
+//     "fs_read",
+//     "fs_list",
+//     "fs_grep",
+//     "fs_write",
+//     "search",
+//     "fetch",
+//   ]
+// }
 
 agents: fetch: {
   description: "A web crawling agent."
@@ -158,7 +158,7 @@ agents: hack: {
     "cache_put",
     "cache_del",
   ]
-  mcp: [
-    "quickbooks",
-  ]
+  // mcp: [
+  //   "quickbooks",
+  // ]
 }

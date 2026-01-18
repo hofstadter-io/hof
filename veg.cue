@@ -1,7 +1,7 @@
 package hof
 
 import (
-	"github.com/hofstadter-io/hof/examples/env/veg"
+	"github.com/hofstadter-io/hof/.veg:veg"
 )
 
 veg

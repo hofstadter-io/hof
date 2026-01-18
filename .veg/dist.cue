@@ -61,7 +61,7 @@ dist: {
 			#hof: id: string | *"dist-veg-\(k)"
 			#hof: metadata: name: #hof.id
 			reg:  root.flags.registry
-			name: "veg-\(k)"
+			name: string | *"veg-\(k)"
 		}
 		min: {image: root.ctr.min}
 		dev: {image: root.ctr.dev}
@@ -82,6 +82,7 @@ dist: {
 				@env()
 				#hof: id: "dist-\(_f)"
 				#hof: metadata: name: #hof.id
+				name: "\(_f)"
 				image: F.img
 			}
 		}
