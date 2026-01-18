@@ -188,12 +188,6 @@ dev: env.#Container & {
 }
 ```
 
-### Things you can do
-
-- use `env.Terminal`, `--on-failure`, `--no-exit`, or `hof env run` to enter interactive terminal sessions. Great for debugging failed image builds or CI.
-- put schemas on your Ansible equivalent templated config file rendering
-- sequence and order Terraform + Helm operations
-
 ### Run an example
 
 ```sh
@@ -253,27 +247,29 @@ cd k8s && \
 
 #### CUE (user) files
 
-[todo] make these links
-
 - [schemas/env](../../schemas/env)
 - [catalogs/env](../../catalogs/env) (important, these are ordered to avoid cycles)
-  - _note_, catalogs/env is an example and you can make your own, the only requirement is using the schemas/env
-  - `utils/` helpers that only import veg/schemas/...
-  - `bases/` operating systems and other basie images manually crafted, even from scratch
-  - `packs/` abstractions, collections, and other reusable packs of env stuff
+	- _note_, catalogs/env is an example and you can make your own, the only requirement is using the schemas/env
+	- `utils/` helpers that only import veg/schemas/...
+	- `bases/` operating systems and other basie images manually crafted, even from scratch
+	- `packs/` abstractions, collections, and other reusable packs of env stuff
 - [`.veg/`](../../.veg) the kitchen sink, it's all the things for this repo
 - [examples/env](../../examples/env/)
-  - `basic/` multi-stage build and 3-tier app
-  - `adk/` commands example with matrix test & lint
-  - `atproto/` docker compose like setup & app, full network in an env
+	- `basic/` multi-stage build and 3-tier app
+	- `advanced/` demonstrates more complex patterns and day-2 features
+	- `adk/` commands example with matrix test and lint
 	- `inception/` using docker, dagger, hof, helm, kubernetes from inside an env
+
+Links to more examples can be found below.
 
 #### Go (impl) files:
 
-- `lib/env/...`
+Everything is under `lib/env/...`
 
-> [!INFO] > `schemas/env` and `lib/env/dag` align very closely. The `dag` package uses a new progressive CUE schema alignment and decoding strategy
+> [!TIP]
+> `schemas/env` and `lib/env/dag` align very closely. The `dag` package uses a new progressive CUE schema alignment and decoding strategy
 > that works really, really well and will be used more widely in veg. It's also prime time for `veg gen`.
+
 
 ### The `veg/env` command
 
@@ -305,7 +301,8 @@ Guidance on starting out with the commands
 - use `env.Terminal` or `-F/-N` to go interactive
 - import `schemas/env/rrr:env` instead of `schemas/env` for stricter schemas. It's slower because of the recursive disjunctions, but it will catch errors earlier and narrow down messages, especially with the aliasv2 experiment we are relying on.
 
-> [!NOTE] > `veg env` without any subcommands will run your custom commands
+> [!TIP]
+> `veg env` without any subcommands will run your custom commands
 
 #### Help Text
 
@@ -415,7 +412,7 @@ Generally speaking...
   - `hof/flow` exists for this use case and some merging is on the roadmap.
   - The key requirement to maintain distinct operation modes, hermetic and yolo, with control over where, when, and how.
 
-> [!WARNING]
+> [!IMPORTANT]
 > We have swapped the semantics to `Token` | `#Token` from `WithToken()` and `Token()` with Dagger.
 >
 > 1. veg: `Dir` ~ dag: `WithDir()`
@@ -528,11 +525,11 @@ These are artifacts, intermediates, or resources you can work with
 
 ## Examples
 
-### Multi-Stage Builds and Beyond, DAG style
+This repo is an excellent example, [`.veg/`](../../.veg) is a kitchen sink, it's all the things for this repo
 
-- multi-stage
-- no need for yum rm
-- how binaries and dirs work
+[verdverm/testnet](https://github.com/verdverm/testnet) has a docker-compose like setup for [ATProtocol](https://atproto.com), build social apps, develop algos, run independent networks locally or for testing.
+
+### Debian Base Container with Apt Caches
 
 That long-time advice to install packages like this: `apt update && apt install && apt clean`... it's over!
 We can now attach caches, just like we do for languages like `go.mod` and `node_modules`,
@@ -722,14 +719,43 @@ cmd: {
 
 ```
 
+
 ### Release Bundles
 
 You can define release bundles and then assemble and publish them with a single command.
 
-`hof env ...`
+_from the root of this repo_
 
+```sh
+$ hof env list -e dist -S kind -S name
+NAME               KIND          PATH                        EXTRA                                     
+sbom-cuemod        cuefigSBOM    dist.sbom.cuemod            cuemod.cue                                 
+sbom-fmt-black     cuefigSBOM    dist.sbom."fmt-black"       fmt-black.cue                              
+sbom-fmt-prettier  cuefigSBOM    dist.sbom."fmt-prettier"    fmt-prettier.cue                           
+sbom-github        cuefigSBOM    dist.sbom.github            github.cue                                 
+sbom-veg-dev       cuefigSBOM    dist.sbom.dev               veg-dev.cue                                
+sbom-veg-hof       cuefigSBOM    dist.sbom.hof               veg-hof.cue                                
+sbom-veg-min       cuefigSBOM    dist.sbom.min               veg-min.cue                                
+sbom-veg-ops       cuefigSBOM    dist.sbom.ops               veg-ops.cue                                
+sbom-vscode        cuefigSBOM    dist.sbom.vscode            vscode.cue                                 
+dist-cuemod        exportDir     dist.cuemod                 -> dist/cuemod                             
+dist-github        exportDir     dist.github                 -> dist/github                             
+dist-meta          exportDir     dist.meta                   -> dist/meta                               
+dist-vscode        exportDir     dist.vscode                 -> dist/vscode                             
+dist-fmt-black     publishImage  dist.images."fmt-black"     -> host.docker.internal:5000/fmt-black     
+dist-fmt-prettier  publishImage  dist.images."fmt-prettier"  -> host.docker.internal:5000/fmt-prettier  
+dist-veg-dev       publishImage  dist.images.dev             -> host.docker.internal:5000/veg-dev       
+dist-veg-hof       publishImage  dist.images.hof             -> host.docker.internal:5000/veg-hof       
+dist-veg-min       publishImage  dist.images.min             -> host.docker.internal:5000/veg-min       
+dist-veg-ops       publishImage  dist.images.ops             -> host.docker.internal:5000/veg-ops       
 ```
 
+```sh
+# validate a release is ready to go
+$ hof env sync -e dist -T v0.7.0-alpha.2
+
+# export and publish artifacts for real
+$ hof env export -e dist -T v0.7.0-alpha.2 -t reg=ghcr.io/hofstadter-io
 ```
 
 ### Agent or Dev Environments with Tools
