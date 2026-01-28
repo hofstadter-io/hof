@@ -7,8 +7,6 @@ import (
 	"github.com/hofstadter-io/hof/lib/agent/cmd/tui"
 )
 
-const gap = "\n\n"
-
 func Main(args []string, rflags flags.RootPflagpole, aflags flags.AgentPflagpole, cflags flags.Agent__ChatPflagpole) error {
 	R, AR, _, err := commonStart(args, rflags, aflags)
 	if err != nil {
@@ -24,7 +22,10 @@ func Main(args []string, rflags flags.RootPflagpole, aflags flags.AgentPflagpole
 	// 	AR.Run()
 	// }()
 
-	m := tui.InitialModel(R, AR)
+	m, err := tui.InitialModel(R, AR, "list")
+	if err != nil {
+		return err
+	}
 	p := tea.NewProgram(m, tea.WithAltScreen())
 
 	if _, err := p.Run(); err != nil {

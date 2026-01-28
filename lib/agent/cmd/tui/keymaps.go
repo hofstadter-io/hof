@@ -3,24 +3,28 @@ package tui
 import "github.com/charmbracelet/bubbles/key"
 
 type rootKeymap struct {
-	help, quit key.Binding
+	add, help, quit key.Binding
 }
 
 // ShortHelp returns keybindings to be shown in the mini help view. It's part
 // of the key.Map interface.
 func (k rootKeymap) ShortHelp() []key.Binding {
-	return []key.Binding{k.help, k.quit}
+	return []key.Binding{k.add, k.help, k.quit}
 }
 
 // FullHelp returns keybindings for the expanded help view. It's part of the
 // key.Map interface.
 func (k rootKeymap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
-		{k.help, k.quit}, // first column
+		{k.add, k.help, k.quit}, // first column
 	}
 }
 
 var rootKeymapDefaults = rootKeymap{
+	add: key.NewBinding(
+		key.WithKeys("n"),
+		key.WithHelp("n", "new"),
+	),
 	help: key.NewBinding(
 		key.WithKeys("?"),
 		key.WithHelp("?", "help"),
@@ -31,41 +35,77 @@ var rootKeymapDefaults = rootKeymap{
 	),
 }
 
+type dashKeymap struct {
+	nav, down, up, enter key.Binding
+}
+
+// ShortHelp returns keybindings to be shown in the mini help view. It's part
+// of the key.Map interface.
+func (k dashKeymap) ShortHelp() []key.Binding {
+	return []key.Binding{k.nav, k.enter}
+}
+
+// FullHelp returns keybindings for the expanded help view. It's part of the
+// key.Map interface.
+func (k dashKeymap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{
+		{k.nav, k.enter}, // first column
+
+	}
+}
+
+var dashKeymapDefaults = dashKeymap{
+	nav: key.NewBinding(
+		key.WithKeys("doesnotexist"),
+		key.WithHelp("↓/j ↑/k", "nav"),
+	),
+	down: key.NewBinding(
+		key.WithKeys("down", "j"),
+	),
+	up: key.NewBinding(
+		key.WithKeys("up", "k"),
+	),
+	enter: key.NewBinding(
+		key.WithKeys("enter"),
+		key.WithHelp("enter", "select"),
+	),
+}
+
 type listKeymap struct {
-	add, back, info, load, refresh, sort key.Binding
+	del, back, info, load, refresh, sort key.Binding
 }
 
 // ShortHelp returns keybindings to be shown in the mini help view. It's part
 // of the key.Map interface.
 func (k listKeymap) ShortHelp() []key.Binding {
-	return []key.Binding{k.add, k.info, k.load}
+	return []key.Binding{k.del, k.info, k.load}
 }
 
 // FullHelp returns keybindings for the expanded help view. It's part of the
 // key.Map interface.
 func (k listKeymap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
-		{k.add, k.info, k.load}, // first column
+		{k.del, k.info, k.load}, // first column
 		{k.sort, k.refresh, k.back},
 	}
 }
 
 var sessionsKeymapDefaults = listKeymap{
-	add: key.NewBinding(
-		key.WithKeys("n"),
-		key.WithHelp("n", "new"),
-	),
 	back: key.NewBinding(
 		key.WithKeys("esc"),
 		key.WithHelp("esc", "back"),
+	),
+	del: key.NewBinding(
+		key.WithKeys("D"),
+		key.WithHelp("D", "del"),
 	),
 	info: key.NewBinding(
 		key.WithKeys("i"),
 		key.WithHelp("i", "info"),
 	),
 	load: key.NewBinding(
-		key.WithKeys("enter"),
-		key.WithHelp("enter", "load"),
+		key.WithKeys("c"),
+		key.WithHelp("c", "chat"),
 	),
 	refresh: key.NewBinding(
 		key.WithKeys("r"),
@@ -99,7 +139,7 @@ func (k infoKeymap) FullHelp() [][]key.Binding {
 var infoKeymapDefaults = infoKeymap{
 	nav: key.NewBinding(
 		key.WithKeys("doesnotexist"),
-		key.WithHelp("←/h l/→", "nav"),
+		key.WithHelp("←/h →/l", "nav"),
 	),
 	prev: key.NewBinding(
 		key.WithKeys("left", "h"),
@@ -108,8 +148,8 @@ var infoKeymapDefaults = infoKeymap{
 		key.WithKeys("right", "l"),
 	),
 	chat: key.NewBinding(
-		key.WithKeys("alt+enter"),
-		key.WithHelp("alt+enter", "chat"),
+		key.WithKeys("c"),
+		key.WithHelp("c", "chat"),
 	),
 	back: key.NewBinding(
 		key.WithKeys("esc"),
@@ -118,7 +158,8 @@ var infoKeymapDefaults = infoKeymap{
 }
 
 type chatKeymap struct {
-	send, focus, back key.Binding
+	back, focus, info, send,
+	agent, model, environ, open key.Binding
 }
 
 // ShortHelp returns keybindings to be shown in the mini help view. It's part
@@ -131,11 +172,32 @@ func (k chatKeymap) ShortHelp() []key.Binding {
 // key.Map interface.
 func (k chatKeymap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
-		{k.send, k.back}, // first column
+		{k.send, k.back, k.info, k.focus},
+		{k.agent, k.model, k.environ, k.open},
 	}
 }
 
 var chatKeymapDefaults = chatKeymap{
+	info: key.NewBinding(
+		key.WithKeys("i"),
+		key.WithHelp("i", "info"),
+	),
+	agent: key.NewBinding(
+		key.WithKeys("a"),
+		key.WithHelp("a", "agent"),
+	),
+	model: key.NewBinding(
+		key.WithKeys("m"),
+		key.WithHelp("m", "model"),
+	),
+	environ: key.NewBinding(
+		key.WithKeys("e"),
+		key.WithHelp("e", "environ"),
+	),
+	open: key.NewBinding(
+		key.WithKeys("o"),
+		key.WithHelp("o", "open"),
+	),
 	send: key.NewBinding(
 		key.WithKeys("alt+enter"),
 		key.WithHelp("alt+enter", "send msg"),

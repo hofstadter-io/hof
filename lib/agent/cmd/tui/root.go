@@ -14,14 +14,17 @@ import (
 
 	aruntime "github.com/hofstadter-io/hof/lib/agent/runtime"
 	"github.com/hofstadter-io/hof/lib/agent/runtime/handlers/common"
+	"github.com/hofstadter-io/hof/lib/consts"
 	"github.com/hofstadter-io/hof/lib/runtime"
 )
-
-const gap = "\n\n"
 
 type (
 	errMsg error
 )
+
+type ViewModel interface {
+	init(root *Model)
+}
 
 type Model struct {
 	// the core runtimes we can work with
@@ -29,25 +32,24 @@ type Model struct {
 	AR *aruntime.Runtime
 
 	// sizing
-	width  int
-	height int
+	width, height       int
+	subwidth, subheight int
 
 	// keymap & help
 	keymap rootKeymap
 	help   help.Model
 
-	// curr
+	// curr view
 	curr      tea.Model
 	currIdx   int
 	currName  string
-	currStyle lipgloss.Style
-
-	session   session.Session
-	currSid   string
 	currTitle string
+	currStyle lipgloss.Style
 
 	// views
 	// main mainModel
+	// TODO, map this?
+	dash *dashModel
 	list *listModel
 	info *infoModel
 	chat *chatModel
@@ -55,15 +57,23 @@ type Model struct {
 	// other fields
 	msg string
 	err error
+
+	// session bookkeeping
+	currSid       string
+	currSessTitle string
+	session       session.Session
+	asession      *aruntime.Session
 }
 
 var views = []string{"list", "chat", "info"}
 
-func InitialModel(R *runtime.Runtime, AR *aruntime.Runtime) *Model {
+func InitialModel(R *runtime.Runtime, AR *aruntime.Runtime, view string) (*Model, error) {
 	w := 50
 	h := 25
 
-	cn := "list"
+	if view == "" {
+		view = "list"
+	}
 	cs := lipgloss.NewStyle().Foreground(lipgloss.Color("5"))
 
 	m := &Model{
@@ -76,17 +86,26 @@ func InitialModel(R *runtime.Runtime, AR *aruntime.Runtime) *Model {
 		err:    nil,
 
 		// curr:      sess,
-		currName:  cn,
+		currName:  view,
 		currStyle: cs,
 		currIdx:   0,
 		// sess:      sess,
 	}
 
-	sess := initialSessionsModel(m, w, h)
-	m.list = sess
-	m.curr = sess
+	switch view {
+	case "list":
+		vm := initialSessionsModel(m)
+		m.list = vm
+		m.curr = vm
+	case "chat":
+		vm := initialChatModel(m)
+		m.chat = vm
+		m.curr = vm
+	default:
+		return nil, fmt.Errorf("unknown view %q", view)
+	}
 
-	return m
+	return m, nil
 }
 
 type TickMsg time.Time
@@ -129,20 +148,20 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyMsg:
 		// handle normally
+		// TODO, mode the input from list to this model, moves us towards a shared setup and possibility for bloomberg like UX
 		switch {
+		case key.Matches(msg, m.keymap.add):
+			if (m.currName == "chat" && m.chat != nil && !m.chat.textarea.Focused()) || (m.currName == "list" && !m.list.input.Focused()) {
+				m.createSession()
+				m.updateCurrName("chat")
+				m.chat.textarea.Focus()
+				return m, tea.Sequence(mainCmd)
+			}
+
 		case key.Matches(msg, m.keymap.help):
-			if m.currName != "chat" || !m.chat.textarea.Focused() {
+			if (m.currName == "chat" && m.chat != nil && !m.chat.textarea.Focused()) || (m.currName == "list" && !m.list.input.Focused()) {
 				show := !m.help.ShowAll
 				m.help.ShowAll = show
-				if m.list != nil {
-					m.list.help.ShowAll = show
-				}
-				if m.info != nil {
-					m.info.help.ShowAll = show
-				}
-				if m.chat != nil {
-					m.chat.help.ShowAll = show
-				}
 			}
 		case key.Matches(msg, m.keymap.quit):
 			// special handling of for chat
@@ -166,14 +185,6 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// We handle errors just like any other message
 	case errMsg:
 		m.err = msg
-		switch m.currName {
-		case "list":
-			m.list.err = msg
-		case "info":
-			m.info.err = msg
-		case "chat":
-			m.chat.err = msg
-		}
 		return m, nil
 	}
 
@@ -191,6 +202,8 @@ func (m *Model) View() string {
 	case "chat", "info":
 		if m.currTitle != "" {
 			first = m.currTitle
+		} else if m.currSessTitle != "" {
+			first = m.currSessTitle
 		} else if m.currSid != "" {
 			first = m.currSid
 		}
@@ -205,13 +218,19 @@ func (m *Model) View() string {
 	var subhelp string
 	switch m.currName {
 	case "list":
-		subhelp = m.list.help.View(m.list.keymap)
+		subhelp = m.help.View(m.list.keymap)
 	case "info":
-		subhelp = m.info.help.View(m.info.keymap)
+		subhelp = m.help.View(m.info.keymap)
 	case "chat":
-		subhelp = m.chat.help.View(m.chat.keymap)
+		subhelp = m.help.View(m.chat.keymap)
 	}
-	header := lipgloss.JoinHorizontal(lipgloss.Top, subhelp, " | ", help, " | ", first)
+
+	err := lipgloss.NewStyle().Foreground(lipgloss.Color("6")).Render("ok")
+	if m.err != nil {
+		err = lipgloss.NewStyle().Foreground(lipgloss.Color("8")).Render(m.err.Error())
+	}
+
+	header := lipgloss.JoinHorizontal(lipgloss.Top, subhelp, " | ", help, " | ", err, " | ", first)
 	doc.WriteString(header)
 	doc.WriteString("\n")
 
@@ -236,20 +255,24 @@ func (m *Model) updateCurr(i int) {
 	switch cn {
 	case "info":
 		if m.info == nil {
-			m.info = initialInfoModel(m, m.width, m.height)
+			m.info = initialInfoModel(m)
 		}
 		m.curr = m.info
+		m.info.renderTab()
 	case "list":
 		if m.list == nil {
-			m.list = initialSessionsModel(m, m.width, m.height)
+			m.list = initialSessionsModel(m)
 		}
 		m.curr = m.list
+		m.list.updateSessions()
+		m.list.updateRows()
 	case "chat":
 		if m.chat == nil {
-			m.chat = initialChatModel(m, m.width, m.height)
+			m.chat = initialChatModel(m)
 		}
 		m.curr = m.chat
 		m.chat.textarea.Focus()
+		m.chat.updateChatStatus()
 	}
 }
 
@@ -274,6 +297,11 @@ func (m *Model) clearSession() {
 	m.msg = ""
 	m.currSid = ""
 	m.currTitle = ""
+	m.session = nil
+	m.asession = nil
+	if m.chat != nil {
+		m.chat.viewport.SetContent("")
+	}
 }
 
 func (m *Model) currDims() {
@@ -282,52 +310,97 @@ func (m *Model) currDims() {
 	hcnt = strings.Count(htxt, "\n") + 1
 
 	if m.chat != nil && m.currName == "chat" {
-		htxt = m.chat.help.View(m.chat.keymap)
+		htxt = m.help.View(m.chat.keymap)
 		ccnt = strings.Count(htxt, "\n") + 1
 	}
 	if m.info != nil && m.currName == "info" {
-		htxt = m.info.help.View(m.info.keymap)
+		htxt = m.help.View(m.info.keymap)
 		icnt = strings.Count(htxt, "\n") + 1
 	}
 	if m.list != nil && m.currName == "list" {
-		htxt = m.list.help.View(m.list.keymap)
+		htxt = m.help.View(m.list.keymap)
 		scnt = strings.Count(htxt, "\n") + 1
 	}
 	hcnt = max(hcnt, ccnt, icnt, scnt)
 
 	vh := m.height - hcnt + 1
+	m.subwidth = m.width
+	m.subheight = vh
+}
 
-	if m.list != nil {
-		m.list.width = m.width
-		m.list.height = vh
+func (m *Model) createSession() error {
+	m.clearSession()
+
+	session, err := common.SessionCreate(m.R, m.AR, common.CreatePayload{
+		User:  consts.VEG_DEFAULT_USER,
+		Agent: "veggie",
+		Model: "gemini-3-flash",
+		// EnvName: "veg-hof",
+	})
+	if err != nil {
+		m.err = err
+		return err
 	}
-	if m.info != nil {
-		m.info.width = m.width
-		m.info.height = vh
-	}
-	if m.chat != nil {
-		m.chat.width = m.width
-		m.chat.height = vh
-	}
+
+	return m.setSession(session)
 }
 
 func (m *Model) loadSession(sid string) error {
-	m.currSid = sid
-	session, err := common.SessionGet(m.R, m.AR, m.currSid)
+	session, err := common.SessionGet(m.R, m.AR, sid)
 	if err != nil {
-		m.msg = err.Error()
+		m.err = err
 		return err
-	} else {
-		m.session = session
 	}
+	return m.setSession(session)
+}
 
+func (m *Model) sendMessage(text string) error {
+	p := &common.ChatPayload{
+		User:  consts.VEG_DEFAULT_USER,
+		Sid:   m.currSid,
+		Agent: "veggie",
+		Model: "gemini-3-flash",
+	}
+	s, err := common.SessionChat(m.R, m.AR, p)
+	if err != nil {
+		m.err = err
+		return err
+	}
+	m.asession = s
+	return nil
+}
+
+func (m *Model) delSession(sid string) error {
+	err := common.SessionDel(m.R, m.AR, sid)
+	if err != nil {
+		m.err = err
+		return err
+	}
+	m.clearSession()
+	return nil
+}
+
+func (m *Model) setSession(session session.Session) error {
+	m.session = session
+	m.currSid = session.ID()
+	tv, err := m.session.State().Get("title")
+	if err == nil {
+		m.currSessTitle = tv.(string)
+	} // intentionally ignoring error here, probably need to introspect the error more for non-existence
 	return nil
 }
 
 func (m *Model) updateRootTitle() {
+	if m.session == nil {
+		m.currTitle = "nil session"
+		return
+	}
 	state := maps.Collect(m.session.State().All())
 	numEvents := m.session.Events().Len()
 	numState := len(state)
-	title := state["title"]
+	title := m.currSessTitle
+	if title == "" {
+		title = m.currSid
+	}
 	m.currTitle = fmt.Sprintf("%s  events:%d  state:%d", title, numEvents, numState)
 }

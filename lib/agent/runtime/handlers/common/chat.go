@@ -3,7 +3,6 @@ package common
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"google.golang.org/adk/agent"
 	"google.golang.org/adk/runner"
@@ -38,26 +37,26 @@ func SessionChat(r *runtime.Runtime, ar *aruntime.Runtime, p *ChatPayload) (*aru
 	}
 	sess := resp.Session
 
+	var environMDs map[string]string
+
 	// do we have an env? if yes, get all the agent files for use during instruction generation
 	envUri, err := sess.State().Get("currEnv")
-	if err != nil {
-		return nil, fmt.Errorf("common.SessionChat.getCurrEnv: %w", err)
-	}
-
-	// do we have agent paths
-	var environMDs map[string]string
-	if envUri != nil {
-		environMDs, err = environ.Client().FindAgentFiles(envUri.(string))
-		if err != nil {
-			return nil, fmt.Errorf("common.SessionChat.findAgentFiles: %w", err)
+	if err == nil {
+		// return nil, fmt.Errorf("common.SessionChat.getCurrEnv: %w", err)
+		// do we have agent paths
+		if envUri != nil {
+			environMDs, err = environ.Client().FindAgentFiles(envUri.(string))
+			if err != nil {
+				return nil, fmt.Errorf("common.SessionChat.findAgentFiles: %w", err)
+			}
+			// fmt.Println("FOUND ENVIRON INSTRUCTION FILES:", slices.Collect(maps.Keys(agentMDs)))
 		}
-		// fmt.Println("FOUND ENVIRON INSTRUCTION FILES:", slices.Collect(maps.Keys(agentMDs)))
 	}
 
 	// --- This is how you serialize a typed response ---
 	userMsg := genai.NewContentFromText(p.Text, genai.RoleUser)
 
-	log.Println("userMsg", userMsg)
+	// log.Println("userMsg", userMsg)
 
 	// TODO, attach this to the session or client
 

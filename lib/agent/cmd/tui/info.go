@@ -1,9 +1,11 @@
 package tui
 
 import (
+	"fmt"
+	"maps"
+	"sort"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -13,32 +15,22 @@ import (
 type infoModel struct {
 	root   *Model
 	keymap infoKeymap
-	help   help.Model
-
-	// sizing
-	width  int
-	height int
 
 	// model specific
 	Tabs      []string
 	activeTab int
 	viewport  viewport.Model
-
-	// other common fields
-	err error
 }
 
-func initialInfoModel(root *Model, width, height int) *infoModel {
-	tabs := []string{"info", "state", "msgs", "Eye Shadow", "Mascara", "Foundation"}
+func initialInfoModel(root *Model) *infoModel {
+	width, height := root.subwidth, root.subheight
+	tabs := []string{"info", "msgs", "files", "state"}
 	vh := height - 6
-	vp := viewport.New(width-2, vh)
+	vp := viewport.New(width, vh)
 
 	return &infoModel{
 		root:     root,
 		keymap:   infoKeymapDefaults,
-		help:     help.New(),
-		width:    width,
-		height:   height,
 		Tabs:     tabs,
 		viewport: vp,
 	}
@@ -49,8 +41,8 @@ func (m *infoModel) Init() tea.Cmd {
 }
 
 func (m *infoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	m.viewport.Height = m.height - 6
-	m.viewport.Width = m.width - 2
+	m.viewport.Height = m.root.subheight - 6
+	m.viewport.Width = m.root.subwidth - 2
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
@@ -132,22 +124,79 @@ func (m *infoModel) View() string {
 
 func (m *infoModel) renderTab() {
 	content := "ipsum lorum"
-	name := m.Tabs[m.activeTab]
-	switch name {
-	case "info":
-		content = "session info..."
-	case "state":
-		content = "session state..."
-	case "msgs":
-		content = m.renderTabMessages()
+	if m.root.session == nil {
+		content = "nil session"
+	} else {
+		name := m.Tabs[m.activeTab]
+		switch name {
+		case "info":
+			content = m.renderTabInfo()
+		case "files":
+			content = m.renderTabFiles()
+		case "state":
+			content = m.renderTabState()
+		case "msgs":
+			content = m.renderTabMessages()
+		}
 	}
 	m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width).Render(content))
 	// ws := windowStyle.Width((width - windowStyle.GetHorizontalFrameSize()))
 	// return ws.Render(content)
 }
 
+const infoFmt = `
+id:     %s
+title:  %s
+events: %d
+state:  %d
+
+agent:  %s
+model:  %s
+envrn:  %s
+`
+
+func (m *infoModel) renderTabInfo() string {
+	id := m.root.session.ID()
+	state := maps.Collect(m.root.session.State().All())
+	numEvents := m.root.session.Events().Len()
+	numState := len(state)
+	title := state["title"]
+	agent := state["agent"]
+	model := state["model"]
+	envName := state["envName"]
+	var b strings.Builder
+	fmt.Fprintf(&b, strings.TrimSpace(infoFmt), id, title, numEvents, numState, agent, model, envName)
+	return b.String()
+}
+
+func (m *infoModel) renderTabFiles() string {
+	return "session files, tbd..."
+}
+
+func (m *infoModel) renderTabState() string {
+	state := maps.Collect(m.root.session.State().All())
+	pairs := make([]KVPair, 0, len(state))
+	for k, v := range state {
+		pairs = append(pairs, KVPair{Key: k, Value: v})
+	}
+	sort.Slice(pairs, func(i, j int) bool {
+		return pairs[i].Key < pairs[j].Key
+	})
+
+	var b strings.Builder
+	for i, p := range pairs {
+		fmt.Fprintf(&b, "%-3d%v\n", i, p.Key)
+	}
+	return b.String()
+}
+
 func (m *infoModel) renderTabMessages() string {
 
-	msgs := renderMessages(m.width, m.root.session)
+	msgs := renderMessages(m.root.subwidth, m.root.session)
 	return strings.Join(msgs, "\n") + "\n\n"
+}
+
+type KVPair struct {
+	Key   string `json:"key"`
+	Value any    `json:"value"`
 }

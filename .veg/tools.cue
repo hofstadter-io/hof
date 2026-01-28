@@ -12,9 +12,9 @@ tools: [n=string]: {
 
 TOOLS=tools: {
 	cache_put: description:    embed["tools/cache_put.md"]
-	cache_write: description:  embed["tools/cache_put.md"]
-	cache_edit: description:   embed["tools/cache_edit.md"]
-	cache_remove: description: embed["tools/cache_del.md"]
+	// cache_write: description:  embed["tools/cache_put.md"]
+	// cache_edit: description:   embed["tools/cache_edit.md"]
+	// cache_remove: description: embed["tools/cache_del.md"]
 	cache_del: description:    embed["tools/cache_del.md"]
 
 	fs_read: description:  embed["tools/fs_read.md"]

@@ -21,7 +21,11 @@ func Chat(args []string, rflags flags.RootPflagpole, aflags flags.AgentPflagpole
 		return fmt.Errorf("expected one match as an agent, matched %d of %d", len(matches), len(R.Agentics))
 	}
 
-	m := tui.InitialModel(R, AR)
+	m, err := tui.InitialModel(R, AR, "chat")
+	if err != nil {
+		return err
+	}
+
 	p := tea.NewProgram(m, tea.WithAltScreen())
 
 	if _, err := p.Run(); err != nil {

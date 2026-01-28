@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -17,6 +16,8 @@ import (
 	"google.golang.org/adk/session"
 )
 
+const SESSION_LIST_ID_POS = 4
+
 var baseStyle = lipgloss.NewStyle().
 	BorderStyle(lipgloss.NormalBorder()).
 	BorderForeground(lipgloss.Color("240"))
@@ -24,11 +25,6 @@ var baseStyle = lipgloss.NewStyle().
 type listModel struct {
 	root   *Model
 	keymap listKeymap
-	help   help.Model
-
-	// sizing
-	width  int
-	height int
 
 	// model specific
 	mode     string
@@ -37,12 +33,10 @@ type listModel struct {
 	sorts    []string
 	sessions []session.Session
 	info     *infoModel
-
-	// other common fields
-	err error
 }
 
-func initialSessionsModel(root *Model, width, height int) *listModel {
+func initialSessionsModel(root *Model) *listModel {
+	width, height := root.subwidth, root.subheight
 
 	h := height - 9
 	mw := width - 3
@@ -72,9 +66,6 @@ func initialSessionsModel(root *Model, width, height int) *listModel {
 	m := &listModel{
 		root:   root,
 		keymap: sessionsKeymapDefaults,
-		help:   help.New(),
-		width:  mw,
-		height: h,
 		table:  t,
 		input:  i,
 		sorts:  []string{"update"},
@@ -91,12 +82,10 @@ func (m *listModel) Init() tea.Cmd { return nil }
 
 func (m *listModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// calc sub dims
-	h := m.height - 3
-	mw := m.width
+	h := m.root.subheight - 3
+	mw := m.root.subwidth
 
 	// update dims
-	m.height = h
-	m.width = mw
 	m.table.SetHeight(h)
 	m.table.SetWidth(mw)
 
@@ -124,11 +113,20 @@ func (m *listModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch {
 		case key.Matches(msg, m.keymap.info):
 			m.mode = "info"
-			sid := m.table.SelectedRow()[2]
+			sid := m.table.SelectedRow()[SESSION_LIST_ID_POS]
 			m.root.currSid = sid
 			m.root.loadSession(sid)
 			m.root.updateCurrName("info")
 			m.root.updateRootTitle()
+
+		case key.Matches(msg, m.keymap.del):
+			sid := m.table.SelectedRow()[SESSION_LIST_ID_POS]
+			m.root.delSession(sid)
+			err := m.updateSessions()
+			if err != nil {
+				m.root.err = err
+			}
+			m.updateRows()
 
 		case key.Matches(msg, m.keymap.sort):
 			m.mode = "sort"
@@ -169,7 +167,7 @@ func (m *listModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			default:
 				m.root.clearSession()
-				sid := m.table.SelectedRow()[2]
+				sid := m.table.SelectedRow()[SESSION_LIST_ID_POS]
 				m.root.currSid = sid
 				m.root.updateCurrName("chat")
 				m.root.chat.refresh()
@@ -194,13 +192,13 @@ func (m *listModel) View() string {
 }
 
 func (m *listModel) updateColumns() {
-	cw := (m.width - 9) / 3
+	cw := (m.root.subwidth - 9) / 3
 	columns := []table.Column{
 		{Title: "Pos", Width: 3},
 		{Title: "Title", Width: cw},
-		{Title: "ID", Width: cw},
 		{Title: "State", Width: 6},
 		{Title: "Last Update", Width: cw},
+		{Title: "ID", Width: cw},
 	}
 	m.table.SetColumns(columns)
 }
@@ -268,9 +266,13 @@ func (m *listModel) updateRows() {
 
 	rows := make([]table.Row, 0, len(data))
 	for i, s := range data {
+		name := s.title
+		if name == "" {
+			name = s.id
+		}
 		numState := fmt.Sprintf("%2d", s.state)
 		lastTime := s.update.Local().Format("Mon, Jan 2, 2006 15:04")
-		row := []string{fmt.Sprint(i), s.title, s.id, numState, lastTime}
+		row := []string{fmt.Sprint(i), name, numState, lastTime, s.id}
 		rows = append(rows, row)
 	}
 

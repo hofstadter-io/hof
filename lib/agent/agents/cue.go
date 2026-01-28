@@ -7,7 +7,6 @@ import (
 	"path"
 	"slices"
 	"sort"
-	"strconv"
 	"strings"
 
 	"cuelang.org/go/cue/cuecontext"
@@ -125,7 +124,7 @@ func BuildAgent(
 	if modelName == "" || modelName == "default" {
 		modelName = agt.Model
 	}
-	fmt.Println("BuildAgent", agentName, modelName)
+	// fmt.Println("BuildAgent", agentName, modelName)
 	mdl, ok := models[modelName]
 	if !ok {
 		return nil, fmt.Errorf("unknown model %q in agent %q", modelName, agt.Name)
@@ -198,13 +197,13 @@ func buildMcp(cfg *config.Config, agt config.Agent, models map[string]model.LLM)
 func buildTools(cfg *config.Config, agt config.Agent, models map[string]model.LLM, environMDs map[string]string) ([]tool.Tool, error) {
 	var ts []tool.Tool
 	for _, t := range agt.Tools {
-		fmt.Printf("%s.tool: %q\n", agt.Name, t)
+		// fmt.Printf("%s.tool: %q\n", agt.Name, t)
 		var T tool.Tool
 		var err error
 
 		// @<agent> handling
 		agentAsTool, found := strings.CutPrefix(t, "@")
-		fmt.Printf("%s.tool.agent: %q ? %v\n", agt.Name, agentAsTool, found)
+		// fmt.Printf("%s.tool.agent: %q ? %v\n", agt.Name, agentAsTool, found)
 		if found {
 			A, aerr := BuildAgent(cfg, agentAsTool, "default", models, environMDs)
 			if aerr != nil {
@@ -275,14 +274,14 @@ func buildTools(cfg *config.Config, agt config.Agent, models map[string]model.LL
 func addCallbacks(cfg *config.Config, agt config.Agent, environMDs map[string]string, c *llmagent.Config) {
 	c.BeforeAgentCallbacks = []agent.BeforeAgentCallback{
 		func(ctx agent.CallbackContext) (*genai.Content, error) {
-			fmt.Printf("\nBAC.%s\n", ctx.AgentName())
+			// fmt.Printf("\nBAC.%s\n", ctx.AgentName())
 			return nil, nil
 		},
 	}
 
 	c.BeforeModelCallbacks = []llmagent.BeforeModelCallback{
 		func(ctx agent.CallbackContext, req *model.LLMRequest) (*model.LLMResponse, error) {
-			fmt.Printf("\nBMC.%s\n", ctx.AgentName())
+			// fmt.Printf("\nBMC.%s\n", ctx.AgentName())
 
 			// This next section is all about making sure the state is in a good place
 			// to match the data we are about to render instructions with
@@ -323,15 +322,15 @@ func addCallbacks(cfg *config.Config, agt config.Agent, environMDs map[string]st
 
 			// hmmm, little utils like this could get spread throughout the code
 			// TODO, make a schema somewhere for the various config (cli, system, per-user, per-session, state)
-			showStr, err := ctx.State().Get("showSystemPrompt")
-			fmt.Println("showSystemPrompt.1?", showStr, err)
-			if showStr != nil {
-				show, err := strconv.ParseBool(showStr.(string))
-				fmt.Println("showSystemPrompt.2?", show, err)
-				if err == nil && show {
-					fmt.Println(req.Config.SystemInstruction.Parts[0].Text)
-				}
-			}
+			// showStr, err := ctx.State().Get("showSystemPrompt")
+			// fmt.Println("showSystemPrompt.1?", showStr, err)
+			// if showStr != nil {
+			// 	show, err := strconv.ParseBool(showStr.(string))
+			// 	fmt.Println("showSystemPrompt.2?", show, err)
+			// 	if err == nil && show {
+			// 		fmt.Println(req.Config.SystemInstruction.Parts[0].Text)
+			// 	}
+			// }
 
 			return nil, nil
 		},
@@ -339,7 +338,7 @@ func addCallbacks(cfg *config.Config, agt config.Agent, environMDs map[string]st
 
 	c.BeforeToolCallbacks = []llmagent.BeforeToolCallback{
 		func(ctx tool.Context, t tool.Tool, args map[string]any) (map[string]any, error) {
-			fmt.Printf("\nBTC.%s.%s\n", ctx.AgentName(), t.Name())
+			// fmt.Printf("\nBTC.%s.%s\n", ctx.AgentName(), t.Name())
 			return nil, nil
 		},
 	}
@@ -350,21 +349,21 @@ func addCallbacks(cfg *config.Config, agt config.Agent, environMDs map[string]st
 
 	c.AfterToolCallbacks = []llmagent.AfterToolCallback{
 		func(ctx tool.Context, t tool.Tool, args, result map[string]any, err error) (map[string]any, error) {
-			fmt.Printf("\nATC.%s.%s %v\n", ctx.AgentName(), t.Name(), err)
+			// fmt.Printf("\nATC.%s.%s %v\n", ctx.AgentName(), t.Name(), err)
 			return result, err
 		},
 	}
 
 	c.AfterModelCallbacks = []llmagent.AfterModelCallback{
 		func(ctx agent.CallbackContext, res *model.LLMResponse, err error) (*model.LLMResponse, error) {
-			fmt.Printf("\nAMC.%s %v\n", ctx.AgentName(), err)
+			// fmt.Printf("\nAMC.%s %v\n", ctx.AgentName(), err)
 			return res, err
 		},
 	}
 
 	c.AfterAgentCallbacks = []agent.AfterAgentCallback{
 		func(ctx agent.CallbackContext) (*genai.Content, error) {
-			fmt.Printf("\nAAC.%s\n", ctx.AgentName())
+			// fmt.Printf("\nAAC.%s\n", ctx.AgentName())
 			return nil, nil
 		},
 	}

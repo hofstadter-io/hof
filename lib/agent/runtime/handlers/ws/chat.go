@@ -54,28 +54,28 @@ func chatUserMessage(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 	}
 	sess := resp.Session
 
+	var environMDs map[string]string
 	// do we have an env? if yes, get all the agent files for use during instruction generation
 	envUri, err := sess.State().Get("currEnv")
-	if err != nil {
-		log.Printf("chat.msg.error.getCurrEnv: %v", err)
-		c.Mail("chat.event.error", map[string]string{
-			"id":    p.Sid,
-			"error": err.Error(),
-		})
-	}
+	if err == nil {
+		// log.Printf("chat.msg.error.getCurrEnv: %v", err)
+		// c.Mail("chat.event.error", map[string]string{
+		// 	"id":    p.Sid,
+		// 	"error": err.Error(),
+		// })
 
-	// do we have agent paths
-	var environMDs map[string]string
-	if envUri != nil {
-		environMDs, err = environ.Client().FindAgentFiles(envUri.(string))
-		if err != nil {
-			log.Printf("chat.msg.error.GetAgentFiles: %v", err)
-			c.Mail("chat.event.error", map[string]string{
-				"id":    p.Sid,
-				"error": err.Error(),
-			})
+		// do we have agent paths
+		if envUri != nil {
+			environMDs, err = environ.Client().FindAgentFiles(envUri.(string))
+			if err != nil {
+				log.Printf("chat.msg.error.GetAgentFiles: %v", err)
+				c.Mail("chat.event.error", map[string]string{
+					"id":    p.Sid,
+					"error": err.Error(),
+				})
+			}
+			// fmt.Println("FOUND ENVIRON INSTRUCTION FILES:", slices.Collect(maps.Keys(agentMDs)))
 		}
-		// fmt.Println("FOUND ENVIRON INSTRUCTION FILES:", slices.Collect(maps.Keys(agentMDs)))
 	}
 
 	// --- This is how you serialize a typed response ---

@@ -5,6 +5,19 @@ import (
 	"github.com/hofstadter-io/hof/lib/templates"
 )
 
+func NewConfig() *Config {
+	return &Config{
+		Models:   make(map[string]Model),
+		Agents:   make(map[string]Agent),
+		Tools:    make(map[string]Tool),
+		Toolsets: make(map[string]Toolset),
+		Environs: make(map[string]Environ),
+		Embeds:   make(map[string]any),
+		EmbedDir: ".veg/embed", // temp default, we need both local and imported through CUE (or maybe just the later)
+		AgentsMD: make(map[string]string),
+	}
+}
+
 type Config struct {
 	Models   map[string]Model   `json:"models"`
 	Agents   map[string]Agent   `json:"agents"`

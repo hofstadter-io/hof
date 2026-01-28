@@ -9,6 +9,8 @@ cuelabs.dev/go/oci/ociregistry v0.0.0-20250722084951-074d06050084 h1:4k1yAtPvZJZ
 cuelabs.dev/go/oci/ociregistry v0.0.0-20250722084951-074d06050084/go.mod h1:4WWeZNxUO1vRoZWAHIG0KZOd6dA25ypyWuwD3ti0Tdc=
 cuelang.org/go v0.15.3 h1:JKR/lZVwuIGlLTGIaJ0jONz9+CK3UDx06sQ6DDxNkaE=
 cuelang.org/go v0.15.3/go.mod h1:NYw6n4akZcTjA7QQwJ1/gqWrrhsN4aZwhcAL0jv9rZE=
+cuelang.org/go v0.15.4 h1:lrkTDhqy8dveHgX1ZLQ6WmgbhD8+rXa0fD25hxEKYhw=
+cuelang.org/go v0.15.4/go.mod h1:NYw6n4akZcTjA7QQwJ1/gqWrrhsN4aZwhcAL0jv9rZE=
 cyphar.com/go-pathrs v0.2.1 h1:9nx1vOgwVvX1mNBWDu93+vaceedpbsDqo+XuBGL40b8=
 cyphar.com/go-pathrs v0.2.1/go.mod h1:y8f1EMG7r+hCuFf/rXsKqMJrJAUoADZGNh5/vZPKcGc=
 dagger.io/dagger v0.19.10 h1:farO4CggSoWCId92QeZWKpP5mY9YwsVhNYuUzpqsKqw=

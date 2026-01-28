@@ -32,3 +32,11 @@ func SessionList(r *runtime.Runtime, ar *aruntime.Runtime) ([]session.Session, e
 
 	return sessions.Sessions, nil
 }
+
+func SessionDel(r *runtime.Runtime, ar *aruntime.Runtime, sid string) error {
+	return ar.S.Delete(r.Ctx, &session.DeleteRequest{
+		AppName:   ar.AppName,
+		UserID:    consts.VEG_DEFAULT_USER,
+		SessionID: sid,
+	})
+}

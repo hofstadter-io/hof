@@ -27,6 +27,7 @@ import (
 	"github.com/hofstadter-io/hof/lib/consts"
 	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/env"
+	"github.com/hofstadter-io/hof/lib/templates"
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
@@ -249,5 +250,84 @@ func (r *Runtime) initServer() error {
 
 	// save & return
 	r.e = e
+	return nil
+}
+
+func (r *Runtime) BackfillAgentic() error {
+	cfg := agentconfig.NewConfig()
+
+	for _, a := range r.Agentics {
+		switch a.Hof.Agentic.Kind {
+		case "agent":
+			var m agentconfig.Agent
+			err := a.Value.Decode(&m)
+			if err != nil {
+				return err
+			}
+			cfg.Agents[a.Hof.Agentic.Name] = m
+		case "model":
+			var m agentconfig.Model
+			err := a.Value.Decode(&m)
+			if err != nil {
+				return err
+			}
+			cfg.Models[a.Hof.Agentic.Name] = m
+		case "tool":
+			var m agentconfig.Tool
+			err := a.Value.Decode(&m)
+			if err != nil {
+				return err
+			}
+			cfg.Tools[a.Hof.Agentic.Name] = m
+		case "environ":
+			var m agentconfig.Environ
+			err := a.Value.Decode(&m)
+			if err != nil {
+				return err
+			}
+			cfg.Environs[a.Hof.Agentic.Name] = m
+
+		}
+	}
+	prepareTemplates(cfg)
+
+	r.Agentic = cfg
+
+	return nil
+}
+
+// TODO, we still need to do this, through probably on a per-request basis, or at least with watch/config changes
+func prepareTemplates(cfg *agentconfig.Config) error {
+
+	cwd, _ := os.Getwd()
+	// todo, also put this on the Session
+	dir := filepath.Join(cwd, cfg.EmbedDir)
+	glob := filepath.Join(dir, "**/*.*")
+	cfg.Templates = templates.NewTemplateMap()
+	// fmt.Printf("found %d templates in %q\n", len(config.Templates), dir)
+	err := cfg.Templates.ImportFromFolder(glob, dir, templates.Delims{}, nil)
+	if err != nil {
+		return fmt.Errorf("while loading instruction templates (%s,%s): %w", cwd, cfg.EmbedDir, err)
+	}
+	// fmt.Printf("found %d templates in %s\n", len(config.Templates), dir)
+
+	for _, T1 := range cfg.Templates {
+		for _, T2 := range cfg.Templates {
+			if T1.Name == T2.Name {
+				continue
+			}
+			t := T1.T.New(T2.Name)
+			_, err := t.Parse(T2.Source)
+			if err != nil {
+				return fmt.Errorf("while cross registering templates (%s,%s): %w", T1.Name, T2.Name, err)
+			}
+		}
+
+		// fmt.Println(T1.Name)
+		// for _, t := range T1.T.Templates() {
+		// 	fmt.Printf(" - %s\n", t.Name())
+		// }
+	}
+
 	return nil
 }

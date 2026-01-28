@@ -6,22 +6,20 @@ import (
 	"maps"
 	"net/url"
 	"os"
-	"path/filepath"
 	"regexp"
 	"slices"
 	"sort"
+	"strconv"
 	"strings"
 
 	"cuelang.org/go/cue"
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/agent"
-	"github.com/hofstadter-io/hof/lib/agent/config"
 	aruntime "github.com/hofstadter-io/hof/lib/agent/runtime"
 	"github.com/hofstadter-io/hof/lib/agent/runtime/handlers/ws"
 	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/env/incept"
 	"github.com/hofstadter-io/hof/lib/runtime"
-	"github.com/hofstadter-io/hof/lib/templates"
 )
 
 type agentFilter func(*agent.Agentic) bool
@@ -57,6 +55,8 @@ func prepRuntime(args []string, rflags flags.RootPflagpole) (*runtime.Runtime, *
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to create agent runtime: %v", err)
 	}
+
+	ar.BackfillAgentic()
 
 	ws.SetupHandlers(ar)
 	return r, ar, nil
@@ -213,42 +213,6 @@ func commonStart(
 	return R, AR, matches, err
 }
 
-// TODO, we still need to do this, through probably on a per-request basis, or at least with watch/config changes
-func prepareTemplates(cfg *config.Config) error {
-
-	cwd, _ := os.Getwd()
-	// todo, also put this on the Session
-	dir := filepath.Join(cwd, cfg.EmbedDir)
-	glob := filepath.Join(dir, "**/*.*")
-	cfg.Templates = templates.NewTemplateMap()
-	// fmt.Printf("found %d templates in %q\n", len(config.Templates), dir)
-	err := cfg.Templates.ImportFromFolder(glob, dir, templates.Delims{}, nil)
-	if err != nil {
-		return fmt.Errorf("while loading instruction templates (%s,%s): %w", cwd, cfg.EmbedDir, err)
-	}
-	// fmt.Printf("found %d templates in %s\n", len(config.Templates), dir)
-
-	for _, T1 := range cfg.Templates {
-		for _, T2 := range cfg.Templates {
-			if T1.Name == T2.Name {
-				continue
-			}
-			t := T1.T.New(T2.Name)
-			_, err := t.Parse(T2.Source)
-			if err != nil {
-				return fmt.Errorf("while cross registering templates (%s,%s): %w", T1.Name, T2.Name, err)
-			}
-		}
-
-		// fmt.Println(T1.Name)
-		// for _, t := range T1.T.Templates() {
-		// 	fmt.Printf(" - %s\n", t.Name())
-		// }
-	}
-
-	return nil
-}
-
 func daggerInceptFlags(rflags flags.RootPflagpole, eflags flags.EnvPflagpole) (bool, error) {
 	return daggerInceptOpts(&incept.InceptOptions{
 		Verbose:     rflags.Verbosity,
@@ -281,6 +245,8 @@ func extractMeta(a *agent.Agentic) (aname, akind, mname string) {
 	if aname == "" {
 		aname = mname
 	}
+	aname, _ = strconv.Unquote(aname)
+	mname, _ = strconv.Unquote(mname)
 	return aname, akind, mname
 }
 

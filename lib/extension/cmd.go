@@ -35,6 +35,7 @@ func Run(args []string, rflags flags.RootPflagpole) error {
 	if err != nil {
 		return fmt.Errorf("failed to create agent runtime: %v", err)
 	}
+	ar.BackfillAgentic()
 
 	ws.SetupHandlers(ar)
 
