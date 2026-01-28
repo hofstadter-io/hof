@@ -1,6 +1,11 @@
 package runtime
 
-import "context"
+import (
+	"context"
+
+	"github.com/hofstadter-io/hof/lib/agent/config"
+	"google.golang.org/adk/session"
+)
 
 // also move cue agent here
 
@@ -8,7 +13,13 @@ import "context"
 type Session struct {
 	Sid string
 
-	StopFunc context.CancelFunc
+	EventChan chan *session.Event
+	ErrorChan chan error
+	StopFunc  context.CancelFunc
+
+	Agentic config.Config
+
+	Session *session.Session
 }
 
 func (R *Runtime) GetSession(sid string) (*Session, bool) {

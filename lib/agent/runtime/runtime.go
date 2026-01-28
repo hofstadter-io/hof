@@ -14,27 +14,23 @@ import (
 	"google.golang.org/adk/artifact"
 	"google.golang.org/adk/model"
 	"google.golang.org/adk/session"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
+	"github.com/hofstadter-io/hof/lib/agent"
 	"github.com/hofstadter-io/hof/lib/agent/agents"
+	agentconfig "github.com/hofstadter-io/hof/lib/agent/config"
 	"github.com/hofstadter-io/hof/lib/agent/models"
-	"github.com/hofstadter-io/hof/lib/agent/runtime/services/environ"
-	vegsession "github.com/hofstadter-io/hof/lib/agent/runtime/services/session"
+	"github.com/hofstadter-io/hof/lib/agent/runtime/handlers/api"
+	"github.com/hofstadter-io/hof/lib/agent/services/environ"
+	vegsession "github.com/hofstadter-io/hof/lib/agent/services/session"
+	"github.com/hofstadter-io/hof/lib/config"
+	"github.com/hofstadter-io/hof/lib/consts"
 	"github.com/hofstadter-io/hof/lib/cuetils"
+	"github.com/hofstadter-io/hof/lib/env"
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 // TODO, make these env vars
-const CONFIG_PATH = `.veg`
-const DATA_PATH = `.veg/data`
-
-const VEG_SYS_DATA_DIR_VAR = "VEG_SYS_DATA_DIR"
-const VEG_USER_DATA_DIR_VAR = "VEG_USER_DATA_DIR"
-const VEG_SYS_DATA_DIR_DEFAULT = "/var/lib/veg/data"
-
-var VEG_SYS_DATA_DIR string
-var VEG_USER_DATA_DIR string
 
 type Runtime struct {
 	AppName string
@@ -50,9 +46,15 @@ type Runtime struct {
 
 	// agentic stuff
 	Models  map[string]model.LLM
-	Agentic agents.Config
+	Agentic *agentconfig.Config
+
+	// Copying(read-only) in temporarily(?) until more of the things here get lifted
+	// it at least lets us start refactoring code here around the top-level runtime and CUE fabric
+	Envs     []*env.Env
+	Agentics []*agent.Agentic
 
 	// clients & comms
+	// TODO, this is stuff we should move up and support multiple subsystems with
 	Handlers   map[string]Handler
 	clients    map[*Client]bool
 	register   chan *Client
@@ -64,12 +66,19 @@ type Runtime struct {
 
 type Handler func(*Runtime, *Client, *Message)
 
-func NewRuntime() (*Runtime, error) {
+func NewRuntime(
+	db *gorm.DB,
+	envs []*env.Env,
+	agentics []*agent.Agentic,
+) (*Runtime, error) {
 	ctx := context.Background()
 
 	R := &Runtime{
 		AppName:    "veg",
 		Ctx:        ctx,
+		db:         db,
+		Envs:       envs,
+		Agentics:   agentics,
 		Models:     make(map[string]model.LLM),
 		Handlers:   make(map[string]Handler),
 		clients:    make(map[*Client]bool),
@@ -103,24 +112,10 @@ func (r *Runtime) handleMessage(c *Client, m *Message) {
 }
 
 func (R *Runtime) init() (err error) {
-	VEG_SYS_DATA_DIR = os.Getenv(VEG_SYS_DATA_DIR_VAR)
-	if VEG_SYS_DATA_DIR == "" {
-		VEG_SYS_DATA_DIR = VEG_SYS_DATA_DIR_VAR
-	}
-
-	VEG_USER_DATA_DIR = os.Getenv(VEG_USER_DATA_DIR_VAR)
-	if VEG_USER_DATA_DIR == "" {
-		configDir, err := os.UserConfigDir()
-		if err != nil {
-			return err
-		}
-		VEG_USER_DATA_DIR = filepath.Join(configDir, "veg", "data")
-	}
-
-	err = R.ReadConfig()
-	if err != nil {
-		return fmt.Errorf("while reading config: %w", err)
-	}
+	// err = R.ReadConfig()
+	// if err != nil {
+	// 	return fmt.Errorf("while reading config: %w", err)
+	// }
 
 	err = R.initModels()
 	if err != nil {
@@ -140,7 +135,8 @@ func (R *Runtime) init() (err error) {
 	return nil
 }
 
-func (R *Runtime) ReadConfig() error {
+// this needs to be updated to read out of a fs / env
+func (R *Runtime) ReadEnvConfig() error {
 	// TODO, load agents from multiple locations
 	// 1. user
 	// 2. project
@@ -167,7 +163,7 @@ func (R *Runtime) ReadConfig() error {
 		return fmt.Errorf("while relativing dir: %w", err)
 	}
 
-	adir := filepath.Join(rdir, CONFIG_PATH)
+	adir := filepath.Join(rdir, consts.VEG_REPO_LOCAL_PATH)
 	// fmt.Println("dirs", gdir, cwd, bdir, rdir, adir)
 	// formatting so CUE accepts it (cannot be absolute, cannot be without leading ./ or ../)
 	if strings.HasPrefix(adir, ".veg/") {
@@ -178,7 +174,7 @@ func (R *Runtime) ReadConfig() error {
 
 	// project, based on cwd, but should probably look for a git root
 
-	R.Agentic, err = agents.AgenticCUE(adir, R.Models)
+	R.Agentic, err = agents.OldAgenticCUE(adir, R.Models)
 	if err != nil {
 		err = cuetils.ExpandCueError(err)
 		return fmt.Errorf("while loading AgenticCUE:\n%s", err)
@@ -188,10 +184,17 @@ func (R *Runtime) ReadConfig() error {
 }
 
 func (R *Runtime) initModels() (err error) {
-	for _, m := range R.Agentic.Models {
-		R.Models[m.Name], err = models.Gemini(R.Ctx, m.Id)
-		if err != nil {
-			return fmt.Errorf("while init'n model %q: %w", m, err)
+	for _, a := range R.Agentics {
+		if a.Hof.Agentic.Kind == "model" {
+			var m agentconfig.Model
+			err := a.Value.Decode(&m)
+			if err != nil {
+				return fmt.Errorf("while decoding'n model %q: %w", a.Value, err)
+			}
+			R.Models[m.Name], err = models.Gemini(R.Ctx, m.Id)
+			if err != nil {
+				return fmt.Errorf("while init'n model %q: %w", m, err)
+			}
 		}
 	}
 
@@ -203,22 +206,14 @@ func (R *Runtime) initServices() error {
 	// VEG|RENAME: make this a multi-tier lookup and unify system
 	// generally for all the subsystems
 
-	// open comms to the db
-	dia := sqlite.Open(filepath.Join(VEG_USER_DATA_DIR, "veg.db"))
-	db, err := gorm.Open(dia, &gorm.Config{})
-	if err != nil {
-		return fmt.Errorf("error creating database session service: %w", err)
-	}
-	R.db = db
-
 	// environment management
-	err = environ.Initialize(R.Ctx, db)
+	err := environ.Initialize(R.Ctx, R.db)
 	if err != nil {
 		return fmt.Errorf("while initializing Runtime.EnvironService")
 	}
 
 	// session management
-	s, err := vegsession.NewSessionServiceGorm(db)
+	s, err := vegsession.NewSessionServiceGorm(R.db)
 	if err != nil {
 		return fmt.Errorf("while initializing Runtime.SessionService")
 	}
@@ -226,7 +221,7 @@ func (R *Runtime) initServices() error {
 	R.S = s
 
 	// artifacts
-	R.A, err = artifact.FilesystemService(filepath.Join(DATA_PATH, "artifacts"))
+	R.A, err = artifact.FilesystemService(filepath.Join(config.Veg.UserDataDir, "artifacts"))
 	if err != nil {
 		return fmt.Errorf("while initializing Runtime.ArtifactService")
 	}
@@ -250,25 +245,7 @@ func (r *Runtime) initServer() error {
 	})
 	// TODO metrics & otel
 
-	//
-	// filesystem
-	//
-	e.POST("/fs/open", fsOpen)
-	e.POST("/fs/stat", fsStat)
-	e.POST("/fs/read", r.fsRead)
-	e.POST("/fs/list", r.fsList)
-	e.POST("/fs/diff", r.fsDiff)
-	e.POST("/fs/write", r.fsWrite)
-	e.POST("/fs/delete", r.fsDelete)
-	e.POST("/fs/mkdir", r.fsMkdir)
-	e.POST("/fs/rename", r.fsRename)
-	e.POST("/fs/copy", r.fsCopy)
-
-	e.POST("/env/list", r.envList)
-	e.POST("/prompt/render", r.promptRender)
-
-	e.POST("/session/clone", r.sessionClone)
-	e.POST("/session/splice", r.sessionSplice)
+	api.Setup(r.AppName, e, r.S)
 
 	// save & return
 	r.e = e

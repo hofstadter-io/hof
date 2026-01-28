@@ -11,13 +11,13 @@ ExtensionCommand: schema.Command & {
 	Long:  "run the extension server"
 
 	Imports: [
-		{Path: "github.com/hofstadter-io/hof/lib/env/cmd", As: "libenvcmd"},
-		{Path: "github.com/hofstadter-io/hof/lib/agent/extension"},
 		{Path: "github.com/hofstadter-io/hof/cmd/hof/flags"},
+		{Path: "github.com/hofstadter-io/hof/lib/extension"},
+		{Path: "github.com/hofstadter-io/hof/lib/runtime"},
 	]
 
 	PersistentPrerun:     true
-	PersistentPrerunBody: "err = libenvcmd.EnsureInfra()"
+	PersistentPrerunBody: "err = runtime.EnsureInfra()"
 
 	// this runs the commands or naked `veg env` command
 	Body: "err = extension.Run(args, flags.RootPflags)"

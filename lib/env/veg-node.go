@@ -5,7 +5,7 @@ import "github.com/hofstadter-io/hof/lib/hof"
 type Env struct {
 	*hof.Node[any]
 
-		Name        string
+	Name        string
 	HumanName   string
 	MachineName string
 

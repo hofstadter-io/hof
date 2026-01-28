@@ -13,7 +13,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hofstadter-io/hof/lib/agent/runtime"
-	"github.com/hofstadter-io/hof/lib/agent/runtime/services/environ"
+	"github.com/hofstadter-io/hof/lib/agent/services/environ"
 	"github.com/kr/pretty"
 )
 
@@ -140,8 +140,12 @@ func sessionCreate(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 		for _, e := range r.Agentic.Environs {
 			// fmt.Printf(" ? %#+v\n", e)
 			if e.Name == payload.EnvName {
-				// fmt.Println("  MATCH")
-				pe.FromUri = "oci://" + e.Spec.From
+				fmt.Println("  MATCH", e)
+				if e.SpecValue.Exists() {
+					pe.EnvValue = e.SpecValue
+				} else if e.Spec.From != "" {
+					pe.FromUri = "oci://" + e.Spec.From
+				}
 				break
 			}
 		}

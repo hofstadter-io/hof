@@ -5,6 +5,7 @@ import (
 )
 
 tools: [n=string]: {
+  @agentic(tool)
 	name:        string | *n
 	description: string
 }

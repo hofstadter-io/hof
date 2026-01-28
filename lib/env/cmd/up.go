@@ -11,8 +11,8 @@ import (
 	"syscall"
 	"time"
 
-	"golang.org/x/sync/errgroup"
 	"dagger.io/dagger"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/env"
@@ -44,7 +44,7 @@ func Up(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) er
 
 	// setup dagger & cue->dagger engine
 	err = R.DaggerInit()
-	d, _ := dag.NewClient(R.Ctx, R.DagClient)
+	d, _ := dag.NewClient(R.Ctx, R.DAG)
 
 	buildCtx, buildSpan := dagger.Tracer().Start(R.Ctx, "hof env up")
 	defer buildSpan.End()
@@ -96,7 +96,7 @@ func Up(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) er
 				})
 			}
 
-			s = R.DagClient.Host().Tunnel(s, dagger.HostTunnelOpts{
+			s = R.DAG.Host().Tunnel(s, dagger.HostTunnelOpts{
 				Ports: ports,
 			})
 			s, err = s.Start(matchCtx)

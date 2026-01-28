@@ -148,10 +148,11 @@ func upgradeAttrs[T any](node *Node[T], label string) bool {
 				node.Hof.Metadata.Name = node.Hof.Env.Name
 			}
 
-		case "agent":
-			node.Hof.Agent.Root = true
-			node.Hof.Agent.Name = label
-			node.Hof.Agent.Extra = ac
+		case "agentic":
+			node.Hof.Agentic.Root = true
+			node.Hof.Agentic.Name = label
+			node.Hof.Agentic.Kind = ac
+			// node.Hof.Agentic.Extra = ac
 
 		default:
 			lfound = false

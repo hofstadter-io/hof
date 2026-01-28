@@ -2,6 +2,7 @@ package veg
 
 
 models: [n=string]: {
+  @agentic(model)
   name: string| *n
   id: string | *n
 

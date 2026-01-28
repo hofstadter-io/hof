@@ -4,40 +4,68 @@ import (
 	"fmt"
 	"os"
 
+	"path/filepath"
+
 	"github.com/spf13/cobra"
+
+	"github.com/hofstadter-io/hof/lib/runtime"
+
+	libagentcmd "github.com/hofstadter-io/hof/lib/agent/cmd"
+
+	"github.com/hofstadter-io/hof/cmd/hof/cmd/agent"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
-
-	agentcmd "github.com/hofstadter-io/hof/lib/agent/cmd"
 )
 
-var agentLong = `Run an agent`
+var agentLong = `build, use, evaluate, and serve agentic systems`
 
 func init() {
 
-	flags.SetupAgentFlags(AgentCmd.Flags(), &(flags.AgentFlags))
+	flags.SetupAgentPflags(AgentCmd.PersistentFlags(), &(flags.AgentPflags))
 
+}
+
+func AgentPersistentPreRun(args []string) (err error) {
+
+	err = runtime.EnsureInfra()
+
+	return err
 }
 
 func AgentRun(args []string) (err error) {
 
-	// you can safely comment this print out
-	// fmt.Println("not implemented")
-
-	err = agentcmd.Run(args, flags.RootPflags, flags.AgentFlags)
+	err = libagentcmd.Main(args, flags.RootPflags, flags.AgentPflags, flags.Agent__ChatPflags)
 
 	return err
 }
 
 var AgentCmd = &cobra.Command{
 
-	Use: "agent [args]",
+	Use: "agent [...target] [% ...cue]",
 
-	Short: "run an agent",
+	Short: "build, chat with, and serve agentic systems",
 
 	Long: agentLong,
+
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		glob := toComplete + "*"
+		matches, _ := filepath.Glob(glob)
+		return matches, cobra.ShellCompDirectiveDefault
+	},
+
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		var err error
+
+		// Argument Parsing
+
+		err = AgentPersistentPreRun(args)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	},
 
 	Run: func(cmd *cobra.Command, args []string) {
 
@@ -88,5 +116,11 @@ func init() {
 	}
 	AgentCmd.SetHelpFunc(thelp)
 	AgentCmd.SetUsageFunc(tusage)
+
+	AgentCmd.AddCommand(cmdagent.ListCmd)
+	AgentCmd.AddCommand(cmdagent.ChatCmd)
+	AgentCmd.AddCommand(cmdagent.ServeCmd)
+	AgentCmd.AddCommand(cmdagent.BulkCmd)
+	AgentCmd.AddCommand(cmdagent.EvalCmd)
 
 }

@@ -57,10 +57,13 @@ EnvCommand: schema.Command & {
 	Short: "build, run, ship, and deploy environments (image, service, stack)"
 	Long:  _envLong
 
-	Imports: [{As: "libenvcmd", Path: "github.com/hofstadter-io/hof/lib/env/cmd"}]
+	Imports: [
+		{Path: "github.com/hofstadter-io/hof/lib/runtime"},
+		{As: "libenvcmd", Path: "github.com/hofstadter-io/hof/lib/env/cmd"},
+	]
 
 	PersistentPrerun:     true
-	PersistentPrerunBody: "err = libenvcmd.EnsureInfra()"
+	PersistentPrerunBody: "err = runtime.EnsureInfra()"
 
 	// this runs the commands or naked `veg env` command
 	Body: "err = libenvcmd.Env(args, flags.RootPflags, flags.EnvPflags)"

@@ -5,7 +5,7 @@ import (
 
 	"cuelang.org/go/cue"
 
-	_ "modernc.org/sqlite"
+	_ "gorm.io/driver/sqlite"
 )
 
 func handleSQLiteExec(dbname, query string, args []interface{}) (string, error) {

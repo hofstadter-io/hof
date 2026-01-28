@@ -2,7 +2,7 @@ package agent
 
 import "github.com/hofstadter-io/hof/lib/hof"
 
-type Agent struct {
+type Agentic struct {
 	*hof.Node[any]
 
 	Name        string

@@ -42,7 +42,7 @@ type Hof struct {
 	Gen       Gen
 	Flow      Flow
 	Env       Env
-	Agent     Agent
+	Agentic   Agentic
 
 	// any extra config, set by users
 	Extra map[string]any
@@ -150,7 +150,7 @@ type Env struct {
 // hof/agent configuration
 // #hof: agent: "name"
 // @agent(extra)
-type Agent struct {
+type Agentic struct {
 	Root  bool
 	Name  string
 	Kind  string

@@ -5,16 +5,13 @@ import (
 	"strings"
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/env/dag"
 )
 
 func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) error {
-	err := EnsureInfra()
-	if err != nil {
-		return err
-	}
 
-	args, cueargs := splitArgs(args)
+	args, cueargs := cuetils.PercentSplitArgs(args)
 	R, err := prepRuntime(cueargs, rflags)
 	if err != nil {
 		return err
@@ -28,7 +25,7 @@ func Env(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) e
 
 	// setup dagger & cue->dagger engine
 	err = R.DaggerInit()
-	d, _ := dag.NewClient(R.Ctx, R.DagClient)
+	d, _ := dag.NewClient(R.Ctx, R.DAG)
 
 	var cmdArg, taskArg string
 	for _, arg := range args {

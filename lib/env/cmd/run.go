@@ -44,7 +44,7 @@ func Run(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole, c
 
 	// setup dagger & cue->dagger engine
 	err = R.DaggerInit()
-	d, _ := dag.NewClient(R.Ctx, R.DagClient)
+	d, _ := dag.NewClient(R.Ctx, R.DAG)
 
 	buildCtx, buildCancel := context.WithCancel(R.Ctx)
 	defer buildCancel()
@@ -113,7 +113,7 @@ func Run(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole, c
 					})
 				}
 
-				s = R.DagClient.Host().Tunnel(s, dagger.HostTunnelOpts{
+				s = R.DAG.Host().Tunnel(s, dagger.HostTunnelOpts{
 					Ports: ports,
 				})
 				s, err = s.Start(matchCtx)

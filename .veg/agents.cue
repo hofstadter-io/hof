@@ -1,3 +1,4 @@
+@experiment(aliasv2)
 package veg
 
 import (
@@ -8,7 +9,9 @@ import (
 embeds: embed
 embedDir: "./.veg/embed"
 
-agents: [n=string]: {
+agents: [string]~(n,_): {
+  @agentic(agent)
+
   name: string | *n
   model: string | *"gemini-3-flash"
   description: string
@@ -18,6 +21,9 @@ agents: [n=string]: {
   toolsets: [...{ name: string, tools: [...string] }]
   mcp: [...string]
   subagents: [...string]
+
+  // name of an environ
+  environ?: string
 }
 
 agents: veggie: {
@@ -32,7 +38,7 @@ agents: veggie: {
 agents: coding_assist: {
   description: string | *"Veggie Code, a sophisticated assistant for senior developers."
   instruction: string | *"agents/coding_assistant.md"
-  environment: "golang:1.25-trixie"
+  environ: "veg-agent"
   tools: [
     "cache_put",
     "cache_del",

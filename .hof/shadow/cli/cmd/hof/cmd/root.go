@@ -183,7 +183,7 @@ Usage:
   hof [flags] [command] [args]
 
 Main commands:
-  agent                 run an agent
+  agent                 build, chat with, and serve agentic systems
   create                starter kits or blueprints from any git repo
   datamodel             manage, diff, and migrate your data models
   def                   print consolidated CUE definitions

@@ -21,8 +21,8 @@ zsh: {
 			"""
 	}
 	makeDefault: [
-		env.Args & {args: ["zsh"]},
-		env.Term & {args: ["zsh"]},
+		env.DefaultArgs & {args: ["zsh"]},
+		env.DefaultTerm & {args: ["zsh"]},
 		env.Entrypoint & {args: ["zsh"]},
 	]
 }

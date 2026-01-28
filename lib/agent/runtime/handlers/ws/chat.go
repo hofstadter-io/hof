@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/hofstadter-io/hof/lib/agent/agents"
 	"github.com/hofstadter-io/hof/lib/agent/runtime"
-	"github.com/hofstadter-io/hof/lib/agent/runtime/services/environ"
+	"github.com/hofstadter-io/hof/lib/agent/services/environ"
 	"google.golang.org/adk/agent"
 	"google.golang.org/adk/model"
 	"google.golang.org/adk/runner"
@@ -24,10 +24,6 @@ type ChatPayload struct {
 	Agent   string `json:"agent"`
 	Model   string `json:"model"`
 	Environ string `json:"environ"`
-}
-
-type ChatResponsePayload struct {
-	ResponseText string `json:"responseText"`
 }
 
 func chatUserMessage(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {

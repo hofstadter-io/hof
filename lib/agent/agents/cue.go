@@ -4,15 +4,12 @@ import (
 	"context"
 	"fmt"
 	"maps"
-	"os"
 	"path"
-	"path/filepath"
 	"slices"
 	"sort"
 	"strconv"
 	"strings"
 
-	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/cuecontext"
 	"cuelang.org/go/cue/load"
 	"google.golang.org/adk/agent"
@@ -22,6 +19,7 @@ import (
 	"google.golang.org/adk/tool/agenttool"
 	"google.golang.org/genai"
 
+	"github.com/hofstadter-io/hof/lib/agent/config"
 	"github.com/hofstadter-io/hof/lib/agent/tools/cache"
 	"github.com/hofstadter-io/hof/lib/agent/tools/exec"
 	"github.com/hofstadter-io/hof/lib/agent/tools/filesys"
@@ -29,15 +27,15 @@ import (
 	"github.com/hofstadter-io/hof/lib/templates"
 )
 
-func LoadAgent(config Config, agentName string) (Agent, error) {
-	agt, ok := config.Agents[agentName]
+func LoadAgent(cfg *config.Config, agentName string) (config.Agent, error) {
+	agt, ok := cfg.Agents[agentName]
 	if !ok {
-		return Agent{}, fmt.Errorf("agent not found: %q", agentName)
+		return config.Agent{}, fmt.Errorf("agent not found: %q", agentName)
 	}
 
 	// merge MDs: global < agent
 	mds := make(map[string]string)
-	maps.Copy(mds, config.AgentsMD)
+	maps.Copy(mds, cfg.AgentsMD)
 	maps.Copy(mds, agt.AgentsMD)
 	agt.AgentsMD = mds
 
@@ -63,79 +61,9 @@ func LoadAgent(config Config, agentName string) (Agent, error) {
 //
 // So then, can we build an agent that can assemble different setups like this, depending on the task?
 
-type Config struct {
-	Models   map[string]Model   `json:"models"`
-	Agents   map[string]Agent   `json:"agents"`
-	Tools    map[string]Tool    `json:"tools"`
-	Toolsets map[string]Toolset `json:"toolsets"`
-	Environs map[string]Environ `json:"environs"`
-
-	Embeds   map[string]any    `json:"embeds"`
-	EmbedDir string            `json:"embedDir"`
-	AgentsMD map[string]string `json:"agentsMD"`
-
-	Templates templates.TemplateMap
-}
-
-type Agent struct {
-	// proxy to adk fields
-	Name        string `json:"name"`
-	Model       string `json:"model"`
-	Description string `json:"description"`
-	Instruction string `json:"instruction"`
-
-	Tools     []string `json:"tools"`
-	Toolsets  []string `json:"toolsets"`
-	Mcp       []string `json:"mcp"`
-	SubAgents []string `json:"subagents"`
-
-	// veg concepts, some of this is more tied to the session, but every session starts with an agent
-	AutoLoadWorkdir bool              `json:"autoLoadWorkdir"`   // we need a way to say yay/nay to mounting the local dir, we don't need it for many queries
-	Environ         string            `json:"environ,omitempty"` // what is the agent default, none means no container
-	AgentsMD        map[string]string `json:""`
-}
-
-type Model struct {
-	Name string `json:"name"`
-	Id   string `json:"id"`
-}
-
-type Tool struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-}
-
-type Toolset struct {
-	Name  string `json:"name"`
-	Tools []Tool `json:"tools"`
-}
-
-type AgentMD struct {
-	Path     string         `json:"path"`
-	Content  string         `json:"content"`
-	Metadata map[string]any `json:"metadata"`
-}
-
-type Environ struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-
-	Spec      EnvironSpec `json:"spec"`
-	SpecValue cue.Value   `json:""`
-}
-
-type EnvironSpec struct {
-	From       string            `json:"from,omitempty"`
-	Env        map[string]string `json:"env,omitempty"`
-	Workdir    string            `json:"workdir,omitempty"`
-	Entrypoint []string          `json:"entrypoint,omitempty"`
-	Ports      map[string][]int  `json:"ports,omitempty"`
-	User       string            `json:"user,omitempty"`
-}
-
 // this code constructs one or more agents from a CUE value
 // to build up an agentic system
-func AgenticCUE(agentDir string, models map[string]model.LLM) (config Config, err error) {
+func OldAgenticCUE(agentDir string, models map[string]model.LLM) (cfg *config.Config, err error) {
 	// loadup and validate our agentic CUE
 	if strings.HasPrefix(agentDir, ".veg") {
 		agentDir = "./" + agentDir
@@ -148,47 +76,48 @@ func AgenticCUE(agentDir string, models map[string]model.LLM) (config Config, er
 	})
 	bi := bis[0]
 	if bi.Err != nil {
-		return config, fmt.Errorf("while loading agentic CUE: %w", bi.Err)
+		return cfg, fmt.Errorf("while loading agentic CUE: %w", bi.Err)
 	}
 	val := ctx.BuildInstance(bi)
 	if val.Err() != nil {
-		return config, fmt.Errorf("while building agentic CUE: %w", val.Err())
+		return cfg, fmt.Errorf("while building agentic CUE: %w", val.Err())
 	}
 
-	if err := val.Validate(); err != nil {
-		return config, fmt.Errorf("while validating agentic CUE: %w", err)
-	}
+	// if err := val.Validate(); err != nil {
+	// 	return config, fmt.Errorf("while validating agentic CUE: %w", err)
+	// }
 
 	// fmt.Println("AgenticCUE.value:", val, "\n\n")
 
 	// decode the agentic CUE into a struct
-	err = val.Decode(&config)
+	cfg = new(config.Config)
+	err = val.Decode(cfg)
 	if err != nil {
-		return config, fmt.Errorf("while decoding agentic CUE: %w", err)
+		return cfg, fmt.Errorf("while decoding agentic CUE: %w", err)
 	}
 
-	err = prepareTemplates(&config)
-	if err != nil {
-		return config, fmt.Errorf("while preparing templates: %w", err)
-	}
+	// err = prepareTemplates(cfg)
+	// if err != nil {
+	// 	return cfg, fmt.Errorf("while preparing templates: %w", err)
+	// }
 
-	if config.AgentsMD == nil {
-		config.AgentsMD = make(map[string]string)
+	if cfg.AgentsMD == nil {
+		cfg.AgentsMD = make(map[string]string)
 	}
 
 	// fmt.Println("AgenticCUE.config:", config)
-	return config, nil
+	return cfg, nil
 }
 
 func BuildAgent(
-	config Config,
+	cfg *config.Config,
 	agentName string,
 	modelName string,
 	models map[string]model.LLM,
 	environMDs map[string]string, // todo, expand the scope of what environData gets passed, could depend on some of the other params
 ) (agent.Agent, error) {
 	// look up agent and set some defaults
-	agt, err := LoadAgent(config, agentName)
+	agt, err := LoadAgent(cfg, agentName)
 	if err != nil {
 		return nil, err
 	}
@@ -209,26 +138,26 @@ func BuildAgent(
 		Model:       mdl,
 		Description: agt.Description,
 		// Instruction:         agent.Instruction,
-		InstructionProvider: RenderInstructions(config, agt, environMDs),
+		InstructionProvider: RenderInstructions(cfg, agt, environMDs),
 	}
 
-	ts, err := buildTools(config, agt, models, environMDs)
+	ts, err := buildTools(cfg, agt, models, environMDs)
 	if err != nil {
 		return nil, fmt.Errorf("while building tools for %q: %w", agt.Name, err)
 	}
 	c.Tools = ts
 
-	mcp, err := buildMcp(config, agt, models)
+	mcp, err := buildMcp(cfg, agt, models)
 	if err != nil {
 		return nil, fmt.Errorf("while building mcp toolsets for %q: %w", agt.Name, err)
 	}
 	c.Toolsets = append(c.Toolsets, mcp...)
 
-	addCallbacks(config, agt, environMDs, &c)
+	addCallbacks(cfg, agt, environMDs, &c)
 
 	for _, sa := range agt.SubAgents {
 		if subagent, found := strings.CutPrefix(sa, "@"); found {
-			A, aerr := BuildAgent(config, subagent, "default", models, environMDs)
+			A, aerr := BuildAgent(cfg, subagent, "default", models, environMDs)
 			if aerr != nil {
 				return nil, fmt.Errorf("error creating agent subagent %q in agent %q", subagent, agt.Name)
 			}
@@ -241,7 +170,7 @@ func BuildAgent(
 	return llmagent.New(c)
 }
 
-func buildMcp(cfg Config, agt Agent, models map[string]model.LLM) ([]tool.Toolset, error) {
+func buildMcp(cfg *config.Config, agt config.Agent, models map[string]model.LLM) ([]tool.Toolset, error) {
 	var ts []tool.Toolset
 	for _, name := range agt.Mcp {
 		var (
@@ -266,7 +195,7 @@ func buildMcp(cfg Config, agt Agent, models map[string]model.LLM) ([]tool.Toolse
 	return ts, nil
 }
 
-func buildTools(cfg Config, agt Agent, models map[string]model.LLM, environMDs map[string]string) ([]tool.Tool, error) {
+func buildTools(cfg *config.Config, agt config.Agent, models map[string]model.LLM, environMDs map[string]string) ([]tool.Tool, error) {
 	var ts []tool.Tool
 	for _, t := range agt.Tools {
 		fmt.Printf("%s.tool: %q\n", agt.Name, t)
@@ -343,7 +272,7 @@ func buildTools(cfg Config, agt Agent, models map[string]model.LLM, environMDs m
 	return ts, nil
 }
 
-func addCallbacks(config Config, agt Agent, environMDs map[string]string, c *llmagent.Config) {
+func addCallbacks(cfg *config.Config, agt config.Agent, environMDs map[string]string, c *llmagent.Config) {
 	c.BeforeAgentCallbacks = []agent.BeforeAgentCallback{
 		func(ctx agent.CallbackContext) (*genai.Content, error) {
 			fmt.Printf("\nBAC.%s\n", ctx.AgentName())
@@ -357,10 +286,10 @@ func addCallbacks(config Config, agt Agent, environMDs map[string]string, c *llm
 
 			// This next section is all about making sure the state is in a good place
 			// to match the data we are about to render instructions with
-			data, _ := prepareData(config, agt, environMDs)(ctx)
+			data, _ := prepareData(cfg, agt, environMDs)(ctx)
 
 			var pfs []string
-			if agtmd, ok := data["agentsMd"].([]AgentMD); ok {
+			if agtmd, ok := data["agentsMd"].([]config.AgentMD); ok {
 				for _, am := range agtmd {
 					pfs = append(pfs, am.Path)
 				}
@@ -441,48 +370,13 @@ func addCallbacks(config Config, agt Agent, environMDs map[string]string, c *llm
 	}
 }
 
-func prepareTemplates(config *Config) error {
-
-	cwd, _ := os.Getwd()
-	// todo, also put this on the Session
-	dir := filepath.Join(cwd, config.EmbedDir)
-	glob := filepath.Join(dir, "**/*.*")
-	config.Templates = templates.NewTemplateMap()
-	// fmt.Printf("found %d templates in %q\n", len(config.Templates), dir)
-	err := config.Templates.ImportFromFolder(glob, dir, templates.Delims{}, nil)
-	if err != nil {
-		return fmt.Errorf("while loading instruction templates (%s,%s): %w", cwd, config.EmbedDir, err)
-	}
-	// fmt.Printf("found %d templates in %s\n", len(config.Templates), dir)
-
-	for _, T1 := range config.Templates {
-		for _, T2 := range config.Templates {
-			if T1.Name == T2.Name {
-				continue
-			}
-			t := T1.T.New(T2.Name)
-			_, err := t.Parse(T2.Source)
-			if err != nil {
-				return fmt.Errorf("while cross registering templates (%s,%s): %w", T1.Name, T2.Name, err)
-			}
-		}
-
-		// fmt.Println(T1.Name)
-		// for _, t := range T1.T.Templates() {
-		// 	fmt.Printf(" - %s\n", t.Name())
-		// }
-	}
-
-	return nil
-}
-
-func RenderInstructions(cfg Config, agt Agent, environMDs map[string]string) llmagent.InstructionProvider {
+func RenderInstructions(cfg *config.Config, agt config.Agent, environMDs map[string]string) llmagent.InstructionProvider {
 	return func(ctx agent.ReadonlyContext) (string, error) {
 		return RenderInstructionsWithNameAndState(cfg, agt, ctx.AgentName(), maps.Collect(ctx.ReadonlyState().All()), environMDs)
 	}
 }
 
-func RenderInstructionsWithNameAndState(cfg Config, agt Agent, name string, state map[string]any, environMDs map[string]string) (string, error) {
+func RenderInstructionsWithNameAndState(cfg *config.Config, agt config.Agent, name string, state map[string]any, environMDs map[string]string) (string, error) {
 	// TODO, this last arg is annoying, should have two funcs
 	fmt.Println("RenderInstructions.Agent", agt.Name)
 
@@ -547,13 +441,13 @@ type KVPair struct {
 	Value any    `json:"value"`
 }
 
-func prepareData(cfg Config, agt Agent, environMDs map[string]string) func(ctx agent.ReadonlyContext) (map[string]any, error) {
+func prepareData(cfg *config.Config, agt config.Agent, environMDs map[string]string) func(ctx agent.ReadonlyContext) (map[string]any, error) {
 	return func(ctx agent.ReadonlyContext) (map[string]any, error) {
 		return PrepareDataWithNameAndState(cfg, agt, ctx.AgentName(), maps.Collect(ctx.ReadonlyState().All()), environMDs)
 	}
 }
 
-func PrepareDataWithNameAndState(cfg Config, agt Agent, agentName string, state map[string]any, environMDs map[string]string) (map[string]any, error) {
+func PrepareDataWithNameAndState(cfg *config.Config, agt config.Agent, agentName string, state map[string]any, environMDs map[string]string) (map[string]any, error) {
 	data := make(map[string]any)
 
 	// environment of the workspace / vscode
@@ -662,9 +556,9 @@ func PrepareDataWithNameAndState(cfg Config, agt Agent, agentName string, state 
 
 	// fmt.Println("USING INSTRUCTION FILES:", slices.Collect(maps.Keys(agtmd)))
 
-	agtmdSorted := make([]AgentMD, 0, len(agtmd))
+	agtmdSorted := make([]config.AgentMD, 0, len(agtmd))
 	for p, c := range agtmd {
-		agtmdSorted = append(agtmdSorted, AgentMD{Path: p, Content: c})
+		agtmdSorted = append(agtmdSorted, config.AgentMD{Path: p, Content: c})
 	}
 	sort.Slice(agtmdSorted, func(i, j int) bool {
 		p1 := agtmdSorted[i].Path
@@ -688,9 +582,9 @@ func PrepareDataWithNameAndState(cfg Config, agt Agent, agentName string, state 
 	maps.Copy(allMDs, agt.AgentsMD)
 	maps.Copy(allMDs, environMDs)
 
-	allAgtmdSorted := make([]AgentMD, 0, len(allMDs))
+	allAgtmdSorted := make([]config.AgentMD, 0, len(allMDs))
 	for p, c := range allMDs {
-		allAgtmdSorted = append(allAgtmdSorted, AgentMD{Path: p, Content: c})
+		allAgtmdSorted = append(allAgtmdSorted, config.AgentMD{Path: p, Content: c})
 	}
 	sort.Slice(allAgtmdSorted, func(i, j int) bool {
 		return allAgtmdSorted[i].Path < allAgtmdSorted[j].Path
@@ -727,7 +621,7 @@ func debugPrintData(data map[string]any) {
 	}
 
 	fmt.Println("agentKeys:")
-	if agtmd, ok := data["agentsMd"].([]AgentMD); ok {
+	if agtmd, ok := data["agentsMd"].([]config.AgentMD); ok {
 		for _, am := range agtmd {
 			fmt.Println(" ", am.Path)
 		}

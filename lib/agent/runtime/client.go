@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/hofstadter-io/hof/lib/agent/agents"
+	"github.com/hofstadter-io/hof/lib/agent/config"
 )
 
 // Message is the "envelope" that all messages follow.
@@ -31,12 +31,12 @@ type Client struct {
 	State map[string]any // should this be persisted, do we even need it with user:... State? (same user on two clients, repo in different locations?)
 
 	// when we have custom agents, or local to a session even? (b/c diff sess diff workdir)
-	AgentDefs map[string]agents.Agent
+	AgentDefs map[string]config.Agent
 
 	// this really depends on the workspace / session
 	// and should also be merged with (1) user global (2) builtin defaults
 	// need a place for selecting which ones show up in the dropdown vs @mention [any]
-	Agentic agents.Config
+	Agentic config.Config
 
 	// we should perhaps store active sessions here
 	// various information we'd like to share between agents (multiple vscode status/state)

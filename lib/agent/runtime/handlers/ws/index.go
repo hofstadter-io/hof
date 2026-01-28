@@ -20,7 +20,7 @@ func SetupHandlers(r *runtime.Runtime) {
 
 	// informational handlers
 	r.Handlers["requestSync"] = broadcastSync
-	r.Handlers["config.reload"] = reloadConfig
+	r.Handlers["config.reload"] = reloadEnvConfig
 	r.Handlers["config.info"] = configInfo
 	r.Handlers["models.list"] = modelsList
 	r.Handlers["agents.list"] = agentsList
@@ -94,7 +94,7 @@ func hello(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 
 func broadcastSync(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 	// fmt.Println("broadcastSync")
-	reloadConfig(r, c, m)
+	// reloadEnvConfig(r, c, m)
 	sessionGet(r, c, m)
 	sessionList(r, c, m)
 	// sessionFilesysDiff(r, c, m)
@@ -104,10 +104,10 @@ func broadcastSync(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 	// artifacts
 }
 
-func reloadConfig(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
+func reloadEnvConfig(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 	// todo, this should happen on a per-client/user basis
 	var err error
-	err = r.ReadConfig()
+	err = r.ReadEnvConfig()
 	if err != nil {
 		err = cuetils.ExpandCueError(err)
 		c.Mail("config.reload.error", map[string]any{

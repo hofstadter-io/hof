@@ -13,6 +13,7 @@ import (
 	"cuelang.org/go/cue/build"
 	"cuelang.org/go/cue/load"
 	"dagger.io/dagger"
+	"gorm.io/gorm"
 
 	"github.com/hofstadter-io/cinful"
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
@@ -24,12 +25,18 @@ import (
 	"github.com/hofstadter-io/hof/lib/gen"
 	"github.com/hofstadter-io/hof/lib/hof"
 	"github.com/hofstadter-io/hof/lib/yagu"
+	"github.com/labstack/echo/v4"
 )
 
 // This is the hof Runtime that backs most commands
 type Runtime struct {
 	sync.Mutex
 	Ctx context.Context
+
+	// internal service handlers
+	DB  *gorm.DB
+	API *echo.Echo
+	DAG *dagger.Client
 
 	// original flags used to load the CUE
 	Flags flags.RootPflagpole
@@ -57,9 +64,6 @@ type Runtime struct {
 	BuildInstances []*build.Instance
 	FieldOpts      []cue.Option
 
-	// Dagger related fields
-	DagClient *dagger.Client
-
 	// this is a bit hacky, but we use this with vet to validate data (and probably st as well)
 	DontPlaceOrphanedFiles bool
 
@@ -83,9 +87,10 @@ type Runtime struct {
 	// in each of these packages so we can separate
 	// the commands from the types and core logic
 	Nodes []*hof.Node[any]
+
 	// Chats      []*chat.Chat
 	Envs       []*env.Env
-	Agents     []*agent.Agent
+	Agentics   []*agent.Agentic
 	Datamodels []*datamodel.Datamodel
 	Generators []*gen.Generator
 	Workflows  []*flow.Flow
@@ -122,7 +127,7 @@ func New(entrypoints []string, rflags flags.RootPflagpole) (*Runtime, error) {
 		extra["gitShortSha"], _ = yagu.GitShortSHA()
 		extra["gitBranch"], _ = yagu.GitBranch()
 		extra["gitTag"], _ = yagu.GitTag()
-		dirty, _, _ := yagu.GitDirty()	
+		dirty, _, _ := yagu.GitDirty()
 		if dirty {
 			extra["gitDirty"] = "dirty"
 		} else {
@@ -241,7 +246,7 @@ func (R *Runtime) DaggerInit() (err error) {
 	if userVal == "" {
 		os.Setenv(VEG_DAGGER_ENGINE_ENV_VAR, VEG_DAGGER_HOST)
 	}
-	R.DagClient, err = dagger.Connect(R.Ctx)
+	R.DAG, err = dagger.Connect(R.Ctx)
 	if err != nil {
 		return fmt.Errorf("while connecting to dagger: %w", err)
 	}

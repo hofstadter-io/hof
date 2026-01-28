@@ -8,6 +8,8 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/hofstadter-io/hof/lib/runtime"
+
 	libenvcmd "github.com/hofstadter-io/hof/lib/env/cmd"
 
 	"github.com/hofstadter-io/hof/cmd/hof/cmd/env"
@@ -70,7 +72,7 @@ func init() {
 
 func EnvPersistentPreRun(args []string) (err error) {
 
-	err = libenvcmd.EnsureInfra()
+	err = runtime.EnsureInfra()
 
 	return err
 }

@@ -84,7 +84,7 @@ func Sync(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole) 
 	if err != nil {
 		return err
 	}
-	d, _ := dag.NewClient(R.Ctx, R.DagClient)
+	d, _ := dag.NewClient(R.Ctx, R.DAG)
 
 	buildCtx, buildSpan := dagger.Tracer().Start(R.Ctx, "hof env sync")
 	defer buildSpan.End()

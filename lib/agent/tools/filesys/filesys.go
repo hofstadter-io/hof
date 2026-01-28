@@ -7,7 +7,7 @@ import (
 	"google.golang.org/adk/tool"
 	"google.golang.org/adk/tool/functiontool"
 
-	"github.com/hofstadter-io/hof/lib/agent/runtime/services/environ"
+	"github.com/hofstadter-io/hof/lib/agent/services/environ"
 )
 
 type FilesysPathArgs struct {

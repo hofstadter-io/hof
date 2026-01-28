@@ -1,3 +1,0 @@
-package stores
-
-// handle / client

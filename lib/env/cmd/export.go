@@ -51,7 +51,7 @@ func Export(args []string, rflags flags.RootPflagpole, eflags flags.EnvPflagpole
 
 	// setup dagger & cue->dagger engine
 	err = R.DaggerInit()
-	d, _ := dag.NewClient(R.Ctx, R.DagClient)
+	d, _ := dag.NewClient(R.Ctx, R.DAG)
 
 	buildCtx, buildSpan := dagger.Tracer().Start(R.Ctx, "hof env export")
 	defer buildSpan.End()

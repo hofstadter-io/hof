@@ -63,7 +63,7 @@ Hof: {
 		}
 
 		env: {
-			// define the root of en environment?
+			// define the root of an "interesting" env value
 			root: bool | *false
 
 			// name of the env kind
@@ -71,9 +71,17 @@ Hof: {
 
 			// kind of the env
 			kind: string | *""
+		}
 
-			// memoization manual id
-			memo: string | *""
+		agentic: {
+			// define the root of an "interesting" agentic value
+			root: bool | *false
+
+			// name of the agentic value
+			name: string | *""
+
+			// kind of the agentic value
+			kind: string | *""
 		}
 	}
 }

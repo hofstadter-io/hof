@@ -6,11 +6,11 @@ import (
 
 	"github.com/spf13/cobra"
 
-	libenvcmd "github.com/hofstadter-io/hof/lib/env/cmd"
-
-	"github.com/hofstadter-io/hof/lib/agent/extension"
-
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
+
+	"github.com/hofstadter-io/hof/lib/extension"
+
+	"github.com/hofstadter-io/hof/lib/runtime"
 
 	"github.com/hofstadter-io/hof/cmd/hof/ga"
 )
@@ -19,7 +19,7 @@ var extensionLong = `run the extension server`
 
 func ExtensionPersistentPreRun(args []string) (err error) {
 
-	err = libenvcmd.EnsureInfra()
+	err = runtime.EnsureInfra()
 
 	return err
 }

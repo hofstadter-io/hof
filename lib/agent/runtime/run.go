@@ -7,6 +7,7 @@ import (
 	"sort"
 
 	"github.com/gorilla/websocket"
+	"github.com/hofstadter-io/hof/lib/consts"
 	"github.com/labstack/echo/v4"
 )
 
@@ -74,7 +75,7 @@ func (R *Runtime) serveWs(c echo.Context) error {
 	}
 
 	client := &Client{
-		User:          "tony", // needs to come from conn/auth info
+		User:          consts.VEG_DEFAULT_USER, // needs to come from conn/auth info
 		conn:          conn,
 		send:          make(chan []byte, 256), // 256-message buffer
 		handleMessage: R.handleMessage,
