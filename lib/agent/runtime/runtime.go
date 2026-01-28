@@ -256,6 +256,7 @@ func (r *Runtime) initServer() error {
 func (r *Runtime) BackfillAgentic() error {
 	cfg := agentconfig.NewConfig()
 
+	// fmt.Println("Agentics", len(r.Agentics))
 	for _, a := range r.Agentics {
 		switch a.Hof.Agentic.Kind {
 		case "agent":
@@ -292,6 +293,8 @@ func (r *Runtime) BackfillAgentic() error {
 	prepareTemplates(cfg)
 
 	r.Agentic = cfg
+
+	// fmt.Printf("%#+v\n", pretty.Formatter(cfg))
 
 	return nil
 }

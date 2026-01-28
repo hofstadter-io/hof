@@ -360,6 +360,7 @@ func (m *Model) sendMessage(text string) error {
 		Sid:   m.currSid,
 		Agent: "veggie",
 		Model: "gemini-3-flash",
+		Text:  text,
 	}
 	s, err := common.SessionChat(m.R, m.AR, p)
 	if err != nil {

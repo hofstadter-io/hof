@@ -117,7 +117,9 @@ func (m *chatModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// m.root.msg = msg.String()
 		switch {
 		case key.Matches(msg, m.keymap.info):
-			m.root.updateCurrName("info")
+			if !m.textarea.Focused() {
+				m.root.updateCurrName("info")
+			}
 
 		case key.Matches(msg, m.keymap.back):
 			if m.textarea.Focused() {
@@ -130,8 +132,8 @@ func (m *chatModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.textarea.Focused() {
 				// TODO, actually send the message
 				content := m.textarea.Value()
-				// lines := strings.Split(content, "\n")
-				// m.root.msg = lines[0]
+				lines := strings.Split(content, "\n")
+				m.root.msg = lines[0]
 				m.root.sendMessage(content)
 
 				if m.root.asession != nil {

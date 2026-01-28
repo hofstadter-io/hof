@@ -245,8 +245,12 @@ func extractMeta(a *agent.Agentic) (aname, akind, mname string) {
 	if aname == "" {
 		aname = mname
 	}
-	aname, _ = strconv.Unquote(aname)
-	mname, _ = strconv.Unquote(mname)
+	if strings.HasPrefix(aname, "\"") && strings.HasSuffix(aname, "\"") {
+		aname, _ = strconv.Unquote(aname)
+	}
+	if strings.HasPrefix(mname, "\"") && strings.HasSuffix(mname, "\"") {
+		mname, _ = strconv.Unquote(mname)
+	}
 	return aname, akind, mname
 }
 

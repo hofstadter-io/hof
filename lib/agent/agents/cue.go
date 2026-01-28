@@ -267,7 +267,7 @@ func buildTools(cfg *config.Config, agt config.Agent, models map[string]model.LL
 		ts = append(ts, T)
 	}
 
-	fmt.Println("Final Tools:", ts)
+	// fmt.Println("Final Tools:", ts)
 	return ts, nil
 }
 
@@ -407,7 +407,7 @@ func RenderInstructionsWithNameAndState(cfg *config.Config, agt config.Agent, na
 		return "", err
 	}
 
-	debugPrintData(data)
+	// debugPrintData(data)
 
 	// render instruction (first time) to get length
 	b, err := t.Render(data)
