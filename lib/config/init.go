@@ -54,4 +54,9 @@ func init() {
 		Veg.DaggerEngineConfig = filepath.Join(configDir, "veg", "dagger-engine.json")
 	}
 
+	os.MkdirAll(filepath.Join(configDir, "veg"), 0755)
+	os.MkdirAll(filepath.Join(cacheDir, "veg"), 0755)
+	os.MkdirAll(Veg.UserDataDir, 0755)
+	os.MkdirAll(Veg.RegistryData, 0755)
+
 }

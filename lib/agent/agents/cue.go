@@ -377,7 +377,7 @@ func RenderInstructions(cfg *config.Config, agt config.Agent, environMDs map[str
 
 func RenderInstructionsWithNameAndState(cfg *config.Config, agt config.Agent, name string, state map[string]any, environMDs map[string]string) (string, error) {
 	// TODO, this last arg is annoying, should have two funcs
-	fmt.Println("RenderInstructions.Agent", agt.Name)
+	// fmt.Println("RenderInstructions.Agent", agt.Name)
 
 	var err error
 	var t *templates.Template
