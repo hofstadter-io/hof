@@ -7,7 +7,12 @@ import (
 	itool "github.com/hofstadter-io/hof/catalogs/env/packs/tool"
 )
 
-containers: icontainers
-databases:  idatabases
-lang:       ilang
-tool:       itool
+flags: {
+	goos: string
+	arch: string
+}
+
+containers: icontainers & { "flags": flags }
+databases:  idatabases & { "flags": flags }
+lang:       ilang & { "flags": flags }
+tool:       itool & { "flags": flags }

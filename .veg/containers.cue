@@ -8,7 +8,9 @@ import (
 	"github.com/hofstadter-io/hof/schemas/env"
 )
 
-_packs: packs
+_packs: packs & {
+	"flags": flags
+}
 
 let root = self
 

@@ -11,8 +11,8 @@ import (
 go: {
 	#ver: string | *"1.25.5"
 
-	#goos:   *"linux" | "darwin"
-	#goarch: *"arm64" | "amd64"
+	#goos:   string | *flags.goos
+	#goarch: string | *flags.arch
 
 	envSets: {
 		default: [

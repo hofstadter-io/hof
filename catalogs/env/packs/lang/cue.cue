@@ -7,10 +7,10 @@ import (
 )
 
 cue: {
-	#ver: string | *"0.15.3"
+	#ver: string | *"0.15.4"
 
-	#goos:   *"linux" | "darwin"
-	#goarch: *"arm64" | "amd64"
+	#goos:   string | *flags.goos
+	#goarch: string | *flags.arch
 
 	caches: {
 		cueMods: env.Volume & {
