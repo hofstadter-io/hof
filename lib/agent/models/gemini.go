@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"os"
 
 	"google.golang.org/adk/model"
 	"google.golang.org/adk/model/gemini"
@@ -9,9 +10,32 @@ import (
 )
 
 func Gemini(ctx context.Context, model string) (model.LLM, error) {
-	return gemini.NewModel(ctx, model, &genai.ClientConfig{
-		// Project:  "gen-lang-client-0911744172",
-		// Location: "us-central1",
-		// Backend:  genai.BackendVertexAI,
-	})
+
+	use := os.Getenv("GOOGLE_GENAI_USE_VERTEXAI")
+	if use != "" { // todo, be more truthy
+		// creds file
+		creds := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
+		if creds != "" {
+			return gemini.NewModel(ctx, model, &genai.ClientConfig{
+				Backend: genai.BackendVertexAI,
+			})
+		}
+		proj := os.Getenv("GOOGLE_CLOUD_PROJECT")
+		loc := os.Getenv("GOOGLE_CLOUD_LOCATION")
+		if proj != "" && loc != "" {
+			return gemini.NewModel(ctx, model, &genai.ClientConfig{
+				Project:  proj,
+				Location: loc,
+				Backend:  genai.BackendVertexAI,
+			})
+		}
+
+		// default inference (same as Go SDK) (typically a service account)
+		return gemini.NewModel(ctx, model, &genai.ClientConfig{
+			Backend: genai.BackendVertexAI,
+		})
+	}
+
+	// default inference (same as Go SDK)
+	return gemini.NewModel(ctx, model, &genai.ClientConfig{})
 }

@@ -48,7 +48,7 @@ func Run(args []string, rflags flags.RootPflagpole) error {
 	ar.BackfillAgentic()
 
 	// fmt.Println("BR.Agentics:", len(ar.Agentics))
-	ws.SetupHandlers(ar)
+	ws.SetupHandlers(r, ar)
 
 	return ar.Run()
 }

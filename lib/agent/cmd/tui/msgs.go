@@ -45,6 +45,7 @@ func renderMessages(width int, session session.Session) []string {
 			author = agentStyle.Render(evt.Author)
 			if evt.Content != nil {
 				for _, part := range evt.Content.Parts {
+
 					if part.Text != "" {
 						out, err := glam.Render(part.Text)
 						if err != nil {
@@ -53,6 +54,7 @@ func renderMessages(width int, session session.Session) []string {
 							body += out + "\n"
 						}
 					}
+
 					if part.FunctionCall != nil {
 						r := part.FunctionCall
 						var extra string
@@ -75,9 +77,12 @@ func renderMessages(width int, session session.Session) []string {
 								text := dmp.DiffPrettyText(diffs)
 								extra += fmt.Sprintf("-------\n%s\n-------\n\n", text)
 							}
+						case "exec":
+							extra = fmt.Sprintf("`%s`", r.Args["script"])
 						}
 						body += fmt.Sprintf("  %s: %s ...\n", funcStyle.Render("┃"+r.Name), extra)
 					}
+
 					if part.FunctionResponse != nil {
 						r := part.FunctionResponse
 						var extra string
@@ -88,9 +93,12 @@ func renderMessages(width int, session session.Session) []string {
 							extra = fmt.Sprintf("%s %s", r.Response["path"], r.Response["status"])
 						case "fs_edit":
 							extra = fmt.Sprintf("%s %s", r.Response["path"], r.Response["status"])
+						case "exec":
+							extra = fmt.Sprintf("%s %v\n--- stdout ---\n%s\n--- stderr ---\n%s\n--- end ---", r.Response["status"], r.Response["exitCode"], r.Response["stdout"], r.Response["stderr"])
 						}
 						body += fmt.Sprintf("  %s: %s\n", funcStyle.Render("┃"+r.Name), extra)
 					}
+
 				}
 				body = strings.TrimSuffix(body, "\n")
 			}

@@ -9,8 +9,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hofstadter-io/hof/lib/agent/agents"
-	"github.com/hofstadter-io/hof/lib/agent/runtime"
+	aruntime "github.com/hofstadter-io/hof/lib/agent/runtime"
+	"github.com/hofstadter-io/hof/lib/agent/runtime/handlers/common"
 	"github.com/hofstadter-io/hof/lib/agent/services/environ"
+	"github.com/hofstadter-io/hof/lib/runtime"
 	"google.golang.org/adk/agent"
 	"google.golang.org/adk/model"
 	"google.golang.org/adk/runner"
@@ -18,17 +20,55 @@ import (
 	"google.golang.org/genai"
 )
 
-type ChatPayload struct {
-	Text    string `json:"text"`
-	Sid     string `json:"sid"`
-	Agent   string `json:"agent"`
-	Model   string `json:"model"`
-	Environ string `json:"environ"`
+func makeChatUserMessageHandler(r *runtime.Runtime) aruntime.Handler {
+	return func(ar *aruntime.Runtime, c *aruntime.Client, m *aruntime.Message) {
+		var p common.ChatPayload
+		if err := json.Unmarshal(m.Payload, &p); err != nil {
+			c.Mail("chat.event.error", map[string]any{
+				"agent":         p.Agent,
+				"error_message": fmt.Sprintf("Error unmarshaling 'chat' payload: %v", err),
+			})
+			return
+		}
+
+		p.User = c.User
+
+		log.Printf("Chatting payload: %#+v", p)
+
+		s, err := common.SessionChat(r, ar, &p)
+		if err != nil {
+			log.Printf("chat.msg.error.SessionChat: %v", err)
+			c.Mail("chat.event.error", map[string]any{
+				"agent":         p.Agent,
+				"error_message": fmt.Sprintf("while chatting: %v", err),
+			})
+			return
+		}
+
+		// every time we get an event...
+		for e := range s.EventChan {
+			// send the message
+			c.Mail("chat.event", e)
+
+			// look for any errors
+			select {
+			case err := <-s.ErrorChan:
+				log.Printf("chat.msg.error.SessionChat.loop: %v", err)
+				c.Mail("chat.event.error", map[string]any{
+					"agent":         p.Agent,
+					"error_message": fmt.Sprintf("while chatting: %v", err),
+				})
+			default:
+			}
+		}
+
+	}
+
 }
 
-func chatUserMessage(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
+func chatUserMessage(r *aruntime.Runtime, c *aruntime.Client, m *aruntime.Message) {
 
-	var p ChatPayload
+	var p common.ChatPayload
 	if err := json.Unmarshal(m.Payload, &p); err != nil {
 		c.Mail("chat.event.error", map[string]any{
 			"agent":         p.Agent,
@@ -125,7 +165,7 @@ func chatUserMessage(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 	// setup subcontext and wait group
 	chatCtx, chatStop := context.WithCancel(r.Ctx)
 
-	r.SetSession(&runtime.Session{
+	r.SetSession(&aruntime.Session{
 		Sid:      p.Sid,
 		StopFunc: chatStop,
 	})
@@ -151,7 +191,7 @@ func chatUserMessage(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 
 }
 
-func sessionCancel(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
+func sessionCancel(r *aruntime.Runtime, c *aruntime.Client, m *aruntime.Message) {
 	var p SidRequest
 	if err := json.Unmarshal(m.Payload, &p); err != nil {
 		log.Printf("Error unmarshaling 'session.cancel' payload: %v", err)

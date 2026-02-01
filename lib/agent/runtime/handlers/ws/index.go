@@ -5,47 +5,45 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hofstadter-io/hof/lib/agent/runtime"
+	aruntime "github.com/hofstadter-io/hof/lib/agent/runtime"
 	"github.com/hofstadter-io/hof/lib/cuetils"
+	"github.com/hofstadter-io/hof/lib/runtime"
 )
 
-// TODO, we need a good list of message types
-// for both the frontend, backend, and where/how they are used
-
-func SetupHandlers(r *runtime.Runtime) {
+func SetupHandlers(r *runtime.Runtime, ar *aruntime.Runtime) {
 
 	// standard fare
-	r.Handlers["echo"] = echo
-	r.Handlers["hello"] = hello
+	ar.Handlers["echo"] = echo
+	ar.Handlers["hello"] = hello
 
 	// informational handlers
-	r.Handlers["requestSync"] = broadcastSync
-	r.Handlers["config.reload"] = reloadEnvConfig
-	r.Handlers["config.info"] = configInfo
-	r.Handlers["models.list"] = modelsList
-	r.Handlers["agents.list"] = agentsList
+	ar.Handlers["requestSync"] = broadcastSync
+	ar.Handlers["config.reload"] = reloadEnvConfig
+	ar.Handlers["config.info"] = configInfo
+	ar.Handlers["models.list"] = modelsList
+	ar.Handlers["agents.list"] = agentsList
 
 	// chat
-	r.Handlers["chat"] = chatUserMessage
-	r.Handlers["chat.userMessage"] = chatUserMessage
-	r.Handlers["session.cancel"] = sessionCancel
+	ar.Handlers["chat"] = makeChatUserMessageHandler(r)
+	ar.Handlers["chat.userMessage"] = makeChatUserMessageHandler(r)
+	ar.Handlers["session.cancel"] = sessionCancel
 
 	// sessions
-	r.Handlers["session.get"] = sessionGet
-	r.Handlers["session.getList"] = sessionList
-	r.Handlers["session.create"] = sessionCreate
-	r.Handlers["session.delete"] = sessionDelete
-	r.Handlers["session.getStateAll"] = sessionGetStateAll
-	r.Handlers["session.state.get"] = sessionGetState
-	r.Handlers["session.state.put"] = sessionPutState
-	r.Handlers["session.state.del"] = sessionDelState
+	ar.Handlers["session.get"] = sessionGet
+	ar.Handlers["session.getList"] = sessionList
+	ar.Handlers["session.create"] = sessionCreate
+	ar.Handlers["session.delete"] = sessionDelete
+	ar.Handlers["session.getStateAll"] = sessionGetStateAll
+	ar.Handlers["session.state.get"] = sessionGetState
+	ar.Handlers["session.state.put"] = sessionPutState
+	ar.Handlers["session.state.del"] = sessionDelState
 
-	r.Handlers["session.merge"] = sessionMerge
-	r.Handlers["session.tag"] = sessionTag
-	r.Handlers["session.push"] = sessionPush
-	r.Handlers["session.pull"] = sessionPull
-	r.Handlers["session.clone"] = sessionClone
-	r.Handlers["session.splice"] = sessionSplice
+	ar.Handlers["session.merge"] = sessionMerge
+	ar.Handlers["session.tag"] = sessionTag
+	ar.Handlers["session.push"] = sessionPush
+	ar.Handlers["session.pull"] = sessionPull
+	ar.Handlers["session.clone"] = sessionClone
+	ar.Handlers["session.splice"] = sessionSplice
 	// r.Handlers["session.environ.set"] = sessionEnvironSet
 
 	//
@@ -65,7 +63,7 @@ type EchoResponsePayload struct {
 	ResponseText string `json:"responseText"`
 }
 
-func echo(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
+func echo(r *aruntime.Runtime, c *aruntime.Client, m *aruntime.Message) {
 	var p EchoPayload
 	if err := json.Unmarshal(m.Payload, &p); err != nil {
 		log.Printf("Error unmarshaling 'echo' payload: %v", err)
@@ -83,7 +81,7 @@ type HelloPayload struct {
 	Version string `json:"version"`
 }
 
-func hello(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
+func hello(ar *aruntime.Runtime, c *aruntime.Client, m *aruntime.Message) {
 	var p HelloPayload
 	if err := json.Unmarshal(m.Payload, &p); err != nil {
 		log.Printf("Error unmarshaling 'hello' payload: %v", err)
@@ -92,11 +90,11 @@ func hello(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 	log.Printf("Hello from client version: %s (Client: %p)", p.Version, c)
 }
 
-func broadcastSync(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
+func broadcastSync(ar *aruntime.Runtime, c *aruntime.Client, m *aruntime.Message) {
 	// fmt.Println("broadcastSync")
 	// reloadEnvConfig(r, c, m)
-	sessionGet(r, c, m)
-	sessionList(r, c, m)
+	sessionGet(ar, c, m)
+	sessionList(ar, c, m)
 	// sessionFilesysDiff(r, c, m)
 
 	// runtime (runners?)
@@ -104,10 +102,10 @@ func broadcastSync(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 	// artifacts
 }
 
-func reloadEnvConfig(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
+func reloadEnvConfig(ar *aruntime.Runtime, c *aruntime.Client, m *aruntime.Message) {
 	// todo, this should happen on a per-client/user basis
 	var err error
-	err = r.ReadEnvConfig()
+	err = ar.ReadEnvConfig()
 	if err != nil {
 		err = cuetils.ExpandCueError(err)
 		c.Mail("config.reload.error", map[string]any{
@@ -115,5 +113,5 @@ func reloadEnvConfig(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) 
 			"error_message": fmt.Errorf("while reloading config: %w", err),
 		})
 	}
-	configInfo(r, c, m)
+	configInfo(ar, c, m)
 }

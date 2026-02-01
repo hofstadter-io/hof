@@ -58,7 +58,7 @@ func prepRuntime(args []string, rflags flags.RootPflagpole) (*runtime.Runtime, *
 
 	ar.BackfillAgentic()
 
-	ws.SetupHandlers(ar)
+	ws.SetupHandlers(r, ar)
 	return r, ar, nil
 }
 
