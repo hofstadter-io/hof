@@ -112,21 +112,25 @@ func (m *listModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// if the input is not focused*
 		switch {
 		case key.Matches(msg, m.keymap.info):
-			m.mode = "info"
-			sid := m.table.SelectedRow()[SESSION_LIST_ID_POS]
-			m.root.currSid = sid
-			m.root.loadSession(sid)
-			m.root.updateCurrName("info")
-			m.root.updateRootTitle()
+			if len(m.table.Rows()) > 0 {
+				m.mode = "info"
+				sid := m.table.SelectedRow()[SESSION_LIST_ID_POS]
+				m.root.currSid = sid
+				m.root.loadSession(sid)
+				m.root.updateCurrName("info")
+				m.root.updateRootTitle()
+			}
 
 		case key.Matches(msg, m.keymap.del):
-			sid := m.table.SelectedRow()[SESSION_LIST_ID_POS]
-			m.root.delSession(sid)
-			err := m.updateSessions()
-			if err != nil {
-				m.root.err = err
+			if len(m.table.Rows()) > 0 {
+				sid := m.table.SelectedRow()[SESSION_LIST_ID_POS]
+				m.root.delSession(sid)
+				err := m.updateSessions()
+				if err != nil {
+					m.root.err = err
+				}
+				m.updateRows()
 			}
-			m.updateRows()
 
 		case key.Matches(msg, m.keymap.sort):
 			m.mode = "sort"
@@ -166,12 +170,14 @@ func (m *listModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.updateRows()
 
 			default:
-				m.root.clearSession()
-				sid := m.table.SelectedRow()[SESSION_LIST_ID_POS]
-				m.root.currSid = sid
-				m.root.updateCurrName("chat")
-				m.root.chat.refresh()
-				cmd = m.root.runTick()
+				if len(m.table.Rows()) > 0 {
+					m.root.clearSession()
+					sid := m.table.SelectedRow()[SESSION_LIST_ID_POS]
+					m.root.currSid = sid
+					m.root.updateCurrName("chat")
+					m.root.chat.refresh()
+					cmd = m.root.runTick()
+				}
 			}
 		}
 	}

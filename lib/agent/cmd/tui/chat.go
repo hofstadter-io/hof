@@ -130,11 +130,15 @@ func (m *chatModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case key.Matches(msg, m.keymap.send):
 			if m.textarea.Focused() {
-				// TODO, actually send the message
 				content := m.textarea.Value()
 				lines := strings.Split(content, "\n")
 				m.root.msg = lines[0]
-				m.root.sendMessage(content)
+				err := m.root.sendMessage(content)
+				if err != nil {
+					// fmt.Println("root.sendMessage.error", err)
+					m.root.err = err
+					return m, nil
+				}
 
 				if m.root.asession != nil {
 					m.textarea.Reset()
@@ -144,20 +148,31 @@ func (m *chatModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						sess := m.root.asession
 						// every time we get an event...
 						for _ = range sess.EventChan {
+							// fmt.Println("event:", e.Author, e.ID)
 							// load the full lasest (being lazy, but also don't have to deal with state deltas and updates)
 							// we should send the latest state back or make a func/api for returning session details w/o event list (between list & get today)
-							m.root.loadSession(m.root.currSid)
+							err := m.root.loadSession(m.root.currSid)
+							if err != nil {
+								// fmt.Println("sess.ChatLoop.error:", err)
+								m.root.err = err
+								continue
+							}
+
 							m.updateMessagesFromEvents()
 							m.updateChatStatus()
 
 							// look for any errors
 							select {
 							case err := <-sess.ErrorChan:
+								// fmt.Println("sess.ErrorChat:", err)
 								m.root.err = err
 							default:
 							}
+							// fmt.Println("loop around")
 						}
 					}()
+				} else {
+					m.root.err = fmt.Errorf("m.root.asession is nil")
 				}
 
 			} else {

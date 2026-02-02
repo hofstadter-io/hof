@@ -272,6 +272,15 @@ func buildTools(cfg *config.Config, agt config.Agent, models map[string]model.LL
 }
 
 func addCallbacks(cfg *config.Config, agt config.Agent, environMDs map[string]string, c *llmagent.Config) {
+	c.OnModelErrorCallbacks = []llmagent.OnModelErrorCallback{
+		func(ctx agent.CallbackContext, llmRequest *model.LLMRequest, llmResponseError error) (*model.LLMResponse, error) {
+			// if llmResponseError != nil {
+			// 	fmt.Printf("ModelError.%s: %s\n", ctx.AgentName(), llmResponseError)
+			// }
+			return nil, nil
+		},
+	}
+
 	c.BeforeAgentCallbacks = []agent.BeforeAgentCallback{
 		func(ctx agent.CallbackContext) (*genai.Content, error) {
 			// fmt.Printf("\nBAC.%s\n", ctx.AgentName())

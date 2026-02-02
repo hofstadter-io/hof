@@ -14,25 +14,15 @@ func Gemini(ctx context.Context, model string) (model.LLM, error) {
 	use := os.Getenv("GOOGLE_GENAI_USE_VERTEXAI")
 	if use != "" { // todo, be more truthy
 		// creds file
-		creds := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
-		if creds != "" {
-			return gemini.NewModel(ctx, model, &genai.ClientConfig{
-				Backend: genai.BackendVertexAI,
-			})
-		}
+		// creds := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
 		proj := os.Getenv("GOOGLE_CLOUD_PROJECT")
 		loc := os.Getenv("GOOGLE_CLOUD_LOCATION")
-		if proj != "" && loc != "" {
-			return gemini.NewModel(ctx, model, &genai.ClientConfig{
-				Project:  proj,
-				Location: loc,
-				Backend:  genai.BackendVertexAI,
-			})
-		}
 
 		// default inference (same as Go SDK) (typically a service account)
 		return gemini.NewModel(ctx, model, &genai.ClientConfig{
-			Backend: genai.BackendVertexAI,
+			Project:  proj,
+			Location: loc,
+			Backend:  genai.BackendVertexAI,
 		})
 	}
 
