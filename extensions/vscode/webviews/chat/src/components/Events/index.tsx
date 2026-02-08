@@ -43,6 +43,9 @@ export const Events = ({
   return (
     <div className="grow flex flex-col mx-2 gap-1 overflow-y">
       {merged?.map((e: any, pos: number) => {
+        if (!e) {
+          return null
+        }
         return (
           <div className={cn(pos === currPos && "bg-violet-500/30 rounded")}>
             <Event pos={pos} key={e.ID} evt={e} />

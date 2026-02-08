@@ -13,8 +13,12 @@ type Runtime struct {
 	Agentic *config.Config
 }
 
-func Setup(appName string, e *echo.Echo, s session.Service) (*Runtime, error) {
-	r := new(Runtime)
+func Setup(appName string, e *echo.Echo, s session.Service, a *config.Config) (*Runtime, error) {
+	r := &Runtime{
+		AppName: appName,
+		S:       s,
+		Agentic: a,
+	}
 	//
 	// filesystem
 	//

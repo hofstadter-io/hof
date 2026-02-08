@@ -2,12 +2,11 @@
 package veg
 
 import (
-	"github.com/hofstadter-io/hof/.veg/embed" // puke...
+	"github.com/hofstadter-io/hof/.veg/embed"
 )
 
-// embed the whole package (flat map of path->content)
-embeds: embed
-embedDir: "./.veg/embed"
+// embed the whole dir/package (flat map of path->content)
+embeds: embed & { @agentic(embed)}
 
 agents: [string]~(n,_): {
   @agentic(agent)
@@ -28,7 +27,7 @@ agents: [string]~(n,_): {
 
 agents: veggie: {
   description: string | *"Veggie, a general assistant helpful for any task"
-  instruction: string | *"system/veggie.md"
+  instruction: string | *"agents/veggie.md"
   tools: [
     "cache_put",
     "cache_del",

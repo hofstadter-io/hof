@@ -148,7 +148,9 @@ func (r *Runtime) promptRender(c echo.Context) error {
 		UserID:    "tony",
 		SessionID: p.Sid,
 	}
-	sresp, err := r.S.Get(c.Request().Context(), sreq)
+	ctx := c.Request().Context()
+	s := r.S
+	sresp, err := s.Get(ctx, sreq)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -188,14 +190,14 @@ func (r *Runtime) promptRender(c echo.Context) error {
 	st := maps.Collect(sess.State().All())
 
 	// 4. Render
-	fmt.Printf("promptRender.render.start: %s\n", agentName)
+	// fmt.Printf("promptRender.render.start: %s\n", agentName)
 	prompt, err := agents.RenderInstructionsWithNameAndState(r.Agentic, agt, agentName, st, environMDs)
 	if err != nil {
-		fmt.Printf("promptRender.render.error: %v\n", err)
+		// fmt.Printf("promptRender.render.error: %v\n", err)
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 	// TODO calculate tokens here
-	fmt.Printf("promptRender.render.success: %d bytes\n", len(prompt))
+	// fmt.Printf("promptRender.render.success: %d bytes\n", len(prompt))
 
 	return c.JSON(http.StatusOK, map[string]string{"prompt": prompt})
 }

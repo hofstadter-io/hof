@@ -9,6 +9,7 @@ import (
 	"strings"
 	"sync"
 
+	"cuelang.org/go/cue"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"google.golang.org/adk/artifact"
@@ -56,6 +57,7 @@ type Runtime struct {
 
 	// clients & comms
 	// TODO, this is stuff we should move up and support multiple subsystems with
+	ApiRuntime *api.Runtime
 	Handlers   map[string]Handler
 	clients    map[*Client]bool
 	register   chan *Client
@@ -246,9 +248,14 @@ func (r *Runtime) initServer() error {
 	})
 	// TODO metrics & otel
 
-	api.Setup(r.AppName, e, r.S)
+	apiRuntime, err := api.Setup(r.AppName, e, r.S, r.Agentic)
+	if err != nil {
+		return err
+	}
 
 	// save & return
+	r.ApiRuntime = apiRuntime
+
 	r.e = e
 	return nil
 }
@@ -288,11 +295,32 @@ func (r *Runtime) BackfillAgentic() error {
 			}
 			cfg.Environs[a.Hof.Agentic.Name] = m
 
+		case "embed":
+			switch a.Value.IncompleteKind() {
+			// a path->content map
+			case cue.StructKind:
+				m := make(map[string]string)
+				err := a.Value.Decode(&m)
+				if err != nil {
+					return err
+				}
+				for k, v := range m {
+					t, err := templates.CreateFromString(k, v, templates.Delims{})
+					if err != nil {
+						fmt.Println("ERROR.RenderInstructions.Create", err)
+						return err
+					}
+					cfg.Templates[k] = t
+				}
+			}
+
 		}
 	}
 	prepareTemplates(cfg)
 
 	r.Agentic = cfg
+	// TODO, this needs to be per client / session / workspace
+	r.ApiRuntime.Agentic = cfg
 
 	// fmt.Printf("%#+v\n", pretty.Formatter(cfg))
 

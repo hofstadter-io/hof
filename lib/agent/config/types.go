@@ -7,14 +7,15 @@ import (
 
 func NewConfig() *Config {
 	return &Config{
-		Models:   make(map[string]Model),
-		Agents:   make(map[string]Agent),
-		Tools:    make(map[string]Tool),
-		Toolsets: make(map[string]Toolset),
-		Environs: make(map[string]Environ),
-		Embeds:   make(map[string]any),
-		EmbedDir: ".veg/embed", // temp default, we need both local and imported through CUE (or maybe just the later)
-		AgentsMD: make(map[string]string),
+		Models:    make(map[string]Model),
+		Agents:    make(map[string]Agent),
+		Tools:     make(map[string]Tool),
+		Toolsets:  make(map[string]Toolset),
+		Environs:  make(map[string]Environ),
+		Embeds:    make(map[string]string),
+		EmbedDir:  ".veg/embed", // temp default, we need both local and imported through CUE (or maybe just the later)
+		AgentsMD:  make(map[string]string),
+		Templates: make(templates.TemplateMap),
 	}
 }
 
@@ -25,8 +26,8 @@ type Config struct {
 	Toolsets map[string]Toolset `json:"toolsets"`
 	Environs map[string]Environ `json:"environs"`
 
-	Embeds   map[string]any `json:"embeds"`
-	EmbedDir string         `json:"embedDir"`
+	Embeds   map[string]string `json:"embeds"`
+	EmbedDir string            `json:"embedDir"`
 
 	// agents instruction files not tied to a project / dir / env?
 	AgentsMD map[string]string `json:"agentsMD"`

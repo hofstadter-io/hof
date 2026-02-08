@@ -34,18 +34,18 @@ func LoadAgent(cfg *config.Config, agentName string) (config.Agent, error) {
 
 	// merge MDs: global < agent
 	mds := make(map[string]string)
-	maps.Copy(mds, cfg.AgentsMD)
-	maps.Copy(mds, agt.AgentsMD)
+	maps.Copy(mds, cfg.AgentsMD) // from config (global)
+	maps.Copy(mds, agt.AgentsMD) // from agent  (per-agent)
 	agt.AgentsMD = mds
 
 	return agt, nil
 }
 
-// this needs to be supported through a heirachy of unification
+// this needs to be supported through a hierarchy of unification
 // dir, project, user, org... with modules and per-request
 // (hence the CUE, still todo for more CUEism in memory ^^)
 
-// just cause this file is open... randome thought
+// just cause this file is open... random thought
 //
 // 1. I have left stuff like this all over the code, should build a specialized agent for this
 // 2. Why not build an agent (team) that can...
@@ -416,7 +416,7 @@ func RenderInstructionsWithNameAndState(cfg *config.Config, agt config.Agent, na
 		return "", err
 	}
 
-	// debugPrintData(data)
+	debugPrintData(data)
 
 	// render instruction (first time) to get length
 	b, err := t.Render(data)

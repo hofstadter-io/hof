@@ -12,7 +12,7 @@ export const SessionSparklines: React.FC<SessionSparklinesProps> = ({ events }) 
     return null;
   }
 
-  const { usages } = processEvents(events);
+  const { merged } = processEvents(events);
   
   const cached: number[] = [];
   const prompt: number[] = [];
@@ -22,7 +22,13 @@ export const SessionSparklines: React.FC<SessionSparklinesProps> = ({ events }) 
   const output: number[] = [];
   const totals: number[] = [];
 
-  usages?.forEach((u) => {
+  const verts: any[] = [];
+  const ticks: any[] = [];
+  const meta: any[] = [];
+  let idx = 0;
+
+  merged?.forEach((e, originalIndex) => {
+    const u = e?.UsageMetadata
     const c = u?.cachedContentTokenCount || 0;
     const p = u?.promptTokenCount || 0;
     const i = p - c;
@@ -37,18 +43,7 @@ export const SessionSparklines: React.FC<SessionSparklinesProps> = ({ events }) 
     writes.push(w);
     output.push(o);
     totals.push(T);
-  });
 
-  if (totals.length < 2) {
-    return null
-  }
-
-  const verts: any[] = [];
-  const ticks: any[] = [];
-  const meta: any[] = [];
-  let idx = 0;
-  events?.forEach((e, originalIndex) => {
-    // console.log("Sparklines.event", e)
     const isUser = e.Author === "user";
     const hasUsage = e.Author !== "user" && e.UsageMetadata;
     const parts = e.Content?.parts || [];
@@ -106,9 +101,19 @@ export const SessionSparklines: React.FC<SessionSparklinesProps> = ({ events }) 
         }
         
         meta.push({ index: originalIndex, title, className: titleColor });
-        idx++;
     }
+    idx++;
   });
+
+  if (totals.length < 2) {
+    return null
+  }
+
+  // console.log("sparkline input:", {
+  //   verts,
+  //   ticks,
+  //   meta,
+  // })
 
   const lines = [
     { value: 0, className: "stroke-white" },

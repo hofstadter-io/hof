@@ -65,9 +65,11 @@ export const UserInput = () => {
   useEffect(() =>{
     if (session.events && session.events.length > 1) {
       const last = session.events[session.events.length-1] as any
-      console.log("considering last message...", last, last["TurnComplete"])
-      if (last["TurnComplete"] === true) {
-        setWorking(false)
+      if (!!last) {
+        console.log("considering last message...", last, last["TurnComplete"])
+        if (last["TurnComplete"] === true) {
+          setWorking(false)
+        }
       }
     }
   }, [session?.events])

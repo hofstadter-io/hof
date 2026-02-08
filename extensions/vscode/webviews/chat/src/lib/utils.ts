@@ -15,9 +15,10 @@ export function processEvents(events: any[]):{
   var merged: any[] = []
   var usages: any[] = []
   events?.forEach((E1: any, e1: number) => {
-    if (E1.Author !== "user" && E1.UsageMetadata) {
+    if (E1?.Author !== "user" && E1?.UsageMetadata) {
       usages.push(E1.UsageMetadata)
     }
+    var didMerge: boolean = false
     // loop over earlier events
     for (var e2 = e1-1; e2 >= 0; e2--) {
       const E2 = merged[e2]
@@ -26,7 +27,7 @@ export function processEvents(events: any[]):{
         continue
       }
       // if we have a matching invocation id, lets do some matching
-      if (E1.InvocationID === E2.InvocationID) {
+      if (E1?.InvocationID === E2?.InvocationID) {
         const P1 = E1?.Content?.parts
         if (!P1) {
           continue
@@ -43,6 +44,7 @@ export function processEvents(events: any[]):{
               continue
             }
             E2.Content.parts[pi2].functionResponse = p1.functionResponse
+            didMerge = true
             // console.log("MATCH!", ej.InvocationID, ej, merged[j], pi[0], pj[0])
             break;
           }
@@ -51,7 +53,9 @@ export function processEvents(events: any[]):{
         break;
       }
     }
-    merged.push(E1)
+    if (!didMerge) {
+      merged.push(E1)
+    }
   })
 
 
