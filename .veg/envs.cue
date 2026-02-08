@@ -7,8 +7,10 @@ import (
 
 let root = self
 
-_reg: "ghcr.io/hofstadter-io"
-_ver: "v0.7.0-alpha.2"
+_reg: "host.docker.internal:5000"
+_ver: "latest"
+// _reg: "ghcr.io/hofstadter-io"
+// _ver: "v0.7.0-alpha.2"
 
 environs: {
   for short in ["dev", "hof"] {
