@@ -9,7 +9,10 @@ import (
 )
 
 _packs: packs & {
-	"flags": flags
+	flags: {
+		goos: "linux"
+		arch: flags.arch
+	}
 }
 
 let root = self
