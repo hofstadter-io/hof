@@ -55,15 +55,15 @@ type Client struct {
 }
 ```
 
-### REST API (`api_environ.go`)
-Provides HTTP endpoints for filesystem and environment operations, primarily used by the VS Code extension or other clients for synchronous operations.
+### REST API
+Provides HTTP endpoints for filesystem and environment operations, primarily used by the VS Code extension or other clients for synchronous operations. These are implemented in `handlers/api/`.
 
 - `POST /fs/*`: Filesystem operations (read, write, stat, list, etc.) backed by the environment service.
 
-## Sub-directories
+### Sub-directories
 
 ### [Services](services/AGENTS.md)
 Contains the business logic for Environments (Dagger), Sessions (DB), and Artifacts.
 
 ### [Handlers](handlers/AGENTS.md)
-WebSocket message handlers (`ws/`).
+Implements WebSocket (`ws/`) and REST API (`api/`) handlers, with shared logic in `common/`.

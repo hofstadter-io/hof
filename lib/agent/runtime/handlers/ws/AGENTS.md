@@ -12,44 +12,33 @@ Handlers are typically registered in a map (seen in `runtime/runtime.go` or `ind
 Handles interaction with agents (LLMs).
 
 - **Event**: `chat`
-- **Payload**: `ChatPayload`
+- **Payload**: `common.ChatPayload` (via `chat.go` or `makeChatUserMessageHandler`)
 - **Flow**:
-    1.  Unmarshals payload (Text, Agent, Model).
-    2.  Retrieves the Session.
-    3.  Resolves the Environment and Agent Instructions.
-    4.  Builds the Agent (`agents.BuildAgent`).
-    5.  Runs the Agent using `runner.New()` and `R.Run()`.
-    6.  Streams events back to the client via `c.Mail("chat.event", ...)`.
-
-```go
-type ChatPayload struct {
-	Text  string `json:"text"`
-	Sid   string `json:"sid"`
-	Agent string `json:"agent"`
-	Model string `json:"model"`
-}
-```
+    1.  Unmarshals payload.
+    2.  Calls `common.SessionChat` to start the agent runner.
+    3.  Streams events back to the client via `c.Mail("chat.event", ...)`.
 
 ### Sessions (`sessions.go`)
-Manages the lifecycle of user sessions.
+Manages the lifecycle of user sessions via WebSocket events.
 
 - **Events**:
-    - `session.list`: Lists all sessions for the user.
-    - `session.get`: Gets full state/history for a specific session.
-    - `session.create`: Creates a new session, optionally with a Dagger environment.
+    - `session.list`: Lists all sessions.
+    - `session.get`: Gets details for a specific session.
+    - `session.create`: Creates a new session.
     - `session.delete`: Removes a session.
+    - `session.clone`: Clones a session.
+    - `session.splice`: Splices a session's event history.
     - `session.state.*`: Get/Put/Del specific keys in the session state.
 
-```go
-type SessionCreateRequest struct {
-	Title   string                        `json:"title,omitempty"`
-	Focus   bool                          `json:"focus,omitempty"`
-	Environ *environ.EnvironCreateOptions `json:"environ,omitempty"`
-}
-```
+*Note: Many of these are being refactored to use `common/` handlers.*
 
 ### Info (`info.go`)
-*Documentation inferred from filename* - Likely handles general system info or status checks.
+Provides system and configuration information.
+
+- **Events**:
+    - `config.info`: Returns current agent configuration.
+    - `models.list`: Lists available LLM models.
+    - `agents.list`: Lists available agent definitions.
 
 ### Index (`index.go`)
-*Documentation inferred from filename* - Likely contains the registration logic mapping string keys to these handler functions.
+Registers all WebSocket handlers into the `aruntime.Runtime.Handlers` map.

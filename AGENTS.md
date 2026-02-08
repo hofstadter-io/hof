@@ -58,7 +58,7 @@ If more are needed, the user will instruct you.
 go install ./cmd/hof
 
 # basic check
-hof env list
+hof version
 ```
 
 Do not run any other hof commands or go test UNLESS specifically instructed to by the user.
