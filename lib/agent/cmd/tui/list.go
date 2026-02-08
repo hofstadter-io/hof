@@ -13,6 +13,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/hofstadter-io/hof/lib/agent/runtime/handlers/common"
+	"github.com/hofstadter-io/hof/lib/consts"
 	"google.golang.org/adk/session"
 )
 
@@ -287,7 +288,7 @@ func (m *listModel) updateRows() {
 }
 
 func (m *listModel) updateSessions() error {
-	sessions, err := common.SessionList(m.root.R, m.root.AR)
+	sessions, err := common.SessionList(m.root.R.Ctx, m.root.AR, consts.VEG_DEFAULT_USER)
 	if err != nil {
 		return err
 	}

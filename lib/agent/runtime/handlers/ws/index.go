@@ -6,6 +6,7 @@ import (
 	"log"
 
 	aruntime "github.com/hofstadter-io/hof/lib/agent/runtime"
+	"github.com/hofstadter-io/hof/lib/agent/runtime/handlers/common"
 	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/runtime"
 )
@@ -105,7 +106,7 @@ func broadcastSync(ar *aruntime.Runtime, c *aruntime.Client, m *aruntime.Message
 func reloadEnvConfig(ar *aruntime.Runtime, c *aruntime.Client, m *aruntime.Message) {
 	// todo, this should happen on a per-client/user basis
 	var err error
-	err = ar.ReadEnvConfig()
+	err = common.ReloadConfig(ar)
 	if err != nil {
 		err = cuetils.ExpandCueError(err)
 		c.Mail("config.reload.error", map[string]any{

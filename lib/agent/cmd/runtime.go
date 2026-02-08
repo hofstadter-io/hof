@@ -47,11 +47,7 @@ func prepRuntime(args []string, rflags flags.RootPflagpole) (*runtime.Runtime, *
 		return nil, nil, err
 	}
 
-	ar, err := aruntime.NewRuntime(
-		r.DB,
-		r.Envs,
-		r.Agentics,
-	)
+	ar, err := aruntime.NewRuntime(r)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to create agent runtime: %v", err)
 	}

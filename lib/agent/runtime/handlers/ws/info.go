@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/hofstadter-io/hof/lib/agent/runtime"
+	"github.com/hofstadter-io/hof/lib/agent/runtime/handlers/common"
 )
 
 func configInfo(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
@@ -13,11 +14,13 @@ func configInfo(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
 }
 
 func modelsList(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
-	c.Mail("models.list.resp", r.Agentic.Models)
+	models, _ := common.GetModels(r)
+	c.Mail("models.list.resp", models)
 }
 
 func agentsList(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {
-	c.Mail("agents.list.resp", r.Agentic.Agents)
+	agents, _ := common.GetAgents(r)
+	c.Mail("agents.list.resp", agents)
 }
 
 func envInfo(r *runtime.Runtime, c *runtime.Client, m *runtime.Message) {

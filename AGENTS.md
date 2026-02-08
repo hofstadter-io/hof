@@ -32,6 +32,7 @@ This is all we are working on currently.
 
 - **ADK + VS Code Coding Agent**
   - lib/agent/... (core runtime in Go using ADK)
+  - lib/agent/config/... (CUE-based configuration for agents, tools, and environments)
   - extensions/vscode/
     - extension/... (core extension)
     - webviews/...  (webview components)

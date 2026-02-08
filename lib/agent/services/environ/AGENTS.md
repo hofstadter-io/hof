@@ -12,7 +12,7 @@ The service uses a singleton `localEnviron` that holds the Dagger client and a G
 ## Key Files
 
 - **`dagger_client.go`**: Service initialization, singleton management, and basic listing functions.
-- **`dagger_database.go`**: Database models (`tableEnviron`), migration, and helper functions.
+- **`dagger_database.go`**: Database models (`Environ`), migration, and helper functions.
 - **`dagger_env_create.go`**: Logic for creating new environments. Supports building from existing OCI images (`FromUri`) and attaching source filesystems.
 - **`dagger_exec.go`**: Implements command execution (`Exec`).
 - **`dagger_fs_mutate.go`**: Filesystem modification operations (`WriteFile`, `EditFile`, `Delete`, `Copy`, `Move`).

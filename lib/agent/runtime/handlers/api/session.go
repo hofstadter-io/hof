@@ -1,22 +1,25 @@
 package api
 
 import (
-	"fmt"
-	"iter"
 	"maps"
 	"net/http"
 	"slices"
 
-	"github.com/hofstadter-io/hof/lib/agent/agents"
-	"github.com/hofstadter-io/hof/lib/agent/services/environ"
 	"github.com/labstack/echo/v4"
 	"google.golang.org/adk/session"
+
+	"github.com/hofstadter-io/hof/lib/agent/runtime/handlers/common"
+	"github.com/hofstadter-io/hof/lib/consts"
 )
 
 type sessionCloneRequest struct {
 	Sid   string `json:"sid"`
 	Pos   int    `json:"pos,omitempty"`
 	Focus bool   `json:"focus,omitempty"`
+}
+
+type SidRequest struct {
+	Sid string `json:"sid"`
 }
 
 func (r *Runtime) sessionClone(c echo.Context) error {
@@ -26,32 +29,9 @@ func (r *Runtime) sessionClone(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	// 1. Get Session
-	sreq := &session.GetRequest{
-		AppName:   r.AppName,
-		UserID:    "tony",
-		SessionID: p.Sid,
-	}
-	sresp, err := r.S.Get(c.Request().Context(), sreq)
+	cloned, err := common.SessionClone(c.Request().Context(), r, consts.VEG_DEFAULT_USER, p.Sid, p.Pos)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
-	}
-
-	// 2. Clone
-	cloned, err := r.S.Clone(c.Request().Context(), sresp.Session)
-	if err != nil {
-		return c.String(http.StatusInternalServerError, err.Error())
-	}
-
-	// splice if pos is non-zero
-	if p.Pos > 0 {
-		n := cloned.Events().Len()
-		if p.Pos < n {
-			cloned, err = r.S.Splice(c.Request().Context(), cloned, p.Pos, n-p.Pos, nil)
-			if err != nil {
-				return c.String(http.StatusInternalServerError, err.Error())
-			}
-		}
 	}
 
 	// build outgoing payload
@@ -63,6 +43,146 @@ func (r *Runtime) sessionClone(c echo.Context) error {
 	S["focus"] = p.Focus
 
 	return c.JSON(http.StatusOK, S)
+}
+
+func (r *Runtime) sessionCreate(c echo.Context) error {
+	var p common.CreatePayload
+	err := c.Bind(&p)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+	p.User = consts.VEG_DEFAULT_USER
+
+	sess, err := common.SessionCreate(c.Request().Context(), r, p)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	S := make(map[string]any)
+	S["sid"] = sess.ID()
+	S["state"] = maps.Collect(sess.State().All())
+	S["events"] = slices.Collect(sess.Events().All())
+	S["lastUpdate"] = sess.LastUpdateTime().UTC()
+
+	return c.JSON(http.StatusOK, S)
+}
+
+func (r *Runtime) sessionGet(c echo.Context) error {
+	sid := c.QueryParam("sid")
+	if sid == "" {
+		var p SidRequest
+		err := c.Bind(&p)
+		if err == nil && p.Sid != "" {
+			sid = p.Sid
+		}
+	}
+	if sid == "" {
+		return c.String(http.StatusBadRequest, "missing sid")
+	}
+
+	sess, err := common.SessionGet(c.Request().Context(), r, consts.VEG_DEFAULT_USER, sid)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	S := make(map[string]any)
+	S["sid"] = sess.ID()
+	S["state"] = maps.Collect(sess.State().All())
+	S["events"] = slices.Collect(sess.Events().All())
+	S["lastUpdate"] = sess.LastUpdateTime().UTC()
+
+	return c.JSON(http.StatusOK, S)
+}
+
+func (r *Runtime) sessionList(c echo.Context) error {
+	sessions, err := common.SessionList(c.Request().Context(), r, consts.VEG_DEFAULT_USER)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	payload := make([]map[string]any, 0, len(sessions))
+	for _, s := range sessions {
+		S := make(map[string]any)
+		S["sid"] = s.ID()
+		S["state"] = maps.Collect(s.State().All())
+		S["events"] = slices.Collect(s.Events().All())
+		S["lastUpdate"] = s.LastUpdateTime().UTC()
+		payload = append(payload, S)
+	}
+
+	return c.JSON(http.StatusOK, payload)
+}
+
+func (r *Runtime) sessionDelete(c echo.Context) error {
+	sid := c.QueryParam("sid")
+	if sid == "" {
+		var p SidRequest
+		err := c.Bind(&p)
+		if err == nil && p.Sid != "" {
+			sid = p.Sid
+		}
+	}
+	if sid == "" {
+		return c.String(http.StatusBadRequest, "missing sid")
+	}
+
+	err := common.SessionDel(c.Request().Context(), r, consts.VEG_DEFAULT_USER, sid)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
+type stateRequest struct {
+	Sid string `json:"sid"`
+	Key string `json:"key"`
+	Val any    `json:"val"`
+}
+
+func (r *Runtime) sessionStateGet(c echo.Context) error {
+	var p stateRequest
+	err := c.Bind(&p)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	val, err := common.SessionStateGet(c.Request().Context(), r, consts.VEG_DEFAULT_USER, p.Sid, p.Key)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, map[string]any{"val": val})
+}
+
+func (r *Runtime) sessionStatePut(c echo.Context) error {
+	var p stateRequest
+	err := c.Bind(&p)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	err = common.SessionStatePut(c.Request().Context(), r, consts.VEG_DEFAULT_USER, p.Sid, p.Key, p.Val)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.NoContent(http.StatusOK)
+}
+
+func (r *Runtime) sessionStateDel(c echo.Context) error {
+	var p stateRequest
+	err := c.Bind(&p)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	err = common.SessionStateDel(c.Request().Context(), r, consts.VEG_DEFAULT_USER, p.Sid, p.Key)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.NoContent(http.StatusOK)
 }
 
 type sessionSpliceRequest struct {
@@ -79,19 +199,7 @@ func (r *Runtime) sessionSplice(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	// 1. Get Session
-	sreq := &session.GetRequest{
-		AppName:   r.AppName,
-		UserID:    "tony",
-		SessionID: p.Sid,
-	}
-	sresp, err := r.S.Get(c.Request().Context(), sreq)
-	if err != nil {
-		return c.String(http.StatusInternalServerError, err.Error())
-	}
-
-	// 2. Splice
-	spliced, err := r.S.Splice(c.Request().Context(), sresp.Session, p.Pos, p.Count, spliceEvents(p.Fill))
+	spliced, err := common.SessionSplice(c.Request().Context(), r, consts.VEG_DEFAULT_USER, p.Sid, p.Pos, p.Count, p.Fill)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -104,29 +212,6 @@ func (r *Runtime) sessionSplice(c echo.Context) error {
 	S["lastUpdate"] = spliced.LastUpdateTime().UTC()
 
 	return c.JSON(http.StatusOK, S)
-}
-
-type spliceEvents []*session.Event
-
-func (e spliceEvents) All() iter.Seq[*session.Event] {
-	return func(yield func(*session.Event) bool) {
-		for _, event := range e {
-			if !yield(event) {
-				return
-			}
-		}
-	}
-}
-
-func (e spliceEvents) Len() int {
-	return len(e)
-}
-
-func (e spliceEvents) At(i int) *session.Event {
-	if i >= 0 && i < len(e) {
-		return e[i]
-	}
-	return nil
 }
 
 type promptRenderRequest struct {
@@ -142,62 +227,10 @@ func (r *Runtime) promptRender(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	// 1. Get Session
-	sreq := &session.GetRequest{
-		AppName:   r.AppName,
-		UserID:    "tony",
-		SessionID: p.Sid,
-	}
-	ctx := c.Request().Context()
-	s := r.S
-	sresp, err := s.Get(ctx, sreq)
+	prompt, err := common.SessionPromptRender(c.Request().Context(), r, consts.VEG_DEFAULT_USER, p.Sid, p.Agent)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
-	sess := sresp.Session
-
-	// do we have an env? if yes, get all the agent files for use during instruction generation
-	envUri, _ := sess.State().Get("currEnv")
-	var environMDs map[string]string
-	if envUri != nil {
-		environMDs, err = environ.Client().FindAgentFiles(envUri.(string))
-		if err != nil {
-			fmt.Printf("promptRender.GetAgentFiles.error: %v\n", err)
-		}
-	}
-
-	// 2. Get Agent Config
-	agentName := p.Agent
-	if agentName == "" {
-		return c.String(http.StatusBadRequest, "agent must be set in request")
-		// Try to get agent from state or use a default if available
-		// For now, if empty, we might need it passed or found in state
-		// v, _ := sess.State().Get("agent")
-		// if v != nil {
-		// 	agentName = v.(string)
-		// }
-	}
-
-	agt, err := agents.LoadAgent(r.Agentic, agentName)
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	// 3. Prepare State
-	// TODO: We may need to walk the events backwards and process state changes inversely,
-	// from the current state for the session (I don't think it's recorded, only the latest and delta,
-	// we can leave this for later, leave a comment where it should go for now
-	st := maps.Collect(sess.State().All())
-
-	// 4. Render
-	// fmt.Printf("promptRender.render.start: %s\n", agentName)
-	prompt, err := agents.RenderInstructionsWithNameAndState(r.Agentic, agt, agentName, st, environMDs)
-	if err != nil {
-		// fmt.Printf("promptRender.render.error: %v\n", err)
-		return c.String(http.StatusInternalServerError, err.Error())
-	}
-	// TODO calculate tokens here
-	// fmt.Printf("promptRender.render.success: %d bytes\n", len(prompt))
 
 	return c.JSON(http.StatusOK, map[string]string{"prompt": prompt})
 }

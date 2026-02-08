@@ -22,12 +22,14 @@ import (
 	agentconfig "github.com/hofstadter-io/hof/lib/agent/config"
 	"github.com/hofstadter-io/hof/lib/agent/models"
 	"github.com/hofstadter-io/hof/lib/agent/runtime/handlers/api"
+	"github.com/hofstadter-io/hof/lib/agent/runtime/handlers/common"
 	"github.com/hofstadter-io/hof/lib/agent/services/environ"
 	vegsession "github.com/hofstadter-io/hof/lib/agent/services/session"
 	"github.com/hofstadter-io/hof/lib/config"
 	"github.com/hofstadter-io/hof/lib/consts"
 	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/env"
+	hofruntime "github.com/hofstadter-io/hof/lib/runtime"
 	"github.com/hofstadter-io/hof/lib/templates"
 	"github.com/hofstadter-io/hof/lib/yagu"
 )
@@ -50,6 +52,9 @@ type Runtime struct {
 	Models  map[string]model.LLM
 	Agentic *agentconfig.Config
 
+	// hof runtime
+	HofRuntime *hofruntime.Runtime
+
 	// Copying(read-only) in temporarily(?) until more of the things here get lifted
 	// it at least lets us start refactoring code here around the top-level runtime and CUE fabric
 	Envs     []*env.Env
@@ -63,31 +68,30 @@ type Runtime struct {
 	register   chan *Client
 	unregister chan *Client
 
-	sessions   map[string]*Session
+	sessions   map[string]*common.Session
 	sessionsMx sync.RWMutex
 }
 
 type Handler func(*Runtime, *Client, *Message)
 
 func NewRuntime(
-	db *gorm.DB,
-	envs []*env.Env,
-	agentics []*agent.Agentic,
+	hr *hofruntime.Runtime,
 ) (*Runtime, error) {
 	ctx := context.Background()
 
 	R := &Runtime{
 		AppName:    "veg",
 		Ctx:        ctx,
-		db:         db,
-		Envs:       envs,
-		Agentics:   agentics,
+		db:         hr.DB,
+		Envs:       hr.Envs,
+		Agentics:   hr.Agentics,
+		HofRuntime: hr,
 		Models:     make(map[string]model.LLM),
 		Handlers:   make(map[string]Handler),
 		clients:    make(map[*Client]bool),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
-		sessions:   make(map[string]*Session),
+		sessions:   make(map[string]*common.Session),
 	}
 
 	// init components
@@ -97,6 +101,26 @@ func NewRuntime(
 	}
 
 	return R, nil
+}
+
+func (r *Runtime) GetAppName() string {
+	return r.AppName
+}
+
+func (r *Runtime) GetSessionService() session.Service {
+	return r.S
+}
+
+func (r *Runtime) GetAgenticConfig() *agentconfig.Config {
+	return r.Agentic
+}
+
+func (r *Runtime) GetArtifactService() artifact.Service {
+	return r.A
+}
+
+func (r *Runtime) GetModels() map[string]model.LLM {
+	return r.Models
 }
 
 func (r *Runtime) ArtifactService() artifact.Service {

@@ -10,7 +10,6 @@ import (
 	"google.golang.org/genai"
 
 	"github.com/hofstadter-io/hof/lib/agent/agents"
-	aruntime "github.com/hofstadter-io/hof/lib/agent/runtime"
 	"github.com/hofstadter-io/hof/lib/agent/services/environ"
 	"github.com/hofstadter-io/hof/lib/runtime"
 )
@@ -26,9 +25,9 @@ type ChatPayload struct {
 
 // TODO, how do we emit events to the TUI and Websocket?
 // TODO, how do we tie this to a particular client or user (want more info than username, pass in struct, or lookup based on ID, also authnz eventually)
-func SessionChat(r *runtime.Runtime, ar *aruntime.Runtime, p *ChatPayload) (*aruntime.Session, error) {
-	resp, err := ar.S.Get(r.Ctx, &session.GetRequest{
-		AppName:   ar.AppName,
+func SessionChat(r *runtime.Runtime, ar Runtime, p *ChatPayload) (*Session, error) {
+	resp, err := ar.GetSessionService().Get(r.Ctx, &session.GetRequest{
+		AppName:   ar.GetAppName(),
 		UserID:    p.User,
 		SessionID: p.Sid,
 	})
@@ -61,16 +60,16 @@ func SessionChat(r *runtime.Runtime, ar *aruntime.Runtime, p *ChatPayload) (*aru
 	// TODO, attach this to the session or client
 
 	// build the agent on demand
-	a, err := agents.BuildAgent(ar.Agentic, p.Agent, p.Model, ar.Models, environMDs)
+	a, err := agents.BuildAgent(ar.GetAgenticConfig(), p.Agent, p.Model, ar.GetModels(), environMDs)
 	if err != nil {
 		return nil, fmt.Errorf("while building agent %q: %w", p.Agent, err)
 	}
 
 	R, err := runner.New(runner.Config{
-		AppName:         ar.AppName,
+		AppName:         ar.GetAppName(),
 		Agent:           a,
-		SessionService:  ar.S,
-		ArtifactService: ar.A,
+		SessionService:  ar.GetSessionService(),
+		ArtifactService: ar.GetArtifactService(),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("while initializing runner for %q: %w", a.Name(), err)
@@ -84,7 +83,7 @@ func SessionChat(r *runtime.Runtime, ar *aruntime.Runtime, p *ChatPayload) (*aru
 	// create agentic session TURN object
 	// TODO, can we reuse this stuff? or should it really be per-turn
 	// if so, we should probably update the key and add some position info here like len(events)
-	s := &aruntime.Session{
+	s := &Session{
 		Sid:       p.Sid,
 		EventChan: evtChan,
 		ErrorChan: errChan,

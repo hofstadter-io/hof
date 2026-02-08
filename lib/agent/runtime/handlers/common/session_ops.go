@@ -11,24 +11,18 @@ import (
 	"google.golang.org/adk/session"
 
 	"github.com/hofstadter-io/hof/lib/agent/agents"
-	aruntime "github.com/hofstadter-io/hof/lib/agent/runtime"
 	"github.com/hofstadter-io/hof/lib/agent/services/environ"
 )
 
-func SessionClone(ctx context.Context, ar *aruntime.Runtime, sid string, pos int) (session.Session, error) {
+func SessionClone(ctx context.Context, ar Runtime, user, sid string, pos int) (session.Session, error) {
 	// 1. Get Session
-	sreq := &session.GetRequest{
-		AppName:   ar.AppName,
-		UserID:    "tony", // TODO: unify user management
-		SessionID: sid,
-	}
-	sresp, err := ar.S.Get(ctx, sreq)
+	sess, err := SessionGet(ctx, ar, user, sid)
 	if err != nil {
 		return nil, err
 	}
 
 	// 2. Clone
-	cloned, err := ar.S.Clone(ctx, sresp.Session)
+	cloned, err := ar.GetSessionService().Clone(ctx, sess)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +31,7 @@ func SessionClone(ctx context.Context, ar *aruntime.Runtime, sid string, pos int
 	if pos > 0 {
 		n := cloned.Events().Len()
 		if pos < n {
-			cloned, err = ar.S.Splice(ctx, cloned, pos, n-pos, nil)
+			cloned, err = ar.GetSessionService().Splice(ctx, cloned, pos, n-pos, nil)
 			if err != nil {
 				return nil, err
 			}
@@ -70,20 +64,15 @@ func (e SpliceEvents) At(i int) *session.Event {
 	return nil
 }
 
-func SessionSplice(ctx context.Context, ar *aruntime.Runtime, sid string, pos, count int, fill []*session.Event) (session.Session, error) {
+func SessionSplice(ctx context.Context, ar Runtime, user, sid string, pos, count int, fill []*session.Event) (session.Session, error) {
 	// 1. Get Session
-	sreq := &session.GetRequest{
-		AppName:   ar.AppName,
-		UserID:    "tony",
-		SessionID: sid,
-	}
-	sresp, err := ar.S.Get(ctx, sreq)
+	sess, err := SessionGet(ctx, ar, user, sid)
 	if err != nil {
 		return nil, err
 	}
 
 	// 2. Splice
-	spliced, err := ar.S.Splice(ctx, sresp.Session, pos, count, SpliceEvents(fill))
+	spliced, err := ar.GetSessionService().Splice(ctx, sess, pos, count, SpliceEvents(fill))
 	if err != nil {
 		return nil, err
 	}
@@ -91,30 +80,22 @@ func SessionSplice(ctx context.Context, ar *aruntime.Runtime, sid string, pos, c
 	return spliced, nil
 }
 
-func SessionStateGet(ctx context.Context, ar *aruntime.Runtime, sid, key string) (any, error) {
-	resp, err := ar.S.Get(ctx, &session.GetRequest{
-		AppName:   ar.AppName,
-		UserID:    "tony",
-		SessionID: sid,
-	})
+func SessionStateGet(ctx context.Context, ar Runtime, user, sid, key string) (any, error) {
+	sess, err := SessionGet(ctx, ar, user, sid)
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.Session.State().Get(key)
+	return sess.State().Get(key)
 }
 
-func SessionStatePut(ctx context.Context, ar *aruntime.Runtime, sid, key string, val any) error {
-	resp, err := ar.S.Get(ctx, &session.GetRequest{
-		AppName:   ar.AppName,
-		UserID:    "tony",
-		SessionID: sid,
-	})
+func SessionStatePut(ctx context.Context, ar Runtime, user, sid, key string, val any) error {
+	sess, err := SessionGet(ctx, ar, user, sid)
 	if err != nil {
 		return err
 	}
 
-	return ar.S.AppendEvent(ctx, resp.Session, &session.Event{
+	return ar.GetSessionService().AppendEvent(ctx, sess, &session.Event{
 		Author:       "user",
 		ID:           uuid.NewString(),
 		InvocationID: uuid.NewString(),
@@ -127,22 +108,16 @@ func SessionStatePut(ctx context.Context, ar *aruntime.Runtime, sid, key string,
 	})
 }
 
-func SessionStateDel(ctx context.Context, ar *aruntime.Runtime, sid, key string) error {
-	return SessionStatePut(ctx, ar, sid, key, nil)
+func SessionStateDel(ctx context.Context, ar Runtime, user, sid, key string) error {
+	return SessionStatePut(ctx, ar, user, sid, key, nil)
 }
 
-func SessionPromptRender(ctx context.Context, ar *aruntime.Runtime, sid, agentName string) (string, error) {
+func SessionPromptRender(ctx context.Context, ar Runtime, user, sid, agentName string) (string, error) {
 	// 1. Get Session
-	sreq := &session.GetRequest{
-		AppName:   ar.AppName,
-		UserID:    "tony",
-		SessionID: sid,
-	}
-	sresp, err := ar.S.Get(ctx, sreq)
+	sess, err := SessionGet(ctx, ar, user, sid)
 	if err != nil {
 		return "", err
 	}
-	sess := sresp.Session
 
 	// do we have an env?
 	envUri, _ := sess.State().Get("currEnv")
@@ -159,7 +134,7 @@ func SessionPromptRender(ctx context.Context, ar *aruntime.Runtime, sid, agentNa
 		return "", fmt.Errorf("agent must be set")
 	}
 
-	agt, err := agents.LoadAgent(ar.Agentic, agentName)
+	agt, err := agents.LoadAgent(ar.GetAgenticConfig(), agentName)
 	if err != nil {
 		return "", err
 	}
@@ -168,7 +143,7 @@ func SessionPromptRender(ctx context.Context, ar *aruntime.Runtime, sid, agentNa
 	st := maps.Collect(sess.State().All())
 
 	// 4. Render
-	prompt, err := agents.RenderInstructionsWithNameAndState(ar.Agentic, agt, agentName, st, environMDs)
+	prompt, err := agents.RenderInstructionsWithNameAndState(ar.GetAgenticConfig(), agt, agentName, st, environMDs)
 	if err != nil {
 		return "", err
 	}

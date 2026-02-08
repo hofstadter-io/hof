@@ -62,7 +62,7 @@ type Model struct {
 	currSid       string
 	currSessTitle string
 	session       session.Session
-	asession      *aruntime.Session
+	asession      *common.Session
 }
 
 var views = []string{"list", "chat", "info"}
@@ -331,7 +331,7 @@ func (m *Model) currDims() {
 func (m *Model) createSession() error {
 	m.clearSession()
 
-	session, err := common.SessionCreate(m.R, m.AR, common.CreatePayload{
+	session, err := common.SessionCreate(m.R.Ctx, m.AR, common.CreatePayload{
 		User:  consts.VEG_DEFAULT_USER,
 		Agent: "veggie",
 		Model: "gemini-3-flash",
@@ -346,7 +346,7 @@ func (m *Model) createSession() error {
 }
 
 func (m *Model) loadSession(sid string) error {
-	session, err := common.SessionGet(m.R, m.AR, sid)
+	session, err := common.SessionGet(m.R.Ctx, m.AR, consts.VEG_DEFAULT_USER, sid)
 	if err != nil {
 		m.err = err
 		return err
@@ -372,7 +372,7 @@ func (m *Model) sendMessage(text string) error {
 }
 
 func (m *Model) delSession(sid string) error {
-	err := common.SessionDel(m.R, m.AR, sid)
+	err := common.SessionDel(m.R.Ctx, m.AR, consts.VEG_DEFAULT_USER, sid)
 	if err != nil {
 		m.err = err
 		return err

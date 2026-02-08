@@ -186,7 +186,7 @@ func (le *localEnviron) Create(opts *EnvironCreateOptions) (envUri string, err e
 
 	// create a new uri
 	envUri = fmt.Sprintf("host.docker.internal:5000/%s:%s", uuid.New().String(), "0")
-	tEnv := &tableEnviron{
+	tEnv := &Environ{
 		Name:    name,
 		SrcUri:  opts.SrcUri,
 		SrcPath: opts.SrcPath,

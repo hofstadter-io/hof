@@ -11,7 +11,7 @@ import (
 
 const VEG_ENVIRONMENT_REGISTRY = "host.docker.internal:5000"
 
-type tableEnviron struct {
+type Environ struct {
 	Eid string `gorm:"primaryKey"`
 	Tag string `gorm:"primaryKey"`
 
@@ -27,13 +27,13 @@ type tableEnviron struct {
 	UpdatedAt time.Time `gorm:"index"`
 
 	// Has-Many relationship: env can have many children-env.
-	// Children []tableEnviron `gorm:"foreignKey:From;references:Uri"`
+	// Children []Environ `gorm:"foreignKey:From;references:Uri"`
 
 	// Has-Many relationship: A session has many events.
 	// Sessions []storageEvent `gorm:"foreignKey:AppName,UserID,SessionID;references:AppName,UserID,ID"`
 }
 
-func (tableEnviron) TableName() string {
+func (Environ) TableName() string {
 	return "environs"
 }
 
@@ -44,15 +44,15 @@ func (tableEnviron) TableName() string {
 // implementation. It will return an error if the provided session.Service is
 // a different implementation.
 func (le *localEnviron) AutoMigrate() error {
-	err := le.db.AutoMigrate(&tableEnviron{})
+	err := le.db.AutoMigrate(&Environ{})
 	if err != nil {
 		return fmt.Errorf("environment auto migrate failed: %w", err)
 	}
 	return nil
 }
 
-func (le *localEnviron) LookupEnviron(envUri string) (tableEnviron, *dagger.Container, error) {
-	var foundEnv tableEnviron
+func (le *localEnviron) LookupEnviron(envUri string) (Environ, *dagger.Container, error) {
+	var foundEnv Environ
 	// fucking more hacks because our paths / URIs are a mess...
 	// we are seeing veg://... here, which is not correct, we should never see that in the server, it is a vscode thing only!
 	if !strings.Contains(envUri, "://") {
@@ -70,7 +70,7 @@ func (le *localEnviron) LookupEnviron(envUri string) (tableEnviron, *dagger.Cont
 	eid, tag := parts[0], parts[1]
 
 	err = le.db.WithContext(le.ctx).
-		Where(&tableEnviron{
+		Where(&Environ{
 			Eid: eid,
 			Tag: tag,
 		}).
@@ -88,7 +88,7 @@ func (le *localEnviron) LookupEnviron(envUri string) (tableEnviron, *dagger.Cont
 	return foundEnv, env, nil
 }
 
-func (le *localEnviron) persistEnviron(envUri string, tEnv *tableEnviron, c *dagger.Container) (err error) {
+func (le *localEnviron) persistEnviron(envUri string, tEnv *Environ, c *dagger.Container) (err error) {
 
 	// fmt.Println("le.persist.input", envUri)
 
@@ -110,7 +110,7 @@ func (le *localEnviron) persistEnviron(envUri string, tEnv *tableEnviron, c *dag
 
 	// what about from?
 	if tEnv == nil {
-		tEnv = &tableEnviron{}
+		tEnv = &Environ{}
 	}
 	tEnv.Eid = iparts[0]
 	tEnv.Tag = iparts[1]
@@ -176,8 +176,8 @@ func (le *localEnviron) persistEnviron(envUri string, tEnv *tableEnviron, c *dag
 // 	return path, nil
 // }
 
-func (le *localEnviron) getEnvironEntry(envUri string) (tableEnviron, error) {
-	var foundEnv tableEnviron
+func (le *localEnviron) getEnvironEntry(envUri string) (Environ, error) {
+	var foundEnv Environ
 	e, err := url.Parse(envUri)
 	if err != nil {
 		return foundEnv, fmt.Errorf("database error while fetching environ: %w", err)
@@ -186,7 +186,7 @@ func (le *localEnviron) getEnvironEntry(envUri string) (tableEnviron, error) {
 	// fmt.Println("le.lookup", e, key)
 
 	err = le.db.WithContext(le.ctx).
-		Where(&tableEnviron{
+		Where(&Environ{
 			Uri: key,
 		}).
 		First(&foundEnv).Error
@@ -199,8 +199,8 @@ func (le *localEnviron) getEnvironEntry(envUri string) (tableEnviron, error) {
 	return foundEnv, nil
 }
 
-func (le *localEnviron) listEnvironEntry() ([]tableEnviron, error) {
-	var foundEnvs []tableEnviron
+func (le *localEnviron) listEnvironEntry() ([]Environ, error) {
+	var foundEnvs []Environ
 
 	err := le.db.WithContext(le.ctx).
 		Find(&foundEnvs).Error

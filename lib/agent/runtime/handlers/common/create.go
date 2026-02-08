@@ -1,13 +1,11 @@
 package common
 
 import (
+	"context"
 	"fmt"
 
 	"google.golang.org/adk/session"
-
-	aruntime "github.com/hofstadter-io/hof/lib/agent/runtime"
 	"github.com/hofstadter-io/hof/lib/agent/services/environ"
-	"github.com/hofstadter-io/hof/lib/runtime"
 )
 
 type CreatePayload struct {
@@ -21,7 +19,7 @@ type CreatePayload struct {
 	Environ *environ.EnvironCreateOptions `json:"environ,omitempty"`
 }
 
-func SessionCreate(r *runtime.Runtime, ar *aruntime.Runtime, payload CreatePayload) (session.Session, error) {
+func SessionCreate(ctx context.Context, ar Runtime, payload CreatePayload) (session.Session, error) {
 	// initial state
 	initialState := make(map[string]any)
 	if payload.Title != "" {
@@ -40,7 +38,7 @@ func SessionCreate(r *runtime.Runtime, ar *aruntime.Runtime, payload CreatePaylo
 	// maybe attach an environment
 	if pe.FromUri == "" && payload.EnvName != "" {
 		// fmt.Println("searching for env:", payload.EnvName)
-		for _, e := range ar.Agentic.Environs {
+		for _, e := range ar.GetAgenticConfig().Environs {
 			// fmt.Printf(" ? %#+v\n", e)
 			if e.Name == payload.EnvName {
 				if e.SpecValue.Exists() {
@@ -67,8 +65,8 @@ func SessionCreate(r *runtime.Runtime, ar *aruntime.Runtime, payload CreatePaylo
 	// maps.Copy(initialState, c.State)
 
 	// create our session
-	resp, err := ar.S.Create(r.Ctx, &session.CreateRequest{
-		AppName: ar.AppName,
+	resp, err := ar.GetSessionService().Create(ctx, &session.CreateRequest{
+		AppName: ar.GetAppName(),
 		UserID:  payload.User,
 		State:   initialState,
 	})

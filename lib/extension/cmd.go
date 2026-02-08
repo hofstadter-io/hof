@@ -35,11 +35,7 @@ func Run(args []string, rflags flags.RootPflagpole) error {
 		return err
 	}
 
-	ar, err := aruntime.NewRuntime(
-		r.DB,
-		r.Envs,
-		r.Agentics,
-	)
+	ar, err := aruntime.NewRuntime(r)
 	if err != nil {
 		return fmt.Errorf("failed to create agent runtime: %v", err)
 	}

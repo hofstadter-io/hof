@@ -44,11 +44,11 @@ func Client() *localEnviron {
 	return LE
 }
 
-func (le *localEnviron) ListEnvirons() ([]tableEnviron, error) {
+func (le *localEnviron) ListEnvirons() ([]Environ, error) {
 
-	var envs []tableEnviron
+	var envs []Environ
 	err := le.db.WithContext(le.ctx).
-		Model(&tableEnviron{}).
+		Model(&Environ{}).
 		Preload("Children").
 		Where("tag =?", "0").
 		Find(&envs).Error

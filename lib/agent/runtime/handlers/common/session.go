@@ -1,17 +1,14 @@
 package common
 
 import (
+	"context"
 	"google.golang.org/adk/session"
-
-	aruntime "github.com/hofstadter-io/hof/lib/agent/runtime"
-	"github.com/hofstadter-io/hof/lib/consts"
-	"github.com/hofstadter-io/hof/lib/runtime"
 )
 
-func SessionGet(r *runtime.Runtime, ar *aruntime.Runtime, sid string) (session.Session, error) {
-	resp, err := ar.S.Get(r.Ctx, &session.GetRequest{
-		AppName:   ar.AppName,
-		UserID:    consts.VEG_DEFAULT_USER,
+func SessionGet(ctx context.Context, ar Runtime, user, sid string) (session.Session, error) {
+	resp, err := ar.GetSessionService().Get(ctx, &session.GetRequest{
+		AppName:   ar.GetAppName(),
+		UserID:    user,
 		SessionID: sid,
 	})
 	if err != nil {
@@ -21,10 +18,10 @@ func SessionGet(r *runtime.Runtime, ar *aruntime.Runtime, sid string) (session.S
 	return resp.Session, nil
 }
 
-func SessionList(r *runtime.Runtime, ar *aruntime.Runtime) ([]session.Session, error) {
-	sessions, err := ar.S.List(r.Ctx, &session.ListRequest{
-		AppName: ar.AppName,
-		UserID:  consts.VEG_DEFAULT_USER,
+func SessionList(ctx context.Context, ar Runtime, user string) ([]session.Session, error) {
+	sessions, err := ar.GetSessionService().List(ctx, &session.ListRequest{
+		AppName: ar.GetAppName(),
+		UserID:  user,
 	})
 	if err != nil {
 		return nil, err
@@ -33,10 +30,10 @@ func SessionList(r *runtime.Runtime, ar *aruntime.Runtime) ([]session.Session, e
 	return sessions.Sessions, nil
 }
 
-func SessionDel(r *runtime.Runtime, ar *aruntime.Runtime, sid string) error {
-	return ar.S.Delete(r.Ctx, &session.DeleteRequest{
-		AppName:   ar.AppName,
-		UserID:    consts.VEG_DEFAULT_USER,
+func SessionDel(ctx context.Context, ar Runtime, user, sid string) error {
+	return ar.GetSessionService().Delete(ctx, &session.DeleteRequest{
+		AppName:   ar.GetAppName(),
+		UserID:    user,
 		SessionID: sid,
 	})
 }

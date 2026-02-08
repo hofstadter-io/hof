@@ -8,6 +8,7 @@ import (
 
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 	"github.com/hofstadter-io/hof/lib/agent/runtime/handlers/common"
+	"github.com/hofstadter-io/hof/lib/consts"
 	"github.com/hofstadter-io/hof/lib/yagu"
 	"github.com/olekukonko/tablewriter"
 )
@@ -33,7 +34,7 @@ func ChatList(args []string, rflags flags.RootPflagpole, aflags flags.AgentPflag
 
 	// these loops need to be switched
 	// REALLY, we need a third list to calc intermediate rows with comparable data
-	sessions, err := common.SessionList(R, AR)
+	sessions, err := common.SessionList(R.Ctx, AR, consts.VEG_DEFAULT_USER)
 	rows := make([][]string, 0, len(sessions))
 	for _, s := range sessions {
 		id := s.ID()
