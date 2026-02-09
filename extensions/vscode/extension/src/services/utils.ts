@@ -119,7 +119,7 @@ export function findSession(sessions: any[], envId: string) {
 	})
 }
 
-export async function makeReq(route: string, uri?: vscode.Uri, diffUri?: vscode.Uri, body?: any, onlyDiff: boolean = true): Promise<Response> {
+export async function makeReq(route: string, uri?: vscode.Uri, diffUri?: vscode.Uri, body?: any, onlyDiff: boolean = true, sid?: string): Promise<Response> {
 	// console.log("filesys.makeReq", route, uri, body)
 	const url = `${SERVER_URL}${route}`
 	var req = body
@@ -134,6 +134,9 @@ export async function makeReq(route: string, uri?: vscode.Uri, diffUri?: vscode.
 		if (!!diffUri) {
 			const duri = vsUriToVeg(diffUri)
 			req.diffUri = `${duri.scheme}://${duri.authority}${duri.path}?${duri.query}`;
+		}
+		if (sid) {
+			req.sid = sid
 		}
 	}
 

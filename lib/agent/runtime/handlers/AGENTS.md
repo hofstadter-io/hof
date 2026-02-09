@@ -47,7 +47,8 @@ func SessionStateDel(ctx context.Context, ar *aruntime.Runtime, sid, key string)
 func SessionPromptRender(ctx context.Context, ar *aruntime.Runtime, sid, agentName string) (string, error)
 ```
 
-### System Info (`common/info.go`)
+### Filesystem (`common/filesys.go`)
+Unified filesystem logic used by both REST and WebSocket handlers. Automatically handles session state updates and access verification.
 System-level operations like reloading configuration and listing available environments.
 
 ```go
@@ -68,3 +69,7 @@ Handlers for real-time communication via WebSockets, primarily used by the VS Co
 - **Unified Logic**: Most session and agent operations are being migrated to the `common/` package.
 - **Protocol Independence**: The `common/` layer is agnostic to whether the request came via WebSocket or HTTP.
 - **Runtime Integration**: Handlers interact with the central `aruntime.Runtime` and `session.Service`.
+- **URI Conventions**: 
+    - **`veg://`**: Used within VS Code to identify files in the virtual filesystem. The authority and path segments typically encode the session/environment ID and version.
+    - **`oci://`**: Used by the backend services (Dagger) to uniquely identify specific versions of an environment. 
+    - Translation occurs in the VS Code extension (`vsUriToVeg`) before making REST API calls.

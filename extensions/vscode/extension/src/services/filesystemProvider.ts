@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { extensionEmitter, sendMessage } from '../comms';
-import { makeReq, normalizeEnvId, Environ, Folder, parseEnvUri, findSession } from './utils';
+import { makeReq, normalizeEnvId, Environ, Folder, parseEnvUri, findSession, vsUriToVeg } from './utils';
 import * as scm from './scmProvider';
 
 // This method is called when your extension is activated
@@ -104,6 +104,53 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('veg.explorer.copyPath', async (uri: vscode.Uri) => {
 		console.log("veg.explorer.copyPath.uri", uri.toString())
 		await vscode.env.clipboard.writeText(uri.toString())
+	})
+
+	vscode.commands.registerCommand('veg.explorer.saveToVeg', async (uri: vscode.Uri) => {
+		console.log("veg.explorer.saveToVeg.args", uri)
+
+		const value = await vscode.window.showInputBox({
+			title: "Save to Veg",
+			prompt: "Enter destination veg:// URI (folder)",
+			placeHolder: "veg://...",
+		})
+		if (!value) return
+
+		const destRoot = vscode.Uri.parse(value)
+		if (destRoot.scheme !== 'veg') {
+			vscode.window.showErrorMessage("Destination must be a veg:// URI")
+			return
+		}
+		
+		const srcName = uri.path.split('/').pop() || "unknown"
+		const finalDest = vscode.Uri.joinPath(destRoot, srcName)
+
+		const copyRec = async (src: vscode.Uri, dst: vscode.Uri) => {
+			const stat = await vscode.workspace.fs.stat(src)
+			if (stat.type & vscode.FileType.Directory) {
+				await vscode.workspace.fs.createDirectory(dst)
+				const entries = await vscode.workspace.fs.readDirectory(src)
+				for (const [name, type] of entries) {
+					await copyRec(vscode.Uri.joinPath(src, name), vscode.Uri.joinPath(dst, name))
+				}
+			} else {
+				const content = await vscode.workspace.fs.readFile(src)
+				await vscode.workspace.fs.writeFile(dst, content)
+			}
+		}
+
+		await vscode.window.withProgress({
+			location: vscode.ProgressLocation.Notification,
+			title: `Uploading ${srcName}...`,
+			cancellable: false
+		}, async () => {
+			try {
+				await copyRec(uri, finalDest)
+				vscode.window.showInformationMessage(`Uploaded ${srcName}`)
+			} catch(e: any) {
+				vscode.window.showErrorMessage(`Upload failed: ${e.message}`)
+			}
+		})
 	})
 
 	vscode.commands.registerCommand('veg.explorer.refreshAll', async (args: any) => {
@@ -432,7 +479,12 @@ class VegContentProvider implements vscode.FileSystemProvider {
 	stat(uri: vscode.Uri): vscode.FileStat | Thenable<vscode.FileStat> {
 		// console.log("fs.stat.uri", uri)
 		const f = async () => {
-			const resp = await makeReq("/fs/stat", uri, undefined, undefined, this._onlyDiff)
+			const ociUri = vsUriToVeg(uri)
+			const { envId } = parseEnvUri(ociUri)
+			const session = findSession(this._sessions, envId)
+			const sid = session?.sid
+
+			const resp = await makeReq("/fs/stat", uri, undefined, undefined, this._onlyDiff, sid)
 			// console.log("fs.stat.resp", resp)
 			if (resp.status !== 200) {
 				throw vscode.FileSystemError.FileNotFound(uri)
@@ -454,7 +506,12 @@ class VegContentProvider implements vscode.FileSystemProvider {
 	readFile(uri: vscode.Uri): Uint8Array | Thenable<Uint8Array> {
 		const f = async () => {
 			// console.log("filesys.readFile.uri", uri)
-			const resp = await makeReq("/fs/read", uri, undefined, undefined, this._onlyDiff)
+			const ociUri = vsUriToVeg(uri)
+			const { envId } = parseEnvUri(ociUri)
+			const session = findSession(this._sessions, envId)
+			const sid = session?.sid
+
+			const resp = await makeReq("/fs/read", uri, undefined, undefined, this._onlyDiff, sid)
 			// console.log("filesys.readFile.resp", uri, resp)
 			if (resp.status !== 200) {
 				// console.error("readFile.makeReq error:", uri, resp)
@@ -473,7 +530,12 @@ class VegContentProvider implements vscode.FileSystemProvider {
 	readDirectory(uri: vscode.Uri): FolderListing | Thenable<FolderListing> {
 		const f = async () => {
 			// console.log("filesys.readDir.uri", uri)
-			const resp = await makeReq("/fs/list", uri, undefined, undefined, this._onlyDiff)
+			const ociUri = vsUriToVeg(uri)
+			const { envId } = parseEnvUri(ociUri)
+			const session = findSession(this._sessions, envId)
+			const sid = session?.sid
+
+			const resp = await makeReq("/fs/list", uri, undefined, undefined, this._onlyDiff, sid)
 			if (resp.status !== 200) {
 				console.error("readDirectory.makeReq error:", resp)
 				throw vscode.FileSystemError.FileNotFound(uri)
@@ -481,7 +543,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 			// console.log("filesys.readDir.resp", uri, resp)
 
 			const data: any = await resp.json()
-			// console.log("filesys.readDir.data", uri, data, data?.entries)
+			console.log("filesys.readDir.data", uri.toString(), data?.entries?.length, JSON.stringify(data?.entries))
 
 			// our returned listing
 			var l: FolderListing = []
@@ -499,10 +561,20 @@ class VegContentProvider implements vscode.FileSystemProvider {
 	}
 
 	async writeFile(uri: vscode.Uri, content: Uint8Array, options: { create: boolean, overwrite: boolean }): Promise<void> {
+		console.log("VegContentProvider.writeFile", uri.toString(), options)
+		const ociUri = vsUriToVeg(uri)
+		const params = new URLSearchParams(ociUri.query)
+		const path = params.get("path") || ""
+
+		const { envId } = parseEnvUri(ociUri)
+		const session = findSession(this._sessions, envId)
+		const sid = session?.sid
+
 		const resp = await makeReq("/fs/write", uri, undefined, {
-			uri: uri.toString(),
-			path: uri.path,
+			uri: ociUri.toString(),
+			path: path,
 			content: new TextDecoder().decode(content),
+			sid: sid,
 		}, this._onlyDiff)
 
 		if (resp.status !== 200) {
@@ -516,9 +588,18 @@ class VegContentProvider implements vscode.FileSystemProvider {
 
 
 	async createDirectory(uri: vscode.Uri): Promise<void> {
+		const ociUri = vsUriToVeg(uri)
+		const params = new URLSearchParams(ociUri.query)
+		const path = params.get("path") || ""
+
+		const { envId } = parseEnvUri(ociUri)
+		const session = findSession(this._sessions, envId)
+		const sid = session?.sid
+
 		const resp = await makeReq("/fs/mkdir", uri, undefined, {
-			uri: uri.toString(),
-			path: uri.path,
+			uri: ociUri.toString(),
+			path: path,
+			sid: sid,
 		}, this._onlyDiff)
 
 		if (resp.status !== 200) {
@@ -531,9 +612,18 @@ class VegContentProvider implements vscode.FileSystemProvider {
 	}
 
 	async delete(uri: vscode.Uri, options: { recursive: boolean }): Promise<void> {
+		const ociUri = vsUriToVeg(uri)
+		const params = new URLSearchParams(ociUri.query)
+		const path = params.get("path") || ""
+
+		const { envId } = parseEnvUri(ociUri)
+		const session = findSession(this._sessions, envId)
+		const sid = session?.sid
+
 		const resp = await makeReq("/fs/delete", uri, undefined, {
-			uri: uri.toString(),
-			path: uri.path,
+			uri: ociUri.toString(),
+			path: path,
+			sid: sid,
 		}, this._onlyDiff)
 
 		if (resp.status !== 200) {
@@ -546,10 +636,21 @@ class VegContentProvider implements vscode.FileSystemProvider {
 	}
 
 	async rename(source: vscode.Uri, destination: vscode.Uri, options: { overwrite: boolean }): Promise<void> {
+		const ociSrc = vsUriToVeg(source)
+		const srcParams = new URLSearchParams(ociSrc.query)
+		
+		const ociDst = vsUriToVeg(destination)
+		const dstParams = new URLSearchParams(ociDst.query)
+
+		const { envId } = parseEnvUri(ociSrc)
+		const session = findSession(this._sessions, envId)
+		const sid = session?.sid
+
 		const resp = await makeReq("/fs/rename", source, undefined, {
-			uri: source.toString(),
-			src: source.path,
-			dst: destination.path,
+			uri: ociSrc.toString(),
+			src: srcParams.get("path") || "",
+			dst: dstParams.get("path") || "",
+			sid: sid,
 		}, this._onlyDiff)
 
 		if (resp.status !== 200) {
@@ -562,10 +663,21 @@ class VegContentProvider implements vscode.FileSystemProvider {
 	}
 
 	async copy(source: vscode.Uri, destination: vscode.Uri, options: { overwrite: boolean }): Promise<void> {
+		const ociSrc = vsUriToVeg(source)
+		const srcParams = new URLSearchParams(ociSrc.query)
+		
+		const ociDst = vsUriToVeg(destination)
+		const dstParams = new URLSearchParams(ociDst.query)
+
+		const { envId } = parseEnvUri(ociSrc)
+		const session = findSession(this._sessions, envId)
+		const sid = session?.sid
+
 		const resp = await makeReq("/fs/copy", source, undefined, {
-			uri: source.toString(),
-			src: source.path,
-			dst: destination.path,
+			uri: ociSrc.toString(),
+			src: srcParams.get("path") || "",
+			dst: dstParams.get("path") || "",
+			sid: sid,
 		}, this._onlyDiff)
 
 		if (resp.status !== 200) {
@@ -625,10 +737,14 @@ class VegContentProvider implements vscode.FileSystemProvider {
 	}
 
 	watch(uri: vscode.Uri, options: { excludes: readonly string[], recursive: boolean }): vscode.Disposable {
-		const handler = () => {
-			// DO NOT IMPLEMENT YET
-		}
-		return new vscode.Disposable(handler)
+		const listener = extensionEmitter.event(e => {
+			// console.log("veg.fs.watch.event", e)
+			if (e.type === "filesys.change") {
+				// TODO: check if e.payload matches watched uri
+				this._emitter.fire([{ type: vscode.FileChangeType.Changed, uri }])
+			}
+		})
+		return listener
 	}
 
 	// returns our fs key from the uri (<session>[-<pos>])

@@ -56,15 +56,15 @@ func Setup(appName string, e *echo.Echo, s session.Service, a *config.Config) (*
 	// filesystem
 	//
 	e.POST("/fs/open", fsOpen)
-	e.POST("/fs/stat", fsStat)
-	e.POST("/fs/read", fsRead)
-	e.POST("/fs/list", fsList)
+	e.POST("/fs/stat", r.fsStat)
+	e.POST("/fs/read", r.fsRead)
+	e.POST("/fs/list", r.fsList)
 	e.POST("/fs/diff", fsDiff)
-	e.POST("/fs/write", fsWrite)
-	e.POST("/fs/delete", fsDelete)
-	e.POST("/fs/mkdir", fsMkdir)
-	e.POST("/fs/rename", fsRename)
-	e.POST("/fs/copy", fsCopy)
+	e.POST("/fs/write", r.fsWrite)
+	e.POST("/fs/delete", r.fsDelete)
+	e.POST("/fs/mkdir", r.fsMkdir)
+	e.POST("/fs/rename", r.fsRename)
+	e.POST("/fs/copy", r.fsCopy)
 
 	e.POST("/env/list", envList)
 	e.POST("/prompt/render", r.promptRender)

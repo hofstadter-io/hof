@@ -172,7 +172,17 @@ func (le *localEnviron) ReadDirectory(envUri, path string, diff bool) (*DirList,
 		realPath := filepath.Join(path, e)
 		// they must exist since we already go them
 		ok, _ := d.Exists(le.ctx, realPath, dagger.DirectoryExistsOpts{ExpectedType: dagger.ExistsTypeDirectoryType})
-		fmt.Println("le.ReadDirectory.entry", realPath, ok)
+		
+		// Fallback: Exists(Directory) can return false for implicit directories in Diff layers
+		// So we double check by trying to list it
+		if !ok {
+			_, err := d.Directory(realPath).Entries(le.ctx)
+			if err == nil {
+				ok = true
+			}
+		}
+
+		fmt.Printf("le.ReadDirectory.entry: path=%q real=%q isDir=%v\n", path, realPath, ok)
 		entries = append(entries, DirEntry{Name: e, Dir: ok})
 	}
 

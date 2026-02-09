@@ -1,6 +1,4 @@
 import * as vscode from 'vscode';
-import fs from 'node:fs/promises';
-import path from 'node:path';
 import { makeReq, parseEnvUri, findSession } from './utils';
 import { extensionEmitter } from '../comms';
 
@@ -420,10 +418,10 @@ export class VegScmProvider {
 				vscode.window.showInformationMessage(`Merging into ${dest.fsPath}`)
 			}
 
-			if (dest.scheme !== 'file') {
-				vscode.window.showErrorMessage(`unsupported target, only file://: ${dest}`)
-				return
-			}
+			// if (dest.scheme !== 'file') {
+			// 	vscode.window.showErrorMessage(`unsupported target, only file://: ${dest}`)
+			// 	return
+			// }
 
 			console.log("filesys.mergeDiff.args", source, dest)
 			const resp = await makeReq("/fs/diff", uri)
@@ -436,24 +434,27 @@ export class VegScmProvider {
 			const diff: any = await resp.json()
 			console.log("filesys.mergeDiff.diff", diff)
 
-			// write to disk
-			if (dest.scheme === 'file') {
-				const writes = [...diff.addPaths, ...diff.modPaths];
-				for (var w of writes) {
-					if (this.isIgnoredPath(w)) continue;
-          // if not ignored, lets trim the prefix / that the server has to add for shenanigans elsewhere in vscode
-          // this also makes sure we can never write to the root unless the user gives that path, only below that directory
-          const npath = w.substring(1)
-					const val = diff.files[npath]
-					const key = path.join(dest.path, w)
-					await fs.writeFile(key, val)
-				}
+			// write to disk or veg
+			const writes = [...diff.addPaths, ...diff.modPaths];
+			for (var w of writes) {
+				if (this.isIgnoredPath(w)) continue;
+				// if not ignored, lets trim the prefix / that the server has to add for shenanigans elsewhere in vscode
+				// this also makes sure we can never write to the root unless the user gives that path, only below that directory
+				const npath = w.substring(1)
+				const val = diff.files[npath]
+				// const key = path.join(dest.path, w)
+				const destUri = vscode.Uri.joinPath(dest, npath)
+				// await fs.writeFile(key, val)
+				await vscode.workspace.fs.writeFile(destUri, new TextEncoder().encode(val))
+			}
 
-				for (const path of diff.delPaths) {
-					if (this.isIgnoredPath(path)) continue;
-					const key = path.join(dest.path, w)
-					await fs.rm(key, { force: true, recursive: true }).catch(() => { })
-				}
+			for (const path of diff.delPaths) {
+				if (this.isIgnoredPath(path)) continue;
+				// const key = path.join(dest.path, w)
+				const npath = path.substring(1)
+				const destUri = vscode.Uri.joinPath(dest, npath)
+				// await fs.rm(key, { force: true, recursive: true }).catch(() => { })
+				await vscode.workspace.fs.delete(destUri, { recursive: true })
 			}
 
 			return

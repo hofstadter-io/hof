@@ -5,13 +5,16 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/hofstadter-io/hof/lib/agent/runtime/handlers/common"
 	"github.com/hofstadter-io/hof/lib/agent/services/environ"
+	"github.com/hofstadter-io/hof/lib/consts"
 	"github.com/labstack/echo/v4"
 )
 
 type fsPayload struct {
 	Uri     string `json:"uri"`
 	Path    string `json:"path,omitempty"`
+	Sid     string `json:"sid,omitempty"`
 	Diff    bool   `json:"diff"`
 	DiffUri string `json:"diffUri"`
 	// User string `json:"user,omitempty"`
@@ -39,14 +42,14 @@ func fsOpen(c echo.Context) error {
 	return c.JSON(http.StatusOK, resp)
 }
 
-func fsStat(c echo.Context) error {
+func (r *Runtime) fsStat(c echo.Context) error {
 	var p fsPayload
 	err := c.Bind(&p)
 	if err != nil {
 		fmt.Println("fsStat.bind.error:", err)
 		return c.String(http.StatusBadRequest, err.Error())
 	}
-	// fmt.Println("fsStat.called", p)
+	fmt.Printf("fsStat: %s %s\n", p.Uri, p.Path)
 
 	u, err := url.Parse(p.Uri)
 	if err != nil {
@@ -57,7 +60,7 @@ func fsStat(c echo.Context) error {
 		p.Path = u.Query().Get("path")
 	}
 
-	stat, err := environ.Client().Stat(p.Uri, p.Path, p.Diff)
+	stat, err := common.FilesysStat(c.Request().Context(), r, consts.VEG_DEFAULT_USER, p.Uri, p.Path, p.Sid, p.Diff)
 	if err != nil {
 		// fmt.Println("fsStat.stat.error:", err)
 		return c.String(http.StatusBadRequest, err.Error())
@@ -67,13 +70,14 @@ func fsStat(c echo.Context) error {
 	return c.JSON(http.StatusOK, stat)
 }
 
-func fsRead(c echo.Context) error {
+func (r *Runtime) fsRead(c echo.Context) error {
 	var p fsPayload
 	err := c.Bind(&p)
 	if err != nil {
 		fmt.Println("fsRead.bind.error:", err)
 		return c.String(http.StatusBadRequest, err.Error())
 	}
+	fmt.Printf("fsRead: %s %s\n", p.Uri, p.Path)
 
 	u, err := url.Parse(p.Uri)
 	if err != nil {
@@ -84,7 +88,7 @@ func fsRead(c echo.Context) error {
 		p.Path = u.Query().Get("path")
 	}
 
-	content, err := environ.Client().ReadFile(p.Uri, p.Path, p.Diff)
+	content, err := common.FilesysRead(c.Request().Context(), r, consts.VEG_DEFAULT_USER, p.Uri, p.Path, p.Sid, p.Diff)
 	if err != nil {
 		// fmt.Println("fsRead.ReadFile.error:", err)
 		return c.String(http.StatusBadRequest, err.Error())
@@ -97,14 +101,14 @@ func fsRead(c echo.Context) error {
 	return c.JSON(http.StatusOK, file)
 }
 
-func fsList(c echo.Context) error {
-	// fmt.Println("fsList.called!")
+func (r *Runtime) fsList(c echo.Context) error {
 	var p fsPayload
 	err := c.Bind(&p)
 	if err != nil {
 		fmt.Println("fsList.bind.error:", err)
 		return c.String(http.StatusBadRequest, err.Error())
 	}
+	fmt.Printf("fsList: %s %s\n", p.Uri, p.Path)
 
 	u, err := url.Parse(p.Uri)
 	if err != nil {
@@ -115,7 +119,7 @@ func fsList(c echo.Context) error {
 		p.Path = u.Query().Get("path")
 	}
 
-	entries, err := environ.Client().ReadDirectory(p.Uri, p.Path, p.Diff)
+	entries, err := common.FilesysList(c.Request().Context(), r, consts.VEG_DEFAULT_USER, p.Uri, p.Path, p.Sid, p.Diff)
 	if err != nil {
 		// fmt.Println("error:", err)
 		return c.String(http.StatusBadRequest, err.Error())
@@ -127,17 +131,19 @@ func fsList(c echo.Context) error {
 type fsWriteRequest struct {
 	Uri     string `json:"uri"`
 	Path    string `json:"path"`
+	Sid     string `json:"sid,omitempty"`
 	Content string `json:"content"`
 }
 
-func fsWrite(c echo.Context) error {
+func (r *Runtime) fsWrite(c echo.Context) error {
 	var p fsWriteRequest
 	err := c.Bind(&p)
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
+	fmt.Printf("fsWrite: %s %s\n", p.Uri, p.Path)
 
-	nextUri, err := environ.Client().WriteFile(p.Uri, p.Path, p.Content)
+	nextUri, err := common.FilesysWrite(c.Request().Context(), r, consts.VEG_DEFAULT_USER, p.Uri, p.Path, p.Content, p.Sid)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -148,16 +154,17 @@ func fsWrite(c echo.Context) error {
 type fsDeleteRequest struct {
 	Uri  string `json:"uri"`
 	Path string `json:"path"`
+	Sid  string `json:"sid,omitempty"`
 }
 
-func fsDelete(c echo.Context) error {
+func (r *Runtime) fsDelete(c echo.Context) error {
 	var p fsDeleteRequest
 	err := c.Bind(&p)
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	nextUri, err := environ.Client().Delete(p.Uri, p.Path, true)
+	nextUri, err := common.FilesysDelete(c.Request().Context(), r, consts.VEG_DEFAULT_USER, p.Uri, p.Path, p.Sid)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -168,16 +175,17 @@ func fsDelete(c echo.Context) error {
 type fsMkdirRequest struct {
 	Uri  string `json:"uri"`
 	Path string `json:"path"`
+	Sid  string `json:"sid,omitempty"`
 }
 
-func fsMkdir(c echo.Context) error {
+func (r *Runtime) fsMkdir(c echo.Context) error {
 	var p fsMkdirRequest
 	err := c.Bind(&p)
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	nextUri, err := environ.Client().CreateDirectory(p.Uri, p.Path)
+	nextUri, err := common.FilesysMkdir(c.Request().Context(), r, consts.VEG_DEFAULT_USER, p.Uri, p.Path, p.Sid)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -189,16 +197,17 @@ type fsRenameRequest struct {
 	Uri string `json:"uri"`
 	Src string `json:"src"`
 	Dst string `json:"dst"`
+	Sid string `json:"sid,omitempty"`
 }
 
-func fsRename(c echo.Context) error {
+func (r *Runtime) fsRename(c echo.Context) error {
 	var p fsRenameRequest
 	err := c.Bind(&p)
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	nextUri, err := environ.Client().Move(p.Uri, p.Src, p.Dst, true)
+	nextUri, err := common.FilesysRename(c.Request().Context(), r, consts.VEG_DEFAULT_USER, p.Uri, p.Src, p.Dst, p.Sid)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -210,16 +219,17 @@ type fsCopyRequest struct {
 	Uri string `json:"uri"`
 	Src string `json:"src"`
 	Dst string `json:"dst"`
+	Sid string `json:"sid,omitempty"`
 }
 
-func fsCopy(c echo.Context) error {
+func (r *Runtime) fsCopy(c echo.Context) error {
 	var p fsCopyRequest
 	err := c.Bind(&p)
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	nextUri, err := environ.Client().Copy(p.Uri, p.Src, p.Dst, true)
+	nextUri, err := common.FilesysCopy(c.Request().Context(), r, consts.VEG_DEFAULT_USER, p.Uri, p.Src, p.Dst, p.Sid)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}

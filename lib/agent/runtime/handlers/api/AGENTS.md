@@ -18,7 +18,7 @@ type Runtime struct {
 ## Handlers
 
 ### Filesystem (`filesys.go`)
-Handles synchronous filesystem operations (open, stat, read, list, write, delete, etc.) on the virtualized environment.
+Handles synchronous filesystem operations (open, stat, read, list, write, delete, etc.) on the virtualized environment. These handlers use `common` handlers to ensure session state and access control.
 
 ### Environment (`env.go`)
 Lists available environments.
