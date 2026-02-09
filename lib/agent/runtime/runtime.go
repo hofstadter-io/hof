@@ -218,7 +218,7 @@ func (R *Runtime) initModels() (err error) {
 			if err != nil {
 				return fmt.Errorf("while decoding'n model %q: %w", a.Value, err)
 			}
-			R.Models[m.Name], err = models.Gemini(R.Ctx, m.Id)
+			R.Models[m.Name], err = models.Vertex(R.Ctx, m.Id)
 			if err != nil {
 				return fmt.Errorf("while init'n model %q: %w", m, err)
 			}
