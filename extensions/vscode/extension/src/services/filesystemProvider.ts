@@ -529,7 +529,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 
 	readDirectory(uri: vscode.Uri): FolderListing | Thenable<FolderListing> {
 		const f = async () => {
-			// console.log("filesys.readDir.uri", uri)
+			console.log("readDirectory.uri", uri.toString())
 			const ociUri = vsUriToVeg(uri)
 			const { envId } = parseEnvUri(ociUri)
 			const session = findSession(this._sessions, envId)
@@ -543,17 +543,23 @@ class VegContentProvider implements vscode.FileSystemProvider {
 			// console.log("filesys.readDir.resp", uri, resp)
 
 			const data: any = await resp.json()
-			console.log("filesys.readDir.data", uri.toString(), data?.entries?.length, JSON.stringify(data?.entries))
+			console.log("readDirectory.data", uri.toString(), data?.entries?.length, JSON.stringify(data?.entries))
 
 			// our returned listing
 			var l: FolderListing = []
 			for (const entry of data?.entries) {
 				// console.log("filesys.readDir.entry", entry)
-				const path = entry.name
+				let name = entry.name
+				// if absolute path, we want just the name
+				if (name.includes("/")) {
+					name = name.split("/").pop() || name
+				}
+				if (name === "") continue;
+
 				const isDir = entry.dir
-				l.push([path, isDir ? vscode.FileType.Directory : vscode.FileType.File])
+				l.push([name, isDir ? vscode.FileType.Directory : vscode.FileType.File])
 			}
-			// console.log("filesys.readDir.list", uri, l)
+			console.log("readDirectory.list", uri.toString(), JSON.stringify(l))
 
 			return l
 		}

@@ -1,6 +1,22 @@
 # Services Subsystem (`src/services`)
 
-This directory is currently dedicated to the **Veg Virtual Filesystem Provider**, which enables interacting with remote environments (like Dagger containers or session states) as if they were local workspace folders in VS Code.
+This directory contains the core services for the Veg extension: the **Virtual Filesystem Provider** and the **SCM (Source Control Management) Provider**. Together, they enable interacting with remote environments as if they were local workspace folders.
+
+## Architecture: Push vs. Pull
+
+The two providers follow fundamentally different interaction models:
+
+- **SCM Provider (`scmProvider.ts`) - "Push"**: This provider is active and directive. When a diff is received from the backend, the extension explicitly creates `SourceControlResourceState` objects and "pushes" them into the VS Code SCM view. It has full control over the displayed tree.
+- **Filesystem Provider (`filesystemProvider.ts`) - "Pull"**: This provider is reactive. VS Code's internal explorer driver "pulls" data by recursively calling `stat(root)` -> `readDirectory(root)` -> `stat(child)`. It relies on sequential, valid responses to construct the tree UI.
+
+## URI and Path Handling
+
+URI translation is handled in `utils.ts` by `vsUriToVeg`. 
+
+### Key Constraints for Explorer Rendering:
+1.  **Relative Rooting**: Because remote environments (like Dagger containers) use working directories, the `path` query parameter must use `./` as its base. The root of an environment is represented as `./`.
+2.  **Stat Consistency**: For the explorer tree to render, `stat()` must succeed for every entry returned by `readDirectory()`. If a URI is malformed during this recursive pull, the tree will fail to render children even if the initial listing was successful.
+3.  **Leaf Names**: `readDirectory` must return simple filenames (e.g., `main.go`), not absolute paths (e.g., `/app/main.go`), so that VS Code can correctly join them to the parent URI for the next sequential `stat` call.
 
 ## Filesystem Provider (`filesystemProvider.ts`)
 

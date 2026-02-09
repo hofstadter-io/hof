@@ -22,7 +22,7 @@ export type Folder = {
 }
 
 export function vsUriToVeg(uri: vscode.Uri): vscode.Uri {
-	// console.log("convert.uri", uri)
+	// console.log("vsUriToVeg.input:", uri.toString())
 	let authority = uri.authority
 	let p = uri.path
 	if (p.startsWith("/")) p = p.slice(1)
@@ -51,12 +51,15 @@ export function vsUriToVeg(uri: vscode.Uri): vscode.Uri {
 
 	const ociAuthority = envSegments[0]
 	const ociPath = "/" + envSegments.slice(1).join("/")
-	const filePath = pathSegments.join("/")
+	let filePath = pathSegments.join("/")
+	if (filePath === "" || filePath === "/") {
+		filePath = "./"
+	} else if (!filePath.startsWith("./")) {
+		filePath = "./" + (filePath.startsWith("/") ? filePath.slice(1) : filePath)
+	}
 
 	const q = new URLSearchParams(uri.query)
-	if (filePath !== "") {
-		q.set("path", filePath)
-	}
+	q.set("path", filePath)
 
 	const vUri = {
 		scheme: "oci",
@@ -64,7 +67,7 @@ export function vsUriToVeg(uri: vscode.Uri): vscode.Uri {
 		path: ociPath,
 		query: q.toString(),
 	}
-	// console.log("convert.vUri", vUri)
+	// console.log("vsUriToVeg.output:", JSON.stringify(vUri))
 	try {
 		const r = vscode.Uri.from(vUri)
 		// console.log("convert.return", r)
