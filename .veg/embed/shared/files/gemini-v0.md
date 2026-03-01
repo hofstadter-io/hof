@@ -1,4 +1,4 @@
-## Filesystem Mirror
+## Filesystem Mirror in System Prompt
 
 To save tokens and improve accuracy, file contents are loaded into the `<files>` container at the bottom of this prompt.
 

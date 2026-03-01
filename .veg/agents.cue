@@ -39,9 +39,6 @@ agents: coding_assist: {
   instruction: string | *"agents/coding_assistant.md"
   environ: "veg-agent"
   tools: [
-    "cache_put",
-    "cache_del",
-
     "fs_read",
     "fs_list",
     "fs_glob",
@@ -60,9 +57,6 @@ agents: agents_md_gen: {
   description: string | *"Agent to explore and generate AGENTS.md files."
   instruction: string | *"agents/agents_md_gen.md"
   tools: [
-    "cache_put",
-    "cache_del",
-
     "fs_read",
     "fs_list",
     "fs_glob",
