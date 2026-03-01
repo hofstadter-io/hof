@@ -265,7 +265,7 @@ export class VegScmProvider {
 			let { envId, envVer } = parseEnvUri(uri);
 
 			if (!session) {
-				session = findSession(this._sessions, envId)
+				session = findSession(this._sessions, envId, uri)
 			}
 
 			const scmId = info.scmId || session?.sid || envId
@@ -378,7 +378,7 @@ export class VegScmProvider {
 			let { envId, envVer } = parseEnvUri(uri);
 
 			if (!session) {
-				session = findSession(this._sessions, envId)
+				session = findSession(this._sessions, envId, uri)
 			}
 
 			console.log("mergeDiff: session info", { 
@@ -498,7 +498,7 @@ export class VegScmProvider {
 			} else {
 				const uri = source as vscode.Uri
 				const { envId, envVer } = parseEnvUri(uri)
-				const session = findSession(this._sessions, envId)
+				const session = findSession(this._sessions, envId, uri)
 
 				scmId = session?.sid || envId
 				groupId = envId + (envVer !== "?" ? ":" + envVer : "")
@@ -550,7 +550,7 @@ export class VegScmProvider {
 		let { envId } = parseEnvUri(uri);
 
 		if (!session) {
-			session = findSession(this._sessions, envId)
+			session = findSession(this._sessions, envId, uri)
 		}
 
 		if (session) {

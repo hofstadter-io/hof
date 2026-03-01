@@ -68,6 +68,10 @@ var upgrader = websocket.Upgrader{
 func (R *Runtime) serveWs(c echo.Context) error {
 	// TODO, we need to pull the user info / auth from here before upgrading and such
 	// TODO, store user info on the client type
+	user := c.Request().Header.Get(consts.VEG_USER_HEADER)
+	if user == "" {
+		user = consts.VEG_DEFAULT_USER
+	}
 
 	conn, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
@@ -75,7 +79,7 @@ func (R *Runtime) serveWs(c echo.Context) error {
 	}
 
 	client := &Client{
-		User:          consts.VEG_DEFAULT_USER, // needs to come from conn/auth info
+		User:          user,
 		conn:          conn,
 		send:          make(chan []byte, 256), // 256-message buffer
 		handleMessage: R.handleMessage,

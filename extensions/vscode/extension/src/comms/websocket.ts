@@ -150,7 +150,11 @@ function sendHello(ws: WebSocket) {
  */
 function connectToWebSocket(): Promise<WebSocket> {
   return new Promise((resolve, reject) => {
-    const socket = new WebSocket(SERVER_URL);
+    const socket = new WebSocket(SERVER_URL, {
+      headers: {
+        'X-Veg-User': 'tony', // TODO: make this configurable or dynamic
+      }
+    });
     socket.on('open', () => {
       socket.off('error', reject);
       resolve(socket);

@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 
 export const SERVER_PORT = 2257;
 export const SERVER_URL = `http://localhost:${SERVER_PORT}`;
+export const SERVER_REGISTRY_HOST = "host.docker.internal:5000";
 
 export type Environ = {
 	name?: string
@@ -111,7 +112,12 @@ export function normalizeEnvId(envId: string): string {
 	return envId
 }
 
-export function findSession(sessions: any[], envId: string) {
+export function findSession(sessions: any[], envId: string, uri?: vscode.Uri) {
+	// only find sessions for images in our internal registry
+	if (uri && uri.authority !== SERVER_REGISTRY_HOST) {
+		return undefined
+	}
+
 	const normId = normalizeEnvId(envId)
 	return sessions.find(s => {
 		const sEnv = s.state?.currEnv
@@ -148,6 +154,7 @@ export async function makeReq(route: string, uri?: vscode.Uri, diffUri?: vscode.
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
+			"X-Veg-User": "tony", // TODO: make this configurable or dynamic
 		},
 		body: JSON.stringify(req)
 	})

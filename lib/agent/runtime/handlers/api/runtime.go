@@ -59,7 +59,7 @@ func Setup(appName string, e *echo.Echo, s session.Service, a *config.Config) (*
 	e.POST("/fs/stat", r.fsStat)
 	e.POST("/fs/read", r.fsRead)
 	e.POST("/fs/list", r.fsList)
-	e.POST("/fs/diff", fsDiff)
+	e.POST("/fs/diff", r.fsDiff)
 	e.POST("/fs/write", r.fsWrite)
 	e.POST("/fs/delete", r.fsDelete)
 	e.POST("/fs/mkdir", r.fsMkdir)

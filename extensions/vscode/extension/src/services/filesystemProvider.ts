@@ -426,7 +426,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 				const data: any = await resp.json()
 				console.log("filesys.open.api.resp:", data)
 
-				const vegUri = vscode.Uri.parse(`veg://${data.envUri}`)
+				const vegUri = vscode.Uri.parse(data.envUri).with({ scheme: 'veg' })
 				f.uri = vegUri
 				// const parts = uri.path.split(":")
 				// var sid = parts[0]
@@ -481,7 +481,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 		const f = async () => {
 			const ociUri = vsUriToVeg(uri)
 			const { envId } = parseEnvUri(ociUri)
-			const session = findSession(this._sessions, envId)
+			const session = findSession(this._sessions, envId, ociUri)
 			const sid = session?.sid
 
 			const resp = await makeReq("/fs/stat", uri, undefined, undefined, this._onlyDiff, sid)
@@ -508,7 +508,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 			// console.log("filesys.readFile.uri", uri)
 			const ociUri = vsUriToVeg(uri)
 			const { envId } = parseEnvUri(ociUri)
-			const session = findSession(this._sessions, envId)
+			const session = findSession(this._sessions, envId, ociUri)
 			const sid = session?.sid
 
 			const resp = await makeReq("/fs/read", uri, undefined, undefined, this._onlyDiff, sid)
@@ -532,7 +532,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 			console.log("readDirectory.uri", uri.toString())
 			const ociUri = vsUriToVeg(uri)
 			const { envId } = parseEnvUri(ociUri)
-			const session = findSession(this._sessions, envId)
+			const session = findSession(this._sessions, envId, ociUri)
 			const sid = session?.sid
 
 			const resp = await makeReq("/fs/list", uri, undefined, undefined, this._onlyDiff, sid)
@@ -573,8 +573,10 @@ class VegContentProvider implements vscode.FileSystemProvider {
 		const path = params.get("path") || ""
 
 		const { envId } = parseEnvUri(ociUri)
-		const session = findSession(this._sessions, envId)
+		const session = findSession(this._sessions, envId, ociUri)
 		const sid = session?.sid
+
+		// uri should not include path, need to reconstruct
 
 		const resp = await makeReq("/fs/write", uri, undefined, {
 			uri: ociUri.toString(),
@@ -588,7 +590,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 		}
 
 		const data: any = await resp.json()
-		const nextUri = vscode.Uri.parse(`veg://${data.envUri}`)
+		const nextUri = vscode.Uri.parse(data.envUri).with({ scheme: 'veg' })
 		this.updateUri(uri, nextUri)
 	}
 
@@ -599,7 +601,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 		const path = params.get("path") || ""
 
 		const { envId } = parseEnvUri(ociUri)
-		const session = findSession(this._sessions, envId)
+		const session = findSession(this._sessions, envId, ociUri)
 		const sid = session?.sid
 
 		const resp = await makeReq("/fs/mkdir", uri, undefined, {
@@ -613,7 +615,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 		}
 
 		const data: any = await resp.json()
-		const nextUri = vscode.Uri.parse(`veg://${data.envUri}`)
+		const nextUri = vscode.Uri.parse(data.envUri).with({ scheme: 'veg' })
 		this.updateUri(uri, nextUri)
 	}
 
@@ -623,7 +625,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 		const path = params.get("path") || ""
 
 		const { envId } = parseEnvUri(ociUri)
-		const session = findSession(this._sessions, envId)
+		const session = findSession(this._sessions, envId, ociUri)
 		const sid = session?.sid
 
 		const resp = await makeReq("/fs/delete", uri, undefined, {
@@ -637,7 +639,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 		}
 
 		const data: any = await resp.json()
-		const nextUri = vscode.Uri.parse(`veg://${data.envUri}`)
+		const nextUri = vscode.Uri.parse(data.envUri).with({ scheme: 'veg' })
 		this.updateUri(uri, nextUri)
 	}
 
@@ -649,7 +651,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 		const dstParams = new URLSearchParams(ociDst.query)
 
 		const { envId } = parseEnvUri(ociSrc)
-		const session = findSession(this._sessions, envId)
+		const session = findSession(this._sessions, envId, ociSrc)
 		const sid = session?.sid
 
 		const resp = await makeReq("/fs/rename", source, undefined, {
@@ -664,7 +666,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 		}
 
 		const data: any = await resp.json()
-		const nextUri = vscode.Uri.parse(`veg://${data.envUri}`)
+		const nextUri = vscode.Uri.parse(data.envUri).with({ scheme: 'veg' })
 		this.updateUri(source, nextUri)
 	}
 
@@ -676,7 +678,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 		const dstParams = new URLSearchParams(ociDst.query)
 
 		const { envId } = parseEnvUri(ociSrc)
-		const session = findSession(this._sessions, envId)
+		const session = findSession(this._sessions, envId, ociSrc)
 		const sid = session?.sid
 
 		const resp = await makeReq("/fs/copy", source, undefined, {
@@ -691,7 +693,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 		}
 
 		const data: any = await resp.json()
-		const nextUri = vscode.Uri.parse(`veg://${data.envUri}`)
+		const nextUri = vscode.Uri.parse(data.envUri).with({ scheme: 'veg' })
 		this.updateUri(source, nextUri)
 	}
 
@@ -709,7 +711,7 @@ class VegContentProvider implements vscode.FileSystemProvider {
 				const q = new URLSearchParams(wf.uri.query)
 				const uriPos = q.get("pos")
 
-				const session = findSession(this._sessions, wfEnvId)
+				const session = findSession(this._sessions, wfEnvId, nextUri)
 				let name = session?.state?.title || session?.sid || wfEnvId
 
 				if (envVer && envVer !== "" && envVer !== "?" && !isNaN(parseInt(envVer))) {

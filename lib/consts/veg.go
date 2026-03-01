@@ -42,3 +42,4 @@ const VEG_DAGGER_ENGINE_CONFIG_DEFAULT = `
 
 // Agentic Settings
 const VEG_DEFAULT_USER = "tony"
+const VEG_USER_HEADER = "X-Veg-User"

@@ -51,23 +51,43 @@ func (le *localEnviron) AutoMigrate() error {
 	return nil
 }
 
+// LookupEnviron resolves an environment URI to its metadata and a Dagger container.
+// Input: envUri (e.g. oci://host/img:tag or id:tag)
+// Output: (Environ metadata, *dagger.Container, error)
 func (le *localEnviron) LookupEnviron(envUri string) (Environ, *dagger.Container, error) {
 	var foundEnv Environ
-	// fucking more hacks because our paths / URIs are a mess...
-	// we are seeing veg://... here, which is not correct, we should never see that in the server, it is a vscode thing only!
+
 	if !strings.Contains(envUri, "://") {
 		envUri = "oci://" + envUri
 	}
 	e, err := url.Parse(envUri)
 	if err != nil {
-		return foundEnv, nil, fmt.Errorf("database error while fetching environ: %w", err)
+		return foundEnv, nil, fmt.Errorf("lookup.parse.error: %w", err)
 	}
+
 	// fmt.Printf("LOOKUP: %s: %#+v\n", envUri, e)
-	key := fmt.Sprintf("%s%s", e.Host, e.Path)
-	// fmt.Println("le.lookupEnviron.key", key)
-	// hacky, error potential, but we should only be getting internal reps here anyway
-	parts := strings.Split(strings.Split(key, "/")[1], ":")
-	eid, tag := parts[0], parts[1]
+	// key := fmt.Sprintf("%s%s", e.Host, e.Path)
+
+	// if not in our registry, then it is a generic image, just return container
+	if e.Host != VEG_ENVIRONMENT_REGISTRY {
+		cleanUri := strings.TrimPrefix(envUri, "oci://")
+		return foundEnv, le.dag.Container().From(cleanUri), nil
+	}
+
+	// extract eid and tag
+	// key ~ host.docker.internal:5000/id:ver
+	pathParts := strings.Split(e.Path, "/")
+	if len(pathParts) < 2 {
+		// shouldn't happen for our registry, but just in case
+		return foundEnv, le.dag.Container().From(envUri), nil
+	}
+
+	imgParts := strings.Split(pathParts[1], ":")
+	if len(imgParts) < 2 {
+		return foundEnv, nil, fmt.Errorf("lookup.error: image must have a tag: %q", envUri)
+	}
+
+	eid, tag := imgParts[0], imgParts[1]
 
 	err = le.db.WithContext(le.ctx).
 		Where(&Environ{
@@ -77,31 +97,38 @@ func (le *localEnviron) LookupEnviron(envUri string) (Environ, *dagger.Container
 		First(&foundEnv).Error
 
 	if err != nil {
-		// For any error including ErrRecordNotFound, return it as a system error.
-		return foundEnv, nil, fmt.Errorf("database error while fetching environ: %w", err)
+		// If not found in database, still return a container if it's in our registry?
+		// Actually, if it's in our registry, it *should* be in our database.
+		// But let's be safe and return a container if we can.
+		cleanUri := strings.TrimPrefix(envUri, "oci://")
+		return foundEnv, le.dag.Container().From(cleanUri), nil
 	}
 
-	// fmt.Printf("le.lookupEnviron.table %v\n", foundEnv)
-
-	env := le.dag.Container().From(foundEnv.Uri)
+	// Use the URI from the database if available
+	cleanUri := strings.TrimPrefix(foundEnv.Uri, "oci://")
+	env := le.dag.Container().From(cleanUri)
 
 	return foundEnv, env, nil
 }
 
+// persistEnviron publishes a Dagger container to the registry and updates the database.
+// Input: envUri (clean OCI reference), tEnv (initial metadata), c (the Dagger container)
 func (le *localEnviron) persistEnviron(envUri string, tEnv *Environ, c *dagger.Container) (err error) {
 
 	// fmt.Println("le.persist.input", envUri)
 
 	// publish to persist
-	_, err = c.Publish(le.ctx, envUri)
+	cleanUri := envUri
+	cleanUri = strings.TrimPrefix(cleanUri, "oci://")
+	_, err = c.Publish(le.ctx, cleanUri)
 	if err != nil {
-		return fmt.Errorf("while persisting environment to registry(%s): %w", envUri, err)
+		return fmt.Errorf("while persisting environment to registry(%s|%s): %w", envUri, cleanUri, err)
 	}
 
 	// fmt.Println("le.persist.published", true)
 
 	// extract eid:tag envUri
-	qparts := strings.Split(strings.TrimPrefix(envUri, "oci://"), "?")
+	qparts := strings.Split(cleanUri, "?")
 	parts := strings.Split(qparts[0], "/")
 	img := parts[len(parts)-1]
 	iparts := strings.Split(img, ":")
@@ -114,7 +141,7 @@ func (le *localEnviron) persistEnviron(envUri string, tEnv *Environ, c *dagger.C
 	}
 	tEnv.Eid = iparts[0]
 	tEnv.Tag = iparts[1]
-	tEnv.Uri = envUri
+	tEnv.Uri = cleanUri
 
 	// fmt.Printf("tEnv: %#+v\n", *tEnv)
 

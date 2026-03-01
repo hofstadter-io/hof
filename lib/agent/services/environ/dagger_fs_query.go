@@ -74,7 +74,12 @@ func (le *localEnviron) Stat(envUri, path string, diff bool) (*FileStat, error) 
 		return nil, fmt.Errorf("while getting base fs(%s): %s %v %w", envUri, path, diff, err)
 	}
 
-	ruri, err := url.Parse(envUri)
+	// more fucking reshaping... seriously, fuck vscode for having shitty Uri implementation
+	parseUri := envUri
+	if !strings.Contains(parseUri, "://") {
+		parseUri = "oci://" + parseUri
+	}
+	ruri, err := url.Parse(parseUri)
 	if err != nil {
 		return nil, fmt.Errorf("while parsing uri(%s): %w", envUri, err)
 	}
@@ -123,7 +128,11 @@ func (le *localEnviron) ReadFile(envUri, path string, diff bool) (string, error)
 	}
 
 	// more fukcing reshaping... seriously, fuck vscode for having shitty Uri implementation
-	ruri, err := url.Parse(envUri)
+	parseUri := envUri
+	if !strings.Contains(parseUri, "://") {
+		parseUri = "oci://" + parseUri
+	}
+	ruri, err := url.Parse(parseUri)
 	if err != nil {
 		return "", fmt.Errorf("while parsing uri(%s): %w", envUri, err)
 	}
@@ -152,7 +161,11 @@ func (le *localEnviron) ReadDirectory(envUri, path string, diff bool) (*DirList,
 
 	// more fucking reshaping... seriously, fuck vscode for having shitty Uri implementation
 	// we need to move this to vscode, it should not be handled in the environ service
-	ruri, err := url.Parse(envUri)
+	parseUri := envUri
+	if !strings.Contains(parseUri, "://") {
+		parseUri = "oci://" + parseUri
+	}
+	ruri, err := url.Parse(parseUri)
 	if err != nil {
 		return nil, fmt.Errorf("while parsing uri(%s): %w", envUri, err)
 	}
@@ -172,7 +185,7 @@ func (le *localEnviron) ReadDirectory(envUri, path string, diff bool) (*DirList,
 		realPath := filepath.Join(path, e)
 		// they must exist since we already go them
 		ok, _ := d.Exists(le.ctx, realPath, dagger.DirectoryExistsOpts{ExpectedType: dagger.ExistsTypeDirectoryType})
-		
+
 		// Fallback: Exists(Directory) can return false for implicit directories in Diff layers
 		// So we double check by trying to list it
 		if !ok {
@@ -279,22 +292,26 @@ func (le *localEnviron) Watch(envUri, path string, excludes []string, recursive 
 }
 
 func (le *localEnviron) DiffDirectory(prevUri, nextUri string) (*DiffInfo, error) {
+	fmt.Printf("le.DiffDirectory: prev=%s next=%s\n", prevUri, nextUri)
 	if prevUri == "" {
 		prevUri = ReplaceTag(nextUri, "0")
 	}
 
 	_, prev, err := le.LookupEnviron(prevUri)
 	if err != nil {
+		fmt.Println("dirdiff.lookup.prev.error:", err)
 		return nil, fmt.Errorf("while looking up environment(%s): %w", prevUri, err)
 	}
 
 	prevDir := prev.Directory(".")
 	_, next, err := le.LookupEnviron(nextUri)
 	if err != nil {
+		fmt.Println("dirdiff.lookup.next.error:", err)
 		return nil, fmt.Errorf("while looking up environment(%s): %w", nextUri, err)
 	}
 	nextDir := next.Directory(".")
 
+	fmt.Println("le.DiffDirectory: calculating changes", prevUri, nextUri)
 	changes := nextDir.Changes(prevDir)
 
 	addpaths, err := changes.AddedPaths(le.ctx)
@@ -311,6 +328,8 @@ func (le *localEnviron) DiffDirectory(prevUri, nextUri string) (*DiffInfo, error
 	if err != nil {
 		return nil, fmt.Errorf("while getting DelPaths(%s): %w", nextUri, err)
 	}
+
+	fmt.Printf("le.DiffDirectory: paths count: add=%d mod=%d del=%d\n", len(addpaths), len(modpaths), len(delpaths))
 
 	// gather current files
 	diffFiles := make(map[string]string)
@@ -344,6 +363,7 @@ func (le *localEnviron) DiffDirectory(prevUri, nextUri string) (*DiffInfo, error
 		diffFiles[fp] = f
 	}
 
+	fmt.Println("le.DiffDirectory: generating patch")
 	pfile := changes.AsPatch()
 	patch, err := pfile.Contents(le.ctx)
 	if err != nil {
@@ -384,6 +404,12 @@ func (le *localEnviron) DiffDirectory(prevUri, nextUri string) (*DiffInfo, error
 			delpaths[i] = fp
 		}
 		// delpaths[i] = filepath.Join(workdir, fp)
+	}
+	if !strings.Contains(prevUri, "://") {
+		prevUri = "oci://" + prevUri
+	}
+	if !strings.Contains(nextUri, "://") {
+		nextUri = "oci://" + nextUri
 	}
 
 	di := &DiffInfo{

@@ -3,6 +3,7 @@ package environ
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -70,6 +71,15 @@ func IncrementTag(envUri string) (nextUri, nextTag string, err error) {
 	// preserve any query params
 	qparts := strings.Split(envUri, "?")
 
+	// handle potential encoding in the OCI reference
+	// if we don't have enough colons, try unescaping
+	if strings.Count(qparts[0], ":") < 3 {
+		decoded, err := url.PathUnescape(qparts[0])
+		if err == nil {
+			qparts[0] = decoded
+		}
+	}
+
 	// replace tag
 	parts := strings.Split(qparts[0], ":")
 	currTag := parts[len(parts)-1]
@@ -93,6 +103,14 @@ func IncrementTag(envUri string) (nextUri, nextTag string, err error) {
 func ReplaceTag(envUri, nextTag string) string {
 	// preserve any query params
 	qparts := strings.Split(envUri, "?")
+
+	// handle potential encoding in the OCI reference
+	if strings.Count(qparts[0], ":") < 3 {
+		decoded, err := url.PathUnescape(qparts[0])
+		if err == nil {
+			qparts[0] = decoded
+		}
+	}
 
 	// replace tag
 	parts := strings.Split(qparts[0], ":")

@@ -29,7 +29,12 @@ func (r *Runtime) sessionClone(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	cloned, err := common.SessionClone(c.Request().Context(), r, consts.VEG_DEFAULT_USER, p.Sid, p.Pos)
+	user := c.Request().Header.Get(consts.VEG_USER_HEADER)
+	if user == "" {
+		user = consts.VEG_DEFAULT_USER
+	}
+
+	cloned, err := common.SessionClone(c.Request().Context(), r, user, p.Sid, p.Pos)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -51,7 +56,14 @@ func (r *Runtime) sessionCreate(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
-	p.User = consts.VEG_DEFAULT_USER
+	user := c.Request().Header.Get(consts.VEG_USER_HEADER)
+	if user == "" {
+		user = p.User
+	}
+	if user == "" {
+		user = consts.VEG_DEFAULT_USER
+	}
+	p.User = user
 
 	sess, err := common.SessionCreate(c.Request().Context(), r, p)
 	if err != nil {
@@ -80,7 +92,12 @@ func (r *Runtime) sessionGet(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "missing sid")
 	}
 
-	sess, err := common.SessionGet(c.Request().Context(), r, consts.VEG_DEFAULT_USER, sid)
+	user := c.Request().Header.Get(consts.VEG_USER_HEADER)
+	if user == "" {
+		user = consts.VEG_DEFAULT_USER
+	}
+
+	sess, err := common.SessionGet(c.Request().Context(), r, user, sid)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -95,7 +112,12 @@ func (r *Runtime) sessionGet(c echo.Context) error {
 }
 
 func (r *Runtime) sessionList(c echo.Context) error {
-	sessions, err := common.SessionList(c.Request().Context(), r, consts.VEG_DEFAULT_USER)
+	user := c.Request().Header.Get(consts.VEG_USER_HEADER)
+	if user == "" {
+		user = consts.VEG_DEFAULT_USER
+	}
+
+	sessions, err := common.SessionList(c.Request().Context(), r, user)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -126,7 +148,12 @@ func (r *Runtime) sessionDelete(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "missing sid")
 	}
 
-	err := common.SessionDel(c.Request().Context(), r, consts.VEG_DEFAULT_USER, sid)
+	user := c.Request().Header.Get(consts.VEG_USER_HEADER)
+	if user == "" {
+		user = consts.VEG_DEFAULT_USER
+	}
+
+	err := common.SessionDel(c.Request().Context(), r, user, sid)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -147,7 +174,12 @@ func (r *Runtime) sessionStateGet(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	val, err := common.SessionStateGet(c.Request().Context(), r, consts.VEG_DEFAULT_USER, p.Sid, p.Key)
+	user := c.Request().Header.Get(consts.VEG_USER_HEADER)
+	if user == "" {
+		user = consts.VEG_DEFAULT_USER
+	}
+
+	val, err := common.SessionStateGet(c.Request().Context(), r, user, p.Sid, p.Key)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -162,7 +194,12 @@ func (r *Runtime) sessionStatePut(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	err = common.SessionStatePut(c.Request().Context(), r, consts.VEG_DEFAULT_USER, p.Sid, p.Key, p.Val)
+	user := c.Request().Header.Get(consts.VEG_USER_HEADER)
+	if user == "" {
+		user = consts.VEG_DEFAULT_USER
+	}
+
+	err = common.SessionStatePut(c.Request().Context(), r, user, p.Sid, p.Key, p.Val)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -177,7 +214,12 @@ func (r *Runtime) sessionStateDel(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	err = common.SessionStateDel(c.Request().Context(), r, consts.VEG_DEFAULT_USER, p.Sid, p.Key)
+	user := c.Request().Header.Get(consts.VEG_USER_HEADER)
+	if user == "" {
+		user = consts.VEG_DEFAULT_USER
+	}
+
+	err = common.SessionStateDel(c.Request().Context(), r, user, p.Sid, p.Key)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -199,7 +241,12 @@ func (r *Runtime) sessionSplice(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	spliced, err := common.SessionSplice(c.Request().Context(), r, consts.VEG_DEFAULT_USER, p.Sid, p.Pos, p.Count, p.Fill)
+	user := c.Request().Header.Get(consts.VEG_USER_HEADER)
+	if user == "" {
+		user = consts.VEG_DEFAULT_USER
+	}
+
+	spliced, err := common.SessionSplice(c.Request().Context(), r, user, p.Sid, p.Pos, p.Count, p.Fill)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -227,7 +274,12 @@ func (r *Runtime) promptRender(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	prompt, err := common.SessionPromptRender(c.Request().Context(), r, consts.VEG_DEFAULT_USER, p.Sid, p.Agent)
+	user := c.Request().Header.Get(consts.VEG_USER_HEADER)
+	if user == "" {
+		user = consts.VEG_DEFAULT_USER
+	}
+
+	prompt, err := common.SessionPromptRender(c.Request().Context(), r, user, p.Sid, p.Agent)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
