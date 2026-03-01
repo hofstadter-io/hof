@@ -28,18 +28,22 @@ fsWrite: veg://host.docker.internal:5000/b5a1e081-9d9e-484c-96f0-9af13e3834f7%3A
 Create a new file to house filesystem logic that is shared between the REST API and potentially other entry points.
 - Wrap `environ.Client()` calls.
 - Accept an optional `sid` (session ID).
-- Automatically update the session's `currEnv` state when a mutation occurs.
+- **Corrected Path Logic**: Ensure the handler properly parses the URI and `path` query parameter to avoid redundant parsing and mismatched results.
+- **Robustness**: Implement strict error handling for `SessionStatePut` and ensure `currEnv` is only updated on successful mutation.
+- **Missing Handlers**: Implement `FilesysDiff` to centralize diffing logic.
 - **Partial User Events**: Record a user event in the session history for all mutations. This event should capture the action (e.g., "manual file save") and the path, ensuring the session history reflects manual changes as well as agentic ones.
 - Implement: `FilesysRead`, `FilesysWrite`, `FilesysList`, `FilesysStat`, `FilesysDelete`, `FilesysMkdir`, `FilesysCopy`, `FilesysRename`, `FilesysDiff`.
 
 ### 2. Refactor API Handlers (`lib/agent/runtime/handlers/api/filesys.go`)
 - Update request structs to include `Sid`.
 - Refactor all filesystem handlers to use the new `common` handlers.
+- **Deduplication**: Remove redundant `url.Parse` and query parameter extraction logic that is now handled by `common`.
 - Ensure `Runtime` is passed correctly.
 
 ### 3. VS Code Extension Improvements
 - **Filesystem Provider (`filesystemProvider.ts`)**:
     - **Session Awareness**: Update `makeReq` calls to include `sid`.
+    - **URI Scheme Resilience**: Ensure `updateUri` correctly handles `oci://` prefixes to prevent `veg://oci://` scheme corruption.
     - **Watch**: Implement the `watch` method by hooking into `extensionEmitter` events (e.g., `filesys.change` from backend).
     - **Upload Command**: Implement `veg.explorer.saveToVeg` (or `upload`) to allow saving local files/folders to the remote environment.
 - **SCM Provider (`scmProvider.ts`)**:
@@ -49,16 +53,22 @@ Create a new file to house filesystem logic that is shared between the REST API 
 
 ### Step 1: Create Common Filesystem Handlers
 - [x] Create `lib/agent/runtime/handlers/common/filesys.go`.
-- [x] Implement core functions (`Read`, `Write`, `List`, `Stat`, `Delete`, `Mkdir`, `Copy`, `Rename`, `Diff`).
+- [ ] Implement core functions (`Read`, `Write`, `List`, `Stat`, `Delete`, `Mkdir`, `Copy`, `Rename`, `Diff`).
+    - [ ] Add missing `FilesysDiff` handler.
+    - [ ] Implement robust error handling for `SessionStatePut`.
 - [x] Add `SessionStatePut` logic to update `currEnv` on mutation.
 - [x] Add session access verification using `SessionGet`.
 
 ### Step 2: Refactor API Handlers
 - [x] Update `lib/agent/runtime/handlers/api/filesys.go` to use `common` handlers.
-- [x] Ensure `consts.VEG_DEFAULT_USER` is used.
+    - [x] Remove redundant path parsing (rely on `common` or `utils`).
+- [x] Ensure `consts.VEG_USER_HEADER` is extracted and used.
+- [x] Ensure `consts.VEG_DEFAULT_USER` is only used as a final fallback.
 
 ### Step 3: Enhance VS Code Extension (Filesystem)
-- [x] Update `utils.ts` and `filesystemProvider.ts` to pass `sid`. (Implicit via `vsUriToVeg` fix)
+- [x] Update `utils.ts` and `filesystemProvider.ts` to pass `sid` and `X-Veg-User` header.
+    - [x] Update `websocket.ts` to pass `X-Veg-User` header during handshake.
+    - [x] Fix `updateUri` to prevent `veg://oci://` scheme corruption.
 - [x] Implement `veg.explorer.saveToVeg` command (upload logic).
 - [x] Wire up `watch` using `extensionEmitter`.
 
@@ -68,10 +78,10 @@ Create a new file to house filesystem logic that is shared between the REST API 
 ### Step 5: Debug & Fix Session Mismatches
 - [x] **Analyze**: `extractSid` is identifying session IDs aggressively (e.g., from `library/alpine`), causing `SessionGet` to fail for valid OCI URIs.
 - [x] **Verify**: Add logging to `extractSid` to confirm the hypothesis.
-- [x] **Fix**: 
-    - Improve `extractSid` to differentiate between a session ID and a generic OCI path segment.
-    - Alternatively, require explicit session identification (e.g., query param) rather than implicit path inference.
-- [x] **Validate**: Ensure generic OCI reads work without error while maintaining session security for actual session URIs.
+- [ ] **Fix**: 
+    - [ ] Improve `extractSid` to differentiate between a session ID and a generic OCI path segment.
+    - [ ] Resolve panic in `LookupEnviron` when handling non-session OCI images.
+    - [ ] Ensure generic OCI reads work without error while maintaining session security for actual session URIs.
 
 ### Step 6: Verification
 
