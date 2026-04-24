@@ -218,10 +218,26 @@ func (R *Runtime) initModels() (err error) {
 			if err != nil {
 				return fmt.Errorf("while decoding'n model %q: %w", a.Value, err)
 			}
-			R.Models[m.Name], err = models.Vertex(R.Ctx, m.Id)
-			if err != nil {
-				return fmt.Errorf("while init'n model %q: %w", m, err)
+
+			switch m.Provider {
+
+			case "vertex":
+				R.Models[m.Name], err = models.Vertex(R.Ctx, m.Id)
+				if err != nil {
+					return fmt.Errorf("while init'n model %q: %w", m, err)
+				}
+
+			case "openai":
+				R.Models[m.Name], err = models.OpenAI(R.Ctx, m.Id, m.BaseURL)
+				if err != nil {
+					return fmt.Errorf("while init'n model %q: %w", m, err)
+				}
+
+			default:
+				return fmt.Errorf("while init'n model %q, unknown provider: %q", m, m.Provider)
+
 			}
+
 		}
 	}
 

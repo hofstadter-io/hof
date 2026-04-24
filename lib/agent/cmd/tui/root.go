@@ -14,6 +14,7 @@ import (
 
 	aruntime "github.com/hofstadter-io/hof/lib/agent/runtime"
 	"github.com/hofstadter-io/hof/lib/agent/runtime/handlers/common"
+	"github.com/hofstadter-io/hof/lib/agent/services/environ"
 	"github.com/hofstadter-io/hof/lib/consts"
 	"github.com/hofstadter-io/hof/lib/runtime"
 )
@@ -63,6 +64,13 @@ type Model struct {
 	currSessTitle string
 	session       session.Session
 	asession      *common.Session
+
+	// preset / options bookkeeping
+	currPreset string
+	currAgent  string
+	currModel  string
+	currEnv    string
+	currDir    string
 }
 
 var views = []string{"list", "chat", "info"}
@@ -152,7 +160,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch {
 		case key.Matches(msg, m.keymap.add):
 			if (m.currName == "chat" && m.chat != nil && !m.chat.textarea.Focused()) || (m.currName == "list" && !m.list.input.Focused()) {
-				m.createSession()
+				// m.createSession()
 				m.updateCurrName("chat")
 				m.chat.textarea.Focus()
 				return m, tea.Sequence(mainCmd)
@@ -332,16 +340,18 @@ func (m *Model) createSession() error {
 	m.clearSession()
 
 	session, err := common.SessionCreate(m.R.Ctx, m.AR, common.CreatePayload{
-		User:  consts.VEG_DEFAULT_USER,
-		Agent: "veggie",
-		Model: "gemini-3-flash",
-		// EnvName: "veg-hof",
+		User:    consts.VEG_DEFAULT_USER,
+		Agent:   m.currAgent,
+		Model:   m.currModel,
+		EnvName: m.currEnv,
+		Environ: &environ.EnvironCreateOptions{
+			SrcUri: m.currDir,
+		},
 	})
 	if err != nil {
 		m.err = err
 		return err
 	}
-
 	return m.setSession(session)
 }
 
@@ -358,8 +368,8 @@ func (m *Model) sendMessage(text string) error {
 	p := &common.ChatPayload{
 		User:  consts.VEG_DEFAULT_USER,
 		Sid:   m.currSid,
-		Agent: "veggie",
-		Model: "gemini-3-flash",
+		Agent: m.currAgent,
+		Model: m.currModel,
 		Text:  text,
 	}
 	s, err := common.SessionChat(m.R, m.AR, p)
@@ -384,10 +394,34 @@ func (m *Model) delSession(sid string) error {
 func (m *Model) setSession(session session.Session) error {
 	m.session = session
 	m.currSid = session.ID()
-	tv, err := m.session.State().Get("title")
-	if err == nil {
-		m.currSessTitle = tv.(string)
-	} // intentionally ignoring error here, probably need to introspect the error more for non-existence
+
+	m.currSessTitle = ""
+	m.currAgent = ""
+	m.currModel = ""
+	m.currEnv = ""
+	m.currDir = ""
+
+	state := maps.Collect(session.State().All())
+	if v, ok := state["title"]; ok {
+		m.currSessTitle = v.(string)
+	}
+	if v, ok := state["agent"]; ok {
+		m.currAgent = v.(string)
+	}
+	if v, ok := state["model"]; ok {
+		m.currModel = v.(string)
+	}
+	if v, ok := state["envName"]; ok {
+		m.currEnv = v.(string)
+	}
+	// this is probably wrong
+	if v, ok := state["initEnv"]; ok {
+		vm := v.(map[string]any)
+		if vd, ok := vm["srcUri"]; ok {
+			m.currDir = vd.(string)
+		}
+	}
+
 	return nil
 }
 

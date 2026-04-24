@@ -7,6 +7,7 @@ import (
 
 func NewConfig() *Config {
 	return &Config{
+		Presets:   make(map[string]Preset),
 		Models:    make(map[string]Model),
 		Agents:    make(map[string]Agent),
 		Tools:     make(map[string]Tool),
@@ -20,6 +21,8 @@ func NewConfig() *Config {
 }
 
 type Config struct {
+	Presets map[string]Preset `json:"presets"`
+
 	Models   map[string]Model   `json:"models"`
 	Agents   map[string]Agent   `json:"agents"`
 	Tools    map[string]Tool    `json:"tools"`
@@ -56,9 +59,18 @@ type Agent struct {
 	AgentsMD map[string]string `json:"-"`
 }
 
+type Preset struct {
+	Agent string `json:"agent"`
+	Model string `json:"model"`
+	Env   string `json:"env"`
+	Dir   string `json:"dir"`
+}
+
 type Model struct {
-	Name string `json:"name"`
-	Id   string `json:"id"`
+	Name     string `json:"name"`
+	Id       string `json:"id"`
+	Provider string `json:"provider"`
+	BaseURL  string `json:"baseurl"`
 }
 
 type Tool struct {

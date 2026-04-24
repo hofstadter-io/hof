@@ -28,6 +28,8 @@ agents: [string]~(n,_): {
 agents: veggie: {
   description: string | *"Veggie, a general assistant helpful for any task"
   instruction: string | *"agents/veggie.md"
+  model: "qwen-3.6"
+  // model: "gemma-4"
   tools: [
     "cache_put",
     "cache_del",

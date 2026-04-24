@@ -178,10 +178,27 @@ func (k chatKeymap) FullHelp() [][]key.Binding {
 }
 
 var chatKeymapDefaults = chatKeymap{
+	// navigation
 	info: key.NewBinding(
 		key.WithKeys("i"),
 		key.WithHelp("i", "info"),
 	),
+	focus: key.NewBinding(
+		key.WithKeys("enter"),
+		key.WithHelp("enter", "focus input"),
+	),
+	back: key.NewBinding(
+		key.WithKeys("esc"),
+		key.WithHelp("esc", "back"),
+	),
+
+	// send textarea as input
+	send: key.NewBinding(
+		key.WithKeys("alt+enter"),
+		key.WithHelp("alt+enter", "send msg"),
+	),
+
+	// modals or something
 	agent: key.NewBinding(
 		key.WithKeys("a"),
 		key.WithHelp("a", "agent"),
@@ -197,17 +214,5 @@ var chatKeymapDefaults = chatKeymap{
 	open: key.NewBinding(
 		key.WithKeys("o"),
 		key.WithHelp("o", "open"),
-	),
-	send: key.NewBinding(
-		key.WithKeys("alt+enter"),
-		key.WithHelp("alt+enter", "send msg"),
-	),
-	focus: key.NewBinding(
-		key.WithKeys("enter"),
-		key.WithHelp("enter", "focus input"),
-	),
-	back: key.NewBinding(
-		key.WithKeys("esc"),
-		key.WithHelp("esc", "back"),
 	),
 }
