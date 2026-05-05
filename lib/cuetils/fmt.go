@@ -30,7 +30,6 @@ func FormatOutput(val cue.Value, format string) (string, error) {
 func formatCue(val cue.Value) (string, error) {
 	syn := val.Syntax(
 		cue.Final(),
-		cue.ResolveReferences(true),
 		cue.Concrete(true),
 		cue.Definitions(false),
 		cue.Hidden(false),

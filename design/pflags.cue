@@ -4,7 +4,7 @@ import (
 	"github.com/hofstadter-io/hofmod-cli/schema"
 )
 
-CliPflags: [...schema.Flag] & [ {
+CliPflags: [...schema.Flag] & [{
 	Name:    "package"
 	Long:    "package"
 	Short:   "p"
@@ -25,6 +25,13 @@ CliPflags: [...schema.Flag] & [ {
 	Type:    "bool"
 	Default: "false"
 	Help:    "A flag that ensure stdin is zero and does not block"
+}, {
+	Name:    "expression"
+	Long:    "expression"
+	Short:   "e"
+	Type:    "[]string"
+	Default: "nil"
+	Help:    "evaluate these CUE expressions only"
 }, {
 	Name:    "tags"
 	Long:    "tags"
@@ -88,6 +95,12 @@ CliPflags: [...schema.Flag] & [ {
 	Type:    "bool"
 	Default: ""
 	Help:    "turn off output and assume defaults at prompts"
+}, {
+	Name:    "DryRun"
+	Type:    "bool"
+	Default: "false"
+	Help:    "dry run certain commands"
+	Long:    "dry-run"
 }, {
 	Name:    "stats"
 	Type:    "bool"

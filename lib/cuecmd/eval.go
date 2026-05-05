@@ -45,15 +45,15 @@ func Eval(args []string, rflags flags.RootPflagpole, cflags flags.EvalFlagpole) 
 	}
 
 	// build options
-	opts := []cue.Option{
-		cue.Docs(cflags.Comments),
-		cue.Attributes(cflags.Attributes),
-		cue.Definitions(cflags.Definitions),
-		cue.Optional(cflags.Optional || cflags.All),
-		cue.InlineImports(cflags.InlineImports),
-		cue.ErrorsAsValues(wantErrorsInValue),
-		cue.ResolveReferences(cflags.Resolve),
+	opts := []cue.Option{}
+	if cflags.Comments {
+		opts = append(opts, cue.Docs(cflags.Comments))
 	}
+	// 	cue.Attributes(cflags.Attributes),
+	// 	cue.Definitions(cflags.Definitions),
+	// 	cue.Optional(cflags.Optional || cflags.All),
+	// 	cue.InlineImports(cflags.InlineImports),
+	// 	cue.ErrorsAsValues(wantErrorsInValue),
 
 	// these two have to be done specially
 	// because there are three options [true, false, missing]
@@ -90,7 +90,7 @@ func Eval(args []string, rflags flags.RootPflagpole, cflags flags.EvalFlagpole) 
 		fopts,
 		cflags.Out,
 		cflags.Outfile,
-		cflags.Expression,
+		rflags.Expression,
 		rflags.Schema,
 		cflags.Escape,
 		cflags.Defaults,
@@ -102,4 +102,3 @@ func Eval(args []string, rflags flags.RootPflagpole, cflags flags.EvalFlagpole) 
 
 	return nil
 }
-

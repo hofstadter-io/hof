@@ -22,7 +22,7 @@ func List(args []string, rflags flags.RootPflagpole, gflags flags.GenFlagpole) e
 			var rows = make([][]string, 0, len(R.Generators))
 			// fill with data
 			for _, gen := range R.Generators {
-				id := gen.Hof.Metadata.ID
+				id := gen.Hof.ID
 				if id == "" {
 					id = kace.Snake(gen.Hof.Metadata.Name) + " (auto)"
 				}

@@ -1,9 +1,9 @@
 package datamodel
 
 import (
-	"github.com/hofstadter-io/hof/schema"
-	"github.com/hofstadter-io/hof/schema/dm"
-	"github.com/hofstadter-io/hof/schema/dm/fields"
+	"github.com/hofstadter-io/schemas"
+	"github.com/hofstadter-io/schemas/dm"
+	"github.com/hofstadter-io/schemas/dm/fields"
 )
 
 // anything with `$hof: history: true`

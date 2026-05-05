@@ -26,7 +26,7 @@ Steps: {
 
 	cue: {
 		install: {
-			#ver: string | *"v0.8.2"
+			#ver: string | *"v0.13.1"
 			run:  """
 			mkdir tmp
 			cd tmp
@@ -263,9 +263,9 @@ Steps: {
 		setup: {
 			name: "Setup"
 			run: """
-				hof fmt start prettier@v0.6.10-rc.2
+				hof fmt start prettier@v0.6.10
 				cd docs
-				hof mod link
+				hof mod tidy
 				make tools
 				make deps
 				"""

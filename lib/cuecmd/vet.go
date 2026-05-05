@@ -56,7 +56,7 @@ func Vet(args []string, rflags flags.RootPflagpole, cflags flags.VetFlagpole) er
 		opts = append(opts, cue.Hidden(true))
 	}
 
-	exs := cflags.Expression
+	exs := rflags.Expression
 	if len(exs) == 0 {
 		exs = []string{""}
 	}
@@ -109,17 +109,17 @@ func Vet(args []string, rflags flags.RootPflagpole, cflags flags.VetFlagpole) er
 			// vet the value with each expression
 			for _, ex := range exs {
 
-				v := getValByEx(ex, pkg, R.Value)	
+				v := cuetils.GetValByEx(ex, pkg, R.Value)
 				if !v.Exists() {
 					handleErr(ex, v.Err())
 					continue
 				}
 
 				v = v.Unify(fv)
-			
+
 				// we want to ensure concrete when validating data (orphaned files)
 				opts = append(opts, cue.Concrete(true))
-				err := v.Validate(append(opts, )...)
+				err := v.Validate(append(opts)...)
 				handleErr(ex, err)
 			}
 
@@ -132,18 +132,16 @@ func Vet(args []string, rflags flags.RootPflagpole, cflags flags.VetFlagpole) er
 		// often this will default to [""] which is just the whole value
 		for _, ex := range exs {
 
-			v := getValByEx(ex, pkg, R.Value)
+			v := cuetils.GetValByEx(ex, pkg, R.Value)
 			if !v.Exists() {
 				handleErr(ex, v.Err())
 				continue
 			}
-		
-			err := v.Validate(append(opts, )...)
+
+			err := v.Validate(append(opts)...)
 			handleErr(ex, err)
 		}
 	}
-
-
 
 	if hadError {
 		// messages already printed, we want an empty message

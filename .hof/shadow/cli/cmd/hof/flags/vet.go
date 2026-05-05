@@ -9,7 +9,6 @@ var _ *pflag.FlagSet
 var VetFlagSet *pflag.FlagSet
 
 type VetFlagpole struct {
-	Expression  []string
 	List        bool
 	Simplify    bool
 	Out         string
@@ -27,7 +26,6 @@ var VetFlags VetFlagpole
 func SetupVetFlags(fset *pflag.FlagSet, fpole *VetFlagpole) {
 	// flags
 
-	fset.StringArrayVarP(&(fpole.Expression), "expression", "e", nil, "evaluate these expressions only")
 	fset.BoolVarP(&(fpole.List), "list", "", false, "concatenate multiple objects into a list")
 	fset.BoolVarP(&(fpole.Simplify), "simplify", "", false, "simplify CUE statements where possible")
 	fset.StringVarP(&(fpole.Out), "out", "", "", "output data format, when detection does not work")

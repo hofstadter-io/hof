@@ -42,14 +42,12 @@ type File struct {
 	Final          bool
 	Concrete       bool
 	Definitions    bool
-	Optional       bool 
-	Hidden         bool 
+	Optional       bool
+	Hidden         bool
 	Attributes     bool
-	Docs           bool 
-	InlineImports  bool 
+	Docs           bool
+	InlineImports  bool
 	ErrorsAsValues bool
-
-
 
 	//
 	// Hof internal usage
@@ -127,7 +125,7 @@ func (F *File) Render(outdir string, UseDiff3, NoFmt bool) error {
 
 	// Check to see if they are the same, if so, then "skip"
 	if UseDiff3 && F.ShadowFile != nil {
-		if bytes.Compare(F.RenderContent, F.ShadowFile.FinalContent) == 0 {
+		if bytes.Equal(F.RenderContent, F.ShadowFile.FinalContent) {
 			// Let's check if there is a user file or not
 			_, err := os.Lstat(filepath.Join(outdir, F.Filepath))
 			if err != nil {
@@ -223,7 +221,7 @@ func (F *File) diff3() (write bool, err error) {
 	//has2 := strings.Contains(merged,diff3.Sep2)
 	//has3 := strings.Contains(merged,diff3.Sep3)
 	//if has1 && has2 && has3 {
-		//F.IsConflicted = 1
+	//F.IsConflicted = 1
 	//}
 	//merged = strings.TrimSpace(merged)
 

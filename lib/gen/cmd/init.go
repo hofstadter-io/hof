@@ -19,14 +19,14 @@ import (
 
 func InitModule(name string, rootflags flags.RootPflagpole, cmdflags flags.GenFlagpole) error {
 	module := "hof.io"
-	if strings.Contains(name,"/") {
-		i := strings.LastIndex(name,"/")
+	if strings.Contains(name, "/") {
+		i := strings.LastIndex(name, "/")
 		module, name = name[:i], name[i+1:]
 	}
 	// possibly extract explicit package
 	pkg := name
-	if strings.Contains(name,":") {
-		i := strings.LastIndex(name,":")
+	if strings.Contains(name, ":") {
+		i := strings.LastIndex(name, ":")
 		name, pkg = name[:i], name[i+1:]
 	}
 	fmt.Printf("Initializing: %s/%s in pkg %s\n", module, name, pkg)
@@ -38,11 +38,12 @@ func InitModule(name string, rootflags flags.RootPflagpole, cmdflags flags.GenFl
 
 	// construct template input data
 	data := map[string]interface{}{
-		"CueVer": verinfo.CueVersion,
-		"HofVer": ver,
-		"Module": module,
-		"Name": name,
-		"Package": pkg,
+		"CueVer":       verinfo.CueVersion,
+		"HofSchemaVer": verinfo.HofSchemaVersion,
+		"HofVer":       ver,
+		"Module":       module,
+		"Name":         name,
+		"Package":      pkg,
 	}
 
 	// local helper to render and write embedded templates
@@ -81,7 +82,7 @@ func InitModule(name string, rootflags flags.RootPflagpole, cmdflags flags.GenFl
 		}
 	}
 
-	err := render(name + ".cue", newModuleTopTemplate)
+	err := render(name+".cue", newModuleTopTemplate)
 	if err != nil {
 		return err
 	}
@@ -119,27 +120,27 @@ func InitModule(name string, rootflags flags.RootPflagpole, cmdflags flags.GenFl
 func (R *Runtime) adhocAsModule() error {
 	name := R.GenFlags.AsModule
 	module := "hof.io"
-	if strings.Contains(name,"/") {
-		i := strings.LastIndex(name,"/")
+	if strings.Contains(name, "/") {
+		i := strings.LastIndex(name, "/")
 		module, name = name[:i], name[i+1:]
 	}
 	// possibly extract explicit package
 	pkg := name
-	if strings.Contains(name,":") {
-		i := strings.LastIndex(name,":")
+	if strings.Contains(name, ":") {
+		i := strings.LastIndex(name, ":")
 		name, pkg = name[:i], name[i+1:]
 	}
 	fmt.Printf("Initializing: %s/%s in pkg %s\n", module, name, pkg)
 
 	// parse template flags
-	tcfgs  := []AdhocTemplateConfig{}
-	tfiles := make([]string,0)
+	tcfgs := []AdhocTemplateConfig{}
+	tfiles := make([]string, 0)
 	for _, tf := range R.GenFlags.Template {
 		cfg, err := ParseTemplateFlag(tf)
 		if err != nil {
 			return err
 		}
-		tcfgs  = append(tcfgs, cfg)
+		tcfgs = append(tcfgs, cfg)
 		tfiles = append(tfiles, cfg.Filepath)
 
 		if R.Flags.Verbosity > 0 {
@@ -205,21 +206,21 @@ func (R *Runtime) adhocAsModule() error {
 
 	// construct template input data
 	data := map[string]interface{}{
-		"Configs": tcfgs,
-		"CueVer": verinfo.CueVersion,
-		"Diff3": R.GenFlags.Diff3,
+		"Configs":     tcfgs,
+		"CueVer":      verinfo.CueVersion,
+		"Diff3":       R.GenFlags.Diff3,
 		"Entrypoints": R.Entrypoints,
-		"Generators": gens,
-		"HofVer": ver,
-		"Inputs": ins,
-		"Module": module,
-		"Name": name,
-		"Outdir": R.GenFlags.Outdir,
-		"Package": pkg,
-		"Partials": R.GenFlags.Partial,
-		"Templates": tfiles,
-		"WatchFast": R.GenFlags.WatchFast,
-		"WatchFull": R.GenFlags.WatchFull,
+		"Generators":  gens,
+		"HofVer":      ver,
+		"Inputs":      ins,
+		"Module":      module,
+		"Name":        name,
+		"Outdir":      R.GenFlags.Outdir,
+		"Package":     pkg,
+		"Partials":    R.GenFlags.Partial,
+		"Templates":   tfiles,
+		"WatchFast":   R.GenFlags.WatchFast,
+		"WatchFull":   R.GenFlags.WatchFull,
 	}
 
 	// local helper to render and write embedded templates
@@ -274,7 +275,7 @@ func (R *Runtime) adhocAsModule() error {
 			return err
 		}
 	} else {
-		err = render(name + ".cue", asModuleTopTemplate)
+		err = render(name+".cue", asModuleTopTemplate)
 		if err != nil {
 			return err
 		}
@@ -351,7 +352,6 @@ import (
 	ModuleName: ""
 }
 `
-
 
 const asModuleGenTemplate = `
 package gen
@@ -461,7 +461,6 @@ Generator: gen.Generator & {
 }
 `
 
-
 const initMsg = `To run the '{{.Name}}' generator...
   $ hof gen        ... or ...
   $ hof gen{{range .Entrypoints}} {{.}}{{ end }} {{ .Name }}.cue -G {{ .Name }}
@@ -543,10 +542,13 @@ Generator: gen.Generator & {
 
 const cuemodFileTemplate = `
 module: "{{ .Module }}/{{ .Name }}"
-cue: "{{ .CueVer }}"
-
-require: {
-	"github.com/hofstadter-io/hof": "{{ .HofVer }}"
+language: {
+	version: "{{ .CueVer }}"
+}
+deps: {
+	"github.com/hofstadter-io/schemas@v0": {
+		v: "{{ .HofSchemaVer }}"
+	}	
 }
 `
 
@@ -554,4 +556,3 @@ const finalMsg = `To run the '{{.Name}}' generator...
   $ hof gen        ... or ...
   $ hof gen{{range .Entrypoints}} {{.}}{{ end }} {{ .Name }}.cue -G {{ .Name }}
 `
-

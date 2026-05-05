@@ -7,3 +7,9 @@ array:
   value: hoo
 - name: other
   value: thing
+
+strings:
+- "foo"
+- "goo"
+- "hoo"
+- "thing"

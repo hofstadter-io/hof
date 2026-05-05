@@ -14,18 +14,17 @@ import (
 	"github.com/hofstadter-io/hof/cmd/hof/flags"
 
 	flowcontext "github.com/hofstadter-io/hof/flow/context"
+	"github.com/hofstadter-io/hof/flow/flow"
 	"github.com/hofstadter-io/hof/flow/middleware"
 	"github.com/hofstadter-io/hof/flow/tasks"
-	"github.com/hofstadter-io/hof/flow/flow"
 
 	"github.com/hofstadter-io/hof/lib/cuetils"
 	"github.com/hofstadter-io/hof/lib/datautils/io"
 	hfmt "github.com/hofstadter-io/hof/lib/fmt"
 	"github.com/hofstadter-io/hof/lib/gen"
 	gencmd "github.com/hofstadter-io/hof/lib/gen/cmd"
-	"github.com/hofstadter-io/hof/lib/repos/cache"
-	"github.com/hofstadter-io/hof/lib/mod"
 	"github.com/hofstadter-io/hof/lib/prompt"
+	"github.com/hofstadter-io/hof/lib/repos/cache"
 	"github.com/hofstadter-io/hof/lib/repos/remote"
 	"github.com/hofstadter-io/hof/lib/runtime"
 	"github.com/hofstadter-io/hof/lib/yagu"
@@ -62,7 +61,7 @@ func Create(module string, extra []string, rootflags flags.RootPflagpole, cmdfla
 		return err
 	}
 
-	err = mod.ValidateModURL(module)
+	err = validateModURL(module)
 	if err != nil {
 		return err
 	}
@@ -112,7 +111,6 @@ func Create(module string, extra []string, rootflags flags.RootPflagpole, cmdfla
 		}
 	}
 
-
 	fmt.Println("setting up...")
 	err = hfmt.UpdateFormatterStatus()
 	if err != nil {
@@ -159,17 +157,17 @@ func Create(module string, extra []string, rootflags flags.RootPflagpole, cmdfla
 	// fmt.Println("  outdir: ", outdir)
 
 	/*
-	// from were we run to root
-	rel, err := filepath.Rel(workdir, "/")
-	if err != nil {
-		// fmt.Println("got here", err, wd, workdir, cwd, cmdflags.Outdir)
-		return err
-	}
-	// fmt.Println("  rel: ", rel)
+		// from were we run to root
+		rel, err := filepath.Rel(workdir, "/")
+		if err != nil {
+			// fmt.Println("got here", err, wd, workdir, cwd, cmdflags.Outdir)
+			return err
+		}
+		// fmt.Println("  rel: ", rel)
 
-	// we want a relative path input, the runtime/generator will combine & clean this up
-	outdir = filepath.Join(rel, cwd, cmdflags.Outdir)
-	fmt.Println("  outdir: ", outdir)
+		// we want a relative path input, the runtime/generator will combine & clean this up
+		outdir = filepath.Join(rel, cwd, cmdflags.Outdir)
+		fmt.Println("  outdir: ", outdir)
 	*/
 	genflags.Outdir = outdir
 
@@ -300,12 +298,12 @@ func setupTmpdir(url, ver string) (tmpdir, subdir string, err error) {
 
 	// DEV DEBUG informational only
 	/*
-	infos, err := os.ReadDir(tmpdir)
-	for _, info := range infos {
-		fmt.Println(info.Name())
-	}
+		infos, err := os.ReadDir(tmpdir)
+		for _, info := range infos {
+			fmt.Println(info.Name())
+		}
 	*/
-	
+
 	return tmpdir, subdir, err
 }
 
@@ -478,7 +476,7 @@ func loadCreateInputs(R *gencmd.Runtime, inputFlags []string) (input map[string]
 				return nil, err
 			}
 
-			for k,v := range data {
+			for k, v := range data {
 				input[k] = v
 			}
 
@@ -502,12 +500,10 @@ func loadCreateInputs(R *gencmd.Runtime, inputFlags []string) (input map[string]
 	return input, nil
 }
 
-
 func handleGeneratorCreate(G *gen.Generator, rflags flags.RootPflagpole, cflags flags.CreateFlagpole, extraArgs []string, inputMap map[string]any) (err error) {
 
 	// fill any extra args into generator value
 	G.CueValue = G.CueValue.FillPath(cue.ParsePath("Create.Args"), extraArgs)
-
 
 	// maybe run the pre flow
 	preFlow := G.CueValue.LookupPath(cue.ParsePath("Create.PreFlow"))
@@ -517,7 +513,7 @@ func handleGeneratorCreate(G *gen.Generator, rflags flags.RootPflagpole, cflags 
 		}
 		if !cflags.Exec {
 			fmt.Println("skipping pre-flow, use --exec to run")
-				// TODO, add prompt here to allow, after printing it
+			// TODO, add prompt here to allow, after printing it
 		} else {
 
 			ctx := flowcontext.New()
@@ -589,45 +585,45 @@ func handleGeneratorCreate(G *gen.Generator, rflags flags.RootPflagpole, cflags 
 			ival := inputVal.LookupPath(cue.ParsePath(k))
 			if ival.Exists() {
 				switch t := v.(type) {
-					
-					// only handling string inputs
-					case string:
-						// switch 2
-						switch ival.IncompleteKind() {
-						// another default copy over
-						case cue.StringKind:
-							newMap[k] = v
 
-						// interseting part where we convert values
-						case cue.BoolKind:
-							fmt.Println("boolkind")
-							n, err := strconv.ParseBool(t)
-							if err != nil {
-								return err
-							}
-							newMap[k] = n
-							
-						case cue.IntKind:
-							n, err := strconv.ParseInt(t, 0, 64)
-							if err != nil {
-								return err
-							}
-							newMap[k] = n
-							
-						case cue.FloatKind:
-							n, err := strconv.ParseFloat(t, 64)
-							if err != nil {
-								return err
-							}
-							newMap[k] = n
-						
-						// end interesting inputs
-						
-						default:
-							newMap[k] = v
+				// only handling string inputs
+				case string:
+					// switch 2
+					switch ival.IncompleteKind() {
+					// another default copy over
+					case cue.StringKind:
+						newMap[k] = v
+
+					// interseting part where we convert values
+					case cue.BoolKind:
+						fmt.Println("boolkind")
+						n, err := strconv.ParseBool(t)
+						if err != nil {
+							return err
 						}
+						newMap[k] = n
+
+					case cue.IntKind:
+						n, err := strconv.ParseInt(t, 0, 64)
+						if err != nil {
+							return err
+						}
+						newMap[k] = n
+
+					case cue.FloatKind:
+						n, err := strconv.ParseFloat(t, 64)
+						if err != nil {
+							return err
+						}
+						newMap[k] = n
+
+					// end interesting inputs
+
 					default:
 						newMap[k] = v
+					}
+				default:
+					newMap[k] = v
 				}
 			} else {
 				newMap[k] = v
@@ -645,15 +641,15 @@ func handleGeneratorCreate(G *gen.Generator, rflags flags.RootPflagpole, cflags 
 	}
 
 	/*
-	in := G.CueValue.LookupPath(cue.ParsePath("In"))
-	if !in.Exists() {
-		return fmt.Errorf("In gen:%s, missing In value", G.Name)
-	}
+		in := G.CueValue.LookupPath(cue.ParsePath("In"))
+		if !in.Exists() {
+			return fmt.Errorf("In gen:%s, missing In value", G.Name)
+		}
 
-	err = in.Decode(&G.In)
-	if err != nil {
-		return err
-	}
+		err = in.Decode(&G.In)
+		if err != nil {
+			return err
+		}
 	*/
 
 	return nil
@@ -732,20 +728,31 @@ func loadInputsFromFile(R *gencmd.Runtime, fn string) (map[string]any, error) {
 		}
 		data = d.(map[string]any)
 	}
-	
 
 	/*
-			var data interface{}
-			data = make(map[string]any)
-			_, err := io.ReadFile(fn, &data)
-			if err != nil {
-				return input, err
-			}
-			// fmt.Println("(todo) input: ", fn, data)
+		var data interface{}
+		data = make(map[string]any)
+		_, err := io.ReadFile(fn, &data)
+		if err != nil {
+			return input, err
+		}
+		// fmt.Println("(todo) input: ", fn, data)
 
-			for k,v := range data.(map[string]any) {
-				input[k] = v
-			}
+		for k,v := range data.(map[string]any) {
+			input[k] = v
+		}
 	*/
 	return data, nil
+}
+
+func validateModURL(mod string) error {
+	parts := strings.Split(mod, "/")
+	if len(parts) < 2 {
+		return fmt.Errorf("error: modules require one or more '/', you provided %q", mod)
+	}
+	if !strings.Contains(parts[0], ".") {
+		return fmt.Errorf("error: the first part of a module path must be a domain, you provided %q", mod)
+	}
+
+	return nil
 }

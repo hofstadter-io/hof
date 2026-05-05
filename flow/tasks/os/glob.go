@@ -22,7 +22,7 @@ func (T *Glob) Run(ctx *hofcontext.Context) (interface{}, error) {
 		return nil, err
 	}
 
-	filepaths, err := yagu.FilesFromGlobs(patterns)
+	filepaths, err := yagu.FilepathsFromGlobs(patterns)
 	if err != nil {
 		return nil, err
 	}

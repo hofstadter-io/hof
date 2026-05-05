@@ -13,11 +13,11 @@ import (
 )
 
 func main() {
-	fmt.Println("dotpath test\n----------------\n")
+	fmt.Println("dotpath test\n----------------")
 
 	//	dotpath.SetLogLevel("debug")
 
-	test_array()
+	test_strings()
 
 }
 
@@ -78,9 +78,9 @@ func test_yaml() {
 	for _, path := range paths {
 
 		fmt.Printf("@%s:\n", path)
-		d, err := dotpath.Get(path, data)
+		d, err := dotpath.Get(path, data, false)
 		if err != nil {
-			fmt.Println("ERROR:", err, "\n\n")
+			fmt.Println("ERROR:", err)
 			continue
 		}
 		fmt.Printf("%# v\n\n", pretty.Formatter(d))
@@ -99,22 +99,58 @@ func test_array() {
 	M := data.(map[string]interface{})
 
 	paths := []string{
-		"elemA",
-		// "array.elemA",
-		// "array.[elemA]",
-		// "array.[elemA,elemB]",
-		// "array.[name==elemB]",
-		// "array.[name==elemB,elemC]",
-		// "array.[value==foo]",
-		// "array.[value==foo,goo]",
+		"array",
+		"array.elemA",
+		"array.[elemA]",
+		"array.[elemA,elemB]",
+		"array.[name==elemB]",
+		"array.[name==elemB,elemC]",
+		"array.[value==foo]",
+		"array.[value==foo,goo]",
 	}
 
 	for _, path := range paths {
 
 		fmt.Printf("@%s:\n", path)
-		d, err := dotpath.Get(path, M["array"])
+		d, err := dotpath.Get(path, M, false)
 		if err != nil {
-			fmt.Println("ERROR:", err, "\n\n")
+			fmt.Println("ERROR:", err)
+			continue
+		}
+		fmt.Printf("%# v\n\n", pretty.Formatter(d))
+	}
+
+}
+
+func test_strings() {
+	fmt.Println("Testing yaml strings")
+
+	data, err := read_yaml("data/array.yaml")
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+	fmt.Printf("data:\n%# v\n\n", pretty.Formatter(data))
+	M := data.(map[string]interface{})
+
+	paths := []string{
+		"array",
+		"array.elemA",
+		"array.[elemA]",
+		"array.[elemA,elemB]",
+		"array.[name==elemB]",
+		"array.[name==elemB,elemC]",
+		"array.[value==foo]",
+		"array.[value==foo,goo]",
+		"strings",
+		"strings.foo",
+	}
+
+	for _, path := range paths {
+
+		fmt.Printf("@%s:\n", path)
+		d, err := dotpath.Get(path, M, false)
+		if err != nil {
+			fmt.Println("ERROR:", err)
 			continue
 		}
 		fmt.Printf("%# v\n\n", pretty.Formatter(d))

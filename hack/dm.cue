@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/hofstadter-io/hof/schema/dm"
+	"github.com/hofstadter-io/schemas/dm"
 )
 
 // example using hof's common datamodel

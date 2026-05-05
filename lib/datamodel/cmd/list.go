@@ -19,13 +19,13 @@ func list(R *runtime.Runtime, dflags flags.DatamodelPflagpole) error {
 			var rows = make([][]string, 0, len(R.Datamodels))
 			// fill with data
 			for _, dm := range R.Datamodels {
-				id := dm.Hof.Metadata.ID
+				id := dm.Hof.ID
 				if id == "" {
 					id = kace.Snake(dm.Hof.Metadata.Name) + " (auto)"
 				}
 
 				name := dm.Hof.Metadata.Name
-				typ  := datamodel.DatamodelType(dm)
+				typ := datamodel.DatamodelType(dm)
 				ver := dm.Hof.Datamodel.Version
 				if ver == "" {
 					ver = "-"

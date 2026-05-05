@@ -41,7 +41,7 @@ func (R *Runtime) Load() (err error) {
 	}()
 
 	R.prepPlacedDatafiles()
-	
+
 	err = R.load()
 	if err != nil {
 		return err
@@ -82,7 +82,7 @@ func (R *Runtime) prepPlacedDatafiles() {
 
 		// expand globs
 		if strings.Contains(E, "*") {
-			files, err := yagu.FilesFromGlobs([]string{E})
+			files, err := yagu.FilepathsFromGlobs([]string{E})
 			if err != nil {
 				fmt.Println("warning: error while globing %q: %v", E, err)
 			}
@@ -120,7 +120,7 @@ func (R *Runtime) prepPlacedUserfiles() error {
 		R.Stats.Add("files/load", end.Sub(start))
 	}()
 
-	buildFile := func (trimPath, filePath string) (*ast.Field, error) {
+	buildFile := func(trimPath, filePath string) (*ast.Field, error) {
 		// prep inputs
 		d, err := os.ReadFile(filePath)
 		if err != nil {
@@ -138,11 +138,11 @@ func (R *Runtime) prepPlacedUserfiles() error {
 		return ff, nil
 	}
 
-	embedFiles := func (cuePath, trimPath, filePath string) error {
+	embedFiles := func(cuePath, trimPath, filePath string) error {
 		files := []string{filePath}
 		// expand globs
 		if strings.Contains(filePath, "*") {
-			fs, err := yagu.FilesFromGlobs([]string{filePath})
+			fs, err := yagu.FilepathsFromGlobs([]string{filePath})
 			if err != nil {
 				return fmt.Errorf("warning: error while globing %q: %v", filePath, err)
 			}
@@ -156,7 +156,7 @@ func (R *Runtime) prepPlacedUserfiles() error {
 			}
 
 			if stat.IsDir() {
-				fs, err := yagu.FilesFromGlobs([]string{filePath + "/*"})
+				fs, err := yagu.FilepathsFromGlobs([]string{filePath + "/*"})
 				if err != nil {
 					return fmt.Errorf("warning: error while loading dir %q: %v", filePath, err)
 				}
@@ -226,7 +226,7 @@ func (R *Runtime) prepPlacedUserfiles() error {
 		for _, A := range attrs {
 			if A.Name() == "userfiles" {
 				for i := 0; i < A.NumArgs(); i++ {
-					k,v := A.Arg(i)
+					k, v := A.Arg(i)
 					if k == "trim" {
 						trimPath = v
 						if !strings.HasSuffix(trimPath, "/") {
@@ -286,6 +286,8 @@ func (R *Runtime) load() (err error) {
 	//
 	// load instances from entrypoints and config, this is the main CUE loader step
 	//
+	// fmt.Printf("tagVars: %#+v\n", pretty.Formatter(R.CueConfig.TagVars))
+
 	R.BuildInstances = load.Instances(R.Entrypoints, R.CueConfig)
 	//
 	//
@@ -312,6 +314,22 @@ func (R *Runtime) load() (err error) {
 		return err
 	}
 
+	// map dependencies module names to their cache dir
+	R.DepMapping[strings.Split(bi.Module, "@")[0]] = R.CueModuleRoot
+	deps := bi.Dependencies()
+	for _, dep := range deps {
+		p1 := strings.Split(dep.Dir, "@")
+		if len(p1) > 1 {
+			// only care about external imports really
+			a, b := p1[0], p1[1]
+			c := strings.Split(b, "/")[0]
+			d := fmt.Sprintf("%s@%s", a, c)
+
+			p := strings.Split(dep.Module, "@")[0]
+			R.DepMapping[p] = d
+		}
+	}
+
 	// Build the Instance
 	R.Value = R.CueContext.BuildInstance(bi)
 
@@ -319,7 +337,7 @@ func (R *Runtime) load() (err error) {
 	for i, I := range R.Flags.InputData {
 		if strings.Contains(I, "=") {
 			parts := strings.Split(I, "=")
-			R.Value = R.Value.FillPath(cue.ParsePath(parts[0]),parts[1])
+			R.Value = R.Value.FillPath(cue.ParsePath(parts[0]), parts[1])
 		} else {
 			v := R.CueContext.CompileString(I)
 			if v.Err() != nil {
@@ -329,6 +347,8 @@ func (R *Runtime) load() (err error) {
 			R.Value = R.Value.FillPath(cue.ParsePath(""), v)
 		}
 	}
+
+	// TODO, store dependency map and version so we know where extracted files are for each generator
 
 	return nil
 }
@@ -350,7 +370,6 @@ func (R *Runtime) prepOrphanedFiles(bi *build.Instance) (err error) {
 	//  pkg = bi.ID()
 	//}
 
-
 	// handle data files
 	for i, f := range bi.OrphanedFiles {
 		// this function also checks to see if we should include the file
@@ -360,7 +379,7 @@ func (R *Runtime) prepOrphanedFiles(bi *build.Instance) (err error) {
 			if R.Flags.Verbosity > 1 {
 				fmt.Println("[load] error in data:", f.Filename, err)
 			}
-			errs = append(errs, errors.Promote(err,""))
+			errs = append(errs, errors.Promote(err, ""))
 			continue
 		}
 		// we don't know what this file is
@@ -380,7 +399,7 @@ func (R *Runtime) prepOrphanedFiles(bi *build.Instance) (err error) {
 
 	if len(errs) > 0 {
 		_e := errors.New("in prepOrphanedFiles")
-		e := errors.Promote(_e,"")
+		e := errors.Promote(_e, "")
 		for _, err := range errs {
 			e = errors.Append(e, err)
 		}
@@ -403,7 +422,6 @@ func (R *Runtime) LoadOrphanedFile(f *build.File, pkgName string, root, dir stri
 		dir += "/"
 	}
 	fname = strings.TrimPrefix(fname, dir)
-
 
 	// only load data files which are explicitly listed
 	//   or if the --include-data flag is set
@@ -434,11 +452,11 @@ func (R *Runtime) LoadOrphanedFile(f *build.File, pkgName string, root, dir stri
 			reader := bufio.NewReader(os.Stdin)
 			var buf bytes.Buffer
 			for {
-					b, err := reader.ReadByte()
-					if err != nil {
-							break
-					}
-					buf.WriteByte(b)
+				b, err := reader.ReadByte()
+				if err != nil {
+					break
+				}
+				buf.WriteByte(b)
 			}
 			d = buf.Bytes()
 		} else {
@@ -448,7 +466,7 @@ func (R *Runtime) LoadOrphanedFile(f *build.File, pkgName string, root, dir stri
 			default:
 				err := fmt.Errorf("unknown f.Source.(type): %v", t)
 				return nil, fmt.Errorf("while loading data file: %w", err)
-			}	
+			}
 		}
 	} else {
 		d, err = os.ReadFile(f.Filename)
@@ -469,7 +487,6 @@ func (R *Runtime) LoadOrphanedFile(f *build.File, pkgName string, root, dir stri
 		return e
 	}
 
-
 	switch f.Encoding {
 
 	case "json":
@@ -486,7 +503,7 @@ func (R *Runtime) LoadOrphanedFile(f *build.File, pkgName string, root, dir stri
 		}
 
 		// add a package decl so the data is referencable from the cue
-		pkgDecl := &ast.Package {
+		pkgDecl := &ast.Package{
 			Name: ast.NewIdent(pkgName),
 		}
 
@@ -494,8 +511,8 @@ func (R *Runtime) LoadOrphanedFile(f *build.File, pkgName string, root, dir stri
 		jsonDecls := []ast.Decl{pkgDecl, A}
 		if mapping == "" {
 			switch a := A.(type) {
-				case *ast.StructLit:
-					jsonDecls = append([]ast.Decl{pkgDecl}, a.Elts...)
+			case *ast.StructLit:
+				jsonDecls = append([]ast.Decl{pkgDecl}, a.Elts...)
 			}
 		}
 
@@ -528,7 +545,7 @@ func (R *Runtime) LoadOrphanedFile(f *build.File, pkgName string, root, dir stri
 		F.Decls = []ast.Decl{A}
 
 		// add a package decl so the data is referencable from the cue
-		pkgDecl := &ast.Package {
+		pkgDecl := &ast.Package{
 			Name: ast.NewIdent(pkgName),
 		}
 		F.Decls = append([]ast.Decl{pkgDecl}, F.Decls...)
@@ -562,13 +579,13 @@ func (R *Runtime) placeOrphanInAST(N ast.Node, C ast.Expr, mapping string) (*ast
 		// @path placed datafiles
 		ps := cue.ParsePath(mapping).Selectors()
 		// go in reverse, so we build up a tree
-		for i := len(ps)-1; i >= 0; i--  {
+		for i := len(ps) - 1; i >= 0; i-- {
 			// build our label from the mapping path
 			p := ps[i]
 			ident := ast.NewIdent(p.String())
 
 			// create a struct with a field
-			f := &ast.Field {
+			f := &ast.Field{
 				Label: ident,
 				Value: S,
 			}
@@ -588,7 +605,7 @@ func (R *Runtime) placeOrphanInAST(N ast.Node, C ast.Expr, mapping string) (*ast
 			return nil, v.Err()
 		}
 
-		for i := len(ps)-1; i >= 0; i--  {
+		for i := len(ps) - 1; i >= 0; i-- {
 			// build our label from the mapping path
 			p := ps[i]
 
@@ -602,7 +619,7 @@ func (R *Runtime) placeOrphanInAST(N ast.Node, C ast.Expr, mapping string) (*ast
 				str = strings.TrimSuffix(p, ":")
 			} else {
 				pv := ctx.CompileString(
-					p, 
+					p,
 					cue.Filename(p),
 					cue.InferBuiltins(true),
 					cue.Scope(v),
@@ -620,7 +637,7 @@ func (R *Runtime) placeOrphanInAST(N ast.Node, C ast.Expr, mapping string) (*ast
 			ident := ast.NewIdent(str)
 
 			// create a struct with a field
-			f := &ast.Field {
+			f := &ast.Field{
 				Label: ident,
 				Value: S,
 			}

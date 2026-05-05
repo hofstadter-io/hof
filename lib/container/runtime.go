@@ -10,8 +10,6 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-
-	"github.com/hofstadter-io/hof/lib/yagu"
 )
 
 type RuntimeBinary string
@@ -28,20 +26,15 @@ type (
 	Name string
 )
 
-type Params struct {
-	Name    Name
-	Env     []string
-	Replace bool
-}
-
 type Runtime interface {
 	Binary() string
 	Version(context.Context) (RuntimeVersion, error)
 	Images(context.Context, Ref) ([]Image, error)
 	Containers(context.Context, Name) ([]Container, error)
-	Run(context.Context, Ref, Params) error
+	Run(context.Context, Ref, *Params) error
 	Remove(context.Context, Name) error
 	Pull(context.Context, Ref) error
+	Load(context.Context, string, []byte) error
 }
 
 func newRuntime(bin RuntimeBinary) runtime {
@@ -73,7 +66,7 @@ func (r runtime) addEnv() {
 		"CONTAINERD_NAMESPACE",
 	}
 
-	for _,v := range vars {
+	for _, v := range vars {
 		val := os.Getenv(v)
 		jnd := fmt.Sprintf("%s=%s", v, val)
 		r.env = append(r.env, jnd)
@@ -150,7 +143,7 @@ func (r runtime) Containers(ctx context.Context, name Name) ([]Container, error)
 		if strings.HasPrefix(c.State, "Up") {
 			c.State = "running"
 		}
-		
+
 		containers[i] = c
 	}
 
@@ -189,7 +182,7 @@ func (r runtime) Images(ctx context.Context, ref Ref) ([]Image, error) {
 			}
 		}
 		i, ok := m[img.Repository]
-		if !ok { 
+		if !ok {
 			i = img
 		}
 		if img.Tag != "" {
@@ -215,33 +208,9 @@ func (r runtime) Pull(ctx context.Context, ref Ref) error {
 	return nil
 }
 
-func (r runtime) Run(ctx context.Context, ref Ref, p Params) error {
-	if p.Replace {
-		if err := r.Remove(ctx, p.Name); err != nil {
-			return fmt.Errorf("remove: %w", err)
-		}
-	}
-
-	port, err := yagu.GetFreePort()
-	if err != nil {
-		return fmt.Errorf("while getting a free port: %w", err)
-	}
-
-	args := []string{
-		"run",
-		"-p",
-		fmt.Sprintf("%d:3000", port),
-		"--detach",
-		"--name", string(p.Name),
-	}
-
-	for _, e := range p.Env {
-		args = append(args, []string{"--env", e}...)
-	}
-
-	args = append(args, string(ref))
-
-	if _, err := r.exec(ctx, args...); err != nil {
+func (r runtime) Load(ctx context.Context, path string, content []byte) error {
+	// maybe we want a save to make a tar as  well?
+	if _, err := r.exec(ctx, "load", path); err != nil {
 		return fmt.Errorf("exec: %w", err)
 	}
 
@@ -276,7 +245,7 @@ func ndjson[T any](r io.Reader) ([]T, error) {
 	} else if len(bs) > 0 {
 		// fmt.Println("GOT HERE")
 		// other runtimes return an ndjson
-		S  := bufio.NewScanner(bytes.NewReader(bs))
+		S := bufio.NewScanner(bytes.NewReader(bs))
 		for S.Scan() {
 			var t T
 			if err := json.Unmarshal(S.Bytes(), &t); err != nil {

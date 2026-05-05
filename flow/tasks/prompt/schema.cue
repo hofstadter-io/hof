@@ -1,7 +1,7 @@
 package prompt
 
 import (
-  schema "github.com/hofstadter-io/hof/schema/prompt"
+  schema "github.com/hofstadter-io/schemas/prompt"
 )
 
 // Same prompt from creators as a workflow task

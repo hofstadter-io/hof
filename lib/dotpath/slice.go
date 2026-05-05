@@ -88,6 +88,20 @@ func get_from_slice_by_path(IDX int, paths []string, data []interface{}) (interf
 			return data[i_val], nil
 		}
 
+		if _, ok := data[0].(string); ok {
+			// fmt.Println("elem 0 string:", data, inner)
+			// default is single string for value
+			for _, d := range data {
+				s := d.(string)
+				if s == inner {
+					// fmt.Println("found: ", s)
+					return s, nil
+				}
+				// fmt.Println("found: ", d)
+			}
+			return nil, nil
+		}
+
 		// default is single string for name, then field
 		elems, err := extract_from_slice_with_name(inner, data)
 		if err != nil {
@@ -101,6 +115,12 @@ func get_from_slice_by_path(IDX int, paths []string, data []interface{}) (interf
 		for _, elem := range data {
 			logger.Debug("    - elem", "elem", elem, "paths", paths, "P", P)
 			switch V := elem.(type) {
+
+			case string:
+				// fmt.Println("string elem switch", data, P, V)
+				if V == P {
+					return V, nil
+				}
 
 			case map[string]interface{}:
 				logger.Debug("        map[string]")

@@ -25,7 +25,7 @@ func (V *Value) HistoryDir() (string, error) {
 
 	path := ""
 	for v := V.Node; v != nil; v = v.Parent {
-		id := v.Hof.Metadata.ID
+		id := v.Hof.ID
 		if id == "" {
 			id = v.Hof.Metadata.Name
 		}
@@ -111,7 +111,7 @@ func (V *Value) loadHistoryR() error {
 
 func (V *Value) loadHistory() error {
 	has, err := V.HasHistory()
-	if err != nil || !has{
+	if err != nil || !has {
 		return err
 	}
 
@@ -124,7 +124,6 @@ func (V *Value) loadHistory() error {
 	if err != nil {
 		return err
 	}
-
 
 	for _, f := range fs {
 		if f.IsDir() {
@@ -144,10 +143,9 @@ func (V *Value) loadHistory() error {
 	}
 
 	// sort by timestamp, most recent should be first
-	sort.Slice(V.history, func(i,j int) bool {
+	sort.Slice(V.history, func(i, j int) bool {
 		return V.history[i].Timestamp > V.history[j].Timestamp
 	})
-	
 
 	return nil
 }

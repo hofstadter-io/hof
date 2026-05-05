@@ -146,9 +146,15 @@ func (nopTestDeps) StopCPUProfile() {}
 func (nopTestDeps) WriteProfileTo(name string, w io.Writer, debug int) error {
 	return nil
 }
+
 func (nopTestDeps) ImportPath() string {
 	return ""
 }
+
+func (nopTestDeps) ModulePath() string {
+	return ""
+}
+
 func (nopTestDeps) StartTestLog(w io.Writer) {}
 
 func (nopTestDeps) StopTestLog() error {

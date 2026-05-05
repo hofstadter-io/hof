@@ -42,7 +42,7 @@ func CheckShouldInclude(filename string, includes, excludes []string) (bool, err
 	return include && !exclude, nil
 }
 
-func FilesFromGlobs(patterns []string) ([]string, error) {
+func FilepathsFromGlobs(patterns []string) ([]string, error) {
 	// get glob matches
 	files := []string{}
 	for _, pattern := range patterns {
@@ -67,4 +67,3 @@ func FilesFromGlobs(patterns []string) ([]string, error) {
 	sort.Strings(unique)
 	return unique, nil
 }
-

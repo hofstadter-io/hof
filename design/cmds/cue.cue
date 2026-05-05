@@ -1,26 +1,14 @@
 package cmds
 
 import (
+	"list"
+
 	"github.com/hofstadter-io/hofmod-cli/schema"
 )
 
 // ideally this could be a separate flagpole,
 // and then embedded into other flagpoles
 SharedCueFlags: [...schema.Flag] & [{
-	Name:    "expression"
-	Long:    "expression"
-	Short:   "e"
-	Type:    "[]string"
-	Default: "nil"
-	Help:    "evaluate these expressions only"
-}, {
-	//  Name:    "extensions"
-	//  Long:    "extensions"
-	//  Short:   "x"
-	//  Type:    "bool"
-	//  Default: "false"
-	//  Help:    "include hof extensions when evaluating CUE code"
-	//}, {
 	Name:    "list"
 	Long:    "list"
 	Type:    "bool"
@@ -54,7 +42,7 @@ DefCommand: schema.Command & {
 	Short: "print consolidated CUE definitions"
 	Long:  Short
 
-	Flags: SharedCueFlags + [{
+	Flags: list.Concat([SharedCueFlags, [{
 		Name:    "InlineImports"
 		Long:    "inline-imports"
 		Type:    "bool"
@@ -74,7 +62,7 @@ DefCommand: schema.Command & {
 		Type:    "bool"
 		Default: "false"
 		Help:    "diplay field attributes"
-	}]
+	}]])
 }
 
 EvalCommand: schema.Command & {
@@ -83,7 +71,7 @@ EvalCommand: schema.Command & {
 	Short: "evaluate and print CUE configuration"
 	Long:  Short
 
-	Flags: SharedCueFlags + [{
+	Flags: list.Concat([SharedCueFlags, [{
 		Name:    "InlineImports"
 		Long:    "inline-imports"
 		Type:    "bool"
@@ -165,7 +153,7 @@ EvalCommand: schema.Command & {
 		Type:    "bool"
 		Default: "true"
 		Help:    "finalize the value"
-	}]
+	}]])
 }
 
 ExportCommand: schema.Command & {
@@ -174,7 +162,7 @@ ExportCommand: schema.Command & {
 	Short: "output data in a standard format"
 	Long:  Short
 
-	Flags: SharedCueFlags + [{
+	Flags: list.Concat([SharedCueFlags, [{
 		Name:    "escape"
 		Long:    "escape"
 		Type:    "bool"
@@ -187,7 +175,7 @@ ExportCommand: schema.Command & {
 		Type:    "bool"
 		Default: "false"
 		Help:    "include comments in output"
-	}]
+	}]])
 }
 
 VetCommand: schema.Command & {
@@ -196,7 +184,7 @@ VetCommand: schema.Command & {
 	Short: "validate data with CUE"
 	Long:  Short
 
-	Flags: SharedCueFlags + [{
+	Flags: list.Concat([SharedCueFlags, [{
 		Name:    "concrete"
 		Long:    "concrete"
 		Short:   "c"
@@ -238,5 +226,5 @@ VetCommand: schema.Command & {
 		Type:    "bool"
 		Default: "false"
 		Help:    "display optional fields"
-	}]
+	}]])
 }

@@ -1,4 +1,4 @@
-exec hof mod vendor
+exec hof mod tidy
 
 exec hof gen
 exists out/always.txt
@@ -18,16 +18,19 @@ exists out/maybe.txt
 
 -- cue.mod/module.cue --
 module: "hof.io/test"
-cue: "0.6.0-beta.1"
-
-require: {
-	"github.com/hofstadter-io/hof": "v0.6.8-rc.5"
+language: {
+	version: "v0.13.0"
+}
+deps: {
+	"github.com/hofstadter-io/schemas@v0": {
+		v: "v0.0.2"
+	}	
 }
 
 -- gen.cue --
 package main
 
-import "github.com/hofstadter-io/hof/schema/gen"
+import "github.com/hofstadter-io/schemas/gen"
 
 g: gen.Generator & {
 	@gen()

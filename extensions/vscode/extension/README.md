@@ -1,0 +1,1 @@
+# Microsoft is a dumb company

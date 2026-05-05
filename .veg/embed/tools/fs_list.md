@@ -1,0 +1,1 @@
+list entries in the directory at $path and stores it in your working key/value cache, making it available in your next turn's context

@@ -12,7 +12,7 @@ func FindHofsOrig(value cue.Value) (roots []*Node[any], err error) {
 	var stack *Node[any] // cue stack
 	var nodes *Node[any] // hof nodes
 
-	before := func (val cue.Value) bool {
+	before := func(val cue.Value) bool {
 		// get some info
 		path := val.Path()
 		sels := path.Selectors()
@@ -41,7 +41,6 @@ func FindHofsOrig(value cue.Value) (roots []*Node[any], err error) {
 		// update cue stack
 		curr := New(label, val, nil, stack)
 		stack = curr
-
 
 		// did we find something of interest?
 		found := false
@@ -76,14 +75,14 @@ func FindHofsOrig(value cue.Value) (roots []*Node[any], err error) {
 		// filters to end recursion
 		// check datamodel root because of nested history and roots snafu
 		if stack.Hof.Datamodel.Root {
-			// backtrack, walking parents		
+			// backtrack, walking parents
 			for bt := nodes; bt != nil; bt = bt.Parent {
 				// we found a nested root datamodel
 				if bt.Hof.Datamodel.Root {
 					// stop recursion
 					fmt.Println("hof.DM: want to stop recursion here", bt.Hof.Path, stack.Hof.Path)
 					// return false
-				}	
+				}
 			}
 
 			// fmt.Println("found datamodel:", stack.Hof.Path)
@@ -105,9 +104,9 @@ func FindHofsOrig(value cue.Value) (roots []*Node[any], err error) {
 				nodes.Hof.Metadata.Name = nodes.Hof.Label
 				nodes.Value = nodes.Value.FillPath(cue.ParsePath("#hof.metadata.name"), nodes.Hof.Metadata.Name)
 			}
-			if nodes.Hof.Metadata.ID == "" {
-				nodes.Hof.Metadata.ID = nodes.Hof.Metadata.Name
-				nodes.Value = nodes.Value.FillPath(cue.ParsePath("#hof.metadata.id"), kace.Kebab(nodes.Hof.Metadata.ID))
+			if nodes.Hof.ID == "" {
+				nodes.Hof.ID = nodes.Hof.Metadata.Name
+				nodes.Value = nodes.Value.FillPath(cue.ParsePath("#hof.id"), kace.Kebab(nodes.Hof.ID))
 			}
 
 			if nodes.Parent == nil {
@@ -122,7 +121,7 @@ func FindHofsOrig(value cue.Value) (roots []*Node[any], err error) {
 		return true
 	}
 
-	after := func (val cue.Value) {
+	after := func(val cue.Value) {
 		// paths for matching trees
 		np, sp := "", ""
 		if nodes != nil {

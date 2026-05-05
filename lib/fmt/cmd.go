@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/olekukonko/tablewriter"
@@ -62,7 +62,14 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.FmtFlagpole) (e
 		}
 
 		// extract formatter settings
-		parts := strings.Split(arg, "@")
+		var parts []string
+		if strings.Contains(arg, "@") {
+			parts = strings.Split(arg, "@")
+		} else if strings.Contains(arg, ":") {
+			parts = strings.Split(arg, ":")
+		} else {
+			parts = []string{arg}
+		}
 		g.path = parts[0]
 		if len(parts) > 2 {
 			return fmt.Errorf("bad arg %q", arg)
@@ -98,7 +105,7 @@ func Run(args []string, rflags flags.RootPflagpole, cflags flags.FmtFlagpole) (e
 
 		// find files from glob
 		if strings.Contains(g.glob, "*") {
-			g.files, err = yagu.FilesFromGlobs([]string{g.glob})
+			g.files, err = yagu.FilepathsFromGlobs([]string{g.glob})
 			if err != nil {
 				return err
 			}
@@ -197,9 +204,18 @@ func Start(fmtr string, replace bool) error {
 		return fmt.Errorf("update formatter status: %w", err)
 	}
 
-	// override the default version
 	ver := defaultVersion
-	parts := strings.Split(fmtr, "@")
+
+	var parts []string
+	if strings.Contains(fmtr, "@") {
+		parts = strings.Split(fmtr, "@")
+	} else if strings.Contains(fmtr, ":") {
+		parts = strings.Split(fmtr, ":")
+	} else {
+		parts = []string{fmtr}
+	}
+
+	// override the default version?
 	if len(parts) == 2 {
 		fmtr, ver = parts[0], parts[1]
 	}
@@ -221,8 +237,8 @@ func Start(fmtr string, replace bool) error {
 
 		var (
 			fmtr, ok = formatters[name]
-			ref  = fmt.Sprintf("%s/fmt-%s:%s", CONTAINER_REPO, name, ver)
-			n    = ContainerPrefix + name
+			ref      = fmt.Sprintf("%s/fmt-%s:%s", CONTAINER_REPO, name, ver)
+			n        = ContainerPrefix + name
 		)
 
 		if !ok {
@@ -236,12 +252,13 @@ func Start(fmtr string, replace bool) error {
 			}
 		}
 
-		err = container.StartContainer(
-			ref,
-			n,
-			fmtrEnvs[name],
-			replace,
-		)
+		params := &container.Params{
+			Name:    container.Name(n),
+			Env:     fmtrEnvs[name],
+			Replace: replace,
+		}
+
+		err = container.StartContainer(ref, params)
 		if err != nil {
 			return fmt.Errorf("start container %s: %w", n, err)
 		}
@@ -314,9 +331,18 @@ func Test(fmtr string) error {
 		return fmt.Errorf("update formatter status: %w", err)
 	}
 
-	// override the default version
 	ver := defaultVersion
-	parts := strings.Split(fmtr, "@")
+
+	var parts []string
+	if strings.Contains(fmtr, "@") {
+		parts = strings.Split(fmtr, "@")
+	} else if strings.Contains(fmtr, ":") {
+		parts = strings.Split(fmtr, ":")
+	} else {
+		parts = []string{fmtr}
+	}
+
+	// override the default version
 	if len(parts) == 2 {
 		fmtr, ver = parts[0], parts[1]
 	}
@@ -448,7 +474,7 @@ func Info(which string) (err error) {
 		return err
 	}
 	/*
-	*/
+	 */
 
 	return printAsTable(
 		[]string{"Name", "Status", "Port", "Image", "Available"},

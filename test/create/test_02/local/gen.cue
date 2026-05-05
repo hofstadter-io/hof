@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/hofstadter-io/hof/schema/common"
-	"github.com/hofstadter-io/hof/schema/gen"
+	"github.com/hofstadter-io/schemas/common"
+	"github.com/hofstadter-io/schemas/gen"
 )
 
 test: gen.Generator & {

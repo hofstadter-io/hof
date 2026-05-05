@@ -28,8 +28,8 @@ for converting between versions can be created.
 package datamodel
 
 import (
-	"github.com/hofstadter-io/hof/schema/dm"
-	"github.com/hofstadter-io/hof/schema/dm/fields"
+	"github.com/hofstadter-io/schemas/dm"
+	"github.com/hofstadter-io/schemas/dm/fields"
 )
 
 // Track an entire oject
@@ -48,8 +48,8 @@ Config: dm.Object & {
 package datamodel
 
 import (
-	"github.com/hofstadter-io/hof/schema/dm/sql"
-	"github.com/hofstadter-io/hof/schema/dm/fields"
+	"github.com/hofstadter-io/schemas/dm/sql"
+	"github.com/hofstadter-io/schemas/dm/fields"
 )
 
 // Traditional database model which maps onto tables & columns

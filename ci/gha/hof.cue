@@ -57,7 +57,7 @@ ghacue.#Workflow & {
 				name: "Start Formatters"
 				run: """
 					docker images
-					hof fmt start @v0.6.10-rc.2
+					hof fmt start @v0.6.10
 					hof fmt info
 					docker ps -a
 					"""
@@ -95,8 +95,6 @@ ghacue.#Workflow & {
 
 		# mods & deps
 		hof mod tidy
-		hof fmt cue.mod/module.cue
-		hof mod vendor
 
 		# gen self
 		hof gen

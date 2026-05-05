@@ -12,6 +12,7 @@ type RootPflagpole struct {
 	Package      string
 	InputData    []string
 	StdinEmpty   bool
+	Expression   []string
 	Tags         []string
 	Path         []string
 	Schema       []string
@@ -21,6 +22,7 @@ type RootPflagpole struct {
 	UserFiles    []string
 	AllErrors    bool
 	IngoreErrors bool
+	DryRun       bool
 	Stats        bool
 	Quiet        bool
 	Verbosity    int
@@ -32,6 +34,7 @@ func SetupRootPflags(fset *pflag.FlagSet, fpole *RootPflagpole) {
 	fset.StringVarP(&(fpole.Package), "package", "p", "", "the Cue package context to use during execution")
 	fset.StringArrayVarP(&(fpole.InputData), "input", "I", nil, "extra data to unify into the root value")
 	fset.BoolVarP(&(fpole.StdinEmpty), "stdin-empty", "0", false, "A flag that ensure stdin is zero and does not block")
+	fset.StringArrayVarP(&(fpole.Expression), "expression", "e", nil, "evaluate these CUE expressions only")
 	fset.StringArrayVarP(&(fpole.Tags), "tags", "t", nil, "@tags() to be injected into CUE code")
 	fset.StringArrayVarP(&(fpole.Path), "path", "l", nil, "CUE expression for single path component when placing data files")
 	fset.StringArrayVarP(&(fpole.Schema), "schema", "d", nil, "expression to select schema to apply to data files")
@@ -41,6 +44,7 @@ func SetupRootPflags(fset *pflag.FlagSet, fpole *RootPflagpole) {
 	fset.StringArrayVarP(&(fpole.UserFiles), "user-files", "U", nil, "file globs to embed into the root value (<cue-path>=<file-glob>), use % as slash to trim before")
 	fset.BoolVarP(&(fpole.AllErrors), "all-errors", "E", false, "print all available errors")
 	fset.BoolVarP(&(fpole.IngoreErrors), "ignore-errors", "i", false, "turn off output and assume defaults at prompts")
+	fset.BoolVarP(&(fpole.DryRun), "dry-run", "", false, "dry run certain commands")
 	fset.BoolVarP(&(fpole.Stats), "stats", "", false, "print generator statistics")
 	fset.BoolVarP(&(fpole.Quiet), "quiet", "q", false, "turn off output and assume defaults at prompts")
 	fset.IntVarP(&(fpole.Verbosity), "verbosity", "v", 0, "set the verbosity of output")

@@ -11,8 +11,8 @@ import (
 	"github.com/hofstadter-io/hof/lib/runtime"
 )
 
-func EnrichDatamodelBuilder(R *Runtime) func (R *runtime.Runtime, DM *datamodel.Datamodel) error {
-	return func (rt *runtime.Runtime, dm *datamodel.Datamodel) error {
+func EnrichDatamodelBuilder(R *Runtime) func(R *runtime.Runtime, DM *datamodel.Datamodel) error {
+	return func(rt *runtime.Runtime, dm *datamodel.Datamodel) error {
 		err := dm.LoadHistory()
 		if err != nil {
 			return err
@@ -30,35 +30,36 @@ func EnrichDatamodelBuilder(R *Runtime) func (R *runtime.Runtime, DM *datamodel.
 		// fill back value so available at root runtime value when decoding generators
 		val := dm.Value.LookupPath(cue.ParsePath(dm.Hof.Label))
 		R.Value = R.Value.FillPath(cue.ParsePath(dm.Hof.Path), val)
-		
+
 		return nil
 	}
 }
 
-func EnrichGeneratorBuilder(R *Runtime) func (R *runtime.Runtime, G *gen.Generator) error {
+func EnrichGeneratorBuilder(R *Runtime) func(R *runtime.Runtime, G *gen.Generator) error {
 
-	return func (rt *runtime.Runtime, G *gen.Generator) error {
+	return func(rt *runtime.Runtime, G *gen.Generator) error {
 
 		if G.Disabled {
 			return nil
 		}
 
 		// some values to copy from runtime to generator
-		G.Verbosity     = R.Flags.Verbosity
-		G.Diff3FlagSet  = R.Diff3FlagSet
-		G.UseDiff3      = R.GenFlags.Diff3
-		G.NoFormat      = R.GenFlags.NoFormat
+		G.Verbosity = R.Flags.Verbosity
+		G.Diff3FlagSet = R.Diff3FlagSet
+		G.UseDiff3 = R.GenFlags.Diff3
+		G.NoFormat = R.GenFlags.NoFormat
 
 		// todo, we would like to get rid of these if possible
 		G.RootModuleName = R.BuildInstances[0].Module
-		G.CueModuleRoot  = R.CueModuleRoot
-		G.WorkingDir     = R.WorkingDir
-		G.CwdToRoot      = R.CwdToRoot
+		G.CueModuleRoot = R.CueModuleRoot
+		G.CueExtractDir = R.CueExtractDir
+		G.WorkingDir = R.WorkingDir
+		G.CwdToRoot = R.CwdToRoot
+		G.DepMapping = R.DepMapping
 
 		if R.Flags.Verbosity > 1 {
 			fmt.Println("Loading Generator:", G.Hof.Metadata.Name)
 		}
-
 
 		// Load the Generator! (from in memory CUE)
 		// this is more of a decode from CUE, maybe too much and needs to be split up?
@@ -93,7 +94,6 @@ func EnrichGeneratorBuilder(R *Runtime) func (R *runtime.Runtime, G *gen.Generat
 			}
 		}
 
-
 		// TODO, inject datamodel history into generator input, as needed
 		// 1. discover any DM nodes inside our generator input
 		// 2. if found, look up the DM in Runtime and merge with In at that point
@@ -112,15 +112,15 @@ func EnrichGeneratorBuilder(R *Runtime) func (R *runtime.Runtime, G *gen.Generat
 		// [ FOR NOW, do everything in this Enrich function ]
 
 		/*
-		in := G.CueValue.LookupPath(cue.ParsePath("In"))
-		if !in.Exists() {
-			return fmt.Errorf("In gen:%s, missing In value", G.Name)
-		}
+			in := G.CueValue.LookupPath(cue.ParsePath("In"))
+			if !in.Exists() {
+				return fmt.Errorf("In gen:%s, missing In value", G.Name)
+			}
 
-		err = in.Decode(&something)
-		if err != nil {
-			return err
-		}
+			err = in.Decode(&something)
+			if err != nil {
+				return err
+			}
 		*/
 
 		return nil

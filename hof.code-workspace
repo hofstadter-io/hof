@@ -1,0 +1,25 @@
+{
+	"folders": [
+		{
+			"name": "hof",
+			"path": "."
+		},
+		{
+			"name": "adk-go",
+			"path": "../../adk/go"
+		},
+		{
+			"name": ".veg",
+			"path": ".veg"
+		},
+		{
+			"name": "extension",
+			"path": "extensions/vscode/extension"
+		},
+		{
+			"name": "quickbooks-online-mcp-server",
+			"path": ".tmp/quickbooks-online-mcp-server"
+		}
+	],
+	"settings": {}
+}

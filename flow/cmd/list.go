@@ -20,7 +20,7 @@ func List(args []string, rflags flags.RootPflagpole, cflags flags.FlowPflagpole)
 			var rows = make([][]string, 0, len(R.Workflows))
 			// fill with data
 			for _, wf := range R.Workflows {
-				id := wf.Hof.Metadata.ID
+				id := wf.Hof.ID
 				if id == "" {
 					id = kace.Snake(wf.Hof.Metadata.Name) + " (auto)"
 				}

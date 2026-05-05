@@ -1,0 +1,1 @@
+read the file at $path and puts the contents in your working key/value cache and context

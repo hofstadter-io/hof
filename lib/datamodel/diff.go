@@ -107,7 +107,6 @@ func (V *Value) calcDiff() error {
 			cue.Optional(true),
 			cue.Hidden(true),
 			cue.Concrete(true),
-			cue.ResolveReferences(true),
 		)
 		cv = cv.Context().BuildExpr(node.(*ast.StructLit))
 
@@ -137,46 +136,44 @@ func (V *Value) calcDiff() error {
 
 func diffDatamodel(dm *Datamodel) error {
 
-	
-
 	/*
-	dms, err := LoadDatamodels(args, flgs)
-	if err != nil {
-		return err
-	}
+		dms, err := LoadDatamodels(args, flgs)
+		if err != nil {
+			return err
+		}
 
-	dms, err = filterDatamodelsByTimestamp(dms, flgs)
-	if err != nil {
-		return err
-	}
+		dms, err = filterDatamodelsByTimestamp(dms, flgs)
+		if err != nil {
+			return err
+		}
 
-	for _, dm := range dms {
-		if len(dm.History.Past) == 0 {
-			fmt.Printf("%s: no history\n", dm.Name)
-		} else {
-			past := dm.History.Past[0]
-			if flgs.Since != "" {
-				past = dm.History.Past[len(dm.History.Past)-1]
-			}
-
-			fmt.Printf("// %s -> %s\n%s: ", dm.History.Past[0].Timestamp, dm.Timestamp, dm.Name)
-			diff, err := structural.DiffValue(past.Value, dm.Value, nil)
-			if err != nil {
-				return err
-			}
-			if !diff.Exists() {
-				fmt.Println("{}")
+		for _, dm := range dms {
+			if len(dm.History.Past) == 0 {
+				fmt.Printf("%s: no history\n", dm.Name)
 			} else {
-				ctx := diff.Context()
-				m := ctx.CompileString(orderedMask)
-				r, err := structural.MaskValue(m, diff, nil)
+				past := dm.History.Past[0]
+				if flgs.Since != "" {
+					past = dm.History.Past[len(dm.History.Past)-1]
+				}
+
+				fmt.Printf("// %s -> %s\n%s: ", dm.History.Past[0].Timestamp, dm.Timestamp, dm.Name)
+				diff, err := structural.DiffValue(past.Value, dm.Value, nil)
 				if err != nil {
 					return err
 				}
-				fmt.Println(r)
+				if !diff.Exists() {
+					fmt.Println("{}")
+				} else {
+					ctx := diff.Context()
+					m := ctx.CompileString(orderedMask)
+					r, err := structural.MaskValue(m, diff, nil)
+					if err != nil {
+						return err
+					}
+					fmt.Println(r)
+				}
 			}
 		}
-	}
 	*/
 
 	return nil
@@ -355,13 +352,13 @@ func diffLeaf(orig, next cue.Value) (cue.Value, bool) {
 
 	// otherwise, we have a diff to create
 	/*
-	rmv := ctx.CompileString("{}")
-	rmv = rmv.FillPath(cue.MakePath(lbl), orig)
-	ret = ret.FillPath(cue.ParsePath("\"-\""), rmv)
+		rmv := ctx.CompileString("{}")
+		rmv = rmv.FillPath(cue.MakePath(lbl), orig)
+		ret = ret.FillPath(cue.ParsePath("\"-\""), rmv)
 
-	add := ctx.CompileString("{}")
-	add = add.FillPath(cue.MakePath(lbl), next)
-	ret = ret.FillPath(cue.ParsePath("\"+\""), add)
+		add := ctx.CompileString("{}")
+		add = add.FillPath(cue.MakePath(lbl), next)
+		ret = ret.FillPath(cue.ParsePath("\"+\""), add)
 	*/
 
 	return ret, true
@@ -395,7 +392,6 @@ func (V *Value) printDiff(out io.Writer, dflags flags.DatamodelPflagpole) error 
 	name := V.Hof.Label
 	p := cue.ParsePath(name)
 
-
 	d := V.Diff()
 	ctx := d.Context()
 	val := ctx.CompileString("_")
@@ -412,7 +408,6 @@ func (V *Value) printDiff(out io.Writer, dflags flags.DatamodelPflagpole) error 
 		cue.Optional(true),
 		cue.Hidden(true),
 		cue.Concrete(true),
-		cue.ResolveReferences(true),
 	)
 
 	file, err := astutil.ToFile(node.(*ast.StructLit))
@@ -436,7 +431,7 @@ func (V *Value) printDiff(out io.Writer, dflags flags.DatamodelPflagpole) error 
 	}
 
 	str := string(bytes)
-	
+
 	fmt.Fprintln(out, str)
 
 	return nil

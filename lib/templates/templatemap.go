@@ -2,7 +2,6 @@ package templates
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -20,7 +19,7 @@ func CreateTemplateMapFromFolder(glob, prefix string, delims Delims, delimMap ma
 	tplMap = NewTemplateMap()
 	err = tplMap.ImportFromFolder(glob, prefix, delims, delimMap)
 	if err != nil {
-		return nil, fmt.Errorf("while importing %s\n%w\n", glob, err)
+		return nil, fmt.Errorf("while importing %q: %w", glob, err)
 	}
 	return tplMap, nil
 }
@@ -39,6 +38,7 @@ func (M TemplateMap) ImportFromFolder(glob, prefix string, delims Delims, delimM
 		// return fmt.Errorf("No templates found for '%s'", glob)
 		return nil
 	}
+	// fmt.Printf("matches %q %q %d\n", glob, prefix, len(matches))
 
 	// delimOverrides
 	overrides := make(map[string]Delims)
@@ -83,7 +83,8 @@ func (M TemplateMap) ImportFromFolder(glob, prefix string, delims Delims, delimM
 }
 
 func (M TemplateMap) importTemplate(filePath, prefix string, delims Delims) error {
-	source, err := ioutil.ReadFile(filePath)
+	// fmt.Println("import:", filePath, prefix)
+	source, err := os.ReadFile(filePath)
 	if err != nil {
 		return err
 	}
@@ -91,13 +92,16 @@ func (M TemplateMap) importTemplate(filePath, prefix string, delims Delims) erro
 
 	T, err := CreateFromString(filePath, content, delims)
 	if err != nil {
-		return fmt.Errorf("While parsing template file: %s\n%w", filePath, err)
+		return fmt.Errorf("while parsing template file: %s\n%w", filePath, err)
 	}
 
 	// clean up filename before inserting into map, so when users reference in their generators, we align
 	filePath = strings.TrimPrefix(filePath, prefix)
-	filePath = strings.TrimPrefix(filePath, "/")  // be resilent to trailing slashes in the last value, or the lack therein
+	filePath = strings.TrimPrefix(filePath, "/") // be resilent to trailing slashes in the last value, or the lack therein
 	filePath = filepath.Clean(filePath)
+
+	T.Name = filePath
+	// fmt.Println("  final:", filePath)
 
 	M[filePath] = T
 	return nil

@@ -15,15 +15,15 @@ var (
 	BuildArch = "Unknown"
 
 	// todo, look this up from deps
-	CueVersion = "0.9.0"
+	CueVersion = "0.13.1"
 
 	// this is a version we can fetch with hof mod
 	// the value gets injected into templates in various places
 	// the default here is set to something useful for dev
 	// the release version is the same as the cli running it
-	HofVersion = "v0.6.9"
+	HofVersion       = "v0.6.10"
+	HofSchemaVersion = "v0.0.2"
 )
-
 
 func init() {
 	info, _ := debug.ReadBuildInfo()

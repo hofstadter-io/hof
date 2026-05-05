@@ -19,7 +19,7 @@ func keepFilter(hn *hof.Node[any], patterns []string) bool {
 			// 1. regexp when /.../
 			// 2. glob if any *
 			// 3. string prefix
-			if strings.HasPrefix(d,"/") && strings.HasSuffix(d,"/") {
+			if strings.HasPrefix(d, "/") && strings.HasSuffix(d, "/") {
 				// regexp
 				match, err := regexp.MatchString(d, hn.Hof.Metadata.Name)
 				if err != nil {
@@ -29,7 +29,7 @@ func keepFilter(hn *hof.Node[any], patterns []string) bool {
 				if match {
 					return true
 				}
-			} else if strings.Contains(d,"*") {
+			} else if strings.Contains(d, "*") {
 				// glob
 				match, err := zglob.Match(d, hn.Hof.Metadata.Name)
 				if err != nil {
@@ -42,7 +42,7 @@ func keepFilter(hn *hof.Node[any], patterns []string) bool {
 			} else {
 				// prefix
 				if strings.HasPrefix(hn.Hof.Metadata.Name, d) {
-					return true	
+					return true
 				}
 			}
 		}
@@ -56,4 +56,3 @@ func keepFilter(hn *hof.Node[any], patterns []string) bool {
 	// default to true, should include everything when no checks are needed
 	return true
 }
-

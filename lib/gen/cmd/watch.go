@@ -11,8 +11,9 @@ import (
 )
 
 // determine watch mode
-//  explicit: -w
-//  implicit:  -W/-X
+//
+//	explicit: -w
+//	implicit:  -W/-X
 func shouldWatch(cmdflags flags.GenFlagpole) bool {
 	return cmdflags.Watch || len(cmdflags.WatchFull) > 0 || len(cmdflags.WatchFast) > 0
 }
@@ -29,8 +30,8 @@ func (R *Runtime) buildWatchLists() (wfiles, xfiles []string, err error) {
 	fastWG := R.GenFlags.WatchFast
 
 	/* Build up watch list
-		We need to buildup the watch list from flags
-		and any generator we might run, which might have watch settings
+	We need to buildup the watch list from flags
+	and any generator we might run, which might have watch settings
 	*/
 
 	if R.Flags.Verbosity > 1 {
@@ -67,10 +68,10 @@ func (R *Runtime) buildWatchLists() (wfiles, xfiles []string, err error) {
 		}
 
 		for _, wfg := range G.WatchFull {
-			fullWG = append(fullWG, filepath.Join(basedir,wfg))
+			fullWG = append(fullWG, filepath.Join(basedir, wfg))
 		}
 		for _, wfg := range G.WatchFast {
-			fastWG = append(fastWG, filepath.Join(basedir,wfg))
+			fastWG = append(fastWG, filepath.Join(basedir, wfg))
 		}
 
 		// when package is set or not...
@@ -83,19 +84,19 @@ func (R *Runtime) buildWatchLists() (wfiles, xfiles []string, err error) {
 			// maybe add a CUE field to disable watch
 			// if someone wants to recursively watch
 			// some generators but not all?
-			for _,T := range G.Templates {	
+			for _, T := range G.Templates {
 				for _, glob := range T.Globs {
-					fastWG = append(fastWG, filepath.Join(basedir,glob))
+					fastWG = append(fastWG, filepath.Join(basedir, glob))
 				}
 			}
-			for _,P := range G.Partials {
+			for _, P := range G.Partials {
 				for _, glob := range P.Globs {
-					fastWG = append(fastWG, filepath.Join(basedir,glob))
+					fastWG = append(fastWG, filepath.Join(basedir, glob))
 				}
 			}
-			for _,S := range G.Statics {
+			for _, S := range G.Statics {
 				for _, glob := range S.Globs {
-					fastWG = append(fastWG, filepath.Join(basedir,glob))
+					fastWG = append(fastWG, filepath.Join(basedir, glob))
 				}
 			}
 			// where's your cover sheet? You got the memo right?
@@ -118,11 +119,11 @@ func (R *Runtime) buildWatchLists() (wfiles, xfiles []string, err error) {
 	fastWG = append(fastWG, R.GenFlags.Partial...)
 
 	// this might be empty, we calc anyway for ease and sharing
-	wfiles, err = yagu.FilesFromGlobs(fullWG)
+	wfiles, err = yagu.FilepathsFromGlobs(fullWG)
 	if err != nil {
 		return nil, nil, err
 	}
-	xfiles, err = yagu.FilesFromGlobs(fastWG)
+	xfiles, err = yagu.FilepathsFromGlobs(fastWG)
 	if err != nil {
 		return nil, nil, err
 	}

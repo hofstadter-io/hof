@@ -1,0 +1,13 @@
+{
+  "registries": {
+    "host.docker.internal:5000": {
+      "http": true
+    }
+  },
+  "gc": {
+    "enabled": true,
+    "reservedSpace": "80GB",
+    "maxUsedSpace": "100GB",
+    "minFreeSpace": "10GB"
+  }
+}

@@ -40,8 +40,12 @@ CLI: schema.Cli & {
 		cmds.ExportCommand,
 		cmds.VetCommand,
 
-		// beta commands
-		cmds.ChatCommand,
+		// beta commands (tied to the development of custom coding agent for vscode)
+		cmds.ExtensionCommand,
+		cmds.AgentCommand,
+		cmds.EnvCommand,
+
+		// alpha commands
 		cmds.RunCommand,
 		cmds.TuiCommand,
 
@@ -67,12 +71,14 @@ Usage:
   hof [flags] [command] [args]
 
 Main commands:
-  \(cmds.ChatCommand.Help)
+  \(cmds.AgentCommand.Help)
   \(cmds.CreateCommand.Help)
   \(cmds.DatamodelCommand.Help)
   \(cmds.DefCommand.Help)
+  \(cmds.EnvCommand.Help)
   \(cmds.EvalCommand.Help)
   \(cmds.ExportCommand.Help)
+  \(cmds.ExtensionCommand.Help)
   \(cmds.FlowCommand.Help)
   \(cmds.FmtCommand.Help)
   \(cmds.GenCommand.Help)

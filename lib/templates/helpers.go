@@ -16,141 +16,23 @@ import (
 	"github.com/naoina/toml"
 	"gopkg.in/yaml.v3"
 
-	"github.com/hofstadter-io/hof/lib/chat"
 	"github.com/hofstadter-io/hof/lib/dotpath"
 )
 
 func (T *Template) AddGolangHelpers() {
-	// traditional helpers
+	// independent helpers
 	T.T = T.T.Funcs(funcMap)
 
-	// chat helpers
+	// *Template based helpers
 
-	chatMap := template.FuncMap{
-		"chat": T.Helper_chat(),
-		"gen": T.Helper_gen(),
-		"render": T.Helper_render(),
-	}
+	// let's disable this since we have agentic now
+	// tmplMap := template.FuncMap{
+	//  // "chat":   T.Helper_chat(),
+	//  // "gen":    T.Helper_gen(),
+	// 	"render": T.Helper_render(),
+	// }
 
-	T.T = T.T.Funcs(chatMap)
-}
-
-func hchat(msg string, args map[string]any) (string, error) {
-	// fmt.Println("HCHAT", args)
-
-	isOpenai := true
-	model := "gpt-3.5-turbo"
-	if m, ok := args["model"]; ok {
-		model = m.(string)
-	}
-	if strings.HasPrefix(model, "chat-") || model == "bard" {
-		isOpenai = false
-	}
-	switch model {
-	case "bard":
-		model = "chat-bison"
-	case "gpt3", "gpt-3":
-		model = "gpt-3.5-turbo"
-	case "gpt4":
-		model = "gpt-4"
-	}
-
-	P, ok := args["params"]
-	if !ok || P == nil {
-		P = make(map[string]any)
-	}
-	params := P.(map[string]any)
-	// fmt.Println("PARAMS:", params)
-
-	msgs := make([]chat.Message,0)
-	exas := make([]chat.Example,0)
-
-	msgs = append(msgs, chat.Message{
-		Role: "user",
-		Content: msg,
-	})
-
-	if isOpenai {
-		resp, err := chat.OpenaiChat(model, msgs, params)
-		if err != nil {
-			return resp, err
-		}
-		return resp, nil
-	} else {
-		resp, err := chat.GoogleChat(model, msgs, exas, params)
-		if err != nil {
-			return resp, err
-		}
-		if b, ok := args["debug"]; ok && b.(bool) {
-			fmt.Println("BARD:", resp)
-		}
-		return resp, nil
-	}
-}
-
-// returns the full response object
-func (T *Template) Helper_chat() func(string, ...map[string]any) any {
-
-	return func(msg string, args ...map[string]any) any {
-		if len(args) == 0 {
-			args = append(args, make(map[string]any))
-		}
-		arrrrgs := args[0]
-		curr := T.Buf.String()
-		input := curr + msg
-		body, err := hchat(input, arrrrgs)
-		if err != nil {
-			return body + "\n" + fmt.Sprint(err)
-		}
-
-		data := map[string]any{}
-		err = json.Unmarshal([]byte(body), &data)
-		if err != nil {
-			return fmt.Sprintf("%s\n%s\n", body, err)
-		}
-
-		return data
-	}
-}
-
-// returns just the message
-func (T *Template) Helper_gen() any {
-
-	return func(msg string, args ...map[string]any) string {
-		if len(args) == 0 {
-			args = append(args, make(map[string]any))
-		}
-		arrrrgs := args[0]
-		curr := T.Buf.String()
-		input := curr + msg
-		body, err := hchat(input, arrrrgs)
-		if err != nil {
-			return body + "\n" + fmt.Sprint(err)
-		}
-
-		isOpenai := true
-		model := "gpt-3.5-turbo"
-		if m, ok := arrrrgs["model"]; ok {
-			model = m.(string)
-		}
-		if strings.HasPrefix(model, "chat-") || model == "bard" {
-			isOpenai = false
-		}
-
-		if isOpenai {
-			resp, err := chat.OpenaiExtractContent(body)
-			if err != nil {
-				return resp + "\n" + fmt.Sprint(err)
-			}
-			return resp
-		} else {
-			resp, err := chat.GoogleExtractContent(body)
-			if err != nil {
-				return resp + "\n" + fmt.Sprint(err)
-			}
-			return resp
-		}
-	}
+	// T.T = T.T.Funcs(tmplMap)
 }
 
 var funcMap = template.FuncMap{
@@ -202,8 +84,8 @@ var funcMap = template.FuncMap{
 	"dict":     Helper_dict,
 	"file":     Helper_file,
 
-	"add":     Helper_add,
-	"inc":     Helper_inc,
+	"add": Helper_add,
+	"inc": Helper_inc,
 
 	"typeof":  Helper_gokind,
 	"gokind":  Helper_gokind,
@@ -231,11 +113,13 @@ func Helper_toml(value interface{}) string {
 }
 
 func Helper_json(value interface{}) string {
-	bytes, err := json.MarshalIndent(value, "", "  ")
-	if err != nil {
-		return err.Error()
-	}
-	return string(bytes)
+	var b bytes.Buffer
+	enc := json.NewEncoder(&b)
+	enc.SetEscapeHTML(false)
+	enc.SetIndent("", "  ")
+	enc.Encode(value)
+
+	return b.String()
 }
 
 // jsonl too?
@@ -278,26 +162,26 @@ func Helper_indent(indent interface{}, value string) string {
 	if len(lines) == 1 {
 		return value
 	}
-	
+
 	// don't indent first line, left to user to place
 	ret += lines[0] + "\n"
 	lines = lines[1:]
 
 	// indent, depending on arg
 	switch i := indent.(type) {
-		case string:
-			for _, line := range lines {
-				ret += i + line + "\n"
-			}
+	case string:
+		for _, line := range lines {
+			ret += i + line + "\n"
+		}
 
-		case int:
-			spaces := strings.Repeat(" ", i)
-			for _, line := range lines {
-				ret += spaces + line + "\n"
-			}
+	case int:
+		spaces := strings.Repeat(" ", i)
+		for _, line := range lines {
+			ret += spaces + line + "\n"
+		}
 
-		default:
-			return "indent only supports a string or integer as argument"
+	default:
+		return "indent only supports a string or integer as argument"
 	}
 
 	return ret
@@ -478,7 +362,7 @@ func Helper_dict(values ...interface{}) (map[string]interface{}, error) {
 		return nil, errors.New("invalid dict call")
 	}
 	dict := make(map[string]interface{}, len(values)/2)
-	for i := 0; i < len(values); i+=2 {
+	for i := 0; i < len(values); i += 2 {
 		key, ok := values[i].(string)
 		if !ok {
 			return nil, errors.New("dict keys must be strings")
@@ -548,7 +432,8 @@ func Helper_builtin(str string) any {
 
 func Helper_lookup(path string, data any) any {
 	if data == nil {
-		return fmt.Sprint("Nil data supplied for " + path)
+		return nil
+		// return fmt.Sprint("Nil data supplied for " + path)
 	}
 
 	// if OpenAPI format, convert to dotpath
@@ -569,9 +454,9 @@ func Helper_lookup(path string, data any) any {
 	return obj
 }
 
-// todo, should we support turning the content back to an objecct?
+// todo, should we support turning the content back to an object?
 // perhaps better to have different functions for this
-func (T *Template) Helper_render() (func (name string, data any) any) {
+func (T *Template) Helper_render() func(name string, data any) any {
 
 	return func(name string, data any) any {
 		t := T.T.Lookup(name)

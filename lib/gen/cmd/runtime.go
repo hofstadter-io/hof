@@ -21,12 +21,11 @@ type Runtime struct {
 	Diff3FlagSet bool // this is so we can set it to true without and explicit "true"
 }
 
-func NewGenRuntime(RT *runtime.Runtime, gflags flags.GenFlagpole) (*Runtime) {
+func NewGenRuntime(RT *runtime.Runtime, gflags flags.GenFlagpole) *Runtime {
 	return &Runtime{
 		Runtime:  RT,
 		GenFlags: gflags,
 	}
-
 }
 
 func prepRuntime(args []string, rflags flags.RootPflagpole, gflags flags.GenFlagpole) (*Runtime, error) {
@@ -41,7 +40,7 @@ func prepRuntime(args []string, rflags flags.RootPflagpole, gflags flags.GenFlag
 
 	// log cue dirs
 	if R.Flags.Verbosity > 1 {
-		fmt.Println("CueDirs:", R.CueModuleRoot, R.WorkingDir, R.CwdToRoot)
+		fmt.Println("CueDirs:", R.CueModuleRoot, R.CueExtractDir, R.WorkingDir, R.CwdToRoot)
 	}
 
 	// First time load (not-fast)
@@ -57,11 +56,10 @@ func prepRuntime(args []string, rflags flags.RootPflagpole, gflags flags.GenFlag
 		return R, fmt.Errorf("no generators found")
 	}
 
-	// run pre-flows here?
+	// run pre-flows here? (security considerations...)
 
 	return R, nil
 }
-
 
 func (R *Runtime) Clear() {
 	R.Datamodels = make([]*datamodel.Datamodel, 0, len(R.Datamodels))
@@ -171,4 +169,3 @@ func (R *Runtime) PrintStats() {
 		fmt.Println(G.Stats)
 	}
 }
-

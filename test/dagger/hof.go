@@ -15,7 +15,7 @@ type Runtime struct {
 
 var goVer = "golang:1.23"
 
-func (R *Runtime) GolangImage(platform string) (*dagger.Container) {
+func (R *Runtime) GolangImage(platform string) *dagger.Container {
 	c := R.Client.
 		Container(dagger.ContainerOpts{Platform: dagger.Platform(platform)}).
 		From(goVer)
@@ -34,16 +34,16 @@ func (R *Runtime) GolangImage(platform string) (*dagger.Container) {
 	return c
 }
 
-func (R *Runtime) RuntimeContainer(builder *dagger.Container, platform string) (*dagger.Container) {
+func (R *Runtime) RuntimeContainer(builder *dagger.Container, platform string) *dagger.Container {
 	hof := builder.File("hof")
 
 	c := R.GolangImage(platform)
 	c = c.WithFile("/usr/local/bin/hof", hof)
-	
+
 	return c
 }
 
-func (R *Runtime) FetchDeps(c *dagger.Container, source *dagger.Directory) (*dagger.Container) {
+func (R *Runtime) FetchDeps(c *dagger.Container, source *dagger.Directory) *dagger.Container {
 
 	// get deps
 	c = c.WithDirectory("/work", source, dagger.ContainerWithDirectoryOpts{
@@ -55,7 +55,7 @@ func (R *Runtime) FetchDeps(c *dagger.Container, source *dagger.Directory) (*dag
 	return c
 }
 
-func (R *Runtime) BuildHof(c *dagger.Container, source *dagger.Directory) (*dagger.Container) {
+func (R *Runtime) BuildHof(c *dagger.Container, source *dagger.Directory) *dagger.Container {
 
 	// exclude files we don't need so we can avoid cache misses?
 	c = c.WithDirectory("/work", source, dagger.ContainerWithDirectoryOpts{
@@ -66,11 +66,11 @@ func (R *Runtime) BuildHof(c *dagger.Container, source *dagger.Directory) (*dagg
 			"hack",
 			"images",
 			"notes",
-			"test", 
+			"test",
 		},
 	})
 
-	c = c.WithEnvVariable("CGO_ENABLED", "0")
+	// c = c.WithEnvVariable("CGO_ENABLED", "0")
 
 	c = c.WithExec([]string{"go", "build", "./cmd/hof"})
 	return c

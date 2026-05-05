@@ -1,0 +1,25 @@
+{
+	"folders": [
+    {
+      "name": "hof",
+      "path": "."
+    },
+    {
+      "name": "schemas",
+      "path": "schemas"
+    },
+    {
+      "name": "catalogs",
+      "path": "catalogs"
+    },
+    {
+      "name": "examples",
+      "path": "examples"
+    },
+    {
+      "name": "env",
+      "path": "lib/env"
+    }
+  ],
+	"settings": {}
+}

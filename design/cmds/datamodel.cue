@@ -13,7 +13,7 @@ DatamodelCommand: schema.Command & {
 
 	OmitRun: true
 
-	Pflags: [...schema.Flag] & [ {
+	Pflags: [...schema.Flag] & [{
 		Name:    "Datamodels"
 		Long:    "model"
 		Short:   "M"
@@ -28,6 +28,7 @@ DatamodelCommand: schema.Command & {
 		Type:    "[]string"
 		Default: "nil"
 		Help:    "CUE paths to select outputs, depending on the command"
+	},
 		//}, {
 		//Name:    "Output"
 		//Long:    "output"
@@ -56,7 +57,7 @@ DatamodelCommand: schema.Command & {
 		//Type:    "string"
 		//Default: ""
 		//Help:    "Timestamp to filter to filter with"
-	}]
+	]
 
 	Commands: [{
 		Name:  "checkpoint"
@@ -71,7 +72,7 @@ DatamodelCommand: schema.Command & {
 			//Type:    "string"
 			//Default: "\"patch\""
 			//Help:    "type of version bump in [major,minor,patch,<semver>]"
-		// }, {
+			// }, {
 			Name:    "suffix"
 			Long:    "suffix"
 			Short:   "s"
@@ -147,8 +148,8 @@ DatamodelRootHelp: """
 	package datamodel
 
 	import (
-		"github.com/hofstadter-io/hof/schema/dm"
-		"github.com/hofstadter-io/hof/schema/dm/fields"
+		"github.com/hofstadter-io/schemas/dm"
+		"github.com/hofstadter-io/schemas/dm/fields"
 	)
 
 	// Track an entire oject
@@ -167,8 +168,8 @@ DatamodelRootHelp: """
 	package datamodel
 
 	import (
-		"github.com/hofstadter-io/hof/schema/dm/sql"
-		"github.com/hofstadter-io/hof/schema/dm/fields"
+		"github.com/hofstadter-io/schemas/dm/sql"
+		"github.com/hofstadter-io/schemas/dm/fields"
 	)
 
 	// Traditional database model which maps onto tables & columns

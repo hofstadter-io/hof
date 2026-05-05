@@ -13,7 +13,7 @@ watchBuild: {
 
 	watch: {
 		@task(os.Watch)
-		globs: [ for d in dirs {"\(root)/\(d)/**/*.go"}]
+		globs: [for d in dirs {"\(root)/\(d)/**/*.go"}]
 		handler: {
 			event?: _
 			compile: {
@@ -39,13 +39,13 @@ watchBuild: {
 }
 
 _flow: {
-  diff: GitDiff & {
+	diff: GitDiff & {
 		if _print {
 			@print()
 		}
 		ref: "_dev"
 	}
-  _shouldi: ShouldI & { files: diff.files }
+	_shouldi: ShouldI & {files: diff.files}
 }
 
 _cond: {
@@ -73,61 +73,61 @@ build: F= _flow & {
 
 	gha: {
 		_cond
-    shouldi: F._shouldi & { globs: ["ci/gha"] }
+		shouldi: F._shouldi & {globs: ["ci/gha"]}
 		run: "make workflow"
 	}
 
 	gen: {
 		_cond
-    shouldi: F._shouldi & { globs: ["design/"] }
+		shouldi: F._shouldi & {globs: ["design/"]}
 		run: "hof gen hof.cue"
 	}
 
 	cli: {
 		_cond
-		#after: { $gen: F.gen }
-    shouldi: F._shouldi & { globs: ["go.*", "cmd/", "flow", "lib/", "schema/", "script/"] }
+		#after: {$gen: F.gen}
+		shouldi: F._shouldi & {globs: ["go.*", "cmd/", "flow", "lib/", "schema/", "script/"]}
 		run: "go install ./cmd/hof"
 	}
 
-  docs: {
+	docs: {
 		[string]: {
 			dir: "docs"
-			#after: { $cli: F.cli }
+			#after: {$cli: F.cli}
 			_cond
 		}
 
 		schemas: {
-			shouldi: F._shouldi & { globs: ["schema/"] }
+			shouldi: F._shouldi & {globs: ["schema/"]}
 			run: "make schemas"
 		}
 
 		gen: {
-			shouldi: F._shouldi & { globs: ["docs/", "schema/", "flow/tasks/*/*.cue"] }
+			shouldi: F._shouldi & {globs: ["docs/", "schema/", "flow/tasks/*/*.cue"]}
 			run: "make gen"
 		}
 
 		cmdhelp: {
-			shouldi: F._shouldi & { globs: ["cmd/"] }
+			shouldi: F._shouldi & {globs: ["cmd/"]}
 			run: "make cmdhelp"
 		}
 
 		highlight: {
-			shouldi: F._shouldi & { globs: ["docs/code/"] }
+			shouldi: F._shouldi & {globs: ["docs/code/"]}
 			run: "make highlight"
-			#after: { $gen: gen, $schemas: schemas }
+			#after: {$gen: gen, $schemas: schemas}
 		}
-  }
+	}
 }
 
 images: F=_flow & {
 	@flow(images)
 	_reg: "ghcr.io/hofstadter-io"
-	for _,tool in ["black", "csharpier", "prettier"] {
+	for _, tool in ["black", "csharpier", "prettier"] {
 		(tool): {
 			_cond
 			dir: "formatters/tools/\(tool)"
-			shouldi: F._shouldi & { globs: [dir] }
+			shouldi: F._shouldi & {globs: [dir]}
 			run: "docker build -t \(_reg)/\(tool):dirty -f Dockerfile.debian ."
 		}
 	}

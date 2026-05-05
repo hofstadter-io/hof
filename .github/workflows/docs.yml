@@ -41,14 +41,14 @@ jobs:
         run: go install ./cmd/hof
       - name: Setup
         run: |-
-          hof fmt start prettier@v0.6.10-rc.2
+          hof fmt start prettier@v0.6.10
           cd docs
-          hof mod link
+          hof mod tidy
           make tools
           make deps
       - name: Test
         run: |-
-          hof fmt start prettier@v0.6.10-rc.2
+          hof fmt start prettier@v0.6.10
           cd docs
           make gen
           make test

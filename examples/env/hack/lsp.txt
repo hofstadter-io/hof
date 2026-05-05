@@ -1,0 +1,28 @@
+PAYLOAD='{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"capabilities":{}}}'
+CONTENT_LENGTH=$(echo -n "$PAYLOAD" | wc -c)
+
+printf "Content-Length: $CONTENT_LENGTH\r\n\r\n$PAYLOAD" | nc cuepls 4001
+
+PAYLOAD='{"jsonrpc":"2.0","id":1,"method":"textDocument/documentSymbol","params":{"textDocument":{"uri":"file:///work/veg.cue"}}}'
+CONTENT_LENGTH=$(echo -n "$PAYLOAD" | wc -c)
+
+printf "Content-Length: $CONTENT_LENGTH\r\n\r\n$PAYLOAD" | nc cuepls 4001
+
+PAYLOAD='{"jsonrpc":"2.0","id":1,"method":"textDocument/references","params":{"textDocument":{"uri":"file:///work/veg.cue"}}}'
+CONTENT_LENGTH=$(echo -n "$PAYLOAD" | wc -c)
+
+printf "Content-Length: $CONTENT_LENGTH\r\n\r\n$PAYLOAD" | nc cuepls 4001
+
+
+PAYLOAD='{"jsonrpc":"2.0","id":1,"method":"textDocument/definition","params":{"textDocument":{"uri":"file:///work/veg.cue","position":{"line":12,"character":0}}}}'
+CONTENT_LENGTH=$(echo -n "$PAYLOAD" | wc -c)
+
+printf "Content-Length: $CONTENT_LENGTH\r\n\r\n$PAYLOAD" | nc cuepls 4001
+
+
+
+
+PAYLOAD='{"jsonrpc":"2.0","id":1,"method":"workspace/workspaceFolders","params":{"uri":"file:///work/veg.cue","name":"devex"}}'
+CONTENT_LENGTH=$(echo -n "$PAYLOAD" | wc -c)
+
+printf "Content-Length: $CONTENT_LENGTH\r\n\r\n$PAYLOAD" | nc cuepls 4001

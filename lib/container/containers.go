@@ -5,6 +5,8 @@ import (
 	"time"
 )
 
+// these should all take a context object
+
 func GetImages(ref string) ([]Image, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
@@ -19,15 +21,11 @@ func GetContainers(name string) ([]Container, error) {
 	return rt.Containers(ctx, Name(name))
 }
 
-func StartContainer(ref, name string, env []string, replace bool) error {
-	if replace {
-		StopContainer(name)
-	}
+func StartContainer(ref string, params *Params) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
 
-	return rt.Run(context.Background(), Ref(ref), Params{
-		Name: Name(name),
-		Env:  env,
-	})
+	return rt.Run(ctx, Ref(ref), params)
 }
 
 func StopContainer(name string) error {
@@ -38,5 +36,12 @@ func StopContainer(name string) error {
 }
 
 func PullImage(ref string) error {
-	return rt.Pull(context.Background(), Ref(ref))
+	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Second)
+	defer cancel()
+
+	return rt.Pull(ctx, Ref(ref))
+}
+
+func LoadTarball(ctx context.Context, content []byte) error {
+	return rt.Load(ctx, "", []byte(content))
 }

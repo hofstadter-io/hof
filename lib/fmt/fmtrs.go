@@ -233,38 +233,38 @@ var fmtrDefaultConfigs = map[string]interface{}{
 		"parser": "glimmer",
 	},
 	"prettier/go-template": map[string]interface{}{
-		"parser": "go-template",
+		"parser":  "go-template",
 		"plugins": []string{"prettier-plugin-go-template"},
 	},
 
 	// pretty extra
 	"prettier/java": map[string]interface{}{
-		"parser": "java",
+		"parser":  "java",
 		"plugins": []string{"prettier-plugin-java"},
 	},
 	"prettier/groovy": map[string]interface{}{
-		"parser": "groovy",
+		"parser":  "groovy",
 		"plugins": []string{"prettier-plugin-groovy"},
 	},
 	"prettier/ruby": map[string]interface{}{
-		"parser": "ruby",
+		"parser":  "ruby",
 		"plugins": []string{"@prettier/plugin-ruby"},
 	},
 	"prettier/rust": map[string]interface{}{
-		"parser": "jinx-rust",
+		"parser":  "jinx-rust",
 		"plugins": []string{"prettier-plugin-rust"},
 	},
 	"prettier/php": map[string]interface{}{
-		"parser": "php",
+		"parser":  "php",
 		"plugins": []string{"@prettier/plugin-php"},
 	},
 	"prettier/sql": map[string]interface{}{
-		"parser": "sql",
+		"parser":  "sql",
 		"plugins": []string{"prettier-plugin-sql"},
 	},
 }
 
-type NoFormatterError struct{
+type NoFormatterError struct {
 	filename string
 	reason   string
 }
@@ -300,11 +300,11 @@ func FormatSource(filename string, content []byte, fmtrName string, config inter
 
 	case ".cue":
 		return formatCue(content)
-		if formatData {
-			return formatCue(content)
-		} else {
-			return content, nil
-		}
+		// if formatData {
+		// 	return formatCue(content)
+		// } else {
+		// 	return content, nil
+		// }
 
 	case ".json":
 		if formatData {

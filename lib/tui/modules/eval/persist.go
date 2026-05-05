@@ -37,14 +37,14 @@ func evalFilepath(filename string) string {
 		// "global" (to user)
 		filename = filename[1:]
 		configDir, _ := os.UserConfigDir()
-		return filepath.Join(configDir,"hof",evalSaveDirSubdir, filename)
+		return filepath.Join(configDir, "hof", evalSaveDirSubdir, filename)
 	} else if dir, _ := cuetils.FindModuleAbsPath(filepath.Dir(filename)); dir != "" {
 		// local to project
 		return filepath.Join(dir, ".hof", evalSaveDirSubdir, filename)
 	} else {
 		// if none, assume global?
 		configDir, _ := os.UserConfigDir()
-		return filepath.Join(configDir,"hof",evalSaveDirSubdir, filename)
+		return filepath.Join(configDir, "hof", evalSaveDirSubdir, filename)
 	}
 }
 
@@ -65,7 +65,6 @@ func (M *Eval) Save(destination string, preview bool) error {
 	//if err != nil {
 	//  return err
 	//}
-
 
 	if preview {
 
@@ -91,7 +90,7 @@ func (M *Eval) Save(destination string, preview bool) error {
 		b, err := format.Node(syn)
 		if err != nil {
 			return err
-		}	
+		}
 
 		if strings.HasPrefix(destination, "http") {
 			// simple push (should return an id to retieve using id=??? using GET at the same host/path
@@ -105,7 +104,7 @@ func (M *Eval) Save(destination string, preview bool) error {
 			req.Send(string(b))
 			resp, body, errs := req.End()
 
-			if len(errs) != 0{
+			if len(errs) != 0 {
 				fmt.Println("errs:", errs)
 				fmt.Println("resp:", resp)
 				fmt.Println("body:", body)
@@ -130,7 +129,6 @@ func (M *Eval) Save(destination string, preview bool) error {
 
 			// save location
 			savename := evalFilepath(destination)
-
 
 			// ensure the dir exists
 			dir := filepath.Dir(savename)
@@ -162,7 +160,7 @@ func (M *Eval) LoadEval(source string) (*Eval, error) {
 	tui.Log("debug", fmt.Sprintf("Eval.LoadEval.0: %v", source))
 
 	var (
-		b []byte
+		b   []byte
 		err error
 	)
 
@@ -211,7 +209,6 @@ func (M *Eval) LoadEval(source string) (*Eval, error) {
 
 	// M.Mount(make(map[string]any))
 
-
 	// extra to display the save info
 	//t := NewTextView()
 	//t.SetDynamicColors(false)
@@ -242,11 +239,11 @@ func (M *Eval) ShowEval(filename string) (*Eval, error) {
 	return nil, nil
 }
 
-func (M *Eval) ListEval() (error) {
+func (M *Eval) ListEval() error {
 
-	var addNode func (path []string, dir bool, data map[string]any) map[string]any
+	var addNode func(path []string, dir bool, data map[string]any) map[string]any
 
-	addNode = func (path []string, dir bool, data map[string]any) map[string]any{
+	addNode = func(path []string, dir bool, data map[string]any) map[string]any {
 
 		p := path[0]
 		path = path[1:]
@@ -270,7 +267,7 @@ func (M *Eval) ListEval() (error) {
 		return data
 	}
 
-	makeTree := func (dir string, files []string) map[string]any {
+	makeTree := func(dir string, files []string) map[string]any {
 		data := make(map[string]any)
 		sort.Strings(files)
 		for _, file := range files {
@@ -288,12 +285,12 @@ func (M *Eval) ListEval() (error) {
 
 	// module dashboards
 	mdir := evalFilepath("") + "/"
-	mfiles, _ := yagu.FilesFromGlobs([]string{mdir + "**/*"})
+	mfiles, _ := yagu.FilepathsFromGlobs([]string{mdir + "**/*"})
 	mdata := makeTree(mdir, mfiles)
 
 	// global dashboards
 	gdir := evalFilepath("@") + "/"
-	gfiles, _ := yagu.FilesFromGlobs([]string{gdir + "**/*"})
+	gfiles, _ := yagu.FilepathsFromGlobs([]string{gdir + "**/*"})
 	gdata := makeTree(gdir, gfiles)
 
 	// build our final map for the map browser
@@ -310,7 +307,7 @@ func (M *Eval) ListEval() (error) {
 	t := common.NewMapBrowser("Dashboards", dash, nil, nil)
 
 	t.LeafClick = func(path string) {
-		tui.Log("trace", "load: " + path)
+		tui.Log("trace", "load: "+path)
 		path = strings.TrimPrefix(path, "Dashboards.")
 		if strings.HasPrefix(path, "Global.") {
 			path = "@" + strings.TrimPrefix(path, "Global.")
@@ -340,7 +337,7 @@ func (M *Eval) EncodeMap() (map[string]any, error) {
 	m["direction"] = M.GetDirection()
 	m["showPanel"] = M.showPanel
 	m["showOther"] = M.showOther
-	
+
 	// panel
 	m["panel"], err = M.Panel.Encode()
 	if err != nil {
@@ -365,8 +362,6 @@ func EvalDecodeMap(input map[string]any) (*Eval, error) {
 		M.Panel = panel.New(nil, M.creator)
 	}
 
-
-
 	// decode the main panel, everything else should happen through recursion and widget registry
 	M.Panel, err = panel.PanelDecodeMap(pmap.(map[string]any), nil, M.creator)
 	if err != nil {
@@ -389,7 +384,7 @@ func EvalDecodeMap(input map[string]any) (*Eval, error) {
 
 func (M *Eval) restoreItems() error {
 
-	reconnect := func (p panel.PanelItem) {
+	reconnect := func(p panel.PanelItem) {
 
 		// restore watches
 		switch t := p.Widget().(type) {
@@ -437,7 +432,7 @@ func (M *Eval) restoreItems() error {
 
 				}
 			}
-		
+
 			t.HandleAction("rebuild.scope", nil, nil)
 		}
 	}

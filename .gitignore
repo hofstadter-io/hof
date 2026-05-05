@@ -67,3 +67,10 @@ tags
 # End of https://www.toptal.com/developers/gitignore/api/vim
 /tmp/
 /build/
+/.veg/data
+node_modules
+/bins/
+/dist/
+.DS_Store
+
+/catalogs/gen/
